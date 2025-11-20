@@ -190,7 +190,7 @@ class NamespaceTest : AbstractXetoTest
       ["id":Ref("ph::op:pointWrite"), "spec":Ref("ph::Op"), "op":m])
 
     // siteRef
-    verifySame(ns.spec("ph::siteRef").of, site)
+    verifySame(ns.spec("ph::PhEntity.siteRef").of, site)
     verifySame(ns.spec("ph::Equip.siteRef").of, site)
 
     // hot water
@@ -213,12 +213,14 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.unqualifiedMeta("badOne", true) }
 
     // global
+    /*
     verifySame(ns.unqualifiedGlobal("site"), ns.spec("ph::site"))
     verifyEq(ns.unqualifiedGlobals("site"), Spec[ns.spec("ph::site")])
     verifySame(ns.unqualifiedGlobal("badOne", false), null)
     verifyEq(ns.unqualifiedGlobals("badOne"), Spec[,])
     verifyErr(UnknownSpecErr#) { ns.unqualifiedGlobal("badOne") }
     verifyErr(UnknownSpecErr#) { ns.unqualifiedGlobal("badOne", true) }
+    */
 
     // files
     verifyEq(ph.files.isSupported, !ns.env.isRemote)
@@ -295,7 +297,8 @@ class NamespaceTest : AbstractXetoTest
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
 
     // global spec
-    verifyGlobal(ns, lib, "globalTag", ns.spec("sys::Str"))
+    // TODO
+    //verifyGlobal(ns, lib, "globalTag", ns.spec("sys::Str"))
 
     // meta spec
     verifyMeta(ns, lib, "testMetaTag", ns.spec("sys::Str"))
@@ -740,6 +743,7 @@ class NamespaceTest : AbstractXetoTest
     return type
   }
 
+  /* TODO
   Spec verifyGlobal(Namespace ns, Lib lib, Str name, Spec type)
   {
     spec := lib.global(name)
@@ -751,6 +755,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(spec.base, type)
     return spec
   }
+  */
 
   Spec verifyMeta(Namespace ns, Lib lib, Str name, Spec type)
   {

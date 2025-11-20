@@ -252,7 +252,7 @@ internal class Fitter
 
   private Bool checkSlotAgainstGlobals(Spec spec, Str name, Obj val)
   {
-    global := ns.unqualifiedGlobal(name, false)
+    global := spec.globals.get(name, false)
     if (global == null) return true
     return valFits(val, global)
   }

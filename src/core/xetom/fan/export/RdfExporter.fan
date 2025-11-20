@@ -58,7 +58,7 @@ class RdfExporter : Exporter
     }
 
     types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
-    lib.globals.each |x| { global(x) }
+    lib.mixins.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
     lib.instances.each |x| { instance(x) }
     return this
   }
@@ -346,6 +346,7 @@ class RdfExporter : Exporter
 
     spec := ns.specOf(instance)
     dis := instance.dis.trim
+    members := spec.members
 
     markers := Str:Spec[:]
     refs    := Str:Spec[:]
@@ -356,7 +357,7 @@ class RdfExporter : Exporter
       if (n == "id") return
       if (n == "dis" || n == "disMacro") return
 
-      slot := spec.slot(n, false) ?: ns.unqualifiedGlobal(n, false)
+      slot := members.get(n, false)
       if (slot == null) return
       if (slot.isChoice) return // handled below
 

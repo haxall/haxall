@@ -58,7 +58,9 @@ internal class Assemble : Step
         m = MTopFunc(init)
       case SpecFlavor.global:
         //m = MGlobal  (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
-        m = MGlobal(init)
+        //m = MGlobal(init)
+        err("Old style globals not supported: $x.name", x.loc)
+        return
       case SpecFlavor.mixIn:
         //m = MMixin   (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
         m = MMixin(init)

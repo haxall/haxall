@@ -153,6 +153,8 @@ class GlobalTest : AbstractXetoTest
 
   Void testBasicsOld()
   {
+echo("########## TODO")
+   /*
     ns := createNamespace(["sys"])
 
     lib := ns.compileTempLib(
@@ -233,6 +235,7 @@ class GlobalTest : AbstractXetoTest
      verifySame(slotf.flavor, SpecFlavor.slot)
      verifyEq(slotf.isFunc, true)
      verifyEq(slotf.func.returns.type.name, "Str")
+     */
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -241,6 +244,8 @@ class GlobalTest : AbstractXetoTest
 
   Void testInheritance()
   {
+echo("########## TODO")
+   /*
     ns := createNamespace(["sys"])
 
     lib := ns.compileTempLib(
@@ -306,6 +311,7 @@ class GlobalTest : AbstractXetoTest
      ruxC := verifySlotOld(rux, "c", quxC, marker, ["foo":m, "bar":m, "rux":m])
      verifySame(ruxA, bazA)
      verifySame(ruxB, quxB)
+     */
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -314,6 +320,8 @@ class GlobalTest : AbstractXetoTest
 
   Void testPh()
   {
+echo("########## TODO")
+   /*
     ns := createNamespace(["sys", "ph"])
 
     lib := ns.compileTempLib(
@@ -341,7 +349,7 @@ class GlobalTest : AbstractXetoTest
     verifySlotOld(foo, "zone",  zone,  marker)
     verifySlotOld(foo, "space", space, marker)
     verifySlotOld(foo, "area",  area,  number)
-
+*/
   }
 
 //////////////////////////////////////////////////////////////////////////

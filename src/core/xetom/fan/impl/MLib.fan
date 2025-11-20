@@ -93,19 +93,6 @@ const final class MLib
     return null
   }
 
-  once Spec[] globals()
-  {
-    specs.findAll |x| { x.isGlobal }.toImmutable
-  }
-
-  Spec? global(Str name, Bool checked := true)
-  {
-    top := spec(name, checked)
-    if (top != null && top.isGlobal) return top
-    if (checked) throw UnknownSpecErr(this.name + "::" + name)
-    return null
-  }
-
   once Spec[] funcs()
   {
     specs.findAll |x| { x.isFunc }.toImmutable
@@ -272,10 +259,6 @@ const final class XetoLib : Lib, Dict
   override Spec[] mixins() { m.mixins }
 
   override Spec? mixinFor(Spec type, Bool checked := true) { m.mixinFor(type, checked) }
-
-  override Spec[] globals() { m.globals }
-
-  override Spec? global(Str name, Bool checked := true) { m.global(name, checked) }
 
   override Spec[] funcs() { m.funcs }
 

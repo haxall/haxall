@@ -303,7 +303,7 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { flavor.isType }
-  override final Bool isMixin()      { flavor.isMixIn }
+  override final Bool isMixin()      { flavor.isMixin }
   override final Bool isMeta()       { flavor.isMeta }
   override final Bool isSlot()       { flavor.isSlot && !isGlobal } // TODO
 

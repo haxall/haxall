@@ -49,7 +49,7 @@ const final class MSpecMap : SpecMap
     kid := map.get(name)
     if (kid != null) return kid
     if (!checked) return null
-    throw UnknownNameErr(name)
+    throw UnknownSpecErr(name)
   }
 
   override Str[] names()

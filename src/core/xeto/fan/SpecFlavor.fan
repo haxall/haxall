@@ -12,7 +12,7 @@
 @NoDoc @Js
 enum class SpecFlavor
 {
-  ** Top level type
+  ** Top level type spec
   type,
 
   ** Type mixin
@@ -34,7 +34,7 @@ enum class SpecFlavor
   Bool isType() { this === type }
 
   ** Is this the mixin flavor
-  Bool isMixIn() { this === mixIn }
+  Bool isMixin() { this === mixIn }
 
   ** Is this the top-level global slot flavor
   Bool isGlobal() { this === global }

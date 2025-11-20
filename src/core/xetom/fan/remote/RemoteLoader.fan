@@ -166,15 +166,10 @@ internal class RemoteLoader
       //m = MType(loc, lib, qname(x), x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.binding)
       m = MType(init)
     }
-    else if (x.flavor.isMixIn)
+    else if (x.flavor.isMixin)
     {
       //m = MMixin(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
       m = MMixin(init)
-    }
-    else if (x.flavor.isGlobal)
-    {
-      //m = MGlobal(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
-      m = MGlobal(init)
     }
     else if (x.flavor.isFunc)
     {

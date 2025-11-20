@@ -54,12 +54,6 @@ const mixin Lib : Dict
   ** Lookup the mixin for the given type in this library
   abstract Spec? mixinFor(Spec type, Bool checked := true)
 
-  ** List the top level global slots
-  abstract Spec[] globals()
-
-  ** Lookup a top level global slot spec in this library by simple name
-  abstract Spec? global(Str name, Bool checked := true)
-
   ** List the top level funcs
   abstract Spec[] funcs()
 
