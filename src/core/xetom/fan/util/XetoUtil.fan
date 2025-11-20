@@ -449,6 +449,34 @@ const class XetoUtil
     return MSpecMap(acc)
   }
 
+// TODO: this are just inefficient stubs until we figure optimized data structures
+
+  static SpecMap membersOwn(Spec base)
+  {
+    acc := Str:Spec[:]
+    acc.ordered = true
+    base.globalsOwn.each |v, n| { acc[n] = v }
+    base.slotsOwn.each |v, n| { acc[n] = v }
+    return MSpecMap(acc)
+  }
+
+  static SpecMap members(Spec base)
+  {
+    acc := Str:Spec[:]
+    acc.ordered = true
+    base.globals.each |v, n| { acc[n] = v }
+    base.slots.each |v, n| { acc[n] = v }
+    return MSpecMap(acc)
+  }
+
+  static Spec? member(Spec base, Str name, Bool checked := true)
+  {
+    x := members(base).get(name)
+    if (x != null) return x
+    if (checked) throw UnknownSpecErr("Member not found: ${base.qname}.${name}")
+    return null
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Is-A
 //////////////////////////////////////////////////////////////////////////

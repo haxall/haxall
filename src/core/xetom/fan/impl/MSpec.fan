@@ -237,9 +237,15 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Spec? base() { m.base }
 
+  override final Dict metaOwn() { m.metaOwn }
+
   override final Dict meta() { m.meta }
 
-  override final Dict metaOwn() { m.metaOwn }
+  override final SpecMap membersOwn() { XetoUtil.membersOwn(this) }
+
+  override final SpecMap members() { XetoUtil.members(this) }
+
+  override final Spec? member(Str n, Bool c := true) { XetoUtil.member(this, n, c) }
 
   override final Bool hasSlots() { m.hasSlots }
 
@@ -299,7 +305,7 @@ const class XetoSpec : Spec, Dict, CSpec
   override final Bool isType()       { flavor.isType }
   override final Bool isMixin()      { flavor.isMixIn }
   override final Bool isMeta()       { flavor.isMeta }
-  override final Bool isSlot()       { flavor.isSlot }
+  override final Bool isSlot()       { flavor.isSlot && !isGlobal } // TODO
 
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
   override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }

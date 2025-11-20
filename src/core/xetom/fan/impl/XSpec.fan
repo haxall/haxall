@@ -49,6 +49,12 @@ const final class XSpec : Spec, CSpec
 
   override Dict metaOwn() { m.metaOwn }
 
+  override final SpecMap membersOwn() { m.membersOwn }
+
+  override final SpecMap members() { m.members }
+
+  override final Spec? member(Str n, Bool c := true) { m.member(n, c) }
+
   override Bool hasSlots() { m.hasSlots }
 
   override SpecMap slotsOwn() { m.slotsOwn }

@@ -42,21 +42,41 @@ class GlobalTest : AbstractXetoTest
 
     f := verifyGlobal(tb, "globF", str)
     g := verifyGlobal(tb, "globG", str)
-    ao := verifyNotGlobal(tb, "globA", a)
+    ao := verifySlot(tb, "globA", a)
 
     h := verifyGlobal(tc, "globH", str)
     i := verifyGlobal(tc, "globI", str)
-    bo := verifyNotGlobal(tc, "globB", b)
+    bo := verifySlot(tc, "globB", b)
 
     j := verifyGlobal(td, "globJ", str)
-    co := verifyNotGlobal(td, "globC", c)
-    io := verifyNotGlobal(td, "globI", i)
-    bo2 := verifyNotGlobal(td, "globB", b)
+    co := verifySlot(td, "globC", c)
+    io := verifySlot(td, "globI", i)
+    bo2 := verifySlot(td, "globB", b)
 
-    verifyGlobals(ta, [a, b, c, d, e])
-    verifyGlobals(tb, [f, g, b, c, d, e])
-    verifyGlobals(tc, [h, i, a, c, d, e])
-    verifyGlobals(td, [j, f, g, d, e, h])
+    // maps own
+
+    verifySlotMap(ta.slotsOwn,   [,])
+    verifySlotMap(ta.globalsOwn, [a, b, c, d, e])
+    verifySlotMap(ta.membersOwn, [a, b, c, d, e])
+
+    verifySlotMap(tb.slotsOwn,   [ao])
+    verifySlotMap(tb.globalsOwn, [f, g])
+    verifySlotMap(tb.membersOwn, [f, g, ao])
+
+    verifySlotMap(tc.slotsOwn,   [bo])
+    verifySlotMap(tc.globalsOwn, [h, i])
+    verifySlotMap(tc.membersOwn, [h, i, bo])
+
+    verifySlotMap(td.slotsOwn,   [co, io])
+    verifySlotMap(td.globalsOwn, [j])
+    verifySlotMap(td.membersOwn, [j, co, io])
+
+    // maps inherited
+
+    verifyMembers(ta, [,], [a, b, c, d, e])
+    verifyMembers(tb, [ao], [f, g, b, c, d, e])
+    verifyMembers(tc, [bo], [h, i, a, c, d, e])
+    verifyMembers(td, [ao, bo, co, io], [j, f, g, d, e, h])
   }
 
   Spec verifyGlobal(Spec parent, Str name, Spec type)
@@ -73,8 +93,7 @@ class GlobalTest : AbstractXetoTest
 
     // global meta
     verifyEq(x.meta["global"], Marker.val)
-// TODO?
-//    verifyEq(x.isSlot, false)
+    verifyEq(x.isSlot, false)
     verifyEq(x.isGlobal, true)
 
     // verify not in slots
@@ -84,7 +103,7 @@ class GlobalTest : AbstractXetoTest
     return x
   }
 
-  Spec verifyNotGlobal(Spec parent, Str name, Spec base)
+  Spec verifySlot(Spec parent, Str name, Spec base)
   {
     x := parent.slots.get(name)
 
@@ -95,17 +114,36 @@ class GlobalTest : AbstractXetoTest
     return x
   }
 
-  Void verifyGlobals(Spec parent, Spec[] expect)
+  Void verifyMembers(Spec parent, Spec[] slots, Spec[] globals)
+  {
+    // echo(">> $parent")
+    all := globals.dup.addAll(slots)
+    verifySlotMap(parent.members, all)
+    verifySlotMap(parent.slots, slots)
+    verifySlotMap(parent.globals, globals)
+
+    slots.each |x|
+    {
+      verifySame(parent.member(x.name), x)
+      verifySame(parent.slot(x.name), x)
+      verifySame(parent.globals.get(x.name, false), null)
+    }
+
+    globals.each |x|
+    {
+      verifySame(parent.member(x.name), x)
+      verifySame(parent.slot(x.name, false), null)
+      verifySame(parent.globals.get(x.name), x)
+    }
+  }
+
+  Void verifySlotMap(SpecMap map, Spec[] expect)
   {
     actual := Spec[,]
-    globs := parent.globals
-    verifyNotSame(parent.globals, globs)
-    globs.each |x| { actual.add(x) }
+    map.each |x| { actual.add(x) }
     actualStr := actual.join(",") { it.name }
     expectStr := expect.join(",") { it.name }
-    // echo(">> $parent")
-    // echo("   a: $actualStr")
-    // echo("   e: $expectStr")
+    // echo("   a: $actualStr"); echo("   e: $expectStr")
     verifyEq(actualStr, expectStr)
   }
 
@@ -251,21 +289,21 @@ class GlobalTest : AbstractXetoTest
      //dumpBases(rux)
 
      // Baz
-     bazA := verifySlot(baz, "a", a, str,    ["foo":m, "val":"alpha"])
-     bazB := verifySlot(baz, "b", b, date,   ["bar":m, "val":Date("2023-12-03")])
-     bazC := verifySlot(baz, "c", c, marker, ["foo":m, "bar":m])
+     bazA := verifySlotOld(baz, "a", a, str,    ["foo":m, "val":"alpha"])
+     bazB := verifySlotOld(baz, "b", b, date,   ["bar":m, "val":Date("2023-12-03")])
+     bazC := verifySlotOld(baz, "c", c, marker, ["foo":m, "bar":m])
 
      // Qux
-     quxA := verifySlot(qux, "a", a,    str,    ["foo":m, "val":"alpha"])
-     quxB := verifySlot(qux, "b", bazB, date,   ["bar":m, "val":Date("2024-01-01"), "qux":m])
-     quxC := verifySlot(qux, "c", c,    marker, ["foo":m, "bar":m])
+     quxA := verifySlotOld(qux, "a", a,    str,    ["foo":m, "val":"alpha"])
+     quxB := verifySlotOld(qux, "b", bazB, date,   ["bar":m, "val":Date("2024-01-01"), "qux":m])
+     quxC := verifySlotOld(qux, "c", c,    marker, ["foo":m, "bar":m])
      verifySame(quxA, bazA)
      verifySame(quxC, bazC)
 
      // Rux
-     ruxA := verifySlot(rux, "a", a,    str,    ["foo":m, "val":"alpha"])
-     ruxB := verifySlot(rux, "b", bazB, date,   ["bar":m, "val":Date("2024-01-01"), "qux":m])
-     ruxC := verifySlot(rux, "c", quxC, marker, ["foo":m, "bar":m, "rux":m])
+     ruxA := verifySlotOld(rux, "a", a,    str,    ["foo":m, "val":"alpha"])
+     ruxB := verifySlotOld(rux, "b", bazB, date,   ["bar":m, "val":Date("2024-01-01"), "qux":m])
+     ruxC := verifySlotOld(rux, "c", quxC, marker, ["foo":m, "bar":m, "rux":m])
      verifySame(ruxA, bazA)
      verifySame(ruxB, quxB)
   }
@@ -300,9 +338,9 @@ class GlobalTest : AbstractXetoTest
      foo := lib.type("Foo")
      // env.print(foo)
 
-    verifySlot(foo, "zone",  zone,  marker)
-    verifySlot(foo, "space", space, marker)
-    verifySlot(foo, "area",  area,  number)
+    verifySlotOld(foo, "zone",  zone,  marker)
+    verifySlotOld(foo, "space", space, marker)
+    verifySlotOld(foo, "area",  area,  number)
 
   }
 
@@ -336,8 +374,8 @@ class GlobalTest : AbstractXetoTest
      pts := foo.slot("points")
      verifySame(pts.base, ns.spec("ph::Equip.points"))
 
-     verifySlot(pts, "discharge", dat, dat)
-     verifySlot(pts, "return",   dict, dict)
+     verifySlotOld(pts, "discharge", dat, dat)
+     verifySlotOld(pts, "return",   dict, dict)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -356,7 +394,7 @@ class GlobalTest : AbstractXetoTest
     return global
   }
 
-  Spec verifySlot(Spec parent, Str name, Spec base, Spec type, Str:Obj meta := [:])
+  Spec verifySlotOld(Spec parent, Str name, Spec base, Spec type, Str:Obj meta := [:])
   {
     slot := parent.slot(name)
     verifySame(slot.base, base)

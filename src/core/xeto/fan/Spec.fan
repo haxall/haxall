@@ -49,30 +49,37 @@ const mixin Spec : Dict
   ** Returns null if this is 'sys::Obj' itself.
   abstract Spec? base()
 
-  ** Get my effective meta; this does not include synthesized tags like 'spec'
-  abstract Dict meta()
-
   ** Get my own declared meta-data
   abstract Dict metaOwn()
 
-  ** Get the declared children slots (excludes globals).
+  ** Get my effective meta; this does not include synthesized tags like 'spec'
+  abstract Dict meta()
+
+  ** Get a map with all the declared slots and globals.
+  abstract SpecMap membersOwn()
+
+  ** Get a map with all the inherited slots and globals.
+  abstract SpecMap members()
+
+  ** Convenience for 'members.get'.
+  abstract Spec? member(Str name, Bool checked := true)
+
+  ** Get the declared children slots.
   abstract SpecMap slotsOwn()
 
-  ** Get the effective children slots including inherited (excludes globals).
+  ** Get the effective inherited children slots.
   abstract SpecMap slots()
 
-  ** Convenience for 'slots.get' (excludes globals).
+  ** Convenience for 'slots.get'.
   abstract Spec? slot(Str name, Bool checked := true)
 
-  ** Convenience for 'slotsOwn.get' (excludes globals).
+  ** Convenience for 'slotsOwn.get'.
   abstract Spec? slotOwn(Str name, Bool checked := true)
 
-  ** Globals declared by this spec (excludes non-global slots).
+  ** Globals declared by this spec.
   abstract SpecMap globalsOwn()
 
-  ** Get all the effective globals including inherited (excludes non-global
-  ** slots).  This call is computed and can be expensive; so cache and reuse
-  ** the value during your operation.
+  ** Get all the effective globals including inherited.
   abstract SpecMap globals()
 
   ** Return if 'this' spec inherits from 'that' from a nominal type perspective.
