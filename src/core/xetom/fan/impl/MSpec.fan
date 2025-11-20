@@ -343,6 +343,8 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Bool cmetaHas(Str name) { m.meta.has(name) }
 
+  override CSpec? cmember(Str n, Bool c := true) { member(n, c) as CSpec }
+
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 
   override final Void cslots(|CSpec, Str| f) { m.slots.map.each(f) }

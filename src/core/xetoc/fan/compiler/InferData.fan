@@ -131,23 +131,7 @@ internal abstract class InferData : Step
           item.typeRef = ASpecRef(item.loc, of)
       }
     }
-
-    // infer any non-type dict name/value pairs from globals
-    dict.map.each |v, n|
-    {
-      if (v.typeRef != null) return
-
-      // if dict is xmeta then infer from meta, otherwise global
-      CSpec? global
-      if (dict.isXMeta)
-        global = cns.metaSpec(n, v.loc)
-      else
-        global = cns.global(n, v.loc)
-      if (global == null) return
-
-      v.typeRef = inferDictSlotType(v.loc, global.ctype)
-    }
- }
+  }
 
   private Void inferDictSlot(ADict dict, CSpec slot)
   {

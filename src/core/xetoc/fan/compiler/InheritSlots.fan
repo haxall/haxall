@@ -122,31 +122,8 @@ internal class InheritSlots : Step
     // if already inferred
     if (x.base != null) return x.base
 
-    // infer base from global slot
-    base := inferBaseGlobal(x)
-    if (base != null) return base
-
     // try to infer from the explicit type if available
     return x.typeRef?.deref
-  }
-
-  ** Attempt to infer base from global slots
-  private CSpec? inferBaseGlobal(ASpec x)
-  {
-    // don't process top-level types/globals
-    if (x.isTop) return null
-
-    // don't process func params
-    if (x.parent.isFunc) return null
-
-    // don't process constrained query slots
-    if (x.parent.isQuery) return null
-
-     // check for global slot within dependencies
-     global := cns.global(x.name, x.loc)
-     if (global == null) return null
-
-     return global
   }
 
 //////////////////////////////////////////////////////////////////////////

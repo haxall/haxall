@@ -398,25 +398,27 @@ class ValidateTest : AbstractXetoTest
   {
     // test ph global
     src :=
-    Str<|Foo: Dict
+    Str<|Foo: PhEntity {}
          |>
 
     // invalid target types in lib
-    verifyValidate(src, ["globalTag":"x", "site":Date.today], [
-      "Slot 'globalTag': String size 1 < minSize 3",
-      "Slot 'site': Global slot type is 'sys::Marker', value type is 'sys::Date'",
+    verifyValidate(src, ["id":Ref.gen, "area":n(13, "ft"), "site":Date.today], [
+      "Slot 'area': Number must be 'area' unit; 'ft' has quantity of 'length'",
+      "Slot 'site': Global type is 'sys::Marker', value type is 'sys::Date'",
       ])
+
 
     // global in lib AST
     src =
-    Str<|Foo: Dict
-         baz: Number <quantity:"length", minVal:0>
+    Str<|Foo: Dict {
+           *baz: Number <quantity:"length", minVal:0>
+         }
          |>
 
 
     // invalid target types in lib
     verifyCompileTime(src, toInstance(["baz":Uri("file.txt")]), [
-      "Slot 'baz': Global slot type is 'sys::Number', value type is 'sys::Uri'",
+      "Slot 'baz': Global type is 'sys::Number', value type is 'sys::Uri'",
       ])
 
     // invalid target types in lib
@@ -611,7 +613,7 @@ class ValidateTest : AbstractXetoTest
     ns := nsTest
     buf := StrBuf()
     buf.add(src).add("\n\n").add("@x: ")
-    ns.writeData(buf.out, instance)
+    ns.writeData(buf.out, Etc.dictRemove(instance, "id"))
     return buf.toStr.replace("@x: {", "@x: Foo {")
   }
 

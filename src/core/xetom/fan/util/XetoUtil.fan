@@ -471,7 +471,7 @@ const class XetoUtil
 
   static Spec? member(Spec base, Str name, Bool checked := true)
   {
-    x := members(base).get(name)
+    x := members(base).get(name, checked)
     if (x != null) return x
     if (checked) throw UnknownSpecErr("Member not found: ${base.qname}.${name}")
     return null

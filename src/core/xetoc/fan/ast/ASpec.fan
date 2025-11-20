@@ -266,13 +266,20 @@ internal class ASpec : ANode, CSpec
   ** Parent spec or null if this is top-level spec
   override CSpec? cparent() { parent }
 
-  ** Lookup effective slot
-  override CSpec? cslot(Str name, Bool checked := true)
+  ** Lookup effective member
+  override CSpec? cmember(Str name, Bool checked := true)
   {
     ast := slots?.get(name) as ASpec
     if (ast != null) return ast
     if (checked) throw UnknownSlotErr(name)
     return null
+  }
+
+  ** Lookup effective slot
+  override CSpec? cslot(Str name, Bool checked := true)
+  {
+    // TODO: just use on member
+    cmember(name, checked)
   }
 
   ** Binding (set in LoadBindings)

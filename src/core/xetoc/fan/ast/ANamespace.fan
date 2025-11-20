@@ -27,11 +27,6 @@ internal class ANamespace : CNamespace
     top(metaSpecs, name, SpecFlavor.meta, loc)
   }
 
-  CSpec? global(Str name, FileLoc loc)
-  {
-    top(globals, name, SpecFlavor.global, loc)
-  }
-
   private CSpec? top(Str:Obj acc, Str name, SpecFlavor flavor, FileLoc loc)
   {
     g := acc[name]
@@ -112,6 +107,5 @@ internal class ANamespace : CNamespace
   const MNamespace? ns
   MXetoCompiler compiler
   Str:Obj metaSpecs := [:]
-  Str:Obj globals := [:]
 }
 

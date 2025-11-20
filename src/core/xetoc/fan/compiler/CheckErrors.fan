@@ -60,8 +60,6 @@ internal class CheckErrors : Step
     checkSpec(x)
     if (x.isType)
       checkType(x)
-    else if (x.isGlobal)
-      checkGlobal(x)
     else if (x.isMeta)
       checkMetaSpec(x)
   }
@@ -293,12 +291,6 @@ internal class CheckErrors : Step
   {
   }
 
-  Void checkGlobal(ASpec x)
-  {
-    // calling ANamespace.global forces us to report duplicates
-    cns.global(x.name, x.loc)
-  }
-
   Void checkMetaSpec(ASpec x)
   {
     // calling ANamespace.metaSpec forces us to report duplicates
@@ -422,8 +414,7 @@ internal class CheckErrors : Step
 
     x.each |v, n|
     {
-      checkData(v, spec.cslot(n, false))
-      if (!isMetaOrXMeta) checkDictSlotAgainstGlobals(n, v)
+      checkData(v, spec.cmember(n, false))
     }
 
     spec.cslots |specSlot|
@@ -486,35 +477,14 @@ internal class CheckErrors : Step
       valType := val.ctype
       if (!valTypeFits(slot.ctype, valType, val.asm))
       {
-        errSlot(slot, "Slot type is '$slot.ctype', value type is '$valType'", x.loc)
+        memberType := slot.isGlobal ? "Global" : "Slot"
+        errSlot(slot, "$memberType type is '$slot.ctype', value type is '$valType'", x.loc)
       }
 
       if (slot.isRef || slot.isMultiRef)
         checkRefTarget(slot, val)
     }
   }
-
-  Void checkDictSlotAgainstGlobals(Str name, AData val)
-  {
-    if (isSys) return
-    if (XetoUtil.isAutoName(name)) return
-
-    global := cns.global(name, val.loc)
-    if (global == null) return
-
-    valType := val.ctype
-    if (!valTypeFits(global.ctype, valType, val.asm))
-    {
-      err("Slot '$name': Global slot type is '$global.ctype', value type is '$val.ctype'", val.loc)
-      return
-    }
-
-    checkVal.check(global, val.asm) |msg|
-    {
-      errSlot(global, msg, val.loc)
-    }
-  }
-
 
   Bool valTypeFits(CSpec type, CSpec valType, Obj val)
   {

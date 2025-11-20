@@ -52,6 +52,9 @@ mixin CSpec : CNode
   ** Is there one or more effective slots
   abstract Bool hasSlots()
 
+  ** Lookup effective member
+  abstract CSpec? cmember(Str name, Bool checked := true)
+
   ** Lookup effective slot
   abstract CSpec? cslot(Str name, Bool checked := true)
 

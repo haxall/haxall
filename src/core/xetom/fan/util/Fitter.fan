@@ -482,7 +482,7 @@ internal class ExplainFitter : Fitter
   {
     type := spec.type
     if (spec.isGlobal)
-      log("Global slot type is '$type', value type is '$valType'")
+      log("Global type is '$type', value type is '$valType'")
     else if (inSlot)
       log("Slot type is '$type', value type is '$valType'")
     else
