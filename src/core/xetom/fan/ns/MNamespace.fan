@@ -40,7 +40,13 @@ const class MNamespace : Namespace, CNamespace
     if (!dependErrs.isEmpty && opts.missing("uncheckedDepends"))
       throw dependErrs.vals.first
 
-    // build list/map of entries
+    // first one must be sys
+    sysVer := this.versions[0]
+    if (sysVer.name != "sys") throw Err("Must include 'sys' lib")
+    this.sysLib = initEntry(sysVer, null).lib
+    this.sys = MSys(sysLib)
+
+    // build list/map of entries (just process sys again from cache)
     libs := Lib[,]
     libs.capacity = versions.size
     this.versions.each |v|
@@ -52,11 +58,7 @@ const class MNamespace : Namespace, CNamespace
       entriesMap.add(v.name, entry)
       libs.addNotNull(entry.lib)
     }
-
-    // init fields
     this.libs = libs
-    this.sysLib = lib("sys")
-    this.sys = MSys(sysLib)
   }
 
   private MLibEntry initEntry(LibVersion version, Err? dependErr)
