@@ -24,7 +24,6 @@ class RuntimeTest : AbstractAxonTest
 
     verifyErr(UnsupportedErr#) { ns.spec("sys::abstract").inheritanceDigest }
     verifyErr(UnsupportedErr#) { ns.spec("ph::Site.area").inheritanceDigest }
-    verifyErr(UnsupportedErr#) { ns.spec("ph::area").inheritanceDigest }
 
     verifyDigestEq(ns.spec("ph::Equip").inheritanceDigest, ns.spec("ph::Equip").inheritanceDigest)
     verifyDigestNotEq(ns.spec("ph::Equip").inheritanceDigest, ns.spec("ph::Ahu").inheritanceDigest)

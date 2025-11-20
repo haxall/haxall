@@ -14,12 +14,14 @@
   foo: "building"
 }
 
+/*
 @xmeta-ph-area: {
   doc: "no take"
   val: 123
   foo: "AreaEditor"
   bar: "hello"
 }
+*/
 
 @xmeta-ph-Equip: {
   qux: "Device"

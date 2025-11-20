@@ -122,7 +122,7 @@ const class DocUtil
     return s.addChar('/')
             .addRange(qname, 0..<colons)
             .addChar('/')
-            .add((flavor == null || flavor.isType) ? "" : "_")
+            .add((flavor == null || flavor.isType || flavor.isMixIn) ? "" : "_")
             .addRange(qname, colons+2..-1)
             .toStr.toUri
   }

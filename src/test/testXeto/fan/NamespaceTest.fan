@@ -170,9 +170,10 @@ class NamespaceTest : AbstractXetoTest
     geoPlace  := verifyLibType(ns, ph, "GeoPlace", entity)
     site      := verifyLibType(ns, ph, "Site",     geoPlace)
 
-    water := ph.global("water")
-    verifySame(ns.spec("ph::water"), water)
+    water := entity.globalsOwn.get("water")
+    verifySame(ns.spec("ph::PhEntity.water"), water)
     verifySame(water.meta["val"], Marker.val)
+    verifyEq(water.isGlobal, true)
 
     // env.print(elecMeter, Env.cur.out, dict1("effective", m))
     marker := ns.spec("sys::Marker")
