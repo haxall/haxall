@@ -439,8 +439,12 @@ class SpecTest : AbstractXetoTest
     slots.each |s|
     {
       type := s.type.name
+
+      verifyEq(s.isSlot, true)
+      verifyEq(s.isGlobal, false)
+      verifyEq(s.meta["global"], null)
+
       if (s.isMaybe) type += "?"
-      // echo("-- $s.name: $type $s.meta")
       verifyEq("$s.name:$type", expected[i++])
     }
     verifyEq(slots.names.size, expected.size)

@@ -331,6 +331,7 @@ internal class InheritSlots : Step
       if (dup != null)
       {
         if (dup === slot) return
+        if (dup.isGlobal) acc.remove(name) // order below globals
         acc[name] = overrideSlot(dup, slot)
       }
       else
