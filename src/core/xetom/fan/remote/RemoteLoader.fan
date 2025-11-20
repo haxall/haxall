@@ -350,10 +350,15 @@ internal class RemoteLoader
 
   private CSpec resolveInternal(RSpecRef ref)
   {
+    // resolve type level
     type := tops.getChecked(ref.type)
     if (ref.slot.isEmpty) return type
 
-    slot := type.slotsOwnIn.find |s| { s.name == ref.slot } ?: throw UnresolvedErr(ref.toStr)
+    // resolve slot level (may be globals too if we inherit from global)
+    // TODO: this might need to get mapped into hash map
+    slot := type.slotsOwnIn?.find |s| { s.name == ref.slot }
+    if (slot == null) slot = type.globalsOwnIn?.find |s| { s.name == ref.slot }
+    if (slot == null) throw UnresolvedErr(ref.toStr)
     if (ref.more == null) return slot
 
     x := slot
