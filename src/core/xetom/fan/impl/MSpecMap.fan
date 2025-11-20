@@ -10,14 +10,20 @@ using xeto
 using haystack
 
 **
-** Implementation of SpecSlots
+** Implementation of SpecMap
 **
 @Js
-const final class MSlots : SpecSlots
+const final class MSpecMap : SpecMap
 {
-  static const MSlots empty := MSlots(Str:XetoSpec[:])
+  static const MSpecMap empty := MSpecMap.doMake(Str:XetoSpec[:])
 
-  new make(Str:XetoSpec map) { this.map = map }
+  static new make(Str:XetoSpec map)
+  {
+    if (map.isEmpty) return empty
+    return doMake(map)
+  }
+
+  private new doMake(Str:XetoSpec map) { this.map = map }
 
   const Str:XetoSpec map
 
@@ -89,9 +95,9 @@ const final class MSlots : SpecSlots
 @Js
 internal const class MSlotsDict : Dict
 {
-  new make(MSlots slots) { this.slots = slots }
+  new make(MSpecMap slots) { this.slots = slots }
 
-  const MSlots slots
+  const MSpecMap slots
 
   @Operator override Obj? get(Str n) { slots.get(n, false) }
   override Bool isEmpty() { slots.isEmpty }

@@ -104,7 +104,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeStr("")
   }
 
-  private Void writeOwnSlots(MSlots slots)
+  private Void writeOwnSlots(MSpecMap slots)
   {
     map := slots.map
     size := map.size

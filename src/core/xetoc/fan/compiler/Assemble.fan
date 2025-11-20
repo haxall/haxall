@@ -86,28 +86,28 @@ internal class Assemble : Step
     x.slots.each |kid| { asmSpec(kid) }
   }
 
-  private MSlots asmSlotsOwn(ASpec x, Bool isGlobal)
+  private MSpecMap asmSlotsOwn(ASpec x, Bool isGlobal)
   {
-    if (x.slots == null || x.slots.isEmpty) return MSlots.empty
+    if (x.slots == null || x.slots.isEmpty) return MSpecMap.empty
     map := Str:XetoSpec[:]
     map.ordered = true
     x.slots.each |kid, name|
     {
       if (kid.isGlobal == isGlobal) map.add(name, kid.asm)
     }
-    return MSlots(map)
+    return MSpecMap(map)
   }
 
-  private MSlots asmSlots(ASpec x)
+  private MSpecMap asmSlots(ASpec x)
   {
-    if (x.cslotsRef.isEmpty) return MSlots.empty
+    if (x.cslotsRef.isEmpty) return MSpecMap.empty
     map := Str:XetoSpec[:]
     map.ordered = true
     x.cslots |s, n|
     {
       if (!s.isGlobal) map[n] = s.asm
     }
-    return MSlots(map)
+    return MSpecMap(map)
   }
 
   private MSpecInit toInit(ASpec x)

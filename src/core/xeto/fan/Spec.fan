@@ -56,10 +56,10 @@ const mixin Spec : Dict
   abstract Dict metaOwn()
 
   ** Get the declared children slots (excludes globals).
-  abstract SpecSlots slotsOwn()
+  abstract SpecMap slotsOwn()
 
   ** Get the effective children slots including inherited (excludes globals).
-  abstract SpecSlots slots()
+  abstract SpecMap slots()
 
   ** Convenience for 'slots.get' (excludes globals).
   abstract Spec? slot(Str name, Bool checked := true)
@@ -68,12 +68,12 @@ const mixin Spec : Dict
   abstract Spec? slotOwn(Str name, Bool checked := true)
 
   ** Globals declared by this spec (excludes non-global slots).
-  abstract SpecSlots globalsOwn()
+  abstract SpecMap globalsOwn()
 
   ** Get all the effective globals including inherited (excludes non-global
   ** slots).  This call is computed and can be expensive; so cache and reuse
   ** the value during your operation.
-  abstract SpecSlots globals()
+  abstract SpecMap globals()
 
   ** Return if 'this' spec inherits from 'that' from a nominal type perspective.
   ** Nonimal typing matches any of the following conditions:

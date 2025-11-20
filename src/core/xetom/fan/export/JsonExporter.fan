@@ -114,7 +114,7 @@ class JsonExporter : Exporter
   }
 
   ** Spec slots
-  private This slots(SpecSlots slots, Int depth)
+  private This slots(SpecMap slots, Int depth)
   {
     if (slots.isEmpty) return this
     prop("slots").obj

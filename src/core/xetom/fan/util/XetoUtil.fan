@@ -434,7 +434,7 @@ const class XetoUtil
       eachInherited(x.base, f)
   }
 
-  static SpecSlots globals(Spec base)
+  static SpecMap globals(Spec base)
   {
     acc := Str:Spec[:]
     acc.ordered = true
@@ -446,7 +446,7 @@ const class XetoUtil
         if (acc[g.name] == null && slots.missing(g.name)) acc[g.name] = g
       }
     }
-    return acc.isEmpty ? MSlots.empty : MSlots(acc)
+    return MSpecMap(acc)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -784,7 +784,7 @@ class NamespaceTest : AbstractXetoTest
     return slot
   }
 
-  Str slotNames(SpecSlots slots)
+  Str slotNames(SpecMap slots)
   {
     buf := StrBuf()
     slots.each |x| { buf.join(x.name, ",") }

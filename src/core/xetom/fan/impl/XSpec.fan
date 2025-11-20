@@ -51,17 +51,17 @@ const final class XSpec : Spec, CSpec
 
   override Bool hasSlots() { m.hasSlots }
 
-  override SpecSlots slotsOwn() { m.slotsOwn }
+  override SpecMap slotsOwn() { m.slotsOwn }
 
-  override SpecSlots slots() { m.slots }
+  override SpecMap slots() { m.slots }
 
   override Spec? slot(Str n, Bool c := true) { m.slot(n, c) }
 
   override Spec? slotOwn(Str n, Bool c := true) { m.slotOwn(n, c) }
 
-  override SpecSlots globalsOwn() { m.globalsOwn }
+  override SpecMap globalsOwn() { m.globalsOwn }
 
-  override SpecSlots globals() { m.globals }
+  override SpecMap globals() { m.globals }
 
   override Bool isa(Spec x) { m.isa(x) }
 
