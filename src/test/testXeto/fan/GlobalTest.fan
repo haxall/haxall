@@ -344,41 +344,29 @@ echo("########## TODO")
   }
 
 //////////////////////////////////////////////////////////////////////////
-// PH
+// PH Shared
 //////////////////////////////////////////////////////////////////////////
 
-  Void testPh()
+  Void testPhShared()
   {
-echo("########## TODO")
-   /*
-    ns := createNamespace(["sys", "ph"])
+    ns := createNamespace(["sys", "ph", "ph.points", "ph.attrs", "ph.points.elec"])
 
-    lib := ns.compileTempLib(
-      Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
+    entity := ns.spec("ph::PhEntity")
 
-           Foo: Dict {
-             zone
-             space
-             area: Number
-           }
-           |>)
-
-     ph := ns.lib("ph")
-
-     marker := ns.spec("sys::Marker")
-     number := ns.spec("sys::Number")
-
-     zone  := verifyGlobalOld(ph.global("zone"),  marker, null)
-     space := verifyGlobalOld(ph.global("space"), marker, null)
-     area  := verifyGlobalOld(ph.global("area"),  number, null)
-
-     foo := lib.type("Foo")
-     // env.print(foo)
-
-    verifySlotOld(foo, "zone",  zone,  marker)
-    verifySlotOld(foo, "space", space, marker)
-    verifySlotOld(foo, "area",  area,  number)
-*/
+    // make sure that every subtype of PhEntity is sharing
+    // same globals instance/ so we don't explode memory usage
+    ns.libs.each |lib|
+    {
+      lib.types.each |spec|
+      {
+        if (!spec.isa(entity)) return
+        if (spec === entity)
+          verifySame(spec.globalsOwn, entity.globals)
+        else
+          verifySame(spec.globalsOwn, SpecMap.empty)
+        verifySame(spec.globals, entity.globals)
+      }
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
