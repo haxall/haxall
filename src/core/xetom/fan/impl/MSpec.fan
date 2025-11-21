@@ -240,9 +240,9 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Dict meta() { m.meta }
 
-  override final SpecMap membersOwn() { XetoUtil.membersOwn(this) }
+  override final SpecMap membersOwn() { SpecMap(slotsOwn, globalsOwn) }
 
-  override final SpecMap members() { XetoUtil.members(this) }
+  override final SpecMap members() { SpecMap(slots, globals) }
 
   override final Spec? member(Str n, Bool c := true) { XetoUtil.member(this, n, c) }
 
@@ -258,7 +258,7 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final SpecMap globalsOwn() { m.globalsOwn }
 
-  override final SpecMap globals() { XetoUtil.globals(this) }
+  override final once SpecMap globals() { XetoUtil.globals(this) }
 
   override final Bool isa(Spec x) { XetoUtil.isa(this, (CSpec)x) }
 

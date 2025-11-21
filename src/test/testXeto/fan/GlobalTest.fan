@@ -61,22 +61,22 @@ class GlobalTest : AbstractXetoTest
 
     verifySlotMap(tb.slotsOwn,   [ao])
     verifySlotMap(tb.globalsOwn, [f, g])
-    verifySlotMap(tb.membersOwn, [f, g, ao])
+    verifySlotMap(tb.membersOwn, [ao, f, g])
 
     verifySlotMap(tc.slotsOwn,   [bo])
     verifySlotMap(tc.globalsOwn, [h, i])
-    verifySlotMap(tc.membersOwn, [h, i, bo])
+    verifySlotMap(tc.membersOwn, [bo, h, i])
 
     verifySlotMap(td.slotsOwn,   [co, io])
     verifySlotMap(td.globalsOwn, [j])
-    verifySlotMap(td.membersOwn, [j, co, io])
+    verifySlotMap(td.membersOwn, [co, io, j])
 
     // maps inherited
 
     verifyMembers(ta, [,], [a, b, c, d, e])
-    verifyMembers(tb, [ao], [f, g, b, c, d, e])
-    verifyMembers(tc, [bo], [h, i, a, c, d, e])
-    verifyMembers(td, [ao, bo, co, io], [j, f, g, d, e, h])
+    verifyMembers(tb, [ao], [f, g, a, b, c, d, e], [ao, f, g, b, c, d, e])
+    verifyMembers(tc, [bo], [h, i, a, b, c, d, e], [bo, h, i, a, c, d, e])
+    verifyMembers(td, [ao, bo, co, io], [j, f, g, a, b, c, d, e, h, i], [ao, bo, co, io, j, f, g, d, e, h])
 
     // interned
 
@@ -121,25 +121,25 @@ class GlobalTest : AbstractXetoTest
     return x
   }
 
-  Void verifyMembers(Spec parent, Spec[] slots, Spec[] globals)
+  Void verifyMembers(Spec parent, Spec[] slots, Spec[] globals, Spec[]? members := null)
   {
     // echo(">> $parent")
-    all := globals.dup.addAll(slots)
-    verifySlotMap(parent.members, all)
-    verifySlotMap(parent.slots, slots)
+    if (members == null) members = slots.dup.addAll(globals)
+    verifySlotMap(parent.members, members)
+    verifySlotMap(parent.slots,   slots)
     verifySlotMap(parent.globals, globals)
 
     slots.each |x|
     {
       verifySame(parent.member(x.name), x)
       verifySame(parent.slot(x.name), x)
-      verifySame(parent.globals.get(x.name, false), null)
     }
 
     globals.each |x|
     {
-      verifySame(parent.member(x.name), x)
-      verifySame(parent.slot(x.name, false), null)
+      slot := parent.slot(x.name, false)
+      if (slot == null)
+      verifySame(parent.member(x.name), slot ?: x)
       verifySame(parent.globals.get(x.name), x)
     }
   }
@@ -156,13 +156,25 @@ class GlobalTest : AbstractXetoTest
 
   Void verifySlotMapsSame(Spec x)
   {
-    verifySame(x.membersOwn, x.membersOwn)
-    verifySame(x.members,    x.members)
+    // always interned
     verifySame(x.globalsOwn, x.globalsOwn)
     verifySame(x.globals,    x.globals)
     verifySame(x.slotsOwn,   x.slotsOwn)
     verifySame(x.slots,      x.slots)
   }
+
+  /*
+  Void dumpSlotMaps(Spec x)
+  {
+    echo(">> $x")
+    echo("   slotsOwn:   $x.slotsOwn")
+    echo("   globsOwn:   $x.globalsOwn")
+    echo("   membersOwn: $x.membersOwn")
+    echo("   slots:      $x.slots")
+    echo("   globs:      $x.globals")
+    echo("   members:    $x.members")
+ }
+ */
 
 //////////////////////////////////////////////////////////////////////////
 // Basics

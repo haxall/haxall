@@ -80,6 +80,7 @@ const mixin Spec : Dict
   abstract SpecMap globalsOwn()
 
   ** Get all the effective globals including inherited.
+  ** Note that some of the globals may be hidden by slots.
   abstract SpecMap globals()
 
   ** Return if 'this' spec inherits from 'that' from a nominal type perspective.

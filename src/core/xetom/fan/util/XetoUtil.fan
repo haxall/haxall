@@ -436,42 +436,20 @@ const class XetoUtil
 
   static SpecMap globals(Spec base)
   {
-    acc := Str:Spec[:]
-    acc.ordered = true
-    slots := base.slots
+    acc := SpecMap[,]
     eachInherited(base) |x|
     {
-      x.globalsOwn.each |g|
-      {
-        if (acc[g.name] == null && slots.missing(g.name)) acc[g.name] = g
-      }
+      g := x.globalsOwn
+      if (g.isEmpty) return
+      if (acc.containsSame(g)) return
+      acc.add(g)
     }
-    return SpecMap(acc)
-  }
-
-// TODO: this are just inefficient stubs until we figure optimized data structures
-
-  static SpecMap membersOwn(Spec base)
-  {
-    acc := Str:Spec[:]
-    acc.ordered = true
-    base.globalsOwn.each |v, n| { acc[n] = v }
-    base.slotsOwn.each |v, n| { acc[n] = v }
-    return SpecMap(acc)
-  }
-
-  static SpecMap members(Spec base)
-  {
-    acc := Str:Spec[:]
-    acc.ordered = true
-    base.globals.each |v, n| { acc[n] = v }
-    base.slots.each |v, n| { acc[n] = v }
     return SpecMap(acc)
   }
 
   static Spec? member(Spec base, Str name, Bool checked := true)
   {
-    x := members(base).get(name, checked)
+    x := base.members.get(name, checked)
     if (x != null) return x
     if (checked) throw UnknownSpecErr("Member not found: ${base.qname}.${name}")
     return null
