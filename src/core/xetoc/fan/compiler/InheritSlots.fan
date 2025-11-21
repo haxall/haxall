@@ -395,7 +395,7 @@ internal class InheritSlots : Step
   private Bool isEnum(ASpec spec)
   {
     t := spec.typeRef.deref
-    return t.isSys && t.name == "Enum"
+    return t.isSys && t.name == "Enum" && spec.isType
   }
 
   ** Enum slots are implied as the parent type
