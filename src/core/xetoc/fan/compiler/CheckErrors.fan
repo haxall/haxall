@@ -353,9 +353,9 @@ internal class CheckErrors : Step
       checkData(v, spec.cmember(n, false))
     }
 
-    spec.cmembers |specSlot|
+    spec.cslots |memberSpec|
     {
-      checkDictSlot(x, specSlot)
+      checkDictSlot(x, memberSpec)
     }
   }
 

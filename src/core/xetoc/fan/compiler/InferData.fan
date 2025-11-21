@@ -138,8 +138,8 @@ internal abstract class InferData : Step
     // get the slot value
     cur := dict.get(slot.name)
 
-    // if no value and slot is nullable, then don't infer anything
-    if (cur == null && slot.isMaybe) return
+    // if no value and slot is nullable/global, then don't infer anything
+    if (cur == null && (slot.isGlobal || slot.isMaybe)) return
 
     // if we have a slot value, then infer the type only
     if (cur != null)

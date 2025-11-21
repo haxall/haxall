@@ -76,7 +76,7 @@ class GlobalTest : AbstractXetoTest
     verifyMembers(ta, [,], [a, b, c, d, e])
     verifyMembers(tb, [ao], [f, g, b, c, d, e])
     verifyMembers(tc, [bo], [h, i, a, c, d, e])
-    verifyMembers(td, [bo, ao, co, io], [j, f, g, d, e, h])
+    verifyMembers(td, [ao, bo, co, io], [j, f, g, d, e, h])
   }
 
   Spec verifyGlobal(Spec parent, Str name, Spec type)
