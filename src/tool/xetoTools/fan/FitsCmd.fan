@@ -50,8 +50,10 @@ internal class FitsCmd : XetoCmd
   {
     readInput
     loadNamespace
-    runFits
-    writeOutput
+
+    try runFits
+    finally writeOutput
+
     return 0
   }
 
