@@ -18,10 +18,11 @@ const final class MType : MSpec
 {
   new make(MSpecInit init) : super(init)
   {
-    this.lib       = init.lib
-    this.qname     = init.qname
-    this.id        = Ref(qname, null)
-    this.binding   = init.binding
+    this.lib        = init.lib
+    this.qname      = init.qname
+    this.id         = Ref(qname, null)
+    this.globalsOwn = init.globalsOwn
+    this.binding    = init.binding
   }
 
   const override XetoLib lib
@@ -31,6 +32,8 @@ const final class MType : MSpec
   const override Ref id
 
   override SpecFlavor flavor() { SpecFlavor.type }
+
+  override const SpecMap globalsOwn
 
   override const SpecBinding binding
 

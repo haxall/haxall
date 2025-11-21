@@ -28,7 +28,6 @@ const class MSpec
     this.metaOwn    = init.metaOwn
     this.slots      = init.slots
     this.slotsOwn   = init.slotsOwn
-    this.globalsOwn = init.globalsOwn
     this.flags      = init.flags
     this.args       = init.args
   }
@@ -57,13 +56,13 @@ const class MSpec
 
   const SpecMap slotsOwn
 
-  const SpecMap globalsOwn
-
   Bool hasSlots() { !slots.isEmpty }
 
   XetoSpec? slot(Str name, Bool checked := true) { slots.get(name, checked) }
 
   XetoSpec? slotOwn(Str name, Bool checked := true) { slotsOwn.get(name, checked) }
+
+  virtual SpecMap globalsOwn() { SpecMap.empty }
 
   const MSpecArgs args
 
@@ -203,7 +202,7 @@ const class MSpecInit
   const Dict metaOwn
   const SpecMap slots
   const SpecMap slotsOwn
-  const SpecMap globalsOwn
+  const SpecMap? globalsOwn
   const Int flags
   const MSpecArgs args
   const SpecBinding? binding

@@ -88,7 +88,7 @@ internal class Assemble : Step
     x.slots.each |kid| { asmSpec(kid) }
   }
 
-  private SpecMap asmSlotsOwn(ASpec x, Bool isGlobal)
+  private SpecMap asmMembersOwn(ASpec x, Bool isGlobal)
   {
     if (x.slots == null || x.slots.isEmpty) return SpecMap.empty
     map := Str:XetoSpec[:]
@@ -126,8 +126,8 @@ internal class Assemble : Step
       it.meta       = x.cmeta
       it.metaOwn    = x.metaOwn
       it.slots      = asmSlots(x)
-      it.slotsOwn   = asmSlotsOwn(x, false)
-      it.globalsOwn = asmSlotsOwn(x, true)
+      it.slotsOwn   = asmMembersOwn(x, false)
+      it.globalsOwn = x.isType ? asmMembersOwn(x, true) : null
       it.flags      = x.flags
       it.args       = x.args
       it.binding    = x.isType ? x.binding : null
