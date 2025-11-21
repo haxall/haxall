@@ -192,7 +192,7 @@ internal class ASpec : ANode, CSpec
 // Slots
 //////////////////////////////////////////////////////////////////////////
 
-  ** Slots if there was "{}"
+  ** Members (slots & globals) if there was "{}"
   [Str:ASpec]? slots { private set }
 
   ** Initialize slots map
@@ -301,7 +301,15 @@ internal class ASpec : ANode, CSpec
     return !cslotsRef.isEmpty
   }
 
+  ** Iterate the effective members
+  override Void cmembers(|CSpec, Str| f)
+  {
+    if (cslotsRef == null) throw NotReadyErr(qname)
+    cslotsRef.each(f)
+  }
+
   ** Iterate the effective slots
+  ** TODO: make this slots only?
   override Void cslots(|CSpec, Str| f)
   {
     if (cslotsRef == null) throw NotReadyErr(qname)

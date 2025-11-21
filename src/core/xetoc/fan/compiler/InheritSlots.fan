@@ -270,7 +270,7 @@ internal class InheritSlots : Step
   ** Inherit slots from the given base type to accumulator
   private Int inheritSlotsFrom(ASpec spec, Str:CSpec acc, Int autoCount, CSpec base)
   {
-    base.cslots |slot|
+    base.cmembers |slot|
     {
       // we don't inherit constructors
       if (spec.isInterface && slot.cmetaHas("new")) return

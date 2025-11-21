@@ -115,8 +115,8 @@ internal abstract class InferData : Step
     // walk thru the spec slots and infer type/value
     spec := dict.ctype
 
-    // infer slots from specs
-    spec.cslots |slot|
+    // infer slots and globals from spec
+    spec.cmembers |slot|
     {
       inferDictSlot(dict, slot)
     }

@@ -345,6 +345,8 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override CSpec? cmember(Str n, Bool c := true) { member(n, c) as CSpec }
 
+  override final Void cmembers(|CSpec, Str| f) { ((MSpecMap)members).map.each(f) }
+
   override final Void cslots(|CSpec, Str| f) { m.slots.map.each(f) }
 
   override final Obj? cslotsWhile(|CSpec, Str->Obj?| f) { m.slots.map.eachWhile(f) }

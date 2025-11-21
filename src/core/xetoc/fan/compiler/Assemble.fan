@@ -105,7 +105,7 @@ internal class Assemble : Step
     if (x.cslotsRef.isEmpty) return MSpecMap.empty
     map := Str:XetoSpec[:]
     map.ordered = true
-    x.cslots |s, n|
+    x.cmembers |s, n|
     {
       if (!s.isGlobal) map[n] = s.asm
     }

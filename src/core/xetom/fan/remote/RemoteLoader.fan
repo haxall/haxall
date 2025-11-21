@@ -369,7 +369,7 @@ internal class RemoteLoader
     type := (XetoSpec)lib.spec(ref.type)
     if (ref.slot.isEmpty) return type
 
-    slot := type.m.slots.map.get(ref.slot) ?: throw UnresolvedErr(ref.toStr)
+    slot := type.member(ref.slot, false) ?: throw UnresolvedErr(ref.toStr)
     if (ref.more == null) return slot
 
     throw Err("TODO: $type $ref")
