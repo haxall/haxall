@@ -88,7 +88,7 @@ internal class Assemble : Step
     x.slots.each |kid| { asmSpec(kid) }
   }
 
-  private MSpecMap asmSlotsOwn(ASpec x, Bool isGlobal)
+  private SpecMap asmSlotsOwn(ASpec x, Bool isGlobal)
   {
     if (x.slots == null || x.slots.isEmpty) return MSpecMap.empty
     map := Str:XetoSpec[:]
@@ -97,10 +97,10 @@ internal class Assemble : Step
     {
       if (kid.isGlobal == isGlobal) map.add(name, kid.asm)
     }
-    return MSpecMap(map)
+    return SpecMap(map)
   }
 
-  private MSpecMap asmSlots(ASpec x)
+  private SpecMap asmSlots(ASpec x)
   {
     if (x.cslotsRef.isEmpty) return MSpecMap.empty
     map := Str:XetoSpec[:]
@@ -109,7 +109,7 @@ internal class Assemble : Step
     {
       if (!s.isGlobal) map[n] = s.asm
     }
-    return MSpecMap(map)
+    return SpecMap(map)
   }
 
   private MSpecInit toInit(ASpec x)

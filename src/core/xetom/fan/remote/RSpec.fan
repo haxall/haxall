@@ -46,9 +46,9 @@ internal class RSpec : CSpec
   CSpec? base
   Dict? metaOwn
   Dict? meta
-  MSpecMap? slotsOwn
-  MSpecMap? slots
-  MSpecMap? globalsOwn
+  SpecMap? slotsOwn
+  SpecMap? slots
+  SpecMap? globalsOwn
   SpecBinding? bindingRef
 
   override Bool hasSlots() { !slots.isEmpty }

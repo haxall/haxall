@@ -213,7 +213,7 @@ internal class RemoteLoader
     }
   }
 
-  private MSpecMap loadSlotsOwn(RSpec[]? slots)
+  private SpecMap loadSlotsOwn(RSpec[]? slots)
   {
     // short circuit if no slots
     if (slots == null || slots.isEmpty) return MSpecMap.empty
@@ -225,7 +225,7 @@ internal class RemoteLoader
     map := Str:XetoSpec[:]
     map.ordered = true
     slots.each |slot| { map.add(slot.name, slot.asm) }
-    return MSpecMap(map)
+    return SpecMap(map)
   }
 
   private Dict inheritMeta(RSpec x)
@@ -253,7 +253,7 @@ internal class RemoteLoader
     return Etc.dictFromMap(acc)
   }
 
-  private MSpecMap inheritSlots(RSpec x)
+  private SpecMap inheritSlots(RSpec x)
   {
     // if we encoded inherited refs for and/or types, then use that
     if (x.slotsInheritedIn != null)
@@ -286,10 +286,10 @@ internal class RemoteLoader
       if (XetoUtil.isAutoName(name)) name = XetoUtil.autoName(autoCount++)
       acc[name] = slot
     }
-    return MSpecMap(acc)
+    return SpecMap(acc)
   }
 
-  private MSpecMap inheritSlotsFromRefs(RSpec x)
+  private SpecMap inheritSlotsFromRefs(RSpec x)
   {
     acc := Str:XetoSpec[:]
     acc.ordered = true
@@ -303,7 +303,7 @@ internal class RemoteLoader
     {
       acc[slot.name] = slot
     }
-    return MSpecMap(acc)
+    return SpecMap(acc)
   }
 
   private MSpecArgs loadArgs(RSpec x)

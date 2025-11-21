@@ -53,11 +53,11 @@ const class MSpec
 
   const Dict metaOwn
 
-  const MSpecMap slots
+  const SpecMap slots
 
-  const MSpecMap slotsOwn
+  const SpecMap slotsOwn
 
-  const MSpecMap globalsOwn
+  const SpecMap globalsOwn
 
   Bool hasSlots() { !slots.isEmpty }
 
@@ -201,9 +201,9 @@ const class MSpecInit
   const XetoSpec type
   const Dict meta
   const Dict metaOwn
-  const MSpecMap slots
-  const MSpecMap slotsOwn
-  const MSpecMap globalsOwn
+  const SpecMap slots
+  const SpecMap slotsOwn
+  const SpecMap globalsOwn
   const Int flags
   const MSpecArgs args
   const SpecBinding? binding
@@ -345,11 +345,11 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override CSpec? cmember(Str n, Bool c := true) { member(n, c) as CSpec }
 
-  override final Void cmembers(|CSpec, Str| f) { ((MSpecMap)members).map.each(f) }
+  override final Void cmembers(|CSpec, Str| f) { members.each |s, n| { f((CSpec)s, n) } }
 
-  override final Void cslots(|CSpec, Str| f) { m.slots.map.each(f) }
+  override final Void cslots(|CSpec, Str| f) { m.slots.each |s, n| { f((CSpec)s, n) } }
 
-  override final Obj? cslotsWhile(|CSpec, Str->Obj?| f) { m.slots.map.eachWhile(f) }
+  override final Obj? cslotsWhile(|CSpec, Str->Obj?| f) { m.slots.eachWhile |s, n| { f((CSpec)s, n) } }
 
   override final XetoSpec? cof()  { of(false) }
 

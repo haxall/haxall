@@ -18,6 +18,25 @@ class UtilTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
+// EmptySpecMap
+//////////////////////////////////////////////////////////////////////////
+
+  Void testEmptySpecMap()
+  {
+    x := SpecMap.empty
+    verifySame(x, SpecMap.empty)
+    verifyEq(x.size, 0)
+    verifyEq(x.isEmpty, true)
+    verifyEq(x.has("x"), false)
+    verifyEq(x.missing("x"), true)
+    verifySame(x.names, Str#.emptyList)
+    verifyDictEq(x.toDict, [:])
+    x.each |s| { fail }
+    r := x.eachWhile |s| { "break" }
+    verifyEq(r, null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Reflect
 //////////////////////////////////////////////////////////////////////////
 

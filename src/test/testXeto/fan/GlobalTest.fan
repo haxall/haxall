@@ -77,6 +77,13 @@ class GlobalTest : AbstractXetoTest
     verifyMembers(tb, [ao], [f, g, b, c, d, e])
     verifyMembers(tc, [bo], [h, i, a, c, d, e])
     verifyMembers(td, [ao, bo, co, io], [j, f, g, d, e, h])
+
+    // interned
+
+    verifySlotMapsSame(ta)
+    verifySlotMapsSame(tb)
+    verifySlotMapsSame(tc)
+    verifySlotMapsSame(td)
   }
 
   Spec verifyGlobal(Spec parent, Str name, Spec type)
@@ -145,6 +152,16 @@ class GlobalTest : AbstractXetoTest
     expectStr := expect.join(",") { it.name }
     // echo("   a: $actualStr"); echo("   e: $expectStr")
     verifyEq(actualStr, expectStr)
+  }
+
+  Void verifySlotMapsSame(Spec x)
+  {
+    verifySame(x.membersOwn, x.membersOwn)
+    verifySame(x.members,    x.members)
+    verifySame(x.globalsOwn, x.globalsOwn)
+    verifySame(x.globals,    x.globals)
+    verifySame(x.slotsOwn,   x.slotsOwn)
+    verifySame(x.slots,      x.slots)
   }
 
 //////////////////////////////////////////////////////////////////////////

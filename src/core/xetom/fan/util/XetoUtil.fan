@@ -446,7 +446,7 @@ const class XetoUtil
         if (acc[g.name] == null && slots.missing(g.name)) acc[g.name] = g
       }
     }
-    return MSpecMap(acc)
+    return SpecMap(acc)
   }
 
 // TODO: this are just inefficient stubs until we figure optimized data structures
@@ -457,7 +457,7 @@ const class XetoUtil
     acc.ordered = true
     base.globalsOwn.each |v, n| { acc[n] = v }
     base.slotsOwn.each |v, n| { acc[n] = v }
-    return MSpecMap(acc)
+    return SpecMap(acc)
   }
 
   static SpecMap members(Spec base)
@@ -466,7 +466,7 @@ const class XetoUtil
     acc.ordered = true
     base.globals.each |v, n| { acc[n] = v }
     base.slots.each |v, n| { acc[n] = v }
-    return MSpecMap(acc)
+    return SpecMap(acc)
   }
 
   static Spec? member(Spec base, Str name, Bool checked := true)
