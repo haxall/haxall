@@ -116,7 +116,7 @@ abstract class XetoCmd : AbstractMain
 
     if (file.basename == "stdout")
     {
-      Env.cur.out.printLine(str)
+      Env.cur.out.print(str)
     }
     else
     {
