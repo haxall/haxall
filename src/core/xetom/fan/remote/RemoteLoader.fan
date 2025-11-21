@@ -216,7 +216,7 @@ internal class RemoteLoader
   private SpecMap loadSlotsOwn(RSpec[]? slots)
   {
     // short circuit if no slots
-    if (slots == null || slots.isEmpty) return MSpecMap.empty
+    if (slots == null || slots.isEmpty) return SpecMap.empty
 
     // recursively load slot specs
     slots.each |slot| { loadSpec(slot) }
@@ -264,7 +264,7 @@ internal class RemoteLoader
     if (x.slotsOwn.isEmpty)
     {
       if (base.isAst)
-        return ((RSpec)base).slots ?: MSpecMap.empty // TODO: recursive base problem
+        return ((RSpec)base).slots ?: SpecMap.empty // TODO: recursive base problem
       else
         return ((XetoSpec)base).m.slots
     }

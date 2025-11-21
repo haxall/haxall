@@ -18,22 +18,106 @@ class UtilTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
-// EmptySpecMap
+// SpecMap
 //////////////////////////////////////////////////////////////////////////
 
-  Void testEmptySpecMap()
+  Void testSpecMap()
   {
-    x := SpecMap.empty
-    verifySame(x, SpecMap.empty)
-    verifyEq(x.size, 0)
-    verifyEq(x.isEmpty, true)
-    verifyEq(x.has("x"), false)
-    verifyEq(x.missing("x"), true)
-    verifySame(x.names, Str#.emptyList)
-    verifyDictEq(x.toDict, [:])
-    x.each |s| { fail }
-    r := x.eachWhile |s| { "break" }
-    verifyEq(r, null)
+    ns := createNamespace(["sys"])
+    a := ns.sysLib.spec("Str")
+    b := ns.sysLib.spec("Number")
+    c := ns.sysLib.spec("Date")
+    d := ns.sysLib.spec("Time")
+    e := ns.sysLib.spec("DateTime")
+    f := ns.sysLib.spec("Ref")
+    g := ns.sysLib.spec("Marker")
+    h := ns.sysLib.spec("Span")
+    i := ns.sysLib.spec("Int")
+    b2 := ns.sysLib.spec("Float")
+    h2 := ns.sysLib.spec("Duration")
+    j2 := ns.sysLib.spec("Dict")
+
+    // empty
+
+    verifySame(SpecMap.empty, SpecMap.empty)
+    verifySame(SpecMap.makeMap(Str:Spec[:]), SpecMap.empty)
+    verifySpecMap(SpecMap.empty, [:], "{}")
+
+    // makeMaop
+
+    map := Str:Spec[:]
+    map.add("a", a)
+    verifySpecMap(SpecMap(map), map, "{a}")
+
+    map.add("b", b)
+    verifySpecMap(SpecMap(map), map, "{a, b}")
+
+    map.add("c", c).add("d", d).add("e", e).add("f", f)
+    q := verifySpecMap(SpecMap(map), map, "{a, b, c, d, e, f}")
+
+    // makeList
+
+    p := SpecMap(["g":g])
+    map.add("g", g)
+    verifySame(SpecMap.makeList(SpecMap[,]), SpecMap.empty)
+    verifySame(SpecMap.makeList([p]), p)
+    verifyErr(ArgErr#) { x := SpecMap.makeList([p, SpecMap.empty]) }
+    verifySpecMap(SpecMap.makeList([q, p]), map, "{a, b, c, d, e, f, g}")
+
+    r := SpecMap(["h":h, "i":i])
+    map.add("h", h).add("i", i)
+    s := verifySpecMap(SpecMap.makeList([q, p, r]), map, "{a, b, c, d, e, f, g, h, i}")
+
+    // makeChain
+    verifySame(SpecMap.makeChain(p, SpecMap.empty), p)
+    verifySame(SpecMap.makeChain(SpecMap.empty, p), p)
+    t := SpecMap(["b":b2, "h":h2, "j":j2])
+    map.set("b", b2).set("h", h2).set("j", j2)
+    verifySpecMap(SpecMap.makeChain(t, s), map, "{b, h, j, a, c, d, e, f, g, i}")
+  }
+
+  SpecMap verifySpecMap(SpecMap x, Str:Spec expect, Str str)
+  {
+    verifyEq(x.isEmpty, expect.isEmpty)
+
+    // has, missing, get
+    expect.each |s, n|
+    {
+      verifyEq(x.has(n), true)
+      verifyEq(x.missing(n), false)
+      verifySame(x.get(n), s)
+    }
+
+    // each
+    x.each |s, n|
+    {
+      verifySame(s, expect[n])
+    }
+
+    // toStr, names (tests order)
+    verifyEq(x.toStr, str)
+    names := x.names
+    verifyEq("{" + names.join(", ") + "}", str)
+
+    // eachWhile
+    if (!names.isEmpty)
+    {
+      partial := names[0..< (0..<names.size).random]
+      actual := Str[,]
+      count := 0
+      r := x.eachWhile |s, n|
+      {
+        if (actual.size == partial.size) return "b"
+        actual.add(n)
+        return null
+      }
+      verifyEq(actual, partial)
+      verifyEq(r, "b")
+    }
+
+    // toDict
+    verifyDictEq(x.toDict, expect)
+    return x
   }
 
 //////////////////////////////////////////////////////////////////////////

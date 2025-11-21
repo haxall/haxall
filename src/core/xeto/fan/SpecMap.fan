@@ -23,10 +23,33 @@ const mixin SpecMap
   ** Empty spec map
   static SpecMap empty() { EmptySpecMap.val }
 
-  ** Factory
-  static new make(Str:Spec map)
+  ** Factory for map
+  @NoDoc static new makeMap(Str:Spec map)
   {
-    map.isEmpty ? empty : MSpecMap.makeMap(map)
+    map.isEmpty ? empty : MapSpecMap.makeMap(map)
+  }
+
+  ** Factory for list of maps - must be empty map, nor duplicate names
+  @NoDoc static new makeList(SpecMap[] list)
+  {
+    if (list.isEmpty) return empty
+    if (list.size == 1) return list.first
+    acc := Str:Spec[:]
+    acc.ordered = true
+    list.each |x|
+    {
+      if (x.isEmpty) throw ArgErr("Cannot pass empty map")
+      x.each |s, n| { acc.add(n, s) }
+    }
+    return makeMap(acc)
+  }
+
+  ** Factory to chain a and b; names in a override names in b
+  @NoDoc static new makeChain(SpecMap a, SpecMap b)
+  {
+    if (a.isEmpty) return b
+    if (b.isEmpty) return a
+    return ChainSpecMap(a, b)
   }
 
   ** Return if slots are empty
@@ -56,7 +79,7 @@ const mixin SpecMap
   ** NOTE: the name parameter may not match slots names
   abstract Obj? eachWhile(|Spec, Str->Obj?| f)
 
-  ** Number of specs
+  ** Return size if available, raise exception for chained maps
   @NoDoc abstract Int size()
 
   ** Get the slots as Dict of the specs.
@@ -69,15 +92,15 @@ const mixin SpecMap
 **************************************************************************
 
 @Js
-internal final const class EmptySpecMap : SpecMap
+internal const class EmptySpecMap : SpecMap
 {
   static const EmptySpecMap val := make
 
   private new make() {}
 
-  override Int size() { 0 }
-
   override Bool isEmpty() { true }
+
+  override Int size() { 0 }
 
   override Bool has(Str name) { false }
 
@@ -97,36 +120,60 @@ internal final const class EmptySpecMap : SpecMap
 
   override Str toStr() { "{}" }
 
-  override Dict toDict() { MSlotsDict(this) }
+  override Dict toDict() { SpecMapDict(this) }
 }
 
 **************************************************************************
-** MSpecMap
+** NonEmptySpecMap
 **************************************************************************
 
 @Js
-internal final const class MSpecMap : SpecMap
+internal abstract const class NonEmptySpecMap : SpecMap
 {
-  new makeMap(Str:Spec map) { this.map = map }
+  override final Bool isEmpty() { false }
+
+  override final Bool has(Str name) { get(name, false) != null }
+
+  override final Bool missing(Str name) { get(name, false) == null }
+
+  override final Str[] names()
+  {
+    acc := Str[,]
+    each |v, n| { acc.add(n) }
+    return acc
+  }
+
+  override final Str toStr()
+  {
+    s := StrBuf()
+    s.add("{")
+    each |slot, name|
+    {
+      if (s.size > 1) s.add(", ")
+      s.add(name)
+    }
+    return s.add("}").toStr
+  }
+
+  override final Dict toDict() { SpecMapDict(this) }
+}
+
+**************************************************************************
+** MapSpecMap
+**************************************************************************
+
+@Js
+internal final const class MapSpecMap : NonEmptySpecMap
+{
+  new makeMap(Str:Spec map)
+  {
+    if (map.isEmpty) throw ArgErr("Cannot use with empty map")
+    this.map = map
+  }
 
   const Str:Spec map
 
   override Int size() { map.size }
-
-  override Bool isEmpty()
-  {
-    map.isEmpty
-  }
-
-  override Bool has(Str name)
-  {
-    map.containsKey(name)
-  }
-
-  override Bool missing(Str name)
-  {
-    !map.containsKey(name)
-  }
 
   override Spec? get(Str name, Bool checked := true)
   {
@@ -136,48 +183,59 @@ internal final const class MSpecMap : SpecMap
     throw UnknownSpecErr(name)
   }
 
-  override Str[] names()
+  override Void each(|Spec,Str| f) { map.each(f) }
+
+  override Obj? eachWhile(|Spec,Str->Obj?| f) { map.eachWhile(f) }
+}
+
+**************************************************************************
+** ChainSpecMap
+**************************************************************************
+
+@Js
+internal final const class ChainSpecMap : NonEmptySpecMap
+{
+  new makeMap(SpecMap a, SpecMap b) { this.a = a; this.b = b }
+
+  const SpecMap a  // overrides names in b
+
+  const SpecMap b  // base inherited by a
+
+  override Int size() { throw UnsupportedErr() }
+
+  override Spec? get(Str name, Bool checked := true)
   {
-    acc := Str[,]
-    acc.capacity = map.size
-    map.each |v, n| { acc.add(n) }
-    return acc
+    a.get(name, false) ?: b.get(name, checked)
   }
 
   override Void each(|Spec,Str| f)
   {
-    map.each(f)
+    a.each(f)
+    b.each |s, n|
+    {
+      if (a.has(n)) return
+      f(s, n)
+    }
   }
 
   override Obj? eachWhile(|Spec,Str->Obj?| f)
   {
-    map.eachWhile(f)
-  }
-
-  override Str toStr()
-  {
-    s := StrBuf()
-    s.add("{")
-    each |slot|
+    r := a.eachWhile(f)
+    if (r != null) return r
+    return b.eachWhile |s, n|
     {
-      if (s.size > 1) s.add(", ")
-      s.add(slot.name)
+      if (a.has(n)) return null
+      return f(s, n)
     }
-    return s.add("}").toStr
-  }
-
-  override Dict toDict()
-  {
-    MSlotsDict(this)
   }
 }
 
 **************************************************************************
-** MSlotsDict
+** SpecMapDict
 **************************************************************************
 
 @Js
-internal const class MSlotsDict : Dict
+internal const class SpecMapDict : Dict
 {
   new make(SpecMap wrap) { this.wrap = wrap }
   const SpecMap wrap
