@@ -201,16 +201,6 @@ const class MNamespace : Namespace, CNamespace
     XSpec(this, spec)
   }
 
-  override Dict? xmeta(Str qname, Bool checked := true)
-  {
-    XMeta(this).xmeta(qname, checked)
-  }
-
-  override SpecEnum? xmetaEnum(Str qname, Bool checked := true)
-  {
-    XMeta(this).xmetaEnum(qname, checked)
-  }
-
   override Void eachType(|Spec| f)
   {
     libs.each |lib|

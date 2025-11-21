@@ -84,19 +84,6 @@ const mixin Namespace
   ** your operation.
   abstract Spec specx(Spec spec)
 
-  ** Lookup the extended meta for the given spec qname.  This is a merge
-  ** of the spec's own meta along with any instance dicts in the namespace
-  ** with a local id of "xmeta-{lib}-{spec}".  If the spec is not defined then
-  ** return null or raise an exception based on checked flag.  For example to
-  ** register extended meta data on the 'ph::Site' spec you would create an
-  ** instance dict with the local name of 'xmeta-ph-Site'.
-  abstract Dict? xmeta(Str qname, Bool checked := true)
-
-  ** Lookup the extended meta for an enum spec.  This returns a SpecEnum
-  ** instance with resolved extended meta for all the enum items via a merge
-  ** of all libs with instances named "xmeta-{lib}-{spec}-enum".
-  abstract SpecEnum? xmetaEnum(Str qname, Bool checked := true)
-
   ** Iterate all the top-level types in libs.
   abstract Void eachType(|Spec| f)
 

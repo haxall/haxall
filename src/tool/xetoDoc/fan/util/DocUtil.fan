@@ -122,7 +122,7 @@ const class DocUtil
     return s.addChar('/')
             .addRange(qname, 0..<colons)
             .addChar('/')
-            .add((flavor == null || flavor.isType || flavor.isMixIn) ? "" : "_")
+            .add((flavor == null || flavor.isType || flavor.isMixin) ? "" : "_")
             .addRange(qname, colons+2..-1)
             .toStr.toUri
   }
@@ -177,7 +177,7 @@ const class DocUtil
 
     // overall defs
     if (lib.specs.size     > 0) acc.add(DocTag("specs",     lib.specs.size))
-    if (lib.globals.size   > 0) acc.add(DocTag("globals",   lib.globals.size))
+//    if (lib.globals.size   > 0) acc.add(DocTag("globals",   lib.globals.size))
     if (lib.metaSpecs.size > 0) acc.add(DocTag("metas",     lib.metaSpecs.size))
     if (lib.instances.size > 0) acc.add(DocTag("instances", lib.instances.size))
 

@@ -284,7 +284,7 @@ internal class CheckErrors : Step
       }
     }
 
-    checkDict(x.meta, true, null)
+    checkDict(x.meta, null)
   }
 
   Void checkType(ASpec x)
@@ -314,72 +314,7 @@ internal class CheckErrors : Step
     if (XetoUtil.isReservedInstanceName(name))
       err("Instance name '$name' is reserved", x.loc)
 
-    isXMeta := x.isXMeta
-    if (isXMeta) checkXMeta(lib, name, x)
-
-    checkDict(x, isXMeta, null)
-  }
-
-  Void checkXMeta(ALib lib, Str name, ADict x)
-  {
-    // set the lib hasXMeta flag
-    lib.flags = lib.flags.or(MLibFlags.hasXMeta)
-
-    // parse "xmeta-{lib}-{Name}"
-    dash := name.index("-", 6)
-    if (dash == null) err("Invalid xmeta id: $name", x.loc)
-    libName:= name[6..<dash]
-    specName := name[dash+1..-1]
-
-    // cannot use xmeta inside my own lib (just put it in meta!)
-    if (libName == lib.name)
-    {
-      err("Cannot specify xmeta for spec in lib itself", x.loc)
-      return
-    }
-
-    // resolve from dependent lib
-    XetoLib? depend := compiler.depends.libs[libName]
-    if (depend == null)
-    {
-      err("Unknown lib for xmeta: $libName", x.loc)
-      return
-    }
-
-    // check that spec exists in depend
-    spec := depend.spec(specName, false)
-
-    // check "Foo-enum" as special case
-    if (spec == null && specName.endsWith("-enum"))
-    {
-      spec = depend.spec(specName[0..-6], false)
-      if (spec != null && !spec.isEnum)
-        return err("Enum xmeta for $name for non-enum type", x.loc)
-      return
-    }
-
-    // check that all xmeta tags are formally defined
-    x.each |v, n|
-    {
-      if (n == "id") return
-      metaSpec := cns.metaSpec(n, v.loc)
-      if (metaSpec == null)
-      {
-        if (XetoUtil.isReservedSpecMetaName(n))
-          err("Reserved xmeta tag '$n'", v.loc)
-        else
-          err("Undefined xmeta tag '$n'", v.loc)
-      }
-    }
-
-    if (spec == null)
-    {
-      if (specName.contains("."))
-        err("Cannot use dotted spec names for xmeta: $libName::$specName", x.loc)
-      else
-        err("Unknown spec for xmeta: $libName::$specName", x.loc)
-      return
-    }
+    checkDict(x, null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -390,7 +325,7 @@ internal class CheckErrors : Step
   {
     switch (x.nodeType)
     {
-      case ANodeType.dict: checkDict(x, ((ADict)x).isMeta, slot)
+      case ANodeType.dict: checkDict(x, slot)
       case ANodeType.scalar: checkScalar(x, slot)
       case ANodeType.specRef: checkSpecRef(x)
       case ANodeType.dataRef: checkDataRef(x)
@@ -406,9 +341,10 @@ internal class CheckErrors : Step
     }
   }
 
-  Void checkDict(ADict x, Bool isMetaOrXMeta, CSpec? slot)
+  Void checkDict(ADict x, CSpec? slot)
   {
     spec := x.ctype
+    isMeta := ((ADict)x).isMeta
 
     if (spec.isList) checkList(x, slot)
 

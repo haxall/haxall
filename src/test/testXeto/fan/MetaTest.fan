@@ -52,9 +52,11 @@ class MetaTest : AbstractXetoTest
     verifyHasMeta(b2, b.meta,  ["metaNum":Number(123), "metaQ":m])
 
     // verify xmeta is inferred from meta defs
+    /* TODO
     alpha := ns.spec("hx.test.xeto::Alpha")
     xmeta := ns.xmeta(alpha.qname)
     verifyHasMeta(alpha, xmeta, ["metaQ":m, "metaNum":Number(456)])
+    */
 
     // verify normal instance doesn't infer from metaNum
     inst := ns.instance("hx.test.xeto.deep::norm-instance")
