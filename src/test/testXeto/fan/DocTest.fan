@@ -49,8 +49,8 @@ class DocTest : AbstractXetoTest
     verifyTypeSpec(entry, spec, entry.page)
     verifyTypeSpec(entry, spec, roundtrip(entry))
 
-    // global
-    spec = lib.spec("globalTag")
+    // mixin
+    spec = lib.spec("TestGlobalsD")
     entry = compiler.entries.getChecked(spec.qname)
     verifySpec(entry, spec, entry.page)
     verifySpec(entry, spec, roundtrip(entry))

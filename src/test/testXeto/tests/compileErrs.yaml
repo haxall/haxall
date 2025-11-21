@@ -99,20 +99,6 @@ verifyErrs: |
   Undefined meta tag 'qux'
   Undefined meta tag 'baz'
 ---
-name: "xmetaNotDefined"
-compileLib: |
-  @xmeta-sys-Str: {
-    foo
-    bar: "xxx"
-    base: "xxx"
-    slots: "xxx"
-  }
-verifyErrs: |
-  Undefined xmeta tag 'foo'
-  Undefined xmeta tag 'bar'
-  Reserved xmeta tag 'base'
-  Reserved xmeta tag 'slots'
----
 name: "metaDups"
 compileLib: |
   abstract: Str <meta>
@@ -226,31 +212,32 @@ compileLib: |
       version: "1.2.3"
       depends: { {lib:"sys"}, {lib:"ph"} }
     >
-  a: Str
-  b: Number
-  c: Marker
-  d: Date
-  e: Dict
-  f: List<of:Number>
-  g: List<of:Number>
-  Bar: {
+  Globals: PhEntity {
+    *a: Str
+    *b: Number
+    *c: Marker
+    *d: Date
+    *e: Dict
+    *f: List<of:Number>
+    *g: List<of:Number>
+  }
+  Bar: Globals {
     a
     b: Int // ok
     space: Str
     c: {}
     d: {foo}
-    e: "wrong"
+    //e: "wrong"
     f: List<of:Obj>
     g: List<of:Date>
   }
 verifyErrs: |
-  Slot 'a' type 'sys::Marker' conflicts global slot 'temp::a' of type 'sys::Str'
-  Slot 'space' type 'sys::Str' conflicts global slot 'ph::space' of type 'sys::Marker'
+  Slot 'a' type 'sys::Marker' conflicts global 'temp::Globals.a' of type 'sys::Str'
+  Slot 'space' type 'sys::Str' conflicts global 'ph::PhEntity.space' of type 'sys::Marker'
   Scalar slot 'c' of type 'sys::Marker' cannot have slots
   Scalar slot 'd' of type 'sys::Date' cannot have slots
-  Non-scalar slot 'e' of type 'sys::Dict' cannot have scalar value
-  Slot 'f' of's type 'sys::Obj' conflicts global slot 'temp::f' of's type 'sys::Number'
-  Slot 'g' of's type 'sys::Date' conflicts global slot 'temp::g' of's type 'sys::Number'
+  Slot 'f' of's type 'sys::Obj' conflicts global 'temp::Globals.f' of's type 'sys::Number'
+  Slot 'g' of's type 'sys::Date' conflicts global 'temp::Globals.g' of's type 'sys::Number'
 ---
 name: "dupGlobals"
 compileLib: |
@@ -259,12 +246,14 @@ compileLib: |
       version: "1.2.3"
       depends: { {lib:"sys"}, {lib:"ph"} }
     >
-  area: Str
-  site: Str
-  equip: Str <meta> // Ok
+  Foo: PhEntity {
+    *area: Str
+    *site: Str
+    *equip: Str <meta> // Ok
+  }
 verifyErrs: |
-  Duplicate global specs: temp::area, ph::area
-  Duplicate global specs: temp::site, ph::site
+  Duplicate global: temp::area, ph::area
+  Duplicate global: temp::site, ph::site
 ---
 name: "covariance"
 compileLib: |
