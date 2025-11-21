@@ -153,8 +153,6 @@ const final class XSpec : Spec, CSpec
 
   override CSpec? cmember(Str n, Bool c := true) { m.cmember(n, c) }
 
-  override CSpec? cslot(Str n, Bool c := true) { m.cslot(n, c) }
-
   override Void cslots(|CSpec, Str| f) { m.cslots(f) }
 
   override Obj? cslotsWhile(|CSpec, Str->Obj?| f) { m.cslotsWhile(f) }

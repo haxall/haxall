@@ -275,13 +275,6 @@ internal class ASpec : ANode, CSpec
     return null
   }
 
-  ** Lookup effective slot
-  override CSpec? cslot(Str name, Bool checked := true)
-  {
-    // TODO: just use on member
-    cmember(name, checked)
-  }
-
   ** Binding (set in LoadBindings)
   override SpecBinding binding() { bindingRef ?: throw NotReadyErr(qname) }
   SpecBinding? bindingRef

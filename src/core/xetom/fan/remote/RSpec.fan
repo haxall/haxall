@@ -68,7 +68,6 @@ internal class RSpec : CSpec
   override Dict cmeta() { meta ?: throw Err(name) }
   override Bool cmetaHas(Str name) { cmeta.has(name) }
   override CSpec? cmember(Str n, Bool c := true) { throw UnsupportedErr() }
-  override CSpec? cslot(Str name, Bool checked := true) { throw UnsupportedErr() }
   override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }
   override Obj? cslotsWhile(|CSpec, Str->Obj?| f) { slots.eachWhile |s| { f((CSpec)s, s.name) } }
   override CSpec? cenum(Str key, Bool checked := true) { throw UnsupportedErr() }

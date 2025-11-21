@@ -188,7 +188,7 @@ internal class CheckErrors : Step
     if (!isOverride) return false
 
     // check that x type is covariant to b func returns type
-    bReturns := b.cslot("returns")?.ctype
+    bReturns := b.cmember("returns")?.ctype
     if (!x.ctype.cisa(bReturns))
       err("Type mismatch in field '$x.name' override of method: $x.ctype != $bReturns", x.loc)
     return true

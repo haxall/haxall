@@ -55,9 +55,6 @@ mixin CSpec : CNode
   ** Lookup effective member
   abstract CSpec? cmember(Str name, Bool checked := true)
 
-  ** Lookup effective slot
-  abstract CSpec? cslot(Str name, Bool checked := true)
-
   ** Iterate the effective slots as map
   abstract Void cslots(|CSpec, Str| f)
 
