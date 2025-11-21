@@ -208,8 +208,7 @@ const final class MLib
 @Js
 const class MLibFlags
 {
-  static const Int hasXMeta    := 0x0001
-  static const Int hasMarkdown := 0x0002
+  static const Int hasMarkdown := 0x0001
 
   static Str flagsToStr(Int flags)
   {
@@ -275,8 +274,6 @@ const final class XetoLib : Lib, Dict
   override Void eachInstance(|Dict| f) { m.eachInstance(f) }
 
   override Bool isSys() { m.isSys }
-
-  override Bool hasXMeta() { m.hasFlag(MLibFlags.hasXMeta )}
 
   override Bool hasMarkdown() { m.hasFlag(MLibFlags.hasMarkdown )}
 

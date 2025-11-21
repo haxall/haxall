@@ -116,11 +116,11 @@ class MixinTest : AbstractXetoTest
       ["doc":doc, "foo":"building"])
 
     // area (global spec)
-    spec = ns.spec("ph::area")
+    spec = ns.spec("ph::Site.area")
     doc = spec.meta["doc"]
     verifyXMeta(ns, spec,
-      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area],
-      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "foo":"AreaEditor", "bar":"hello"])
+      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m],
+      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m, "foo":"AreaEditor", "bar":"hello"])
 
     // Vav (inherited from Equip)
     spec = ns.spec("ph::Vav")

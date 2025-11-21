@@ -78,9 +78,6 @@ const mixin Lib : Dict
   ** Is this the 'sys' library
   @NoDoc abstract Bool isSys()
 
-  ** Does this library contain mixin specs
-  @NoDoc abstract Bool hasXMeta()
-
   ** Does this library contain markdown resource files
   @NoDoc abstract Bool hasMarkdown()
 

@@ -689,7 +689,6 @@ class NamespaceTest : AbstractXetoTest
     else
       verifySame(lib.meta->depends, lib.depends)
 
-    verifyEq(lib.hasXMeta, name == "hx.test.xeto")
     verifyEq(lib.hasMarkdown, false)
 
     verifyEq(lib.id, Ref("lib:$name"))
