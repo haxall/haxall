@@ -8,23 +8,8 @@
 
 // ignored
 +ph::Site <foo:"building"> {
-}
-
-@xmeta-ph-Site: {
-  foo: "building"
-}
-
-/*
-@xmeta-ph-area: {
-  doc: "no take"
-  val: 123
-  foo: "AreaEditor"
-  bar: "hello"
-}
-*/
-
-@xmeta-ph-Equip: {
-  qux: "Device"
+  area: Number <doc:"no taek", foo: "AreaEditor", bar: "hello">
+  newSlot: Str <foo:"hi">
 }
 
 @xmeta-ph-CurStatus: {

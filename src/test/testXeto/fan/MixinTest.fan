@@ -51,6 +51,8 @@ class MixinTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str")) }
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str"), true) }
 
+    // specx meta
+
     verifySame(str, ns.specx(str))
     verifySpecx(site, sitex)
     verifySpecx(testSite, testSitex)
@@ -59,6 +61,28 @@ class MixinTest : AbstractXetoTest
     verifySame(sitex.meta, sitex.meta)
     verifyDictEq(sitex.meta, ["doc":site.metaOwn["doc"], "foo":"building"])
     verifyDictEq(testSitex.meta, ["doc":testSite.metaOwn["doc"], "foo":"building"])
+
+    // specx meta merge of orig slots
+    areaDoc := site.slot("area").meta["doc"]
+    areaMeta := ["doc":areaDoc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m, "foo":"AreaEditor", "bar":"hello"]
+    area := sitex.slot("area")
+    verifyDictEq(area.meta, areaMeta)
+    verifyDictEq(testSitex.slot("area").meta, areaMeta)
+    verifyNotSame(site.slotOwn("area"), area)
+    verifySame(sitex.slotOwn("area"), area)
+    verifySame(sitex.member("area"), area)
+    verifySame(sitex.membersOwn.get("area"), area)
+    verifySame(sitex.members.get("area"), area)
+
+    // specx new slots
+    newSlot := sitex.slot("newSlot")
+    verifyEq(testSite.slot("newSlot", false), null)
+    verifySame(sitem.slot("newSlot"), newSlot)
+    verifySame(testSitex.slot("newSlot"), newSlot)
+    verifyEq(newSlot.name, "newSlot")
+    verifyEq(newSlot.qname, "hx.test.xeto::Site.newSlot")
+    verifySame(newSlot.type, str)
+    verifyDictEq(newSlot.metaOwn, ["foo":"hi"])
   }
 
   Void verifySpecx(Spec m, Spec x)
@@ -72,6 +96,8 @@ class MixinTest : AbstractXetoTest
     verifySame(m.base,       x.base)
     verifySame(m.metaOwn,    x.metaOwn)
     verifySame(m.flavor,     x.flavor)
+    verifySame(m.globalsOwn, x.globalsOwn)
+    verifySame(m.globals,    x.globals)
     verifySame(m.loc,        x.loc)
     verifySame(m.binding,    x.binding)
     verifySame(m.fantomType, x.fantomType)
@@ -102,48 +128,6 @@ class MixinTest : AbstractXetoTest
     verifyEq(m.isOr,        x.isOr)
     verifyEq(m.isCompound,  x.isCompound)
     verifyEq(m.inheritanceDigest, x.inheritanceDigest)
-
-    m.slots.each |s| { verifyEq(s.name, x.slot(s.name).name) }
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// XMeta
-//////////////////////////////////////////////////////////////////////////
-
-  Void testXMeta()
-  {
-    ns := createNamespace(["hx.test.xeto"])
-
-    // Site (normal spec)
-    spec := ns.spec("ph::Site")
-    doc := spec.meta["doc"]
-    verifyXMeta(ns, spec,
-      ["doc":doc],
-      ["doc":doc, "foo":"building"])
-
-    // area (global spec)
-    spec = ns.spec("ph::Site.area")
-    doc = spec.meta["doc"]
-    verifyXMeta(ns, spec,
-      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m],
-      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m, "foo":"AreaEditor", "bar":"hello"])
-
-    // Vav (inherited from Equip)
-    spec = ns.spec("ph::Vav")
-    doc = spec.meta["doc"]
-    verifyXMeta(ns, spec,
-      ["doc":doc],
-      ["doc":doc, "qux":"Device"])
-  }
-
-  Void verifyXMeta(Namespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)
-  {
-    actual := ns.specx(spec).meta
-echo(">> $spec")
-echo(" > $xmeta")
-echo(" > $actual")
-    verifyDictEq(spec.meta, meta)
-    verifyDictEq(actual, xmeta)
   }
 
 //////////////////////////////////////////////////////////////////////////

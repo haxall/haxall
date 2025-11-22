@@ -198,6 +198,7 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec[] mixinsFor(Spec type)
   {
+    if (!type.isType) throw ArgErr("Not type spec: $type")
     acc := Str:Spec[:]
     type.eachInherited |x|
     {
