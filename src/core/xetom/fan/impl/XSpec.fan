@@ -17,17 +17,36 @@ using haystack
 @Js
 const final class XSpec : Spec, CSpec
 {
-  new make(MNamespace ns, XetoSpec m)
+  new make(XetoSpec m, Spec[] mixins)
   {
-    this.ns = ns
-    this.m  = m
+    this.m = m
+    this.mixins = mixins
   }
 
-  const MNamespace ns
+  const XetoSpec m  // wrapped spec
 
-  const XetoSpec m
+  const XetoSpec[] mixins  // mixins implemented by namespace
 
-  override once Dict meta() { SpecMixer(ns, m).meta }
+//////////////////////////////////////////////////////////////////////////
+// Meta
+//////////////////////////////////////////////////////////////////////////
+
+  override once Dict meta()
+  {
+    acc := Etc.dictToMap(m.meta)
+    mixins.each |x| { metaMerge(acc, x.meta) }
+    return Etc.dictFromMap(acc)
+  }
+
+  private Void metaMerge(Str:Obj acc, Dict meta)
+  {
+    if (meta.isEmpty) return
+    meta.each |v, n|
+    {
+      if (n == "mixin") return
+      if (acc[n] == null) acc[n] = v
+    }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Wrapped Methods

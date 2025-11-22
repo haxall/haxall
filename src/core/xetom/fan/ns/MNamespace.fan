@@ -196,9 +196,25 @@ const class MNamespace : Namespace, CNamespace
     return null
   }
 
+  override Spec[] mixinsFor(Spec type)
+  {
+    acc := Str:Spec[:]
+    type.eachInherited |x|
+    {
+      libs.each |lib|
+      {
+        m := lib.mixinFor(x, false)
+        if (m != null) acc[m.qname] = m
+      }
+    }
+    return acc.vals.toImmutable
+  }
+
   override Spec specx(Spec spec)
   {
-    XSpec(this, spec)
+    mixins := mixinsFor(spec)
+    if (mixins.isEmpty) return spec
+    return XSpec(spec, mixins)
   }
 
   override Void eachType(|Spec| f)

@@ -79,10 +79,14 @@ const mixin Namespace
   ** Get an instance by the given qualified name
   abstract Dict? instance(Str qname, Bool checked := true)
 
-  ** Compute the extended spec by merging all meta and slots from mixins.
-  ** This call can be quite expensive; so cache and reuse ths spec for
-  ** your operation.
-  abstract Spec specx(Spec spec)
+  ** Get all the mixins inherited into the given type.
+  ** This operation can be expensive.
+  abstract Spec[] mixinsFor(Spec type)
+
+  ** Compute the extended type spec by merging all meta and slots from
+  ** mixins.  This call can be quite expensive; so cache and reuse the
+  ** result for your operation.
+  abstract Spec specx(Spec type)
 
   ** Iterate all the top-level types in libs.
   abstract Void eachType(|Spec| f)

@@ -39,6 +39,11 @@ class MixinTest : AbstractXetoTest
     verifySame(sitem.base, site)
     verifySame(sitem.type, site)
 
+    verifyEq(ns.mixinsFor(str), Spec[,])
+    verifyEq(ns.mixinsFor(site), Spec[sitem])
+    verifyEq(ns.mixinsFor(testSite), Spec[sitem])
+    verifyEq(ns.mixinsFor(testSite).isImmutable, true)
+
     verifyEq(lib.mixins, Spec[sitem])
     verifySame(lib.mixinFor(site), sitem)
     verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
@@ -46,6 +51,7 @@ class MixinTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str")) }
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str"), true) }
 
+    verifySame(str, ns.specx(str))
     verifySpecx(site, sitex)
     verifySpecx(testSite, testSitex)
     verifySame(sitex.metaOwn, site.metaOwn)
@@ -133,6 +139,9 @@ class MixinTest : AbstractXetoTest
   Void verifyXMeta(Namespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)
   {
     actual := ns.specx(spec).meta
+echo(">> $spec")
+echo(" > $xmeta")
+echo(" > $actual")
     verifyDictEq(spec.meta, meta)
     verifyDictEq(actual, xmeta)
   }
