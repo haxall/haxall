@@ -26,11 +26,14 @@ class MixinTest : AbstractXetoTest
     ns        := createNamespace(["hx.test.xeto"])
     lib       := ns.lib("hx.test.xeto")
     str       := ns.spec("sys::Str")
+    number    := ns.spec("sys::Number")
     site      := ns.spec("ph::Site")
     testSite  := lib.spec("TestSite")
-    sitem     := lib.spec("Site")
     sitex     := ns.specx(site)
     testSitex := ns.specx(testSite)
+    sitem     := lib.spec("Site")
+    csm       := lib.spec("CurStatus")
+    phasem    := lib.spec("Phase")
 
     verifyEq(sitem.isType, false)
     verifyEq(sitem.isMixin, true)
@@ -44,7 +47,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(ns.mixinsFor(testSite), Spec[sitem])
     verifyEq(ns.mixinsFor(testSite).isImmutable, true)
 
-    verifyEq(lib.mixins, Spec[sitem])
+    verifyEq(lib.mixins, Spec[csm, phasem, sitem])
     verifySame(lib.mixinFor(site), sitem)
     verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
     verifyEq(lib.mixinFor(lib.spec("EquipA"), false), null)
@@ -66,6 +69,7 @@ class MixinTest : AbstractXetoTest
     areaDoc := site.slot("area").meta["doc"]
     areaMeta := ["doc":areaDoc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m, "foo":"AreaEditor", "bar":"hello"]
     area := sitex.slot("area")
+    verifySame(area.type, number)
     verifyDictEq(area.meta, areaMeta)
     verifyDictEq(testSitex.slot("area").meta, areaMeta)
     verifyNotSame(site.slotOwn("area"), area)
@@ -73,6 +77,8 @@ class MixinTest : AbstractXetoTest
     verifySame(sitex.member("area"), area)
     verifySame(sitex.membersOwn.get("area"), area)
     verifySame(sitex.members.get("area"), area)
+    verifyEq(sitem.slot("area").qname, "hx.test.xeto::Site.area")
+    verifySame(sitem.slot("area").type, number)
 
     // specx new slots
     newSlot := sitex.slot("newSlot")
@@ -136,19 +142,14 @@ class MixinTest : AbstractXetoTest
 
   Void testEnum()
   {
-echo("####### TODO")
-    /*
     ns := createNamespace(["ph", "hx.test.xeto"])
-    verifyEq(ns.lib("hx.test.xeto").hasXMeta, true)
 
     spec := ns.spec("ph::CurStatus")
-    verifyErr(UnsupportedErr#) { spec.enum.xmeta }
-    verifyErr(UnsupportedErr#) { spec.enum.xmeta("ok") }
+    specx := ns.specx(spec)
 
-    e := ns.xmetaEnum("ph::CurStatus")
-
+/*
     doc := spec.meta["doc"]
-    verifyDictEq(e.xmeta, Etc.dictToMap(spec.meta).set("qux", "_self_"))
+    verifyDictEq(specx.meta, Etc.dictToMap(spec.meta).set("qux", "_self_"))
     verifyDictEq(e.xmeta("ok"), Etc.dictToMap(e.spec("ok").meta).set("color", "green"))
     verifyDictEq(e.xmeta("down"), Etc.dictToMap(e.spec("down").meta).set("color", "yellow"))
     verifyDictEq(e.xmeta("disabled"), e.spec("disabled").meta)
@@ -156,7 +157,7 @@ echo("####### TODO")
     // test ph::EnumLine where names are different than keys
     e = ns.xmetaEnum("ph::Phase")
     verifyDictEq(e.xmeta("L1"), Etc.dictToMap(e.spec("L1").meta).set("foo", "Line 1"))
-    */
+*/
   }
 }
 

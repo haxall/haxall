@@ -146,6 +146,17 @@ internal class CheckErrors : Step
     xType := x.ctype
     bType := b.ctype
 
+    // for mixins that add meta to slots, they cannot be typed
+    if (x.parent != null && x.parent.isMixin && x.base.cparent != null)
+    {
+      if (x.base.isGlobal)
+        err("Mixin extend global: $x.name", x.loc)
+      else if (!xType.isMarker)
+        err("Mixin cannot specify slot type: $x.name", x.loc)
+      x.typeRef = ASpecRef(x.loc, bType)
+      return
+    }
+
     // verify type is covariant
     if (!xType.cisa(bType) && !isFieldOverrideOfMethod(b, x))
       errCovariant(x, "type '$xType' conflicts", "of type '$bType'")

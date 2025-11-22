@@ -8,23 +8,19 @@
 
 // ignored
 +ph::Site <foo:"building"> {
-  area: Number <doc:"no taek", foo: "AreaEditor", bar: "hello">
+  area <doc:"no taek", foo: "AreaEditor", bar: "hello">
   newSlot: Str <foo:"hi">
 }
 
-@xmeta-ph-CurStatus: {
-  qux: "_self_"
++CurStatus <qux:"_self_"> {
+  ok    <foo:"green">
+  down  <foo:"yellow">
+  fault <foo:"red">
 }
 
-@xmeta-ph-CurStatus-enum: {
-  ok:    {color:"green"}
-  down:  {color:"yellow"}
-  fault: {color:"red"}
-}
-
-@xmeta-ph-Phase-enum: {
-  l1: {foo:"Line 1"}
-  l2: {foo:"Line 2"}
-  l3: {foo:"Line 3"}
++Phase {
+  l1 <foo:"Line 1">
+  l2 <foo:"Line 2">
+  l3 <foo:"Line 3">
 }
 
