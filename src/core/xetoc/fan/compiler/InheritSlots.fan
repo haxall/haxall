@@ -286,7 +286,11 @@ internal class InheritSlots : Step
       if (dup === slot) return
 
       // otherwise we have conflict
-      if (dup != null) slot = mergeInheritedSlots(spec, name, dup, slot)
+      if (dup != null)
+      {
+        slot = mergeInheritedSlots(spec, name, dup, slot)
+        if (dup.isGlobal && !slot.isGlobal) acc.remove(name) // don't order by original globals
+      }
 
       // accumlate
       acc[name] = slot
@@ -308,8 +312,7 @@ internal class InheritSlots : Step
       if (dup != null)
       {
         if (dup === slot) return
-// TODO
-//        if (dup.isGlobal) acc.remove(name) // order below globals
+        if (dup.isGlobal) acc.remove(name)  // don't order by original globals
         acc[name] = overrideSlot(dup, slot)
       }
       else
