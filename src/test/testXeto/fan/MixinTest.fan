@@ -89,6 +89,12 @@ class MixinTest : AbstractXetoTest
     verifyEq(newSlot.qname, "hx.test.xeto::Site.newSlot")
     verifySame(newSlot.type, str)
     verifyDictEq(newSlot.metaOwn, ["foo":"hi"])
+
+    // lookup specx of global/slot
+    spec := ns.spec("ph::PhEntity.area")
+    verifySame(ns.specx(spec),  spec)
+    spec = ns.spec("ph::Site.area")
+    verifyDictEq(ns.specx(spec).meta, areaMeta)
   }
 
   Void verifySpecx(Spec m, Spec x)

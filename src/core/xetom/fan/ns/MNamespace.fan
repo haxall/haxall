@@ -200,6 +200,7 @@ const class MNamespace : Namespace, CNamespace
   {
     if (!type.isType) throw ArgErr("Not type spec: $type")
     acc := Str:Spec[:]
+    acc.ordered = true // main priority order by inheritance
     type.eachInherited |x|
     {
       libs.each |lib|
@@ -213,6 +214,8 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec specx(Spec spec)
   {
+    if (spec.isGlobal) return spec
+    if (spec.isSlot) return specx(spec.parent).slot(spec.name)
     mixins := mixinsFor(spec)
     if (mixins.isEmpty) return spec
     return XSpec(spec, mixins)
