@@ -290,8 +290,6 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Spec[]? ofs(Bool checked := true)  { m.args.ofs(checked) }
 
-  override final Bool isSys() { lib.isSys }
-
   override final SpecEnum enum() { m.enum }
 
   override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
@@ -324,6 +322,7 @@ const class XetoSpec : Spec, Dict, CSpec
   override final Bool isEnum()      { m.hasFlag(MSpecFlags.enum) }
   override final Bool isAnd()       { m.hasFlag(MSpecFlags.and) }
   override final Bool isOr()        { m.hasFlag(MSpecFlags.or) }
+  override final Bool isSys()       { lib.isSys }
   override final Bool isCompound()  { CSpec.super.isCompound }
 
   override final Bool isAst() { false }

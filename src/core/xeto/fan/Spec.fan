@@ -202,6 +202,9 @@ const mixin Spec : Dict
   ** Does this spec directly inherits from And/Or and define 'ofs'
   @NoDoc abstract Bool isCompound()
 
+  ** Is this a spec in the sys lib
+  @NoDoc abstract Bool isSys()
+
   ** Return a 64-bit digest for this spec's flattened inheritance hieararchy.
   ** This method is only available on top-level types in Java VM.
   @NoDoc abstract Int inheritanceDigest()
