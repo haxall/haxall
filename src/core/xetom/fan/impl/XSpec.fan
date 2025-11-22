@@ -99,6 +99,15 @@ const final class XSpec : WrapSpec
     return XSlotSpec(orig, Etc.dictFromMap(acc))
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Enum
+//////////////////////////////////////////////////////////////////////////
+
+  override once SpecEnum enum()
+  {
+    if (!isEnum) throw UnsupportedErr("Spec is not enum: $qname")
+    return MEnum.init(slots)
+  }
 }
 
 **************************************************************************
@@ -186,7 +195,7 @@ const class WrapSpec : Spec
 
   override final Spec[]? ofs(Bool checked := true)  { m.ofs(checked) }
 
-  override final SpecEnum enum() { m.enum }
+  override SpecEnum enum() { m.enum }
 
   override final SpecFunc func() { m.func }
 

@@ -41,7 +41,7 @@ const final class MType : MSpec
   {
     if (enumRef != null) return enumRef
     if (!hasFlag(MSpecFlags.enum)) return super.enum
-    MType#enumRef->setConst(this, MEnum.init(this))
+    MType#enumRef->setConst(this, MEnum.init(slots))
     return enumRef
   }
   private const MEnum? enumRef

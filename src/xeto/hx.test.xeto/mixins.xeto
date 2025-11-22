@@ -20,7 +20,6 @@
 
 +Phase {
   l1 <foo:"Line 1">
-  l2 <foo:"Line 2">
-  l3 <foo:"Line 3">
+  l1L2 <foo:"Line 1 to Line 2">  // ignore doc
 }
 

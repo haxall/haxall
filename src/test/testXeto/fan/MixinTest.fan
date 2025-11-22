@@ -137,27 +137,48 @@ class MixinTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// XMeta Enum
+// Enum
 //////////////////////////////////////////////////////////////////////////
 
   Void testEnum()
   {
     ns := createNamespace(["ph", "hx.test.xeto"])
 
+    // verify Specx.enum uses extended slot meta
     spec := ns.spec("ph::CurStatus")
     specx := ns.specx(spec)
-
-/*
-    doc := spec.meta["doc"]
     verifyDictEq(specx.meta, Etc.dictToMap(spec.meta).set("qux", "_self_"))
-    verifyDictEq(e.xmeta("ok"), Etc.dictToMap(e.spec("ok").meta).set("color", "green"))
-    verifyDictEq(e.xmeta("down"), Etc.dictToMap(e.spec("down").meta).set("color", "yellow"))
-    verifyDictEq(e.xmeta("disabled"), e.spec("disabled").meta)
+    verifyEnumItem(spec, specx, "ok",     "green")
+    verifyEnumItem(spec, specx, "down",    "yellow")
+    verifyEnumItem(spec, specx, "disabled", null)
 
-    // test ph::EnumLine where names are different than keys
-    e = ns.xmetaEnum("ph::Phase")
-    verifyDictEq(e.xmeta("L1"), Etc.dictToMap(e.spec("L1").meta).set("foo", "Line 1"))
-*/
+    // test Phase where names are different than keys
+    spec = ns.spec("ph::Phase")
+    specx = ns.specx(spec)
+    verifyEnumItem(spec, specx, "L1", "Line 1")
+    verifyEnumItem(spec, specx, "L1-L2", "Line 1 to Line 2")
+
+    // Specx.enum raises exception for non-enum
+    verifyErr(UnsupportedErr#) { ns.specx(ns.spec("ph::Site")).enum }
+  }
+
+  Void verifyEnumItem(Spec spec, Spec specx, Str key, Str? foo)
+  {
+    item  := spec.enum.spec(key)
+    itemx := specx.enum.spec(key)
+    if (foo == null)
+    {
+      verifySame(item, itemx)
+      verifySame(spec.slot(item.name), specx.slot(item.name))
+      return
+    }
+    verifyNotSame(item, itemx)
+    verifyNotSame(spec.slot(item.name), specx.slot(item.name))
+    verifySame(item, spec.slot(item.name))
+    verifySame(itemx, specx.slot(item.name))
+    verifyEq(item.meta["foo"], null)
+    verifyEq(itemx.meta["foo"], foo)
+    verifyDictEq(itemx.meta, Etc.dictSet(item.meta, "foo", foo))
   }
 }
 
