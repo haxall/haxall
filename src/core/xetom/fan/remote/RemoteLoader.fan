@@ -131,12 +131,14 @@ internal class RemoteLoader
     else
     {
       // recursively load base and inherit
-      if (x.base.isAst) loadSpec(x.base)
-      x.meta       = inheritMeta(x)
+      loadSpecRef(x.baseIn)
+RSpec? rbase
+if (x.baseIn.slot.isEmpty && x.baseIn.lib == libName) rbase = tops.get(x.baseIn.type)
+      x.meta       = inheritMeta(x, rbase)
       x.slotsOwn   = loadSlotsOwn(x.slotsOwnIn)
       x.globalsOwn = loadSlotsOwn(x.globalsOwnIn)
-      x.slots      = inheritSlots(x)
-      x.args       = loadArgs(x)
+      x.slots      = inheritSlots(x, rbase)
+      x.args       = loadArgs(x, rbase)
     }
 
     if (x.flavor.isType) x.bindingRef = assignBinding(x)
@@ -191,6 +193,11 @@ internal class RemoteLoader
     return x
   }
 
+  private Void loadSpecRef(RSpecRef ref)
+  {
+    if (ref.lib == libName) loadSpec(tops.getChecked(ref.type))
+  }
+
   private Str? qname(RSpec x)
   {
     if (x.flavor.isSlot) return null
@@ -200,8 +207,8 @@ internal class RemoteLoader
   private XetoSpec type(RSpec x)
   {
     if (x.flavor.isType) return x.asm
-    if (x.typeIn != null) return resolve(x.typeIn).asm
-    return x.base.asm
+    if (x.typeIn != null) return resolve(x.typeIn)
+    return x.base
   }
 
   private Dict resolveMeta(Dict m)
@@ -209,7 +216,7 @@ internal class RemoteLoader
     // resolve spec ref values
     return m.map |v, n|
     {
-      v is RSpecRef ? resolve(v).asm : v
+      v is RSpecRef ? resolve(v) : v
     }
   }
 
@@ -228,14 +235,14 @@ internal class RemoteLoader
     return SpecMap(map)
   }
 
-  private Dict inheritMeta(RSpec x)
+  private Dict inheritMeta(RSpec x, RSpec? rbase)
   {
     // if we included effective meta from compound types use it
     if (x.metaIn != null) return resolveMeta(x.metaIn)
 
-    own     := x.metaOwn         // my own meta
-    base    := x.base.cmeta      // base spec meta
-    inherit := x.metaInheritedIn // names to inherit from base
+    own     := x.metaOwn                   // my own meta
+    base    := rbase?.meta ?: x.base.meta  // base spec meta
+    inherit := x.metaInheritedIn           // names to inherit from base
 
     // optimize when we can just reuse base
     if (own.isEmpty)
@@ -253,32 +260,29 @@ internal class RemoteLoader
     return Etc.dictFromMap(acc)
   }
 
-  private SpecMap inheritSlots(RSpec x)
+  private SpecMap inheritSlots(RSpec x, RSpec? rbase)
   {
     // if we encoded inherited refs for and/or types, then use that
     if (x.slotsInheritedIn != null)
       return inheritSlotsFromRefs(x)
 
+    // enum items don't have slots
+    if (x.parent != null && x.parent.isEnum) return SpecMap.empty
+
     // if my own slots are empty, I can just reuse my parent's slot map
-    base := x.base
-    if (x.slotsOwn.isEmpty)
-    {
-      if (base.isAst)
-        return ((RSpec)base).slots ?: SpecMap.empty // TODO: recursive base problem
-      else
-        return ((XetoSpec)base).m.slots
-    }
+    baseSlots := rbase?.slots ?: x.base.slots
+    if (x.slotsOwn.isEmpty) return baseSlots
 
     // simple single base class solution
     acc := Str:XetoSpec[:]
     acc.ordered = true
 
     autoCount := 0
-    x.base.cslots |slot|
+    baseSlots.each |slot|
     {
       name := slot.name
       if (XetoUtil.isAutoName(name)) name = XetoUtil.autoName(autoCount++)
-      if (acc[name] == null) acc[name] = slot.asm
+      if (acc[name] == null) acc[name] = slot
     }
     x.slotsOwn.each |slot|
     {
@@ -295,9 +299,10 @@ internal class RemoteLoader
     acc.ordered = true
     x.slotsInheritedIn.each |ref|
     {
+// TODO: we can optimize this
+      loadSpecRef(ref)
       slot := resolve(ref)
-      if (slot.isAst) loadSpec(slot)
-      if (acc[slot.name] == null) acc[slot.name] = slot.asm
+      if (acc[slot.name] == null) acc[slot.name] = slot
     }
     x.slotsOwn.each |slot|
     {
@@ -306,7 +311,7 @@ internal class RemoteLoader
     return SpecMap(acc)
   }
 
-  private MSpecArgs loadArgs(RSpec x)
+  private MSpecArgs loadArgs(RSpec x, RSpec? rbase)
   {
     of := x.metaOwn["of"] as Ref
     if (of != null) return MSpecArgsOf(resolveRef(of))
@@ -314,7 +319,7 @@ internal class RemoteLoader
     ofs := x.metaOwn["ofs"] as Ref[]
     if (ofs != null) return MSpecArgsOfs(ofs.map |ref->Spec| { resolveRef(ref) })
 
-    return x.base.args
+    return rbase?.args ?: x.base.args
   }
 
   private Spec resolveRef(Ref ref)
@@ -325,14 +330,14 @@ internal class RemoteLoader
     libName := ref.id[0..<colons]
     specName := ref.id[colons+2..-1]
     rref := RSpecRef(libName, specName, "", null)
-    return resolve(rref).asm
+    return resolve(rref)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Resolve
 //////////////////////////////////////////////////////////////////////////
 
-  private CSpec? resolve(RSpecRef? ref)
+  private Spec? resolve(RSpecRef? ref)
   {
     if (ref == null) return null
     if (ref.lib == libName)
@@ -341,25 +346,25 @@ internal class RemoteLoader
       return resolveExternal(ref)
   }
 
-  private CSpec resolveInternal(RSpecRef ref)
+  private Spec resolveInternal(RSpecRef ref)
   {
     // resolve type level
     type := tops.getChecked(ref.type)
-    if (ref.slot.isEmpty) return type
+    if (ref.slot.isEmpty) return type.asm
 
     // resolve slot level (may be globals too if we inherit from global)
     // TODO: this might need to get mapped into hash map
     slot := type.slotsOwnIn?.find |s| { s.name == ref.slot }
     if (slot == null) slot = type.globalsOwnIn?.find |s| { s.name == ref.slot }
     if (slot == null) throw UnresolvedErr(ref.toStr)
-    if (ref.more == null) return slot
+    if (ref.more == null) return slot.asm
 
     x := slot
     ref.more.each |more|
     {
       x = x.slotsOwnIn.find |s| { s.name == more } ?: throw UnresolvedErr(ref.toStr)
     }
-    return x
+    return x.asm
   }
 
   private XetoSpec resolveExternal(RSpecRef ref)

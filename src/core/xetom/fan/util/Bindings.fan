@@ -247,10 +247,10 @@ const class SpecBindingLoader
   virtual Void loadLib(SpecBindings acc, Str libName) {}
 
   ** Map Xeto to Fantom bindings for the spec if applicable
-  virtual SpecBinding? loadSpec(SpecBindings acc, CSpec spec) { null }
+  virtual SpecBinding? loadSpec(SpecBindings acc, SpecBindingInfo spec) { null }
 
   ** Default behavior for loading spec via pod reflection
-  SpecBinding? loadSpecReflect(SpecBindings acc, Pod pod, CSpec spec)
+  SpecBinding? loadSpecReflect(SpecBindings acc, Pod pod, SpecBindingInfo spec)
   {
     // lookup Fantom type with same name
     type := pod.type(spec.name, false)
@@ -289,6 +289,16 @@ const class SpecBindingLoader
   }
 }
 
+// TODO
+@Js
+mixin SpecBindingInfo
+{
+  abstract Str name()
+  abstract Str qname()
+  abstract CSpec? cbase()
+  abstract Bool isInterface()
+}
+
 **************************************************************************
 ** PodBindingLoader
 **************************************************************************
@@ -307,7 +317,7 @@ const class PodBindingLoader : SpecBindingLoader
 
   const Type? fantomFuncsType
 
-  override SpecBinding? loadSpec(SpecBindings acc, CSpec spec)
+  override SpecBinding? loadSpec(SpecBindings acc, SpecBindingInfo spec)
   {
     loadSpecReflect(acc, pod, spec)
   }

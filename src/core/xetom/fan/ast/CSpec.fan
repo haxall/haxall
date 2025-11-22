@@ -13,7 +13,7 @@ using util
 ** CSpec is common API shared by both ASpec, RSpec, and XetoSpec
 **
 @Js
-mixin CSpec : CNode
+mixin CSpec : CNode, SpecBindingInfo
 {
   ** Return if this an AST ASpec
   abstract Bool isAst()
@@ -22,10 +22,10 @@ mixin CSpec : CNode
   override abstract Spec asm()
 
   ** Simple name
-  abstract Str name()
+  override abstract Str name()
 
   ** Qualified name
-  abstract Str qname()
+  override abstract Str qname()
 
   ** Parent spec which contains this spec definition and scopes `name`.
   ** Returns null for top level specs in the library.
@@ -41,7 +41,7 @@ mixin CSpec : CNode
   abstract CSpec ctype()
 
   ** Base spec or null if this sys::Obj itself
-  abstract CSpec? cbase()
+  override abstract CSpec? cbase()
 
   ** Effective meta
   abstract Dict cmeta()
@@ -141,7 +141,7 @@ mixin CSpec : CNode
   abstract Bool isFunc()
 
   ** Inherits from 'sys::Interface' without considering And/Or
-  abstract Bool isInterface()
+  override abstract Bool isInterface()
 
   ** Inherits from 'sys.comp::Comp' without considering And/Or
   abstract Bool isComp()

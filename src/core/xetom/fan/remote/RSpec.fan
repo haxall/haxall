@@ -11,10 +11,10 @@ using concurrent
 using xeto
 
 **
-** RSpec is the remote loader AST of a spec during decoding phase
+** RSpec stores spec info during decoding phase
 **
 @Js
-internal class RSpec : CSpec
+internal class RSpec: SpecBindingInfo
 {
   new make(Str libName, RSpec? parent, Str name)
   {
@@ -25,12 +25,18 @@ internal class RSpec : CSpec
   }
 
   const Str libName
-  const override XetoSpec asm
+  const XetoSpec asm
   const override Str name
   RSpec? parent { private set }
 
+  override Str qname()
+  {
+    if (parent != null) return parent.qname + "." + name
+    return libName + "::" + name
+  }
+
   // decoded by XetoBinaryReader
-  override SpecFlavor flavor := SpecFlavor.slot
+  SpecFlavor flavor := SpecFlavor.slot
   RSpecRef? baseIn
   RSpecRef? typeIn
   Dict? metaOwnIn
@@ -42,8 +48,8 @@ internal class RSpec : CSpec
 
   // RemoteLoader.loadSpec
   Bool isLoaded
-  CSpec? type
-  CSpec? base
+  XetoSpec? type
+  XetoSpec? base
   Dict? metaOwn
   Dict? meta
   SpecMap? slotsOwn
@@ -51,56 +57,17 @@ internal class RSpec : CSpec
   SpecMap? globalsOwn
   SpecBinding? bindingRef
 
-  override Bool hasSlots() { !slots.isEmpty }
+  MSpecArgs args := MSpecArgs.nil
 
-  // CSpec
-  override Bool isAst() { true }
-  override Str qname()
-  {
-    if (parent != null) return parent.qname + "." + name
-    return libName + "::" + name
-  }
-  override Ref id() { throw UnsupportedErr() }
-  override SpecBinding binding() { bindingRef ?: throw Err("Binding not assigned") }
-  override CSpec ctype() { type }
-  override CSpec? cbase() { base }
-  override CSpec? cparent() { parent }
-  override Dict cmeta() { meta ?: throw Err(name) }
-  override Bool cmetaHas(Str name) { cmeta.has(name) }
-  override CSpec? cmember(Str n, Bool c := true) { throw UnsupportedErr() }
-  override Void cmembers(|CSpec, Str| f) { throw UnsupportedErr() }
-  override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }
-  override Obj? cslotsWhile(|CSpec, Str->Obj?| f) { slots.eachWhile |s| { f((CSpec)s, s.name) } }
-  override CSpec? cenum(Str key, Bool checked := true) { throw UnsupportedErr() }
-  override Bool cisa(CSpec x) { XetoUtil.isa(this, x) }
-  override CSpec? cof
-  override CSpec[]? cofs
-  override Str toStr() { name }
-  override MSpecArgs args := MSpecArgs.nil  // TODO
-
-  override final Bool isSys() { libName =="sys" }
-
-  // flags
-  override Int flags
-  override Bool isScalar()    { hasFlag(MSpecFlags.scalar) }
-  override Bool isMarker()    { hasFlag(MSpecFlags.marker) }
-  override Bool isRef()       { hasFlag(MSpecFlags.ref) }
-  override Bool isMultiRef()  { hasFlag(MSpecFlags.multiRef) }
-  override Bool isChoice()    { hasFlag(MSpecFlags.choice) }
-  override Bool isDict()      { hasFlag(MSpecFlags.dict) }
-  override Bool isList()      { hasFlag(MSpecFlags.list) }
-  override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
-  override Bool isGlobal()    { hasFlag(MSpecFlags.global) }
-  override Bool isQuery()     { hasFlag(MSpecFlags.query) }
-  override Bool isFunc()      { hasFlag(MSpecFlags.func) }
-  override Bool isInterface() { hasFlag(MSpecFlags.interface) }
-  override Bool isComp()      { hasFlag(MSpecFlags.comp) }
-  override Bool isNone()      { hasFlag(MSpecFlags.none) }
-  override Bool isSelf()      { hasFlag(MSpecFlags.self) }
-  override Bool isEnum()      { hasFlag(MSpecFlags.enum) }
-  override Bool isAnd()       { hasFlag(MSpecFlags.and) }
-  override Bool isOr()        { hasFlag(MSpecFlags.or) }
+  Int flags
+  Bool isEnum() { hasFlag(MSpecFlags.enum) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
+
+ override Bool isInterface() { hasFlag(MSpecFlags.interface) }
+
+  override CSpec? cbase() { base }
+
+  override Str toStr() { name }
 }
 
 **************************************************************************
