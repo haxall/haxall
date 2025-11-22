@@ -333,6 +333,8 @@ internal class InheritSlots : Step
       if (base.cmetaHas("static")) return slot
     }
 
+    if (slot.isGlobal) err("Duplicates global: $base", slot.loc)
+
     slot.base = base
 
     val := slot.val

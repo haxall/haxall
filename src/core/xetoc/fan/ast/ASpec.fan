@@ -72,7 +72,12 @@ internal class ASpec : ANode, CSpec
   Bool isMixin() { flavor.isMixin }
 
   ** Is flavor global
-  override Bool isGlobal() { flavor.isGlobal || hasFlag(MSpecFlags.global) }
+  override Bool isGlobal()
+  {
+// TODO
+    if (flags < 0) return cmetaHas("global")
+    return flavor.isGlobal || hasFlag(MSpecFlags.global)
+  }
 
   ** Is flavor meta
   Bool isMeta() { flavor.isMeta }

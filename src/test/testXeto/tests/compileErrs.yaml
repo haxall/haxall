@@ -248,12 +248,13 @@ compileLib: |
     >
   Foo: PhEntity {
     *area: Str
-    *site: Str
-    *equip: Str <meta> // Ok
+    *site: Marker
+    *equip: Str <meta>
   }
 verifyErrs: |
-  Duplicate global: temp::area, ph::area
-  Duplicate global: temp::site, ph::site
+  Duplicates global: ph::PhEntity.area
+  Duplicates global: ph::PhEntity.site
+  Duplicates global: ph::PhEntity.equip
 ---
 name: "covariance"
 compileLib: |
