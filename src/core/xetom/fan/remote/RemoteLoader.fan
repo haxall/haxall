@@ -131,9 +131,7 @@ internal class RemoteLoader
     else
     {
       // recursively load base and inherit
-      loadSpecRef(x.baseIn)
-RSpec? rbase
-if (x.baseIn.slot.isEmpty && x.baseIn.lib == libName) rbase = tops.get(x.baseIn.type)
+      rbase := loadSpecRef(x.baseIn)
       x.meta       = inheritMeta(x, rbase)
       x.slotsOwn   = loadSlotsOwn(x.slotsOwnIn)
       x.globalsOwn = loadSlotsOwn(x.globalsOwnIn)
@@ -193,9 +191,10 @@ if (x.baseIn.slot.isEmpty && x.baseIn.lib == libName) rbase = tops.get(x.baseIn.
     return x
   }
 
-  private Void loadSpecRef(RSpecRef ref)
+  private RSpec? loadSpecRef(RSpecRef ref)
   {
-    if (ref.lib == libName) loadSpec(tops.getChecked(ref.type))
+    if (ref.lib != libName) return null
+    return resolveInternal(ref, true)
   }
 
   private Str? qname(RSpec x)
@@ -306,9 +305,7 @@ if (x.baseIn.slot.isEmpty && x.baseIn.lib == libName) rbase = tops.get(x.baseIn.
     acc.ordered = true
     x.slotsInheritedIn.each |ref|
     {
-// TODO: we can optimize this
-      loadSpecRef(ref)
-      slot := resolve(ref)
+      slot := resolve(ref, true)
       if (acc[slot.name] == null) acc[slot.name] = slot
     }
     x.slotsOwn.each |slot|
@@ -344,34 +341,35 @@ if (x.baseIn.slot.isEmpty && x.baseIn.lib == libName) rbase = tops.get(x.baseIn.
 // Resolve
 //////////////////////////////////////////////////////////////////////////
 
-  private Spec? resolve(RSpecRef? ref)
+  private Spec? resolve(RSpecRef? ref, Bool load := false)
   {
     if (ref == null) return null
     if (ref.lib == libName)
-      return resolveInternal(ref)
+      return resolveInternal(ref, load).asm
     else
       return resolveExternal(ref)
   }
 
-  private Spec resolveInternal(RSpecRef ref)
+  private RSpec resolveInternal(RSpecRef ref, Bool load)
   {
     // resolve type level
     type := tops.getChecked(ref.type)
-    if (ref.slot.isEmpty) return type.asm
+    if (load) loadSpec(type)
+    if (ref.slot.isEmpty) return type
 
     // resolve slot level (may be globals too if we inherit from global)
     // TODO: this might need to get mapped into hash map
     slot := type.slotsOwnIn?.find |s| { s.name == ref.slot }
     if (slot == null) slot = type.globalsOwnIn?.find |s| { s.name == ref.slot }
     if (slot == null) throw UnresolvedErr(ref.toStr)
-    if (ref.more == null) return slot.asm
+    if (ref.more == null) return slot
 
     x := slot
     ref.more.each |more|
     {
       x = x.slotsOwnIn.find |s| { s.name == more } ?: throw UnresolvedErr(ref.toStr)
     }
-    return x.asm
+    return x
   }
 
   private XetoSpec resolveExternal(RSpecRef ref)
