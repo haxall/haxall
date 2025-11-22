@@ -266,15 +266,6 @@ internal class ASpec : ANode, CSpec
   ** Parent spec or null if this is top-level spec
   override CSpec? cparent() { parent }
 
-  ** Lookup effective member
-  override CSpec? cmember(Str name, Bool checked := true)
-  {
-    ast := slots?.get(name) as ASpec
-    if (ast != null) return ast
-    if (checked) throw UnknownSlotErr(name)
-    return null
-  }
-
   ** Binding (set in LoadBindings)
   override SpecBinding binding() { bindingRef ?: throw NotReadyErr(qname) }
   SpecBinding? bindingRef
@@ -306,6 +297,16 @@ internal class ASpec : ANode, CSpec
   {
     if (cslotsRef == null) throw NotReadyErr(qname)
     cslotsRef.each(f)
+  }
+
+  ** Lookup effective member
+  override CSpec? cmember(Str name, Bool checked := true)
+  {
+    if (cslotsRef == null) throw NotReadyErr(qname)
+    m := cslotsRef.get(name)
+    if (m != null) return m
+    if (checked) throw UnknownSlotErr("${qname}.${name}")
+    return null
   }
 
   ** Iterate the effective slots

@@ -542,6 +542,7 @@ class ValidateTest : AbstractXetoTest
     {
       echo("\n-- $title [$actual.size]")
       echo(actual.join("\n"))
+      echo
     }
 
     normExpect := Str[,]
