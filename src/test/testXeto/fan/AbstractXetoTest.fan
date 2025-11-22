@@ -58,6 +58,7 @@ class AbstractXetoTest : HaystackTest
 
     // load all and invoke callback
     verifyEq(client.ns.libs.size, server.ns.versions.size)
+    f(client.ns)
   }
 
   Namespace createNamespace(Str[] libs := ["sys"])

@@ -86,3 +86,7 @@ Sigs: {
   h: List <of:Ref<of:A>>
 }
 
+TestNest: Dict {
+  nest: TestNest?
+}
+

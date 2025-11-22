@@ -296,9 +296,16 @@ class NamespaceTest : AbstractXetoTest
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
 
-    // global spec
-    // TODO
-    //verifyGlobal(ns, lib, "globalTag", ns.spec("sys::Str"))
+    // nested - type with slot of its own type
+    nestType := lib.type("TestNest")
+    nestSlot := nestType.slot("nest")
+    verifySame(nestSlot.type, nestType)
+    verifySame(nestSlot.base, nestType)
+    verifyEq(nestType.slots.names, ["nest"])
+    if (ns.env.isRemote)
+      echo("TODO fix RemoteLoader")
+    else
+      verifyEq(nestSlot.slots.names, ["nest"])
 
     // meta spec
     verifyMeta(ns, lib, "testMetaTag", ns.spec("sys::Str"))

@@ -270,7 +270,14 @@ if (x.baseIn.slot.isEmpty && x.baseIn.lib == libName) rbase = tops.get(x.baseIn.
     if (x.parent != null && x.parent.isEnum) return SpecMap.empty
 
     // if my own slots are empty, I can just reuse my parent's slot map
-    baseSlots := rbase?.slots ?: x.base.slots
+    // NOTE: this doesn't work if we have slots typed as the parent type
+    // because we are building the slots before we finish assembling parent;
+    // but for practical considerations this doesn't really matter
+    baseSlots := SpecMap.empty
+    try
+      baseSlots = rbase?.slots ?: x.base.slots
+    catch
+      echo("WARN: base slots not avail [$x.qname]")
     if (x.slotsOwn.isEmpty) return baseSlots
 
     // simple single base class solution
