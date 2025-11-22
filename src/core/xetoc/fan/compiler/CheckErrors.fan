@@ -138,7 +138,6 @@ internal class CheckErrors : Step
     checkSlots(x)
   }
 
-
   Void checkCovariant(ASpec x)
   {
     b := x.base
@@ -235,6 +234,7 @@ internal class CheckErrors : Step
     checkSlotType(x)
     checkSlotMeta(x)
     checkSlotVal(x)
+    if (x.isGlobal && x.parent.isMixin) err("Mixin cannot decalre global: $x.name", x.loc)
   }
 
   Void checkSlotType(ASpec slot)

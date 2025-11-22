@@ -256,6 +256,23 @@ verifyErrs: |
   Duplicates global: ph::PhEntity.site
   Duplicates global: ph::PhEntity.equip
 ---
+name: "mixins"
+compileLib: |
+  pragma: Lib <
+      doc: "Test lib"
+      version: "1.2.3"
+      depends: { {lib:"sys"}, {lib:"ph"} }
+    >
+  +Site {
+    area: Str
+    equip <abstract>
+    *foo: Number
+  }
+verifyErrs: |
+  Mixin cannot specify slot type: area
+  Mixin extend global: equip
+  Mixin cannot decalre global: foo
+---
 name: "covariance"
 compileLib: |
   Foo: {
