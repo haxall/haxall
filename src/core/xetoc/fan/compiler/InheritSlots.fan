@@ -46,7 +46,7 @@ internal class InheritSlots : Step
   private Void inherit(ASpec spec)
   {
     // check if already inherited
-    if (spec.cslotsRef != null) return
+    if (spec.ast.members != null) return
 
     // check for cyclic inheritance
     // NOTE: this isn't quite right for OO interfaces and is recursing
@@ -55,7 +55,7 @@ internal class InheritSlots : Step
     {
       err("Cyclic inheritance: $spec.qname", spec.loc)
       spec.flags = 0
-      spec.cslotsRef = noSlots
+      spec.ast.members = noMembers
     }
 
     // push onto stack to keep track of cycles
@@ -74,7 +74,7 @@ internal class InheritSlots : Step
     if (spec.isObj)
     {
       spec.flags = 0
-      spec.cslotsRef = noSlots
+      spec.ast.members = noMembers
       types.add(spec)
       return
     }
@@ -242,7 +242,7 @@ return x.typeRef?.deref as Spec
   ** The compute the effective slots and store in cslotsRef
   private Void inheritSlots(ASpec spec)
   {
-    acc := Str:CSpec[:]
+    acc := Str:Spec[:]
     acc.ordered = true
     autoCount := 0
     base := spec.base
@@ -266,11 +266,11 @@ return x.typeRef?.deref as Spec
     addOwnSlots(spec, acc, autoCount)
 
     // we now have effective slot map
-    spec.cslotsRef = acc
+    spec.ast.members = acc
   }
 
   ** Inherit slots from the given base type to accumulator
-  private Int inheritSlotsFrom(ASpec spec, Str:CSpec acc, Int autoCount, Spec base)
+  private Int inheritSlotsFrom(ASpec spec, Str:Spec acc, Int autoCount, Spec base)
   {
     base.members.each |slot|
     {
@@ -282,9 +282,7 @@ return x.typeRef?.deref as Spec
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
 
       // check for duplicate
-//      dup := acc[name] as Spec
-// TODO
-dup := acc[name] as Spec
+      dup := acc[name]
 
       // if its the exact same slot, all is ok
       if (dup === slot) return
@@ -297,16 +295,14 @@ dup := acc[name] as Spec
       }
 
       // accumlate
-//      acc[name] = (CSpec)slot
-// TOOD
-acc[name] = (CSpec)slot
+      acc[name] = slot
     }
 
     return autoCount
   }
 
   ** Merge in my own slots to accumulator and handle slot overrides
-  private Int addOwnSlots(ASpec spec, Str:CSpec acc, Int autoCount)
+  private Int addOwnSlots(ASpec spec, Str:Spec acc, Int autoCount)
   {
     if (spec.declared == null) return autoCount
     spec.declared.each |ASpec slot|
@@ -319,8 +315,7 @@ acc[name] = (CSpec)slot
       {
         if (dup === slot) return
         if (dup.isGlobal) acc.remove(name)  // don't order by original globals
-dupx := (Spec)dup  // TODO
-        acc[name] = overrideSlot(dupx, slot)
+        acc[name] = overrideSlot(dup, slot)
       }
       else
       {
@@ -386,12 +381,12 @@ dupx := (Spec)dup  // TODO
     merge.flags = a.flags
 
     // merge in slots from both a and b
-    acc := Str:CSpec[:]
+    acc := Str:Spec[:]
     acc.ordered = true
     autoCount := 0
     autoCount = inheritSlotsFrom(merge, acc, autoCount, a)
     autoCount = inheritSlotsFrom(merge, acc, autoCount, b)
-    merge.cslotsRef = acc
+    merge.ast.members = acc
 
     // we need to make this a new declared slot
     spec.initDeclared.add(name, merge)
@@ -428,8 +423,8 @@ spec.ast.base = (Spec)spec.typeRef.deref
       spec.metaInit.set("sealed", sys.markerScalar(loc))
 
     // recurse children slots to process as the enum items
-    slots := Str:CSpec[:]; slots.ordered = true
-    enums := Str:CSpec[:]; enums.ordered = true
+    slots := Str:Spec[:]; slots.ordered = true
+    enums := Str:Spec[:]; enums.ordered = true
     hasKeys := false
     enumRef := ASpecRef(loc, spec)
     defKey := null
@@ -466,7 +461,7 @@ spec.ast.base = (Spec)spec.typeRef.deref
       spec.metaInit.set("val", AScalar(spec.loc, enumRef, defKey))
 
     // save away both slots and enums
-    spec.cslotsRef = slots
+    spec.ast.members = slots
     spec.ast.enums = enums
   }
 
@@ -477,10 +472,10 @@ spec.ast.base = (Spec)spec.typeRef.deref
     if (item.typeRef !== sys.marker)
       err("Enum item '$item.name' cannot have type", item.loc)
 
-    item.ast.base  = enum
-    item.typeRef   = enumRef
-    item.flags     = enum.flags
-    item.cslotsRef = noSlots
+    item.ast.base    = enum
+    item.typeRef     = enumRef
+    item.flags       = enum.flags
+    item.ast.members = noMembers
     return item
   }
 
@@ -488,10 +483,10 @@ spec.ast.base = (Spec)spec.typeRef.deref
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  const Str:CSpec noSlots := Str:CSpec[:]
+  const Str:Spec noMembers := Str:Spec[:]
 
   private ASpec[] stack := [,]
-  private Str:CSpec? globals := [:]
+  private Str:Spec? globals := [:]
   private ASpec[] types := [,]
 }
 

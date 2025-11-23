@@ -102,7 +102,7 @@ internal class Assemble : Step
 
   private SpecMap asmSlots(ASpec x)
   {
-    if (x.cslotsRef.isEmpty) return SpecMap.empty
+    if (x.members.isEmpty) return SpecMap.empty
     map := Str:XetoSpec[:]
     map.ordered = true
     x.cmembers |s, n|

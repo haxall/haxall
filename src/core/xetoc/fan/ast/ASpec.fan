@@ -230,17 +230,14 @@ internal final const class ASpec : ANode, CSpec, Spec
 
   override once SpecMap members()
   {
-    acc := Str:Obj[:]
-    acc.ordered = true
-    ast.cslots.each |x, n| { acc.add(n, x) }
-    return SpecMap(acc)
+    SpecMap(ast.members)
   }
 
   override SpecMap slots()
   {
-    acc := Str:Obj[:]
+    acc := Str:Spec[:]
     acc.ordered = true
-    ast.cslots.each |x, n| { if (!x.isGlobal) acc.add(n, x) }
+    ast.members.each |x, n| { if (!x.isGlobal) acc.add(n, x) }
     return SpecMap(acc)
   }
 
@@ -346,23 +343,23 @@ internal final const class ASpec : ANode, CSpec, Spec
   ** Is there one or more effective slots
   override Bool hasSlots()
   {
-    if (cslotsRef == null) throw NotReadyErr(qname)
-    return !cslotsRef.isEmpty
+    if (ast.members == null) throw NotReadyErr(qname)
+    return !ast.members.isEmpty
   }
 
   ** Iterate the effective members
   override Void cmembers(|CSpec, Str| f)
   {
-    if (cslotsRef == null) throw NotReadyErr(qname)
-    cslotsRef.each(f)
+    if (ast.members == null) throw NotReadyErr(qname)
+    ast.members.each |x, n| { f((CSpec)x, n) }
   }
 
   ** Lookup effective member
   override CSpec? cmember(Str name, Bool checked := true)
   {
-    if (cslotsRef == null) throw NotReadyErr(qname)
-    m := cslotsRef.get(name)
-    if (m != null) return m
+    if (ast.members == null) throw NotReadyErr(qname)
+    m := ast.members.get(name)
+    if (m != null) return (CSpec)m
     if (checked) throw UnknownSlotErr("${qname}.${name}")
     return null
   }
@@ -371,19 +368,16 @@ internal final const class ASpec : ANode, CSpec, Spec
   ** TODO: make this slots only?
   override Void cslots(|CSpec, Str| f)
   {
-    if (cslotsRef == null) throw NotReadyErr(qname)
-    cslotsRef.each(f)
+    if (ast.members == null) throw NotReadyErr(qname)
+    ast.members.each |x, n| { f((CSpec)x, n) }
   }
 
   ** Iterate the effective slots
   override Obj? cslotsWhile(|CSpec, Str->Obj?| f)
   {
-    if (cslotsRef == null) throw NotReadyErr(qname)
-    return cslotsRef.eachWhile(f)
+    if (ast.members == null) throw NotReadyErr(qname)
+    return ast.members.eachWhile |x, n| { f((CSpec)x, n) }
   }
-
-  ** Effective slots configured in InheritSlots
-  [Str:CSpec]? cslotsRef { get { ast.cslots } set { ast.cslots = it } }
 
   ** Enum items
   override CSpec? cenum(Str key, Bool checked := true)
@@ -391,13 +385,13 @@ internal final const class ASpec : ANode, CSpec, Spec
     if (!isEnum) throw Err(qname)
     if (enums == null) throw NotReadyErr(qname)
     x := enums[key]
-    if (x != null) return x
+    if (x != null) return (CSpec)x
     if (checked) throw Err(key)
     return null
   }
 
   // Map of enum items by string kehy (set in InheritSlots)
-  [Str:CSpec]? enums() { ast.enums }
+  [Str:Spec]? enums() { ast.enums }
 
   ** Return if spec inherits from that from a nominal type perspective.
   ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
@@ -544,9 +538,9 @@ CSpec? cbase() { base as CSpec }
   Dict? metaOwn
   Dict? cmeta
   [Str:ASpec]? declared
-  [Str:CSpec]? cslots
+  [Str:Spec]? members
   Int flags := -1
-  [Str:CSpec]? enums
+  [Str:Spec]? enums
   SpecBinding? binding
   MSpecArgs? args
   Bool parsedCompound
