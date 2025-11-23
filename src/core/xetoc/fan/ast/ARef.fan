@@ -68,11 +68,8 @@ internal class ASpecRef : ARef
   ** Constructor
   new make(FileLoc loc, AName name) : super(loc, name) {}
 
-  ** TODO
-  static ASpecRef makeTemp(FileLoc loc, Spec spec) { makeResolved(loc, (CSpec)spec) }
-
   ** Construct for resolved
-  new makeResolved(FileLoc loc, CSpec spec)
+  new makeResolved(FileLoc loc, Spec spec)
     : super.make(loc, ASimpleName(null, spec.name)) // don't create full AName
   {
     this.resolvedRef = spec
@@ -91,10 +88,11 @@ internal class ASpecRef : ARef
   override Spec asm() { deref.asm }
 
   ** Resolve to its spec
-  override Void resolve(CNode x) { this.resolvedRef = x }
+// TODO: keep CNode?
+  override Void resolve(CNode x) { this.resolvedRef = (Spec)x }
 
   ** Dereference the resolved type spec
-  CSpec deref() { resolvedRef ?: throw NotReadyErr(toStr) }
+  Spec deref() { resolvedRef ?: throw NotReadyErr(toStr) }
 
   ** We smuggle the slots 'of' meta in via this field since we want
   ** deref to be the type, not the slot.  But on some situations such as
@@ -102,7 +100,7 @@ internal class ASpecRef : ARef
   Spec? of
 
   ** Resolved spec
-  private CSpec? resolvedRef
+  private Spec? resolvedRef
 
 }
 

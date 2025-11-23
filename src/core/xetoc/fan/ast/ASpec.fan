@@ -414,7 +414,7 @@ internal final const class ASpec : ANode, CSpec, Spec
     if (ast.meta == null) return null
     x := ast.meta.get("of") as ASpecRef
     if (x == null) return null
-    return x.deref
+    return (CSpec)x.deref
   }
 
   ** Extract 'ofs' list of type refs from AST model
@@ -424,7 +424,11 @@ internal final const class ASpec : ANode, CSpec, Spec
     list := ast.meta.get("ofs") as ADict
     if (list == null) return null
     acc := CSpec[,]
-    list.each |x| { acc.add(((ASpecRef)x).deref) }
+    list.each |x|
+    {
+      Obj obj := ((ASpecRef)x).deref
+      acc.add(obj)
+    }
     return acc.ro
   }
 

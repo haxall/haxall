@@ -140,10 +140,10 @@ internal class CheckErrors : Step
 
   Void checkCovariant(ASpec x)
   {
-    b := x.cbase
+    b := x.base
     if (b == null) return
-    xType := x.ctype
-    bType := b.ctype
+    xType := x.type
+    bType := b.type
 
     // for mixins that add meta to slots, they cannot be typed
     if (x.parent != null && x.parent.isMixin && x.cbase.cparent != null)
@@ -157,36 +157,38 @@ internal class CheckErrors : Step
     }
 
     // verify type is covariant
-    if (!xType.cisa(bType) && !isFieldOverrideOfMethod(b, x))
+// TODO
+cb := (CSpec)b
+    if (!xType.isa(bType) && !isFieldOverrideOfMethod(cb, x))
       errCovariant(x, "type '$xType' conflicts", "of type '$bType'")
 
     // check "of"
-    xOf := x.cof
-    bOf := b.cof
-    if (xOf != null && bOf != null && !xOf.cisa(bOf))
+    xOf := x.of(false)
+    bOf := b.of(false)
+    if (xOf != null && bOf != null && !xOf.isa(bOf))
       errCovariant(x, "of's type '$xOf' conflicts", "of's type '$bOf'")
 
     // check "minVal"
-    xMinVal := XetoUtil.toFloat(x.cmeta.get("minVal"))
-    bMinVal := XetoUtil.toFloat(b.cmeta.get("minVal"))
+    xMinVal := XetoUtil.toFloat(x.meta.get("minVal"))
+    bMinVal := XetoUtil.toFloat(b.meta.get("minVal"))
     if (xMinVal != null && bMinVal != null && xMinVal < bMinVal)
       errCovariant(x, "minVal '$xMinVal' conflicts", "minVal '$bMinVal'")
 
     // check "maxVal"
-    xMaxVal := XetoUtil.toFloat(x.cmeta.get("maxVal"))
-    bMaxVal := XetoUtil.toFloat(b.cmeta.get("maxVal"))
+    xMaxVal := XetoUtil.toFloat(x.meta.get("maxVal"))
+    bMaxVal := XetoUtil.toFloat(b.meta.get("maxVal"))
     if (xMinVal != null && bMinVal != null && xMinVal < bMinVal)
       errCovariant(x, "maxVal '$xMaxVal' conflicts", "maxVal '$bMaxVal'")
 
     // check "quantity"
-    xQuantity := x.cmeta.get("quantity")
-    bQuantity := b.cmeta.get("quantity")
+    xQuantity := x.meta.get("quantity")
+    bQuantity := b.meta.get("quantity")
     if (xQuantity != bQuantity && bQuantity != null)
       errCovariant(x, "quantity '$xQuantity' conflicts", "quantity '$bQuantity'")
 
     // check "unit"
     xUnit:= x.cmeta.get("unit")
-    bUnit := b.cmeta.get("unit")
+    bUnit := b.meta.get("unit")
     if (xUnit != bUnit && bUnit != null)
       errCovariant(x, "unit '$xUnit' conflicts", "unit '$bUnit'")
   }

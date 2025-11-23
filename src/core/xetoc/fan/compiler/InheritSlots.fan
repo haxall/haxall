@@ -142,7 +142,7 @@ return x.typeRef?.deref as Spec
     if (x.typeRef != null) return x.typeRef
 
     // infer type from base
-    if (x.cbase != null) return ASpecRef(x.loc, x.cbase.ctype)
+    if (x.base != null) return ASpecRef(x.loc, x.base.type)
 
     // scalars default to str and everything else to dict
     x.typeRef = x.val == null ? sys.dict : sys.str
@@ -346,7 +346,7 @@ dupx := (Spec)dup  // TODO
 
     val := slot.val
     if (val != null && val.typeRef == null)
-      val.typeRef = ASpecRef.makeTemp(val.loc, base.type)
+      val.typeRef = ASpecRef(val.loc, base.type)
 
     return slot
   }
@@ -381,7 +381,7 @@ dupx := (Spec)dup  // TODO
     // create new merged slot
     loc := spec.loc
     ASpec merge := ASpec(loc, lib, spec, name)
-    merge.typeRef = ASpecRef.makeTemp(loc, a.type)
+    merge.typeRef = ASpecRef(loc, a.type)
     merge.ast.base = a
     merge.flags = a.flags
 

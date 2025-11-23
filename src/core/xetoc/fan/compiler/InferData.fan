@@ -129,7 +129,7 @@ internal abstract class InferData : Step
       dict.each |item|
       {
         if (item.typeRef == null)
-          item.typeRef = ASpecRef.makeTemp(item.loc, of)
+          item.typeRef = ASpecRef(item.loc, of)
       }
     }
   }
@@ -174,7 +174,7 @@ internal abstract class InferData : Step
   {
     type := slot.type
     if (type.isSelf && curSpec != null) type = curSpec.type
-    ref := ASpecRef.makeTemp(loc, type)
+    ref := ASpecRef(loc, type)
     ref.of = slot.of(false) // smuggle parameterized 'of' into ASpecRef
     return ref
   }
