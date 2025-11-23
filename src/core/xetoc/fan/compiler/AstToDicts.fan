@@ -23,7 +23,7 @@ internal class AstToDicts : Step
 
     acc :=  Dict[,]
     lib.tops.each |x| { acc.add(mapSpec(x)) }
-    lib.instances.each |x| { acc.add(mapInstance(x)) }
+    lib.ast.instances.each |x| { acc.add(mapInstance(x)) }
     bombIfErr
     compiler.dicts = acc
   }

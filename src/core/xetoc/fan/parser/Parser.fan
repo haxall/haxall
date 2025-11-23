@@ -437,7 +437,7 @@ internal class Parser
 
     // make sure id is unique and add to document
     id := name.toStr
-    add("instance", doc.instances, id, dict)
+    add("instance", doc.ast.instances, id, dict)
 
     return dict
   }

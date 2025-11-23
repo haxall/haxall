@@ -19,11 +19,8 @@ internal mixin ADoc : ANode
   ** Compiler
   abstract MXetoCompiler compiler()
 
-  ** Instance data
-  abstract Str:AInstance instances()
-
-  ** Lookup top level instance data
-  AData? instance(Str name) { instances.get(name) }
+  ** AST instances for document
+  abstract ADocAst ast()
 
   ** Walk lib and spec meta top-down (we also walk ASpecs themselves)
   abstract Void walkMetaTopDown(|ANode| f)
@@ -37,6 +34,23 @@ internal mixin ADoc : ANode
   ** Walk only instances bottom-up
   abstract Void walkInstancesBottomUp(|ANode| f)
 
+}
+
+**************************************************************************
+** ADocAst
+**************************************************************************
+
+**
+** AST instances for ADoc
+**
+@Js
+internal class ADocAst
+{
+  ** Instance data
+  Str:AInstance instances := [:] { ordered = true }
+
+  ** Lookup top level instance data
+  AData? instance(Str name) { instances.get(name) }
 }
 
 **************************************************************************
@@ -54,19 +68,17 @@ internal class ADataDoc : ADoc
   {
     this.loc = loc
     this.compiler = c
+    this.ast = ADocAst()
   }
 
-  ** File location
   override const FileLoc loc
 
-  ** Compiler
   override MXetoCompiler compiler
+
+  override ADocAst ast
 
   ** Root data object wrapped - set by Parser.parseDataFile
   AData? root
-
-  ** Instance data
-  override Str:AInstance instances := [:] { ordered = true }
 
   override ANodeType nodeType() { ANodeType.dataDoc }
 

@@ -198,7 +198,7 @@ internal class Resolve : Step
   {
     ref.nodeType === ANodeType.specRef ?
       compiler.lib?.type(name) :
-      ast.instance(name)
+      ast.ast.instance(name)
   }
 
   private Obj? resolveInDepend(ARef ref, Str name, XetoLib depend)

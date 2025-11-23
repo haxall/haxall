@@ -35,7 +35,7 @@ internal class CheckErrors : Step
     if (!XetoUtil.isLibName(x.name)) err("Invalid lib name '$x.name': " + XetoUtil.libNameErr(x.name), x.loc)
     checkLibMeta(lib)
     x.tops.each |type| { checkTop(type) }
-    x.instances.each |instance, name| { checkInstance(x, name, instance) }
+    x.ast.instances.each |instance, name| { checkInstance(x, name, instance) }
   }
 
   Void checkLibMeta(ALib x)
@@ -66,7 +66,7 @@ internal class CheckErrors : Step
 
   Void checkTopName(ASpec x)
   {
-    if (lib.instances[x.name] != null)
+    if (lib.ast.instances[x.name] != null)
       err("Spec '$x.name' conflicts with instance of the same name", x.loc)
 
     if (XetoUtil.isReservedSpecName(x.name))

@@ -57,9 +57,6 @@ internal const class ALib : ADoc
   ** Version parsed from pragma (set in ProcessPragma)
   Version? version() { ast.version }
 
-  ** Instance data
-  override Str:AInstance instances() { ast.instances }
-
   ** Top level specs
   Str:ASpec tops() { ast.tops }
 
@@ -107,12 +104,12 @@ internal const class ALib : ADoc
 
   override Void walkInstancesBottomUp(|ANode| f)
   {
-    instances.each |x| { if (!x.isNested) x.walkBottomUp(f) }
+    ast.instances.each |x| { if (!x.isNested) x.walkBottomUp(f) }
   }
 
   override Void walkInstancesTopDown(|ANode| f)
   {
-    instances.each |x| { if (!x.isNested) x.walkTopDown(f) }
+    ast.instances.each |x| { if (!x.isNested) x.walkTopDown(f) }
   }
 
   ** Auto naming for synthetic specs
@@ -127,7 +124,7 @@ internal const class ALib : ADoc
       out.printLine.printLine
     }
 
-    instances.each |data|
+    ast.instances.each |data|
     {
       data.dump(out, indent)
       out.printLine.printLine
@@ -135,7 +132,7 @@ internal const class ALib : ADoc
   }
 
   ** Mutable AST state
-  ALibState ast() { astRef.val }
+  override ALibState ast() { astRef.val }
   const Unsafe astRef
 }
 
@@ -144,7 +141,7 @@ internal const class ALib : ADoc
 **************************************************************************
 
 @Js
-internal class ALibState
+internal class ALibState : ADocAst
 {
   new make(MXetoCompiler c)
   {
@@ -156,7 +153,6 @@ internal class ALibState
   ADict? meta
   Int flags
   Version? version
-  Str:AInstance instances := [:] { ordered = true }
   Str:ASpec tops := [:] { ordered = true }
   ASpec[]? types
   Int autoNameCount

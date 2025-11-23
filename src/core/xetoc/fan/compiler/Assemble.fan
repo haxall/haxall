@@ -38,9 +38,9 @@ internal class Assemble : Step
 
   private Str:Dict asmInstances(ALib x)
   {
-    if (x.instances.isEmpty) return noDicts
+    if (x.ast.instances.isEmpty) return noDicts
     acc := Str:Dict[:]
-    x.instances.each |d, n| { acc.add(n, d.asm) }
+    x.ast.instances.each |d, n| { acc.add(n, d.asm) }
     return acc
   }
 
