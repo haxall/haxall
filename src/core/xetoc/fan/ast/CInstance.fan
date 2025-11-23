@@ -36,7 +36,7 @@ internal const class CInstanceWrap : CInstance
   override Bool isAst() { false }
   override Ref id() { w->id }
   override CSpec ctype() { spec }
-  override Obj asm() { id }
+  Obj asm() { id }
   override Str toStr() { id.toStr }
 }
 

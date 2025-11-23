@@ -19,7 +19,7 @@ mixin CSpec : CNode, SpecBindingInfo
   abstract Bool isAst()
 
   ** Assembled Spec (stub only in AST until Assemble step)
-  override abstract Spec asm()
+  abstract Spec asm()
 
   ** Simple name
   override abstract Str name()
@@ -154,9 +154,6 @@ mixin CSpec : CNode, SpecBindingInfo
 @Js
 mixin CNode
 {
-  ** Required for covariant conflict so that signature matches ANode
-  abstract Obj asm()
-
   ** Qualified name as Ref
   abstract Ref id()
 }

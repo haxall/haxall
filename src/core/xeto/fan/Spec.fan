@@ -208,5 +208,14 @@ const mixin Spec : Dict
   ** Return a 64-bit digest for this spec's flattened inheritance hieararchy.
   ** This method is only available on top-level types in Java VM.
   @NoDoc abstract Int inheritanceDigest()
+
+  ** Bitmask flags
+  @NoDoc abstract Int flags()
+
+  ** Is this the AST version of a spec
+  @NoDoc abstract Bool isAst()
+
+  ** Get the assembled version of an AST spec
+  @NoDoc abstract Spec asm()
 }
 

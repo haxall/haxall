@@ -228,6 +228,11 @@ const class WrapSpec : Spec
   override final Bool isSys()       { m.isSys }
   override final Bool isCompound()  { m.isCompound }
 
+  override final Int flags() { m.flags }
+
+  override final Bool isAst() { false }
+  override final Spec asm()  { this }
+
   override final Type fantomType() { m.fantomType }
 
   override final Int inheritanceDigest() { m.inheritanceDigest }

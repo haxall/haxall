@@ -327,7 +327,7 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Bool isAst() { false }
 
-  override final XetoSpec asm() { this }
+  override final Spec asm() { this }
 
   override final Int flags() { m.flags }
 
