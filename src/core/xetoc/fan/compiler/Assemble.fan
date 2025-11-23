@@ -23,7 +23,7 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(x.loc, x.name, x.meta.asm, x.flags, x.version, compiler.depends.list, asmTops(x), asmInstances(x), x.files)
+    m := MLib(x.loc, x.name, x.meta, x.flags, x.version, compiler.depends.list, asmTops(x), asmInstances(x), x.files)
     XetoLib#m->setConst(x.asm, m)
     lib.tops.each |spec| { asmTop(spec) }
   }

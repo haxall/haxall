@@ -15,7 +15,7 @@ using xetom
 ** AST library
 **
 @Js
-internal const class ALib : ADoc
+internal const class ALib : ADoc//, Lib
 {
    ** Constructor
   new make(MXetoCompiler c, FileLoc loc, Str name)
@@ -49,7 +49,7 @@ internal const class ALib : ADoc
   LibFiles? files() { ast.files }
 
   ** From pragma (set in ProcessPragma)
-  ADict? meta() { ast.meta }
+  Dict meta() { ast.meta.asm }
 
   ** Flags
   Int flags() { ast.flags }
@@ -64,6 +64,7 @@ internal const class ALib : ADoc
   ASpec? top(Str name) { tops.get(name) }
 
   ** Lookup type spec
+  /*
   ASpec? type(Str name)
   {
     x := tops.get(name)
@@ -73,6 +74,7 @@ internal const class ALib : ADoc
 
   ** List type specs ordered by inheritance (set in InheritSlots)
   ASpec[] types() { ast.types ?: throw NotReadyErr(name) }
+  */
 
   ** Tree walk
   override Void walkBottomUp(|ANode| f)
@@ -92,13 +94,13 @@ internal const class ALib : ADoc
 
   override Void walkMetaBottomUp(|ANode| f)
   {
-    meta.walkBottomUp(f)
+    ast.meta.walkBottomUp(f)
     tops.each |x| { x.walkBottomUp(f) }
   }
 
   override Void walkMetaTopDown(|ANode| f)
   {
-    meta.walkTopDown(f)
+    ast.meta.walkTopDown(f)
     tops.each |x| { x.walkTopDown(f) }
   }
 
@@ -156,5 +158,13 @@ internal class ALibState : ADocAst
   Str:ASpec tops := [:] { ordered = true }
   ASpec[]? types
   Int autoNameCount
+
+  ASpec? type(Str name)
+  {
+    x := tops.get(name)
+    if (x != null && x.isType) return x
+    return null
+  }
+
 }
 

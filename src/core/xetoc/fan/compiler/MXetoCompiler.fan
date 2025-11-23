@@ -114,11 +114,12 @@ internal class MXetoCompiler : XetoCompiler
       ProcessPragma(),
     ])
 
-    doc := lib.meta.getStr("doc") ?: ""
-    dir := input.parent
+    meta := lib.ast.meta
+    doc  := meta.getStr("doc") ?: ""
+    dir  := input.parent
 
     flags := 0
-    if (lib.meta.has("hxSysOnly")) flags = flags.or(LibVersion.flagHxSysOnly)
+    if (meta.has("hxSysOnly")) flags = flags.or(LibVersion.flagHxSysOnly)
 
     return FileLibVersion(libName, lib.version, dir, doc, flags, depends.list)
   }

@@ -197,7 +197,7 @@ internal class Resolve : Step
   private Obj? resolveInAst(ARef ref, Str name)
   {
     ref.nodeType === ANodeType.specRef ?
-      compiler.lib?.type(name) :
+      compiler.lib?.ast?.type(name) :
       ast.ast.instance(name)
   }
 

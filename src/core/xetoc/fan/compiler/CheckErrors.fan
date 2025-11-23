@@ -40,7 +40,7 @@ internal class CheckErrors : Step
 
   Void checkLibMeta(ALib x)
   {
-    x.meta.each |v, n|
+    x.ast.meta.each |v, n|
     {
       if (XetoUtil.isReservedLibMetaName(n))
       {
