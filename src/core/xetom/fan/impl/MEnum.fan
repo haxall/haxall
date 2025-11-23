@@ -30,7 +30,7 @@ const final class MEnum : SpecEnum
     return make(acc, defKey)
   }
 
-  private new make(Str:Spec map, Str defKey)
+  new make(Str:Spec map, Str defKey)
   {
     this.map = map
     this.defKey = defKey

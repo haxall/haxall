@@ -264,6 +264,13 @@ internal final const class ASpec : ANode, CSpec, Spec
     return false
   }
 
+  override SpecEnum enum()
+  {
+    if (!isEnum) throw Err(qname)
+    if (ast.enum == null) throw NotReadyErr(qname)
+    return ast.enum
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // AST Node
 //////////////////////////////////////////////////////////////////////////
@@ -383,15 +390,12 @@ internal final const class ASpec : ANode, CSpec, Spec
   override CSpec? cenum(Str key, Bool checked := true)
   {
     if (!isEnum) throw Err(qname)
-    if (enums == null) throw NotReadyErr(qname)
-    x := enums[key]
+    if (ast.enum == null) throw NotReadyErr(qname)
+    x := ast.enum.spec(key)
     if (x != null) return (CSpec)x
     if (checked) throw Err(key)
     return null
   }
-
-  // Map of enum items by string kehy (set in InheritSlots)
-  [Str:Spec]? enums() { ast.enums }
 
   ** Return if spec inherits from that from a nominal type perspective.
   ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
@@ -502,8 +506,6 @@ internal final const class ASpec : ANode, CSpec, Spec
 
   override Obj? trap(Str n, Obj?[]? a := null) { throw UnsupportedErr() }
 
-  override SpecEnum enum() { throw UnsupportedErr() }
-
   override SpecFunc func() { throw UnsupportedErr() }
 
   override Void eachInherited(|Spec| f) { throw UnsupportedErr() }
@@ -540,7 +542,7 @@ CSpec? cbase() { base as CSpec }
   [Str:ASpec]? declared
   [Str:Spec]? members
   Int flags := -1
-  [Str:Spec]? enums
+  SpecEnum? enum
   SpecBinding? binding
   MSpecArgs? args
   Bool parsedCompound

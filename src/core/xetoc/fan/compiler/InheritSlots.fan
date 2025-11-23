@@ -462,7 +462,7 @@ spec.ast.base = (Spec)spec.typeRef.deref
 
     // save away both slots and enums
     spec.ast.members = slots
-    spec.ast.enums = enums
+    spec.ast.enum = MEnum(enums, defKey ?: "")
   }
 
   ** Check that an item was a marker only, then coerce to be derived from parent enum

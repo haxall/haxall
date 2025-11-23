@@ -93,7 +93,7 @@ internal class Fitter
 
     // check value against spec meta
     fits := true
-    checkVal.check((CSpec)spec, val) |msg|
+    checkVal.check(spec, val) |msg|
     {
       fits = explainValErr(spec, msg)
     }
@@ -219,7 +219,7 @@ internal class Fitter
   {
     // always check spec meta
     fits := true
-    checkVal.check((CSpec)spec, list) |err|
+    checkVal.check(spec, list) |err|
     {
       fits = explainValErr(spec, err)
     }

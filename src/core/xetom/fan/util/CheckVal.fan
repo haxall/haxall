@@ -31,7 +31,7 @@ const class CheckVal
 // Val
 //////////////////////////////////////////////////////////////////////////
 
-  Void check(CSpec spec, Obj x, |Str| onErr)
+  Void check(Spec spec, Obj x, |Str| onErr)
   {
     checkFixed(spec, x, onErr)
     if (spec.isScalar) return checkScalar(spec, x, onErr)
@@ -42,12 +42,12 @@ const class CheckVal
 // Final
 //////////////////////////////////////////////////////////////////////////
 
-  private Void checkFixed(CSpec spec, Obj x, |Str| onErr)
+  private Void checkFixed(Spec spec, Obj x, |Str| onErr)
   {
-    if (spec.cmeta.missing("fixed")) return
+    if (spec.meta.missing("fixed")) return
 
     // get the expected fixed value
-    expect := spec.cmeta.get("val")
+    expect := spec.meta.get("val")
 
     // check if actual matches expected fixed value
     if (Etc.eq(expect, x)) return
@@ -67,7 +67,7 @@ const class CheckVal
 // List
 //////////////////////////////////////////////////////////////////////////
 
-  private static Void checkList(CSpec spec, Obj obj, |Str| onErr)
+  private static Void checkList(Spec spec, Obj obj, |Str| onErr)
   {
     x := obj as List
 
@@ -79,21 +79,21 @@ const class CheckVal
     }
 
     // check non-empty
-    nonEmpty := spec.cmeta.get("nonEmpty")
+    nonEmpty := spec.meta.get("nonEmpty")
     if (nonEmpty != null && x.isEmpty)
     {
       onErr("List must be non-empty")
     }
 
     // minSize
-    minSize := toInt(spec.cmeta.get("minSize"))
+    minSize := toInt(spec.meta.get("minSize"))
     if (minSize != null && x.size < minSize)
     {
       onErr("List size $x.size < minSize $minSize")
     }
 
     // maxSize
-    maxSize := toInt(spec.cmeta.get("maxSize"))
+    maxSize := toInt(spec.meta.get("maxSize"))
     if (maxSize != null && x.size > maxSize)
     {
       onErr("List size $x.size > maxSize $maxSize")
@@ -104,10 +104,10 @@ const class CheckVal
 // Scalar
 //////////////////////////////////////////////////////////////////////////
 
-  private Void checkScalar(CSpec spec, Obj x, |Str| onErr)
+  private Void checkScalar(Spec spec, Obj x, |Str| onErr)
   {
     if (x is Number) return checkNumber(spec, x, onErr)
-    if (spec.ctype.isEnum) return checkEnum(spec, x, onErr)
+    if (spec.type.isEnum) return checkEnum(spec, x, onErr)
     if (x is Str || x is Scalar) return checkStr(spec, x.toStr, onErr)
   }
 
@@ -115,9 +115,9 @@ const class CheckVal
 // Number
 //////////////////////////////////////////////////////////////////////////
 
-  private static Void checkNumber(CSpec spec, Number x, |Str| onErr)
+  private static Void checkNumber(Spec spec, Number x, |Str| onErr)
   {
-    meta := spec.cmeta
+    meta := spec.meta
     unit := x.unit
 
     min := meta["minVal"] as Number
@@ -175,7 +175,7 @@ const class CheckVal
 // Enum
 //////////////////////////////////////////////////////////////////////////
 
-  private Void checkEnum(CSpec spec, Obj x, |Str| onErr)
+  private Void checkEnum(Spec spec, Obj x, |Str| onErr)
   {
     // value must be string key, Scalar, or mapped by factory to Enum
     key := x as Str
@@ -186,17 +186,17 @@ const class CheckVal
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
 
     // verify key maps to enum item
-    enum := spec.ctype
-    item := enum.cenum(key, false)
+    enum := spec.type
+    item := enum.enum.spec(key, false)
     if (item == null) return onErr("Invalid key '$key' for enum type '$enum.qname'")
 
     // special handling for unit
     if (enum.qname == "sys::Unit")
     {
-      q := spec.cmeta["quantity"]
+      q := spec.meta["quantity"]
       if (q != null)
       {
-        unitQuantity := item.cmeta["quantity"]
+        unitQuantity := item.meta["quantity"]
         if (q != unitQuantity) onErr("Unit '$key' must be '$q' not '$unitQuantity'")
       }
     }
@@ -206,12 +206,12 @@ const class CheckVal
 // Str
 //////////////////////////////////////////////////////////////////////////
 
-  private static Void checkStr(CSpec spec, Str x, |Str| onErr)
+  private static Void checkStr(Spec spec, Str x, |Str| onErr)
   {
     if (!spec.isScalar) return
 
     // check regex pattern
-    pattern := spec.cmeta.get("pattern") as Str
+    pattern := spec.meta.get("pattern") as Str
     if (pattern != null)
     {
       if (!Regex(pattern).matches(x))
@@ -222,7 +222,7 @@ const class CheckVal
     }
 
     // check non-empty
-    nonEmpty := spec.cmeta.get("nonEmpty")
+    nonEmpty := spec.meta.get("nonEmpty")
     if (nonEmpty != null && x.trim.isEmpty)
     {
       errType := errTypeForMeta(spec, "nonEmpty", nonEmpty)
@@ -230,14 +230,14 @@ const class CheckVal
     }
 
     // minSize
-    minSize := toInt(spec.cmeta.get("minSize"))
+    minSize := toInt(spec.meta.get("minSize"))
     if (minSize != null && x.size < minSize)
     {
       onErr("String size $x.size < minSize $minSize")
     }
 
     // maxSize
-    maxSize := toInt(spec.cmeta.get("maxSize"))
+    maxSize := toInt(spec.meta.get("maxSize"))
     if (maxSize != null && x.size > maxSize)
     {
       onErr("String size $x.size > maxSize $maxSize")
@@ -258,10 +258,10 @@ const class CheckVal
 
   ** Given a meta key and value, determine if we should report error
   ** using the slot or the type based on who defines the meta key
-  static Str errTypeForMeta(CSpec spec, Str key, Obj val)
+  static Str errTypeForMeta(Spec spec, Str key, Obj val)
   {
-    if (spec.ctype.cmeta.get(key) == val)
-      return spec.ctype.qname
+    if (spec.type.meta.get(key) == val)
+      return spec.type.qname
     else
       return spec.qname
   }
