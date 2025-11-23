@@ -253,9 +253,9 @@ internal class CheckErrors : Step
 
   Void checkSlotMeta(ASpec slot)
   {
-    if (slot.meta == null) return
+    if (slot.ast.meta == null) return
 
-    hasVal := slot.meta.get("val") != null
+    hasVal := slot.ast.meta.get("val") != null
     if (hasVal && slot.base != null && slot.base.cmeta.has("fixed"))
       err("Slot '$slot.name' is fixed and cannot declare new default value", slot.loc)
   }
@@ -285,9 +285,9 @@ internal class CheckErrors : Step
 
   Void checkSpecMeta(ASpec x)
   {
-    if (x.meta == null) return
+    if (x.ast.meta == null) return
 
-    x.meta.each |v, n|
+    x.ast.meta.each |v, n|
     {
       if (XetoUtil.isReservedSpecMetaName(n))
       {
@@ -295,7 +295,7 @@ internal class CheckErrors : Step
       }
     }
 
-    checkDict(x.meta, null)
+    checkDict(x.ast.meta, null)
   }
 
   Void checkType(ASpec x)

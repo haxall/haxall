@@ -133,7 +133,7 @@ internal const class ASpec : ANode, CSpec
 //////////////////////////////////////////////////////////////////////////
 
   ** Declared meta if there was "<>"
-  ADict? meta() { ast.meta }
+  //ADict? meta() { ast.meta }
 
   ** Initialize meta data dict
   ADict metaInit()
@@ -147,13 +147,13 @@ internal const class ASpec : ANode, CSpec
   ** Return if meta has the given tag
   Bool metaHas(Str name)
   {
-    meta != null && meta.has(name)
+    ast.meta != null && ast.meta.has(name)
   }
 
   ** Get meta
   AData? metaGet(Str name)
   {
-    meta?.get(name)
+    ast.meta?.get(name)
   }
 
   ** Set meta-data tag
@@ -221,7 +221,7 @@ internal const class ASpec : ANode, CSpec
   override Void walkBottomUp(|ANode| f)
   {
     if (typeRef != null) typeRef.walkBottomUp(f)
-    if (meta != null) meta.walkBottomUp(f)
+    if (ast.meta != null) ast.meta.walkBottomUp(f)
     if (declared != null) declared.each |x| { x.walkBottomUp(f) }
     if (val != null) val.walkBottomUp(f)
     f(this)
@@ -232,7 +232,7 @@ internal const class ASpec : ANode, CSpec
   {
     if (typeRef != null) typeRef.walkTopDown(f)
     f(this)
-    if (meta != null) meta.walkTopDown(f)
+    if (ast.meta != null) ast.meta.walkTopDown(f)
     if (declared != null) declared.each |x| { x.walkTopDown(f) }
     if (val != null) val.walkTopDown(f)
   }
@@ -243,7 +243,7 @@ internal const class ASpec : ANode, CSpec
     indentMore := indent + "  "
     out.print(indent).print(name).print(": ")
     if (typeRef != null) out.print(typeRef).print(" ")
-    if (meta != null) meta.dump(out, indentMore)
+    if (ast.meta != null) ast.meta.dump(out, indentMore)
     if (declared != null)
     {
       out.printLine("{")
@@ -357,8 +357,8 @@ internal const class ASpec : ANode, CSpec
   ** Extract 'of' type ref from AST model
   override once CSpec? cof()
   {
-    if (meta == null) return null
-    x := meta.get("of") as ASpecRef
+    if (ast.meta == null) return null
+    x := ast.meta.get("of") as ASpecRef
     if (x == null) return null
     return x.deref
   }
@@ -366,8 +366,8 @@ internal const class ASpec : ANode, CSpec
   ** Extract 'ofs' list of type refs from AST model
   override once CSpec[]? cofs()
   {
-    if (meta == null) return null
-    list := meta.get("ofs") as ADict
+    if (ast.meta == null) return null
+    list := ast.meta.get("ofs") as ADict
     if (list == null) return null
     acc := CSpec[,]
     list.each |x| { acc.add(((ASpecRef)x).deref) }

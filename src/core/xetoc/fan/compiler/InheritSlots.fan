@@ -172,10 +172,10 @@ internal class InheritSlots : Step
     flags := x.base.flags.and(MSpecFlags.inheritMask)
 
     // merge in my own flags
-    if (x.meta != null)
+    if (x.ast.meta != null)
     {
       // if maybe is marker set flag, if none then clear flag
-      maybe := x.meta.get("maybe")
+      maybe := x.ast.meta.get("maybe")
       if (maybe != null)
       {
         if (maybe.isNone)
@@ -185,7 +185,7 @@ internal class InheritSlots : Step
       }
 
       // if global is marker set flag
-      global := x.meta.get("global")
+      global := x.ast.meta.get("global")
       if (global != null) flags = flags.or(MSpecFlags.global)
     }
 

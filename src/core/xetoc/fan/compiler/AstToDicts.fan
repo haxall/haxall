@@ -36,7 +36,7 @@ internal class AstToDicts : Step
     acc["name"] = x.name
     acc["base"] = mapTypeRef(x.typeRef, ns.sys.dict.id)
     acc["spec"] = ns.sys.spec.id
-    mapMeta(acc, x.meta)
+    mapMeta(acc, x.ast.meta)
     acc.addNotNull("slots", mapSlots(x))
     return Etc.dictFromMap(acc)
   }
@@ -74,7 +74,7 @@ internal class AstToDicts : Step
     acc.ordered = true
     acc["name"] = x.name
     acc.addNotNull("type", mapTypeRef(x.typeRef, null))
-    mapMeta(acc, x.meta)
+    mapMeta(acc, x.ast.meta)
     acc.addNotNull("slots", mapSlots(x))
     return acc
   }

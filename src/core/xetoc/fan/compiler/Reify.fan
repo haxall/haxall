@@ -43,8 +43,8 @@ internal abstract class Reify : Step
   private Void reifySpec(ASpec x)
   {
     // finalize the spec's metaOwn dict
-    if (x.meta != null)
-      x.ast.metaOwn = x.meta.asm
+    if (x.ast.meta != null)
+      x.ast.metaOwn = x.ast.meta.asm
     else
       x.ast.metaOwn = Etc.dict0
   }

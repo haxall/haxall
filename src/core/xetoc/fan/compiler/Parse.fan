@@ -113,12 +113,12 @@ internal class Parse : Step
     }
 
     // must have meta, and no slots
-    if (pragma.meta == null) err("Pragma missing meta data", pragma.loc)
+    if (pragma.ast.meta == null) err("Pragma missing meta data", pragma.loc)
     if (pragma.declared != null) err("Pragma cannot have slots", pragma.loc)
     if (pragma.val != null) err("Pragma cannot scalar value", pragma.loc)
 
-    pragma.meta.typeRef = sys.lib
-    return pragma.meta
+    pragma.ast.meta.typeRef = sys.lib
+    return pragma.ast.meta
   }
 
 //////////////////////////////////////////////////////////////////////////
