@@ -321,7 +321,7 @@ internal class Parser
 
   private Void parseSpecSlots(ASpec parent)
   {
-    acc := parent.initSlots
+    acc := parent.initDeclared
 
     consume(Token.lbrace)
     skipNewlines

@@ -196,21 +196,21 @@ internal const class ASpec : ANode, CSpec
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Slots
+// Members
 //////////////////////////////////////////////////////////////////////////
 
-  ** Members (slots & globals) if there was "{}"
-  [Str:ASpec]? slots() { ast.slots }
+  ** Declared members if there was "{}"
+  [Str:ASpec]? declared() { ast.declared }
 
-  ** Initialize slots map
-  Str:ASpec initSlots()
+  ** Initialize declared members map
+  Str:ASpec initDeclared()
   {
     ast := this.ast
-    if (ast.slots == null)
+    if (ast.declared == null)
     {
-      ast.slots = Str:ASpec[:] { it.ordered = true }
+      ast.declared = Str:ASpec[:] { it.ordered = true }
     }
-    return ast.slots
+    return ast.declared
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -222,7 +222,7 @@ internal const class ASpec : ANode, CSpec
   {
     if (typeRef != null) typeRef.walkBottomUp(f)
     if (meta != null) meta.walkBottomUp(f)
-    if (slots != null) slots.each |x| { x.walkBottomUp(f) }
+    if (declared != null) declared.each |x| { x.walkBottomUp(f) }
     if (val != null) val.walkBottomUp(f)
     f(this)
   }
@@ -233,7 +233,7 @@ internal const class ASpec : ANode, CSpec
     if (typeRef != null) typeRef.walkTopDown(f)
     f(this)
     if (meta != null) meta.walkTopDown(f)
-    if (slots != null) slots.each |x| { x.walkTopDown(f) }
+    if (declared != null) declared.each |x| { x.walkTopDown(f) }
     if (val != null) val.walkTopDown(f)
   }
 
@@ -244,10 +244,10 @@ internal const class ASpec : ANode, CSpec
     out.print(indent).print(name).print(": ")
     if (typeRef != null) out.print(typeRef).print(" ")
     if (meta != null) meta.dump(out, indentMore)
-    if (slots != null)
+    if (declared != null)
     {
       out.printLine("{")
-      slots.each |s|
+      declared.each |s|
       {
         s.dump(out, indentMore)
         out.printLine
@@ -448,7 +448,7 @@ internal class ASpecState
   ADict? meta
   Dict? metaOwn
   Dict? cmeta
-  [Str:ASpec]? slots
+  [Str:ASpec]? declared
   [Str:CSpec]? cslots
   Int flags := -1
   [Str:CSpec]? enums

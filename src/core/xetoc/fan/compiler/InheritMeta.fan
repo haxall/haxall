@@ -36,7 +36,7 @@ internal class InheritMeta : Step
     spec.ast.args = computeArgs(spec)
 
     // recurse children slots
-    if (spec.slots != null) spec.slots.each |slot| { inherit(slot) }
+    if (spec.declared != null) spec.declared.each |slot| { inherit(slot) }
   }
 
   private Dict computeMeta(ASpec spec)

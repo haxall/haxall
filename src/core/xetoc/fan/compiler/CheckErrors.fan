@@ -224,8 +224,8 @@ internal class CheckErrors : Step
 
   Void checkSlots(ASpec x)
   {
-    if (x.slots == null) return
-    x.slots.each |slot| { checkSlot(slot) }
+    if (x.declared == null) return
+    x.declared.each |slot| { checkSlot(slot) }
   }
 
   Void checkSlot(ASpec x)
@@ -266,14 +266,14 @@ internal class CheckErrors : Step
     if (isObj(slot.ctype))
     {
       // this actually should never happen because we don't parse this case
-      if (slot.val != null && slot.slots != null)
+      if (slot.val != null && slot.declared != null)
         err("Cannot have both scalar value and slots", slot.loc)
     }
 
     // scalars cannot have slots
     else if (slot.ctype.isScalar)
     {
-      if (slot.slots != null) err("Scalar slot '$slot.name' of type '$slot.ctype' cannot have slots", slot.loc)
+      if (slot.declared != null) err("Scalar slot '$slot.name' of type '$slot.ctype' cannot have slots", slot.loc)
     }
 
     // non-scalars cannot have value

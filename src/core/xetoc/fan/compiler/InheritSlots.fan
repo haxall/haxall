@@ -109,7 +109,7 @@ internal class InheritSlots : Step
     inheritSlots(spec)
 
     // recurse children
-    if (spec.slots != null) spec.slots.each |slot| { inherit(slot) }
+    if (spec.declared != null) spec.declared.each |slot| { inherit(slot) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -302,8 +302,8 @@ internal class InheritSlots : Step
   ** Merge in my own slots to accumulator and handle slot overrides
   private Int addOwnSlots(ASpec spec, Str:CSpec acc, Int autoCount)
   {
-    if (spec.slots == null) return autoCount
-    spec.slots.each |ASpec slot|
+    if (spec.declared == null) return autoCount
+    spec.declared.each |ASpec slot|
     {
       name := slot.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
@@ -387,7 +387,7 @@ internal class InheritSlots : Step
     merge.cslotsRef = acc
 
     // we need to make this a new declared slot
-    spec.initSlots.add(name, merge)
+    spec.initDeclared.add(name, merge)
 
     return merge
   }
@@ -425,7 +425,7 @@ internal class InheritSlots : Step
     hasKeys := false
     enumRef := ASpecRef(loc, spec)
     defKey := null
-    spec.slots?.each |slot|
+    spec.declared?.each |slot|
     {
       item := inheritEnumItem(spec, enumRef, slot)
 

@@ -84,16 +84,16 @@ internal class Assemble : Step
 
   private Void asmChildren(ASpec x)
   {
-    if (x.slots == null) return
-    x.slots.each |kid| { asmSpec(kid) }
+    if (x.declared == null) return
+    x.declared.each |kid| { asmSpec(kid) }
   }
 
   private SpecMap asmMembersOwn(ASpec x, Bool isGlobal)
   {
-    if (x.slots == null || x.slots.isEmpty) return SpecMap.empty
+    if (x.declared == null || x.declared.isEmpty) return SpecMap.empty
     map := Str:XetoSpec[:]
     map.ordered = true
-    x.slots.each |kid, name|
+    x.declared.each |kid, name|
     {
       if (kid.isGlobal == isGlobal) map.add(name, kid.asm)
     }

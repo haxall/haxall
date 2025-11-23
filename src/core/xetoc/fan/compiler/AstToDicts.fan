@@ -43,10 +43,10 @@ internal class AstToDicts : Step
 
   Grid? mapSlots(ASpec x)
   {
-    if (x.slots == null || x.slots.isEmpty) return null
+    if (x.declared == null || x.declared.isEmpty) return null
 
     acc := [Str:Obj][,]
-    x.slots.each |s, n| { acc.add(mapSlot(s)) }
+    x.declared.each |s, n| { acc.add(mapSlot(s)) }
 
     cols := Str:Str[:]
     cols.ordered = true
