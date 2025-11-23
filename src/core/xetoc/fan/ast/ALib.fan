@@ -15,13 +15,14 @@ using xetom
 ** AST library
 **
 @Js
-internal const class ALib : ADoc//, Lib
+internal const class ALib : Lib, ADoc
 {
    ** Constructor
   new make(MXetoCompiler c, FileLoc loc, Str name)
   {
     this.loc      = loc
     this.astRef   = Unsafe(ALibState(c))
+    this.id       = Ref("lib:$name")
     this.name     = name
     this.isSys    = name == "sys"
     this.asm      = XetoLib()
@@ -36,26 +37,29 @@ internal const class ALib : ADoc//, Lib
   ** Node type
   override ANodeType nodeType() { ANodeType.lib }
 
+  ** Lib id as "lib:{name}"
+  override const Ref id
+
   ** Dotted library name
-  const Str name
+  override const Str name
 
   ** Is this the core sys library
-  const Bool isSys
+  override const Bool isSys
 
   ** XetoLib instance - we backpatch the "m" field in Assemble step
   const override XetoLib asm
 
   ** Files support (set in Parse)
-  LibFiles? files() { ast.files }
+  override LibFiles files() { ast.files ?: throw NotReadyErr() }
 
   ** From pragma (set in ProcessPragma)
-  Dict meta() { ast.meta.asm }
+  override Dict meta() { ast.meta.asm }
 
   ** Flags
   Int flags() { ast.flags }
 
   ** Version parsed from pragma (set in ProcessPragma)
-  Version? version() { ast.version }
+  override Version version() { ast.version ?: throw NotReadyErr() }
 
   ** Top level specs
   Str:ASpec tops() { ast.tops }
@@ -136,6 +140,58 @@ internal const class ALib : ADoc//, Lib
   ** Mutable AST state
   override ALibState ast() { astRef.val }
   const Unsafe astRef
+
+//////////////////////////////////////////////////////////////////////////
+// Dict (unsupported)
+//////////////////////////////////////////////////////////////////////////
+
+  override Bool isEmpty() { throw UnsupportedErr() }
+
+  @Operator override Obj? get(Str name) { throw UnsupportedErr() }
+
+  override Bool has(Str name) { throw UnsupportedErr() }
+
+  override Bool missing(Str name) { throw UnsupportedErr() }
+
+  override Void each(|Obj val, Str name| f) { throw UnsupportedErr() }
+
+  override Obj? eachWhile(|Obj val, Str name->Obj?| f) { throw UnsupportedErr() }
+
+  override Obj? trap(Str name, Obj?[]? args := null) { throw UnsupportedErr() }
+
+//////////////////////////////////////////////////////////////////////////
+// Lib (unsupported)
+//////////////////////////////////////////////////////////////////////////
+
+  override LibDepend[] depends() { throw UnsupportedErr() }
+
+  override Spec[] specs()  { throw UnsupportedErr() }
+
+  override Spec? spec(Str name, Bool checked := true)  { throw UnsupportedErr() }
+
+  override Spec[] types()  { throw UnsupportedErr() }
+
+  override Spec? type(Str name, Bool checked := true)  { throw UnsupportedErr() }
+
+  override Spec[] mixins()  { throw UnsupportedErr() }
+
+  override Spec? mixinFor(Spec type, Bool checked := true) { throw UnsupportedErr() }
+
+  override Spec[] funcs() { throw UnsupportedErr() }
+
+  override Spec? func(Str name, Bool checked := true) { throw UnsupportedErr() }
+
+  override Spec[] metaSpecs() { throw UnsupportedErr() }
+
+  override Spec? metaSpec(Str name, Bool checked := true) { throw UnsupportedErr() }
+
+  override Dict[] instances() { throw UnsupportedErr() }
+
+  override Dict? instance(Str name, Bool checked := true) { throw UnsupportedErr() }
+
+  override Void eachInstance(|Dict| f) { throw UnsupportedErr() }
+
+  override Bool hasMarkdown() { throw UnsupportedErr() }
 }
 
 **************************************************************************
