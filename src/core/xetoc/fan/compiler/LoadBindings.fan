@@ -46,7 +46,7 @@ internal class LoadBindings : Step
     lib.tops.each |top|
     {
       if (top.ast.binding == null)
-        top.ast.binding = top.ctype.binding
+        top.ast.binding = top.type.binding
     }
   }
 
@@ -64,11 +64,11 @@ internal class LoadBindings : Step
     }
 
     // use base;s binding if inheritable (we process in inheritance order)
-    b = spec.cbase.binding
+    b = spec.base.binding
     if (b.isInheritable) return b
 
     // install default dict/scalar factory
-    if (spec.isScalar) return GenericScalarBinding(spec.ctype.qname)
+    if (spec.isScalar) return GenericScalarBinding(spec.type.qname)
     return bindings.dict
   }
 

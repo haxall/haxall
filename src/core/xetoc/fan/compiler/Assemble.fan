@@ -105,7 +105,8 @@ internal class Assemble : Step
     if (x.members.isEmpty) return SpecMap.empty
     map := Str:XetoSpec[:]
     map.ordered = true
-    x.cmembers |s, n|
+// TODO: duplicates in ASpec
+    x.members.each |s, n|
     {
       if (!s.isGlobal) map[n] = s.asm
     }
@@ -121,9 +122,9 @@ internal class Assemble : Step
       it.parent     = x.parent?.asm
       it.qname      = x.qname
       it.name       = x.name
-      it.base       = x.cbase?.asm
-      it.type       = x.isType ? x.asm : x.ctype.asm
-      it.meta       = x.cmeta
+      it.base       = x.base?.asm
+      it.type       = x.isType ? x.asm : x.type.asm
+      it.meta       = x.meta
       it.metaOwn    = x.metaOwn
       it.slots      = asmSlots(x)
       it.slotsOwn   = asmMembersOwn(x, false)

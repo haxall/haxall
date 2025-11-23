@@ -146,9 +146,9 @@ internal class CheckErrors : Step
     bType := b.type
 
     // for mixins that add meta to slots, they cannot be typed
-    if (x.parent != null && x.parent.isMixin && x.cbase.cparent != null)
+    if (x.parent != null && x.parent.isMixin && x.base.parent != null)
     {
-      if (x.cbase.isGlobal)
+      if (x.base.isGlobal)
         err("Mixin extend global: $x.name", x.loc)
       else if (!xType.isMarker)
         err("Mixin cannot specify slot type: $x.name", x.loc)
@@ -185,7 +185,7 @@ internal class CheckErrors : Step
       errCovariant(x, "quantity '$xQuantity' conflicts", "quantity '$bQuantity'")
 
     // check "unit"
-    xUnit:= x.cmeta.get("unit")
+    xUnit:= x.meta.get("unit")
     bUnit := b.meta.get("unit")
     if (xUnit != bUnit && bUnit != null)
       errCovariant(x, "unit '$xUnit' conflicts", "unit '$bUnit'")
@@ -194,13 +194,13 @@ internal class CheckErrors : Step
   Bool isFieldOverrideOfMethod(Spec b, ASpec x)
   {
     // we allow a field to override a method if it matches base func return type
-    isOverride := x.isInterfaceSlot && b.type.isFunc && !x.ctype.isFunc
+    isOverride := x.isInterfaceSlot && b.type.isFunc && !x.type.isFunc
     if (!isOverride) return false
 
     // check that x type is covariant to b func returns type
     bReturns := b.member("returns")?.type
     if (!x.type.isa(bReturns))
-      err("Type mismatch in field '$x.name' override of method: $x.ctype != $bReturns", x.loc)
+      err("Type mismatch in field '$x.name' override of method: $x.type != $bReturns", x.loc)
     return true
   }
 
@@ -209,17 +209,17 @@ internal class CheckErrors : Step
     // if the spec is a variable/macro/template construct then ignore
     if (isMacro(x)) return
 
-    if (x.isSlot && x.cbase.isGlobal)
-      err("Slot '$x.name' $msg1 global '$x.cbase.qname' $msg2", x.loc)
+    if (x.isSlot && x.base.isGlobal)
+      err("Slot '$x.name' $msg1 global '$x.base.qname' $msg2", x.loc)
     else if (x.isSlot)
-      err("Slot '$x.name' $msg1 inherited slot '$x.cbase.qname' $msg2", x.loc)
+      err("Slot '$x.name' $msg1 inherited slot '$x.base.qname' $msg2", x.loc)
     else
-      err("Type '$x.name' $msg1 inherited type '$x.cbase.qname' $msg2", x.loc)
+      err("Type '$x.name' $msg1 inherited type '$x.base.qname' $msg2", x.loc)
   }
 
   Bool isMacro(ASpec x)
   {
-    x.ctype.qname.startsWith("sys.template::")
+    x.type.qname.startsWith("sys.template::")
   }
 
   Void checkSlots(ASpec x)
@@ -247,7 +247,7 @@ internal class CheckErrors : Step
       err("List specs cannot define slots", slot.loc)
 
     // choices can have only markers
-    if (slot.parent.isChoice && !slot.ctype.isMarker)
+    if (slot.parent.isChoice && !slot.type.isMarker)
       err("Choice slot '$slot.name' must be marker type", slot.loc)
   }
 
@@ -256,7 +256,7 @@ internal class CheckErrors : Step
     if (slot.ast.meta == null) return
 
     hasVal := slot.ast.meta.get("val") != null
-    if (hasVal && slot.cbase != null && slot.cbase.cmeta.has("fixed"))
+    if (hasVal && slot.base != null && slot.base.meta.has("fixed"))
       err("Slot '$slot.name' is fixed and cannot declare new default value", slot.loc)
   }
 
@@ -271,15 +271,15 @@ internal class CheckErrors : Step
     }
 
     // scalars cannot have slots
-    else if (slot.ctype.isScalar)
+    else if (slot.type.isScalar)
     {
-      if (slot.declared != null) err("Scalar slot '$slot.name' of type '$slot.ctype' cannot have slots", slot.loc)
+      if (slot.declared != null) err("Scalar slot '$slot.name' of type '$slot.type' cannot have slots", slot.loc)
     }
 
     // non-scalars cannot have value
     else
     {
-      if (slot.val != null) err("Non-scalar slot '$slot.name' of type '$slot.ctype' cannot have scalar value", slot.loc)
+      if (slot.val != null) err("Non-scalar slot '$slot.name' of type '$slot.type' cannot have scalar value", slot.loc)
     }
   }
 

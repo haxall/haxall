@@ -137,7 +137,7 @@ metaSpec := cns.metaSpec(name, loc) as Spec
       return MSpecArgsOfs(acc)
     }
 
-    if (spec.cbase != null) return specToArgs(spec.base)
+    if (spec.base != null) return specToArgs(spec.base)
 
     return MSpecArgs.nil
   }

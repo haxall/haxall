@@ -90,13 +90,13 @@ internal class InheritSlots : Step
     if (spec.base == null) spec.ast.base = spec.typeRef.deref as Spec // TODO
 
     // if base is in my AST, then recursively process it first
-    if (spec.cbase.isAst) inherit(spec.cbase)
+    if (spec.base.isAst) inherit(spec.base)
 
     // keep track of type now that inheritance has been processed
     if (spec.isType) types.add(spec)
 
     // if base is maybe and my own type is not then clear maybe flag
-    if (explicitTypeRef && spec.cbase.isMaybe && !spec.metaHas("maybe"))
+    if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
       spec.metaSetNone("maybe")
 
     // special handling for Enums
@@ -171,7 +171,7 @@ return x.typeRef?.deref as Spec
   private Int computeFlagsNonSys(ASpec x)
   {
     // start off with my base type flags that are inherited
-    flags := x.cbase.flags.and(MSpecFlags.inheritMask)
+    flags := x.base.flags.and(MSpecFlags.inheritMask)
 
     // merge in my own flags
     if (x.ast.meta != null)
@@ -192,7 +192,7 @@ return x.typeRef?.deref as Spec
     }
 
     // if my base is compound type
-    baseName := x.cbase.name
+    baseName := x.base.name
     switch (baseName)
     {
       case "And":  flags = flags.or(MSpecFlags.and)
@@ -207,7 +207,7 @@ return x.typeRef?.deref as Spec
   {
     flags := 0
     if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
-    for (ASpec? p := x; p != null; p = p.cbase)
+    for (ASpec? p := x; p != null; p = p.base)
     {
       switch (p.name)
       {
@@ -413,7 +413,7 @@ return x.typeRef?.deref as Spec
 spec.ast.base = (Spec)spec.typeRef.deref
 
     // set flags
-    spec.flags = spec.cbase.flags.or(MSpecFlags.enum)
+    spec.flags = spec.base.flags.or(MSpecFlags.enum)
 
     // sealed is implied
     loc := spec.loc
