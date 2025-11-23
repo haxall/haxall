@@ -16,7 +16,7 @@ using haystack
 ** AST spec
 **
 @Js
-internal const class ASpec : ANode, CSpec
+internal final const class ASpec : ANode, CSpec, Spec
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ internal const class ASpec : ANode, CSpec
   override ANodeType nodeType() { ANodeType.spec }
 
   ** Parent library
-  ALib lib() { ast.lib }
+  override ALib lib() { ast.lib }
 
   ** Reference to compiler
   MXetoCompiler compiler() { lib.compiler }
@@ -59,7 +59,7 @@ internal const class ASpec : ANode, CSpec
   ASys sys() { lib.compiler.sys }
 
   ** Parent spec or null if this is top-level spec
-  ASpec? parent() { ast.parent }
+  override ASpec? parent() { ast.parent }
 
   ** Flavor for spec
   override SpecFlavor flavor() { ast.flavor }
@@ -68,10 +68,10 @@ internal const class ASpec : ANode, CSpec
   Bool isTop() { flavor.isTop }
 
   ** Is flavor type
-  Bool isType() { flavor.isType }
+  override Bool isType() { flavor.isType }
 
   ** Is flavor mixin
-  Bool isMixin() { flavor.isMixin }
+  override Bool isMixin() { flavor.isMixin }
 
   ** Is flavor global
   override Bool isGlobal()
@@ -82,13 +82,14 @@ internal const class ASpec : ANode, CSpec
   }
 
   ** Is flavor meta
-  Bool isMeta() { flavor.isMeta }
+  override Bool isMeta() { flavor.isMeta }
 
   ** Are we compiling sys itself
   override Bool isSys() { lib.isSys }
 
   ** Is this a slot spec
-  Bool isSlot() { parent != null }
+// TODO: make this isMember
+  override Bool isSlot() { parent != null }
 
   ** Name within lib or parent
   const override Str name
@@ -114,7 +115,7 @@ internal const class ASpec : ANode, CSpec
   ASpecRef? typeRef { get { ast.typeRef } set { ast.typeRef = it } }
 
   ** We refine type and base in InheritSlots step
-  //Spec? base() { ast.base as Spec }
+  override Spec? base() { ast.base as Spec }
 
   ** Default value if spec had scalar value
   AScalar? val() { ast.val }
@@ -214,6 +215,57 @@ internal const class ASpec : ANode, CSpec
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Spec
+//////////////////////////////////////////////////////////////////////////
+
+  override Spec type() { (Spec)ctype }
+
+  override Dict meta() { ast.meta?.asm ?: Etc.dict0 }
+
+  override Spec? member(Str n, Bool c := true) { members.get(n, c) }
+
+  override Spec? slot(Str n, Bool c := true) { slots.get(n, c) }
+
+  override Spec? slotOwn(Str n, Bool c := true) { slotsOwn.get(n, c) }
+
+  override once SpecMap members()
+  {
+    acc := Str:Obj[:]
+    ast.cslots.each |x, n| { acc.add(n, x) }
+    return SpecMap(acc)
+  }
+
+  override SpecMap slots()
+  {
+    acc := Str:Obj[:]
+    ast.cslots.each |x, n| { if (!x.isGlobal) acc.add(n, x) }
+    return SpecMap(acc)
+  }
+
+  override final Spec? of(Bool checked := true)
+  {
+    x := cof
+    if (x != null) return (Spec)x
+    if (checked) throw Err(qname)
+    return null
+  }
+
+  override final Spec[]? ofs(Bool checked := true)
+  {
+    x := cofs
+    if (x != null) return Spec[,].addAll((Obj)x)
+    if (checked) throw Err("TODO")
+    return null
+  }
+
+  override final Bool isa(Spec that)
+  {
+    if (XetoUtil.isa(this, (CSpec)that)) return true
+    if (this.qname == that.qname) return true
+    return false
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // AST Node
 //////////////////////////////////////////////////////////////////////////
 
@@ -277,7 +329,7 @@ internal const class ASpec : ANode, CSpec
   override SpecBinding binding() { ast.binding ?: throw NotReadyErr(qname) }
 
   ** Declared meta (set in Reify)
-  Dict metaOwn() { ast.metaOwn ?: throw NotReadyErr(qname) }
+  override Dict metaOwn() { ast.metaOwn ?: throw NotReadyErr(qname) }
 
   ** Effective meta (set in InheritMeta)
   override Dict cmeta() { ast.cmeta ?: throw NotReadyErr(qname) }
@@ -423,10 +475,42 @@ internal const class ASpec : ANode, CSpec
   ASpecState ast() { astRef.val }
   const Unsafe astRef
 
+
 //////////////////////////////////////////////////////////////////////////
 // Spec (unsupported)
 //////////////////////////////////////////////////////////////////////////
 
+  override SpecMap membersOwn() { throw UnsupportedErr() }
+
+  override SpecMap slotsOwn() { throw UnsupportedErr() }
+
+  override SpecMap globalsOwn() { throw UnsupportedErr() }
+
+  override SpecMap globals() { throw UnsupportedErr() }
+
+  override Bool isEmpty() { throw UnsupportedErr() }
+
+  @Operator override Obj? get(Str n) { throw UnsupportedErr() }
+
+  override Bool has(Str n) { throw UnsupportedErr() }
+
+  override Bool missing(Str n) { throw UnsupportedErr() }
+
+  override Void each(|Obj val, Str name| f) { throw UnsupportedErr() }
+
+  override Obj? eachWhile(|Obj,Str->Obj?| f) { throw UnsupportedErr() }
+
+  override Obj? trap(Str n, Obj?[]? a := null) { throw UnsupportedErr() }
+
+  override SpecEnum enum() { throw UnsupportedErr() }
+
+  override SpecFunc func() { throw UnsupportedErr() }
+
+  override Void eachInherited(|Spec| f) { throw UnsupportedErr() }
+
+  override Type fantomType() { throw UnsupportedErr() }
+
+  override Int inheritanceDigest() {throw UnsupportedErr() }
 }
 
 **************************************************************************
