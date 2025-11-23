@@ -220,7 +220,7 @@ internal final const class ASpec : ANode, CSpec, Spec
 
   override Spec type() { (Spec)ctype }
 
-  override Dict meta() { ast.meta?.asm ?: Etc.dict0 }
+  override Dict meta() { cmeta }
 
   override Spec? member(Str n, Bool c := true) { members.get(n, c) }
 

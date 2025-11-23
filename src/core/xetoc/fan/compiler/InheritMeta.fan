@@ -44,8 +44,8 @@ internal class InheritMeta : Step
     own := spec.metaOwn
 
     // if base is null this is sys::Obj; otherwise recursively process base
-    base := spec.cbase
-    if (spec.cbase == null) return own
+    base := spec.base
+    if (base == null) return own
     if (base.isAst) inherit(base)
 
     // walk thru base tags and map tags we inherit
@@ -56,7 +56,7 @@ internal class InheritMeta : Step
     // if we inherited all of the base tags and
     // I have none of my own, then reuse base meta
     if (acc.size == baseSize && own.isEmpty && spec.val == null)
-      return base.cmeta
+      return base.meta
 
     // merge in my own tags
     XetoUtil.addOwnMeta(acc, own)
@@ -68,17 +68,17 @@ internal class InheritMeta : Step
     return Etc.dictFromMap(acc)
   }
 
-  private Int computedInherited(Str:Obj acc, ASpec spec, CSpec base)
+  private Int computedInherited(Str:Obj acc, ASpec spec, Spec base)
   {
-    if (spec.isAnd) return computeUnion(acc, spec.cofs, spec.loc)
-    if (spec.isOr)  return computeIntersection(acc, spec.cofs)
+    if (spec.isAnd) return computeUnion(acc, spec.ofs(false), spec.loc)
+    if (spec.isOr)  return computeIntersection(acc, spec.ofs(false))
     return computeFromBase(acc, base, spec.loc)
   }
 
-  private Int computeFromBase(Str:Obj acc, CSpec base, FileLoc loc)
+  private Int computeFromBase(Str:Obj acc, Spec base, FileLoc loc)
   {
     baseSize := 0
-    base.cmeta.each |v, n|
+    base.meta.each |v, n|
     {
       baseSize++
       if (isInherited(base, n, loc) && acc[n] == null) acc[n] = v
@@ -86,19 +86,19 @@ internal class InheritMeta : Step
     return baseSize
   }
 
-  private Bool isInherited(CSpec base, Str name, FileLoc loc)
+  private Bool isInherited(Spec base, Str name, FileLoc loc)
   {
     if (name == "val") return !base.isEnum
 
     metaSpec := cns.metaSpec(name, loc)
     if (metaSpec == null) return true
 
-    if (metaSpec.cmetaHas("noInherit")) return false
+    if (metaHas(metaSpec, "noInherit")) return false
 
     return true
   }
 
-  private Int computeUnion(Str:Obj acc, CSpec[]? ofs, FileLoc loc)
+  private Int computeUnion(Str:Obj acc, Spec[]? ofs, FileLoc loc)
   {
     if (ofs == null) return 0
     baseSize := 0
@@ -110,7 +110,7 @@ internal class InheritMeta : Step
     return baseSize
   }
 
-  private Int computeIntersection(Str:Obj acc, CSpec[]? ofs)
+  private Int computeIntersection(Str:Obj acc, Spec[]? ofs)
   {
     // do we want to do this for or types?
     return 0
