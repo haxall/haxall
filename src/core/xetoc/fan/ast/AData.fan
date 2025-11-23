@@ -19,10 +19,14 @@ using haystack
 internal abstract class AData : ANode
 {
    ** Constructor
-  new make(FileLoc loc, ASpecRef? type) : super(loc)
+  new make(FileLoc loc, ASpecRef? type)
   {
+    this.loc      = loc
     this.typeRef = type
   }
+
+  ** File location
+  override const FileLoc loc
 
   ** Type of this data value - raise exception if not resolved yet
   CSpec ctype() { typeRef?.deref ?: throw NotReadyErr() }

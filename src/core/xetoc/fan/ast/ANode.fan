@@ -13,13 +13,10 @@ using xeto
 ** Base class for all AST nodes
 **
 @Js
-internal abstract class ANode
+internal mixin ANode
 {
-   ** Constructor
-  new make(FileLoc loc) { this.loc = loc }
-
   ** Source code location for reporting compiler errors
-  const FileLoc loc
+  abstract FileLoc loc()
 
   ** Return node type enum
   abstract ANodeType nodeType()

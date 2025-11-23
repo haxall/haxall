@@ -17,10 +17,14 @@ using xetom
 internal abstract class ADoc : ANode
 {
    ** Constructor
-  new make(MXetoCompiler c, FileLoc loc) : super(loc)
+  new make(MXetoCompiler c, FileLoc loc)
   {
+    this.loc = loc
     this.compiler = c
   }
+
+  ** File location
+  override const FileLoc loc
 
   ** Compiler
   MXetoCompiler compiler { private set }

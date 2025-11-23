@@ -24,8 +24,9 @@ internal class ASpec : ANode, CSpec
 //////////////////////////////////////////////////////////////////////////
 
    ** Constructor
-  new make(FileLoc loc, ALib lib, ASpec? parent, Str name) : super(loc)
+  new make(FileLoc loc, ALib lib, ASpec? parent, Str name)
   {
+    this.loc      = loc
     this.lib      = lib
     this.parent   = parent
     this.qname    = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
@@ -43,6 +44,9 @@ internal class ASpec : ANode, CSpec
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
+
+  ** File location
+  override const FileLoc loc
 
   ** Node type
   override ANodeType nodeType() { ANodeType.spec }
