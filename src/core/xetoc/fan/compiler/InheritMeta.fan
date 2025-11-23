@@ -44,8 +44,8 @@ internal class InheritMeta : Step
     own := spec.metaOwn
 
     // if base is null this is sys::Obj; otherwise recursively process base
-    base := spec.base
-    if (spec.base == null) return own
+    base := spec.cbase
+    if (spec.cbase == null) return own
     if (base.isAst) inherit(base)
 
     // walk thru base tags and map tags we inherit
@@ -136,7 +136,7 @@ internal class InheritMeta : Step
       return MSpecArgsOfs(acc)
     }
 
-    if (spec.base != null) return spec.base.args
+    if (spec.cbase != null) return spec.cbase.args
 
     return MSpecArgs.nil
   }

@@ -121,7 +121,7 @@ internal class Assemble : Step
       it.parent     = x.parent?.asm
       it.qname      = x.qname
       it.name       = x.name
-      it.base       = x.base?.asm
+      it.base       = x.cbase?.asm
       it.type       = x.isType ? x.asm : x.ctype.asm
       it.meta       = x.cmeta
       it.metaOwn    = x.metaOwn

@@ -64,7 +64,7 @@ internal class LoadBindings : Step
     }
 
     // use base;s binding if inheritable (we process in inheritance order)
-    b = spec.base.binding
+    b = spec.cbase.binding
     if (b.isInheritable) return b
 
     // install default dict/scalar factory

@@ -114,7 +114,7 @@ internal const class ASpec : ANode, CSpec
   ASpecRef? typeRef { get { ast.typeRef } set { ast.typeRef = it } }
 
   ** We refine type and base in InheritSlots step
-  CSpec? base() { ast.base }
+  //Spec? base() { ast.base as Spec }
 
   ** Default value if spec had scalar value
   AScalar? val() { ast.val }
@@ -268,7 +268,7 @@ internal const class ASpec : ANode, CSpec
   override CSpec ctype() { isType ? this : typeRef.deref }
 
   ** Resolved base
-  override CSpec? cbase() { base }
+  override CSpec? cbase() { ast.base }
 
   ** Parent spec or null if this is top-level spec
   override CSpec? cparent() { parent }
@@ -378,11 +378,11 @@ internal const class ASpec : ANode, CSpec
 
   override Bool isSelf() { isSys && name == "Self" }
 
-  override Bool isEnum() { base != null && base.isSys && base.name == "Enum" }
+  override Bool isEnum() { cbase != null && cbase.isSys && cbase.name == "Enum" }
 
-  override Bool isAnd() { base != null && base.isSys && base.name == "And" }
+  override Bool isAnd() { cbase != null && cbase.isSys && cbase.name == "And" }
 
-  override Bool isOr() { base != null && base.isSys && base.name == "Or" }
+  override Bool isOr() { cbase != null && cbase.isSys && cbase.name == "Or" }
 
   ** Inheritance flags computed in InheritSlots
   override Int flags { get { ast.flags }  set { ast.flags = it } }
@@ -422,6 +422,10 @@ internal const class ASpec : ANode, CSpec
   ** Mutable AST state
   ASpecState ast() { astRef.val }
   const Unsafe astRef
+
+//////////////////////////////////////////////////////////////////////////
+// Spec (unsupported)
+//////////////////////////////////////////////////////////////////////////
 
 }
 

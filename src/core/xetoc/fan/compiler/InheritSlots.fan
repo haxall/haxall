@@ -87,16 +87,16 @@ internal class InheritSlots : Step
     if (!explicitTypeRef) spec.typeRef = inferType(spec)
 
     // if we couldn't infer base before, then use type as base
-    if (spec.base == null) spec.ast.base = spec.typeRef.deref
+    if (spec.cbase == null) spec.ast.base = spec.typeRef.deref
 
     // if base is in my AST, then recursively process it first
-    if (spec.base.isAst) inherit(spec.base)
+    if (spec.cbase.isAst) inherit(spec.cbase)
 
     // keep track of type now that inheritance has been processed
     if (spec.isType) types.add(spec)
 
     // if base is maybe and my own type is not then clear maybe flag
-    if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
+    if (explicitTypeRef && spec.cbase.isMaybe && !spec.metaHas("maybe"))
       spec.metaSetNone("maybe")
 
     // special handling for Enums
@@ -120,7 +120,7 @@ internal class InheritSlots : Step
   CSpec? inferBase(ASpec x)
   {
     // if already inferred
-    if (x.base != null) return x.base
+    if (x.cbase != null) return x.cbase
 
     // try to infer from the explicit type if available
     return x.typeRef?.deref
@@ -140,7 +140,7 @@ internal class InheritSlots : Step
     if (x.typeRef != null) return x.typeRef
 
     // infer type from base
-    if (x.base != null) return ASpecRef(x.loc, x.base.ctype)
+    if (x.cbase != null) return ASpecRef(x.loc, x.cbase.ctype)
 
     // scalars default to str and everything else to dict
     x.typeRef = x.val == null ? sys.dict : sys.str
@@ -169,7 +169,7 @@ internal class InheritSlots : Step
   private Int computeFlagsNonSys(ASpec x)
   {
     // start off with my base type flags that are inherited
-    flags := x.base.flags.and(MSpecFlags.inheritMask)
+    flags := x.cbase.flags.and(MSpecFlags.inheritMask)
 
     // merge in my own flags
     if (x.ast.meta != null)
@@ -190,7 +190,7 @@ internal class InheritSlots : Step
     }
 
     // if my base is compound type
-    baseName := x.base.name
+    baseName := x.cbase.name
     switch (baseName)
     {
       case "And":  flags = flags.or(MSpecFlags.and)
@@ -205,7 +205,7 @@ internal class InheritSlots : Step
   {
     flags := 0
     if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
-    for (ASpec? p := x; p != null; p = p.base)
+    for (ASpec? p := x; p != null; p = p.cbase)
     {
       switch (p.name)
       {
@@ -243,7 +243,7 @@ internal class InheritSlots : Step
     acc := Str:CSpec[:]
     acc.ordered = true
     autoCount := 0
-    base := spec.base
+    base := spec.cbase
 
     // first inherit slots from base type
     if (spec.isAnd)
@@ -410,7 +410,7 @@ internal class InheritSlots : Step
     spec.ast.base = spec.typeRef.deref
 
     // set flags
-    spec.flags = spec.base.flags.or(MSpecFlags.enum)
+    spec.flags = spec.cbase.flags.or(MSpecFlags.enum)
 
     // sealed is implied
     loc := spec.loc

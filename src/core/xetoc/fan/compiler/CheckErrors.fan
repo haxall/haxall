@@ -76,7 +76,7 @@ internal class CheckErrors : Step
   Void checkTypeInherit(ASpec x)
   {
     if (!x.isType) return
-    if (x.base == null) return // Obj
+    if (x.cbase == null) return // Obj
     base := x.cbase
 
     // check inheritance from base
@@ -140,15 +140,15 @@ internal class CheckErrors : Step
 
   Void checkCovariant(ASpec x)
   {
-    b := x.base
+    b := x.cbase
     if (b == null) return
     xType := x.ctype
     bType := b.ctype
 
     // for mixins that add meta to slots, they cannot be typed
-    if (x.parent != null && x.parent.isMixin && x.base.cparent != null)
+    if (x.parent != null && x.parent.isMixin && x.cbase.cparent != null)
     {
-      if (x.base.isGlobal)
+      if (x.cbase.isGlobal)
         err("Mixin extend global: $x.name", x.loc)
       else if (!xType.isMarker)
         err("Mixin cannot specify slot type: $x.name", x.loc)
@@ -209,12 +209,12 @@ internal class CheckErrors : Step
     // if the spec is a variable/macro/template construct then ignore
     if (isMacro(x)) return
 
-    if (x.isSlot && x.base.isGlobal)
-      err("Slot '$x.name' $msg1 global '$x.base.qname' $msg2", x.loc)
+    if (x.isSlot && x.cbase.isGlobal)
+      err("Slot '$x.name' $msg1 global '$x.cbase.qname' $msg2", x.loc)
     else if (x.isSlot)
-      err("Slot '$x.name' $msg1 inherited slot '$x.base.qname' $msg2", x.loc)
+      err("Slot '$x.name' $msg1 inherited slot '$x.cbase.qname' $msg2", x.loc)
     else
-      err("Type '$x.name' $msg1 inherited type '$x.base.qname' $msg2", x.loc)
+      err("Type '$x.name' $msg1 inherited type '$x.cbase.qname' $msg2", x.loc)
   }
 
   Bool isMacro(ASpec x)
@@ -256,7 +256,7 @@ internal class CheckErrors : Step
     if (slot.ast.meta == null) return
 
     hasVal := slot.ast.meta.get("val") != null
-    if (hasVal && slot.base != null && slot.base.cmeta.has("fixed"))
+    if (hasVal && slot.cbase != null && slot.cbase.cmeta.has("fixed"))
       err("Slot '$slot.name' is fixed and cannot declare new default value", slot.loc)
   }
 
