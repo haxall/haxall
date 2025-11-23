@@ -18,12 +18,20 @@ using xetom
 internal class ALib : ADoc
 {
    ** Constructor
-  new make(MXetoCompiler c, FileLoc loc, Str name) : super(c, loc)
+  new make(MXetoCompiler c, FileLoc loc, Str name)
   {
-    this.name  = name
-    this.isSys = name == "sys"
-    this.asm   = XetoLib()
+    this.loc      = loc
+    this.compiler = c
+    this.name     = name
+    this.isSys    = name == "sys"
+    this.asm      = XetoLib()
   }
+
+  ** File location
+  override const FileLoc loc
+
+  ** Compiler
+  override MXetoCompiler compiler
 
   ** Node type
   override ANodeType nodeType() { ANodeType.lib }
@@ -48,6 +56,9 @@ internal class ALib : ADoc
 
   ** Version parsed from pragma (set in ProcessPragma)
   Version? version
+
+  ** Instance data
+  override Str:AInstance instances := [:] { ordered = true }
 
   ** Top level specs
   Str:ASpec tops := [:] { ordered = true }

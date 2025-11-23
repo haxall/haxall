@@ -14,23 +14,13 @@ using xetom
 ** Document is top-level AST node - either a ALib or ADataDoc
 **
 @Js
-internal abstract class ADoc : ANode
+internal mixin ADoc : ANode
 {
-   ** Constructor
-  new make(MXetoCompiler c, FileLoc loc)
-  {
-    this.loc = loc
-    this.compiler = c
-  }
-
-  ** File location
-  override const FileLoc loc
-
   ** Compiler
-  MXetoCompiler compiler { private set }
+  abstract MXetoCompiler compiler()
 
   ** Instance data
-  Str:AInstance instances := [:] { ordered = true }
+  abstract Str:AInstance instances()
 
   ** Lookup top level instance data
   AData? instance(Str name) { instances.get(name) }
@@ -60,10 +50,23 @@ internal abstract class ADoc : ANode
 internal class ADataDoc : ADoc
 {
    ** Constructor
-  new make(MXetoCompiler c, FileLoc loc) : super(c, loc) {}
+  new make(MXetoCompiler c, FileLoc loc)
+  {
+    this.loc = loc
+    this.compiler = c
+  }
+
+  ** File location
+  override const FileLoc loc
+
+  ** Compiler
+  override MXetoCompiler compiler
 
   ** Root data object wrapped - set by Parser.parseDataFile
   AData? root
+
+  ** Instance data
+  override Str:AInstance instances := [:] { ordered = true }
 
   override ANodeType nodeType() { ANodeType.dataDoc }
 
