@@ -87,7 +87,7 @@ internal class InheritSlots : Step
     if (!explicitTypeRef) spec.typeRef = inferType(spec)
 
     // if we couldn't infer base before, then use type as base
-    if (spec.base == null) spec.ast.base = spec.typeRef.deref as Spec // TODO
+    if (spec.base == null) spec.ast.base = spec.typeRef.deref
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
@@ -123,9 +123,7 @@ internal class InheritSlots : Step
     if (x.base != null) return x.base
 
     // try to infer from the explicit type if available
-// TODO
-return x.typeRef?.deref as Spec
-//    return x.typeRef?.deref
+    return x.typeRef?.deref
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -409,8 +407,7 @@ return x.typeRef?.deref as Spec
   private Void inheritEnum(ASpec spec)
   {
     // set base to typeRef (which is sys::Enum)
-//    spec.ast.base = spec.typeRef.deref TODO
-spec.ast.base = (Spec)spec.typeRef.deref
+    spec.ast.base = spec.typeRef.deref
 
     // set flags
     spec.flags = spec.base.flags.or(MSpecFlags.enum)

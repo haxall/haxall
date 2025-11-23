@@ -75,8 +75,7 @@ internal abstract class InferData : Step
   private Void inferMetaSlot(ADict dict, Str name, AData val)
   {
     // resolve to meta spec
-// TODO
-    metaSpec := cns.metaSpec(name, val.loc) as Spec
+    metaSpec := cns.metaSpec(name, val.loc)
 
     // if not found then report error
     if (metaSpec == null)
