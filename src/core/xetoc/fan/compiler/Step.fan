@@ -78,5 +78,10 @@ abstract internal class Step
 x := (Spec)todo
     return x is ASpec ? ((ASpec)x).metaHas(n) : x.meta.has(n)
   }
+
+  MSpecArgs specToArgs(Spec x)
+  {
+    x is ASpec ? ((ASpec)x).args : ((XetoSpec)x).args
+  }
 }
 

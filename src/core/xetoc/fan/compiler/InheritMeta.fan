@@ -136,7 +136,7 @@ internal class InheritMeta : Step
       return MSpecArgsOfs(acc)
     }
 
-    if (spec.cbase != null) return spec.cbase.args
+    if (spec.cbase != null) return specToArgs(spec.base)
 
     return MSpecArgs.nil
   }
