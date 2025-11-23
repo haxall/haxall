@@ -88,8 +88,8 @@ internal class Parse : Step
     compiler.pragma = pragma
     if (compiler.lib != null)
     {
-      compiler.lib.meta = pragma
-      compiler.lib.version = Version.defVal
+      compiler.lib.ast.meta = pragma
+      compiler.lib.ast.version = Version.defVal
     }
   }
 
@@ -164,8 +164,8 @@ internal class Parse : Step
       files = EmptyLibFiles.val
     }
 
-    lib.files = files
-    if (hasMarkdown) lib.flags = lib.flags.or(MLibFlags.hasMarkdown)
+    lib.ast.files = files
+    if (hasMarkdown) lib.ast.flags = lib.flags.or(MLibFlags.hasMarkdown)
   }
 
   private Void parseFile(File input, ADoc doc, Str:Str buildVars)
@@ -201,7 +201,7 @@ internal class Parse : Step
     lib.tops["pragma"] = synthetizeCompanionLibPragma(lib)
 
     // no resource files
-    lib.files = EmptyLibFiles.val
+    lib.ast.files = EmptyLibFiles.val
 
     // parse each record
     recs := ns.companionRecs?.recs ?: throw Err("No companion recs")

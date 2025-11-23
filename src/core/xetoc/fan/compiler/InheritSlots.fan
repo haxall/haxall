@@ -35,7 +35,7 @@ internal class InheritSlots : Step
   {
     lib.tops.each |spec| { inherit(spec) }
     bombIfErr
-    lib.typesRef = types
+    lib.ast.types = types
   }
 
 //////////////////////////////////////////////////////////////////////////

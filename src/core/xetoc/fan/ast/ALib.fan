@@ -15,13 +15,13 @@ using xetom
 ** AST library
 **
 @Js
-internal class ALib : ADoc
+internal const class ALib : ADoc
 {
    ** Constructor
   new make(MXetoCompiler c, FileLoc loc, Str name)
   {
     this.loc      = loc
-    this.compiler = c
+    this.astRef   = Unsafe(ALibState(c))
     this.name     = name
     this.isSys    = name == "sys"
     this.asm      = XetoLib()
@@ -31,7 +31,7 @@ internal class ALib : ADoc
   override const FileLoc loc
 
   ** Compiler
-  override MXetoCompiler compiler
+  override MXetoCompiler compiler() { ast.compiler }
 
   ** Node type
   override ANodeType nodeType() { ANodeType.lib }
@@ -46,22 +46,22 @@ internal class ALib : ADoc
   const override XetoLib asm
 
   ** Files support (set in Parse)
-  LibFiles? files
+  LibFiles? files() { ast.files }
 
   ** From pragma (set in ProcessPragma)
-  ADict? meta
+  ADict? meta() { ast.meta }
 
   ** Flags
-  Int flags
+  Int flags() { ast.flags }
 
   ** Version parsed from pragma (set in ProcessPragma)
-  Version? version
+  Version? version() { ast.version }
 
   ** Instance data
-  override Str:AInstance instances := [:] { ordered = true }
+  override Str:AInstance instances() { ast.instances }
 
   ** Top level specs
-  Str:ASpec tops := [:] { ordered = true }
+  Str:ASpec tops() { ast.tops }
 
   ** TODO
   ASpec? top(Str name) { tops.get(name) }
@@ -75,8 +75,7 @@ internal class ALib : ADoc
   }
 
   ** List type specs ordered by inheritance (set in InheritSlots)
-  ASpec[] types() { typesRef ?: throw NotReadyErr(name) }
-  ASpec[]? typesRef
+  ASpec[] types() { ast.types ?: throw NotReadyErr(name) }
 
   ** Tree walk
   override Void walkBottomUp(|ANode| f)
@@ -117,8 +116,7 @@ internal class ALib : ADoc
   }
 
   ** Auto naming for synthetic specs
-  Str autoName() { "_" + (autoNameCount++) }
-  private Int autoNameCount
+  Str autoName() { "_" + (ast.autoNameCount++) }
 
   ** Debug dump
   override Void dump(OutStream out := Env.cur.out, Str indent := "")
@@ -135,5 +133,32 @@ internal class ALib : ADoc
       out.printLine.printLine
     }
   }
+
+  ** Mutable AST state
+  ALibState ast() { astRef.val }
+  const Unsafe astRef
+}
+
+**************************************************************************
+** ALibState
+**************************************************************************
+
+@Js
+internal class ALibState
+{
+  new make(MXetoCompiler c)
+  {
+    this.compiler = c
+  }
+
+  MXetoCompiler compiler
+  LibFiles? files
+  ADict? meta
+  Int flags
+  Version? version
+  Str:AInstance instances := [:] { ordered = true }
+  Str:ASpec tops := [:] { ordered = true }
+  ASpec[]? types
+  Int autoNameCount
 }
 

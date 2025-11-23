@@ -23,8 +23,8 @@ internal class ProcessPragma : Step
     if (mode.isLibPragma)
     {
       // for libs the pragma defines the depends
-      lib.meta = compiler.pragma
-      lib.version = toVersion
+      lib.ast.meta = compiler.pragma
+      lib.ast.version = toVersion
       pragma.metaParent = lib
       if (lib.name == XetoUtil.companionLibName)
         compiler.depends.list = nsToDepends
