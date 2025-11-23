@@ -90,7 +90,8 @@ internal class InheritMeta : Step
   {
     if (name == "val") return !base.isEnum
 
-    metaSpec := cns.metaSpec(name, loc)
+// TODO
+metaSpec := cns.metaSpec(name, loc) as Spec
     if (metaSpec == null) return true
 
     if (metaHas(metaSpec, "noInherit")) return false

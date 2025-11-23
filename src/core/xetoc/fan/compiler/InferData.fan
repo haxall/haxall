@@ -46,7 +46,7 @@ internal abstract class InferData : Step
 
   private Void inferScalar(AScalar scalar)
   {
-    if (scalar.typeRef == null || isObj(scalar.ctype))
+    if (scalar.typeRef == null || isObj(scalar.type))
       scalar.typeRef = sys.str
   }
 

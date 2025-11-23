@@ -20,7 +20,7 @@ internal mixin CInstance : CNode
   abstract Bool isAst()
 
   ** Type of dict
-  abstract CSpec ctype()
+  abstract Spec type()
 }
 
 **************************************************************************
@@ -35,7 +35,7 @@ internal const class CInstanceWrap : CInstance
   const XetoSpec spec
   override Bool isAst() { false }
   override Ref id() { w->id }
-  override CSpec ctype() { spec }
+  override Spec type() { spec }
   Obj asm() { id }
   override Str toStr() { id.toStr }
 }

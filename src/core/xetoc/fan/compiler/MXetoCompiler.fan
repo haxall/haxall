@@ -175,7 +175,7 @@ internal class MXetoCompiler : XetoCompiler
   }
 
   ** Log err message under slot name
-  XetoCompilerErr errSlot(CSpec? slot, Str msg, FileLoc loc, Err? cause := null)
+  XetoCompilerErr errSlot(Spec? slot, Str msg, FileLoc loc, Err? cause := null)
   {
     if (slot != null) msg = "Slot '$slot.name': $msg"
     return err(msg, loc, cause)

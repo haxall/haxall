@@ -53,13 +53,13 @@ abstract internal class Step
 
   XetoCompilerErr err(Str msg, FileLoc loc, Err? err := null) { compiler.err(msg, loc, err) }
 
-  XetoCompilerErr errSlot(CSpec? slot, Str msg, FileLoc loc, Err? err := null) { compiler.errSlot(slot, msg, loc, err) }
+  XetoCompilerErr errSlot(Spec? slot, Str msg, FileLoc loc, Err? err := null) { compiler.errSlot(slot, msg, loc, err) }
 
   XetoCompilerErr err2(Str msg, FileLoc loc1, FileLoc loc2, Err? err := null) { compiler.err2(msg, loc1, loc2, err) }
 
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
-  Bool isObj(CSpec s) { s.cbase == null }
+  Bool isObj(Spec s) { s.base == null }
 
   AScalar strScalar(FileLoc loc, Str str)
   {
@@ -72,11 +72,9 @@ abstract internal class Step
     dir.list.sort |a, b| { a.name <=> b.name }
   }
 
-// TODO
-  Bool metaHas(Obj todo, Str n)
+  Bool metaHas(Spec x, Str n)
   {
-x := (Spec)todo
-    return x is ASpec ? ((ASpec)x).metaHas(n) : x.meta.has(n)
+    x is ASpec ? ((ASpec)x).metaHas(n) : x.meta.has(n)
   }
 
   MSpecArgs specToArgs(Spec x)

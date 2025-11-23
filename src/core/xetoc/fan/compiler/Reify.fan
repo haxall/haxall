@@ -59,7 +59,7 @@ internal abstract class Reify : Step
     if (x.isAsm) return x.asm
 
     // turn ADict into raw Dict or Obj?[]
-    type := x.ctype
+    type := x.type
     isList := type.isList
     Obj? asm
     if (isList)
@@ -93,7 +93,7 @@ internal abstract class Reify : Step
     return asm
   }
 
-  private Dict reifyRawDict(ADict x, CSpec type)
+  private Dict reifyRawDict(ADict x, Spec type)
   {
     // name/value pairs
     acc := Str:Obj[:]
@@ -108,7 +108,7 @@ internal abstract class Reify : Step
     return Etc.dictFromMap(acc)
   }
 
-  private Obj[] reifyRawList(ADict x, CSpec type)
+  private Obj[] reifyRawList(ADict x, Spec type)
   {
     of := x.listOf ?: Obj#
     list := List(of, x.size)
@@ -134,7 +134,7 @@ internal abstract class Reify : Step
     if (x.isAsm) return x.asm
 
     // map to Fantom type to parse
-    type := x.ctype
+    type := x.type
     try
     {
       binding := type.binding

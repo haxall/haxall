@@ -29,9 +29,7 @@ internal abstract class AData : ANode
   override const FileLoc loc
 
   ** Type of this data value - raise exception if not resolved yet
-  Spec type() { typeRef?.deref  ?: throw NotReadyErr() }
-
-CSpec ctype() { (CSpec)type }
+  virtual Spec type() { typeRef?.deref  ?: throw NotReadyErr() }
 
   ** Resolved type
   ASpecRef? typeRef

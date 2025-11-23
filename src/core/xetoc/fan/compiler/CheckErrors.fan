@@ -76,8 +76,8 @@ internal class CheckErrors : Step
   Void checkTypeInherit(ASpec x)
   {
     if (!x.isType) return
-    if (x.cbase == null) return // Obj
-    base := x.cbase
+    if (x.base == null) return // Obj
+    base := x.base
 
     // check inheritance from base
     checkCanInheritFrom(x, base, x.loc)
@@ -93,11 +93,11 @@ internal class CheckErrors : Step
 
   Void checkCompoundType(ASpec x)
   {
-    CSpec? dict := null
-    CSpec? list := null
-    CSpec? scalar := null
+    Spec? dict := null
+    Spec? list := null
+    Spec? scalar := null
 
-    x.cofs.each |of|
+    x.ofs.each |of|
     {
       // keep track of flags
       if (of.isDict)   dict = of
@@ -117,7 +117,7 @@ internal class CheckErrors : Step
     }
   }
 
-  Void checkCanInheritFrom(ASpec x, CSpec base, FileLoc loc)
+  Void checkCanInheritFrom(ASpec x, Spec base, FileLoc loc)
   {
     // enums are effectively sealed even in same lib
     if (base.isEnum)
@@ -125,7 +125,7 @@ internal class CheckErrors : Step
 
     // cannot subtype from sealed types in external libs
     // Note: we allow this in cases like <of:Ref<of:Site>>
-    if (base.cmeta.has("sealed") && !base.isAst && !x.parsedSyntheticRef)
+    if (base.meta.has("sealed") && !base.isAst && !x.parsedSyntheticRef)
       return err("Cannot inherit from sealed type '$base.name'", loc)
   }
 
@@ -157,9 +157,7 @@ internal class CheckErrors : Step
     }
 
     // verify type is covariant
-// TODO
-cb := (CSpec)b
-    if (!xType.isa(bType) && !isFieldOverrideOfMethod(cb, x))
+    if (!xType.isa(bType) && !isFieldOverrideOfMethod(b, x))
       errCovariant(x, "type '$xType' conflicts", "of type '$bType'")
 
     // check "of"
@@ -193,15 +191,15 @@ cb := (CSpec)b
       errCovariant(x, "unit '$xUnit' conflicts", "unit '$bUnit'")
   }
 
-  Bool isFieldOverrideOfMethod(CSpec b, ASpec x)
+  Bool isFieldOverrideOfMethod(Spec b, ASpec x)
   {
     // we allow a field to override a method if it matches base func return type
-    isOverride := x.isInterfaceSlot && b.ctype.isFunc && !x.ctype.isFunc
+    isOverride := x.isInterfaceSlot && b.type.isFunc && !x.ctype.isFunc
     if (!isOverride) return false
 
     // check that x type is covariant to b func returns type
-    bReturns := b.cmember("returns")?.ctype
-    if (!x.ctype.cisa(bReturns))
+    bReturns := b.member("returns")?.type
+    if (!x.type.isa(bReturns))
       err("Type mismatch in field '$x.name' override of method: $x.ctype != $bReturns", x.loc)
     return true
   }
@@ -265,7 +263,7 @@ cb := (CSpec)b
   Void checkSlotVal(ASpec slot)
   {
     // slots of type Obj can have either scalar or slots (but not both)
-    if (isObj(slot.ctype))
+    if (isObj(slot.type))
     {
       // this actually should never happen because we don't parse this case
       if (slot.val != null && slot.declared != null)
@@ -334,7 +332,7 @@ cb := (CSpec)b
 // Data
 //////////////////////////////////////////////////////////////////////////
 
-  Void checkData(AData x, CSpec? slot)
+  Void checkData(AData x, Spec? slot)
   {
     switch (x.nodeType)
     {
@@ -345,36 +343,36 @@ cb := (CSpec)b
     }
   }
 
-  Void checkScalar(AScalar x, CSpec? slot)
+  Void checkScalar(AScalar x, Spec? slot)
   {
-    spec := slot ?: x.ctype
-    checkVal.check(spec, x.asm) |msg|
+    spec := slot ?: x.type
+    checkVal.check((CSpec)spec, x.asm) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
   }
 
-  Void checkDict(ADict x, CSpec? slot)
+  Void checkDict(ADict x, Spec? slot)
   {
-    spec := x.ctype
+    spec := x.type
     isMeta := ((ADict)x).isMeta
 
     if (spec.isList) checkList(x, slot)
 
     x.each |v, n|
     {
-      checkData(v, spec.cmember(n, false))
+      checkData(v, spec.member(n, false))
     }
 
-    spec.cslots |memberSpec|
+    spec.members.each |memberSpec|
     {
       checkDictSlot(x, memberSpec)
     }
   }
 
-  Void checkList(ADict x, CSpec? slot)
+  Void checkList(ADict x, Spec? slot)
   {
-    spec := slot ?: x.ctype
+    spec := slot ?: x.type
     list := x.asm as List
 
     if (list == null)
@@ -384,34 +382,34 @@ cb := (CSpec)b
     }
 
     // check spec meta notEmpty, minSize, maxSize
-    checkVal.check(spec, list) |msg|
+    checkVal.check((CSpec)spec, list) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
 
     // determine if we need to check item type against of
-    of := spec.cof
+    of := spec.of(false)
     if (spec.name == "ofs") of = null
     if (spec.isMultiRef)  of = null
     while (of != null && XetoUtil.isAutoName(of.name))
-      of = of?.cbase
+      of = of?.base
 
     // walk thru each item and check auto-name and optionally item type
     named := false
     x.each |v, n|
     {
       if (!XetoUtil.isAutoName(n)) named = true
-      if (of != null && !v.ctype.cisa(of))
+      if (of != null && !v.type.isa(of))
       {
-        errSlot(slot, "List item type is '$of', item type is '$v.ctype'", v.loc)
+        errSlot(slot, "List item type is '$of', item type is '$v.type'", v.loc)
       }
     }
     if (named) errSlot(slot, "List cannot contain named items", x.loc)
   }
 
-  Void checkDictSlot(ADict x, CSpec slot)
+  Void checkDictSlot(ADict x, Spec slot)
   {
-    if (slot.ctype.isChoice) return checkDictChoice(x, slot)
+    if (slot.type.isChoice) return checkDictChoice(x, slot)
 
     val := x.get(slot.name)
     if (val == null)
@@ -423,11 +421,11 @@ cb := (CSpec)b
 
     if (!x.isMeta)
     {
-      valType := val.ctype
-      if (!valTypeFits(slot.ctype, valType, val.asm))
+      valType := val.type
+      if (!valTypeFits(slot.type, valType, val.asm))
       {
         memberType := slot.isGlobal ? "Global" : "Slot"
-        errSlot(slot, "$memberType type is '$slot.ctype', value type is '$valType'", x.loc)
+        errSlot(slot, "$memberType type is '$slot.type', value type is '$valType'", x.loc)
       }
 
       if (slot.isRef || slot.isMultiRef)
@@ -435,10 +433,10 @@ cb := (CSpec)b
     }
   }
 
-  Bool valTypeFits(CSpec type, CSpec valType, Obj val)
+  Bool valTypeFits(Spec type, Spec valType, Obj val)
   {
     // check if fits by nominal typing
-    if (valType.cisa(type)) return true
+    if (valType.isa(type)) return true
 
     // MultiRef may be either Ref or Ref[]
     if (type.isMultiRef)
@@ -450,16 +448,16 @@ cb := (CSpec)b
     return false
   }
 
-  Void checkRefTarget(CSpec slot, AData val)
+  Void checkRefTarget(Spec slot, AData val)
   {
-    of := slot.cof
+    of := slot.of(false)
     if (of == null) return true
 
     if (val is ADataRef)
     {
       instance := ((ADataRef)val).deref
-      if (!instance.ctype.cisa(of))
-        errSlot(slot, "Ref target must be '$of.qname', target is '$instance.ctype'", val.loc)
+      if (!instance.type.isa(of))
+        errSlot(slot, "Ref target must be '$of.qname', target is '$instance.type'", val.loc)
       return
     }
 
@@ -478,9 +476,9 @@ cb := (CSpec)b
   {
   }
 
-  Void checkDictChoice(ADict x, CSpec slot)
+  Void checkDictChoice(ADict x, Spec slot)
   {
-    MChoice.check(cns, slot, x.asm) |msg|
+    MChoice.check(cns, (CSpec)slot, x.asm) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
