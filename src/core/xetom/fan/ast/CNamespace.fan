@@ -16,6 +16,6 @@ using util
 mixin CNamespace
 {
   ** Iterate each type type that returns true for 'isa(type)'
-  abstract Void ceachTypeThatIs(CSpec type, |CSpec| f)
+  abstract Void eachTypeThatIs(Spec type, |Spec| f)
 }
 

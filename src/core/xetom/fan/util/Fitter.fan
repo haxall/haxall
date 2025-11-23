@@ -268,10 +268,9 @@ internal class Fitter
   private Bool? fitsChoice(Dict dict, Spec slot)
   {
     selection := XetoSpec[,]
-    cslot := (CSpec)slot
-    MChoice.findSelections(ns, cslot, dict, selection)
+    MChoice.findSelections(ns, slot, dict, selection)
     Str? err := null
-    MChoice.validate(cslot, selection) |msg| { err = msg }
+    MChoice.validate(slot, selection) |msg| { err = msg }
     if (err == null) return true
     return explainChoiceErr(slot, err)
   }

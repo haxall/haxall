@@ -478,7 +478,7 @@ internal class CheckErrors : Step
 
   Void checkDictChoice(ADict x, Spec slot)
   {
-    MChoice.check(cns, (CSpec)slot, x.asm) |msg|
+    MChoice.check(cns, slot, x.asm) |msg|
     {
       errSlot(slot, msg, x.loc)
     }

@@ -536,12 +536,11 @@ const class MNamespace : Namespace, CNamespace
 // CNamespace
 //////////////////////////////////////////////////////////////////////////
 
-  override Void ceachTypeThatIs(CSpec ctype, |CSpec| f)
+  override Void eachTypeThatIs(Spec type, |Spec| f)
   {
-    type := (Spec)ctype
     eachType |x|
     {
-      if (x.isa(type)) f((CSpec)x)
+      if (x.isa(type)) f(x)
     }
   }
 

@@ -70,7 +70,7 @@ internal class ANamespace : CNamespace
     return true
   }
 
-  override Void ceachTypeThatIs(CSpec type, |CSpec| f)
+  override Void eachTypeThatIs(Spec type, |Spec| f)
   {
     // iterate types from imported namespace only
     // if base type is not in the AST being compiled
@@ -88,7 +88,7 @@ internal class ANamespace : CNamespace
         {
           lib.types.each |x|
           {
-            if (x.isa(typeSpec)) f((CSpec)x)
+            if (x.isa(typeSpec)) f(x)
           }
         }
       }
@@ -99,7 +99,7 @@ internal class ANamespace : CNamespace
     {
       compiler.lib.tops.each |x|
       {
-        if (x.isType && x.cisa(type)) f(x)
+        if (x.isType && x.isa(type)) f(x)
       }
     }
   }

@@ -49,7 +49,7 @@ const final class MChoice : SpecChoice
   override Spec[] subtypes(Spec base := spec)
   {
     acc := Spec[,]
-    choiceSubtypes.each |CSpec cx|
+    choiceSubtypes.each |cx|
     {
       x := (Spec)cx
       if (x.base === base) acc.add(x)
@@ -68,7 +68,7 @@ const final class MChoice : SpecChoice
   }
 
   ** Cache the choice subtype computation because its really expensive
-  private once CSpec[] choiceSubtypes()
+  private once Spec[] choiceSubtypes()
   {
     findChoiceSubtypes(ns, spec).toImmutable
   }
@@ -78,9 +78,9 @@ const final class MChoice : SpecChoice
 //////////////////////////////////////////////////////////////////////////
 
   ** Validation called by XetoCompiler in CheckErrors
-  static Void check(CNamespace ns, CSpec spec, Dict instance, |Str| onErr)
+  static Void check(CNamespace ns, Spec spec, Dict instance, |Str| onErr)
   {
-    selections := CSpec[,]
+    selections := Spec[,]
     findSelections(ns, spec, instance, selections)
     validate(spec, selections, onErr)
   }
@@ -90,10 +90,10 @@ const final class MChoice : SpecChoice
 //////////////////////////////////////////////////////////////////////////
 
   ** Get all the choice subtypes to use for checking
-  static Obj[] findChoiceSubtypes(CNamespace ns, CSpec spec)
+  static Obj[] findChoiceSubtypes(CNamespace ns, Spec spec)
   {
     acc := Obj[,]
-    ns.ceachTypeThatIs(spec.ctype) |x|
+    ns.eachTypeThatIs(spec.type) |x|
     {
       if (!x.isChoice) return
       acc.add(x)
@@ -102,7 +102,7 @@ const final class MChoice : SpecChoice
   }
 
   ** Find all the choice selections for instance
-  static Void findSelections(CNamespace ns, CSpec spec, Dict instance, Obj[] acc)
+  static Void findSelections(CNamespace ns, Spec spec, Dict instance, Obj[] acc)
   {
     subtypes := findChoiceSubtypes(ns, spec)
     return doFindSelections(subtypes, instance, acc)
@@ -110,7 +110,7 @@ const final class MChoice : SpecChoice
 
   ** Find first match selection. This is an optimization used used for
   ** an unchecked selection that lets us avoid a bunch of extra computation
-  static CSpec? doFindSelection(CSpec[] subtypes, Dict instance)
+  static Spec? doFindSelection(Spec[] subtypes, Dict instance)
   {
     subtypes.find |x|
     {
@@ -119,7 +119,7 @@ const final class MChoice : SpecChoice
   }
 
   ** Find all the choice selections for instance
-  static Void doFindSelections(CSpec[] subtypes, Dict instance, Obj[] acc)
+  static Void doFindSelections(Spec[] subtypes, Dict instance, Obj[] acc)
   {
     // find all the matches first
     subtypes.each |x|
@@ -135,7 +135,7 @@ const final class MChoice : SpecChoice
   }
 
   ** Validate given selections for an instance based on maybe/multi-choice flags
-  static Void validate(CSpec spec, CSpec[] selections, |Str| onErr)
+  static Void validate(Spec spec, Spec[] selections, |Str| onErr)
   {
     // if exactly one selection - always valid
     if (selections.size == 1) return
@@ -144,7 +144,7 @@ const final class MChoice : SpecChoice
     if (selections.size == 0)
     {
       if (maybe(spec)) return
-      onErr("Missing required choice '$spec.ctype'")
+      onErr("Missing required choice '$spec.type'")
       return
     }
 
@@ -161,19 +161,19 @@ const final class MChoice : SpecChoice
         // if one of the other choices is a gas then allow it
         otherIndex := airIndex == 0 ? 1 : 0
         other := selections[otherIndex]
-        for (CSpec? x := other; x != null; x = x.cbase)
+        for (Spec? x := other; x != null; x = x.base)
           if (x.qname == "ph::Gas") return
       }
     }
 
-    onErr("Conflicting choice '$spec.ctype': " + selections.join(", ") { it.name })
+    onErr("Conflicting choice '$spec.type': " + selections.join(", ") { it.name })
   }
 
   ** Return if instance has all the given marker tags of the given choice
-  static Bool hasChoiceMarkers(Dict instance, CSpec choice)
+  static Bool hasChoiceMarkers(Dict instance, Spec choice)
   {
-    if (!choice.hasSlots) return false // skip abstract choice
-    r := choice.cslotsWhile |slot|
+    if (choice.slots.isEmpty) return false // skip abstract choice
+    r := choice.slots.eachWhile |slot|
     {
       instance.has(slot.name) ? null : "break"
     }
@@ -181,9 +181,9 @@ const final class MChoice : SpecChoice
   }
 
   ** Is the given spec a maybe type
-  static Bool maybe(CSpec spec) { spec.isMaybe }
+  static Bool maybe(Spec spec) { spec.isMaybe }
 
   ** Does given spec define the multiChoice flag
-  static Bool multiChoice(CSpec spec) { spec.cmeta.has("multiChoice") }
+  static Bool multiChoice(Spec spec) { spec.meta.has("multiChoice") }
 }
 
