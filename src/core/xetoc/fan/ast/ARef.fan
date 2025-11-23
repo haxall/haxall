@@ -68,6 +68,9 @@ internal class ASpecRef : ARef
   ** Constructor
   new make(FileLoc loc, AName name) : super(loc, name) {}
 
+  ** TODO
+  static ASpecRef makeTemp(FileLoc loc, Spec spec) { makeResolved(loc, (CSpec)spec) }
+
   ** Construct for resolved
   new makeResolved(FileLoc loc, CSpec spec)
     : super.make(loc, ASimpleName(null, spec.name)) // don't create full AName
@@ -96,7 +99,7 @@ internal class ASpecRef : ARef
   ** We smuggle the slots 'of' meta in via this field since we want
   ** deref to be the type, not the slot.  But on some situations such as
   ** inferring list items we still need this from the declaring slot
-  CSpec? of
+  Spec? of
 
   ** Resolved spec
   private CSpec? resolvedRef

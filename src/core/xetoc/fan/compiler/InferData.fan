@@ -75,7 +75,8 @@ internal abstract class InferData : Step
   private Void inferMetaSlot(ADict dict, Str name, AData val)
   {
     // resolve to meta spec
-    metaSpec := cns.metaSpec(name, val.loc)
+// TODO
+    metaSpec := cns.metaSpec(name, val.loc) as Spec
 
     // if not found then report error
     if (metaSpec == null)
@@ -93,14 +94,14 @@ internal abstract class InferData : Step
     if (val.typeRef != null) return
 
     // if meta tag is self, then use parent spec type
-    type := metaSpec.ctype
+    type := metaSpec.type
     if (type.isSelf)
     {
       parentSpec := dict.metaParent as ASpec
       if (parentSpec == null)
         err("Unexpected self meta '$name' outside of spec", dict.loc)
       else
-        type = parentSpec.ctype
+        type = parentSpec.type
     }
 
     // type the meta tag using global type
@@ -113,10 +114,10 @@ internal abstract class InferData : Step
     if (dict.typeRef == null) dict.typeRef = sys.dict
 
     // walk thru the spec slots and infer type/value
-    spec := dict.ctype
+    spec := dict.type
 
     // infer slots and globals from spec
-    spec.cmembers |slot|
+    spec.members.each |slot|
     {
       inferDictSlot(dict, slot)
     }
@@ -128,12 +129,12 @@ internal abstract class InferData : Step
       dict.each |item|
       {
         if (item.typeRef == null)
-          item.typeRef = ASpecRef(item.loc, of)
+          item.typeRef = ASpecRef.makeTemp(item.loc, of)
       }
     }
   }
 
-  private Void inferDictSlot(ADict dict, CSpec slot)
+  private Void inferDictSlot(ADict dict, Spec slot)
   {
     // get the slot value
     cur := dict.get(slot.name)
@@ -150,7 +151,7 @@ internal abstract class InferData : Step
     }
 
     // if slot is defined in the lib itself
-    CSpec cspec := slot
+    spec := slot
     if (slot.isAst)
     {
       val := ((ASpec)slot).metaGet("val") as AData
@@ -159,22 +160,22 @@ internal abstract class InferData : Step
         dict.set(slot.name, val)
         return
       }
-      cspec = slot.ctype
+      spec = slot.type
     }
 
-    val := cspec.cmeta.get("val")
+    val := spec.meta.get("val")
     if (val == null) return
     if (val == refDefVal) return
     type := inferDictSlotType(dict.loc, slot)
     dict.set(slot.name, AScalar(dict.loc, type, val.toStr, val))
   }
 
-  private ASpecRef inferDictSlotType(FileLoc loc, CSpec slot)
+  private ASpecRef inferDictSlotType(FileLoc loc, Spec slot)
   {
-    type := slot.ctype
-    if (type.isSelf && curSpec != null) type = curSpec.ctype
-    ref := ASpecRef(loc, type)
-    ref.of = slot.cof // smuggle parameterized 'of' into ASpecRef
+    type := slot.type
+    if (type.isSelf && curSpec != null) type = curSpec.type
+    ref := ASpecRef.makeTemp(loc, type)
+    ref.of = slot.of(false) // smuggle parameterized 'of' into ASpecRef
     return ref
   }
 
