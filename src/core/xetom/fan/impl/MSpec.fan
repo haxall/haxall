@@ -9,7 +9,6 @@
 using concurrent
 using util
 using xeto
-//using haystack
 
 **
 ** Implementation of Spec wrapped by XetoSpec
@@ -216,7 +215,7 @@ const class MSpecInit
 ** XetoSpec is the referential proxy for MSpec
 **
 @Js
-const class XetoSpec : Spec, Dict, CSpec
+const class XetoSpec : Spec, CNode
 {
   new make() {}
 
@@ -246,8 +245,6 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Spec? member(Str n, Bool c := true) { XetoUtil.member(this, n, c) }
 
-  override final Bool hasSlots() { m.hasSlots }
-
   override final SpecMap slotsOwn() { m.slotsOwn }
 
   override final SpecMap slots() { m.slots }
@@ -261,8 +258,6 @@ const class XetoSpec : Spec, Dict, CSpec
   override final once SpecMap globals() { XetoUtil.globals(this) }
 
   override final Bool isa(Spec x) { XetoUtil.isa(this, x) }
-
-  override final Bool cisa(CSpec x) { XetoUtil.isa(this, (Spec)x) }
 
   override final FileLoc loc() { m.loc }
 
@@ -284,15 +279,11 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Str toStr() { m?.toStr ?: super.toStr }
 
-  override final MSpecArgs args() { m.args }
-
   override final Spec? of(Bool checked := true) { m.args.of(checked) }
 
   override final Spec[]? ofs(Bool checked := true)  { m.args.ofs(checked) }
 
   override final SpecEnum enum() { m.enum }
-
-  override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
 
   override final SpecFunc func() { m.func(this) }
 
@@ -323,7 +314,7 @@ const class XetoSpec : Spec, Dict, CSpec
   override final Bool isAnd()       { m.hasFlag(MSpecFlags.and) }
   override final Bool isOr()        { m.hasFlag(MSpecFlags.or) }
   override final Bool isSys()       { lib.isSys }
-  override final Bool isCompound()  { CSpec.super.isCompound }
+  override final Bool isCompound()  { (isAnd || isOr) && ofs(false) != null }
 
   override final Bool isAst() { false }
 
@@ -331,31 +322,11 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Int flags() { m.flags }
 
-  override final CSpec? cbase() { m.base }
-
-  override final CSpec ctype() { m.type }
-
-  override final CSpec? cparent() { m.parent }
-
-  override final Dict cmeta() { m.meta }
-
-  override final Bool cmetaHas(Str name) { m.meta.has(name) }
-
-  override CSpec? cmember(Str n, Bool c := true) { member(n, c) as CSpec }
-
-  override final Void cmembers(|CSpec, Str| f) { members.each |s, n| { f((CSpec)s, n) } }
-
-  override final Void cslots(|CSpec, Str| f) { m.slots.each |s, n| { f((CSpec)s, n) } }
-
-  override final Obj? cslotsWhile(|CSpec, Str->Obj?| f) { m.slots.eachWhile |s, n| { f((CSpec)s, n) } }
-
-  override final XetoSpec? cof()  { of(false) }
-
-  override final XetoSpec[]? cofs()  { ofs(false) as Obj }
-
   override final Type fantomType() { m.fantomType }
 
   override final Int inheritanceDigest() { m.inheritanceDigest(this) }
+
+  MSpecArgs args() { m.args }
 
   const MSpec? m
 }

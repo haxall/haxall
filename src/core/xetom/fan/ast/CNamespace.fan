@@ -19,3 +19,14 @@ mixin CNamespace
   abstract Void eachTypeThatIs(Spec type, |Spec| f)
 }
 
+**************************************************************************
+** CNode
+**************************************************************************
+
+@Js
+mixin CNode
+{
+  ** Qualified name as Ref
+  abstract Ref id()
+}
+

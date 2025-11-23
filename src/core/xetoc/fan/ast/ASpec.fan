@@ -16,7 +16,7 @@ using haystack
 ** AST spec
 **
 @Js
-internal final const class ASpec : ANode, CSpec, Spec
+internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ internal final const class ASpec : ANode, CSpec, Spec
   AScalar? val() { ast.val }
 
   ** Parameterized arguments of/ofs (set in InheritMeta)
-  override MSpecArgs args() { ast.args ?: throw NotReadyErr(qname) }
+  MSpecArgs args() { ast.args ?: throw NotReadyErr(qname) }
 
   ** True if we parsed this spec as an '&' or '|' type
   Bool parsedCompound() { ast.parsedCompound }
@@ -132,9 +132,6 @@ internal final const class ASpec : ANode, CSpec, Spec
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////
-
-  ** Declared meta if there was "<>"
-  //ADict? meta() { ast.meta }
 
   ** Initialize meta data dict
   ADict metaInit()
@@ -218,9 +215,9 @@ internal final const class ASpec : ANode, CSpec, Spec
 // Spec
 //////////////////////////////////////////////////////////////////////////
 
-  override Spec type() { (Spec)ctype }
+  override Spec type() { isType ? this : typeRef.deref }
 
-  override Dict meta() { cmeta }
+  override Dict meta() { ast.cmeta ?: throw NotReadyErr(qname) }
 
   override Spec? member(Str n, Bool c := true) { members.get(n, c) }
 
@@ -243,18 +240,23 @@ internal final const class ASpec : ANode, CSpec, Spec
 
   override final Spec? of(Bool checked := true)
   {
-    x := cof
-    if (x != null) return (Spec)x
-    if (checked) throw Err(qname)
-    return null
+    if (ast.meta == null) return null
+    x := ast.meta.get("of") as ASpecRef
+    if (x == null) return null
+    return x.deref
   }
 
   override final Spec[]? ofs(Bool checked := true)
   {
-    x := cofs
-    if (x != null) return Spec[,].addAll((Obj)x)
-    if (checked) throw Err("TODO")
-    return null
+    if (ast.meta == null) return null
+    list := ast.meta.get("ofs") as ADict
+    if (list == null) return null
+    acc := Spec[,]
+    list.each |x|
+    {
+      acc.add(((ASpecRef)x).deref)
+    }
+    return acc.ro
   }
 
   override final Bool isa(Spec that)
@@ -272,7 +274,101 @@ internal final const class ASpec : ANode, CSpec, Spec
   }
 
 //////////////////////////////////////////////////////////////////////////
-// AST Node
+// CSpec
+//////////////////////////////////////////////////////////////////////////
+
+  ** The answer is yes
+  override Bool isAst() { true }
+
+  ** Binding (set in LoadBindings)
+  override SpecBinding binding() { ast.binding ?: throw NotReadyErr(qname) }
+
+  ** Declared meta (set in Reify)
+  override Dict metaOwn() { ast.metaOwn ?: throw NotReadyErr(qname) }
+
+  override Bool isCompound() { (isAnd || isOr) && ofs(false) != null }
+
+  override Bool isNone() { isSys && name == "None" }
+
+  override Bool isSelf() { isSys && name == "Self" }
+
+  override Bool isEnum() { base != null && base.isSys && base.name == "Enum" }
+
+  override Bool isAnd() { base != null && base.isSys && base.name == "And" }
+
+  override Bool isOr() { base != null && base.isSys && base.name == "Or" }
+
+  ** Inheritance flags computed in InheritSlots
+  override Int flags { get { ast.flags }  set { ast.flags = it } }
+
+  override Bool isScalar()    { hasFlag(MSpecFlags.scalar) }
+  override Bool isMarker()    { hasFlag(MSpecFlags.marker) }
+  override Bool isRef()       { hasFlag(MSpecFlags.ref) }
+  override Bool isMultiRef()  { hasFlag(MSpecFlags.multiRef) }
+  override Bool isChoice()    { hasFlag(MSpecFlags.choice) }
+  override Bool isDict()      { hasFlag(MSpecFlags.dict) }
+  override Bool isList()      { hasFlag(MSpecFlags.list) }
+  override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
+  override Bool isQuery()     { hasFlag(MSpecFlags.query) }
+  override Bool isFunc()      { hasFlag(MSpecFlags.func) }
+  override Bool isInterface() { hasFlag(MSpecFlags.interface) }
+  override Bool isComp()      { hasFlag(MSpecFlags.comp) }
+
+  /*
+  override Bool isNone()   { hasFlag(MSpecFlags.none) }
+  override Bool isSelf()   { hasFlag(MSpecFlags.self) }
+  override Bool isEnum()   { hasFlag(MSpecFlags.enum) }
+  override Bool isAnd()    { hasFlag(MSpecFlags.and) }
+  override Bool isOr()     { hasFlag(MSpecFlags.or) }
+  */
+
+  Bool hasFlag(Int flag)
+  {
+    if (flags < 0) throw Err("Flags not set yet: $qname")
+    return flags.and(flag) != 0
+  }
+
+  Bool isInterfaceSlot()
+  {
+    parent != null && parent.isInterface
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Spec (unsupported)
+//////////////////////////////////////////////////////////////////////////
+
+  override SpecMap membersOwn() { throw UnsupportedErr() }
+
+  override SpecMap slotsOwn() { throw UnsupportedErr() }
+
+  override SpecMap globalsOwn() { throw UnsupportedErr() }
+
+  override SpecMap globals() { throw UnsupportedErr() }
+
+  override Bool isEmpty() { throw UnsupportedErr() }
+
+  @Operator override Obj? get(Str n) { throw UnsupportedErr() }
+
+  override Bool has(Str n) { throw UnsupportedErr() }
+
+  override Bool missing(Str n) { throw UnsupportedErr() }
+
+  override Void each(|Obj val, Str name| f) { throw UnsupportedErr() }
+
+  override Obj? eachWhile(|Obj,Str->Obj?| f) { throw UnsupportedErr() }
+
+  override Obj? trap(Str n, Obj?[]? a := null) { throw UnsupportedErr() }
+
+  override SpecFunc func() { throw UnsupportedErr() }
+
+  override Void eachInherited(|Spec| f) { throw UnsupportedErr() }
+
+  override Type fantomType() { throw UnsupportedErr() }
+
+  override Int inheritanceDigest() {throw UnsupportedErr() }
+
+//////////////////////////////////////////////////////////////////////////
+// AST Support
 //////////////////////////////////////////////////////////////////////////
 
   ** Tree walk
@@ -315,204 +411,9 @@ internal final const class ASpec : ANode, CSpec, Spec
     if (val != null) out.print(" = ").print(val)
   }
 
-//////////////////////////////////////////////////////////////////////////
-// CSpec
-//////////////////////////////////////////////////////////////////////////
-
-  ** The answer is yes
-  override Bool isAst() { true }
-
-  ** Resolved type
-  override CSpec ctype() { isType ? this : typeRef.deref }
-
-  ** Resolved base
-  override CSpec? cbase() { ast.cbase }
-
-  ** Parent spec or null if this is top-level spec
-  override CSpec? cparent() { parent }
-
-  ** Binding (set in LoadBindings)
-  override SpecBinding binding() { ast.binding ?: throw NotReadyErr(qname) }
-
-  ** Declared meta (set in Reify)
-  override Dict metaOwn() { ast.metaOwn ?: throw NotReadyErr(qname) }
-
-  ** Effective meta (set in InheritMeta)
-  override Dict cmeta() { ast.cmeta ?: throw NotReadyErr(qname) }
-
-  ** Effective meta has
-  override Bool cmetaHas(Str name)
-  {
-    if (ast.cmeta != null) return ast.cmeta.has(name)
-    return metaHas(name)
-  }
-
-  ** Is there one or more effective slots
-  override Bool hasSlots()
-  {
-    if (ast.members == null) throw NotReadyErr(qname)
-    return !ast.members.isEmpty
-  }
-
-  ** Iterate the effective members
-  override Void cmembers(|CSpec, Str| f)
-  {
-    if (ast.members == null) throw NotReadyErr(qname)
-    ast.members.each |x, n| { f((CSpec)x, n) }
-  }
-
-  ** Lookup effective member
-  override CSpec? cmember(Str name, Bool checked := true)
-  {
-    if (ast.members == null) throw NotReadyErr(qname)
-    m := ast.members.get(name)
-    if (m != null) return (CSpec)m
-    if (checked) throw UnknownSlotErr("${qname}.${name}")
-    return null
-  }
-
-  ** Iterate the effective slots
-  ** TODO: make this slots only?
-  override Void cslots(|CSpec, Str| f)
-  {
-    if (ast.members == null) throw NotReadyErr(qname)
-    ast.members.each |x, n| { f((CSpec)x, n) }
-  }
-
-  ** Iterate the effective slots
-  override Obj? cslotsWhile(|CSpec, Str->Obj?| f)
-  {
-    if (ast.members == null) throw NotReadyErr(qname)
-    return ast.members.eachWhile |x, n| { f((CSpec)x, n) }
-  }
-
-  ** Enum items
-  override CSpec? cenum(Str key, Bool checked := true)
-  {
-    if (!isEnum) throw Err(qname)
-    if (ast.enum == null) throw NotReadyErr(qname)
-    x := ast.enum.spec(key)
-    if (x != null) return (CSpec)x
-    if (checked) throw Err(key)
-    return null
-  }
-
-  ** Return if spec inherits from that from a nominal type perspective.
-  ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
-  override Bool cisa(CSpec that)
-  {
-    if (XetoUtil.isa(this, (Spec)that)) return true
-    if (this.qname == that.qname) return true
-    return false
-  }
-
-  ** Extract 'of' type ref from AST model
-  override once CSpec? cof()
-  {
-    if (ast.meta == null) return null
-    x := ast.meta.get("of") as ASpecRef
-    if (x == null) return null
-    return (CSpec)x.deref
-  }
-
-  ** Extract 'ofs' list of type refs from AST model
-  override once CSpec[]? cofs()
-  {
-    if (ast.meta == null) return null
-    list := ast.meta.get("ofs") as ADict
-    if (list == null) return null
-    acc := CSpec[,]
-    list.each |x|
-    {
-      Obj obj := ((ASpecRef)x).deref
-      acc.add(obj)
-    }
-    return acc.ro
-  }
-
-  override Bool isNone() { isSys && name == "None" }
-
-  override Bool isSelf() { isSys && name == "Self" }
-
-  override Bool isEnum() { cbase != null && cbase.isSys && cbase.name == "Enum" }
-
-  override Bool isAnd() { cbase != null && cbase.isSys && cbase.name == "And" }
-
-  override Bool isOr() { cbase != null && cbase.isSys && cbase.name == "Or" }
-
-  ** Inheritance flags computed in InheritSlots
-  override Int flags { get { ast.flags }  set { ast.flags = it } }
-
-  override Bool isScalar()    { hasFlag(MSpecFlags.scalar) }
-  override Bool isMarker()    { hasFlag(MSpecFlags.marker) }
-  override Bool isRef()       { hasFlag(MSpecFlags.ref) }
-  override Bool isMultiRef()  { hasFlag(MSpecFlags.multiRef) }
-  override Bool isChoice()    { hasFlag(MSpecFlags.choice) }
-  override Bool isDict()      { hasFlag(MSpecFlags.dict) }
-  override Bool isList()      { hasFlag(MSpecFlags.list) }
-  override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
-  override Bool isQuery()     { hasFlag(MSpecFlags.query) }
-  override Bool isFunc()      { hasFlag(MSpecFlags.func) }
-  override Bool isInterface() { hasFlag(MSpecFlags.interface) }
-  override Bool isComp()      { hasFlag(MSpecFlags.comp) }
-
-  /*
-  override Bool isNone()   { hasFlag(MSpecFlags.none) }
-  override Bool isSelf()   { hasFlag(MSpecFlags.self) }
-  override Bool isEnum()   { hasFlag(MSpecFlags.enum) }
-  override Bool isAnd()    { hasFlag(MSpecFlags.and) }
-  override Bool isOr()     { hasFlag(MSpecFlags.or) }
-  */
-
-  Bool hasFlag(Int flag)
-  {
-    if (flags < 0) throw Err("Flags not set yet: $qname")
-    return flags.and(flag) != 0
-  }
-
-  Bool isInterfaceSlot()
-  {
-    parent != null && parent.isInterface
-  }
-
   ** Mutable AST state
   ASpecState ast() { astRef.val }
   const Unsafe astRef
-
-
-//////////////////////////////////////////////////////////////////////////
-// Spec (unsupported)
-//////////////////////////////////////////////////////////////////////////
-
-  override SpecMap membersOwn() { throw UnsupportedErr() }
-
-  override SpecMap slotsOwn() { throw UnsupportedErr() }
-
-  override SpecMap globalsOwn() { throw UnsupportedErr() }
-
-  override SpecMap globals() { throw UnsupportedErr() }
-
-  override Bool isEmpty() { throw UnsupportedErr() }
-
-  @Operator override Obj? get(Str n) { throw UnsupportedErr() }
-
-  override Bool has(Str n) { throw UnsupportedErr() }
-
-  override Bool missing(Str n) { throw UnsupportedErr() }
-
-  override Void each(|Obj val, Str name| f) { throw UnsupportedErr() }
-
-  override Obj? eachWhile(|Obj,Str->Obj?| f) { throw UnsupportedErr() }
-
-  override Obj? trap(Str n, Obj?[]? a := null) { throw UnsupportedErr() }
-
-  override SpecFunc func() { throw UnsupportedErr() }
-
-  override Void eachInherited(|Spec| f) { throw UnsupportedErr() }
-
-  override Type fantomType() { throw UnsupportedErr() }
-
-  override Int inheritanceDigest() {throw UnsupportedErr() }
 }
 
 **************************************************************************
@@ -534,9 +435,8 @@ internal class ASpecState
   SpecFlavor flavor // TODO
   ASpecRef? typeRef
   Spec? base
-CSpec? cbase() { base as CSpec }
   AScalar? val
-  ADict? meta
+  ADict? meta      // only if there was "<>"
   Dict? metaOwn
   Dict? cmeta
   [Str:ASpec]? declared

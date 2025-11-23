@@ -24,6 +24,5 @@ internal class ADepends
   MXetoCompiler compiler                // make
   MLibDepend[]? list                    // ProcessPragma
   [Str:XetoLib]? libs                   // Resolve
-  private Str:CSpec? globals := [:]     // resolveGlobals
 }
 

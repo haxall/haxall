@@ -22,24 +22,24 @@ internal class ANamespace : CNamespace
     this.ns = step.ns
   }
 
-  CSpec? metaSpec(Str name, FileLoc loc)
+  Spec? metaSpec(Str name, FileLoc loc)
   {
     top(metaSpecs, name, SpecFlavor.meta, loc)
   }
 
-  private CSpec? top(Str:Obj acc, Str name, SpecFlavor flavor, FileLoc loc)
+  private Spec? top(Str:Obj acc, Str name, SpecFlavor flavor, FileLoc loc)
   {
     g := acc[name]
-    if (g != null) return g as CSpec
+    if (g != null) return g
     g = findTop(name, flavor, loc)
     acc[name] = g ?: "not-found"
-    return g as CSpec
+    return g
   }
 
-  private CSpec? findTop(Str name, SpecFlavor flavor, FileLoc loc)
+  private Spec? findTop(Str name, SpecFlavor flavor, FileLoc loc)
   {
     // walk thru my lib and dependencies
-    acc := CSpec[,]
+    acc := Spec[,]
 
     // check my own lib
     mine := compiler.lib?.tops?.get(name)
@@ -48,7 +48,7 @@ internal class ANamespace : CNamespace
     // check my dependencies
     compiler.depends.libs.each |lib|
     {
-      g := lib.spec(name, false) as CSpec
+      g := lib.spec(name, false)
       if (g != null && g.flavor === flavor && isTop(g)) acc.add(g)
     }
 
@@ -63,7 +63,7 @@ internal class ANamespace : CNamespace
     return null
   }
 
-  private Bool isTop(CSpec s)
+  private Bool isTop(Spec s)
   {
     // we don't have the isFunc flag in AST yet...
     if (!s.isAst && s.isFunc) return false
