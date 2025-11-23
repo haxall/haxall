@@ -87,7 +87,7 @@ internal class InheritSlots : Step
     if (!explicitTypeRef) spec.typeRef = inferType(spec)
 
     // if we couldn't infer base before, then use type as base
-    if (spec.cbase == null) spec.ast.base = spec.typeRef.deref
+    if (spec.base == null) spec.ast.base = spec.typeRef.deref as Spec // TODO
 
     // if base is in my AST, then recursively process it first
     if (spec.cbase.isAst) inherit(spec.cbase)
@@ -117,13 +117,15 @@ internal class InheritSlots : Step
 //////////////////////////////////////////////////////////////////////////
 
   ** Infer the base spec we inherit from
-  CSpec? inferBase(ASpec x)
+  Spec? inferBase(ASpec x)
   {
     // if already inferred
-    if (x.cbase != null) return x.cbase
+    if (x.base != null) return x.base
 
     // try to infer from the explicit type if available
-    return x.typeRef?.deref
+// TODO
+return x.typeRef?.deref as Spec
+//    return x.typeRef?.deref
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -243,12 +245,12 @@ internal class InheritSlots : Step
     acc := Str:CSpec[:]
     acc.ordered = true
     autoCount := 0
-    base := spec.cbase
+    base := spec.base
 
     // first inherit slots from base type
     if (spec.isAnd)
     {
-      ofs := spec.cofs
+      ofs := spec.ofs(false)
       if (ofs != null) ofs.each |of|
       {
         if (of.isAst) inherit(of)
@@ -268,9 +270,9 @@ internal class InheritSlots : Step
   }
 
   ** Inherit slots from the given base type to accumulator
-  private Int inheritSlotsFrom(ASpec spec, Str:CSpec acc, Int autoCount, CSpec base)
+  private Int inheritSlotsFrom(ASpec spec, Str:CSpec acc, Int autoCount, Spec base)
   {
-    base.cmembers |slot|
+    base.members.each |slot|
     {
       // we don't inherit constructors
       if (spec.isInterface && metaHas(slot, "new")) return
@@ -280,7 +282,9 @@ internal class InheritSlots : Step
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
 
       // check for duplicate
-      dup := acc[name]
+//      dup := acc[name] as Spec
+// TODO
+dup := acc[name] as Spec
 
       // if its the exact same slot, all is ok
       if (dup === slot) return
@@ -293,7 +297,9 @@ internal class InheritSlots : Step
       }
 
       // accumlate
-      acc[name] = slot
+//      acc[name] = (CSpec)slot
+// TOOD
+acc[name] = (CSpec)slot
     }
 
     return autoCount
@@ -313,7 +319,8 @@ internal class InheritSlots : Step
       {
         if (dup === slot) return
         if (dup.isGlobal) acc.remove(name)  // don't order by original globals
-        acc[name] = overrideSlot(dup, slot)
+dupx := (Spec)dup  // TODO
+        acc[name] = overrideSlot(dupx, slot)
       }
       else
       {
@@ -324,7 +331,7 @@ internal class InheritSlots : Step
   }
 
   ** Override the base slot from an inherited type
-  private ASpec overrideSlot(CSpec base, ASpec slot)
+  private ASpec overrideSlot(Spec base, ASpec slot)
   {
     if (slot.isInterfaceSlot)
     {
@@ -339,13 +346,13 @@ internal class InheritSlots : Step
 
     val := slot.val
     if (val != null && val.typeRef == null)
-      val.typeRef = ASpecRef(val.loc, base.ctype)
+      val.typeRef = ASpecRef.makeTemp(val.loc, base.type)
 
     return slot
   }
 
   ** Handle inheriting the same slot name from two different super types
-  private CSpec mergeInheritedSlots(ASpec spec, Str name, CSpec a, CSpec b)
+  private Spec mergeInheritedSlots(ASpec spec, Str name, Spec a, Spec b)
   {
     // if both are queries, then we need to merge the slots
     if (a.isQuery && b.isQuery) return mergeQuerySlots(spec, name, a, b)
@@ -360,21 +367,21 @@ internal class InheritSlots : Step
   }
 
   ** Is b derived from a through its base inheritance chain
-  private Bool isDerivedFrom(CSpec a, CSpec? b)
+  private Bool isDerivedFrom(Spec a, Spec? b)
   {
     if (b == null) return false
     if (b === a) return true
-    return isDerivedFrom(a, b.cbase)
+    return isDerivedFrom(a, b.base)
   }
 
-  private CSpec mergeQuerySlots(ASpec spec, Str name, CSpec a, CSpec b)
+  private Spec mergeQuerySlots(ASpec spec, Str name, Spec a, Spec b)
   {
     // TODO: we need a lot of checking to verify a and b derive from same query
 
     // create new merged slot
     loc := spec.loc
     ASpec merge := ASpec(loc, lib, spec, name)
-    merge.typeRef = ASpecRef(loc, a.ctype)
+    merge.typeRef = ASpecRef.makeTemp(loc, a.type)
     merge.ast.base = a
     merge.flags = a.flags
 
@@ -407,7 +414,8 @@ internal class InheritSlots : Step
   private Void inheritEnum(ASpec spec)
   {
     // set base to typeRef (which is sys::Enum)
-    spec.ast.base = spec.typeRef.deref
+//    spec.ast.base = spec.typeRef.deref TODO
+spec.ast.base = (Spec)spec.typeRef.deref
 
     // set flags
     spec.flags = spec.cbase.flags.or(MSpecFlags.enum)

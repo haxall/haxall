@@ -231,6 +231,7 @@ internal final const class ASpec : ANode, CSpec, Spec
   override once SpecMap members()
   {
     acc := Str:Obj[:]
+    acc.ordered = true
     ast.cslots.each |x, n| { acc.add(n, x) }
     return SpecMap(acc)
   }
@@ -238,6 +239,7 @@ internal final const class ASpec : ANode, CSpec, Spec
   override SpecMap slots()
   {
     acc := Str:Obj[:]
+    acc.ordered = true
     ast.cslots.each |x, n| { if (!x.isGlobal) acc.add(n, x) }
     return SpecMap(acc)
   }
@@ -320,7 +322,7 @@ internal final const class ASpec : ANode, CSpec, Spec
   override CSpec ctype() { isType ? this : typeRef.deref }
 
   ** Resolved base
-  override CSpec? cbase() { ast.base }
+  override CSpec? cbase() { ast.cbase }
 
   ** Parent spec or null if this is top-level spec
   override CSpec? cparent() { parent }
@@ -531,7 +533,8 @@ internal class ASpecState
   ASpec? parent { private set }
   SpecFlavor flavor // TODO
   ASpecRef? typeRef
-  CSpec? base
+  Spec? base
+CSpec? cbase() { base as CSpec }
   AScalar? val
   ADict? meta
   Dict? metaOwn
