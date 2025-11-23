@@ -27,13 +27,13 @@ internal class InheritMeta : Step
   private Void inherit(ASpec spec)
   {
     // if already processed skip
-    if (spec.cmetaRef != null) return
+    if (spec.ast.cmeta != null) return
 
     // process this spec
-    spec.cmetaRef = computeMeta(spec)
+    spec.ast.cmeta = computeMeta(spec)
 
     // compute arguments
-    spec.argsRef = computeArgs(spec)
+    spec.ast.args = computeArgs(spec)
 
     // recurse children slots
     if (spec.slots != null) spec.slots.each |slot| { inherit(slot) }

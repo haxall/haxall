@@ -80,14 +80,14 @@ internal class InheritSlots : Step
     }
 
     // infer the base we inherit from (may be null)
-    spec.base = inferBase(spec)
+    spec.ast.base = inferBase(spec)
 
     // now infer the type of the spec
     explicitTypeRef := spec.typeRef != null
     if (!explicitTypeRef) spec.typeRef = inferType(spec)
 
     // if we couldn't infer base before, then use type as base
-    if (spec.base == null) spec.base = spec.typeRef.deref
+    if (spec.base == null) spec.ast.base = spec.typeRef.deref
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
@@ -163,7 +163,7 @@ internal class InheritSlots : Step
       x.flags = computeFlagsNonSys(x)
 
     if (x.flags.and(MSpecFlags.func) != 0 && x.flavor.isGlobal)
-      x.flavor = SpecFlavor.func
+      x.ast.flavor = SpecFlavor.func
   }
 
   private Int computeFlagsNonSys(ASpec x)
@@ -335,7 +335,7 @@ internal class InheritSlots : Step
 
     if (slot.isGlobal) err("Duplicates global: $base", slot.loc)
 
-    slot.base = base
+    slot.ast.base = base
 
     val := slot.val
     if (val != null && val.typeRef == null)
@@ -375,7 +375,7 @@ internal class InheritSlots : Step
     loc := spec.loc
     ASpec merge := ASpec(loc, lib, spec, name)
     merge.typeRef = ASpecRef(loc, a.ctype)
-    merge.base = a
+    merge.ast.base = a
     merge.flags = a.flags
 
     // merge in slots from both a and b
@@ -407,7 +407,7 @@ internal class InheritSlots : Step
   private Void inheritEnum(ASpec spec)
   {
     // set base to typeRef (which is sys::Enum)
-    spec.base = spec.typeRef.deref
+    spec.ast.base = spec.typeRef.deref
 
     // set flags
     spec.flags = spec.base.flags.or(MSpecFlags.enum)
@@ -459,7 +459,7 @@ internal class InheritSlots : Step
 
     // save away both slots and enums
     spec.cslotsRef = slots
-    spec.enums = enums
+    spec.ast.enums = enums
   }
 
   ** Check that an item was a marker only, then coerce to be derived from parent enum
@@ -469,7 +469,7 @@ internal class InheritSlots : Step
     if (item.typeRef !== sys.marker)
       err("Enum item '$item.name' cannot have type", item.loc)
 
-    item.base      = enum
+    item.ast.base  = enum
     item.typeRef   = enumRef
     item.flags     = enum.flags
     item.cslotsRef = noSlots

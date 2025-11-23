@@ -44,9 +44,9 @@ internal abstract class Reify : Step
   {
     // finalize the spec's metaOwn dict
     if (x.meta != null)
-      x.metaOwnRef = x.meta.asm
+      x.ast.metaOwn = x.meta.asm
     else
-      x.metaOwnRef = Etc.dict0
+      x.ast.metaOwn = Etc.dict0
   }
 
 //////////////////////////////////////////////////////////////////////////

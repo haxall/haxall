@@ -139,7 +139,7 @@ internal class Parser
     consume(Token.plus)
     base := parseTypeRef ?: throw err("Expecting mixin type name")
     spec := ASpec(curToLoc, lib, null, base.name.name)
-    spec.flavor = SpecFlavor.mixIn
+    spec.ast.flavor = SpecFlavor.mixIn
     spec.typeRef = base
     spec.metaInit.map.add("mixin", sys.markerScalar(spec.loc))
 
@@ -213,7 +213,7 @@ internal class Parser
     loc := typeRef.loc
     if (libRef == null) throw err("Cannot use nested spec in data file: $typeRef", loc)
     spec := ASpec(loc, lib, null, lib.autoName)
-    spec.parsedSyntheticRef = true
+    spec.ast.parsedSyntheticRef = true
 
     // normal spec body - same as parseSpec
     parseSpecType(spec, typeRef)
@@ -282,7 +282,7 @@ internal class Parser
       list.add(next)
     }
 
-    spec.parsedCompound = true
+    spec.ast.parsedCompound = true
     spec.typeRef = compoundType
     spec.metaSetOfs("ofs", list)
   }
@@ -300,7 +300,7 @@ internal class Parser
   {
     if (cur === Token.scalar)
     {
-      spec.val = parseScalar(null)
+      spec.ast.val = parseScalar(null)
       return
     }
 
@@ -552,13 +552,13 @@ internal class Parser
 
       // add to map (special handling for Spec val meta)
       if (name == "val" && x.metaParent is ASpec && val is AScalar)
-        ((ASpec)x.metaParent).val = val
+        ((ASpec)x.metaParent).ast.val = val
       else
         add("name", x.map, name, val)
 
       // check for meta flavor
       if (name == "meta" && x.isSpecMeta)
-        ((ASpec)x.metaParent).flavor = SpecFlavor.meta
+        ((ASpec)x.metaParent).ast.flavor = SpecFlavor.meta
 
       // check for comma or newline
       parseCommaOrNewline("Expecting end of dict tag", closeToken)

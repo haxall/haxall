@@ -39,14 +39,14 @@ internal class LoadBindings : Step
     // types in inheritance order
     lib.types.each |spec|
     {
-      spec.bindingRef = resolveBinding(spec)
+      spec.ast.binding = resolveBinding(spec)
     }
 
     // rest of tops
     lib.tops.each |top|
     {
-      if (top.bindingRef == null)
-        top.bindingRef = top.ctype.binding
+      if (top.ast.binding == null)
+        top.ast.binding = top.ctype.binding
     }
   }
 

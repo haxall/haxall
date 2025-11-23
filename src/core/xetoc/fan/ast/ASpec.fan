@@ -16,7 +16,7 @@ using haystack
 ** AST spec
 **
 @Js
-internal class ASpec : ANode, CSpec
+internal const class ASpec : ANode, CSpec
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,12 +26,10 @@ internal class ASpec : ANode, CSpec
    ** Constructor
   new make(FileLoc loc, ALib lib, ASpec? parent, Str name)
   {
-    this.loc      = loc
-    this.lib      = lib
-    this.parent   = parent
-    this.qname    = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
-    this.flavor   = toFlavor(parent, name)
-    this.name     = name
+    this.loc    = loc
+    this.astRef = Unsafe(ASpecState(lib, parent, toFlavor(parent, name)))
+    this.qname  = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
+    this.name   = name
   }
 
   private static SpecFlavor toFlavor(ASpec? parent, Str name)
@@ -52,7 +50,7 @@ internal class ASpec : ANode, CSpec
   override ANodeType nodeType() { ANodeType.spec }
 
   ** Parent library
-  ALib lib { private set }
+  ALib lib() { ast.lib }
 
   ** Reference to compiler
   MXetoCompiler compiler() { lib.compiler }
@@ -61,10 +59,10 @@ internal class ASpec : ANode, CSpec
   ASys sys() { lib.compiler.sys }
 
   ** Parent spec or null if this is top-level spec
-  ASpec? parent { private set }
+  ASpec? parent() { ast.parent }
 
   ** Flavor for spec
-  override SpecFlavor flavor
+  override SpecFlavor flavor() { ast.flavor }
 
   ** Is this a library top level spec
   Bool isTop() { flavor.isTop }
@@ -113,37 +111,37 @@ internal class ASpec : ANode, CSpec
   ** Type signature after colon - set in Parser, InheritSlots.
   ** This is base for top-level types and value type for slots.
   ** Note ctype is different because it is this for top-level types.
-  ASpecRef? typeRef
+  ASpecRef? typeRef { get { ast.typeRef } set { ast.typeRef = it } }
 
   ** We refine type and base in InheritSlots step
-  CSpec? base
+  CSpec? base() { ast.base }
 
   ** Default value if spec had scalar value
-  AScalar? val
+  AScalar? val() { ast.val }
 
   ** Parameterized arguments of/ofs (set in InheritMeta)
-  override MSpecArgs args() { argsRef ?: throw NotReadyErr(qname) }
-  internal MSpecArgs? argsRef
+  override MSpecArgs args() { ast.args ?: throw NotReadyErr(qname) }
 
   ** True if we parsed this spec as an '&' or '|' type
-  Bool parsedCompound
+  Bool parsedCompound() { ast.parsedCompound }
 
   ** True if we parsed this as a nested spec ref
-  Bool parsedSyntheticRef
+  Bool parsedSyntheticRef() { ast.parsedSyntheticRef }
 
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////
 
   ** Declared meta if there was "<>"
-  ADict? meta { private set }
+  ADict? meta() { ast.meta }
 
   ** Initialize meta data dict
   ADict metaInit()
   {
-    if (meta == null) meta = ADict(this.loc, compiler.sys.spec, true)
-    meta.metaParent = this
-    return this.meta
+    ast := this.ast
+    if (ast.meta == null) ast.meta = ADict(this.loc, compiler.sys.spec, true)
+    ast.meta.metaParent = this
+    return ast.meta
   }
 
   ** Return if meta has the given tag
@@ -202,17 +200,17 @@ internal class ASpec : ANode, CSpec
 //////////////////////////////////////////////////////////////////////////
 
   ** Members (slots & globals) if there was "{}"
-  [Str:ASpec]? slots { private set }
+  [Str:ASpec]? slots() { ast.slots }
 
   ** Initialize slots map
   Str:ASpec initSlots()
   {
-    if (this.slots == null)
+    ast := this.ast
+    if (ast.slots == null)
     {
-      this.slots = Str:ASpec[:]
-      this.slots.ordered = true
+      ast.slots = Str:ASpec[:] { it.ordered = true }
     }
-    return this.slots
+    return ast.slots
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -276,21 +274,18 @@ internal class ASpec : ANode, CSpec
   override CSpec? cparent() { parent }
 
   ** Binding (set in LoadBindings)
-  override SpecBinding binding() { bindingRef ?: throw NotReadyErr(qname) }
-  SpecBinding? bindingRef
+  override SpecBinding binding() { ast.binding ?: throw NotReadyErr(qname) }
 
   ** Declared meta (set in Reify)
-  Dict metaOwn() { metaOwnRef ?: throw NotReadyErr(qname) }
-  Dict? metaOwnRef
+  Dict metaOwn() { ast.metaOwn ?: throw NotReadyErr(qname) }
 
   ** Effective meta (set in InheritMeta)
-  override Dict cmeta() { cmetaRef ?: throw NotReadyErr(qname) }
-  Dict? cmetaRef
+  override Dict cmeta() { ast.cmeta ?: throw NotReadyErr(qname) }
 
   ** Effective meta has
   override Bool cmetaHas(Str name)
   {
-    if (cmetaRef != null) return cmetaRef.has(name)
+    if (ast.cmeta != null) return ast.cmeta.has(name)
     return metaHas(name)
   }
 
@@ -334,7 +329,7 @@ internal class ASpec : ANode, CSpec
   }
 
   ** Effective slots configured in InheritSlots
-  [Str:CSpec]? cslotsRef
+  [Str:CSpec]? cslotsRef { get { ast.cslots } set { ast.cslots = it } }
 
   ** Enum items
   override CSpec? cenum(Str key, Bool checked := true)
@@ -348,7 +343,7 @@ internal class ASpec : ANode, CSpec
   }
 
   // Map of enum items by string kehy (set in InheritSlots)
-  [Str:CSpec]? enums
+  [Str:CSpec]? enums() { ast.enums }
 
   ** Return if spec inherits from that from a nominal type perspective.
   ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
@@ -390,7 +385,7 @@ internal class ASpec : ANode, CSpec
   override Bool isOr() { base != null && base.isSys && base.name == "Or" }
 
   ** Inheritance flags computed in InheritSlots
-  override Int flags := -1
+  override Int flags { get { ast.flags }  set { ast.flags = it } }
 
   override Bool isScalar()    { hasFlag(MSpecFlags.scalar) }
   override Bool isMarker()    { hasFlag(MSpecFlags.marker) }
@@ -423,5 +418,43 @@ internal class ASpec : ANode, CSpec
   {
     parent != null && parent.isInterface
   }
+
+  ** Mutable AST state
+  ASpecState ast() { astRef.val }
+  const Unsafe astRef
+
+}
+
+**************************************************************************
+** ASpecState
+**************************************************************************
+
+@Js
+internal class ASpecState
+{
+  new make(ALib lib, ASpec? parent, SpecFlavor flavor)
+  {
+    this.lib    = lib
+    this.parent = parent
+    this.flavor = flavor
+  }
+
+  ALib lib { private set }
+  ASpec? parent { private set }
+  SpecFlavor flavor // TODO
+  ASpecRef? typeRef
+  CSpec? base
+  AScalar? val
+  ADict? meta
+  Dict? metaOwn
+  Dict? cmeta
+  [Str:ASpec]? slots
+  [Str:CSpec]? cslots
+  Int flags := -1
+  [Str:CSpec]? enums
+  SpecBinding? binding
+  MSpecArgs? args
+  Bool parsedCompound
+  Bool parsedSyntheticRef
 }
 
