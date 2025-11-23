@@ -122,6 +122,17 @@ class NamespaceTest : AbstractXetoTest
     verifySame(sys.type("TimeZone").meta["val"], TimeZone.utc)
     verifySame(sys.type("TimeZone").metaOwn["val"], TimeZone.utc)
 
+    // enum (ensure items are of same type, but don't dup slots)
+    unit := sys.type("Unit")
+    item := unit.enum.spec("%RH")
+    verifyEq(unit.isEnum, true)
+    verifyEq(item.type, unit)
+    verifyEq(item.base, unit)
+    verifyEq(item.name, "percent_relative_humidity")
+    verifyEq(item.slots.isEmpty, true)
+    verifyEq(item.slotsOwn.isEmpty, true)
+    verifySame(item.slots, SpecMap.empty)
+
     // specials
     verifyEq(self.isSelf, true)
     verifyEq(none.isNone, true)
@@ -212,15 +223,17 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.unqualifiedMeta("badOne") }
     verifyErr(UnknownSpecErr#) { ns.unqualifiedMeta("badOne", true) }
 
-    // global
-    /*
-    verifySame(ns.unqualifiedGlobal("site"), ns.spec("ph::site"))
-    verifyEq(ns.unqualifiedGlobals("site"), Spec[ns.spec("ph::site")])
-    verifySame(ns.unqualifiedGlobal("badOne", false), null)
-    verifyEq(ns.unqualifiedGlobals("badOne"), Spec[,])
-    verifyErr(UnknownSpecErr#) { ns.unqualifiedGlobal("badOne") }
-    verifyErr(UnknownSpecErr#) { ns.unqualifiedGlobal("badOne", true) }
-    */
+    // enum (ensure items are of same type, but don't dup slots)
+    phase := ph.type("Phase")
+    item := phase.enum.spec("L2-L3")
+    verifyEq(phase.isEnum, true)
+    verifyEq(phase.isEnum, true)
+    verifyEq(item.type, phase)
+    verifyEq(item.base, phase)
+    verifyEq(item.name, "l2L3")
+    verifyEq(item.slots.isEmpty, true)
+    verifyEq(item.slotsOwn.isEmpty, true)
+    verifySame(item.slots, SpecMap.empty)
 
     // files
     verifyEq(ph.files.isSupported, !ns.env.isRemote)
