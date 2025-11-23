@@ -71,5 +71,12 @@ abstract internal class Step
     // use consistent ordering
     dir.list.sort |a, b| { a.name <=> b.name }
   }
+
+// TODO
+  Bool metaHas(Obj todo, Str n)
+  {
+x := (Spec)todo
+    return x is ASpec ? ((ASpec)x).metaHas(n) : x.meta.has(n)
+  }
 }
 

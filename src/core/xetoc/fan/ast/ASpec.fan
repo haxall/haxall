@@ -77,7 +77,7 @@ internal final const class ASpec : ANode, CSpec, Spec
   override Bool isGlobal()
   {
 // TODO
-    if (flags < 0) return cmetaHas("global")
+    if (flags < 0) return metaHas("global")
     return flavor.isGlobal || hasFlag(MSpecFlags.global)
   }
 

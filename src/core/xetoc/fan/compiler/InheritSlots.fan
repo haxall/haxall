@@ -273,7 +273,7 @@ internal class InheritSlots : Step
     base.cmembers |slot|
     {
       // we don't inherit constructors
-      if (spec.isInterface && slot.cmetaHas("new")) return
+      if (spec.isInterface && metaHas(slot, "new")) return
 
       // re-autoname to cleanly inherit from multiple types
       name := slot.name
@@ -329,8 +329,8 @@ internal class InheritSlots : Step
     if (slot.isInterfaceSlot)
     {
       // interfaces don't override constructor and static slots
-      if (base.cmetaHas("new")) return slot
-      if (base.cmetaHas("static")) return slot
+      if (metaHas(base, "new")) return slot
+      if (metaHas(base, "static")) return slot
     }
 
     if (slot.isGlobal) err("Duplicates global: $base", slot.loc)
