@@ -259,7 +259,7 @@ internal final const class ASpec : ANode, CSpec, Spec
 
   override final Bool isa(Spec that)
   {
-    if (XetoUtil.isa(this, (CSpec)that)) return true
+    if (XetoUtil.isa(this, that)) return true
     if (this.qname == that.qname) return true
     return false
   }
@@ -401,7 +401,7 @@ internal final const class ASpec : ANode, CSpec, Spec
   ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
   override Bool cisa(CSpec that)
   {
-    if (XetoUtil.isa(this, that)) return true
+    if (XetoUtil.isa(this, (Spec)that)) return true
     if (this.qname == that.qname) return true
     return false
   }

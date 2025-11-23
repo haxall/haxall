@@ -260,9 +260,9 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final once SpecMap globals() { XetoUtil.globals(this) }
 
-  override final Bool isa(Spec x) { XetoUtil.isa(this, (CSpec)x) }
+  override final Bool isa(Spec x) { XetoUtil.isa(this, x) }
 
-  override final Bool cisa(CSpec x) { XetoUtil.isa(this, x) }
+  override final Bool cisa(CSpec x) { XetoUtil.isa(this, (Spec)x) }
 
   override final FileLoc loc() { m.loc }
 

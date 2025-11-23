@@ -257,7 +257,7 @@ const class SpecBindingLoader
     if (type == null) return null
 
     // clone CompBindings with this spec/type
-    compBase := spec.cbase.binding as CompBinding
+    compBase := spec.base.binding as CompBinding
     if (compBase != null) return acc.add(compBase.clone(spec.qname, type))
 
     // assume Dict mixins are MDictImpl
@@ -295,7 +295,7 @@ mixin SpecBindingInfo
 {
   abstract Str name()
   abstract Str qname()
-  abstract CSpec? cbase()
+  abstract Spec? base()
   abstract Bool isInterface()
 }
 

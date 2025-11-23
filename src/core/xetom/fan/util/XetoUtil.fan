@@ -472,7 +472,7 @@ const class XetoUtil
   }
 
   ** Return if a is-a b
-  static Bool isa(CSpec a, CSpec b, Bool isTop := true)
+  static Bool isa(Spec a, Spec b, Bool isTop := true)
   {
     // check if a and b are the same
     if (a === b) return true
@@ -483,26 +483,26 @@ const class XetoUtil
     // if A is sys::And type, then check any of A.ofs is B
     if (a.isAnd)
     {
-      ofs := a.cofs
-      if (ofs != null && ofs.any |x| { x.cisa(b) }) return true
+      ofs := a.ofs(false)
+      if (ofs != null && ofs.any |x| { x.isa(b) }) return true
     }
 
     // if A is sys::Or type, then check all of A.ofs is B
     if (a.isOr)
     {
-      ofs := a.cofs
-      if (ofs != null && ofs.all |x| { x.cisa(b) }) return true
+      ofs := a.ofs(false)
+      if (ofs != null && ofs.all |x| { x.isa(b) }) return true
     }
 
     // if B is sys::Or type, then check if A is any of B.ofs
     if (b.isOr)
     {
-      ofs := b.cofs
-      if (ofs != null && ofs.any |x| { a.cisa(x) }) return true
+      ofs := b.ofs(false)
+      if (ofs != null && ofs.any |x| { a.isa(x) }) return true
     }
 
     // check a's base type
-    if (a.cbase != null) return isa(a.cbase, b, false)
+    if (a.base != null) return isa(a.base, b, false)
 
     return false
   }
@@ -510,7 +510,7 @@ const class XetoUtil
   ** Given a list of specs, remove any specs that are
   ** supertypes of other specs in this same list:
   **   [Equip, Meter, ElecMeter, Vav]  => ElecMeter, Vav
-  static CSpec[] excludeSupertypes(CSpec[] list)
+  static Spec[] excludeSupertypes(Spec[] list)
   {
     if (list.size <= 1) return list.dup
 
@@ -518,7 +518,7 @@ const class XetoUtil
     list.each |spec|
     {
       // check if this type has subtypes in our match list
-      hasSubtypes := list.any |x| { x !== spec && x.cisa(spec) }
+      hasSubtypes := list.any |x| { x !== spec && x.isa(spec) }
 
       // add it to our best accumulator only if no subtypes
       if (!hasSubtypes) acc.add(spec)

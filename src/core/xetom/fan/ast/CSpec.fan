@@ -41,7 +41,7 @@ mixin CSpec : CNode, SpecBindingInfo
   abstract CSpec ctype()
 
   ** Base spec or null if this sys::Obj itself
-  override abstract CSpec? cbase()
+  abstract CSpec? cbase()
 
   ** Effective meta
   abstract Dict cmeta()

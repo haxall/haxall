@@ -49,7 +49,7 @@ internal class RSpec: SpecBindingInfo
   // RemoteLoader.loadSpec
   Bool isLoaded
   XetoSpec? type
-  XetoSpec? base
+  override XetoSpec? base
   Dict? metaOwn
   Dict? meta
   SpecMap? slotsOwn
@@ -63,9 +63,7 @@ internal class RSpec: SpecBindingInfo
   Bool isEnum() { hasFlag(MSpecFlags.enum) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
- override Bool isInterface() { hasFlag(MSpecFlags.interface) }
-
-  override CSpec? cbase() { base }
+  override Bool isInterface() { hasFlag(MSpecFlags.interface) }
 
   override Str toStr() { name }
 }
