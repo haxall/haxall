@@ -68,9 +68,13 @@ internal abstract class InferData : Step
 
     // walk thru the spec slots and infer type/value
     spec := dict.type
+    members := spec.members
+ // TODO: we should be able make this more elegant, and we
+ // probably need to handle this for all instances
+ if (spec.qname == "sys::Spec") members = metas
 
     // infer slots and globals from spec
-    spec.members.each |slot|
+    members.each |slot|
     {
       inferDictSlot(dict, slot)
     }

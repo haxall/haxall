@@ -402,6 +402,7 @@ class XetoPrinter
     Spec? infer
     if (inferFrom == null)
     {
+      // TODO: testXeto::ParseTest
       echo("inferFrom null: $n = $v")
     }
     else
