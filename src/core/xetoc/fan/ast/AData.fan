@@ -144,12 +144,6 @@ internal class ADict : AData
   ** Is this library or spec meta
   const Bool isMeta
 
-  ** Is the library metadata
-  Bool isLibMeta() { metaParent is ALib }
-
-  ** Is spec metadata
-  Bool isSpecMeta() { metaParent is ASpec }
-
   ** If this is spec meta, the parent ALib or ASpec
   ANode? metaParent
 

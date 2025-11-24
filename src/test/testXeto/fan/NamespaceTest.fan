@@ -93,16 +93,14 @@ class NamespaceTest : AbstractXetoTest
 
     // ofs: List? <of:Ref<of:Spec>>
     ofs := verifyMeta(ns, sys, "ofs", list)
-/* TODO
     ofsOfRef := (Ref)ofs["of"]
-    verifyEq(ofs.qname, "sys::ofs")
+    verifyEq(ofs.qname, "sys::Spec.ofs")
     verifyEq(ofs["doc"], "Types used in compound types like And and Or")
     verifyEq(ofsOfRef.toStr.startsWith("sys::_"), true)
     ofsOf := ns.spec(ofsOfRef.id)
     verifySame(ofs.of, ofsOf)
     verifySame(ofsOf.base, ref)
     verifyEq(ofsOf["of"], Ref("sys::Spec"))
-*/
 
     // lookups
     verifySame(sys.type("DateTime"), dt)
@@ -721,9 +719,9 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(lib["loaded"], Marker.val)
     verifyEq(lib["spec"], Ref("sys::Lib"))
 
-// TODO
-//    cats := lib.meta["categories"] as List
-//    verifyEq(Str[,].addAll(cats), categories)
+
+    cats := lib.meta["categories"] as List
+    verifyEq(Str[,].addAll(cats), categories)
 
     asDict := Etc.dictMerge(lib.meta, [
       "id":lib.id,
