@@ -20,6 +20,7 @@ internal class InheritMeta : Step
   override Void run()
   {
     if (isData) return
+    specType = isSys ? lib.ast.type("Spec") : ns.sysLib.type("Spec")
     lib.tops.each |spec| { inherit(spec) }
     bombIfErr
   }
@@ -90,10 +91,11 @@ internal class InheritMeta : Step
   {
     if (name == "val") return !base.isEnum
 
-    metaSpec := cns.metaSpec(name, loc)
-    if (metaSpec == null) return true
+    slot := specType.slot(name, false)
 
-    if (metaHas(metaSpec, "noInherit")) return false
+    if (slot == null) return true
+
+    if (metaHas(slot, "noInherit")) return false
 
     return true
   }
@@ -141,5 +143,6 @@ internal class InheritMeta : Step
     return MSpecArgs.nil
   }
 
+  Spec? specType
 }
 

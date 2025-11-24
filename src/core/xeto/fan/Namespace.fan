@@ -83,6 +83,10 @@ const mixin Namespace
   ** This operation can be expensive.
   abstract Spec[] mixinsFor(Spec type)
 
+  ** Get the effective spec metadata slots.
+  ** This is semantically equivalent to 'specx(Spec).slots'.
+  abstract SpecMap metas()
+
   ** Compute the extended type spec by merging all meta and slots from
   ** mixins.  This call can be quite expensive; so cache and reuse the
   ** result for your operation.

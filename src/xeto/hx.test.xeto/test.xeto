@@ -72,9 +72,6 @@ AB: A & B <s: Date "2024-03-01", qux:"AB"> {
 
 FitsExplain1: { a:Str, b: Str? }
 
-// Meta global
-testMetaTag: Str <meta>
-
 Sigs: {
   a: Str
   b: Str?

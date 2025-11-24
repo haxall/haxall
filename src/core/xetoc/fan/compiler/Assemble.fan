@@ -50,25 +50,12 @@ internal class Assemble : Step
     MSpec? m
     switch (x.flavor)
     {
-      case SpecFlavor.type:
-        //m = MType    (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.binding)
-        m = MType(init)
-      case SpecFlavor.func:
-        //m = MTopFunc (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
-        m = MTopFunc(init)
-      case SpecFlavor.global:
-        //m = MGlobal  (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
-        //m = MGlobal(init)
-        err("Old style globals not supported: $x.name", x.loc)
-        return
-      case SpecFlavor.mixIn:
-        //m = MMixin   (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
-        m = MMixin(init)
-      case SpecFlavor.meta:
-        //m = MMetaSpec(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
-        m = MMetaSpec(init)
-      default:
-        throw Err(x.flavor.name)
+      case SpecFlavor.type:   m = MType(init)
+      case SpecFlavor.func:   m = MTopFunc(init)
+      case SpecFlavor.mixIn:  m = MMixin(init)
+      case SpecFlavor.global: err("Old style globals not supported: $x.name", x.loc); return
+      case SpecFlavor.meta:   err("Old style meta not supported: $x.name", x.loc); return
+      default:                throw Err(x.flavor.name)
     }
     mField->setConst(x.asm, m)
     asmChildren(x)

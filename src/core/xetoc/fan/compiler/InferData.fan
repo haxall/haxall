@@ -38,10 +38,7 @@ internal abstract class InferData : Step
 
   private Void inferDict(ADict dict)
   {
-    if (dict.isMeta)
-      inferMetaSlots(dict)
-    else
-      inferDictSlots(dict)
+    inferDictSlots(dict)
   }
 
   private Void inferScalar(AScalar scalar)
@@ -62,49 +59,6 @@ internal abstract class InferData : Step
     loc := dict.loc
     if (dict.has("id")) err("Named dict cannot have explicit id tag", loc)
     dict.set("id", AScalar(loc, sys.ref, dict.id.toStr, dict.id))
-  }
-
-  private Void inferMetaSlots(ADict dict)
-  {
-    dict.each |v, n|
-    {
-      inferMetaSlot(dict, n, v)
-    }
-  }
-
-  private Void inferMetaSlot(ADict dict, Str name, AData val)
-  {
-    // resolve to meta spec
-    metaSpec := cns.metaSpec(name, val.loc)
-
-    // if not found then report error
-    if (metaSpec == null)
-    {
-      // if this is reserved slot, then we will flag in CheckErrors
-      if (dict.isSpecMeta && XetoUtil.isReservedSpecMetaName(name)) return
-      if (dict.isLibMeta && XetoUtil.isReservedLibMetaName(name)) return
-
-      // log error for meta tags not defined
-      err("Undefined meta tag '$name'", val.loc)
-      return
-    }
-
-    // if already typed, skip
-    if (val.typeRef != null) return
-
-    // if meta tag is self, then use parent spec type
-    type := metaSpec.type
-    if (type.isSelf)
-    {
-      parentSpec := dict.metaParent as ASpec
-      if (parentSpec == null)
-        err("Unexpected self meta '$name' outside of spec", dict.loc)
-      else
-        type = parentSpec.type
-    }
-
-    // type the meta tag using global type
-    val.typeRef = inferDictSlotType(val.loc, metaSpec)
   }
 
   private Void inferDictSlots(ADict dict)
@@ -162,6 +116,7 @@ internal abstract class InferData : Step
       spec = slot.type
     }
 
+    if (dict.isMeta) return
     val := spec.meta.get("val")
     if (val == null) return
     if (val == refDefVal) return

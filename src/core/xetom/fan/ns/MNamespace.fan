@@ -212,6 +212,11 @@ const class MNamespace : Namespace, CNamespace
     return acc.vals.toImmutable
   }
 
+  override once SpecMap metas()
+  {
+    specx(sys.spec).slots
+  }
+
   override Spec specx(Spec spec)
   {
     if (spec.isGlobal) return spec

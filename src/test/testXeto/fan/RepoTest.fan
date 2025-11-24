@@ -268,7 +268,7 @@ class RepoTest : AbstractXetoTest
     files := File[,]
     sysVer.eachSrcFile |f| { files.add(f) }
     fileNames := files.sort.join(",") { it.name }
-    verifyEq(fileNames, "lib.xeto,libmeta.xeto,meta.xeto,timezones.xeto,types.xeto,units.xeto")
+    verifyEq(fileNames, "lib.xeto,libmeta.xeto,spec.xeto,timezones.xeto,types.xeto,units.xeto")
 
 
     //

@@ -22,7 +22,7 @@ class RuntimeTest : AbstractAxonTest
   {
     addLib("ph")
 
-    verifyErr(UnsupportedErr#) { ns.spec("sys::abstract").inheritanceDigest }
+    verifyErr(UnsupportedErr#) { ns.spec("sys::Spec.abstract").inheritanceDigest }
     verifyErr(UnsupportedErr#) { ns.spec("ph::Site.area").inheritanceDigest }
 
     verifyDigestEq(ns.spec("ph::Equip").inheritanceDigest, ns.spec("ph::Equip").inheritanceDigest)

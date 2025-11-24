@@ -22,11 +22,6 @@ internal class ANamespace : CNamespace
     this.ns = step.ns
   }
 
-  Spec? metaSpec(Str name, FileLoc loc)
-  {
-    top(metaSpecs, name, SpecFlavor.meta, loc)
-  }
-
   private Spec? top(Str:Obj acc, Str name, SpecFlavor flavor, FileLoc loc)
   {
     g := acc[name]

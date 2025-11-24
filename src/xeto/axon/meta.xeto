@@ -6,22 +6,24 @@
 //   21 Sep 2023  Brian Frank  Creation
 //
 
-// Axon source code string for functions and expressions
-axon: Str <meta>
++Spec {
+  // Axon source code string for functions and expressions
+  axon: Str?
 
-// Requires admin permission
-admin: Str <meta>
+  // Requires admin permission
+  admin: Marker?
 
-// Deprecated feature slated for removal in future version
-deprecated: Marker <meta>
+  // Deprecated feature slated for removal in future version
+  deprecated: Marker?
 
-//  Applied to an ext function to enable [override]`docHaxall::Axon#overrides`
-//  by project level functions.
-overridable: Marker <meta>
+  //  Applied to an ext function to enable [override]`docHaxall::Axon#overrides`
+  //  by project level functions.
+  overridable: Marker?
 
-// Registers a function as folding a given value type
-foldOn: Str <meta, nodoc>
+  // Registers a function as folding a given value type
+  foldOn: Str? <nodoc>
 
-// Requires superuser permission
-su: Str <meta>
+  // Requires superuser permission
+  su: Marker?
+}
 

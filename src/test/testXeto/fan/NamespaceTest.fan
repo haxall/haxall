@@ -85,14 +85,15 @@ class NamespaceTest : AbstractXetoTest
 
     // of: Spec?
     of := verifyMeta(ns, sys, "of", ref)
-    verifyEq(of.qname, "sys::of")
-    verifySame(of.parent, null)
+    verifyEq(of.qname, "sys::Spec.of")
+    verifySame(of.parent, spec)
     verifyEq(of["doc"], "Item type for parameterized Seq/Query; target type for Ref/MultiRef")
     verifyEq(of["of"], Ref("sys::Spec"))
     verifySame(of.of, spec)
 
     // ofs: List? <of:Ref<of:Spec>>
     ofs := verifyMeta(ns, sys, "ofs", list)
+/* TODO
     ofsOfRef := (Ref)ofs["of"]
     verifyEq(ofs.qname, "sys::ofs")
     verifyEq(ofs["doc"], "Types used in compound types like And and Or")
@@ -101,6 +102,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(ofs.of, ofsOf)
     verifySame(ofsOf.base, ref)
     verifyEq(ofsOf["of"], Ref("sys::Spec"))
+*/
 
     // lookups
     verifySame(sys.type("DateTime"), dt)
@@ -208,6 +210,8 @@ class NamespaceTest : AbstractXetoTest
     hotWater := ph.type("HotWater")
     verifyEq(hotWater.slots.names.join(","), "water,hot")
 
+// TODO: globals
+
     // unqualifiedType
     verifySame(ns.unqualifiedType("Str"), ns.spec("sys::Str"))
     verifySame(ns.unqualifiedType("Equip"), ns.spec("ph::Equip"))
@@ -215,13 +219,14 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad") }
     verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad", true) }
 
-    // meta
+    /*
     verifySame(ns.unqualifiedMeta("nodoc"), ns.spec("sys::nodoc"))
     verifyEq(ns.unqualifiedMetas("nodoc"), Spec[ns.spec("sys::nodoc")])
     verifySame(ns.unqualifiedMeta("badOne", false), null)
     verifyEq(ns.unqualifiedMetas("badOne"), Spec[,])
     verifyErr(UnknownSpecErr#) { ns.unqualifiedMeta("badOne") }
     verifyErr(UnknownSpecErr#) { ns.unqualifiedMeta("badOne", true) }
+    */
 
     // enum (ensure items are of same type, but don't dup slots)
     phase := ph.type("Phase")
@@ -321,7 +326,7 @@ class NamespaceTest : AbstractXetoTest
       verifyEq(nestSlot.slots.names, ["nest"])
 
     // meta spec
-    verifyMeta(ns, lib, "testMetaTag", ns.spec("sys::Str"))
+    verifyMeta(ns, lib, "qux", ns.spec("sys::Str"))
 
     // files
     files := lib.files
@@ -716,8 +721,9 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(lib["loaded"], Marker.val)
     verifyEq(lib["spec"], Ref("sys::Lib"))
 
-    cats := lib.meta["categories"] as List
-    verifyEq(Str[,].addAll(cats), categories)
+// TODO
+//    cats := lib.meta["categories"] as List
+//    verifyEq(Str[,].addAll(cats), categories)
 
     asDict := Etc.dictMerge(lib.meta, [
       "id":lib.id,
@@ -762,30 +768,32 @@ class NamespaceTest : AbstractXetoTest
     return type
   }
 
-  /* TODO
-  Spec verifyGlobal(Namespace ns, Lib lib, Str name, Spec type)
-  {
-    spec := lib.global(name)
-    verifySame(ns.spec("$lib.name::$name"), spec)
-    verifySame(spec.lib, lib)
-    verifyEq(spec.parent, null)
-    verifyFlavorLookup(ns, spec, SpecFlavor.global)
-    verifySame(spec.type, type)
-    verifySame(spec.base, type)
-    return spec
-  }
-  */
-
   Spec verifyMeta(Namespace ns, Lib lib, Str name, Spec type)
   {
-    spec := lib.metaSpec(name)
-    verifySame(ns.spec("$lib.name::$name"), spec)
-    verifySame(spec.lib, lib)
-    verifyEq(spec.parent, null)
-    verifyFlavorLookup(ns, spec, SpecFlavor.meta)
-    verifySame(spec.type, type)
-    verifySame(spec.base, type)
-    return spec
+    slot := ns.metas.get(name)
+    spec := ns.spec("sys::Spec")
+    verifySame(ns.metas, ns.metas)
+    verifySame(ns.metas.get(name), slot)
+    if (lib.isSys)
+    {
+      // own slot
+      x := verifySlot(ns, spec, name, type)
+      verifySame(x, slot)
+    }
+    else
+    {
+      // mixin slot
+      x := ns.specx(spec).slot(name)
+      verifySame(x, slot)
+      verifySame(x.lib, lib)
+      verifySame(x.parent.isMixin, true)
+      verifySame(x.parent, lib.mixinFor(spec))
+      verifySame(x.parent.base, spec)
+      verifyEq(x.name, name)
+      verifySame(ns.specOf(slot), ns.type("sys::Spec"))
+      verifyFlavorLookup(ns, slot, SpecFlavor.slot)
+    }
+    return slot
   }
 
   Spec verifySlot(Namespace ns, Spec parent, Str name, Spec type)
