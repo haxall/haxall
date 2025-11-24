@@ -91,7 +91,7 @@ internal class InheritMeta : Step
   {
     if (name == "val") return !base.isEnum
 
-    slot := specType.slot(name, false)
+    slot := metas.get(name, false)
 
     if (slot == null) return true
 
@@ -144,5 +144,51 @@ internal class InheritMeta : Step
   }
 
   Spec? specType
+}
+
+**************************************************************************
+** MixinMeta
+**************************************************************************
+
+**
+** Compute effective spec slots including mixins and set compiler.metas
+**
+@Js
+internal class MixinMeta : Step
+{
+  override Void run()
+  {
+    // if sys use the AST slots
+    if (isSys)
+    {
+      type := lib.ast.type("Spec")
+      compiler.metas = SpecMap(type.ast.declared)
+      return
+    }
+
+    // otherwise start with sys::Spec
+    acc := SpecMap[,]
+    specType := ns.sys.spec
+    acc.add(specType.slots)
+
+    // add in all the dependencies
+    depends.libs.each |lib|
+    {
+      add(acc, lib.mixinFor(specType, false)?.slotsOwn)
+    }
+
+    // add in my own mixin
+    myMixin := lib.ast.mixIn("Spec")
+    if (myMixin != null && myMixin.ast.declared != null)
+    {
+      acc.add(SpecMap(myMixin.ast.declared))
+    }
+    compiler.metas = SpecMap(acc)
+  }
+
+  private static Void add(SpecMap[] acc, SpecMap? map)
+  {
+    if (map != null && !map.isEmpty) acc.add(map)
+  }
 }
 

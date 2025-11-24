@@ -61,6 +61,7 @@ internal class MXetoCompiler : XetoCompiler
       Resolve(),
       InheritSlots(),
       LoadBindings(),
+      MixinMeta(),
       InferMeta(),
       ReifyMeta(),
       InheritMeta(),
@@ -98,7 +99,7 @@ internal class MXetoCompiler : XetoCompiler
       Parse(),
       ProcessPragma(),
       Resolve(),
-      InferMeta(),
+      InferInstances(),
       AstToDicts(),
     ])
     return dicts
@@ -221,6 +222,7 @@ internal class MXetoCompiler : XetoCompiler
   internal ADataDoc? data              // Parse (compileData only)
   internal ADict? pragma               // Parse
   internal Str:Str usedBuildVars       // Parse (build vars used by lib)
+  internal SpecMap? metas              // MixinMeta
   internal Dict[]? dicts               // AstToDicts output
   internal Bool externRefs             // allow unresolved refs to compile
   private Str:Ref internRefs := [:]    // makeRef

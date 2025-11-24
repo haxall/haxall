@@ -49,6 +49,8 @@ abstract internal class Step
 
   ADict? pragma() { compiler.pragma }
 
+  SpecMap metas() { compiler.metas }
+
   Void info(Str msg) { compiler.info(msg) }
 
   XetoCompilerErr err(Str msg, FileLoc loc, Err? err := null) { compiler.err(msg, loc, err) }

@@ -211,10 +211,22 @@ internal class ALibState : ADocAst
   ASpec[]? types
   Int autoNameCount
 
+  ASpec? spec(Str name)
+  {
+    tops[name]
+  }
+
   ASpec? type(Str name)
   {
     x := tops.get(name)
     if (x != null && x.isType) return x
+    return null
+  }
+
+  ASpec? mixIn(Str name)
+  {
+    x := tops.get(name)
+    if (x != null && x.isMixin) return x
     return null
   }
 

@@ -34,7 +34,7 @@ class MetaTest : AbstractXetoTest
     n  := mix.slot("metaNum")
     verifySame(ns.metas.get(q.name), q)
     verifySame(ns.metas.get(r.name), r)
-    verifySame(ns.metas.get(r.name), n)
+    verifySame(ns.metas.get(n.name), n)
 
     a  := lib.type("MetaInheritA")
     b  := lib.type("MetaInheritB")
@@ -73,6 +73,7 @@ class MetaTest : AbstractXetoTest
   {
     actual = Etc.dictRemoveAll(actual, ["doc", "val"])
     // echo("\n>> $x.qname $actual ?= $expect")
+    // Etc.dictDump(actual)
     verifyDictEq(actual, expect)
   }
 

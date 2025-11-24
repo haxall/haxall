@@ -29,7 +29,7 @@ const mixin SpecMap
     map.isEmpty ? empty : MapSpecMap.makeMap(map)
   }
 
-  ** Factory for list of maps - must be empty map, nor duplicate names
+  ** Factory for list of maps - each one must be non-empty, nor duplicate names
   @NoDoc static new makeList(SpecMap[] list)
   {
     if (list.isEmpty) return empty
