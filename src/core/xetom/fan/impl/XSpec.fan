@@ -204,7 +204,6 @@ const class WrapSpec : Spec
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { m.isType }
   override final Bool isMixin()      { m.isMixin }
-  override final Bool isMeta()       { m.isMeta }
   override final Bool isSlot()       { m.isSlot }
 
   override final Bool isNone()      { m.isNone }

@@ -137,7 +137,7 @@ class AFunc
 
   static Bool isFuncMeta(Ast ast, Str n)
   {
-    ast.config.funcMeta.contains(n) || ast.config.ns.unqualifiedMetas(n).size > 0
+    ast.config.funcMeta.contains(n) || ast.config.ns.metas.has(n)
   }
 
   static Str:Obj mapMeta(Ast ast, Dict orig)

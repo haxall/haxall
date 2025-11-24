@@ -27,9 +27,15 @@ class MetaTest : AbstractXetoTest
     ns.libs
     lib := ns.lib("hx.test.xeto")
 
-    q  := lib.metaSpec("metaQ")
-    r  := lib.metaSpec("metaR")  // noInherit
-    n  := lib.metaSpec("metaNum")
+    mix := lib.mixinFor(ns.spec("sys::Spec"))
+
+    q  := mix.slot("metaQ")
+    r  := mix.slot("metaR")  // noInherit
+    n  := mix.slot("metaNum")
+    verifySame(ns.metas.get(q.name), q)
+    verifySame(ns.metas.get(r.name), r)
+    verifySame(ns.metas.get(r.name), n)
+
     a  := lib.type("MetaInheritA")
     b  := lib.type("MetaInheritB")
     a2 := lib.type("MetaInheritAltA")

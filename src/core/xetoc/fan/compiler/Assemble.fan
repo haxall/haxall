@@ -54,7 +54,8 @@ internal class Assemble : Step
       case SpecFlavor.func:   m = MTopFunc(init)
       case SpecFlavor.mixIn:  m = MMixin(init)
       case SpecFlavor.global: err("Old style globals not supported: $x.name", x.loc); return
-      case SpecFlavor.meta:   err("Old style meta not supported: $x.name", x.loc); return
+// TODO - move to parser
+//      case SpecFlavor.meta:   err("Old style meta not supported: $x.name", x.loc); return
       default:                throw Err(x.flavor.name)
     }
     mField->setConst(x.asm, m)

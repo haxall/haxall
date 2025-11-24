@@ -131,9 +131,6 @@ const mixin Spec : Dict
   ** Return if this a function spec
   abstract Bool isFunc()
 
-  ** Is this a top level meta global space
-  abstract Bool isMeta()
-
   ** Flavor: type, global, meta, or slot
   @NoDoc abstract SpecFlavor flavor()
 

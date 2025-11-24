@@ -181,10 +181,6 @@ internal const class ALib : Lib, ADoc
 
   override Spec? func(Str name, Bool checked := true) { throw UnsupportedErr() }
 
-  override Spec[] metaSpecs() { throw UnsupportedErr() }
-
-  override Spec? metaSpec(Str name, Bool checked := true) { throw UnsupportedErr() }
-
   override Dict[] instances() { throw UnsupportedErr() }
 
   override Dict? instance(Str name, Bool checked := true) { throw UnsupportedErr() }

@@ -95,7 +95,8 @@ const class DocLib : DocPage
   once DocSummary[] globals() { flavor(SpecFlavor.global).toImmutable }
 
   ** Top-level specs that meta specs
-  once DocSummary[] metaSpecs() { flavor(SpecFlavor.meta).toImmutable }
+// TODO
+//  once DocSummary[] metaSpecs() { flavor(SpecFlavor.meta).toImmutable }
 
   ** Top-level specs that funcs
   once DocSummary[] funcs() { flavor(SpecFlavor.func).toImmutable }

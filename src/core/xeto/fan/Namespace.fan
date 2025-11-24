@@ -124,15 +124,6 @@ const mixin Namespace
   ** List all unqualified types against loaded libs.
   @NoDoc abstract Spec[] unqualifiedTypes(Str name)
 
-  ** Resolve unqualified meta spec name against all libs.
-  **   - one match return it
-  **   - zero return null or raise exception based on checked flag
-  **   - two or more raise exception regardless of checked flag
-  @NoDoc abstract Spec? unqualifiedMeta(Str name, Bool checked := true)
-
-  ** List all unqualified meta specs name against all libs.
-  @NoDoc abstract Spec[] unqualifiedMetas(Str name)
-
   ** Resolve unqualified function name against libs:
   **   - one match return it
   **   - zero return null or raise exception based on checked flag

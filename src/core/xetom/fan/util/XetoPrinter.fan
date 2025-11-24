@@ -402,11 +402,7 @@ class XetoPrinter
     Spec? infer
     if (inferFrom == null)
     {
-      if (!noInferMeta)
-      {
-        metas := ns.unqualifiedMetas(n)
-        if (metas.size == 1) infer = metas.first.type
-      }
+      echo("inferFrom null: $n = $v")
     }
     else
     {

@@ -292,7 +292,6 @@ const class XetoSpec : Spec, CNode
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { flavor.isType }
   override final Bool isMixin()      { flavor.isMixin }
-  override final Bool isMeta()       { flavor.isMeta }
   override final Bool isSlot()       { flavor.isSlot && !isGlobal } // TODO
 
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }

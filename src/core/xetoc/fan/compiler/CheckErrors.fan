@@ -60,8 +60,9 @@ internal class CheckErrors : Step
     checkSpec(x)
     if (x.isType)
       checkType(x)
-    else if (x.isMeta)
-      checkMetaSpec(x)
+// TOOD
+//    else if (x.isMeta)
+//      checkMetaSpec(x)
   }
 
   Void checkTopName(ASpec x)

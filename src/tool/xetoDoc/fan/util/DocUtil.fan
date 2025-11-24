@@ -177,8 +177,9 @@ const class DocUtil
 
     // overall defs
     if (lib.specs.size     > 0) acc.add(DocTag("specs",     lib.specs.size))
+// TODO
 //    if (lib.globals.size   > 0) acc.add(DocTag("globals",   lib.globals.size))
-    if (lib.metaSpecs.size > 0) acc.add(DocTag("metas",     lib.metaSpecs.size))
+//    if (lib.metaSpecs.size > 0) acc.add(DocTag("metas",     lib.metaSpecs.size))
     if (lib.instances.size > 0) acc.add(DocTag("instances", lib.instances.size))
 
     // chapters

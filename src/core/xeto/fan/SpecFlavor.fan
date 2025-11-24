@@ -24,9 +24,6 @@ enum class SpecFlavor
   ** Top level function spec
   func,
 
-  ** Top level meta spec
-  meta,
-
   ** Slot spec under a parent
   slot
 
@@ -41,9 +38,6 @@ enum class SpecFlavor
 
   ** Is this a top-level func flavor
   Bool isFunc() { this === func }
-
-  ** Is this the meta spec flavor
-  Bool isMeta() { this === meta }
 
   ** Is this the slot flavor
   Bool isSlot() { this === slot }

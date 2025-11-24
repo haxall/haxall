@@ -81,9 +81,6 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
     return flavor.isGlobal || hasFlag(MSpecFlags.global)
   }
 
-  ** Is flavor meta
-  override Bool isMeta() { flavor.isMeta }
-
   ** Are we compiling sys itself
   override Bool isSys() { lib.isSys }
 

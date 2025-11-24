@@ -302,25 +302,6 @@ const class MNamespace : Namespace, CNamespace
     return acc
   }
 
-  override Spec? unqualifiedMeta(Str name, Bool checked := true)
-  {
-    acc := unqualifiedMetas(name)
-    if (acc.size == 1) return acc[0]
-    if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous meta for '$name' $acc")
-    if (checked) throw UnknownSpecErr(name)
-    return null
-  }
-
-  override Spec[] unqualifiedMetas(Str name)
-  {
-    acc := Spec[,]
-    libs.each |lib|
-    {
-      acc.addNotNull(lib.metaSpec(name, false))
-    }
-    return acc
-  }
-
   override Spec? unqualifiedFunc(Str name, Bool checked := true)
   {
     map := funcMapRef.val as Str:Obj

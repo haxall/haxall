@@ -81,7 +81,6 @@ class AbstractXetoTest : HaystackTest
     verifySame(spec.flavor, expect)
     verifyEq(spec.isType,   expect.isType)
     verifyEq(spec.isGlobal, expect.isGlobal)
-    verifyEq(spec.isMeta,   expect.isMeta)
     verifyEq(spec.isSlot,   expect.isSlot)
     if (expect.isSlot)
       verifyNotNull(spec.parent)
@@ -105,12 +104,10 @@ class AbstractXetoTest : HaystackTest
     verifyEq(lib.types.isImmutable,     true)
     verifyEq(lib.mixins.isImmutable,    true)
     verifyEq(lib.funcs.isImmutable,     true)
-    verifyEq(lib.metaSpecs.isImmutable, true)
 
     verifyEq(lib.types.contains(spec),     flavor === SpecFlavor.type)
     verifyEq(lib.mixins.contains(spec),    flavor === SpecFlavor.mixIn)
     verifyEq(lib.funcs.contains(spec),     flavor === SpecFlavor.func)
-    verifyEq(lib.metaSpecs.contains(spec), flavor === SpecFlavor.meta)
 
     switch (flavor)
     {
@@ -118,34 +115,20 @@ class AbstractXetoTest : HaystackTest
         verifySame(lib.type(name), spec)
         verifyEq(lib.mixins.find { it.name == name}, null)
         verifyEq(lib.func(name, false), null)
-        verifyEq(lib.metaSpec(name, false), null)
         verifyErr(UnknownSpecErr#) { lib.func(name) }
-        verifyErr(UnknownSpecErr#) { lib.metaSpec(name) }
 
       case SpecFlavor.mixIn:
         verifySame(lib.mixins.find { it.name == name}, spec)
         verifyEq(lib.type(name, false), null)
         verifyEq(lib.func(name, false), null)
-        verifyEq(lib.metaSpec(name, false), null)
         verifyErr(UnknownSpecErr#) { lib.type(name) }
         verifyErr(UnknownSpecErr#) { lib.func(name) }
-        verifyErr(UnknownSpecErr#) { lib.metaSpec(name) }
 
       case SpecFlavor.func:
         verifySame(lib.func(name), spec)
         verifyEq(lib.type(name, false), null)
         verifyEq(lib.mixins.find { it.name == name}, null)
-        verifyEq(lib.metaSpec(name, false), null)
         verifyErr(UnknownSpecErr#) { lib.type(name) }
-        verifyErr(UnknownSpecErr#) { lib.metaSpec(name) }
-
-      case SpecFlavor.meta:
-        verifySame(lib.metaSpec(name), spec)
-        verifyEq(lib.type(name, false), null)
-        verifyEq(lib.mixins.find { it.name == name}, null)
-        verifyEq(lib.func(name, false), null)
-        verifyErr(UnknownSpecErr#) { lib.type(name) }
-        verifyErr(UnknownSpecErr#) { lib.func(name) }
 
       case SpecFlavor.slot:
         verifyNotNull(spec.parent, null)
