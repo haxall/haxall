@@ -23,7 +23,7 @@ class XetoPrinter
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(Namespace ns, OutStream out := Env.cur.out, Dict? opts := null)
+  new make(MNamespace ns, OutStream out := Env.cur.out, Dict? opts := null)
   {
     if (opts == null) opts = Etc.dict0
     this.ns   = ns
@@ -113,10 +113,11 @@ class XetoPrinter
     keys.moveTo("defMeta", -1)
 
     sp.wc('<')
+    spec := ns.sys.spec
     keys.each |k, i|
     {
       if (i > 0) wc(',').sp
-      dictPair(null, k, meta[k], true)
+      dictPair(spec, k, meta[k], true)
     }
     return wc('>')
   }
@@ -400,14 +401,9 @@ class XetoPrinter
 
     // determine if we have an inferred type
     Spec? infer
-    if (inferFrom == null)
+    if (inferFrom != null)
     {
-      // TODO: testXeto::ParseTest
-      echo("inferFrom null: $n = $v")
-    }
-    else
-    {
-      infer = inferFrom.slot(n, false)?.type
+      infer = inferFrom.member(n, false)?.type
     }
 
     // name @id: value
@@ -576,7 +572,7 @@ class XetoPrinter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const Namespace ns     // xeto namespace
+  const MNamespace ns       // xeto namespace
   private OutStream out     // output stream
   private Int indentation   // indentation level
 }
