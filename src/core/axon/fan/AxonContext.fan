@@ -92,7 +92,7 @@ abstract class AxonContext : HaystackContext, CompContext
     {
       spec := lib == null ?
               resolveUnqualifiedFunc(x.name, x.loc, checked) :
-              ns.funcs.getQualified(x.name, checked)
+              lib.funcs.get(x.name, checked)
       return spec != null ? spec.func.thunk : null
     }
   }

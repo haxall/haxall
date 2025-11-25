@@ -183,6 +183,8 @@ internal const class ALib : Lib, ADoc
 
   override Void eachInstance(|Dict| f) { throw UnsupportedErr() }
 
+  override SpecMap funcs() { throw UnsupportedErr() }
+
   override Bool hasMarkdown() { throw UnsupportedErr() }
 }
 

@@ -95,6 +95,7 @@ class FuncTest : AbstractXetoTest
     verifyEq(f.isGlobal, false)
 
     verifySame(ns.spec(f.qname), f)
+    verifySame(f.lib.funcs.get(f.name), f)
     verifySame(f.lib.type(f.name, false), null)
 
     verifyEq(f.func.arity, params.size)
