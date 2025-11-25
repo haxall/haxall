@@ -15,10 +15,9 @@ Beta : Dict {
   metaNum:"987"
 }
 
-@xmeta-hx.test.xeto-Alpha: {
-  metaQ
-  metaNum: "456"
-}
++Alpha <metaQ, metaNum: "456">
 
-testDeepAdd: Func <axon:"(a,b)=>a+b"> { a: Number, b: Number, returns: Number }
++Funcs {
+  testDeepAdd: Func <axon:"(a,b)=>a+b"> { a: Number, b: Number, returns: Number }
+}
 

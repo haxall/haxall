@@ -35,6 +35,7 @@ class MixinTest : AbstractXetoTest
     csm       := lib.spec("CurStatus")
     phasem    := lib.spec("Phase")
     specm     := lib.spec("Spec")
+    funcs     := lib.spec("Funcs")
 
     verifyEq(sitem.isType, false)
     verifyEq(sitem.isMixin, true)
@@ -48,7 +49,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(ns.mixinsFor(testSite), Spec[sitem])
     verifyEq(ns.mixinsFor(testSite).isImmutable, true)
 
-    verifyEq(lib.mixins, Spec[csm, phasem, sitem, specm])
+    verifyEq(lib.mixins, Spec[csm, funcs, phasem, sitem, specm])
     verifySame(lib.mixinFor(site), sitem)
     verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
     verifyEq(lib.mixinFor(lib.spec("EquipA"), false), null)
