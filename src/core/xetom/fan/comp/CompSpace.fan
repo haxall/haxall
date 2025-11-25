@@ -373,6 +373,9 @@ each |comp| { if (comp.onExecuteFreq == null) ((MCompSpi)comp.spi).needsExecute 
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  ** Get the edit api for this CompSpace
+  virtual once CompSpaceEdit edit() { CompSpaceEdit(this) }
+
   ** Generate new id
   internal Ref genId()
   {

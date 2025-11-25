@@ -304,10 +304,8 @@ const class CompSpaceActor : Actor
 
   private Dict onFeedCreate(CompSpace cs, Ref specRef, Number x, Number y)
   {
-    spec := cs.ns.spec(specRef.id)
-    comp := cs.createSpec(spec)
+    comp := cs.edit.create(specRef.id)
     comp.set("compLayout", CompLayout(x.toInt, y.toInt))
-    cs.root.add(comp)
     return CompUtil.toFeedDict(comp)
   }
 
@@ -320,8 +318,7 @@ const class CompSpaceActor : Actor
 
   private Obj? onFeedLink(CompSpace cs, Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
   {
-    comp := cs.readById(toRef)
-    comp.set("links", comp.links.add(toSlot, Etc.link(fromRef, fromSlot)))
+    cs.edit.link(fromRef, fromSlot, toRef, toSlot)
     return null
   }
 
@@ -329,8 +326,7 @@ const class CompSpaceActor : Actor
   {
     links.each |link|
     {
-      comp := cs.readById(link->toRef)
-      comp.set("links", comp.links.remove(link->toSlot, Etc.link(link->fromRef, link->fromSlot)))
+      cs.edit.unlink(link->fromRef, link->fromSlot, link->toRef, link->toSlot)
     }
     return null
   }
@@ -343,33 +339,13 @@ const class CompSpaceActor : Actor
 
   private Obj? onFeedDelete(CompSpace cs, Ref[] ids)
   {
-    ids.each |id|
-    {
-      comp := cs.readById(id, false)
-      if (comp == null) return
-      if (comp.parent == null) throw Err("Cannot delete root")
-      comp.parent.remove(comp.name)
-    }
+    ids.each |id| { cs.edit.delete(id) }
     return null
   }
 
   private Obj? onFeedUpdate(CompSpace cs, Ref id, Dict diff)
   {
-    comp  := cs.readById(id)
-    slots := comp.spec.slots
-    diff.each |v, n|
-    {
-      slotSpec := slots.get(n, false)
-      if (slotSpec == null) return
-      binding := slotSpec.binding
-      if (v.typeof.fits(binding.type)) comp.set(n, v)
-      else if (binding.isScalar)
-      {
-        scalar := binding.decodeScalar(v.toStr)
-        comp.set(n, scalar)
-      }
-      else throw Err("TODO???: non-scalar ${n} => ${v} binding=${binding}")
-    }
+    cs.edit.update(id, diff)
     return null
   }
 
