@@ -54,12 +54,6 @@ const mixin Lib : Dict
   ** Lookup the mixin for the given type in this library
   abstract Spec? mixinFor(Spec type, Bool checked := true)
 
-  ** List the top level funcs
-  abstract Spec[] funcs()
-
-  ** Lookup a top level func slot spec in this library by simple name
-  abstract Spec? func(Str name, Bool checked := true)
-
   ** List the instance data dicts declared in this library
   abstract Dict[] instances()
 

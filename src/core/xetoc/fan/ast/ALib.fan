@@ -177,10 +177,6 @@ internal const class ALib : Lib, ADoc
 
   override Spec? mixinFor(Spec type, Bool checked := true) { throw UnsupportedErr() }
 
-  override Spec[] funcs() { throw UnsupportedErr() }
-
-  override Spec? func(Str name, Bool checked := true) { throw UnsupportedErr() }
-
   override Dict[] instances() { throw UnsupportedErr() }
 
   override Dict? instance(Str name, Bool checked := true) { throw UnsupportedErr() }

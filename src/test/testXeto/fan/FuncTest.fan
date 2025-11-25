@@ -37,7 +37,8 @@ class FuncTest : AbstractXetoTest
     verifyErr(UnsupportedErr#) { num.func }
 
     // ping1
-    f := lib.spec("ping1")
+    funcs := lib.spec("Funcs")
+    f := funcs.slot("ping1")
     verifyFunc(ns, f, [,], "sys::Date")
     TestAxonContext(ns).asCur |cx|
     {
@@ -45,7 +46,7 @@ class FuncTest : AbstractXetoTest
     }
 
     // ping2 (missing facet)
-    f = lib.spec("ping2")
+    f = funcs.slot("ping2")
     verifyFunc(ns, f, [,], "sys::Date")
     TestAxonContext(ns).asCur |cx|
     {
@@ -54,10 +55,10 @@ class FuncTest : AbstractXetoTest
     }
 
     // add
-    verifyAdd(ns, lib.spec("add1"), true)  // Axon
-    verifyAdd(ns, lib.spec("add2"), true)  // Fantom
-    verifyAdd(ns, lib.spec("add3"), false) // not allowed
-    if (!ns.env.isRemote) verifyAdd(ns, lib.spec("add4"), true) // Xeto component graph
+    verifyAdd(ns, funcs.slot("add1"), true)  // Axon
+    verifyAdd(ns, funcs.slot("add2"), true)  // Fantom
+    verifyAdd(ns, funcs.slot("add3"), false) // not allowed
+    if (!ns.env.isRemote) verifyAdd(ns, funcs.slot("add4"), true) // Xeto component graph
   }
 
   private Void verifyAdd(Namespace ns, Spec f, Bool valid)
@@ -93,7 +94,7 @@ class FuncTest : AbstractXetoTest
     verifyEq(f.isMixin,  false)
     verifyEq(f.isGlobal, false)
 
-    verifySame(f.lib.func(f.name), f)
+    verifySame(ns.spec(f.qname), f)
     verifySame(f.lib.type(f.name, false), null)
 
     verifyEq(f.func.arity, params.size)

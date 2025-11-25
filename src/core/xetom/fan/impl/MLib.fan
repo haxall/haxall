@@ -93,19 +93,6 @@ const final class MLib
     return null
   }
 
-  once Spec[] funcs()
-  {
-    specs.findAll |x| { x.isFunc }.toImmutable
-  }
-
-  Spec? func(Str name, Bool checked := true)
-  {
-    top := spec(name, checked)
-    if (top != null && top.isFunc) return top
-    if (checked) throw UnknownSpecErr(this.name + "::" + name)
-    return null
-  }
-
   once Dict[] instances()
   {
     if (instancesMap.isEmpty)
@@ -245,10 +232,6 @@ const final class XetoLib : Lib, Dict
   override Spec[] mixins() { m.mixins }
 
   override Spec? mixinFor(Spec type, Bool checked := true) { m.mixinFor(type, checked) }
-
-  override Spec[] funcs() { m.funcs }
-
-  override Spec? func(Str name, Bool checked := true) { m.func(name, checked) }
 
   override Dict[] instances() { m.instances }
 

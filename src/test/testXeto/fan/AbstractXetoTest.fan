@@ -103,31 +103,19 @@ class AbstractXetoTest : HaystackTest
     verifyEq(lib.specs.isImmutable,     true)
     verifyEq(lib.types.isImmutable,     true)
     verifyEq(lib.mixins.isImmutable,    true)
-    verifyEq(lib.funcs.isImmutable,     true)
 
     verifyEq(lib.types.contains(spec),     flavor === SpecFlavor.type)
     verifyEq(lib.mixins.contains(spec),    flavor === SpecFlavor.mixIn)
-    verifyEq(lib.funcs.contains(spec),     flavor === SpecFlavor.func)
 
     switch (flavor)
     {
       case SpecFlavor.type:
         verifySame(lib.type(name), spec)
         verifyEq(lib.mixins.find { it.name == name}, null)
-        verifyEq(lib.func(name, false), null)
-        verifyErr(UnknownSpecErr#) { lib.func(name) }
 
       case SpecFlavor.mixIn:
         verifySame(lib.mixins.find { it.name == name}, spec)
         verifyEq(lib.type(name, false), null)
-        verifyEq(lib.func(name, false), null)
-        verifyErr(UnknownSpecErr#) { lib.type(name) }
-        verifyErr(UnknownSpecErr#) { lib.func(name) }
-
-      case SpecFlavor.func:
-        verifySame(lib.func(name), spec)
-        verifyEq(lib.type(name, false), null)
-        verifyEq(lib.mixins.find { it.name == name}, null)
         verifyErr(UnknownSpecErr#) { lib.type(name) }
 
       case SpecFlavor.slot:

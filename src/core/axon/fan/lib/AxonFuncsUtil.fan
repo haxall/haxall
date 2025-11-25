@@ -69,17 +69,13 @@ internal const class AxonFuncsUtil
 
     // iterate the namespace: skip nodoc and filter mismatches
     acc := Dict[,]
-    cx.ns.libs.each |lib|
+    cx.ns.funcs.each |func|
     {
-      if (lib.name == "sys") return
-      lib.funcs.each |func|
-      {
-        meta := func.meta
-        if (meta.has("nodoc")) return
-        meta = Etc.dictMerge(meta, Etc.dict2("name", func.name, "qname", func.qname))
-        if (filter != null && !filter.matches(meta, cx)) return
-        acc.add(meta)
-      }
+      meta := func.meta
+      if (meta.has("nodoc")) return
+      meta = Etc.dictMerge(meta, Etc.dict2("name", func.name, "qname", func.qname))
+      if (filter != null && !filter.matches(meta, cx)) return
+      acc.add(meta)
     }
 
     // strip src for security
