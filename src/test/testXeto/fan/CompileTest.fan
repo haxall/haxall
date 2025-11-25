@@ -547,10 +547,12 @@ class CompileTest : AbstractXetoTest
              foo: Number <f, baz:"hi">
            }
 
-           a: Marker <meta>
-           c: Marker <meta>
-           f: Marker <meta>
-           baz: Str <meta>
+           +Spec {
+             a: Marker?
+             c: Marker?
+             f: Marker?
+             baz: Str?
+           }
            |>)
 
     // env.print(lib)
@@ -641,10 +643,12 @@ class CompileTest : AbstractXetoTest
               foo: Date <qux:None "none">
             }
 
-            foo: Obj <meta>
-            bar: Obj <meta>
-            baz: Obj <meta>
-            qux: Obj <meta>
+            +Spec {
+              foo: Obj?
+              bar: Obj?
+              baz: Obj?
+              qux: Obj?
+            }
            |>)
 
     // env.print(lib)
@@ -700,7 +704,9 @@ class CompileTest : AbstractXetoTest
             B12 : B1 & B2 {
             }
 
-            x: Marker <meta>
+            +Spec {
+              x: Marker?
+            }
          |>)
 
     // lib.tops.each |x| { env.print(x) }
@@ -768,10 +774,12 @@ class CompileTest : AbstractXetoTest
 
             Bar: {}
 
-            x: Obj <meta>
-            y: Obj <meta>
-            z: Obj <meta>
-            qux: Obj <meta>
+            +Spec {
+              x: Obj?
+              y: Obj?
+              z: Obj?
+              qux: Obj?
+            }
            |>)
 
     foo := lib.type("Foo")

@@ -167,9 +167,9 @@ internal class MixinMeta : Step
     }
 
     // otherwise start with sys::Spec
-    acc := SpecMap[,]
+    acc := Str:Spec[:]
     specType := ns.sys.spec
-    acc.add(specType.slots)
+    specType.slots.each |s, n| { acc[n] = s }
 
     // add in all the dependencies
     depends.libs.each |lib|
@@ -181,14 +181,26 @@ internal class MixinMeta : Step
     myMixin := lib.ast.mixIn("Spec")
     if (myMixin != null && myMixin.ast.declared != null)
     {
-      acc.add(SpecMap(myMixin.ast.declared))
+      add(acc, SpecMap(myMixin.ast.declared))
     }
+
+    bombIfErr
     compiler.metas = SpecMap(acc)
   }
 
-  private static Void add(SpecMap[] acc, SpecMap? map)
+  private Void add(Str:Spec acc, SpecMap? map)
   {
-    if (map != null && !map.isEmpty) acc.add(map)
+    if (map == null || map.isEmpty) return
+    map.each |s, n|
+    {
+      dup := acc[n]
+      if (dup != null)
+        err("Duplicate meta specs: $s, $dup", s.loc)
+      else if (XetoUtil.isReservedMetaName(n))
+        err("Reserved meta tag '$n'", s.loc)
+      else
+        acc[n] = s
+    }
   }
 }
 

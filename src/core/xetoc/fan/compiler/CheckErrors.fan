@@ -312,15 +312,6 @@ internal class CheckErrors : Step
     // TODO
   }
 
-  /*
-  Void checkMetaMixin(ASpec x)
-  {
-    // check reserved name
-    if (XetoUtil.isReservedMetaName(x.name))
-      err("Reserved meta tag '$x.name'", x.loc)
-  }
-  */
-
   Void checkSpecQuery(ASpec x)
   {
   }

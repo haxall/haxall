@@ -108,7 +108,7 @@ compileLib: |
     xetoFooBar: Marker?
   }
 verifyErrs: |
-  Duplicate meta specs: temp::abstract, sys::abstract
+  Duplicate meta specs: temp::Spec.abstract, sys::Spec.abstract
   Reserved meta tag 'base'
   Reserved meta tag 'instances'
   Reserved meta tag 'xetoFooBar'

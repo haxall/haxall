@@ -26,13 +26,15 @@ class SpecTest : AbstractXetoTest
     ns := createNamespace(["sys"])
 
     lib := ns.compileTempLib(
-      Str<|a: Str <meta>
-           b: Str <meta>
-           c: Str <meta>
-           d: Str <meta>
-           e: Str <meta>
-           f: Str <meta>
-           g: Str <meta>
+      Str<|+Spec {
+             a: Str?
+             b: Str?
+             c: Str?
+             d: Str?
+             e: Str?
+             f: Str?
+             g: Str?
+           }
 
            Foo: Dict <a:"A", b:"B">
            Bar: Foo <b:"B2", c:"C"> { qux: Str <e:"E", f:"F"> "x" }

@@ -36,7 +36,9 @@ name: "metaComplex"
 compileLib: |
   // Foo doc
   Foo: Dict <abstract, x:"hi!">
-  x: Str <meta>
+  +Spec {
+    x: Str?
+  }
 verifyTypes:
   Foo:
     base: "sys::Dict"
@@ -66,9 +68,11 @@ compileLib: |
     bar: Marker <baz>
     qux: Str <corge : "garply", waldo: Date "2023-03-05">
   }
-  baz: Marker <meta>
-  corge: Str <meta>
-  waldo: Date <meta>
+  +Spec {
+    baz: Marker?
+    corge: Str?
+    waldo: Date?
+  }
 verifyTypes:
   Foo:
     base: "sys::Dict"
@@ -96,9 +100,11 @@ compileLib: |
     // qux doc
     qux: Str <corge : "garply", waldo: Date "2023-03-05">
   }
-  baz: Marker <meta>
-  corge: Str <meta>
-  waldo: Date <meta>
+  +Spec {
+    baz: Marker?
+    corge: Str?
+    waldo: Date?
+  }
 verifyTypes:
   Foo:
     base: "sys::Dict"
@@ -125,7 +131,9 @@ compileLib: |
     bar: Date <qux> "2023-02-05"
   }
   B : A
-  qux: Marker <meta>
+  +Spec {
+    qux: Marker?
+  }
 verifyTypes:
   A:
     base: "sys::Dict"
@@ -154,8 +162,10 @@ compileLib: |
   B : A {
     bar: Date <baz>
   }
-  baz: Marker <meta>
-  qux: Marker <meta>
+  +Spec {
+    baz: Marker?
+    qux: Marker?
+  }
 verifyTypes:
   A:
     base: "sys::Dict"

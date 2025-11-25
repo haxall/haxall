@@ -102,8 +102,10 @@ class EnumTest : AbstractXetoTest
              hearts   <color:"r">  // Red hearts
              spades   <color:"b">  // Black spades
            }
-           color: Str <meta>
-           foo: Str <meta>
+           +Spec {
+             color: Str?
+             foo: Str?
+           }
            |>)
 
      e := lib.spec("Suit")
