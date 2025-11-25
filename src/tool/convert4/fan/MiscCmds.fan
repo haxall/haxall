@@ -119,3 +119,51 @@ internal class DumpCmd : ConvertCmd
   }
 }
 
+**************************************************************************
+** WrapFuncsCmd
+**************************************************************************
+
+internal class WrapFuncsCmd : ConvertCmd
+{
+  override Str name() { "wrapFuncs" }
+
+  override Str summary() { "Wrap all old style globals funcs in +Funcs mixin" }
+
+  override Int run()
+  {
+    files := File[,]
+    findFiles(files, Env.cur.workDir + `src/xeto/`)
+
+    files.each |f|
+    {
+      try
+        fix(f)
+      catch (Err e)
+        Console.cur.err("ERROR: cannot fix file [$f.osPath]", e)
+    }
+    return 0
+  }
+
+  Void fix(File f)
+  {
+    echo("Fix [$f.osPath]")
+    lines := f.readAllLines
+    start := lines.findIndex { it.trim.isEmpty } ?: throw Err("No blank lines")
+    lines = lines.map |line, i->Str|
+    {
+      if (i < start || line.trim.isEmpty) return line
+      return "  " + line
+    }
+    lines.insert(start+1, "+Funcs {")
+    if (!lines[start+2].trim.isEmpty) lines.insert(start+2, "")
+    lines.add("}").add("")
+    f.out.print(lines.join("\n")).close
+  }
+
+  Void findFiles(File[] acc, File f)
+  {
+    if (f.name == "funcs.xeto") acc.add(f)
+    if (f.isDir) f.list.each |kid| { findFiles(acc, kid) }
+  }
+}
+
