@@ -358,7 +358,6 @@ internal class CheckErrors : Step
   Void checkDict(ADict x, Spec? slot)
   {
     spec := x.type
-    isMeta := ((ADict)x).isMeta
 
     if (spec.isList) checkList(x, slot)
 
@@ -422,7 +421,7 @@ internal class CheckErrors : Step
       return
     }
 
-    if (!x.isMeta)
+    if (!x.isSpecMeta)
     {
       valType := val.type
       if (!valTypeFits(slot.type, valType, val.asm))

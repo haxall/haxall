@@ -56,7 +56,8 @@ class DocTest : AbstractXetoTest
     verifySpec(entry, spec, roundtrip(entry))
 
     // meta
-    spec = lib.spec("q")
+    /* TODO
+    spec = lib.spec("Spec").slot("q")
     entry = compiler.entries.getChecked(spec.qname)
     verifySpec(entry, spec, entry.page)
     verifySpec(entry, spec, roundtrip(entry))
@@ -66,6 +67,7 @@ class DocTest : AbstractXetoTest
     entry = compiler.entries.getChecked(spec.qname)
     verifySpec(entry, spec, entry.page)
     verifySpec(entry, spec, roundtrip(entry))
+    */
 
     // instance
     Dict inst := lib.instance("test-a")

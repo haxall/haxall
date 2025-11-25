@@ -117,7 +117,6 @@ internal class Parse : Step
     if (pragma.declared != null) err("Pragma cannot have slots", pragma.loc)
     if (pragma.val != null) err("Pragma cannot scalar value", pragma.loc)
 
-    pragma.ast.meta.typeRef = sys.lib
     return pragma.ast.meta
   }
 

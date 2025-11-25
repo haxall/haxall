@@ -134,7 +134,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ADict metaInit()
   {
     ast := this.ast
-    if (ast.meta == null) ast.meta = ADict(this.loc, compiler.sys.spec, true)
+    if (ast.meta == null) ast.meta = ADict(this.loc, compiler.sys.spec)
     ast.meta.metaParent = this
     return ast.meta
   }

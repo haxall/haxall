@@ -58,5 +58,8 @@ enum class ANodeType
   instance,
   specRef,
   dataRef
+
+  Bool isLib() { this === lib }
+  Bool isSpec() { this === spec }
 }
 

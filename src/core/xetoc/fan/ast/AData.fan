@@ -113,11 +113,10 @@ internal class AScalar : AData
 internal class ADict : AData
 {
   ** Constructor
-  new make(FileLoc loc, ASpecRef? type, Bool isMeta := false) : super(loc, type)
+  new make(FileLoc loc, ASpecRef? type) : super(loc, type)
   {
     map = Str:Obj[:]
     map.ordered = true
-    this.isMeta = isMeta
   }
 
   ** Node type
@@ -141,10 +140,16 @@ internal class ADict : AData
   ** Assembled value set in Reify as either Dict or Obj[]
   Obj? asmRef
 
-  ** Is this library or spec meta
-  const Bool isMeta
+  ** Is this lib or spec meta
+  Bool isMeta() { metaParent != null }
 
-  ** If this is spec meta, the parent ALib or ASpec
+  ** Is this lib meta
+  Bool isLibMeta() { metaParent != null && metaParent.nodeType.isLib }
+
+  ** Is this spec meta
+  Bool isSpecMeta() { metaParent != null && metaParent.nodeType.isSpec }
+
+  ** Parent ASpec for spec meta, or ALib for lib meta
   ANode? metaParent
 
   ** TODO: we should be able to infer this from the list type, but
