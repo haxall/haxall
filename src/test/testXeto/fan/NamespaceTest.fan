@@ -733,6 +733,21 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { lib.type("Bad") }
     verifyErr(UnknownSpecErr#) { lib.type("Bad", true) }
 
+    // eachType
+    types := Spec[,]
+    lib.eachType |x| { types.add(x) }
+    verifyEq(lib.types, types)
+
+    // eachTypeWhile
+    types.clear
+    lib.eachTypeWhile |x| { types.add(x); return types.size == 3 ? "break" : null }
+    verifyEq(lib.types[0..<3], types)
+
+    // eachInstance
+    instances := Dict[,]
+    lib.eachInstance |x| { instances.add(x) }
+    verifyDictsEq(lib.instances, instances, false)
+
     return lib
   }
 

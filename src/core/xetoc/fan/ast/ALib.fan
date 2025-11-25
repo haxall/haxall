@@ -181,6 +181,10 @@ internal const class ALib : Lib, ADoc
 
   override Dict? instance(Str name, Bool checked := true) { throw UnsupportedErr() }
 
+  override Void eachType(|Spec| f) { throw UnsupportedErr() }
+
+  override Obj? eachTypeWhile(|Spec->Obj?| f) { throw UnsupportedErr() }
+
   override Void eachInstance(|Dict| f) { throw UnsupportedErr() }
 
   override SpecMap funcs() { throw UnsupportedErr() }

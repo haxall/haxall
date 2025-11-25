@@ -48,6 +48,12 @@ const mixin Lib : Dict
   ** Lookup a type spec in this library by simple name
   abstract Spec? type(Str name, Bool checked := true)
 
+  ** Iterate the type specs
+  abstract Void eachType(|Spec| f)
+
+  ** Iterate the type specs until callback returns non-null
+  @NoDoc abstract Obj? eachTypeWhile(|Spec->Obj?| f)
+
   ** List the mixins in this library
   abstract Spec[] mixins()
 
@@ -61,7 +67,10 @@ const mixin Lib : Dict
   abstract Dict? instance(Str name, Bool checked := true)
 
   ** Iterate the instances
-  @NoDoc abstract Void eachInstance(|Dict| f)
+  abstract Void eachInstance(|Dict| f)
+
+  ** Funcs declared by this lib under the 'Funcs' mixin.
+  @NoDoc abstract SpecMap funcs()
 
   ** Is this the 'sys' library
   @NoDoc abstract Bool isSys()

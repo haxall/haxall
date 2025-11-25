@@ -69,7 +69,7 @@ const final class MLib
 
   once Spec[] types()
   {
-    specs.findAll |x| { x.isType && x.name[0] != '_' }.toImmutable
+    specs.mapNotNull |x->Spec?| { (x.isType && x.name[0] != '_') ? x : null }.toImmutable
   }
 
   Spec? type(Str name, Bool checked := true)
@@ -78,6 +78,17 @@ const final class MLib
     if (top != null && top.isType) return top
     if (checked) throw UnknownSpecErr(this.name + "::" + name)
     return null
+  }
+
+  Void eachType(|Spec| f)
+  {
+    specs.each |x| { if (x.isType && x.name[0] != '_') f(x) }
+  }
+
+  Obj? eachTypeWhile(|Spec->Obj?| f)
+  {
+// TODO: pull this check out into two maps
+    specs.eachWhile |x| { (x.isType && x.name[0] != '_') ? f(x) : null }
   }
 
   once Spec[] mixins()
@@ -92,7 +103,6 @@ const final class MLib
     if (checked) throw UnknownSpecErr("No mixin for $type.qname")
     return null
   }
-
 
   once Dict[] instances()
   {
@@ -235,6 +245,10 @@ const final class XetoLib : Lib, Dict
 
   override Spec? type(Str name, Bool checked := true) { m.type(name, checked) }
 
+  override Void eachType(|Spec| f) { m.eachType(f) }
+
+  override Obj? eachTypeWhile(|Spec->Obj?| f) { m.eachTypeWhile(f) }
+
   override Spec[] mixins() { m.mixins }
 
   override Spec? mixinFor(Spec type, Bool checked := true) { m.mixinFor(type, checked) }
@@ -243,9 +257,9 @@ const final class XetoLib : Lib, Dict
 
   override Dict? instance(Str name, Bool checked := true) { m.instance(name, checked) }
 
-  override SpecMap funcs() { m.funcs }
-
   override Void eachInstance(|Dict| f) { m.eachInstance(f) }
+
+  override SpecMap funcs() { m.funcs }
 
   override Bool isSys() { m.isSys }
 
