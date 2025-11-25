@@ -55,6 +55,8 @@ internal class CheckErrors : Step
 
   Void checkTop(ASpec x)
   {
+    if (x.name.isLower) err("Lib specs must start with upper case: $x.name", x.loc)
+
     checkTopName(x)
     checkTypeInherit(x)
     checkSpec(x)

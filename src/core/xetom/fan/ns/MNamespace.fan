@@ -217,6 +217,11 @@ const class MNamespace : Namespace, CNamespace
     specx(sys.spec).slots
   }
 
+  once SpecMap funcs()
+  {
+    specx(sys.funcs).slots
+  }
+
   override Spec specx(Spec spec)
   {
     if (spec.isGlobal) return spec
@@ -304,6 +309,17 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec? unqualifiedFunc(Str name, Bool checked := true)
   {
+    funcs.get(name, checked)
+  }
+
+  override Spec[] unqualifiedFuncs(Str name)
+  {
+    funcs.getAll(name)
+  }
+
+/* TODO
+  override Spec? unqualifiedFunc(Str name, Bool checked := true)
+  {
     map := funcMapRef.val as Str:Obj
     if (map == null) funcMapRef.val = map = loadFuncMap
     list := map[name] as Spec[]
@@ -348,6 +364,7 @@ const class MNamespace : Namespace, CNamespace
     return acc.toImmutable
   }
   private const AtomicRef funcMapRef := AtomicRef()
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Reflection
