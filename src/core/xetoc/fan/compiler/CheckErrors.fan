@@ -60,9 +60,8 @@ internal class CheckErrors : Step
     checkSpec(x)
     if (x.isType)
       checkType(x)
-// TOOD
-//    else if (x.isMeta)
-//      checkMetaSpec(x)
+    else
+      checkMixin(x)
   }
 
   Void checkTopName(ASpec x)
@@ -293,7 +292,12 @@ internal class CheckErrors : Step
       if (XetoUtil.isReservedSpecMetaName(n))
       {
         err("Reserved spec meta tag '$n'", x.loc)
+        return
       }
+
+      // check that tags exists
+      slot := metas.get(n, false)
+      if (slot == null) err("Undefined meta tag '$n'", x.loc)
     }
 
     checkDict(x.ast.meta, null)
@@ -303,17 +307,19 @@ internal class CheckErrors : Step
   {
   }
 
-  Void checkMetaSpec(ASpec x)
+  Void checkMixin(ASpec x)
   {
-/* TODO
-    // calling ANamespace.metaSpec forces us to report duplicates
-    cns.metaSpec(x.name, x.loc)
+    // TODO
+  }
 
+  /*
+  Void checkMetaMixin(ASpec x)
+  {
     // check reserved name
     if (XetoUtil.isReservedMetaName(x.name))
       err("Reserved meta tag '$x.name'", x.loc)
-*/
   }
+  */
 
   Void checkSpecQuery(ASpec x)
   {

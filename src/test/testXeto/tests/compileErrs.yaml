@@ -101,10 +101,12 @@ verifyErrs: |
 ---
 name: "metaDups"
 compileLib: |
-  abstract: Str <meta>
-  base: Str <meta>
-  instances: Str <meta>
-  xetoFooBar: Marker <meta>
+  +Spec {
+    abstract: Str?
+    base: Str?
+    instances: Str?
+    xetoFooBar: Marker?
+  }
 verifyErrs: |
   Duplicate meta specs: temp::abstract, sys::abstract
   Reserved meta tag 'base'
