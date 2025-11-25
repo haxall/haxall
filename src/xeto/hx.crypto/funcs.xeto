@@ -6,39 +6,42 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// Generate a self-signed certificate and store it in the keystore with
-// the given alias. A new 2048-bit RSA key will be generated and
-// then self-signed for the given subject DN. The following options
-// are supported for configuring the signing:
-//   - 'notBefore' (Date): the start date for certificate validity period (default=today)
-//   - 'notAfter' (Date): the end date for the certificate validity period (default=today+365day)
-//
-// This func will throw an error if an entry with the given alias already exists.
-cryptoGenSelfSignedCert: Func <su> { alias: Str, subjectDn: Str, opts: Dict, returns: Obj? }
++Funcs {
 
-cryptoLocal: Func <nodoc, su> { type: Str?, returns: Grid }
+  // Generate a self-signed certificate and store it in the keystore with
+  // the given alias. A new 2048-bit RSA key will be generated and
+  // then self-signed for the given subject DN. The following options
+  // are supported for configuring the signing:
+  //   - 'notBefore' (Date): the start date for certificate validity period (default=today)
+  //   - 'notAfter' (Date): the end date for the certificate validity period (default=today+365day)
+  //
+  // This func will throw an error if an entry with the given alias already exists.
+  cryptoGenSelfSignedCert: Func <su> { alias: Str, subjectDn: Str, opts: Dict, returns: Obj? }
 
-cryptoCheckAction: Func <nodoc, su> { dict: Obj, returns: Grid }
+  cryptoLocal: Func <nodoc, su> { type: Str?, returns: Grid }
 
-// Read keystore as a grid
-cryptoReadAllKeys: Func <nodoc, su> { returns: Grid }
+  cryptoCheckAction: Func <nodoc, su> { dict: Obj, returns: Grid }
 
-// Add certificate chain for a URI to the trust store.
-// Dict must define 'alias' Str and 'uri' URI.
-cryptoTrustUri: Func <nodoc, su> { dict: Obj, returns: Grid }
+  // Read keystore as a grid
+  cryptoReadAllKeys: Func <nodoc, su> { returns: Grid }
 
-// Retrieve certificate chain for a URI without adding to trust store.
-cryptoCheckUri: Func <nodoc, su> { uri: Uri, returns: Grid }
+  // Add certificate chain for a URI to the trust store.
+  // Dict must define 'alias' Str and 'uri' URI.
+  cryptoTrustUri: Func <nodoc, su> { dict: Obj, returns: Grid }
 
-// Delete a list of entries
-cryptoEntryDelete: Func <nodoc, su> { aliases: Obj?, returns: Obj? }
+  // Retrieve certificate chain for a URI without adding to trust store.
+  cryptoCheckUri: Func <nodoc, su> { uri: Uri, returns: Grid }
 
-// Rename a key
-cryptoEntryRename: Func <nodoc, su> { dict: Obj, returns: Obj? }
+  // Delete a list of entries
+  cryptoEntryDelete: Func <nodoc, su> { aliases: Obj?, returns: Obj? }
 
-cryptoShowPub: Func <nodoc> { obj: Obj, returns: Grid }
+  // Rename a key
+  cryptoEntryRename: Func <nodoc, su> { dict: Obj, returns: Obj? }
 
-// Add a private key and cert chain entry.
-// Can also trust a single certificate if no priv key is supplied.
-cryptoAddCert: Func <nodoc, su> { alias: Str, pem: Str, force: Bool, returns: Obj? }
+  cryptoShowPub: Func <nodoc> { obj: Obj, returns: Grid }
 
+  // Add a private key and cert chain entry.
+  // Can also trust a single certificate if no priv key is supplied.
+  cryptoAddCert: Func <nodoc, su> { alias: Str, pem: Str, force: Bool, returns: Obj? }
+
+}

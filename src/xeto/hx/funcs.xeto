@@ -6,418 +6,421 @@
 //   15 Jul 2025  Brian Frank  Creation
 //
 
-//////////////////////////////////////////////////////////////////////////
-// Database Reads
-//////////////////////////////////////////////////////////////////////////
++Funcs {
 
-// Read from database the first record which matches [filter]`docHaystack::Filters`.
-// If no matches found throw UnknownRecErr or null based on checked
-// flag.  If there are multiple matches it is indeterminate which one is
-// returned.  See `readAll` for how filter works.
-//
-// Examples:
-//   read(site)                 // read any site rec
-//   read(site and dis=="HQ")   // read site rec with specific dis tag
-//   read(chiller)              // raise exception if no recs with chiller tag
-//   read(chiller, false)       // return null if no recs with chiller tag
-read: Func { filter: Filter, checked: Bool, returns: Dict? }
+  //////////////////////////////////////////////////////////////////////////
+  // Database Reads
+  //////////////////////////////////////////////////////////////////////////
 
-// Read a record from database by 'id'.  If not found
-// throw UnknownRecErr or return null based on checked flag.
-// In Haxall all refs are relative, but in SkySpark refs may
-// be prefixed with something like "p:projName:r:".  This function
-// will accept both relative and absolute refs.
-//
-// Examples:
-//    readById(@2b00f9dc-82690ed6)          // relative ref literal
-//    readById(@:demo:r:2b00f9dc-82690ed6)  // project absolute literal
-//    readById(id)                          // read using variable
-//    readById(equip->siteRef)              // read from ref tag
-readById: Func { id: Ref?, checked: Bool, returns: Dict? }
+  // Read from database the first record which matches [filter]`docHaystack::Filters`.
+  // If no matches found throw UnknownRecErr or null based on checked
+  // flag.  If there are multiple matches it is indeterminate which one is
+  // returned.  See `readAll` for how filter works.
+  //
+  // Examples:
+  //   read(site)                 // read any site rec
+  //   read(site and dis=="HQ")   // read site rec with specific dis tag
+  //   read(chiller)              // raise exception if no recs with chiller tag
+  //   read(chiller, false)       // return null if no recs with chiller tag
+  read: Func { filter: Filter, checked: Bool, returns: Dict? }
 
-// Given record id, read only the persistent tags from Folio.
-// Also see `readByIdTransientTags` and `readById`.
-readByIdPersistentTags: Func { id: Ref, checked: Bool, returns: Dict? }
+  // Read a record from database by 'id'.  If not found
+  // throw UnknownRecErr or return null based on checked flag.
+  // In Haxall all refs are relative, but in SkySpark refs may
+  // be prefixed with something like "p:projName:r:".  This function
+  // will accept both relative and absolute refs.
+  //
+  // Examples:
+  //    readById(@2b00f9dc-82690ed6)          // relative ref literal
+  //    readById(@:demo:r:2b00f9dc-82690ed6)  // project absolute literal
+  //    readById(id)                          // read using variable
+  //    readById(equip->siteRef)              // read from ref tag
+  readById: Func { id: Ref?, checked: Bool, returns: Dict? }
 
-// Given record id, read only the transient tags from Folio.
-// Also see `readByIdPersistentTags` and `readById`.
-readByIdTransientTags: Func { id: Ref, checked: Bool, returns: Dict? }
+  // Given record id, read only the persistent tags from Folio.
+  // Also see `readByIdTransientTags` and `readById`.
+  readByIdPersistentTags: Func { id: Ref, checked: Bool, returns: Dict? }
 
-// Read a record Dict by its id for hyperlinking in a UI.  Unlike other
-// reads which return a Dict, this read returns the columns ordered in
-// the same order as reads which return a Grid.
-readLink: Func { id: Ref?, returns: Dict? }
+  // Given record id, read only the transient tags from Folio.
+  // Also see `readByIdPersistentTags` and `readById`.
+  readByIdTransientTags: Func { id: Ref, checked: Bool, returns: Dict? }
 
-// Read a list of record ids into a grid.  The rows in the
-// result correspond by index to the ids list.  If checked is true,
-// then every id must be found in the database or UnknownRecErr
-// is thrown.  If checked is false, then an unknown record is
-// returned as a row with every column set to null (including
-// the 'id' tag).  Either relative or project absolute refs may
-// be used.
-//
-// Examples:
-//   // read two relative refs
-//   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a])
-//
-//   // read two project absolute refs
-//   readByIds([@p:demo:r:2af6f9ce-6ddc5075, @p:demo:r:2af6f9ce-2d56b43a])
-//
-//   // return null for a given id if it does not exist
-//   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
-readByIds: Func { ids: List, checked: Bool, returns: Grid }
+  // Read a record Dict by its id for hyperlinking in a UI.  Unlike other
+  // reads which return a Dict, this read returns the columns ordered in
+  // the same order as reads which return a Grid.
+  readLink: Func { id: Ref?, returns: Dict? }
 
-// Reall all records from the database which match the [filter]`docHaystack::Filters`.
-// The filter must an expression which matches the filter structure.
-// String values may parsed into a filter using `parseFilter` function.
-//
-// Options:
-//   - 'limit': max number of recs to return
-//   - 'sort': sort by display name
-//
-// Examples:
-//   readAll(site)                      // read all site recs
-//   readAll(equip and siteRef==@xyz)   // read all equip in a given site
-//   readAll(equip, {limit:10})         // read up to ten equips
-//   readAll(equip, {sort})             // read all equip sorted by dis
-readAll: Func { filter: Filter, opts: Dict?, returns: Grid }
+  // Read a list of record ids into a grid.  The rows in the
+  // result correspond by index to the ids list.  If checked is true,
+  // then every id must be found in the database or UnknownRecErr
+  // is thrown.  If checked is false, then an unknown record is
+  // returned as a row with every column set to null (including
+  // the 'id' tag).  Either relative or project absolute refs may
+  // be used.
+  //
+  // Examples:
+  //   // read two relative refs
+  //   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a])
+  //
+  //   // read two project absolute refs
+  //   readByIds([@p:demo:r:2af6f9ce-6ddc5075, @p:demo:r:2af6f9ce-2d56b43a])
+  //
+  //   // return null for a given id if it does not exist
+  //   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
+  readByIds: Func { ids: List, checked: Bool, returns: Grid }
 
-// Read a list of ids as a stream of Dict records.
-// If checked if false, then records not found are skipped.
-// See `docHaxall::Streams#readByIdsStream`.
-readByIdsStream: Func { ids: List, checked: Bool, returns: Obj }
+  // Reall all records from the database which match the [filter]`docHaystack::Filters`.
+  // The filter must an expression which matches the filter structure.
+  // String values may parsed into a filter using `parseFilter` function.
+  //
+  // Options:
+  //   - 'limit': max number of recs to return
+  //   - 'sort': sort by display name
+  //
+  // Examples:
+  //   readAll(site)                      // read all site recs
+  //   readAll(equip and siteRef==@xyz)   // read all equip in a given site
+  //   readAll(equip, {limit:10})         // read up to ten equips
+  //   readAll(equip, {sort})             // read all equip sorted by dis
+  readAll: Func { filter: Filter, opts: Dict?, returns: Grid }
 
-// Reall all records which match filter as stream of Dict records.
-// See `docHaxall::Streams#readAllStream`.
-readAllStream: Func { filter: Filter, returns: Obj }
+  // Read a list of ids as a stream of Dict records.
+  // If checked if false, then records not found are skipped.
+  // See `docHaxall::Streams#readByIdsStream`.
+  readByIdsStream: Func { ids: List, checked: Bool, returns: Obj }
 
-// Return the intersection of all tag names used by all the records
-// matching the given filter.  The results are returned as a grid
-// with following columns:
-//   - 'name': string name of the tag
-//   - 'kind': all the different value kinds separated by "|"
-//   - 'count': total number of recs with the tag
-// Also see `readAllTagVals` and `gridColKinds`.
-//
-// Examples:
-//   // read statistics on all tags used by equip recs
-//   readAllTagNames(equip)
-readAllTagNames: Func { filter: Filter, returns: Grid }
+  // Reall all records which match filter as stream of Dict records.
+  // See `docHaxall::Streams#readAllStream`.
+  readAllStream: Func { filter: Filter, returns: Obj }
 
-// Return the range of all the values mapped to a given
-// tag name used by all the records matching the given filter.
-// This method is capped to 200 results.  The results are
-// returned as a grid with a single 'val' column.
-// Also see `readAllTagNames`.
-//
-// Examples:
-//   // read grid of all unique point unit tags
-//   readAllTagVals(point, "unit")
-readAllTagVals: Func { filter: Filter, tagName: Str, returns: Grid }
+  // Return the intersection of all tag names used by all the records
+  // matching the given filter.  The results are returned as a grid
+  // with following columns:
+  //   - 'name': string name of the tag
+  //   - 'kind': all the different value kinds separated by "|"
+  //   - 'count': total number of recs with the tag
+  // Also see `readAllTagVals` and `gridColKinds`.
+  //
+  // Examples:
+  //   // read statistics on all tags used by equip recs
+  //   readAllTagNames(equip)
+  readAllTagNames: Func { filter: Filter, returns: Grid }
 
-// Return the number of records which match the given filter expression.
-//
-// Examples:
-//   readCount(point)    // return number of recs with point tag
-readCount: Func { filter: Filter, returns: Number }
+  // Return the range of all the values mapped to a given
+  // tag name used by all the records matching the given filter.
+  // This method is capped to 200 results.  The results are
+  // returned as a grid with a single 'val' column.
+  // Also see `readAllTagNames`.
+  //
+  // Examples:
+  //   // read grid of all unique point unit tags
+  //   readAllTagVals(point, "unit")
+  readAllTagVals: Func { filter: Filter, tagName: Str, returns: Grid }
 
-//////////////////////////////////////////////////////////////////////////
-// Database Writes
-//////////////////////////////////////////////////////////////////////////
+  // Return the number of records which match the given filter expression.
+  //
+  // Examples:
+  //   readCount(point)    // return number of recs with point tag
+  readCount: Func { filter: Filter, returns: Number }
 
-// Construct a modification "diff" used by `commit`.  The orig should
-// be the instance which was read from the database, or it may be null
-// only if the add flag is passed.  Any tags to add/set/remove should
-// be included in the changes dict.
-//
-// The following flags are supported:
-//   - 'add': indicates diff is adding new record
-//   - 'remove': indicates diff is removing record (in general you
-//     should add `trash` tag instead of removing)
-//   - 'transient': indicate that this diff should not be flushed
-//     to persistent storage (it may or may not be persisted).
-//   - 'force': indicating that changes should be applied regardless
-//     of other concurrent changes which may be been applied after
-//     the orig version was read (use with caution!)
-//
-// Examples:
-//    // create new record
-//    diff(null, {dis:"New Rec", someMarker}, {add})
-//
-//    // create new record with explicit id like Diff.makeAdd
-//    diff(null, {id:151bd3c5-6ce3cb21, dis:"New Rec"}, {add})
-//
-//    // set/add dis tag and remove oldTag
-//    diff(orig, {dis:"New Dis", -oldTag})
-//
-//    // set/add val tag transiently
-//    diff(orig, {val:123}, {transient})
-diff: Func { orig: Dict?, changes: Dict?, flags: Dict?, returns: Obj }
+  //////////////////////////////////////////////////////////////////////////
+  // Database Writes
+  //////////////////////////////////////////////////////////////////////////
 
-// Commit one or more diffs to the folio database.
-// The argument may be one of the following:
-//   - result of `diff()`
-//   - list of `diff()` to commit multiple diffs at once
-//   - stream of `diff()`; see `docHaxall::Streams#commit`.
-//
-// If one diff is passed, return the new record.  If a list
-// of diffs is passed return a list of new records.
-//
-// This is a synchronous blocking call which will return
-// the new record or records as the result.
-//
-// Examples:
-//   // add new record
-//   newRec: commit(diff(null, {dis:"New Rec!"}, {add}))
-//
-//   // add someTag to some group of records
-//   readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
-commit: Func <admin> { diffs: Obj, returns: Obj? }
+  // Construct a modification "diff" used by `commit`.  The orig should
+  // be the instance which was read from the database, or it may be null
+  // only if the add flag is passed.  Any tags to add/set/remove should
+  // be included in the changes dict.
+  //
+  // The following flags are supported:
+  //   - 'add': indicates diff is adding new record
+  //   - 'remove': indicates diff is removing record (in general you
+  //     should add `trash` tag instead of removing)
+  //   - 'transient': indicate that this diff should not be flushed
+  //     to persistent storage (it may or may not be persisted).
+  //   - 'force': indicating that changes should be applied regardless
+  //     of other concurrent changes which may be been applied after
+  //     the orig version was read (use with caution!)
+  //
+  // Examples:
+  //    // create new record
+  //    diff(null, {dis:"New Rec", someMarker}, {add})
+  //
+  //    // create new record with explicit id like Diff.makeAdd
+  //    diff(null, {id:151bd3c5-6ce3cb21, dis:"New Rec"}, {add})
+  //
+  //    // set/add dis tag and remove oldTag
+  //    diff(orig, {dis:"New Dis", -oldTag})
+  //
+  //    // set/add val tag transiently
+  //    diff(orig, {val:123}, {transient})
+  diff: Func { orig: Dict?, changes: Dict?, flags: Dict?, returns: Obj }
 
-// Store a password key/val pair into current project's password
-// store.  The key is typically a Ref of the associated record.
-// If the 'val' is null, then the password will be removed.
-// See `docHaxall::Folio#passwords`.
-//
-// pre>
-// passwordSet(@abc-123, "password")
-// passwordSet(@abc-123, null)
-// <pre
-passwordSet: Func <admin> { key: Obj, val: Str?, returns: Obj? }
+  // Commit one or more diffs to the folio database.
+  // The argument may be one of the following:
+  //   - result of `diff()`
+  //   - list of `diff()` to commit multiple diffs at once
+  //   - stream of `diff()`; see `docHaxall::Streams#commit`.
+  //
+  // If one diff is passed, return the new record.  If a list
+  // of diffs is passed return a list of new records.
+  //
+  // This is a synchronous blocking call which will return
+  // the new record or records as the result.
+  //
+  // Examples:
+  //   // add new record
+  //   newRec: commit(diff(null, {dis:"New Rec!"}, {add}))
+  //
+  //   // add someTag to some group of records
+  //   readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
+  commit: Func <admin> { diffs: Obj, returns: Obj? }
 
-// Strip any tags which cannot be persistently committed to Folio.
-// This includes special tags such as 'hisSize' and any transient tags
-// the record has defined.  If 'val' is Dict, then a single Dict is returned.
-// Otherwise 'val' must be Dict[] or Grid and Dict[] is returned.
-// The 'mod' tag is stripped unless the '{mod}' option is specified.
-// The 'id' tag is not stripped for cases when adding records with
-// swizzled ids; pass '{-id}' in options to strip the 'id' tag also.
-//
-// Examples:
-//   // strip uncommittable tags and keep id
-//   toCommit: rec.stripUncommittable
-//
-//   // strip uncommittable tags and the id tag
-//   toCommit: rec.stripUncommittable({-id})
-//
-//   // strip uncommittable tags, but keep id and mod
-//   toCommit: rec.stripUncommittable({mod})
-stripUncommittable: Func { val: Obj, opts: Obj?, returns: Obj }
+  // Store a password key/val pair into current project's password
+  // store.  The key is typically a Ref of the associated record.
+  // If the 'val' is null, then the password will be removed.
+  // See `docHaxall::Folio#passwords`.
+  //
+  // pre>
+  // passwordSet(@abc-123, "password")
+  // passwordSet(@abc-123, null)
+  // <pre
+  passwordSet: Func <admin> { key: Obj, val: Str?, returns: Obj? }
 
-//////////////////////////////////////////////////////////////////////////
-// Coercion
-//////////////////////////////////////////////////////////////////////////
+  // Strip any tags which cannot be persistently committed to Folio.
+  // This includes special tags such as 'hisSize' and any transient tags
+  // the record has defined.  If 'val' is Dict, then a single Dict is returned.
+  // Otherwise 'val' must be Dict[] or Grid and Dict[] is returned.
+  // The 'mod' tag is stripped unless the '{mod}' option is specified.
+  // The 'id' tag is not stripped for cases when adding records with
+  // swizzled ids; pass '{-id}' in options to strip the 'id' tag also.
+  //
+  // Examples:
+  //   // strip uncommittable tags and keep id
+  //   toCommit: rec.stripUncommittable
+  //
+  //   // strip uncommittable tags and the id tag
+  //   toCommit: rec.stripUncommittable({-id})
+  //
+  //   // strip uncommittable tags, but keep id and mod
+  //   toCommit: rec.stripUncommittable({mod})
+  stripUncommittable: Func { val: Obj, opts: Obj?, returns: Obj }
 
-// Coerce a value to a Ref identifier:
-//   - Ref returns itself
-//   - Row or Dict, return 'id' tag
-//   - Grid return first row id
-toRecId: Func { val: Obj?, returns: Ref }
+  //////////////////////////////////////////////////////////////////////////
+  // Coercion
+  //////////////////////////////////////////////////////////////////////////
 
-// Coerce a value to a list of Ref identifiers:
-//   - Ref returns itself as list of one
-//   - Ref[] returns itself
-//   - Dict return 'id' tag
-//   - Dict[] return 'id' tags
-//   - Grid return 'id' column
-toRecIdList: Func { val: Obj?, returns: List }
+  // Coerce a value to a Ref identifier:
+  //   - Ref returns itself
+  //   - Row or Dict, return 'id' tag
+  //   - Grid return first row id
+  toRecId: Func { val: Obj?, returns: Ref }
 
-// Coerce a value to a record Dict:
-//   - Row or Dict returns itself
-//   - Grid returns first row
-//   - List returns first row (can be either Ref or Dict)
-//   - Ref will make a call to read database
-toRec: Func { val: Obj?, returns: Dict }
+  // Coerce a value to a list of Ref identifiers:
+  //   - Ref returns itself as list of one
+  //   - Ref[] returns itself
+  //   - Dict return 'id' tag
+  //   - Dict[] return 'id' tags
+  //   - Grid return 'id' column
+  toRecIdList: Func { val: Obj?, returns: List }
 
-// Coerce a value to a list of record Dicts:
-//   - null return empty list
-//   - Ref or Ref[] (will make a call to read database)
-//   - Row or Row[] returns itself
-//   - Dict or Dict[] returns itself
-//   - Grid is mapped to list of rows
-toRecList: Func { val: Obj?, returns: List }
+  // Coerce a value to a record Dict:
+  //   - Row or Dict returns itself
+  //   - Grid returns first row
+  //   - List returns first row (can be either Ref or Dict)
+  //   - Ref will make a call to read database
+  toRec: Func { val: Obj?, returns: Dict }
 
-//////////////////////////////////////////////////////////////////////////
-// Libs
-//////////////////////////////////////////////////////////////////////////
+  // Coerce a value to a list of record Dicts:
+  //   - null return empty list
+  //   - Ref or Ref[] (will make a call to read database)
+  //   - Row or Row[] returns itself
+  //   - Dict or Dict[] returns itself
+  //   - Grid is mapped to list of rows
+  toRecList: Func { val: Obj?, returns: List }
 
-// Return grid of runtime xeto libs and current status:
-//  - name: library dotted name string
-//  - libBasis: basis enumeration string
-//  - libStatus: status enumeration string
-//  - other cols subject to change
-libs: Func { opts: Dict?, returns: Grid }
+  //////////////////////////////////////////////////////////////////////////
+  // Libs
+  //////////////////////////////////////////////////////////////////////////
 
-// Reload all the xeto libraries in project
-libReload: Func <su> { returns: Obj? }
+  // Return grid of runtime xeto libs and current status:
+  //  - name: library dotted name string
+  //  - libBasis: basis enumeration string
+  //  - libStatus: status enumeration string
+  //  - other cols subject to change
+  libs: Func { opts: Dict?, returns: Grid }
 
-// Enable one or more Xeto libs by name:
-//   libAdd("ph.points")
-//   libAdd(["ph.points", "ph.equips"])
-libAdd: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
+  // Reload all the xeto libraries in project
+  libReload: Func <su> { returns: Obj? }
 
-// Disable or more Xeto libs by name:
-//   libRemove("ph.points")
-//   libRemove(["ph.points", "ph.equips"])
-libRemove: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
+  // Enable one or more Xeto libs by name:
+  //   libAdd("ph.points")
+  //   libAdd(["ph.points", "ph.equips"])
+  libAdd: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
 
-// Get the current project's lib namespace digest
-libDigest: Func <admin, nodoc> { returns: Str }
+  // Disable or more Xeto libs by name:
+  //   libRemove("ph.points")
+  //   libRemove(["ph.points", "ph.equips"])
+  libRemove: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
 
-//////////////////////////////////////////////////////////////////////////
-// Exts
-//////////////////////////////////////////////////////////////////////////
+  // Get the current project's lib namespace digest
+  libDigest: Func <admin, nodoc> { returns: Str }
 
-// Return grid of exts:
-//  - name: library dotted name string
-//  - libBasis: basis enumeration string
-//  - extStatus: status enumeration string
-//  - other cols subject to change
-exts: Func { opts: Dict?, returns: Grid }
+  //////////////////////////////////////////////////////////////////////////
+  // Exts
+  //////////////////////////////////////////////////////////////////////////
 
-// Report installed web routes as grid
-extWebRoutes: Func <nodoc> { returns: Grid }
+  // Return grid of exts:
+  //  - name: library dotted name string
+  //  - libBasis: basis enumeration string
+  //  - extStatus: status enumeration string
+  //  - other cols subject to change
+  exts: Func { opts: Dict?, returns: Grid }
 
-// Return ext settings dict for given dotted lib name
-extSettings: Func { name: Str, checked: Bool, returns: Dict }
+  // Report installed web routes as grid
+  extWebRoutes: Func <nodoc> { returns: Grid }
 
-// Update ext settings for given dotted lib name
-extSettingsUpdate: Func <admin> { name: Str, changes: Dict, returns: Dict }
+  // Return ext settings dict for given dotted lib name
+  extSettings: Func { name: Str, checked: Bool, returns: Dict }
 
-//////////////////////////////////////////////////////////////////////////
-// Companion
-//////////////////////////////////////////////////////////////////////////
+  // Update ext settings for given dotted lib name
+  extSettingsUpdate: Func <admin> { name: Str, changes: Dict, returns: Dict }
 
-// Read a companion spec or instance by name - see `hx::ProjCompanion.read`.
-// Examples:
-//   companionRead("MySpec")
-//   companionRead("my-instance")
-companionRead: Func <admin> { name: Str, checked: Bool, returns: Obj? }
+  //////////////////////////////////////////////////////////////////////////
+  // Companion
+  //////////////////////////////////////////////////////////////////////////
 
-// Add new spec or instance to companion lib - see `hx::ProjCompanion.add`.
-// Examples:
-//   companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
-//   companionParse("MySpec: Dict { dis: Str }").companionAdd
-companionAdd: Func <admin> { rec: Dict, returns: Obj? }
+  // Read a companion spec or instance by name - see `hx::ProjCompanion.read`.
+  // Examples:
+  //   companionRead("MySpec")
+  //   companionRead("my-instance")
+  companionRead: Func <admin> { name: Str, checked: Bool, returns: Obj? }
 
-// Update existing spec or instance in companion lib - see `hx::ProjCompanion.update`.
-// Examples:
-//   companionRead("MySpec").merge({base:@sys::Scalar}).companionUpdate
-//   companionRead("myFunc").merge({axon:"(x)=>x"}).companionUpdate
-companionUpdate: Func <admin> { rec: Dict, returns: Obj? }
+  // Add new spec or instance to companion lib - see `hx::ProjCompanion.add`.
+  // Examples:
+  //   companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
+  //   companionParse("MySpec: Dict { dis: Str }").companionAdd
+  companionAdd: Func <admin> { rec: Dict, returns: Obj? }
 
-// Rename spec or instance in companion lib - see `hx::ProjCompanion.rename`.
-// Examples:
-//   companionRename("OldSpec", "NewSpec")
-companionRename: Func <admin> { oldName: Str, newName: Str, returns: Obj? }
+  // Update existing spec or instance in companion lib - see `hx::ProjCompanion.update`.
+  // Examples:
+  //   companionRead("MySpec").merge({base:@sys::Scalar}).companionUpdate
+  //   companionRead("myFunc").merge({axon:"(x)=>x"}).companionUpdate
+  companionUpdate: Func <admin> { rec: Dict, returns: Obj? }
 
-// Remove a spec or instance from companion lib - see `hx::ProjCompanion.remove`.
-// Examples:
-//   companionRemove("MySpec")
-companionRemove: Func <admin> { name: Str, returns: Obj? }
+  // Rename spec or instance in companion lib - see `hx::ProjCompanion.rename`.
+  // Examples:
+  //   companionRename("OldSpec", "NewSpec")
+  companionRename: Func <admin> { oldName: Str, newName: Str, returns: Obj? }
 
-// Parse xeto source to its companion lib AST representation - see `hx::ProjCompanion.parse`.
-// Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
-// Examples:
-//   companionParse("MySpec: Dict { dis: Str }")
-//   companionParse("@my-instance: Dict {}")
-companionParse: Func { xeto: Str, returns: Dict }
+  // Remove a spec or instance from companion lib - see `hx::ProjCompanion.remove`.
+  // Examples:
+  //   companionRemove("MySpec")
+  companionRemove: Func <admin> { name: Str, returns: Obj? }
 
-// Create func companion lib AST representation - see `hx::ProjCompanion.func`.
-// Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
-// Examples:
-//   companionFunc("myFunc", "(a)=>a*2")
-//   companionFunc("myFunc", "(a)=>a*2", {admin})
-companionFunc: Func <admin> { name: Str, axon: Str, meta: Dict?, returns: Dict }
+  // Parse xeto source to its companion lib AST representation - see `hx::ProjCompanion.parse`.
+  // Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
+  // Examples:
+  //   companionParse("MySpec: Dict { dis: Str }")
+  //   companionParse("@my-instance: Dict {}")
+  companionParse: Func { xeto: Str, returns: Dict }
 
-// Print companion AST rec representation back a Xeto string - see `hx::ProjCompanion.print`.
-// Examples:
-//   companionRead("MySpec").companionPrint
-companionPrint: Func { rec: Dict, returns: Str }
+  // Create func companion lib AST representation - see `hx::ProjCompanion.func`.
+  // Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
+  // Examples:
+  //   companionFunc("myFunc", "(a)=>a*2")
+  //   companionFunc("myFunc", "(a)=>a*2", {admin})
+  companionFunc: Func <admin> { name: Str, axon: Str, meta: Dict?, returns: Dict }
 
-//////////////////////////////////////////////////////////////////////////
-// Watches
-//////////////////////////////////////////////////////////////////////////
+  // Print companion AST rec representation back a Xeto string - see `hx::ProjCompanion.print`.
+  // Examples:
+  //   companionRead("MySpec").companionPrint
+  companionPrint: Func { rec: Dict, returns: Str }
 
-// Return if given record is under at least one watch.
-// The rec argument can be any value accepted by `toRecId()`.
-isWatched: Func { rec: Obj, returns: Bool }
+  //////////////////////////////////////////////////////////////////////////
+  // Watches
+  //////////////////////////////////////////////////////////////////////////
 
-// Open a new watch on a grid of records.  The 'dis' parameter
-// is used for the watch's debug display string.  Update and return
-// the grid with a meta 'watchId' tag.  Also see `hx::HxWatchService.open`
-// and `docHaxall::Watches#axon`.
-//
-// Example:
-//   readAll(myPoints).watchOpen("MyApp|Points")
-watchOpen: Func { grid: Grid, dis: Str, returns: Grid }
+  // Return if given record is under at least one watch.
+  // The rec argument can be any value accepted by `toRecId()`.
+  isWatched: Func { rec: Obj, returns: Bool }
 
-// Poll an open watch and return all the records which have changed
-// since the last poll.  Raise exception if watchId doesn't exist
-// or has expired.  Also see `hx::HxWatch.poll` and `docHaxall::Watches#axon`.
-watchPoll: Func { watchId: Obj, returns: Grid }
+  // Open a new watch on a grid of records.  The 'dis' parameter
+  // is used for the watch's debug display string.  Update and return
+  // the grid with a meta 'watchId' tag.  Also see `hx::HxWatchService.open`
+  // and `docHaxall::Watches#axon`.
+  //
+  // Example:
+  //   readAll(myPoints).watchOpen("MyApp|Points")
+  watchOpen: Func { grid: Grid, dis: Str, returns: Grid }
 
-// Add a grid of recs to an existing watch and return the grid passed in.
-watchAdd: Func { watchId: Str, grid: Grid, returns: Grid }
+  // Poll an open watch and return all the records which have changed
+  // since the last poll.  Raise exception if watchId doesn't exist
+  // or has expired.  Also see `hx::HxWatch.poll` and `docHaxall::Watches#axon`.
+  watchPoll: Func { watchId: Obj, returns: Grid }
 
-// Remove a grid of recs from an existing watch and return grid passed in.
-watchRemove: Func { watchId: Str, grid: Grid, returns: Grid }
+  // Add a grid of recs to an existing watch and return the grid passed in.
+  watchAdd: Func { watchId: Str, grid: Grid, returns: Grid }
 
-// Close an open watch by id.  If the watch does not exist or
-// has expired then this is a no op.  Also see `hx::HxWatch.close`
-// and `docHaxall::Watches#axon`.
-watchClose: Func { watchId: Str, returns: Obj? }
+  // Remove a grid of recs from an existing watch and return grid passed in.
+  watchRemove: Func { watchId: Str, grid: Grid, returns: Grid }
 
-//////////////////////////////////////////////////////////////////////////
-// Observables
-//////////////////////////////////////////////////////////////////////////
+  // Close an open watch by id.  If the watch does not exist or
+  // has expired then this is a no op.  Also see `hx::HxWatch.close`
+  // and `docHaxall::Watches#axon`.
+  watchClose: Func { watchId: Str, returns: Obj? }
 
-observables: Func <nodoc, admin> { returns: Grid }
+  //////////////////////////////////////////////////////////////////////////
+  // Observables
+  //////////////////////////////////////////////////////////////////////////
 
-subscriptions: Func <nodoc, admin> { returns: Grid }
+  observables: Func <nodoc, admin> { returns: Grid }
 
-//////////////////////////////////////////////////////////////////////////
-// Misc
-//////////////////////////////////////////////////////////////////////////
+  subscriptions: Func <nodoc, admin> { returns: Grid }
 
-// Return `hx::Proj.isSteadyState`
-isSteadyState: Func { returns: Bool }
+  //////////////////////////////////////////////////////////////////////////
+  // Misc
+  //////////////////////////////////////////////////////////////////////////
 
-// Return [about]`op:about` dict
-about: Func <nodoc>  { returns: Dict }
+  // Return `hx::Proj.isSteadyState`
+  isSteadyState: Func { returns: Bool }
 
-// Return SysInfo debug
-sysInfo: Func <nodoc> { returns: Dict }
+  // Return [about]`op:about` dict
+  about: Func <nodoc>  { returns: Dict }
 
-// Return SysConfig debug
-sysConfig: Func <nodoc> { returns: Dict }
+  // Return SysInfo debug
+  sysInfo: Func <nodoc> { returns: Dict }
 
-// Get the current context as a Dict with the following tags:
-//   - 'username' for current user
-//   - 'userRef' id for current user
-//   - 'locale' current locale
-//
-// SkySpark tags:
-//   - 'projName' if evaluating in context of a project
-//   - 'nodeId' local cluster node id
-//   - 'ruleRef' if evaluating in context of a rule engine
-//   - 'ruleTuning' if evaluating in context of rule engine
-context: Func { returns: Dict }
+  // Return SysConfig debug
+  sysConfig: Func <nodoc> { returns: Dict }
 
-// Return list of installed Fantom pods
-pods: Func <admin> { returns: Grid }
+  // Get the current context as a Dict with the following tags:
+  //   - 'username' for current user
+  //   - 'userRef' id for current user
+  //   - 'locale' current locale
+  //
+  // SkySpark tags:
+  //   - 'projName' if evaluating in context of a project
+  //   - 'nodeId' local cluster node id
+  //   - 'ruleRef' if evaluating in context of a rule engine
+  //   - 'ruleTuning' if evaluating in context of rule engine
+  context: Func { returns: Dict }
 
-// Return the installed timezone database as Grid with following columns:
-//   - name: name of the timezone
-//   - fullName: qualified name used by Olson database
-tzdb: Func { returns: Grid }
+  // Return list of installed Fantom pods
+  pods: Func <admin> { returns: Grid }
 
-// Return the installed unit database as Grid with following columns:
-//   - quantity: dimension of the unit
-//   - name: full name of the unit
-//   - symbol: the abbreviated Unicode name of the unit
-unitdb: Func { returns: Grid }
+  // Return the installed timezone database as Grid with following columns:
+  //   - name: name of the timezone
+  //   - fullName: qualified name used by Olson database
+  tzdb: Func { returns: Grid }
 
-// Debug dump of all threads
-threadDump: Func <nodoc, su> { returns: Str }
+  // Return the installed unit database as Grid with following columns:
+  //   - quantity: dimension of the unit
+  //   - name: full name of the unit
+  //   - symbol: the abbreviated Unicode name of the unit
+  unitdb: Func { returns: Grid }
 
+  // Debug dump of all threads
+  threadDump: Func <nodoc, su> { returns: Str }
+
+}

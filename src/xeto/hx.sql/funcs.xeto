@@ -6,50 +6,53 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// Deprecated - use `connPing()`
-sqlPing: Func <admin, deprecated> { conn: Obj, returns: Future }
++Funcs {
 
-// Deprecated - use `connSyncHis()`
-sqlSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
+  // Deprecated - use `connPing()`
+  sqlPing: Func <admin, deprecated> { conn: Obj, returns: Future }
 
-// Return plain text report on JDBC drivers installed.
-sqlDebugDrivers: Func <admin> { returns: Str }
+  // Deprecated - use `connSyncHis()`
+  sqlSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
 
-// Query the tables defined for the database.
-// Return a grid with the 'name' column.
-//
-// Examples:
-//   read(sqlConn).sqlTables
-//   sqlTables(sqlConnId)
-sqlTables: Func <admin> { conn: Obj, returns: Grid }
+  // Return plain text report on JDBC drivers installed.
+  sqlDebugDrivers: Func <admin> { returns: Str }
 
-// Execute a SQL query and return the result as a grid.
-// Blob columns under 10K are returned as base64.
-//
-// Examples:
-//   read(sqlConn).sqlQuery("select * from some_table")
-//   sqlQuery(sqlConnId, "select * from some_table")
-//
-// WARNING: any admin user will have full access to query the
-// database based on the user account configured by the sqlConn.
-sqlQuery: Func <admin> { conn: Obj, sql: Str, returns: Grid }
+  // Query the tables defined for the database.
+  // Return a grid with the 'name' column.
+  //
+  // Examples:
+  //   read(sqlConn).sqlTables
+  //   sqlTables(sqlConnId)
+  sqlTables: Func <admin> { conn: Obj, returns: Grid }
 
-// Execute a SQL statement and if applicable return a result.
-// If the statement produced auto-generated keys, then return
-// an list of the keys generated, otherwise return number of
-// rows modified.
-//
-// WARNING: any admin user will have full access to update the
-// database based on the user account configured by the sqlConn.
-sqlExecute: Func <admin> { conn: Obj, sql: Str, returns: Obj? }
+  // Execute a SQL query and return the result as a grid.
+  // Blob columns under 10K are returned as base64.
+  //
+  // Examples:
+  //   read(sqlConn).sqlQuery("select * from some_table")
+  //   sqlQuery(sqlConnId, "select * from some_table")
+  //
+  // WARNING: any admin user will have full access to query the
+  // database based on the user account configured by the sqlConn.
+  sqlQuery: Func <admin> { conn: Obj, sql: Str, returns: Grid }
 
-// Insert a record or grid of records into the given table.
-// If data is a dict, thena single row is inserted.  If data
-// is a grid or list of dicts, then each row is inserted.  The data's
-// column names must match the table's columns.  If the data has a
-// tag/column not found in the table then it is ignored.
-//
-// WARNING: any admin user will have full access to update the
-// database based on the user account configured by the sqlConn.
-sqlInsert: Func <admin> { data: Obj?, conn: Obj, table: Str, returns: Obj? }
+  // Execute a SQL statement and if applicable return a result.
+  // If the statement produced auto-generated keys, then return
+  // an list of the keys generated, otherwise return number of
+  // rows modified.
+  //
+  // WARNING: any admin user will have full access to update the
+  // database based on the user account configured by the sqlConn.
+  sqlExecute: Func <admin> { conn: Obj, sql: Str, returns: Obj? }
 
+  // Insert a record or grid of records into the given table.
+  // If data is a dict, thena single row is inserted.  If data
+  // is a grid or list of dicts, then each row is inserted.  The data's
+  // column names must match the table's columns.  If the data has a
+  // tag/column not found in the table then it is ignored.
+  //
+  // WARNING: any admin user will have full access to update the
+  // database based on the user account configured by the sqlConn.
+  sqlInsert: Func <admin> { data: Obj?, conn: Obj, table: Str, returns: Obj? }
+
+}

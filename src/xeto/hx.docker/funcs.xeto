@@ -6,12 +6,15 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-dockerListImages: Func <admin> { returns: Grid }
++Funcs {
 
-dockerListContainers: Func <admin> { returns: Grid }
+  dockerListImages: Func <admin> { returns: Grid }
 
-// Kill and remove a container.
-dockerDeleteContainer: Func <admin> { id: Obj, returns: Dict }
+  dockerListContainers: Func <admin> { returns: Grid }
 
-dockerRun: Func <admin> { image: Str, config: Obj, returns: Str }
+  // Kill and remove a container.
+  dockerDeleteContainer: Func <admin> { id: Obj, returns: Dict }
 
+  dockerRun: Func <admin> { image: Str, config: Obj, returns: Str }
+
+}

@@ -6,6 +6,9 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// List serial ports available and current status
-platformSerialPorts: Func <admin> { returns: Grid }
++Funcs {
 
+  // List serial ports available and current status
+  platformSerialPorts: Func <admin> { returns: Grid }
+
+}

@@ -6,5 +6,8 @@
 //   24 Jul 2025  Brian Frank  Garden City Beach
 //
 
-testIncrement: Func <axon:"(x)=>x+1"> { int: Number, returns: Number }
++Funcs {
 
+  testIncrement: Func <axon:"(x)=>x+1"> { int: Number, returns: Number }
+
+}

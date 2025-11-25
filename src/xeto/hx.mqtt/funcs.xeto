@@ -6,21 +6,24 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// Publish an MQTT message to the given topic on the broker. Currently, the payload
-// of the message must be a Str.
-//
-// The following configuration options are supported:
-// - 'mqttQos': The quality-of-service to use for publishing the message. If not
-// specified, then QoS '0' is used. See `mqttQos`.
-// - 'mqttRetain': Should the message be retained on the broker ('true' | 'false').
-// If not specified, then 'false' is used. See `mqttRetain`.
-// - 'mqttExpiryInterval': Sets the expiry interval for the message as a Duration.
-// This is only supported in MQTT 5.
-// - 'mqttUserProps': A Dict of user properties to include in the message.
-// This is only supported in MQTT 5.
-//
-// pre>
-// read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min, mqttUserProps: {key: "value"}})
-// <pre
-mqttPublish: Func <admin> { conn: Obj, topic: Str, payload: Obj, cfg: Dict, returns: Obj? }
++Funcs {
 
+  // Publish an MQTT message to the given topic on the broker. Currently, the payload
+  // of the message must be a Str.
+  //
+  // The following configuration options are supported:
+  // - 'mqttQos': The quality-of-service to use for publishing the message. If not
+  // specified, then QoS '0' is used. See `mqttQos`.
+  // - 'mqttRetain': Should the message be retained on the broker ('true' | 'false').
+  // If not specified, then 'false' is used. See `mqttRetain`.
+  // - 'mqttExpiryInterval': Sets the expiry interval for the message as a Duration.
+  // This is only supported in MQTT 5.
+  // - 'mqttUserProps': A Dict of user properties to include in the message.
+  // This is only supported in MQTT 5.
+  //
+  // pre>
+  // read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min, mqttUserProps: {key: "value"}})
+  // <pre
+  mqttPublish: Func <admin> { conn: Obj, topic: Str, payload: Obj, cfg: Dict, returns: Obj? }
+
+}

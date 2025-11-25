@@ -6,218 +6,221 @@
 //   5 Aug 2025  Brian Frank  Creation
 //
 
-// Asynchronously ping energy star connector to verify connectivity
-// and account credentials.
-energyStarPing: Func <admin> { conn: Obj, returns: Obj? }
++Funcs {
 
-// Read properties as grid with following columns:
-//   - 'id': energy star property id str
-//   - 'dis': display name of the property
-//
-// By default this returns the properties associated with the
-// connector's accountId.  However if the connector defines the
-// `energyStarCustomerIds` tag, then those account ids are
-// used to populate the property list.
-energyStarPropertyList: Func { conn: Obj?, returns: Grid }
+  // Asynchronously ping energy star connector to verify connectivity
+  // and account credentials.
+  energyStarPing: Func <admin> { conn: Obj, returns: Obj? }
 
-// Read the given property and return as Dict.
-// See `doc#siteMapping`.
-energyStarPropertyRead: Func { conn: Obj?, propertyId: Str, returns: Dict }
+  // Read properties as grid with following columns:
+  //   - 'id': energy star property id str
+  //   - 'dis': display name of the property
+  //
+  // By default this returns the properties associated with the
+  // connector's accountId.  However if the connector defines the
+  // `energyStarCustomerIds` tag, then those account ids are
+  // used to populate the property list.
+  energyStarPropertyList: Func { conn: Obj?, returns: Grid }
 
-// Read a list of metrics for a specific property.  The month to be
-// should be passed as month literal 'YYYY-MM' or any Date in that month.
-// The metrics to be read as passed as Dict or markers and returned as
-// a Dict with the resulting values.  If the metric is not available, then
-// it is not included in the resulting Dict.
-//
-// For list of metrics to query see
-// [EnergyStar Docs]`http://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetrics/get`.
-//
-// Example:
-//   energyStarPropertyMetrics(conn, "123", 2013-01, {score})  >>>  {score: 67}
-energyStarPropertyMetrics: Func { conn: Obj?, propertyId: Str, month: Obj?, metrics: Dict, returns: Dict }
+  // Read the given property and return as Dict.
+  // See `doc#siteMapping`.
+  energyStarPropertyRead: Func { conn: Obj?, propertyId: Str, returns: Dict }
 
-// Create or update a property in Portfolio Manager from a local site record.
-// If the rec has `energyStarSite` tag then it is the property id to update.
-// Otherwise a new property is created under the connector's account
-// and the `energyStarSite` tag is added to the site record.
-// See `doc#siteMapping`.
-energyStarPropertyPush: Func <admin> { conn: Obj?, site: Obj, returns: Obj? }
+  // Read a list of metrics for a specific property.  The month to be
+  // should be passed as month literal 'YYYY-MM' or any Date in that month.
+  // The metrics to be read as passed as Dict or markers and returned as
+  // a Dict with the resulting values.  If the metric is not available, then
+  // it is not included in the resulting Dict.
+  //
+  // For list of metrics to query see
+  // [EnergyStar Docs]`http://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetrics/get`.
+  //
+  // Example:
+  //   energyStarPropertyMetrics(conn, "123", 2013-01, {score})  >>>  {score: 67}
+  energyStarPropertyMetrics: Func { conn: Obj?, propertyId: Str, month: Obj?, metrics: Dict, returns: Dict }
 
-// Create or update a local site record from a property in Portfolio Manager.
-// If an existing rec has `energyStarSite` tag then it is the site to update.
-// Otherwise create a new site record.  Note if there is navigation recs
-// above the site level, then you must manually add the appropiate ref tags.
-// If creating a new record, not all the tags may be get automatically created,
-// so check the record in the BuilderApp.
-// See `doc#siteMapping`.
-energyStarPropertyPull: Func <admin> { conn: Obj?, propertyId: Str, returns: Obj? }
+  // Create or update a property in Portfolio Manager from a local site record.
+  // If the rec has `energyStarSite` tag then it is the property id to update.
+  // Otherwise a new property is created under the connector's account
+  // and the `energyStarSite` tag is added to the site record.
+  // See `doc#siteMapping`.
+  energyStarPropertyPush: Func <admin> { conn: Obj?, site: Obj, returns: Obj? }
 
-// Delete the property identified by the given property id string from
-// the energy star Portfolio Manager.
-//
-// Any site recs with matching 'energyStarSite' value also have have
-// that tag removed.
-energyStarPropertyDelete: Func <admin> { conn: Obj?, propertyId: Str, returns: Obj? }
+  // Create or update a local site record from a property in Portfolio Manager.
+  // If an existing rec has `energyStarSite` tag then it is the site to update.
+  // Otherwise create a new site record.  Note if there is navigation recs
+  // above the site level, then you must manually add the appropiate ref tags.
+  // If creating a new record, not all the tags may be get automatically created,
+  // so check the record in the BuilderApp.
+  // See `doc#siteMapping`.
+  energyStarPropertyPull: Func <admin> { conn: Obj?, propertyId: Str, returns: Obj? }
 
-// Read list of customers that you are connected with as grid
-// with following columns:
-//   - 'id': energy star customer id str
-//   - 'dis': display name of the customer
-energyStarCustomerList: Func { conn: Obj?, returns: Grid }
+  // Delete the property identified by the given property id string from
+  // the energy star Portfolio Manager.
+  //
+  // Any site recs with matching 'energyStarSite' value also have have
+  // that tag removed.
+  energyStarPropertyDelete: Func <admin> { conn: Obj?, propertyId: Str, returns: Obj? }
 
-// Read meters for given property as grid with following columns:
-//   - 'id': energy star meter id str
-//   - 'dis': display name of the meter
-//   - 'association': meter/property association formatted
-//     as "meter: representation" such as "energyMeter: Whole Property".
-//     If this cell is null, then an association has not been made yet.
-energyStarMeterList: Func { conn: Obj?, propertyId: Str, returns: Grid }
+  // Read list of customers that you are connected with as grid
+  // with following columns:
+  //   - 'id': energy star customer id str
+  //   - 'dis': display name of the customer
+  energyStarCustomerList: Func { conn: Obj?, returns: Grid }
 
-// Read the given meter and return as Dict.
-// See `doc#meterMapping`.
-energyStarMeterRead: Func { conn: Obj?, meterId: Str, returns: Dict }
+  // Read meters for given property as grid with following columns:
+  //   - 'id': energy star meter id str
+  //   - 'dis': display name of the meter
+  //   - 'association': meter/property association formatted
+  //     as "meter: representation" such as "energyMeter: Whole Property".
+  //     If this cell is null, then an association has not been made yet.
+  energyStarMeterList: Func { conn: Obj?, propertyId: Str, returns: Grid }
 
-// Create or update a meter in Portfolio Manager from a local meter point record.
-// If the rec has `energyStarMeter` tag then it is the meter id to update.
-// Otherwise create a new meter and add `energyStarMeter` tag to the site record.
-// See `doc#meterMapping`.
-energyStarMeterPush: Func <admin> { conn: Obj?, point: Obj, returns: Obj? }
+  // Read the given meter and return as Dict.
+  // See `doc#meterMapping`.
+  energyStarMeterRead: Func { conn: Obj?, meterId: Str, returns: Dict }
 
-// Create or update a local meter point record from a meter in Portfolio Manager.
-// If an existing rec has `energyStarMeter` tag then it is the point to update.
-// If the point has to be created, then it is always placed under the main
-// electrict meter queried by 'elecMeter and siteMeter'.  Or if a main meter is
-// not found, one is automatically created.  The point many not have all its tags
-// automatically created, so check the record in the BuilderApp.
-// See `doc#meterMapping`.
-energyStarMeterPull: Func <admin> { conn: Obj?, site: Obj, meterId: Str, returns: Obj? }
+  // Create or update a meter in Portfolio Manager from a local meter point record.
+  // If the rec has `energyStarMeter` tag then it is the meter id to update.
+  // Otherwise create a new meter and add `energyStarMeter` tag to the site record.
+  // See `doc#meterMapping`.
+  energyStarMeterPush: Func <admin> { conn: Obj?, point: Obj, returns: Obj? }
 
-// Delete the meter identified by the given meter id string from
-// the energy star Portfolio Manager.
-//
-// Any recs with matching 'energyStarMeter' value also have have
-// that tag removed.
-energyStarMeterDelete: Func <admin> { conn: Obj?, meterId: Str, returns: Obj? }
+  // Create or update a local meter point record from a meter in Portfolio Manager.
+  // If an existing rec has `energyStarMeter` tag then it is the point to update.
+  // If the point has to be created, then it is always placed under the main
+  // electrict meter queried by 'elecMeter and siteMeter'.  Or if a main meter is
+  // not found, one is automatically created.  The point many not have all its tags
+  // automatically created, so check the record in the BuilderApp.
+  // See `doc#meterMapping`.
+  energyStarMeterPull: Func <admin> { conn: Obj?, site: Obj, meterId: Str, returns: Obj? }
 
-// This function recreates the list of property/meter associations in
-// Energy Star.  The site must be an id or record for a site which has
-// been mapped to Energy Star with an `energyStarSite` tag.  Associations
-// are created for every meter point within the site which has been
-// mapped with the `energyStarMeter` tag.  All associations are currently
-// mapped as "Whole Property'.  See `doc#associations`.
-energyStarPropertyAssociationsPush: Func { conn: Obj?, site: Obj, returns: Obj }
+  // Delete the meter identified by the given meter id string from
+  // the energy star Portfolio Manager.
+  //
+  // Any recs with matching 'energyStarMeter' value also have have
+  // that tag removed.
+  energyStarMeterDelete: Func <admin> { conn: Obj?, meterId: Str, returns: Obj? }
 
-// Read consumption data for given meter.  Return grid with cols:
-//   - id: Str identifier for the consumption data item
-//   - startDate: first Date of consumption
-//   - endDate: last Date of consumption
-//   - usage: Number for usage of date range
-//   - recownership (optional): If present, the Str REC ownership status.
-//   - energyExportedOffSite (optional): If present, the Number for the
-//     amount of energy exported off site.
-//
-// It is expected for the EnergyStar web service to give us pages of
-// data from newest dates down to oldest dates.  We continue to read
-// pages of data until no data is left or we hit our limit for rows of
-// usage data.
-energyStarUsageRead: Func { conn: Obj?, meterId: Str, limit: Number?, returns: Grid }
+  // This function recreates the list of property/meter associations in
+  // Energy Star.  The site must be an id or record for a site which has
+  // been mapped to Energy Star with an `energyStarSite` tag.  Associations
+  // are created for every meter point within the site which has been
+  // mapped with the `energyStarMeter` tag.  All associations are currently
+  // mapped as "Whole Property'.  See `doc#associations`.
+  energyStarPropertyAssociationsPush: Func { conn: Obj?, site: Obj, returns: Obj }
 
-// Write consumption data to portfolio manager for given meter.
-// The usage must be grid with cols:
-//   - startDate: first Date of consumption
-//   - endDate: last Date of consumption (or if missing, startDate is assumed)
-//   - usage: Number for usage of date range
-//   - cost: (optional) Number for cost of usage
-//   - estimatedValue: (optional) Marker or Bool indicating if the value is estimated.
-energyStarUsageWrite: Func <admin> { conn: Obj?, meterId: Str, usage: Grid, returns: Obj? }
+  // Read consumption data for given meter.  Return grid with cols:
+  //   - id: Str identifier for the consumption data item
+  //   - startDate: first Date of consumption
+  //   - endDate: last Date of consumption
+  //   - usage: Number for usage of date range
+  //   - recownership (optional): If present, the Str REC ownership status.
+  //   - energyExportedOffSite (optional): If present, the Number for the
+  //     amount of energy exported off site.
+  //
+  // It is expected for the EnergyStar web service to give us pages of
+  // data from newest dates down to oldest dates.  We continue to read
+  // pages of data until no data is left or we hit our limit for rows of
+  // usage data.
+  energyStarUsageRead: Func { conn: Obj?, meterId: Str, limit: Number?, returns: Grid }
 
-// Delete the given usage item from portfolio manager
-energyStarUsageDelete: Func <admin> { conn: Obj?, consumptionDataId: Str, returns: Obj? }
+  // Write consumption data to portfolio manager for given meter.
+  // The usage must be grid with cols:
+  //   - startDate: first Date of consumption
+  //   - endDate: last Date of consumption (or if missing, startDate is assumed)
+  //   - usage: Number for usage of date range
+  //   - cost: (optional) Number for cost of usage
+  //   - estimatedValue: (optional) Marker or Bool indicating if the value is estimated.
+  energyStarUsageWrite: Func <admin> { conn: Obj?, meterId: Str, usage: Grid, returns: Obj? }
 
-// Write onsite green power renewable details.
-// See `https://portfoliomanager.energystar.gov/webservices/home/api/meter/onsite/post`
-// for details on this API request.
-//   - 'meterId': The meter id of the meter to write details for
-//   - 'detail': A Dict containing the details to write. The structure of this
-//   Dict must adhere to the 'onsiteRenewableDetail.xsd' schema specified by
-//   the API in the link above. It is your responsibility to construct a details
-//   that meets the semantic constraints of the api - this func does constraint
-//   checking.
-//
-// pre>
-// detail: {currentAsOf: 2024-12-06, energyUsedOnsite: {recOwnership: "Owned"}, energyExportedToGrid: {recOwnership: "Owned"}}
-// energyStarOnsiteRenewableDetailWrite(conn, meterId, detail)
-// <pre
-energyStarOnsiteRenewableDetailWrite: Func <admin> { conn: Obj?, meterId: Str, detail: Dict, returns: Obj? }
+  // Delete the given usage item from portfolio manager
+  energyStarUsageDelete: Func <admin> { conn: Obj?, consumptionDataId: Str, returns: Obj? }
 
-// Pull energy star usage into the given mapped meter points history.
-// The proxies may be any set of points
-// accepted by `toRecList`.
-//
-// Each point is required:
-//   - define `energyStarConnRef` tag for connector to use
-//   - define `energyStarMeter` for which meter it is mapped to
-//   - must be a point with historized consumption values
-//   - point's site must define `energyStarSite` tag
-//
-// The EnergyStar usage must provide daily values which are mapped
-// to midnight of the starting date.
-energyStarHisPull: Func <admin> { proxies: Obj, range: Obj?, returns: Obj? }
+  // Write onsite green power renewable details.
+  // See `https://portfoliomanager.energystar.gov/webservices/home/api/meter/onsite/post`
+  // for details on this API request.
+  //   - 'meterId': The meter id of the meter to write details for
+  //   - 'detail': A Dict containing the details to write. The structure of this
+  //   Dict must adhere to the 'onsiteRenewableDetail.xsd' schema specified by
+  //   the API in the link above. It is your responsibility to construct a details
+  //   that meets the semantic constraints of the api - this func does constraint
+  //   checking.
+  //
+  // pre>
+  // detail: {currentAsOf: 2024-12-06, energyUsedOnsite: {recOwnership: "Owned"}, energyExportedToGrid: {recOwnership: "Owned"}}
+  // energyStarOnsiteRenewableDetailWrite(conn, meterId, detail)
+  // <pre
+  energyStarOnsiteRenewableDetailWrite: Func <admin> { conn: Obj?, meterId: Str, detail: Dict, returns: Obj? }
 
-// Push the daily rollup consumption of mapped meter points to
-// portfolio manager.  The proxies may be any set of points
-// accepted by `toRecList`.
-//
-// Each point is required:
-//   - define `energyStarConnRef` tag for connector to use
-//   - define `energyStarMeter` for which meter it is mapped to
-//   - must be a point with historized consumption values
-//   - point's site must define `energyStarSite` tag
-//
-// If the range is null, then we perform a read using `energyStarUsageRead`
-// to find the last endDate written.  Then we assume a range of endDate+1day
-// to yesterday.  This guarantees that we are only pushing newer data to
-// portfolio manager.
-//
-// The usage to push is calcualted by perform a daily rollup on the history
-// using the `sum` function:
-//
-//   read(proxy).hisRead(range).hisClip.hisRollup(sum, 1day)
-energyStarHisPush: Func <admin> { proxies: Obj, range: Obj?, returns: Obj? }
+  // Pull energy star usage into the given mapped meter points history.
+  // The proxies may be any set of points
+  // accepted by `toRecList`.
+  //
+  // Each point is required:
+  //   - define `energyStarConnRef` tag for connector to use
+  //   - define `energyStarMeter` for which meter it is mapped to
+  //   - must be a point with historized consumption values
+  //   - point's site must define `energyStarSite` tag
+  //
+  // The EnergyStar usage must provide daily values which are mapped
+  // to midnight of the starting date.
+  energyStarHisPull: Func <admin> { proxies: Obj, range: Obj?, returns: Obj? }
 
-// Create an account from Dict with following tags:
-//   - 'username'
-//   - 'password'
-//   - 'firstName'
-//   - 'lastName'
-//   - 'email'
-//   - 'org'
-//
-// Return new account id
-energyStarCreateAccount: Func <nodoc> { info: Dict, returns: Str }
+  // Push the daily rollup consumption of mapped meter points to
+  // portfolio manager.  The proxies may be any set of points
+  // accepted by `toRecList`.
+  //
+  // Each point is required:
+  //   - define `energyStarConnRef` tag for connector to use
+  //   - define `energyStarMeter` for which meter it is mapped to
+  //   - must be a point with historized consumption values
+  //   - point's site must define `energyStarSite` tag
+  //
+  // If the range is null, then we perform a read using `energyStarUsageRead`
+  // to find the last endDate written.  Then we assume a range of endDate+1day
+  // to yesterday.  This guarantees that we are only pushing newer data to
+  // portfolio manager.
+  //
+  // The usage to push is calcualted by perform a daily rollup on the history
+  // using the `sum` function:
+  //
+  //   read(proxy).hisRead(range).hisClip.hisRollup(sum, 1day)
+  energyStarHisPush: Func <admin> { proxies: Obj, range: Obj?, returns: Obj? }
 
-energyStarAppPropertiesList: Func <nodoc> { returns: Grid }
+  // Create an account from Dict with following tags:
+  //   - 'username'
+  //   - 'password'
+  //   - 'firstName'
+  //   - 'lastName'
+  //   - 'email'
+  //   - 'org'
+  //
+  // Return new account id
+  energyStarCreateAccount: Func <nodoc> { info: Dict, returns: Str }
 
-energyStarAppPropertiesDetails: Func <nodoc> { siteArg: Obj?, returns: Grid }
+  energyStarAppPropertiesList: Func <nodoc> { returns: Grid }
 
-energyStarAppPropertyPush: Func <nodoc, admin> { siteArg: Obj?, returns: Obj? }
+  energyStarAppPropertiesDetails: Func <nodoc> { siteArg: Obj?, returns: Grid }
 
-energyStarAppPropertyPull: Func <nodoc, admin> { siteArg: Obj?, returns: Obj? }
+  energyStarAppPropertyPush: Func <nodoc, admin> { siteArg: Obj?, returns: Obj? }
 
-energyStarAppPropertyDelete: Func <nodoc, admin> { siteArg: Obj?, returns: Obj? }
+  energyStarAppPropertyPull: Func <nodoc, admin> { siteArg: Obj?, returns: Obj? }
 
-energyStarAppMetersSites: Func <nodoc> { returns: Grid }
+  energyStarAppPropertyDelete: Func <nodoc, admin> { siteArg: Obj?, returns: Obj? }
 
-energyStarAppMetersInSite: Func <nodoc> { siteId: Ref, returns: Grid }
+  energyStarAppMetersSites: Func <nodoc> { returns: Grid }
 
-energyStarAppMeterDetails: Func <nodoc> { pointArg: Obj?, returns: Grid }
+  energyStarAppMetersInSite: Func <nodoc> { siteId: Ref, returns: Grid }
 
-energyStarAppMeterPush: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
+  energyStarAppMeterDetails: Func <nodoc> { pointArg: Obj?, returns: Grid }
 
-energyStarAppMeterAssoc: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
+  energyStarAppMeterPush: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
 
-energyStarAppMeterPull: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
+  energyStarAppMeterAssoc: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
 
-energyStarAppMeterDelete: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
+  energyStarAppMeterPull: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
 
+  energyStarAppMeterDelete: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
+
+}

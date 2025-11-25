@@ -6,34 +6,37 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// Deprecated - use `connPing()`
-sedonaPing: Func <admin, deprecated> { conn: Obj, returns: Future }
++Funcs {
 
-// Deprecated - use `connSyncCur()`
-sedonaSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
+  // Deprecated - use `connPing()`
+  sedonaPing: Func <admin, deprecated> { conn: Obj, returns: Future }
 
-// Deprecated - use `connLearn()`
-sedonaLearn: Func <nodoc, admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
+  // Deprecated - use `connSyncCur()`
+  sedonaSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
 
-// Synchronously read the current state of the component
-// identified by the given component identifier.
-sedonaReadComp: Func <admin> { conn: Obj, compId: Number, returns: Obj? }
+  // Deprecated - use `connLearn()`
+  sedonaLearn: Func <nodoc, admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
 
-// Synchronously write a property
-sedonaWrite: Func <admin> { conn: Obj, addr: Str, val: Obj?, returns: Obj? }
+  // Synchronously read the current state of the component
+  // identified by the given component identifier.
+  sedonaReadComp: Func <admin> { conn: Obj, compId: Number, returns: Obj? }
 
-// Discover function for sedona.
-sedonaDiscover: Func <nodoc, admin> { returns: Grid }
+  // Synchronously write a property
+  sedonaWrite: Func <admin> { conn: Obj, addr: Str, val: Obj?, returns: Obj? }
 
-// List installed kit manifests
-sedonaKitManifests: Func <nodoc, admin> { returns: Grid }
+  // Discover function for sedona.
+  sedonaDiscover: Func <nodoc, admin> { returns: Grid }
 
-// Upload kit manifests as list of URIs to io/upload/ directory
-sedonaKitManifestUpload: Func <nodoc, admin> { uris: List, returns: Obj? }
+  // List installed kit manifests
+  sedonaKitManifests: Func <nodoc, admin> { returns: Grid }
 
-// Display kit manifest file
-sedonaKitManifestView: Func <nodoc, admin> { id: Obj, returns: Grid }
+  // Upload kit manifests as list of URIs to io/upload/ directory
+  sedonaKitManifestUpload: Func <nodoc, admin> { uris: List, returns: Obj? }
 
-// Delete given kit manifests.
-sedonaDeleteKitManifests: Func <nodoc, admin> { ids: List, returns: Obj? }
+  // Display kit manifest file
+  sedonaKitManifestView: Func <nodoc, admin> { id: Obj, returns: Grid }
 
+  // Delete given kit manifests.
+  sedonaDeleteKitManifests: Func <nodoc, admin> { ids: List, returns: Obj? }
+
+}

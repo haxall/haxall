@@ -11,46 +11,47 @@
 // APIs
 //////////////////////////////////////////////////////////////////////////
 
-// ping API
-ping1: Func { returns: Date }
++Funcs {
 
-// ping API (not bound with facet)
-ping2: Func { returns: Date }
+  // ping API
+  ping1: Func { returns: Date }
 
-//////////////////////////////////////////////////////////////////////////
-// Axon
-//////////////////////////////////////////////////////////////////////////
+  // ping API (not bound with facet)
+  ping2: Func { returns: Date }
 
-// add in Axon
-add1: Func { a: Number, b: Number, returns: Number
-  <axon:"(a, b) => a + b">
-}
+  // Axon
 
-// add in Fantom
-add2: Func { a: Number, b: Number, returns: Number }
+  // add in Axon
+  add1: Func { a: Number, b: Number, returns: Number
+    <axon:"(a, b) => a + b">
+  }
 
-// add in Fantom, but not allowed
-add3: Func { a: Number, b: Number, returns: Number }
+  // add in Fantom
+  add2: Func { a: Number, b: Number, returns: Number }
 
-// add in comp blocks
-add4: Func { a: Number, b: Number <compId:"b-id">, returns: Number
-  <compTree:---
-    @root: Comp {
-      @a: Var {}
-      @b-id: Var {}
-      @returns: Var {
-        links: {
-          val: Link { fromRef: @add, fromSlot: "out"  }
+  // add in Fantom, but not allowed
+  add3: Func { a: Number, b: Number, returns: Number }
+
+  // add in comp blocks
+  add4: Func { a: Number, b: Number <compId:"b-id">, returns: Number
+    <compTree:---
+      @root: Comp {
+        @a: Var {}
+        @b-id: Var {}
+        @returns: Var {
+          links: {
+            val: Link { fromRef: @add, fromSlot: "out"  }
+          }
+        }
+        @add: TestNumberAdd {
+          links: {
+            in1: Link { fromRef: @a, fromSlot: "val" }
+            in2: Link { fromRef: @b-id, fromSlot: "val" }
+          }
         }
       }
-      @add: TestNumberAdd {
-        links: {
-          in1: Link { fromRef: @a, fromSlot: "val" }
-          in2: Link { fromRef: @b-id, fromSlot: "val" }
-        }
-      }
-    }
-    --->
+      --->
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

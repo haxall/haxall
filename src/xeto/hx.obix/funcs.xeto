@@ -6,66 +6,69 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// Deprecated - use `connPing()`
-obixPing: Func <admin, deprecated> { conn: Obj, returns: Future }
++Funcs {
 
-// Deprecated - use `connSyncCur()`
-obixSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
+  // Deprecated - use `connPing()`
+  obixPing: Func <admin, deprecated> { conn: Obj, returns: Future }
 
-// Deprecated - use `connSyncHis()`
-obixSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
+  // Deprecated - use `connSyncCur()`
+  obixSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
 
-// Deprecated - use `connLearn()`
-obixLearn: Func <nodoc, admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
+  // Deprecated - use `connSyncHis()`
+  obixSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
 
-// Read one Uri from an obixConn.  The object is returned
-// as a grid with the object's meta-data returned via grid.meta
-// and each immediate child returned as a row in the grid.  The
-// tags used for grid meta and the columns are:
-//
-//  - href: meta.href is absolute uri of object, the href col
-//    is child's uri relative to meta.href
-//  - name: obix 'name' attribute
-//  - dis: obix 'displayName' attribute
-//  - val: obix 'val' attribute unless 'null' attribute is true
-//  - is: contract list
-//  - icon: uri relative to meta.href of icon
-//
-// You can read the icon via the tunnel URI:
-//    {api}/obix/icon/{id}/{uri}
-//
-// Side effects:
-//   - performs blocking network IO
-obixReadObj: Func <admin> { conn: Obj, uri: Uri, returns: Grid }
+  // Deprecated - use `connLearn()`
+  obixLearn: Func <nodoc, admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
 
-// Synchronously query a 'obix::History' for its timestamp/value pairs.
-// Range may be any valid object used with 'his' queries.
-obixReadHis: Func <admin> { conn: Obj, uri: Uri, span: Obj?, returns: Grid }
+  // Read one Uri from an obixConn.  The object is returned
+  // as a grid with the object's meta-data returned via grid.meta
+  // and each immediate child returned as a row in the grid.  The
+  // tags used for grid meta and the columns are:
+  //
+  //  - href: meta.href is absolute uri of object, the href col
+  //    is child's uri relative to meta.href
+  //  - name: obix 'name' attribute
+  //  - dis: obix 'displayName' attribute
+  //  - val: obix 'val' attribute unless 'null' attribute is true
+  //  - is: contract list
+  //  - icon: uri relative to meta.href of icon
+  //
+  // You can read the icon via the tunnel URI:
+  //    {api}/obix/icon/{id}/{uri}
+  //
+  // Side effects:
+  //   - performs blocking network IO
+  obixReadObj: Func <admin> { conn: Obj, uri: Uri, returns: Grid }
 
-// Write an object as identified by given uri.  The following
-// arg values are supported:
-//
-//   arg         oBIX
-//   ---         -----
-//   null        <obj null='true'/>
-//   "foo"       <str val='foo'/>
-//   true        <bool val='true'/>
-//   123         <real val='123.0'/>
-//   123m        <real val='123.0' unit='obix:units/meter'/>
-//   `foo.txt`   <uri val='foo.txt'/>
-//   2012-03-06  <date val='2012-03-06'/>
-//   23:15       <time val='23:15:00'/>
-//   DateTime    <abstime val='...' tz='...'/>
-//   XML Str     pass thru
-//
-// Result object is transformed using same rules as `obixReadObj`.
-obixWriteObj: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
+  // Synchronously query a 'obix::History' for its timestamp/value pairs.
+  // Range may be any valid object used with 'his' queries.
+  obixReadHis: Func <admin> { conn: Obj, uri: Uri, span: Obj?, returns: Grid }
 
-// Invoke an 'obix:op' operation as identified by given uri.
-// See `obixWriteObj` for supported arg values and `obixReadObj`
-// for result object.
-obixInvoke: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
+  // Write an object as identified by given uri.  The following
+  // arg values are supported:
+  //
+  //   arg         oBIX
+  //   ---         -----
+  //   null        <obj null='true'/>
+  //   "foo"       <str val='foo'/>
+  //   true        <bool val='true'/>
+  //   123         <real val='123.0'/>
+  //   123m        <real val='123.0' unit='obix:units/meter'/>
+  //   `foo.txt`   <uri val='foo.txt'/>
+  //   2012-03-06  <date val='2012-03-06'/>
+  //   23:15       <time val='23:15:00'/>
+  //   DateTime    <abstime val='...' tz='...'/>
+  //   XML Str     pass thru
+  //
+  // Result object is transformed using same rules as `obixReadObj`.
+  obixWriteObj: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
 
-// Ancient function left around just in case anybody ever used it
-obixSyncHisGroup: Func <nodoc, admin> { group: Str, range: Obj?, returns: Obj? }
+  // Invoke an 'obix:op' operation as identified by given uri.
+  // See `obixWriteObj` for supported arg values and `obixReadObj`
+  // for result object.
+  obixInvoke: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
 
+  // Ancient function left around just in case anybody ever used it
+  obixSyncHisGroup: Func <nodoc, admin> { group: Str, range: Obj?, returns: Obj? }
+
+}

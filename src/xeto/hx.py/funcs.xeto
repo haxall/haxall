@@ -6,47 +6,51 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
++Funcs {
+
+  // Create a new `hxPy::PySession` instance. Options:
+  //   - 'image': name of the Docker image to run. By default, the lib will
+  //   try to run the following images in this order:
+  //     1. 'ghcr.io/haxall/hxpy:<ver>' (where ver = current library Haxall version)
+  //     1. 'ghcr.io/haxall/hxpy:latest'
+  //     1. 'ghcr.io/haxall/hxpy:main'
+  //   - 'network':  the name of the Docker network you want the container to join.
+  //   - 'logLevel': log level of the hxpy python process in Docker. Valid values
+  //   are 'WARN', 'INFO', 'DEBUG', (default='WARN')
+  //
+  // The default timeout for `pyEval()` is 5min. Use `pyTimeout()` to change this timeout.
+  //
+  // Sessions created in the context of a task are persistent, meaning they will
+  // not be closed until the task is killed.
+  py: Func <admin> { opts: Dict?, returns: PySession }
+
+  // Set the timeout for `pyEval()`.
+  pyTimeout: Func <admin> { py: PySession, val: Number?, returns: PySession }
+
+  // Initialize the python session by calling the given func to do any one-time
+  // setup of the python session. If 'pyInit()' has already been called on this
+  // session, then the callback is not invoked.
+  //
+  // Typically, this func is used in the context of a task since the python
+  // session in a task is persistent. This allows to do any one-time `pyExec()`
+  // or `pyDefine()` when the task is first creatd.
+  pyInit: Func <admin> { py: PySession, fn: Func, returns: PySession }
+
+  // Define a variable to be available to python code running in the session.
+  pyDefine: Func <admin> { py: PySession, name: Str, val: Obj?, returns: PySession }
+
+  // Execute the given python code in the session and return the python session.
+  // Note: python 'exec()' does not return a value, so use `pyEval()` if you need
+  // the result of running a python statement. This method is primarily useful
+  // for declaring functions that you want available when using `pyEval()`.
+  pyExec: Func <admin> { py: PySession, code: Str, returns: PySession }
+
+  // Evalue the given python statement in the session, and return the result.
+  // The session will be closed unless it is running in a task.
+  pyEval: Func <admin> { py: PySession, stmt: Str, returns: Obj? }
+
+}
+
 // Python session object
 PySession: Interface
-
-// Create a new `hxPy::PySession` instance. Options:
-//   - 'image': name of the Docker image to run. By default, the lib will
-//   try to run the following images in this order:
-//     1. 'ghcr.io/haxall/hxpy:<ver>' (where ver = current library Haxall version)
-//     1. 'ghcr.io/haxall/hxpy:latest'
-//     1. 'ghcr.io/haxall/hxpy:main'
-//   - 'network':  the name of the Docker network you want the container to join.
-//   - 'logLevel': log level of the hxpy python process in Docker. Valid values
-//   are 'WARN', 'INFO', 'DEBUG', (default='WARN')
-//
-// The default timeout for `pyEval()` is 5min. Use `pyTimeout()` to change this timeout.
-//
-// Sessions created in the context of a task are persistent, meaning they will
-// not be closed until the task is killed.
-py: Func <admin> { opts: Dict?, returns: PySession }
-
-// Set the timeout for `pyEval()`.
-pyTimeout: Func <admin> { py: PySession, val: Number?, returns: PySession }
-
-// Initialize the python session by calling the given func to do any one-time
-// setup of the python session. If 'pyInit()' has already been called on this
-// session, then the callback is not invoked.
-//
-// Typically, this func is used in the context of a task since the python
-// session in a task is persistent. This allows to do any one-time `pyExec()`
-// or `pyDefine()` when the task is first creatd.
-pyInit: Func <admin> { py: PySession, fn: Func, returns: PySession }
-
-// Define a variable to be available to python code running in the session.
-pyDefine: Func <admin> { py: PySession, name: Str, val: Obj?, returns: PySession }
-
-// Execute the given python code in the session and return the python session.
-// Note: python 'exec()' does not return a value, so use `pyEval()` if you need
-// the result of running a python statement. This method is primarily useful
-// for declaring functions that you want available when using `pyEval()`.
-pyExec: Func <admin> { py: PySession, code: Str, returns: PySession }
-
-// Evalue the given python statement in the session, and return the result.
-// The session will be closed unless it is running in a task.
-pyEval: Func <admin> { py: PySession, stmt: Str, returns: Obj? }
 

@@ -6,6 +6,9 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// Primary HTTP or HTTPS Uri - see `hx::HxHttpService.siteUri`
-httpSiteUri: Func { returns: Uri }
++Funcs {
 
+  // Primary HTTP or HTTPS Uri - see `hx::HxHttpService.siteUri`
+  httpSiteUri: Func { returns: Uri }
+
+}

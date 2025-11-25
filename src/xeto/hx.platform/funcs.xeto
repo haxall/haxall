@@ -6,16 +6,19 @@
 //   22 Jul 2025  Brian Frank  Garden City Beach
 //
 
-// Reboot the operating system and runtime process
-platformReboot: Func <su> { returns: Obj? }
++Funcs {
 
-// Restart runtime process, but do not reboot operating system
-platformRestart: Func <su> { returns: Obj? }
+  // Reboot the operating system and runtime process
+  platformReboot: Func <su> { returns: Obj? }
 
-// Shutdown operating system and runtime process
-platformShutdown: Func <su> { returns: Obj? }
+  // Restart runtime process, but do not reboot operating system
+  platformRestart: Func <su> { returns: Obj? }
 
-// Return grid of summary information used to populate UI.
-// This is a nodoc method subject to change
-platformInfo: Func <nodoc, su> { returns: Grid }
+  // Shutdown operating system and runtime process
+  platformShutdown: Func <su> { returns: Obj? }
 
+  // Return grid of summary information used to populate UI.
+  // This is a nodoc method subject to change
+  platformInfo: Func <nodoc, su> { returns: Grid }
+
+}
