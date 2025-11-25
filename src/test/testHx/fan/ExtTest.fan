@@ -260,7 +260,7 @@ class ExtTest : HxTest
 
     // add library
     cx.eval("libAdd(\"hx.math\")")
-    verifyEq(cx.ns.unqualifiedFunc("sqrt").qname, "hx.math::sqrt")
+    verifyEq(cx.ns.funcs.get("sqrt").qname, "hx.math::Funcs.sqrt")
     verifyEq(cx.eval("sqrt(16)"), n(4))
 
     // verify funcs thru Fantom APIs

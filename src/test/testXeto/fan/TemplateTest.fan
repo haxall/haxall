@@ -131,7 +131,7 @@ class TemplateTest : AbstractAxonTest
   {
     makeContext.asCur |->Obj?|
     {
-      res := ns.unqualifiedFunc(name).func.thunk.callList(args)
+      res := ns.funcs.get(name).func.thunk.callList(args)
       // echo("$name => $res [$res.typeof]")
       return res
     }

@@ -100,7 +100,7 @@ abstract class AxonContext : HaystackContext, CompContext
   private Spec? resolveUnqualifiedFunc(Str name, Loc loc, Bool checked)
   {
     // resolve func as list from namespace (cached in MNameespace)
-    list := ns.unqualifiedFuncs(name)
+    list := ns.funcs.getAll(name)
     if (list.size == 1) return list.first
     if (list.isEmpty)
     {

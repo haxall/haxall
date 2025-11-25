@@ -106,21 +106,6 @@ class FuncTest : AbstractXetoTest
     verifyEq(f.func.returns.type.qname, ret)
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Test Cache
-//////////////////////////////////////////////////////////////////////////
-
-  Void testCache()
-  {
-    ns := createNamespace(["axon"])
-
-    now := ns.unqualifiedFunc("now")
-    list := ns.unqualifiedFuncs("now")
-    verifyEq(list, Spec[now])
-    verifySame(list.first, now)
-    verifySame(list, ns.unqualifiedFuncs("now"))
-    verifySame(list, ns.unqualifiedFuncs("now"))
-  }
 }
 
 **************************************************************************

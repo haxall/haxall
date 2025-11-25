@@ -71,9 +71,8 @@ const mixin Namespace
   abstract Spec? type(Str qname, Bool checked := true)
 
   ** Get a spec by the given qualified name:
-  **   - type: "foo.bar::Baz"
-  **   - global/meta/func: "foo.bar::baz"
-  **   - slot: "foo.bar::Baz.qux"
+  **   - type/mixin: "foo.bar::Baz"
+  **   - slot/global: "foo.bar::Baz.qux"
   abstract Spec? spec(Str qname, Bool checked := true)
 
   ** Get an instance by the given qualified name
@@ -86,6 +85,10 @@ const mixin Namespace
   ** Get the effective spec metadata slots.
   ** This is semantically equivalent to 'specx(Spec).slots'.
   abstract SpecMap metas()
+
+  ** Get the effective map of all functions.
+  ** This is semantically equivalent to 'specx(Funcs).slots'.
+  abstract SpecMap funcs()
 
   ** Compute the extended type spec by merging all meta and slots from
   ** mixins.  This call can be quite expensive; so cache and reuse the
@@ -111,10 +114,6 @@ const mixin Namespace
   ** The callback function includes the resolve spec for the instance.
   @NoDoc abstract Void eachInstanceThatIs(Spec type, |Dict, Spec| f)
 
-//////////////////////////////////////////////////////////////////////////
-// Unqualified Lookups
-//////////////////////////////////////////////////////////////////////////
-
   ** Resolve unqualified type name against all libs:
   **   - one match return it
   **   - zero return null or raise exception based on checked flag
@@ -123,15 +122,6 @@ const mixin Namespace
 
   ** List all unqualified types against loaded libs.
   @NoDoc abstract Spec[] unqualifiedTypes(Str name)
-
-  ** Resolve unqualified function name against libs:
-  **   - one match return it
-  **   - zero return null or raise exception based on checked flag
-  **   - two or more raise exception regardless of checked flag
-  @NoDoc abstract Spec? unqualifiedFunc(Str name, Bool checked := true)
-
-  ** List all unqualified function names against libs.
-  @NoDoc abstract Spec[] unqualifiedFuncs(Str namee)
 
 //////////////////////////////////////////////////////////////////////////
 // Reflection

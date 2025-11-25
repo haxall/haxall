@@ -217,7 +217,7 @@ const class MNamespace : Namespace, CNamespace
     specx(sys.spec).slots
   }
 
-  once SpecMap funcs()
+  override once SpecMap funcs()
   {
     specx(sys.funcs).slots
   }
@@ -306,65 +306,6 @@ const class MNamespace : Namespace, CNamespace
     }
     return acc
   }
-
-  override Spec? unqualifiedFunc(Str name, Bool checked := true)
-  {
-    funcs.get(name, checked)
-  }
-
-  override Spec[] unqualifiedFuncs(Str name)
-  {
-    funcs.getAll(name)
-  }
-
-/* TODO
-  override Spec? unqualifiedFunc(Str name, Bool checked := true)
-  {
-    map := funcMapRef.val as Str:Obj
-    if (map == null) funcMapRef.val = map = loadFuncMap
-    list := map[name] as Spec[]
-    if (list != null)
-    {
-      if (list.size == 1) return list.first
-      throw AmbiguousSpecErr("Ambiguous func for '$name' $list")
-    }
-    if (checked) throw UnknownFuncErr(name)
-    return null
-  }
-
-  override Spec[] unqualifiedFuncs(Str name)
-  {
-    map := funcMapRef.val as Str:Obj
-    if (map == null) funcMapRef.val = map = loadFuncMap
-    return map[name] ?: Spec#.emptyList
-  }
-
-  private Str:Obj loadFuncMap()
-  {
-    // we build cache of funcs by name, values are Spec[]
-    acc := Str:Obj[:]
-    libs.each |lib|
-    {
-      lib.funcs.each |spec|
-      {
-        name := spec.name
-        dup := acc[name]
-        if (dup == null)
-        {
-          acc[name] = Spec[spec]
-        }
-        else
-        {
-          list := dup as Spec[]
-          list.add(spec)
-          acc[name] = list
-        }
-      }
-    }
-    return acc.toImmutable
-  }
-  private const AtomicRef funcMapRef := AtomicRef()
-*/
 
 //////////////////////////////////////////////////////////////////////////
 // Reflection
