@@ -43,7 +43,15 @@ class UtilTest : AbstractXetoTest
     verifySame(SpecMap.makeMap(Str:Spec[:]), SpecMap.empty)
     verifySpecMap(SpecMap.empty, [:], "{}")
 
-    // makeMaop
+    // check getQualified - not tested fully by verifySpecMap
+    x := SpecMap(["Str":a])
+    verifySame(x.get("Str"), a)
+    verifySame(x.getQualified("sys::Str"), a)
+    verifyEq(x.getQualified("bad::Str", false), null)
+    verifyErr(UnknownSpecErr#) { x.getQualified("bad::Str") }
+    verifyErr(UnknownSpecErr#) { x.getQualified("bad::Str", true) }
+
+    // makeMap
 
     map := Str:Spec[:]
     map.add("a", a)
@@ -61,7 +69,7 @@ class UtilTest : AbstractXetoTest
     map.add("g", g)
     verifySame(SpecMap.makeList(SpecMap[,]), SpecMap.empty)
     verifySame(SpecMap.makeList([p]), p)
-    verifyErr(ArgErr#) { x := SpecMap.makeList([p, SpecMap.empty]) }
+    verifyErr(ArgErr#) { x = SpecMap.makeList([p, SpecMap.empty]) }
     verifySpecMap(SpecMap.makeList([q, p]), map, "{a, b, c, d, e, f, g}")
 
     r := SpecMap(["h":h, "i":i])
@@ -74,19 +82,32 @@ class UtilTest : AbstractXetoTest
     t := SpecMap(["b":b2, "h":h2, "j":j2])
     map.set("b", b2).set("h", h2).set("j", j2)
     verifySpecMap(SpecMap.makeChain(t, s), map, "{b, h, j, a, c, d, e, f, g, i}")
+
+    // makeCollisions
+    verifyCollisionsSpecMap(ns)
   }
 
   SpecMap verifySpecMap(SpecMap x, Str:Spec expect, Str str)
   {
     verifyEq(x.isEmpty, expect.isEmpty)
 
-    // has, missing, get
+    // matches - has, missing, get, getAll, getQualified
     expect.each |s, n|
     {
       verifyEq(x.has(n), true)
       verifyEq(x.missing(n), false)
       verifySame(x.get(n), s)
+      verifyEq(x.getAll(n), Spec[s])
+      verifyEq(x.getQualified("bad::$n", false), null)
+      verifyErr(UnknownSpecErr#) { x.getQualified("bad") }
+      verifyErr(UnknownSpecErr#) { x.getQualified("bad::$n", true) }
     }
+
+    // no matches - has, missing, get, getAll, getQualified
+    verifySame(x.get("bad", false), null)
+    verifyErr(UnknownSpecErr#) { x.get("bad") }
+    verifyErr(UnknownSpecErr#) { x.get("bad", true) }
+    verifySame(x.getAll("bad"), Spec#.emptyList)
 
     // each
     x.each |s, n|
@@ -118,6 +139,77 @@ class UtilTest : AbstractXetoTest
     // toDict
     verifyDictEq(x.toDict, expect)
     return x
+  }
+
+  Void verifyCollisionsSpecMap(Namespace ns)
+  {
+    a := ns.sysLib.spec("Str")
+    b := ns.sysLib.spec("Number")
+    c := ns.sysLib.spec("Date")
+    d := ns.sysLib.spec("Time")
+    e := ns.sysLib.spec("DateTime")
+    f := ns.sysLib.spec("Ref")
+    g := ns.sysLib.spec("Marker")
+
+    map := Str:Obj[:]
+    map.ordered = true
+    map["Str"]   = a
+    map["Date"] = Spec[b, c]
+    map["Bar"]  = Spec[d, e, f]
+    map["Foo"]  = g
+
+    verifySame(SpecMap.makeCollisions(Str:Obj[:]), SpecMap.empty)
+
+    x := SpecMap.makeCollisions(map)
+    verifyEq(x.isEmpty, false)
+
+    // single - has, missing, get, getAll, getQualified
+    verifyEq(x.has("Str"), true)
+    verifyEq(x.missing("Str"), false)
+    verifyEq(x.get("Str"), a)
+    verifyEq(x.getAll("Str"), Spec[a])
+    verifyEq(x.getQualified("sys::Str"), a)
+
+    // multiple - has, missing, get, getAll, getQualified
+    verifyEq(x.has("Date"), true)
+    verifyEq(x.missing("Date"), false)
+    verifyErr(AmbiguousSpecErr#) { x.get("Date") }
+    verifyErr(AmbiguousSpecErr#) { x.get("Date", false) }
+    verifyErr(AmbiguousSpecErr#) { x.get("Date", true) }
+    verifyEq(x.getAll("Date"), Spec[b, c])
+    verifyEq(x.getAll("Date"), Spec[b, c])
+    verifyEq(x.getQualified("sys::Date"), c)
+    verifyEq(x.getQualified("bad::Date", false), null)
+    verifyErr(UnknownSpecErr#) { x.getQualified("bad::Date") }
+    verifyErr(UnknownSpecErr#) { x.getQualified("bad::Date", true) }
+
+    // no match
+    verifySame(x.get("Bad", false), null)
+    verifyErr(UnknownSpecErr#) { x.get("Bad") }
+    verifyErr(UnknownSpecErr#) { x.get("Bad", true) }
+    verifySame(x.getAll("Bad"), Spec#.emptyList)
+
+    // names, toStr
+    verifyEq(x.names.join(", "), "Str, Date, Bar, Foo")
+    verifyEq(x.toStr, "{Str, Date, Bar, Foo}")
+
+    // each
+    names := Str[,]
+    vals := Spec[,]
+    x.each |v, n| { names.add(n); vals.add(v) }
+    verifyEq(names, ["Str", "Date", "Date", "Bar", "Bar", "Bar", "Foo"])
+    verifyEq(vals,  Spec[a, b, c, d, e, f, g])
+
+    // eachWhile
+    names.clear
+    vals.clear
+    x.eachWhile |v, n|
+    {
+      names.add(n); vals.add(v)
+      return v == e ? "break": null
+    }
+    verifyEq(names, ["Str", "Date", "Date", "Bar", "Bar"])
+    verifyEq(vals,  Spec[a, b, c, d, e])
   }
 
 //////////////////////////////////////////////////////////////////////////

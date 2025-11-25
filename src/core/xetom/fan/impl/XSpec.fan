@@ -64,10 +64,11 @@ const final class XSpec : WrapSpec
 
   override once SpecMap slots()
   {
+    collisions := false
     acc := Str:Obj[:]
     acc.ordered = true
 
-    // merge in meta from mixins
+    // start of with the effective slots
     m.slots.each |slot, name|
     {
       acc[name] = slotx(slot)
@@ -78,11 +79,21 @@ const final class XSpec : WrapSpec
     {
       m.slots.each |slot, name|
       {
-        if (acc[name] == null) acc[name] = slot
+        dup := acc[name]
+        if (dup != null)
+        {
+          list := dup as Spec[] ?: Spec[dup]
+          list.add(slot)
+          collisions = true
+        }
+        else
+        {
+          acc[name] = slot
+        }
       }
     }
 
-    return SpecMap(acc)
+    return collisions ? SpecMap.makeCollisions(acc) : SpecMap(acc)
   }
 
   private Spec slotx(Spec orig)
