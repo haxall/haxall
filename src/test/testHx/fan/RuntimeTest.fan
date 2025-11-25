@@ -236,7 +236,7 @@ class RuntimeTest : HxTest
     digest := proj.companion.libDigest
     verifyCompanionRecs(Str[,], Str[,], null)
 
-    // add spec - SpecA
+    // add type - SpecA
     proj.companion.add(d(["rt":"spec", "name":"SpecA", "base":Ref("sys::Dict"), "spec":specRef, "slots":slots, "doc":"testing", "admin":m]))
     digest = verifyCompanionRecs(["SpecA"], Str[,], digest)
     specA := proj.companion.lib.spec("SpecA")
@@ -245,10 +245,10 @@ class RuntimeTest : HxTest
     verifyEq(specA.meta["admin"], m)
     verifyEq(specA.slot("dis").type.name, "Str")
 
-    // add spec - specB
-    proj.companion.add(d(["rt":"spec", "name":"specB", "base":Ref("sys::Func"), "spec":specRef]))
-    specB := proj.companion.lib.spec("specB")
-    digest = verifyCompanionRecs(["SpecA", "specB"], Str[,], digest)
+    // add mixin - SpecB
+    proj.companion.add(d(["rt":"spec", "name":"SpecB", "base":Ref("sys::Func"), "spec":specRef]))
+    specB := proj.companion.lib.spec("SpecB")
+    digest = verifyCompanionRecs(["SpecA", "SpecB"], Str[,], digest)
     verifyEq(specB.base.qname, "sys::Func")
 
     // add spec errors
@@ -271,11 +271,11 @@ class RuntimeTest : HxTest
     verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":Etc.makeMapGrid(null, ["name":"x", "type":Ref("Obj")])])
     verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":Etc.makeMapsGrid(null, [["name":"x", "type":Ref("sys::Obj")], ["name":"x", "type":Ref("sys::Obj")]])])
     verifyDuplicateErr(["rt":"spec", "name":"SpecA",  "base":Ref("sys::Scalar"), "spec":specRef, "slots":slots])
-    digest = verifyCompanionRecs(["SpecA", "specB"], Str[,], null)
+    digest = verifyCompanionRecs(["SpecA", "SpecB"], Str[,], null)
 
     // add instance - inst-a
     proj.companion.add(d(["rt":"instance", "name":"inst-a", "spec":Ref("proj::SpecA"), "dis":"Alpha"]))
-    digest = verifyCompanionRecs(["SpecA", "specB"], Str["inst-a"], digest)
+    digest = verifyCompanionRecs(["SpecA", "SpecB"], Str["inst-a"], digest)
 
     // add instance errors
     verifyInvalidErr(["rt":"instance", "name":"bad id", "spec":Ref("proj::SpecA")])
@@ -285,11 +285,11 @@ class RuntimeTest : HxTest
 
     // add instance - hx.modbus (duplicate lib name)
     proj.companion.add(d(["rt":"instance", "name":"hx.modbus", "spec":Ref("proj::SpecA"), "dis":"Lib Dup"]))
-    digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
+    digest = verifyCompanionRecs(["SpecA", "SpecB"], Str["hx.modbus", "inst-a"], digest)
 
     // update spec - SpecA
     proj.companion.update(d(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m]))
-    digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
+    digest = verifyCompanionRecs(["SpecA", "SpecB"], Str["hx.modbus", "inst-a"], digest)
     specA = proj.companion.lib.spec("SpecA")
     verifyEq(specA.base.qname, "sys::Func")
     verifyEq(specA.metaOwn["doc"], null)
@@ -305,24 +305,24 @@ class RuntimeTest : HxTest
     verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":"Bad",   "slots":slots, "su":m])
     verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":specRef, "slots":"bad", "su":m])
     verifyUnknownErr(["rt":"spec", "name":"SpecX", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
-    verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], null)
+    verifyCompanionRecs(["SpecA", "SpecB"], Str["hx.modbus", "inst-a"], null)
 
     // re-boot project and verify libs/specs were persisted
     projRestart
-    digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
+    digest = verifyCompanionRecs(["SpecA", "SpecB"], Str["hx.modbus", "inst-a"], digest)
 
     // rename spec and instance
-    proj.companion.rename("specB", "specB2")
+    proj.companion.rename("SpecB", "SpecB2")
     proj.companion.rename("hx.modbus", "hx.modbus2")
-    digest = verifyCompanionRecs(["SpecA", "specB2"], Str["hx.modbus2", "inst-a"], digest)
+    digest = verifyCompanionRecs(["SpecA", "SpecB2"], Str["hx.modbus2", "inst-a"], digest)
 
     // rename errors
     companionMode = "rename"
     verifyUnknownErr("notFound", "newName")
-    verifyDuplicateErr("specB2", "SpecA")
+    verifyDuplicateErr("SpecB2", "SpecA")
 
     // remove spec and instance
-    proj.companion.remove("specB2")
+    proj.companion.remove("SpecB2")
     proj.companion.remove("hx.modbus2")
     proj.companion.remove("ignore-me-does-not-exist")
     digest = verifyCompanionRecs(["SpecA"], Str["inst-a"], digest)
@@ -337,12 +337,12 @@ class RuntimeTest : HxTest
     digest = verifyCompanionRecs(["SpecA"], Str["inst-a"], digest)
 
     // update switch spec <-> instance
-    proj.companion.add(d(["rt":"spec",     "name":"a", "base":Ref("sys::Dict"), "spec":specRef]))
-    proj.companion.add(d(["rt":"instance", "name":"b", "foo":m]))
-    digest = verifyCompanionRecs(["SpecA", "a"], ["b", "inst-a"], digest)
-    proj.companion.update(d(["rt":"spec",     "name":"b", "base":Ref("sys::Dict"), "spec":specRef]))
-    proj.companion.update(d(["rt":"instance", "name":"a", "foo":m]))
-    digest = verifyCompanionRecs(["SpecA", "b"], ["a", "inst-a"], digest)
+    proj.companion.add(d(["rt":"spec",     "name":"A", "base":Ref("sys::Dict"), "spec":specRef]))
+    proj.companion.add(d(["rt":"instance", "name":"B", "foo":m]))
+    digest = verifyCompanionRecs(["A", "SpecA"], ["B", "inst-a"], digest)
+    proj.companion.update(d(["rt":"spec",     "name":"B", "base":Ref("sys::Dict"), "spec":specRef]))
+    proj.companion.update(d(["rt":"instance", "name":"A", "foo":m]))
+    digest = verifyCompanionRecs(["B", "SpecA"], ["A", "inst-a"], digest)
 
     // updates with id/mod
     companionMode = "update"
