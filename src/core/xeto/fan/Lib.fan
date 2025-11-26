@@ -36,26 +36,20 @@ const mixin Lib : Dict
   ** List the dependencies
   abstract LibDepend[] depends()
 
-  ** List the top level specs (types and global slots)
-  abstract Spec[] specs()
+  ** Top level specs keyed by simple name (types and mixins)
+  abstract SpecMap specs()
 
-  ** Lookup a top level spec in this library by simple name (type or global slot)
+  ** Convenience for 'specs.get'
   abstract Spec? spec(Str name, Bool checked := true)
 
-  ** List the type specs
-  abstract Spec[] types()
+  ** Top level type specs keyed by simple name (excludes synthetic types)
+  abstract SpecMap types()
 
-  ** Lookup a type spec in this library by simple name
+  ** Convenience for 'types.get'
   abstract Spec? type(Str name, Bool checked := true)
 
-  ** Iterate the type specs
-  abstract Void eachType(|Spec| f)
-
-  ** Iterate the type specs until callback returns non-null
-  @NoDoc abstract Obj? eachTypeWhile(|Spec->Obj?| f)
-
-  ** List the mixins in this library
-  abstract Spec[] mixins()
+  ** Top level mixin specs keyed by simple name
+  abstract SpecMap mixins()
 
   ** Lookup the mixin for the given type in this library
   abstract Spec? mixinFor(Spec type, Bool checked := true)

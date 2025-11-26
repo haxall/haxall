@@ -852,7 +852,7 @@ class CompileTest : AbstractXetoTest
     name := x.toStr[x.toStr.indexr(":")+1..-1]
     if (name[0] != '_') return name
 
-    deref := lib.type(name)
+    deref := lib.spec(name)
     return toNestedSpecSig(lib, deref)
   }
 }

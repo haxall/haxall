@@ -72,7 +72,8 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sys.types.isEmpty, false)
     verifyEq(sys.types.isImmutable, true)
     verifySame(sys.types, sys.types)
-    verifyEq(sys.types.containsSame(str), true)
+    verifyEq(sys.types.get("Str"), str)
+    verifyEq(sys.types.list.containsSame(str), true)
 
     // instances
     verifyEq(sys.instances.size, 0)
@@ -735,13 +736,13 @@ class NamespaceTest : AbstractXetoTest
 
     // eachType
     types := Spec[,]
-    lib.eachType |x| { types.add(x) }
-    verifyEq(lib.types, types)
+    lib.types.each |x| { types.add(x) }
+    verifyEq(lib.types.list, types)
 
     // eachTypeWhile
     types.clear
-    lib.eachTypeWhile |x| { types.add(x); return types.size == 3 ? "break" : null }
-    verifyEq(lib.types[0..<3], types)
+    lib.types.eachWhile |x| { types.add(x); return types.size == 3 ? "break" : null }
+    verifyEq(lib.types.list[0..<3], types)
 
     // eachInstance
     instances := Dict[,]
@@ -755,7 +756,8 @@ class NamespaceTest : AbstractXetoTest
   {
     type := lib.type(name)
     verifySame(type, lib.type(name))
-    verifyEq(lib.types.containsSame(type), true)
+    verifySame(type, lib.types.get(name))
+    verifyEq(lib.types.list.containsSame(type), true)
     verifySame(type.parent, null)
     verifySame(type.lib, lib)
 

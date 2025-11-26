@@ -99,7 +99,7 @@ const class DocLib : DocPage
 //  once DocSummary[] metaSpecs() { flavor(SpecFlavor.meta).toImmutable }
 
   ** Top-level specs that funcs
-  once DocSummary[] funcs() { flavor(SpecFlavor.func).toImmutable }
+//  once DocSummary[] funcs() { flavor(SpecFlavor.func).toImmutable }
 
   ** Find top-level specs of given flavor
   DocSummary[] flavor(SpecFlavor f) { specs.findAll { it.flavor === f } }

@@ -154,7 +154,7 @@ class DocTest : AbstractXetoTest
     verifyEq(n.name, lib.name)
     verifyScalar(n.meta.get("version"), "sys::Version", lib.version.toStr)
 
-    docTypes := lib.types.findAll { it.name[0] != '_' }
+    docTypes := lib.types.list.findAll { it.name[0] != '_' }
 
     verifySummaries(n.types,     docTypes)
 // TODO

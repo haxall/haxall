@@ -46,7 +46,7 @@ class RdfExporter : Exporter
   override This lib(Lib lib)
   {
     this.isSys = lib.name == "sys"
-    types := lib.types
+    types := lib.types.list
 
     prefixDefs(lib)
     ontologyDef(lib)

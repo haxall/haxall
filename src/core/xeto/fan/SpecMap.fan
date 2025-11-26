@@ -110,7 +110,7 @@ const mixin SpecMap
   ** exception based on the checked flag.
   abstract Spec? getQualified(Str qname, Bool checked := true)
 
-  ** List the specs.
+  ** List the specs; prefer 'each'
   ** NOTE: the names may not match slots names
   abstract Spec[] list()
 
@@ -476,12 +476,12 @@ internal abstract const class FilterSpecMap : AbstractSpecMap
     throw UnknownSpecErr(name)
   }
 
-  override once Spec[] list()
+  override Spec[] list()
   {
     super.list.findAll |x| { include(x) }
   }
 
-  override once Str[] names()
+  override Str[] names()
   {
     super.list.mapNotNull |x->Str?| { include(x) ? x.name : null }
   }

@@ -26,7 +26,9 @@ const final class MLib
     this.flags        = flags
     this.version      = version
     this.depends      = depends
-    this.specsMap     = specsMap
+    this.specs        = SpecMap.makeLibSpecs(specsMap)
+    this.types        = SpecMap.makeLibTypes(specs)
+    this.mixins       = SpecMap.makeLibMixins(specs)
     this.instancesMap = instancesMap
     this.files        = files
   }
@@ -45,64 +47,27 @@ const final class MLib
 
   const LibDepend[] depends
 
-  const Str:Spec specsMap
-
-  const Str:Dict instancesMap
-
   const MLibFiles files
 
-  once Spec[] specs()
-  {
-    if (specsMap.isEmpty)
-      return Spec#.emptyList
-    else
-      return specsMap.vals.sort |a, b| { a.name <=> b.name }.toImmutable
-  }
+  const SpecMap specs
 
-  Spec? spec(Str name, Bool checked := true)
-  {
-    x := specsMap[name]
-    if (x != null) return x
-    if (checked) throw UnknownSpecErr(this.name + "::" + name)
-    return null
-  }
+  Spec? spec(Str name, Bool checked := true) { specs.get(name, checked) }
 
-  once Spec[] types()
-  {
-    specs.mapNotNull |x->Spec?| { (x.isType && x.name[0] != '_') ? x : null }.toImmutable
-  }
+  const SpecMap types
 
-  Spec? type(Str name, Bool checked := true)
-  {
-    top := spec(name, checked)
-    if (top != null && top.isType) return top
-    if (checked) throw UnknownSpecErr(this.name + "::" + name)
-    return null
-  }
+  Spec? type(Str name, Bool checked := true) { types.get(name, checked) }
 
-  Void eachType(|Spec| f)
-  {
-    specs.each |x| { if (x.isType && x.name[0] != '_') f(x) }
-  }
-
-  Obj? eachTypeWhile(|Spec->Obj?| f)
-  {
-// TODO: pull this check out into two maps
-    specs.eachWhile |x| { (x.isType && x.name[0] != '_') ? f(x) : null }
-  }
-
-  once Spec[] mixins()
-  {
-    specs.findAll |x| { x.isMixin }.toImmutable
-  }
+  const SpecMap mixins
 
   Spec? mixinFor(Spec type, Bool checked := true)
   {
-    x := specsMap[type.name]
-    if (x != null && x.isMixin && x.base === type) return x
+    x := mixins.get(type.name, false)
+    if (x != null && x.base === type) return x
     if (checked) throw UnknownSpecErr("No mixin for $type.qname")
     return null
   }
+
+  const Str:Dict instancesMap
 
   once Dict[] instances()
   {
@@ -127,7 +92,7 @@ const final class MLib
 
   once SpecMap funcs()
   {
-    specsMap["Funcs"]?.slots ?: SpecMap.empty
+    specs.get("Funcs", false)?.slots ?: SpecMap.empty
   }
 
   override Str toStr() { name }
@@ -237,19 +202,15 @@ const final class XetoLib : Lib, Dict
 
   override LibDepend[] depends() { m.depends }
 
-  override Spec[] specs() { m.specs }
+  override SpecMap specs() { m.specs }
 
   override Spec? spec(Str name, Bool checked := true) { m.spec(name, checked) }
 
-  override Spec[] types() { m.types }
+  override SpecMap types() { m.types }
 
   override Spec? type(Str name, Bool checked := true) { m.type(name, checked) }
 
-  override Void eachType(|Spec| f) { m.eachType(f) }
-
-  override Obj? eachTypeWhile(|Spec->Obj?| f) { m.eachTypeWhile(f) }
-
-  override Spec[] mixins() { m.mixins }
+  override SpecMap mixins() { m.mixins }
 
   override Spec? mixinFor(Spec type, Bool checked := true) { m.mixinFor(type, checked) }
 

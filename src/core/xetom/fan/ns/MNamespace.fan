@@ -235,7 +235,7 @@ const class MNamespace : Namespace, CNamespace
   {
     libs.each |lib|
     {
-      lib.eachType |type| { f(type) }
+      lib.types.each |type| { f(type) }
     }
   }
 
@@ -243,7 +243,7 @@ const class MNamespace : Namespace, CNamespace
   {
     libs.eachWhile |lib|
     {
-      lib.eachTypeWhile |type| { f(type) }
+      lib.types.eachWhile |type| { f(type) }
     }
   }
 

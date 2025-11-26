@@ -396,7 +396,7 @@ class RuntimeTest : HxTest
   {
     // ns - spec
     lib := proj.companion.lib
-    Str[] actualSpecs := lib.types.map |s->Str| { s.name }
+    Str[] actualSpecs := lib.types.list.map |s->Str| { s.name }
     verifyEq(actualSpecs.sort, expectSpecs)
     expectSpecs.each |n|
     {

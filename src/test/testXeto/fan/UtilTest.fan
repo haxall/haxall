@@ -102,6 +102,7 @@ class UtilTest : AbstractXetoTest
 
     x = SpecMap.makeLibTypes(SpecMap.makeLibSpecs(specs))
     verifySpecMap(x, specs.findAll { it.isType }, "{Date, DateTime, Marker, Number, Ref, Span, Str, Time}")
+    verifyNotSame(x.list, x.list)
     verifyEq(x.get("Funcs", false), null)
     verifyEq(x.getAll("Funcs"), Spec[,])
     verifyEq(x.getQualified(fmixin.qname, false), null)
@@ -110,6 +111,7 @@ class UtilTest : AbstractXetoTest
 
     x = SpecMap.makeLibMixins(SpecMap.makeLibSpecs(specs))
     verifySpecMap(x, specs.findAll { it.isMixin }, "{Funcs}")
+    verifyNotSame(x.list, x.list)
     verifyEq(x.get("Date", false), null)
     verifyEq(x.getAll("Date"), Spec[,])
     verifyEq(x.getQualified("sys::Date", false), null)

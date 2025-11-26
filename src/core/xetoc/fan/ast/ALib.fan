@@ -165,25 +165,21 @@ internal const class ALib : Lib, ADoc
 
   override LibDepend[] depends() { throw UnsupportedErr() }
 
-  override Spec[] specs()  { throw UnsupportedErr() }
+  override SpecMap specs()  { throw UnsupportedErr() }
 
   override Spec? spec(Str name, Bool checked := true)  { throw UnsupportedErr() }
 
-  override Spec[] types()  { throw UnsupportedErr() }
+  override SpecMap types()  { throw UnsupportedErr() }
 
   override Spec? type(Str name, Bool checked := true)  { throw UnsupportedErr() }
 
-  override Spec[] mixins()  { throw UnsupportedErr() }
+  override SpecMap mixins()  { throw UnsupportedErr() }
 
   override Spec? mixinFor(Spec type, Bool checked := true) { throw UnsupportedErr() }
 
   override Dict[] instances() { throw UnsupportedErr() }
 
   override Dict? instance(Str name, Bool checked := true) { throw UnsupportedErr() }
-
-  override Void eachType(|Spec| f) { throw UnsupportedErr() }
-
-  override Obj? eachTypeWhile(|Spec->Obj?| f) { throw UnsupportedErr() }
 
   override Void eachInstance(|Dict| f) { throw UnsupportedErr() }
 

@@ -41,7 +41,7 @@ abstract internal class Step
 
   Spec[] specsToDoc(Lib lib)
   {
-    lib.specs.findAll |t| { !XetoUtil.isAutoName(t.name) && !t.isMixin }
+    lib.specs.list.findAll |t| { !XetoUtil.isAutoName(t.name) && !t.isMixin }
   }
 
   PageEntry[] chapters(Lib lib)

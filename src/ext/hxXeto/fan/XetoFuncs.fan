@@ -132,7 +132,7 @@ const class XetoFuncs
     lib := scopeVal as Lib
     if (lib != null)
     {
-      specs := lib.types
+      specs := lib.types.list
       if (filterFunc != null) specs = specs.findAll(filterFunc)
       return specs
     }

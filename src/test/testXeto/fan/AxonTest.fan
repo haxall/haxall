@@ -78,8 +78,8 @@ class AxonTest : AbstractAxonTest
     ns.eachType |t| { allTypes.add(t) }
     verifyDictsEq(eval("""specs()"""), allTypes)
     verifyDictsEq(eval("""specs(null)"""), allTypes)
-    verifyDictsEq(eval("""specLib("ph").specs"""), ns.lib("ph").types)
-    verifyDictsEq(eval("""do x: specLib("ph"); specs(x); end"""), ns.lib("ph").types)
+    verifyDictsEq(eval("""specLib("ph").specs"""), ns.lib("ph").types.list)
+    verifyDictsEq(eval("""do x: specLib("ph"); specs(x); end"""), ns.lib("ph").types.list)
     verifyDictsEq(eval("""specs(null, abstract)"""), allTypes.findAll |x| { x.has("abstract") })
     verifyDictsEq(eval("""specs(null, abstract)"""),allTypes.findAll |x| { x.has("abstract") })
     verifyDictsEq(eval("""specs(null, base==@sys::Seq)"""), allTypes.findAll |x| { x.base?.qname == "sys::Seq" })
