@@ -566,7 +566,7 @@ class HxFuncsTest : HxTest
       ]).reorderCols(["name", "type", "maybe"])
     verifyGridEq(slots, x->slots)
     verifyDictEq(x,
-      ["rt":"spec", "name":"foo", "base":Ref("sys::Func"), "spec":Ref("sys::Spec"),
+      ["rt":"func", "name":"foo", "base":Ref("sys::Func"), "spec":Ref("sys::Spec"),
         "axon":"(a, b)=>a+b", "admin":m, "slots":slots])
 
     // parse

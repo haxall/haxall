@@ -53,6 +53,24 @@ const class XetoUtil
     return null
   }
 
+  ** Return if valid top-level type (or mixin) name
+  static Bool isTypeName(Str n)
+  {
+    isSpecName(n) && n[0].isUpper
+  }
+
+  ** Return if valid slot name
+  static Bool isSlotName(Str n)
+  {
+    isSpecName(n) && n[0].isLower
+  }
+
+  ** Return if valid function name - same as isSlotName
+  static Bool isFuncName(Str n)
+  {
+    isSlotName(n)
+  }
+
   ** Return if valid spec name
   static Bool isSpecName(Str n)
   {

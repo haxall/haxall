@@ -207,7 +207,7 @@ internal class Parse : Step
     funcs := Dict[,]
     recs.each |rec|
     {
-      if (isCompanionFunc(rec))
+      if (rec["rt"] == "func")
         funcs.add(rec)
       else
         parseCompanionRec(lib, rec)
@@ -215,13 +215,6 @@ internal class Parse : Step
 
     // parse functions
     parseCompanionFuncs(lib, funcs)
-  }
-
-  private Bool isCompanionFunc(Dict rec)
-  {
-    base := rec["base"]?.toStr
-    if (base == null) return false
-    return base == "Func" || base == "sys::Func" || base == "Template" || base == "sys.template::Template"
   }
 
   private Void parseCompanionRec(ALib lib, Dict rec)

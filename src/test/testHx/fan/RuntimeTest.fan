@@ -249,7 +249,7 @@ class RuntimeTest : HxTest
     verifyEq(specA.slot("dis").type.name, "Str")
 
     // add func - specB
-    proj.companion.add(d(["rt":"spec", "name":"specB", "base":Ref("sys::Func"), "spec":specRef]))
+    proj.companion.add(d(["rt":"func", "name":"specB", "base":Ref("sys::Func"), "spec":specRef]))
     specB := proj.companion.lib.funcs.get("specB")
     digest = verifyCompanionRecs(["SpecA"], ["specB"], Str[,], digest)
     verifyEq(specB.base.qname, "sys::Func")
@@ -414,7 +414,7 @@ class RuntimeTest : HxTest
       spec := proj.ns.spec("proj::Funcs.$n")
       verifySame(spec.lib, proj.companion.lib)
       rec := proj.companion.read(n)
-      verifyEq(rec["rt"], "spec")
+      verifyEq(rec["rt"], "func")
     }
 
     // ns - instances
@@ -501,7 +501,7 @@ class RuntimeTest : HxTest
 
     // func
     rec = proj.companion.func("foo3", src, Etc.dict1("admin", m))
-    verifyDictEq(rec, ["rt":"spec", "name":"foo3", "admin":m, "axon":src,
+    verifyDictEq(rec, ["rt":"func", "name":"foo3", "admin":m, "axon":src,
       "base":Ref("sys::Func"), "spec":Ref("sys::Spec"), "slots":slots])
 
     // now as spec

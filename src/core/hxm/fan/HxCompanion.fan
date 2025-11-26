@@ -102,8 +102,8 @@ const class HxCompanion : ProjCompanion
     doUpdate |->|
     {
       cur := read(oldName)
-      checkName(cur, newName)
       if (read(newName, false) != null) throw DuplicateNameErr(newName)
+      checkName(cur, newName)
       db.commit(Diff(cur, Etc.dict1("name", newName), Diff.bypassRestricted))
     }
   }
@@ -159,20 +159,19 @@ const class HxCompanion : ProjCompanion
 
   private static Void checkName(Dict rec, Str name)
   {
-    if (rec["rt"] == "instance")
+    rt := rec["rt"] as Str
+    switch (rt)
     {
-      if (!XetoUtil.isInstanceName(name)) throw InvalidCompanionRecErr("Invalid instance name: $name")
-    }
-    else
-    {
-      if (!XetoUtil.isSpecName(name)) throw InvalidCompanionRecErr("Invalid spec name: $name")
+      case "func":     if (!XetoUtil.isFuncName(name)) throw InvalidCompanionRecErr("Invalid func name: $name")
+      case "spec":     if (!XetoUtil.isTypeName(name)) throw InvalidCompanionRecErr("Invalid top-level spec name: $name")
+      case "instance": if (!XetoUtil.isInstanceName(name)) throw InvalidCompanionRecErr("Invalid instance name: $name")
     }
   }
 
-  private static Bool isCompanionRec(Dict rec)
+  static Bool isCompanionRec(Dict rec)
   {
     rt := rec["rt"] as Str
-    return rt == "spec" || rt == "instance"
+    return rt == "func" || rt == "spec" || rt == "instance"
   }
 
   private static Str validate(Dict rec)
@@ -181,7 +180,8 @@ const class HxCompanion : ProjCompanion
     checkName(rec, name)
 
     rt := rec["rt"] as Str ?: throw InvalidCompanionRecErr("Missing 'rt' tag")
-    if (rt == "spec") return validateSpec(name, rec)
+    if (rt == "func")     return validateSpec(name, rec)
+    if (rt == "spec")     return validateSpec(name, rec)
     if (rt == "instance") return validateInstance(name, rec)
     throw InvalidCompanionRecErr("Invalid 'rt' tag: $rt")
   }
@@ -278,7 +278,7 @@ const class HxCompanion : ProjCompanion
   {
     acc := Str:Obj[:]
     meta.each |v, n| { acc[n] = v }
-    acc["rt"]    = "spec"
+    acc["rt"]    = "func"
     acc["name"]  = name
     acc["spec"]  = specRef
     acc["base"]  = funcRef

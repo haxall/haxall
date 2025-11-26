@@ -396,9 +396,14 @@ const class HxLibs : RuntimeLibs
   private CompanionRecs? updateCompanionRecs(HxNamespace? oldNs)
   {
     if  (!rt.isProj) return null
-    recs := rt.db.readAllList(Filter.eq("rt", "spec").or(Filter.eq("rt", "instance")))
+    recs := readCompanionRecs
     thunks := updateCompanionReuseThunks(recs, oldNs)
     return CompanionRecs(recs, thunks)
+  }
+
+  private Dict[] readCompanionRecs()
+  {
+    rt.db.readAllList(Filter.has("rt")).findAll |rec| { HxCompanion.isCompanionRec(rec) }
   }
 
   private Str:Thunk updateCompanionReuseThunks(Dict[] newRecs, HxNamespace? oldNs)
