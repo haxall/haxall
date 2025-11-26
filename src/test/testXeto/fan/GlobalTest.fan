@@ -100,6 +100,10 @@ class GlobalTest : AbstractXetoTest
 
     // global meta
     verifyEq(x.meta["global"], Marker.val)
+    verifySame(x.flavor, SpecFlavor.global)
+    verifyEq(x.isType, false)
+    verifyEq(x.isMixin, false)
+    verifyEq(x.isMember, true)
     verifyEq(x.isSlot, false)
     verifyEq(x.isGlobal, true)
 
@@ -114,9 +118,12 @@ class GlobalTest : AbstractXetoTest
   {
     x := parent.slots.get(name)
 
+    verifySame(x.flavor, SpecFlavor.slot)
+    verifyEq(x.isType, false)
+    verifyEq(x.isMixin, false)
+    verifyEq(x.isMember, true)
     verifyEq(x.isSlot, true)
     verifyEq(x.isGlobal, false)
-    verifySame(x.base, base)
 
     return x
   }

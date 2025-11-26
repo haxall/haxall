@@ -25,7 +25,7 @@ internal class Assemble : Step
   {
     m := MLib(x.loc, x.name, x.meta, x.flags, x.version, compiler.depends.list, asmTops(x), asmInstances(x), x.files)
     XetoLib#m->setConst(x.asm, m)
-    lib.tops.each |spec| { asmTop(spec) }
+    lib.tops.each |spec| { asmSpec(spec) }
   }
 
   private Str:Spec asmTops(ALib x)
@@ -44,29 +44,10 @@ internal class Assemble : Step
     return acc
   }
 
-  private Void asmTop(ASpec x)
-  {
-    init := toInit(x)
-    MSpec? m
-    switch (x.flavor)
-    {
-      case SpecFlavor.type:   m = MType(init)
-      case SpecFlavor.func:   m = MTopFunc(init)
-      case SpecFlavor.mixIn:  m = MMixin(init)
-      case SpecFlavor.global: err("Old style globals not supported: $x.name", x.loc); return
-// TODO - move to parser
-//      case SpecFlavor.meta:   err("Old style meta not supported: $x.name", x.loc); return
-      default:                throw Err(x.flavor.name)
-    }
-    mField->setConst(x.asm, m)
-    asmChildren(x)
-  }
-
   private Void asmSpec(ASpec x)
   {
     init := toInit(x)
-    m := MSpec(init)
-    mField->setConst(x.asm, m)
+    MSpec.factory(x.asm, x.flavor, init)
     asmChildren(x)
   }
 
@@ -126,6 +107,5 @@ internal class Assemble : Step
   static const Str:Spec noSpecs := [:]
   static const Str:Dict noDicts := [:]
 
-  Field mField  := XetoSpec#m
 }
 

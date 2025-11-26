@@ -106,6 +106,9 @@ const mixin Spec : Dict
   ** false.  See `Namespace.choice` to access `SpecChoice` API.
   abstract Bool isChoice()
 
+  ** Return if this a function spec
+  abstract Bool isFunc()
+
   ** Return function specific APIs.  Raise exception if `isFunc` is false.
   abstract SpecFunc func()
 
@@ -122,20 +125,20 @@ const mixin Spec : Dict
   ** Is this a top level type spec
   abstract Bool isType()
 
-  ** Is this a type mixin spec
+  ** Is this a top level mixin spec
   abstract Bool isMixin()
 
-  ** Is this a global slot that defines type and meta for a given slot name
-  abstract Bool isGlobal()
+  ** Is this a slot or global under a parent
+  abstract Bool isMember()
 
-  ** Return if this a function spec
-  abstract Bool isFunc()
+  ** Is this a slot under a parent
+  abstract Bool isSlot()
+
+  ** Is this a global slot under a parent
+  abstract Bool isGlobal()
 
   ** Flavor: type, global, meta, or slot
   @NoDoc abstract SpecFlavor flavor()
-
-  ** Is this a slot under a parent
-  @NoDoc abstract Bool isSlot()
 
 //////////////////////////////////////////////////////////////////////////
 // NoDoc

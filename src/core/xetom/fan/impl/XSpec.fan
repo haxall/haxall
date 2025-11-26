@@ -215,12 +215,13 @@ const class WrapSpec : Spec
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { m.isType }
   override final Bool isMixin()      { m.isMixin }
+  override final Bool isMember()     { m.isMember }
   override final Bool isSlot()       { m.isSlot }
+  override final Bool isGlobal()     { m.isGlobal }
 
   override final Bool isNone()      { m.isNone }
   override final Bool isSelf()      { m.isSelf }
   override final Bool isMaybe()     { m.isMaybe }
-  override final Bool isGlobal()    { m.isGlobal }
   override final Bool isScalar()    { m.isScalar }
   override final Bool isMarker()    { m.isMarker }
   override final Bool isRef()       { m.isRef }

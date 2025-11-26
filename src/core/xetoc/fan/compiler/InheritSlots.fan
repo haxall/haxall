@@ -161,9 +161,6 @@ internal class InheritSlots : Step
       x.flags = computeFlagsSysComp(x)
     else
       x.flags = computeFlagsNonSys(x)
-
-    if (x.flags.and(MSpecFlags.func) != 0 && x.flavor.isGlobal)
-      x.ast.flavor = SpecFlavor.func
   }
 
   private Int computeFlagsNonSys(ASpec x)
@@ -184,9 +181,13 @@ internal class InheritSlots : Step
           flags = flags.or(MSpecFlags.maybe)
       }
 
-      // if global is marker set flag
-      global := x.ast.meta.get("global")
-      if (global != null) flags = flags.or(MSpecFlags.global)
+      // if global then we use both flavor and flag
+      isGlobal := x.ast.meta.has("global")
+      if (isGlobal)
+      {
+        flags = flags.or(MSpecFlags.global)
+        x.ast.flavor = SpecFlavor.global
+      }
     }
 
     // if my base is compound type

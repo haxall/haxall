@@ -16,6 +16,19 @@ using xeto
 @Js
 const class MSpec
 {
+  static MSpec factory(XetoSpec asm, SpecFlavor flavor, MSpecInit init)
+  {
+    MSpec? m
+    switch (flavor)
+    {
+      case SpecFlavor.type:  m = MType(init)
+      case SpecFlavor.mixIn: m = MMixin(init)
+      default:               m = MSpec(init)
+    }
+    XetoSpec#m->setConst(asm, m)
+    return m
+  }
+
   new make(MSpecInit init)
   {
     this.loc        = init.loc
@@ -171,7 +184,10 @@ const class MSpec
 // Flags
 //////////////////////////////////////////////////////////////////////////
 
-  virtual SpecFlavor flavor() { SpecFlavor.slot }
+  virtual SpecFlavor flavor()
+  {
+    hasFlag(MSpecFlags.global) ? SpecFlavor.global : SpecFlavor.slot
+  }
 
   Bool isType() { flavor.isType }
 
@@ -292,12 +308,13 @@ const class XetoSpec : Spec, CNode
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { flavor.isType }
   override final Bool isMixin()      { flavor.isMixin }
-  override final Bool isSlot()       { flavor.isSlot && !isGlobal } // TODO
+  override final Bool isMember()     { flavor.isMember }
+  override final Bool isSlot()       { flavor.isSlot }
+  override final Bool isGlobal()     { flavor.isGlobal }
 
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
   override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }
   override final Bool isMaybe()     { m.hasFlag(MSpecFlags.maybe) }
-  override final Bool isGlobal()    { m.hasFlag(MSpecFlags.global) || flavor.isGlobal } // TODO
   override final Bool isScalar()    { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker()    { m.hasFlag(MSpecFlags.marker) }
   override final Bool isRef()       { m.hasFlag(MSpecFlags.ref) }

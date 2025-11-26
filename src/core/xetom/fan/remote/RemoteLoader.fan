@@ -159,24 +159,7 @@ internal class RemoteLoader
       it.binding    = x.bindingRef
     }
 
-    MSpec? m
-    if (x.flavor.isType)
-    {
-      m = MType(init)
-    }
-    else if (x.flavor.isMixin)
-    {
-      m = MMixin(init)
-    }
-    else if (x.flavor.isFunc)
-    {
-      m = MTopFunc(init)
-    }
-    else
-    {
-      m = MSpec(init)
-    }
-    XetoSpec#m->setConst(x.asm, m)
+    MSpec.factory(x.asm, x.flavor, init)
     return x
   }
 

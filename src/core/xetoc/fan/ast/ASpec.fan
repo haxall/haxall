@@ -73,20 +73,17 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** Is flavor mixin
   override Bool isMixin() { flavor.isMixin }
 
+  ** Is this a slot or global spec
+  override Bool isMember() { flavor.isMember }
+
+  ** Is this a slot spec
+  override Bool isSlot() { flavor.isSlot }
+
   ** Is flavor global
-  override Bool isGlobal()
-  {
-// TODO
-    if (flags < 0) return metaHas("global")
-    return flavor.isGlobal || hasFlag(MSpecFlags.global)
-  }
+  override Bool isGlobal() { flavor.isGlobal }
 
   ** Are we compiling sys itself
   override Bool isSys() { lib.isSys }
-
-  ** Is this a slot spec
-// TODO: make this isMember
-  override Bool isSlot() { parent != null }
 
   ** Name within lib or parent
   const override Str name

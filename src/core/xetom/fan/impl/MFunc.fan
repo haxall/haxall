@@ -10,34 +10,6 @@ using util
 using xeto
 
 **
-** Top level function
-**
-@Js
-const final class MTopFunc : MSpec
-{
-  new make(MSpecInit init) : super(init)
-  {
-    this.lib   = init.lib
-    this.qname = init.qname
-    this.id    = Ref(qname, null)
-  }
-
-  const override XetoLib lib
-
-  const override Str qname
-
-  const override Ref id
-
-  override SpecFlavor flavor() { SpecFlavor.func }
-
-  override Str toStr() { qname }
-}
-
-**************************************************************************
-** MFunc
-**************************************************************************
-
-**
 ** Implementation of SpecFunc
 **
 @Js
