@@ -91,8 +91,8 @@ name: "metaNotDefined"
 compileLib: |
   Foo: Dict <foo> {
     a: Str <bar, qux:"xxx">
+    *c: Date <baz>
   }
-  c: Date <baz>
 verifyErrs: |
   Undefined meta tag 'foo'
   Undefined meta tag 'bar'
@@ -129,20 +129,14 @@ verifyErrs: |
   Instance name 'pragma' is reserved
   Instance name 'doc-overview' is reserved
 ---
-name: "reservedSpecNames"
-compileLib: |
-  toc: Dict
-verifyErrs: |
-  Spec name 'toc' is reserved
----
 name: "dupTops"
 compileLib: |
-  foo: Dict
+  Foo: Dict
   Bar: Dict
   @foo: {}
   @Bar: {}
 verifyErrs: |
-  Spec 'foo' conflicts with instance of the same name
+  Spec 'Foo' conflicts with instance of the same name
   Spec 'Bar' conflicts with instance of the same name
 ---
 name: "checkTypeInherit"
@@ -254,9 +248,9 @@ compileLib: |
     *equip: Str <meta>
   }
 verifyErrs: |
-  Duplicates global: ph::PhEntity.area
-  Duplicates global: ph::PhEntity.site
-  Duplicates global: ph::PhEntity.equip
+  Duplicate global: ph::PhEntity.area
+  Duplicate global: ph::PhEntity.site
+  Duplicate global: ph::PhEntity.equip
 ---
 name: "mixins"
 compileLib: |

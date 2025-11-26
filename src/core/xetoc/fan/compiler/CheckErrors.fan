@@ -68,7 +68,7 @@ internal class CheckErrors : Step
 
   Void checkTopName(ASpec x)
   {
-    if (lib.ast.instances[x.name] != null)
+    if (lib.ast.instances[x.name] != null || lib.ast.instances[x.name.lower] != null)
       err("Spec '$x.name' conflicts with instance of the same name", x.loc)
 
     if (XetoUtil.isReservedSpecName(x.name))
