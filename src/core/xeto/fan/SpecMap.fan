@@ -83,6 +83,10 @@ const mixin SpecMap
   ** exception based on the checked flag.
   abstract Spec? getQualified(Str qname, Bool checked := true)
 
+  ** List the specs.
+  ** NOTE: the names may not match slots names
+  abstract Spec[] list()
+
   ** Convenience to list the spec names in this map; prefer `each`.
   ** NOTE: the names may not match slots names
   abstract Str[] names()
@@ -147,6 +151,8 @@ internal const class EmptySpecMap : SpecMap
   override Spec[] getAll(Str name) { emptyList }
 
   override Spec? getQualified(Str qname, Bool checked := true) { get(qname, checked) }
+
+  override Spec[] list() { emptyList }
 
   override Str[] names() { Str#.emptyList }
 
@@ -223,6 +229,8 @@ internal final const class MapSpecMap : NonEmptySpecMap
     throw UnknownSpecErr(name)
   }
 
+  override Spec[] list() { map.vals }
+
   override Void each(|Spec,Str| f) { map.each(f) }
 
   override Obj? eachWhile(|Spec,Str->Obj?| f) { map.eachWhile(f) }
@@ -246,6 +254,13 @@ internal final const class ChainSpecMap : NonEmptySpecMap
   override Spec? get(Str name, Bool checked := true)
   {
     a.get(name, false) ?: b.get(name, checked)
+  }
+
+  override Spec[] list()
+  {
+    acc := Spec[,]
+    each |v| { acc.add(v) }
+    return acc
   }
 
   override Void each(|Spec,Str| f)
@@ -331,6 +346,13 @@ internal final const class CollisionsSpecMap : SpecMap
     }
     if (!checked) return null
     throw UnknownSpecErr(qname)
+  }
+
+  override Spec[] list()
+  {
+    acc := Spec[,]
+    each |v| { acc.add(v) }
+    return acc
   }
 
   override Void each(|Spec,Str| f)

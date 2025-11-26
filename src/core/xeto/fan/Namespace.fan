@@ -67,13 +67,13 @@ const mixin Namespace
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get a type spec by the given qualified name.
-  abstract Spec? type(Str qname, Bool checked := true)
-
   ** Get a spec by the given qualified name:
   **   - type/mixin: "foo.bar::Baz"
   **   - slot/global: "foo.bar::Baz.qux"
   abstract Spec? spec(Str qname, Bool checked := true)
+
+  ** Get a type spec by the given qualified name.
+  abstract Spec? type(Str qname, Bool checked := true)
 
   ** Get an instance by the given qualified name
   abstract Dict? instance(Str qname, Bool checked := true)

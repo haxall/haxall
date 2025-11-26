@@ -41,7 +41,7 @@ class UtilTest : AbstractXetoTest
 
     verifySame(SpecMap.empty, SpecMap.empty)
     verifySame(SpecMap.makeMap(Str:Spec[:]), SpecMap.empty)
-    verifySpecMap(SpecMap.empty, [:], "{}")
+    verifySpecMap(SpecMap.empty, Str:Spec[:], "{}")
 
     // check getQualified - not tested fully by verifySpecMap
     x := SpecMap(["Str":a])
@@ -110,10 +110,15 @@ class UtilTest : AbstractXetoTest
     verifySame(x.getAll("bad"), Spec#.emptyList)
 
     // each
+    list := Spec[,]
     x.each |s, n|
     {
       verifySame(s, expect[n])
+      list.add(s)
     }
+
+    // list
+    verifyEq(x.list, list)
 
     // toStr, names (tests order)
     verifyEq(x.toStr, str)
@@ -199,6 +204,9 @@ class UtilTest : AbstractXetoTest
     x.each |v, n| { names.add(n); vals.add(v) }
     verifyEq(names, ["Str", "Date", "Date", "Bar", "Bar", "Bar", "Foo"])
     verifyEq(vals,  Spec[a, b, c, d, e, f, g])
+
+    // list
+    verifyEq(x.list, vals)
 
     // eachWhile
     names.clear
