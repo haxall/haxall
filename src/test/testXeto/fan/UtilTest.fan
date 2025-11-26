@@ -23,7 +23,7 @@ class UtilTest : AbstractXetoTest
 
   Void testSpecMap()
   {
-    ns := createNamespace(["sys"])
+    ns := createNamespace(["sys", "axon"])
     a := ns.sysLib.spec("Str")
     b := ns.sysLib.spec("Number")
     c := ns.sysLib.spec("Date")
@@ -77,6 +77,7 @@ class UtilTest : AbstractXetoTest
     s := verifySpecMap(SpecMap.makeList([q, p, r]), map, "{a, b, c, d, e, f, g, h, i}")
 
     // makeChain
+
     verifySame(SpecMap.makeChain(p, SpecMap.empty), p)
     verifySame(SpecMap.makeChain(SpecMap.empty, p), p)
     t := SpecMap(["b":b2, "h":h2, "j":j2])
@@ -84,11 +85,40 @@ class UtilTest : AbstractXetoTest
     verifySpecMap(SpecMap.makeChain(t, s), map, "{b, h, j, a, c, d, e, f, g, i}")
 
     // makeCollisions
+
     verifyCollisionsSpecMap(ns)
+
+    // makeLibSpecs
+
+    fmixin := ns.lib("axon").spec("Funcs")
+    verifyEq(fmixin.isMixin, true)
+    specs := Str:Spec["Str":a, "Number":b, "Date":c, "Time":d, "DateTime":e, "Ref":f, "Marker":g, "Span":h, "Funcs":fmixin]
+    x = SpecMap.makeLibSpecs(specs)
+    verifySame(x.list, x.list)
+    verifySame(x.list.isImmutable, true)
+    verifySpecMap(x, specs, "{Date, DateTime, Funcs, Marker, Number, Ref, Span, Str, Time}")
+
+    // makeLibTypes
+
+    x = SpecMap.makeLibTypes(SpecMap.makeLibSpecs(specs))
+    verifySpecMap(x, specs.findAll { it.isType }, "{Date, DateTime, Marker, Number, Ref, Span, Str, Time}")
+    verifyEq(x.get("Funcs", false), null)
+    verifyEq(x.getAll("Funcs"), Spec[,])
+    verifyEq(x.getQualified(fmixin.qname, false), null)
+
+    // makeLibMixins
+
+    x = SpecMap.makeLibMixins(SpecMap.makeLibSpecs(specs))
+    verifySpecMap(x, specs.findAll { it.isMixin }, "{Funcs}")
+    verifyEq(x.get("Date", false), null)
+    verifyEq(x.getAll("Date"), Spec[,])
+    verifyEq(x.getQualified("sys::Date", false), null)
   }
 
   SpecMap verifySpecMap(SpecMap x, Str:Spec expect, Str str)
   {
+    // echo(">> $x [$x.typeof]")
+
     verifyEq(x.isEmpty, expect.isEmpty)
 
     // matches - has, missing, get, getAll, getQualified

@@ -20,6 +20,11 @@
 @Js
 const mixin SpecMap
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Factories
+//////////////////////////////////////////////////////////////////////////
+
   ** Empty spec map
   static SpecMap empty() { EmptySpecMap.val }
 
@@ -27,13 +32,6 @@ const mixin SpecMap
   @NoDoc static new makeMap(Str:Spec map)
   {
     map.isEmpty ? empty : MapSpecMap.makeMap(map)
-  }
-
-  ** Factory for map with collisions.
-  ** Vals must be Spec or Spec[] only when there is collisions
-  @NoDoc static SpecMap makeCollisions(Str:Obj map)
-  {
-    map.isEmpty ? empty : CollisionsSpecMap.makeMap(map)
   }
 
   ** Factory for list of maps - each one must be non-empty, nor duplicate names
@@ -58,6 +56,35 @@ const mixin SpecMap
     if (b.isEmpty) return a
     return ChainSpecMap(a, b)
   }
+
+  ** Factory for map with collisions.
+  ** Vals must be Spec or Spec[] only when there is collisions
+  @NoDoc static SpecMap makeCollisions(Str:Obj map)
+  {
+    map.isEmpty ? empty : CollisionsSpecMap.makeMap(map)
+  }
+
+  ** Factory for map for Lib.specs
+  @NoDoc static SpecMap makeLibSpecs(Str:Spec map)
+  {
+    map.isEmpty ? empty : LibSpecMap.makeMap(map)
+  }
+
+  ** Factory for map for Lib.types
+  @NoDoc static SpecMap makeLibTypes(SpecMap specs)
+  {
+    specs.isEmpty ? empty : LibTypeMap(specs)
+  }
+
+  ** Factory for map for Lib.mixins
+  @NoDoc static SpecMap makeLibMixins(SpecMap specs)
+  {
+    specs.isEmpty ? empty : LibMixinMap(specs)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Methods
+//////////////////////////////////////////////////////////////////////////
 
   ** Return if slots are empty
   abstract Bool isEmpty()
@@ -166,13 +193,13 @@ internal const class EmptySpecMap : SpecMap
 }
 
 **************************************************************************
-** NonEmptySpecMap
+** AbstractSpecMap
 **************************************************************************
 
 @Js
-internal abstract const class NonEmptySpecMap : SpecMap
+internal abstract const class AbstractSpecMap : SpecMap
 {
-  override final Bool isEmpty() { false }
+  override Bool isEmpty() { false }
 
   override final Bool has(Str name) { get(name, false) != null }
 
@@ -194,7 +221,14 @@ internal abstract const class NonEmptySpecMap : SpecMap
     throw UnknownSpecErr(qname)
   }
 
-  override final Str[] names()
+  override Spec[] list()
+  {
+    acc := Spec[,]
+    each |v| { acc.add(v) }
+    return acc
+  }
+
+  override Str[] names()
   {
     acc := Str[,]
     each |v, n| { acc.add(n) }
@@ -209,7 +243,7 @@ internal abstract const class NonEmptySpecMap : SpecMap
 **************************************************************************
 
 @Js
-internal final const class MapSpecMap : NonEmptySpecMap
+internal const class MapSpecMap : AbstractSpecMap
 {
   new makeMap(Str:Spec map)
   {
@@ -219,7 +253,7 @@ internal final const class MapSpecMap : NonEmptySpecMap
 
   const Str:Spec map
 
-  override Int size() { map.size }
+  override final Int size() { map.size }
 
   override Spec? get(Str name, Bool checked := true)
   {
@@ -241,7 +275,7 @@ internal final const class MapSpecMap : NonEmptySpecMap
 **************************************************************************
 
 @Js
-internal final const class ChainSpecMap : NonEmptySpecMap
+internal final const class ChainSpecMap : AbstractSpecMap
 {
   new makeMap(SpecMap a, SpecMap b) { this.a = a; this.b = b }
 
@@ -385,6 +419,96 @@ internal final const class CollisionsSpecMap : SpecMap
   }
 
   override final Dict toDict() { throw UnsupportedErr() }
+}
+
+**************************************************************************
+** LibSpecMap
+**************************************************************************
+
+@Js
+internal final const class LibSpecMap : MapSpecMap
+{
+  new makeMap(Str:Spec map) : super(map) {}
+
+  override Void each(|Spec,Str| f)
+  {
+    list.each |x| { f(x, x.name) }
+  }
+
+  override Obj? eachWhile(|Spec,Str->Obj?| f)
+  {
+    list.eachWhile |x| { f(x, x.name) }
+  }
+
+  override once Spec[] list()
+  {
+    map.vals.sort |a, b| { a.name <=> b.name }.toImmutable
+  }
+
+  override final Str[] names()
+  {
+    list.map |x->Str| { x.name }
+  }
+}
+
+**************************************************************************
+** FilterSpecMap
+**************************************************************************
+
+@Js
+internal abstract const class FilterSpecMap : AbstractSpecMap
+{
+  new make(SpecMap wrap) { this.wrap = wrap }
+
+  const SpecMap wrap
+
+  abstract Bool include(Spec x)
+
+  override Bool isEmpty() { size == 0 }
+
+  override once Int size() { n := 0; each |x| { n++ }; return n }
+
+  override Spec? get(Str name, Bool checked := true)
+  {
+    x := wrap.get(name, checked)
+    if (x != null && include(x)) return x
+    if (!checked) return null
+    throw UnknownSpecErr(name)
+  }
+
+  override once Spec[] list()
+  {
+    super.list.findAll |x| { include(x) }
+  }
+
+  override once Str[] names()
+  {
+    super.list.mapNotNull |x->Str?| { include(x) ? x.name : null }
+  }
+
+  override Void each(|Spec,Str| f)
+  {
+    wrap.each |x, n| { if (include(x)) f(x, n) }
+  }
+
+  override Obj? eachWhile(|Spec,Str->Obj?| f)
+  {
+    wrap.eachWhile |x, n| { include(x) ? f(x, n) : null}
+  }
+}
+
+@Js
+internal final const class LibTypeMap : FilterSpecMap
+{
+  new make(SpecMap wrap) : super(wrap) {}
+  override Bool include(Spec x) { x.isType && x.name[0] != '_' }
+}
+
+@Js
+internal final const class LibMixinMap : FilterSpecMap
+{
+  new make(SpecMap wrap) : super(wrap) {}
+  override Bool include(Spec x) { x.isMixin }
 }
 
 **************************************************************************
