@@ -175,7 +175,7 @@ abstract class HxTest : HaystackTest
   {
     rec := proj.companion.func(name, src, Etc.makeDict(meta))
     proj.companion.add(rec)
-    return proj.companion.lib.spec(name)
+    return proj.companion.lib.funcs.get(name)
   }
 
   ** Add user record to the user database.  If the user

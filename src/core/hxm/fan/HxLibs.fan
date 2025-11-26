@@ -432,7 +432,7 @@ const class HxLibs : RuntimeLibs
       // compile then fallback to the previous companionRecs cache
       if (oldLib != null)
       {
-        spec := oldLib.spec(name, false)
+        spec := oldLib.funcs.get(name, false)
         if (spec != null && spec.isFunc && spec.func.hasThunk)
           acc[name] = spec.func.thunk
       }

@@ -23,9 +23,12 @@ internal class ReuseThunks : Step
     if (thunks == null) return
 
     lib := compiler.lib.asm
+    funcs := lib.spec("Funcs", false)
+    if (funcs == null) return funcs
+
     thunks.each |thunk, name|
     {
-      spec := lib.spec(name, false)
+      spec := funcs.slot(name, false)
       if (spec == null || !spec.isFunc) return
       ((MFunc)spec.func).setThunk(thunk)
     }

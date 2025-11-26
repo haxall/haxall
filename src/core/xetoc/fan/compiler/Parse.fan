@@ -204,7 +204,24 @@ internal class Parse : Step
 
     // parse each record
     recs := ns.companionRecs?.recs ?: throw Err("No companion recs")
-    recs.each |rec| { parseCompanionRec(lib, rec) }
+    funcs := Dict[,]
+    recs.each |rec|
+    {
+      if (isCompanionFunc(rec))
+        funcs.add(rec)
+      else
+        parseCompanionRec(lib, rec)
+    }
+
+    // parse functions
+    parseCompanionFuncs(lib, funcs)
+  }
+
+  private Bool isCompanionFunc(Dict rec)
+  {
+    base := rec["base"]?.toStr
+    if (base == null) return false
+    return base == "Func" || base == "sys::Func" || base == "Template" || base == "sys.template::Template"
   }
 
   private Void parseCompanionRec(ALib lib, Dict rec)
@@ -215,6 +232,17 @@ internal class Parse : Step
     s := StrBuf()
     XetoPrinter(ns, s.out, Etc.dict1("noInferMeta", Marker.val)).ast(rec)
     parse(FileLoc(name), s.toStr, lib, compiler.srcBuildVars)
+  }
+
+  private Void parseCompanionFuncs(ALib lib, Dict[] recs)
+  {
+    if (recs.isEmpty) return
+    s := StrBuf()
+    out := XetoPrinter(ns, s.out, Etc.dict1("noInferMeta", Marker.val))
+    out.w("+Funcs {").nl
+    recs.each |rec| { out.ast(rec) }
+    out.w("}")
+    parse(FileLoc("Funcs"), s.toStr, lib, compiler.srcBuildVars)
   }
 
   private ASpec? synthetizeCompanionLibPragma(ALib lib)

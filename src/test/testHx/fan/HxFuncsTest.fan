@@ -108,7 +108,7 @@ class HxFuncsTest : HxTest
     verifyEval("five()", n(5))
     verifyEval("addem(3, 6)", n(9))
     verifyEval("addem(3, 6)", n(9))
-    verifyEval("findFive()->qname", "proj::five")
+    verifyEval("findFive()->qname", "proj::Funcs.five")
     verifyEval("findDan()", d)
     verifyEval("allOld()", toGrid([c, d]))
   }
