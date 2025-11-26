@@ -83,7 +83,7 @@ internal class HxAboutOp : HxApiOp
 {
   override Grid onRequest(Grid req, Context cx)
   {
-    Etc.makeDictGrid(null, cx.ns.spec("hx::about").func.thunk.callList)
+    Etc.makeDictGrid(null, cx.ns.funcs.get("about").func.thunk.callList)
   }
 }
 
