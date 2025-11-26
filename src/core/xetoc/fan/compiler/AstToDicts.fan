@@ -32,13 +32,23 @@ internal class AstToDicts : Step
   {
     acc := Str:Obj[:]
     acc.ordered = true
-    if (rtInclude) acc["rt"] = "spec"
     acc["name"] = x.name
     acc["base"] = mapTypeRef(x.typeRef, ns.sys.dict.id)
     acc["spec"] = ns.sys.spec.id
+    if (rtInclude) acc["rt"] = rtForSpec(x.typeRef)
     mapMeta(acc, x.ast.meta)
     acc.addNotNull("slots", mapSlots(x))
     return Etc.dictFromMap(acc)
+  }
+
+  Str rtForSpec(ASpecRef base)
+  {
+    // Note: this is just a attempt to infer rt as "func", it won't
+    // work for other Func subtypes; so callers should ensure proper
+    // rt tag if they know the something is a function vs a spec
+    n := base.name.name
+    isFunc := n == "Func" || n == "Template"
+    return isFunc ? "func" : "spec"
   }
 
   Grid? mapSlots(ASpec x)
