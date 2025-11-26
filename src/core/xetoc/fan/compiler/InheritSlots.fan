@@ -168,6 +168,9 @@ internal class InheritSlots : Step
     // start off with my base type flags that are inherited
     flags := x.base.flags.and(MSpecFlags.inheritMask)
 
+    // global is both flavor and flag so we can use one MSpec
+    if (x.isGlobal) flags = flags.or(MSpecFlags.global)
+
     // merge in my own flags
     if (x.ast.meta != null)
     {
@@ -179,14 +182,6 @@ internal class InheritSlots : Step
           flags = flags.and(MSpecFlags.maybe.not)
         else
           flags = flags.or(MSpecFlags.maybe)
-      }
-
-      // if global then we use both flavor and flag
-      isGlobal := x.ast.meta.has("global")
-      if (isGlobal)
-      {
-        flags = flags.or(MSpecFlags.global)
-        x.ast.flavor = SpecFlavor.global
       }
     }
 
@@ -334,7 +329,7 @@ internal class InheritSlots : Step
       if (metaHas(base, "static")) return slot
     }
 
-    if (slot.isGlobal) err("Duplicates global: $base", slot.loc)
+    if (slot.isGlobal) err("Duplicate global: $base", slot.loc)
 
     slot.ast.base = base
 

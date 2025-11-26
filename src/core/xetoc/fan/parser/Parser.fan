@@ -361,6 +361,9 @@ internal class Parser
         add("meta", slot.metaInit.map, "global", sys.markerScalar(slot.loc))
       }
 
+      if (isGlobal || slot.metaHas("global"))
+        slot.ast.flavor = SpecFlavor.global
+
       parseCommaOrNewline("Expecting end of slots", Token.rbrace)
 
       add("slot", acc, slot.name, slot)
