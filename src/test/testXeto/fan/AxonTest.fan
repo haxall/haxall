@@ -91,6 +91,18 @@ class AxonTest : AbstractAxonTest
     verifyReflect("Str", ns.type("sys::Str"))
     verifyReflect("Dict", ns.type("sys::Dict"))
     verifyReflect("LibOrg", ns.type("sys::LibOrg"))
+    verifyReflect("Ahu", ns.type("ph::Ahu"))
+
+    // specMember, specSlot, specGlobal
+    verifySame(eval("""specMember(Ahu, "area")"""),          ns.spec("ph::PhEntity.area"))
+    verifySame(eval("""specMember(Ahu, "equipRef")"""),      ns.spec("ph::Equip.equipRef"))
+    verifySame(eval("""specMember(Ahu, "badOne", false)"""), null)
+    verifySame(eval("""specSlot(Ahu, "equipRef")"""),        ns.spec("ph::Equip.equipRef"))
+    verifySame(eval("""specSlot(Ahu, "area", false)"""),     null)
+    verifySame(eval("""specSlot(Ahu, "badOne", false)"""),   null)
+    verifySame(eval("""specGlobal(Ahu, "equipRef")"""),      ns.spec("ph::PhEntity.equipRef"))
+    verifySame(eval("""specGlobal(Ahu, "area")"""),          ns.spec("ph::PhEntity.area"))
+    verifySame(eval("""specGlobal(Ahu, "badOne", false)"""), null)
 
     // instance
     verifyDictEq(eval("""instance("hx.test.xeto::test-a")"""), ns.instance("hx.test.xeto::test-a"))
@@ -121,8 +133,12 @@ class AxonTest : AbstractAxonTest
     verifyEval("specType($expr)", spec.type)
     verifyEval("specBase($expr)", spec.base)
     verifyDictEq(eval("specMetaOwn($expr)"), spec.metaOwn)
+    verifyDictEq(eval("specMembers($expr)"), spec.members.toDict)
+    verifyDictEq(eval("specMembersOwn($expr)"), spec.membersOwn.toDict)
     verifyDictEq(eval("specSlots($expr)"), spec.slots.toDict)
     verifyDictEq(eval("specSlotsOwn($expr)"), spec.slotsOwn.toDict)
+    verifyDictEq(eval("specGlobals($expr)"), spec.globals.toDict)
+    verifyDictEq(eval("specGlobalsOwn($expr)"), spec.globalsOwn.toDict)
   }
 
 //////////////////////////////////////////////////////////////////////////

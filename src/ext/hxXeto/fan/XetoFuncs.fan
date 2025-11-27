@@ -380,21 +380,63 @@ const class XetoFuncs
   **
   @Api @Axon static Dict specMetaOwn(Spec spec) { XetoUtil.toHaystack(spec.metaOwn) }
 
+//////////////////////////////////////////////////////////////////////////
+// Members
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get the spec's declared children slots and globals as dict of Specs.
   **
+  ** Examples:
+  **   specMembersOwn(Ahu)
+  @Api @Axon static Dict specMembersOwn(Spec spec) { spec.membersOwn.toDict }
+
+  ** Get the effective children slots and globals as a dict of Specs.
+  **
+  ** Examples:
+  **   specMembers(Ahu)
+  @Api @Axon static Dict specMembers(Spec spec) { spec.members.toDict }
+
+  ** Get the effective child slot or global member.
+  **
+  ** Examples:
+  **   specMember(Ahu, "equipRef")
+  @Api @Axon static Dict? specMember(Spec spec, Str name, Bool checked := true) { spec.member(name, checked) }
+
   ** Get the spec's declared children slots as dict of Specs.
   **
   ** Examples:
-  **   specSlots(Ahu)  >>  {ahu: Spec}
-  **
+  **   specSlotsOwn(Ahu)
   @Api @Axon static Dict specSlotsOwn(Spec spec) { spec.slotsOwn.toDict }
 
-  **
   ** Get the effective children slots as a dict of Specs.
   **
   ** Examples:
-  **   specSlots(Ahu)  >>  {equip: Spec, points: Spec, ahu: Spec}
-  **
+  **   specSlots(Ahu)
   @Api @Axon static Dict specSlots(Spec spec) { spec.slots.toDict }
+
+  ** Get the effective child slot.
+  **
+  ** Examples:
+  **   specSlot(Ahu, "equipRef")
+  @Api @Axon static Dict? specSlot(Spec spec, Str name, Bool checked := true) { spec.slot(name, checked) }
+
+  ** Get the spec's declared children globals as dict of Specs.
+  **
+  ** Examples:
+  **   specGlobalsOwn(Ahu)
+  @Api @Axon static Dict specGlobalsOwn(Spec spec) { spec.globalsOwn.toDict }
+
+  ** Get the effective children globals as a dict of Specs.
+  **
+  ** Examples:
+  **   specGlobals(Ahu)
+  @Api @Axon static Dict specGlobals(Spec spec) { spec.globals.toDict }
+
+  ** Get the effective global slot.
+  **
+  ** Examples:
+  **   specGlobal(Ahu, "equipRef")
+  @Api @Axon static Dict? specGlobal(Spec spec, Str name, Bool checked := true) { spec.globals.get(name, checked) }
 
 //////////////////////////////////////////////////////////////////////////
 // AST
