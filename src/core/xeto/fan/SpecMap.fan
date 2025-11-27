@@ -49,7 +49,7 @@ const mixin SpecMap
     return makeMap(acc)
   }
 
-  ** Factory to chain a and b; names in a override names in b
+  ** Factory to chain a and b; names in 'a' override names in 'b'
   @NoDoc static new makeChain(SpecMap a, SpecMap b)
   {
     if (a.isEmpty) return b

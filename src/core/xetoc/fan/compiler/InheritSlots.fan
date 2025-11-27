@@ -234,13 +234,13 @@ internal class InheritSlots : Step
 // Slots
 //////////////////////////////////////////////////////////////////////////
 
-  ** The compute the effective slots and store in cslotsRef
+  ** The compute the effective slots and store in members/slots
   private Void inheritSlots(ASpec spec)
   {
-    acc := Str:Spec[:]
-    acc.ordered = true
     autoCount := 0
-    base := spec.base
+    base      := spec.base
+    slots     := Str:Spec[:] { ordered = true }
+    globals   := Str:Spec[:] { ordered = true }
 
     // first inherit slots from base type
     if (spec.isAnd)
@@ -249,75 +249,76 @@ internal class InheritSlots : Step
       if (ofs != null) ofs.each |of|
       {
         if (of.isAst) inherit(of)
-        autoCount = inheritSlotsFrom(spec, acc, autoCount, of)
+        autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, of)
       }
     }
     else
     {
-      autoCount = inheritSlotsFrom(spec, acc, autoCount, base)
+      autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, base)
     }
 
     // now merge in my own slots
-    addOwnSlots(spec, acc, autoCount)
+    addOwnSlots(spec, slots, globals, autoCount)
 
-    // we now have effective slot map
-    // TODO: we can optimzie this
-    spec.ast.members = SpecMap(acc)
-    spec.ast.slots   = SpecMap(acc.findAll |x| { x.isSlot })
+    // we now have effective members
+    spec.ast.slots   = SpecMap(slots)
+    spec.ast.members = SpecMap(spec.slots, SpecMap(globals))
   }
 
   ** Inherit slots from the given base type to accumulator
-  private Int inheritSlotsFrom(ASpec spec, Str:Spec acc, Int autoCount, Spec base)
+  private Int inheritSlotsFrom(ASpec spec, Str:Spec slots, Str:Spec globals, Int autoCount, Spec base)
   {
-    base.members.each |slot|
+    base.members.each |member|
     {
       // we don't inherit constructors
-      if (spec.isInterface && metaHas(slot, "new")) return
+      if (spec.isInterface && metaHas(member, "new")) return
 
       // re-autoname to cleanly inherit from multiple types
-      name := slot.name
+      name := member.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
 
       // check for duplicate
-      dup := acc[name]
+      dup := slots[name] ?: globals[name]
 
-      // if its the exact same slot, all is ok
-      if (dup === slot) return
+      // if its the exact same member, all is ok
+      if (dup === member) return
 
       // otherwise we have conflict
-      if (dup != null)
-      {
-        slot = mergeInheritedSlots(spec, name, dup, slot)
-        if (dup.isGlobal && !slot.isGlobal) acc.remove(name) // don't order by original globals
-      }
+      if (dup != null) member = mergeInheritedSlots(spec, name, dup, member)
 
       // accumlate
-      acc[name] = slot
+      if (member.isSlot)
+        slots[name] = member
+      else
+        globals[name] = member
     }
 
     return autoCount
   }
 
   ** Merge in my own slots to accumulator and handle slot overrides
-  private Int addOwnSlots(ASpec spec, Str:Spec acc, Int autoCount)
+  private Int addOwnSlots(ASpec spec,  Str:Spec slots, Str:Spec globals, Int autoCount)
   {
     if (spec.declared == null) return autoCount
     spec.declared.each |ASpec slot|
     {
+      // check autonaming
       name := slot.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
 
-      dup := acc[name]
+      // if duplicate then check if validate override
+      dup := slots[name] ?: globals[name]
       if (dup != null)
       {
         if (dup === slot) return
-        if (dup.isGlobal) acc.remove(name)  // don't order by original globals
-        acc[name] = overrideSlot(dup, slot)
+        slot = overrideSlot(dup, slot)
       }
+
+      // accumlate
+      if (slot.isSlot)
+        slots[name] = slot
       else
-      {
-        acc[name] = slot
-      }
+        globals[name] = slot
     }
     return autoCount
   }
@@ -381,8 +382,8 @@ internal class InheritSlots : Step
     acc := Str:Spec[:]
     acc.ordered = true
     autoCount := 0
-    autoCount = inheritSlotsFrom(merge, acc, autoCount, a)
-    autoCount = inheritSlotsFrom(merge, acc, autoCount, b)
+    autoCount = inheritSlotsFrom(merge, acc, emptySpecMap, autoCount, a)
+    autoCount = inheritSlotsFrom(merge, acc, emptySpecMap, autoCount, b)
 
     specMap := SpecMap(acc)
     merge.ast.members = specMap
@@ -494,8 +495,8 @@ internal class InheritSlots : Step
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private const Str:Spec emptySpecMap := Str:Spec[:].toImmutable
   private ASpec[] stack := [,]
-  private Str:Spec? globals := [:]
   private ASpec[] types := [,]
 }
 
