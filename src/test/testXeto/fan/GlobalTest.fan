@@ -34,24 +34,24 @@ class GlobalTest : AbstractXetoTest
     tc := ns.spec("hx.test.xeto::TestGlobalsC")
     td := ns.spec("hx.test.xeto::TestGlobalsD")
 
-    a := verifyGlobal(ta, "globA", marker)
-    b := verifyGlobal(ta, "globB", str)
-    c := verifyGlobal(ta, "globC", number)
-    d := verifyGlobal(ta, "globD", marker)
-    e := verifyGlobal(ta, "globE", str)
+    a := verifyGlobal(ns, ta, "globA", marker)
+    b := verifyGlobal(ns, ta, "globB", str)
+    c := verifyGlobal(ns, ta, "globC", number)
+    d := verifyGlobal(ns, ta, "globD", marker)
+    e := verifyGlobal(ns, ta, "globE", str)
 
-    f := verifyGlobal(tb, "globF", str)
-    g := verifyGlobal(tb, "globG", str)
-    ao := verifySlot(tb, "globA", a)
+    f := verifyGlobal(ns, tb, "globF", str)
+    g := verifyGlobal(ns, tb, "globG", str)
+    ao := verifySlot(ns, tb, "globA", a)
 
-    h := verifyGlobal(tc, "globH", str)
-    i := verifyGlobal(tc, "globI", str)
-    bo := verifySlot(tc, "globB", b)
+    h := verifyGlobal(ns, tc, "globH", str)
+    i := verifyGlobal(ns, tc, "globI", str)
+    bo := verifySlot(ns, tc, "globB", b)
 
-    j := verifyGlobal(td, "globJ", str)
-    co := verifySlot(td, "globC", c)
-    io := verifySlot(td, "globI", i)
-    bo2 := verifySlot(td, "globB", b)
+    j := verifyGlobal(ns, td, "globJ", str)
+    co := verifySlot(ns, td, "globC", c)
+    io := verifySlot(ns, td, "globI", i)
+    bo2 := verifySlot(ns, td, "globB", b)
 
     // maps own
 
@@ -86,7 +86,7 @@ class GlobalTest : AbstractXetoTest
     verifySlotMapsSame(td)
   }
 
-  Spec verifyGlobal(Spec parent, Str name, Spec type)
+  Spec verifyGlobal(Namespace ns, Spec parent, Str name, Spec type)
   {
     x := parent.globalsOwn.get(name)
 
@@ -106,6 +106,7 @@ class GlobalTest : AbstractXetoTest
     verifyEq(x.isMember, true)
     verifyEq(x.isSlot, false)
     verifyEq(x.isGlobal, true)
+    verifyFlavor(ns, x, SpecFlavor.global)
 
     // verify not in slots
     verifyEq(parent.slot(name, false), null)
@@ -114,7 +115,7 @@ class GlobalTest : AbstractXetoTest
     return x
   }
 
-  Spec verifySlot(Spec parent, Str name, Spec base)
+  Spec verifySlot(Namespace ns, Spec parent, Str name, Spec base)
   {
     x := parent.slots.get(name)
 
@@ -124,6 +125,7 @@ class GlobalTest : AbstractXetoTest
     verifyEq(x.isMember, true)
     verifyEq(x.isSlot, true)
     verifyEq(x.isGlobal, false)
+    verifyFlavor(ns, x, SpecFlavor.slot)
 
     return x
   }

@@ -76,56 +76,69 @@ class AbstractXetoTest : HaystackTest
     createNamespace.compileDicts(s, opts)
   }
 
-  Void verifyFlavor(Spec spec, SpecFlavor expect)
+  Void verifyFlavor(Namespace ns, Spec x, SpecFlavor expect)
   {
-    verifySame(spec.flavor, expect)
-    verifyEq(spec.isType,   expect.isType)
-    verifyEq(spec.isGlobal, expect.isGlobal)
-    verifyEq(spec.isSlot,   expect.isSlot)
-    if (expect.isSlot)
-      verifyNotNull(spec.parent)
-    else
-      verifyNull(spec.parent)
-  }
+    lib    := x.lib
+    name   := x.name
+    qname  := x.qname
+    parent := x.parent
 
-  Void verifyFlavorLookup(Namespace ns, Spec spec, SpecFlavor flavor)
-  {
-    lib := spec.lib
-    name := spec.name
-    qname := spec.qname
+    verifySame(x.flavor,  expect)
+    verifyEq(x.isType,    expect.isType)
+    verifyEq(x.isMixin,   expect.isMixin)
+    verifyEq(x.isMember,  expect.isMember)
+    verifyEq(x.isGlobal,  expect.isGlobal)
+    verifyEq(x.isSlot,    expect.isSlot)
+    verifyEq(parent != null, expect.isMember)
 
-    if (flavor.isTop)
+    if (expect.isTop)
     {
-      verifyEq(lib.spec(name), spec)
-      verifyEq(lib.specs.get(name), spec)
-      verifyEq(lib.specs.list.containsSame(spec), true)
+      verifySame(lib.spec(name), x)
+      verifySame(lib.specs.get(name), x)
+      verifySame(lib.specs.list.containsSame(x), true)
     }
-/* TODO
-    verifyEq(lib.specs.isImmutable,     true)
-    verifyEq(lib.types.isImmutable,     true)
-    verifyEq(lib.mixins.isImmutable,    true)
+    else
+    {
+      verifySame(parent.member(name), x)
+      verifySame(parent.members.get(name), x)
+      verifySame(parent.members.list.containsSame(x), true)
+    }
 
-    verifyEq(lib.types.contains(spec),     flavor === SpecFlavor.type)
-    verifyEq(lib.mixins.contains(spec),    flavor === SpecFlavor.mixIn)
-
-    switch (flavor)
+    switch (expect)
     {
       case SpecFlavor.type:
-        verifySame(lib.type(name), spec)
-        verifyEq(lib.mixins.find { it.name == name}, null)
+        verifySame(lib.type(name), x)
+        verifySame(lib.types.get(name), x)
+        verifySame(lib.types.list.containsSame(x), true)
+        verifySame(lib.mixins.get(name, false), null)
+        verifyErr(UnknownSpecErr#) { lib.mixins.get(name) }
+        verifyEq(lib.mixins.list.containsSame(x), false)
 
       case SpecFlavor.mixIn:
-        verifySame(lib.mixins.find { it.name == name}, spec)
-        verifyEq(lib.type(name, false), null)
-        verifyErr(UnknownSpecErr#) { lib.type(name) }
+        verifySame(lib.mixinFor(x.base), x)
+        verifySame(lib.mixins.get(name), x)
+        verifySame(lib.mixins.list.containsSame(x), true)
+        verifySame(lib.types.get(name, false), null)
+        verifyErr(UnknownSpecErr#) { lib.types.get(name) }
+        verifyEq(lib.types.list.containsSame(x), false)
 
       case SpecFlavor.slot:
-        verifyNotNull(spec.parent, null)
+        verifySame(parent.slot(name), x)
+        verifySame(parent.slots.get(name), x)
+        verifySame(parent.slots.list.containsSame(x), true)
+        // note: slot flavor doesn't mean we haven't inherited global
+
+      case SpecFlavor.global:
+        verifySame(parent.globals.get(name), x)
+        verifySame(parent.globals.list.containsSame(x), true)
+        verifySame(parent.slot(name, false), null)
+        verifySame(parent.slots.get(name, false), null)
+        verifyErr(UnknownSpecErr#) { parent.slots.get(name) }
+        verifyEq(parent.slots.list.containsSame(x), false)
 
       default:
-        fail
+        fail(x.qname)
     }
-*/
   }
 
   Void verifyFitsExplain(Namespace ns, Obj? val, Spec spec, Str[] expected)

@@ -43,6 +43,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(sitem.meta["mixin"], Marker.val)
     verifySame(sitem.base, site)
     verifySame(sitem.type, site)
+    verifyFlavor(ns, sitem, SpecFlavor.mixIn)
 
     verifyEq(ns.mixinsFor(str), Spec[,])
     verifyEq(ns.mixinsFor(site), Spec[sitem])
