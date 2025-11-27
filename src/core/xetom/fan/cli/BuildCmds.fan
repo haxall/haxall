@@ -6,6 +6,7 @@
 //   21 Apr 2023  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using xeto
 using haystack
@@ -89,28 +90,6 @@ abstract class SrcLibCmd : XetoCmd
 }
 
 **************************************************************************
-** BuildCmd
-**************************************************************************
-
-**
-** BuildCmd is used to create xetolib zips
-**
-internal class BuildCmd : SrcLibCmd
-{
-  override Str name() { "build" }
-
-  override Str[] aliases() { ["b"] }
-
-  override Str summary() { "Compile xeto source to xetolib" }
-
-  override Int process(XetoEnv env, LibVersion[] vers)
-  {
-    ((MEnv)env).build(vers)
-    return 0
-  }
-}
-
-**************************************************************************
 ** Clean
 **************************************************************************
 
@@ -140,5 +119,97 @@ internal class CleanCmd : SrcLibCmd
     libDir.delete
     return 0
   }
+}
+
+**************************************************************************
+** BuildCmd
+**************************************************************************
+
+**
+** BuildCmd is used to create xetolib zips
+**
+internal class BuildCmd : SrcLibCmd
+{
+  override Str name() { "build" }
+
+  override Str[] aliases() { ["b"] }
+
+  override Str summary() { "Compile xeto source to xetolib" }
+
+  override Int process(XetoEnv env, LibVersion[] vers)
+  {
+    ((MEnv)env).build(vers)
+
+    CompilePerf.steps.clear
+
+    t1 := Duration.now
+
+    ((MEnv)env).build(vers)
+
+    t2 := Duration.now
+    CompilePerf.report(t2-t1)
+    return 0
+  }
+}
+
+**************************************************************************
+** CompilePerf
+**************************************************************************
+
+@Js
+const class CompilePerf
+{
+  static const ConcurrentMap steps := ConcurrentMap()
+
+  static Void add(Str name, Int ticks)
+  {
+    x := steps[name] as AtomicInt
+    if (x == null) steps[name] = x = AtomicInt()
+    x.add(ticks)
+  }
+
+  static Void report(Duration total)
+  {
+    steps := CompilePerf[,]
+    CompilePerf.steps.each |AtomicInt t, Str n|
+    {
+      steps.add(make(n, Duration(t.val), 100*t.val/total.ticks))
+    }
+    echo("Total $total.toLocale")
+    steps.sortr |a, b| { a.time <=> b.time }
+    steps.each |x| { echo("  " + x.name.padr(14) + " " + "${x.percent}%".padl(4) + "  " + x.time.toLocale) }
+  }
+
+  new make(Str name, Duration time, Int percent)
+  {
+    this.name    = name
+    this.time    = time
+    this.percent = percent
+  }
+
+  const Str name
+  const Duration time
+  const Int percent
+
+  /*
+  Performance Nov-2025 after warmup
+  Total                  311ms
+    OutputZip       27%  86ms
+    Parse           19%  60ms
+    InheritSlots    17%  54ms
+    CheckErrors      7%  23ms
+    Assemble         6%  21ms
+    InferMeta        5%  17ms
+    ReifyMeta        3%  10ms
+    InheritMeta      3%  9ms
+    Resolve          2%  6ms
+    ReifyInstances   0%  1.874ms
+    MixinMeta        0%  1.213ms
+    LoadBindings     0%  0.881ms
+    InferInstances   0%  0.734ms
+    InitLib          0%  0.732ms
+    ProcessPragma    0%  0.539ms
+    ReuseThunks      0%  0.02ms
+  */
 }
 
