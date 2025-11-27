@@ -241,6 +241,7 @@ internal class InheritSlots : Step
     base      := spec.base
     slots     := Str:Spec[:] { ordered = true }
     globals   := Str:Spec[:] { ordered = true }
+    SpecMap? baseGlobals := null
 
     // first inherit slots from base type
     if (spec.isAnd)
@@ -254,15 +255,26 @@ internal class InheritSlots : Step
     }
     else
     {
+      if (!base.isAst) baseGlobals = base.globals
       autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, base)
     }
 
     // now merge in my own slots
     addOwnSlots(spec, slots, globals, autoCount)
 
+    // slots map
+    slotsMap := SpecMap(slots)
+
+    // globals map - optimize to reuse globals from base for common case
+    SpecMap? globalsMap
+    if (baseGlobals != null && !spec.ast.declaredHasGlobals)
+      globalsMap = baseGlobals
+    else
+      globalsMap = SpecMap(globals)
+
     // we now have effective members
-    spec.ast.slots   = SpecMap(slots)
-    spec.ast.members = SpecMap(spec.slots, SpecMap(globals))
+    spec.ast.slots   = slotsMap
+    spec.ast.members = SpecMap(slotsMap, globalsMap)
   }
 
   ** Inherit slots from the given base type to accumulator
