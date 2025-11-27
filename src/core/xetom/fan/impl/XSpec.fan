@@ -75,23 +75,28 @@ const final class XSpec : WrapSpec
     }
 
     // merge in mixin new slots
-    mixins.each |m|
+    mixins.each |mix|
     {
-      m.slots.each |slot, name|
+      mix.slots.each |slot, name|
       {
         dup := acc[name]
-        if (dup != null)
-        {
-          if (dup is List)
-            ((List)dup).add(slot)
-          else
-            acc[name] = Spec[dup, slot]
-          collisions = true
-        }
+
+        // if no dup, then accumulate it
+        if (dup ==  null) { acc[name] = slot; return }
+
+        // ignore if same one we already mapped
+        if (dup === slot) return
+
+        // if slotx from original we already processed it
+        // slot already processed
+        if (dup is XSlotSpec) return
+
+        // otherwise a duplicate is a naming collision
+        if (dup is List)
+          ((List)dup).add(slot)
         else
-        {
-          acc[name] = slot
-        }
+          acc[name] = Spec[dup, slot]
+        collisions = true
       }
     }
 
