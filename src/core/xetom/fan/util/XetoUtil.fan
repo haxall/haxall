@@ -286,7 +286,9 @@ const class XetoUtil
   ** Is the given spec name reserved
   static Bool isReservedSpecName(Str n)
   {
-    if (n == "pragma") return true
+    if (n == "Pragma") return true
+    if (n == "Top") return true
+    if (n == "Toc") return true
     return false
   }
 
@@ -301,45 +303,6 @@ const class XetoUtil
     if (n.startsWith("~")) return true
     return false
   }
-
-  ** Is the given name a reserved lib meta tag
-  static Bool isReservedLibMetaName(Str n)
-  {
-    reservedLibMetaNames.containsKey(n) || n.startsWith("xeto")
-  }
-
-  ** Is the given name a reserved spec meta tag
-  static Bool isReservedSpecMetaName(Str n)
-  {
-    reservedSpecMetaNames.containsKey(n) || n.startsWith("xeto")
-  }
-
-  ** Is the given name a reserved lib or spec meta tag
-  static Bool isReservedMetaName(Str n)
-  {
-    isReservedSpecMetaName(n) || isReservedLibMetaName(n) || n.startsWith("xeto")
-  }
-
-  private static once Str:Str reservedLibMetaNames()
-  {
-    Str:Str[:].setList([
-      // used right now
-      "id", "spec", "loaded",
-      // future proofing
-      "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
-    ])
-  }
-
-  private static once Str:Str reservedSpecMetaNames()
-  {
-    Str:Str[:].setList([
-    // used right now
-    "id", "base", "type", "spec", "slot", "slots",
-    // future proofing
-    "class", "def", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "xeto"
-    ])
-  }
-
 
 //////////////////////////////////////////////////////////////////////////
 // Dirs

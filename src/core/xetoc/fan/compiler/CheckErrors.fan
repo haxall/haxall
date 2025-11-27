@@ -42,15 +42,12 @@ internal class CheckErrors : Step
   {
     x.ast.meta.each |v, n|
     {
-      if (XetoUtil.isReservedLibMetaName(n))
-      {
-        err("Reserverd lib meta tag '$n'", x.loc)
-        return
-      }
-
       // check that tags exists
       slot := compiler.libMetas.get(n, false)
-      if (slot == null) err("Undefined lib meta tag '$n'", x.loc)
+      if (slot == null) return err("Undefined lib meta tag '$n'", x.loc)
+
+      // check for reserved
+      if (isReservedMeta(slot)) err("Reserved lib meta tag '$n'", x.loc)
     }
   }
 
@@ -150,15 +147,12 @@ internal class CheckErrors : Step
 
     x.ast.meta.each |v, n|
     {
-      if (XetoUtil.isReservedSpecMetaName(n))
-      {
-        err("Reserved spec meta tag '$n'", x.loc)
-        return
-      }
-
       // check that tags exists
       slot := metas.get(n, false)
-      if (slot == null) err("Undefined meta tag '$n'", x.loc)
+      if (slot == null) return err("Undefined meta tag '$n'", x.loc)
+
+      // check for reserved
+      if (isReservedMeta(slot)) err("Reserved spec meta tag '$n'", x.loc)
     }
 
     checkDict(x.ast.meta, null)

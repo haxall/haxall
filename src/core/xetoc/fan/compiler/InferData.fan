@@ -91,7 +91,10 @@ internal abstract class InferData : Step
     cur := dict.get(slot.name)
 
     // if no value and slot is nullable/global, then don't infer anything
-    if (cur == null && (slot.isGlobal || slot.isMaybe)) return
+    if (cur == null)
+    {
+      if (dict.isMeta || slot.isGlobal || slot.isMaybe) return
+    }
 
     // if we have a slot value, then infer the type only
     if (cur != null)
@@ -114,7 +117,6 @@ internal abstract class InferData : Step
       spec = slot.type
     }
 
-    if (dict.isMeta) return
     val := spec.meta.get("val")
     if (val == null) return
     if (val == refDefVal) return

@@ -76,8 +76,18 @@ verifyErrs: |
 ---
 name: "reservedMeta"
 compileLib: |
-  Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:"x", lib:"x", loc:"x", xetoFoo:"x">
+  pragma: Lib <
+    id: "nope"
+    name: "nope"
+    specs: {}
+    version: "1.2.3"
+    depends: { {lib:"sys"} }
+  >
+  Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:{}, lib:"x", loc:"x">
 verifyErrs: |
+  Reserved lib meta tag 'id'
+  Reserved lib meta tag 'name'
+  Reserved lib meta tag 'specs'
   Reserved spec meta tag 'id'
   Reserved spec meta tag 'base'
   Reserved spec meta tag 'type'
@@ -85,7 +95,6 @@ verifyErrs: |
   Reserved spec meta tag 'slots'
   Reserved spec meta tag 'lib'
   Reserved spec meta tag 'loc'
-  Reserved spec meta tag 'xetoFoo'
 ---
 name: "metaNotDefined"
 compileLib: |
@@ -112,13 +121,10 @@ compileLib: |
     abstract: Str?
     base: Str?
     instances: Str?
-    xetoFooBar: Marker?
   }
 verifyErrs: |
   Duplicate meta specs: temp::Spec.abstract, sys::Spec.abstract
   Reserved meta tag 'base'
-  Reserved meta tag 'instances'
-  Reserved meta tag 'xetoFooBar'
 ---
 
 ##########################################################################

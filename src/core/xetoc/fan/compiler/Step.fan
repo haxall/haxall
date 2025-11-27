@@ -83,5 +83,14 @@ abstract internal class Step
   {
     x is ASpec ? ((ASpec)x).args : ((XetoSpec)x).args
   }
+
+  Bool isReservedMeta(Spec x)
+  {
+    // don't check if this is sys lib itself
+    if (isSys) return false
+
+    // only sys can reserve meta tags via 'sealed' marker
+    return x.isSys && x.has("sealed")
+  }
 }
 

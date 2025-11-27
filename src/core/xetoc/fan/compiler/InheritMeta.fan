@@ -202,11 +202,16 @@ internal class MixinMeta : Step
     {
       dup := acc[n]
       if (dup != null)
-        err("Duplicate meta specs: $s, $dup", s.loc)
-      else if (XetoUtil.isReservedMetaName(n))
-        err("Reserved meta tag '$n'", s.loc)
+      {
+        if (isReservedMeta(dup))
+          err("Reserved meta tag '$n'", s.loc)
+        else
+          err("Duplicate meta specs: $s, $dup", s.loc)
+      }
       else
+      {
         acc[n] = s
+      }
     }
   }
 }
