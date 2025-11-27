@@ -158,34 +158,41 @@ internal class MixinMeta : Step
 {
   override Void run()
   {
-    // if sys use the AST slots
     if (isSys)
     {
-      type := lib.ast.type("Spec")
-      compiler.metas = SpecMap(type.ast.declared)
-      return
+      // if sys use the AST slots
+      compiler.metas = SpecMap(lib.ast.type("Spec").ast.declared)
+      compiler.libMetas = SpecMap(lib.ast.type("Lib").ast.declared)
     }
+    else
+    {
+      // otherwise merge in all spec, lib mixins
+      compiler.metas = compute(ns.sys.spec)
+      compiler.libMetas = compute(ns.sys.lib)
+      bombIfErr
+    }
+  }
 
+  private SpecMap compute(Spec type)
+  {
     // otherwise start with sys::Spec
     acc := Str:Spec[:]
-    specType := ns.sys.spec
-    specType.slots.each |s, n| { acc[n] = s }
+    type.slots.each |s, n| { acc[n] = s }
 
     // add in all the dependencies
     depends.libs.each |lib|
     {
-      add(acc, lib.mixinFor(specType, false)?.slotsOwn)
+      add(acc, lib.mixinFor(type, false)?.slotsOwn)
     }
 
     // add in my own mixin
-    myMixin := lib.ast.mixIn("Spec")
+    myMixin := lib.ast.mixIn(type.name)
     if (myMixin != null && myMixin.ast.declared != null)
     {
       add(acc, SpecMap(myMixin.ast.declared))
     }
 
-    bombIfErr
-    compiler.metas = SpecMap(acc)
+    return SpecMap(acc)
   }
 
   private Void add(Str:Spec acc, SpecMap? map)

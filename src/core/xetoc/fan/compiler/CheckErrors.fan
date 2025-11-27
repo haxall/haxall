@@ -45,7 +45,12 @@ internal class CheckErrors : Step
       if (XetoUtil.isReservedLibMetaName(n))
       {
         err("Reserverd lib meta tag '$n'", x.loc)
+        return
       }
+
+      // check that tags exists
+      slot := compiler.libMetas.get(n, false)
+      if (slot == null) err("Undefined lib meta tag '$n'", x.loc)
     }
   }
 
@@ -324,6 +329,7 @@ internal class CheckErrors : Step
   Void checkNestedMember(ASpec x)
   {
     if (x.isGlobal) err("Nested specs cannot declare global: $x.name", x.loc)
+    if (x.isQuery) err("Nested specs cannot declare query type: $x.name", x.loc)
   }
 
 //////////////////////////////////////////////////////////////////////////

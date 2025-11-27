@@ -89,11 +89,18 @@ verifyErrs: |
 ---
 name: "metaNotDefined"
 compileLib: |
+  pragma: Lib <
+    doc: "Test lib"
+    version: "1.2.3"
+    depends: { {lib:"sys"}, {lib:"ph"} }
+    nope
+  >
   Foo: Dict <foo> {
     a: Str <bar, qux:"xxx">
     *c: Date <baz>
   }
 verifyErrs: |
+  Undefined lib meta tag 'nope'
   Undefined meta tag 'foo'
   Undefined meta tag 'bar'
   Undefined meta tag 'qux'

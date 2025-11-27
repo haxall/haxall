@@ -229,6 +229,7 @@ internal class MXetoCompiler : XetoCompiler
   internal ADict? pragma               // Parse
   internal Str:Str usedBuildVars       // Parse (build vars used by lib)
   internal SpecMap? metas              // MixinMeta
+  internal SpecMap? libMetas           // MixinMeta
   internal Dict[]? dicts               // AstToDicts output
   internal Bool externRefs             // allow unresolved refs to compile
   private Str:Ref internRefs := [:]    // makeRef
