@@ -50,26 +50,23 @@ internal class CheckErrors : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Specs
+// Top Specs
 //////////////////////////////////////////////////////////////////////////
 
   Void checkTop(ASpec x)
   {
-    if (x.name[0].isLower) err("Lib specs must start with upper case: $x.name", x.loc)
-
     checkTopName(x)
     checkTypeInherit(x)
     checkSpec(x)
-    if (x.isType)
-      checkType(x)
-    else
-      checkMixin(x)
   }
 
   Void checkTopName(ASpec x)
   {
     if (lib.ast.instances[x.name] != null || lib.ast.instances[x.name.lower] != null)
       err("Spec '$x.name' conflicts with instance of the same name", x.loc)
+
+    if (x.name[0].isLower)
+      err("Top level specs must start with upper case: $x.name", x.loc)
 
     if (XetoUtil.isReservedSpecName(x.name))
       err("Spec name '$x.name' is reserved", x.loc)
@@ -131,13 +128,35 @@ internal class CheckErrors : Step
       return err("Cannot inherit from sealed type '$base.name'", loc)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Spec
+//////////////////////////////////////////////////////////////////////////
 
   Void checkSpec(ASpec x)
   {
     checkSpecMeta(x)
     checkCovariant(x)
-    if (x.isQuery) return checkSpecQuery(x)
-    checkSlots(x)
+    checkMembers(x)
+  }
+
+  Void checkSpecMeta(ASpec x)
+  {
+    if (x.ast.meta == null) return
+
+    x.ast.meta.each |v, n|
+    {
+      if (XetoUtil.isReservedSpecMetaName(n))
+      {
+        err("Reserved spec meta tag '$n'", x.loc)
+        return
+      }
+
+      // check that tags exists
+      slot := metas.get(n, false)
+      if (slot == null) err("Undefined meta tag '$n'", x.loc)
+    }
+
+    checkDict(x.ast.meta, null)
   }
 
   Void checkCovariant(ASpec x)
@@ -224,22 +243,26 @@ internal class CheckErrors : Step
     x.type.qname.startsWith("sys.template::")
   }
 
-  Void checkSlots(ASpec x)
+//////////////////////////////////////////////////////////////////////////
+// Members
+//////////////////////////////////////////////////////////////////////////
+
+  Void checkMembers(ASpec x)
   {
     if (x.declared == null) return
-    x.declared.each |slot| { checkSlot(slot) }
+    x.declared.each |slot| { checkMember(slot) }
   }
 
-  Void checkSlot(ASpec x)
+  Void checkMember(ASpec x)
   {
     checkSpec(x)
-    checkSlotType(x)
-    checkSlotMeta(x)
-    checkSlotVal(x)
-    if (x.isGlobal && x.parent.isMixin) err("Mixin cannot decalre global: $x.name", x.loc)
+    checkMemberType(x)
+    checkMemberMeta(x)
+    checkMemberVal(x)
+    if (x.parent.isMixin) checkMixinMember(x)
   }
 
-  Void checkSlotType(ASpec slot)
+  Void checkMemberType(ASpec slot)
   {
     // don't run these checks for enum items
     if (slot.parent.isEnum) return
@@ -253,7 +276,7 @@ internal class CheckErrors : Step
       err("Choice slot '$slot.name' must be marker type", slot.loc)
   }
 
-  Void checkSlotMeta(ASpec slot)
+  Void checkMemberMeta(ASpec slot)
   {
     if (slot.ast.meta == null) return
 
@@ -262,7 +285,7 @@ internal class CheckErrors : Step
       err("Slot '$slot.name' is fixed and cannot declare new default value", slot.loc)
   }
 
-  Void checkSlotVal(ASpec slot)
+  Void checkMemberVal(ASpec slot)
   {
     // slots of type Obj can have either scalar or slots (but not both)
     if (isObj(slot.type))
@@ -285,37 +308,16 @@ internal class CheckErrors : Step
     }
   }
 
-  Void checkSpecMeta(ASpec x)
+  Void checkMixinMember(ASpec x)
   {
-    if (x.ast.meta == null) return
+    // mixins cannot have globals
+    if (x.isGlobal) return err("Mixin cannot declare global: $x.name", x.loc)
 
-    x.ast.meta.each |v, n|
+    // mixins on sys::Spec
+    if (!isSys && x.parent.base == ns.sys.spec)
     {
-      if (XetoUtil.isReservedSpecMetaName(n))
-      {
-        err("Reserved spec meta tag '$n'", x.loc)
-        return
-      }
-
-      // check that tags exists
-      slot := metas.get(n, false)
-      if (slot == null) err("Undefined meta tag '$n'", x.loc)
+      if (!x.isMaybe) err("Spec mixin slot '$x.name' must be maybe type", x.loc)
     }
-
-    checkDict(x.ast.meta, null)
-  }
-
-  Void checkType(ASpec x)
-  {
-  }
-
-  Void checkMixin(ASpec x)
-  {
-    // TODO
-  }
-
-  Void checkSpecQuery(ASpec x)
-  {
   }
 
 //////////////////////////////////////////////////////////////////////////

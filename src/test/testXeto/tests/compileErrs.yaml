@@ -264,10 +264,16 @@ compileLib: |
     equip <abstract>
     *foo: Number
   }
+  +Spec {
+    bar: Str
+    *baz
+  }
 verifyErrs: |
   Mixin cannot specify slot type: area
   Mixin extend global: equip
-  Mixin cannot decalre global: foo
+  Mixin cannot declare global: foo
+  Spec mixin slot 'bar' must be maybe type
+  Mixin cannot declare global: baz
 ---
 name: "covariance"
 compileLib: |
