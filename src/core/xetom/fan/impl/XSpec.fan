@@ -82,8 +82,10 @@ const final class XSpec : WrapSpec
         dup := acc[name]
         if (dup != null)
         {
-          list := dup as Spec[] ?: Spec[dup]
-          list.add(slot)
+          if (dup is List)
+            ((List)dup).add(slot)
+          else
+            acc[name] = Spec[dup, slot]
           collisions = true
         }
         else

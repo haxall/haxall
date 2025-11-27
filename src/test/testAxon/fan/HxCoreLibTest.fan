@@ -181,6 +181,7 @@ class HxCoreLibTest : HxTest
 
     // cannot override core functions
     addFunc("toHex", Str<|(i) => "hex override"|>)
+    verifyEq(proj.ns.funcs.getAll("toHex").size, 2)
     verifyErr(InvalidOverrideErr#) { eval("100.toHex") }
   }
 
