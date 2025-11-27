@@ -71,14 +71,10 @@ internal class Assemble : Step
 
   private SpecMap asmSlots(ASpec x)
   {
-    if (x.members.isEmpty) return SpecMap.empty
+    if (x.slots.isEmpty) return SpecMap.empty
     map := Str:XetoSpec[:]
     map.ordered = true
-// TODO: duplicates in ASpec
-    x.members.each |s, n|
-    {
-      if (!s.isGlobal) map[n] = s.asm
-    }
+    x.slots.each |s, n| { map[n] = s.asm }
     return SpecMap(map)
   }
 

@@ -362,7 +362,10 @@ internal class Parser
       }
 
       if (isGlobal || slot.metaHas("global"))
+      {
+        parent.ast.declaredHasGlobals = true
         slot.ast.flavor = SpecFlavor.global
+      }
 
       parseCommaOrNewline("Expecting end of slots", Token.rbrace)
 

@@ -23,7 +23,8 @@ using xetom
 **   - base
 **   - typeRef
 **   - flags
-**   - cslotsRef
+**   - members
+**   - slots
 **
 ** We also use this step to create a list of types orderd by inheritance
 ** for subsequent steps to use in lib.types.
@@ -55,7 +56,7 @@ internal class InheritSlots : Step
     {
       err("Cyclic inheritance: $spec.qname", spec.loc)
       spec.flags = 0
-      spec.ast.members = noMembers
+      setNoMembers(spec)
     }
 
     // push onto stack to keep track of cycles
@@ -74,7 +75,7 @@ internal class InheritSlots : Step
     if (spec.isObj)
     {
       spec.flags = 0
-      spec.ast.members = noMembers
+      setNoMembers(spec)
       types.add(spec)
       return
     }
@@ -260,7 +261,9 @@ internal class InheritSlots : Step
     addOwnSlots(spec, acc, autoCount)
 
     // we now have effective slot map
-    spec.ast.members = acc
+    // TODO: we can optimzie this
+    spec.ast.members = SpecMap(acc)
+    spec.ast.slots   = SpecMap(acc.findAll |x| { x.isSlot })
   }
 
   ** Inherit slots from the given base type to accumulator
@@ -380,7 +383,10 @@ internal class InheritSlots : Step
     autoCount := 0
     autoCount = inheritSlotsFrom(merge, acc, autoCount, a)
     autoCount = inheritSlotsFrom(merge, acc, autoCount, b)
-    merge.ast.members = acc
+
+    specMap := SpecMap(acc)
+    merge.ast.members = specMap
+    merge.ast.slots   = specMap
 
     // we need to make this a new declared slot
     spec.initDeclared.add(name, merge)
@@ -454,8 +460,10 @@ internal class InheritSlots : Step
       spec.metaInit.set("val", AScalar(spec.loc, enumRef, defKey))
 
     // save away both slots and enums
-    spec.ast.members = slots
-    spec.ast.enum = MEnum(enums, defKey ?: "")
+    specMap := SpecMap(slots)
+    spec.ast.members = specMap
+    spec.ast.slots   = specMap
+    spec.ast.enum    = MEnum(enums, defKey ?: "")
   }
 
   ** Check that an item was a marker only, then coerce to be derived from parent enum
@@ -465,10 +473,10 @@ internal class InheritSlots : Step
     if (item.typeRef !== sys.marker)
       err("Enum item '$item.name' cannot have type", item.loc)
 
-    item.ast.base    = enum
-    item.typeRef     = enumRef
-    item.flags       = enum.flags
-    item.ast.members = noMembers
+    item.ast.base = enum
+    item.typeRef  = enumRef
+    item.flags    = enum.flags
+    setNoMembers(item)
     return item
   }
 
@@ -476,7 +484,15 @@ internal class InheritSlots : Step
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  const Str:Spec noMembers := Str:Spec[:]
+  private Void setNoMembers(ASpec x)
+  {
+    x.ast.members = SpecMap.empty
+    x.ast.slots   = SpecMap.empty
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
 
   private ASpec[] stack := [,]
   private Str:Spec? globals := [:]

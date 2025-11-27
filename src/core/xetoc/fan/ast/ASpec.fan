@@ -219,18 +219,9 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 
   override Spec? slotOwn(Str n, Bool c := true) { slotsOwn.get(n, c) }
 
-  override once SpecMap members()
-  {
-    SpecMap(ast.members)
-  }
+  override SpecMap members() { ast.members ?: throw NotReadyErr(qname) }
 
-  override SpecMap slots()
-  {
-    acc := Str:Spec[:]
-    acc.ordered = true
-    ast.members.each |x, n| { if (!x.isGlobal) acc.add(n, x) }
-    return SpecMap(acc)
-  }
+  override SpecMap slots() { ast.slots ?: throw NotReadyErr(qname) }
 
   override final Spec? of(Bool checked := true)
   {
@@ -434,7 +425,9 @@ internal class ASpecState
   Dict? metaOwn
   Dict? cmeta
   [Str:ASpec]? declared
-  [Str:Spec]? members
+  Bool declaredHasGlobals
+  SpecMap? members
+  SpecMap? slots
   Int flags := -1
   SpecEnum? enum
   SpecBinding? binding
