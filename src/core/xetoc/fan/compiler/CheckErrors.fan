@@ -260,6 +260,7 @@ internal class CheckErrors : Step
     checkMemberMeta(x)
     checkMemberVal(x)
     if (x.parent.isMixin) checkMixinMember(x)
+    if (x.parent.parent != null) checkNestedMember(x)
   }
 
   Void checkMemberType(ASpec slot)
@@ -318,6 +319,11 @@ internal class CheckErrors : Step
     {
       if (!x.isMaybe) err("Spec mixin slot '$x.name' must be maybe type", x.loc)
     }
+  }
+
+  Void checkNestedMember(ASpec x)
+  {
+    if (x.isGlobal) err("Nested specs cannot declare global: $x.name", x.loc)
   }
 
 //////////////////////////////////////////////////////////////////////////

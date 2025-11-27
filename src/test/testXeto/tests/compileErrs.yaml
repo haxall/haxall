@@ -268,12 +268,18 @@ compileLib: |
     bar: Str
     *baz
   }
+  Nest1: {
+    nest2: {
+      *ohNo
+    }
+  }
 verifyErrs: |
   Mixin cannot specify slot type: area
   Mixin extend global: equip
   Mixin cannot declare global: foo
   Spec mixin slot 'bar' must be maybe type
   Mixin cannot declare global: baz
+  Nested specs cannot declare global: ohNo
 ---
 name: "covariance"
 compileLib: |
