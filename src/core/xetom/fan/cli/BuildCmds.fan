@@ -138,16 +138,11 @@ internal class BuildCmd : SrcLibCmd
 
   override Int process(XetoEnv env, LibVersion[] vers)
   {
-    ((MEnv)env).build(vers)
-
-    CompilePerf.steps.clear
 
     t1 := Duration.now
-
     ((MEnv)env).build(vers)
-
     t2 := Duration.now
-    CompilePerf.report(t2-t1)
+    //CompilePerf.report(t2-t1)
     return 0
   }
 }
@@ -156,6 +151,7 @@ internal class BuildCmd : SrcLibCmd
 ** CompilePerf
 **************************************************************************
 
+/*
 @Js
 const class CompilePerf
 {
@@ -193,23 +189,25 @@ const class CompilePerf
 
   /*
   Performance Nov-2025 after warmup
-  Total                  311ms
-    OutputZip       27%  86ms
-    Parse           19%  60ms
-    InheritSlots    17%  54ms
-    CheckErrors      7%  23ms
-    Assemble         6%  21ms
+  Total 298ms
+    OutputZip       29%  89ms
+    Parse           18%  54ms
+    InheritSlots    14%  43ms
+    CheckErrors      8%  25ms
+    ReifyMeta        5%  17ms
     InferMeta        5%  17ms
-    ReifyMeta        3%  10ms
-    InheritMeta      3%  9ms
-    Resolve          2%  6ms
-    ReifyInstances   0%  1.874ms
-    MixinMeta        0%  1.213ms
-    LoadBindings     0%  0.881ms
-    InferInstances   0%  0.734ms
-    InitLib          0%  0.732ms
-    ProcessPragma    0%  0.539ms
-    ReuseThunks      0%  0.02ms
+    Assemble         4%  14ms
+    InheritMeta      2%  7ms
+    Resolve          1%  5ms
+    ReifyInstances   0%  2ms
+    MixinMeta        0%  1.245ms
+    LoadBindings     0%  1.135ms
+    InferInstances   0%  0.856ms
+    InitLib          0%  0.813ms
+    ProcessPragma    0%  0.696ms
+    ReuseThunks      0%  0.026ms
+
   */
 }
+*/
 

@@ -134,13 +134,13 @@ internal class MXetoCompiler : XetoCompiler
       t1 := Duration.now
       steps.each |step|
       {
-        s1 := Duration.nowTicks
+        //s1 := Duration.nowTicks
 
         step.compiler = this
         step.run
 
-        s2 := Duration.nowTicks
-        CompilePerf.add(step.typeof.name, s2-s1)
+        //s2 := Duration.nowTicks
+        //CompilePerf.add(step.typeof.name, s2-s1)
       }
       t2 := Duration.now
       duration = t2 - t1
