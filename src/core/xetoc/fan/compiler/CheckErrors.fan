@@ -323,7 +323,7 @@ internal class CheckErrors : Step
   Void checkNestedMember(ASpec x)
   {
     if (x.isGlobal) err("Nested specs cannot declare global: $x.name", x.loc)
-    if (x.isQuery) err("Nested specs cannot declare query type: $x.name", x.loc)
+    //if (x.isQuery) err("Nested specs cannot declare query type: $x.name", x.loc)
   }
 
 //////////////////////////////////////////////////////////////////////////

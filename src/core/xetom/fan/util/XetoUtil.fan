@@ -287,7 +287,6 @@ const class XetoUtil
   static Bool isReservedSpecName(Str n)
   {
     if (n == "Pragma") return true
-    if (n == "Top") return true
     if (n == "Toc") return true
     return false
   }
