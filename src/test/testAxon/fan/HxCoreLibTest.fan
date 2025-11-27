@@ -163,7 +163,7 @@ class HxCoreLibTest : HxTest
   {
     acc := Etc.dictToMap(f.meta)
     acc.add("name", f.name)
-    acc.add("qname", f.qname)
+    acc.add("qname", f.lib.name + "::" + f.name)
     acc.remove("axon")
     return Etc.makeDict(acc)
   }

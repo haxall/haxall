@@ -69,11 +69,10 @@ internal const class AxonFuncsUtil
 
     // iterate the namespace: skip nodoc and filter mismatches
     acc := Dict[,]
-    cx.ns.funcs.each |func|
+    cx.ns.funcs.each |spec|
     {
-      meta := func.meta
+      meta := AxonThunkFactory.specToFnMeta(spec)
       if (meta.has("nodoc")) return
-      meta = Etc.dictMerge(meta, Etc.dict2("name", func.name, "qname", func.qname))
       if (filter != null && !filter.matches(meta, cx)) return
       acc.add(meta)
     }
@@ -169,7 +168,7 @@ internal const class AxonFuncsUtil
   ** We create appropiate meta for TopFn when we parse as thunk
   private static Dict fnToDict(AxonContext cx, TopFn fn)
   {
-    Etc.dictSet(fn.meta, "name", fn.name)
+    fn.meta
   }
 
 //////////////////////////////////////////////////////////////////////////

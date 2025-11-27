@@ -100,13 +100,13 @@ class ResolveTest : HxTest
     ns := cx.ns
     loc := Loc.synthetic
 
-    now := ns.spec("axon::now").func.thunk
+    now := ns.funcs.get("now").func.thunk
     verifyContext(cx.resolveTop(TopName(loc, null, "now")), now)
     verifyContext(cx.resolveTop(TopName(loc, "axon", "now")), now)
     verifyContext(cx.resolveTopFn("now"), now)
     verifyContext(cx.resolveTopFn("axon::now"), now)
 
-    incr := ns.spec("hx.test::testIncrement").func.thunk
+    incr := ns.funcs.get("testIncrement").func.thunk
     verifyContext(cx.resolveTop(TopName(loc, null, "testIncrement")), incr)
     verifyContext(cx.resolveTop(TopName(loc, "hx.test", "testIncrement")), incr)
     verifyContext(cx.resolveTopFn("testIncrement"), incr)

@@ -137,15 +137,16 @@ const class AxonThunkFactory : ThunkFactory
 // Meta
 //////////////////////////////////////////////////////////////////////////
 
-  private static Dict specToFnMeta(Spec spec)
+  static Dict specToFnMeta(Spec spec)
   {
     acc := Str:Obj[:]
-    acc["qname"] = spec.qname
     spec.meta.each |v, n|
     {
       if (n == "axon" || n == "compTree") return
       acc[n] = v
     }
+    acc["name"]  = spec.name
+    acc["qname"] = spec.lib.name + "::" + spec.name
     return Etc.dictFromMap(acc)
   }
 }
