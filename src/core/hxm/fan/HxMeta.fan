@@ -17,14 +17,14 @@ using folio
 **
 const class HxMeta : WrapDict, RuntimeMeta
 {
-  new make(HxRuntime rt, Dict rec) : super(norm(rt, rec))
+  new make(Runtime rt, Dict rec) : super(norm(rt, rec))
   {
     this.rec = rec
     this.steadyState = duration("steadyState", 10sec).clamp(0sec, 1hr)
     this.evalTimeout = duration("evalTimeout", Context.timeoutDef).clamp(100ms, 10min)
   }
 
-  private Dict norm(HxRuntime rt, Dict rec)
+  private Dict norm(Runtime rt, Dict rec)
   {
     Etc.dictSet(rec, "name", rt.name)
   }
