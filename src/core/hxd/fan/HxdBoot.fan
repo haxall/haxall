@@ -128,16 +128,22 @@ class HxdBoot : HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Initialize and kick off the runtime
+  HxdSys init()
+  {
+    HxdSys(this).init(this)
+  }
+
+  ** Initialize and kick off the runtime
   Int run()
   {
     // load project
-    proj := HxdSys(this).init(this)
+    rt := init
 
     // install shutdown handler
-    Env.cur.addShutdownHook(proj.shutdownHook)
+    Env.cur.addShutdownHook(rt.shutdownHook)
 
     // startup proj
-    proj.start
+    rt.start
     Actor.sleep(Duration.maxVal)
     return 0
   }
