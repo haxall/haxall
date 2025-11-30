@@ -178,6 +178,28 @@ const class HxUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Settings Support
+//////////////////////////////////////////////////////////////////////////
+
+  ** Read the rt:meta record
+  @NoDoc static Dict? readMetaRec(Runtime rt, Bool checked := true)
+  {
+    rt.db.read(Filter.eq("rt", "meta"), checked)
+  }
+
+  ** Read the rt:lib record
+  @NoDoc static Dict? readLibRec(Runtime rt, Str name, Bool checked := true)
+  {
+    rt.db.read(Filter.eq("rt", "lib").and(Filter.eq("name", name)), checked)
+  }
+
+  ** Read all the rt:lib records
+  @NoDoc static Dict[] readLibRecs(Runtime rt)
+  {
+    rt.db.readAllList(Filter.eq("rt", "lib"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Process & Threads
 //////////////////////////////////////////////////////////////////////////
 

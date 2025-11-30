@@ -165,7 +165,7 @@ abstract class HxBoot
 
     // lookup current meta rec
     db := rt.db
-    rec := db.read(Filter.eq("rt", "meta"), false)
+    rec := HxUtil.readMetaRec(rt, false)
 
     // create or update if necessary
     if (rec == null)
