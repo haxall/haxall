@@ -61,42 +61,7 @@ const class HxExts : RuntimeExts
 
   override Str:ExtWeb webRoutes() { registry.webRoutes }
 
-//////////////////////////////////////////////////////////////////////////
-// Debug
-//////////////////////////////////////////////////////////////////////////
-
-  override Grid status(Dict? opts := null)
-  {
-    if (opts == null) opts = Etc.dict0
-
-    list := this.list.dup
-
-    show := (opts["show"] as Str)?.lower ?: ""
-    if (opts.has("sysOnly") || show.contains("sys"))
-    {
-      list = list.findAll |x| { x.rt.isSys }
-    }
-    else if (opts.has("projOnly") || show.contains("proj"))
-    {
-      list = list.findAll |x| { x.rt.isProj }
-    }
-
-    gb := GridBuilder()
-    gb.setMeta(Etc.dict1("projName", rt.name))
-    gb.addCol("name").addCol("libBasis").addCol("extStatus").addCol("fantomType").addCol("statusMsg")
-    list.each |ext|
-    {
-      spi := (HxExtSpi)ext.spi
-      basis := rt.libs.get(ext.name, false)?.basis?.name
-      gb.addRow([ext.name, basis, spi.status, ext.typeof.toStr, spi.statusMsg])
-    }
-    grid := gb.toGrid
-
-    search := opts["search"] as Str
-    if (search != null) grid = grid.filter(Filter.search(search))
-
-    return grid
-  }
+  override Grid status(Dict? opts := null) { registry.status(opts) }
 
 //////////////////////////////////////////////////////////////////////////
 // Modifications
@@ -328,6 +293,39 @@ const class HxExtRegistry
     res := list.findAll { it.typeof.fits(type) }.toImmutable
     if (!res.isEmpty) byTypeRef.set(type, res)
     return res
+  }
+
+  Grid status(Dict? opts := null)
+  {
+    if (opts == null) opts = Etc.dict0
+
+    list := this.list.dup
+
+    show := (opts["show"] as Str)?.lower ?: ""
+    if (opts.has("sysOnly") || show.contains("sys"))
+    {
+      list = list.findAll |x| { x.rt.isSys }
+    }
+    else if (opts.has("projOnly") || show.contains("proj"))
+    {
+      list = list.findAll |x| { x.rt.isProj }
+    }
+
+    gb := GridBuilder()
+    gb.setMeta(Etc.dict1("projName", rt.name))
+    gb.addCol("name").addCol("libBasis").addCol("extStatus").addCol("fantomType").addCol("statusMsg")
+    list.each |ext|
+    {
+      spi := ext.spi as HxExtSpi
+      basis := rt.libs.get(ext.name, false)?.basis?.name
+      gb.addRow([ext.name, basis, spi?.status, ext.typeof.toStr, spi?.statusMsg])
+    }
+    grid := gb.toGrid
+
+    search := opts["search"] as Str
+    if (search != null) grid = grid.filter(Filter.search(search))
+
+    return grid
   }
 
 }
