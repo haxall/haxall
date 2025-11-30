@@ -77,19 +77,19 @@ const mixin RuntimeExts
 //////////////////////////////////////////////////////////////////////////
 
   ** Lookup connector extension
-  @NoDoc abstract IConnExt? conn(Bool checked := true)
+  @NoDoc IConnExt? conn(Bool checked := true) { getByType(IConnExt#, checked) }
 
   ** Lookup history extension
-  @NoDoc abstract IHisExt? his(Bool checked := true)
+  @NoDoc IHisExt? his(Bool checked := true) { getByType(IHisExt#, checked) }
 
   ** Lookup I/O extension
-  @NoDoc abstract IIOExt? io(Bool checked := true)
+  @NoDoc IIOExt? io(Bool checked := true) { getByType(IIOExt#, checked) }
 
   ** Lookup point extension
-  @NoDoc abstract IPointExt? point(Bool checked := true)
+  @NoDoc IPointExt? point(Bool checked := true) { getByType(IPointExt#, checked) }
 
   ** Lookup task extension
-  @NoDoc abstract ITaskExt? task(Bool checked := true)
+  @NoDoc ITaskExt? task(Bool checked := true) { getByType(ITaskExt#, checked) }
 
 }
 

@@ -18,79 +18,48 @@ using hx
 **
 const class HxExts : RuntimeExts
 {
-  new make(Runtime rt, ActorPool actorPool)
+  new make(HxRuntime rt, ActorPool actorPool)
   {
     this.rt        = rt
     this.actorPool = actorPool
   }
 
-  const Runtime rt
+  const HxRuntime rt
 
   override const ActorPool actorPool
 
   Log log() { rt.log }
 
+  virtual HxExtSpi makeSpi(HxExtSpiInit init) { HxExtSpi(init) }
+
 //////////////////////////////////////////////////////////////////////////
 // Registry
 //////////////////////////////////////////////////////////////////////////
 
-  override Ext[] list() { listRef.val }
-  private const AtomicRef listRef := AtomicRef()
+  HxExtRegistry registry() { registryRef.val }
+  private const AtomicRef registryRef := AtomicRef()
 
-  override Ext[] listOwn() { listOwnRef.val }
-  private const AtomicRef listOwnRef := AtomicRef()
+  override Ext[] list() { registry.list }
 
-  override Void each(|Ext| f) { list.each(f) }
+  override Ext[] listOwn() { registry.listOwn }
 
-  override Void eachOwn(|Ext| f) { listOwn.each(f) }
+  override Void each(|Ext| f) { registry.each(f) }
 
-  override Bool has(Str name) { get(name, false) != null }
+  override Void eachOwn(|Ext| f) { registry.eachOwn(f) }
 
-  override Bool hasOwn(Str name) { getOwn(name, false) != null  }
+  override Bool has(Str name) { registry.has(name) }
 
-  override Ext? get(Str name, Bool checked := true)
-  {
-    ext := map[name]
-    if (ext != null) return ext
-    if (checked) throw UnknownExtErr(name)
-    return null
-  }
-  internal Str:Ext map() { mapRef.val }
-  private const AtomicRef mapRef := AtomicRef()
+  override Bool hasOwn(Str name) { registry.hasOwn(name)  }
 
-  override Ext? getOwn(Str name, Bool checked := true)
-  {
-    ext := map[name]
-    if (ext != null && ext.rt === this.rt) return ext
-    if (checked) throw UnknownExtErr(name)
-    return null
-  }
+  override Ext? get(Str name, Bool checked := true) { registry.get(name, checked) }
 
-  override Ext? getByType(Type type, Bool checked := true)
-  {
-    ext := getAllByType(type).first
-    if (ext != null) return ext
-    if (checked) throw UnknownExtErr(type.qname)
-    return null
-  }
+  override Ext? getOwn(Str name, Bool checked := true) {registry.getOwn(name, checked) }
 
-  override Ext[] getAllByType(Type type)
-  {
-    cached := byTypeRef.get(type)
-    if (cached != null) return cached
+  override Ext? getByType(Type type, Bool checked := true) { registry.getByType(type, checked) }
 
-    res := list.findAll { it.typeof.fits(type) }.toImmutable
-    if (!res.isEmpty) byTypeRef.set(type, res)
-    return res
-  }
-  private const ConcurrentMap byTypeRef := ConcurrentMap()
+  override Ext[] getAllByType(Type type) { registry.getAllByType(type) }
 
-  override Str:ExtWeb webRoutes() { webRoutesRef.val }
-  private const AtomicRef webRoutesRef := AtomicRef()
-
-  virtual Dict readSettings(Str name) { ((HxRuntime)rt).settingsMgr.extRead(name) }
-
-  virtual HxExtSpi makeSpi(HxExtSpiInit init) { HxExtSpi(init) }
+  override Str:ExtWeb webRoutes() { registry.webRoutes }
 
 //////////////////////////////////////////////////////////////////////////
 // Debug
@@ -142,7 +111,7 @@ const class HxExts : RuntimeExts
   Void init(HxBoot boot, HxNamespace ns)
   {
     map := Str:Ext[:]
-    findExtLibs.each |lib|
+    HxExtRegistry.eachExtLib(rt) |lib|
     {
       ext := HxExtSpi.instantiate(boot, this, lib)
       if (ext != null) map.add(ext.name, ext)
@@ -162,7 +131,7 @@ const class HxExts : RuntimeExts
     toRemove := oldMap.dup
 
     // walk thru new list of exts to keep/add/remove
-    findExtLibs.each |lib|
+    HxExtRegistry.eachExtLib(rt) |lib|
     {
       name := lib.name
       cur  := oldMap[name]
@@ -211,13 +180,13 @@ const class HxExts : RuntimeExts
     ext := HxExtSpi.instantiate(null, this, lib)
     if (ext == null) return null
     spi := (HxExtSpi)ext.spi
-    (rt.obs as HxObservables)?.addExt(ext)
+    rt.obsRef.addExt(ext)
     return ext
   }
 
   private Void doRemove(Ext ext)
   {
-    (rt.obs as HxObservables)?.removeExt(ext)
+    rt.obsRef.removeExt(ext)
     spi := (HxExtSpi)ext.spi
     spi.unready
     spi.stop
@@ -247,13 +216,46 @@ const class HxExts : RuntimeExts
 
   private Void update(Str:Ext map)
   {
+    registryRef.val = HxExtRegistry(rt, map)
+  }
+}
+
+
+**************************************************************************
+** HxExtRegistry
+**************************************************************************
+
+const class HxExtRegistry
+{
+  static Void eachExtLib(Runtime rt, |Lib| f)
+  {
+    // build map of my libs that have an ext
+    ns := rt.ns
+    rt.libs.list.each |rtLib|
+    {
+      // skip non-proj basis libs if I am not sys
+      if (!rt.isSys && !rtLib.basis.isProj) return
+
+      // lookup lib, skip if in error state
+      lib := ns.lib(rtLib.name, false)
+      if (lib == null) return
+
+      // skip those without an extension
+      if (lib.meta.missing("libExt")) return false
+
+      f(lib)
+    }
+  }
+
+  new make(Runtime rt, Str:Ext map)
+  {
     // if I am proj, then merge in sys exts
     if (!rt.isSys) rt.sys.exts.list.each |sysExt| { map[sysExt.name] = sysExt }
 
     // build sorted list
     list := map.vals
     list.sort |a, b| { a.name <=> b.name }
-    listOwn := list.findAll { it.rt === this.rt }
+    listOwn := list.findAll { it.rt === rt }
 
     // map web routes
     webRoutes := Str:ExtWeb[:]
@@ -262,27 +264,71 @@ const class HxExts : RuntimeExts
       web := ext.web
       routeName := web.routeName
       if (routeName.isEmpty || web.isUnsupported) return
-      if (webRoutes[routeName] != null) log.warn("Duplicte ext routes: $routeName")
+      if (webRoutes[routeName] != null) rt.log.warn("Duplicte ext routes: $routeName")
       else webRoutes[routeName] = web
     }
 
     // save lookup tables
-    this.listRef.val = list.toImmutable
-    this.listOwnRef.val = listOwn.toImmutable
-    this.mapRef.val = map.toImmutable
-    this.webRoutesRef.val = webRoutes.toImmutable
-    this.byTypeRef.clear // lazily rebuild
+    this.rt        = rt
+    this.list      = list
+    this.listOwn   = listOwn
+    this.map       = map
+    this.webRoutes = webRoutes
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Conveniences
-//////////////////////////////////////////////////////////////////////////
+  const Runtime rt
 
-  override IConnExt? conn(Bool checked := true)   { getByType(IConnExt#,  checked) }
-  override IHisExt? his(Bool checked := true)     { getByType(IHisExt#,   checked) }
-  override IIOExt? io(Bool checked := true)       { getByType(IIOExt#,    checked) }
-  override IPointExt? point(Bool checked := true) { getByType(IPointExt#, checked) }
-  override ITaskExt? task(Bool checked := true)   { getByType(ITaskExt#,  checked) }
+  const Ext[] list
+
+  const Ext[] listOwn
+
+  const Str:Ext map
+
+  const Str:ExtWeb webRoutes
+
+  private const ConcurrentMap byTypeRef := ConcurrentMap()
+
+  Void each(|Ext| f) { list.each(f) }
+
+  Void eachOwn(|Ext| f) { listOwn.each(f) }
+
+  Bool has(Str name) { get(name, false) != null }
+
+  Bool hasOwn(Str name) { getOwn(name, false) != null  }
+
+  Ext? get(Str name, Bool checked := true)
+  {
+    ext := map[name]
+    if (ext != null) return ext
+    if (checked) throw UnknownExtErr(name)
+    return null
+  }
+
+  Ext? getOwn(Str name, Bool checked := true)
+  {
+    ext := map[name]
+    if (ext != null && ext.rt === this.rt) return ext
+    if (checked) throw UnknownExtErr(name)
+    return null
+  }
+
+  Ext? getByType(Type type, Bool checked := true)
+  {
+    ext := getAllByType(type).first
+    if (ext != null) return ext
+    if (checked) throw UnknownExtErr(type.qname)
+    return null
+  }
+
+  Ext[] getAllByType(Type type)
+  {
+    cached := byTypeRef.get(type)
+    if (cached != null) return cached
+
+    res := list.findAll { it.typeof.fits(type) }.toImmutable
+    if (!res.isEmpty) byTypeRef.set(type, res)
+    return res
+  }
 
 }
 
