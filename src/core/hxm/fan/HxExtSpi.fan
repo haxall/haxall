@@ -46,7 +46,7 @@ const class HxExtSpi : Actor, ExtSpi
       if (type.name == "Dict") { log.warn("Missing fantom type binding: $spec"); return null }
 
       // read settings
-      settings := exts.rt.settingsMgr.extRead(name)
+      settings := exts.readSettings(name)
 
       // create init object
       init := HxExtSpiInit

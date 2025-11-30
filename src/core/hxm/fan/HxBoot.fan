@@ -233,7 +233,7 @@ abstract class HxBoot
   ** Create library manager
   virtual HxExts initExts(HxRuntime rt)
   {
-    HxExts(rt)
+    HxExts(rt, rt.actorPool)
   }
 
   ** Create watch manager

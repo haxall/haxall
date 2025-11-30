@@ -27,7 +27,7 @@ const class HxLibs : RuntimeLibs
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxRuntime rt, HxBoot boot)
+  new make(Runtime rt, HxBoot boot)
   {
     if (!rt.isSys && !boot.bootLibs.isEmpty)
       throw Err("Proj boot cannot specify boot libs")
@@ -50,7 +50,7 @@ const class HxLibs : RuntimeLibs
 // Lookup
 //////////////////////////////////////////////////////////////////////////
 
-  const HxRuntime rt
+  const Runtime rt
 
   const Bool isSys
 
@@ -207,6 +207,12 @@ const class HxLibs : RuntimeLibs
     needReload.val = true
   }
 
+  Void reloadSync()
+  {
+    reload
+    ns
+  }
+
   private Str[] checkDupNames(Str[] names)
   {
     map := Str:Str[:]
@@ -264,7 +270,7 @@ const class HxLibs : RuntimeLibs
     // create namespace
     nsVers := acc.vals.map |x->LibVersion| { x.ver }
     nsOpts := Etc.dict2x("uncheckedDepends", Marker.val, "companionRecs", companionRecs)
-    ns := HxNamespace(rt, env, nsVers, nsOpts)
+    ns := HxNamespace(env, nsVers, nsOpts)
 
     // update in-memory lookup tables
     this.nsRef.val   = ns

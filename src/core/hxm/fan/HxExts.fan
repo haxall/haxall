@@ -16,15 +16,15 @@ using hx
 **
 ** RuntimeExts implementation
 **
-const class HxExts : Actor, RuntimeExts
+const class HxExts : RuntimeExts
 {
-  new make(HxRuntime rt) : super(rt.actorPool)
+  new make(Runtime rt, ActorPool actorPool)
   {
     this.rt        = rt
-    this.actorPool = rt.actorPool
+    this.actorPool = actorPool
   }
 
-  const HxRuntime rt
+  const Runtime rt
 
   override const ActorPool actorPool
 
@@ -88,6 +88,7 @@ const class HxExts : Actor, RuntimeExts
   override Str:ExtWeb webRoutes() { webRoutesRef.val }
   private const AtomicRef webRoutesRef := AtomicRef()
 
+  virtual Dict readSettings(Str name) { ((HxRuntime)rt).settingsMgr.extRead(name) }
 
   virtual HxExtSpi makeSpi(HxExtSpiInit init) { HxExtSpi(init) }
 
@@ -134,7 +135,7 @@ const class HxExts : Actor, RuntimeExts
 
   override Ext add(Str name, Dict? settings := null)
   {
-    rt.libsRef.addExt(name, settings)
+    ((HxLibs)rt.libs).addExt(name, settings)
     return get(name)
   }
 
@@ -210,13 +211,13 @@ const class HxExts : Actor, RuntimeExts
     ext := HxExtSpi.instantiate(null, this, lib)
     if (ext == null) return null
     spi := (HxExtSpi)ext.spi
-    rt.obsRef.addExt(ext)
+    (rt.obs as HxObservables)?.addExt(ext)
     return ext
   }
 
   private Void doRemove(Ext ext)
   {
-    rt.obsRef.removeExt(ext)
+    (rt.obs as HxObservables)?.removeExt(ext)
     spi := (HxExtSpi)ext.spi
     spi.unready
     spi.stop

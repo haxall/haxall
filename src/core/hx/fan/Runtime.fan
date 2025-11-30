@@ -166,6 +166,11 @@ const mixin Runtime
   ** Temp dir for files only kept for a short period after last modified
   @NoDoc abstract File tempDir()
 
+  ** Called when the namespace is modified from HxLib implementation.  If
+  ** you override then you *must* call super, and be very *careful* with
+  ** what you do because this method is called holding the HxLibs lock.
+  @NoDoc abstract Void onNamespaceModified(Namespace ns)
+
   ** Cache for ion data
   @NoDoc abstract Obj ionData()
 

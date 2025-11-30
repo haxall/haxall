@@ -280,7 +280,7 @@ abstract const class HxRuntime : Runtime
   ** Called when the namespace is modified.  If you override
   ** then you *must* call super, and be very *careful* with what you
   ** do because this method is called holding the HxLibs lock.
-  virtual Void onNamespaceModified(HxNamespace ns)
+  override Void onNamespaceModified(Namespace ns)
   {
     // update defs
     defsRecompile

@@ -18,12 +18,6 @@ using xetoc
 **
 const class HxNamespace : MNamespace
 {
-  internal new make(HxRuntime rt, MEnv env, LibVersion[] vers, Dict opts) : super(env, vers, opts)
-  {
-    this.rt = rt
-  }
-
-  const HxRuntime rt
-
+  internal new make(MEnv env, LibVersion[] vers, Dict opts) : super(env, vers, opts) {}
 }
 
