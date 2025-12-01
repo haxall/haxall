@@ -66,6 +66,12 @@ abstract class FolioCommitEvent
     if (diff.changes.has(n)) return true
     return oldRec != null && oldRec.has(n)
   }
+
+  ** Get tag value from change or fallback to old rec
+  Str? getTag(Str name)
+  {
+    diff.changes.get(name) ?: oldRec?.get(name)
+  }
 }
 
 **************************************************************************
