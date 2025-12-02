@@ -38,6 +38,7 @@ class Build : BuildPod
       "xeto.bindings":"hx.math",
       "ph.lib": "math",
       "haystack.fold": [
+        "mean",
         "median",
         "rootMeanSquareErr",
         "meanBiasErr",

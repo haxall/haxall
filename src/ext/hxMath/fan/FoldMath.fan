@@ -93,6 +93,16 @@ internal abstract class FoldMath : Fold
 }
 
 **************************************************************************
+** FoldMean
+**************************************************************************
+
+internal class FoldMean : FoldMath
+{
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+  protected override Float? onFinish() { this.mean }
+}
+
+**************************************************************************
 ** FoldMedian
 **************************************************************************
 
