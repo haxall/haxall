@@ -249,6 +249,12 @@
   // Return current project meta as dict
   projMeta: Func { returns: Dict }
 
+  // Update system meta
+  sysMetaUpdate: Func <su, nodoc> { newMeta: Dict, returns: Obj? }
+
+  // Update current project meta
+  projMetaUpdate: Func <admin, nodoc> { newMeta: Dict, returns: Obj? }
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////

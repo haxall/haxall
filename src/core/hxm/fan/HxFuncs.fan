@@ -426,6 +426,24 @@ const class HxFuncs
   @Api @Axon
   static Dict projMeta() { Context.cur.proj.meta }
 
+  ** Update system meta.
+  @NoDoc @Api @Axon { su=true }
+  static Dict? sysMetaUpdate(Obj changes)
+  {
+    cx := Context.cur
+    cx.sys.metaUpdate(changes)
+    return cx.sys.meta
+  }
+
+  ** Update project meta.
+  @NoDoc @Api @Axon { admin=true }
+  static Dict? projMetaUpdate(Obj changes)
+  {
+    cx := Context.cur
+    cx.proj.metaUpdate(changes)
+    return cx.proj.meta
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////

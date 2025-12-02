@@ -477,6 +477,30 @@ class HxFuncsTest : HxTest
   {
     verifySame(eval("sysMeta()"), sys.meta)
     verifySame(eval("projMeta()"), proj.meta)
+
+    eval("sysMetaUpdate({foo:123})")
+    eval("projMetaUpdate({bar:456})")
+    verifySame(eval("sysMeta()"), sys.meta)
+    verifySame(eval("projMeta()"), proj.meta)
+    verifyEq(sys.meta["foo"], n(123))
+    verifyEq(proj.meta["bar"], n(456))
+
+    eval("sysMetaUpdate({doc:\"sys doc\"})")
+    eval("projMetaUpdate({doc:\"proj doc\"})")
+    verifySame(eval("sysMeta()"), sys.meta)
+    verifySame(eval("projMeta()"), proj.meta)
+    verifyEq(sys.meta["foo"], n(123))
+    verifyEq(proj.meta["bar"], n(456))
+    if (proj.isSys)
+    {
+      verifyEq(sys.meta["doc"], "proj doc")
+      verifyEq(proj.meta["doc"], "proj doc")
+    }
+    else
+    {
+      verifyEq(sys.meta["doc"], "sys doc")
+      verifyEq(proj.meta["doc"], "proj doc")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
