@@ -564,6 +564,7 @@ const class XetoFuncs
   {
     ns := curContext.ns
     if (spec == null) spec = ns.specOf(val)
+    opts = Etc.dictSet(opts, "haystack", Marker.val) // force haystack level fidelity
     return ns.fits(val, spec, opts)
   }
 
