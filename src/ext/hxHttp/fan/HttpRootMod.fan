@@ -23,12 +23,10 @@ internal const class HttpRootMod : WebMod
   {
     this.sys = ext.sys
     this.ext = ext
-    this.indexRedirectUri = sys.config.get("httpIndexRedirectUri") as Uri ?: `/shell`
   }
 
   const Sys sys
   const HttpExt ext
-  const Uri indexRedirectUri
 
   override Void onService()
   {
@@ -38,14 +36,18 @@ internal const class HttpRootMod : WebMod
     // use first level of my path to lookup route
     routeName := req.modRel.path.first ?: ""
 
-    // if name is empty, redirect
+    // if name is empty then authenticate and perform index redirect
     if (routeName.isEmpty)
     {
-      // redirect configured index redirect
-      return res.redirect(indexRedirectUri)
+      // index redirect
+      session := sys.user.authenticate(req, res)
+      if (session == null) return
+      cx := sys.newContextSession(session)
+      uri := ext.indexRedirectUri(cx)
+      return res.redirect(uri)
     }
 
-    // TODO
+    // get the webmod for given route
     mod := sys.exts.webRoutes.get(routeName)
     if (mod == null) return res.sendErr(404)
 

@@ -61,6 +61,9 @@ const mixin RuntimeExts
   ** Map of web route names to extension web modules
   @NoDoc abstract Str:ExtWeb webRoutes()
 
+  ** Web route for the extension with highest indexPriority
+  @NoDoc abstract ExtWeb webIndex()
+
   ** Actor thread pool to use for extension background processing
   abstract ActorPool actorPool()
 

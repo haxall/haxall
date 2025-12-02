@@ -23,6 +23,8 @@ const class HxShellWeb : ExtWeb
 
   override const Ext ext
 
+  override Int indexPriority() { 10 }
+
   Str title() { ext.sys.info.productName + " Shell" }
 
   Uri favicon() { ext.sys.info.faviconUri }

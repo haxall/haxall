@@ -67,6 +67,8 @@ const class HxUserAccess : UserAccess
 
   const HxUserAllows allows
 
+  override Bool canSeeProj(Dict projMetal) { true }
+
   override Bool canPointWriteAtLevel(Int level) { user.isAdmin }
 
   override Bool allow(Str action) { allows.contains(action) }

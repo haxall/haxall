@@ -61,6 +61,8 @@ const class HxExts : RuntimeExts
 
   override Str:ExtWeb webRoutes() { registry.webRoutes }
 
+  override ExtWeb webIndex() { registry.webIndex }
+
   override Grid status(Dict? opts := null) { registry.status(opts) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -224,13 +226,15 @@ const class HxExtRegistry
 
     // map web routes
     webRoutes := Str:ExtWeb[:]
+    webIndex := list.first.web
     list.each |ext|
     {
       web := ext.web
       routeName := web.routeName
       if (routeName.isEmpty || web.isUnsupported) return
       if (webRoutes[routeName] != null) rt.log.warn("Duplicte ext routes: $routeName")
-      else webRoutes[routeName] = web
+      webRoutes[routeName] = web
+      if (web.indexPriority > webIndex.indexPriority) webIndex = web
     }
 
     // save lookup tables
@@ -239,6 +243,7 @@ const class HxExtRegistry
     this.listOwn   = listOwn
     this.map       = map
     this.webRoutes = webRoutes
+    this.webIndex  = webIndex
   }
 
   const Runtime rt
@@ -250,6 +255,8 @@ const class HxExtRegistry
   const Str:Ext map
 
   const Str:ExtWeb webRoutes
+
+  const ExtWeb webIndex
 
   private const ConcurrentMap byTypeRef := ConcurrentMap()
 

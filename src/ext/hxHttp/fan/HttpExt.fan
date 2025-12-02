@@ -80,5 +80,23 @@ const class HttpExt : ExtObj, IHttpExt
   {
     wisp.stop
   }
+
+  ** Where do we redirect for "/" such as "/ui/homeProj".
+  virtual Uri indexRedirectUri(Context cx)
+  {
+    // if the userPasswordReset tag is set on the user, skip user specific
+    // or OEM redirects and force use of the SkySpark UI (for password reset)
+    user := cx.user
+    if (user.meta.has("userPasswordReset")) return `/ui/`
+
+    // handle defUri on the user account
+    defUri := user.meta["defUri"] as Uri
+    if (defUri != null) return defUri
+
+    // use the extension web route with highest priority
+    index := rt.exts.webIndex
+    if (index.isUnsupported) return `/no-index`
+    return index.indexRedirect(cx)
+  }
 }
 

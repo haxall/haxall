@@ -39,6 +39,13 @@ abstract const class ExtWeb : WebMod
   ** Return true if this is the UnsupportedExtWeb type
   @NoDoc Bool isUnsupported() { !isSupported }
 
+  ** Return priority number to use this route as the index redirect
+  ** as the primary user UI.  Built in routes are less 99 or less,
+  ** so use a prioirty 100+ to override the built-in UI.
+  @NoDoc virtual Int indexPriority() { 0 }
+
+  ** Return index redirect URI to use for given user context
+  @NoDoc virtual Uri indexRedirect(Context cx) { `/${routeName}` }
 }
 
 **************************************************************************
@@ -47,7 +54,7 @@ abstract const class ExtWeb : WebMod
 
 internal const class UnsupportedExtWeb : ExtWeb
 {
-  new make(Ext lib) : super(lib) {}
+  new make(Ext ext) : super(ext) {}
   override Str routeName() { "" }
   override Bool isSupported() { false }
   override Void onService() { res.sendErr(404) }
