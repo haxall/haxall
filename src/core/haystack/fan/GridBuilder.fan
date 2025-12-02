@@ -297,6 +297,7 @@ class GridBuilder
   Grid toGrid()
   {
     if (colsByName == null) finishCols
+    if (cols.isEmpty) throw Err("Must have at least one col")
     grid := GbGrid(meta, cols, colsByName, rows)
     gridRef.val = grid
     return grid

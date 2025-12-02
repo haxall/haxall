@@ -629,6 +629,7 @@ class GridTest : HaystackTest
            @1 "_1"
            @2 "_2"
            |>)
+    verifyErr(Err#) { x.removeCols(["bx", "mb"]) }
 
     // Grid.keepCols
     x = verifyView(x,
