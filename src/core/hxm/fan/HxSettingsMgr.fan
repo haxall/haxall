@@ -34,8 +34,9 @@ const class HxSettingsMgr
   Void metaUpdate(Obj changes)
   {
     diff := Diff(rt.meta, toUpdateChanges(changes), Diff.bypassRestricted)
-    newRec := db.commit(diff).newRec
-    rt.metaRef.val = HxMeta(rt, newRec)
+    newMeta := db.commit(diff).newRec
+    rt.metaRef.val = HxMeta(rt, newMeta)
+    rt.onMetaModified(newMeta)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -76,6 +77,17 @@ const class HxSettingsMgr
   ** Only standard update diffs can be used with settings manager
   private Dict toUpdateChanges(Obj changes)
   {
+    if (changes is Grid)
+    {
+      // support commit style grid
+      grid := changes as Grid
+      if (grid.meta["commit"] != "update") throw DiffErr("Unexpected grid format")
+      row := grid.first
+      id :=  (Ref)row->id
+      mod := (DateTime)row->mod
+      return Etc.dictRemoveAll(row, ["id", "mod"])
+    }
+
     dict := changes as Dict
     diff := changes as Diff
     if (diff != null)

@@ -277,6 +277,9 @@ abstract const class HxRuntime : Runtime
 // Overrides
 //////////////////////////////////////////////////////////////////////////
 
+  ** Called when the runtime meta is modified
+  override Void onMetaModified(Dict meta) {}
+
   ** Called when the namespace is modified.  If you override
   ** then you *must* call super, and be very *careful* with what you
   ** do because this method is called holding the HxLibs lock.
