@@ -117,6 +117,7 @@ abstract class HxBoot
   **
   ** SysConfig meta to build Sys.config:
   **   - test: Marker for HxTest runtime
+  **   - safeMode: Marker to disable all project extensions
   **   - noAuth: Marker to disable authentication and use superuser
   **   - apiExtWeb: qname for ApiExt ExtWeb class
   **   - platformSpi: qname for hxPlatform::PlatformSpi class

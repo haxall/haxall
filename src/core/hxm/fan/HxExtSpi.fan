@@ -150,9 +150,21 @@ const class HxExtSpi : Actor, ExtSpi
 
   override Bool isFault() { faultMsgRef.val != null }
 
-  virtual Str status() { faultMsgRef.val == null ? "ok" : "fault" }
+  Bool isSafeMode() { rt.isProj && rt.sys.config.isSafeMode }
 
-  virtual Str? statusMsg() { faultMsgRef.val }
+  virtual Str status()
+  {
+    if (isFault) return "fault"
+    if (isSafeMode) return "warn"
+    return "ok"
+  }
+
+  virtual Str? statusMsg()
+  {
+    if (isFault) return faultMsgRef.val
+    if (isSafeMode) return "Safe mode"
+    return null
+  }
 
   Void toFault(Str msg) { faultMsgRef.val = msg }
 
@@ -244,6 +256,12 @@ const class HxExtSpi : Actor, ExtSpi
 
   private Obj? onStart()
   {
+    if (isSafeMode)
+    {
+      log.info("Ext not started - safeMode")
+      return null
+    }
+
     isRunningRef.val = true
     try
     {
@@ -259,6 +277,8 @@ const class HxExtSpi : Actor, ExtSpi
 
   private Obj? onReady()
   {
+    if (!isRunning) return null
+
     // kick off house keeping
     scheduleHouseKeeping
 

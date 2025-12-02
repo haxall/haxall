@@ -16,13 +16,18 @@ using util
 ** NOTE: this API is subject to change
 **
 @NoDoc
-const class SysConfig
+final const class SysConfig
 {
   ** Construct with meta data dict
-  new make(Dict meta) { this.metaRef = meta }
+  new make(Dict meta)
+  {
+    this.metaRef    = meta
+    this.isTest     = meta.has("test")
+    this.isSafeMode = meta.has("safeMode")
+  }
 
   ** Meta data
-  virtual Dict meta() { metaRef }
+  Dict meta() { metaRef }
   private const Dict metaRef
 
   ** Convenience for 'meta.has'
@@ -41,7 +46,10 @@ const class SysConfig
   }
 
   ** Is this a test system?
-  virtual Bool isTest() { meta.has("test") }
+  const Bool isTest
+
+  ** Was system started in safeMode to disable proj extensions
+  const Bool isSafeMode
 
   ** Debug grid
   @NoDoc Grid debug()
