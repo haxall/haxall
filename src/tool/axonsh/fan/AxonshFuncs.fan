@@ -94,26 +94,22 @@ const class AxonshFuncs
   ** Print help summary of every function
   @Api static Obj? helpAll()
   {
-  /*
     out := cx.printer
     comment := out.theme.comment
 
-    names := cx.funcs.keys.sort
+    Str[] names := AxonFuncs.funcs.toRows.map |f->Str| { f->name }
     nameMax := maxStr(names)
 
     out.nl
     out.color(comment)
     names.each |n|
     {
-      f := cx.funcs[n]
-      if (isNoDoc(f)) return
-      d := docSummary(funcDoc(f) ?: "")
+      f := AxonFuncs.func(n)
+      d := docSummary(f["doc"] ?: "")
       out.w(n.padr(nameMax) + " " + d).nl
     }
     out.colorEnd(comment)
     out.nl
-    */
-throw Err("TODO")
     return noEcho
   }
 
@@ -146,32 +142,6 @@ throw Err("TODO")
       out.printLine("$n:".padr(nameMax+1) + " " + vars[n])
     }
     out.printLine
-    return noEcho
-  }
-
-  ** Import data library into scope.
-  **
-  ** Examples:
-  **   using()                // list all libraries currently in scope
-  **   using("phx.points")    // import given library into scope
-  **   using("*")             // import every library installed
-  @Api static Obj? _using(Str? name := null)
-  {
-  /*
-    out := cx.out
-
-    if (name != null)
-    {
-      cx.rt.defs.addUsing(name, out)
-      return noEcho
-    }
-
-    out.printLine
-    cx.xeto.versions.sort.each |x| { out.printLine("$x.name [$x.version]") }
-    out.printLine
-    */
-throw Err("TODO")
-
     return noEcho
   }
 

@@ -33,9 +33,21 @@ class ShellContext : Context
     out.printLine("Axon shell v${typeof.pod.version} ('?' for help, 'quit' to quit)")
     while (!isDone)
     {
+      Str? expr
       try
       {
-        expr := prompt
+        expr = prompt
+      }
+      catch (Err e)
+      {
+        echo("ERROR in prompt")
+        e.trace
+        echo("Exiting!")
+        return 1
+      }
+
+      try
+      {
         if (!expr.isEmpty) run(expr)
       }
       catch (SyntaxErr e)

@@ -37,14 +37,6 @@
   // Print the variables in scope
   scope: Func { returns: Obj? }
 
-  // Import data library into scope.
-  //
-  // Examples:
-  //   using()                // list all libraries currently in scope
-  //   using("phx.points")    // import given library into scope
-  //   using("*")             // import every library installed
-  using: Func { name: Str?, returns: Obj? }
-
   // Load the in-memory database from an Uri.  The uri must be have http/https
   // scheme or reference a file on the local file system (using forward slash).
   // The filename must have one of the following file extensions: zinc, json,

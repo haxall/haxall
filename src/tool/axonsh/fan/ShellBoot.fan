@@ -34,6 +34,7 @@ class ShellBoot : HxBoot
       "hx.xeto",
       "hx.axonsh",
       "hx.hxd.file",
+      "hx.hxd.proj",
     ]
   }
 
