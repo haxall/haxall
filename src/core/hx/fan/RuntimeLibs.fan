@@ -76,6 +76,9 @@ const mixin RuntimeLib
   ** Basis is the source origin of the library
   abstract RuntimeLibBasis basis()
 
+  ** Is this a boot only lib
+  @NoDoc abstract Bool isBootOnly()
+
   ** Is this a system only lib
   @NoDoc abstract Bool isSysOnly()
 }

@@ -123,7 +123,7 @@ const class HxLibs : RuntimeLibs
     {
       libs = libs.findAll |x|
       {
-        if (x.basis.isDisabled) return x.isSysOnly
+        if (x.basis.isDisabled) return x.isSysOnly && !x.isBootOnly
         return !x.basis.isProj
       }
     }
@@ -131,7 +131,7 @@ const class HxLibs : RuntimeLibs
     {
       libs = libs.findAll |x|
       {
-        if (x.basis.isDisabled) return !x.isSysOnly
+        if (x.basis.isDisabled) return !x.isSysOnly && !x.isBootOnly
         return x.basis.isProj
       }
     }
@@ -579,6 +579,7 @@ const class HxLib : RuntimeLib
   {
     this.ver       = ver
     this.basis     = basis
+    this.isBootOnly = isBootOnlyName(ver.name)
     this.isSysOnly = ver.isHxSysOnly || isSysOnlyName(ver.name)
   }
 
@@ -587,6 +588,12 @@ const class HxLib : RuntimeLib
     this.ver       = FileLibVersion.makeCompanion(version)
     this.basis     = RuntimeLibBasis.boot
     this.isSysOnly = false
+  }
+
+  static Bool isBootOnlyName(Str n)
+  {
+    // for now just hardcode
+    n == "hx.axonsh" || n.startsWith("hx.platform")
   }
 
   static Bool isSysOnlyName(Str n)
@@ -600,6 +607,7 @@ const class HxLib : RuntimeLib
 
   override Str name() { ver.name }
   override const RuntimeLibBasis basis
+  override const Bool isBootOnly
   override const Bool isSysOnly
   const FileLibVersion ver
 
