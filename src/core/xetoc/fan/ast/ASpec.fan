@@ -417,7 +417,7 @@ internal class ASpecState
 
   ALib lib { private set }
   ASpec? parent { private set }
-  SpecFlavor flavor // TODO
+  SpecFlavor flavor
   ASpecRef? typeRef
   Spec? base
   AScalar? val

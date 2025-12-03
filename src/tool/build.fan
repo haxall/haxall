@@ -20,8 +20,7 @@ class Build : BuildGroup
       `xetoDoc/build.fan`,
       `xetoTools/build.fan`,
       `convert4/build.fan`,
-// TODO
-      //`axonsh/build.fan`,
+      `axonsh/build.fan`,
     ]
   }
 }

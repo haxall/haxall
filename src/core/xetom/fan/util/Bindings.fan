@@ -289,7 +289,12 @@ const class SpecBindingLoader
   }
 }
 
-// TODO
+**************************************************************************
+** SpecBindingInfo
+**************************************************************************
+
+** SpecBindingInfo is used between RSpec and ASpec to pass in
+** information to resolve Fantom type bindings
 @Js
 mixin SpecBindingInfo
 {
