@@ -13,29 +13,19 @@ using xetom::Printer
 using axon
 using def
 using hx
+using hxm
 
 **
 ** Shell context
 **
-class ShellContext : HxContext
+class ShellContext : Context
 {
-
-//////////////////////////////////////////////////////////////////////////
-// Construction
-//////////////////////////////////////////////////////////////////////////
-
   ** Constructor
-  new make(OutStream out := Env.cur.out)
+  new make(ShellSys sys, User user, OutStream out := Env.cur.out)
+    : super(sys, null, user)
   {
-    this.out   = out
-    this.funcs = loadBuiltInFuncs
-    this.rt    = ShellRuntime()
-    this.user  = ShellUser()
+    this.out = out
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Shell
-//////////////////////////////////////////////////////////////////////////
 
   ** Run the iteractive prompt+eval loop
   Int runInteractive()
@@ -168,130 +158,10 @@ class ShellContext : HxContext
   OutStream out { private set }
 
   ** Create Xeto printer for output stream
-  Printer printer(Dict? opts := null) { Printer(xeto, out, opts ?: Etc.dict0) }
+  Printer printer(Dict? opts := null) { Printer(ns, out, opts ?: Etc.dict0) }
 
   ** Flag to terminate the interactive loop
   Bool isDone := false
-
-//////////////////////////////////////////////////////////////////////////
-// HxContext
-//////////////////////////////////////////////////////////////////////////
-
-  ** Runtime
-  override const ShellRuntime rt
-
-  ** Def namespace
-  override DefNamespace defs() { rt.defs }
-
-  ** In-memory folio database
-  override ShellFolio db() { rt.db }
-
-  ** Current user
-  override const HxUser user
-
-  ** No session available
-  override HxSession? session(Bool checked := true)
-  {
-    if (checked) throw SessionUnavailableErr("ShellContext")
-    return null
-  }
-
-  ** Return empty dict
-  override Dict about() { Etc.dict0 }
-
-//////////////////////////////////////////////////////////////////////////
-// DataContext
-//////////////////////////////////////////////////////////////////////////
-
-  ** Read a data record by id
-  override Dict? xetoReadById(Obj id)
-  {
-    db.readById(id, false)
-  }
-
-  ** Read all the records with a given tag name/value pair
-  override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)
-  {
-    db.readAllEachWhile(Filter(filter), Etc.dict0, f)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// HaystackContext
-//////////////////////////////////////////////////////////////////////////
-
-  ** Dereference an id to an record dict or null if unresolved
-  override Dict? deref(Ref id) { db.readById(id, false) }
-
-  ** Return inference engine used for def aware filter queries
-  override once FilterInference inference() { MFilterInference(defs) }
-
-  ** Return contextual data as dict
-  override Dict toDict()
-  {
-    tags := Str:Obj[:]
-    tags["axonsh"] = Marker.val
-    tags["locale"] = Locale.cur.toStr
-    tags["username"] = user.username
-    tags["userRef"] = user.id
-    return Etc.dictMerge(super.toDict, tags)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// FolioContext
-//////////////////////////////////////////////////////////////////////////
-
-  ** Return if context has read access to given record
-  override Bool canRead(Dict rec) { true }
-
-  ** Return if context has write (update/delete) access to given record
-  override Bool canWrite(Dict rec) { true }
-
-  ** Return an immutable thread safe object which will be passed thru
-  ** the commit process and available via the FolioHooks callbacks.
-  ** This is typically the User instance.  HxContext always returns user.
-  override Obj? commitInfo() { user }
-
-//////////////////////////////////////////////////////////////////////////
-// AxonContext
-//////////////////////////////////////////////////////////////////////////
-
-  ** Map of installed functions
-  Str:TopFn funcs
-
-  ** Find top-level function by qname or name
-  override Fn? findTop(Str name, Bool checked := true)
-  {
-    f := funcs[name]
-    if (f != null) return f
-    if (checked) throw UnknownFuncErr(name)
-    return null
-  }
-
-  ** Resolve dict by id - used by trap on Ref
-  override Dict? trapRef(Ref id, Bool checked := true)
-  {
-    db.readById(id, checked)
-  }
-
-  private static Str:TopFn loadBuiltInFuncs()
-  {
-    acc := Str:TopFn[:]
-    acc.addAll(FantomFn.reflectType(CoreLib#))
-    acc.addAll(FantomFn.reflectType(ShellFuncs#))
-    acc.addAll(FantomFn.reflectType(HxCoreFuncs#))
-    acc.addAll(FantomFn.reflectType(Type.find("hxXeto::XetoFuncs")))
-    acc.addAll(FantomFn.reflectType(Type.find("hxIO::IOFuncs")))
-    return acc
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// TODO
-//////////////////////////////////////////////////////////////////////////
-
-  File resolveFile(Uri uri)
-  {
-    File(uri, false)
-  }
 
 }
 

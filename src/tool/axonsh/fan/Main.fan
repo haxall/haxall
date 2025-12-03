@@ -6,8 +6,11 @@
 //   24 Jan 2023  Brian Frank  Creation
 //
 
-using axon
 using util
+using xeto
+using haystack
+using axon
+using hxm
 
 **
 ** Axon shell command line interface program
@@ -25,7 +28,9 @@ class Main
     if (hasOpt(opts, "-version", "-v")) return printVersion
 
     // if no args, then enter interactive shell
-    cx := ShellContext(out)
+    sys := ShellBoot().init
+    user := HxUser(Etc.dict4("id", Ref("axonsh"), "username", "axonsh", "userRole", "su", "mod", DateTime.nowUtc))
+    cx := ShellContext(sys, user, out)
     if (args.isEmpty) return cx.runInteractive
 
     // arg is either expression or axon file name

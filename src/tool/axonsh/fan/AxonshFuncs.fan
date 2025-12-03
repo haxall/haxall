@@ -16,17 +16,17 @@ using folio
 **
 ** Axon shell specific functions
 **
-const class ShellFuncs
+const class AxonshFuncs
 {
   ** Exit the shell.
-  @Axon static Obj? quit()
+  @Api static Obj? quit()
   {
     cx.isDone = true
     return noEcho
   }
 
   ** Set the show error trace flag.
-  @Axon static Obj? showTrace(Bool flag)
+  @Api static Obj? showTrace(Bool flag)
   {
     cx.showTrace = flag
     return noEcho
@@ -36,7 +36,7 @@ const class ShellFuncs
   ** Examples:
   **    help()        // print summary
   **    help(using)   // print help for the using function
-  @Axon static Obj? help(Obj? func := null)
+  @Api static Obj? help(Obj? func := null)
   {
     out := cx.printer
     comment := out.theme.comment
@@ -92,8 +92,9 @@ const class ShellFuncs
   }
 
   ** Print help summary of every function
-  @Axon static Obj? helpAll()
+  @Api static Obj? helpAll()
   {
+  /*
     out := cx.printer
     comment := out.theme.comment
 
@@ -111,6 +112,8 @@ const class ShellFuncs
     }
     out.colorEnd(comment)
     out.nl
+    */
+throw Err("TODO")
     return noEcho
   }
 
@@ -123,14 +126,14 @@ const class ShellFuncs
   **   - text: output as plain text (not string literal)
   **   - escapeUnicode: escape string literals with non-ASCII chars
   **   - width: max width of output text
-  @Axon static Obj? print(Obj? val := null, Dict? opts := null)
+  @Api static Obj? print(Obj? val := null, Dict? opts := null)
   {
     cx.print(val, opts)
     return noEcho
   }
 
   ** Print the variables in scope
-  @Axon static Obj? scope()
+  @Api static Obj? scope()
   {
     out := cx.out
     vars := cx.varsInScope
@@ -152,8 +155,9 @@ const class ShellFuncs
   **   using()                // list all libraries currently in scope
   **   using("phx.points")    // import given library into scope
   **   using("*")             // import every library installed
-  @Axon static Obj? _using(Str? name := null)
+  @Api static Obj? _using(Str? name := null)
   {
+  /*
     out := cx.out
 
     if (name != null)
@@ -165,19 +169,16 @@ const class ShellFuncs
     out.printLine
     cx.xeto.versions.sort.each |x| { out.printLine("$x.name [$x.version]") }
     out.printLine
+    */
+throw Err("TODO")
+
     return noEcho
   }
 
-  ** Get library by qname (does not add it to using)
-  @Axon static Lib datalib(Str qname)
-  {
-    cx.xeto.lib(qname)
-  }
-
   ** Backdoor hook to refresh ref dis
-  @NoDoc @Axon static Obj? refreshDisAll()
+  @NoDoc @Api static Obj? refreshDisAll()
   {
-    cx.db.refreshDisAll
+    ((ShellFolio)cx.db).refreshDisAll
     return "refreshed"
   }
 
@@ -205,7 +206,7 @@ const class ShellFuncs
   **   // load from a HTTP URI
   **   load(`https://project-haystack.org/example/download/bravo.zinc`)
   **
-  @Axon static Obj? load(Uri uri, Dict? opts := null)
+  @Api static Obj? load(Uri uri, Dict? opts := null)
   {
     ShellLoader(cx, uri, opts ?: Etc.dict0).load
   }
@@ -214,7 +215,7 @@ const class ShellFuncs
   ** Unload all the data from the in-memory database.
   ** This is essentially a commit to remove all recs.
   **
-  @Axon static Obj? unloadAll()
+  @Api static Obj? unloadAll()
   {
     recs := cx.db.readAllList(Filter.has("id"))
     diffs := recs.map |rec->Diff| { Diff(rec, null, Diff.remove) }
@@ -228,7 +229,7 @@ const class ShellFuncs
 
   ** Backdoor hook to load Axon functions from a resource pod.
   ** No checking is done for dependencies.
-  @NoDoc @Axon static Obj? loadFuncs(Str libName)
+  @NoDoc @Api static Obj? loadFuncs(Str libName)
   {
     // find the pod
     pod := Pod.find(libName + "Ext", false)
@@ -244,7 +245,8 @@ const class ShellFuncs
     }
 
     // merge into context top funcs
-    cx.funcs.setAll(acc)
+//    cx.funcs.setAll(acc)
+throw Err("TODO")
 
     return "Loaded $acc.size funcs from $pod"
   }

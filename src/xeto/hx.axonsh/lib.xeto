@@ -1,0 +1,27 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Dec 2025  Brian Frank  Creation
+//
+
+pragma: Lib <
+  doc: "Axon shell functions"
+  version: BuildVar "hx.version"
+  depends: {
+    { lib: "sys",  versions: BuildVar "ph.depend" }
+    { lib: "axon", versions: BuildVar "hx.depend" }
+  }
+  categories: {"haxall"}
+  license: BuildVar "hx.license"
+  org: {
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
+  }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
+  }
+>
+

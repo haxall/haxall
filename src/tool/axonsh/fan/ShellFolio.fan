@@ -36,6 +36,11 @@ const class ShellFolio : Folio
     FolioFuture(CountFolioRes(0))
   }
 
+  override protected FolioRec? doReadRecById(Ref id)
+  {
+    throw UnsupportedErr()
+  }
+
   override FolioFuture doReadByIds(Ref[] ids)
   {
     map := this.map
