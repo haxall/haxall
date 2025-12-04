@@ -64,7 +64,7 @@ class ExtTest : HxTest
     proj.libs.add("hx.test")
     HxTestExt t := verifyExtEnabled("hx.test")
     t.spi.sync
-    verifyEq(t.traces.val, "onStart[true]\nonReady[true]\nonSteadyState\n")
+    verifyEq(t.traces.val, "onStart[false]\nonReady[true]\nonSteadyState\n")
     verifyEq(t.isRunning, true)
 
     // now remove hx.txt

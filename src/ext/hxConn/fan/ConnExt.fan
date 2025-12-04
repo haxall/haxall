@@ -75,7 +75,7 @@ abstract const class ConnExt : ExtObj, HxConnExt
 
   @NoDoc override Dict connFeatures()
   {
-    (modelRef.val as ConnModel)?.features ?: Etc.dict1("name", modelName)
+    (modelRef.val as ConnModel)?.features ?: Etc.dict2("name", modelName, "notStarted", Marker.val)
   }
 
 //////////////////////////////////////////////////////////////////////////

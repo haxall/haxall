@@ -262,10 +262,10 @@ const class HxExtSpi : Actor, ExtSpi
       return null
     }
 
-    isRunningRef.val = true
     try
     {
       ext.onStart
+      isRunningRef.val = true
     }
     catch (Err e)
     {
@@ -290,6 +290,7 @@ const class HxExtSpi : Actor, ExtSpi
 
   private Obj? onSteadyState()
   {
+    if (!isRunning) return null
     ext.onSteadyState
     return null
   }

@@ -90,9 +90,11 @@ const mixin Ext
 // Lifecycle Callbacks
 //////////////////////////////////////////////////////////////////////////
 
-  ** Running flag.  On startup this flag transitions to true before calling
-  ** ready and start on the library.  On shutdown this flag transitions
-  ** to false before calling unready and stop on the library.
+  ** Running flag.  On startup this flag transitions to true after `onStart`
+  ** completes, but before `onReady`.  On shutdown this flag transitions to
+  ** false before calling `onUnready` and `onStop` on the library.  If the
+  ** 'onStart' callback raises an exception then this flag never transitions
+  ** to true.
   Bool isRunning() { spi.isRunning }
 
   ** Callback when library is started.
