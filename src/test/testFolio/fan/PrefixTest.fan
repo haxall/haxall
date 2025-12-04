@@ -115,7 +115,6 @@ class PrefixTest : AbstractFolioTest
     verifyRefEq(c->xRef, Ref("x:foo"))
     verifyRefEq(c->yRef, Ref("u:y"))
 
-
     // update a
     diff = folio.commit(Diff(a, ["dis":"Alpha x 2"]))
     a = folio.readById(a.id)
@@ -123,6 +122,18 @@ class PrefixTest : AbstractFolioTest
     verifyRefEq(a.id, Ref("xyz:a", "Alpha x 2"))
     verifyIdsSame(a.id, c->aAbsRef)
     verifyIdsSame(a.id, c->aRelRef)
+
+    // test skipRefNorm flag
+    d := folio.commit(Diff(null, ["dis":"Skip", "ref1":Ref("rel")], Diff.add.or(Diff.skipRefNorm))).newRec
+    verifyEq(d.id.toStr.startsWith("xyz:"), true)
+    verifyEq(d->ref1, Ref("rel"))
+
+    // updates
+    d = folio.commit(Diff(d, ["ref1":Ref("foo"), "ref2":Ref("bar"), "refList":[Ref("baz")]], Diff.skipRefNorm)).newRec
+    verifyEq(d.id.toStr.startsWith("xyz:"), true)
+    verifyEq(d->ref1, Ref("foo"))
+    verifyEq(d->ref2, Ref("bar"))
+    verifyEq(d->refList, [Ref("baz")])
   }
 
 }

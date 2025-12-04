@@ -137,14 +137,17 @@ const class Diff
   ** Flag bitmask for `isBypassRestricted`
   @NoDoc static const Int bypassRestricted := 0x10
 
-  ** Flag bitmask add in ctor if curVal or curStatus in changes
+  ** Flag bitmask for `isCurVal`
   @NoDoc static const Int curVal := 0x20
 
   ** Flag bitmask indicating changes dict has point tag
   @NoDoc static const Int point := 0x40
 
-  ** Flag bitmask indicating an add/remove/ref change
+  ** Flag bitmask for `isTreeUpdate`
   @NoDoc static const Int treeUpdate := 0x80
+
+  ** Flag bitmask for `isSkipRefNorm`
+  @NoDoc static const Int skipRefNorm := 0x100
 
   ** Flag bitmask for `force` and `transient`
   static const Int forceTransient := force.or(transient)
@@ -179,6 +182,9 @@ const class Diff
 
   ** Flag indicating we modifying tree structure (add, remove, ref)
   @NoDoc Bool isTreeUpdate() { flags.and(treeUpdate) != 0 }
+
+  ** Flag indicating we should skip ref normalization
+  @NoDoc Bool isSkipRefNorm() { flags.and(skipRefNorm) != 0 }
 
 //////////////////////////////////////////////////////////////////////////
 // Methods

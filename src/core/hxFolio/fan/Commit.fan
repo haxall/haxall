@@ -118,29 +118,10 @@ internal class Commit
     }
   }
 
-  private Obj? normVal(Obj? tag)
+  private Obj? normVal(Obj? v)
   {
-    if (tag == null) return null
-    if (tag is Ref) return normRef(tag)
-    if (tag is List) return normList(tag)
-    if (tag is Dict) return normDict(tag)
-    return tag
-  }
-
-  private Obj?[] normList(Obj?[] list)
-  {
-    acc := list.dup
-    for (i := 0; i<acc.size; ++i)
-      acc[i] = normVal(acc[i])
-    return acc
-  }
-
-  private Dict normDict(Dict dict)
-  {
-    // only one level supported
-    hasRef := dict.eachWhile |v, n| { v is Ref ? "yes" : null }
-    if (hasRef == null) return dict
-    return Etc.dictMap(dict) |v, n| { normVal(v) }
+    if (inDiff.isSkipRefNorm) return v
+    return Etc.mapRefs(v) |ref| { normRef(ref) }
   }
 
   private Ref normRef(Ref ref)
