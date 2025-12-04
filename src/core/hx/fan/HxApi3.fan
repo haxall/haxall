@@ -81,6 +81,14 @@ const mixin HxApiOpSpi
 
 internal class HxAboutOp : HxApiOp
 {
+  /*
+  override Void onService(WebReq req, WebRes res, Context cx)
+  {
+    cx.rt.log.info(">>> $req.modRel.toCode")
+    super.onService(req, res, cx)
+  }
+  */
+
   override Grid onRequest(Grid req, Context cx)
   {
     Etc.makeDictGrid(null, cx.ns.funcs.get("about").func.thunk.callList)

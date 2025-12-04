@@ -58,6 +58,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       // anything else must be /api/{projName}/{opName}/...
       if (path.size < 2) return res.sendErr(404)
       opName := path[1]
+      req.modBase = req.uri[0..2].plusSlash
 
       // if opName has dot then its Haxall 4.x xeto style
       if (opName.contains("."))
