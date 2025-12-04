@@ -82,7 +82,7 @@ const class HxCompanion : ProjCompanion
     doUpdate |->|
     {
       if (read(name, false) != null) throw DuplicateNameErr(name)
-      db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted)))
+      db.commit(Diff(null, rec, Diff.add.or(diffFlags)))
     }
   }
 
@@ -93,7 +93,7 @@ const class HxCompanion : ProjCompanion
     {
       cur := read(name)
       changes := updateDiff(name, cur, rec)
-      db.commit(Diff(cur, changes, Diff.bypassRestricted))
+      db.commit(Diff(cur, changes, diffFlags))
     }
   }
 
@@ -104,7 +104,7 @@ const class HxCompanion : ProjCompanion
       cur := read(oldName)
       if (read(newName, false) != null) throw DuplicateNameErr(newName)
       checkName(cur, newName)
-      db.commit(Diff(cur, Etc.dict1("name", newName), Diff.bypassRestricted))
+      db.commit(Diff(cur, Etc.dict1("name", newName), diffFlags))
     }
   }
 
@@ -114,7 +114,7 @@ const class HxCompanion : ProjCompanion
     {
       cur := read(name, false)
       if (cur == null) return
-      db.commit(Diff(cur, null, Diff.remove.or(Diff.bypassRestricted)))
+      db.commit(Diff(cur, null, Diff.remove.or(diffFlags)))
     }
   }
 
@@ -308,6 +308,7 @@ const class HxCompanion : ProjCompanion
   static const Ref specRef := Ref("sys::Spec")
   static const Ref funcRef := Ref("sys::Func")
   static const Ref objRef  := Ref("sys::Obj")
+  static const Int diffFlags := Diff.bypassRestricted.or(Diff.skipRefNorm)
 
   private const Lock lock := Lock.makeReentrant
 
