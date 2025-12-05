@@ -114,7 +114,7 @@ internal class AstToDicts : Step
       case ANodeType.scalar:  return mapScalar(x)
       case ANodeType.dict:    return mapDict(x, null)
       case ANodeType.dataRef: return mapRef(x)
-      case ANodeType.specRef: return mapRef(x)
+      case ANodeType.specRef: return mapTypeRef(x)
       default:                throw Err(data.nodeType.name)
     }
   }

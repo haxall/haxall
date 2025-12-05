@@ -52,8 +52,13 @@ class RuntimeTest : AbstractAxonTest
     verifyDigestNotEq(bd1, bd3)
     verifyDigestNotEq(bd2, bd3)
 
-    // now create compound type
-    x.add(x.parse("Charlie: Equip & Alpha"))
+    // now create compound type (verify unresolved names become proj::Foo
+    ast := x.parse("Charlie: Equip & Alpha { list: List<of:Alpha> }")
+    verifyEq(ast["base"], Ref("sys::And"))
+    verifyEq(ast["ofs"], Obj?[Ref("ph::Equip"), Ref("proj::Alpha")])
+    slot := (ast["slots"] as Grid).find { it->name == "list" }
+    verifyDictEq(slot, ["name":"list", "type":Ref("sys::List"), "of":Ref("proj::Alpha")])
+    x.add(ast)
     ad4 := ns.spec("proj::Alpha").inheritanceDigest
     bd4 := ns.spec("proj::Bravo").inheritanceDigest
     cd4 := ns.spec("proj::Charlie").inheritanceDigest
