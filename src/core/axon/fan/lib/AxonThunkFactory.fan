@@ -22,7 +22,7 @@ const class AxonThunkFactory : ThunkFactory
   override Thunk create(Spec spec, Pod? pod)
   {
     fn := doCreate(spec, pod)
-    TopFn#qname->setConst(fn, spec.qname)
+    TopFn#qname->setConst(fn, spec.lib.name + "::" + spec.name)
     return fn
   }
 
