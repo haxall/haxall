@@ -58,10 +58,18 @@ const class Settings : Dict
       else if (field.type == Duration# && val is Number && ((Number)val).isDuration)
         val = ((Number)val).toDuration
       else if (field.type == Bool# && val === Marker.val)
-        val = true
+         val = true
+      else if (field.type.fits(List#) && val is List)
+      {
+        try
+          val = List((Type)(field.type.params.get("V") ?: Obj#)).addAll(val).toImmutable
+        catch (Err e)
+          {} // fall thru to onErr
+      }
 
       // attempt to map from tag type to field type
-      if (val.typeof.fits(field.type.toNonNullable))
+      typeOk := val.typeof.fits(field.type.toNonNullable)
+      if (typeOk)
         sets[field] = val
       else if (onErr != null)
         onErr("Invalid val $field.qname.toCode: $field.type != $val.typeof")
