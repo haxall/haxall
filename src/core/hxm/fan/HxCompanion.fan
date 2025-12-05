@@ -123,7 +123,7 @@ const class HxCompanion : ProjCompanion
     if (name.isEmpty) throw ArgErr("Invalid empty name")
     flip := name[0].isUpper ? name.decapitalize : name.capitalize
     if (read(name, false) != null) throw DuplicateNameErr(name)
-    if (read(flip, false) != null) throw DuplicateNameErr(name)
+    if (read(flip, false) != null) throw DuplicateNameErr("$name (case insensitive)")
   }
 
   private Void doUpdate(|->| cb)

@@ -41,11 +41,12 @@ internal class AstToDicts : Step
     return Etc.dictFromMap(acc)
   }
 
-  Str rtForSpec(ASpecRef base)
+  Str rtForSpec(ASpecRef? base)
   {
     // Note: this is just a attempt to infer rt as "func", it won't
     // work for other Func subtypes; so callers should ensure proper
     // rt tag if they know the something is a function vs a spec
+    if (base == null) return "sys::Dict"
     n := base.name.name
     isFunc := n == "Func" || n == "Template"
     return isFunc ? "func" : "spec"
