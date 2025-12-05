@@ -283,8 +283,9 @@ class RuntimeTest : HxTest
     // add instance errors
     verifyInvalidErr(["rt":"instance", "name":"bad id", "spec":Ref("proj::SpecA")])
     verifyInvalidErr(["rt":"instance", "name":"inst-b", "spec":Ref("sys::Spec")])
+    verifyInvalidErr(["rt":"instance", "name":"Capital", "spec":Ref("proj::SpecA")])
     verifyDuplicateErr(["rt":"instance", "name":"inst-a"])
-    verifyDuplicateErr(["rt":"instance", "name":"SpecA"])
+    verifyDuplicateErr(["rt":"instance", "name":"specA"])
 
     // add instance - hx.modbus (duplicate lib name)
     proj.companion.add(d(["rt":"instance", "name":"hx.modbus", "spec":Ref("proj::SpecA"), "dis":"Lib Dup"]))
@@ -340,12 +341,14 @@ class RuntimeTest : HxTest
     digest = verifyCompanionRecs(["SpecA"], none, Str["inst-a"], digest)
 
     // update switch spec <-> instance
+    /* we can't do this anymore because instances must start with lowercase
     proj.companion.add(d(["rt":"spec",     "name":"A", "base":Ref("sys::Dict"), "spec":specRef]))
-    proj.companion.add(d(["rt":"instance", "name":"B", "foo":m]))
-    digest = verifyCompanionRecs(["A", "SpecA"], none, ["B", "inst-a"], digest)
+    proj.companion.add(d(["rt":"instance", "name":"b", "foo":m]))
+    digest = verifyCompanionRecs(["A", "SpecA"], none, ["b", "inst-a"], digest)
     proj.companion.update(d(["rt":"spec",     "name":"B", "base":Ref("sys::Dict"), "spec":specRef]))
-    proj.companion.update(d(["rt":"instance", "name":"A", "foo":m]))
-    digest = verifyCompanionRecs(["B", "SpecA"], none, ["A", "inst-a"], digest)
+    proj.companion.update(d(["rt":"instance", "name":"a", "foo":m]))
+    digest = verifyCompanionRecs(["B", "SpecA"], none, ["a", "inst-a"], digest)
+    */
 
     // updates with id/mod
     companionMode = "update"

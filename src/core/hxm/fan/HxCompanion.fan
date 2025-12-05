@@ -81,7 +81,7 @@ const class HxCompanion : ProjCompanion
     name := validate(rec)
     doUpdate |->|
     {
-      if (read(name, false) != null) throw DuplicateNameErr(name)
+      checkDupName(name)
       db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted)))
     }
   }
@@ -102,7 +102,7 @@ const class HxCompanion : ProjCompanion
     doUpdate |->|
     {
       cur := read(oldName)
-      if (read(newName, false) != null) throw DuplicateNameErr(newName)
+      checkDupName(newName)
       checkName(cur, newName)
       db.commit(Diff(cur, Etc.dict1("name", newName), Diff.bypassRestricted))
     }
@@ -116,6 +116,14 @@ const class HxCompanion : ProjCompanion
       if (cur == null) return
       db.commit(Diff(cur, null, Diff.remove.or(Diff.bypassRestricted)))
     }
+  }
+
+  private Void checkDupName(Str name)
+  {
+    if (name.isEmpty) throw ArgErr("Invalid empty name")
+    flip := name[0].isUpper ? name.decapitalize : name.capitalize
+    if (read(name, false) != null) throw DuplicateNameErr(name)
+    if (read(flip, false) != null) throw DuplicateNameErr(name)
   }
 
   private Void doUpdate(|->| cb)

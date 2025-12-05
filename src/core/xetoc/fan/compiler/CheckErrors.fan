@@ -334,6 +334,8 @@ internal class CheckErrors : Step
   {
     if (XetoUtil.isReservedInstanceName(name))
       err("Instance name '$name' is reserved", x.loc)
+    else if (!XetoUtil.isInstanceName(name))
+      err("Instance name '$name' is invalid", x.loc)
 
     checkDict(x, null)
   }

@@ -132,25 +132,31 @@ verifyErrs: |
 ##########################################################################
 
 ---
+name: "reservedSpecNames"
+compileLib: |
+  Index: {}
+verifyErrs: |
+  Spec name 'Index' is reserved
+---
 name: "reservedInstanceNames"
 compileLib: |
-  @toc: {}
+  @index: {}
   @pragma: {}
   @doc-overview: {}
+  @Foo: {}
+  @123-456: {ok}
 verifyErrs: |
-  Instance name 'toc' is reserved
+  Instance name 'index' is reserved
   Instance name 'pragma' is reserved
   Instance name 'doc-overview' is reserved
+  Instance name 'Foo' is invalid
 ---
 name: "dupTops"
 compileLib: |
   Foo: Dict
-  Bar: Dict
   @foo: {}
-  @Bar: {}
 verifyErrs: |
   Spec 'Foo' conflicts with instance of the same name
-  Spec 'Bar' conflicts with instance of the same name
 ---
 name: "checkTypeInherit"
 compileLib: |

@@ -85,10 +85,10 @@ const class XetoUtil
     return n.all |c| { c.isAlphaNum || c == '_' }
   }
 
-  ** Return if valid instance id/name
+  ** Return if valid instance id/name (and must not start with uppercase)
   static Bool isInstanceName(Str n)
   {
-    Ref.isId(n)
+    Ref.isId(n) && !n[0].isUpper
   }
 
   ** Return if name is "_" + digits
@@ -287,7 +287,7 @@ const class XetoUtil
   static Bool isReservedSpecName(Str n)
   {
     if (n == "Pragma") return true
-    if (n == "Toc") return true
+    if (n == "Index") return true
     return false
   }
 
@@ -295,8 +295,7 @@ const class XetoUtil
   static Bool isReservedInstanceName(Str n)
   {
     if (n == "pragma") return true
-    if (n == "top") return true
-    if (n == "toc") return true
+    if (n == "index") return true
     if (n.startsWith("doc-")) return true
     if (n.startsWith("_")) return true
     if (n.startsWith("~")) return true
