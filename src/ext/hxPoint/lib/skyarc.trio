@@ -6,6 +6,105 @@
 //   6 Aug 2020  Brian Frank  Creation
 //
 
+//////////////////////////////////////////////////////////////////////////
+// Dis tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+defx: ^disMacro
+tagOn: [^space, ^equip, ^point, ^system]
+--------------------------------------------------------------------------
+defx: ^navName
+tagOn: [^space, ^equip, ^point, ^system]
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Icons
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+defx: ^ahu
+navTarget: "equip"
+--------------------------------------------------------------------------
+defx: ^airHandlingEquip
+icon: "fan"
+--------------------------------------------------------------------------
+defx: ^airTerminalUnit
+icon: "fan"
+--------------------------------------------------------------------------
+defx: ^equip
+linter: "LintEquip"
+uiNewEntity
+--------------------------------------------------------------------------
+defx: ^fan
+icon: "fan"
+--------------------------------------------------------------------------
+defx: ^luminaire
+icon: "lightbulb"
+--------------------------------------------------------------------------
+defx: ^meter
+icon: "bolt"
+--------------------------------------------------------------------------
+defx: ^point
+linter: "LintPoint"
+uiNewEntity
+--------------------------------------------------------------------------
+defx: ^space
+linter: "LintSpace"
+uiNewEntity
+--------------------------------------------------------------------------
+defx: ^site
+linter: "LintSite"
+uiNewEntity
+--------------------------------------------------------------------------
+defx: ^weatherStation
+uiNewEntity
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Status Enums
+//////////////////////////////////////////////////////////////////////////
+
+// green: #1ca355
+// orange #e67e22
+// red    #db311f
+// gray:  #a4aeae
+
+--------------------------------------------------------------------------
+defx: ^curStatus
+enumx: Trio:
+  ok:             {icon:"check"    iconColor:"#1ca355"}
+  stale:          {icon:"check"    iconColor:"#e67e22"}
+  fault:          {icon:"err"      iconColor:"#db311f"}
+  down:           {icon:"warn"     iconColor:"#e67e22"}
+  disabled:       {icon:"disabled" iconColor:"#a4aeae"}
+  unknown:        {icon:"question" iconColor:"#a4aeae"}
+  remoteFault:    {icon:"err"      iconColor:"#db311f" disMacro:"$<ui::remote> $<ui::fault>"}
+  remoteDown:     {icon:"warn"     iconColor:"#e67e22" disMacro:"$<ui::remote> $<ui::down>"}
+  remoteDisabled: {icon:"disabled" iconColor:"#a4aeae" disMacro:"$<ui::remote> $<ui::disabled>"}
+  remoteUnknown:  {icon:"question" iconColor:"#a4aeae" disMacro:"$<ui::remote> $<ui::unknown>"}
+--------------------------------------------------------------------------
+defx: ^hisStatus
+enumx: Trio:
+  ok:       {icon:"check"    iconColor:"#1ca355"}
+  fault:    {icon:"err"      iconColor:"#db311f"}
+  down:     {icon:"warn"     iconColor:"#e67e22"}
+  disabled: {icon:"disabled" iconColor:"#a4aeae"}
+  unknown:  {icon:"question" iconColor:"#a4aeae"}
+  pending:  {icon:"clock"    iconColor:"#e67e22"}
+  syncing:  {icon:"sync"     iconColor:"#e67e22"}
+--------------------------------------------------------------------------
+defx: ^writeStatus
+enumx: Trio:
+  unbound:  {icon:"disabled" iconColor:"#a4aeae"}
+  ok:       {icon:"check"    iconColor:"#1ca355"}
+  fault:    {icon:"err"      iconColor:"#db311f"}
+  down:     {icon:"warn"     iconColor:"#e67e22"}
+  disabled: {icon:"disabled" iconColor:"#a4aeae"}
+  unknown:  {icon:"question" iconColor:"#a4aeae"}
+--------------------------------------------------------------------------
+
+/////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Commands
@@ -49,3 +148,4 @@ src:
   menu:   { action:"uiContextMenu" }
   data:   { expr:"monitorPoints({{points}})" }
 --------------------------------------------------------------------------
+
