@@ -343,7 +343,7 @@ class XetoPrinter
 
     if (isType)
     {
-      w("Ref ").quoted(x.id)
+      w(x.id)
     }
     else
     {

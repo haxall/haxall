@@ -131,13 +131,13 @@ class ParseTest : AbstractXetoTest
         ["name":"x-a", "spec":Ref("proj::Foo"), "n":"alpha"],
         ["name":"x.b", "n":"beta"],
         ["name":"x.c", "spec":Ref("ph::Ahu"),   "n":"charlie"],
-        ["name":"x.d", "dict":Etc.dict2("a","nest", "m",m), "list":Obj?["a", "b"], "ref1":Ref("Foo"), "ref2":Ref("Ahu")],
+        ["name":"x.d", "dict":Etc.dict2("a","nest", "m",m), "list":Obj?["a", "b"], "ref1":Ref("proj::Foo"), "ref2":Ref("ph::Ahu")],
       ])
   }
 
   Void verifyParse(Namespace ns, Str src, Obj[] expect, Bool roundtrip := true)
   {
-    //if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
+    // if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
     actual := ns.parseToDicts(src, opts)
     // actual.each |a, i| { if (i > 0) echo("---"); Etc.dictDump(a) }
     actual.each |a, i|
