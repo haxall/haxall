@@ -262,13 +262,14 @@ const class HxExtSpi : Actor, ExtSpi
       return null
     }
 
+    isRunningRef.val = true
     try
     {
       ext.onStart
-      isRunningRef.val = true
     }
     catch (Err e)
     {
+      isRunningRef.val = false
       log.err("Ext.onStart", e)
       toFault(e.toStr)
     }

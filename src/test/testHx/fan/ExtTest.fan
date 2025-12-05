@@ -64,7 +64,7 @@ class ExtTest : HxTest
     proj.libs.add("hx.test")
     HxTestExt t := verifyExtEnabled("hx.test")
     t.spi.sync
-    verifyEq(t.traces.val, "onStart[false]\nonReady[true]\nonSteadyState\n")
+    verifyEq(t.traces.val, "onStart[true]\nonReady[true]\nonSteadyState\n")
     verifyEq(t.isRunning, true)
 
     // now remove hx.txt
@@ -73,6 +73,20 @@ class ExtTest : HxTest
     verifyExtDisabled("hx.test")
     t.spi.sync
     verifyEq(t.traces.val, "onUnready[false]\nonStop[false]\n")
+    verifyEq(t.isRunning, false)
+
+    // add hx.test with exception in startup
+    proj.exts.add("hx.test", Etc.dict1("forceStartErr", m))
+    t = verifyExtEnabled("hx.test")
+    t.spi.sync
+    verifyEq(t.traces.val, "onStart[true]\n")
+    verifyEq(t.isRunning, false)
+
+    // verify onUnready, onStop still called
+    proj.libs.remove("hx.test")
+    verifyExtDisabled("hx.test")
+    t.spi.sync
+    verifyEq(t.traces.val, "onStart[true]\nonUnready[false]\nonStop[false]\n")
     verifyEq(t.isRunning, false)
   }
 
@@ -383,7 +397,7 @@ const class HxTestExt : ExtObj
 
   override const Observable[] observables := [TestObservable()]
 
-  override Void onStart() { trace("onStart[$isRunning]") }
+  override Void onStart() { trace("onStart[$isRunning]"); if (settings.has("forceStartErr")) throw Err("boo!") }
   override Void onReady() { trace("onReady[$isRunning]") }
   override Void onSteadyState() { trace("onSteadyState") }
   override Void onUnready() { trace("onUnready[$isRunning]") }
