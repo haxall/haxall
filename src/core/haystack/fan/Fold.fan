@@ -344,6 +344,9 @@ internal abstract class FoldExtreme : Fold
   override Obj? batch() { [mode, min, max] }
   override Void addBatch(Obj v)
   {
+    // handle where adding the result of a batch (which woudl be single number)
+    if (v is Number) v = [FoldNumMode.ok, v, v]
+
     state := (List)v
     mode := state[0] as FoldNumMode
     switch (mode)
