@@ -119,7 +119,8 @@ const class AxonThunkFactory : ThunkFactory
     s.add("\nend")
     */
 
-    return Parser(Loc(spec.qname), src.in).parseTop(spec.name, meta)
+    qname := meta->qname
+    return Parser(Loc(qname), src.in).parseTop(spec.name, meta)
   }
 
   private TopFn? parseComp(Spec spec, Dict meta, Str src)
