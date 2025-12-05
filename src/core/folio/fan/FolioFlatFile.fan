@@ -433,8 +433,7 @@ internal class FolioFlatFileCommit
 
   private Obj norm(Obj val)
   {
-    if (inDiff.isSkipRefNorm) return val
-    return Etc.mapRefs(val) |ref| { normRef(ref) }
+    Etc.mapRefs(val) |ref| { normRef(ref) }
   }
 
   private Ref normRef(Ref id)

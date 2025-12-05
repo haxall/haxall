@@ -146,9 +146,6 @@ const class Diff
   ** Flag bitmask for `isTreeUpdate`
   @NoDoc static const Int treeUpdate := 0x80
 
-  ** Flag bitmask for `isSkipRefNorm`
-  @NoDoc static const Int skipRefNorm := 0x100
-
   ** Flag bitmask for `force` and `transient`
   static const Int forceTransient := force.or(transient)
 
@@ -182,9 +179,6 @@ const class Diff
 
   ** Flag indicating we modifying tree structure (add, remove, ref)
   @NoDoc Bool isTreeUpdate() { flags.and(treeUpdate) != 0 }
-
-  ** Flag indicating we should skip ref normalization
-  @NoDoc Bool isSkipRefNorm() { flags.and(skipRefNorm) != 0 }
 
 //////////////////////////////////////////////////////////////////////////
 // Methods

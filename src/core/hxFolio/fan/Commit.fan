@@ -120,8 +120,7 @@ internal class Commit
 
   private Obj? normVal(Obj? v)
   {
-    if (inDiff.isSkipRefNorm) return v
-    return Etc.mapRefs(v) |ref| { normRef(ref) }
+    Etc.mapRefs(v) |ref| { normRef(ref) }
   }
 
   private Ref normRef(Ref ref)

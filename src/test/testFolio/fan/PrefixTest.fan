@@ -123,6 +123,7 @@ class PrefixTest : AbstractFolioTest
     verifyIdsSame(a.id, c->aAbsRef)
     verifyIdsSame(a.id, c->aRelRef)
 
+    /* in case we ever want to re-add (look at changesets 5-Dec-2025
     // test skipRefNorm flag
     d := folio.commit(Diff(null, ["dis":"Skip", "ref1":Ref("rel")], Diff.add.or(Diff.skipRefNorm))).newRec
     verifyEq(d.id.toStr.startsWith("xyz:"), true)
@@ -134,6 +135,7 @@ class PrefixTest : AbstractFolioTest
     verifyEq(d->ref1, Ref("foo"))
     verifyEq(d->ref2, Ref("bar"))
     verifyEq(d->refList, [Ref("baz")])
+    */
   }
 
 }
