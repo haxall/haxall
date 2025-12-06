@@ -89,6 +89,9 @@ class HxdBoot : HxBoot
   ** Initial values runtime meta
   Str:Obj? createMeta := [:]
 
+  ** HTTP port to use for create
+  Int? createHttpPort
+
   ** Initial libs for create
   Str[] createLibs := [
     "hx.shell",
@@ -109,6 +112,11 @@ class HxdBoot : HxBoot
   private Void createManagedLibRecs(Folio db)
   {
     diffs := createLibs.map |n->Diff| { HxLibs.addDiff(n) }
+    if (createHttpPort != null)
+    {
+      tags := Etc.dict1("httpPort", Number(createHttpPort))
+      diffs.add(HxLibs.addDiff("hx.http", tags))
+    }
     db.commitAll(diffs)
   }
 
