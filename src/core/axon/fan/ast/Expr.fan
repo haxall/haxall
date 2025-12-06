@@ -195,14 +195,9 @@ const abstract class Expr
     if (type === ExprType.dotCall) return ((DotCall)this).funcName
     if (type === ExprType.call)
     {
-      target := ((Call)this).func as Var
-      if (target != null)
-      {
-        name := target.name
-        colon := name.indexr(":")
-        if (colon != null) name = name[colon+1..-1]
-        return name
-      }
+      target := ((Call)this).func
+      if (target is Var) return ((Var)target).name
+      if (target is TopName) return ((TopName)target).name
     }
     return null
   }
