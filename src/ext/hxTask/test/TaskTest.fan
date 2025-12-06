@@ -309,7 +309,7 @@ class TaskTest : HxTest
       return
     }
 
-    ext := (TaskExt)addExt("task")
+    ext := (TaskExt)addExt("hx.task")
 
     a := addRec(["dis":"A", "site":m, "foo":m])
     b := addRec(["dis":"B", "site":m])
