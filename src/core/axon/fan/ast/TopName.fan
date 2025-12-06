@@ -9,6 +9,7 @@
 
 using concurrent
 using xeto
+using xetom::XetoUtil
 using haystack
 
 **
@@ -31,9 +32,10 @@ const class TopName : Expr
 
   new make(Loc loc, Str? lib, Str name)
   {
-    this.loc  = loc
-    this.lib  = lib
-    this.name = name
+    this.loc   = loc
+    this.lib   = lib
+    this.name  = name
+    this.qname = XetoUtil.qname(lib, name)
   }
 
   override ExprType type() { ExprType.topName }
@@ -44,6 +46,8 @@ const class TopName : Expr
 
   const Str name
 
+  const Str qname // or just simple name if lib is null
+
   override Bool isTopNameType() { !name.isEmpty && name[0].isUpper }
 
   override Obj? eval(AxonContext cx)
@@ -53,20 +57,13 @@ const class TopName : Expr
 
   override Printer print(Printer out)
   {
-    out.w(nameToStr)
+    out.w(qname)
   }
 
   override Void walk(|Str key, Obj? val| f)
   {
-    f("topName", nameToStr)
+    f("topName", qname)
   }
 
-  Str nameToStr()
-  {
-    if (lib != null)
-      return lib + "::" + name
-    else
-      return name
-  }
 }
 

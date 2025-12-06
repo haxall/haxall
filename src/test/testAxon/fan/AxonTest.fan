@@ -100,7 +100,7 @@ internal class TestContext : AxonContext
 
   override DefNamespace defs() { test.defs }
 
-  override Obj? resolveTop(TopName x, Bool checked := true)
+  override Obj? doResolveTop(TopName x, Bool checked := true)
   {
     core.getChecked(x.name, checked)
   }

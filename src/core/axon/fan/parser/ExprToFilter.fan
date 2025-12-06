@@ -97,7 +97,7 @@ internal class ExprToFilter
     // spec type
     if (expr.isTopNameType)
     {
-      return Filter.isSpec(((TopName)expr).nameToStr)
+      return Filter.isSpec(((TopName)expr).qname)
     }
 
     throw err("Not a filter expr: $expr [$expr.type]")

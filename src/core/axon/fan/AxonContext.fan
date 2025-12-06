@@ -76,7 +76,18 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Resolve top level qualified/unqualifed name to type/func
-  @NoDoc virtual Obj? resolveTop(TopName x, Bool checked := true)
+  @NoDoc Obj? resolveTop(TopName x, Bool checked := true)
+  {
+    top := tops[x.qname]
+    if (top != null) return top
+
+    top = doResolveTop(x, checked)
+    if (top != null) tops[x.qname] = top
+    return top
+  }
+
+  ** Hook for custom implementations/overrides for top-level name resolution
+  @NoDoc virtual Obj? doResolveTop(TopName x, Bool checked := true)
   {
     // qualified
     lib := x.lib == null ? null : ns.lib(x.lib, checked)
@@ -442,6 +453,7 @@ abstract class AxonContext : HaystackContext, CompContext
   @NoDoc Func? heartbeatFunc
   private Int timeoutTicks := Int.maxVal
   private CallFrame[] stack := [,]
+  private [Str:Obj] tops := [:]
   private [Str:Regex]? regex
   private [Str:Spec]? xetoIsSpecCache
   private [Str:Obj]? toDictExtra

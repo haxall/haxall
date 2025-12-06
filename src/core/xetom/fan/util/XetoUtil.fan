@@ -177,6 +177,13 @@ const class XetoUtil
     dottedToCamel(name, '-')
   }
 
+  ** Build qname from optional lib and simple name
+  static Str qname(Str? lib, Str name)
+  {
+    if (lib == null) return name
+    return StrBuf(lib.size+2+name.size).add(lib).add("::").add(name).toStr
+  }
+
   ** Convert "foo.bar::Baz" to simple name "Baz" or null if no "::"
   static Str? qnameToName(Obj qname)
   {
