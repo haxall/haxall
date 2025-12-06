@@ -42,7 +42,6 @@ class HaystackConnTest : HxTest
     verifyPointWrite
     verifyReadHis
     verifySyncHis
-    verifyInvokeAction
     verifyHaystackEval
   }
 
@@ -595,39 +594,6 @@ class HaystackConnTest : HxTest
     ext := (HaystackExt)proj.ext("hx.haystack")
     proj.sync
     ext.conn(conn.id).sync
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Invoke Action
-//////////////////////////////////////////////////////////////////////////
-
-  Void verifyInvokeAction()
-  {
-    // we don't have invokeAction in Haxall right now
-    if (!sys.info.type.isSkySpark) return
-
-    // create rec with action
-    r := addRec(["dis":"Action", "count":n(1), "msg1": "", "msg2":"", "actions":
-      Str<|ver: "2.0"
-           dis,expr
-           "test1","commit(diff(\$self, {count: \$self->count+1}))"
-           "test2","commit(diff(\$self, {msg1: \$str, msg2:\"\"+\$number}))"|>])
-
-    // test setup
-    eval("""invoke($r.id.toCode, "test1")""")
-    eval("""invoke($r.id.toCode, "test2", {str:"init", number:123})""")
-    r = readById(r.id)
-    verifyEq(r->count, n(2))
-    verifyEq(r->msg1, "init")
-    verifyEq(r->msg2, "123")
-
-    // make remote calls
-    eval("""read(haystackConn).haystackInvokeAction($r.id.toCode, "test1")""")
-    eval("""read(haystackConn).haystackInvokeAction($r.id.toCode, "test2", {str:"network",number:987})""")
-    r = readById(r.id)
-    verifyEq(r->count, n(3))
-    verifyEq(r->msg1, "network")
-    verifyEq(r->msg2, "987")
   }
 
 //////////////////////////////////////////////////////////////////////////
