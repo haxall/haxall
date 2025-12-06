@@ -8,10 +8,21 @@
 
 Overview [#overview]
 ********************
-Haxall is distributed as a simple ZIP file.  To install it:
+Haxall bundles several command line tools:
+  - 'hx': Haxall daemon runtime
+  - 'xeto': Xeto command line tools
+  - 'axonsh': Axon shell command line tool
+
+Haxall is distributed as a simple ZIP file which can be installed
+as follows:
   1. [Preinstall Java]`#java` on your machine
   2. [Download]`#download` and unzip the latest version
   3. [Verify]`#verify` installation by running 'hx version'
+
+At this point you can use the 'hx', 'xeto', and 'axonsh' command
+line tools.
+
+To setup the Haxall daemon runtime:
   4. [Initialize]`#init` a new database using 'hx init'
   5. [Run]`#run` your new database using 'hx run'
   6. [Login]`#login` and you can try out some Axon
@@ -22,7 +33,7 @@ Also see [Fantom Setup]`docTools::Setup` for additional details.
 Preinstall Java [#java]
 ***********************
 You must have Java 8 or later installed on your system as a prerequisite.
-We recommend using the latest LTS version which is currently Java 17.
+We recommend using the latest LTS version which is currently Java 25.
 
 You should be able to test if Java is installed from the command line
 as follows:
@@ -47,7 +58,7 @@ release schedule always follows SkySpark builds.  Builds are packaged into
 a zip file and posted on [GitHub]`https://github.com/haxall/haxall/releases`.
 
 Download the lastest release to your local machine and unzip it.  The
-root directory will be named "haxall-3.1.xx" based on the current build
+root directory will be named "haxall-4.0.xx" based on the current build
 version.  This is called the *home* directory and is structured as follows:
 
   {home}/           // home directory where you unzip
@@ -74,21 +85,21 @@ If you don't want to put bin into your path, then just make sure you 'cd' to
 the home or bin directory to run commands.  If everything is installed
 correctly you should be able to run 'hx version':
 
-  haxall-3.1.3> bin/hx version
+  haxall-4.0.4> bin/hx version
 
   Haxall CLI
-  Copyright (c) 2009-2022, SkyFoundry LLC
+  Copyright (c) 2009-2025, SkyFoundry LLC
   Licensed under the Academic Free License version 3.0
 
-  hx.version:       3.1.3
-  java.version:     1.8.0_301
-  java.vm.name:     Java HotSpot(TM) 64-Bit Server VM
-  java.vm.vendor:   Oracle Corporation
-  java.vm.version:  25.301-b09
-  java.home:        /Library/Java/JavaVirtualMachines/jdk1.8.0_301.jdk/Contents/Home/jre
-  fan.version:      1.0.77.3102
-  fan.platform:     macosx-x86_64
-  fan.env.path:     /stuff/haxall-3.1.3
+  hx.version:      4.0.4
+  java.version:    17.0.8
+  java.vm.name:    Java HotSpot(TM) 64-Bit Server VM
+  java.vm.vendor:  Oracle Corporation
+  java.vm.version: 17.0.8+9-LTS-211
+  java.home:       /Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+  fan.version:     1.0.82
+  fan.platform:    macosx-aarch64
+  fan.home:        /stuff/haxall-4.0.4
 
 The Haxall installation is a super-set of a standard Fantom installation.
 If you have any trouble, see [Fantom Setup]`docTools::Setup` to troubleshoot
@@ -96,14 +107,17 @@ your environment.
 
 Init [#init]
 ************
-Before you can run the Haxall daemon you must initialize a database.  You
-do this with the 'hx init' command.  Databases are stored in a directory which
-then becomes the name of your runtime.  To create a new project database
-named "demo":
+Before you can run the Haxall daemon you must initialize a database.
+Note: this step is not required to use the 'xeto' or 'axonsh' command
+line tools.
 
-  haxall-3.1.3> bin/hx init demo
+To initialize a daemon database use the 'hx init' command.  Databases are
+stored in a directory which then becomes the name of your runtime.  To create
+a new project database named "demo":
 
-  hx init [/stuff/haxall-3.1.3/demo]
+  haxall-4.0.4> bin/hx init demo
+
+  hx init [/stuff/haxall-4.0.4/demo]
 
   su username> brian
   su password> ######
@@ -126,7 +140,7 @@ Run [#run]
 You can now run the database from the previous step using the 'hx run'
 command:
 
-  haxall-3.1.3> bin/hx run demo
+  haxall-4.0.4> bin/hx run demo
   [06:29:06 16-Feb-22] [info] [web] http started on port 8080
 
 At this point you the sever is booted and accepting HTTP requests to
@@ -163,3 +177,4 @@ query.  Try out the following expressions in the shell:
   read(ahu)->id
   point and equipRef==read(ahu)->id
   vav and airRef==read(ahu)->id
+
