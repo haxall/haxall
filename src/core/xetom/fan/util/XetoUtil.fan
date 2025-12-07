@@ -310,6 +310,87 @@ const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Spec Dict Representation
+//////////////////////////////////////////////////////////////////////////
+
+  const static Ref specSpecRef := Ref("sys::Spec")
+
+  static Obj? specGet(Spec x, Str name)
+  {
+    if (name == "id")   return x.id
+    if (name == "name") return x.name
+    if (name == "spec") return specSpecRef
+    if (x.isType)
+    {
+      if (name == "base") return x.base?.id
+    }
+    else
+    {
+      if (name == "type") return x.type.id
+    }
+    return x.meta.get(name)
+  }
+
+  static Bool specHas(Spec x, Str name)
+  {
+    if (name == "id")    return true
+    if (name == "name")  return true
+    if (name == "spec")  return true
+    if (name == "base")  return x.isType && x.base != null
+    if (name == "type")  return !x.isType
+    return x.meta.has(name)
+  }
+
+  static Bool specMissing(Spec x, Str name)
+  {
+    if (name == "id")   return false
+    if (name == "name") return false
+    if (name == "spec") return false
+    if (name == "base") return !x.isType || x.base == null
+    if (name == "type") return x.isType
+    return x.meta.missing(name)
+  }
+
+  static Void specEach(Spec x, |Obj val, Str name| f)
+  {
+    f(x.id, "id")
+    f(x.name, "name")
+    f(specSpecRef, "spec")
+    if (x.isType)
+    {
+      if (x.base != null) f(x.base.id, "base")
+    }
+    else
+    {
+      f(x.type.id, "type")
+    }
+    x.meta.each(f)
+  }
+
+  static Obj? specEachWhile(Spec x, |Obj val, Str name->Obj?| f)
+  {
+    r := f(x.id, "id");          if (r != null) return r
+    r  = f(x.name, "name");      if (r != null) return r
+    r  = f(specSpecRef, "spec"); if (r != null) return r
+    if (x.isType)
+    {
+      if (x.base != null) { r = f(x.base.id, "base"); if (r != null) return r }
+    }
+    else
+    {
+      r = f(x.type.id, "type"); if (r != null) return r
+    }
+    return x.meta.eachWhile(f)
+  }
+
+  static Obj? specTrap(Spec x, Str name, Obj?[]? args := null)
+  {
+    val := specGet(x, name)
+    if (val != null) return val
+    return x.meta.trap(name, args)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Dirs
 //////////////////////////////////////////////////////////////////////////
 

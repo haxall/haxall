@@ -100,87 +100,6 @@ const class MSpec
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Dict Representation
-//////////////////////////////////////////////////////////////////////////
-
-  const static Ref specSpecRef := Ref("sys::Spec")
-
-  Obj? get(Str name)
-  {
-    if (name == "id")   return id
-    if (name == "name") return this.name
-    if (name == "spec") return specSpecRef
-    if (isType)
-    {
-      if (name == "base") return base?.id
-    }
-    else
-    {
-      if (name == "type") return type.id
-    }
-    return meta.get(name)
-  }
-
-  Bool has(Str name)
-  {
-    if (name == "id")   return true
-    if (name == "name") return true
-    if (name == "spec") return true
-    if (name == "base") return isType && base != null
-    if (name == "type") return !isType
-    return meta.has(name)
-  }
-
-  Bool missing(Str name)
-  {
-    if (name == "id")   return false
-    if (name == "name") return false
-    if (name == "spec") return false
-    if (name == "base") return !isType || base == null
-    if (name == "type") return isType
-    return meta.missing(name)
-  }
-
-  Void each(|Obj val, Str name| f)
-  {
-    f(id, "id")
-    f(name, "name")
-    f(specSpecRef, "spec")
-    if (isType)
-    {
-      if (base != null) f(base.id, "base")
-    }
-    else
-    {
-      f(type.id, "type")
-    }
-    meta.each(f)
-  }
-
-  Obj? eachWhile(|Obj val, Str name->Obj?| f)
-  {
-    r := f(id, "id");            if (r != null) return r
-    r  = f(name, "name");        if (r != null) return r
-    r  = f(specSpecRef, "spec"); if (r != null) return r
-    if (isType)
-    {
-      if (base != null) { r = f(base.id, "base"); if (r != null) return r }
-    }
-    else
-    {
-      r = f(type.id, "type"); if (r != null) return r
-    }
-    return meta.eachWhile(f)
-  }
-
-  override Obj? trap(Str name, Obj?[]? args := null)
-  {
-    val := get(name)
-    if (val != null) return val
-    return meta.trap(name, args)
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Flags
 //////////////////////////////////////////////////////////////////////////
 
@@ -281,17 +200,17 @@ const class XetoSpec : Spec, CNode
 
   override final Bool isEmpty() { false }
 
-  @Operator override final Obj? get(Str n) { m.get(n) }
+  @Operator override Obj? get(Str name) { XetoUtil.specGet(this, name) }
 
-  override final Bool has(Str n) { m.has(n) }
+  override Bool has(Str name) { XetoUtil.specHas(this, name) }
 
-  override final Bool missing(Str n) { m.missing(n) }
+  override Bool missing(Str name) { XetoUtil.specMissing(this, name) }
 
-  override final Void each(|Obj val, Str name| f) { m.each(f) }
+  override Void each(|Obj val, Str name| f) { XetoUtil.specEach(this, f) }
 
-  override final Obj? eachWhile(|Obj,Str->Obj?| f) { m.eachWhile(f) }
+  override Obj? eachWhile(|Obj val, Str name->Obj?| f) { XetoUtil.specEachWhile(this, f) }
 
-  override final Obj? trap(Str n, Obj?[]? a := null) { m.trap(n, a) }
+  override Obj? trap(Str name, Obj?[]? args := null) { XetoUtil.specTrap(this, name, args) }
 
   override final Str toStr() { m?.toStr ?: super.toStr }
 

@@ -195,17 +195,17 @@ const class WrapSpec : Spec
 
   override final Bool isEmpty() { false }
 
-  @Operator override final Obj? get(Str n) { m.get(n) }
+  @Operator override Obj? get(Str name) { XetoUtil.specGet(this, name) }
 
-  override final Bool has(Str n) { m.has(n) }
+  override Bool has(Str name) { XetoUtil.specHas(this, name) }
 
-  override final Bool missing(Str n) { m.missing(n) }
+  override Bool missing(Str name) { XetoUtil.specMissing(this, name) }
 
-  override final Void each(|Obj val, Str name| f) { m.each(f) }
+  override Void each(|Obj val, Str name| f) { XetoUtil.specEach(this, f) }
 
-  override final Obj? eachWhile(|Obj,Str->Obj?| f) { m.eachWhile(f) }
+  override Obj? eachWhile(|Obj val, Str name->Obj?| f) { XetoUtil.specEachWhile(this, f) }
 
-  override final Obj? trap(Str n, Obj?[]? a := null) { m.trap(n, a) }
+  override Obj? trap(Str name, Obj?[]? args := null) { XetoUtil.specTrap(this, name, args) }
 
   override final Str toStr() { m.toStr }
 
@@ -254,46 +254,6 @@ const class WrapSpec : Spec
   override final Type fantomType() { m.fantomType }
 
   override final Int inheritanceDigest() { m.inheritanceDigest }
-
-  /* CSpec
-  override final Bool hasSlots() { !m.slots.isEmpty }
-
-  override final CSpec? cenum(Str key, Bool checked := true) { m.cenum(key, checked) }
-
-  override final Bool isSys() { m.isSys }
-
-  override final Bool isAst() { false }
-
-  override final Bool cisa(CSpec x) { m.cisa(x) }
-
-  override final Spec asm() { this }
-
-  override final MSpecArgs args() { m.args }
-
-  override final Int flags() { m.flags }
-
-  override final CSpec? cbase() { m.cbase }
-
-  override final CSpec ctype() { m.ctype }
-
-  override final CSpec? cparent() { m.cparent }
-
-  override final Dict cmeta() { m.cmeta }
-
-  override final Bool cmetaHas(Str name) { m.cmetaHas(name) }
-
-  override final CSpec? cmember(Str n, Bool c := true) { m.cmember(n, c) }
-
-  override final Void cmembers(|CSpec, Str| f) { m.cmembers(f) }
-
-  override final Void cslots(|CSpec, Str| f) { m.cslots(f) }
-
-  override final Obj? cslotsWhile(|CSpec, Str->Obj?| f) { m.cslotsWhile(f) }
-
-  override final XetoSpec? cof()  { m.cof }
-
-  override final XetoSpec[]? cofs()  { m.cofs }
-  */
 
 }
 

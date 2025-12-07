@@ -23,7 +23,7 @@ class SpecTest : AbstractXetoTest
 
   Void testMeta()
   {
-    ns := createNamespace(["sys"])
+    ns := createNamespace(["sys", "hx.test.xeto"])
 
     lib := ns.compileTempLib(
       Str<|+Spec {
@@ -57,6 +57,19 @@ class SpecTest : AbstractXetoTest
 
      verifyMeta(lib.type("Bar").slot("qux"), Str:Obj["e":"E", "f":"F", "val":"x"],  Str:Obj["e":"E", "f":"F", "val":"x"])
      verifyMeta(lib.type("Baz").slot("qux"), Str:Obj["f":"F2", "g":"G", "val":"y"],  Str:Obj["e":"E", "f":"F2", "g":"G", "val":"y"])
+
+     // TestSite
+     testSite  := ns.spec("hx.test.xeto::TestSite")
+     testSiteExpect := Str:Obj["id":Ref("hx.test.xeto::TestSite"), "name":"TestSite",
+       "base":Ref("ph::Site"), "spec":Ref("sys::Spec"), "doc":testSite->doc]
+     verifyDictEq(testSite, testSiteExpect)
+     verifyMetaDict(testSite, testSiteExpect, false)
+
+     // specx TestSite using WrappedSpec with the mixins
+     testSitex := ns.specx(testSite)
+     testSiteExpectx := testSiteExpect.dup.set("foo", "building")
+     verifyDictEq(testSitex, testSiteExpectx)
+     verifyMetaDict(testSitex, testSiteExpectx, false)
   }
 
   Void verifyMeta(Spec s, Str:Obj own, Str:Obj effective)
@@ -77,14 +90,15 @@ class SpecTest : AbstractXetoTest
     verifyMetaDict(s, self)
   }
 
-  Void verifyMetaDict(Dict d, Str:Obj expect)
+  Void verifyMetaDict(Dict d, Str:Obj expect, Bool skipDoc := true)
   {
     actual := Str:Obj[:]
     d.each |v, n|
     {
-      if (n == "doc") return
+      if (n == "doc" && skipDoc) return
       actual[n] = v
     }
+    verifyEq(actual.keys.sort.join(","), expect.keys.sort.join(","))
     verifyValEq(actual, expect)
 
     expect.each |v, n|
@@ -99,7 +113,7 @@ class SpecTest : AbstractXetoTest
     firstName := null
     d.eachWhile |v, n|
     {
-      if (n == "doc") return null
+      if (n == "doc" && skipDoc) return null
       if (firstName == null) firstName = n
       actual[n] = v
       return null
@@ -109,7 +123,7 @@ class SpecTest : AbstractXetoTest
     actual.clear
     d.eachWhile |v, n|
     {
-      if (n == "doc") return null
+      if (n == "doc" && skipDoc) return null
       actual[n] = v
       return "break"
     }
