@@ -6,8 +6,24 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 4.0.4 (working)*
+*Build 4.0.4 (7 Dec 2025)*
+- Xeto new globals design
+- Xeto new mixin design
+- New hx.xeto func specx for merging mixins
+- New hx.xeto funcs to reflect members and globals
+- New companion lib dict design
+- Use new 'rt' tag for managed runtime recs
+- New Settings|Sys view to replace Host settings
+- Axonsh working again with standard lib management funcs
+- Rename LibNamespace -> Namespace
+- Rename SpecSlots -> SpecMap
+- Formalize dict set with null value to be remove #8749
+- Rename ProjSpecs to ProjCompanion
+- Fix HTTP API handling to set modBase/modRel before onService
+- Fix regression for trap operator on null #8742
 - Modbus connector supports multiple scaling operations
+
+*Build 4.0.4 (working)*
 
 *Build 4.0.3 (21 Aug 2025)*
 - User, Sys, Proj, Context moved into hx

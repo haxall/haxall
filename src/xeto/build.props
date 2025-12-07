@@ -1,8 +1,8 @@
 //
 // Xeto build variables
 //
-hx.version=4.0.3
-hx.depend=4.0.3
+hx.version=4.0.4
+hx.depend=4.0.4
 hx.license=AFL-3.0
 hx.org.dis=Haxall
 hx.org.uri=https://haxall.io/
