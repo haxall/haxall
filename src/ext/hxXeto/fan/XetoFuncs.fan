@@ -310,6 +310,20 @@ const class XetoFuncs
 // Spec Reflection
 //////////////////////////////////////////////////////////////////////////
 
+
+  **
+  ** Compute the extended type spec by merging all meta and slots from
+  ** mixins.  This call can be quite expensive; so cache and reuse the
+  ** result for your operation.
+  **
+  ** Examples:
+  **   specx(Site)
+  **
+  @Api @Axon static Spec specx(Spec spec)
+  {
+    curContext.ns.specx(spec)
+  }
+
   **
   ** Parent spec which contains given spec and scopes its name.
   ** Returns null for top-level specs within their library.

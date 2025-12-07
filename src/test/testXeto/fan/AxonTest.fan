@@ -86,12 +86,16 @@ class AxonTest : AbstractAxonTest
     verifyDictsEq(eval("""specLib("ph").specs(slots->vav)"""), [ns.spec("ph::Vav")])
     verifyDictsEq(eval("""[specLib("ph")].specs(slots->vav)"""), [ns.spec("ph::Vav")])
 
-    // specX
+    // specFoo
     verifyReflect("Obj", ns.type("sys::Obj"))
     verifyReflect("Str", ns.type("sys::Str"))
     verifyReflect("Dict", ns.type("sys::Dict"))
     verifyReflect("LibOrg", ns.type("sys::LibOrg"))
     verifyReflect("Ahu", ns.type("ph::Ahu"))
+
+    // specx
+    verifyEq(eval("""spec(TestSite)["foo"]"""), null)
+    verifyEq(eval("""specx(TestSite)["foo"]"""), "building")
 
     // specMember, specSlot, specGlobal
     verifySame(eval("""specMember(Ahu, "area")"""),          ns.spec("ph::PhEntity.area"))

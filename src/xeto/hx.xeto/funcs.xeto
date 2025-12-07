@@ -124,6 +124,14 @@
   //   instantiate(G36ReheatVav, {graph})
   instantiate: Func { spec: Spec, opts: Dict?, returns: Obj? }
 
+  // Compute the extended type spec by merging all meta and slots from
+  // mixins.  This call can be quite expensive; so cache and reuse the
+  // result for your operation.
+  //
+  // Examples:
+  //   specx(Site)
+  specx: Func { spec: Spec, returns: Spec }
+
   // Parent spec which contains given spec and scopes its name.
   // Returns null for top-level specs within their library.
   //
