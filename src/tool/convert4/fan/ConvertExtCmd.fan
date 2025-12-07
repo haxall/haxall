@@ -126,11 +126,14 @@ internal class ConvertExtCmd : ConvertCmd
 
     s := StrBuf()
     s.add(genHeader)
+    s.add("\n")
+    s.add("+Funcs {\n")
     ext.funcs.each |f|
     {
       s.add("\n")
       genFunc(s, f)
     }
+    s.add("\n}\n")
 
     file := ext.xetoSrcDir + `funcs.xeto`
     write("Funcs", file, s.toStr)
