@@ -110,6 +110,12 @@ abstract const class Folio
       return doCloseAsync
   }
 
+  ** Return if we can read
+  @NoDoc Bool canRead() { !isClosed }
+
+  ** Return if we can write
+  @NoDoc Bool canWrite() { !isClosed && !config.isReplica }
+
   ** Verify database is in a valid read mode
   @NoDoc This checkRead()
   {
