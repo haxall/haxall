@@ -67,13 +67,13 @@ is available.  You must wait until onStart to access services and lookup
 other libs.  The lifecycle callbacks are invoked on a dedicated background
 actor for your extension.
 
-While your lib is running, you can schedule periodic house keeping.
+While your lib is running, you can schedule periodic housekeeping.
 To use this feature override the `hx::Ext.houseKeepingFreq` which
-causes periodic callbacks to to `hx::Ext.onHouseKeeping`.
+causes periodic callbacks to `hx::Ext.onHouseKeeping`.
 
 Settings [#settings]
 ********************
-Every extensions can be configured with a dict we call *ext settings*.  You
+Every extension can be configured with a dict we call *ext settings*.  You
 can create a statically typed class for your setting:
   1. Create a subclass of `hx::Settings`
   2. Override `hx::Ext.settings` to covariantly return your type

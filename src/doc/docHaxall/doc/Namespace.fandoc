@@ -12,7 +12,7 @@ Every `Runtime` defines a *namespace* which is its collection of Xeto
 libraries.  The namespace defines the scope for:
   - what specs are available
   - what Axon functions are available
-  - what extension to run
+  - what extensions to run
 
 Libraries are identified by their xeto lib dotted name. The first part
 of the name called the *prefix* is owned by specific organizations or
@@ -22,7 +22,7 @@ project:
   - "hx.*": all Haxall and SkySpark libs
 
 If you are creating your own extension then you should define a unique
-prefix your org and register it on `http://xeto.dev`.
+prefix for your org and register it on `http://xeto.dev`.
 
 Basis [#basis]
 **************
@@ -37,7 +37,7 @@ how that lib was included into the namespace:
 In the Haxall daemon, there is just one runtime and one namespace that
 serves as both the sys and the proj.  In a multi-tenant system like SkySpark
 each runtime defines its own unique namespace.  The sys namespace always
-includes boot libs and sys level libs.  The proj namepsace alwyas includes
+includes boot libs and sys level libs.  The proj namepsace always includes
 everything in the sys level namespace and its own enabled libs.  Plus every
 project has a special lib named "proj" we call the *companion lib*.
 
@@ -58,7 +58,7 @@ are administered via [managed recs]`ManagedRecs`.
 You can also manage libs with these Axon functions:
   - `libs()`: list the libs and their status in the runtime namespace
   - `libAdd()`: add one or more libs to the runtime namespace
-  - `libRemove()`: add one or more libs to the runtime namespace
+  - `libRemove()`: remove one or more libs to the runtime namespace
 
 In Fantom you manage the libs via the `hx::Runtime.libs` API.
 
@@ -88,7 +88,7 @@ Fantom Funcs [#fantomFuncs]
 Fantom functions are defined as a static method in a class always called "FooFuncs"
 where "Foo" is derived:
   - from your extension type name
-  - form the last part of your library dotted name
+  - from the last part of your library dotted name
 
 The funcs class must define a static method that matches the xeto spec signature.
 And the methods must be annotated with the `xeto::Api` facet.
@@ -109,7 +109,7 @@ Example:
   // Fantom funcs as static method
   class MylibFuncs
   {
-    @Api static Number myAdd(Number a, Number) { a + b }
+    @Api static Number myAdd(Number a, Number b) { a + b }
   }
 
 

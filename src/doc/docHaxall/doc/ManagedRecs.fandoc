@@ -11,11 +11,11 @@ Overview [#overview]
 The runtime configuration is stored as normal records in the [Folio]`Folio`
 database with the special tag "rt".  We call these *managed records* because
 they are used to manage the runtime itself.  You can read these records
-using normal functions such as `readAll()`.  However they can not be written
+using normal functions such as `readAll()`.  However they cannot be written
 directly using `commit()`; instead you must use special functions respective
 to the record type.
 
-There are five different record types represented the 'rt' tag enum:
+There are five different record types represented by the 'rt' tag enum:
   - [meta]`#meta`: exactly one record for the runtime meta
   - [lib]`#lib`: used to enable a Xeto lib for the namespace
   - [func]`#func`: used to add a function in the companion lib
@@ -42,7 +42,7 @@ Runtime meta is stored via the 'rt:meta' record:
 
 Note that project meta has the tags 'projMeta' and 'version' which are managed
 by the system and should not be modified.  Also note that your rt record
-does **not** define a 'name' tag, but one is always inserted the results of
+does **not** define a 'name' tag, but one is always inserted into the results of
 'Runtime.meta' or 'projMeta()'.
 
 Lib [#lib]
@@ -72,7 +72,7 @@ Companion Lib [#companion]
 **************************
 Every project has a builtin Xeto lib named "proj" we call the *companion library*.
 This library is used to manage project specific specs, instances, and Axon
-functions.  The representation of these managed recs is the the AST or
+functions.  The representation of these managed recs is the AST or
 abstract syntax tree of the Xeto (versus the source format).  This allows
 tools to construct and modify these records efficiently.
 
@@ -110,7 +110,7 @@ Consider this Xeto spec:
     age: Number?
   }
 
-Would be represented as the following managed rec
+Would be represented as the following managed rec:
 
   rt: "spec"
   name: "Person"
