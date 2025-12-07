@@ -542,14 +542,16 @@ const class HxFuncs
     return gb.toGrid
   }
 
-  ** Return ext settings dict for given dotted lib name
+  ** Return ext settings dict for given dotted lib name:
+  **   extSettings("hx.task")
   @Api @Axon
   static Dict? extSettings(Str name, Bool checked := true)
   {
     curContext.ext(name, checked)?.settings
   }
 
-  ** Update ext settings for given dotted lib name
+  ** Update ext settings for given dotted lib name:
+  **   extSettingsUpdate("hx.task", {maxThreads:20})
   @Api @Axon { admin=true }
   static Dict? extSettingsUpdate(Str name, Dict changes)
   {

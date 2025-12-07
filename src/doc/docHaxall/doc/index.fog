@@ -17,6 +17,7 @@
   [`Axon`,          "Axon scripting language"],
   [`Namespace`,     "Xeto lib namespace"],
   [`Exts`,          "Extensions"],
+  [`ManagedRecs`,   "Managed recs for meta, libs, and companion lib"],
   [`Observables`,   "Observable subscription subsystem"],
   [`Watches`,       "Subscription to record changes"],
   [`Crypto`,        "Help on managing keys and trusted certificates"],

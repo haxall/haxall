@@ -296,10 +296,12 @@
   // Report installed web routes as grid
   extWebRoutes: Func <nodoc> { returns: Grid }
 
-  // Return ext settings dict for given dotted lib name
+  // Return ext settings dict for given dotted lib name:
+  //   extSettings("hx.task")
   extSettings: Func { name: Str, checked: Bool, returns: Dict }
 
-  // Update ext settings for given dotted lib name
+  // Update ext settings for given dotted lib name:
+  //   extSettingsUpdate("hx.task", {maxThreads:20})
   extSettingsUpdate: Func <admin> { name: Str, changes: Dict, returns: Dict }
 
 //////////////////////////////////////////////////////////////////////////

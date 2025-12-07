@@ -38,10 +38,10 @@ Example code:
   >
   MyCustomExt: Ext  // need to define spec
 
-  // add this line into your build pod
+  // build.fan - add this line into your pod build script
   index = ["xeto.bindings":"acme.custom"]
 
-  // create Fantom class that matches name from lib.xeto
+  // MyCustomExt.fan - create Fantom class that matches name from lib.xeto
   using hx
   const class MyCustomExt : ExtObj
   {
@@ -64,7 +64,8 @@ The shutdown lib life cycle is:
 
 In the instantiation phase, only basic information from the runtime
 is available.  You must wait until onStart to access services and lookup
-other libs.
+other libs.  The lifecycle callbacks are invoked on a dedicated background
+actor for your extension.
 
 While your lib is running, you can schedule periodic house keeping.
 To use this feature override the `hx::Ext.houseKeepingFreq` which

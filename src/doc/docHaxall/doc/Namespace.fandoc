@@ -39,7 +39,7 @@ serves as both the sys and the proj.  In a multi-tenant system like SkySpark
 each runtime defines its own unique namespace.  The sys namespace always
 includes boot libs and sys level libs.  The proj namepsace alwyas includes
 everything in the sys level namespace and its own enabled libs.  Plus every
-project has a special lib called "proj" for project level specs.
+project has a special lib named "proj" we call the *companion lib*.
 
 Definition [#def]
 *****************
@@ -53,8 +53,7 @@ Haxall supports the following extra lib meta:
 Management [#management]
 ************************
 Boot libs are managed in the 'hxm::HxBoot' class by vendors. All other libs
-are managed by a text file named "ns/libs.txt".  This file defines a lib name
-separated by newlines.
+are administered via [managed recs]`ManagedRecs`.
 
 You can also manage libs with these Axon functions:
   - `libs()`: list the libs and their status in the runtime namespace
