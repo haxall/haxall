@@ -1706,7 +1706,13 @@ const class Etc
   {
     if (val == null) return null
     if (val is Ref)  return f(val)
-    if (val is List) return ((List)val).map |v| { mapRefs(v, f) }
+    if (val is List)
+    {
+      oldList := (List)val
+      newList := List(oldList.of, oldList.size)
+      oldList.each |v| { newList.add(mapRefs(v, f)) }
+      return newList
+    }
     if (val is Dict) return Etc.dictMap(val) |v| { mapRefs(v, f) }
     if (val is Grid) return ((Grid)val).map |row| { mapRefs(row, f) }
     return val
