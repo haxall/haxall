@@ -130,10 +130,22 @@ internal class Resolve : Step
     if (ref.isResolved) return
 
     // don't support this yet
-    if (ref.name.size > 1) throw Err("TODO: path name: $ref")
+    n := ref.name
+    if (n.size > 1)
+    {
+      // don't support dotted notation for instances
+      if (ref isnot ASpecRef)
+      {
+        err("Dotted instance ref not supported", ref.loc)
+      }
+      else
+      {
+        resolveDotted(ref)
+      }
+      return
+    }
 
     // resolve qualified name
-    n := ref.name
     if (n.isQualified) return resolveQualified(ref)
 
     // match to name within this AST which trumps depends
@@ -160,6 +172,34 @@ internal class Resolve : Step
     {
       ref.resolve(matches.first)
     }
+  }
+
+  private Void resolveDotted(ASpecRef ref)
+  {
+    // resolve the base spec
+    n := ref.name
+    baseRef := ASpecRef(ref.loc, ASimpleName(n.lib, n.nameAt(0)))
+    resolveRef(baseRef)
+    if (!baseRef.isResolved) return
+
+    // not walk the names
+    base := baseRef.deref
+    Spec? p := base
+    for (i := 1; i<n.size; ++i)
+    {
+      // if the base is an AST spec within my own lib, then this is
+      // super tricky because we have not inherited slots yet; so for
+      // now we just don't support it
+      if (p.isAst) return err("Dotted spec name within lib not supported: $n", ref.loc)
+
+      // resolve slot in the current spec
+      slotName := n.nameAt(i)
+      p = base.slot(slotName, false)
+      if (p == null) return err("Unresolved dotted spec name '$n'", ref.loc)
+    }
+
+    // success!
+    ref.resolve((CNode)p)
   }
 
   private Void resolveQualified(ARef ref)

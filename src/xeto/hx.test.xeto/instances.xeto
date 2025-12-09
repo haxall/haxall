@@ -39,3 +39,21 @@ ListOfTest: {
   a: {"2024-11-26", "2024-11-27"}
 }
 
+// refs
+
+TestRefs: Dict {
+  foo: Str?
+  specRef: Ref <of:Spec>
+  instRef: Ref
+}
+
+@refs-a: TestRefs {
+  specRef: Site
+  instRef: @test-a
+}
+
+@refs-b: TestRefs {
+  specRef: Site.area
+  instRef: @test-b
+}
+

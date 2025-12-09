@@ -749,6 +749,26 @@ class CompileTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Ref Resolve
+//////////////////////////////////////////////////////////////////////////
+
+  Void testRefResolve()
+  {
+    ns := createNamespace(["sys", "hx.test.xeto"])
+    lib := ns.lib("hx.test.xeto")
+
+    // basics
+    x := lib.instance("refs-a")
+    verifyEq(x["specRef"], Ref("ph::Site"))
+    verifyEq(x["instRef"], Ref("hx.test.xeto::test-a"))
+
+    // dotted spec name
+    x = lib.instance("refs-b")
+    verifyEq(x["specRef"], Ref("ph::Site.area"))
+    verifyEq(x["instRef"], Ref("hx.test.xeto::test-b"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Nested specs
 //////////////////////////////////////////////////////////////////////////
 

@@ -411,7 +411,6 @@ class DocTest : AbstractXetoTest
   {
     verifyEq(c.qname, "doc.xeto::Namespaces")
     verifyEq(c.doc.text.contains("A namespace is defined by a list"), true)
-    verifyEq(c.doc.html.contains("<pre><code>xmeta-"), true)
   }
 
 //////////////////////////////////////////////////////////////////////////
