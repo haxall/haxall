@@ -46,7 +46,7 @@ internal class AstToDicts : Step
     // Note: this is just a attempt to infer rt as "func", it won't
     // work for other Func subtypes; so callers should ensure proper
     // rt tag if they know the something is a function vs a spec
-    if (base == null) return "sys::Dict"
+    if (base == null) return "spec"
     n := base.name.name
     isFunc := n == "Func" || n == "Template"
     return isFunc ? "func" : "spec"
