@@ -266,7 +266,9 @@ class XetoPrinter
     slots := x["slots"] as Grid
     val   := x["val"]
     maybe := x["maybe"] == Marker.val
+    doc   := x["doc"] as Str
     tab
+    if (doc != null) { this.doc(doc); tab }
     if (!XetoUtil.isAutoName(name)) w(name).w(": ")
     if (type != null)
     {
