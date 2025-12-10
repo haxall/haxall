@@ -26,8 +26,28 @@ internal class CompFactory
   static Comp[] create(CompSpace cs, Dict[] dicts)
   {
     Comp[] comps := process(cs) |cf| { cf.doCreate(dicts) }
-    comps.each |comp| { cs.onCreate(comp) }
+    cs.onCreateList(comps)
     return comps
+  }
+
+  ** Create children under existing parent
+  static Void createUnder(CompSpace cs, Comp parent, Dict dict)
+  {
+    // parent must be under cs
+    if (cs !== ((MCompSpi)parent.spi).cs) throw Err("Comp in this space: $parent")
+
+    // parent must match dict spec type
+    if (parent.spec.id != dict["spec"]) throw Err("Mismatched comp spec: $parent.spec != " + dict["spec"])
+
+    // route to factor and ensure onCreate callback
+    Comp[] comps := process(cs) |cf| { cf.doCreateUnder(parent, dict) }
+    cs.onCreateList(comps)
+  }
+
+  ** Call CompSpace.onCreate hook
+  private static Void onCreated(CompSpace cs, Comp[] comps)
+  {
+    comps.each |comp| { cs.onCreate(comp) }
   }
 
   ** Create the SPI for given component. This is called by
@@ -72,6 +92,43 @@ internal class CompFactory
 // Implementation
 //////////////////////////////////////////////////////////////////////////
 
+  ** Create children under existing parent
+  private Comp[] doCreateUnder(Comp parent, Dict dict)
+  {
+    // find children comp dicts
+    kidNames := Str[,]
+    kidDicts := Dict[,]
+    dict.each |v, n|
+    {
+      kidDict := v as Dict
+      if (kidDict == null) return
+
+      kidSpec := dictToSpec(kidDict)
+      if (kidSpec == null) return
+
+      if (!kidSpec.isa(compSpec)) return
+
+      kidNames.add(n)
+      kidDicts.add(kidDict)
+    }
+
+    // swizzle the root id to the component's actual id
+    if (swizzleMap == null) swizzleMap = Ref:Ref[:]
+    if (dict.has("id")) swizzleMap[dict.id] = parent.id
+
+    // create the children components
+    kids := doCreate(kidDicts)
+
+    // mount the children into parent component
+    kidNames.each |n, i|
+    {
+      parent.set(n, kids[i])
+    }
+
+    // create children components
+    return kids
+  }
+
   ** Graph graph of components from graph of dicts
   private Comp[] doCreate(Dict[] dicts)
   {
@@ -112,6 +169,7 @@ internal class CompFactory
     children = initSlots(spec, acc, children, slots)
 
     // reify functions that map to methods
+    // TODO: might not need this anymore
     spec.slots.each |slot|
     {
       name := slot.name
@@ -179,15 +237,16 @@ internal class CompFactory
   {
     // check if dict has old id
     oldId := dict["id"] as Ref
-    if (oldId == null) return
+    if (oldId != null)
+    {
+      // lazily create swizzle map
+      if (swizzleMap == null) swizzleMap = Ref:Ref[:]
 
-    // lazily create swizzle map
-    if (swizzleMap == null) swizzleMap = Ref:Ref[:]
-
-    // create swizzled mapping, try to use old id if not used yet
-    newId := oldId
-    if (cs.readById(oldId, false) != null) newId = genId
-    swizzleMap[oldId] = newId
+      // create swizzled mapping, try to use old id if not used yet
+      newId := oldId
+      if (cs.readById(oldId, false) != null) newId = genId
+      swizzleMap[oldId] = newId
+    }
 
     // recurse
     dict.each |v, n|
