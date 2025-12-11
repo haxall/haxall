@@ -27,6 +27,12 @@ class Macro
     return this.varNames.unique
   }
 
+  Str applyChecked(|Str->Str|? resolve := null)
+  {
+    this.checked = true
+    return apply(resolve)
+  }
+
   Str apply(|Str->Str|? resolve := null)
   {
     resBuf.clear
@@ -105,6 +111,7 @@ class Macro
     }
     catch (Err e)
     {
+      if (checked) throw e
       if (mode == exprSimple) return "\$$expr"
       if (mode == exprLocale) return "\$<$expr>"
       return "\${$expr}"
@@ -137,11 +144,12 @@ class Macro
 
   virtual Str refToDis(Ref ref) { ref.dis }
 
-  const Str pattern           // pattern string of macro
-  const Dict scope            // variable scope
-  Int mode                    // norm, exprSimple, exprBraces
-  StrBuf resBuf := StrBuf()   // result buffer
-  StrBuf exprBuf := StrBuf()  // expression buffer
-  Str[]? varNames             // only if calling vars()
+  const Str pattern                   // pattern string of macro
+  const Dict scope                    // variable scope
+  private Int mode                    // norm, exprSimple, exprBraces
+  private StrBuf resBuf := StrBuf()   // result buffer
+  private StrBuf exprBuf := StrBuf()  // expression buffer
+  private Str[]? varNames             // only if calling vars()
+  private Bool checked                // flag to
 }
 
