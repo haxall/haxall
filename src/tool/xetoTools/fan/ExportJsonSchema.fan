@@ -17,21 +17,16 @@ internal class ExportJsonSchema : ExportCmd
 
   override Str summary() { "Export Xeto to JSON" }
 
-  @Opt { aliases=["e"]; help = "Generate inherited effective meta/slots (default is own)" }
-  Bool effective
-
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
-    out.printLine("  xeto $name ph::Rtu -effective    // output effective meta and slots")
+    out.printLine("  xeto $name ph::Rtu")
     return 1
   }
 
   override Exporter initExporter(Namespace ns, OutStream out)
   {
-    opts := Str:Obj[:]
-    if (effective) opts["effective"] = Marker.val
-    return JsonSchemaExporter(ns, out, Etc.makeDict(opts))
+    return JsonSchemaExporter(ns, out, Etc.dict0)
   }
 
   override Str toFileName(ExportTarget t)
