@@ -91,13 +91,27 @@ class JsonSchemaExporter : Exporter
         if (!slot.isMaybe)
           required.add(name)
 
-        prim := primitiveType(slot.type)
+        type := slot.type
+        prim := primitiveTypeName(type)
+
+        // not primitive
         if (prim == null)
         {
-          props[name] = ["\$ref": "#/\$defs/$slot.type.qname"]
+          typeName := type.name
+          typeLib := type.lib.name
+
+          // internal
+          if (typeLib == spec.lib.name)
+            props[name] = ["\$ref": "#/\$defs/$typeName"]
+          // external
+          else
+            props[name] = ["\$ref": "$typeLib#/\$defs/$typeName"]
         }
+        // primitive
         else
+        {
           props[name] = ["type": prim]
+        }
       }
 
       schema["properties"] = props
@@ -108,7 +122,7 @@ class JsonSchemaExporter : Exporter
     defs[spec.qname] = schema
   }
 
-  private static Str? primitiveType(Spec type)
+  private static Str? primitiveTypeName(Spec type)
   {
     if      (type.qname == "sys::Int")  return "integer"
     else if (type.qname == "sys::Str")  return "string"
