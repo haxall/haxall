@@ -45,7 +45,9 @@ class JsonSchemaExporter : Exporter
 
   override This lib(Lib lib)
   {
-    map["\$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    //map["\$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    map["\$schema"] = "http://json-schema.org/draft-07/schema#"
+
     map["\$id"]     = lib.id.toStr
     map["title"]    = lib.name
     map["version"]  = lib.version.toStr
@@ -73,19 +75,15 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
-    schema := Obj:Obj[
-      "type": "object",
-      // Allows subtype-specific fields.
-      "additionalProperties": true
-    ]
-
+    //------------------------------
     // properties
+
+    props := Obj:Obj[:]
+    required := Obj[,]
+
     slots := spec.slotsOwn()
     if (!slots.isEmpty())
     {
-      props := Obj:Obj[:]
-      required := Obj[,]
-
       slots.each |slot, name|
       {
         if (!slot.isMaybe)
@@ -93,33 +91,65 @@ class JsonSchemaExporter : Exporter
 
         type := slot.type
         prim := primitiveTypeName(type)
-
-        // not primitive
         if (prim == null)
-        {
-          typeName := type.name
-          typeLib := type.lib.name
-
-          // internal
-          if (typeLib == spec.lib.name)
-            props[name] = ["\$ref": "#/\$defs/$typeName"]
-          // external
-          else
-            props[name] = ["\$ref": "$typeLib#/\$defs/$typeName"]
-        }
-        // primitive
+          props[name] = ["\$ref": typeRef(type, spec.lib) ]
         else
-        {
           props[name] = ["type": prim]
-        }
       }
-
-      schema["properties"] = props
-      if (required.size > 0)
-        schema["required"] = required
     }
 
-    defs[spec.qname] = schema
+    //------------------------------
+    // schema
+
+    schema := Obj:Obj[
+      "type": "object",
+      "additionalProperties": true, // Allows subtype-specific fields.
+    ]
+    if (props.size > 0)
+      schema["properties"] = props
+    if (required.size > 0)
+      schema["required"] = required
+
+    //------------------------------
+    // inheritance
+
+    type := spec.type
+
+    // sys::Obj
+    if (type.base == null)
+    {
+      defs[spec.qname] = schema
+    }
+    else
+    {
+      allOf := Obj[,]
+
+      // compound
+      if (type.isCompound)
+      {
+        type.ofs.each |cmp|
+        {
+          allOf.add(["\$ref": typeRef(cmp, spec.lib) ])
+        }
+      }
+      // single inheritance
+      else
+      {
+        allOf.add(["\$ref": typeRef(type.base, spec.lib) ])
+      }
+
+      allOf.add(schema)
+      defs[spec.qname] = ["allOf": allOf]
+    }
+  }
+
+  private static Str typeRef(Spec type, Lib curLib)
+  {
+    // internal
+    if (type.lib.name == curLib.name)
+      return "#/\$defs/$type.name"
+    else
+      return"$type.lib.name#/\$defs/$type.name"
   }
 
   private static Str? primitiveTypeName(Spec type)
