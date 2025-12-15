@@ -177,24 +177,25 @@ class MCompSpi : CompSpi
       throw InvalidChangeErr("$slot.qname is required")
     }
 
-    doRemove(name)
+    doRemove(name, slot)
   }
 
   private Void doSet(Str name, Obj? oldVal, Obj newVal)
   {
+    slot := spec.slot(name, false)
     if (oldVal === newVal) return // short circuit if same
     if (oldVal is Comp) removeChild(oldVal)
     if (newVal is Comp) addChild(name, newVal)
     else if (newVal isnot Function) newVal = newVal.toImmutable
     slots.set(name, newVal)
-    changed(name, newVal)
+    changed(name, slot, newVal)
   }
 
-  private Void doRemove(Str name)
+  private Void doRemove(Str name, Spec? slot)
   {
     val := slots.remove(name)
     if (val is Comp) removeChild(val)
-    changed(name, null)
+    changed(name, slot, null)
   }
 
   internal Void addChild(Str name, Comp child)
@@ -227,7 +228,7 @@ class MCompSpi : CompSpi
     if (oldSlots.size != newSlots.size)
       throw ArgErr("Names size does not match current slots size: $newSlots.size != $oldSlots.size")
     this.slots = newSlots
-    changed("reorder!", null)
+    changed("reorder!", null, null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -236,18 +237,18 @@ class MCompSpi : CompSpi
 
   // Choke point for all slot changes
   // Reorder passes "reorder!" for name
-  private Void changed(Str name, Obj? newVal)
+  private Void changed(Str name, Spec? slot, Obj? newVal)
   {
     try
     {
       // special callback
-      comp.onChangeFw(name, newVal)
+      comp.onChangeFw(name, slot, newVal)
 
       // standard callback
-      comp.onChange(name, newVal)
+      comp.onChange(name, slot, newVal)
 
       // space level callback
-      if (isMounted) cs.change(this, name, newVal)
+      if (isMounted) cs.change(this, name, slot, newVal)
     }
     catch (Err e)
     {

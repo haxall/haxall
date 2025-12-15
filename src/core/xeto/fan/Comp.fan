@@ -115,12 +115,18 @@ mixin Comp
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
-  ** Callback when a slot is modified on this instance.
-  ** Value is null if slot removed.
-  virtual Void onChange(Str name, Obj? newVal) {}
+  ** Callback when a slot is modified on this instance.  The slot is
+  ** non-null if name maps to a slot on the component's spec.  If the
+  ** operation if a remove then newVal is null.
+  virtual Void onChange(Str name, Spec? slot, Obj? newVal) {}
 
-  ** Special onChange callback to handle built-in framework logic, called before onChange.
-  @NoDoc virtual Void onChangeFw(Str name, Obj? newVal) {}
+  ** Special onChange callback to handle built-in framework logic, called
+  ** before onChange.  The default implementation calls execute if the
+  ** slot is not transient
+  @NoDoc virtual Void onChangeFw(Str name, Spec? slot, Obj? newVal)
+  {
+    if (slot != null && !slot.isTransient) execute
+  }
 
   ** Callback whem mounted into a component space
   @NoDoc virtual Void onMount() {}

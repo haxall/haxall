@@ -671,7 +671,7 @@ class TestFoo : CompObj
 
   Str? onChangeLast
 
-  override Void onChange(Str n, Obj? v)
+  override Void onChange(Str n, Spec? slot, Obj? v)
   {
     onChangeLast = "$n = $v"
   }
@@ -701,8 +701,9 @@ class TestCounter : CompObj
 @Js
 class TestAdd : CompObj
 {
-  override Void onChange(Str name, Obj? val)
+  override Void onChange(Str name, Spec? slot, Obj? val)
   {
+    // TODO: should not need this
     execute
   }
 

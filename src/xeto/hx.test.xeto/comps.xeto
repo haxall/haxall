@@ -12,21 +12,21 @@ TestFolder : Comp {
 TestAdd : Comp {
   in1: TestVal
   in2: TestVal
-  out: TestVal
+  out: TestVal <transient>
 }
 
 TestNumberAdd : Comp {
   in1: Number
   in2: Number
-  out: Number
+  out: Number <transient>
 }
 
 TestRamp : Comp {
-  out: TestVal
+  out: TestVal <transient>
 }
 
 TestCounter : Comp {
-  out: TestVal
+  out: TestVal <transient>
 }
 
 TestComposite : Comp {
