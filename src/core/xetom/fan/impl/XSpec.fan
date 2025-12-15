@@ -245,6 +245,7 @@ const class WrapSpec : Spec
   override final Bool isOr()        { m.isOr }
   override final Bool isSys()       { m.isSys }
   override final Bool isCompound()  { m.isCompound }
+  override final Bool isTransient() { m.isTransient }
 
   override final Int flags() { m.flags }
 

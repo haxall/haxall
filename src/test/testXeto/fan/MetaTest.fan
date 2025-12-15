@@ -42,16 +42,20 @@ class MetaTest : AbstractXetoTest
     b2 := lib.type("MetaInheritAltB")
     ax := a.slot("x")
     ay := a.slot("y")
+    az := a.slot("z")
     bx := b.slot("x")
     by := b.slot("y")
+    bz := b.slot("z")
 
     verifyHasMeta(a,  a.meta,  ["metaQ":m, "metaR":m])
-    verifyHasMeta(ax, ax.meta, ["metaQ":m, "metaR":m])
-    verifyHasMeta(ay, ay.meta, ["metaQ":m, "metaR":m])
+    verifyHasMeta(ax, ax.meta, ["metaQ":m, "metaR":m, "transient":m])
+    verifyHasMeta(ay, ay.meta, ["metaQ":m, "metaR":m, "transient":m])
+    verifyHasMeta(az, az.meta, [:])
 
     verifyHasMeta(b,  b.meta,  ["metaNum":Number(123), "metaQ":m])
-    verifyHasMeta(bx, bx.meta, ["metaQ":m, "metaR":m])
-    verifyHasMeta(by, by.meta, ["metaQ":m])
+    verifyHasMeta(bx, bx.meta, ["metaQ":m, "metaR":m, "transient":m])
+    verifyHasMeta(by, by.meta, ["metaQ":m, "transient":m])
+    verifyHasMeta(bz, bz.meta, [:])
 
     // alts use embedded meta
     verifyHasMeta(a2, a.meta,  ["metaQ":m, "metaR":m])
@@ -67,6 +71,10 @@ class MetaTest : AbstractXetoTest
     // verify normal instance doesn't infer from metaNum
     inst := ns.instance("hx.test.xeto.deep::norm-instance")
     verifyDictEq(inst, ["id":inst.id, "metaNum":"987"])
+
+    verifyEq(bx.isTransient, true)
+    verifyEq(by.isTransient, true)
+    verifyEq(bz.isTransient, false)
   }
 
   Void verifyHasMeta(Spec x, Dict actual, Str:Obj expect)
@@ -75,6 +83,7 @@ class MetaTest : AbstractXetoTest
     // echo("\n>> $x.qname $actual ?= $expect")
     // Etc.dictDump(actual)
     verifyDictEq(actual, expect)
+    verifyEq(x.isTransient, expect["transient"] != null)
   }
 
 }

@@ -172,18 +172,11 @@ internal class InheritSlots : Step
     // global is both flavor and flag so we can use one MSpec
     if (x.isGlobal) flags = flags.or(MSpecFlags.global)
 
-    // merge in my own flags
+    // merge in my own meta flags
     if (x.ast.meta != null)
     {
-      // if maybe is marker set flag, if none then clear flag
-      maybe := x.ast.meta.get("maybe")
-      if (maybe != null)
-      {
-        if (maybe.isNone)
-          flags = flags.and(MSpecFlags.maybe.not)
-        else
-          flags = flags.or(MSpecFlags.maybe)
-      }
+      flags = setMetaFlag(flags, x, "maybe",     MSpecFlags.maybe)
+      flags = setMetaFlag(flags, x, "transient", MSpecFlags.transient)
     }
 
     // if my base is compound type
@@ -195,6 +188,15 @@ internal class InheritSlots : Step
     }
 
     return flags
+  }
+
+  ** If given meta tag defined then set bit flag (or clear if None)
+  private Int setMetaFlag(Int flags, ASpec x, Str name, Int bit)
+  {
+    val := x.ast.meta.get(name)
+    if (val == null) return flags
+    if (val.isNone)  return flags.and(bit.not)
+    return flags.or(bit)
   }
 
   ** Treat 'sys' itself special using names
@@ -223,7 +225,7 @@ internal class InheritSlots : Step
     return flags
   }
 
-  ** Hahdle flags in 'sys.comp'
+  ** Handle flags in 'sys.comp'
   private Int computeFlagsSysComp(ASpec x)
   {
     if (x.name == "Comp") return MSpecFlags.comp

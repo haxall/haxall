@@ -20,8 +20,9 @@
 }
 
 MetaInheritA: Dict <metaQ, metaR> {
-  x: Str <metaQ, metaR>
-  y: Str <metaQ, metaR>
+  x: Str <metaQ, metaR, transient>
+  y: Str <metaQ, metaR, transient>
+  z: Str
 }
 
 MetaInheritB: MetaInheritA <metaNum:"123"> {

@@ -202,6 +202,9 @@ const mixin Spec : Dict
   ** Does this spec directly inherits from And/Or and define 'ofs'
   @NoDoc abstract Bool isCompound()
 
+  ** Is this the 'transient' meta flag set
+  @NoDoc abstract Bool isTransient()
+
   ** Is this a spec in the sys lib
   @NoDoc abstract Bool isSys()
 
