@@ -360,9 +360,6 @@ class CompSpace : AbstractCompSpace
       rebuildTimers
     }
 
-// TODO
-each |comp| { if (comp.onExecuteFreq == null) ((MCompSpi)comp.spi).needsExecute = true }
-
     // walk thru timed components to set needExecute flag
     timed.each |spi| { spi.checkTimer(cx.now) }
 

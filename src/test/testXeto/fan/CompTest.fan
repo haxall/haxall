@@ -575,25 +575,30 @@ class CompTest: AbstractXetoTest
     verifyExecuteCounter(b, 0)
     verifyExecuteAdd(c, 0, 0, 0)
 
-    // initial executes do trigger until 1min in
+    // everything executes on first execute
     ts := DateTime.now - 1day
     execute(cs, ts)
-    execute(cs, ts + 59sec)
-    verifyExecuteCounter(a, 0)
-    verifyExecuteCounter(b, 0)
-    verifyExecuteAdd(c, 0, 0, 0)
-
-    // execute +1min; counters trigger once
-    execute(cs, ts + 1min)
     verifyExecuteCounter(a, 1)
     verifyExecuteCounter(b, 1)
     verifyExecuteAdd(c, 1, 1, 2)
 
-    // execute +2min; counters trigger twice
-    execute(cs, ts + 2min)
+    // counters don't trip yet at 59sec
+    execute(cs, ts + 59sec)
+    verifyExecuteCounter(a, 1)
+    verifyExecuteCounter(b, 1)
+    verifyExecuteAdd(c, 1, 1, 2)
+
+    // execute +1min; counters trigger once
+    execute(cs, ts + 1min)
     verifyExecuteCounter(a, 2)
     verifyExecuteCounter(b, 2)
     verifyExecuteAdd(c, 2, 2, 4)
+
+    // execute +2min; counters trigger twice
+    execute(cs, ts + 2min)
+    verifyExecuteCounter(a, 3)
+    verifyExecuteCounter(b, 3)
+    verifyExecuteAdd(c, 3, 3, 6)
   }
 
   Void execute(CompSpace cs, DateTime now)
@@ -696,6 +701,11 @@ class TestCounter : CompObj
 @Js
 class TestAdd : CompObj
 {
+  override Void onChange(Str name, Obj? val)
+  {
+    execute
+  }
+
   override Void onExecute()
   {
     TestVal in1 := get("in1")

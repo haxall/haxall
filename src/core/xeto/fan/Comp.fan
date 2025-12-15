@@ -112,7 +112,7 @@ mixin Comp
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Callbacks
+// Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
   ** Callback when a slot is modified on this instance.
@@ -127,6 +127,9 @@ mixin Comp
 
   ** Callback whem mounted into a component space
   @NoDoc virtual Void onUnmount() {}
+
+  ** Schedule an callback to onExecute on the next execution cycle
+  Void execute() { spi.execute }
 
   ** Callback to recompute component state.
   ** This is always called within a CompContext.
@@ -273,6 +276,7 @@ mixin CompSpi
   abstract Bool hasChild(Str name)
   abstract Comp? child(Str name, Bool checked)
   abstract Void eachChild(|Comp,Str| f)
+  abstract Void execute()
   abstract Void dump(Console? con, Obj? opts)
 }
 

@@ -312,6 +312,12 @@ class MCompSpi : CompSpi
 // Execution
 //////////////////////////////////////////////////////////////////////////
 
+  ** Set the needsExecute flag for next cycle
+  override Void execute()
+  {
+    needsExecute = true
+  }
+
   ** Check if timer has elapsed
   internal Void checkTimer(DateTime now)
   {
@@ -431,7 +437,7 @@ class MCompSpi : CompSpi
 
   internal Comp? parentRef
   internal Str nameRef := ""
-  internal Bool needsExecute
+  internal Bool needsExecute := true
   private Str:Obj slots
   private Int lastOnTimer
 }
