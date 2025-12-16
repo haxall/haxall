@@ -3,40 +3,47 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   2 Oct 2023  Brian Frank  Creation
+//   16 Dec 2025  Mike Jarmy  Creation
 //
 
-
-//    "Product": {
-//      "type": "object",
-//      "title": "Product Item",
-//      "properties": {
-//        "product_id": {
-//          "type": "integer",
-//          "description": "The unique identifier for a product."
-//        },
-//        "product_name": {
-//          "type": "string",
-//          "description": "Name of the product."
-//        },
-//        "price": {
-//          "type": "number",
-//          "exclusiveMinimum": 0
-//        }
-//      },
-//      "required": ["product_id", "product_name", "price"]
-//    },
+Order : Dict {
+  order
+  customerName: Str
+  orderDate: DateTime
+  items: List <of:Product>
+}
 
 Product : Dict {
   product
-  sku: Int
   name: Str
   price: Float
 }
 
+@order1234: Order {
+  order
+  customerName: "Frodo Baggins"
+  orderDate: "2025-12-16T13:40:00Z"
+  items: {
+    Product {
+      product
+      name: "Deluxe Blender"
+      price: 89.99
+    },
+    Product {
+      product
+      name: "Toaster Oven"
+      price: 45.00
+    },
+    Product {
+      product
+      name: "Electric Kettle"
+      price: 29.50
+    }
+  }
+}
+
 @deluxeBlender: Product {
   product
-  sku: 1234
   name: "Deluxe Blender"
   price: 89.99
 }

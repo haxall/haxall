@@ -76,7 +76,8 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
-    if (!(spec.type.qname == "hx.test.xeto::Product"))
+    if (!(spec.type.qname == "hx.test.xeto::Product" ||
+          spec.type.qname == "hx.test.xeto::Order"))
       return
 
     //------------------------------
@@ -116,21 +117,40 @@ class JsonSchemaExporter : Exporter
 
   private static Obj:Obj prop(Spec type, Lib lib)
   {
-    if      (type.qname == "sys::Int")    return [ "type": "integer" ]
-    else if (type.qname == "sys::Float")  return [ "type": "number"  ]
-    else if (type.qname == "sys::Str")    return [ "type": "string"  ]
-    else if (type.qname == "sys::Bool")   return [ "type": "boolean" ]
 
+    // json primitives
+    if      (type.qname == "sys::Int")      return [ "type": "integer" ]
+    else if (type.qname == "sys::Float")    return [ "type": "number"  ]
+    else if (type.qname == "sys::Str")      return [ "type": "string"  ]
+    else if (type.qname == "sys::Bool")     return [ "type": "boolean" ]
+    else if (type.qname == "sys::DateTime") return [ "type": "string", "format": "iso-date-time" ]
+
+    // sys primitives
     else if (type.qname == "sys::Marker") return [ "\$ref": "sys-5.0.0#/\$defs/Marker" ]
     else if (type.qname == "sys::Ref")    return [ "\$ref": "sys-5.0.0#/\$defs/Ref" ]
 
-    else
+    // list
+    else if (type.isList())
     {
-      if (type.lib.name == lib.name)
-        return ["type": "#/\$defs/$type.name" ]
-      else
-        return ["type": "$type.lib.name#/\$defs/$type.name" ]
+      listType := type.of(false)
+      echo("prop list $type $listType")
+
+      return [
+        "type": "array",
+        //"items": [ "\$ref": typeRef(type.of, lib) ]
+      ]
     }
+
+    // anything else
+    else
+      return ["type": typeRef(type, lib) ]
+  }
+
+  private static Str typeRef(Spec type, Lib lib)
+  {
+    return (type.lib.name == lib.name) ?
+      "#/\$defs/$type.name" :
+      "$type.lib.name#/\$defs/$type.name"
   }
 
 //////////////////////////////////////////////////////////////////////////
