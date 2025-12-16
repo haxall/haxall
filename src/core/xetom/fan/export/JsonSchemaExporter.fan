@@ -76,10 +76,11 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
+    // TODO
     if (!(spec.type.qname == "hx.test.xeto::Product" ||
           spec.type.qname == "hx.test.xeto::Order"))
       return
-    echo("doSpec: $spec")
+    //echo("doSpec: $spec")
 
     //------------------------------
     // properties
@@ -118,38 +119,37 @@ class JsonSchemaExporter : Exporter
 
   private static Obj:Obj prop(Str name, Spec type, Lib lib)
   {
-    debug := "  prop name:$name type:$type isList:$type.isList"
-    if (type.isList())
-    {
-      // If of() is called with checked := true, we get
-      // xeto::UnknownNameErr: Missing 'of' meta
-      listOf := type.of(false)
-      debug += " of:$listOf"
-    }
-    echo(debug)
+    // TODO
+    //debug := "  prop name:$name type:$type isList:$type.isList"
+    //if (type.isList())
+    //{
+    //  // If of() is called with checked := true, we get
+    //  // xeto::UnknownNameErr: Missing 'of' meta
+    //  listOf := type.of(false)
+    //  debug += " of:$listOf"
+    //}
+    //echo(debug)
 
     // json primitives
-    if      (type.qname == "sys::Int")      return [ "type": "integer" ]
-    else if (type.qname == "sys::Float")    return [ "type": "number"  ]
-    else if (type.qname == "sys::Str")      return [ "type": "string"  ]
-    else if (type.qname == "sys::Bool")     return [ "type": "boolean" ]
-    else if (type.qname == "sys::DateTime") return [ "type": "string", "format": "iso-date-time" ]
+    if      (type.qname == "sys::Int")   return [ "type": "string" /*TODO "integer"*/ ]
+    else if (type.qname == "sys::Float") return [ "type": "string" /*TODO "number" */ ]
+    else if (type.qname == "sys::Str")   return [ "type": "string"  ]
+    else if (type.qname == "sys::Bool")  return [ "type": "boolean" ]
 
     // sys primitives
-    else if (type.qname == "sys::Marker") return [ "\$ref": "sys-5.0.0#/\$defs/Marker" ]
-    else if (type.qname == "sys::Ref")    return [ "\$ref": "sys-5.0.0#/\$defs/Ref" ]
+    else if (type.qname == "sys::Marker")   return [ "\$ref": "sys-5.0.0#/\$defs/Marker" ]
+    else if (type.qname == "sys::Ref")      return [ "\$ref": "sys-5.0.0#/\$defs/Ref" ]
+    else if (type.qname == "sys::DateTime") return [ "\$ref": "sys-5.0.0#/\$defs/DateTime" ]
 
-    //// list
-    //else if (type.isList())
-    //{
-    //  listType := type.of(false)
-    //  echo("prop list $type $listType $type.meta")
-
-    //  return [
-    //    "type": "array",
-    //    //"items": [ "\$ref": typeRef(type.of, lib) ]
-    //  ]
-    //}
+    // list
+    else if (type.isList())
+    {
+      return [
+        "type": "array",
+        // TODO "items": [ "\$ref": typeRef(type.of, lib) ]
+        "items": [ "\$ref": "#/\$defs/Product" ]
+      ]
+    }
 
     // anything else
     else

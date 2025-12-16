@@ -23,7 +23,7 @@
       {
         "product": "✓",
         "name": "Toaster Oven",
-        "price": "45",
+        "price": "45.00",
         "sku": "0",
         "spec": "hx.test.xeto::Product"
       },

@@ -17,9 +17,9 @@ addFormats(ajv)
 ajv.addSchema(require('./sys.json'));
 ajv.addSchema(require('./hx-test-xeto.json'));
 
-// create product validator
-const validateProduct = ajv.getSchema('hx.test.xeto-4.0.4#/$defs/Product');
-//console.log(validateProduct)
+// create validators
+validateOrder   = ajv.getSchema('hx.test.xeto-4.0.4#/$defs/Order')
+validateProduct = ajv.getSchema('hx.test.xeto-4.0.4#/$defs/Product')
 
 // validate the instances
 const instances = require('./instances.json');
@@ -28,11 +28,26 @@ Object.keys(instances).forEach(key => {
   const value = instances[key];
 
   console.log('------------------------------------------')
-  console.log(value);
+  console.log(value.spec);
 
-  valid = validateProduct(value)
+  switch (value.spec)
+  {
+    case "hx.test.xeto::Order":
+      doValidate(validateOrder, value);
+      break;
+    case "hx.test.xeto::Product":
+      doValidate(validateProduct, value);
+      break;
+    default:
+      throw Err('Cannot validate ' + value.spec);
+  }
+
+});
+
+function doValidate(func, value) {
+  valid = func(value);
   if (valid)
     console.log("OK!")
   else
-    console.log(validateProduct.errors)
-});
+    console.log(func.errors)
+}

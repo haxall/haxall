@@ -3,6 +3,33 @@
   "$id": "hx.test.xeto-4.0.4",
   "title": "Haxall test library",
   "$defs": {
+    "Order": {
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "orderDate": {
+          "$ref": "sys-5.0.0#/$defs/DateTime"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Product"
+          }
+        },
+        "customerName": {
+          "type": "string"
+        },
+        "order": {
+          "$ref": "sys-5.0.0#/$defs/Marker"
+        }
+      },
+      "required": [
+        "order",
+        "customerName",
+        "orderDate",
+        "items"
+      ]
+    },
     "Product": {
       "additionalProperties": true,
       "type": "object",
@@ -11,18 +38,14 @@
           "$ref": "sys-5.0.0#/$defs/Marker"
         },
         "price": {
-          "type": "number"
+          "type": "string"
         },
         "name": {
           "type": "string"
-        },
-        "sku": {
-          "type": "integer"
         }
       },
       "required": [
         "product",
-        "sku",
         "name",
         "price"
       ]
