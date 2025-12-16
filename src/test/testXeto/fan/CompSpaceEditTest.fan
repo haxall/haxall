@@ -18,16 +18,37 @@ using haystack
 **
 class CompSpaceEditTest: AbstractXetoTest
 {
-  static const Ref c1Ref  := Ref("c1")
-  static const Ref c2Ref  := Ref("c2")
-  static const Ref addRef := Ref("add")
+  override Void setup()
+  {
+    super.setup
+
+    ns := createNamespace(CompTest.loadTestLibs)
+    this.cs = CompSpace(ns).load(loadBasicXeto)
+    Actor.locals[CompSpace.actorKey] = cs
+    cs.start
+
+    addRef = cs.root.get("add")->id
+    c1Ref = cs.root.get("c1")->id
+    c2Ref = cs.root.get("c2")->id
+  }
+
+  override Void teardown()
+  {
+    super.teardown
+    Actor.locals.remove(CompSpace.actorKey)
+  }
+
+  CompSpace? cs
+  Ref? addRef
+  Ref? c1Ref
+  Ref? c2Ref
 
   static Str loadBasicXeto()
   {
      Str<|@root: TestFolder {
-            @c1:  TestCounter {}
-            @c2:  TestCounter {}
-            @add: TestAdd {}
+            c1 @c1:  TestCounter {}
+            c2 @c2:  TestCounter {}
+            add @add: TestAdd {}
           }|>
   }
 
@@ -74,7 +95,7 @@ class CompSpaceEditTest: AbstractXetoTest
     verify(true)
 
     // cannot remove root
-    verifyErr(Err#) { cs.edit.delete(Ref("root")) }
+    verifyErr(Err#) { cs.edit.delete(cs.root.id) }
   }
 
   Void testUpdate()
@@ -95,3 +116,4 @@ class CompSpaceEditTest: AbstractXetoTest
     return cs
   }
 }
+

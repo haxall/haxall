@@ -21,7 +21,7 @@ class CompSpaceTest: AbstractXetoTest
     ns := createNamespace(CompTest.loadTestLibs)
     cs := CompSpace(ns).load(CompTest.loadTestXeto)
 
-    TestAdd c := cs.readById(Ref("c"))
+    TestAdd c := cs.root.get("c")
     c.set("in2", TestVal(100))
     verifyEq(c.get("in2"), TestVal.makeNum(100))
     verifyEq(c.links.listOn("in2").size, 1)
@@ -31,3 +31,4 @@ class CompSpaceTest: AbstractXetoTest
     verifyEq(c.get("in2"), TestVal.makeNum(0))
   }
 }
+

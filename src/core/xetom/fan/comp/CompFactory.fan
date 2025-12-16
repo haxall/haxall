@@ -242,9 +242,8 @@ internal class CompFactory
       // lazily create swizzle map
       if (swizzleMap == null) swizzleMap = Ref:Ref[:]
 
-      // create swizzled mapping, try to use old id if not used yet
-      newId := oldId
-      if (cs.readById(oldId, false) != null) newId = genId
+      // create swizzled mapping
+      newId := genId
       swizzleMap[oldId] = newId
     }
 

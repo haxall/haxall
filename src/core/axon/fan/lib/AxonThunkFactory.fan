@@ -125,7 +125,7 @@ const class AxonThunkFactory : ThunkFactory
 
   private TopFn? parseComp(Spec spec, Dict meta, Str src)
   {
-    params := spec.func.params.map |p->CompParam| { CompParam(p) }
+    params := spec.func.params.map |p->FnParam| { FnParam(p.name) }
     return CompFn(spec.name, meta, params, src)
   }
 

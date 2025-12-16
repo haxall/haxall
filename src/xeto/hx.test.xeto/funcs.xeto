@@ -36,9 +36,9 @@
   add4: Func { a: Number, b: Number <compId:"b-id">, returns: Number
     <compTree:---
       @root: Comp {
-        @a: Var {}
-        @b-id: Var {}
-        @returns: Var {
+        a @a: Var {}
+        b @b-id: Var {}
+        returns: Var {
           links: {
             val: Link { fromRef: @add, fromSlot: "out"  }
           }
