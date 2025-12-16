@@ -79,6 +79,7 @@ class JsonSchemaExporter : Exporter
     if (!(spec.type.qname == "hx.test.xeto::Product" ||
           spec.type.qname == "hx.test.xeto::Order"))
       return
+    echo("doSpec: $spec")
 
     //------------------------------
     // properties
@@ -93,7 +94,7 @@ class JsonSchemaExporter : Exporter
       {
         if (!slot.isMaybe)
           required.add(name)
-        props[name] = prop(slot.type, spec.lib)
+        props[name] = prop(name, slot.type, spec.lib)
       }
     }
 
@@ -115,8 +116,17 @@ class JsonSchemaExporter : Exporter
     defs[spec.name] = schema
   }
 
-  private static Obj:Obj prop(Spec type, Lib lib)
+  private static Obj:Obj prop(Str name, Spec type, Lib lib)
   {
+    debug := "  prop name:$name type:$type isList:$type.isList"
+    if (type.isList())
+    {
+      // If of() is called with checked := true, we get
+      // xeto::UnknownNameErr: Missing 'of' meta
+      listOf := type.of(false)
+      debug += " of:$listOf"
+    }
+    echo(debug)
 
     // json primitives
     if      (type.qname == "sys::Int")      return [ "type": "integer" ]
@@ -129,17 +139,17 @@ class JsonSchemaExporter : Exporter
     else if (type.qname == "sys::Marker") return [ "\$ref": "sys-5.0.0#/\$defs/Marker" ]
     else if (type.qname == "sys::Ref")    return [ "\$ref": "sys-5.0.0#/\$defs/Ref" ]
 
-    // list
-    else if (type.isList())
-    {
-      listType := type.of(false)
-      echo("prop list $type $listType")
+    //// list
+    //else if (type.isList())
+    //{
+    //  listType := type.of(false)
+    //  echo("prop list $type $listType $type.meta")
 
-      return [
-        "type": "array",
-        //"items": [ "\$ref": typeRef(type.of, lib) ]
-      ]
-    }
+    //  return [
+    //    "type": "array",
+    //    //"items": [ "\$ref": typeRef(type.of, lib) ]
+    //  ]
+    //}
 
     // anything else
     else
