@@ -23,7 +23,8 @@ class JsonSchemaExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
-    map["\$defs"] = defs
+    //map["\$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    map["\$schema"] = "http://json-schema.org/draft-07/schema#"
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,6 +38,8 @@ class JsonSchemaExporter : Exporter
 
   override This end()
   {
+    map["definitions"] = defs
+
     js := JsonOutStream(Env.cur.out)
     js.prettyPrint = true
     js.writeJson(map)
@@ -45,10 +48,7 @@ class JsonSchemaExporter : Exporter
 
   override This lib(Lib lib)
   {
-    //map["\$schema"] = "https://json-schema.org/draft/2020-12/schema"
-    map["\$schema"] = "http://json-schema.org/draft-07/schema#"
-
-    map["\$id"]     = lib.id.toStr
+    map["\$id"]     = lib.name
     map["title"]    = lib.name
     map["version"]  = lib.version.toStr
 
@@ -75,6 +75,9 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
+    if (!(spec.type.qname == "hx.test.xeto::Product"))
+      return
+
     //------------------------------
     // properties
 
@@ -88,13 +91,7 @@ class JsonSchemaExporter : Exporter
       {
         if (!slot.isMaybe)
           required.add(name)
-
-        type := slot.type
-        prim := primitiveTypeName(type)
-        if (prim == null)
-          props[name] = ["\$ref": typeRef(type, spec.lib) ]
-        else
-          props[name] = ["type": prim]
+        props[name] = prop(slot.type, spec.lib)
       }
     }
 
@@ -113,59 +110,62 @@ class JsonSchemaExporter : Exporter
     //------------------------------
     // inheritance
 
-    type := spec.type
+    defs[spec.name] = schema
+  }
 
-    // sys::Obj
-    if (type.base == null)
-    {
-      defs[spec.qname] = schema
-    }
+  private static Obj:Obj prop(Spec type, Lib lib)
+  {
+    if      (type.qname == "sys::Int")    return [ "type": "integer" ]
+    else if (type.qname == "sys::Float")  return [ "type": "number"  ]
+    else if (type.qname == "sys::Str")    return [ "type": "string"  ]
+    else if (type.qname == "sys::Bool")   return [ "type": "boolean" ]
+    else if (type.qname == "sys::Marker") return [ "type": "string", "pattern": "✓"  ]
     else
     {
-      allOf := Obj[,]
-
-      // compound
-      if (type.isCompound)
-      {
-        type.ofs.each |cmp|
-        {
-          allOf.add(["\$ref": typeRef(cmp, spec.lib) ])
-        }
-      }
-      // single inheritance
+      if (type.lib.name == lib.name)
+        return ["type": "#/\$defs/$type.name" ]
       else
-      {
-        allOf.add(["\$ref": typeRef(type.base, spec.lib) ])
-      }
-
-      allOf.add(schema)
-      defs[spec.qname] = ["allOf": allOf]
+        return ["type": "$type.lib.name#/\$defs/$type.name" ]
     }
-  }
-
-  private static Str typeRef(Spec type, Lib curLib)
-  {
-    // internal
-    if (type.lib.name == curLib.name)
-      return "#/\$defs/$type.name"
-    else
-      return"$type.lib.name#/\$defs/$type.name"
-  }
-
-  private static Str? primitiveTypeName(Spec type)
-  {
-    if      (type.qname == "sys::Int")  return "integer"
-    else if (type.qname == "sys::Str")  return "string"
-    else if (type.qname == "sys::Bool") return "boolean"
-    else
-      return null
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private Obj:Obj map := [:]
+  private Obj:Obj map := [:] { ordered = true }
   private Obj:Obj defs := [:]
 }
 
+//    //------------------------------
+//    // inheritance
+//
+//    type := spec.type
+//
+//    // sys::Obj
+//    if (type.base == null)
+//    {
+//      defs[spec.qname] = schema
+//    }
+//    else
+//    {
+//      allOf := Obj[,]
+//
+//      // compound
+//      if (type.isCompound)
+//      {
+//        type.ofs.each |cmp|
+//        {
+//          allOf.add(["\$ref": typeRef(cmp, spec.lib) ])
+//        }
+//      }
+//      // single inheritance
+//      else
+//      {
+//        allOf.add(["\$ref": typeRef(type.base, spec.lib) ])
+//      }
+//
+//      allOf.add(schema)
+//      defs[spec.qname] = ["allOf": allOf]
+//    }
+//  }

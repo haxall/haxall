@@ -1,0 +1,42 @@
+//
+// Copyright (c) 2023, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Oct 2023  Brian Frank  Creation
+//
+
+
+//    "Product": {
+//      "type": "object",
+//      "title": "Product Item",
+//      "properties": {
+//        "product_id": {
+//          "type": "integer",
+//          "description": "The unique identifier for a product."
+//        },
+//        "product_name": {
+//          "type": "string",
+//          "description": "Name of the product."
+//        },
+//        "price": {
+//          "type": "number",
+//          "exclusiveMinimum": 0
+//        }
+//      },
+//      "required": ["product_id", "product_name", "price"]
+//    },
+
+Product : Dict {
+  product
+  sku: Int
+  name: Str
+  price: Float
+}
+
+@deluxeBlender: Product {
+  product
+  sku: 1234
+  name: "Deluxe Blender"
+  price: 89.99
+}
