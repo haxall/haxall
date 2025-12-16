@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "hx.test.xeto-4.0.4",
+  "title": "Haxall test library",
+  "$defs": {
+    "Product": {
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "sys-5.0.0#/$defs/Marker"
+        },
+        "price": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sku": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "product",
+        "sku",
+        "name",
+        "price"
+      ]
+    }
+  }
+}

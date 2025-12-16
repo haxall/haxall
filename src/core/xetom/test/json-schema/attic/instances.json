@@ -1,0 +1,34 @@
+[
+  {
+    "order_id": "ORD-2025-00101",
+    "customer_name": "Frodo Baggins",
+    "order_date": "2025-12-16T13:40:00Z",
+    "items": [
+      {
+        "product_id": 9001,
+        "product_name": "Deluxe Blender",
+        "price": 89.99
+      },
+      {
+        "product_id": 9002,
+        "product_name": "Toaster Oven",
+        "price": 45.00
+      },
+      {
+        "product_id": 9003,
+        "product_name": "Electric Kettle",
+        "price": 29.50
+      }
+    ]
+  },
+  {
+    "customer_name": "Bob Smith",
+    "items": [
+      {
+        "product_id": 500,
+        "product_name": "Pen Set",
+        "price": -5.00
+      }
+    ]
+  }
+]

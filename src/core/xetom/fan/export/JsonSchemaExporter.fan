@@ -38,7 +38,7 @@ class JsonSchemaExporter : Exporter
 
   override This end()
   {
-    map["definitions"] = defs
+    map["\$defs"] = defs
 
     js := JsonOutStream(Env.cur.out)
     js.prettyPrint = true
@@ -48,9 +48,10 @@ class JsonSchemaExporter : Exporter
 
   override This lib(Lib lib)
   {
-    map["\$id"]     = lib.name
-    map["title"]    = lib.name
-    map["version"]  = lib.version.toStr
+    map["\$id"] = "$lib.name-$lib.version"
+
+    if (lib.meta.has("doc"))
+      map["title"] = lib.meta->doc
 
     lib.specs.each |x| { doSpec(x) }
 
@@ -119,7 +120,10 @@ class JsonSchemaExporter : Exporter
     else if (type.qname == "sys::Float")  return [ "type": "number"  ]
     else if (type.qname == "sys::Str")    return [ "type": "string"  ]
     else if (type.qname == "sys::Bool")   return [ "type": "boolean" ]
-    else if (type.qname == "sys::Marker") return [ "type": "string", "pattern": "✓"  ]
+
+    else if (type.qname == "sys::Marker") return [ "\$ref": "sys-5.0.0#/\$defs/Marker" ]
+    else if (type.qname == "sys::Ref")    return [ "\$ref": "sys-5.0.0#/\$defs/Ref" ]
+
     else
     {
       if (type.lib.name == lib.name)
@@ -134,7 +138,7 @@ class JsonSchemaExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   private Obj:Obj map := [:] { ordered = true }
-  private Obj:Obj defs := [:]
+  private Obj:Obj defs := [:] { ordered = true }
 }
 
 //    //------------------------------

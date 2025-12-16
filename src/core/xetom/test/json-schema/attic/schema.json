@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/ecommerce-library.schema.json",
+  "title": "Ecommerce Data Library",
+  "description": "A collection of schema definitions for common e-commerce objects.",
+
+  "$ref": "#/definitions/Order",
+
+  "definitions": {
+
+    "orderId": {
+      "type": "string",
+      "description": "A unique, patterned identifier for a sales order.",
+      "pattern": "^ORD-[0-9]{4}-[0-9]+$"
+    },
+
+    "Product": {
+      "type": "object",
+      "title": "Product Item",
+      "properties": {
+        "product_id": {
+          "type": "integer",
+          "description": "The unique identifier for a product."
+        },
+        "product_name": {
+          "type": "string",
+          "description": "Name of the product."
+        },
+        "price": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": ["product_id", "product_name", "price"]
+    },
+
+    "Order": {
+      "type": "object",
+      "title": "Sales Order",
+      "properties": {
+        "order_id": {
+          "$ref": "#/definitions/orderId"
+        },
+        "customer_name": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "description": "The list of products in the order.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Product"
+          }
+        },
+        "order_date": {
+          "type": "string",
+          "format": "iso-date-time"
+        }
+      },
+      "required": ["order_id", "items", "order_date"]
+    }
+  }
+}

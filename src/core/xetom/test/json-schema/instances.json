@@ -1,0 +1,11 @@
+{
+  "deluxeBlender": {
+    "spec": "hx.test.xeto::Product",
+    "product": "✓",
+    "sku": "1234",
+    "name": "Deluxe Blender",
+    "price": "89.99",
+    "id": "hx.test.xeto::deluxeBlender"
+  }
+}
+

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sys-5.0.0",
+  "title": "System library of built-in types",
+  "$defs": {
+    "Marker": {
+      "pattern": "\u2713",
+      "type": "string"
+    },
+    "Ref": {
+      "pattern": "[a-zA-Z\\d\\._~]*",
+      "type": "string"
+    }
+  }
+}
