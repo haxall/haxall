@@ -120,31 +120,20 @@ class JsonSchemaExporter : Exporter
 
   private static Obj:Obj prop(Spec slot, Lib lib)
   {
-    type := slot.type
-
-    // json primitives
-    if      (type.qname == "sys::Int")   return [ "type": "string" /*TODO "integer"*/ ]
-    else if (type.qname == "sys::Float") return [ "type": "string" /*TODO "number" */ ]
-    else if (type.qname == "sys::Str")   return [ "type": "string"  ]
-    else if (type.qname == "sys::Bool")  return [ "type": "boolean" ]
-
-    // sys primitives
-    else if (type.qname == "sys::Marker")   return [ "\$ref": "sys-5.0.0#/\$defs/Marker" ]
-    else if (type.qname == "sys::Ref")      return [ "\$ref": "sys-5.0.0#/\$defs/Ref" ]
-    else if (type.qname == "sys::DateTime") return [ "\$ref": "sys-5.0.0#/\$defs/DateTime" ]
+    // primitives
+    prm := primitives.getChecked(slot.type.qname, false)
+    if (prm != null) return prm
 
     // list
-    else if (type.isList())
-    {
+    else if (slot.type.isList())
       return [
         "type": "array",
          "items": [ "\$ref": typeRef(slot.of, lib) ]
       ]
-    }
 
     // anything else
     else
-      return ["type": typeRef(type, lib) ]
+      return ["type": typeRef(slot.type, lib) ]
   }
 
   private static Str typeRef(Spec type, Lib lib)
@@ -157,6 +146,16 @@ class JsonSchemaExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
+
+  private static const Str:[Obj:Obj] primitives := [
+    "sys::Str":      ["type": "string"],
+    "sys::Bool":     ["\$ref": "sys-5.0.0#/\$defs/Bool"],
+    "sys::Int":      ["\$ref": "sys-5.0.0#/\$defs/Int"],
+    "sys::Float":    ["\$ref": "sys-5.0.0#/\$defs/Float"],
+    "sys::Marker":   ["\$ref": "sys-5.0.0#/\$defs/Marker"],
+    "sys::Ref":      ["\$ref": "sys-5.0.0#/\$defs/Ref"],
+    "sys::DateTime": ["\$ref": "sys-5.0.0#/\$defs/DateTime"],
+  ]
 
   private Obj:Obj map := [:] { ordered = true }
   private Obj:Obj defs := [:] { ordered = true }

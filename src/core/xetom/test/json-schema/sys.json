@@ -7,6 +7,18 @@
       "type": "string",
       "pattern": "\u2713"
     },
+    "Bool": {
+      "type": "string",
+      "pattern": "true|false"
+    },
+    "Int": {
+      "type": "string",
+      "pattern": "-?(?:0|[1-9]\\d*)"
+    },
+    "Float": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$"
+    },
     "Ref": {
       "type": "string",
       "pattern": "[a-zA-Z\\d\\._~]*"

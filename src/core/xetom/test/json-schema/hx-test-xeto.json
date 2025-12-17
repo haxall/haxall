@@ -38,7 +38,7 @@
           "$ref": "sys-5.0.0#/$defs/Marker"
         },
         "price": {
-          "type": "string"
+          "$ref": "sys-5.0.0#/$defs/Float"
         },
         "name": {
           "type": "string"
