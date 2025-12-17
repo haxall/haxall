@@ -35,36 +35,6 @@ class CompSpaceTest: AbstractXetoTest
 // CompMap
 //////////////////////////////////////////////////////////////////////////
 
-  Void testCompMapId()
-  {
-    verifyCompMapId("0", 0)
-    verifyCompMapId("0.3", 0)
-    verifyCompMapId("17", 23)
-    verifyCompMapId("17.123", 23)
-    verifyCompMapId("f.189", 15)
-    verifyCompMapId("7b", 123)
-    verifyCompMapId("7b.xyz", 123)
-    verifyCompMapId("abc", 2748)
-    verifyCompMapId("abc.123", 2748)
-    verifyCompMapId(".", -1)
-    verifyCompMapId("x", -1)
-    verifyCompMapId("3x", -1)
-    verifyCompMapId("3-x", -1)
-  }
-
-  Void verifyCompMapId(Str s, Int expect)
-  {
-    i := CompMap.idToIndex(Ref(s), false)
-    //echo(">>> $s => $i ?= $expect")
-    verifyEq(i, expect)
-    if (expect < 0) verifyErr(Err#) { CompMap.idToIndex(Ref(s)) }
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// CompMap
-//////////////////////////////////////////////////////////////////////////
-
-
   Void testCompMap()
   {
     // setup comp space
@@ -74,12 +44,12 @@ class CompSpaceTest: AbstractXetoTest
     // init map with a-f
     m := CompMap()
     verifyCompMapSort(m, Comp[,])
-    a := compMapAdd(m, "A", "0", null)
-    b := compMapAdd(m, "B", "1", null)
-    c := compMapAdd(m, "C", "2", null)
-    d := compMapAdd(m, "E", "3", null)
-    e := compMapAdd(m, "E", "4", null)
-    f := compMapAdd(m, "F", "5", null)
+    a := compMapAdd(m, "A", "0")
+    b := compMapAdd(m, "B", "1")
+    c := compMapAdd(m, "C", "2")
+    d := compMapAdd(m, "D", "3")
+    e := compMapAdd(m, "E", "4")
+    f := compMapAdd(m, "F", "5")
     verifyCompMapSort(m, [a, b, c, d, e, f])
 
     // add some links f -> e -> d -> c -> b -> a
@@ -121,19 +91,19 @@ class CompSpaceTest: AbstractXetoTest
     verifyCompMapSort(m, [b, d, e, f])
 
     // add and ensure slots are reused
-    g := compMapAdd(m, "G", "2.6", Ref("1.123"))
-    h := compMapAdd(m, "H", "0.7", null)
-    i := compMapAdd(m, "I", "6.8", null)
-    verifyCompMapSort(m, [h, b, g, d, e, f, i])
+    g := compMapAdd(m, "G", "6")
+    h := compMapAdd(m, "H", "7")
+    i := compMapAdd(m, "I", "8")
+    verifyCompMapSort(m, [b, d, e, f, g, h, i])
 
     // cleanup
     Actor.locals.remove(CompSpace.actorKey)
   }
 
-  Comp compMapAdd(CompMap m, Str dis, Str expect, Ref? prev)
+  Comp compMapAdd(CompMap m, Str dis, Str expect)
   {
     // generate id
-    id := m.genId(prev)
+    id := m.genId
 
     // create comp (shim for id)
     c := CompObj()
