@@ -704,7 +704,7 @@ class EtcTest : HaystackTest
 
    g := Etc.makeMapGrid(null, ["c1":[a], "c2":dictBC])
    g = verifyRefIteration(g, [a, b, c])
-   verifyEq(g[0]->c1, Obj?[Ref("_a")])
+   verifyEq(g[0]->c1, [Ref("_a")])
    verifyDictEq(g[0]->c2, Etc.dict3("b", Ref("_b"), "c", Ref("_c"), "x", m))
  }
 

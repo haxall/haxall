@@ -1713,7 +1713,7 @@ const class Etc
       oldList.each |v| { newList.add(mapRefs(v, f)) }
       return newList
     }
-    if (val is Dict) return Etc.dictMap(val) |v| { mapRefs(v, f) }
+    if (val is Dict) return ((Dict)val).map |v| { mapRefs(v, f) }
     if (val is Grid) return ((Grid)val).map |row| { mapRefs(row, f) }
     return val
   }
