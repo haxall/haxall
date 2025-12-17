@@ -41,9 +41,3 @@ Product : Dict {
     }
   }
 }
-
-@deluxeBlender: Product {
-  product
-  name: "Deluxe Blender"
-  price: 89.99
-}
