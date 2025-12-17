@@ -30,5 +30,148 @@ class CompSpaceTest: AbstractXetoTest
     verifyEq(c.links.listOn("in2").size, 0)
     verifyEq(c.get("in2"), TestVal.makeNum(0))
   }
+
+//////////////////////////////////////////////////////////////////////////
+// CompMap
+//////////////////////////////////////////////////////////////////////////
+
+  Void testCompMapId()
+  {
+    verifyCompMapId("0", 0)
+    verifyCompMapId("0.3", 0)
+    verifyCompMapId("17", 23)
+    verifyCompMapId("17.123", 23)
+    verifyCompMapId("f.189", 15)
+    verifyCompMapId("7b", 123)
+    verifyCompMapId("7b.xyz", 123)
+    verifyCompMapId("abc", 2748)
+    verifyCompMapId("abc.123", 2748)
+    verifyCompMapId(".", -1)
+    verifyCompMapId("x", -1)
+    verifyCompMapId("3x", -1)
+    verifyCompMapId("3-x", -1)
+  }
+
+  Void verifyCompMapId(Str s, Int expect)
+  {
+    i := CompMap.idToIndex(Ref(s), false)
+    //echo(">>> $s => $i ?= $expect")
+    verifyEq(i, expect)
+    if (expect < 0) verifyErr(Err#) { CompMap.idToIndex(Ref(s)) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// CompMap
+//////////////////////////////////////////////////////////////////////////
+
+
+  Void testCompMap()
+  {
+    // setup comp space
+    cs := CompSpace(createNamespace(CompTest.loadTestLibs))
+    Actor.locals[CompSpace.actorKey] = cs
+
+    // init map with a-f
+    m := CompMap()
+    verifyCompMapSort(m, Comp[,])
+    a := compMapAdd(m, "A", "0", null)
+    b := compMapAdd(m, "B", "1", null)
+    c := compMapAdd(m, "C", "2", null)
+    d := compMapAdd(m, "E", "3", null)
+    e := compMapAdd(m, "E", "4", null)
+    f := compMapAdd(m, "F", "5", null)
+    verifyCompMapSort(m, [a, b, c, d, e, f])
+
+    // add some links f -> e -> d -> c -> b -> a
+    link(f, e)
+    link(e, d)
+    link(d, c)
+    link(c, b)
+    link(b, a)
+    verifyCompMapSort(m, [f, e, d, c, b, a])
+
+    // add some links
+    //  a -> b -> c -> d
+    //  e -> f
+    //  f -> b & c
+    clearLinks(m)
+    link(a, b)
+    link(b, c)
+    link(c, d)
+    link(e, f)
+    link(f, b)
+    link(f, c)
+    verifyCompMapSort(m, [a, e, f, b, c, d])
+
+    // link cycle
+    //  a -> b -> c -> a
+    //  d -> e -> f
+    clearLinks(m)
+    link(a, b)
+    link(b, c)
+    link(c, a)
+    link(d, e)
+    link(d, e)
+    link(e, f)
+    verifyCompMapSort(m, [d, e, f, a, b, c])
+
+    // remove a and c (leaving broken links)
+    m.remove(a)
+    m.remove(c)
+    verifyCompMapSort(m, [b, d, e, f])
+
+    // add and ensure slots are reused
+    g := compMapAdd(m, "G", "2.6", Ref("1.123"))
+    h := compMapAdd(m, "H", "0.7", null)
+    i := compMapAdd(m, "I", "6.8", null)
+    verifyCompMapSort(m, [h, b, g, d, e, f, i])
+
+    // cleanup
+    Actor.locals.remove(CompSpace.actorKey)
+  }
+
+  Comp compMapAdd(CompMap m, Str dis, Str expect, Ref? prev)
+  {
+    // generate id
+    id := m.genId(prev)
+
+    // create comp (shim for id)
+    c := CompObj()
+    MCompSpi#id->setConst(c.spi, id)
+    c.spi->slots->set("id", id)
+    verifySame(c.id, id)
+    c.set("dis", dis)
+
+    // add to map
+    oldSize := m.size
+    m.add(c)
+    verifyEq(id.toStr, expect)
+    verifySame(m.get(id), c)
+    verifyEq(m.size, oldSize+1)
+
+    return c
+  }
+
+  Void clearLinks(CompMap m)
+  {
+    m.each |c| { c.remove("links") }
+  }
+
+  Void link(Comp from, Comp to)
+  {
+    link := Etc.link(from.id, "ignore")
+    curLinks := to.get("links") as Links ?: Etc.links(null)
+    to.set("links", curLinks.add("ignore", link))
+  }
+
+  Void verifyCompMapSort(CompMap m, Comp[] expect)
+  {
+    m.topologyChanged
+    actual := m.topology
+    // echo("~~ sort " + expect.join(", ") { it->dis })
+    // echo("        " + actual.join(", ") { it->dis })
+    verifyEq(actual.isRO, true)
+    verifyEq(actual, expect)
+  }
 }
 
