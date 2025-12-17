@@ -173,7 +173,7 @@ class CompSpace : AbstractCompSpace
   ** Read by id
   Comp? readById(Ref id, Bool checked := true)
   {
-    c := byId.get(id)
+    c := map.get(id)
     if (c != null) return c
     if (checked) throw UnknownRecErr(id.toStr)
     return null
@@ -182,7 +182,7 @@ class CompSpace : AbstractCompSpace
   ** Iterate every component in space
   Void each(|Comp| f)
   {
-    byId.each(f)
+    map.each(f)
   }
 
   ** Hook when component is modified
@@ -190,6 +190,9 @@ class CompSpace : AbstractCompSpace
   {
     // increment version
     updateVer(spi)
+
+    // handle links change
+    if (name == "links") map.topologyChanged
 
     // invoke callback on space
     try
@@ -205,7 +208,7 @@ class CompSpace : AbstractCompSpace
     updateVer(c.spi)
 
     // add to my lookup tables
-    byId.add(c.id, c)
+    map.add(c)
 
     // invoke callback on space
     try
@@ -252,7 +255,7 @@ class CompSpace : AbstractCompSpace
     if (actorState != null) actorState.onUnmount(c)
 
     // remove from my lookup tables
-    byId.remove(c.id)
+    map.remove(c)
 
     // sanitize the component space, but only once after all kids unmounted
     if (c === target) sanitize
@@ -363,8 +366,8 @@ class CompSpace : AbstractCompSpace
     // walk thru timed components to set needExecute flag
     timed.each |spi| { spi.checkTimer(cx.now) }
 
-    // now walk thru every component that has been triggered to execute
-    each |comp| { ((MCompSpi)comp.spi).checkExecute(cx) }
+    // now walk thru every component in topological order
+    map.topology.each |comp| { ((MCompSpi)comp.spi).checkExecute(cx) }
   }
 
   ** Walk component tree to build our timers list
@@ -392,11 +395,7 @@ class CompSpace : AbstractCompSpace
   virtual once CompSpaceEdit edit() { CompSpaceEdit(this) }
 
   ** Generate new id
-  internal Ref genId()
-  {
-    compCounter++
-    return Ref(""+compCounter)
-  }
+  internal Ref genId() { map.genId }
 
   ** Log error
   Void err(Str msg, Err? err := null)
@@ -412,10 +411,9 @@ class CompSpace : AbstractCompSpace
   internal CompSpaceActorState? actorState
   private Bool isRunningRef
   private Comp? rootRef
-  private Ref:Comp byId := [:]
+  private CompMap map := CompMap()
   private Bool timersNeedUpdate
   private MCompSpi[] timed := MCompSpi#.emptyList
-  private Int compCounter := 0
   private Int curVer
 }
 
