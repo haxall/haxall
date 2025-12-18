@@ -6,7 +6,7 @@
 //   16 Dec 2025  Mike Jarmy  Creation
 //
 
-Order : Dict {
+Order : Entity {
   order
   customerName: Str
   orderDate: DateTime

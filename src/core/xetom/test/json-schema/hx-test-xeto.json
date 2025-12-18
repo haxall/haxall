@@ -4,30 +4,37 @@
   "title": "Haxall test library",
   "$defs": {
     "Order": {
-      "additionalProperties": true,
-      "type": "object",
-      "properties": {
-        "orderDate": {
-          "$ref": "sys-5.0.0#/$defs/DateTime"
+      "allOf": [
+        {
+          "$ref": "sys-5.0.0#/$defs/Entity"
         },
-        "items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Product"
-          }
-        },
-        "customerName": {
-          "type": "string"
-        },
-        "order": {
-          "$ref": "sys-5.0.0#/$defs/Marker"
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "orderDate": {
+              "$ref": "sys-5.0.0#/$defs/DateTime"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Product"
+              }
+            },
+            "customerName": {
+              "type": "string"
+            },
+            "order": {
+              "$ref": "sys-5.0.0#/$defs/Marker"
+            }
+          },
+          "required": [
+            "order",
+            "customerName",
+            "orderDate",
+            "items"
+          ]
         }
-      },
-      "required": [
-        "order",
-        "customerName",
-        "orderDate",
-        "items"
       ]
     },
     "Product": {

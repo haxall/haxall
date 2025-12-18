@@ -48,7 +48,7 @@ class JsonSchemaExporter : Exporter
 
   override This lib(Lib lib)
   {
-    map["\$id"] = "$lib.name-$lib.version"
+    map["\$id"] = libNameVer(lib)
 
     if (lib.meta.has("doc"))
       map["title"] = lib.meta->doc
@@ -115,7 +115,23 @@ class JsonSchemaExporter : Exporter
     //------------------------------
     // inheritance
 
-    defs[spec.name] = schema
+    type := spec.type
+    if (type.isCompound)
+      throw Err("Compound type not supported: $type")
+
+    if (type.base.qname == "sys::Dict")
+    {
+      defs[spec.name] = schema
+    }
+    else if (type.base.qname == "sys::Entity")
+    {
+      defs[spec.name] = ["allOf": [
+        ["\$ref": typeRef(type.base, spec.lib) ],
+        schema
+      ]]
+    }
+    else
+      throw Err("$type has unsupported base type")
   }
 
   private static Obj:Obj prop(Spec slot, Lib lib)
@@ -140,7 +156,12 @@ class JsonSchemaExporter : Exporter
   {
     return (type.lib.name == lib.name) ?
       "#/\$defs/$type.name" :
-      "$type.lib.name#/\$defs/$type.name"
+      "${libNameVer(type.lib)}#/\$defs/$type.name"
+  }
+
+  private static Str libNameVer(Lib lib)
+  {
+     return "$lib.name-$lib.version"
   }
 
 //////////////////////////////////////////////////////////////////////////
