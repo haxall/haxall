@@ -88,16 +88,7 @@ class MCompSpi : CompSpi
 
   override Void set(Str name, Obj? val)
   {
-    if (val == null)
-    {
-      remove(name)
-    }
-    else
-    {
-      checkName(name)
-      checkSet(name, val)
-      doSet(name, get(name), val)
-    }
+    update(name, get(name), val)
   }
 
   override Void add(Obj val, Str? name)
@@ -105,44 +96,12 @@ class MCompSpi : CompSpi
     if (name != null)
     {
       if (has(name)) throw DuplicateNameErr(name)
-      checkName(name)
     }
     else
     {
       name = autoName
     }
-    checkSet(name, val)
-    doSet(name, null, val)
-  }
-
-  private Void checkSet(Str name, Obj val)
-  {
-    if (CompUtil.isReservedSlot(name))
-      throw InvalidChangeErr("'$name' may not be modified")
-
-    slot := spec.slot(name, false)
-    if (slot == null) return null
-
-    // map value to spec
-    /* TODO
-    valSpec := val is Comp ? ((Comp)val).spec : cs.ns.specOf(val)
-    if (!isValidSlotVal(slot, val, valSpec))
-      throw InvalidChangeErr("Invalid type for $slot.qname: $slot.type != $valSpec")
-    */
-  }
-
-  static Bool isValidSlotVal(Spec slot, Obj val, Spec valSpec)
-  {
-    slotType := slot.type
-    if (valSpec.isa(slotType)) return true
-
-    // we use Float for some scalar types like Percent
-    return val.typeof === slotType.fantomType
-  }
-
-  static Void checkName(Str name)
-  {
-    if (!Etc.isTagName(name)) throw InvalidNameErr(name)
+    update(name, null, val)
   }
 
   private Str autoName()
@@ -157,45 +116,23 @@ class MCompSpi : CompSpi
 
   override Void remove(Str name)
   {
-    if (CompUtil.isReservedSlot(name))
-      throw InvalidChangeErr("'$name' may not be modified")
+    update(name, get(name), null)
+  }
 
-    slot := spec.slot(name, false)
-    if (slot != null && !slot.isMaybe)
+  override Void reorder(Str[] newOrder)
+  {
+    oldSlots := this.slots
+    newSlots := Str:Obj[:]
+    newSlots.ordered = true
+    newOrder.each |n|
     {
-      // allow removing a func if we have fallback method
-      if (slot.isFunc)
-      {
-        method := CompUtil.toHandlerMethod(comp, slot)
-        if (method != null)
-        {
-          doSet(name, null, MethodFunction(method))
-          return
-        }
-      }
-
-      throw InvalidChangeErr("$slot.qname is required")
+      v := oldSlots[n] ?: throw ArgErr("Slot name not defined: $n")
+      newSlots[n] = v
     }
-
-    doRemove(name, slot)
-  }
-
-  private Void doSet(Str name, Obj? oldVal, Obj newVal)
-  {
-    slot := spec.slot(name, false)
-    if (oldVal === newVal) return // short circuit if same
-    if (oldVal is Comp) removeChild(oldVal)
-    if (newVal is Comp) addChild(name, newVal)
-    else if (newVal isnot Function) newVal = newVal.toImmutable
-    slots.set(name, newVal)
-    changed(name, slot, newVal)
-  }
-
-  private Void doRemove(Str name, Spec? slot)
-  {
-    val := slots.remove(name)
-    if (val is Comp) removeChild(val)
-    changed(name, slot, null)
+    if (oldSlots.size != newSlots.size)
+      throw ArgErr("Names size does not match current slots size: $newSlots.size != $oldSlots.size")
+    this.slots = newSlots
+    changed("reorder!", null, null)
   }
 
   internal Void addChild(Str name, Comp child)
@@ -215,25 +152,47 @@ class MCompSpi : CompSpi
     if (isMounted) cs.unmount(child)
   }
 
-  override Void reorder(Str[] newOrder)
-  {
-    oldSlots := this.slots
-    newSlots := Str:Obj[:]
-    newSlots.ordered = true
-    newOrder.each |n|
-    {
-      v := oldSlots[n] ?: throw ArgErr("Slot name not defined: $n")
-      newSlots[n] = v
-    }
-    if (oldSlots.size != newSlots.size)
-      throw ArgErr("Names size does not match current slots size: $newSlots.size != $oldSlots.size")
-    this.slots = newSlots
-    changed("reorder!", null, null)
-  }
+//////////////////////////////////////////////////////////////////////////
+// Update
+//////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////
-// Callbacks
-//////////////////////////////////////////////////////////////////////////
+  private Void update(Str name, Obj? oldVal, Obj? newVal)
+  {
+    // lookup slot
+    slot := spec.slot(name, false)
+
+    if (name == "id" || name == "spec")
+      throw InvalidChangeErr("'$name' may not be modified")
+
+    // short circuit if reference to same object
+    if (oldVal === newVal) return
+
+    // if adding new slot then check name
+    if (oldVal == null && !Etc.isTagName(name)) throw InvalidNameErr(name)
+
+    // unmount comp
+    if (oldVal is Comp) removeChild(oldVal)
+
+    // mount new comp or ensure immutable
+    if (newVal is Comp) addChild(name, newVal)
+    else newVal = newVal.toImmutable
+
+    // update slot map
+    if (newVal != null)
+    {
+      // set
+      slots.set(name, newVal)
+    }
+    else
+    {
+      // remove
+      if (slot != null && !slot.isMaybe) throw InvalidChangeErr("'$name' may not be removed")
+      slots.remove(name)
+    }
+
+    // fire callback
+    changed(name, slot, newVal)
+  }
 
   // Choke point for all slot changes
   // Reorder passes "reorder!" for name

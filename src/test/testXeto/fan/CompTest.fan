@@ -41,6 +41,118 @@ class CompTest: AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Updates
+//////////////////////////////////////////////////////////////////////////
+
+  Void testUpdates()
+  {
+    c := TestFoo()
+
+    // initial state
+    verifyEq(c["id"], c.id)
+    verifyEq(c.spec.name, "TestFoo")
+    verifyEq(c.get("a"), "alpha")
+    verifyEq(c.get("b"), "beta")
+    verifyEq(c.get("c"), null)
+
+    // set as update
+    c.reset.set("b", "change it")
+    verifySame(c.get("b"), "change it")
+    verifyChanged(c, "b", "change it")
+
+    // set short circuit
+    c.reset.set("b", "change it")
+    verifyNotChanged(c)
+
+    // set as add
+    num := n(123)
+    c.reset.set("foo", num)
+    verifySame(c.get("foo"), num)
+    verifyChanged(c, "foo", num)
+
+    // set short circuit
+    c.reset.set("foo", num)
+    verifyNotChanged(c)
+
+    // set as remove
+    c.reset.set("foo", null)
+    verifyEq(c.get("foo"), null)
+    verifyChanged(c, "foo", null)
+
+    // add with name
+    c.reset.add(num, "bar")
+    verifySame(c.get("bar"), num)
+    verifyChanged(c, "bar", num)
+
+    // add without name
+    c.reset.add("auto")
+    verifySame(c.get("_0"), "auto")
+    verifyChanged(c, "_0", "auto")
+
+    // remove
+    c.remove("_0")
+    verifySame(c.get("_0"), null)
+    verifyChanged(c, "_0", null)
+
+    // remove with maybe
+    c.set("c", "charlie")
+    verifySame(c.get("c"), "charlie")
+    c.remove("c")
+    verifySame(c.get("c"), null)
+    verifyChanged(c, "c", null)
+
+    // reorder
+    names := Str[,]
+    c.each |v, n| { names.add(n) }
+    names.swap(-1, -2)
+    c.reset.reorder(names)
+    verifyChanged(c, "reorder!", null)
+
+    // cannot update const slots
+    verifyChangeErr { c.set("id", Ref.gen) }
+    verifyChangeErr { c.set("spec", c.spec) }
+    verifyChangeErr { c.remove("id") }
+    verifyChangeErr { c.remove("spec") }
+    verifyDupNameErr { c.add(Ref.gen, "id") }
+    verifyDupNameErr { c.add(c.spec, "spec") }
+
+    // cannot set mutable values
+    verifyMutErr { c.set("bad", this) }
+    verifyMutErr { c.add(this) }
+
+    // cannot remove non-maybe slots
+    verifyChangeErr { c.set("a", null) }
+    verifyChangeErr { c.remove("a") }
+
+    // cannot set/add with invalid slot name
+    verifyNameErr { c.set("bad name", "boo") }
+    verifyNameErr { c.add("boo", "bad name") }
+  }
+
+  Void verifyChangeErr(|This| f) { verifyErr(InvalidChangeErr#, f) }
+
+  Void verifyDupNameErr(|This| f) { verifyErr(DuplicateNameErr#, f) }
+
+  Void verifyMutErr(|This| f) { verifyErr(NotImmutableErr#, f) }
+
+  Void verifyNameErr(|This| f) { verifyErr(InvalidNameErr#, f) }
+
+  Void verifyChanged(TestFoo c, Str n, Obj? v)
+  {
+    // echo("  ~~ changed? $c.changeName = $c.changeVal")
+    verifyEq(c.changeName, n)
+    verifySame(c.changeVal, v)
+    verifySame(c.changeSlot, c.spec.slot(n, false))
+  }
+
+  Void verifyNotChanged(TestFoo c)
+  {
+    verifyEq(c.changeName, null)
+    verifyEq(c.changeVal , null)
+    verifyEq(c.changeSlot, null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Instantiation
 //////////////////////////////////////////////////////////////////////////
 
@@ -450,37 +562,6 @@ class CompTest: AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Callbacks
-//////////////////////////////////////////////////////////////////////////
-
-  Void testCallbacks()
-  {
-    c := TestFoo()
-    verifyEq(c.get("a"), "alpha")
-    verifyEq(c.get("b"), "beta")
-
-    // set
-    c.set("a", "1")
-    verifyEq(c.onChangeLast, "a = 1")
-
-    // add
-    c.add("xyz!", "foo")
-    verifyEq(c.onChangeLast, "foo = xyz!")
-
-    // add
-    c.add("123!", "bar")
-    verifyEq(c.onChangeLast, "bar = 123!")
-
-    // reorder
-    names := Str[,]
-    c.each |v, n| { names.add(n) }
-    names.swap(-1, -2)
-    c.reorder(names)
-    verifyEq(c.onChangeLast, "reorder! = null")
-  }
-
-
-//////////////////////////////////////////////////////////////////////////
 // Load/Save
 //////////////////////////////////////////////////////////////////////////
 
@@ -664,16 +745,28 @@ const class TestVal: WrapDict
 @Js
 class TestFoo : CompObj
 {
+  Str? changeName
+  Spec? changeSlot
+  Obj? changeVal
+
+  This reset()
+  {
+    changeName = null
+    changeSlot = null
+    changeVal  = null
+    return this
+  }
+
+  override Void onChange(Str name, Spec? slot, Obj? val)
+  {
+    changeName = name
+    changeSlot = slot
+    changeVal  = val
+  }
+
   private Void onMethod1(Str s)
   {
     set("last", s)
-  }
-
-  Str? onChangeLast
-
-  override Void onChange(Str n, Spec? slot, Obj? v)
-  {
-    onChangeLast = "$n = $v"
   }
 }
 
@@ -701,6 +794,7 @@ class TestCounter : CompObj
 @Js
 class TestAdd : CompObj
 {
+
   override Void onChange(Str name, Spec? slot, Obj? val)
   {
     // TODO: should not need this

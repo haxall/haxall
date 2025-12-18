@@ -47,6 +47,7 @@ TestComposite : Comp {
 TestFoo: Comp {
   a: Str "alpha"
   b: Str "beta"
+  c: Str?
   method1: Func { arg: Str }
   method2: Func { returns: Str }
   method3: Func { arg: Str, returns: Str }
