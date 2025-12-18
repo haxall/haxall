@@ -80,9 +80,27 @@ class JsonSchemaExporter : Exporter
   {
     // TODO
     if (!(spec.type.qname == "hx.test.xeto::Product" ||
+          spec.type.qname == "hx.test.xeto::OrderType" ||
           spec.type.qname == "hx.test.xeto::Order"))
       return
 
+
+    if (spec.isEnum)
+      doSpecEnum(spec)
+    else
+      doSpecDict(spec)
+  }
+
+  private Void doSpecEnum(Spec spec)
+  {
+    defs[spec.name] = [
+      "type": "string",
+      "enum": spec.enum.keys
+    ]
+  }
+
+  private Void doSpecDict(Spec spec)
+  {
     //------------------------------
     // properties
 
@@ -149,7 +167,7 @@ class JsonSchemaExporter : Exporter
 
     // anything else
     else
-      return ["type": typeRef(slot.type, lib) ]
+      return ["\$ref": typeRef(slot.type, lib) ]
   }
 
   private static Str typeRef(Spec type, Lib lib)

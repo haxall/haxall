@@ -4,6 +4,7 @@
     "order": "✓",
     "customerName": "Frodo Baggins",
     "orderDate": "2025-12-16T13:40:00Z UTC",
+    "orderType": "secretLab",
     "items": [
       {
         "product": "✓",

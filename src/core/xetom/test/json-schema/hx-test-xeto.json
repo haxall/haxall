@@ -12,6 +12,9 @@
           "additionalProperties": true,
           "type": "object",
           "properties": {
+            "orderType": {
+              "$ref": "#/$defs/OrderType"
+            },
             "orderDate": {
               "$ref": "sys-5.0.0#/$defs/DateTime"
             },
@@ -32,9 +35,19 @@
             "order",
             "customerName",
             "orderDate",
+            "orderType",
             "items"
           ]
         }
+      ]
+    },
+    "OrderType": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "bathRoom",
+        "livingRoom",
+        "secretLab"
       ]
     },
     "Product": {
@@ -59,3 +72,4 @@
     }
   }
 }
+
