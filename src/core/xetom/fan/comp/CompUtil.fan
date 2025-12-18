@@ -23,13 +23,13 @@ class CompUtil
     name == "id" || name == "spec"
   }
 
-  ** Convert slot to fantom handler method or null
+  ** TODO: Convert slot to fantom handler method or null
   static Method? toHandlerMethod(Comp c, Spec slot)
   {
     c.typeof.method(toHandlerMethodName(slot.name), false)
   }
 
-  ** Convert component slot "name" to Fantom method implementation "onName"
+  ** TODO: Convert component slot "name" to Fantom method implementation "onName"
   static Str toHandlerMethodName(Str name)
   {
     StrBuf(name.size + 1)

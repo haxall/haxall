@@ -209,7 +209,11 @@ internal class Resolve : Step
     if (n.lib == compiler.libName)
     {
       x := resolveInAst(ref, n.name)
-      if (x == null) return err("$ref.what.capitalize '$n' not found in lib", ref.loc)
+      if (x == null)
+      {
+        if (allowUnresolved) return
+        return err("$ref.what.capitalize '$n' not found in lib", ref.loc)
+      }
       ref.resolve(x)
       return
     }
