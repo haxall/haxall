@@ -61,6 +61,7 @@ verifyType:
     doc: "sys::Str Boolean value either true or false"
     sealed: "sys::Marker"
     val: "sys::Bool false"
+    pattern: "sys::Str true|false"
 ---
 name: "number"
 loadLib: "sys"
