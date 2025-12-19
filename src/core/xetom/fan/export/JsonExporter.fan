@@ -138,6 +138,7 @@ class JsonExporter : Exporter
     if (x is Dict) return dict(x)
     if (x is List) return list(x)
     if (x === Marker.val) return str("\u2713")
+    if (x is Bool) return literal(x.toStr)
     if (x is Float) return str(Number.make(x).toStr)
     return str(x.toStr)
   }
@@ -243,6 +244,13 @@ class JsonExporter : Exporter
       }
     }
     wc('"')
+    return this
+  }
+
+  ** Unquoted literal
+  private This literal(Str s)
+  {
+    s.each |char| { wc(char) }
     return this
   }
 

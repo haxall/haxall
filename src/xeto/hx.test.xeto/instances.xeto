@@ -21,6 +21,7 @@
 }
 
 @coerce: {
+  bool: Bool "true"
   int: Int "1"
   float: Float "2"
   dur: Duration "3min"
