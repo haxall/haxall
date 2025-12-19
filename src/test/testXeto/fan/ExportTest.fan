@@ -145,7 +145,7 @@ class ExportTest : AbstractXetoTest
 
     // instance - toHaystack coercion
     verifyExport(ns, def, "coerce", [
-      "bool": true, "int":n(1), "float":n(2), "dur":n(3, "min"), "num":n(4, "kW"),
+      "bool": true, "int":n(1), "float":n(2.1f), "nan":n(Float.nan), "dur":n(3, "min"), "num":n(4, "kW"),
       "date":Date("2024-10-31"), "version":"1.2.3",
       "list":Obj?[n(4)], "dict":Etc.dict1("x", n(4))
       ])
@@ -213,6 +213,18 @@ class ExportTest : AbstractXetoTest
     if (v is Map) return ((Map)v).map |x| { toJson(x) }
     if (v is Marker) return "\u2713"
     if (v is Bool) return v
+    if (v is Float) return v
+    if (v is Int) return v
+
+    if (v is Number)
+    {
+      n := (Number) v
+      if (n.unit != null || n.isSpecial)
+        return n.toStr
+      else
+        return n.isInt ? n.toInt : n.toFloat
+    }
+
     return v.toStr
   }
 

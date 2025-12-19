@@ -139,7 +139,28 @@ class JsonExporter : Exporter
     if (x is List) return list(x)
     if (x === Marker.val) return str("\u2713")
     if (x is Bool) return literal(x.toStr)
-    if (x is Float) return str(Number.make(x).toStr)
+    if (x is Int) return literal(x.toStr)
+
+    if (x is Float)
+    {
+      f := (Float) x
+      if (f == Float.posInf || f == Float.negInf || f.isNaN)
+        return str(f.toStr)
+      else
+        return literal(f.toStr)
+    }
+
+    if (x is Number)
+    {
+      n := (Number) x
+      if (n.unit != null || n.isSpecial)
+        return str(n.toStr)
+      else
+        return n.isInt ?
+          literal(n.toInt.toStr) :
+          literal(n.toFloat.toStr)
+    }
+
     return str(x.toStr)
   }
 
