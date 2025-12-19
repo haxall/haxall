@@ -224,8 +224,14 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec specx(Spec spec)
   {
+    if (spec is XSpec) return spec
     if (spec.isGlobal) return spec
-    if (spec.isSlot) return specx(spec.parent).slot(spec.name)
+    if (spec.isSlot)
+    {
+      parent := spec.parent
+      if (parent.isMixin) parent = parent.base
+      return specx(parent).slot(spec.name)
+    }
     mixins := mixinsFor(spec)
     if (mixins.isEmpty) return spec
     return XSpec(spec, mixins)

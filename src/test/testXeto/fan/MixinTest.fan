@@ -88,6 +88,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(testSite.slot("newSlot", false), null)
     verifySame(sitem.slot("newSlot"), newSlot)
     verifySame(testSitex.slot("newSlot"), newSlot)
+    verifySame(ns.specx(testSitex.slot("newSlot")), newSlot)
     verifyEq(newSlot.name, "newSlot")
     verifyEq(newSlot.qname, "hx.test.xeto::Site.newSlot")
     verifySame(newSlot.type, str)
