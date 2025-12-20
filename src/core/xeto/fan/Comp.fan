@@ -111,6 +111,12 @@ mixin Comp
     return this
   }
 
+  ** Call component method slot
+  Obj? call(Str name, Obj? arg)
+  {
+    spi.call(name, arg)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
@@ -274,6 +280,7 @@ mixin CompSpi
   abstract Void add(Obj val, Str? name)
   abstract Void remove(Str name)
   abstract Void reorder(Str[] names)
+  abstract Obj? call(Str name, Obj? arg)
   abstract Bool isMounted()
   abstract Comp? parent()
   abstract Str name()

@@ -237,12 +237,12 @@ const class FnParam
 
   static const FnParam[] cells := [make("cells")]
 
-  static FnParam[] makeFanList(Func f)
+  static FnParam[] makeFantomList(Func f)
   {
-    f.params.map |p->FnParam| { makeFan(p) }
+    f.params.map |p->FnParam| { makeFantom(p) }
   }
 
-  new makeFan(Param p)
+  new makeFantom(Param p)
   {
     this.name   = p.name
     this.hasDef = p.hasDefault

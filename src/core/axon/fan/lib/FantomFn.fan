@@ -62,7 +62,7 @@ const class FantomFn : TopFn
       if (!Etc.isTagName(p.name)) throw Err("Invalid func param name: $p")
       if (p.type === Expr#) lazy = true
       if (p.type.fits(Func#)) echo("WARNING AXON FUNC ARG: $m")
-      return FnParam.makeFan(p)
+      return FnParam.makeFantom(p)
     }
 
     if (lazy)
@@ -83,6 +83,12 @@ const class FantomFn : TopFn
     : super(Loc(name), name, meta, params, Literal.nullVal)
   {
     if (!method.isStatic) throw Err("Method not static: $method")
+    this.method = method
+  }
+
+  internal new makeComp(Spec spec, Dict meta, FnParam[] params, Method method)
+    : super.make(Loc(spec.name), spec.name, meta, params, Literal.nullVal)
+  {
     this.method = method
   }
 
@@ -177,7 +183,7 @@ internal const class LazyFantomFn : FantomFn
 @NoDoc
 const class FantomClosureFn : Fn
 {
-  new make(Func f) : super(Loc("Fantom Func"), "fan", FnParam.makeFanList(f))
+  new make(Func f) : super(Loc("Fantom Func"), "fan", FnParam.makeFantomList(f))
   {
     this.f = Unsafe(f)
   }

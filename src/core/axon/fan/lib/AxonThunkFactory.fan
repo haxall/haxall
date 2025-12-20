@@ -32,7 +32,7 @@ const class AxonThunkFactory : ThunkFactory
     meta := specToFnMeta(spec)
 
     // check for fantom method thunk
-    fn := loadThunkFantom(spec, meta, pod)
+    fn := loadFantom(spec, meta, pod)
     if (fn != null) return fn
 
     // check axon source
@@ -41,7 +41,7 @@ const class AxonThunkFactory : ThunkFactory
 
     // try compTree xeto source
     comp := spec.meta["compTree"] as Str
-    if (comp != null) return parseComp(spec, meta, comp)
+    if (comp != null) return parseCompTree(spec, meta, comp)
 
     // check for template
     if (spec.func.isTemplate) return TemplateFn(spec, meta, toParams(spec))
@@ -53,14 +53,17 @@ const class AxonThunkFactory : ThunkFactory
 // Fantom
 //////////////////////////////////////////////////////////////////////////
 
-  private TopFn? loadThunkFantom(Spec spec, Dict meta, Pod? pod)
+  private TopFn? loadFantom(Spec spec, Dict meta, Pod? pod)
   {
     if (pod == null) return null
+
+    // check for component method
+    if (spec.parent != null && spec.parent.isComp) return loadFantomCompMethod(spec, meta, pod)
 
     // resolve fantom type BaseFuncs where base is spec name
     // of the libExt otherwise the last name of the dotted lib name
     lib := spec.lib
-    base := thunkFantomBaseName(lib)
+    base := fantomBaseName(lib)
     typeName := base + "Funcs"
     type := pod.type(typeName, false)
     // echo("~~> $spec.lib base=$base -> $typeName -> $type")
@@ -82,7 +85,7 @@ const class AxonThunkFactory : ThunkFactory
     return FantomFn.reflectMethod(method, spec.name, meta)
   }
 
-  private Str thunkFantomBaseName(Lib lib)
+  private Str fantomBaseName(Lib lib)
   {
     // resolve fantom type BaseFuncs where base is spec name
     // of the libExt otherwise the last name of the dotted lib name
@@ -97,6 +100,29 @@ const class AxonThunkFactory : ThunkFactory
     {
       return XetoUtil.lastDottedName(lib.name).capitalize
     }
+  }
+
+  private TopFn? loadFantomCompMethod(Spec spec, Dict meta, Pod? pod)
+  {
+    // map to fantom type
+    type := pod.type(spec.parent.name, false)
+    if (type == null) return null
+
+    // map foo to method onFoo
+    n := spec.name
+    methodName := StrBuf(n.size + 1).add("on").addChar(n[0].upper).addRange(n, 1..-1).toStr
+    method := type.method(methodName, false)
+    if (method == null) return null
+
+    // must have @Api facet, be non-static, and have one arg
+    func := spec.func
+    p := method.params.first
+    if (!method.hasFacet(Api#))  throw Err("Comp method missing @Api facet: $method.qname")
+    if (method.isStatic)         throw Err("Comp method must not be static: $method.qname")
+    if (func.params.size != 1)   throw Err("Comp method must have exactly one param: $method.qname")
+    if (method.params.size != 1) throw Err("Comp method must have exactly one param: $method.qname")
+
+    return FantomFn.makeComp(spec, meta, [FnParam(func.params.first.name)], method)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -123,7 +149,7 @@ const class AxonThunkFactory : ThunkFactory
     return Parser(Loc(qname), src.in).parseTop(spec.name, meta)
   }
 
-  private TopFn? parseComp(Spec spec, Dict meta, Str src)
+  private TopFn? parseCompTree(Spec spec, Dict meta, Str src)
   {
     params := spec.func.params.map |p->FnParam| { FnParam(p.name) }
     return CompFn(spec.name, meta, params, src)

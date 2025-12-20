@@ -168,16 +168,6 @@ internal class CompFactory
     slots = mergeSlots(slots, init?.slots)
     children = initSlots(spec, acc, children, slots)
 
-    // reify functions that map to methods
-    // TODO: might not need this anymore
-    spec.slots.each |slot|
-    {
-      name := slot.name
-      if (!slot.isFunc || acc[name] != null) return
-      method := CompUtil.toHandlerMethod(c, slot)
-      if (method != null) acc[name] = MethodFunction(method)
-    }
-
     // create spi
     spi := MCompSpi(cs, c, spec, acc)
 

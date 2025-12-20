@@ -345,7 +345,6 @@ const class MNamespace : Namespace, CNamespace
     if (val is Scalar) return spec(((Scalar)val).qname, checked)
     if (type.fits(List#)) return sys.list
     if (type.fits(Grid#)) return sys.grid
-    if (type.fits(Function#)) return sys.func
 
     // cannot map to spec
     if (checked) throw UnknownSpecErr("No spec mapped for '$type'")

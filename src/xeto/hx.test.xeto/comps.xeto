@@ -48,9 +48,12 @@ TestFoo: Comp {
   a: Str "alpha"
   b: Str "beta"
   c: Str?
-  method1: Func { arg: Str }
-  method2: Func { returns: Str }
-  method3: Func { arg: Str, returns: Str }
+  methodEcho: Func { arg:Obj? }
+  methodSquare: Func <axon:"(self, a) => a*a"> { arg: Number, returns: Number }
+  methodBad1: Func { arg: Str }
+  methodBad2: Func { arg: Str }
+  methodBad3: Func { arg: Str }
+  methodBad4: Func { arg: Str }
 }
 
 TestVal : Dict {

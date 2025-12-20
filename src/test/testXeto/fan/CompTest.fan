@@ -8,8 +8,10 @@
 
 using concurrent
 using xeto
+using xeto::Comp
 using xetom
 using haystack
+using axon
 
 **
 ** CheckTest
@@ -386,75 +388,59 @@ class CompTest: AbstractXetoTest
 // Methods
 //////////////////////////////////////////////////////////////////////////
 
-/* TODO: removed 5-Jul-25, not 100% sure yet though
   Void testMethods()
   {
     c := TestFoo()
     verifyEq(c.spec.qname, "hx.test.xeto::TestFoo")
-    verifyEq(c.has("method1"), true)
-    verifyEq(c.has("method2"), true)
-    verifyEq(c.has("method3"), true)
-    verifyEq(c.has("methodUnsafe"), false)
-    verifyEq(c.get("method1").typeof, MethodFunction#)
-    verifyEq(c.get("method2").typeof, MethodFunction#)
-    verifyEq(c.get("method3").typeof, MethodFunction#)
-    verifyEq(c.get("methodUnsafe"), null)
+    verifyMethod(c, "methodEcho",   "foo", "foo")
+    verifyMethod(c, "methodEcho",   n(123), n(123))
+    verifyMethod(c, "methodSquare", n(2), n(4))
 
-    // slot not defined
-    verifyEq(c.call("notFound"), null)
-    verifyEq(c.call("notFound", null), null)
-    verifyEq(c["last"], null)
+    // verify bad fantom methods
+    verifyInvalidMethod(c, "methodBad1", "Comp method missing @Api facet: testXeto::TestFoo.onMethodBad1")
+    verifyInvalidMethod(c, "methodBad2", "Comp method must not be static: testXeto::TestFoo.onMethodBad2")
+    verifyInvalidMethod(c, "methodBad3", "Comp method must have exactly one param: testXeto::TestFoo.onMethodBad3")
+    verifyInvalidMethod(c, "methodBad4", "Comp method must have exactly one param: testXeto::TestFoo.onMethodBad4")
 
-    // method1 call
-    c.remove("last")
-    verifyEq(c.call("method1", "one"), null)
-    verifyEq(c["last"], "one")
+    // verify methods not found
+    verifyUnknownMethod(c, "notFound")
 
-    // method2
-    verifyEq(c.call("method2"), "method2 called")
-    c.remove("last")
-    verifyEq(c.call("method2", "two"), "method2 called")
-    verifyEq(c["last"], "_method2_")
-
-    // method3
-    c.remove("last")
-    verifyEq(c.call("method3", "three"), "method3 called: three")
-    verifyEq(c["last"], "three")
-
-    // methodUnsafe - since its not in spec, cannot reflect
-    c.remove("last")
-    verifyEq(c.call("methodUnsafe", "no-way"), null)
-    verifyEq(c["last"], null)
-
-    // now override method3
-    c.set("method3", SyncFunction() |self, arg| { "method3 override: $arg" })
-    c.remove("last")
-    verifyEq(c.call("method3", "by func"), "method3 override: by func")
-    verifyEq(c["last"], null)
-
-    // callAsync on sync is ok
-    result := null
-    c.callAsync("method3", "by async") |err, r| { result = r }
-    verifyEq(result, "method3 override: by async")
-
-    // install async version
-    result = null
-    c.set("method3", AsyncFunction() |self, arg, cb| { cb(null, "method3 async: $arg") })
-    verifyErrMsg(Err#, "Must use callAsync") { c.call("method3", "bad") }
-    c.callAsync("method3", "working?") |err, r| { result = r }
-    verifyEq(result, "method3 async: working?")
-
-    // remove method3 override, which falls back to reflected method
-    c.remove("last")
-    verifyEq(c.has("method3"), true)
-    verifyEq(c.get("method3").typeof, AsyncFunction#)
-    c.remove("method3")
-    verifyEq(c.has("method3"), true)
-    verifyEq(c.get("method3").typeof, MethodFunction#)
-    verifyEq(c.call("method3", "reflect again"), "method3 called: reflect again")
-    verifyEq(c["last"], "reflect again")
+    // verify calling non-method slot
+    verifyNotMethod(c, "a", "Spec is not func: hx.test.xeto::TestFoo.a")
   }
-*/
+
+  Void verifyMethod(Comp c, Str name, Obj? arg, Obj? expect)
+  {
+    verifyEq(c.spec.slot(name).isFunc, true)
+    verifyEq(c.get(name), null)
+    verifyEq(c.has(name), false)
+    verifyEq(c.missing(name), true)
+
+    cx := Type.find("testAxon::TestContext").make([this])
+    Actor.locals[AxonContext.actorLocalsKey] = cx
+
+    actual := c.call(name, arg)
+    verifyEq(actual, expect)
+
+    Actor.locals.remove(AxonContext.actorLocalsKey)
+  }
+
+  Void verifyUnknownMethod(Comp c, Str name)
+  {
+    verifyEq(c.spec.slot(name, false), null)
+    verifyErr(UnknownSpecErr#) { c.call(name, false) }
+  }
+
+  Void verifyNotMethod(Comp c, Str name, Str msg)
+  {
+    verifyEq(c.spec.slot(name).isFunc, false)
+    verifyErrMsg(UnsupportedErr#, msg) { c.call(name, false) }
+  }
+
+  Void verifyInvalidMethod(Comp c, Str name, Str expect)
+  {
+    verifyErrMsg(Err#, expect) { c.call(name, null) }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Ver
@@ -764,10 +750,12 @@ class TestFoo : CompObj
     changeVal  = val
   }
 
-  private Void onMethod1(Str s)
-  {
-    set("last", s)
-  }
+  @Api private Obj? onMethodEcho(Obj? x) { x }
+
+  Obj? onMethodBad1(Str x) { null }
+  @Api static Obj? onMethodBad2(Str x) { null }
+  @Api Obj? onMethodBad3() { null }
+  @Api Obj? onMethodBad4(Str a, Str b) { null }
 }
 
 **************************************************************************

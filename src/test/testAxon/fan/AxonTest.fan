@@ -82,7 +82,7 @@ abstract class AxonTest : HaystackTest
 **************************************************************************
 
 @Js
-internal class TestContext : AxonContext
+class TestContext : AxonContext
 {
   new make(HaystackTest test) { this.test = test }
 

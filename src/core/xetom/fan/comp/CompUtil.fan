@@ -23,22 +23,6 @@ class CompUtil
     name == "id" || name == "spec"
   }
 
-  ** TODO: Convert slot to fantom handler method or null
-  static Method? toHandlerMethod(Comp c, Spec slot)
-  {
-    c.typeof.method(toHandlerMethodName(slot.name), false)
-  }
-
-  ** TODO: Convert component slot "name" to Fantom method implementation "onName"
-  static Str toHandlerMethodName(Str name)
-  {
-    StrBuf(name.size + 1)
-      .add("on")
-      .addChar(name[0].upper)
-      .addRange(name, 1..-1)
-      .toStr
-  }
-
   ** Encode a component into a xeto string
   static Str compSaveToXeto(Namespace ns, Comp comp, Dict? opts := null)
   {
