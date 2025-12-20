@@ -1709,7 +1709,7 @@ const class Etc
     if (val is List)
     {
       oldList := (List)val
-      newList := List(oldList.of, oldList.size)
+      Obj?[] newList := List(oldList.of, oldList.size)
       oldList.each |v| { newList.add(mapRefs(v, f)) }
       return newList
     }
