@@ -61,6 +61,7 @@ verifyType:
     doc: "sys::Str Boolean value either true or false"
     sealed: "sys::Marker"
     val: "sys::Bool false"
+    pattern: "sys::Str true|false"
 ---
 name: "number"
 loadLib: "sys"
@@ -82,6 +83,19 @@ verifyType:
     sealed: "sys::Marker"
     val: "sys::Int 0"
     unitless: "sys::Marker"
+    pattern: "sys::Str -?(?:0|[1-9]\\d*)"
+---
+name: "float"
+loadLib: "sys"
+verifyType:
+  name: "Float"
+  base: "sys::Number"
+  meta:
+    doc: "sys::Str Unitless floating point number"
+    sealed: "sys::Marker"
+    val: "sys::Float 0.0"
+    unitless: "sys::Marker"
+    pattern: "sys::Str -?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?"
 ---
 name: "duration"
 loadLib: "sys"
