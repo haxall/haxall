@@ -443,8 +443,9 @@ class CompTest: AbstractXetoTest
     // fatten a slot and verify
     spi := (MCompSpi)c.spi
     verifyEq(spi.isFat("methodEcho"), false)
-    spi.fatten("methodEcho")
+    fat := spi.fatten("methodEcho")
     verifyEq(spi.isFat("methodEcho"), true)
+    verifySame(spi.fatten("methodEcho"), fat)
     verifyMethod(c, "methodEcho",   n(123), n(123))
 
     // verify reorder ignores fat methods

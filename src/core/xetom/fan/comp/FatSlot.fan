@@ -23,10 +23,56 @@ final class FatSlot
   ** const for this type
   static const Type type := FatSlot#
 
-  ** Test hook to get value
-  Obj? getVal() { val }
-
   ** Wrapped value or null for methods
   internal Obj? val
+
+  ** Enqueued value to push to targets
+  internal Obj? pushVal
+
+  ** Clear linked list of push targets
+  internal Void clearPushTo() { pushTo = null }
+
+  ** Add push target
+  internal Void addPushTo(Comp toComp, Str toSlot)
+  {
+    t := FatSlotPushTo(toComp, toSlot)
+    t.next = pushTo
+    pushTo = t
+  }
+
+  ** Iterate push targets
+  Void eachPushTo(|FatSlotPushTo| f)
+  {
+    for (p := pushTo; p != null; p = p.next) f(p)
+  }
+
+  ** Linked list of fat slot targets
+  private FatSlotPushTo? pushTo
+}
+
+**************************************************************************
+** FatSlotPushTo
+**************************************************************************
+
+**
+** FatSlotPushTo is a node in a link list of slot push targets
+**
+@Js
+final class FatSlotPushTo
+{
+  ** Constructor
+  internal new make(Comp c, Str s) { this.toComp = c; this.toSlot = s }
+
+  ** Target component
+  Comp toComp { private set }
+
+  ** Target slot name
+  const Str toSlot
+
+  ** Debug string
+  override Str toStr() { "@${toComp.id}.$toSlot" }
+
+  ** Next node in linked list
+  internal FatSlotPushTo? next
 }
 

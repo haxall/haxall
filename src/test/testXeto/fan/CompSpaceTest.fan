@@ -51,6 +51,12 @@ class CompSpaceTest: AbstractXetoTest
     e := compMapAdd(m, "E", "4")
     f := compMapAdd(m, "F", "5")
     verifyCompMapSort(m, [a, b, c, d, e, f])
+    verifyPushTo(a, Str[,])
+    verifyPushTo(b, Str[,])
+    verifyPushTo(c, Str[,])
+    verifyPushTo(d, Str[,])
+    verifyPushTo(e, Str[,])
+    verifyPushTo(f, Str[,])
 
     // add some links f -> e -> d -> c -> b -> a
     link(f, e)
@@ -59,6 +65,11 @@ class CompSpaceTest: AbstractXetoTest
     link(c, b)
     link(b, a)
     verifyCompMapSort(m, [f, e, d, c, b, a])
+    verifyPushTo(f, ["out -> E.in"])
+    verifyPushTo(e, ["out -> D.in"])
+    verifyPushTo(d, ["out -> C.in"])
+    verifyPushTo(c, ["out -> B.in"])
+    verifyPushTo(b, ["out -> A.in"])
 
     // add some links
     //  a -> b -> c -> d
@@ -72,6 +83,11 @@ class CompSpaceTest: AbstractXetoTest
     link(f, b)
     link(f, c)
     verifyCompMapSort(m, [a, e, f, b, c, d])
+    verifyPushTo(a, ["out -> B.in"])
+    verifyPushTo(b, ["out -> C.in"])
+    verifyPushTo(c, ["out -> D.in"])
+    verifyPushTo(e, ["out -> F.in"])
+    verifyPushTo(f, ["out -> C.in", "out -> B.in"])
 
     // link cycle
     //  a -> b -> c -> a
@@ -84,17 +100,32 @@ class CompSpaceTest: AbstractXetoTest
     link(d, e)
     link(e, f)
     verifyCompMapSort(m, [d, e, f, a, b, c])
+    verifyPushTo(a, ["out -> B.in"])
+    verifyPushTo(b, ["out -> C.in"])
+    verifyPushTo(c, ["out -> A.in"])
+    verifyPushTo(d, ["out -> E.in"])
+    verifyPushTo(e, ["out -> F.in"])
+    verifyPushTo(f, Str[,])
 
     // remove a and c (leaving broken links)
     m.remove(a)
     m.remove(c)
     verifyCompMapSort(m, [b, d, e, f])
+    verifyPushTo(b, Str[,])
+    verifyPushTo(d, ["out -> E.in"])
+    verifyPushTo(e, ["out -> F.in"])
 
-    // add and ensure slots are reused
+    // add some back reused
     g := compMapAdd(m, "G", "6")
     h := compMapAdd(m, "H", "7")
     i := compMapAdd(m, "I", "8")
     verifyCompMapSort(m, [b, d, e, f, g, h, i])
+    verifyPushTo(b, Str[,])
+    verifyPushTo(d, ["out -> E.in"])
+    verifyPushTo(e, ["out -> F.in"])
+    verifyPushTo(g, Str[,])
+    verifyPushTo(h, Str[,])
+    verifyPushTo(i, Str[,])
 
     // cleanup
     Actor.locals.remove(CompSpace.actorKey)
@@ -127,21 +158,49 @@ class CompSpaceTest: AbstractXetoTest
     m.each |c| { c.remove("links") }
   }
 
-  Void link(Comp from, Comp to)
+  Void link(Comp from, Comp to, Str fromSlot := "out", Str toSlot := "in")
   {
-    link := Etc.link(from.id, "ignore")
+    link := Etc.link(from.id, fromSlot)
     curLinks := to.get("links") as Links ?: Etc.links(null)
-    to.set("links", curLinks.add("ignore", link))
+    to.set("links", curLinks.add(toSlot, link))
   }
 
   Void verifyCompMapSort(CompMap m, Comp[] expect)
   {
     m.topologyChanged
     actual := m.topology
-    // echo("~~ sort " + expect.join(", ") { it->dis })
-    // echo("        " + actual.join(", ") { it->dis })
+
+    if (false)
+    {
+      echo
+      echo("~~ sort " + expect.join(", ") { it->dis })
+      echo("        " + actual.join(", ") { it->dis })
+      topologyDump(m)
+    }
+
     verifyEq(actual.isRO, true)
     verifyEq(actual, expect)
+  }
+
+  Void verifyPushTo(Comp c, Str[] expect)
+  {
+    actual := Str[,]
+    spi := (MCompSpi)c.spi
+    spi.eachFat |fat, n|
+    {
+      fat.eachPushTo |x|
+      {
+        actual.add("$n -> ${x.toComp.dis}.${x.toSlot}")
+      }
+    }
+    verifyEq(actual, expect)
+  }
+
+  Void topologyDump(CompMap m)
+  {
+    s := StrBuf()
+    m.debugTopology(s.out)
+    echo(s.toStr)
   }
 }
 

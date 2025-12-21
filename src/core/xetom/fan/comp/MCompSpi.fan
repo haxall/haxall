@@ -99,6 +99,18 @@ class MCompSpi : CompSpi
     v.typeof === FatSlot.type ? ((FatSlot)v).val : v
   }
 
+//////////////////////////////////////////////////////////////////////////
+// FatSlot Support
+//////////////////////////////////////////////////////////////////////////
+
+  Void eachFat(|FatSlot, Str| f)
+  {
+    slots.each |x, n|
+    {
+      if (x.typeof === FatSlot.type) f(x, n)
+    }
+  }
+
   Bool isFat(Str name)
   {
     slots.get(name) is FatSlot
@@ -106,9 +118,19 @@ class MCompSpi : CompSpi
 
   FatSlot fatten(Str name)
   {
-    fs := FatSlot(slots.get(name))
+    x := slots.get(name)
+    if (x is FatSlot) return x
+    fs := FatSlot(x)
     slots.set(name, fs)
     return fs
+  }
+
+  internal Void clearPushTo()
+  {
+    slots.each |x|
+    {
+      (x as FatSlot)?.clearPushTo
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -68,17 +68,24 @@ class CompMap
   ** Compute topological sort order using Kahn's algorithm
   private Comp[] sortByTopology()
   {
-    // build index of nodes with direct list indexing
+    // build index of nodes and clear old pushTo links
     nodes := Ref:CompMapSortNode[:]
-    byId.each |c| { nodes[c.id] = CompMapSortNode(c.id, c) }
+    byId.each |c|
+    {
+      node := CompMapSortNode(c.id, c)
+      node.spi.clearPushTo
+      nodes[c.id] = node
+    }
 
     // now compute each node's inDegree and outIndexes
     nodes.each |node|
     {
-      // process each link into this node
+      // check if node has links
       links := node.comp.links
       if (links.isEmpty) return
-      links.eachLink |slot, link|
+
+      // process each link into this node
+      links.eachLink |toSlot, link|
       {
         // lookup the from node of this link
         from := nodes.get(link.fromRef)
@@ -89,6 +96,9 @@ class CompMap
 
         // add my own index to the from node
         from.addOutId(node.id)
+
+        // add fat slot push to target
+        from.spi.fatten(link.fromSlot).addPushTo(node.comp, toSlot)
       }
     }
 
@@ -130,6 +140,23 @@ class CompMap
     return acc
   }
 
+  ** Debug dump the topology graph
+  Void debugTopology(OutStream out)
+  {
+    topology.each |c|
+    {
+      spi := (MCompSpi)c.spi
+      out.printLine(c.toStr)
+      spi.eachFat |fat, n|
+      {
+        tos := FatSlotPushTo[,]
+        fat.eachPushTo |x| { tos.add(x) }
+        if (tos.isEmpty) return
+        out.printLine("  $n -> $tos")
+      }
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
@@ -150,6 +177,7 @@ internal class CompMapSortNode
   {
     this.id     = id
     this.comp   = comp
+    this.spi    = comp.spi
     this.outIds = emptyIds
   }
 
@@ -163,6 +191,7 @@ internal class CompMapSortNode
 
   Ref id            // component id
   Comp comp         // component
+  MCompSpi spi      // service provider interface
   Int inDegree      // number of incoming links
   Ref[] outIds      // id to targets of outgoing links
   Bool accumulated  // have we accumulated into results
