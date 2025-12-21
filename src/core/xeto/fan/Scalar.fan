@@ -9,8 +9,7 @@
 using concurrent
 
 **
-** Scalar is used to represent typed scalar values when there is no
-** native Fantom class we can use to track their type.
+** Scalar represents typed scalars when not mapped to native Fantom class.
 **
 @Js
 const final class Scalar

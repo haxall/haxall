@@ -58,7 +58,7 @@ abstract const class XetoEnv
   ** Not available in browser environemnts.
   abstract File installDir()
 
-  ** List of paths to search for libraries in both lib and src format
+  ** List of paths to search for libraries in both src and lib format.
   ** Not available in browser environemnts.
   abstract File[] path()
 

@@ -41,7 +41,7 @@ const mixin XetoLogRec
 ** MXetoLogRec
 **************************************************************************
 
-@Js
+@NoDoc @Js
 const class MXetoLogRec : XetoLogRec
 {
   new make(LogLevel level, Ref? id, Str msg, FileLoc loc,Err? err)

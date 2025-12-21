@@ -169,11 +169,11 @@ mixin Comp
 
   ** Is this is an ancestor in the tree of the given component.
   ** If the given component is this, then return true.
-  Bool isAbove(Comp child) { spi.isAbove(child) }
+  @NoDoc Bool isAbove(Comp child) { spi.isAbove(child) }
 
   ** Is this component is a descendant in the tree of the given component.
   ** If the given component is this, then return true.
-  Bool isBelow(Comp parent) { parent.isAbove(this) }
+  @NoDoc Bool isBelow(Comp parent) { parent.isAbove(this) }
 
   ** Check if a child component is mapped by the given name
   Bool hasChild(Str name) { spi.hasChild(name) }

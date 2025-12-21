@@ -11,6 +11,7 @@ using concurrent
 **
 ** Stub to xetoEnv::Main
 **
+@NoDoc
 class Main
 {
   static Int main(Str[] args)

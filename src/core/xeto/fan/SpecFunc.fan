@@ -10,7 +10,7 @@ using concurrent
 using util
 
 **
-** Function specific APIS for 'sys::Func' specs
+** Function specific APIS for 'sys::Func' specs via `Spec.func`.
 **
 @Js
 const mixin SpecFunc
