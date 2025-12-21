@@ -18,36 +18,76 @@ using haystack
 final class FatSlot
 {
   ** Constructor
-  new make(Obj? val) { this.val = val }
+  internal new make(Obj? val) { this.val = val }
 
   ** const for this type
   static const Type type := FatSlot#
 
   ** Wrapped value or null for methods
-  internal Obj? val
+  internal Obj? val { private set }
+
+//////////////////////////////////////////////////////////////////////////
+// Updates and Push
+//////////////////////////////////////////////////////////////////////////
+
+  ** Update value and enqueue push when component slot set
+  Void set(Obj val) { this.val = this.pushVal = val }
+
+  ** Enqueue push when component method is called
+  // TODO: how to handle null?
+  Void called(Obj? ret) { this.pushVal = ret }
+
+  ** Push to target components if there an enqueued value
+  Void push()
+  {
+    // short circuit if no enqueued push value
+    val := pushVal
+    if (val == null) return
+
+    // clear enqueued push value
+    pushVal = null
+
+    // push to everyone in my pushTo linked list
+    for (p := pushToHead; p != null; p = p.next) pushTo(p, val)
+
+  }
+
+  ** Push to given component and slot
+  private Void pushTo(FatSlotPushTo x, Obj? val)
+  {
+    c := x.toComp
+    if (c.hasMethod(x.toSlot))
+      c.call(x.toSlot, pushVal)
+    else
+      c.set(x.toSlot, val)
+  }
 
   ** Enqueued value to push to targets
-  internal Obj? pushVal
+  private Obj? pushVal
+
+//////////////////////////////////////////////////////////////////////////
+// Topology push to targets
+//////////////////////////////////////////////////////////////////////////
 
   ** Clear linked list of push targets
-  internal Void clearPushTo() { pushTo = null }
+  internal Void clearPushTo() { pushToHead = null }
 
   ** Add push target
   internal Void addPushTo(Comp toComp, Str toSlot)
   {
     t := FatSlotPushTo(toComp, toSlot)
-    t.next = pushTo
-    pushTo = t
+    t.next = pushToHead
+    pushToHead = t
   }
 
   ** Iterate push targets
   Void eachPushTo(|FatSlotPushTo| f)
   {
-    for (p := pushTo; p != null; p = p.next) f(p)
+    for (p := pushToHead; p != null; p = p.next) f(p)
   }
 
   ** Linked list of fat slot targets
-  private FatSlotPushTo? pushTo
+  private FatSlotPushTo? pushToHead
 }
 
 **************************************************************************

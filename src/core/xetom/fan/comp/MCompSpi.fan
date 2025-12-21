@@ -221,8 +221,9 @@ class MCompSpi : CompSpi
     // update slot map
     if (newVal != null)
     {
-      // set
-      slots.set(name, newVal)
+      // set in my map
+      if (fat == null) slots.set(name, newVal)
+      else fat.set(newVal)
     }
     else
     {
@@ -286,7 +287,12 @@ class MCompSpi : CompSpi
 
   override Obj? call(Str name, Obj? arg)
   {
-    spec.slot(name).func.thunk.callList([comp, arg])
+    res := spec.slot(name).func.thunk.callList([comp, arg])
+
+    fat := slots.get(name) as FatSlot
+    if (fat != null) fat.called(res)
+
+    return res
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -376,7 +382,6 @@ class MCompSpi : CompSpi
   {
     if (!needsExecute) return
     needsExecute = false
-    pullLinks
     try
     {
       comp.onExecute
@@ -386,27 +391,13 @@ class MCompSpi : CompSpi
       echo("ERROR: ${comp.typeof.name}.onExecute")
       e.trace
     }
+    pushLinks
   }
 
-  ** Pull all links
-  private Void pullLinks()
+  ** Push all my linked slots
+  private Void pushLinks()
   {
-    links.eachLink |toSlot, link| { pullLink(toSlot, link) }
-  }
-
-  ** Pull given link
-  private Void pullLink(Str toSlot, Link link)
-  {
-    // lookup from component
-    fromComp := cs.readById(link.fromRef, false)
-    if (fromComp == null) return
-
-    // lookuip from slot value
-    val := fromComp.get(link.fromSlot)
-    if (val == null) return val
-
-    // pull to my own slot
-    set(toSlot, val)
+    eachFat |fat| { fat.push }
   }
 
 //////////////////////////////////////////////////////////////////////////
