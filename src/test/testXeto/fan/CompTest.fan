@@ -739,6 +739,7 @@ class TestFoo : CompObj
   Str? changeName
   Spec? changeSlot
   Obj? changeVal
+  Int numExecutes
 
   This reset()
   {
@@ -746,6 +747,11 @@ class TestFoo : CompObj
     changeSlot = null
     changeVal  = null
     return this
+  }
+
+  override Void onExecute()
+  {
+    numExecutes++
   }
 
   override Void onChange(Str name, Spec? slot, Obj? val)

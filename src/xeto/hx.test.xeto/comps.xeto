@@ -54,6 +54,7 @@ TestFoo: Comp {
   methodBad2: Func { arg: Str }
   methodBad3: Func { arg: Str }
   methodBad4: Func { arg: Str }
+  methodUpper: Func <axon:"""(self, x) => (""+x).upper"""> { arg: Str, returns: Str }
 }
 
 TestVal : Dict {

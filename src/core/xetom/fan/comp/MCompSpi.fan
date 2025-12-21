@@ -290,7 +290,11 @@ class MCompSpi : CompSpi
     res := spec.slot(name).func.thunk.callList([comp, arg])
 
     fat := slots.get(name) as FatSlot
-    if (fat != null) fat.called(res)
+    if (fat != null)
+    {
+      fat.called(res)
+      execute
+    }
 
     return res
   }

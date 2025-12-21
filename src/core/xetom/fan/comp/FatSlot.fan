@@ -18,10 +18,13 @@ using haystack
 final class FatSlot
 {
   ** Constructor
-  internal new make(Obj? val) { this.val = val }
+  internal new make(Obj? val) { this.val = this.pushVal = val }
 
-  ** const for this type
+  ** Const for this type
   static const Type type := FatSlot#
+
+  ** sentinel for pushing null
+  static const Obj nullPush := "__null_push__"
 
   ** Wrapped value or null for methods
   internal Obj? val { private set }
@@ -34,8 +37,7 @@ final class FatSlot
   Void set(Obj val) { this.val = this.pushVal = val }
 
   ** Enqueue push when component method is called
-  // TODO: how to handle null?
-  Void called(Obj? ret) { this.pushVal = ret }
+  Void called(Obj? ret) { this.pushVal = ret ?: nullPush }
 
   ** Push to target components if there an enqueued value
   Void push()
@@ -43,6 +45,7 @@ final class FatSlot
     // short circuit if no enqueued push value
     val := pushVal
     if (val == null) return
+    if (val === nullPush) val = null
 
     // clear enqueued push value
     pushVal = null
@@ -57,7 +60,7 @@ final class FatSlot
   {
     c := x.toComp
     if (c.hasMethod(x.toSlot))
-      c.call(x.toSlot, pushVal)
+      c.call(x.toSlot, val)
     else
       c.set(x.toSlot, val)
   }

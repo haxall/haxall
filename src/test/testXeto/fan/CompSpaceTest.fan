@@ -207,50 +207,117 @@ class CompSpaceTest: AbstractXetoTest
 // Execute
 //////////////////////////////////////////////////////////////////////////
 
+ static Str executeTestXeto()
+  {
+     Str<|@root: TestFolder {
+            a @a: TestCounter {
+              fooRef: @c
+            }
+            b @b: TestCounter {
+             fooRef: @a
+            }
+            c @c: TestAdd {
+              links: {
+                in1: Link { fromRef: @a, fromSlot:"out" }
+                in2: Link { fromRef: @b, fromSlot:"out" }
+              }
+            }
+            d @d: TestFoo {
+            }
+            e @e: TestFoo {
+              links: {
+                b: Link { fromRef: @d, fromSlot:"a" }
+                c: Link { fromRef: @d, fromSlot:"methodUpper" } // method -> field
+                methodUpper: Link { fromRef: @d, fromSlot:"methodEcho" } // method -> method
+              }
+            }
+            f @f: TestFoo {
+              links: {
+                b: Link { fromRef: @e, fromSlot:"b" }
+                c: Link { fromRef: @e, fromSlot:"methodUpper" } // method -> field
+              }
+            }
+          }|>
+  }
+
   Void testExecute()
   {
     ns := createNamespace(CompTest.loadTestLibs)
     cs := CompSpace(ns)
-    cs.load(CompTest.loadTestXeto)
+    cs.load(executeTestXeto)
+
     a := (TestCounter)cs.root->a
     b := (TestCounter)cs.root->b
     c := (TestAdd)cs.root->c
+    d := (TestFoo)cs.root->d
+    e := (TestFoo)cs.root->e
+    f := (TestFoo)cs.root->f
 
     // initial state
     verifyExecuteCounter(a, 0)
     verifyExecuteCounter(b, 0)
     verifyExecuteAdd(c, 0, 0, 0)
+    verifyExecuteFoo(d, 0, "alpha", "beta", null)
+    verifyExecuteFoo(e, 0, "alpha", "beta", null)
+    verifyExecuteFoo(f, 0, "alpha", "beta", null)
 
     // everything executes on first execute
     ts := DateTime.now - 1day
-    execute(cs, ts)
+    execute(cs, ts) {}
     verifyExecuteCounter(a, 1)
     verifyExecuteCounter(b, 1)
     verifyExecuteAdd(c, 1, 1, 2)
+    verifyExecuteFoo(d, 1, "alpha", "beta", null)
+    verifyExecuteFoo(e, 1, "alpha", "alpha", null)
+    verifyExecuteFoo(f, 1, "alpha", "alpha", null)
 
-    // counters don't trip yet at 59sec
+    // - counters don't trip yet at 59sec;
+    // - field set d.a -> e.b -> f.b
+    // - method to field: d.methodUpper -> e.c
+    // - method to method to field: d.methodEcho -> e.methodUpper -> f.c
+    d.set("a", "wow!")
     execute(cs, ts + 59sec)
+    {
+      d.call("methodEcho", "woot!")
+      d.call("methodUpper", "foo bar")
+    }
     verifyExecuteCounter(a, 1)
     verifyExecuteCounter(b, 1)
     verifyExecuteAdd(c, 1, 1, 2)
+    verifyExecuteFoo(d, 2, "wow!", "beta", null)
+    verifyExecuteFoo(e, 2, "alpha", "wow!", "FOO BAR")
+    verifyExecuteFoo(f, 2, "alpha", "wow!", "WOOT!")
 
-    // execute +1min; counters trigger once
-    execute(cs, ts + 1min)
+    // - execute +1min; counters trigger once
+    // - verify TestFoo do not execute
+    d.set("a", "wow!")
+    execute(cs, ts + 1min) {}
     verifyExecuteCounter(a, 2)
     verifyExecuteCounter(b, 2)
     verifyExecuteAdd(c, 2, 2, 4)
+    verifyExecuteFoo(d, 2, "wow!", "beta", null)
+    verifyExecuteFoo(e, 2, "alpha", "wow!", "FOO BAR")
+    verifyExecuteFoo(f, 2, "alpha", "wow!", "WOOT!")
 
-    // execute +2min; counters trigger twice
+    // - execute +2min; counters trigger twice
+    // - verify methodEcho with null
     execute(cs, ts + 2min)
+    {
+      d.call("methodEcho", null)
+    }
     verifyExecuteCounter(a, 3)
     verifyExecuteCounter(b, 3)
     verifyExecuteAdd(c, 3, 3, 6)
+    verifyExecuteFoo(d, 3, "wow!", "beta", null)
+    verifyExecuteFoo(e, 3, "alpha", "wow!", "FOO BAR")
+    verifyExecuteFoo(f, 3, "alpha", "wow!", "NULL")
   }
 
-  Void execute(CompSpace cs, DateTime now)
+  Void execute(CompSpace cs, DateTime now, |This| cb)
   {
     TestAxonContext(cs.ns).asCur |cx|
     {
+      cb(this)
       cx.now = now
       cs.execute
     }
@@ -266,6 +333,15 @@ class CompSpaceTest: AbstractXetoTest
     verifyEq(c["in1"], TestVal(in1))
     verifyEq(c["in2"], TestVal(in2))
     verifyEq(c["out"], TestVal(out))
+  }
+
+  Void verifyExecuteFoo(TestFoo x, Int numExecutes, Str a, Str b, Str? c)
+  {
+    // echo(">> $x.name"); x.dump
+    verifyEq(x.numExecutes, numExecutes)
+    verifyEq(x["a"], a)
+    verifyEq(x["b"], b)
+    verifyEq(x["c"], c)
   }
 }
 
