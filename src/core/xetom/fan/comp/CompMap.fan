@@ -77,7 +77,7 @@ class CompMap
       nodes[c.id] = node
     }
 
-    // now compute each node's inDegree and outIndexes
+    // now compute each node's inDegree and outputs we push to
     nodes.each |node|
     {
       // check if node has links
@@ -94,10 +94,10 @@ class CompMap
         // update my own incoming link degree
         node.inDegree++
 
-        // add my own index to the from node
+        // add my own id to the from node
         from.addOutId(node.id)
 
-        // add fat slot push to target
+        // add fat slot pushTo on from comp
         from.spi.fatten(link.fromSlot).addPushTo(node.comp, toSlot)
       }
     }

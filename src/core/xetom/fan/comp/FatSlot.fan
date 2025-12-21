@@ -23,7 +23,7 @@ final class FatSlot
   ** Const for this type
   static const Type type := FatSlot#
 
-  ** sentinel for pushing null
+  ** Sentinel for pushing null
   static const Obj nullPush := "__null_push__"
 
   ** Wrapped value or null for methods

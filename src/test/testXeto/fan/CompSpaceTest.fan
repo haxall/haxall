@@ -235,6 +235,12 @@ class CompSpaceTest: AbstractXetoTest
               links: {
                 b: Link { fromRef: @e, fromSlot:"b" }
                 c: Link { fromRef: @e, fromSlot:"methodUpper" } // method -> field
+                methodUpper: Link { fromRef: @d, fromSlot:"c" } // field -> method
+              }
+            }
+            g @g: TestFoo {
+              links: {
+                c: Link { fromRef: @f, fromSlot:"methodUpper" } // method -> field
               }
             }
           }|>
@@ -252,6 +258,7 @@ class CompSpaceTest: AbstractXetoTest
     d := (TestFoo)cs.root->d
     e := (TestFoo)cs.root->e
     f := (TestFoo)cs.root->f
+    g := (TestFoo)cs.root->g
 
     // initial state
     verifyExecuteCounter(a, 0)
@@ -311,6 +318,17 @@ class CompSpaceTest: AbstractXetoTest
     verifyExecuteFoo(d, 3, "wow!", "beta", null)
     verifyExecuteFoo(e, 3, "alpha", "wow!", "FOO BAR")
     verifyExecuteFoo(f, 3, "alpha", "wow!", "NULL")
+
+    // - verify field -> method
+    d.set("c", "field->method")
+    execute(cs, ts + 2min) {}
+    verifyExecuteCounter(a, 3)
+    verifyExecuteCounter(b, 3)
+    verifyExecuteAdd(c, 3, 3, 6)
+    verifyExecuteFoo(d, 4, "wow!", "beta", "field->method")
+    verifyExecuteFoo(e, 3, "alpha", "wow!", "FOO BAR")
+    verifyExecuteFoo(f, 4, "alpha", "wow!", "NULL")
+    verifyExecuteFoo(g, 2, "alpha", "beta", "FIELD->METHOD")
   }
 
   Void execute(CompSpace cs, DateTime now, |This| cb)
@@ -337,7 +355,7 @@ class CompSpaceTest: AbstractXetoTest
 
   Void verifyExecuteFoo(TestFoo x, Int numExecutes, Str a, Str b, Str? c)
   {
-    // echo(">> $x.name"); x.dump
+    // echo(">> $x.name $x.numExecutes"); x.dump
     verifyEq(x.numExecutes, numExecutes)
     verifyEq(x["a"], a)
     verifyEq(x["b"], b)
