@@ -138,7 +138,11 @@ class JsonExporter : Exporter
     if (x is Dict) return dict(x)
     if (x is List) return list(x)
     if (x === Marker.val) return str("\u2713")
-    if (x is Float) return str(Number.make(x).toStr)
+    if (x is Bool)   return literal(x)
+    if (x is Int)    return literal(x)
+    if (x is Float)  return float(x)
+    if (x is Number) return number(x)
+
     return str(x.toStr)
   }
 
@@ -164,6 +168,33 @@ class JsonExporter : Exporter
     }
     objEnd("]")
     return this
+  }
+
+  private This literal(Obj x)
+  {
+    x.toStr.each |char| { wc(char) }
+    return this
+  }
+
+  private This float(Float f)
+  {
+    // "special" float values are quoted
+    if (f == Float.posInf || f == Float.negInf || f.isNaN)
+      return str(f.toStr)
+    else
+      return literal(f)
+  }
+
+  private This number(Number n)
+  {
+    // unitless
+    if (n.unit == null)
+      return n.isInt ?
+        literal(n.toInt) :
+        float(n.toFloat)
+    // units -- quoted
+    else
+      return str(n.toStr)
   }
 
 //////////////////////////////////////////////////////////////////////////

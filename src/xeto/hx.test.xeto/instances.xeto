@@ -21,8 +21,10 @@
 }
 
 @coerce: {
+  bool: Bool "true"
   int: Int "1"
-  float: Float "2"
+  float: Float "2.1"
+  nan: Float "NaN"
   dur: Duration "3min"
   num: Number "4kW"
   version: Version "1.2.3"
