@@ -59,7 +59,9 @@ class MCompSpi : CompSpi
 
   override Obj? get(Str name)
   {
-    slots.get(name)
+    x := slots.get(name)
+    if (x== null) return null
+    return slotVal(x)
   }
 
   override Bool has(Str name)
@@ -74,21 +76,70 @@ class MCompSpi : CompSpi
 
   override Void each(|Obj,Str| f)
   {
-    slots.each(f)
+    slots.each |x, n|
+    {
+      v := slotVal(x)
+      if (v != null) f(v, n)
+    }
   }
 
   override Obj? eachWhile(|Obj,Str->Obj?| f)
   {
-    slots.eachWhile(f)
+
+    slots.eachWhile |x, n|
+    {
+      v := slotVal(x)
+      if (v != null) return f(v, n)
+      else return null
+    }
+  }
+
+  Obj? slotVal(Obj v)
+  {
+    v.typeof === FatSlot.type ? ((FatSlot)v).val : v
+  }
+
+  Bool isFat(Str name)
+  {
+    slots.get(name) is FatSlot
+  }
+
+  FatSlot fatten(Str name)
+  {
+    fs := FatSlot(slots.get(name))
+    slots.set(name, fs)
+    return fs
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
 
-  override Void set(Str name, Obj? val)
+  override Void reorder(Str[] newOrder)
   {
-    update(name, get(name), val)
+    // create new map in given new order
+    oldSlots := this.slots
+    newSlots := Str:Obj[:]
+    newSlots.ordered = true
+    newOrder.each |n|
+    {
+      v := oldSlots[n] ?: throw ArgErr("Slot name not defined: $n")
+      newSlots[n] = v
+    }
+
+    // need to add back in fat methods that don't have value
+    oldSlots.each |v, n|
+    {
+      fat := v as FatSlot
+      if (fat != null && fat.val == null) newSlots.add(n, fat)
+    }
+
+    // sanity check the size
+    if (oldSlots.size != newSlots.size)
+      throw ArgErr("Names size does not match current slots size: $newSlots.size != $oldSlots.size")
+
+    this.slots = newSlots
+    changed("reorder!", null, null)
   }
 
   override Void add(Obj val, Str? name)
@@ -101,7 +152,7 @@ class MCompSpi : CompSpi
     {
       name = autoName
     }
-    update(name, null, val)
+    set(name, val)
   }
 
   private Str autoName()
@@ -116,53 +167,21 @@ class MCompSpi : CompSpi
 
   override Void remove(Str name)
   {
-    update(name, get(name), null)
+    set(name, null)
   }
 
-  override Void reorder(Str[] newOrder)
-  {
-    oldSlots := this.slots
-    newSlots := Str:Obj[:]
-    newSlots.ordered = true
-    newOrder.each |n|
-    {
-      v := oldSlots[n] ?: throw ArgErr("Slot name not defined: $n")
-      newSlots[n] = v
-    }
-    if (oldSlots.size != newSlots.size)
-      throw ArgErr("Names size does not match current slots size: $newSlots.size != $oldSlots.size")
-    this.slots = newSlots
-    changed("reorder!", null, null)
-  }
-
-  internal Void addChild(Str name, Comp child)
-  {
-    if (child.spi.parent != null) throw AlreadyParentedErr(child.typeof.qname)
-    childSpi := (MCompSpi)child.spi
-    childSpi.nameRef = name
-    childSpi.parentRef = this.comp
-    if (isMounted) cs.mount(child)
-  }
-
-  private Void removeChild(Comp child)
-  {
-    childSpi := (MCompSpi)child.spi
-    childSpi.nameRef = ""
-    childSpi.parentRef = null
-    if (isMounted) cs.unmount(child)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Update
-//////////////////////////////////////////////////////////////////////////
-
-  private Void update(Str name, Obj? oldVal, Obj? newVal)
+  override Void set(Str name, Obj? newVal)
   {
     // lookup slot
     slot := spec.slot(name, false)
 
     if (name == "id" || name == "spec")
       throw InvalidChangeErr("'$name' may not be modified")
+
+    // lookup old value/fat slot
+    oldVal := slots.get(name)
+    fat := oldVal as FatSlot
+    if (fat != null) oldVal = fat.val
 
     // short circuit if reference to same object
     if (oldVal === newVal) return
@@ -192,6 +211,23 @@ class MCompSpi : CompSpi
 
     // fire callback
     changed(name, slot, newVal)
+  }
+
+  internal Void addChild(Str name, Comp child)
+  {
+    if (child.spi.parent != null) throw AlreadyParentedErr(child.typeof.qname)
+    childSpi := (MCompSpi)child.spi
+    childSpi.nameRef = name
+    childSpi.parentRef = this.comp
+    if (isMounted) cs.mount(child)
+  }
+
+  private Void removeChild(Comp child)
+  {
+    childSpi := (MCompSpi)child.spi
+    childSpi.nameRef = ""
+    childSpi.parentRef = null
+    if (isMounted) cs.unmount(child)
   }
 
   // Choke point for all slot changes

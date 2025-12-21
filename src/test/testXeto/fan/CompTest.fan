@@ -49,6 +49,7 @@ class CompTest: AbstractXetoTest
   Void testUpdates()
   {
     c := TestFoo()
+    spi := (MCompSpi)c.spi
 
     // initial state
     verifyEq(c["id"], c.id)
@@ -56,6 +57,8 @@ class CompTest: AbstractXetoTest
     verifyEq(c.get("a"), "alpha")
     verifyEq(c.get("b"), "beta")
     verifyEq(c.get("c"), null)
+    verifyEq(c.has("b"), true)
+    verifyEq(c.missing("b"), false)
 
     // set as update
     c.reset.set("b", "change it")
@@ -65,6 +68,17 @@ class CompTest: AbstractXetoTest
     // set short circuit
     c.reset.set("b", "change it")
     verifyNotChanged(c)
+
+    // fatten b
+    verifyEq(spi.isFat("b"), false)
+    spi.fatten("b")
+    verifyEq(spi.isFat("b"), true)
+    verifyEq(c.get("b"), "change it")
+    verifyEq(c.has("b"), true)
+    verifyEq(c.missing("b"), false)
+    c.reset.set("b", "change it")
+    verifyNotChanged(c)
+    verifyEq(c.get("b"), "change it")
 
     // set as add
     num := n(123)
@@ -90,6 +104,17 @@ class CompTest: AbstractXetoTest
     c.reset.add("auto")
     verifySame(c.get("_0"), "auto")
     verifyChanged(c, "_0", "auto")
+
+    // each
+    expect := ["id":c.id, "spec":c.spec.id, "dis":"TestFoo", "a":"alpha", "b":"change it", "bar":n(123), "_0":"auto"]
+    map := Str:Obj?[:] { ordered = true }
+    c.each |v, n| { map[n] = v }
+    verifyEq(map, expect)
+
+    // eachWhile
+    map.clear
+    c.eachWhile |v, n| { map[n] = v; return null }
+    verifyEq(map, expect)
 
     // remove
     c.remove("_0")
@@ -407,15 +432,45 @@ class CompTest: AbstractXetoTest
 
     // verify calling non-method slot
     verifyNotMethod(c, "a", "Spec is not func: hx.test.xeto::TestFoo.a")
+
+    // fatten a slot and verify
+    spi := (MCompSpi)c.spi
+    verifyEq(spi.isFat("methodEcho"), false)
+    spi.fatten("methodEcho")
+    verifyEq(spi.isFat("methodEcho"), true)
+    verifyMethod(c, "methodEcho",   n(123), n(123))
+
+    // verify reorder ignores fat methods
+    names := Str[,]
+    c.each |v, n| { names.add(n) }
+    names.swap(-1, -2)
+    c.reorder(names)
+    newNames := Str[,]
+    c.each |v, n| { newNames.add(n) }
+    verifyEq(newNames, names)
+    verifyEq(spi.isFat("methodEcho"), true)
   }
 
   Void verifyMethod(Comp c, Str name, Obj? arg, Obj? expect)
   {
     verifyEq(c.spec.slot(name).isFunc, true)
+
+    // verify no value for get, has, missing
     verifyEq(c.get(name), null)
     verifyEq(c.has(name), false)
     verifyEq(c.missing(name), true)
 
+    // verify method not in each
+    names := Str[,]
+    c.each |v, n| { names.add(n) }
+    verifyEq(names.contains(name), false)
+
+    // verify method not in eachWhile
+    names.clear
+    c.eachWhile |v, n| { names.add(n); return null }
+    verifyEq(names.contains(name), false)
+
+    // verify call
     cx := Type.find("testAxon::TestContext").make([this])
     Actor.locals[AxonContext.actorLocalsKey] = cx
 
