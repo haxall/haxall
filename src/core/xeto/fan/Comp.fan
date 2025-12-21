@@ -42,10 +42,13 @@ mixin Comp
   ** Get the given slot value or null if slot name not defined.
   @Operator Obj? get(Str name) { spi.get(name) }
 
-  ** Return true if this component has a slot by given name.
+  ** Return if this component has a method by given name
+  Bool hasMethod(Str name) { spi.hasMethod(name) }
+
+  ** Return true if this component has slot with non-null value.
   Bool has(Str name) { spi.has(name) }
 
-  ** Return true if the component does not have a slot by given name.
+  ** Return true if this component does not have slot with non-null value.
   Bool missing(Str name) { spi.missing(name) }
 
   ** Iterate slot name/value pairs using same semantics as `get`.
@@ -271,6 +274,7 @@ mixin CompSpi
   abstract Spec spec()
   abstract Int ver()
   abstract Obj? get(Str name)
+  abstract Bool hasMethod(Str name)
   abstract Bool has(Str name)
   abstract Bool missing(Str name)
   abstract Void each(|Obj val, Str name| f)

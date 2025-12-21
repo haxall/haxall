@@ -59,6 +59,13 @@ class CompTest: AbstractXetoTest
     verifyEq(c.get("c"), null)
     verifyEq(c.has("b"), true)
     verifyEq(c.missing("b"), false)
+    verifyEq(c.hasMethod("b"), false)
+
+    // not found
+    verifyEq(c.has("notFound"), false)
+    verifyEq(c.missing("notFound"), true)
+    verifyEq(c.hasMethod("notFound"), false)
+    verifyEq(c.get("notFound"), null)
 
     // set as update
     c.reset.set("b", "change it")
@@ -459,6 +466,7 @@ class CompTest: AbstractXetoTest
     verifyEq(c.get(name), null)
     verifyEq(c.has(name), false)
     verifyEq(c.missing(name), true)
+    verifyEq(c.hasMethod(name), true)
 
     // verify method not in each
     names := Str[,]

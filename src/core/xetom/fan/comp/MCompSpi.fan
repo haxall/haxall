@@ -253,8 +253,14 @@ class MCompSpi : CompSpi
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Call
+// Methods & Call
 //////////////////////////////////////////////////////////////////////////
+
+  override Bool hasMethod(Str name)
+  {
+    slot := spec.slot(name, false)
+    return slot != null && slot.isFunc
+  }
 
   override Obj? call(Str name, Obj? arg)
   {
