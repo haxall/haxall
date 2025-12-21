@@ -202,5 +202,70 @@ class CompSpaceTest: AbstractXetoTest
     m.debugTopology(s.out)
     echo(s.toStr)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Execute
+//////////////////////////////////////////////////////////////////////////
+
+  Void testExecute()
+  {
+    ns := createNamespace(CompTest.loadTestLibs)
+    cs := CompSpace(ns)
+    cs.load(CompTest.loadTestXeto)
+    a := (TestCounter)cs.root->a
+    b := (TestCounter)cs.root->b
+    c := (TestAdd)cs.root->c
+
+    // initial state
+    verifyExecuteCounter(a, 0)
+    verifyExecuteCounter(b, 0)
+    verifyExecuteAdd(c, 0, 0, 0)
+
+    // everything executes on first execute
+    ts := DateTime.now - 1day
+    execute(cs, ts)
+    verifyExecuteCounter(a, 1)
+    verifyExecuteCounter(b, 1)
+    verifyExecuteAdd(c, 1, 1, 2)
+
+    // counters don't trip yet at 59sec
+    execute(cs, ts + 59sec)
+    verifyExecuteCounter(a, 1)
+    verifyExecuteCounter(b, 1)
+    verifyExecuteAdd(c, 1, 1, 2)
+
+    // execute +1min; counters trigger once
+    execute(cs, ts + 1min)
+    verifyExecuteCounter(a, 2)
+    verifyExecuteCounter(b, 2)
+    verifyExecuteAdd(c, 2, 2, 4)
+
+    // execute +2min; counters trigger twice
+    execute(cs, ts + 2min)
+    verifyExecuteCounter(a, 3)
+    verifyExecuteCounter(b, 3)
+    verifyExecuteAdd(c, 3, 3, 6)
+  }
+
+  Void execute(CompSpace cs, DateTime now)
+  {
+    TestAxonContext(cs.ns).asCur |cx|
+    {
+      cx.now = now
+      cs.execute
+    }
+  }
+
+  Void verifyExecuteCounter(TestCounter c, Int out)
+  {
+    verifyEq(c["out"], TestVal(out))
+  }
+
+  Void verifyExecuteAdd(TestAdd c, Int in1, Int in2, Int out)
+  {
+    verifyEq(c["in1"], TestVal(in1))
+    verifyEq(c["in2"], TestVal(in2))
+    verifyEq(c["out"], TestVal(out))
+  }
 }
 

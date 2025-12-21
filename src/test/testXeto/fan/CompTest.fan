@@ -78,7 +78,7 @@ class CompTest: AbstractXetoTest
 
     // fatten b
     verifyEq(spi.isFat("b"), false)
-    spi.fatten("b")
+    fat := spi.fatten("b")
     verifyEq(spi.isFat("b"), true)
     verifyEq(c.get("b"), "change it")
     verifyEq(c.has("b"), true)
@@ -86,6 +86,10 @@ class CompTest: AbstractXetoTest
     c.reset.set("b", "change it")
     verifyNotChanged(c)
     verifyEq(c.get("b"), "change it")
+    c.reset.set("b", "bravo!")
+    verifyChanged(c, "b", "bravo!")
+    verifyEq(spi.isFat("b"), true)
+    verifySame(spi.fatten("b"), fat)
 
     // set as add
     num := n(123)
@@ -113,7 +117,8 @@ class CompTest: AbstractXetoTest
     verifyChanged(c, "_0", "auto")
 
     // each
-    expect := ["id":c.id, "spec":c.spec.id, "dis":"TestFoo", "a":"alpha", "b":"change it", "bar":n(123), "_0":"auto"]
+    expect := ["id":c.id, "spec":c.spec.id, "dis":"TestFoo", "a":"alpha",
+      "b":"bravo!", "bar":n(123), "_0":"auto"]
     map := Str:Obj?[:] { ordered = true }
     c.each |v, n| { map[n] = v }
     verifyEq(map, expect)
@@ -688,70 +693,6 @@ class CompTest: AbstractXetoTest
     verifyEq(x.fromSlot, fs)
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Execute
-//////////////////////////////////////////////////////////////////////////
-
-  Void testExecute()
-  {
-    ns := createNamespace(loadTestLibs)
-    cs := CompSpace(ns)
-    cs.load(loadTestXeto)
-    a := (TestCounter)cs.root->a
-    b := (TestCounter)cs.root->b
-    c := (TestAdd)cs.root->c
-
-    // initial state
-    verifyExecuteCounter(a, 0)
-    verifyExecuteCounter(b, 0)
-    verifyExecuteAdd(c, 0, 0, 0)
-
-    // everything executes on first execute
-    ts := DateTime.now - 1day
-    execute(cs, ts)
-    verifyExecuteCounter(a, 1)
-    verifyExecuteCounter(b, 1)
-    verifyExecuteAdd(c, 1, 1, 2)
-
-    // counters don't trip yet at 59sec
-    execute(cs, ts + 59sec)
-    verifyExecuteCounter(a, 1)
-    verifyExecuteCounter(b, 1)
-    verifyExecuteAdd(c, 1, 1, 2)
-
-    // execute +1min; counters trigger once
-    execute(cs, ts + 1min)
-    verifyExecuteCounter(a, 2)
-    verifyExecuteCounter(b, 2)
-    verifyExecuteAdd(c, 2, 2, 4)
-
-    // execute +2min; counters trigger twice
-    execute(cs, ts + 2min)
-    verifyExecuteCounter(a, 3)
-    verifyExecuteCounter(b, 3)
-    verifyExecuteAdd(c, 3, 3, 6)
-  }
-
-  Void execute(CompSpace cs, DateTime now)
-  {
-    TestAxonContext(cs.ns).asCur |cx|
-    {
-      cx.now = now
-      cs.execute
-    }
-  }
-
-  Void verifyExecuteCounter(TestCounter c, Int out)
-  {
-    verifyEq(c["out"], TestVal(out))
-  }
-
-  Void verifyExecuteAdd(TestAdd c, Int in1, Int in2, Int out)
-  {
-    verifyEq(c["in1"], TestVal(in1))
-    verifyEq(c["in2"], TestVal(in2))
-    verifyEq(c["out"], TestVal(out))
-  }
 }
 
 **************************************************************************
