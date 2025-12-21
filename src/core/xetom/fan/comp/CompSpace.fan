@@ -186,17 +186,17 @@ class CompSpace : AbstractCompSpace
   }
 
   ** Hook when component is modified
-  internal Void change(MCompSpi spi, Str name, Spec? slot, Obj? val)
+  internal Void change(MCompSpi spi, CompChangeEvent event)
   {
     // increment version
     updateVer(spi)
 
     // handle links change
-    if (name == "links") map.topologyChanged
+    if (event.name == "links") map.topologyChanged
 
     // invoke callback on space
     try
-      onChange(spi.comp, name, slot, val)
+      onChange(event)
     catch (Err e)
       err("CompSpace.onChange", e)
   }
@@ -306,7 +306,7 @@ class CompSpace : AbstractCompSpace
 
   ** Callback anytime a component in the space is modified.
   ** The name and value are the slot modified, or null for a remove.
-  virtual Void onChange(Comp comp, Str name, Spec? slot, Obj? val) {}
+  virtual Void onChange(CompChangeEvent event) {}
 
 //////////////////////////////////////////////////////////////////////////
 // Namespace

@@ -161,7 +161,7 @@ class MCompSpi : CompSpi
       throw ArgErr("Names size does not match current slots size: $newSlots.size != $oldSlots.size")
 
     this.slots = newSlots
-    changed("reorder!", null, null)
+    changed(CompChangeEvent(comp, "reorder!", null, null, null))
   }
 
   override Void add(Obj val, Str? name)
@@ -233,7 +233,7 @@ class MCompSpi : CompSpi
     }
 
     // fire callback
-    changed(name, slot, newVal)
+    changed(CompChangeEvent(comp, name, slot, oldVal, newVal))
   }
 
   internal Void addChild(Str name, Comp child)
@@ -255,18 +255,18 @@ class MCompSpi : CompSpi
 
   // Choke point for all slot changes
   // Reorder passes "reorder!" for name
-  private Void changed(Str name, Spec? slot, Obj? newVal)
+  private Void changed(CompChangeEvent event)
   {
     try
     {
       // special callback
-      comp.onChangeFw(name, slot, newVal)
+      comp.onChangeFw(event)
 
       // standard callback
-      comp.onChange(name, slot, newVal)
+      comp.onChange(event)
 
       // space level callback
-      if (isMounted) cs.change(this, name, slot, newVal)
+      if (isMounted) cs.change(this, event)
     }
     catch (Err e)
     {

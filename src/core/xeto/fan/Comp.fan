@@ -127,14 +127,14 @@ mixin Comp
   ** Callback when a slot is modified on this instance.  The slot is
   ** non-null if name maps to a slot on the component's spec.  If the
   ** operation if a remove then newVal is null.
-  virtual Void onChange(Str name, Spec? slot, Obj? newVal) {}
+  virtual Void onChange(CompChangeEvent event) {}
 
   ** Special onChange callback to handle built-in framework logic, called
   ** before onChange.  The default implementation calls execute if the
   ** slot is not transient
-  @NoDoc virtual Void onChangeFw(Str name, Spec? slot, Obj? newVal)
+  @NoDoc virtual Void onChangeFw(CompChangeEvent event)
   {
-    if (slot != null && !slot.isTransient) execute
+    if (event.slot != null && !event.slot.isTransient) execute
   }
 
   ** Callback whem mounted into a component space
@@ -240,6 +240,41 @@ mixin CompContext : ActorContext
 
   ** Current DateTime to use; might be simulated
   abstract DateTime now()
+}
+
+**************************************************************************
+** CompChangeEvent
+**************************************************************************
+
+**
+** CompChangeEvent includes details when a component slot is modified
+**
+@Js
+class CompChangeEvent
+{
+  @NoDoc new make(Comp comp, Str name, Spec? slot, Obj? oldVal, Obj? newVal)
+  {
+    this.comp   = comp
+    this.name   = name
+    this.slot   = slot
+    this.oldVal = oldVal
+    this.newVal = newVal
+  }
+
+  ** Subject component
+  Comp comp { private set }
+
+  ** Name of slot modified
+  const Str name
+
+  ** Spec of slot if defined for name (null if dynamic slot)
+  const Spec? slot
+
+  ** Old value or null if adding new slot
+  Obj? oldVal { private set }
+
+  ** New value or null if removing slot
+  Obj? newVal { private set }
 }
 
 **************************************************************************

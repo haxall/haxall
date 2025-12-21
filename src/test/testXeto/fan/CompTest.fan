@@ -179,16 +179,14 @@ class CompTest: AbstractXetoTest
   Void verifyChanged(TestFoo c, Str n, Obj? v)
   {
     // echo("  ~~ changed? $c.changeName = $c.changeVal")
-    verifyEq(c.changeName, n)
-    verifySame(c.changeVal, v)
-    verifySame(c.changeSlot, c.spec.slot(n, false))
+    verifyEq(c.change.name, n)
+    verifySame(c.change.newVal, v)
+    verifySame(c.change.slot, c.spec.slot(n, false))
   }
 
   Void verifyNotChanged(TestFoo c)
   {
-    verifyEq(c.changeName, null)
-    verifyEq(c.changeVal , null)
-    verifyEq(c.changeSlot, null)
+    verifyEq(c.change, null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -736,16 +734,12 @@ const class TestVal: WrapDict
 @Js
 class TestFoo : CompObj
 {
-  Str? changeName
-  Spec? changeSlot
-  Obj? changeVal
+  CompChangeEvent? change
   Int numExecutes
 
   This reset()
   {
-    changeName = null
-    changeSlot = null
-    changeVal  = null
+    change = null
     return this
   }
 
@@ -754,11 +748,9 @@ class TestFoo : CompObj
     numExecutes++
   }
 
-  override Void onChange(Str name, Spec? slot, Obj? val)
+  override Void onChange(CompChangeEvent e)
   {
-    changeName = name
-    changeSlot = slot
-    changeVal  = val
+    change = e
   }
 
   @Api private Obj? onMethodEcho(Obj? x) { x }
@@ -793,12 +785,6 @@ class TestCounter : CompObj
 @Js
 class TestAdd : CompObj
 {
-
-  override Void onChange(Str name, Spec? slot, Obj? val)
-  {
-    // TODO: should not need this
-    execute
-  }
 
   override Void onExecute()
   {
