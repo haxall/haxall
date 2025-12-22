@@ -223,7 +223,7 @@ class RosterTest : HxTest
     intLine := lines.find { it.startsWith("interval:") }
     covLine := lines.find { it.startsWith("cov:")  }
     verifyEq(intLine.contains(interval?.toStr ?: "_x_"), interval != null)
-    verifyEq(covLine.contains("marker"), cov)
+    verifyEq(covLine.contains("✓"), cov)
     verifyEq(proj.watch.isWatched(id), true)
   }
 

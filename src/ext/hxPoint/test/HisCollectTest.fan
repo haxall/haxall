@@ -32,10 +32,10 @@ class HisCollectTest : HxTest
       "10sec (0hr, 0min, 10sec)", "null", "1sec", "10min")
 
     verifyConfig(ext, ["hisCollectCov":m, "kind":"Bool"],
-      "null (0hr, 0min, 0sec)", "marker", "1sec", "null")
+      "null (0hr, 0min, 0sec)", "✓", "1sec", "null")
 
     verifyConfig(ext, ["hisCollectCov":m, "kind":"Bool", "hisCollectCovRateLimit":n(5, "sec")],
-      "null (0hr, 0min, 0sec)", "marker", "5sec", "null")
+      "null (0hr, 0min, 0sec)", "✓", "5sec", "null")
 
     verifyConfig(ext, ["hisCollectCov":n(1, "kW"), "kind":"Number", "hisCollectCovRateLimit":n(7, "sec"), "hisCollectWriteFreq":n(15, "min")],
       "null (0hr, 0min, 0sec)", "1kW", "7sec", "15min")
