@@ -175,7 +175,7 @@ class CompSpaceTest: AbstractXetoTest
       echo
       echo("~~ sort " + expect.join(", ") { it->dis })
       echo("        " + actual.join(", ") { it->dis })
-      topologyDump(m)
+      dumpTopology(m)
     }
 
     verifyEq(actual.isRO, true)
@@ -196,10 +196,10 @@ class CompSpaceTest: AbstractXetoTest
     verifyEq(actual, expect)
   }
 
-  Void topologyDump(CompMap m)
+  Void dumpTopology(CompMap m)
   {
     s := StrBuf()
-    m.debugTopology(s.out)
+    m.dumpTopology(s.out)
     echo(s.toStr)
   }
 

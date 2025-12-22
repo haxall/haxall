@@ -388,7 +388,7 @@ class CompSpace : AbstractCompSpace
   }
 
   ** Debug dump the topology
-  Void debugTopology(OutStream out) { map.debugTopology(out) }
+  Void dumpTopology(OutStream out := Env.cur.out) { map.dumpTopology(out) }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

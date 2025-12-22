@@ -141,7 +141,7 @@ class CompMap
   }
 
   ** Debug dump the topology graph
-  Void debugTopology(OutStream out)
+  Void dumpTopology(OutStream out)
   {
     topology.each |c|
     {
