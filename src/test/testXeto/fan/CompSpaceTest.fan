@@ -315,8 +315,8 @@ class CompSpaceTest: AbstractXetoTest
     verifyExecuteCounter(a, 3)
     verifyExecuteCounter(b, 3)
     verifyExecuteAdd(c, 3, 3, 6)
-    verifyExecuteFoo(d, 3, "wow!", "beta", null)
-    verifyExecuteFoo(e, 3, "alpha", "wow!", "FOO BAR")
+    verifyExecuteFoo(d, 2, "wow!", "beta", null)
+    verifyExecuteFoo(e, 2, "alpha", "wow!", "FOO BAR")
     verifyExecuteFoo(f, 3, "alpha", "wow!", "NULL")
 
     // - verify field -> method
@@ -325,9 +325,9 @@ class CompSpaceTest: AbstractXetoTest
     verifyExecuteCounter(a, 3)
     verifyExecuteCounter(b, 3)
     verifyExecuteAdd(c, 3, 3, 6)
-    verifyExecuteFoo(d, 4, "wow!", "beta", "field->method")
-    verifyExecuteFoo(e, 3, "alpha", "wow!", "FOO BAR")
-    verifyExecuteFoo(f, 4, "alpha", "wow!", "NULL")
+    verifyExecuteFoo(d, 3, "wow!", "beta", "field->method")
+    verifyExecuteFoo(e, 2, "alpha", "wow!", "FOO BAR")
+    verifyExecuteFoo(f, 3, "alpha", "wow!", "NULL")
     verifyExecuteFoo(g, 2, "alpha", "beta", "FIELD->METHOD")
   }
 

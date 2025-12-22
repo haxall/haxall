@@ -367,7 +367,7 @@ class CompSpace : AbstractCompSpace
     timed.each |spi| { spi.checkTimer(cx.now) }
 
     // now walk thru every component in topological order
-    map.topology.each |comp| { ((MCompSpi)comp.spi).checkExecute(cx) }
+    map.topology.each |comp| { ((MCompSpi)comp.spi).doExecute(cx) }
   }
 
   ** Walk component tree to build our timers list

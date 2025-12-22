@@ -122,6 +122,7 @@ class MCompSpi : CompSpi
     if (x is FatSlot) return x
     fs := FatSlot(x)
     slots.set(name, fs)
+    needsPush = true
     return fs
   }
 
@@ -222,8 +223,15 @@ class MCompSpi : CompSpi
     if (newVal != null)
     {
       // set in my map
-      if (fat == null) slots.set(name, newVal)
-      else fat.set(newVal)
+      if (fat == null)
+      {
+        slots.set(name, newVal)
+      }
+      else
+      {
+        fat.set(newVal)
+        needsPush = true
+      }
     }
     else
     {
@@ -293,7 +301,7 @@ class MCompSpi : CompSpi
     if (fat != null)
     {
       fat.called(res)
-      execute
+      needsPush = true
     }
 
     return res
@@ -381,11 +389,19 @@ class MCompSpi : CompSpi
     this.needsExecute = true
   }
 
-  ** Execute the component
-  internal Void checkExecute(CompContext cx)
+  ** Check execute and push links
+  internal Void doExecute(CompContext cx)
+  {
+    checkExecute(cx)
+    checkPush(cx)
+  }
+
+  ** Check needsExecute
+  private Void checkExecute(CompContext cx)
   {
     if (!needsExecute) return
     needsExecute = false
+
     try
     {
       comp.onExecute
@@ -395,12 +411,14 @@ class MCompSpi : CompSpi
       echo("ERROR: ${comp.typeof.name}.onExecute")
       e.trace
     }
-    pushLinks
   }
 
-  ** Push all my linked slots
-  private Void pushLinks()
+  ** Check needsPush
+  internal Void checkPush(CompContext cx)
   {
+    if (!needsPush) return
+    needsPush = false
+
     eachFat |fat| { fat.push }
   }
 
@@ -466,6 +484,7 @@ class MCompSpi : CompSpi
   internal Comp? parentRef
   internal Str nameRef := ""
   internal Bool needsExecute := true
+  internal Bool needsPush
   private Str:Obj slots
   private Int lastOnTimer
 }
