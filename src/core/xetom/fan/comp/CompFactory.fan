@@ -98,18 +98,18 @@ internal class CompFactory
     // find children comp dicts
     kidNames := Str[,]
     kidDicts := Dict[,]
+    toSet := Str:Obj[:]
     dict.each |v, n|
     {
-      kidDict := v as Dict
-      if (kidDict == null) return
-
-      kidSpec := dictToSpec(kidDict)
-      if (kidSpec == null) return
-
-      if (!kidSpec.isa(compSpec)) return
-
-      kidNames.add(n)
-      kidDicts.add(kidDict)
+      if (isCompDict(v))
+      {
+        kidNames.add(n)
+        kidDicts.add(v)
+      }
+      else if (n != "id" && n != "spec")
+      {
+        toSet[n] = v
+      }
     }
 
     // swizzle the root id to the component's actual id
@@ -119,6 +119,12 @@ internal class CompFactory
     // create the children components
     kids := doCreate(kidDicts)
 
+    // reify non-kid values
+    toSet.each |v, n|
+    {
+      parent.set(n, reify(null, v))
+    }
+
     // mount the children into parent component
     kidNames.each |n, i|
     {
@@ -127,6 +133,13 @@ internal class CompFactory
 
     // create children components
     return kids
+  }
+
+  private Bool isCompDict(Obj v)
+  {
+    dict := v as Dict; if (dict == null) return false
+    spec := dictToSpec(dict); if (spec == null) return false
+    return spec.isa(compSpec)
   }
 
   ** Graph graph of components from graph of dicts

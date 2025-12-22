@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 
@@ -89,7 +90,11 @@ class CompMap
       {
         // lookup the from node of this link
         from := nodes.get(link.fromRef)
-        if (from == null) return
+        if (from == null)
+        {
+          Console.cur.warn("Invalid link fromRef: $link -> $toSlot")
+          return
+        }
 
         // update my own incoming link degree
         node.inDegree++
