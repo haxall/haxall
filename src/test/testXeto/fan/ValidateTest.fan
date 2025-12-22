@@ -463,27 +463,37 @@ class ValidateTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
+    // marker
+    re := Regex(ns.spec("sys::Marker").meta["pattern"])
+    verifyTrue(re.matches("✓"))
+    verifyFalse(re.matches("foo"))
+
     // bool
-    re := Regex(ns.spec("sys::Bool").meta["pattern"])
+    re = Regex(ns.spec("sys::Bool").meta["pattern"])
     verifyTrue(re.matches("true"))
     verifyTrue(re.matches("false"))
     verifyFalse(re.matches("foo"))
 
     // int
     re = Regex(ns.spec("sys::Int").meta["pattern"])
-    list := ["0", "42", "-7", "1000000", "-2147483648", "9007199254740991"]
-    list.each |Str s| { verifyTrue(re.matches(s)) }
-    list = ["01", "+42", "-05", "000", ".5", "42."]
-    list.each |Str s| { verifyFalse(re.matches(s)) }
+    [
+      "0", "42", "-7", "1000000", "-2147483648", "9007199254740991"
+    ].each |Str s| { verifyTrue(re.matches(s)) }
+    [
+      "01", "+42", "-05", "000", ".5", "42."
+    ].each |Str s| { verifyFalse(re.matches(s)) }
 
     // float
     re = Regex(ns.spec("sys::Float").meta["pattern"])
-    list = ["0.5", "-0.5", "12.34", "-100.0", "0.00001", "-0.0", "1e10",
-      "1.2E+5", "10E2", "5e-3", "-1.5E-10", "0.1e-5", "0", "-42", "1000"]
-    list.each |Str s| { verifyTrue(re.matches(s)) }
-    list = ["01.5", "-05.2", "12.", "-5.", ".5", "-.123", "+1.5", "+0.5",
-      "0x1A", "0o77", "NaN", "Infinity"]
-    list.each |Str s| { verifyFalse(re.matches(s)) }
+    [
+      "0.5", "-0.5", "12.34", "-100.0", "0.00001", "-0.0", "1e10",
+      "1.2E+5", "10E2", "5e-3", "-1.5E-10", "0.1e-5", "0", "-42", "1000",
+      "\"NaN\"", "\"INF\"", "\"-INF\""
+    ].each |Str s| { verifyTrue(re.matches(s)) }
+    [
+      "01.5", "-05.2", "12.", "-5.", ".5", "-.123", "+1.5", "+0.5",
+      "0x1A", "0o77", "\"+INF\"", "foo"
+    ].each |Str s| { verifyFalse(re.matches(s)) }
   }
 
 //////////////////////////////////////////////////////////////////////////
