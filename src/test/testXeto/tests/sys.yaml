@@ -41,6 +41,7 @@ verifyType:
     doc: "sys::Str Marker labels a dict with typing information"
     sealed: "sys::Marker"
     val: "sys::Marker"
+    pattern: "sys::Str ✓"
 ---
 name: "str"
 loadLib: "sys"

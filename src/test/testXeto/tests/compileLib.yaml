@@ -61,6 +61,7 @@ verifyTypes:
         meta:
           doc: "inherit"
           val: "inherit"
+          pattern: "inherit"
 ---
 name: "slotWithMeta"
 compileLib: |
@@ -85,6 +86,7 @@ verifyTypes:
           baz: "sys::Marker"
           doc: "inherit"
           val: "inherit"
+          pattern: "inherit"
       qux:
         type: "sys::Str"
         meta:
@@ -117,6 +119,7 @@ verifyTypes:
           baz: "sys::Marker"
           doc: "sys::Str bar doc"
           val: "inherit"
+          pattern: "inherit"
       qux:
         type: "sys::Str"
         meta:

@@ -24,8 +24,8 @@ class CompileTest : AbstractXetoTest
   Void testScalars()
   {
     ns := createNamespace(["sys"])
-    verifyScalar(ns, "sys::Marker",   Str<|Marker "marker"|>, m)
-    verifyScalar(ns, "sys::Marker",   Str<|sys::Marker "marker"|>, m)
+    verifyScalar(ns, "sys::Marker",   Str<|Marker "✓"|>, m)
+    verifyScalar(ns, "sys::Marker",   Str<|sys::Marker "✓"|>, m)
     verifyScalar(ns, "sys::None",     Str<|None "none"|>, none)
     verifyScalar(ns, "sys::None",     Str<|sys::None "none"|>, none)
     verifyScalar(ns, "sys::NA",       Str<|sys::NA "na"|>, na)

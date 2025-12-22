@@ -535,7 +535,7 @@ class EtcTest : HaystackTest
 
     verifySortCompare("s", true, -1)
     verifySortCompare("s", n(123), +1)
-    verifySortCompare("s", Marker.val, +1)
+    verifySortCompare("s", Marker.val, -1)
 
     verifySortCompare(Ref("a"), Ref("b"), -1)
     verifySortCompare(Ref("a", "Z"), Ref("b", "A"), +1)

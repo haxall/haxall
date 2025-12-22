@@ -21,12 +21,13 @@ const final class Marker
 
   private new make() {}
 
-  ** Return "marker"
-  override Str toStr() { "marker" }
+  ** Return "✓"
+  override Str toStr() { "\u2713" }
 
-  ** Return check mark
+  ** Return "✓"
   @NoDoc Str toLocale() { "\u2713" }
 
   ** If true return Marker.val else null
   static Marker? fromBool(Bool b) { b ? val : null }
 }
+
