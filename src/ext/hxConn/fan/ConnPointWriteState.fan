@@ -209,6 +209,9 @@ const class ConnWriteInfo
     this.extra   = extra
   }
 
+  ** Return true if the write originated from an observed `onPointWrite()` callback.
+  internal Bool isFromPointWrite() { extra == "" }
+
   ** Value to write to the remote system; might be converted from writeVal
   const Obj? val
 
