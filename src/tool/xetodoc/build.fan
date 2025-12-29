@@ -37,6 +37,7 @@ class Build : BuildPod
     srcDirs = [`fan/ast/`,
                `fan/compiler/`,
                `fan/util/`]
+    resDirs = [`res/css/`]
   }
 }
 

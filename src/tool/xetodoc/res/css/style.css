@@ -1,0 +1,120 @@
+/*
+// Copyright (c) 2025, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   29 Dec 2025  Brian Frank  Derive from defc stylesheet
+*/
+
+xetodoc-page {
+  font: 16px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+  line-height: 1.5em;
+  max-width: 960px;
+
+  --divider-border: 1px solid #eee;
+
+  --link-color:    #3e7cc4;  /* blue   - nav, links */
+  --title-color:   #d49011;  /* orange - top level headings */
+  --name-color:    #27ae60;  /* green  - specs, instances, chapter, types, slots */
+  --sidebar-color: #a0a0a0;  /* gray   - left sidebar tab */
+}
+
+xetodoc-page img {
+  border:0;
+}
+
+xetodoc-page hr {
+  border: 0;
+  border-top: var(--divider-border);
+  height: 1px;
+}
+
+xetodoc-page a {
+  color: var(--link-color);
+}
+
+xetodoc-page code {
+  font: 14px Menlo, Consolas, Courier, monospace;
+  color: #777;
+}
+
+xetodoc-page pre {
+  font: 14px Menlo, Consolas, Courier, monospace;
+  background: #f7f7f9;
+  margin: 1em 0;
+  padding: 1.5em;
+  overflow: auto;
+}
+
+xetodoc-page h1 {
+  color: var(--title-color);
+  margin: 0 0 0.5em 0;
+  padding: 0;
+}
+
+xetodoc-page h2 {
+  color: var(--name-color);
+}
+
+xetodoc-page p > img {
+  display:block;
+  margin:0 auto;
+  max-width: 600px;
+}
+
+/*************************************************************************
+ * Navigation
+ ************************************************************************/
+
+xetodoc-nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+xetodoc-nav ul li {
+  display: inline;
+  margin: 0 4px;
+  padding: 2px 0;
+  color: #aaa;
+}
+
+xetodoc-nav li.next {
+  text-align: right;
+}
+
+xetodoc-nav li + li.next {
+  float: right;
+}
+
+/*************************************************************************
+ * Main Two Column Grid
+ ************************************************************************/
+
+xetodoc-main {
+  margin: 20px 0 0 0;
+  display: grid;
+  grid-template-columns: auto 850px;
+  grid-row-gap: 30px;
+  grid-column-gap: 20px;
+}
+
+xetodoc-tab {
+  margin: 0;
+  padding: 5px 10px 0 0;
+  text-align: right;
+  font-size: 100%;
+  font-weight: normal;
+  color: var(--sidebar-color);
+}
+
+xetodoc-section {
+  margin: 0;
+  padding: 0;
+}
+
+xetodoc-footer  {
+  font-size: 60%;
+  color: #999;
+}
+

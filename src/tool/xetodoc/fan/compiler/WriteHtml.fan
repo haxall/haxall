@@ -17,18 +17,38 @@ internal class WriteHtml : Step
 {
   override Void run()
   {
-    eachPage |entry|
-    {
-      writePage(entry)
-    }
+    // doc setup
+    footerText = "Xetodoc \u2022 " + DateTime.now.toLocale("D-MMM-YYYY hh:mm zzz")
+
+    // write each page
+    eachPage |entry| { writePage(entry) }
+
+    // write css file
+    writeCss
   }
 
   Void writePage(DocPage page)
   {
     uri := `${page.uri}.html`.relTo(`/`)
     file := compiler.outDir + uri
-    file.out.print("// TODO: $page.title").close
+    out := file.out
+    try
+    {
+      w := DocHtmlWriter(out)
+      w.footerText = footerText
+      w.page(page)
+    }
+    finally out.close
     compiler.numFiles++
   }
+
+  Void writeCss()
+  {
+    css := typeof.pod.file(`/res/css/style.css`).readAllStr
+    file := compiler.outDir + `xetodoc.css`
+    file.out.print(css).close
+  }
+
+  Str? footerText
 }
 
