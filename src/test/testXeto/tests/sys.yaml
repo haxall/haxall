@@ -96,7 +96,7 @@ verifyType:
     sealed: "sys::Marker"
     val: "sys::Float 0.0"
     unitless: "sys::Marker"
-    pattern: "sys::Str -?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?"
+    pattern: sys::Str (-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:NaN|-?INF)")
 ---
 name: "duration"
 loadLib: "sys"
