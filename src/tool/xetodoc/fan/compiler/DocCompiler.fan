@@ -20,18 +20,6 @@ class DocCompiler
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  ** Static utility which can be easily used for reflection
-  static Void runCompiler(Namespace ns, File outDir)
-  {
-    c := DocCompiler
-    {
-      it.ns     = ns
-      it.libs   = ns.libs
-      it.outDir = outDir
-    }
-    c.compile
-  }
-
   ** It-block Constructor
   new make(|This| f) { f(this) }
 
@@ -68,10 +56,20 @@ class DocCompiler
 // Pipelines
 //////////////////////////////////////////////////////////////////////////
 
-  ** Compile:
-  **   - if outDir is non-null, write pages to JSON files
-  **   - otherwise compile to in-memory AST DocPages
-  This compile()
+  ** Compile to HTML files
+  This compileHtml()
+  {
+    if (outDir == null) throw Err("Must config outDir")
+    run([
+      GenPages(),
+      WriteHtml(),
+    ])
+    return this
+  }
+
+
+  ** Compile to JSON files (if outDir null, then in-memory files)
+  This compileJson()
   {
     run([
       GenPages(),
@@ -160,8 +158,7 @@ class DocCompiler
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
   DocPage[] pages := [,]              // GenPages
-  File[] files := [,]                 // WriteJson if generating in-mem
-  Int numFiles                        // WriteJson if generating to outDir
+  Int numFiles                        // WriteHtml, WriteJson
   private Str[] autoNames := [,]      // autoName
 }
 

@@ -30,7 +30,7 @@ class DocTest : AbstractXetoTest
     lib := ns.lib("hx.test.xeto")
     docXeto := ns.lib("doc.xeto")
     compiler = DocCompiler { it.ns = ns; it.libs = [lib, docXeto]; it.outDir = tempDir }
-    compiler.compile
+    compiler.compileJson
 
     // lib - hx.test.xeto
     page := toPage(compiler, `/$lib.name/index`)

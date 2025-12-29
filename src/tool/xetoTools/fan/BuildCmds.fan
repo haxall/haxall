@@ -12,51 +12,6 @@ using haystack
 using xetom
 using xetodoc
 
-**************************************************************************
-** DocCmd
-**************************************************************************
-
-**
-** DocCmd compiles a namespace to docs
-**
-internal class DocCmd : SrcLibCmd
-{
-  override Str name() { "doc" }
-
-  override Str summary() { "Compile libs to JSON doc AST files" }
-
-  @Opt { help = "Output directory" }
-  File? outDir
-
-  override Int process(XetoEnv env, LibVersion[] vers)
-  {
-    // flatten and build namespace
-    depends := vers.map |x->LibDepend| { x.asDepend }
-    flatten := env.repo.solveDepends(depends)
-    ns := env.createNamespace(flatten)
-
-    // get libs to compile
-    libs := vers.map |v->Lib| { ns.lib(v.name) }
-
-    // output directory
-    outDir := this.outDir ?: Env.cur.workDir + `doc-xeto/`
-
-    // compile
-    c := DocCompiler
-    {
-      it.ns     = ns
-      it.libs   = libs
-      it.outDir = outDir
-    }
-    c.compile
-    return 0
-  }
-}
-
-**************************************************************************
-** Init
-**************************************************************************
-
 **
 ** InitCmd stubs out the source directory for a new xetolib zips
 **

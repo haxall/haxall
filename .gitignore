@@ -14,7 +14,7 @@ xeto.props
 
 # doc/
 /doc/
-/doc-xeto/
+/doc-*/
 
 # gen
 /gen/
@@ -48,3 +48,4 @@ npm/
 
 # env variables
 *.env
+

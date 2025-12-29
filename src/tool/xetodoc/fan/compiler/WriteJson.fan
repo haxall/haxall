@@ -17,7 +17,6 @@ internal class WriteJson : Step
 {
   override Void run()
   {
-    if (compiler.outDir == null) return
     eachPage |entry|
     {
       writePage(entry)
@@ -28,16 +27,7 @@ internal class WriteJson : Step
   {
     obj := page.encode
     json := JsonOutStream.prettyPrintToStr(obj)
-    if (compiler.outDir == null)
-      writeToMem(page, json)
-    else
-      writeToFile(page, json)
-  }
-
-  Void writeToMem(DocPage page, Str json)
-  {
-    file := Buf(json.size).print(json).toFile(page.uri.name.toUri)
-    compiler.files.add(file)
+    writeToFile(page, json)
   }
 
   Void writeToFile(DocPage page, Str json)
