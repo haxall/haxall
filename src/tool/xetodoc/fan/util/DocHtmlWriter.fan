@@ -30,13 +30,18 @@ class DocHtmlWriter : WebOutStream
     {
       case DocPageType.spec:     spec(p)
       case DocPageType.instance: instance(p)
-      case DocPageType.lib:      lib(p)
       case DocPageType.chapter:  chapter(p)
+      case DocPageType.lib:      lib(p)
+      case DocPageType.index:    index(p)
       default:                   throw Err(p.pageType.toStr)
     }
     pageEnd
     curPage = null
     return this
+  }
+
+  private Void index(DocIndex p)
+  {
   }
 
   private Void lib(DocLib p)

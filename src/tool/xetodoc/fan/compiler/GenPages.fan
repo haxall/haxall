@@ -18,14 +18,27 @@ internal class GenPages: Step
   override Void run()
   {
     // each lib
+    libGens := GenPage[,]
     compiler.libs.each |lib|
     {
       if (DocUtil.isLibNoDoc(lib)) return
       g := genLib(lib)
+      libGens.add(g)
     }
 
     // build index
-//    genIndex
+    genIndex(libGens)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Index
+//////////////////////////////////////////////////////////////////////////
+
+  private Void genIndex(GenPage[] libs)
+  {
+   // TOOD
+    page := DocIndex.makeForNamespace(ns)
+    compiler.pages.add(page)
   }
 
 //////////////////////////////////////////////////////////////////////////
