@@ -23,6 +23,7 @@ class DocHtmlWriter : WebOutStream
 
   This page(DocPage p)
   {
+    curPage = p
     pageStart(p)
     pageHeader(p)
     switch (p.pageType)
@@ -34,6 +35,7 @@ class DocHtmlWriter : WebOutStream
       default:                   throw Err(p.pageType.toStr)
     }
     pageEnd
+    curPage = null
     return this
   }
 
@@ -71,9 +73,32 @@ class DocHtmlWriter : WebOutStream
        .body("style='padding:0; background:#fff; margin:1em 4em 3em 6em;'")
     }
 
-    // <xetodoc-page> <xetodoc-main>
-    tag(tagPage).nl
+    // <xetodoc-page>
+    tag(tagPage).nl.nl
+
+    // <xetodoc-nav>
+    pageNav(p).nl.nl
+
+    // <xetodoc-main>
     tag(tagMain).nl
+  }
+
+  private This pageNav(DocPage p)
+  {
+    nav := p.nav
+    tag(tagNav).nl
+    ul
+    p.nav.each |link, i|
+    {
+      // separator
+      if (i > 0) li.w(" \u00BB ").liEnd
+
+      // link item
+      li.link(link).liEnd.nl
+    }
+    ulEnd
+    tagEnd(tagNav)
+    return this
   }
 
   private Void pageHeader(DocPage p)
@@ -116,10 +141,34 @@ class DocHtmlWriter : WebOutStream
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Links
+//////////////////////////////////////////////////////////////////////////
+
+  private This link(DocLink link)
+  {
+    a(href(link.uri, ".html")).esc(link.dis).aEnd
+  }
+
+  private Uri href(Uri uri, Str? ext := null)
+  {
+    if (curPage == null) throw Err("No current page")
+    cur := curPage.uri
+    s := StrBuf()
+    if (cur.path.first != uri.path.first)
+    {
+      s.add("../")
+      if (uri.path.size > 1) s.add(uri.path[1]).addChar('/')
+    }
+    s.add(uri.name).joinNotNull(ext, "")
+    return s.toStr.toUri
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   static const Str tagPage    := "xetodoc-page"
+  static const Str tagNav     := "xetodoc-nav"
   static const Str tagMain    := "xetodoc-main" // two column tab+section
   static const Str tagTab     := "xetodoc-tab"
   static const Str tagSection := "xetodoc-section"
@@ -128,5 +177,6 @@ class DocHtmlWriter : WebOutStream
   Bool fullHtml := true
   Str footerText := "footer"
   Str cssFilename := "xetodoc.css"
+  private DocPage? curPage
 }
 

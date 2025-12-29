@@ -26,6 +26,21 @@ const mixin DocPage
   ** Title
   abstract Str title()
 
+  ** Navigation breadcrumbs (from index down to and including this page)
+  DocLink[] nav()
+  {
+    acc := DocLink[,]
+    acc.capacity = 4
+    acc.add(DocLink(DocUtil.indexUri, "Index"))
+    if (lib != null)
+    {
+      acc.add(DocLink(DocUtil.libToUri(lib.name), lib.name))
+      if (pageType !== DocPageType.lib)
+        acc.add(DocLink(uri, title))
+    }
+    return acc
+  }
+
   ** Source code location within xetolib file if applicable
   virtual FileLoc? srcLoc() { null }
 
