@@ -93,14 +93,25 @@ const class DocTags
 {
   static const DocTag lib      := DocTag("lib")
   static const DocTag type     := DocTag("type")
-  static const DocTag global   := DocTag("global")
-  static const DocTag meta     := DocTag("meta")
-  static const DocTag func     := DocTag("func")
-  static const DocTag slot     := DocTag("slot")
+  static const DocTag mixIn    := DocTag("mixin")
   static const DocTag instance := DocTag("instance")
   static const DocTag chapter  := DocTag("chapter")
   static const DocTag sys      := DocTag("sys")
   static const DocTag ph       := DocTag("ph")
+
+  static SpecFlavor? toFlavor(DocTag? tag)
+  {
+    if (tag === type)  return SpecFlavor.type
+    if (tag === mixIn) return SpecFlavor.mixIn
+    return null
+  }
+
+  static DocTag fromFlavor(SpecFlavor f)
+  {
+    if (f === SpecFlavor.type)  return type
+    if (f === SpecFlavor.mixIn) return mixIn
+    throw Err(f.name)
+  }
 
   static once Str:DocTag byName()
   {

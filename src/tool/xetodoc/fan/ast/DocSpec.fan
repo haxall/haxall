@@ -38,18 +38,9 @@ abstract const class AbstractDocSpec
 const class DocSpec : AbstractDocSpec, DocPage
 {
   ** Constructor
-  new make(DocLibRef lib, Str qname, SpecFlavor flavor, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots)
+  new make(|This| f)
   {
-    this.lib    = lib
-    this.qname  = qname
-    this.flavor = flavor
-    this.srcLoc = srcLoc
-    this.doc    = doc
-    this.meta   = meta
-    this.base = base
-    this.supertypes = supertypes
-    this.subtypes = subtypes
-    this.slots = slots
+    f(this)
   }
 
   ** Page type
@@ -85,6 +76,9 @@ const class DocSpec : AbstractDocSpec, DocPage
   ** Effective meta data
   const override DocDict meta
 
+  ** Tags
+  const DocTag[] tags
+
   ** Super type or null if this is 'sys::Obj'
   const DocTypeRef? base
 
@@ -118,6 +112,7 @@ const class DocSpec : AbstractDocSpec, DocPage
     obj.addNotNull("srcLoc", srcLoc?.toStr)
     obj["doc"]    = doc.encode
     obj.addNotNull("meta", meta.encode)
+    obj.addNotNull("tags", DocTag.encodeList(tags))
     obj.addNotNull("base", base?.encode)
     obj.addNotNull("supertypes", supertypes.encode)
     obj.addNotNull("subtypes", subtypes.encode)
@@ -128,17 +123,20 @@ const class DocSpec : AbstractDocSpec, DocPage
   ** Decode from a JSON object tree
   static DocSpec doDecode(Str:Obj obj)
   {
-    lib        := DocLibRef.decode(obj.getChecked("lib"))
-    qname      := obj.getChecked("qname")
-    flavor     := SpecFlavor.fromStr(obj.getChecked("flavor"))
-    srcLoc     := DocUtil.srcLocDecode(obj)
-    doc        := DocMarkdown.decode(obj.get("doc"))
-    meta       := DocDict.decode(obj.get("meta"))
-    base       := DocTypeRef.decode(obj.get("base"))
-    supertypes := DocTypeGraph.decode(obj.get("supertypes"))
-    subtypes   := DocTypeGraph.decode(obj.get("subtypes"))
-    slots      := DocSlot.decodeMap(obj.get("slots"))
-    return make(lib, qname, flavor, srcLoc, doc, meta, base, supertypes, subtypes, slots)
+    DocSpec
+    {
+      it.lib        = DocLibRef.decode(obj.getChecked("lib"))
+      it.qname      = obj.getChecked("qname")
+      it.flavor     = SpecFlavor.fromStr(obj.getChecked("flavor"))
+      it.srcLoc     = DocUtil.srcLocDecode(obj)
+      it.doc        = DocMarkdown.decode(obj.get("doc"))
+      it.meta       = DocDict.decode(obj.get("meta"))
+      it.tags       = DocTag.decodeList(obj.get("tags"))
+      it.base       = DocTypeRef.decode(obj.get("base"))
+      it.supertypes = DocTypeGraph.decode(obj.get("supertypes"))
+      it.subtypes   = DocTypeGraph.decode(obj.get("subtypes"))
+      it.slots      = DocSlot.decodeMap(obj.get("slots"))
+    }
   }
 }
 

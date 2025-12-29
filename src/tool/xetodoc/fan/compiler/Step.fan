@@ -29,11 +29,12 @@ abstract internal class Step
 
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
-  Void eachPage(|PageEntry| f)
+  Void eachPage(|DocPage| f)
   {
-    compiler.entries.each(f)
+    compiler.pages.each(f)
   }
 
+/*
   Void eachLib(|PageEntry| f)
   {
     compiler.libEntries.each(f)
@@ -83,6 +84,12 @@ abstract internal class Step
   DocSummary[] summaries(Obj[] list)
   {
     list.map |x->DocSummary| { summary(x) }
+  }
+*/
+
+  Spec[] specsToDoc(Lib lib)
+  {
+    lib.specs.list.findAll |t| { !DocUtil.isSpecNoDoc(t) }
   }
 
   DocTypeRef? genTypeRef(Spec? x)

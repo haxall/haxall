@@ -15,6 +15,7 @@ using xetom
 **
 ** Generate summaries for every page
 **
+/* TODO
 internal class GenSummaries : Step
 {
   override Void run()
@@ -115,4 +116,5 @@ internal class GenSummaries : Step
 
   private TextRenderer textRend := TextRenderer()
 }
+*/
 

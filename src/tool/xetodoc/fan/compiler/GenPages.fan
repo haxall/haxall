@@ -17,71 +17,119 @@ internal class GenPages: Step
 {
   override Void run()
   {
-    PageEntry? index
-    eachPage |PageEntry entry|
+    // each lib
+    compiler.libs.each |lib|
     {
-      if (entry.pageType == DocPageType.index)
-        index = entry
-      else
-        entry.pageRef = genPage(entry)
+      if (DocUtil.isLibNoDoc(lib)) return
+      g := genLib(lib)
     }
 
-    // do index last
-    index.pageRef = genIndex(index)
+    // build index
+//    genIndex
   }
 
-  DocPage genPage(PageEntry entry)
+//////////////////////////////////////////////////////////////////////////
+// Lib
+//////////////////////////////////////////////////////////////////////////
+
+  private GenPage genLib(Lib lib)
   {
-    switch (entry.pageType)
+    // lib reference for child pages
+    libRef :=  DocLibRef(lib.name, lib.version)
+
+    // specs
+    specs := DocSummary[,]
+    lib.specs.each |x|
     {
-      case DocPageType.lib:      return genLib(entry, entry.def)
-      case DocPageType.spec:     return genSpec(entry, entry.def)
-      case DocPageType.instance: return genInstance(entry, entry.def)
-      case DocPageType.chapter:  return genChapter(entry, entry.def)
-      default: throw Err(entry.pageType.name)
+      if (DocUtil.isSpecNoDoc(x)) return
+      g := genSpec(libRef, x)
+      specs.add(g.summary)
     }
-  }
 
-  DocIndex genIndex(PageEntry entry)
-  {
-    DocIndex.makeForNamespace(ns)
-  }
-
-  DocLib genLib(PageEntry entry, Lib x)
-  {
-    DocLib
+    // instances
+    instances := DocSummary[,]
+    lib.instances.each |x|
     {
-      it.name      = x.name
-      it.version   = x.version
-      it.doc       = genDoc(x.meta["doc"])
-      it.meta      = genDict(x.meta)
-      it.depends   = genDepends(x)
-      it.tags      = DocUtil.genTags(ns, x)
-      it.specs     = summaries(specsToDoc(x))
-      it.instances = summaries(x.instances)
-      it.chapters  = chapterSummaries(x)
-      it.readme    = entry.readme ?: DocMarkdown.empty
+      g := genInstance(libRef, x)
+      instances.add(g.summary)
     }
+
+    // chapters
+    chapters := DocSummary[,]
+    if (lib.hasMarkdown)
+    {
+      lib.files.list.each |uri|
+      {
+        if (uri.ext != "md") return
+        if (uri.name == "index.md") { echo("TODO: index $uri"); return }
+        g := genChapter(libRef, uri, lib.files.get(uri).readAllStr)
+        chapters.add(g.summary)
+      }
+    }
+
+    // generate lib page
+    page := DocLib
+    {
+      it.name      = lib.name
+      it.version   = lib.version
+      it.doc       = genDoc(lib.meta["doc"])
+      it.meta      = genDict(lib.meta)
+      it.depends   = genDepends(lib)
+      it.tags      = DocUtil.genTags(ns, lib)
+      it.specs     = specs
+      it.instances = instances
+      it.chapters  = chapters
+    }
+
+    // generate lib summary
+    summary := DocSummary(DocLink(page.uri, lib.name), page.doc, page.tags)
+
+    // add to pages
+    return addPage(page, summary)
   }
 
-  DocLibDepend[] genDepends(Lib lib)
+  private DocLibDepend[] genDepends(Lib lib)
   {
     lib.depends.map |x| { DocLibDepend(DocLibRef(x.name, null), x.versions) }
   }
 
-  DocSpec genSpec(PageEntry entry, Spec x)
+//////////////////////////////////////////////////////////////////////////
+// Spec
+//////////////////////////////////////////////////////////////////////////
+
+  private GenPage genSpec(DocLibRef lib, Spec x)
   {
-    srcLoc     := DocUtil.srcLoc(x)
-    doc        := genSpecDoc(x)
-    meta       := genDict(x.meta)
-    base       := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
-    slots      := genSlots(x)
-    supertypes := genSupertypes(x)
-    subtypes   := genSubtypes(x)
-    return DocSpec(entry.libRef, x.qname, x.flavor, srcLoc, doc, meta, base, supertypes, subtypes, slots)
+    page  := genSpecPage(lib, x)
+    summary := DocSummary(DocLink(page.uri, x.name), page.doc, page.tags)
+    return addPage(page, summary)
   }
 
-  DocTypeGraph genSupertypes(Spec x)
+  private DocSpec genSpecPage(DocLibRef lib, Spec x)
+  {
+    DocSpec
+    {
+     it.lib        = lib
+     it.qname      = x.qname
+     it.flavor     = x.flavor
+     it.srcLoc     = DocUtil.srcLoc(x)
+     it.doc        = genSpecDoc(x)
+     it.meta       = genDict(x.meta)
+     it.tags       = genSpecTags(x)
+     it.base       = x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
+     it.supertypes = genSupertypes(x)
+     it.subtypes   = genSubtypes(x)
+     it.slots      = genSlots(x)
+    }
+  }
+
+  private DocTag[] genSpecTags(Spec x)
+  {
+    acc := DocTag[,]
+    acc.add(DocTags.fromFlavor(x.flavor))
+    return acc
+  }
+
+  private DocTypeGraph genSupertypes(Spec x)
   {
     acc := Str:Int[:]
     acc.ordered = true
@@ -96,7 +144,7 @@ internal class GenPages: Step
     return DocTypeGraph(types, edges)
   }
 
-  DocTypeGraphEdge toSupertypeEdge(Str:Int qnameToIndex, Spec spec)
+  private DocTypeGraphEdge toSupertypeEdge(Str:Int qnameToIndex, Spec spec)
   {
     if (spec.base == null) return DocTypeGraphEdge.obj
     if (!spec.isCompound)
@@ -109,7 +157,7 @@ internal class GenPages: Step
     return DocTypeGraphEdge(mode, indexes)
   }
 
-  Void doGenSupertypes(Str:Int acc, Spec? x)
+  private Void doGenSupertypes(Str:Int acc, Spec? x)
   {
     if (x == null || acc[x.qname] != null) return
     acc[x.qname] = acc.size
@@ -126,7 +174,7 @@ internal class GenPages: Step
     }
   }
 
-  DocTypeGraph genSubtypes(Spec x)
+  private DocTypeGraph genSubtypes(Spec x)
   {
     acc := specsToDoc(x.lib).findAll |t|
     {
@@ -140,12 +188,9 @@ internal class GenPages: Step
     return DocTypeGraph(types, null)
   }
 
-  DocInstance genInstance(PageEntry entry, Dict x)
-  {
-    qname    := x.id.id
-    instance := genDict(x)
-    return DocInstance(entry.libRef, qname, instance)
-  }
+//////////////////////////////////////////////////////////////////////////
+// Instance
+//////////////////////////////////////////////////////////////////////////
 
   Str:DocSlot genSlots(Spec spec)
   {
@@ -190,10 +235,34 @@ internal class GenPages: Step
     return DocLink(uri, dis)
   }
 
-  DocChapter genChapter(PageEntry entry, Str markdown)
+//////////////////////////////////////////////////////////////////////////
+// Instance
+//////////////////////////////////////////////////////////////////////////
+
+  GenPage genInstance(DocLibRef lib, Dict x)
   {
-    DocChapter(entry.libRef, entry.key, genDoc(markdown))
+    qname    := x.id.id
+    instance := genDict(x)
+    page     := DocInstance(lib, qname, instance)
+    summary  := DocSummary(DocLink(page.uri, page.name), DocMarkdown.empty)
+    return addPage(page, summary)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Chapter
+//////////////////////////////////////////////////////////////////////////
+
+  GenPage genChapter(DocLibRef lib,  Uri uri, Str markdown)
+  {
+    qname   := lib.name + "::" + uri.basename
+    page    := DocChapter(lib, qname, genDoc(markdown))
+    summary := DocSummary(DocLink(page.uri, page.title), page.doc)
+    return addPage(page, summary)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
 
   DocDict genDict(Dict d)
   {
@@ -209,35 +278,67 @@ internal class GenPages: Step
     return DocDict(type, acc)
   }
 
-  DocVal genVal(Obj x)
+  private DocVal genVal(Obj x)
   {
     if (x is Dict) return genDict(x)
     if (x is List) return genList(x)
     return genScalar(x)
   }
 
-  DocList genList(Obj[] x)
+  private DocList genList(Obj[] x)
   {
     DocList(DocTypeRef.list, x.map |item| { genVal(item) })
   }
 
-  DocScalar genScalar(Obj x)
+  private DocScalar genScalar(Obj x)
   {
     type := DocSimpleTypeRef(ns.specOf(x).qname)
     return DocScalar(type, x.toStr)
   }
 
-  DocMarkdown genSpecDoc(Spec x)
+  private DocMarkdown genSpecDoc(Spec x)
   {
     genDoc(x.meta["doc"])
   }
 
-  DocMarkdown genDoc(Obj? doc)
+  private DocMarkdown genDoc(Obj? doc)
   {
     str := doc as Str ?: ""
     if (str.isEmpty) return DocMarkdown.empty
     return DocMarkdown(str)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Generation
+//////////////////////////////////////////////////////////////////////////
+
+  private GenPage addPage(DocPage page, DocSummary summary)
+  {
+    x := GenPage(page, summary)
+    if (pages[x.uri] != null)
+    {
+      err("Duplicate pages: $x.uri", FileLoc(x.uri.toStr))
+    }
+    else
+    {
+      pages[x.uri] = x
+      compiler.pages.add(x.page)
+    }
+    return x
+  }
+
+  private Uri:GenPage pages := [:]
+}
+
+**************************************************************************
+** GenPage
+**************************************************************************
+
+internal class GenPage
+{
+  new make(DocPage p, DocSummary? s) { uri = p.uri; page = p; summary = s }
+  const Uri uri
+  const DocPage page
+  const DocSummary? summary
 }
 

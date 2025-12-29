@@ -170,6 +170,7 @@ const class DocUtil
     return count
   }
 
+// TODO
   static Void libEachMarkdownFile(Lib lib, |Uri uri, Str? special| f)
   {
     lib.files.list.each |uri|
@@ -183,6 +184,20 @@ const class DocUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Visiblity
+//////////////////////////////////////////////////////////////////////////
+
+  static Bool isLibNoDoc(Lib x)
+  {
+    x.meta.has("nodoc")
+  }
+
+  static Bool isSpecNoDoc(Spec x)
+  {
+    x.meta.has("nodoc") || XetoUtil.isAutoName(x.name)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Standard icon refs
 //////////////////////////////////////////////////////////////////////////
 
@@ -191,6 +206,7 @@ const class DocUtil
     switch (name)
     {
       case "specs":     return typeIcon
+      case "mixins":    return mixinIcon
       case "globals":   return globalIcon
       case "metas":     return globalIcon
       case "funcs":     return funcIcon
@@ -208,6 +224,7 @@ const class DocUtil
   static const Str indexIcon    := "list"
   static const Str libIcon      := "package"
   static const Str typeIcon     := "spec"
+  static const Str mixinIcon    := "spec"
   static const Str globalIcon   := "tag"
   static const Str funcIcon     := "func"
   static const Str instanceIcon := "at-sign"

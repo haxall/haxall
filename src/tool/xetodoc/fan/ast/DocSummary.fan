@@ -20,7 +20,7 @@ const class DocSummary
     this.link   = link
     this.text   = text
     this.tags   = tags ?: DocTag.emptyList
-    this.flavor = SpecFlavor.fromStr(this.tags.first?.name ?: "", false)
+    this.flavor = DocTags.toFlavor(this.tags.first)
     this.type   = type
   }
 

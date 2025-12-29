@@ -13,6 +13,7 @@ using xetom
 **
 ** Generate initial PageEntry stub for every top-level page
 **
+/* TODO
 internal class StubPages: Step
 {
   override Void run()
@@ -74,4 +75,5 @@ internal class StubPages: Step
   Uri:PageEntry byUri := [:]
   PageEntry[] libEntries := [,]
 }
+*/
 

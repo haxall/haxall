@@ -74,8 +74,6 @@ class DocCompiler
   This compile()
   {
     run([
-      StubPages(),
-      GenSummaries(),
       GenPages(),
       WriteJson(),
     ])
@@ -143,36 +141,6 @@ class DocCompiler
     return err
   }
 
-  ** Get all DocPages
-  once DocPage[] pages()
-  {
-    acc := DocPage[,]
-    acc.capacity = entries.size
-    entries.each |entry| { acc.add(entry.page) }
-    return acc.toImmutable
-  }
-
-  ** Get all DocPages for given lib
-  DocPage[] pagesForLib(Str libName)
-  {
-    pages.findAll |page| { page.lib?.name == libName }
-  }
-
-  ** Lookup page entry for lib, spec, instance
-  PageEntry entry(Obj def)
-  {
-    entries.getChecked(key(def))
-  }
-
-  ** Get page entry key for lib, spec, instance
-  static Str key(Obj def)
-  {
-    if (def is Spec) return ((Spec)def).qname
-    if (def is Lib)  return ((Lib)def).name
-    if (def is Dict) return ((Dict)def).id.id
-    throw Err("Cannot derive key: $def [$def.typeof]")
-  }
-
   ** Generate an auto name of "_0", "_1", etc
   Str autoName(Int i)
   {
@@ -191,8 +159,7 @@ class DocCompiler
 
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
-  [Str:PageEntry]? entries            // StubPages
-  PageEntry[]? libEntries             // StubPages
+  DocPage[] pages := [,]              // GenPages
   File[] files := [,]                 // WriteJson if generating in-mem
   Int numFiles                        // WriteJson if generating to outDir
   private Str[] autoNames := [,]      // autoName

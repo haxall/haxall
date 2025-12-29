@@ -14,6 +14,7 @@ using haystack
 **
 ** PageEntry is the working data for a DocPage
 **
+/* TODO
 class PageEntry
 {
   ** Constructor for top level index
@@ -142,4 +143,5 @@ class PageEntry
   override Str toStr() { "$uri.toCode $dis [$pageType]" }
 
 }
+*/
 

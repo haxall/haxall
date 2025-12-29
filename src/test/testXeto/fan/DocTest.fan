@@ -33,76 +33,62 @@ class DocTest : AbstractXetoTest
     compiler.compile
 
     // lib - hx.test.xeto
-    entry := compiler.entries[lib.name]
-    verifyHxLib(entry, lib, entry.page)
-    verifyHxLib(entry, lib, roundtrip(entry))
+    page := toPage(compiler, `/$lib.name/index`)
+    verifyHxLib(lib, page)
+    verifyHxLib(lib, roundtrip(page))
 
     // lib - doc.xeto
     verifyEq(docXeto.hasMarkdown, true)
-    entry = compiler.entries.getChecked(docXeto.name)
-    verifyDocLib(entry, docXeto, entry.page)
-    verifyDocLib(entry, docXeto, roundtrip(entry))
+    page = toPage(compiler, `/$docXeto.name/index`)
+    verifyDocLib(docXeto, page)
+    verifyDocLib(docXeto, roundtrip(page))
 
     // type
     spec := lib.spec("EqA")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifyTypeSpec(entry, spec, entry.page)
-    verifyTypeSpec(entry, spec, roundtrip(entry))
+    page = toPage(compiler, `/$lib.name/$spec.name`)
+    verifyTypeSpec(spec, page)
+    verifyTypeSpec(spec, roundtrip(page))
 
     // mixin
     spec = lib.spec("TestGlobalsD")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifySpec(entry, spec, entry.page)
-    verifySpec(entry, spec, roundtrip(entry))
-
-    // meta
-    /* TODO
-    spec = lib.spec("Spec").slot("q")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifySpec(entry, spec, entry.page)
-    verifySpec(entry, spec, roundtrip(entry))
-
-    // func
-    spec = lib.spec("add2")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifySpec(entry, spec, entry.page)
-    verifySpec(entry, spec, roundtrip(entry))
-    */
+    page = toPage(compiler, `/$lib.name/$spec.name`)
+    verifySpec( spec, page)
+    verifySpec( spec, roundtrip(page))
 
     // instance
     Dict inst := lib.instance("test-a")
-    entry = compiler.entries.getChecked(inst.id.toStr)
-    verifyInstance(entry, inst, entry.page)
-    verifyInstance(entry, inst, roundtrip(entry))
+    page = toPage(compiler, `/$lib.name/test-a`)
+    verifyInstance(inst, page)
+    verifyInstance(inst, roundtrip(page))
 
     // type sigs
     spec = lib.spec("Sigs")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifyTypeRefs(spec, entry.page)
-    verifyTypeRefs(spec, roundtrip(entry))
+    page = toPage(compiler, `/$lib.name/$spec.name`)
+    verifyTypeRefs(spec, page)
+    verifyTypeRefs(spec, roundtrip(page))
 
     // supertypes
     spec = lib.spec("AB")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifySupertypes(spec, entry.page)
-    verifySupertypes(spec, roundtrip(entry))
+    page = toPage(compiler, `/$lib.name/$spec.name`)
+    verifySupertypes(spec, page)
+    verifySupertypes(spec, roundtrip(page))
 
     // subtypes
     spec = lib.spec("A")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifySubtypes(spec, entry.page)
-    verifySubtypes(spec, roundtrip(entry))
+    page = toPage(compiler, `/$lib.name/$spec.name`)
+    verifySubtypes(spec, page)
+    verifySubtypes(spec, roundtrip(page))
 
     // nested queries with points
     spec = lib.spec("EqAX")
-    entry = compiler.entries.getChecked(spec.qname)
-    verifyPoints(spec, entry.page)
-    verifyPoints(spec, roundtrip(entry))
+    page = toPage(compiler, `/$lib.name/$spec.name`)
+    verifyPoints(spec, page)
+    verifyPoints(spec, roundtrip(page))
 
     // chapter
-    entry = compiler.entries.getChecked("doc.xeto::Namespaces")
-    verifyChapter(entry.page)
-    verifyChapter(roundtrip(entry))
+    page = toPage(compiler, `/doc.xeto/Namespaces`)
+    verifyChapter(page)
+    verifyChapter(roundtrip(page))
 
     // tags
     verifySame(DocTag.intern("lib"), DocTags.lib)
@@ -124,11 +110,16 @@ class DocTest : AbstractXetoTest
     verifySame(search.hits[0].tags[1], DocTags.lib)
   }
 
-  DocPage roundtrip(PageEntry entry)
+  DocPage toPage(DocCompiler c, Uri uri)
   {
-    file := tempDir + entry.uriJson.toStr[1..-1].toUri
+    c.pages.find { it.uri == uri } ?: throw Err("Not found: $uri")
+  }
+
+  DocPage roundtrip(DocPage page)
+  {
+    file := tempDir + (page.uri.toStr[1..-1] + `.json`).toUri
     json := file.readAllStr
-    // echo("\n#### rountrip $entry.uri\n$json")
+    // echo("\n#### rountrip $page.uri\n$json")
     obj  := JsonInStream(json.in).readJson
     return DocPage.decode(obj)
   }
@@ -141,15 +132,8 @@ class DocTest : AbstractXetoTest
     return DocPage.decode(obj)
   }
 
-  Void verifyPage(PageEntry entry, DocPage n)
+  Void verifyLib(Lib lib, DocLib n)
   {
-    verifyEq(n.uri,      entry.uri)
-    verifyEq(n.pageType, entry.pageType)
-  }
-
-  Void verifyLib(PageEntry entry, Lib lib, DocLib n)
-  {
-    verifyPage(entry, n)
     verifyEq(n.pageType, DocPageType.lib)
     verifyEq(n.name, lib.name)
     verifyScalar(n.meta.get("version"), "sys::Version", lib.version.toStr)
@@ -157,14 +141,13 @@ class DocTest : AbstractXetoTest
     docTypes := lib.types.list.findAll { it.name[0] != '_' }
 
     verifySummaries(n.types,     docTypes)
-// TODO
-//    verifySummaries(n.mixins,    lib.mixins)
+    verifySummaries(n.mixins,    lib.mixins.list)
     verifySummaries(n.instances, lib.instances)
   }
 
-  Void verifyHxLib(PageEntry entry, Lib lib, DocLib n)
+  Void verifyHxLib(Lib lib, DocLib n)
   {
-    verifyLib(entry, lib, n)
+    verifyLib(lib, n)
 
     // walk thru all the lib specs
     lib.specs.each |a|
@@ -183,14 +166,13 @@ class DocTest : AbstractXetoTest
     verifyEq(d1.versions.toStr, d2.versions.toStr)
   }
 
-  Void verifyDocLib(PageEntry entry, Lib lib, DocLib n)
+  Void verifyDocLib(Lib lib, DocLib n)
   {
-    verifyLib(entry, lib, n)
+    verifyLib(lib, n)
   }
 
-  Void verifySpec(PageEntry entry, Spec spec, DocSpec n)
+  Void verifySpec(Spec spec, DocSpec n)
   {
-    verifyPage(entry, n)
     verifyEq(n.pageType, DocPageType.spec)
     verifyEq(n.qname,    spec.qname)
     verifyEq(n.name,     spec.name)
@@ -200,9 +182,9 @@ class DocTest : AbstractXetoTest
     verifyEq(n.flavor,   spec.flavor)
   }
 
-  Void verifyTypeSpec(PageEntry entry, Spec spec, DocSpec n)
+  Void verifyTypeSpec(Spec spec, DocSpec n)
   {
-    verifySpec(entry, spec, n)
+    verifySpec(spec, n)
     verifyEq(n.pageType, DocPageType.spec)
 
     siteRef := n.slots.getChecked("siteRef")
@@ -216,14 +198,12 @@ class DocTest : AbstractXetoTest
     verifyEq(n.doc.html.trim, "<p>Equip with <em>points</em></p>")
   }
 
-  Void verifyInstance(PageEntry entry, Dict inst, DocInstance n)
+  Void verifyInstance(Dict inst, DocInstance n)
   {
-    verifyPage(entry, n)
     verifyEq(n.pageType, DocPageType.instance)
     verifyEq(n.lib.name, n.libName)
     verifyEq(n.lib.uri,  "/${n.libName}/index".toUri)
   }
-
 
   Void verifySummaries(DocSummary[] nodes, Obj[] defs)
   {
@@ -236,10 +216,25 @@ class DocTest : AbstractXetoTest
 
   Void verifySummary(DocSummary n, Obj def)
   {
-    entry := compiler.entry(def)
-    verifyEq(n.link.uri, entry.uri)
-    verifyEq(n.link.dis, entry.dis)
-    verifySummaryText(n.text, entry.meta["doc"])
+    if (def is Spec)
+    {
+      x := (Spec)def
+      verifyEq(n.link.uri, "/$x.lib.name/$x.name".toUri)
+      verifyEq(n.link.dis, x.name)
+    }
+    else if (def is Dict)
+    {
+      x := (Dict)def
+      qname := x.id.id
+      lib := XetoUtil.qnameToLib(qname)
+      name := XetoUtil.qnameToName(qname)
+      verifyEq(n.link.uri, "/$lib/$name".toUri)
+      verifyEq(n.link.dis, name)
+    }
+    else
+    {
+      echo("TODO: verfiySummary $n.link.uri | $def.typeof")
+    }
   }
 
   Void verifySummaryText(DocMarkdown n, Str? doc)

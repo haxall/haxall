@@ -73,8 +73,8 @@ const class DocLib : DocPage
       it.version   = Version.fromStr(obj.getChecked("version"))
       it.doc       = DocMarkdown.decode(obj.get("doc"))
       it.depends   = DocLibDepend.decodeList(obj["depends"])
-      it.tags      = DocTag.decodeList(obj.get("tags"))
       it.meta      = DocDict.decode(obj.get("meta"))
+      it.tags      = DocTag.decodeList(obj.get("tags"))
       it.specs     = DocSummary.decodeList(obj["specs"])
       it.instances = DocSummary.decodeList(obj["instances"])
       it.chapters  = DocSummary.decodeList(obj["chapters"])
@@ -92,17 +92,10 @@ const class DocLib : DocPage
   once DocSummary[] types() { flavor(SpecFlavor.type).toImmutable }
 
   ** Top-level specs that globals
-  once DocSummary[] globals() { flavor(SpecFlavor.global).toImmutable }
-
-  ** Top-level specs that meta specs
-// TODO
-//  once DocSummary[] metaSpecs() { flavor(SpecFlavor.meta).toImmutable }
-
-  ** Top-level specs that funcs
-//  once DocSummary[] funcs() { flavor(SpecFlavor.func).toImmutable }
+  once DocSummary[] mixins() { flavor(SpecFlavor.mixIn).toImmutable }
 
   ** Find top-level specs of given flavor
-  DocSummary[] flavor(SpecFlavor f) { specs.findAll { it.flavor === f } }
+  private DocSummary[] flavor(SpecFlavor f) { specs.findAll { it.flavor === f } }
 
   ** Instances defined in this library
   const DocSummary[] instances
