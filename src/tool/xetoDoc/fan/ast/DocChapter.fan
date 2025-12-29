@@ -9,7 +9,7 @@
 using xetom
 
 **
-** DocChapter is a page of a markdown document
+** DocChapter is a page in a markdown document
 **
 @Js
 const class DocChapter : DocPage
@@ -23,7 +23,7 @@ const class DocChapter : DocPage
   }
 
   ** URI relative to base dir to page
-  override Uri uri() { DocUtil.chapterToUri(qname) }
+  override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Title
   override Str title() { name }

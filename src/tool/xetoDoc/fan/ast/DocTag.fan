@@ -9,7 +9,7 @@
 using xeto
 
 **
-** DocTag is used to annotate search hit summaries
+** DocTag is used to annotate summaries
 **
 @Js
 const class DocTag

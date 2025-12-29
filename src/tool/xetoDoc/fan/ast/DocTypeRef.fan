@@ -122,7 +122,7 @@ const class DocSimpleTypeRef : DocTypeRef
   }
 
   ** URI to this type
-  override Uri uri() { DocUtil.typeToUri(qname) }
+  override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Qualified name of the type
   const override Str qname
@@ -202,7 +202,7 @@ abstract const class DocCompoundTypeRef : DocTypeRef
   override const DocTypeRef[]? ofs
 
   ** Return sys::And or sys::Or
-  override Uri uri() { DocUtil.typeToUri(qname) }
+  override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Return if this is a Maybe type
   override const Bool isMaybe

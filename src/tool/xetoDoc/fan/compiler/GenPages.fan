@@ -181,13 +181,12 @@ internal class GenPages: Step
     return DocSlot(slot.name, doc, meta, typeRef, parent, base, slots)
   }
 
-
   DocLink? genSlotBase(Spec slot)
   {
     base := slot.base
     if (base == null || !base.isGlobal) return null
     dis := base.qname
-    uri := DocUtil.specToUri(base)
+    uri := DocUtil.qnameToUri(base.qname)
     return DocLink(uri, dis)
   }
 

@@ -56,7 +56,7 @@ const class DocSpec : AbstractDocSpec, DocPage
   override DocPageType pageType() { DocPageType.spec }
 
   ** URI relative to base dir to page
-  override Uri uri() { DocUtil.qnameToUri(qname, flavor) }
+  override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Title
   override Str title() { qname }

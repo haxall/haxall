@@ -23,7 +23,7 @@ const class DocInstance : DocPage
   }
 
   ** URI relative to base dir to page
-  override Uri uri() { DocUtil.instanceToUri(qname) }
+  override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Title
   override Str title() { qname }

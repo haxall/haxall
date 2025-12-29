@@ -79,42 +79,17 @@ const class DocUtil
     "/${libName}/index".toUri
   }
 
-  ** Convert spec name to its normalized URI
-  static Uri specToUri(Spec spec)
-  {
-    qnameToUri(spec.qname, spec.flavor)
-  }
-
-  ** Convert spec name to its normalized URI
-  static Uri typeToUri(Str qname)
-  {
-    qnameToUri(qname, SpecFlavor.type)
-  }
-
-  ** Convert instance qualified name to its normalized URI
-  static Uri instanceToUri(Str qname)
-  {
-    qnameToUri(qname, null)
-  }
-
-  ** Convert chaoter qualified name to its normalized URI
-  static Uri chapterToUri(Str qname)
-  {
-    qnameToUri(qname, null)
-  }
-
   ** Convert normalized URI back to qname or null if not a spec/instance
   static Str? qnameFromUri(Uri uri)
   {
     if (uri.path.size != 2) return null
     l := uri.path[0]
     n := uri.path[1]
-    if (n.size >= 2 && n.startsWith("_") && !n[1].isDigit) n = n[1..-1]
     return "$l::$n"
   }
 
   ** Convert spec or instance qualified name to its normalized URI
-  internal static Uri qnameToUri(Str qname, SpecFlavor? flavor)
+  internal static Uri qnameToUri(Str qname)
   {
     // have to deal with lower vs upper case names on file systems
     colons := qname.index("::") ?: throw Err("Not qname: $qname")
@@ -122,7 +97,6 @@ const class DocUtil
     return s.addChar('/')
             .addRange(qname, 0..<colons)
             .addChar('/')
-            .add((flavor == null || flavor.isType || flavor.isMixin) ? "" : "_")
             .addRange(qname, colons+2..-1)
             .toStr.toUri
   }

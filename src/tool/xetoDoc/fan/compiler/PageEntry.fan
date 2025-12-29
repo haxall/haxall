@@ -47,7 +47,7 @@ class PageEntry
   {
     this.key      = DocCompiler.key(x)
     this.def      = x
-    this.uri      = DocUtil.specToUri(x)
+    this.uri      = DocUtil.qnameToUri(x.qname)
     this.lib      = x.lib
     this.dis      = x.name
     this.pageType = pageType
@@ -64,7 +64,7 @@ class PageEntry
 
     this.key      = DocCompiler.key(x)
     this.def      = x
-    this.uri      = DocUtil.instanceToUri(qname)
+    this.uri      = DocUtil.qnameToUri(qname)
     this.lib      = lib
     this.dis      = name
     this.pageType = DocPageType.instance
@@ -81,7 +81,7 @@ class PageEntry
     this.key      = qname
     this.lib      = lib
     this.def      = markdown
-    this.uri      = DocUtil.chapterToUri(qname)
+    this.uri      = DocUtil.qnameToUri(qname)
     this.dis      = name
     this.pageType = DocPageType.chapter
     this.meta     = Etc.dict0
