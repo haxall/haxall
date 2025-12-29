@@ -29,63 +29,7 @@ abstract internal class Step
 
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
-  Void eachPage(|DocPage| f)
-  {
-    compiler.pages.each(f)
-  }
-
-/*
-  Void eachLib(|PageEntry| f)
-  {
-    compiler.libEntries.each(f)
-  }
-
-  Spec[] specsToDoc(Lib lib)
-  {
-    lib.specs.list.findAll |t| { !XetoUtil.isAutoName(t.name) && !t.isMixin }
-  }
-
-  PageEntry[] chapters(Lib lib)
-  {
-    acc := PageEntry[,]
-    compiler.entries.each |page|
-    {
-      if (page.pageType == DocPageType.chapter && page.lib == lib)
-        acc.add(page)
-    }
-    return acc
-  }
-
-  PageEntry? chapter(Lib lib, Str name)
-  {
-    compiler.entries.find |page|
-    {
-      page.pageType == DocPageType.chapter && page.lib == lib  && page.uri.name == name
-    }
-  }
-
-  DocSummary[] chapterSummaries(Lib lib)
-  {
-    list := chapters(lib)
-    list.sort |a, b| { a.order <=> b.order }
-    return list.map |x->DocSummary| { x.summary }
-  }
-
-  PageEntry entry(Obj x)
-  {
-    compiler.entry(x)
-  }
-
-  DocSummary summary(Obj x)
-  {
-    entry(x).summary
-  }
-
-  DocSummary[] summaries(Obj[] list)
-  {
-    list.map |x->DocSummary| { summary(x) }
-  }
-*/
+  Void eachPage(|DocPage| f) { compiler.pages.each(f) }
 
   Spec[] specsToDoc(Lib lib)
   {

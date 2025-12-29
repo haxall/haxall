@@ -151,9 +151,8 @@ const class DocUtil
 
     // overall defs
     if (lib.specs.size     > 0) acc.add(DocTag("specs",     lib.specs.size))
-// TODO
-//    if (lib.globals.size   > 0) acc.add(DocTag("globals",   lib.globals.size))
-//    if (lib.metaSpecs.size > 0) acc.add(DocTag("metas",     lib.metaSpecs.size))
+    if (lib.types.size     > 0) acc.add(DocTag("types",     lib.types.size))
+    if (lib.mixins.size    > 0) acc.add(DocTag("mixins",    lib.mixins.size))
     if (lib.instances.size > 0) acc.add(DocTag("instances", lib.instances.size))
 
     // chapters
@@ -170,9 +169,9 @@ const class DocUtil
     return count
   }
 
-// TODO
   static Void libEachMarkdownFile(Lib lib, |Uri uri, Str? special| f)
   {
+    if (!lib.hasMarkdown) return
     lib.files.list.each |uri|
     {
       if (uri.ext != "md") return

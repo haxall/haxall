@@ -56,15 +56,11 @@ internal class GenPages: Step
 
     // chapters
     chapters := DocSummary[,]
-    if (lib.hasMarkdown)
+    DocUtil.libEachMarkdownFile(lib) |uri, special|
     {
-      lib.files.list.each |uri|
-      {
-        if (uri.ext != "md") return
-        if (uri.name == "index.md") { echo("TODO: index $uri"); return }
-        g := genChapter(libRef, uri, lib.files.get(uri).readAllStr)
-        chapters.add(g.summary)
-      }
+      if (special != null) { echo("TODO: markdown special $uri"); return }
+      g := genChapter(libRef, uri, lib.files.get(uri).readAllStr)
+      chapters.add(g.summary)
     }
 
     // generate lib page
@@ -296,6 +292,10 @@ internal class GenPages: Step
     return DocScalar(type, x.toStr)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Markdown
+//////////////////////////////////////////////////////////////////////////
+
   private DocMarkdown genSpecDoc(Spec x)
   {
     genDoc(x.meta["doc"])
@@ -308,6 +308,74 @@ internal class GenPages: Step
     return DocMarkdown(str)
   }
 
+  /*
+  private Void parseLibIndex(PageEntry entry)
+  {
+    if (entry.mdIndex == null) return
+
+    lib := entry.lib
+    loc := FileLoc("$entry.key index.md")
+    try
+    {
+      //
+      // we expect index.md to be a specific format of bullet lists:
+      //
+      // # Section Title
+      // - [Foo](Foo.md): foo summary
+      // - [Bar](Bar.md): bar summary
+      //
+      doc := entry.mdIndex.parse
+      DocTag[]? tags := null
+      order := 0
+      doc.eachChild |node|
+      {
+        if (node is Heading)
+        {
+          text := textRend.render(node)
+          tags = [DocTag.intern(text)]
+        }
+        else if (node is ListBlock)
+        {
+          node.eachChild |ListItem item|
+          {
+            parseLibIndexItem(lib, tags, item.firstChild, loc, order++)
+          }
+        }
+      }
+    }
+    catch (Err e)
+    {
+      err("Cannot parseLibIndex", loc, e)
+    }
+  }
+
+  private Void parseLibIndexItem(Lib lib, DocTag[]? tags, Node para, FileLoc loc, Int order)
+  {
+    // get the link as first node
+    link := para.firstChild as Link
+
+    // parse [link]: summary
+    text := textRend.render(para)
+    colon := text.index(":")
+    if (colon != null) text = text[colon+1..-1].trim
+    text = text.capitalize
+
+    // if no link report warning
+    if (link == null) return compiler.warn("Invalid lib index item: $text", loc)
+
+    // find the chapter
+    chapterName := link.destination
+    if (chapterName.endsWith(".md")) chapterName = chapterName[0..-4]
+    chapter := this.chapter(lib, chapterName)
+    if (chapter == null) return compiler.warn("Unknown chapter name: $chapterName", loc)
+
+    // set chapter summary
+    chapter.summaryRef = DocSummary(chapter.summary.link, DocMarkdown(text), tags)
+    chapter.order = order
+  }
+
+  private TextRenderer textRend := TextRenderer()
+  */
 //////////////////////////////////////////////////////////////////////////
 // Generation
 //////////////////////////////////////////////////////////////////////////
