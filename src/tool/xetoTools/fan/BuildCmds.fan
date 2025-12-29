@@ -10,7 +10,7 @@ using util
 using xeto
 using haystack
 using xetom
-using xetoDoc
+using xetodoc
 
 **************************************************************************
 ** DocCmd

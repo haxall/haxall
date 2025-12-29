@@ -17,7 +17,7 @@ class Build : BuildGroup
     childrenScripts =
     [
       `hxTools/build.fan`,
-      `xetoDoc/build.fan`,
+      `xetodoc/build.fan`,
       `xetoTools/build.fan`,
       `convert4/build.fan`,
       `axonsh/build.fan`,

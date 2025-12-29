@@ -10,7 +10,7 @@ using util
 using xeto
 using xetom
 using haystack
-using xetoDoc
+using xetodoc
 
 **
 ** DocTest

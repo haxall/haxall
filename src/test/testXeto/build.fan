@@ -33,7 +33,7 @@ class Build : BuildPod
                "xeto @{hx.depend}",
                "xetom @{hx.depend}",
                "xetoc @{hx.depend}",
-               "xetoDoc @{hx.depend}",
+               "xetodoc @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
                "folio @{hx.depend}",
