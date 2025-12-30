@@ -1,0 +1,15 @@
+//
+// Copyright (c) 2023, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Oct 2023  Brian Frank  Creation
+//
+
+// Test documentation
+TestDocA : Dict <abstract, admin> {
+  marker2: Marker <sealed>  // this marker summary
+  date: Date?               // this is date field summary
+  span: List? <of:Span>     // list of spans
+}
+

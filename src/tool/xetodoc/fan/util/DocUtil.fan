@@ -89,7 +89,19 @@ const class DocUtil
   }
 
   ** Convert spec or instance qualified name to its normalized URI
-  internal static Uri qnameToUri(Str qname)
+  internal static Uri specToUri(Spec spec)
+  {
+    Str? frag := null
+    while (spec.parent != null)
+    {
+      frag = frag == null ? spec.name : spec.name + "." + frag
+      spec = spec.parent
+    }
+    return qnameToUri(spec.qname, frag)
+  }
+
+  ** Convert spec or instance qualified name to its normalized URI
+  internal static Uri qnameToUri(Str qname, Str? frag := null)
   {
     // have to deal with lower vs upper case names on file systems
     colons := qname.index("::") ?: throw Err("Not qname: $qname")
@@ -98,6 +110,7 @@ const class DocUtil
             .addRange(qname, 0..<colons)
             .addChar('/')
             .addRange(qname, colons+2..-1)
+            .joinNotNull(frag, "#")
             .toStr.toUri
   }
 
