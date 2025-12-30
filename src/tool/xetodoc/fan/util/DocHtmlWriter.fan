@@ -42,10 +42,12 @@ class DocHtmlWriter : WebOutStream
 
   private Void index(DocIndex p)
   {
+    p.groups.each |g| { summarySection(g.title, g.links) }
   }
 
   private Void lib(DocLib p)
   {
+    dictSection("meta", p.meta)
     summarySection("chapters",  p.chapters)
     summarySection("mixins",    p.mixins)
     summarySection("types",     p.types)
@@ -54,10 +56,13 @@ class DocHtmlWriter : WebOutStream
 
   private Void spec(DocSpec p)
   {
+    dictSection("meta", p.meta)
+    slotsSection("slots", p.slots)
   }
 
   private Void instance(DocInstance p)
   {
+    dictSection("tags", p.instance)
   }
 
   private Void chapter(DocChapter p)
@@ -162,6 +167,42 @@ class DocHtmlWriter : WebOutStream
     return this
   }
 
+  private Void dictSection(Str title, DocDict meta)
+  {
+    if (meta.dict.isEmpty) return
+    names := meta.dict.keys.sort
+    tabSection(title)
+    props
+    names.each |n|
+    {
+      v := meta.dict[n]
+      prop(n, v.toVal)
+    }
+    propsEnd
+    tabSectionEnd
+  }
+
+  private Void slotsSection(Str title, Str:DocSlot slots)
+  {
+    if (slots.isEmpty) return
+    tabSection(title)
+    props
+    slots.each |x, n|
+    {
+      prop(n, x)
+    }
+    propsEnd
+    tabSectionEnd
+  }
+
+  private This slot(DocSlot slot)
+  {
+    w(slot.type).w(" &lt;")
+    slot.meta.dict.each |v, n| { w("$n: $v.toVal") }
+    w("&gt;")
+    return this
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Props
 //////////////////////////////////////////////////////////////////////////
@@ -195,10 +236,12 @@ class DocHtmlWriter : WebOutStream
 
   private This propVal(Obj? val)
   {
+    if (val is Ref)         return refVal(val)
     if (val is Uri)         return uriVal(val)
     if (val is List)        return listVal(val)
     if (val is Dict)        return dictVal(val)
     if (val is DocMarkdown) return markdown(val)
+    if (val is DocSlot)     return slot(val)
     return esc(Etc.valToDis(val))
   }
 
@@ -220,6 +263,11 @@ class DocHtmlWriter : WebOutStream
       i++
     }
     return w("}")
+  }
+
+  private This refVal(Ref ref)
+  {
+    w("@").w(ref.id)
   }
 
   private This uriVal(Uri uri)
@@ -258,13 +306,14 @@ class DocHtmlWriter : WebOutStream
 
   private Uri href(Uri uri, Str? ext := null)
   {
+   // we can assume one or two level tree of /index or /lib/page
     if (curPage == null) throw Err("No current page")
     cur := curPage.uri
     s := StrBuf()
     if (cur.path.first != uri.path.first)
     {
-      s.add("../")
-      if (uri.path.size > 1) s.add(uri.path[1]).addChar('/')
+      if (cur.path.size > 1) s.add("../")
+      if (uri.path.size > 1) s.add(uri.path[0]).addChar('/')
     }
     s.add(uri.name).joinNotNull(ext, "")
     return s.toStr.toUri

@@ -6,6 +6,7 @@
 //   25 Sep 2024  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -37,7 +38,7 @@ abstract const class DocVal
   abstract DocTypeRef type()
 
   ** Attempt to turn this slots default into a value (not accurate fidelity)
-  virtual Obj? toVal() { null }
+  abstract Obj? toVal()
 
   ** Encode to a JSON object tree
   Obj? encodeVal()
@@ -103,6 +104,8 @@ const class DocScalar : DocVal
       case "sys::Number": return Number.fromStr(scalar, false)
       case "sys::Date":   return Date.fromStr(scalar, false)
       case "sys::Time":   return Time.fromStr(scalar, false)
+      case "sys::Ref":    return Ref.fromStr(scalar, false)
+      case "sys::Uri":    return Uri.fromStr(scalar, false)
     }
     return null
   }
@@ -133,5 +136,8 @@ const class DocList : DocVal
 
   ** Return this
   override DocList asList() { this }
+
+  ** Map list items to val
+  override Obj? toVal() { list.map |x| { x.toVal } }
 }
 

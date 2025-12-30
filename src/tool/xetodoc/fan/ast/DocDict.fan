@@ -6,6 +6,7 @@
 //   22 Sep 2024  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -44,6 +45,14 @@ const class DocDict : DocVal
 
   ** Convenience for 'dict.get'
   DocVal? get(Str name) { dict.get(name) }
+
+  ** Map list items to dict
+  override Obj? toVal()
+  {
+    acc := Str:Obj[:]
+    dict.each |v, n| { acc[n] = v.toVal }
+    return Etc.dictFromMap(acc)
+  }
 
   ** Encode to a JSON object tree or null if empty
   [Str:Obj]? encode()
