@@ -73,7 +73,7 @@ const class BrioConsts
   {
     try
     {
-      if (Env.cur.runtime != "js")
+      if (Env.cur.runtime == "java")
         curRef.val = loadJava(BrioConsts#.pod.file(`/res/brio-consts.txt`))
       else
         curRef.val = loadJs
