@@ -46,6 +46,10 @@ class DocHtmlWriter : WebOutStream
 
   private Void lib(DocLib p)
   {
+    summarySection("chapters",  p.chapters)
+    summarySection("mixins",    p.mixins)
+    summarySection("types",     p.types)
+    summarySection("instances", p.instances)
   }
 
   private Void spec(DocSpec p)
@@ -145,6 +149,104 @@ class DocHtmlWriter : WebOutStream
     nl.tagEnd(tagSection).nl.nl
   }
 
+  private This summarySection(Str title, DocSummary[] summaries)
+  {
+    if (summaries.isEmpty) return this
+
+    tabSection(title)
+    props
+    summaries.each |s| { prop(s.link, s.text) }
+    propsEnd
+    tabSectionEnd
+
+    return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Props
+//////////////////////////////////////////////////////////////////////////
+
+  private This props() { tag(tagProps).nl }
+
+  private This propsEnd() { tagEnd(tagProps) }
+
+  private This prop(Obj name, Obj? val)
+  {
+    if (val == null) return this
+    tag(tagProp)
+      .tag(tagPropTh).propName(name).tagEnd(tagPropTh)
+      .tag(tagPropTd).propVal(val).tagEnd(tagPropTd)
+      .tagEnd(tagProp).nl
+    return this
+  }
+
+  private This propName(Obj name)
+  {
+    if (name is DocLink)
+    {
+      link(name)
+    }
+    else
+    {
+      esc(name)
+    }
+    return this
+  }
+
+  private This propVal(Obj? val)
+  {
+    if (val is Uri)         return uriVal(val)
+    if (val is List)        return listVal(val)
+    if (val is Dict)        return dictVal(val)
+    if (val is DocMarkdown) return markdown(val)
+    return esc(Etc.valToDis(val))
+  }
+
+  private This listVal(List val)
+  {
+    val.each |v, i| { if (i > 0) w(", "); propVal(v) }
+    return this
+  }
+
+  private This dictVal(Dict val)
+  {
+    w("{")
+    i := 0
+    val.each |v, n|
+    {
+      if (i > 0) w(", ")
+      w(n)
+      if (v != Marker.val) { w(":"); propVal(v) }
+      i++
+    }
+    return w("}")
+  }
+
+  private This uriVal(Uri uri)
+  {
+    uri.isAbs ? a(uri).esc(uri).aEnd : esc(uri.toStr)
+  }
+
+  private This propTitle(Str title)
+  {
+    tr.th("class='xetodoc-prop-title' colspan='2'").esc(title).thEnd.trEnd
+  }
+
+  private This indent(Int indentation)
+  {
+    indentation.times { w("&nbsp;&nbsp;&nbsp;&nbsp;") }
+    return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Markdown
+//////////////////////////////////////////////////////////////////////////
+
+  private This markdown(DocMarkdown md)
+  {
+    esc(md.text)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Links
 //////////////////////////////////////////////////////////////////////////
@@ -177,6 +279,10 @@ class DocHtmlWriter : WebOutStream
   static const Str tagMain    := "xetodoc-main" // two column tab+section
   static const Str tagTab     := "xetodoc-tab"
   static const Str tagSection := "xetodoc-section"
+  static const Str tagProps   := "xetodoc-prop-table"
+  static const Str tagProp    := "xetodoc-prop-tr"
+  static const Str tagPropTh  := "xetodoc-prop-th"
+  static const Str tagPropTd  := "xetodoc-prop-td"
   static const Str tagFooter  := "xetodoc-footer"
 
   Bool fullHtml := true
