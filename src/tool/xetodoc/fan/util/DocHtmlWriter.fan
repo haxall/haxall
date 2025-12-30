@@ -197,8 +197,30 @@ class DocHtmlWriter : WebOutStream
 
   private This slot(DocSlot slot)
   {
-    w(slot.type).w(" &lt;")
-    slot.meta.dict.each |v, n| { w("$n: $v.toVal") }
+    typeRef(slot.type).slotMeta(slot)
+  }
+
+  private This slotMeta(DocSlot slot)
+  {
+    // remove slots implied in type
+    dict := slot.meta.dict
+    names := dict.keys
+    names.remove("maybe")
+    names.remove("ofs")
+    if (names.isEmpty) return this
+
+    // sort
+    names.sort.moveTo("of", 0)
+
+    // print
+    w(" &lt;")
+    names.each |n, i|
+    {
+      if (i > 0) w(", ")
+      esc(n)
+      v := dict[n]
+      if (!v.isMarker) w(":").propVal(v.toVal)
+    }
     w("&gt;")
     return this
   }
@@ -267,7 +289,16 @@ class DocHtmlWriter : WebOutStream
 
   private This refVal(Ref ref)
   {
-    w("@").w(ref.id)
+    s := ref.id
+    if (s.contains("::"))
+    {
+      uri := DocUtil.qnameToUri(s)
+      return linka(uri, uri.name)
+    }
+    else
+    {
+      return w("@").w(ref.id)
+    }
   }
 
   private This uriVal(Uri uri)
@@ -287,6 +318,34 @@ class DocHtmlWriter : WebOutStream
   }
 
 //////////////////////////////////////////////////////////////////////////
+// TypeRef
+//////////////////////////////////////////////////////////////////////////
+
+  private This typeRef(DocTypeRef x)
+  {
+    x.isCompound ? typeRefCompound(x) : typeRefSimple(x)
+  }
+
+  private This typeRefSimple(DocTypeRef x)
+  {
+    a(href(x.uri))
+    esc(x.name)
+    if (x.isMaybe) w("?")
+    aEnd
+    return this
+  }
+
+  private This typeRefCompound(DocTypeRef x)
+  {
+    x.ofs.each |of, i|
+    {
+      if (i > 0) w(" ").w(x.compoundSymbol).w(" ")
+      typeRef(of)
+    }
+    return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Markdown
 //////////////////////////////////////////////////////////////////////////
 
@@ -301,10 +360,15 @@ class DocHtmlWriter : WebOutStream
 
   private This link(DocLink link)
   {
-    a(href(link.uri, ".html")).esc(link.dis).aEnd
+    linka(link.uri, link.dis)
   }
 
-  private Uri href(Uri uri, Str? ext := null)
+  private This linka(Uri uri, Str dis)
+  {
+    a(href(uri)).esc(dis).aEnd
+  }
+
+  private Uri href(Uri uri, Str? ext := ".html")
   {
    // we can assume one or two level tree of /index or /lib/page
     if (curPage == null) throw Err("No current page")

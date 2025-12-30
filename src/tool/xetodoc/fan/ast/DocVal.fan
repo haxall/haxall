@@ -19,6 +19,9 @@ abstract const class DocVal
   ** Return if this is a scalar value
   virtual Bool isScalar() { false }
 
+  ** Return if marker scalar
+  virtual Bool isMarker() { false }
+
   ** Get this value as a DocSclar or raise exeption if not scalar
   virtual DocScalar asScalar() { throw Err("Not scalar: $typeof") }
 
@@ -95,12 +98,16 @@ const class DocScalar : DocVal
   ** Return this
   override DocScalar asScalar() { this }
 
+  ** Return if marker scalar
+  override Bool isMarker() { type.qname == "sys::Marker" }
+
   ** Attempt to turn this value into Fantom object (not accurate fidelity)
   override Obj? toVal() { doVal ?: scalar }
   private Obj? doVal()
   {
     switch (type.qname)
     {
+      case "sys::Marker": return Marker.val
       case "sys::Number": return Number.fromStr(scalar, false)
       case "sys::Date":   return Date.fromStr(scalar, false)
       case "sys::Time":   return Time.fromStr(scalar, false)
