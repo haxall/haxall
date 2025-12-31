@@ -162,8 +162,10 @@ class DocHtmlWriter : WebOutStream
     names.each |n, i|
     {
       if (i > 0) w(", ")
-      esc(n)
+
       v := dict[n]
+
+      link(DocLink(v.link.uri, n))
       if (!v.isMarker) w(":").propVal(v.toVal)
     }
     w("&gt;")
