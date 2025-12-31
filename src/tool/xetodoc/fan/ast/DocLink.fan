@@ -13,17 +13,18 @@
 const class DocLink
 {
   ** Constructor
-  new make(Uri uri, Str dis)
+  new make(Uri uri, Str? dis)
   {
     this.uri = uri
-    this.dis = dis
+    this.disRef = dis
   }
 
   ** URI relative to base dir to page
   const Uri uri
 
-  ** Display text for link
-  const Str dis
+  ** Display text for link (empty string to use uri)
+  Str dis() { disRef ?: uri.toStr }
+  private const Str? disRef
 
   ** Encode to a JSON object tree
   Str:Obj encode()
@@ -31,7 +32,7 @@ const class DocLink
     obj := Str:Obj[:]
     obj.ordered = true
     obj["uri"] = uri.toStr
-    obj["dis"] = dis
+    obj.addNotNull("dis", disRef)
     return obj
   }
 
@@ -40,7 +41,7 @@ const class DocLink
   {
     if (obj == null) return null
     uri := Uri.fromStr(obj.getChecked("uri"))
-    dis := obj.getChecked("dis")
+    dis := obj.get("dis") as Str
     return make(uri, dis)
   }
 }

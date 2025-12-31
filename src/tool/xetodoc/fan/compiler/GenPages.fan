@@ -285,7 +285,7 @@ internal class GenPages: Step
 
       DocLink? slotLink := null
       slot := spec?.member(n, false)
-      if (slot != null) slotLink = DocLink(DocUtil.specToUri(slot), n)
+      if (slot != null) slotLink = DocLink(DocUtil.specToUri(slot), null)
 
       acc[n] = genVal(v, slotLink)
     }
