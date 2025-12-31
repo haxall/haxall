@@ -88,8 +88,11 @@ const class DocSpec : AbstractDocSpec, DocPage
   ** Subtypes in this library
   const DocTypeGraph subtypes
 
-  ** Child slots on this type
+  ** Child slots on this type (own and inherited)
   const Str:DocSlot slots
+
+  ** Child globals on this type (own only)
+  const Str:DocSlot globals
 
   ** Iterate only my own slots
   Void eachSlotOwn(|DocSlot| f)
@@ -117,6 +120,7 @@ const class DocSpec : AbstractDocSpec, DocPage
     obj.addNotNull("supertypes", supertypes.encode)
     obj.addNotNull("subtypes", subtypes.encode)
     obj.addNotNull("slots", DocSlot.encodeMap(slots))
+    obj.addNotNull("globals", DocSlot.encodeMap(globals))
     return obj
   }
 
@@ -136,6 +140,7 @@ const class DocSpec : AbstractDocSpec, DocPage
       it.supertypes = DocTypeGraph.decode(obj.get("supertypes"))
       it.subtypes   = DocTypeGraph.decode(obj.get("subtypes"))
       it.slots      = DocSlot.decodeMap(obj.get("slots"))
+      it.globals    = DocSlot.decodeMap(obj.get("globals"))
     }
   }
 }

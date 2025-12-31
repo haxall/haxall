@@ -131,6 +131,7 @@ internal class GenPages: Step
      it.supertypes = genSupertypes(x)
      it.subtypes   = genSubtypes(x)
      it.slots      = genSlots(x)
+     it.globals    = genGlobals(x)
     }
   }
 
@@ -223,6 +224,19 @@ internal class GenPages: Step
       name := slot.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoNameCount++)
       acc.add(name, d)
+    }
+    return acc
+  }
+
+  Str:DocSlot genGlobals(Spec spec)
+  {
+    map := spec.globalsOwn
+    if (map.isEmpty) return DocSlot.empty
+    acc := Str:DocSlot[:]
+    acc.ordered = true
+    map.each |slot|
+    {
+      acc[slot.name] = genSlot(spec, slot)
     }
     return acc
   }

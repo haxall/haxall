@@ -58,6 +58,7 @@ class DocHtmlWriter : WebOutStream
   {
     dictSection("meta", p.meta)
     slotsSection("slots", p.slots)
+    slotsSection("globals", p.globals)
   }
 
   private Void instance(DocInstance p)
