@@ -25,7 +25,6 @@ class DocHtmlWriter : WebOutStream
   {
     curPage = p
     pageStart(p)
-    pageHeader(p)
     switch (p.pageType)
     {
       case DocPageType.spec:     spec(p)
@@ -42,11 +41,13 @@ class DocHtmlWriter : WebOutStream
 
   private Void index(DocIndex p)
   {
+    pageHeader(p, "index")
     p.groups.each |g| { summarySection(g.title, g.links) }
   }
 
   private Void lib(DocLib p)
   {
+    pageHeader(p, "lib")
     dictSection("meta", p.meta)
     summarySection("chapters",  p.chapters)
     summarySection("mixins",    p.mixins)
@@ -56,6 +57,11 @@ class DocHtmlWriter : WebOutStream
 
   private Void spec(DocSpec p)
   {
+    pageHeader(p, p.flavor.name.lower) |self|
+    {
+      specSig(p)
+      markdown(p.doc)
+    }
     dictSection("meta", p.meta)
     slotsSummary("slots", p.slots)
     slotsSummary("globals", p.globals)
@@ -65,11 +71,13 @@ class DocHtmlWriter : WebOutStream
 
   private Void instance(DocInstance p)
   {
+    pageHeader(p, "instance")
     dictSection("tags", p.instance)
   }
 
   private Void chapter(DocChapter p)
   {
+    pageHeader(p, "chapter")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,6 +106,14 @@ class DocHtmlWriter : WebOutStream
     slotSig(slot)
     markdown(slot.doc)
     tabSectionEnd
+  }
+
+  private Void specSig(DocSpec spec)
+  {
+    tag(tagSlot).code
+    esc(spec.name)
+    if (spec.base != null) w(" : ").typeRef(spec.base)
+    codeEnd.tagEnd(tagSlot).nl
   }
 
   private Void slotSig(DocSlot slot)
@@ -204,10 +220,11 @@ class DocHtmlWriter : WebOutStream
     return this
   }
 
-  private Void pageHeader(DocPage p)
+  private Void pageHeader(DocPage p, Str what, |This|? cb := null)
   {
-    tabSection(p.pageType.name, "doc-header")
+    tabSection(what, "doc-header")
     h1.esc(p.title).h1End
+    if (cb != null) cb(this)
     tabSectionEnd
   }
 
