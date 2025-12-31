@@ -59,7 +59,7 @@ class DocHtmlWriter : WebOutStream
     dictSection("meta", p.meta)
     slotsSummary("slots", p.slots)
     slotsSummary("globals", p.globals)
-    p.slots.each |x| { slotDetails(x) }
+    p.slots.each |x| { if (slotIsOwn(x)) slotDetails(x) }
     p.globals.each |x| { slotDetails(x) }
   }
 
@@ -83,7 +83,9 @@ class DocHtmlWriter : WebOutStream
     props
     slots.each |x, n|
     {
-      uri := ("#" +slotToElemId(x)).toUri
+      uri := slotIsOwn(x) ?
+             ("#" +slotToElemId(x)).toUri :
+             DocUtil.slotToUri(x.parent.qname, [n])
       prop(DocLink(uri, n), x.doc)
     }
     propsEnd
@@ -132,6 +134,8 @@ class DocHtmlWriter : WebOutStream
   }
 
   private static Str slotToElemId(DocSlot x) { x.name }
+
+  private static Bool slotIsOwn(DocSlot x) { x.parent == null }
 
 //////////////////////////////////////////////////////////////////////////
 // Page Chrome

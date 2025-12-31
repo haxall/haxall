@@ -100,6 +100,12 @@ const class DocUtil
     return qnameToUri(spec.qname, frag)
   }
 
+  ** Convert slot path to URI
+  internal static Uri slotToUri(Str qname, Str[] path)
+  {
+    qnameToUri(qname, path.join("."))
+  }
+
   ** Convert spec or instance qualified name to its normalized URI
   internal static Uri qnameToUri(Str qname, Str? frag := null)
   {
