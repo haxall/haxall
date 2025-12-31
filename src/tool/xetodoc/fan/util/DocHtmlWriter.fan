@@ -103,9 +103,30 @@ class DocHtmlWriter : WebOutStream
   private Void slotSig(DocSlot slot)
   {
     tag(tagSlot).code
-    typeRef(slot.type)
+    if (slot.type.isFunc)
+      funcSig(slot)
+    else
+      typeRef(slot.type)
     slotMeta(slot)
     codeEnd.tagEnd(tagSlot).nl
+  }
+
+  private Void funcSig(DocSlot slot)
+  {
+    w("(")
+    DocTypeRef? returns
+    first := true
+    slot.slots.each |p|
+    {
+      if (p.name == "returns") { returns = p.type; return }
+      if (first) first = false
+      else w(", ")
+      esc(p.name).w(": ")
+      typeRef(p.type)
+    }
+    w(") => ")
+    if (returns == null) w("Obj?")
+    else typeRef(returns)
   }
 
   private Void slotMeta(DocSlot slot)

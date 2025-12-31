@@ -48,6 +48,9 @@ abstract const class DocTypeRef
   ** Compound types or null if not applicable
   virtual DocTypeRef[]? ofs() { null }
 
+  ** Return if this is a func type
+  virtual Bool isFunc() { qname == "sys::Func" || qname == "sys.template::Template" }
+
   ** Return if this is a query (requires sys::Query to be sealed)
   virtual Bool isQuery() { qname == "sys::Query" }
 
