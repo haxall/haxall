@@ -15,11 +15,13 @@ using xetom
 const class DocChapter : DocPage
 {
   ** Constructor
-  new make(DocLibRef lib, Str qname, DocMarkdown doc)
+  new make(DocLibRef lib, Str qname, DocMarkdown doc, DocLink? prev, DocLink? next)
   {
     this.lib   = lib
     this.qname = qname
     this.doc   = doc
+    this.prev  = prev
+    this.next  = next
   }
 
   ** URI relative to base dir to page
@@ -43,6 +45,12 @@ const class DocChapter : DocPage
   ** Library for this page
   override const DocLibRef? lib
 
+  ** Previous chapter in library
+  const DocLink? prev
+
+  ** Next chapter in library
+  const DocLink? next
+
   ** Markdown
   const DocMarkdown doc
 
@@ -55,6 +63,8 @@ const class DocChapter : DocPage
     obj["lib"]   = lib.encode
     obj["qname"] = qname
     obj["doc"]   = doc.encode
+    if (prev != null) obj["prev"] = prev.encode
+    if (next != null) obj["next"] = next.encode
     return obj
   }
 
@@ -64,7 +74,9 @@ const class DocChapter : DocPage
     lib   := DocLibRef.decode(obj.getChecked("lib"))
     qname := obj.getChecked("qname")
     doc   := DocMarkdown.decode(obj.getChecked("doc"))
-    return make(lib, qname, doc)
+    prev  := DocLink.decode(obj["prev"])
+    next  := DocLink.decode(obj["next"])
+    return make(lib, qname, doc, prev, next)
   }
 
 }

@@ -50,45 +50,14 @@ internal class GenPages: Step
 
   private GenPage genLib(Lib lib)
   {
-    // lib reference for child pages
     libRef :=  DocLibRef(lib.name, lib.version)
 
     // specs
-    specs := DocSummary[,]
-    lib.specs.each |x|
-    {
-      if (DocUtil.isSpecNoDoc(x)) return
-      g := genSpec(libRef, x)
-      specs.add(g.summary)
-    }
+    specs     := genLibSpecs(lib, libRef)
+    instances := genLibInstances(lib, libRef)
+    chapters  := genLibChapters(lib, libRef)
 
-    // instances
-    instances := DocSummary[,]
-    lib.instances.each |x|
-    {
-      g := genInstance(libRef, x)
-      instances.add(g.summary)
-    }
-
-    // chapters
-    chapters := DocSummary[,]
-    mdIndex := null
-    DocUtil.libEachMarkdownFile(lib) |uri, special|
-    {
-      md := lib.files.get(uri).readAllStr
-      if (special == "index") { mdIndex = md; return }
-      g := genChapter(libRef, uri, md)
-      chapters.add(g.summary)
-    }
-
-    // if we had index.md, then use it for chapter summaries
-    if (mdIndex != null)
-    {
-      loc := FileLoc("${lib.name}::index.md")
-      chapters = DocChapterIndexParser(compiler, chapters, loc).parse(mdIndex)
-    }
-
-    // generate lib page
+    // create lib page
     page := DocLib
     {
       it.name      = lib.name
@@ -104,6 +73,57 @@ internal class GenPages: Step
 
     // add to pages
     return addPage(page, page.doc, page.tags)
+  }
+
+  private DocSummary[] genLibSpecs(Lib lib, DocLibRef libRef)
+  {
+    summaries := DocSummary[,]
+    lib.specs.each |x|
+    {
+      if (DocUtil.isSpecNoDoc(x)) return
+      g := genSpec(libRef, x)
+      summaries.add(g.summary)
+    }
+    return summaries
+  }
+
+  private DocSummary[] genLibInstances(Lib lib, DocLibRef libRef)
+  {
+    summaries := DocSummary[,]
+    lib.instances.each |x|
+    {
+      g := genInstance(libRef, x)
+      summaries.add(g.summary)
+    }
+    return summaries
+  }
+
+  private DocSummary[] genLibChapters(Lib lib, DocLibRef libRef)
+  {
+    chapters  := DocChapter[,]
+    summaries := DocSummary[,]
+    mdIndex := null
+
+    DocUtil.libEachMarkdownFile(lib) |uri, special|
+    {
+      md := lib.files.get(uri).readAllStr
+      if (special == "index") { mdIndex = md; return }
+      g := genChapter(libRef, uri, md)
+      chapters.add(g.page)
+      summaries.add(g.summary)
+    }
+
+    // if we had index.md, then use it for chapter summaries
+    if (mdIndex != null)
+    {
+      loc := FileLoc("${lib.name}::index.md")
+      summaries = DocChapterIndexParser(compiler, summaries, loc).parse(mdIndex)
+    }
+
+    // now backpatch chapter prev/next
+    backpatchChapterPrevNext(chapters, summaries)
+
+    return summaries
   }
 
   private DocLibDepend[] genDepends(Lib lib)
@@ -210,7 +230,7 @@ internal class GenPages: Step
 // Instance
 //////////////////////////////////////////////////////////////////////////
 
-  Str:DocSlot genSlots(Spec spec)
+  private Str:DocSlot genSlots(Spec spec)
   {
     // only gen effective slots for top type slots
     // or a query such as points
@@ -233,7 +253,7 @@ internal class GenPages: Step
     return acc
   }
 
-  Str:DocSlot genGlobals(Spec spec)
+  private Str:DocSlot genGlobals(Spec spec)
   {
     map := spec.globalsOwn
     if (map.isEmpty) return DocSlot.empty
@@ -246,7 +266,7 @@ internal class GenPages: Step
     return acc
   }
 
-  DocSlot genSlot(Spec parentType, Spec slot)
+  private DocSlot genSlot(Spec parentType, Spec slot)
   {
     doc     := genSpecDoc(slot)
     meta    := genDict(slot.metaOwn, specMeta)
@@ -257,7 +277,7 @@ internal class GenPages: Step
     return DocSlot(slot.name, doc, meta, typeRef, parent, base, slots)
   }
 
-  DocLink? genSlotBase(Spec slot)
+  private DocLink? genSlotBase(Spec slot)
   {
     base := slot.base
     if (base == null || !base.isGlobal) return null
@@ -270,7 +290,7 @@ internal class GenPages: Step
 // Instance
 //////////////////////////////////////////////////////////////////////////
 
-  GenPage genInstance(DocLibRef lib, Dict x)
+  private GenPage genInstance(DocLibRef lib, Dict x)
   {
     qname    := x.id.id
     instance := genDict(x, specxForDict(x))
@@ -282,18 +302,34 @@ internal class GenPages: Step
 // Chapter
 //////////////////////////////////////////////////////////////////////////
 
-  GenPage genChapter(DocLibRef lib,  Uri uri, Str markdown)
+  private GenPage genChapter(DocLibRef lib,  Uri uri, Str markdown)
   {
+    // we backpatch the prev/next
     qname := lib.name + "::" + uri.basename
-    page  := DocChapter(lib, qname, genDoc(markdown))
+    page  := DocChapter(lib, qname, genDoc(markdown), null, null)
     return addPage(page, page.doc,  null)
+  }
+
+  private Void backpatchChapterPrevNext(DocChapter[] chapters, DocSummary[] order)
+  {
+    order.each |cur, i|
+    {
+      chapter := chapters.find |x| { x.uri == cur.link.uri }
+      if (chapter == null) return
+
+      prev := i == 0 ? null : order[i-1]
+      next := order.getSafe(i+1)
+
+      if (prev != null) DocChapter#prev->setConst(chapter, prev.link)
+      if (next != null) DocChapter#next->setConst(chapter, next.link)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  DocDict genDict(Dict d, Spec? spec, DocLink? link := null)
+  private DocDict genDict(Dict d, Spec? spec, DocLink? link := null)
   {
     // we type everything as sys::Dict for now
     type := spec == null ? DocTypeRef.dict : DocSimpleTypeRef(spec.id.toStr)
