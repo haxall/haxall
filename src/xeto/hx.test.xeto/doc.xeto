@@ -13,3 +13,19 @@ TestDocA : Dict <abstract, admin> {
   span: List? <of:Span>     // list of spans
 }
 
+@whitehouse: Site {
+  dis: "White House"
+  area: 55000ft²
+  tz: "New_York"
+  geoAddr: "1600 Pennsylvania Avenue NW, Washington, DC"
+  geoStreet: "1600 Pennsylvania Ave NW"
+  geoCity: "Washington D.C."
+  geoCountry: "US"
+  geoPostalCode: "20500"
+  geoCoord: "C(38.898, -77.037)"
+  yearBuilt: 1792
+  someStr: "foo bar"
+  strs: List { "a", "b", "c" }
+  dict: { dis:"nest dict", someMarker }
+}
+

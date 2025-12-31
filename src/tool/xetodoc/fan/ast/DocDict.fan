@@ -16,23 +16,20 @@ using haystack
 const class DocDict : DocVal
 {
   ** Empty doc dict
-  static const DocDict empty := doMake(DocTypeRef.dict, Str:DocVal[:])
+  static const DocDict empty := doMake(DocTypeRef.dict, null, Str:DocVal[:])
 
   ** Constructor
-  static new make(DocTypeRef type, Str:DocVal dict)
+  static new make(DocTypeRef type, DocLink? link, Str:DocVal dict)
   {
-    if (dict.isEmpty) return empty
-    return doMake(type, dict)
+    if (dict.isEmpty && link == null) return empty
+    return doMake(type, link, dict)
   }
 
-  private new doMake(DocTypeRef type, Str:DocVal dict)
+  private new doMake(DocTypeRef type, DocLink? link, Str:DocVal dict)
+    : super.make(type, link)
   {
-    this.type = type
     this.dict = dict
   }
-
-  ** Dict type
-  override const DocTypeRef type
 
   ** Dict value
   const Str:DocVal dict

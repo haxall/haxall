@@ -273,36 +273,42 @@ internal class GenPages: Step
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  DocDict genDict(Dict d)
+  DocDict genDict(Dict d, DocLink? link := null)
   {
     // we type everything as sys::Dict for now
-    spec := d.get("spec") as Ref
+    spec := ns.specOf(d, false)
     type := spec == null ? DocTypeRef.dict : DocSimpleTypeRef(spec.id.toStr)
     acc := Str:Obj[:]
     d.each |v, n|
     {
       if (n == "doc") return // handled by DocBlock
-      acc[n] = genVal(v)
+
+      DocLink? slotLink := null
+      slot := spec?.member(n, false)
+      if (slot != null) slotLink = DocLink(DocUtil.specToUri(slot), n)
+
+      acc[n] = genVal(v, slotLink)
     }
-    return DocDict(type, acc)
+    return DocDict(type, link, acc)
   }
 
-  private DocVal genVal(Obj x)
+
+  private DocVal genVal(Obj x, DocLink? link)
   {
-    if (x is Dict) return genDict(x)
-    if (x is List) return genList(x)
-    return genScalar(x)
+    if (x is Dict) return genDict(x, link)
+    if (x is List) return genList(x, link)
+    return genScalar(x, link)
   }
 
-  private DocList genList(Obj[] x)
+  private DocList genList(Obj[] x, DocLink? link)
   {
-    DocList(DocTypeRef.list, x.map |item| { genVal(item) })
+    DocList(DocTypeRef.list, link, x.map |item| { genVal(item, null) })
   }
 
-  private DocScalar genScalar(Obj x)
+  private DocScalar genScalar(Obj x, DocLink? link)
   {
     type := DocSimpleTypeRef(ns.specOf(x).qname)
-    return DocScalar(type, x.toStr)
+    return DocScalar(type, link, x.toStr)
   }
 
 //////////////////////////////////////////////////////////////////////////

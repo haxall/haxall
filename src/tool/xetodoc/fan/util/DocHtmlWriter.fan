@@ -176,7 +176,7 @@ class DocHtmlWriter : WebOutStream
     names.each |n|
     {
       v := meta.dict[n]
-      prop(n, v.toVal)
+      prop(DocLink(v.link.uri, n), v.toVal)
     }
     propsEnd
     tabSectionEnd
@@ -379,7 +379,7 @@ class DocHtmlWriter : WebOutStream
       if (cur.path.size > 1) s.add("../")
       if (uri.path.size > 1) s.add(uri.path[0]).addChar('/')
     }
-    s.add(uri.name).joinNotNull(ext, "")
+    s.add(uri.name).joinNotNull(ext, "").joinNotNull(uri.frag, "#")
     return s.toStr.toUri
   }
 

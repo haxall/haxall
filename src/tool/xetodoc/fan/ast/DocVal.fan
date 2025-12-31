@@ -15,6 +15,21 @@ using haystack
 @Js
 abstract const class DocVal
 {
+  ** Constructor
+  new make(DocTypeRef type, DocLink? link := null)
+  {
+    this.type = type
+    this.linkRef = link
+  }
+
+  ** Type of this value
+  const DocTypeRef type
+
+  ** Hyperlink to use for this value. This is typically the slot definition
+  ** for Lib/Spec metadata or the dict slot type for instances.  Or if not
+  ** available then we fallback to link to value type.
+  DocLink? link() { linkRef ?: type.link }
+  private const DocLink? linkRef
 
   ** Return if this is a scalar value
   virtual Bool isScalar() { false }
@@ -37,9 +52,6 @@ abstract const class DocVal
   ** Get this value as a DocDict or raise exeption if not dict
   virtual DocDict asDict() { throw Err("Not dict: $typeof") }
 
-  ** Type of this value
-  abstract DocTypeRef type()
-
   ** Attempt to turn this slots default into a value (not accurate fidelity)
   abstract Obj? toVal()
 
@@ -49,6 +61,7 @@ abstract const class DocVal
     acc := Str:Obj[:]
     acc.ordered = true
     acc["type"] = type.encode
+    if (linkRef != null) acc["link"] = linkRef.encode
     if (isScalar) acc["scalar"] = asScalar.scalar
     else if (isDict) acc["dict"] = asDict.dict.map |v| { v.encodeVal }
     else acc["list"] = asList.list.map |v| { v.encodeVal }
@@ -60,14 +73,16 @@ abstract const class DocVal
   {
     type := DocTypeRef.decode(obj.getChecked("type"))
 
+    link := DocLink.decode(obj.get("link"))
+
     scalar := obj["scalar"]
-    if (scalar != null) return DocScalar(type, scalar)
+    if (scalar != null) return DocScalar(type, link, scalar)
 
     list := obj["list"] as Obj[]
-    if (list != null) return DocList(type, list.map |x| { decodeVal(x) })
+    if (list != null) return DocList(type, link, list.map |x| { decodeVal(x) })
 
     dict := (Str:Obj)obj.getChecked("dict")
-    return DocDict(type, dict.map |v, n| { decodeVal(v) })
+    return DocDict(type, link, dict.map |v, n| { decodeVal(v) })
   }
 
 }
@@ -80,14 +95,10 @@ abstract const class DocVal
 const class DocScalar : DocVal
 {
   ** Cosntructor
-  new make(DocTypeRef type, Str scalar)
+  new make(DocTypeRef type, DocLink? link, Str scalar) : super(type, link)
   {
-    this.type   = type
     this.scalar = scalar
   }
-
-  ** Type of this value
-  const override DocTypeRef type
 
   ** String encoding of the scalar
   const Str scalar
@@ -126,14 +137,10 @@ const class DocScalar : DocVal
 const class DocList : DocVal
 {
   ** Cosntructor
-  new make(DocTypeRef type,  DocVal[]  list)
+  new make(DocTypeRef type, DocLink? link, DocVal[]  list) : super(type, link)
   {
-    this.type = type
     this.list = list
   }
-
-  ** Type of this value
-  const override DocTypeRef type
 
   ** Lsit of values
   const DocVal[] list

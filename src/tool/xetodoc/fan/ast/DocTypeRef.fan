@@ -27,6 +27,9 @@ abstract const class DocTypeRef
   ** URI to this core type
   abstract Uri uri()
 
+  ** Link to the simple type
+  DocLink link() { DocLink(uri, qname) }
+
   ** Return if this is a Maybe type
   abstract Bool isMaybe()
 
