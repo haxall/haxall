@@ -50,7 +50,7 @@ const class DocSpec : AbstractDocSpec, DocPage
   override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Title
-  override Str title() { qname }
+  override Str title() { name }
 
   ** Qualified name of this spec
   const Str qname

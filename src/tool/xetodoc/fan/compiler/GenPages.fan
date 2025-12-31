@@ -426,8 +426,7 @@ catch (Err e) echo("TODO: $e")
 
   private GenPage addPage(DocPage page, DocMarkdown doc, DocTag[]? tags)
   {
-    dis := (page as DocSpec)?.name ?: page.title
-    summary := DocSummary(DocLink(page.uri, dis), doc.summary, tags)
+    summary := DocSummary(DocLink(page.uri, page.title), doc.summary, tags)
     x := GenPage(page, summary)
     if (pages[x.uri] != null)
     {
