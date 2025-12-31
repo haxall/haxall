@@ -169,3 +169,24 @@ xetodoc-prop-td p {
   margin: 0;
 }
 
+
+/***************************************************************
+ * Slot Details
+ **************************************************************/
+
+xetodoc-slot {
+  margin: 0;
+  padding: 3px 0;
+  color: var(--name-color);
+}
+
+xetodoc-slot a {
+  color: var(--name-color);
+  text-decoration: none;
+}
+
+xetodoc-slot a:hover {
+  color: var(--name-color);
+  text-decoration: underline;
+}
+

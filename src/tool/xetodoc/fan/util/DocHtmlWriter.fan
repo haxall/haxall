@@ -57,8 +57,10 @@ class DocHtmlWriter : WebOutStream
   private Void spec(DocSpec p)
   {
     dictSection("meta", p.meta)
-    slotsSection("slots", p.slots)
-    slotsSection("globals", p.globals)
+    slotsSummary("slots", p.slots)
+    slotsSummary("globals", p.globals)
+    p.slots.each |x| { slotDetails(x) }
+    p.globals.each |x| { slotDetails(x) }
   }
 
   private Void instance(DocInstance p)
@@ -69,6 +71,67 @@ class DocHtmlWriter : WebOutStream
   private Void chapter(DocChapter p)
   {
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Slots
+//////////////////////////////////////////////////////////////////////////
+
+  private Void slotsSummary(Str title, Str:DocSlot slots)
+  {
+    if (slots.isEmpty) return
+    tabSection(title)
+    props
+    slots.each |x, n|
+    {
+      uri := ("#" +slotToElemId(x)).toUri
+      prop(DocLink(uri, n), x.doc)
+    }
+    propsEnd
+    tabSectionEnd
+  }
+
+  private Void slotDetails(DocSlot slot)
+  {
+    tabSection(slot.name, slotToElemId(slot))
+    slotSig(slot)
+    markdown(slot.doc)
+    tabSectionEnd
+  }
+
+  private Void slotSig(DocSlot slot)
+  {
+    tag(tagSlot).code
+    typeRef(slot.type)
+    slotMeta(slot)
+    codeEnd.tagEnd(tagSlot).nl
+  }
+
+  private Void slotMeta(DocSlot slot)
+  {
+    // remove slots implied in type
+    dict := slot.meta.dict
+    names := dict.keys
+    names.remove("maybe")
+    names.remove("ofs")
+    if (names.isEmpty) return this
+
+    // sort
+    names.sort.moveTo("of", 0)
+
+    // print
+    w(" &lt;")
+    names.each |n, i|
+    {
+      if (i > 0) w(", ")
+      esc(n)
+      v := dict[n]
+      if (!v.isMarker) w(":").propVal(v.toVal)
+    }
+    w("&gt;")
+    return this
+  }
+
+  private static Str slotToElemId(DocSlot x) { x.name }
 
 //////////////////////////////////////////////////////////////////////////
 // Page Chrome
@@ -118,7 +181,7 @@ class DocHtmlWriter : WebOutStream
 
   private Void pageHeader(DocPage p)
   {
-    tabSection(p.pageType.name)
+    tabSection(p.pageType.name, "doc-header")
     h1.esc(p.title).h1End
     tabSectionEnd
   }
@@ -126,7 +189,7 @@ class DocHtmlWriter : WebOutStream
   private Void pageEnd()
   {
     // footer
-    tabSection("")
+    tabSection("", "doc-footer")
     tag(tagFooter).esc(footerText).tagEnd(tagFooter)
     tabSectionEnd
 
@@ -142,8 +205,13 @@ class DocHtmlWriter : WebOutStream
 // Sections
 //////////////////////////////////////////////////////////////////////////
 
-  private This tabSection(Str title, Str id := title)
+  private This tabSection(Str title, Str? id := null)
   {
+    if (id == null)
+    {
+      if (title.isEmpty) throw Err()
+      id = "doc-$title"
+    }
     nl
     tag(tagTab, "id='$id.toXml'").esc(title).tagEnd(tagTab).nl
     tag(tagSection).nl
@@ -181,49 +249,6 @@ class DocHtmlWriter : WebOutStream
     }
     propsEnd
     tabSectionEnd
-  }
-
-  private Void slotsSection(Str title, Str:DocSlot slots)
-  {
-    if (slots.isEmpty) return
-    tabSection(title)
-    props
-    slots.each |x, n|
-    {
-      prop(n, x)
-    }
-    propsEnd
-    tabSectionEnd
-  }
-
-  private This slot(DocSlot slot)
-  {
-    typeRef(slot.type).slotMeta(slot)
-  }
-
-  private This slotMeta(DocSlot slot)
-  {
-    // remove slots implied in type
-    dict := slot.meta.dict
-    names := dict.keys
-    names.remove("maybe")
-    names.remove("ofs")
-    if (names.isEmpty) return this
-
-    // sort
-    names.sort.moveTo("of", 0)
-
-    // print
-    w(" &lt;")
-    names.each |n, i|
-    {
-      if (i > 0) w(", ")
-      esc(n)
-      v := dict[n]
-      if (!v.isMarker) w(":").propVal(v.toVal)
-    }
-    w("&gt;")
-    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -264,7 +289,6 @@ class DocHtmlWriter : WebOutStream
     if (val is List)        return listVal(val)
     if (val is Dict)        return dictVal(val)
     if (val is DocMarkdown) return markdown(val)
-    if (val is DocSlot)     return slot(val)
     return esc(Etc.valToDis(val))
   }
 
@@ -352,7 +376,7 @@ class DocHtmlWriter : WebOutStream
 
   private This markdown(DocMarkdown md)
   {
-    esc(md.text)
+    p.esc(md.text).pEnd
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -373,6 +397,7 @@ class DocHtmlWriter : WebOutStream
   {
    // we can assume one or two level tree of /index or /lib/page
     if (curPage == null) throw Err("No current page")
+    if (uri.path.isEmpty) return uri
     cur := curPage.uri
     s := StrBuf()
     if (cur.path.first != uri.path.first)
@@ -397,6 +422,7 @@ class DocHtmlWriter : WebOutStream
   static const Str tagProp    := "xetodoc-prop-tr"
   static const Str tagPropTh  := "xetodoc-prop-th"
   static const Str tagPropTd  := "xetodoc-prop-td"
+  static const Str tagSlot    := "xetodoc-slot"
   static const Str tagFooter  := "xetodoc-footer"
 
   Bool fullHtml := true
