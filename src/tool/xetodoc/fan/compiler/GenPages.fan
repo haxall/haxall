@@ -28,6 +28,9 @@ internal class GenPages: Step
 
     // build index
     genIndex(libGens)
+
+    // clear cache for gc
+    specxCache.clear
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,7 +85,7 @@ internal class GenPages: Step
       it.name      = lib.name
       it.version   = lib.version
       it.doc       = genDoc(lib.meta["doc"])
-      it.meta      = genDict(lib.meta)
+      it.meta      = genDict(lib.meta, libMeta)
       it.depends   = genDepends(lib)
       it.tags      = DocUtil.genTags(ns, lib)
       it.specs     = specs
@@ -122,7 +125,7 @@ internal class GenPages: Step
      it.flavor     = x.flavor
      it.srcLoc     = DocUtil.srcLoc(x)
      it.doc        = genSpecDoc(x)
-     it.meta       = genDict(x.meta)
+     it.meta       = genDict(x.meta, specMeta)
      it.tags       = genSpecTags(x)
      it.base       = x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
      it.supertypes = genSupertypes(x)
@@ -227,7 +230,7 @@ internal class GenPages: Step
   DocSlot genSlot(Spec parentType, Spec slot)
   {
     doc     := genSpecDoc(slot)
-    meta    := genDict(slot.metaOwn)
+    meta    := genDict(slot.metaOwn, specMeta)
     typeRef := genTypeRef(slot)
     parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
     base    := genSlotBase(slot)
@@ -251,7 +254,7 @@ internal class GenPages: Step
   GenPage genInstance(DocLibRef lib, Dict x)
   {
     qname    := x.id.id
-    instance := genDict(x)
+    instance := genDict(x, specxForDict(x))
     page     := DocInstance(lib, qname, instance)
     summary  := DocSummary(DocLink(page.uri, page.name), DocMarkdown.empty)
     return addPage(page, summary)
@@ -273,10 +276,9 @@ internal class GenPages: Step
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  DocDict genDict(Dict d, DocLink? link := null)
+  DocDict genDict(Dict d, Spec? spec, DocLink? link := null)
   {
     // we type everything as sys::Dict for now
-    spec := ns.specOf(d, false)
     type := spec == null ? DocTypeRef.dict : DocSimpleTypeRef(spec.id.toStr)
     acc := Str:Obj[:]
     d.each |v, n|
@@ -295,7 +297,7 @@ internal class GenPages: Step
 
   private DocVal genVal(Obj x, DocLink? link)
   {
-    if (x is Dict) return genDict(x, link)
+    if (x is Dict) return genDict(x, specxForDict(x), link)
     if (x is List) return genList(x, link)
     return genScalar(x, link)
   }
@@ -395,6 +397,38 @@ internal class GenPages: Step
 
   private TextRenderer textRend := TextRenderer()
   */
+
+//////////////////////////////////////////////////////////////////////////
+// Specx
+//////////////////////////////////////////////////////////////////////////
+
+  private once Spec libMeta()  { specx(ns.spec("sys::Lib")) }
+
+  private once Spec specMeta() { specx(ns.spec("sys::Spec")) }
+
+  private once Spec dictSpec() { specx(ns.spec("sys::Dict")) }
+
+  private Spec specxForDict(Dict x)
+  {
+    spec := ns.specOf(x, false)
+    if (spec == null) return dictSpec
+    return specx(spec)
+  }
+
+  private Spec specx(Spec spec)
+  {
+    // use cache for specx since its expensive
+    x := specxCache[spec.qname]
+    if (x == null)
+    {
+      x = ns.specx(spec)
+      specxCache[spec.qname] = x
+    }
+    return x
+  }
+
+  private Str:Spec specxCache := [:]
+
 //////////////////////////////////////////////////////////////////////////
 // Generation
 //////////////////////////////////////////////////////////////////////////

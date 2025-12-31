@@ -16,6 +16,7 @@ TestDocA : Dict <abstract, admin> {
 @whitehouse: Site {
   dis: "White House"
   area: 55000ft²
+  hvac
   tz: "New_York"
   geoAddr: "1600 Pennsylvania Avenue NW, Washington, DC"
   geoStreet: "1600 Pennsylvania Ave NW"
@@ -24,6 +25,7 @@ TestDocA : Dict <abstract, admin> {
   geoPostalCode: "20500"
   geoCoord: "C(38.898, -77.037)"
   yearBuilt: 1792
+  newSlot: "from mixin"
   someStr: "foo bar"
   strs: List { "a", "b", "c" }
   dict: { dis:"nest dict", someMarker }
