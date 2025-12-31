@@ -86,7 +86,7 @@ class DocHtmlWriter : WebOutStream
       uri := slotIsOwn(x) ?
              ("#" +slotToElemId(x)).toUri :
              DocUtil.slotToUri(x.parent.qname, [n])
-      prop(DocLink(uri, n), x.doc)
+      prop(DocLink(uri, n), x.doc.summary)
     }
     propsEnd
     tabSectionEnd
@@ -401,7 +401,7 @@ class DocHtmlWriter : WebOutStream
 
   private This markdown(DocMarkdown md)
   {
-    p.esc(md.text).pEnd
+    p.w(md.html).pEnd
   }
 
 //////////////////////////////////////////////////////////////////////////

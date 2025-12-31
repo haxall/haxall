@@ -93,11 +93,8 @@ internal class GenPages: Step
       it.chapters  = chapters
     }
 
-    // generate lib summary
-    summary := DocSummary(DocLink(page.uri, lib.name), page.doc, page.tags)
-
     // add to pages
-    return addPage(page, summary)
+    return addPage(page, page.doc, page.tags)
   }
 
   private DocLibDepend[] genDepends(Lib lib)
@@ -111,9 +108,8 @@ internal class GenPages: Step
 
   private GenPage genSpec(DocLibRef lib, Spec x)
   {
-    page  := genSpecPage(lib, x)
-    summary := DocSummary(DocLink(page.uri, x.name), page.doc, page.tags)
-    return addPage(page, summary)
+    page := genSpecPage(lib, x)
+    return addPage(page, page.doc, page.tags)
   }
 
   private DocSpec genSpecPage(DocLibRef lib, Spec x)
@@ -270,8 +266,7 @@ internal class GenPages: Step
     qname    := x.id.id
     instance := genDict(x, specxForDict(x))
     page     := DocInstance(lib, qname, instance)
-    summary  := DocSummary(DocLink(page.uri, page.name), DocMarkdown.empty)
-    return addPage(page, summary)
+    return addPage(page, DocMarkdown.empty, null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -280,10 +275,9 @@ internal class GenPages: Step
 
   GenPage genChapter(DocLibRef lib,  Uri uri, Str markdown)
   {
-    qname   := lib.name + "::" + uri.basename
-    page    := DocChapter(lib, qname, genDoc(markdown))
-    summary := DocSummary(DocLink(page.uri, page.title), page.doc)
-    return addPage(page, summary)
+    qname := lib.name + "::" + uri.basename
+    page  := DocChapter(lib, qname, genDoc(markdown))
+    return addPage(page, page.doc,  null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -447,8 +441,10 @@ internal class GenPages: Step
 // Generation
 //////////////////////////////////////////////////////////////////////////
 
-  private GenPage addPage(DocPage page, DocSummary summary)
+  private GenPage addPage(DocPage page, DocMarkdown doc, DocTag[]? tags)
   {
+    dis := (page as DocSpec)?.name ?: page.title
+    summary := DocSummary(DocLink(page.uri, dis), doc.summary, tags)
     x := GenPage(page, summary)
     if (pages[x.uri] != null)
     {
