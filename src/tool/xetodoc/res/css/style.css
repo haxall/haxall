@@ -195,5 +195,11 @@ xetodoc-slot a:hover {
 
 xetodoc-chapter {
   display: block;
+  margin: 1em 0;
+}
+
+xetodoc-chapter h1:not(:first-child) {
+  color: var(--name-color);
+  font-size: 1.5em;
 }
 

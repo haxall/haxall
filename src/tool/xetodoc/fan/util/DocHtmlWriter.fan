@@ -77,6 +77,7 @@ class DocHtmlWriter : WebOutStream
 
   private Void chapter(DocChapter p)
   {
+    h1.esc(p.title).h1End
     markdown(p.doc)
   }
 
