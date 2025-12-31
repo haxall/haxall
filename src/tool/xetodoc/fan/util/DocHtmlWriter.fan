@@ -34,7 +34,7 @@ class DocHtmlWriter : WebOutStream
       case DocPageType.index:    index(p)
       default:                   throw Err(p.pageType.toStr)
     }
-    pageEnd
+    pageEnd(p)
     curPage = null
     return this
   }
@@ -77,7 +77,7 @@ class DocHtmlWriter : WebOutStream
 
   private Void chapter(DocChapter p)
   {
-    pageHeader(p, "chapter")
+    markdown(p.doc)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -201,7 +201,7 @@ class DocHtmlWriter : WebOutStream
     pageNav(p).nl.nl
 
     // <xetodoc-main>
-    tag(tagMain).nl
+    tag(pageMainTag(p)).nl
   }
 
   private This pageNav(DocPage p)
@@ -230,7 +230,7 @@ class DocHtmlWriter : WebOutStream
     tabSectionEnd
   }
 
-  private Void pageEnd()
+  private Void pageEnd(DocPage p)
   {
     // footer
     tabSection("", "doc-footer")
@@ -238,11 +238,17 @@ class DocHtmlWriter : WebOutStream
     tabSectionEnd
 
     // </xetodoc-main> </xetodoc-page>
-    tagEnd(tagMain).nl
+    tagEnd(pageMainTag(p)).nl
     tagEnd(tagPage).nl
 
     // </body> </html>
     if (fullHtml) bodyEnd.htmlEnd
+  }
+
+  private Str pageMainTag(DocPage p)
+  {
+    if (p.pageType === DocPageType.chapter) return tagChapter
+    return tagMain
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -467,6 +473,7 @@ class DocHtmlWriter : WebOutStream
   static const Str tagPropTh  := "xetodoc-prop-th"
   static const Str tagPropTd  := "xetodoc-prop-td"
   static const Str tagSlot    := "xetodoc-slot"
+  static const Str tagChapter := "xetodoc-chapter"
   static const Str tagFooter  := "xetodoc-footer"
 
   Bool fullHtml := true

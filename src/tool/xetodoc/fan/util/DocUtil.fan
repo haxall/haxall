@@ -195,9 +195,9 @@ const class DocUtil
     {
       if (uri.ext != "md") return
       n := uri.name.lower
-      if (n == "index.md") f(uri, "index")
-      else if (n == "readme.md") f(uri, "readme")
-      else f(uri, null)
+      if (n == "index.md") return f(uri, "index")
+      if (n == "readme.md") return f(uri, "readme")
+      f(uri, null)
     }
   }
 
