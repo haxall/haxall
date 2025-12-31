@@ -189,6 +189,15 @@ xetodoc-slot a:hover {
   text-decoration: underline;
 }
 
+xetodoc-slot-nested {
+  display: block
+}
+
+xetodoc-slot-nested ul {
+  list-style-type: none;
+  padding: 0;
+}
+
 /*************************************************************************
  * Chapter
  ************************************************************************/

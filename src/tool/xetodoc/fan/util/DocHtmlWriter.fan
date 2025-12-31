@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 using haystack
 using web
 
@@ -117,6 +118,7 @@ class DocHtmlWriter : WebOutStream
     tabSection(slot.name, slotToElemId(slot))
     slotSig(slot)
     markdown(slot.doc)
+    nestedSlots(slot)
     tabSectionEnd
   }
 
@@ -174,13 +176,50 @@ class DocHtmlWriter : WebOutStream
     names.each |n, i|
     {
       if (i > 0) w(", ")
-
-      v := dict[n]
-
-      link(DocLink(v.link.uri, n))
-      if (!v.isMarker) w(":").propVal(v.toVal)
+      slotVal(n, dict[n])
     }
     w("&gt;")
+    return this
+  }
+
+  private Void slotVal(Str name, DocVal val)
+  {
+    link(DocLink(val.link.uri, name))
+    if (!val.isMarker) w(":").propVal(val.toVal)
+  }
+
+  private Void nestedSlots(DocSlot spec)
+  {
+    if (spec.slots.isEmpty) return
+
+    tag(tagSlotNested).ul
+    spec.slots.each |x| { li.nestedSlot(x).liEnd }
+    ulEnd.tagEnd(tagSlotNested)
+  }
+
+  private This nestedSlot(DocSlot x)
+  {
+    tag(tagSlot).code
+
+    n := x.name
+    if (!XetoUtil.isAutoName(n)) w(n).w(": ")
+
+    typeRef(x.type)
+
+    if (!x.slots.isEmpty)
+    {
+      w(" { ")
+      first := true
+      x.slots.each |nest|
+      {
+        if (first) first = false
+        else w(", ")
+        esc(nest.name) // TODO: this is going to need some work
+      }
+      w(" }")
+    }
+
+    codeEnd.tagEnd(tagSlot).nl
     return this
   }
 
@@ -475,18 +514,19 @@ class DocHtmlWriter : WebOutStream
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  static const Str tagPage    := "xetodoc-page"
-  static const Str tagNav     := "xetodoc-nav"
-  static const Str tagMain    := "xetodoc-main" // two column tab+section
-  static const Str tagTab     := "xetodoc-tab"
-  static const Str tagSection := "xetodoc-section"
-  static const Str tagProps   := "xetodoc-prop-table"
-  static const Str tagProp    := "xetodoc-prop-tr"
-  static const Str tagPropTh  := "xetodoc-prop-th"
-  static const Str tagPropTd  := "xetodoc-prop-td"
-  static const Str tagSlot    := "xetodoc-slot"
-  static const Str tagChapter := "xetodoc-chapter"
-  static const Str tagFooter  := "xetodoc-footer"
+  static const Str tagPage       := "xetodoc-page"
+  static const Str tagNav        := "xetodoc-nav"
+  static const Str tagMain       := "xetodoc-main" // two column tab+section
+  static const Str tagTab        := "xetodoc-tab"
+  static const Str tagSection    := "xetodoc-section"
+  static const Str tagProps      := "xetodoc-prop-table"
+  static const Str tagProp       := "xetodoc-prop-tr"
+  static const Str tagPropTh     := "xetodoc-prop-th"
+  static const Str tagPropTd     := "xetodoc-prop-td"
+  static const Str tagSlot       := "xetodoc-slot"
+  static const Str tagSlotNested := "xetodoc-slot-nested"
+  static const Str tagChapter    := "xetodoc-chapter"
+  static const Str tagFooter     := "xetodoc-footer"
 
   Bool fullHtml := true
   Str footerText := "footer"
