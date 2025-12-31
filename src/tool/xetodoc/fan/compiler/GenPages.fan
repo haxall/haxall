@@ -294,8 +294,15 @@ internal class GenPages: Step
       if (n == "doc") return // handled by DocBlock
 
       DocLink? slotLink := null
-      slot := spec?.member(n, false)
-      if (slot != null) slotLink = DocLink(DocUtil.specToUri(slot), null)
+      if (spec != null)
+      {
+try
+{
+        slot := spec.members.getAll(n).first
+        if (slot != null) slotLink = DocLink(DocUtil.specToUri(slot), null)
+}
+catch (Err e) echo("TODO: $e")
+      }
 
       acc[n] = genVal(v, slotLink)
     }
