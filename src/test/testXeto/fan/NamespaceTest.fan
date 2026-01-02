@@ -32,7 +32,7 @@ class NamespaceTest : AbstractXetoTest
   private Void doTestSysLib(Namespace ns)
   {
     // lib basics
-    sys := verifyLibBasics(ns, "sys", phVersion, ["sys"])
+    sys := verifyLibBasics(ns, "sys", phVersion, ["sys"], false)
     verifySame(ns.lib("sys"), sys)
     verifyEq(sys.name, "sys")
     verifyEq(sys.version, phVersion)
@@ -170,7 +170,7 @@ class NamespaceTest : AbstractXetoTest
   private Void doTestPhLib(Namespace ns)
   {
     // lib basics
-    ph := verifyLibBasics(ns, "ph", phVersion, ["ph"])
+    ph := verifyLibBasics(ns, "ph", phVersion, ["ph"], false)
     verifyEq(ph.depends.size, 1)
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, phVersion.toStr)
@@ -267,7 +267,7 @@ class NamespaceTest : AbstractXetoTest
   private Void doTestHxTestLib(Namespace ns)
   {
     // lib basics
-    lib := verifyLibBasics(ns, "hx.test.xeto", hxVersion, ["haxall"])
+    lib := verifyLibBasics(ns, "hx.test.xeto", hxVersion, ["haxall"], true)
     verifyEq(lib.meta["org"]->dis, "Haxall")
     verifyEq(lib.meta["org"]->uri, `https://haxall.io/`)
     verifyEq(lib.meta["vcs"]->type, "git")
@@ -332,7 +332,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(files.list, [`/res/a.txt`, `/res/subdir/b.txt`])
+      verifyEq(files.list, [`/doc-test-a.md`, `/readme.md`, `/res/a.txt`, `/res/subdir/b.txt`])
 
       verifyEq(files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { files.get(`bad`) }
@@ -700,7 +700,7 @@ class NamespaceTest : AbstractXetoTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Lib verifyLibBasics(Namespace ns, Str name, Version version, Str[] categories)
+  Lib verifyLibBasics(Namespace ns, Str name, Version version, Str[] categories, Bool hasMarkdown)
   {
     lib := ns.lib(name)
 
@@ -713,7 +713,7 @@ class NamespaceTest : AbstractXetoTest
     else
       verifySame(lib.meta->depends, lib.depends)
 
-    verifyEq(lib.hasMarkdown, false)
+    verifyEq(lib.hasMarkdown, hasMarkdown)
 
     verifyEq(lib.id, Ref("lib:$name"))
     verifySame(lib->id, lib.id)

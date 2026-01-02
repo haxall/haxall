@@ -34,7 +34,8 @@ internal class CheckErrors : Step
   {
     if (!XetoUtil.isLibName(x.name)) err("Invalid lib name '$x.name': " + XetoUtil.libNameErr(x.name), x.loc)
     checkLibMeta(lib)
-    x.tops.each |type| { checkTop(type) }
+    checkNameConflicts(x)
+    x.tops.each |spec, name| { checkTop(spec) }
     x.ast.instances.each |instance, name| { checkInstance(x, name, instance) }
   }
 
@@ -51,6 +52,39 @@ internal class CheckErrors : Step
     }
   }
 
+  Void checkNameConflicts(ALib x)
+  {
+    tops := Str:Str[:]
+
+    x.tops.each |spec, name|
+    {
+      topName := spec.name.lower
+      dup := tops[topName]
+      if (dup != null)
+        err("Spec '$name' conflicts with $dup of the same case-insensitive name", x.loc)
+      else
+        tops[topName] = "spec"
+    }
+
+    x.ast.instances.each |instance, name|
+    {
+      topName := name.lower
+      dup := tops[topName]
+      if (dup != null)
+        err("Instance '$name' conflicts with $dup of the same case-insensitive name", x.loc)
+      else
+        tops[topName] = "instance"
+    }
+
+    x.files.list.each |uri|
+    {
+      topName := uri.basename.lower
+      dup := tops[topName]
+      if (uri.ext == "md" && dup != null)
+        err("Markdown file '$uri.name' conflicts with $dup of the same case-insensitive name", x.loc)
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Top Specs
 //////////////////////////////////////////////////////////////////////////
@@ -64,9 +98,6 @@ internal class CheckErrors : Step
 
   Void checkTopName(ASpec x)
   {
-    if (lib.ast.instances[x.name] != null || lib.ast.instances[x.name.lower] != null)
-      err("Spec '$x.name' conflicts with instance of the same name", x.loc)
-
     if (x.name[0].isLower)
       err("Top level specs must start with upper case: $x.name", x.loc)
 

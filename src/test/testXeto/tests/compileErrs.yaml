@@ -155,8 +155,10 @@ name: "dupTops"
 compileLib: |
   Foo: Dict
   @foo: {}
+  FOO: Dict
 verifyErrs: |
-  Spec 'Foo' conflicts with instance of the same name
+  Spec 'FOO' conflicts with spec of the same case-insensitive name
+  Instance 'foo' conflicts with spec of the same case-insensitive name
 ---
 name: "checkTypeInherit"
 compileLib: |
