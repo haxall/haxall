@@ -27,23 +27,29 @@ internal class DocChapterIndexParser
     this.textRend = TextRenderer()
   }
 
-  DocSummary[] parse(Str markdown)
+  DocSummary[] parse(Str? mdIndex)
   {
     try
     {
-      return doParse(markdown)
+      if (mdIndex != null) return doParse(mdIndex)
     }
     catch (Err e)
     {
       err("Cannot parseLibIndex", e)
-      return origs
     }
+    return missingIndex
   }
 
-  private DocSummary[] doParse(Str markdown)
+  private DocSummary[] missingIndex()
+  {
+    // if missing index (or error), then set summaries to empty string
+    origs.map |x->DocSummary| { DocSummary(x.link, DocMarkdown.empty, x.tags) }
+  }
+
+  private DocSummary[] doParse(Str mdIndex)
   {
     // parse markdown into document
-    doc := DocMarkdown(markdown).parse
+    doc := DocMarkdown(mdIndex).parse
 
     DocTag[]? tags := null
     acc := DocSummary[,]

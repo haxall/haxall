@@ -114,11 +114,8 @@ internal class GenPages: Step
     }
 
     // if we had index.md, then use it for chapter summaries
-    if (mdIndex != null)
-    {
-      loc := FileLoc("${lib.name}::index.md")
-      summaries = DocChapterIndexParser(compiler, summaries, loc).parse(mdIndex)
-    }
+    loc := FileLoc("${lib.name}::index.md")
+    summaries = DocChapterIndexParser(compiler, summaries, loc).parse(mdIndex)
 
     // now backpatch chapter prev/next
     backpatchChapterPrevNext(chapters, summaries)
