@@ -190,7 +190,8 @@ class DocIndexerHtmlParser
     if (node is XText)
     {
       str := ((XText)node).val
-      buf.join(str.trim, " ") // TODO: build this into StrBuf
+      if (!buf.isEmpty) buf.addChar(' ')
+      buf.addTrim(str.trim)
     }
     else if (node is XElem)
     {

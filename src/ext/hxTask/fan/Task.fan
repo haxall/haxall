@@ -261,9 +261,7 @@ const class Task : Actor, Observer, HxTask
     {
       buf.add("\nThread\n")
       trace := HxUtil.threadDump(threadId)
-      buf.add(trace)
-      while (buf[-1] == '\n') buf.remove(-1)
-      buf.add("\n")
+      buf.add(trace).trimEnd.add("\n")
     }
 
     return buf.toStr

@@ -371,9 +371,8 @@ const final class Conn : Actor, HxConn
     s.add("  dur:       $x.dur\n")
     s.add("  threadId:  $x.threadId\n")
     stackTrace := HxUtil.threadDump(x.threadId)
-    s.add(stackTrace)
-    while (s[-1] == '\n') s.remove(-1)
-    return s.add("\n")
+    s.add(stackTrace).trimEnd.add("\n")
+    return s
   }
 
   private Void detailsMsgArg(StrBuf s, Str name, Obj? arg)
