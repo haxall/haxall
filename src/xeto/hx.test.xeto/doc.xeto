@@ -13,6 +13,11 @@ TestDocA : Dict <abstract, admin> {
   span: List? <of:Span>     // list of spans
 }
 
+
+// Create a spec named Index to ensure we handle it correctly
+// with the library index
+Index: Dict {}
+
 @whitehouse: Site {
   dis: "White House"
   area: 55000ft²

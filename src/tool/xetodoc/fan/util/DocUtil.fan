@@ -84,7 +84,7 @@ const class DocUtil
   {
     if (uri.path.size != 2) return null
     l := uri.path[0]
-    n := uri.path[1]
+    n := fromUriName(uri.path[1])
     return "$l::$n"
   }
 
@@ -115,9 +115,21 @@ const class DocUtil
     return s.addChar('/')
             .addRange(qname, 0..<colons)
             .addChar('/')
-            .addRange(qname, colons+2..-1)
+            .add(toUriName(qname[colons+2..-1]))
             .joinNotNull(frag, "#")
             .toStr.toUri
+  }
+
+  ** Swizzle spec/instance names that conflict with lib index
+  static Str toUriName(Str n)
+  {
+    n.equalsIgnoreCase("index") ? "_$n" : n
+  }
+
+  ** Swizzle spec/instance names that conflict with lib index
+  static Str fromUriName(Str n)
+  {
+    n.equalsIgnoreCase("_index") ? n[1..-1] : n
   }
 
 //////////////////////////////////////////////////////////////////////////
