@@ -134,19 +134,17 @@ verifyErrs: |
 ---
 name: "reservedSpecNames"
 compileLib: |
-  Index: {}
+  Pragma: {}
 verifyErrs: |
-  Spec name 'Index' is reserved
+  Spec name 'Pragma' is reserved
 ---
 name: "reservedInstanceNames"
 compileLib: |
-  @index: {}
   @pragma: {}
   @doc-overview: {}
   @Foo: {}
   @123-456: {ok}
 verifyErrs: |
-  Instance name 'index' is reserved
   Instance name 'pragma' is reserved
   Instance name 'doc-overview' is reserved
   Instance name 'Foo' is invalid
