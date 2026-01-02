@@ -116,7 +116,7 @@ internal class GenPages: Step
 
     // if we had index.md, then use it for chapter summaries
     loc := FileLoc("${lib.name}::index.md")
-    summaries = DocChapterIndexParser(compiler, summaries, loc).parse(mdIndex)
+    summaries = DocMarkdownParser(compiler, loc).parseChapterIndex(summaries, mdIndex)
 
     // now backpatch chapter prev/next
     backpatchChapterPrevNext(chapters, summaries)
@@ -386,7 +386,7 @@ catch (Err e) echo("TODO: $e")
   {
     str := (doc as Str)?.trim ?: ""
     if (str.isEmpty) return DocMarkdown.empty
-    return DocMarkdownParser(compiler, loc).parse(str)
+    return DocMarkdownParser(compiler, loc).parseDocMarkdown(str)
   }
 
 //////////////////////////////////////////////////////////////////////////
