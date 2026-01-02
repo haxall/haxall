@@ -50,6 +50,7 @@ internal class GenPages: Step
 
   private GenPage genLib(Lib lib)
   {
+    loc := lib.loc
     libRef :=  DocLibRef(lib.name, lib.version)
 
     // specs
@@ -62,7 +63,7 @@ internal class GenPages: Step
     {
       it.name      = lib.name
       it.version   = lib.version
-      it.doc       = genDoc(lib.meta["doc"])
+      it.doc       = genDoc(lib.meta["doc"], loc)
       it.meta      = genDict(lib.meta, libMeta)
       it.depends   = genDepends(lib)
       it.tags      = DocUtil.genTags(ns, lib)
@@ -146,7 +147,7 @@ internal class GenPages: Step
      it.qname      = x.qname
      it.flavor     = x.flavor
      it.srcLoc     = DocUtil.srcLoc(x)
-     it.doc        = genSpecDoc(x)
+     it.doc        = genSpecDoc(x, it.srcLoc)
      it.meta       = genDict(x.meta, specMeta)
      it.tags       = genSpecTags(x)
      it.base       = x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
@@ -265,7 +266,8 @@ internal class GenPages: Step
 
   private DocSlot genSlot(Spec parentType, Spec slot)
   {
-    doc     := genSpecDoc(slot)
+    loc     := DocUtil.srcLoc(slot)
+    doc     := genSpecDoc(slot, loc)
     meta    := genDict(slot.metaOwn, specMeta)
     typeRef := genTypeRef(slot)
     parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
@@ -299,11 +301,12 @@ internal class GenPages: Step
 // Chapter
 //////////////////////////////////////////////////////////////////////////
 
-  private GenPage genChapter(DocLibRef lib,  Uri uri, Str markdown)
+  private GenPage genChapter(DocLibRef lib, Uri uri, Str markdown)
   {
     // we backpatch the prev/next
     qname := lib.name + "::" + uri.basename
-    page  := DocChapter(lib, qname, genDoc(markdown), null, null)
+    loc   := FileLoc("$lib.name::$uri")
+    page  := DocChapter(lib, qname, genDoc(markdown, loc), null, null)
     return addPage(page, page.doc,  null)
   }
 
@@ -374,16 +377,16 @@ catch (Err e) echo("TODO: $e")
 // Markdown
 //////////////////////////////////////////////////////////////////////////
 
-  private DocMarkdown genSpecDoc(Spec x)
+  private DocMarkdown genSpecDoc(Spec x, FileLoc loc)
   {
-    genDoc(x.meta["doc"])
+    genDoc(x.meta["doc"], loc)
   }
 
-  private DocMarkdown genDoc(Obj? doc)
+  private DocMarkdown genDoc(Obj? doc, FileLoc loc)
   {
-    str := doc as Str ?: ""
+    str := (doc as Str)?.trim ?: ""
     if (str.isEmpty) return DocMarkdown.empty
-    return DocMarkdown(str)
+    return DocMarkdownParser(compiler, loc).parse(str)
   }
 
 //////////////////////////////////////////////////////////////////////////

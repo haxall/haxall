@@ -24,7 +24,7 @@ const class DocIndex : DocPage
     libs.each |lib|
     {
       link := DocLink(DocUtil.libToUri(lib.name), lib.name)
-      doc  := DocMarkdown(lib.meta["doc"] ?: "")
+      doc  := DocMarkdown(lib.meta["doc"] ?: "") // TODO: needs to be in GenPages
       tags := DocUtil.genTags(ns, lib)
       summary := DocSummary(link, doc, tags)
 

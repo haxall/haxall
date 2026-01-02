@@ -194,7 +194,6 @@ class DocTest : AbstractXetoTest
     //verifyEq(siteRef.base.uri, `/ph/PhEntity.siteRef`)
     verifyEq(siteRef.type.qname, "sys::Ref")
 
-    verifyEq(n.doc.text, "Equip with *points*")
     verifyEq(n.doc.html.trim, "<p>Equip with <em>points</em></p>")
   }
 
@@ -219,7 +218,10 @@ class DocTest : AbstractXetoTest
     if (def is Spec)
     {
       x := (Spec)def
-      verifyEq(n.link.uri, "/$x.lib.name/$x.name".toUri)
+      if (x.name.lower == "index")
+        verifyEq(n.link.uri, "/$x.lib.name/_$x.name".toUri)
+      else
+        verifyEq(n.link.uri, "/$x.lib.name/$x.name".toUri)
       verifyEq(n.link.dis, x.name)
     }
     else if (def is Dict)
@@ -235,14 +237,6 @@ class DocTest : AbstractXetoTest
     {
       echo("TODO: verfiySummary $n.link.uri | $def.typeof")
     }
-  }
-
-  Void verifySummaryText(DocMarkdown n, Str? doc)
-  {
-    if (doc == null) doc = ""
-    // echo("-- $n.text.toCode")
-    // echo("   $doc.toCode")
-    verify(doc.startsWith(n.text))
   }
 
   Void verifyTypeRefs(Spec spec, DocSpec n)
@@ -405,7 +399,82 @@ class DocTest : AbstractXetoTest
   Void verifyChapter(DocChapter c)
   {
     verifyEq(c.qname, "doc.xeto::Namespaces")
-    verifyEq(c.doc.text.contains("A namespace is defined by a list"), true)
+    verifyEq(c.doc.html.contains("A namespace is defined by a list"), true)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// IndexHtmlParser
+//////////////////////////////////////////////////////////////////////////
+
+  Void testIndexerHtmlParser()
+  {
+    // if no heading we make one up
+    verifyIndexerHtmlParser(
+      Str<|<p>foo bar</p>|>,
+      Str<|<h1> ""
+           foo bar
+          |>)
+
+    // simple heading
+    verifyIndexerHtmlParser(
+      Str<|<h1>title <em>here</em>!</h1>
+           <p>para #1</p>
+           <ul><li>foo</li><li>bar</li></ul>
+           <p>para #2</p>|>,
+      Str<|<h1> "title here !"
+           para #1 foo bar para #2
+          |>)
+
+
+    // multiple headings
+    verifyIndexerHtmlParser(
+      Str<|<h1>title <em>here</em>!</h1>
+           <p>para #1</p>
+           <ul><li>foo</li><li>bar</li></ul>
+           <p>para #2</p>
+
+           <h1>Simple H1</h1>
+           <p>Foo <b>bold</b> bar</p>
+
+           <h2 id='anchor'><b>Heading 2</b></h2>
+           <div>
+             <p>Lorem</p>
+             <p>ipsum</p>
+           </div>
+           <div>
+             <div><p>dolor sit amet,</p></div>
+             <div><p>consectetu</p></div>
+           </div>
+           |>,
+      Str<|<h1> "title here !"
+           para #1 foo bar para #2
+           <h1> "Simple H1"
+           Foo bold bar
+           <h2 id='anchor'> "Heading 2"
+           Lorem ipsum dolor sit amet, consectetu
+          |>)
+  }
+
+  Void verifyIndexerHtmlParser(Str html, Str expect)
+  {
+    // first do sections
+    actual := StrBuf(expect.size)
+    DocIndexerHtmlParser().parseSections(html) |elem, title, body|
+    {
+      actual.add("$elem $title.toCode").add("\n").add(body).add("\n")
+    }
+    verifyEq(actual.toStr, expect)
+
+    // then check whole thing as plaintext
+    allExpect := StrBuf()
+    expect.eachLine |x|
+    {
+      if (x.startsWith("<h")) x = x[x.index("\"")+1..-2].trim
+      if (x.isEmpty) return
+      allExpect.join(x, " ")
+    }
+    allActual := DocIndexerHtmlParser().parseToPlainText(html)
+    verifyEq(allActual, allExpect.toStr)
   }
 
 //////////////////////////////////////////////////////////////////////////

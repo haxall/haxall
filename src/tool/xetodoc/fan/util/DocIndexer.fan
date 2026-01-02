@@ -7,13 +7,15 @@
 //
 
 using markdown
+using util
+using xml
 using xeto
 using haystack
 
 **
 ** DocIndexer is used to crawl the AST of documents to generate a search index
 **
-abstract class DocIndexer
+class DocIndexer
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -68,24 +70,20 @@ abstract class DocIndexer
     // index chapter qname/name itself
     doAdd(x.uri, x.lib, DocIndexerSectionType.chapter, [x.qname, x.name], x.name, "")
 
-    // parse markdown and find all headings
-    doc := x.doc.parse
-    headings := doc.findAll { it is Heading }
-
-    // find all the content between each heading and render it is a plaintext
-    renderer := TextRenderer()
-    headings.each |Heading heading, i|
+    // parse html and find all headings
+    try
     {
-      // get all the text between headings
-      bodyDoc := Document()
-      Node.eachBetween(heading, headings.getSafe(i+1)) |node| { bodyDoc.appendChild(node) }
-
-      uri   := x.uri + `#${heading.anchor}`
-      type  := DocIndexerSectionType.heading(heading.level)
-      title := renderer.render(heading)
-      body  := renderer.render(bodyDoc)
-      doAdd(uri, x.lib, type, Str#.emptyList, title, body)
+      DocIndexerHtmlParser().parseSections(x.doc.html) |elem, title, body|
+      {
+        uri := x.uri
+        anchor := elem.attr("id")
+        if (anchor != null) uri = uri + `#${anchor.val}`
+        level := elem.name[1].fromDigit
+        type  := DocIndexerSectionType.heading(level)
+        doAdd(uri, x.lib, type, Str#.emptyList, title, body)
+      }
     }
+    catch (Err e) Console.cur.err("Cannot index $x.qname", e)
   }
 
   private Void doAdd(Uri uri, DocLibRef? lib, DocIndexerSectionType type, Str[] keys, Str title, Obj body)
@@ -96,8 +94,17 @@ abstract class DocIndexer
       it.type  = type
       it.keys  = keys
       it.title = title
-      it.body  = body as Str ?: ((DocMarkdown)body).plain
+      it.body  = body as Str ?: parseHtmlToPlainText(uri, body)
     })
+  }
+
+  private Str parseHtmlToPlainText(Uri uri, DocMarkdown body)
+  {
+    try
+      return DocIndexerHtmlParser().parseToPlainText(body.html)
+    catch (Err e)
+      Console.cur.err("Cannot index $uri", e)
+    return body.html
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,7 +112,91 @@ abstract class DocIndexer
 //////////////////////////////////////////////////////////////////////////
 
   ** Add section to index
-  abstract Void add(DocIndexerSection section)
+  virtual Void add(DocIndexerSection section) {}
+}
+
+**************************************************************************
+** DocIndexerHtmlParser
+**************************************************************************
+
+**
+** DocIndexerHtmlParser is a helper class used to parse the HTML generated
+** from markdown back into XML and plaintext for search indexing.
+**
+class DocIndexerHtmlParser
+{
+  ** Parse the HTML by section and call with h1/h2/h3 element, title, body
+  Str parseToPlainText(Str html)
+  {
+    buf := StrBuf()
+    parser := XParser(html.in)
+    while (parser.next != null)
+    {
+      elem := parser.parseElem
+      flattenToStrBuf(elem, buf)
+    }
+    return buf.toStr
+  }
+
+  ** Parse the HTML by section and call with h1/h2/h3 element, title, body
+  Void parseSections(Str html, |XElem head, Str title, Str body| f)
+  {
+    XElem? curElem := null
+    curTitle := ""
+    buf := StrBuf()
+    parser := XParser(html.in)
+    while (parser.next != null)
+    {
+      // process next top-level element
+      elem := parser.parseElem
+      if (isHeading(elem))
+      {
+        // if heading, then finish current section and reset
+        if (curElem != null) f(curElem, curTitle, buf.toStr)
+        curElem = elem.copy
+        curTitle = flattenToStr(elem)
+        buf.clear
+      }
+      else
+      {
+        // append text into current section
+        flattenToStrBuf(elem, buf)
+      }
+    }
+
+    // finish last section
+    if (!buf.isEmpty) f(curElem ?: XElem("h1"), curTitle, buf.toStr)
+  }
+
+
+  ** Flatten element to plain t4ext
+  private static Bool isHeading(XElem elem)
+  {
+    name := elem.name
+    return name.size == 2 && name[0] == 'h' && name[1].isDigit
+  }
+
+  ** Flatten element to plain t4ext
+  private static Str flattenToStr(XElem elem)
+  {
+    buf := StrBuf()
+    flattenToStrBuf(elem, buf)
+    return buf.toStr
+  }
+
+  ** Flatten element to plain text
+  private static Void flattenToStrBuf(XNode node, StrBuf buf)
+  {
+    if (node is XText)
+    {
+      str := ((XText)node).val
+      buf.join(str.trim, " ") // TODO: build this into StrBuf
+    }
+    else if (node is XElem)
+    {
+      ((XElem)node).each |kid| { flattenToStrBuf(kid, buf) }
+    }
+  }
 }
 
 **************************************************************************

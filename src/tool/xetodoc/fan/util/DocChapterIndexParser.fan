@@ -49,7 +49,7 @@ internal class DocChapterIndexParser
   private DocSummary[] doParse(Str mdIndex)
   {
     // parse markdown into document
-    doc := DocMarkdown(mdIndex).parse
+    doc := DocMarkdownParser(compiler, loc).parseNode(mdIndex)
 
     DocTag[]? tags := null
     acc := DocSummary[,]

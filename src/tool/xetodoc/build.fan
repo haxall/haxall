@@ -30,6 +30,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
                "markdown @{fan.depend}",
+               "xml @{fan.depend}",
                "web @{fan.depend}",
                "xeto @{hx.depend}",
                "xetom @{hx.depend}",

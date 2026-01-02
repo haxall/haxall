@@ -7,9 +7,11 @@
 //
 
 using markdown
+using xml
 
 **
-** DocMarkdown is a block of text formatted in markdown.
+** DocMarkdown is a block of text originally formatted in markdown
+** and converted to normalized HTML at compilation time
 **
 @Js
 const class DocMarkdown
@@ -18,75 +20,33 @@ const class DocMarkdown
   static const DocMarkdown empty := make("")
 
   ** Constructor
-  new make(Str text) { this.text = text }
+  new make(Str html, DocMarkdown? summary := null)
+  {
+    this.html = html
+    this.summary = summary ?: this
+  }
 
-  ** Raw markdown text
-  const Str text
+  ** Normalized HTML
+  const Str html
 
   ** Is this the empty string
-  Bool isEmpty() { text.isEmpty }
+  Bool isEmpty() { html.isEmpty }
 
   ** Debug string
-  override Str toStr() { text }
-
-  ** Get the summary first sentence of this text
-  DocMarkdown summary()
-  {
-    summary := parseFirstSentence(text)
-    if (summary.size == text.size) return this
-    return make(summary)
-  }
+  override Str toStr() { html }
 
   ** Encode to JSON as string literal
-  Obj encode()
-  {
-    text
-  }
+  Obj encode() { html }
 
   ** Decode from JSON string literal
   static DocMarkdown decode(Obj? obj)
   {
     if (obj == null) return empty
-    return DocMarkdown(obj.toStr)
+    return DocMarkdown(obj.toStr, null)
   }
 
-  ** Return this text as HTML
-  Str html()
-  {
-    Xetodoc.toHtml(text, null)
-  }
+  ** Summary is first sentence of the text
+  internal const DocMarkdown summary
 
-  ** Return this text as plain text to be used for search indexing
-  Str plain()
-  {
-    TextRenderer.builder.build.render(parse)
-  }
-
-  ** Parse into markdown
-  Node parse()
-  {
-    Parser.builder.build.parse(text)
-  }
-
-  static Str parseFirstSentence(Str t)
-  {
-    // this logic isn't exactly like firstSentence because we clip at colon
-    if (t.isEmpty) return ""
-
-    semicolon := t.index(";")
-    if (semicolon != null) t = t[0..<semicolon]
-
-    colon := t.index(":")
-    while (colon != null && colon + 1 < t.size && !t[colon+1].isSpace)
-      colon = t.index(":", colon+1)
-    if (colon != null) t = t[0..<colon]
-
-    period := t.index(".")
-    while (period != null && period + 1 < t.size && !t[period+1].isSpace)
-      period = t.index(".", period+1)
-    if (period != null) t = t[0..<period]
-
-    return t
-  }
 }
 
