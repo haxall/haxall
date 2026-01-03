@@ -13,7 +13,7 @@ using markdown
 ** DocMarkdownParser is used to parse Xetodoc markdown, resolve
 ** all link shortcuts, and then output normalized HTML.
 **
-internal class DocMarkdownParser
+internal class DocMarkdownParser : LinkResolver
 {
   ** Constructor
   new make(DocCompiler c, FileLoc loc)
@@ -43,7 +43,8 @@ internal class DocMarkdownParser
 
   private Str parseToHtml(Str markdown, Bool logWarns)
   {
-    Xetodoc.toHtml(markdown, null)
+    this.logWarns = logWarns
+    return Xetodoc.toHtml(markdown, this)
   }
 
   static Str parseFirstSentence(Str s)
@@ -151,6 +152,15 @@ internal class DocMarkdownParser
   private once TextRenderer textRend() { TextRenderer() }
 
 //////////////////////////////////////////////////////////////////////////
+// Link Resolution
+//////////////////////////////////////////////////////////////////////////
+
+  override Void resolve(LinkNode linkNode)
+  {
+    // TODO
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
@@ -176,5 +186,6 @@ internal class DocMarkdownParser
 
   private DocCompiler compiler
   private FileLoc loc
+  private Bool logWarns
 }
 

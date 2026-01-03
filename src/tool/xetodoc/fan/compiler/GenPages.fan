@@ -29,7 +29,8 @@ internal class GenPages: Step
     // build index
     genIndex(libGens)
 
-    // clear cache for gc
+    // clear caches for gc
+    docCache.clear
     specxCache.clear
   }
 
@@ -384,10 +385,21 @@ catch (Err e) echo("TODO: $e")
 
   private DocMarkdown genDoc(Obj? doc, FileLoc loc)
   {
-    str := (doc as Str)?.trim ?: ""
-    if (str.isEmpty) return DocMarkdown.empty
-    return DocMarkdownParser(compiler, loc).parseDocMarkdown(str)
+    // handle empty
+    str := (doc as Str)?.trimToNull
+    if (str == null) return DocMarkdown.empty
+
+    // use cache since we have lots of repeats with inherited slots
+    x := docCache[str]
+    if (x == null)
+    {
+      x = DocMarkdownParser(compiler, loc).parseDocMarkdown(str)
+      docCache[str] = x
+    }
+    return x
   }
+
+  private Str:DocMarkdown docCache := [:]
 
 //////////////////////////////////////////////////////////////////////////
 // Specx
