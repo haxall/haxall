@@ -15,11 +15,16 @@ using markdown
 **
 internal class DocMarkdownParser : LinkResolver
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
   ** Constructor
-  new make(DocCompiler c, FileLoc loc)
+  new make(DocCompiler c, DocLinker linker)
   {
     this.compiler = c
-    this.loc      = loc
+    this.linker = linker
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -41,9 +46,9 @@ internal class DocMarkdownParser : LinkResolver
     return DocMarkdown(html, summary)
   }
 
-  private Str parseToHtml(Str markdown, Bool logWarns)
+  private Str parseToHtml(Str markdown, Bool logWarn)
   {
-    this.logWarns = logWarns
+    this.logWarn = logWarn
     return Xetodoc.toHtml(markdown, this)
   }
 
@@ -101,7 +106,7 @@ internal class DocMarkdownParser : LinkResolver
   private DocSummary[] doParseChapterIndex(DocSummary[] origs, Str mdIndex)
   {
     // parse markdown into document
-    doc := DocMarkdownParser(compiler, loc).parseNode(mdIndex)
+    doc := parseNode(mdIndex)
 
     DocTag[]? tags := null
     acc := DocSummary[,]
@@ -157,7 +162,12 @@ internal class DocMarkdownParser : LinkResolver
 
   override Void resolve(LinkNode linkNode)
   {
-    // TODO
+    orig := linkNode.destination
+    dest := linker.resolve(orig)
+    if (dest != null)
+      linkNode.destination = dest
+    //else
+    //  warn("unresolved link [$orig]")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -176,8 +186,13 @@ internal class DocMarkdownParser : LinkResolver
 
   private Obj? warn(Str msg)
   {
-    compiler.warn(msg, loc)
+    if (logWarn) compiler.warn(msg, loc)
     return null
+  }
+
+  private FileLoc loc()
+  {
+    linker.loc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -185,7 +200,7 @@ internal class DocMarkdownParser : LinkResolver
 //////////////////////////////////////////////////////////////////////////
 
   private DocCompiler compiler
-  private FileLoc loc
-  private Bool logWarns
+  private Bool logWarn := true
+  private const DocLinker linker
 }
 

@@ -51,20 +51,21 @@ internal class GenPages: Step
 
   private GenPage genLib(Lib lib)
   {
-    loc := lib.loc
-    libRef :=  DocLibRef(lib.name, lib.version)
+    // setup current lib
+    this.lib    = lib
+    this.libRef = DocLibRef(lib.name, lib.version)
 
     // specs
-    specs     := genLibSpecs(lib, libRef)
-    instances := genLibInstances(lib, libRef)
-    chapters  := genLibChapters(lib, libRef)
+    specs     := genLibSpecs
+    instances := genLibInstances
+    chapters  := genLibChapters
 
     // create lib page
     page := DocLib
     {
       it.name      = lib.name
       it.version   = lib.version
-      it.doc       = genDoc(lib.meta["doc"], loc)
+      it.doc       = genDoc(lib.meta["doc"], DocLinker(ns, lib))
       it.meta      = genDict(lib.meta, libMeta)
       it.depends   = genDepends(lib)
       it.tags      = DocUtil.genTags(ns, lib)
@@ -73,34 +74,38 @@ internal class GenPages: Step
       it.chapters  = chapters
     }
 
+    // clear current lib
+    this.lib    = null
+    this.libRef = null
+
     // add to pages
     return addPage(page, page.doc, page.tags)
   }
 
-  private DocSummary[] genLibSpecs(Lib lib, DocLibRef libRef)
+  private DocSummary[] genLibSpecs()
   {
     summaries := DocSummary[,]
     lib.specs.each |x|
     {
       if (DocUtil.isSpecNoDoc(x)) return
-      g := genSpec(libRef, x)
+      g := genSpec(x)
       summaries.add(g.summary)
     }
     return summaries
   }
 
-  private DocSummary[] genLibInstances(Lib lib, DocLibRef libRef)
+  private DocSummary[] genLibInstances()
   {
     summaries := DocSummary[,]
     lib.instances.each |x|
     {
-      g := genInstance(libRef, x)
+      g := genInstance(x)
       summaries.add(g.summary)
     }
     return summaries
   }
 
-  private DocSummary[] genLibChapters(Lib lib, DocLibRef libRef)
+  private DocSummary[] genLibChapters()
   {
     chapters  := DocChapter[,]
     summaries := DocSummary[,]
@@ -110,14 +115,14 @@ internal class GenPages: Step
     {
       md := lib.files.get(uri).readAllStr
       if (special == "index") { mdIndex = md; return }
-      g := genChapter(libRef, uri, md)
+      g := genChapter(uri, md)
       chapters.add(g.page)
       summaries.add(g.summary)
     }
 
     // if we had index.md, then use it for chapter summaries
-    loc := FileLoc("${lib.name}::index.md")
-    summaries = DocMarkdownParser(compiler, loc).parseChapterIndex(summaries, mdIndex)
+    linker := DocLinker(ns, lib)
+    summaries = DocMarkdownParser(compiler, linker).parseChapterIndex(summaries, mdIndex)
 
     // now backpatch chapter prev/next
     backpatchChapterPrevNext(chapters, summaries)
@@ -134,21 +139,21 @@ internal class GenPages: Step
 // Spec
 //////////////////////////////////////////////////////////////////////////
 
-  private GenPage genSpec(DocLibRef lib, Spec x)
+  private GenPage genSpec(Spec x)
   {
-    page := genSpecPage(lib, x)
+    page := genSpecPage(x)
     return addPage(page, page.doc, page.tags)
   }
 
-  private DocSpec genSpecPage(DocLibRef lib, Spec x)
+  private DocSpec genSpecPage(Spec x)
   {
     DocSpec
     {
-     it.lib        = lib
+     it.lib        = libRef
      it.qname      = x.qname
      it.flavor     = x.flavor
      it.srcLoc     = DocUtil.srcLoc(x)
-     it.doc        = genSpecDoc(x, it.srcLoc)
+     it.doc        = genSpecDoc(x)
      it.meta       = genDict(x.meta, specMeta)
      it.tags       = genSpecTags(x)
      it.base       = x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
@@ -268,7 +273,7 @@ internal class GenPages: Step
   private DocSlot genSlot(Spec parentType, Spec slot)
   {
     loc     := DocUtil.srcLoc(slot)
-    doc     := genSpecDoc(slot, loc)
+    doc     := genSpecDoc(slot)
     meta    := genDict(slot.metaOwn, specMeta)
     typeRef := genTypeRef(slot)
     parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
@@ -290,11 +295,11 @@ internal class GenPages: Step
 // Instance
 //////////////////////////////////////////////////////////////////////////
 
-  private GenPage genInstance(DocLibRef lib, Dict x)
+  private GenPage genInstance(Dict x)
   {
     qname    := x.id.id
     instance := genDict(x, specxForDict(x))
-    page     := DocInstance(lib, qname, instance)
+    page     := DocInstance(libRef, qname, instance)
     return addPage(page, DocMarkdown.empty, null)
   }
 
@@ -302,12 +307,12 @@ internal class GenPages: Step
 // Chapter
 //////////////////////////////////////////////////////////////////////////
 
-  private GenPage genChapter(DocLibRef lib, Uri uri, Str markdown)
+  private GenPage genChapter(Uri uri, Str markdown)
   {
     // we backpatch the prev/next
-    qname := lib.name + "::" + uri.basename
-    loc   := FileLoc("$lib.name::$uri")
-    page  := DocChapter(lib, qname, genDoc(markdown, loc), null, null)
+    qname  := lib.name + "::" + uri.basename
+    linker := DocLinker(ns, lib)
+    page   := DocChapter(libRef, qname, genDoc(markdown, linker), null, null)
     return addPage(page, page.doc,  null)
   }
 
@@ -378,12 +383,12 @@ catch (Err e) echo("TODO: $e")
 // Markdown
 //////////////////////////////////////////////////////////////////////////
 
-  private DocMarkdown genSpecDoc(Spec x, FileLoc loc)
+  private DocMarkdown genSpecDoc(Spec x)
   {
-    genDoc(x.meta["doc"], loc)
+    genDoc(x.meta["doc"], DocLinker(ns, lib, x))
   }
 
-  private DocMarkdown genDoc(Obj? doc, FileLoc loc)
+  private DocMarkdown genDoc(Obj? doc, DocLinker linker)
   {
     // handle empty
     str := (doc as Str)?.trimToNull
@@ -393,13 +398,11 @@ catch (Err e) echo("TODO: $e")
     x := docCache[str]
     if (x == null)
     {
-      x = DocMarkdownParser(compiler, loc).parseDocMarkdown(str)
+      x = DocMarkdownParser(compiler, linker).parseDocMarkdown(str)
       docCache[str] = x
     }
     return x
   }
-
-  private Str:DocMarkdown docCache := [:]
 
 //////////////////////////////////////////////////////////////////////////
 // Specx
@@ -430,8 +433,6 @@ catch (Err e) echo("TODO: $e")
     return x
   }
 
-  private Str:Spec specxCache := [:]
-
 //////////////////////////////////////////////////////////////////////////
 // Generation
 //////////////////////////////////////////////////////////////////////////
@@ -452,7 +453,15 @@ catch (Err e) echo("TODO: $e")
     return x
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
   private Uri:GenPage pages := [:]
+  private Str:DocMarkdown docCache := [:]
+  private Str:Spec specxCache := [:]
+  private Lib? lib
+  private DocLibRef? libRef
 }
 
 **************************************************************************
