@@ -24,9 +24,104 @@ const class DocLinker
   }
 
   ** Resolve destination against current location or null if unresolved
-  Str? resolve(Str dest)
+  Uri? resolve(Str x)
   {
-    null
+    // parse into libName::docName.slotName#frag
+    Str? libName  := null
+    Str? docName  := x
+    Str? slotName := null
+    Str? frag     := null
+
+    colons := x.index("::")
+    if (colons != null)
+    {
+      libName = x[0..<colons]
+      docName = x = x[colons+2..-1]
+    }
+
+    pound := x.indexr("#")
+    if (pound != null)
+    {
+      frag    = x[pound+1..-1]
+      docName = x = x[0..<pound]
+    }
+
+    dot := x.index(".")
+    if (dot != null)
+    {
+      slotName = x[dot+1..-1]
+      docName  = x = x[0..<dot]
+    }
+
+    // resolve lib or use scope
+    Lib? lib
+    if (libName == null)
+    {
+      lib = this.lib
+      libName = lib.name
+    }
+    else
+    {
+      lib = ns.lib(libName, false)
+      if (lib == null) return null
+    }
+
+    // doc - index
+    if (docName == "index")
+    {
+      if (slotName != null) return null
+      if (frag != null) return null
+      return DocUtil.libToUri(libName)
+    }
+
+    // doc - spec
+    spec := resolveSpec(lib, docName)
+    if (spec != null)
+    {
+      if (frag != null) return null
+      if (slotName != null) spec = spec.member(slotName, false)
+      if (spec == null) return null
+      return DocUtil.specToUri(spec)
+    }
+
+    // doc - instance
+    inst := lib.instance(docName, false)
+    if (inst != null)
+    {
+      if (slotName != null) return null
+      if (frag != null) return null
+      return DocUtil.toUri(libName, docName)
+    }
+
+    // doc - chapter
+    chapter := lib.files.get(`/${docName}.md`, false)
+    if (chapter != null)
+    {
+      if (slotName != null && slotName != "md") return null
+// TODO frag checking
+      return DocUtil.toUri(libName, docName, frag)
+    }
+
+    return null
+  }
+
+  ** Spec in library of one of it depends
+  private Spec? resolveSpec(Lib lib, Str name)
+  {
+    // if in library itself then it always wins
+    spec := lib.spec(name, false)
+    if (spec != null) return spec
+
+    // find all types in lib's depends (cannot use mixins)
+    specs := Spec[,]
+    ns.libs.each |x|
+    {
+      spec = x.type(name, false)
+      if (spec == null) return
+      specs.add(spec)
+    }
+    if (specs.size > 1) throw Err("Ambiguous spec link: $specs")
+    return specs.first
   }
 
   ** File location based on current lib/spec location

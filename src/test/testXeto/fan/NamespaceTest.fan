@@ -332,7 +332,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(files.list, [`/doc-test-a.md`, `/readme.md`, `/res/a.txt`, `/res/subdir/b.txt`])
+      verifyEq(files.list, [`/ChapterA.md`, `/Readme.md`, `/res/a.txt`, `/res/subdir/b.txt`])
 
       verifyEq(files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { files.get(`bad`) }

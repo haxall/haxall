@@ -163,11 +163,18 @@ internal class DocMarkdownParser : LinkResolver
   override Void resolve(LinkNode linkNode)
   {
     orig := linkNode.destination
-    dest := linker.resolve(orig)
-    if (dest != null)
-      linkNode.destination = dest
-    //else
-    //  warn("unresolved link [$orig]")
+    try
+    {
+      dest := linker.resolve(orig)
+      if (dest != null)
+        linkNode.destination = dest.toStr
+      //else
+      //  warn("unresolved link [$orig]")
+    }
+    catch (Err e)
+    {
+      warn("link err: $e.toStr [$orig]")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

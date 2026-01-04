@@ -478,6 +478,102 @@ class DocTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Linker
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLinker()
+  {
+    this.ns = createNamespace(["ph.points", "hx", "hx.test.xeto", "doc.xeto"])
+
+    // absolute index
+    verifyLinker("ph.points::index", "/ph.points/index")
+    verifyLinker("ph.points::index.bad", null)
+    verifyLinker("ph.points::index#bad", null)
+
+    // absolute spec
+    verifyLinker("sys::Spec", "/sys/Spec")
+    verifyLinker("ph::Equip", "/ph/Equip")
+    verifyLinker("ph.points::NumberPoint", "/ph.points/NumberPoint")
+    verifyLinker("ph::Equip#bad",  null)
+    verifyLinker("ph::Bad", null)
+
+    // absolute slot
+    verifyLinker("sys::Spec.doc", "/sys/Spec#doc")
+    verifyLinker("ph::PhEntity.temp", "/ph/PhEntity#temp")
+    verifyLinker("hx::Funcs.read", "/hx/Funcs#read")
+    verifyLinker("hx.test.xeto::Index", "/hx.test.xeto/_Index")
+    verifyLinker("ph::PhEntity.temp#bad", null)
+    verifyLinker("ph::PhEntity.bad", null)
+
+    // absolute instance
+    verifyLinker("hx.test.xeto::coerce", "/hx.test.xeto/coerce")
+    verifyLinker("hx.test.xeto::coerce.float", null)
+    verifyLinker("hx.test.xeto::coerce#bad", null)
+
+    // TODO functions
+
+    // absolute chapter
+    verifyLinker("doc.xeto::Xetodoc", "/doc.xeto/Xetodoc")
+    verifyLinker("doc.xeto::Xetodoc.md", "/doc.xeto/Xetodoc")
+    verifyLinker("doc.xeto::Xetodoc.bad", null)
+    verifyLinker("doc.xeto::Bad", null)
+
+    // TODO chapter frags
+
+    // relative specs
+    lib = ns.lib("ph")
+    verifyLinker("Spec", "/sys/Spec")
+    verifyLinker("Site", "/ph/Site")
+// TODO: check depends
+//    verifyLinker("NumberPoint", null)
+
+    // relative slots
+    lib = ns.lib("ph")
+    verifyLinker("Spec.doc", "/sys/Spec#doc")
+    verifyLinker("Equip.siteRef", "/ph/Equip#siteRef")
+    verifyLinker("Equip#bad", null)
+    verifyLinker("Equip.bad", null)
+    verifyLinker("Equip.siteRef#bad", null)
+
+    // relative chapters
+    lib = ns.lib("ph")
+    verifyLinker("Xetodoc", null)
+    verifyLinker("Xetodoc.md", null)
+    lib = ns.lib("doc.xeto")
+    verifyLinker("Xetodoc", "/doc.xeto/Xetodoc")
+    verifyLinker("Xetodoc.md", "/doc.xeto/Xetodoc")
+    verifyLinker("Xetodoc#tables", "/doc.xeto/Xetodoc#tables")
+    verifyLinker("Xetodoc.md#tables", "/doc.xeto/Xetodoc#tables")
+//    verifyLinker("Xetodoc#bad", null)
+//    verifyLinker("Xetodoc.md#bad", null)
+
+    // TODO: frags internal to chapter
+
+    // error boundary conditions
+    verifyLinker("", null)
+    verifyLinker(":", null)
+    verifyLinker("::", null)
+    verifyLinker("x::", null)
+    verifyLinker("::x", null)
+    verifyLinker("#", null)
+    verifyLinker("x#", null)
+    verifyLinker(".", null)
+    verifyLinker("x.", null)
+    verifyLinker(".x", null)
+  }
+
+  Void verifyLinker(Str link, Str? expect)
+  {
+    actual := DocLinker(ns, lib, doc).resolve(link)?.toStr
+    // echo; echo("--> $link"); echo("  > $actual ?= $expect")
+    verifyEq(actual, expect)
+  }
+
+  Namespace? ns
+  Lib? lib
+  Obj? doc
+
+//////////////////////////////////////////////////////////////////////////
 // Util
 //////////////////////////////////////////////////////////////////////////
 

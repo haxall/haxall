@@ -107,6 +107,18 @@ const class DocUtil
   }
 
   ** Convert spec or instance qualified name to its normalized URI
+  internal static Uri toUri(Str lib, Str name, Str? frag := null)
+  {
+    StrBuf(2+lib.size+name.size)
+      .addChar('/')
+      .add(lib)
+      .addChar('/')
+      .add(name)
+      .joinNotNull(frag, "#")
+      .toStr.toUri
+  }
+
+  ** Convert spec or instance qualified name to its normalized URI
   internal static Uri qnameToUri(Str qname, Str? frag := null)
   {
     // have to deal with lower vs upper case names on file systems
