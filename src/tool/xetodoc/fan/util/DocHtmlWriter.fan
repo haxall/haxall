@@ -494,20 +494,9 @@ class DocHtmlWriter : WebOutStream
     a(href(uri)).esc(dis).aEnd
   }
 
-  private Uri href(Uri uri, Str? ext := ".html")
+  private Uri href(Uri uri)
   {
-   // we can assume one or two level tree of /index or /lib/page
-    if (curPage == null) throw Err("No current page")
-    if (uri.path.isEmpty) return uri
-    cur := curPage.uri
-    s := StrBuf()
-    if (cur.path.first != uri.path.first)
-    {
-      if (cur.path.size > 1) s.add("../")
-      if (uri.path.size > 1) s.add(uri.path[0]).addChar('/')
-    }
-    s.add(uri.name).joinNotNull(ext, "").joinNotNull(uri.frag, "#")
-    return s.toStr.toUri
+    DocUtil.htmlUri(curPage.uri, uri)
   }
 
 //////////////////////////////////////////////////////////////////////////

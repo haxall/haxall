@@ -67,6 +67,7 @@ const class DocNamespace
 ** DocNamespaceChapter
 **************************************************************************
 
+@Js
 const class DocNamespaceChapter
 {
   internal new make(Lib lib, Str name)

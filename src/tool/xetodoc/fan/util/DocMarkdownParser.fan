@@ -167,9 +167,14 @@ internal class DocMarkdownParser : LinkResolver
     {
       dest := linker.resolve(orig)
       if (dest != null)
+      {
+        if (compiler.mode.isHtml) dest = DocUtil.htmlUri(linker.uri, dest)
         linkNode.destination = dest.toStr
-      //else
-      //  warn("unresolved link [$orig]")
+      }
+      else
+      {
+        warn("unresolved link [$orig]")
+      }
     }
     catch (Err e)
     {

@@ -22,6 +22,7 @@ const class DocLinker
     this.ns  = ns
     this.lib = lib
     this.doc = doc
+    this.uri = DocUtil.linkerToUri(lib, doc)
   }
 
   ** Resolve destination against current location or null if unresolved
@@ -162,8 +163,9 @@ const class DocLinker
     return FileLoc.unknown
   }
 
-  const DocNamespace ns
-  const Lib? lib
-  const Obj? doc
+  const DocNamespace ns    // namespace and cached chapter headings
+  const Uri uri            // current location uri
+  const Lib? lib           // current lib scope
+  const Obj? doc           // current doc scope (Spec or DocNamespaceChapter)
 }
 

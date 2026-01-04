@@ -60,6 +60,7 @@ class DocCompiler
   This compileHtml()
   {
     if (outDir == null) throw Err("Must config outDir")
+    this.mode = DocCompileMode.html
     run([
       GenPages(),
       WriteHtml(),
@@ -71,6 +72,7 @@ class DocCompiler
   ** Compile to JSON files (if outDir null, then in-memory files)
   This compileJson()
   {
+    this.mode = DocCompileMode.json
     run([
       GenPages(),
       WriteJson(),
@@ -155,10 +157,26 @@ class DocCompiler
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  DocCompileMode? mode                // init
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
   DocPage[] pages := [,]              // GenPages
   Int numFiles                        // WriteHtml, WriteJson
   private Str[] autoNames := [,]      // autoName
+}
+
+**************************************************************************
+** DocCompileMode
+**************************************************************************
+
+@Js
+enum class DocCompileMode
+{
+  html,
+  json
+
+  Bool isHtml() { this === html }
+
+  Bool isJson() { this === json }
 }
 
