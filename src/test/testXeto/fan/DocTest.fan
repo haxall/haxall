@@ -483,7 +483,19 @@ class DocTest : AbstractXetoTest
 
   Void testLinker()
   {
-    this.ns = createNamespace(["ph.points", "hx", "hx.test.xeto", "doc.xeto"])
+    ns := createNamespace(["ph.points", "hx", "hx.test.xeto", "doc.xeto"])
+    docns = DocNamespace(ns)
+
+    // DocNamespace chapter heading parsing
+    chapters := docns.chapters(ns.lib("hx.test.xeto"))
+    verifySame(docns.chapters(ns.lib("hx.test.xeto")), chapters)
+    verifySame(docns.chapters(ns.lib("sys")), docns.chapters(ns.lib("ph")))
+    chapter := chapters.getChecked("ChapterA")
+    verifyEq(chapter.name, "ChapterA")
+    verifyEq(chapter.uri, `/hx.test.xeto/ChapterA`)
+    verifyEq(chapter.headings["dup"], "Dup")
+    verifyEq(chapter.headings["dup-2"], "Dup")
+    verifyEq(chapter.headings["subsection-3"], "Subsection 3")
 
     // pass-thru
     verifyLinker("/foo/bar", "/foo/bar")
@@ -535,7 +547,12 @@ class DocTest : AbstractXetoTest
     verifyLinker("doc.xeto::Xetodoc.bad", null)
     verifyLinker("doc.xeto::Bad", null)
 
-    // TODO chapter frags
+    // absolute chapter frags
+    verifyLinker("doc.xeto::Xetodoc#shortcut-links", "/doc.xeto/Xetodoc#shortcut-links")
+    verifyLinker("doc.xeto::Xetodoc.md#shortcut-links", "/doc.xeto/Xetodoc#shortcut-links")
+    verifyLinker("doc.xeto::Xetodoc#bad", null)
+    verifyLinker("doc.xeto::Xetodoc.md#bad", null)
+    verifyLinker("doc.xeto::Xetodoc.md#Shortcut-Links", null)
 
     // relative specs
     lib = ns.lib("ph")
@@ -561,10 +578,16 @@ class DocTest : AbstractXetoTest
     verifyLinker("Xetodoc.md", "/doc.xeto/Xetodoc")
     verifyLinker("Xetodoc#tables", "/doc.xeto/Xetodoc#tables")
     verifyLinker("Xetodoc.md#tables", "/doc.xeto/Xetodoc#tables")
-//    verifyLinker("Xetodoc#bad", null)
-//    verifyLinker("Xetodoc.md#bad", null)
+    verifyLinker("Xetodoc#bad", null)
+    verifyLinker("Xetodoc.md#bad", null)
+    verifyLinker("#tables", null)
 
-    // TODO: frags internal to chapter
+    // frags internal to chapter
+    doc = docns.chapters(lib).getChecked("Xetodoc")
+    verifyLinker("#tables", "#tables")
+    verifyLinker("#shortcut-links", "#shortcut-links")
+    verifyLinker("#bad", null)
+    verifyLinker("#Shortcut-Links", null)
 
     // error boundary conditions
     verifyLinker("", null)
@@ -582,12 +605,12 @@ class DocTest : AbstractXetoTest
 
   Void verifyLinker(Str link, Str? expect)
   {
-    actual := DocLinker(ns, lib, doc).resolve(link)?.toStr
+    actual := DocLinker(docns, lib, doc).resolve(link)?.toStr
     // echo; echo("--> $link"); echo("  > $actual ?= $expect")
     verifyEq(actual, expect)
   }
 
-  Namespace? ns
+  DocNamespace? docns
   Lib? lib
   Obj? doc
 

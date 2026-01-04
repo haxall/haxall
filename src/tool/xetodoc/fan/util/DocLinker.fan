@@ -16,11 +16,11 @@ using xeto
 const class DocLinker
 {
   ** Constructor with given location
-  new make(Namespace ns, Lib? lib, Spec? spec := null)
+  new make(DocNamespace ns, Lib? lib, Obj? doc := null)
   {
-    this.ns       = ns
-    this.lib      = lib
-    this.spec     = spec
+    this.ns  = ns
+    this.lib = lib
+    this.doc = doc
   }
 
   ** Resolve destination against current location or null if unresolved
@@ -73,6 +73,14 @@ const class DocLinker
       return func != null ? DocUtil.specToUri(func) : null
     }
 
+    // handle #frag within chapter
+    if (docName.isEmpty && doc is DocNamespaceChapter && frag != null)
+    {
+      chapter := (DocNamespaceChapter)doc
+      if (chapter.headings[frag] == null) return null
+      return `#${frag}`
+    }
+
     // lib is required for everything else - resolve libName or use scope
     Lib? lib
     if (libName == null)
@@ -114,11 +122,11 @@ const class DocLinker
     }
 
     // doc - chapter
-    chapter := lib.files.get(`/${docName}.md`, false)
+    chapter := ns.chapters(lib).get(docName)
     if (chapter != null)
     {
       if (slotName != null && slotName != "md") return null
-// TODO frag checking
+      if (frag != null && chapter.headings.get(frag) == null) return null
       return DocUtil.toUri(libName, docName, frag)
     }
 
@@ -147,13 +155,14 @@ const class DocLinker
   ** File location based on current lib/spec location
   FileLoc loc()
   {
-    if (spec != null) return spec.loc
+    if (doc is Spec) return ((Spec)doc).loc
+    if (doc is DocNamespaceChapter) return ((DocNamespaceChapter)doc).loc
     if (lib != null) return lib.loc
     return FileLoc.unknown
   }
 
-  const Namespace ns
+  const DocNamespace ns
   const Lib? lib
-  const Spec? spec
+  const Obj? doc
 }
 

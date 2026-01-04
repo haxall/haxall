@@ -17,6 +17,9 @@ internal class GenPages: Step
 {
   override Void run()
   {
+    // init document ns wrapper
+    docns = DocNamespace(ns)
+
     // each lib
     libGens := GenPage[,]
     compiler.libs.each |lib|
@@ -30,6 +33,7 @@ internal class GenPages: Step
     genIndex(libGens)
 
     // clear caches for gc
+    docns = null
     docCache.clear
     specxCache.clear
   }
@@ -65,7 +69,7 @@ internal class GenPages: Step
     {
       it.name      = lib.name
       it.version   = lib.version
-      it.doc       = genDoc(lib.meta["doc"], DocLinker(ns, lib))
+      it.doc       = genDoc(lib.meta["doc"], null)
       it.meta      = genDict(lib.meta, libMeta)
       it.depends   = genDepends(lib)
       it.tags      = DocUtil.genTags(ns, lib)
@@ -121,7 +125,7 @@ internal class GenPages: Step
     }
 
     // if we had index.md, then use it for chapter summaries
-    linker := DocLinker(ns, lib)
+    linker := DocLinker(docns, lib)
     summaries = DocMarkdownParser(compiler, linker).parseChapterIndex(summaries, mdIndex)
 
     // now backpatch chapter prev/next
@@ -310,9 +314,10 @@ internal class GenPages: Step
   private GenPage genChapter(Uri uri, Str markdown)
   {
     // we backpatch the prev/next
-    qname  := lib.name + "::" + uri.basename
-    linker := DocLinker(ns, lib)
-    page   := DocChapter(libRef, qname, genDoc(markdown, linker), null, null)
+    name  := uri.basename
+    qname := lib.name + "::" + name
+    doc   := docns.chapters(lib).get(name)
+    page  := DocChapter(libRef, qname, genDoc(markdown, doc), null, null)
     return addPage(page, page.doc,  null)
   }
 
@@ -385,19 +390,20 @@ catch (Err e) echo("TODO: $e")
 
   private DocMarkdown genSpecDoc(Spec x)
   {
-    genDoc(x.meta["doc"], DocLinker(ns, lib, x))
+    genDoc(x.meta["doc"], x)
   }
 
-  private DocMarkdown genDoc(Obj? doc, DocLinker linker)
+  private DocMarkdown genDoc(Obj? val, Obj? libDoc)
   {
     // handle empty
-    str := (doc as Str)?.trimToNull
+    str := (val as Str)?.trimToNull
     if (str == null) return DocMarkdown.empty
 
     // use cache since we have lots of repeats with inherited slots
     x := docCache[str]
     if (x == null)
     {
+      linker := DocLinker(docns, this.lib, libDoc)
       x = DocMarkdownParser(compiler, linker).parseDocMarkdown(str)
       docCache[str] = x
     }
@@ -457,6 +463,7 @@ catch (Err e) echo("TODO: $e")
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private DocNamespace? docns
   private Uri:GenPage pages := [:]
   private Str:DocMarkdown docCache := [:]
   private Str:Spec specxCache := [:]
