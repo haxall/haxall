@@ -9,6 +9,7 @@
 using markdown
 using util
 using xeto
+using xetom
 
 **
 ** DocLinker is use to resolve shortcut links against current location
@@ -146,7 +147,7 @@ const class DocLinker
     {
       spec = x.type(name, false)
       if (spec == null) return
-      specs.add(spec)
+      if (XetoUtil.isInDepends(ns.ns, lib.name, spec.lib.name)) specs.add(spec)
     }
     if (specs.size > 1) throw Err("Ambiguous spec link: $specs")
     return specs.first

@@ -190,8 +190,7 @@ class DocTest : AbstractXetoTest
     siteRef := n.slots.getChecked("siteRef")
     verifyEq(siteRef.parent.qname, "ph::Equip")
     verifyEq(siteRef.base.dis, "ph::PhEntity.siteRef")
-    // TODO
-    //verifyEq(siteRef.base.uri, `/ph/PhEntity.siteRef`)
+    verifyEq(siteRef.base.uri, `/ph/PhEntity.siteRef`)
     verifyEq(siteRef.type.qname, "sys::Ref")
 
     verifyEq(n.doc.html.trim, "<p>Equip with <em>points</em></p>")
@@ -558,8 +557,7 @@ class DocTest : AbstractXetoTest
     lib = ns.lib("ph")
     verifyLinker("Spec", "/sys/Spec")
     verifyLinker("Site", "/ph/Site")
-// TODO: check depends
-//    verifyLinker("NumberPoint", null)
+    verifyLinker("NumberPoint", null)
 
     // relative slots
     lib = ns.lib("ph")

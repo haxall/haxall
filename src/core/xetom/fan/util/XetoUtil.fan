@@ -657,6 +657,17 @@ const class XetoUtil
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return if lib name 'd' is under lib 'x' name's dependency graph
+  static Bool isInDepends(Namespace ns, Str x, Str d)
+  {
+    if (x == d) return true
+
+    lib := ns.version(x, false)
+    if (lib == null) return false
+
+    return lib.depends.any |q| { isInDepends(ns, q.name, d) }
+  }
+
   static Bool isDictList(Obj x)
   {
     list := x as List
