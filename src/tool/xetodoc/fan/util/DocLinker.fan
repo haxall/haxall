@@ -26,6 +26,9 @@ const class DocLinker
   ** Resolve destination against current location or null if unresolved
   Uri? resolve(Str x)
   {
+    // handle absolute URIs
+    if (x.startsWith("/") || x.contains("//")) return x.toUri
+
     // parse into libName::docName.slotName#frag
     Str? libName  := null
     Str? docName  := x
@@ -53,18 +56,35 @@ const class DocLinker
       docName  = x = x[0..<dot]
     }
 
-    // resolve lib or use scope
+    // handle function()
+    if (docName.endsWith("()"))
+    {
+      if (slotName != null || frag != null) return null
+      name := docName[0..-3]
+      Spec? func
+      if (libName != null)
+      {
+        func = ns.lib(libName, false)?.spec("Funcs", false)?.slot(name, false)
+      }
+      else
+      {
+        func = ns.funcs.get(name, false) // will raise ambiguous error
+      }
+      return func != null ? DocUtil.specToUri(func) : null
+    }
+
+    // lib is required for everything else - resolve libName or use scope
     Lib? lib
     if (libName == null)
     {
       lib = this.lib
-      libName = lib.name
+      libName = lib?.name
     }
     else
     {
       lib = ns.lib(libName, false)
-      if (lib == null) return null
     }
+    if (lib == null) return null
 
     // doc - index
     if (docName == "index")

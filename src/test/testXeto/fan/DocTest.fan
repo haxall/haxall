@@ -485,6 +485,11 @@ class DocTest : AbstractXetoTest
   {
     this.ns = createNamespace(["ph.points", "hx", "hx.test.xeto", "doc.xeto"])
 
+    // pass-thru
+    verifyLinker("/foo/bar", "/foo/bar")
+    verifyLinker("http://xeto.dev/", "http://xeto.dev/")
+    verifyLinker("https://xeto.dev/", "https://xeto.dev/")
+
     // absolute index
     verifyLinker("ph.points::index", "/ph.points/index")
     verifyLinker("ph.points::index.bad", null)
@@ -510,7 +515,19 @@ class DocTest : AbstractXetoTest
     verifyLinker("hx.test.xeto::coerce.float", null)
     verifyLinker("hx.test.xeto::coerce#bad", null)
 
-    // TODO functions
+    // functions
+    verifyLinker("readAll()", "/hx/Funcs#readAll")
+    verifyLinker("hx::readAll()", "/hx/Funcs#readAll")
+    verifyLinker("hx::Funcs.readAll()", null)
+    verifyLinker("hx::badFunc()", null)
+    verifyLinker("doc.xeto::badFunc()", null)
+    verifyLinker("bad.lib::readAll()", null)
+    verifyLinker("readAll", null)
+    verifyLinker("badOne()",null)
+    verifyLinker("readAll().bad", null)
+    verifyLinker("readAll()#bad", null)
+    verifyLinker("hx::readAll()#bad", null)
+    verifyLinker("hx::readAll().bad#bad", null)
 
     // absolute chapter
     verifyLinker("doc.xeto::Xetodoc", "/doc.xeto/Xetodoc")
@@ -560,6 +577,7 @@ class DocTest : AbstractXetoTest
     verifyLinker(".", null)
     verifyLinker("x.", null)
     verifyLinker(".x", null)
+    verifyLinker("()", null)
   }
 
   Void verifyLinker(Str link, Str? expect)
