@@ -15,8 +15,12 @@ using fandoc::Link
 **
 ** FixDocs is a command line program to update Fandoc docs to Xetodocs.
 **
-class FixDocs : AbstractMain
+class FixDocs : ConvertCmd
 {
+  override Str name() { "fixdocs" }
+
+  override Str summary() { "Fix fandoc comments/chapters to xetodoc markdown" }
+
   @Opt { help = "Preview mode only" }
   Bool preview
 
