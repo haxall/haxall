@@ -73,8 +73,8 @@ class FixFandoc
     switch (type)
     {
       case LineType.blank:      return ""
-      case LineType.ul:         return fixList(line, curIndent)
-      case LineType.ol:         return fixList(line, curIndent)
+      case LineType.ul:         return fixList(line, curIndent, "-")
+      case LineType.ol:         return fixList(line, curIndent, ".")
       case LineType.h1:         return fixHeading(line, "#")
       case LineType.h2:         return fixHeading(line, "##")
       case LineType.h3:         return fixHeading(line, "###")
@@ -93,11 +93,17 @@ class FixFandoc
     return line
   }
 
-  private Str fixList(Str line, Int curIndent)
+  private Str fixList(Str line, Int curIndent, Str sep)
   {
     mode = FixFandocMode.list
     modeIndent = curIndent
-    return line
+
+    i := line.index(sep) ?: throw Err("Missing sep $sep - $line")
+    prefix := line[0..i]
+    rest := line[i+1..-1].trimStart
+
+    rest = fixInline(rest)
+    return prefix + " " + rest
   }
 
   private Str fixPreStart()
