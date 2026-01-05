@@ -28,11 +28,28 @@ class FixFandoc
 
   Str[] fix()
   {
-    lines.map |line, i|
+    acc := Str[,]
+    acc.capacity = lines.size
+
+    for (i := 0; i<lines.size; ++i)
     {
       linei = i
-      return fixLine(line, types[i])
+      line := lines[i]
+      type := types[i]
+
+      // check for headers which apply line above (we assume
+      // all headings are two lines as they are in docHaxall, etc)
+      if (i+1 < types.size && types[i+1].isHeading)
+      {
+        acc.add(fixHeading(line, types[i+1].headingLevel))
+        i++
+      }
+      else
+      {
+        acc.add(fixLine(line, type))
+      }
     }
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,10 +92,6 @@ class FixFandoc
       case LineType.blank:      return ""
       case LineType.ul:         return fixList(line, curIndent, "-")
       case LineType.ol:         return fixList(line, curIndent, ".")
-      case LineType.h1:         return fixHeading(line, "#")
-      case LineType.h2:         return fixHeading(line, "##")
-      case LineType.h3:         return fixHeading(line, "###")
-      case LineType.h4:         return fixHeading(line, "####")
       case LineType.blockquote: return line
       case LineType.hr:         return line
       case LineType.preStart:   return fixPreStart
@@ -87,10 +100,21 @@ class FixFandoc
     }
   }
 
-  private Str fixHeading(Str line, Str prefix)
+  private Str fixHeading(Str line, Int level)
   {
-    // TODO
-    return line
+    // strip [#anchor] - we now use title itself like github
+    i := line.index("[#")
+    if (i != null) line = line[0..<i].trim
+
+    // in chapters have been using h2 *** as top-level headings;
+    // but we want to fix that to be h1
+    level = (level - 1).clamp(1, 4)
+
+    // assume line is plain text
+    s := StrBuf()
+    level.times { s.addChar('#') }
+    s.add(" ").add(line.trim)
+    return s.toStr
   }
 
   private Str fixList(Str line, Int curIndent, Str sep)
