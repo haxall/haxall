@@ -137,13 +137,7 @@ class JsonExporter : Exporter
   {
     if (x is Dict) return dict(x)
     if (x is List) return list(x)
-    if (x === Marker.val) return str("\u2713")
-    if (x is Bool)   return literal(x)
-    if (x is Int)    return literal(x)
-    if (x is Float)  return float(x)
-    if (x is Number) return number(x)
-
-    return str(x.toStr)
+    return scalar(x)
   }
 
   private This dict(Dict x)
@@ -170,31 +164,10 @@ class JsonExporter : Exporter
     return this
   }
 
-  private This literal(Obj x)
+  private This scalar(Obj x)
   {
-    x.toStr.each |char| { wc(char) }
+    XetoJsonWriter.makeExport(out).writeVal(x)
     return this
-  }
-
-  private This float(Float f)
-  {
-    // "special" float values are quoted
-    if (f == Float.posInf || f == Float.negInf || f.isNaN)
-      return str(f.toStr)
-    else
-      return literal(f)
-  }
-
-  private This number(Number n)
-  {
-    // unitless
-    if (n.unit == null)
-      return n.isInt ?
-        literal(n.toInt) :
-        float(n.toFloat)
-    // units -- quoted
-    else
-      return str(n.toStr)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -204,7 +177,6 @@ class JsonExporter : Exporter
   ** Open a new value to deal with trailing comma
   private This open()
   {
-
     if (firsts.peek) firsts[-1] = false
     else w(",").nl
     firsts.push(true)

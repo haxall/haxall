@@ -145,7 +145,9 @@ class ExportTest : AbstractXetoTest
 
     // instance - toHaystack coercion
     verifyExport(ns, def, "coerce", [
-      "bool": true, "int":n(1), "float":n(2.1f), "nan":n(Float.nan), "dur":n(3, "min"), "num":n(4, "kW"),
+      "bool": true, "int":n(1), "float":n(2.1f),
+      "nan":n(Float.nan), "posInf":n(Float.posInf), "negInf":n(Float.negInf),
+      "dur":n(3, "min"), "num":n(4, "kW"),
       "date":Date("2024-10-31"), "version":"1.2.3",
       "list":Obj?[n(4)], "dict":Etc.dict1("x", n(4))
       ])

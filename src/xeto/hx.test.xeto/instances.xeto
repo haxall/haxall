@@ -25,6 +25,8 @@
   int: Int "1"
   float: Float "2.1"
   nan: Float "NaN"
+  posInf: Float "INF"
+  negInf: Float "-INF"
   dur: Duration "3min"
   num: Number "4kW"
   version: Version "1.2.3"
