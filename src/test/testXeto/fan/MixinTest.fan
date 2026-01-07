@@ -70,7 +70,8 @@ class MixinTest : AbstractXetoTest
 
     // specx meta merge of orig slots
     areaDoc := site.slot("area").meta["doc"]
-    areaMeta := ["doc":areaDoc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m, "foo":"AreaEditor", "bar":"hello"]
+    areaMeta := ["doc":areaDoc, "val":n(0), "quantity":UnitQuantity.area, "maybe":m, "foo":"AreaEditor", "bar":"hello",
+      "pattern":numberPattern]
     area := sitex.slot("area")
     verifySame(area.type, number)
     verifyDictEq(area.meta, areaMeta)

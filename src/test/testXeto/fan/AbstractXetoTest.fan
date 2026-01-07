@@ -195,6 +195,8 @@ class AbstractXetoTest : HaystackTest
     name := str[s..<e]
     return str.replace(name, prefix)
   }
+
+  static const Str numberPattern := "(-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?[a-zA-Z%_/\$\\P{ASCII}]*|\"(?:NaN|-?INF)\")"
 }
 
 **************************************************************************

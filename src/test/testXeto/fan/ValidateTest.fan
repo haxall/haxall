@@ -70,9 +70,14 @@ class ValidateTest : AbstractXetoTest
     verifyValidate(src, ["num":n(123), "str":"hi"], [,])
 
     // invalid types
-    verifyValidate(src, ["num":"bad", "str":n(123), "ref":n(123)], [
-        "Invalid 'sys::Number' string value: \"bad\"
-         Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
+    verifyValidate(src, ["num":"bad", "str":n(123), "ref":n(123)],
+      [
+        "Invalid 'sys::Number' string value: \"bad\"",
+        "Slot 'num': String encoding does not match pattern for 'sys::Number'",
+        "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
+      ],
+      [
+        "Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
         "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
       ])
   }
@@ -347,20 +352,18 @@ class ValidateTest : AbstractXetoTest
 
     // unresolved refs (in compiler this happens in Resolve step)
     verifyValidate(src, ["a":refErr1, "b":refErr2, "c":refErr3, "d":[refBar2, refErr4, refBar], "u":refErr5], [
-      "Unresolved instance: to-err-1
-       Slot 'a': Unresolved ref @to-err-1",
-
-      "Unresolved instance: to-err-2
-       Slot 'b': Unresolved ref @to-err-2",
-
-      "Unresolved instance: to-err-3
-       Slot 'c': Unresolved ref @to-err-3",
-
-      "Unresolved instance: to-err-4
-       Slot 'd': Unresolved ref @to-err-4",
-
-      "Unresolved instance: to-err-5
-       Slot 'u': Unresolved ref @to-err-5",
+      "Unresolved instance: to-err-1",
+      "Unresolved instance: to-err-2",
+      "Unresolved instance: to-err-3",
+      "Unresolved instance: to-err-4",
+      "Unresolved instance: to-err-5",
+    ],
+    [
+      "Slot 'a': Unresolved ref @to-err-1",
+      "Slot 'b': Unresolved ref @to-err-2",
+      "Slot 'c': Unresolved ref @to-err-3",
+      "Slot 'd': Unresolved ref @to-err-4",
+      "Slot 'u': Unresolved ref @to-err-5",
     ])
 
     // invalid target types
@@ -494,6 +497,21 @@ class ValidateTest : AbstractXetoTest
       "01.5", "-05.2", "12.", "-5.", ".5", "-.123", "+1.5", "+0.5",
       "0x1A", "0o77", "\"+INF\"", "foo"
     ].each |Str s| { verifyFalse(re.matches(s)) }
+
+    // number
+    re = Regex(ns.spec("sys::Number").meta["pattern"])
+    [
+      "0.5", "-0.5", "12.34", "-100.0", "0.00001", "-0.0", "1e10",
+      "1.2E+5", "10E2", "5e-3", "-1.5E-10", "0.1e-5", "0", "-42", "1000",
+      "0.5/", "-0.5\$", "12.34_", "-100.0元", "0.00001gH₂O/kgAir", "-0.0%", "1e10foo",
+      "1.2E+5abc", "10E2abc", "5e-3abc", "-1.5E-10abc", "0.1e-5abc", "0abc", "-42abc", "1000abc",
+      "\"NaN\"", "\"INF\"", "\"-INF\""
+    ].each |Str s| { verifyTrue(re.matches(s)) }
+    [
+      "01.5", "-05.2", "12.", "-5.", ".5", "-.123", "+1.5", "+0.5",
+      "0x1A", "0o77", "\"+INF\"", "foo",
+      "0@", "1.2#", "3e4="
+    ].each |Str s| { verifyFalse(re.matches(s)) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -501,11 +519,11 @@ class ValidateTest : AbstractXetoTest
 //////////////////////////////////////////////////////////////////////////
 
   ** Verify both compile time and fits time for spec called Foo in src
-  Void verifyValidate(Str src, Str:Obj tags, Str[] expect)
+  Void verifyValidate(Str src, Str:Obj tags, Str[] expect, Str[]? runtimeExpect := null)
   {
     instance := toInstance(tags)
     verifyCompileTime(src, instance, expect)
-    verifyRunTime(src, instance, expect)
+    verifyRunTime(src, instance, runtimeExpect ?: expect)
   }
 
   ** Verify the instance bundled in the library source at compile time
@@ -578,11 +596,11 @@ class ValidateTest : AbstractXetoTest
   ** Verify actual errors from compiler/fits against expected results
   Void verifyErrs(Str title, Obj instance, ValidateReport? r, XetoLogRec[] actual, Str[] expect)
   {
-    isCompileTime := title.startsWith("Compile")
     if (isDebug)
     {
       echo("\n-- $title [$actual.size]")
       echo(actual.join("\n"))
+      echo(expect.join("\n"))
       echo
     }
 
@@ -591,7 +609,6 @@ class ValidateTest : AbstractXetoTest
     {
       a := normTempLibName(arec.msg)
       e := expect.getSafe(i) ?: "-"
-      if (e.contains("\n")) e = e.splitLines[isCompileTime ? 0 : 1]
       if (a != e)
       {
         echo("FAIL: $a")

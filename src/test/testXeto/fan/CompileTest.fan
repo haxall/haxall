@@ -567,12 +567,12 @@ class CompileTest : AbstractXetoTest
     e := lib.type("E"); ef := e.slot("foo")
     f := lib.type("F"); ff := f.slot("foo")
 
-    verifyInheritSlot(a, af, num, num, ["a":m, "val":n(123), "doc":"a-doc"], "a,val,doc")
+    verifyInheritSlot(a, af, num, num, ["a":m, "val":n(123), "doc":"a-doc", "pattern":numberPattern], "a,val,doc")
     verifySame(bf, af)
-    verifyInheritSlot(c, cf, af, int, ["a":m, "val":n(123), "doc":"a-doc", "c":m], "c")
-    verifyInheritSlot(d, df, af, num, ["a":m, "val":n(456), "doc":"d-doc"], "val,doc")
+    verifyInheritSlot(c, cf, af, int, ["a":m, "val":n(123), "doc":"a-doc", "pattern":numberPattern, "c":m], "c")
+    verifyInheritSlot(d, df, af, num, ["a":m, "val":n(456), "doc":"d-doc", "pattern":numberPattern], "val,doc")
     verifySame(ef, df)
-    verifyInheritSlot(f, ff, df, num, ["a":m, "val":n(456), "doc":"d-doc", "f":m, "baz":"hi"], "f, baz")
+    verifyInheritSlot(f, ff, df, num, ["a":m, "val":n(456), "doc":"d-doc", "pattern":numberPattern, "f":m, "baz":"hi"], "f, baz")
   }
 
   Void verifyInheritSlot(Spec parent, Spec s, Spec base, Spec type, Str:Obj meta, Str ownNames)

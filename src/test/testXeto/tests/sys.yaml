@@ -73,6 +73,7 @@ verifyType:
     doc: "sys::Str Integer or floating point numbers annotated with an optional unit"
     sealed: "sys::Marker"
     val: "sys::Number 0"
+    pattern: sys::Str (-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?[a-zA-Z%_/$\P{ASCII}]*|"(?:NaN|-?INF)")
 ---
 name: "int"
 loadLib: "sys"
@@ -108,6 +109,7 @@ verifyType:
     sealed: "sys::Marker"
     val: "sys::Duration 0sec"
     quantity: "sys::UnitQuantity time"
+    pattern: "inherit"
 ---
 name: "uri"
 loadLib: "sys"
