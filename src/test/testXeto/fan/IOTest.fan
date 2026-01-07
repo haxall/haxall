@@ -108,13 +108,22 @@ class IOTest : AbstractXetoTest
 
   Obj? verifyIO(Obj? val)
   {
+    ns := server.ns
+
     // binary format
     buf := Buf()
-    XetoBinaryWriter(buf.out).writeVal(val)
+    ns.io.writeBinary(buf.out, val)
     // echo("--> $val [$buf.size bytes]")
-    binary := XetoBinaryReader(buf.flip.in).readVal
+    binary := ns.io.readBinary(buf.flip.in)
     // echo("  > $binary | ${binary?.typeof}")
     verifyValEq(val, binary)
+
+    // JSON format
+    /*
+    jsonStr := ns.io.writeJsonToStr(val, Etc.dict1("prettyx", Marker.val))
+    json := ns.io.readJson(jsonStr.in, ns.specOf(val))
+    verifyValEq(val, binary)
+    */
 
     // Xeto format does not support null
     if (val == null) return binary
@@ -132,7 +141,6 @@ class IOTest : AbstractXetoTest
     if (val is Grid) return binary
 
     // xeto text format
-    ns := server.ns
     buf.clear
     ns.io.writeXeto(buf.out, val)
     str := buf.flip.readAllStr

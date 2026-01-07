@@ -68,6 +68,11 @@ const mixin XetoIO
   **
   abstract OutStream writeJson(OutStream out, Obj? val, Dict? opts := null)
 
+  **
+  ** Convenience for writeJson to an in-memory string
+  **
+  abstract Str writeJsonToStr(Obj? val, Dict? opts := null)
+
 //////////////////////////////////////////////////////////////////////////
 // Binary
 //////////////////////////////////////////////////////////////////////////
