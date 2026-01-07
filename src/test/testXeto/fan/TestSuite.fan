@@ -182,7 +182,7 @@ class DataTestCase
   Void compileData(Str src)
   {
     ns := XetoEnv.cur.createNamespaceFromNames(["sys"])
-    this.dataRef = compile |opts| { ns.compileData(src, opts) }
+    this.dataRef = compile |opts| { ns.io.readXeto(src, opts) }
   }
 
   private Obj? compile(|Dict opts->Obj| f)

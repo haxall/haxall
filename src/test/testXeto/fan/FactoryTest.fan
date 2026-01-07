@@ -90,13 +90,13 @@ class FactoryTest : AbstractXetoTest
     ns := createNamespace(["sys", "sys.comp"])
 
     // Link
-    Link link := ns.compileData(Str<|sys.comp::Link { fromRef:"a", fromSlot:"b"}|>)
+    Link link := ns.io.readXeto(Str<|sys.comp::Link { fromRef:"a", fromSlot:"b"}|>)
     verifyEq(link.fromRef,  Ref("a"))
     verifyEq(link.fromSlot, "b")
     verifyEq(ns.specOf(link), ns.spec("sys.comp::Link"))
 
     // Links - single
-    Links links := ns.compileData(
+    Links links := ns.io.readXeto(
       Str<|sys.comp::Links {
              c: sys.comp::Link { fromRef:"a", fromSlot:"b" }
            }|>)
@@ -104,7 +104,7 @@ class FactoryTest : AbstractXetoTest
     verifyEq(ns.specOf(links), ns.spec("sys.comp::Links"))
 
     // Links - list
-    links = ns.compileData(
+    links = ns.io.readXeto(
       Str<|sys.comp::Links {
              c: List {
                sys.comp::Link { fromRef:"a", fromSlot:"b" }

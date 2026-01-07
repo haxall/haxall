@@ -449,21 +449,6 @@ const class MNamespace : Namespace, CNamespace
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
-  override final Obj? compileData(Str src, Dict? opts := null)
-  {
-    io.readXeto(src.in, opts)
-  }
-
-  override Dict[] compileDicts(Str src, Dict? opts := null)
-  {
-    io.readXetoDicts(src.in, opts)
-  }
-
-  override Void writeData(OutStream out, Obj val, Dict? opts := null)
-  {
-    io.writeXeto(out, val, opts)
-  }
-
   override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
   {
     Printer(this, out, opts ?: Etc.dict0).print(val)

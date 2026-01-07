@@ -58,7 +58,7 @@ class CompileTest : AbstractXetoTest
 
   Void verifyScalar(Namespace ns, Str qname, Str src, Obj? expected)
   {
-    actual := ns.compileData(src)
+    actual := ns.io.readXeto(src)
     // echo("-- $src")
     // echo("   $actual [$actual.typeof]")
     verifyEq(actual, expected)

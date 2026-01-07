@@ -170,7 +170,7 @@ class PrinterTest : AbstractXetoTest
     actual := verifyOutput(expect)
 
     // verify we can parse as instance
-    dict := ns.compileData(actual, Etc.dict1("externRefs", m))
+    dict := ns.io.readXeto(actual, Etc.dict1("externRefs", m))
   }
 
 //////////////////////////////////////////////////////////////////////////

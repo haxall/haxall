@@ -655,7 +655,7 @@ class ValidateTest : AbstractXetoTest
     ns := nsTest
     buf := StrBuf()
     buf.add(src).add("\n\n").add("@x: ")
-    ns.writeData(buf.out, Etc.dictRemove(instance, "id"))
+    ns.io.writeXeto(buf.out, Etc.dictRemove(instance, "id"))
     return buf.toStr.replace("@x: {", "@x: Foo {")
   }
 

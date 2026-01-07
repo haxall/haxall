@@ -134,27 +134,27 @@ class IOTest : AbstractXetoTest
     // xeto text format
     ns := server.ns
     buf.clear
-    ns.writeData(buf.out, val)
+    ns.io.writeXeto(buf.out, val)
     str := buf.flip.readAllStr
     opts := dict1("externRefs", m)
-    x := server.ns.compileData(str, opts)
+    x := server.ns.io.readXeto(str, opts)
     verifyValEq(val, x)
 
     // compileDicts
     if (val is Dict)
     {
-      dicts := ns.compileDicts(str, opts)
+      dicts := ns.io.readXetoDicts(str, opts)
       verifyEq(dicts.size, 1)
       verifyDictEq(dicts[0], val)
     }
     else if (val is List && ((List)val).all { it is Dict })
     {
-      dicts := ns.compileDicts(str, opts)
+      dicts := ns.io.readXetoDicts(str, opts)
       verifyDictsEq(dicts, val)
     }
     else
     {
-      verifyErr(IOErr#) { ns.compileDicts(str, opts) }
+      verifyErr(IOErr#) { ns.io.readXetoDicts(str, opts) }
     }
     return binary
   }

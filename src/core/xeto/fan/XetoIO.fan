@@ -23,25 +23,29 @@ const mixin XetoIO
   ** Read xeto instance data from Xeto source code.  Raise exception if there
   ** are any syntax or semantic errors.  If the input contains a scalar value
   ** or one dict, then it is returned as the value.  Or if the input contains
-  ** two or more dicts then return a Dict[] of the instances.  The stream
-  ** guaranteed to be closed upon return.
+  ** two or more dicts then return a Dict[] of the instances.
   **
   ** Options
   **   - externRefs: marker to allow unresolved refs to compile
   **
-  abstract Obj? readXeto(InStream in, Dict? opts := null)
+  abstract Obj? readXeto(Str in, Dict? opts := null)
 
   **
   ** Convenience for `readXeto` but always returns data as list of dicts.
   ** If the data is not a Dict nor list of Dicts, then raise an exception.
   **
-  abstract Dict[] readXetoDicts(InStream in, Dict? opts := null)
+  abstract Dict[] readXetoDicts(Str in, Dict? opts := null)
 
   **
   ** Write instance data to Xeto source code.  If the val is a Dict[], then
   ** it is flattened in the output.  The stream is left open and returned.
   **
   abstract OutStream writeXeto(OutStream out, Obj? val, Dict? opts := null)
+
+  **
+  ** Convenience for writeXeto to an in-memory string
+  **
+  abstract Str writeXetoToStr(Obj? val, Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////
 // JSON

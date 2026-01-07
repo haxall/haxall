@@ -68,12 +68,12 @@ class AbstractXetoTest : HaystackTest
 
   Obj? compileData(Str s, Dict? opts := null)
   {
-    createNamespace.compileData(s, opts)
+    createNamespace.io.readXeto(s, opts)
   }
 
   Dict[] compileDicts(Str s, Dict? opts := null)
   {
-    createNamespace.compileDicts(s, opts)
+    createNamespace.io.readXetoDicts(s, opts)
   }
 
   Void verifyFlavor(Namespace ns, Spec x, SpecFlavor expect)

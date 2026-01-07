@@ -26,9 +26,7 @@ class CompUtil
   ** Encode a component into a xeto string
   static Str compSaveToXeto(Namespace ns, Comp comp, Dict? opts := null)
   {
-    buf := StrBuf()
-    ns.writeData(buf.out, compSaveToDict(comp, opts))
-    return buf.toStr
+    ns.io.writeXetoToStr(compSaveToDict(comp, opts), Etc.dict0)
   }
 
   ** Encode a component into a sys.comp::Comp dict representation (with children)

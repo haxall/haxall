@@ -13,7 +13,7 @@ using haystack
 ** Implementation for XetoIO
 **
 @Js
-const class MXetoIO : XetoIO
+const final class MXetoIO : XetoIO
 {
   new make(MNamespace ns) { this.ns = ns }
 
@@ -23,13 +23,12 @@ const class MXetoIO : XetoIO
 // Xeto
 //////////////////////////////////////////////////////////////////////////
 
-  override Obj? readXeto(InStream in, Dict? opts := null)
+  override Obj? readXeto(Str in, Dict? opts := null)
   {
-    src := in.readAllStr
-    return ns.envRef.compileData(ns, src, opts ?: Etc.dict0)
+    ns.envRef.compileData(ns, in, opts ?: Etc.dict0)
   }
 
-  override Dict[]  readXetoDicts(InStream in, Dict? opts := null)
+  override Dict[]  readXetoDicts(Str in, Dict? opts := null)
   {
     val := readXeto(in, opts)
     if (val is List) return ((List)val).map |x->Dict| { x as Dict ?: throw IOErr("Expecting Xeto list of dicts, not ${x?.typeof}") }
@@ -41,6 +40,13 @@ const class MXetoIO : XetoIO
   {
     XetoPrinter(ns, out, opts ?: Etc.dict0).data(val)
     return out
+  }
+
+  override Str writeXetoToStr(Obj? val, Dict? opts := null)
+  {
+    buf := StrBuf(256)
+    writeXeto(val, opts)
+    return buf.toStr
   }
 
 //////////////////////////////////////////////////////////////////////////

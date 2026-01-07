@@ -116,7 +116,7 @@ class CompSpace : AbstractCompSpace
 
   private Dict parse(Str xeto)
   {
-    ns.compileData(xeto) as Dict ?: throw Err("Expecting one dict root")
+    ns.io.readXeto(xeto) as Dict ?: throw Err("Expecting one dict root")
   }
 
 //////////////////////////////////////////////////////////////////////////
