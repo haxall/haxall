@@ -109,6 +109,7 @@ verifyType:
     sealed: "sys::Marker"
     val: "sys::Duration 0sec"
     quantity: "sys::UnitQuantity time"
+    pattern: "inherit"
 ---
 name: "uri"
 loadLib: "sys"
