@@ -214,6 +214,9 @@ const mixin Namespace
   ** to read data from Xeto text format.
   abstract Void writeData(OutStream out, Obj val, Dict? opts := null)
 
+  ** Access I/O operations using this namespace
+  abstract XetoIO io()
+
   ** Pretty print object to output stream.
   @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
 
