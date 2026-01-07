@@ -346,7 +346,7 @@ internal final const class CollisionsSpecMap : SpecMap
   {
     kid := map.get(name)
     if (kid is Spec) return kid
-    if (kid is List) throw AmbiguousSpecErr(name)
+    if (kid is List) throw AmbiguousSpecErr(kid.toStr)
     if (!checked) return null
     throw UnknownSpecErr(name)
   }
