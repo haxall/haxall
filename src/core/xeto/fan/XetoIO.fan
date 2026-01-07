@@ -83,5 +83,13 @@ const mixin XetoIO
   ** The stream is left open and returned.
   **
   @NoDoc abstract OutStream writeBinary(OutStream out, Obj? val, Dict? opts := null)
+
+//////////////////////////////////////////////////////////////////////////
+// Print
+//////////////////////////////////////////////////////////////////////////
+
+  ** Pretty print any object to output stream.
+  @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
+
 }
 

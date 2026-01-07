@@ -86,6 +86,8 @@ const class MNamespace : Namespace, CNamespace
   override XetoEnv env() { envRef }
   const MEnv envRef
 
+  override const XetoIO io
+
   Bool isRemote() { env.isRemote }
 
   override once Str digest()
@@ -449,11 +451,6 @@ const class MNamespace : Namespace, CNamespace
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
-  override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
-  {
-    Printer(this, out, opts ?: Etc.dict0).print(val)
-  }
-
   override Dict[] parseToDicts(Str src, Dict? opts := null)
   {
     envRef.parseToDicts(this, src, opts ?: Etc.dict0)
@@ -463,8 +460,6 @@ const class MNamespace : Namespace, CNamespace
   {
     envRef.compileTempLib(this, src, opts ?: Etc.dict0)
   }
-
-  override const XetoIO io
 
 //////////////////////////////////////////////////////////////////////////
 // CNamespace

@@ -198,9 +198,6 @@ const mixin Namespace
   ** syntax or semantic errors.
   @NoDoc abstract Lib compileTempLib(Str src, Dict? opts := null)
 
-  ** Pretty print object to output stream.
-  @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
-
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

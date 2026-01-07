@@ -45,7 +45,7 @@ const final class MXetoIO : XetoIO
   override Str writeXetoToStr(Obj? val, Dict? opts := null)
   {
     buf := StrBuf(256)
-    writeXeto(val, opts)
+    writeXeto(buf.out, val)
     return buf.toStr
   }
 
@@ -84,6 +84,15 @@ const final class MXetoIO : XetoIO
   {
     XetoBinaryWriter(out).writeVal(val)
     return out
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Print
+//////////////////////////////////////////////////////////////////////////
+
+  override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
+  {
+    Printer(ns, out, opts ?: Etc.dict0).print(val)
   }
 }
 
