@@ -119,18 +119,6 @@ abstract const class MEnv : XetoEnv
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
-  Dict[] parseToDicts(MNamespace ns, Str src, Dict opts)
-  {
-    c := XetoCompiler.init
-    {
-      it.ns      = ns
-      it.libName = opts["libName"] as Str ?: "proj"
-      it.input   = src.toBuf.toFile(`input.xeto`)
-      it.applyOpts(opts)
-    }
-    return c.parseToDicts
-  }
-
   ** Compile specific lib
   private XetoLib compile(MNamespace ns, LibVersion v)
   {
@@ -168,8 +156,8 @@ abstract const class MEnv : XetoEnv
     return c.compileLib
   }
 
-  ** Compile data
-  Obj? compileData(MNamespace ns, Str src, Dict opts)
+  ** Read instance data in Xeto source format
+  Obj? readData(MNamespace ns, Str src, Dict opts)
   {
     c := XetoCompiler.init
     {
@@ -177,7 +165,20 @@ abstract const class MEnv : XetoEnv
       it.input = src.toBuf.toFile(`parse.xeto`)
       it.applyOpts(opts)
     }
-    return c.compileData
+    return c.readData
+  }
+
+  ** Parse source to dict AST representation
+  Dict readAst(MNamespace ns, Str src, Dict opts)
+  {
+    c := XetoCompiler.init
+    {
+      it.ns      = ns
+      it.libName = opts["libName"] as Str ?: "proj"
+      it.input   = src.toBuf.toFile(`input.xeto`)
+      it.applyOpts(opts)
+    }
+    return c.readAst
   }
 
   private const AtomicInt tempCompileCount := AtomicInt()

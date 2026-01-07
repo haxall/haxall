@@ -77,7 +77,7 @@ internal class MXetoCompiler : XetoCompiler
   }
 
   ** Compile input to instance data
-  override Obj? compileData()
+  override Obj? readData()
   {
     run([
       InitData(),
@@ -92,18 +92,18 @@ internal class MXetoCompiler : XetoCompiler
   }
 
   ** Parse input source to Dict AST representations
-  override Dict[] parseToDicts()
+  override Dict readAst()
   {
     run([
-      InitParseDicts(),
+      InitAst(),
       Parse(),
       ProcessPragma(),
       Resolve(),
       MixinMeta(),
       InferMeta(),
-      AstToDicts(),
+      AstToDict(),
     ])
-    return dicts
+    return astDict
   }
 
   ** Parse only the lib.xeto file into version, doc, and depends.
@@ -230,7 +230,7 @@ internal class MXetoCompiler : XetoCompiler
   internal Str:Str usedBuildVars       // Parse (build vars used by lib)
   internal SpecMap? metas              // MixinMeta
   internal SpecMap? libMetas           // MixinMeta
-  internal Dict[]? dicts               // AstToDicts output
+  internal Dict? astDict               // AstToDict output
   internal Bool externRefs             // allow unresolved refs to compile
   private Str:Ref internRefs := [:]    // makeRef
 }
@@ -244,14 +244,14 @@ enum class CompileMode
 {
   lib,
   data,
-  parseDicts,
+  ast,
   parseLibMeta
 
   Bool isLib() { this === lib }
 
   Bool isData() { this === data }
 
-  Bool isParseDicts() { this === parseDicts }
+  Bool isAst() { this === ast }
 
   Bool isLibPragma() { this === lib || this === parseLibMeta }
 }

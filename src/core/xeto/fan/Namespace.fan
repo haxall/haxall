@@ -29,6 +29,9 @@ const mixin Namespace
   ** modified.  It is **not** a digest of the lib contents.
   abstract Str digest()
 
+  ** Access I/O operations using this namespace
+  abstract XetoIO io()
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////
@@ -182,25 +185,13 @@ const mixin Namespace
   abstract ValidateReport validateAll(Dict[] subjects, Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////
-// Compile and I/O
+// Utils
 //////////////////////////////////////////////////////////////////////////
-
-  ** Access I/O operations using this namespace
-  abstract XetoIO io()
-
-  ** Parse one or more specs/instances to their AST representation as dicts
-  ** Options:
-  **   - libName: for internal qnames (default to proj)
-  abstract Dict[] parseToDicts(Str src, Dict? opts := null)
 
   ** Compile Xeto source code into a temp library.  All dependencies are
   ** resolved against this namespace.  Raise exception if there are any
   ** syntax or semantic errors.
   @NoDoc abstract Lib compileTempLib(Str src, Dict? opts := null)
-
-//////////////////////////////////////////////////////////////////////////
-// Utils
-//////////////////////////////////////////////////////////////////////////
 
   ** Debug dump of libs and status
   @NoDoc abstract Void dump(OutStream out := Env.cur.out)

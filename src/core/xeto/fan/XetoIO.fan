@@ -74,6 +74,52 @@ const mixin XetoIO
   abstract Str writeJsonToStr(Obj? val, Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Parse the Xeto source representation into its dict AST representation.
+  **
+  ** Options:
+  **   - libName: for internal qnames (default to proj)
+  **   - rtInclude: marker to make it a Haxall rt rec
+  **
+  abstract Dict readAst(Str in, Dict? opts := null)
+
+  **
+  ** Print the Xeto source representation from its dict AST representation.
+  ** The stream is left open and returned.
+  **
+  abstract OutStream writeAst(OutStream out, Dict ast, Dict? opts := null)
+
+  **
+  ** Convenience for writeAst to an in-memory string
+  **
+  abstract Str writeAstToStr(Dict ast, Dict? opts := null)
+
+  **
+  ** Parse the Axon source representation into its dict AST representation.
+  ** The axon source defines doc comment and parameter and return slots
+  ** types/meta.  The external funcMeta (rt rec) is passed into the this
+  ** method which merges in the 'doc' and 'slots' tags.
+  **
+  ** Options:
+  **   - libName: for internal qnames (default to proj)
+  **
+  abstract Dict readAxon(Str in, Dict funcMeta, Dict? opts := null)
+
+  **
+  ** Print the Axon source representation from its dict AST representation.
+  ** The stream is left open and returned.
+  **
+  abstract OutStream writeAxon(OutStream out, Dict ast, Dict? opts := null)
+
+  **
+  ** Convenience for writeAxon to an in-memory string
+  **
+  abstract Str writeAxonToStr(Dict ast, Dict? opts := null)
+
+//////////////////////////////////////////////////////////////////////////
 // Binary
 //////////////////////////////////////////////////////////////////////////
 

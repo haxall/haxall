@@ -262,7 +262,7 @@ internal class Resolve : Step
   ** Allow unresolved refs
   private Bool allowUnresolved()
   {
-    compiler.externRefs || mode.isParseDicts
+    compiler.externRefs || mode.isAst
   }
 
 }

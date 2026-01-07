@@ -259,17 +259,12 @@ const class HxCompanion : ProjCompanion
 
   override Dict parse(Str xeto)
   {
-    recs := ns.parseToDicts(xeto, Etc.dict1("rtInclude", Marker.val))
-    if (recs.size == 1) return recs.first
-    if (recs.isEmpty) throw ArgErr("No xeto specs in source")
-    else throw ArgErr("Multiple xeto specs in source")
+    ns.io.readAst(xeto, Etc.dict1("rtInclude", Marker.val))
   }
 
   override Str print(Dict rec)
   {
-    s := StrBuf()
-    XetoPrinter(ns, s.out, Etc.dict0).ast(rec)
-    return s.toStr
+    ns.io.writeAstToStr(rec, Etc.dict0)
   }
 
   override Dict func(Str name, Str axon, Dict meta := Etc.dict0)

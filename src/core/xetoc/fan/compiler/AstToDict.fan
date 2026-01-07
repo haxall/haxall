@@ -14,7 +14,7 @@ using haystack
 ** Encode AST into a list of dicts
 **
 @Js
-internal class AstToDicts : Step
+internal class AstToDict : Step
 {
   override Void run()
   {
@@ -25,7 +25,8 @@ internal class AstToDicts : Step
     lib.tops.each |x| { acc.add(mapSpec(x)) }
     lib.ast.instances.each |x| { acc.add(mapInstance(x)) }
     bombIfErr
-    compiler.dicts = acc
+// TODO
+    compiler.astDict = acc[0]
   }
 
   Dict mapSpec(ASpec x)

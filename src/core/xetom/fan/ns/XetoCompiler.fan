@@ -54,11 +54,11 @@ abstract class XetoCompiler
   ** Compile input directory to library
   abstract Lib compileLib()
 
-  ** Compile input to instance data
-  abstract Obj? compileData()
+  ** Parse dict AST representation
+  abstract Dict readAst()
 
-  ** Parse to one more dict AST representations
-  abstract Dict[] parseToDicts()
+  ** Compile input to instance data
+  abstract Obj? readData()
 
   ** Parse only the lib.xeto file into version, doc, and depends.
   ** Must setup libName and input to the "lib.xeto" file

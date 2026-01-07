@@ -27,8 +27,8 @@ internal class Parse : Step
     // parse lib of types or data value
     if (mode.isLibPragma)
       parseLib(input)
-    else if (mode.isParseDicts)
-      parseDicts(input)
+    else if (mode.isAst)
+      parseAst(input)
     else
       parseData(input)
   }
@@ -54,7 +54,7 @@ internal class Parse : Step
     compiler.pragma = pragma
   }
 
-  private Void parseDicts(File input)
+  private Void parseAst(File input)
   {
     // stub lib doc
     lib := ALib(compiler, FileLoc.synthetic, compiler.libName)

@@ -72,7 +72,7 @@ internal class InitLib : Init
 **************************************************************************
 
 **
-** Initialize for compileData
+** Initialize for readData
 **
 @Js
 internal class InitData : Init
@@ -85,12 +85,12 @@ internal class InitData : Init
 **************************************************************************
 
 **
-** Initialize to parseToDicts
+** Initialize to readAst
 **
 @Js
-internal class InitParseDicts : InitLib
+internal class InitAst : InitLib
 {
-  new make() : super(CompileMode.parseDicts) {}
+  new make() : super(CompileMode.ast) {}
 
   override Bool nsRequired() { false }
 }

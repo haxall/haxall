@@ -25,7 +25,7 @@ const final class MXetoIO : XetoIO
 
   override Obj? readXeto(Str in, Dict? opts := null)
   {
-    ns.envRef.compileData(ns, in, opts ?: Etc.dict0)
+    ns.envRef.readData(ns, in, opts ?: Etc.dict0)
   }
 
   override Dict[]  readXetoDicts(Str in, Dict? opts := null)
@@ -72,6 +72,45 @@ const final class MXetoIO : XetoIO
   {
     buf := StrBuf(256)
     writeJson(buf.out, val, opts)
+    return buf.toStr
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////////////
+
+  override Dict readAst(Str in, Dict? opts := null)
+  {
+    ns.envRef.readAst(ns, in, opts ?: Etc.dict0)
+  }
+
+  override OutStream writeAst(OutStream out, Dict ast, Dict? opts := null)
+  {
+    XetoPrinter(ns, out, opts).ast(ast)
+    return out
+  }
+
+  override Str writeAstToStr(Dict ast, Dict? opts := null)
+  {
+    buf := StrBuf(256)
+    writeAst(buf.out, ast, opts)
+    return buf.toStr
+  }
+
+  override Dict readAxon(Str in, Dict funcMeta, Dict? opts := null)
+  {
+    throw Err("TODO")
+  }
+
+  override OutStream writeAxon(OutStream out, Dict ast, Dict? opts := null)
+  {
+    throw Err("TODO")
+  }
+
+  override Str writeAxonToStr(Dict ast, Dict? opts := null)
+  {
+    buf := StrBuf(256)
+    writeAxon(buf.out, ast, opts)
     return buf.toStr
   }
 
