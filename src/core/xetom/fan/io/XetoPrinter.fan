@@ -340,12 +340,14 @@ class XetoPrinter
       }
     }
     wc(')')
+    if (returns != null) axonParam("returns", returns)
     w(" => ")
     w(axon)
   }
 
   private Void axonParam(Str name, Dict meta)
   {
+    isReturn := name == "returns"
     type := "sys::Obj"
     maybe := false
     Str? def := null
@@ -357,12 +359,12 @@ class XetoPrinter
       if (n == "name") return
       if (n == "type")  { type = v.toStr; return }
       if (n == "maybe") { maybe = true; return }
-      if (n == "axon")  { def = v.toStr; return }
+      if (n == "axon" && !isReturn) { def = v.toStr; return }
       metaNames.add(n)
     }
 
     // name
-    w(name)
+    if (!isReturn) w(name)
 
     // if everything else is defaults, we are done
     needType := !metaNames.isEmpty || type != "sys::Obj" || !maybe

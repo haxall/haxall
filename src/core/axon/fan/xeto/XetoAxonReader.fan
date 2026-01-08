@@ -94,8 +94,18 @@ class XetoAxonReader
     params
     p.consume(Token.rparen)
 
-    // hardcode return for now
-    slots.add(Str:Obj["name":"returns", "type":objRef, "maybe":Marker.val])
+    // : return
+    if (p.cur === Token.colon)
+    {
+      p.consume
+      returns := Str:Obj["name":"returns"]
+      typeAndMeta(returns, p.axonParam)
+      slots.add(returns)
+    }
+    else
+    {
+      slots.add(Str:Obj["name":"returns", "type":objRef, "maybe":Marker.val])
+    }
   }
 
   private Void params()

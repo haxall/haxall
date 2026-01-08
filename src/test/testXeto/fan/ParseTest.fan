@@ -240,6 +240,33 @@ class ParseTest : AbstractXetoTest
         """echo("hello")""",
         null)
 
+    // return type simple
+    verifyAxon(ns, opts,
+      Str<|(): Str => echo("hello")|>,
+        [
+          ["name":"returns", "type":Ref("sys::Str")],
+        ],
+        """echo("hello")""",
+        null)
+
+    // return type qname
+    verifyAxon(ns, opts,
+      Str<|(): sys::Str => echo("hello")|>,
+        [
+          ["name":"returns", "type":Ref("sys::Str")],
+        ],
+        """echo("hello")""",
+        null)
+
+    // return type qname with meta
+    verifyAxon(ns, opts,
+      Str<|(): sys::Str? < foo , bar:"!", axon:"woof!"> => echo("hello")|>,
+        [
+          ["name":"returns", "type":Ref("sys::Str"), "maybe":m, "foo":m, "bar":"!", "axon":"woof!"],
+        ],
+        """echo("hello")""",
+        null)
+
     // meta
     verifyAxon(ns, opts,
       Str<|(a: Str <foo>, b: hx.test.xeto::TestSite? <bar, baz:"!">, c: Obj? <qux>) => echo("hello")|>,
@@ -384,13 +411,14 @@ class ParseTest : AbstractXetoTest
 
   Void verifyAxon(Namespace ns, Dict? opts, Str src, [Str:Obj][] eslots, Str eaxon, Str? edoc , Bool roundtrip := true)
   {
-if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
+    // if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
+
     actual := ns.io.readAxon(src, opts)
     aaxon  := (Str)actual->axon
     aslots := (Grid)actual->slots
     adoc   := actual["doc"] as Str
 
-    if (true)
+    if (false)
     {
       echo
       echo("axon: $aaxon.toCode")
