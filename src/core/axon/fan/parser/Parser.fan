@@ -482,7 +482,7 @@ class Parser
   **   <termExpr>   :=  <termBase> <termChain>*
   **   <termChain>  :=  <call> | <methodCall> | <index> | <tag-get>
   **
-  private Expr termExpr(Expr? start := null)
+  internal Expr termExpr(Expr? start := null)
   {
     expr := start ?: termBase
     while (true)

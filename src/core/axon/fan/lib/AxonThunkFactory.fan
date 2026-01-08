@@ -219,6 +219,18 @@ const class AxonThunkFactory : ThunkFactory
     {
       out.print(": ").print(XetoUtil.qnameToName(meta["type"]?.toStr ?: "Obj"))
       if (meta["maybe"] != null) out.print("?")
+
+      // TODO: need to determine if we need sys:Obj, and this is WIP
+      out.print("<")
+      first := true
+      meta.each |v, n|
+      {
+        if (n == "name" || n == "type" || n == "maybe") return
+        if (first) first = false; else out.print(", ")
+        out.print(n)
+        if (v != Marker.val) out.print(":").print(v.toStr.toCode)
+      }
+      out.print(">")
     }
   }
 

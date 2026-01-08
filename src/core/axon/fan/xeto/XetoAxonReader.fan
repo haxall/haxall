@@ -69,7 +69,17 @@ class XetoAxonReader
     if (p.cur === Token.colon)
     {
       p.consume
-      typeRef(acc)
+
+      // type or init expr
+      expr := p.termExpr
+      if (expr.type === ExprType.topName)
+      {
+        typeAndMeta(acc, expr)
+      }
+      else
+      {
+        paramDef(acc, expr)
+      }
     }
 
     if (acc["type"] == null)
@@ -81,19 +91,69 @@ class XetoAxonReader
     slots.add(acc)
   }
 
-  private Void typeRef(Str:Obj acc)
+  private Void typeAndMeta(Str:Obj acc, TopName expr)
   {
-    if (p.cur === Token.typename)
+    // if not qname then we need to resolve
+    if (expr.lib == null)
     {
-      acc["type"] = ns.unqualifiedType(p.curVal).id
-      p.consume
+      acc["type"] = ns.unqualifiedType(expr.name).id
+    }
+    else
+    {
+      acc["type"] = Ref(expr.qname)
     }
 
+    // maybe
     if (p.cur === Token.question)
     {
       acc["maybe"] = Marker.val
       p.consume
     }
+
+    // maybe
+    if (p.cur === Token.lt)
+    {
+      p.consume(Token.lt)
+      metas(acc)
+      p.consume(Token.gt)
+    }
+  }
+
+  private Void metas(Str:Obj acc)
+  {
+    if (p.cur !== Token.gt)
+    {
+      meta(acc)
+      while (p.cur === Token.comma)
+      {
+        p.consume
+        meta(acc)
+      }
+    }
+  }
+
+  private Void meta(Str:Obj acc)
+  {
+    name := p.consumeId("meta name")
+    Obj val := Marker.val
+    if (p.cur === Token.colon)
+    {
+      p.consume
+      val = metaVal
+    }
+
+    acc[name] = val
+  }
+
+  private Obj? metaVal()
+  {
+    // TODO
+    p.consumeVal
+  }
+
+  private Void paramDef(Str:Obj acc, Expr expr)
+  {
+    acc["axon"] = expr.toStr
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -218,12 +218,34 @@ class ParseTest : AbstractXetoTest
            end""",
         null)
 
-    // types
+    // simple types with/without maybe
     verifyAxon(ns, opts,
       Str<|(a: Str, b: Str?) => echo("hello")|>,
         [
           ["name":"a", "type":Ref("sys::Str")],
           ["name":"b", "type":Ref("sys::Str"), "maybe":m],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+    // qname types with/without maybe
+    verifyAxon(ns, opts,
+      Str<|(a: sys::Str, b: hx.test.xeto::TestSite?) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Str")],
+          ["name":"b", "type":Ref("hx.test.xeto::TestSite"), "maybe":m],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+    // meta
+    verifyAxon(ns, opts,
+      Str<|(a: Str <foo>, b: hx.test.xeto::TestSite? <bar, baz:"!">) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Str"), "foo":Marker.val],
+          ["name":"b", "type":Ref("hx.test.xeto::TestSite"), "maybe":m, "bar":Marker.val, "baz":"!"],
           ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
         ],
         """echo("hello")""",
