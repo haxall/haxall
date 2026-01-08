@@ -921,7 +921,7 @@ class Parser
     peekPeek       = tokenizer.next
     peekPeekVal    = tokenizer.val
     peekPeekLine   = tokenizer.line
- }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -935,9 +935,9 @@ class Parser
 
   Token cur  { private set }   // current token
   Obj? curVal { private set }  // current token value
+  Int curLine  { private set } // current token line number
   private Int curIndent        // current token indentation
   private Bool nl := true      // if current first token on new line
-  private Int curLine          // current token line number
 
   Token peek { private set }   // next token
   Obj? peekVal { private set } // next token value

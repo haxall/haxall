@@ -38,7 +38,7 @@ class Build : BuildPod
                `fan/lib/`,
                `fan/parser/`,
                `fan/stream/`,
-               `fan/template/`,
+               `fan/xeto/`,
                ]
     resDirs = [`lib/`]
     index = [

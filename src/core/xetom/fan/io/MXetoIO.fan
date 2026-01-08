@@ -99,12 +99,12 @@ const final class MXetoIO : XetoIO
 
   override Dict readAxon(Str in, Dict funcMeta, Dict? opts := null)
   {
-    throw Err("TODO")
+    ThunkFactory.cur.readAxon(ns, in, funcMeta, opts ?: Etc.dict0)
   }
 
   override OutStream writeAxon(OutStream out, Dict ast, Dict? opts := null)
   {
-    throw Err("TODO")
+    ThunkFactory.cur.writeAxon(ns, out, ast, opts ?: Etc.dict0)
   }
 
   override Str writeAxonToStr(Dict ast, Dict? opts := null)

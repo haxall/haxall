@@ -1464,7 +1464,8 @@ const class Etc
   **
   static Grid makeMapsGrid(Obj? meta, [Str:Obj?][] rows)
   {
-    makeDictsGrid(meta, makeDicts(rows))
+    if (rows.isEmpty) return makeEmptyGrid(meta)
+    return makeDictsGrid(meta, makeDicts(rows))
   }
 
   **

@@ -18,37 +18,42 @@ using haystack
 class ParseTest : AbstractXetoTest
 {
 
-  Void test()
+//////////////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////////////
+
+  Void testAst()
   {
     ns := createNamespace(["sys", "ph", "hx.test.xeto"])
     s := Ref("sys::Spec")
+    Dict? opts := null
 
     // basics
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|Foo: Dict|>,
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":s]
       )
 
     // infer base type
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|Foo: {}|>,
       ["name":"Foo", "base":Ref("sys::Dict"), "spec":s]
       )
 
     // base type in ph
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|Foo: Ahu|>,
       ["name":"Foo", "base":Ref("ph::Ahu"), "spec":s]
       )
 
     // type slots
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|Foo: ph::Ahu <metaQ, metaR:"Marker", q:"2025-10-17">|>,
       ["name":"Foo", "base":Ref("ph::Ahu"), "spec":s, "metaQ":m, "metaR":m, "q":Date("2025-10-17")]
       )
 
     // slots
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|Foo: Dict {
              m
              a: Str?
@@ -69,7 +74,7 @@ class ParseTest : AbstractXetoTest
       )
 
     // nested slots
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|Foo: Dict {
              Box {
                Label { text:"a" }
@@ -89,7 +94,7 @@ class ParseTest : AbstractXetoTest
 
     // resolved types become non-qname refs
     opts = Etc.makeDict(["libName":"foo.bar"])
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|// Foo docs here
            Foo: TSwift {
              a: Str
@@ -105,7 +110,7 @@ class ParseTest : AbstractXetoTest
     opts = null
 
     // dict
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|Foo: { n: Str }
            |>,
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"),
@@ -113,28 +118,28 @@ class ParseTest : AbstractXetoTest
       )
 
     // refs in instances not resolved to qnames
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|@x-a: Foo { n:"alpha" }
            |>,
         ["name":"x-a", "spec":Ref("proj::Foo"), "n":"alpha"]
       )
 
     // refs in instances not resolved to qnames
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|@x.b: { n:"beta" }
            |>,
         ["name":"x.b", "n":"beta"]
       )
 
     // refs in instances not resolved to qnames
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|@x.c: Ahu { n:"charlie" }
            |>,
         ["name":"x.c", "spec":Ref("ph::Ahu"),   "n":"charlie"]
       )
 
     // refs in instances not resolved to qnames
-    verifyParse(ns,
+    verifyAst(ns, opts,
       Str<|@x.d: {
              dict: {a:"nest", m}
              list: List { "a", "b" }
@@ -146,7 +151,7 @@ class ParseTest : AbstractXetoTest
       )
   }
 
-  Void verifyParse(Namespace ns, Str src, Str:Obj expect, Bool roundtrip := true)
+  Void verifyAst(Namespace ns, Dict? opts, Str src, Str:Obj expect, Bool roundtrip := true)
   {
     // if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
     actual := ns.io.readAst(src, opts)
@@ -156,11 +161,106 @@ class ParseTest : AbstractXetoTest
     if (roundtrip)
     {
       src2 := ns.io.writeAstToStr(actual, opts)
-      verifyParse(ns, src2, expect, false)
+      verifyAst(ns, opts, src2, expect, false)
     }
 
   }
 
-  Dict? opts
+//////////////////////////////////////////////////////////////////////////
+// Axon
+//////////////////////////////////////////////////////////////////////////
+
+  Void testAxon()
+  {
+    ns := createNamespace(["sys", "ph", "hx.test.xeto"])
+    s := Ref("sys::Spec")
+    Dict? opts := null
+
+    // basics
+    verifyAxon(ns, opts,
+      Str<|(a)   =>   echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Obj"), "maybe":m],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+    // basics
+    verifyAxon(ns, opts,
+      Str<|(a) => do
+             echo("hello")
+           end|>,
+        [
+          ["name":"a", "type":Ref("sys::Obj"), "maybe":m],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """do
+             echo("hello")
+           end""",
+        null)
+
+    // basics
+    verifyAxon(ns, opts,
+      Str<|(a, b, c) =>
+           do
+             echo("hello")
+           end|>,
+        [
+          ["name":"a", "type":Ref("sys::Obj"), "maybe":m],
+          ["name":"b", "type":Ref("sys::Obj"), "maybe":m],
+          ["name":"c", "type":Ref("sys::Obj"), "maybe":m],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """
+           do
+             echo("hello")
+           end""",
+        null)
+
+    // types
+    verifyAxon(ns, opts,
+      Str<|(a: Str, b: Str?) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Str")],
+          ["name":"b", "type":Ref("sys::Str"), "maybe":m],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+  }
+
+  Void verifyAxon(Namespace ns, Dict? opts, Str src, [Str:Obj][] eslots, Str eaxon, Str? edoc , Bool roundtrip := true)
+  {
+if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
+    actual := ns.io.readAxon(src, Etc.dict0, opts)
+    aaxon  := (Str)actual->axon
+    aslots := (Grid)actual->slots
+    adoc   := actual["doc"] as Str
+
+    if (true)
+    {
+      echo
+      echo("axon: $aaxon.toCode")
+      echo("doc: ${adoc?.toCode}")
+      echo("slots:"); aslots.dump
+    }
+
+    verifyEq(aaxon, eaxon)
+    verifyEq(adoc, edoc)
+    aslots.each |row, i|
+    {
+      verifyDictEq(row, eslots[i])
+    }
+    verifyEq(aslots.size, eslots.size)
+
+    if (roundtrip)
+    {
+      src2 := ns.io.writeAxonToStr(actual, opts)
+      verifyAxon(ns, opts, src2, eslots, eaxon, edoc, false)
+    }
+
+  }
+
 }
 

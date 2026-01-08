@@ -176,5 +176,58 @@ const class AxonThunkFactory : ThunkFactory
     acc["qname"] = spec.lib.name + "::" + spec.name
     return Etc.dictFromMap(acc)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// I/O
+//////////////////////////////////////////////////////////////////////////
+
+  ** Hook for XetoIO.readAxon
+  override Dict readAxon(Namespace ns, Str src, Dict funcMeta, Dict opts)
+  {
+    XetoAxonReader(ns, src, funcMeta).read
+  }
+
+  ** Hook for XetoIO.writeAxon
+  override OutStream writeAxon(Namespace ns, OutStream out, Dict ast, Dict opts)
+  {
+    slots := ast["slots"] as Grid ?: Etc.emptyGrid
+    out.print("(")
+    Dict? returns
+    first := true
+    slots.each |slot|
+    {
+      name := slot->name
+      if (name == "returns")
+      {
+        returns = slot
+      }
+      else
+      {
+        if (first) first = false; else out.print(", ")
+        writeAxonParam(out, name, slot)
+      }
+    }
+    out.print(") => ")
+    out.print(ast->axon)
+    return out
+  }
+
+  private Void writeAxonParam(OutStream out, Str name, Dict meta)
+  {
+    out.print(name)
+    if (!isAxonParamDef(meta))
+    {
+      out.print(": ").print(XetoUtil.qnameToName(meta["type"]?.toStr ?: "Obj"))
+      if (meta["maybe"] != null) out.print("?")
+    }
+  }
+
+  private Bool isAxonParamDef(Dict meta)
+  {
+    if (meta["maybe"] == null) return false
+    type := meta["type"]
+    return type == null || type.toStr == "sys::Obj"
+  }
+
 }
 
