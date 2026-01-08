@@ -182,9 +182,9 @@ const class AxonThunkFactory : ThunkFactory
 //////////////////////////////////////////////////////////////////////////
 
   ** Hook for XetoIO.readAxon
-  override Dict readAxon(Namespace ns, Str src, Dict funcMeta, Dict opts)
+  override Dict readAxon(Namespace ns, Str src, Dict opts)
   {
-    XetoAxonReader(ns, src, funcMeta).read
+    XetoAxonReader(ns, src, opts).read
   }
 }
 

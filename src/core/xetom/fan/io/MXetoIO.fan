@@ -97,9 +97,9 @@ const final class MXetoIO : XetoIO
     return buf.toStr
   }
 
-  override Dict readAxon(Str in, Dict funcMeta, Dict? opts := null)
+  override Dict readAxon(Str in, Dict? opts := null)
   {
-    ThunkFactory.cur.readAxon(ns, in, funcMeta, opts ?: Etc.dict0)
+    ThunkFactory.cur.readAxon(ns, in, opts ?: Etc.dict0)
   }
 
   override OutStream writeAxon(OutStream out, Dict ast, Dict? opts := null)

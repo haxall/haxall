@@ -317,8 +317,11 @@ class XetoPrinter
 
   Void axon(Dict ast)
   {
+    doc   := ast["doc"] as Str
     slots := ast["slots"] as Grid ?: Etc.emptyGrid
     axon  := ast["axon"] as Str ?: "null"
+
+    if (doc != null) w("/*").nl.w(doc).nl.w("*/").nl
 
     wc('(')
     Dict? returns

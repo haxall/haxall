@@ -17,16 +17,74 @@ using concurrent
 @Js @NoDoc
 class XetoAxonReader
 {
-  new make(Namespace ns, Str src, Dict funcMeta)
+  new make(Namespace ns, Str src, Dict opts)
   {
-    this.ns       = ns
-    this.funcMeta = funcMeta
-    this.src      = src
-    this.lines    = src.splitLines
-    this.objRef   = ns.sysLib.spec("Obj").id
+    this.ns     = ns
+    this.opts   = opts
+    this.src    = src
+    this.lines  = src.splitLines
+    this.objRef = ns.sysLib.spec("Obj").id
   }
 
   Dict read()
+  {
+    parseDoc
+    parseSignature
+    parseBody
+    return Etc.dict3x("doc", doc, "slots", Etc.makeMapsGrid(null, slots), "axon", body)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Doc
+//////////////////////////////////////////////////////////////////////////
+
+  private Void parseDoc()
+  {
+    // skip leading whitespace
+    leading := true
+    slashStar := 0
+    for (i := 0; i<lines.size; ++i)
+    {
+      line := lines[i].trim
+
+      // skip leading empty lines
+      if (leading && line.isEmpty) continue
+      leading = false
+
+      // start of // lines
+      if (line.startsWith("//"))
+      {
+        // find last one and then format
+        s := i
+        e := i
+        for (; e<lines.size; ++e) if (!lines[e].trim.startsWith("//")) break
+        this.doc = lines[s..<e].join("\n") |x->Str|
+        {
+          x = x.trimStart[2..-1]
+          if (x.startsWith(" ")) x = x[1..-1]
+          return x
+        }
+        return
+      }
+
+      // end of /* .... */
+      if (line.contains("*/") && (slashStar == 1 || line.startsWith("/*")))
+      {
+        this.doc = lines[0..i].join("\n").trim[2..-3].trim
+        return
+      }
+
+      // start of /* */
+      if (line.startsWith("/*")) { slashStar++; continue }
+
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Signature
+//////////////////////////////////////////////////////////////////////////
+
+  private Void parseSignature()
   {
     // init tokenizer
     this.p = Parser(Loc("readAxon"), src.in)
@@ -38,16 +96,7 @@ class XetoAxonReader
 
     // hardcode return for now
     slots.add(Str:Obj["name":"returns", "type":objRef, "maybe":Marker.val])
-
-    // parse the rest as the axon body
-    parseBody
-
-    return Etc.dict2("slots", Etc.makeMapsGrid(null, slots), "axon", body)
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Signature
-//////////////////////////////////////////////////////////////////////////
 
   private Void params()
   {
@@ -185,9 +234,10 @@ class XetoAxonReader
 
   const Namespace ns
   const Str src
-  const Dict funcMeta
+  const Dict opts
   const Ref objRef
   private Str[] lines
+  private Str? doc
   private Parser? p
   private [Str:Obj][] slots := Str:Obj[,]
   private Str? body

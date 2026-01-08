@@ -251,12 +251,93 @@ class ParseTest : AbstractXetoTest
         ],
         """echo("hello")""",
         null)
+
+    // comment slash/start single line
+    verifyAxon(ns, opts,
+      Str<|/* comment 1 */
+           () => echo("hello")|>,
+        [["name":"returns", "type":Ref("sys::Obj"), "maybe":m]],
+        """echo("hello")""",
+        "comment 1")
+
+    // comment slash/start single line w/ funny whitespace
+    verifyAxon(ns, opts,
+      Str<|
+
+              /*   comment 1   */
+
+
+           () => echo("hello")|>,
+        [["name":"returns", "type":Ref("sys::Obj"), "maybe":m]],
+        """echo("hello")""",
+        "comment 1")
+
+    // comment slash/start single with newlines
+    verifyAxon(ns, opts,
+      Str<|
+             /*
+
+             comment 1
+
+             */
+
+           () => echo("hello")|>,
+        [["name":"returns", "type":Ref("sys::Obj"), "maybe":m]],
+        """echo("hello")""",
+        "comment 1")
+
+    // comment slash/start multi-line
+    verifyAxon(ns, opts,
+      Str<|
+           /*
+
+           comment 1
+
+             comment 2
+
+           comment 3
+            comment 4
+
+           */
+
+           () => echo("hello")|>,
+        [["name":"returns", "type":Ref("sys::Obj"), "maybe":m]],
+        """echo("hello")""",
+        "comment 1\n\n  comment 2\n\ncomment 3\n comment 4")
+
+    // comment slash/slash simple
+    verifyAxon(ns, opts,
+      Str<|//comment 1
+           () => echo("hello")|>,
+        [["name":"returns", "type":Ref("sys::Obj"), "maybe":m]],
+        """echo("hello")""",
+        "comment 1")
+
+    // comment slash/slash simple
+    verifyAxon(ns, opts,
+      Str<|// comment 1
+           () => echo("hello")|>,
+        [["name":"returns", "type":Ref("sys::Obj"), "maybe":m]],
+        """echo("hello")""",
+        "comment 1")
+
+    // comment slash/slash multi
+    verifyAxon(ns, opts,
+      Str<|
+           // comment 1
+           //   comment 2
+           //
+           // comment 3
+           () => echo("hello")|>,
+        [["name":"returns", "type":Ref("sys::Obj"), "maybe":m]],
+        """echo("hello")""",
+        "comment 1\n  comment 2\n\ncomment 3")
   }
 
   Void verifyAxon(Namespace ns, Dict? opts, Str src, [Str:Obj][] eslots, Str eaxon, Str? edoc , Bool roundtrip := true)
   {
 if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
-    actual := ns.io.readAxon(src, Etc.dict0, opts)
+    actual := ns.io.readAxon(src, opts)
     aaxon  := (Str)actual->axon
     aslots := (Grid)actual->slots
     adoc   := actual["doc"] as Str

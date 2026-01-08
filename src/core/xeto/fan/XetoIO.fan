@@ -99,14 +99,15 @@ const mixin XetoIO
 
   **
   ** Parse the Axon source representation into its dict AST representation.
-  ** The axon source defines doc comment and parameter and return slots
-  ** types/meta.  The external funcMeta (rt rec) is passed into the this
-  ** method which merges in the 'doc' and 'slots' tags.
+  ** Return dict with following tags that are extracted from axon source:
+  **   - doc: str for leading comment
+  **   - slots: grid for parameters and return type
+  **   - axon: source code for everything after "=>"
   **
   ** Options:
   **   - libName: for internal qnames (default to proj)
   **
-  abstract Dict readAxon(Str in, Dict funcMeta, Dict? opts := null)
+  abstract Dict readAxon(Str in, Dict? opts := null)
 
   **
   ** Print the Axon source representation from its dict AST representation.
