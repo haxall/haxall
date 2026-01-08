@@ -120,7 +120,7 @@ class XetoAxonReader
       p.consume
 
       // type or init expr
-      expr := p.termExpr
+      expr := p.axonParam
       if (expr.type === ExprType.topName)
       {
         typeAndMeta(acc, expr)
@@ -131,6 +131,10 @@ class XetoAxonReader
       }
     }
 
+    if (p.cur != Token.comma && p.cur != Token.rparen)
+      paramDef(acc, p.expr)
+
+    // default type to Obj?
     if (acc["type"] == null)
     {
       acc["type"] = objRef
@@ -202,6 +206,11 @@ class XetoAxonReader
 
   private Void paramDef(Str:Obj acc, Expr expr)
   {
+    // we disabled parsing "<" before, so handle as special
+    // case (seems like it would never happen in a default expr, but
+    // who knows what kinds of things might be out there in the wild)
+    if (p.cur === Token.lt) { p.consume; expr = Lt(expr, p.rangeExpr) }
+
     acc["axon"] = expr.toStr
   }
 

@@ -357,21 +357,25 @@ class XetoPrinter
       if (n == "name") return
       if (n == "type")  { type = v.toStr; return }
       if (n == "maybe") { maybe = true; return }
-      if (n == "axon")  { def = v.toStr }
-      else metaNames.add(n)
+      if (n == "axon")  { def = v.toStr; return }
+      metaNames.add(n)
     }
 
     // name
     w(name)
 
     // if everything else is defaults, we are done
-    if (metaNames.isEmpty && type == "sys::Obj" && maybe && def == null)
+    needType := !metaNames.isEmpty || type != "sys::Obj" || !maybe
+    if (!needType && def == null)
       return
 
-    // colon type
+    // colon type <meta> def
     wc(':').sp
-    w(type)
-    if (maybe) wc('?')
+    if (needType)
+    {
+      w(type)
+      if (maybe) wc('?')
+    }
 
     // meta
     if (!metaNames.isEmpty)
@@ -389,7 +393,11 @@ class XetoPrinter
     }
 
     // default
-    if (def != null) sp.w(def)
+    if (def != null)
+    {
+      if (needType) sp
+      w(def)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

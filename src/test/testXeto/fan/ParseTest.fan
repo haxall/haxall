@@ -252,6 +252,54 @@ class ParseTest : AbstractXetoTest
         """echo("hello")""",
         null)
 
+    // def expr - literals
+    verifyAxon(ns, opts,
+      Str<|(a: 123, b: "s", c: null) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Obj"), "maybe":m, "axon":"123"],
+          ["name":"b", "type":Ref("sys::Obj"), "maybe":m, "axon":"\"s\""],
+          ["name":"c", "type":Ref("sys::Obj"), "maybe":m, "axon":"null"],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+    // def expr - express
+    verifyAxon(ns, opts,
+      Str<|(a: now(), b: 3 + 2, c: foo < 3) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Obj"), "maybe":m, "axon":"now()"],
+          ["name":"b", "type":Ref("sys::Obj"), "maybe":m, "axon":"3 + 2"],
+          ["name":"c", "type":Ref("sys::Obj"), "maybe":m, "axon":"foo < 3"],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+    // def expr - with simple types
+    verifyAxon(ns, opts,
+      Str<|(a: Date now(1, 2), b: Str 3 + 2, c: hx.test.xeto::TestSite foo < 3) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Date"), "axon":"now(1, 2)"],
+          ["name":"b", "type":Ref("sys::Str"),  "axon":"3 + 2"],
+          ["name":"c", "type":Ref("hx.test.xeto::TestSite"),  "axon":"foo < 3"],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+    // def expr - with qname types
+    verifyAxon(ns, opts,
+      Str<|(a: sys::Date now(1, 2), b: sys::Str x, c: Obj foo < 3) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Date"), "axon":"now(1, 2)"],
+          ["name":"b", "type":Ref("sys::Str"),  "axon":"x"],
+          ["name":"c", "type":Ref("sys::Obj"),  "axon":"foo < 3"],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
     // comment slash/start single line
     verifyAxon(ns, opts,
       Str<|/* comment 1 */

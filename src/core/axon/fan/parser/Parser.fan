@@ -65,6 +65,13 @@ class Parser
     return fn
   }
 
+  ** Parse either type name, type qname, or default expression
+  protected Expr axonParam()
+  {
+    inAxonParam = true
+    return expr
+  }
+
   protected Expr namedExpr(Str name)
   {
     curName = name
@@ -406,12 +413,11 @@ class Parser
   private Expr compareExpr()
   {
     expr := rangeExpr
-    if (inSpec > 0) return expr // don't parse ">" as Gt if inside spec meta
     switch (cur)
     {
       case Token.eq:    consume; return Eq(expr, rangeExpr)
       case Token.notEq: consume; return Ne(expr, rangeExpr)
-      case Token.lt:    consume; return Lt(expr, rangeExpr)
+      case Token.lt:    if (!inAxonParam) { consume; return Lt(expr, rangeExpr) }
       case Token.ltEq:  consume; return Le(expr, rangeExpr)
       case Token.gtEq:  consume; return Ge(expr, rangeExpr)
       case Token.gt:    consume; return Gt(expr, rangeExpr)
@@ -424,7 +430,7 @@ class Parser
   ** Additive expression:
   **   <rangeExpr>  :=  <addExpr> ".." <addExpr>
   **
-  private Expr rangeExpr()
+  internal Expr rangeExpr()
   {
     expr := addExpr
     if (cur === Token.dotDot)
@@ -951,6 +957,6 @@ class Parser
   private Str? curFuncName     // current name of base func
   private Int anonNum          // number of anonymous funcs
   private Fn[] inners := [,]   // current number of funcs inside current
-  private Int inSpec           // if inside spec production
+  private Bool inAxonParam
 }
 
