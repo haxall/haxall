@@ -73,8 +73,5 @@ const abstract class ThunkFactory
 
   ** Hook for XetoIO.readAxon
   abstract Dict readAxon(Namespace ns, Str src, Dict funcMeta, Dict opts)
-
-  ** Hook for XetoIO.writeAxon
-  abstract OutStream writeAxon(Namespace ns, OutStream out, Dict ast, Dict opts)
 }
 

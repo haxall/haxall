@@ -104,7 +104,8 @@ const final class MXetoIO : XetoIO
 
   override OutStream writeAxon(OutStream out, Dict ast, Dict? opts := null)
   {
-    ThunkFactory.cur.writeAxon(ns, out, ast, opts ?: Etc.dict0)
+    XetoPrinter(ns, out, opts).axon(ast)
+    return out
   }
 
   override Str writeAxonToStr(Dict ast, Dict? opts := null)

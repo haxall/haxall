@@ -242,10 +242,11 @@ class ParseTest : AbstractXetoTest
 
     // meta
     verifyAxon(ns, opts,
-      Str<|(a: Str <foo>, b: hx.test.xeto::TestSite? <bar, baz:"!">) => echo("hello")|>,
+      Str<|(a: Str <foo>, b: hx.test.xeto::TestSite? <bar, baz:"!">, c: Obj? <qux>) => echo("hello")|>,
         [
           ["name":"a", "type":Ref("sys::Str"), "foo":Marker.val],
           ["name":"b", "type":Ref("hx.test.xeto::TestSite"), "maybe":m, "bar":Marker.val, "baz":"!"],
+          ["name":"c", "type":Ref("sys::Obj"), "maybe":m, "qux":Marker.val],
           ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
         ],
         """echo("hello")""",

@@ -209,7 +209,7 @@ class XetoPrinter
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Dict
+// AST Dict
 //////////////////////////////////////////////////////////////////////////
 
   ** Print dict AST representation of spec or instance
@@ -310,6 +310,84 @@ class XetoPrinter
 
   ** Always skip these which should be encoded outside of meta
   static const Str[] metaSkipAst := ["id", "mod", "rt", "name", "ofs", "base", "type", "slots", "spec", "doc", "maybe", "val"]
+
+//////////////////////////////////////////////////////////////////////////
+// AST Axon Func
+//////////////////////////////////////////////////////////////////////////
+
+  Void axon(Dict ast)
+  {
+    slots := ast["slots"] as Grid ?: Etc.emptyGrid
+    axon  := ast["axon"] as Str ?: "null"
+
+    wc('(')
+    Dict? returns
+    first := true
+    slots.each |slot|
+    {
+      name := slot->name
+      if (name == "returns")
+      {
+        returns = slot
+      }
+      else
+      {
+        if (first) first = false; else wc(',').sp
+        axonParam(name, slot)
+      }
+    }
+    wc(')')
+    w(" => ")
+    w(axon)
+  }
+
+  private Void axonParam(Str name, Dict meta)
+  {
+    type := "sys::Obj"
+    maybe := false
+    Str? def := null
+    metaNames := Str[,]
+
+    // walk meta and extra specials
+    meta.each |v, n|
+    {
+      if (n == "name") return
+      if (n == "type")  { type = v.toStr; return }
+      if (n == "maybe") { maybe = true; return }
+      if (n == "axon")  { def = v.toStr }
+      else metaNames.add(n)
+    }
+
+    // name
+    w(name)
+
+    // if everything else is defaults, we are done
+    if (metaNames.isEmpty && type == "sys::Obj" && maybe && def == null)
+      return
+
+    // colon type
+    wc(':').sp
+    w(type)
+    if (maybe) wc('?')
+
+    // meta
+    if (!metaNames.isEmpty)
+    {
+      sp.wc('<')
+      first := true
+      metaNames.each |n|
+      {
+        if (first) first = false; else wc(',').sp
+        v := meta[n]
+        w(n)
+        if (v != Marker.val) wc(':').quoted(v.toStr)
+      }
+      wc('>')
+    }
+
+    // default
+    if (def != null) sp.w(def)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Literals
