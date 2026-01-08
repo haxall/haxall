@@ -591,18 +591,18 @@ class HxFuncsTest : HxTest
     eval("""companionRemove("Bar")""")
     verifyEq(proj.ns.spec("proj::Bar", false), null)
 
-    // func
-    Dict x := eval("""companionFunc("foo", "(a, b)=>a+b", {admin})""")
+    // parseAxon
+    Dict x := eval("""companionParseAxon("foo", "(a, b) => a+b ", {admin})""")
     objRef := Ref("sys::Obj")
     slots := Etc.makeMapsGrid(null, [
         ["name":"a",       "type":objRef, "maybe":m],
         ["name":"b",       "type":objRef, "maybe":m],
         ["name":"returns", "type":objRef, "maybe":m],
       ]).reorderCols(["name", "type", "maybe"])
-    verifyGridEq(slots, x->slots)
+    verifyGridEq(slots, (Grid)x->slots)
     verifyDictEq(x,
       ["rt":"func", "name":"foo", "base":Ref("sys::Func"), "spec":Ref("sys::Spec"),
-        "axon":"(a, b)=>a+b", "admin":m, "slots":slots])
+        "axon":"a+b", "admin":m, "slots":slots])
 
     // parse
     x = eval("""companionParse("Foo: Dict <abstract> { a: Obj?, b: Obj?, returns: Obj? }")""")

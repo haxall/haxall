@@ -343,17 +343,17 @@
   //   companionParse("@my-instance: Dict {}")
   companionParse: Func { xeto: Str, returns: Dict }
 
-  // Create func companion lib AST representation - see `hx::ProjCompanion.func`.
-  // Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
-  // Examples:
-  //   companionFunc("myFunc", "(a)=>a*2")
-  //   companionFunc("myFunc", "(a)=>a*2", {admin})
-  companionFunc: Func <admin> { name: Str, axon: Str, meta: Dict?, returns: Dict }
-
   // Print companion AST rec representation back a Xeto string - see `hx::ProjCompanion.print`.
   // Examples:
   //   companionRead("MySpec").companionPrint
   companionPrint: Func { rec: Dict, returns: Str }
+
+  // Create func companion lib AST representation - see `hx::ProjCompanion.func`.
+  // Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
+  // Examples:
+  //   companionParseAxon("myFunc", "(a)=>a*2")
+  //   companionParseAxon("myFunc", "(a)=>a*2", {admin})
+  companionParseAxon: Func <admin> { name: Str, axon: Str, meta: Dict?, returns: Dict }
 
 //////////////////////////////////////////////////////////////////////////
 // Watches

@@ -17,13 +17,12 @@ using concurrent
 @Js @NoDoc
 class XetoAxonReader
 {
-  new make(Namespace ns, Str src, Dict opts)
+  new make(Namespace? ns, Str src, Dict opts)
   {
     this.ns     = ns
     this.opts   = opts
     this.src    = src
     this.lines  = src.splitLines
-    this.objRef = ns.sysLib.spec("Obj").id
   }
 
   Dict read()
@@ -186,7 +185,7 @@ class XetoAxonReader
     // if not qname then we need to resolve
     if (expr.lib == null)
     {
-      acc["type"] = ns.unqualifiedType(expr.name).id
+      acc["type"] = ns == null ? expr.name : ns.unqualifiedType(expr.name).id
     }
     else
     {
@@ -258,13 +257,13 @@ class XetoAxonReader
   private Void parseBody()
   {
     // the tokenizer should be on "=>" right now after signature
-    if (p.cur !== Token.fnEq) throw Err("Expecting => for top-level func")
+    if (p.cur !== Token.fnEq) throw p.err("Expecting => for top-level func")
     linei := p.curLine - 1
     curLine := lines[linei]
 
     // we assume that "=>" at end of this line is not
     // actually inside string literal or comment
-    coli := curLine.indexr("=>") ?: throw Err(curLine)
+    coli := curLine.indexr("=>") ?: throw p.err(curLine)
     curLine = curLine[coli+2..-1].trim
 
     // put together everything after =>
@@ -278,10 +277,11 @@ class XetoAxonReader
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const Namespace ns
+  static const Ref objRef := Ref("sys::Obj")
+
+  const Namespace? ns
   const Str src
   const Dict opts
-  const Ref objRef
   private Str[] lines
   private Parser? p
   private Str? doc

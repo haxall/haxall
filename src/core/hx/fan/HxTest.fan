@@ -173,7 +173,7 @@ abstract class HxTest : HaystackTest
   ** Convenience for 'proj.specs.addFunc'
   Spec addFunc(Str name, Str src, Obj? meta := null)
   {
-    rec := proj.companion.func(name, src, Etc.makeDict(meta))
+    rec := proj.companion.parseAxon(name, src, Etc.makeDict(meta))
     proj.companion.add(rec)
     return proj.companion.lib.funcs.get(name)
   }

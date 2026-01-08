@@ -70,17 +70,16 @@ const mixin ProjCompanion
   ** is reloaded on next access.
   abstract Void remove(Str name)
 
-  ** Parse the Xeto source representation into its dict AST representation.
+  ** Parse Xeto source representation into its rt rec AST representation.
   abstract Dict parse(Str xeto)
 
-  ** Print the Xeto source representation from its dict AST representation.
+  ** Parse Axon source representation into its rt rec AST representation.
+  abstract Dict parseAxon(Str name, Str xeto, Dict? meta := null)
+
+  ** Print to Xeto source representation from its rt rec AST representation.
   abstract Str print(Dict dict)
 
-  ** Create dict AST respresentation for an Axon function
-  abstract Dict func(Str name, Str axon, Dict meta := Etc.dict0)
-
-  ** Parse axon source to create dict slots representation
-  @NoDoc abstract Grid funcSlots(Str axon)
-
+  ** Print to Axon source representation from its rt rec AST representation.
+  abstract Str printAxon(Dict dict)
 }
 

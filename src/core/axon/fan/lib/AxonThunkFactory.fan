@@ -44,7 +44,7 @@ const class AxonThunkFactory : ThunkFactory
     if (comp != null) return parseCompTree(spec, meta, comp)
 
     // check for template
-    if (spec.func.isTemplate) return TemplateFn(spec, meta, toParams(spec))
+    if (spec.func.isTemplate) return TemplateFn(spec, meta, toParams(meta->qname, spec))
 
     throw UnsupportedErr("Cannot resolve thunk: $spec [pod:$pod]")
   }
@@ -131,22 +131,12 @@ const class AxonThunkFactory : ThunkFactory
 
   private TopFn? parseAxon(Spec spec, Dict meta, Str src)
   {
-    /*
-    // wrap src with parameterized list
-    s := StrBuf(src.size + 256)
-    s.addChar('(')
-    spec.func.params.each |p, i|
-    {
-      if (i > 0) s.addChar(',')
-      s.add(p.name)
-    }
-    s.add(")=>do\n")
-    s.add(src)
-    s.add("\nend")
-    */
-
-    qname := meta->qname
-    return Parser(Loc(qname), src.in).parseTop(spec.name, meta)
+    name   := spec.name
+    qname  := meta->qname
+    loc    := Loc(qname)
+    params := toParams(qname, spec)
+    body   := Parser(loc, src.in).expr
+    return TopFn(loc, name, meta, params, body)
   }
 
   private TopFn? parseCompTree(Spec spec, Dict meta, Str src)
@@ -155,9 +145,21 @@ const class AxonThunkFactory : ThunkFactory
     return CompFn(spec.name, meta, params, src)
   }
 
-  private FnParam[] toParams(Spec spec)
+  private FnParam[] toParams(Str qname, Spec spec)
   {
-    spec.func.params.map |p->FnParam| { FnParam(p.name) }
+    spec.func.params.map |p->FnParam|
+    {
+      Expr? def := null
+      defStr := p.meta["axon"] as Str
+      if (defStr != null)
+      {
+        try
+          def = Parser(Loc(qname), defStr.in).expr
+        catch (Err e)
+          throw ParseErr("Cannot parse func '$qname' param '$p.name': $defStr.toCode", e)
+      }
+      return FnParam(p.name, def)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

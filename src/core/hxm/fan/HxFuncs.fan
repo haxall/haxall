@@ -628,12 +628,12 @@ cx.ns.env->libCacheClear
   ** Create func companion lib AST representation - see `hx::ProjCompanion.func`.
   ** Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
   ** Examples:
-  **   companionFunc("myFunc", "(a)=>a*2")
-  **   companionFunc("myFunc", "(a)=>a*2", {admin})
+  **   companionParseAxon("myFunc", "(a)=>a*2")
+  **   companionParseAxon("myFunc", "(a)=>a*2", {admin})
   @Api @Axon
-  static Dict companionFunc(Str name, Str axon, Dict? meta := null)
+  static Dict companionParseAxon(Str name, Str axon, Dict? meta := null)
   {
-    curContext.proj.companion.func(name, axon, meta ?: Etc.dict0)
+    curContext.proj.companion.parseAxon(name, axon, meta ?: Etc.dict0)
   }
 
   ** Print companion AST rec representation back a Xeto string - see `hx::ProjCompanion.print`.

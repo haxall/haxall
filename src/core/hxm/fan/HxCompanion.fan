@@ -257,9 +257,9 @@ const class HxCompanion : ProjCompanion
 // Helper APIs
 //////////////////////////////////////////////////////////////////////////
 
-  override Dict parse(Str xeto)
+  override Dict parse(Str src)
   {
-    ns.io.readAst(xeto, Etc.dict1("rtInclude", Marker.val))
+    ns.io.readAst(src, Etc.dict1("rtInclude", Marker.val))
   }
 
   override Str print(Dict rec)
@@ -267,17 +267,33 @@ const class HxCompanion : ProjCompanion
     ns.io.writeAstToStr(rec, Etc.dict0)
   }
 
-  override Dict func(Str name, Str axon, Dict meta := Etc.dict0)
+  override Dict parseAxon(Str name, Str src, Dict? meta := null)
   {
-    toFunc(name, axon, meta)
+    toFunc(ns, name, src, meta)
   }
 
-  override Grid funcSlots(Str axon)
+  override Str printAxon(Dict rec)
   {
-    toFuncSlots(axon)
+    ns.io.writeAxonToStr(rec, Etc.dict0)
   }
 
-  static Dict toFunc(Str name, Str axon, Dict meta := Etc.dict0)
+  static Dict toFunc(Namespace ns, Str name, Str src, Dict? meta := null)
+  {
+    x := ns.io.readAxon(src, Etc.dict0)
+    acc := Str:Obj[:] { ordered = true }
+    if (meta != null) meta.each |v, n| { acc[n] = v }
+    acc["rt"]    = "func"
+    acc["name"]  = name
+    acc["spec"]  = specRef
+    acc["base"]  = funcRef
+    acc.setNotNull("axon",  x["axon"])
+    acc.setNotNull("doc",   x["doc"])
+    acc.setNotNull("slots", x["slots"])
+    return Etc.dictFromMap(acc)
+  }
+
+  /* TODO
+  static Dict toOldFunc(Str name, Str axon, Dict meta := Etc.dict0)
   {
     acc := Str:Obj[:]
     meta.each |v, n| { acc[n] = v }
@@ -286,11 +302,11 @@ const class HxCompanion : ProjCompanion
     acc["spec"]  = specRef
     acc["base"]  = funcRef
     acc["axon"]  = axon
-    acc["slots"] = toFuncSlots(axon)
+    acc["slots"] = toOldFuncSlots(axon)
     return Etc.dictFromMap(acc)
   }
 
-  static Grid toFuncSlots(Str axon)
+  static Grid toOldFuncSlots(Str axon)
   {
     // parse axon to verify its correct
     fn := Parser(Loc.synthetic, axon.in).parseTop("funcSlots", Etc.dict0)
@@ -303,6 +319,7 @@ const class HxCompanion : ProjCompanion
     gb.addRow(["returns", objRef, Marker.val])
     return gb.toGrid
   }
+  */
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
