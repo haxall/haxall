@@ -31,7 +31,7 @@ class XetoAxonReader
     parseDoc
     parseSignature
     parseBody
-    return Etc.dict3x("doc", doc, "slots", Etc.makeMapsGrid(null, slots), "axon", body)
+    return Etc.dict3x("doc", doc, "slots", slots, "axon", body)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,44 +86,72 @@ class XetoAxonReader
 
   private Void parseSignature()
   {
+    // data structures
+    slots := Str:Obj[,]
+    returns := Str:Obj[:] { it.ordered = true }
+    returns["name"] = "returns"
+
     // init tokenizer
     this.p = Parser(Loc("readAxon"), src.in)
 
     // (param1, param2, ...)
     p.consume(Token.lparen)
-    params
+    params(slots)
     p.consume(Token.rparen)
 
     // : return
     if (p.cur === Token.colon)
     {
       p.consume
-      returns := Str:Obj["name":"returns"]
       typeAndMeta(returns, p.axonParam)
       slots.add(returns)
     }
     else
     {
-      slots.add(Str:Obj["name":"returns", "type":objRef, "maybe":Marker.val])
+      returns["type"] = objRef
+      returns["maybe"] = Marker.val
+      slots.add(returns)
     }
+
+    // build up col names in order they were defined
+    colNamesMap := Str:Str[:]
+    colNamesMap.ordered = true
+    slots.each |slot|
+    {
+      slot.each |v, n| { colNamesMap[n] = n }
+    }
+    colNames := colNamesMap.keys
+
+    // turn into grid
+    gb := GridBuilder()
+    colNames.each |n| { gb.addCol(n) }
+    slots.each |map|
+    {
+      cells := Obj?[,]
+      cells.capacity = colNames.size
+      colNames.each |n| { cells.add(map.get(n)) }
+      gb.addRow(cells)
+    }
+    this.slots = gb.toGrid
   }
 
-  private Void params()
+  private Void params([Str:Obj][] slots)
   {
     if (p.cur !== Token.rparen)
     {
-      param
+      slots.add(param)
       while (p.cur === Token.comma)
       {
         p.consume
-        param
+        slots.add(param)
       }
     }
   }
 
-  private Void param()
+  private Str:Obj param()
   {
     acc := Str:Obj[:]
+    acc.ordered = true
     acc["name"] = p.consumeId("func parameter name")
     if (p.cur === Token.colon)
     {
@@ -150,8 +178,7 @@ class XetoAxonReader
       acc["type"] = objRef
       acc["maybe"] = Marker.val
     }
-
-    slots.add(acc)
+    return acc
   }
 
   private Void typeAndMeta(Str:Obj acc, TopName expr)
@@ -256,9 +283,9 @@ class XetoAxonReader
   const Dict opts
   const Ref objRef
   private Str[] lines
-  private Str? doc
   private Parser? p
-  private [Str:Obj][] slots := Str:Obj[,]
+  private Str? doc
+  private Grid? slots
   private Str? body
 }
 
