@@ -81,7 +81,9 @@ class Parser
   protected Expr axonParam()
   {
     inAxonParam = true
-    return expr
+    res := expr
+    inAxonParam = false
+    return res
   }
 
   protected Expr namedExpr(Str name)

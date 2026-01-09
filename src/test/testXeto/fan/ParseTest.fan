@@ -222,8 +222,7 @@ class ParseTest : AbstractXetoTest
           ["name":"c", "type":Ref("sys::Obj"), "maybe":m],
           ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
         ],
-        """
-           do
+        """do
              echo("hello")
            end""",
         null)
@@ -421,7 +420,7 @@ class ParseTest : AbstractXetoTest
 
   Void verifyAxon(Namespace ns, Dict? opts, Str src, [Str:Obj][] eslots, Str eaxon, Str? edoc , Bool roundtrip := true)
   {
-    // if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
+    //if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
 
     actual := ns.io.readAxon(src, opts)
     aaxon  := (Str)actual->axon
