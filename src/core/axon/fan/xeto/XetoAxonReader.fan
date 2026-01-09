@@ -185,7 +185,7 @@ class XetoAxonReader
     // if not qname then we need to resolve
     if (expr.lib == null)
     {
-      acc["type"] = ns == null ? expr.name : ns.unqualifiedType(expr.name).id
+      acc["type"] = resolveTypeName(expr.name)
     }
     else
     {
@@ -206,6 +206,15 @@ class XetoAxonReader
       metas(acc)
       p.consume(Token.gt)
     }
+  }
+
+  private Ref resolveTypeName(Str name)
+  {
+    if (ns == null) return Ref(name)
+    types := ns.unqualifiedTypes(name)
+    if (types.size == 1) return types.first.id
+    if (types.size == 0) throw p.err("Unresolved type: $name")
+    throw p.err("Ambiguous type name: $types")
   }
 
   private Void metas(Str:Obj acc)
@@ -260,6 +269,13 @@ class XetoAxonReader
     if (p.cur !== Token.fnEq) throw p.err("Expecting => for top-level func")
     linei := p.curLine - 1
     curLine := lines[linei]
+
+    // optional check for body
+    if (opts.has("checkBody"))
+    {
+      p.consume(Token.fnEq)
+      p.expr
+    }
 
     // we assume that "=>" is not actually inside string literal or comment
     coli := curLine.index("=>") ?: throw p.err(curLine)
