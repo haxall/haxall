@@ -89,14 +89,7 @@ internal class FixAxonSpecsCmd : ConvertCmd
   Str fixAxon(Str orig)
   {
     // find indent to keep keep do aligned
-    indent := 8
-    orig.splitLines.each |line|
-    {
-      if (line.trim.isEmpty) return
-      lineIndent := 0
-      while (lineIndent < line.size && line[lineIndent].isSpace) lineIndent++
-      indent = indent.min(lineIndent)
-    }
+    indent := ConvertUtil.indentation(orig)
 
     // split on => operator
     arrow := orig.index("=>") ?: throw Err("Missing =>")

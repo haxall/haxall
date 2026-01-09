@@ -36,7 +36,7 @@ class Build : BuildPod
                "axon @{hx.depend}",
                "hxm @{hx.depend}",
                ]
-    srcDirs = [`fan/`, `fan/ast/`, `fan/doc/`]
+    srcDirs = [`fan/`, `fan/ast/`, `fan/axon/`, `fan/doc/`, `test/`]
   }
 }
 
