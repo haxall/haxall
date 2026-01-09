@@ -186,6 +186,16 @@ class ParseTest : AbstractXetoTest
         """echo("hello")""",
         null)
 
+    // double =>
+    verifyAxon(ns, opts,
+      Str<|(a) => do f: () => curFunc(); f(); end|>,
+        [
+          ["name":"a", "type":Ref("sys::Obj"), "maybe":m],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """do f: () => curFunc(); f(); end""",
+        null)
+
     // basics
     verifyAxon(ns, opts,
       Str<|(a) => do

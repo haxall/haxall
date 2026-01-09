@@ -261,9 +261,8 @@ class XetoAxonReader
     linei := p.curLine - 1
     curLine := lines[linei]
 
-    // we assume that "=>" at end of this line is not
-    // actually inside string literal or comment
-    coli := curLine.indexr("=>") ?: throw p.err(curLine)
+    // we assume that "=>" is not actually inside string literal or comment
+    coli := curLine.index("=>") ?: throw p.err(curLine)
     curLine = curLine[coli+2..-1].trim
 
     // put together everything after =>
