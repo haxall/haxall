@@ -1949,6 +1949,18 @@
   //   call(parseDate(_, "DD-MMM-YY"), ["15-Mar-21"])
   call: Func { func: Obj, args: List?, returns: Obj? }
 
+  // Reflectively call a function with arguments by name.  The func
+  // may be a Str name or an expression that evaluates to a function.
+  // Args a dict with the arguments keyed by name.  Note that null might
+  // indicate an actual null argument or a fallback to a default value.
+  // So any arguments are null, the pass a value for argument.  Examples:
+  //
+  //   callByName("parseDate", {val:"01-02-03", pattern:"DD-MM-YY"})
+  //   callByName(parseDate, {val:"01-02-03", pattern:"DD-MM-YY"})
+  //
+  // *Note that parameter names might change between releases.*
+  callByName: Func { func: Obj, args: Dict, returns: Obj? }
+
   // Convert a scalar, list, or dict value to its Axon code representation.
   // Examples:
   //
@@ -1982,3 +1994,4 @@
   checkSyntax: Func <nodoc> { src: Str, returns: Grid }
 
 }
+

@@ -3052,6 +3052,38 @@ const class AxonFuncs
     return fn.callx(cx, args, Loc("call"))
   }
 
+
+  ** Reflectively call a function with arguments by name.  The func
+  ** may be a Str name or an expression that evaluates to a function.
+  ** Args a dict with the arguments keyed by name.  Note that null might
+  ** indicate an actual null argument or a fallback to a default value.
+  ** So any arguments are null, the pass a value for argument. Examples:
+  **
+  **   callByName("parseDate", {val:"01-02-03", pattern:"DD-MM-YY"})
+  **   callByName(parseDate, {val:"01-02-03", pattern:"DD-MM-YY"})
+  **
+  ** *Note that parameter names might change between releases.*
+  @Api @Axon
+  static Obj? callByName(Obj func, Dict args)
+  {
+    cx := AxonContext.curAxon
+    fn := func is Str ? cx.resolveTopFn(func) : (Fn)func
+
+    // map to args list
+    argsList := fn.params.map |p| { args[p.name] }
+
+    // assume any trailing nulls are defaults
+    for (i := argsList.size-1; i>=0; --i)
+    {
+      if (argsList[i] == null && fn.params[i].hasDef)
+        argsList.removeAt(-1)
+      else
+        break
+    }
+
+    return fn.callx(cx, argsList, Loc("callByName"))
+  }
+
   ** Convert a scalar, list, or dict value to its Axon code representation.
   ** Examples:
   **

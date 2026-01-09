@@ -1751,6 +1751,10 @@ class CoreLibTest : HaystackTest
     verifyEval("""call("parseDate", ["15-Mar-21", "DD-MMM-YY"])""", Date("2021-03-15"))
     verifyEval("""call(parseDate, ["2021-03-15"])""", Date("2021-03-15"))
     verifyEval("""call(parseDate(_, "DD-MMM-YY"), ["15-Mar-21"])""", Date("2021-03-15"))
+
+    verifyEval("""callByName("today", {})""", Date.today)
+    verifyEval("""callByName(parseDate, {pattern:"DD-MM-YY", val:"01-02-03", checked:true})""", Date("2003-02-01"))
+    verifyEval("""callByName(parseDate, {pattern:"DD-MM-YY", val:"01-02-03"})""", Date("2003-02-01"))
   }
 
 //////////////////////////////////////////////////////////////////////////
