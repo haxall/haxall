@@ -8,6 +8,7 @@
 
 +Funcs {
 
-  testIncrement: Func <axon:"(x)=>x+1"> { int: Number, returns: Number }
+  testIncrement: Func <axon:"x+1"> { x: Number, returns: Number }
 
 }
+

@@ -114,6 +114,7 @@ class HxCoreLibTest : HxTest
     verifyEval("y()->qname", "proj::y")
   }
 
+  /* TODO: to be removed in 4.0.5 - Jan 2026
   @HxTestProj
   Void testCompDef()
   {
@@ -137,6 +138,7 @@ class HxCoreLibTest : HxTest
 
     verifyGridEq(g, eval("""compDef(x)"""))
   }
+  */
 
   @HxTestProj
   Void testParams()

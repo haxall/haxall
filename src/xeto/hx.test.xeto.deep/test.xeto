@@ -18,6 +18,6 @@ Beta : Dict {
 +Alpha <metaQ, metaNum: "456">
 
 +Funcs {
-  testDeepAdd: Func <axon:"(a,b)=>a+b"> { a: Number, b: Number, returns: Number }
+  testDeepAdd: Func <axon:"a+b"> { a: Number, b: Number, returns: Number }
 }
 
