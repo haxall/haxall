@@ -375,7 +375,7 @@ class XetoPrinter
     wc(':').sp
     if (needType)
     {
-      w(type)
+      w(typeName(type))
       if (maybe) wc('?')
     }
 
@@ -571,9 +571,7 @@ class XetoPrinter
     simple := n[colons+2..-1]
 
     // if multiple matches stick with qname
-    // TODO: cannot do this during compile; need to refactor
-    // all the async loading first and simplify the MNamespace
-    // if (ns.unqualifiedTypes(simple).size > 1) return n
+    if (ns.unqualifiedTypes(simple).size > 1) return n
 
     // use simple name
     return simple

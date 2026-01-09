@@ -90,6 +90,9 @@ const mixin XetoIO
   ** Print the Xeto source representation from its dict AST representation.
   ** The stream is left open and returned.
   **
+  ** Options
+  ** - qnameForce: for all types to be qualified
+  **
   abstract OutStream writeAst(OutStream out, Dict ast, Dict? opts := null)
 
   **
@@ -112,6 +115,9 @@ const mixin XetoIO
   **
   ** Print the Axon source representation from its dict AST representation.
   ** The stream is left open and returned.
+  **
+  ** Options
+  ** - qnameForce: for all types to be qualified
   **
   abstract OutStream writeAxon(OutStream out, Dict ast, Dict? opts := null)
 
