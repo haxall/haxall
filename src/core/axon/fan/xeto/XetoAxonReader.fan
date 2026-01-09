@@ -50,6 +50,9 @@ class XetoAxonReader
       if (leading && line.isEmpty) continue
       leading = false
 
+      // if we hit start of params with no comment, then done
+      if (line.startsWith("(")) return
+
       // start of // lines
       if (line.startsWith("//"))
       {
@@ -75,7 +78,6 @@ class XetoAxonReader
 
       // start of /* */
       if (line.startsWith("/*")) { slashStar++; continue }
-
     }
   }
 
@@ -285,7 +287,7 @@ class XetoAxonReader
     s := StrBuf()
     s.add(curLine)
     lines.eachRange(linei+1..-1) |line| { s.add("\n").add(line) }
-    body = s.toStr.trimEnd
+    body = s.toStr.trim
   }
 
 //////////////////////////////////////////////////////////////////////////
