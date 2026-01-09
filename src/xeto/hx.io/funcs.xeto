@@ -145,11 +145,11 @@
   ioWriteZinc: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
 
   // Read a Xeto data file into memory as a Haystack data type.
-  // See `xeto::Namespace.compileData` for details and options.
+  // See `xeto::XetoIO.readXeto` for details and options.
   ioReadXeto: Func <admin> { handle: Obj?, opts: Obj?, returns: Obj? }
 
   // Write value to a Xeto text format file.
-  // See `xeto::Namespace.writeData` for details and options.
+  // See `xeto::XetoIO.writeXeto` for details and options.
   ioWriteXeto: Func <admin> { val: Obj?, handle: Obj?, opts: Obj?, returns: Obj? }
 
   // Read a CSV (comma separated values) file into memory as a Grid.
@@ -411,3 +411,4 @@
   ioExport: Func <admin> { req: Dict, handle: Obj?, returns: Obj }
 
 }
+

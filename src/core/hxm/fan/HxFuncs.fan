@@ -625,7 +625,7 @@ cx.ns.env->libCacheClear
     curContext.proj.companion.parse(xeto)
   }
 
-  ** Create func companion lib AST representation - see `hx::ProjCompanion.func`.
+  ** Create func companion lib AST representation - see `hx::ProjCompanion.parseAxon`.
   ** Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
   ** Examples:
   **   companionParseAxon("myFunc", "(a)=>a*2")

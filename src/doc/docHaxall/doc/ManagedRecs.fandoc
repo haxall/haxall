@@ -82,9 +82,9 @@ The following Axon functions are used to work with the companion lib managed rec
   - `companionUpdate()`: update existing companion rec
   - `companionRename()`: rename companion rec
   - `companionRemove()`: remove companion rec
-  - `companionFunc()`: parse an Axon function into its rec format
   - `companionParse()`: parse Xeto source into rec format
   - `companionPrint()`: print rec format back to Xeto
+  - `companionParseAxon()`: parse an Axon function into its rec format
 
 The following sections detail the managed rec AST format for each companion
 rec type.
@@ -128,16 +128,16 @@ Func Companion Recs [#func]
 ===========================
 Func specs follow the same rules defined above for spec recs.  However func
 recs are essentially slot specs merged into the 'sys::Funcs' type using a
-synthetic mixin. Use the `companionFunc()` to parse an Axon function into
+synthetic mixin. Use the `companionParseAxon()` to parse an Axon function into
 its companion lib representation:
 
   // axon expression
-  companionFunc("testAdd", "(a, b) => a + b")
+  companionParseAxon("testAdd", "(a, b) => a + b")
 
   // returns this managed rec representation
   rt: "func"
   name: "testAdd"
-  axon: "(a, b) => a + b"
+  axon: "a + b"
   base: @sys::Func
   spec: @sys::Spec
   slots:Zinc:
