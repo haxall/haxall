@@ -125,7 +125,7 @@ internal class DumpCmd : ConvertCmd
 
 internal class WrapFuncsCmd : ConvertCmd
 {
-  override Str name() { "wrapFuncs" }
+  override Str name() { "wrap-funcs" }
 
   override Str summary() { "Wrap all old style globals funcs in +Funcs mixin" }
 

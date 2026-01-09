@@ -270,7 +270,7 @@ class XetoAxonReader
     s := StrBuf()
     s.add(curLine)
     lines.eachRange(linei+1..-1) |line| { s.add("\n").add(line) }
-    body = s.toStr
+    body = s.toStr.trimEnd
   }
 
 //////////////////////////////////////////////////////////////////////////

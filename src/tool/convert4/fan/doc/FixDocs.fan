@@ -17,7 +17,7 @@ using fandoc::Link
 **
 class FixDocs : ConvertCmd
 {
-  override Str name() { "fixdocs" }
+  override Str name() { "fix-docs" }
 
   override Str summary() { "Fix fandoc comments/chapters to xetodoc markdown" }
 

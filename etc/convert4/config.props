@@ -9,7 +9,7 @@ libPrefix=hx
 ignore=axon,hx
 
 // comma separated tags to include directly in func meta versus defMeta
-funcMeta=customMeta1, customMeta2
+funcMeta=energyBaselineFunc, energyNormFunc
 
 // depend versions by lib prefix
 depend.sys=BuildVar "ph.depend"

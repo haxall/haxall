@@ -141,8 +141,8 @@ internal class ConvertExtCmd : ConvertCmd
 
   Void genFunc(StrBuf s, AFunc f)
   {
-    genDoc(s, f.doc)
-    s.add("$f.name: Func ")
+    genDoc(s, f.doc, "  ")
+    s.add("  $f.name: Func ")
     encodeFuncMeta(s, f.meta)
     s.add("{ ")
     f.eachSlot |p, comma|
@@ -155,9 +155,9 @@ internal class ConvertExtCmd : ConvertCmd
       heredoc := "---"
       while (f.axon.contains(heredoc)) heredoc += "-"
       s.add("\n")
-      s.add("  <axon:").add(heredoc).add("\n")
-      f.axon.splitLines.each |line| { s.add("  ").add(line).add("\n") }
-      s.add("  ").add(heredoc).add(">\n").add("}\n")
+      s.add("    <axon:").add(heredoc).add("\n")
+      f.axon.splitLines.each |line| { s.add("    ").add(line).add("\n") }
+      s.add("    ").add(heredoc).add(">\n").add("  }\n")
     }
     else
     {
@@ -167,21 +167,52 @@ internal class ConvertExtCmd : ConvertCmd
 
   Void encodeFuncMeta(StrBuf buf, Dict meta)
   {
-    XetoPrinter(ns, buf.out).meta(meta)
+    if (meta.isEmpty) return
+    buf.add("<")
+    encodeDictPairs(buf, meta)
+    buf.add("> ")
+  }
+
+  Void encodeDictPairs(StrBuf buf, Dict dict)
+  {
+    first := true
+    dict.each |v, n|
+    {
+      if (first) first = false; else buf.add(", ")
+      buf.add(n)
+      if (v === Marker.val) return
+      buf.add(":")
+      encodeVal(buf, v)
+    }
+  }
+
+  Void encodeVal(StrBuf buf, Obj v)
+  {
+    if (v is Dict)
+    {
+      buf.add("{")
+      encodeDictPairs(buf, v)
+      buf.add("}")
+    }
+    else
+    {
+      buf.add(v.toStr.toCode)
+    }
   }
 
   Void genParam(StrBuf s, AParam p)
   {
     s.add(p.name).add(": ").add(p.type.sig)
+    if (p.def != null) s.add(" <axon:").add(p.def.toCode).add(">")
   }
 
-  Void genDoc(StrBuf s, Str? doc)
+  Void genDoc(StrBuf s, Str? doc, Str indent)
   {
     doc = doc.trimToNull
     if (doc == null) return ""
     doc.eachLine |line|
     {
-      s.add(("// " + line).trimEnd).add("\n")
+      s.add(indent).add(("// " + line).trimEnd).add("\n")
     }
   }
 
