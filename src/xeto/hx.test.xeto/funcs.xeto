@@ -23,7 +23,7 @@
 
   // add in Axon
   add1: Func { a: Number, b: Number, returns: Number
-    <axon:"(a, b) => a + b">
+    <axon:"a + b">
   }
 
   // add in Fantom

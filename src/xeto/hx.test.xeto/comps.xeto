@@ -49,12 +49,12 @@ TestFoo: Comp {
   b: Str "beta"
   c: Str?
   methodEcho: Func { arg:Obj? }
-  methodSquare: Func <axon:"(self, a) => a*a"> { arg: Number, returns: Number }
+  methodSquare: Func <axon:"a*a"> { self: Obj, a: Number, returns: Number }
   methodBad1: Func { arg: Str }
   methodBad2: Func { arg: Str }
   methodBad3: Func { arg: Str }
   methodBad4: Func { arg: Str }
-  methodUpper: Func <axon:"""(self, x) => (""+x).upper"""> { arg: Str, returns: Str }
+  methodUpper: Func <axon:"""(""+x).upper"""> { self: Obj, x: Str, returns: Str }
 }
 
 TestVal : Dict {
