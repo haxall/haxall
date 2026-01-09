@@ -85,7 +85,7 @@ Productions [#productions]
   <termChain>    :=  <call> | <dotCall> | <index> | <trapCall>
   <call>         :=  "(" [<callArg> ("," <callArg>)*] [<lambda>]
   <callArg>      :=  <expr> | "_"
-  <dotCall>      :=  "." [<nl>] <qname> [<call> | <lamdba-1>]
+  <dotCall>      :=  "." [<nl>] <qname> [<call> | <lambda-1>]
   <index>        :=  "[" <expr> "]"
   <trapCall>     :=  "->" <id>
 

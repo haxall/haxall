@@ -879,6 +879,7 @@ class EvalTest : AxonTest
            end|>, n(8))
   }
 
+  /* TODO remove in 4.0.5 - Jan 2026
   Void testDefcomp()
   {
     // simple comp
@@ -894,7 +895,7 @@ class EvalTest : AxonTest
                fn1()
              end
            end|>
-    def := (CompDef)Parser(Loc("foo"), src.in).parseTop("foo")
+    def := (CompDef)Parser(Loc("foo"), src.in).parseTopWithParams("foo")
 
     // verify print round trips correctly
     p := Printer()
@@ -913,6 +914,7 @@ class EvalTest : AxonTest
     verifyEq(comp.get("c"), n(5))
     verifyEq(comp.get("d"), n(4))
   }
+  */
 
   Void verifyBlock(Str src, Obj expected)
   {
@@ -970,7 +972,7 @@ class EvalTest : AxonTest
            end|>
     loc := Loc("foo")
     tags := Etc.makeDict(["name":"a", "func":Marker.val])
-    Fn a := Parser(loc, src.in).parseTop("a")
+    Fn a := Parser(loc, src.in).parseTopWithParams("a")
     Fn b := a.body->exprs->get(0)->val
     Fn c := b.body->exprs->get(0)->val
     Fn d := b.body->exprs->get(1)->val

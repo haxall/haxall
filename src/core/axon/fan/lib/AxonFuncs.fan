@@ -3101,7 +3101,7 @@ const class AxonFuncs
   {
     try
     {
-      Parser(Loc("checkSyntax"), src.in).parseTop("checkSyntax")
+      Parser(Loc("checkSyntax"), src.in).parseTopWithParams("checkSyntax")
       return Etc.makeEmptyGrid
     }
     catch (SyntaxErr e)

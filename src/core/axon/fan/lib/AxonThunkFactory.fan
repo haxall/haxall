@@ -135,8 +135,7 @@ const class AxonThunkFactory : ThunkFactory
     qname  := meta->qname
     loc    := Loc(qname)
     params := toParams(qname, spec)
-    body   := Parser(loc, src.in).expr
-    return TopFn(loc, name, meta, params, body)
+    return Parser(loc, src.in).parseTopBody(name, params, meta)
   }
 
   private TopFn? parseCompTree(Spec spec, Dict meta, Str src)

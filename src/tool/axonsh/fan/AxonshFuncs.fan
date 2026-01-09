@@ -228,7 +228,7 @@ throw Err("TODO")
       if (rec.missing("func") || rec.missing("name")) return
       name := (Str)rec->name
       try
-        acc[name] = Parser(Loc(file.toStr), rec->src.toStr.in).parseTop(name, rec)
+        acc[name] = Parser(Loc(file.toStr), rec->src.toStr.in).parseTopWithParams(name, rec)
       catch (Err e)
         echo("ERROR: Cannot load $name\n  $e")
     }

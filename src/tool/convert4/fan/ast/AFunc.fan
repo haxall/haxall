@@ -67,7 +67,7 @@ class AFunc
     src := def["src"] as Str ?: throw Err("Missing axon src")
     axon := ast.config.ns.io.readAxon(src)->axon
 
-    fn := Parser(Loc.eval, src.in).parseTop(name)
+    fn := Parser(Loc.eval, src.in).parseTopWithParams(name)
     params := fn.params.map |x->AParam| { AParam(x.name, AType.obj, x.def?.toStr) }
     returns := AParam("returns", AType.obj, null)
 

@@ -410,7 +410,7 @@ argument outside of the parenthesis if it is a lambda expression:
 
 Note that when using dot calls you must include empty '()' parens before
 specifying the lambda argument.  The exception to this rule is if the
-lamdba takes a single argument with no parens:
+lambda takes a single argument with no parens:
 
   list: [3, 4, 1]
   list.map x => -x      // ok

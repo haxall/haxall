@@ -212,7 +212,7 @@ internal class GenAxon : XetoCmd
 
     // parse function to get param names
     parser := Parser(loc, axon.in)
-    fn := parser.parseTop(name)
+    fn := parser.parseTopWithParams(name)
     params := fn.params.map |p->StubParam| { StubParam(p.name, "Obj?") }
     returns := StubParam("returns", "Obj?")
 
