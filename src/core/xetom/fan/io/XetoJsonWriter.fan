@@ -48,25 +48,12 @@ class XetoJsonWriter
     wc('{').nl
     indentation++
     first := true
-
-    // always write spec first
-    hasSpec:= dict.has("spec")
-    if (hasSpec)
-    {
-      first = false
-      indent.quoted("spec").wc(':').writeVal(dict->spec)
-    }
-
     dict.each |x, n|
     {
-      if (!hasSpec || n != "spec")
-      {
-        if (first) first = false
-        else wc(',').nl
-        indent.quoted(n).wc(':').writeVal(x)
-      }
+      if (first) first = false
+      else wc(',').nl
+      indent.quoted(n).wc(':').writeVal(x)
     }
-
     indentation--
     nl.wc('}')
     return this
