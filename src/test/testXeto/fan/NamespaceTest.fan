@@ -327,6 +327,19 @@ class NamespaceTest : AbstractXetoTest
     // meta spec
     verifyMeta(ns, lib, "qux", ns.spec("sys::Str"))
 
+    // mixin (only inherits slots it overrides in remote ns)
+    sitem := lib.spec("Site")
+    site := sitem.base
+    verifyEq(sitem.isMixin, true)
+    verifyEq(sitem.flavor, SpecFlavor.mixIn)
+    verifyEq(sitem.meta["mixin"], Marker.val)
+    verifyEq(site.qname, "ph::Site")
+    verifySame(sitem.type, site)
+    verifySame(sitem.slot("area").parent, sitem)
+    verifySame(sitem.slot("area").base, site.slot("area"))
+    verifySame(site.slot("weatherStationRef").parent, site)
+    verifyEq(sitem.slot("weatherStationRef", false), null)
+
     // files
     files := lib.files
     verifyEq(files.isSupported, !ns.env.isRemote)
