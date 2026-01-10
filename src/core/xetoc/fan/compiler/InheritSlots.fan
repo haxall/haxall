@@ -291,6 +291,9 @@ internal class InheritSlots : Step
       name := member.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
 
+      // mixins only inherit slots they override
+      if (spec.isMixin && spec.declared?.get(name) == null) return
+
       // check for duplicate
       dup := slots[name] ?: globals[name]
 

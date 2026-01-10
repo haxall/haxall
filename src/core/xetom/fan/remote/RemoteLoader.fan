@@ -240,6 +240,9 @@ internal class RemoteLoader
     // enum items don't have slots
     if (x.parent != null && x.parent.isEnum) return SpecMap.empty
 
+    // mixins do not inhert
+    if (x.flavor.isMixin) return x.slotsOwn
+
     // if my own slots are empty, I can just reuse my parent's slot map
     // NOTE: this doesn't work if we have slots typed as the parent type
     // because we are building the slots before we finish assembling parent;

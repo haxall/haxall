@@ -57,6 +57,12 @@ class MixinTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str")) }
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str"), true) }
 
+    // verify mixin only inherits slots it overrides
+    verifySame(sitem.slot("area").parent, sitem)
+    verifySame(sitem.slot("area").base, site.slot("area"))
+    verifySame(site.slot("weatherStationRef").parent, site)
+    verifyEq(sitem.slot("weatherStationRef", false), null)
+
     // specx meta
 
     verifySame(str, ns.specx(str))
