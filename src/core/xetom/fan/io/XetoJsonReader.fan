@@ -13,6 +13,9 @@ using util
 **
 ** XetoJsonReader
 **
+
+// TODO fidelity flag
+
 @Js
 class XetoJsonReader
 {
@@ -42,13 +45,14 @@ class XetoJsonReader
   {
     if (x is Str)
     {
+    // todo
       if ((spec == null) || (spec.qname == "sys::Str"))
         return x
       else
         return spec.binding.decodeScalar(x)
     }
     else if (x is Map)  return convertMap(ns, x, spec)
-    else if (x is List) return convertList(ns, x)
+    else if (x is List) return convertList(ns, x, spec)
 
     // null, Bool, Int, Float
     else return x
@@ -70,28 +74,45 @@ class XetoJsonReader
       {
         map[k] = Ref.fromStr(v)
       }
-      // use member spec to convert value
+      // handle normally
       else
       {
-        if (spec != null && spec.members.has(k))
+        // use member spec to convert value
+        if (spec != null && spec.members.has(k)) // don't use has
         {
-          x := convert(ns, v, spec.members.get(k))
+          x := convert(ns, v, spec.members.get(k)) // look members up once
           if (v !== x)
           {
             map[k] = x
           }
         }
+        // convert un-typed nested maps
+        else if (v is Map)
+        {
+          x := convertMap(ns, v, null)
+          if (v !== x)
+          {
+            map[k] = x
+          }
+        }
+        // TODO list also
       }
     }
 
-    return spec.binding.decodeDict(Etc.dictFromMap(map))
+    // convert to dict
+    dict := Etc.dictFromMap(map)
+    if (spec != null)
+      dict = spec.binding.decodeDict(dict)
+    return dict
   }
 
-  private static Obj[] convertList(MNamespace ns, Obj?[] ls)
+  private static Obj[] convertList(MNamespace ns, Obj?[] ls, Spec? spec)
   {
+    of := spec.of()
+
     ls.each |v, i|
     {
-      x := convert(ns, v, null)
+      x := convert(ns, v, of)
       if (v !== x)
         ls[i] = x
     }

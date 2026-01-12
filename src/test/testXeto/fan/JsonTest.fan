@@ -27,6 +27,7 @@ class JsonTest : AbstractXetoTest
     verifyRoundTrip(ns, "abc")
     verifyRoundTrip(ns, "abc", ns.spec("sys::Str"))
 
+// todo fieldoy
     verifyRoundTrip(ns, 1, ns.spec("sys::Int"))
     verifyRoundTrip(ns, 1.234f, ns.spec("sys::Float"))
     verifyRoundTrip(ns, n(10, "db"), ns.spec("sys::Number"))
@@ -45,8 +46,15 @@ class JsonTest : AbstractXetoTest
     //doc.xeto
     //verifyListEq sys::Obj[] sys::Obj?[] false
     //TAG FAILED: strs
-    //verifyRoundTrip(ns,
-    //  ns.instance("hx.test.xeto::whitehouse"))
+    verifyRoundTrip(ns,
+      ns.instance("hx.test.xeto::whitehouse"))
+
+    //instances.xeto
+    //verifyListEq sys::Obj[] sys::Obj?[] false
+    //TAG FAILED: a
+    verifyRoundTrip(ns,
+      ns.instance("hx.test.xeto::lists"),
+      ns.spec("hx.test.xeto::ListOfTest"))
   }
 
   private Void verifyRoundTrip(MNamespace ns, Obj? a, Spec? spec := null)
