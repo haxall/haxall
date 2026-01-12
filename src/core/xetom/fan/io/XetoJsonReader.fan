@@ -56,6 +56,7 @@ class XetoJsonReader
 
   private static Dict convertMap(MNamespace ns, Str:Obj? map, Spec? spec)
   {
+    // If the spec isn't specified, try to look it up within the map
     if (spec == null)
     {
       if (map.containsKey("spec"))
@@ -64,18 +65,21 @@ class XetoJsonReader
 
     map.each |v, k|
     {
-      // id doesn't have member entry
-      if (k == "id")
+      // id and spec are Refs (and they do not have member entries)
+      if (k == "id" || k == "spec")
       {
         map[k] = Ref.fromStr(v)
       }
-      // anything else but "spec"
-      else if (k != "spec")
+      // use member spec to convert value
+      else
       {
-        x := convert(ns, v, spec.member(k))
-        if (v !== x)
+        if (spec != null && spec.members.has(k))
         {
-          map[k] = x
+          x := convert(ns, v, spec.members.get(k))
+          if (v !== x)
+          {
+            map[k] = x
+          }
         }
       }
     }

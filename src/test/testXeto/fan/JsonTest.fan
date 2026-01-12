@@ -35,22 +35,18 @@ class JsonTest : AbstractXetoTest
       DateTime.fromStr("2024-11-25T10:24:35-05:00 New_York"),
       ns.spec("sys::DateTime"))
 
-    //-----------------------------------------------
-
-    a := ns.instance("hx.test.xeto::fidelityA")
-    b := XetoJsonReader(ns, toJson(a).in, ns.spec("hx.test.xeto::Fidelity")).readVal
-
-    list := (Obj[]) a->numbers
-    echo("-----------------------------")
-    list.each |v| { echo("a $v $v.typeof") }
-
-    list = (Obj[]) b->numbers
-    echo("-----------------------------")
-    list.each |v| { echo("b $v $v.typeof") }
+    verifyRoundTrip(ns,
+      ns.instance("hx.test.xeto::jsonScalarsA"))
 
     verifyRoundTrip(ns,
-      ns.instance("hx.test.xeto::fidelityA"),
-      ns.spec("hx.test.xeto::Fidelity"))
+      ns.instance("hx.test.xeto::jsonScalarsA"),
+      ns.spec("hx.test.xeto::JsonScalars"))
+
+    //doc.xeto
+    //verifyListEq sys::Obj[] sys::Obj?[] false
+    //TAG FAILED: strs
+    //verifyRoundTrip(ns,
+    //  ns.instance("hx.test.xeto::whitehouse"))
   }
 
   private Void verifyRoundTrip(MNamespace ns, Obj? a, Spec? spec := null)

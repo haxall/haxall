@@ -1,0 +1,34 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   12 Jan 2026  Mike Jarmy  Creation
+//
+
+JsonScalars: {
+  bool: Bool "true"
+  int: Int 123
+  float: Float 72
+  number: Number 90kW
+  str: "hello"
+  ref: Ref "hx.test.xeto::fidelityA"
+  uri: Uri "file.txt"
+  date: Date "2024-11-25"
+  time: Time "14:30:00"
+  dateTime: DateTime "2024-11-25T10:24:35-05:00 New_York"
+  span: Span "2024-11-25"
+
+  tz: TimeZone "Chicago"
+  unit: Unit "ft"
+  unitQuantity: UnitQuantity "electricCurrentDensity"
+  spanMode: SpanMode "yesterday"
+  version: Version "4.0.9"
+
+  scalarA: ScalarA "alpha"
+  scalarB: ScalarB "bravo"
+}
+
+@jsonScalarsA: JsonScalars {
+}
+
