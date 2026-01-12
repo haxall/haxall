@@ -208,6 +208,11 @@ const mixin Spec : Dict
   ** Is this a spec in the sys lib
   @NoDoc abstract Bool isSys()
 
+  ** Is this a haystack data type that matches 'XetoFidelity.haystack'.
+  ** This only returns true for types; it will always return false for
+  ** slots/globals even though they might have have Haystack slot type.
+  @NoDoc abstract Bool isHaystack()
+
   ** Return a 64-bit digest for this spec's flattened inheritance hieararchy.
   ** This method is only available on top-level types in Java VM.
   @NoDoc abstract Int inheritanceDigest()

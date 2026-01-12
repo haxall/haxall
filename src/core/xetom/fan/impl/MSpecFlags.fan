@@ -27,12 +27,13 @@ const class MSpecFlags
   static const Int inheritMask := 0xFFFF
 
   // non-inherited flags
-  static const Int self    := 0x01_0000
-  static const Int none    := 0x02_0000
-  static const Int global  := 0x04_0000
-  static const Int enum    := 0x08_0000  // base is sys::Enum
-  static const Int and     := 0x10_0000  // base is sys::And
-  static const Int or      := 0x20_0000  // base is sys::Or
+  static const Int self     := 0x01_0000
+  static const Int none     := 0x02_0000
+  static const Int global   := 0x04_0000
+  static const Int enum     := 0x08_0000  // base is sys::Enum
+  static const Int and      := 0x10_0000  // base is sys::And
+  static const Int or       := 0x20_0000  // base is sys::Or
+  static const Int haystack := 0x40_0000  // maps to Kind/haystack fidelity
 
   static Str flagsToStr(Int flags)
   {

@@ -35,6 +35,8 @@ abstract internal class Step
 
   Bool isSysComp() { compiler.isSysComp }
 
+  Bool isPh() { compiler.isPh }
+
   Bool isCompanion() { compiler.isCompanion }
 
   ASys sys() { compiler.sys }

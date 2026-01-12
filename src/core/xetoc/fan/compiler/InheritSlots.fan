@@ -10,6 +10,7 @@
 using util
 using xeto
 using xetom
+using haystack
 
 **
 ** InheritSlots walks all the specs:
@@ -187,6 +188,16 @@ internal class InheritSlots : Step
       case "Or":   flags = flags.or(MSpecFlags.or)
     }
 
+    // special handling ph lib
+    if (isPh)
+    {
+      switch (x.name)
+      {
+        case "Coord":  flags = flags.or(MSpecFlags.haystack)
+        case "Symbol": flags = flags.or(MSpecFlags.haystack)
+      }
+    }
+
     return flags
   }
 
@@ -202,26 +213,40 @@ internal class InheritSlots : Step
   ** Treat 'sys' itself special using names
   private Int computeFlagsSys(ASpec x)
   {
+    // maybe
     flags := 0
     if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
+
+    // inherited flags
     for (ASpec? p := x; p != null; p = p.base)
     {
       switch (p.name)
       {
-        case "Marker":    flags = flags.or(MSpecFlags.marker)
-        case "Scalar":    flags = flags.or(MSpecFlags.scalar)
-        case "Ref":       flags = flags.or(MSpecFlags.ref)
-        case "MultiRef":  flags = flags.or(MSpecFlags.multiRef)
         case "Choice":    flags = flags.or(MSpecFlags.choice)
         case "Dict":      flags = flags.or(MSpecFlags.dict)
-        case "List":      flags = flags.or(MSpecFlags.list)
-        case "Query":     flags = flags.or(MSpecFlags.query)
         case "Func":      flags = flags.or(MSpecFlags.func)
         case "Interface": flags = flags.or(MSpecFlags.interface)
-        case "None":      flags = flags.or(MSpecFlags.none)
+        case "List":      flags = flags.or(MSpecFlags.list)
+        case "Marker":    flags = flags.or(MSpecFlags.marker)
+        case "MultiRef":  flags = flags.or(MSpecFlags.multiRef)
+        case "NA":        flags = flags.or(MSpecFlags.haystack)
+        case "None":      flags = flags.or(MSpecFlags.none).or(MSpecFlags.haystack)
+        case "Query":     flags = flags.or(MSpecFlags.query)
+        case "Ref":       flags = flags.or(MSpecFlags.ref)
+        case "Scalar":    flags = flags.or(MSpecFlags.scalar)
         case "Self":      flags = flags.or(MSpecFlags.self)
       }
     }
+
+    // haystack Kind specs (non-inherited)
+    if (x.isType)
+    {
+      typeName := x.name
+      kind := Kind.fromStr(typeName, false)
+      if (kind != null && (typeName != "Obj" && typeName != "Span"))
+        flags = flags.or(MSpecFlags.haystack)
+    }
+
     return flags
   }
 

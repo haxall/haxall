@@ -221,6 +221,7 @@ internal class MXetoCompiler : XetoCompiler
   internal CompileMode? mode           // Init
   internal Bool isSys                  // Init
   internal Bool isSysComp              // Init
+  internal Bool isPh                   // Init
   internal Bool isCompanion            // Init
   internal ANamespace? cns             // Init
   internal ADoc? ast                   // Parse (lib or data)

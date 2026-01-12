@@ -63,6 +63,7 @@ internal class InitLib : Init
     // set flags
     compiler.isSys       = compiler.libName == "sys"
     compiler.isSysComp   = compiler.libName == "sys.comp"
+    compiler.isPh        = compiler.libName == "ph"
     compiler.isCompanion = compiler.libName == XetoUtil.companionLibName
   }
 }

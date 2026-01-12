@@ -120,6 +120,54 @@ class FidelityTest : AbstractAxonTest
     verifyValEq(v, hay)
   }
 
+  @HxTestProj
+  Void testFlag()
+  {
+    ns := initNamespace(["ph", "ph.points", "ph.attrs", "ph.protocols", "hx.test.xeto"])
+
+    // known kinds
+    haystacks := Str:Spec[:]
+    Kind.listing.each |kind|
+    {
+      // these are special we do not consider haystack types
+      qname := "sys::" + kind.name
+      if (kind === Kind.obj) return
+      if (kind === Kind.bin) return
+      if (kind === Kind.span) return
+      if (kind === Kind.xstr) return
+
+      if (kind === Kind.remove) qname = "sys::None"
+      if (kind === Kind.coord)  qname = "ph::Coord"
+      if (kind === Kind.symbol) qname = "ph::Symbol"
+
+
+      spec := ns.spec(qname)
+      haystacks[spec.qname] = spec
+
+      verifyFlag(ns, spec, true)
+    }
+
+    // now everything that is not a kind
+    ns.eachType |spec|
+    {
+      // check flag
+      verifyFlag(ns, spec, haystacks[spec.qname] != null)
+
+      // slots always return false, only types have flag
+      spec.slots.each |slot|
+      {
+        verifyFlag(ns, slot, false)
+        verifyFlag(ns, slot.type, haystacks[slot.type.qname] != null)
+      }
+    }
+  }
+
+  Void verifyFlag(Namespace ns, Spec spec,  Bool expect)
+  {
+    // echo("-- $spec: $spec.type | isHaystack=$spec.isHaystack ?= $expect")
+    verifyEq(spec.isHaystack, expect)
+  }
+
   const Bool debug := false
 }
 
