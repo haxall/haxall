@@ -1,0 +1,70 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   16 Sep 2024  Matthew Giannini  Creation
+//
+
+// The base spec for all logic components
+Logic: HxComp <abstract, group:@ion.misc::group-logic, color:"lime"> {
+  // The computed value
+  out: StatusBool? <summary, transient, readonly>
+}
+
+// Computes the logical negation of its input
+Not: Logic <icon:"circle-slash-2"> {
+  in: StatusBool? <summary>
+}
+
+// The base spec for all logic components that operate on up to four inputs
+QuadLogic: Logic <abstract> {
+  // Input A
+  inA: StatusBool? <summary>
+
+  // Input B
+  inB: StatusBool? <summary>
+
+  // Input C
+  inC: StatusBool?
+
+  // Input D
+  inD: StatusBool?
+}
+
+// Computes the logical "and" of its inputs
+And: QuadLogic <icon:"ampersand">
+
+// Computes the logical "or" of its inputs
+Or: QuadLogic <icon:"chevron-down">
+
+// Computes the exclusive-or of its inputs
+Xor: QuadLogic <icon:"circle-plus">
+
+// The base spec for all mathematical comparison operators
+Comparison: Logic <abstract> {
+  // Input A
+  inA: StatusNumber? <summary>
+
+  // Input B
+  inB: StatusNumber? <summary>
+}
+
+// Computes A > B
+GreaterThan: Comparison <icon:"chevron-right">
+
+// Computes A >= B
+GreaterThanEqual: Comparison <icon:"chevron-right">
+
+// Computes A < B
+LessThan: Comparison <icon:"chevron-left">
+
+// Computes A <= B
+LessThanEqual: Comparison <icon:"chevron-left">
+
+// Computes A == B
+Equal: Comparison <icon:"equal">
+
+// Computes A != B
+NotEqual: Comparison <icon:"equal-not">
+

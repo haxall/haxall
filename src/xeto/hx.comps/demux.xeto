@@ -1,0 +1,258 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   08 Aug 2025  Matthew Giannini  Creation
+//
+
+// TODO:FIXIT - icons and groups for everything
+
+// A digital input demultiplexer
+DigitalInputDemux: HxComp <group:@ion.misc::group-util> {
+  // The input
+  in: StatusNumber? <summary>
+
+  offset: Float
+
+  out1: StatusBool? <summary, transient, readonly>
+
+  out2: StatusBool? <summary, transient, readonly>
+
+  out3: StatusBool? <summary, transient, readonly>
+
+  out4: StatusBool? <summary, transient, readonly>
+
+  out1Value: Float 4.80f
+
+  out2Value: Float 2.40f
+
+  out3Value: Float 1.2f
+
+  out4Value: Float 0.60f
+
+  deadband: Float 0.10f
+}
+
+// Takes a 64-bit number (converted to an Int) and sets the various output bits accordingly.
+// It also sets the corresponding bytes outputs.
+NumberToBitsDemux: HxComp <group:@ion.misc::group-util> {
+  // The input number
+  in: StatusNumber? <summary>
+
+  // Bit 0
+  bit0: StatusBool? <summary, transient, readonly>
+
+  // Bit 1
+  bit1: StatusBool? <summary, transient, readonly>
+
+  // Bit 2
+  bit2: StatusBool? <summary, transient, readonly>
+
+  // Bit 3
+  bit3: StatusBool? <summary, transient, readonly>
+
+  // Bit 4
+  bit4: StatusBool? <summary, transient, readonly>
+
+  // Bit 5
+  bit5: StatusBool? <summary, transient, readonly>
+
+  // Bit 6
+  bit6: StatusBool? <summary, transient, readonly>
+
+  // Bit 7
+  bit7: StatusBool? <summary, transient, readonly>
+
+  // Bit 8
+  bit8: StatusBool? <summary, transient, readonly>
+
+  // Bit 9
+  bit9: StatusBool? <summary, transient, readonly>
+
+  // Bit 10
+  bit10: StatusBool? <summary, transient, readonly>
+
+  // Bit 11
+  bit11: StatusBool? <summary, transient, readonly>
+
+  // Bit 12
+  bit12: StatusBool? <summary, transient, readonly>
+
+  // Bit 13
+  bit13: StatusBool? <summary, transient, readonly>
+
+  // Bit 14
+  bit14: StatusBool? <summary, transient, readonly>
+
+  // Bit 15
+  bit15: StatusBool? <summary, transient, readonly>
+
+  // Bit 16
+  bit16: StatusBool? <summary, transient, readonly>
+
+  // Bit 17
+  bit17: StatusBool? <summary, transient, readonly>
+
+  // Bit 18
+  bit18: StatusBool? <summary, transient, readonly>
+
+  // Bit 19
+  bit19: StatusBool? <summary, transient, readonly>
+
+  // Bit 20
+  bit20: StatusBool? <summary, transient, readonly>
+
+  // Bit 21
+  bit21: StatusBool? <summary, transient, readonly>
+
+  // Bit 22
+  bit22: StatusBool? <summary, transient, readonly>
+
+  // Bit 23
+  bit23: StatusBool? <summary, transient, readonly>
+
+  // Bit 24
+  bit24: StatusBool? <summary, transient, readonly>
+
+  // Bit 25
+  bit25: StatusBool? <summary, transient, readonly>
+
+  // Bit 26
+  bit26: StatusBool? <summary, transient, readonly>
+
+  // Bit 27
+  bit27: StatusBool? <summary, transient, readonly>
+
+  // Bit 28
+  bit28: StatusBool? <summary, transient, readonly>
+
+  // Bit 29
+  bit29: StatusBool? <summary, transient, readonly>
+
+  // Bit 30
+  bit30: StatusBool? <summary, transient, readonly>
+
+  // Bit 31
+  bit31: StatusBool? <summary, transient, readonly>
+
+  // Bit 32
+  bit32: StatusBool? <summary, transient, readonly>
+
+  // Bit 33
+  bit33: StatusBool? <summary, transient, readonly>
+
+  // Bit 34
+  bit34: StatusBool? <summary, transient, readonly>
+
+  // Bit 35
+  bit35: StatusBool? <summary, transient, readonly>
+
+  // Bit 36
+  bit36: StatusBool? <summary, transient, readonly>
+
+  // Bit 37
+  bit37: StatusBool? <summary, transient, readonly>
+
+  // Bit 38
+  bit38: StatusBool? <summary, transient, readonly>
+
+  // Bit 39
+  bit39: StatusBool? <summary, transient, readonly>
+
+  // Bit 40
+  bit40: StatusBool? <summary, transient, readonly>
+
+  // Bit 41
+  bit41: StatusBool? <summary, transient, readonly>
+
+  // Bit 42
+  bit42: StatusBool? <summary, transient, readonly>
+
+  // Bit 43
+  bit43: StatusBool? <summary, transient, readonly>
+
+  // Bit 44
+  bit44: StatusBool? <summary, transient, readonly>
+
+  // Bit 45
+  bit45: StatusBool? <summary, transient, readonly>
+
+  // Bit 46
+  bit46: StatusBool? <summary, transient, readonly>
+
+  // Bit 47
+  bit47: StatusBool? <summary, transient, readonly>
+
+  // Bit 48
+  bit48: StatusBool? <summary, transient, readonly>
+
+  // Bit 49
+  bit49: StatusBool? <summary, transient, readonly>
+
+  // Bit 50
+  bit50: StatusBool? <summary, transient, readonly>
+
+  // Bit 51
+  bit51: StatusBool? <summary, transient, readonly>
+
+  // Bit 52
+  bit52: StatusBool? <summary, transient, readonly>
+
+  // Bit 53
+  bit53: StatusBool? <summary, transient, readonly>
+
+  // Bit 54
+  bit54: StatusBool? <summary, transient, readonly>
+
+  // Bit 55
+  bit55: StatusBool? <summary, transient, readonly>
+
+  // Bit 56
+  bit56: StatusBool? <summary, transient, readonly>
+
+  // Bit 57
+  bit57: StatusBool? <summary, transient, readonly>
+
+  // Bit 58
+  bit58: StatusBool? <summary, transient, readonly>
+
+  // Bit 59
+  bit59: StatusBool? <summary, transient, readonly>
+
+  // Bit 60
+  bit60: StatusBool? <summary, transient, readonly>
+
+  // Bit 61
+  bit61: StatusBool? <summary, transient, readonly>
+
+  // Bit 62
+  bit62: StatusBool? <summary, transient, readonly>
+
+  // Bit 63
+  bit63: StatusBool? <summary, transient, readonly>
+
+  // Byte 0
+  byte0: StatusNumber? <summary, transient, readonly>
+
+  // Byte 1
+  byte1: StatusNumber? <summary, transient, readonly>
+
+  // Byte 2
+  byte2: StatusNumber? <summary, transient, readonly>
+
+  // Byte 3
+  byte3: StatusNumber? <summary, transient, readonly>
+
+  // Byte 4
+  byte4: StatusNumber? <summary, transient, readonly>
+
+  // Byte 5
+  byte5: StatusNumber? <summary, transient, readonly>
+
+  // Byte 6
+  byte6: StatusNumber? <summary, transient, readonly>
+
+  // Byte 7
+  byte7: StatusNumber? <summary, transient, readonly>
+}

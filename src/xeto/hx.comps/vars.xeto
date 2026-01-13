@@ -1,0 +1,64 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   03 Mar 2025  Matthew Giannini  Creation
+//
+
+BoolVar: Var <group:@ion.misc::group-vars> { val: Bool? }
+DateVar: Var <group:@ion.misc::group-vars> { val: Date? }
+DateTimeVar: Var <group:@ion.misc::group-vars> { val: DateTime? }
+NumberVar: Var <group:@ion.misc::group-vars> { val: Number? }
+RefVar: Var <group:@ion.misc::group-vars> { val: Ref? }
+StrVar: Var <group:@ion.misc::group-vars> { val: Str? }
+TimeVar: Var <group:@ion.misc::group-vars> { val: Time? }
+
+EntityVar: Var <group:@ion.misc::group-vars> { val: Entity? <transient> }
+GridVar: Var <group:@ion.misc::group-vars> { val: Grid? }
+
+// this doesn't work because we can't introduce dependency on ph or ph.points or
+// we get a bunch of tag conflicts in the various hx.comps
+//PointVar: Var { val: Point? }
+
+
+PointVar: EntityVar <group:@ion.misc::group-points> {
+  bindSpec: Ref? <of:Spec, baseSpec:Entity>
+}
+
+PointInput: PointVar <abstract> { curVal: StatusVal? <readonly, transient, summary> }
+NumberPointInput: PointInput <color:"purple"> { curVal: StatusNumber? }
+BoolPointInput: PointInput <color:"green"> { curVal: StatusBool? }
+StrPointInput: PointInput <color:"amber"> { curVal: StatusStr? }
+
+PointOutput: PointVar <abstract> {
+  in: StatusVal? <summary>
+  // bindToCurVal: Marker?
+  bindToWriteLevel: Int? <minVal: 1, maxVal: 17>
+}
+NumberPointOutput: PointOutput <color:"purple"> { in: StatusNumber? }
+BoolPointOutput: PointOutput <color:"green"> { in: StatusBool? }
+StrPointOutput: PointOutput <color:"amber"> { in: StatusStr? }
+
+/*
+NumberPoint: HxComp <color:"purple"> { out: StatusNumber? <readonly, transient, summary> }
+NumberWritable: NumberPoint {
+  in1: StatusNumber?
+  in2: StatusNumber?
+  in3: StatusNumber?
+  in4: StatusNumber?
+  in5: StatusNumber?
+  in6: StatusNumber?
+  in7: StatusNumber?
+  in8: StatusNumber?
+  in9: StatusNumber?
+  in10: StatusNumber? <summary>
+  in11: StatusNumber?
+  in12: StatusNumber?
+  in13: StatusNumber?
+  in14: StatusNumber?
+  in15: StatusNumber?
+  in16: StatusNumber? <summary>
+  fallback: StatusNumber?
+}
+*/

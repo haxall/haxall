@@ -1,0 +1,30 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   08 Aug 2025  Matthew Giannini  Creation
+//
+
+// TODO:FIXIT - icons and groups for everything
+
+// A bit-wise masking operation
+BitMask: HxComp <abstract, group:@ion.misc::group-util> {
+  // The input number
+  in: StatusNumber? <summary>
+
+  // The mask to apply to when doing the bit operation
+  mask: StatusNumber? <summary>
+
+  // The computed value
+  out: StatusNumber? <summary, transient, readonly>
+}
+
+// Compute the bitwise 'and' value of the input and the mask
+BitAnd: BitMask
+
+// Compute the bitwise 'or' value of the input and the mask
+BitOr: BitMask
+
+// Compute the bitwise 'xor' (exclusive or) of the input and the mask
+BitXor: BitMask

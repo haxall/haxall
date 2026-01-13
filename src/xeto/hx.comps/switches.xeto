@@ -1,0 +1,73 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   07 Aug 2025  Matthew Giannini  Creation
+//
+
+// TODO:FIXIT - icons and groups for everything
+
+// A switch selectes one of two inputs based on the current value of the 'inSwitch' slot.
+Switch: HxComp <abstract, group:@ion.misc::group-util> {
+
+  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  inSwitch: StatusBool? <summary>
+
+  // The output value when 'inSwitch' is true
+  inTrue: StatusVal? <summary>
+
+  // The output value when 'inSwitch' is false
+  inFalse: StatusVal? <summary>
+
+  // The output
+  out: StatusVal? <summary, transient, readonly>
+}
+
+// A Bool switch
+BoolSwitch: Switch {
+
+  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  inSwitch: StatusBool? <summary>
+
+  // The output value when 'inSwitch' is true
+  inTrue: StatusBool? <summary>
+
+  // The output value when 'inSwitch' is false
+  inFalse: StatusBool? <summary>
+
+  // The output
+  out: StatusBool? <summary, transient, readonly>
+}
+
+// A Number switch
+NumberSwitch: Switch {
+
+  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  inSwitch: StatusBool? <summary>
+
+  // The output value when 'inSwitch' is true
+  inTrue: StatusNumber? <summary>
+
+  // The output value when 'inSwitch' is false
+  inFalse: StatusNumber? <summary>
+
+  // The output
+  out: StatusNumber? <summary, transient, readonly>
+}
+
+// A Str switch
+StrSwitch: Switch {
+
+  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  inSwitch: StatusBool? <summary>
+
+  // The output value when 'inSwitch' is true
+  inTrue: StatusStr? <summary>
+
+  // The output value when 'inSwitch' is false
+  inFalse: StatusStr? <summary>
+
+  // The output
+  out: StatusStr? <summary, transient, readonly>
+}

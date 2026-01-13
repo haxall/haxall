@@ -21,6 +21,7 @@ class Build : BuildGroup
       `hxCrypto/build.fan`,
       `hxHttp/build.fan`,
       `hxMath/build.fan`,
+      `hxComps/build.fan`,
       `hxIO/build.fan`,
       `hxTask/build.fan`,
       `hxPoint/build.fan`,

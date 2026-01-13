@@ -1,0 +1,155 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   06 Aug 2025  Matthew Giannini  Creation
+//
+
+// TODO:FIXIT - icons and groups for everything
+
+Select: HxComp <abstract, group:@ion.misc::group-select> {
+  // The index of the input to select. If the value is greater than 'numInputs'
+  // then the maximum active input will be selected.
+  select: StatusNumber? <summary>
+
+  // Input A
+  inA: StatusVal? <summary>
+
+  // Input B
+  inB: StatusVal? <summary>
+
+  // Input C
+  inC: StatusVal? <summary>
+
+  // Input D
+  inD: StatusVal? <summary>
+
+  // Input E
+  inE: StatusVal?
+
+  // Input F
+  inF: StatusVal?
+
+  // Input G
+  inG: StatusVal?
+
+  // Input H
+  inH: StatusVal?
+
+  // Input I
+  inI: StatusVal?
+
+  // Input J
+  inJ: StatusVal?
+
+  // The out slot is set to the selected input
+  out: StatusVal? <summary, transient, readonly>
+
+  // If true, then inputs are indexed by zero (0). If false,
+  // inputs are indexed by 1, and any select <= 1 will select the
+  // first input.
+  zeroBasedSelect: Bool "false"
+
+  // The number of inputs that are active for selection.
+  numInputs: Int <minVal:3, maxVal:10> 3
+}
+
+// A Bool select
+BoolSelect: Select {
+  // Input A
+  inA: StatusStr? <summary>
+
+  // Input B
+  inB: StatusStr? <summary>
+
+  // Input C
+  inC: StatusStr? <summary>
+
+  // Input D
+  inD: StatusStr? <summary>
+
+  // Input E
+  inE: StatusStr?
+
+  // Input F
+  inF: StatusStr?
+
+  // Input G
+  inG: StatusStr?
+
+  // Input H
+  inH: StatusStr?
+
+  // Input I
+  inI: StatusStr?
+
+  // Input J
+  inJ: StatusStr?
+}
+
+// A Number select
+NumberSelect: Select {
+  // Input A
+  inA: StatusNumber? <summary>
+
+  // Input B
+  inB: StatusNumber? <summary>
+
+  // Input C
+  inC: StatusNumber? <summary>
+
+  // Input D
+  inD: StatusNumber? <summary>
+
+  // Input E
+  inE: StatusNumber?
+
+  // Input F
+  inF: StatusNumber?
+
+  // Input G
+  inG: StatusNumber?
+
+  // Input H
+  inH: StatusNumber?
+
+  // Input I
+  inI: StatusNumber?
+
+  // Input J
+  inJ: StatusNumber?
+}
+
+// A Str select
+StrSelect: Select {
+  // Input A
+  inA: StatusStr? <summary>
+
+  // Input B
+  inB: StatusStr? <summary>
+
+  // Input C
+  inC: StatusStr? <summary>
+
+  // Input D
+  inD: StatusStr? <summary>
+
+  // Input E
+  inE: StatusStr?
+
+  // Input F
+  inF: StatusStr?
+
+  // Input G
+  inG: StatusStr?
+
+  // Input H
+  inH: StatusStr?
+
+  // Input I
+  inI: StatusStr?
+
+  // Input J
+  inJ: StatusStr?
+}

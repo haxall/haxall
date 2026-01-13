@@ -1,0 +1,25 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Aug 2024  Matthew Giannini  Creation
+//
+
+pragma: Lib <
+  doc: "Core Components Library"
+  version: BuildVar "skyspark.version"
+  depends: {
+    { lib: "sys",        versions: BuildVar "ph.depend"}
+    { lib: "sys.comp",   versions: BuildVar "ph.depend" }
+    { lib: "ion",        versions: BuildVar "ion.depend" }
+    { lib: "ion.inputs", versions: BuildVar "ion.depend" }
+    { lib: "ion.misc",   versions: BuildVar "ion.depend" }
+  }
+  categories: {"skyspark"}
+  org: {
+    dis: BuildVar "skyspark.org.dis"
+    uri: BuildVar "skyspark.org.uri"
+  }
+>
+

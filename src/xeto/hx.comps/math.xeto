@@ -1,0 +1,112 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Aug 2024  Matthew Giannini  Creation
+//
+
+// The base spec for all math components
+Math: HxComp <abstract, group:@ion.misc::group-math, color:"purple"> {
+  // The computed value
+  out: StatusNumber? <summary, transient, readonly>
+}
+
+// The base spec for all math components that operate on one input
+UnaryMath: Math <abstract> {
+  // Input A
+  inA: StatusNumber? <summary>
+}
+
+// Computes the absolute value of its input
+AbsValue: UnaryMath <icon:"tally-2">
+
+// Computes out = e ^ inA where 'e' is Euler's number
+Exponential: UnaryMath <icon:"superscript">
+
+// Computes out = inA!
+Factorial: UnaryMath <icon:"asterisk">
+
+// Computes the log base 10 of its input: out = log10(inA)
+LogBase10: UnaryMath
+
+// Computes the natural logarithm of its input: out = ln(inA)
+LogNatural: UnaryMath
+
+// Computes the negation of its input: out = -inA
+Negative: UnaryMath
+
+// Computes the square root of its input: out = sqrt(inA)
+SquareRoot: UnaryMath <icon:"square-radical">
+
+// Computes the sine of its input: out = sin(inA)
+Sine: UnaryMath <icon:"triangle-right">
+
+// Computes the cosine of its input: out = cos(inA)
+Cosine: UnaryMath <icon:"triangle-right">
+
+// Computes the cosine of its input: out = tan(inA)
+Tangent: UnaryMath <icon:"triangle-right">
+
+// Computes the arcsine of its input: out = asin(inA)
+ArcSine: UnaryMath <icon:"triangle-right">
+
+// Computes the arccosine of its input: out = acos(inA)
+ArcCosine: UnaryMath <icon:"triangle-right">
+
+// Computes the arctangent of its input: out = atan(inA)
+ArcTangent: UnaryMath <icon:"triangle-right">
+
+// The base spec for all math components that operate on two inputs
+BinaryMath: Math <abstract> {
+  // Input A
+  inA: StatusNumber? <summary>
+
+  // Input B
+  inB: StatusNumber? <summary>
+}
+
+// Computes the difference of its inputs (A - B)
+Subtract: BinaryMath <icon:"minus">
+
+// Computes the quotient of its inputs (A / B)
+Divide: BinaryMath <icon:"divide">
+
+// Computes the modulus of its inputs (A % B)
+Modulus: BinaryMath <icon:"percent">
+
+// Computes a raised to the b power: out = inA ^ inB
+Power: BinaryMath <icon:"superscript">
+
+// The base spec for all math components that operate on up to four inputs
+QuadMath: Math <abstract> {
+  // Input A
+  inA: StatusNumber? <summary>
+
+  // Input B
+  inB: StatusNumber? <summary>
+
+  // Input C
+  inC: StatusNumber?
+
+  // Input D
+  inD: StatusNumber?
+}
+
+// Computes the sum of its inputs
+Add: QuadMath <icon:"plus">
+
+// Computes the product of its inputs
+Multiply: QuadMath <icon:"x">
+
+// Computes the average of its inputs
+Average: QuadMath <icon:"divide">
+
+// Finds the maximum value of its valid inputs and sets that value to out.
+// out = max(inA, inB, inC, inD)
+Maximum: QuadMath <icon:"arrow-up-to-line">
+
+// Finds the minimum value of its valid inputs and sets that value to out.
+// out = min(inA, inB, inC, inD)
+Minimum: QuadMath <icon:"arrow-down-to-line">
+

@@ -1,0 +1,131 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Aug 2024  Matthew Giannini  Creation
+//
+
+// A folder is used as the standard component for containing
+// other components.
+Folder : HxComp <icon:"folder", group:@ion.misc::group-util>
+
+// The output of this component generates a sine wave.
+SineWave: HxComp <icon:"audio-waveform", group:@ion.misc::group-util, color:"purple"> {
+  // The computed sine wave
+  out: StatusNumber <summary, transient, readonly>
+
+  // The amount of time it takes to output one complete cycle
+  period: Duration 30sec
+
+  // The height of the sine wave from its lowest to highest point
+  amplitude: Float 50
+
+  // The distance from zero that the sine wave's amplitude is shifted
+  offset: Float 50
+
+  // How frequently to compute the sine wave
+  freq: Duration <minVal:1sec> 1sec
+}
+
+Ramp: HxComp <icon:"audio-waveform", group:@ion.misc::group-util, color:"purple"> {
+  // The computed ramp value
+  out: StatusNumber <summary, transient, readonly>
+
+  // The amount of time it takes to output one complete cycle
+  period: Duration 30sec
+
+  // The height of the ramp from its lowest to highest point
+  amplitude: Float 50
+
+  // The distance from zero that the ramp's amplitude is shifted
+  offset: Float 50
+
+  // How frequently to compute the ramp
+  freq: Duration <minVal: 1sec> 1sec
+
+  // The type of ramp waveform to produce
+  waveform: RampWaveform "triangle"
+}
+
+RampWaveform: Enum {
+  triangle
+  sawtooth
+  invertedSawtooth
+}
+
+// A component that evaluates an Axon expression
+AxonComp : HxComp <icon:"variable", group:@ion.misc::group-util> {
+  axon: Str
+}
+
+// Computes the min, max, and avg of up to 10 inputs.
+MinMaxAvg: HxComp <group:@ion.misc::group-util> {
+  // Input A
+  inA: StatusNumber? <summary>
+
+  // Input B
+  inB: StatusNumber? <summary>
+
+  // Input C
+  inC: StatusNumber?
+
+  // Input D
+  inD: StatusNumber?
+
+  // Input E
+  inE: StatusNumber?
+
+  // Input F
+  inF: StatusNumber?
+
+  // Input G
+  inG: StatusNumber?
+
+  // Input H
+  inH: StatusNumber?
+
+  // Input I
+  inI: StatusNumber?
+
+  // Input J
+  intJ: StatusNumber?
+
+  // The minimum value
+  min: StatusNumber? <summary, transient, readonly>
+
+  // The maximum value
+  max: StatusNumber? <summary, transient, readonly>
+
+  // Average of non-null inputs
+  avg: StatusNumber? <summary, transient, readonly>
+}
+
+// Generates an oscillating binary pulse
+MultiVibrator: HxComp <group:@ion.misc::group-util> {
+  // The current pulse value
+  out: StatusBool <summary, transient, readonly>
+
+  // How long it takes to complete a single on-off cycle
+  period: Duration <minVal:200ms> 1sec
+
+  // Configures the percentage of time during the period that the
+  // signal is active (true).
+  dutyCycle: Int <minVal:0, maxVal:100> 50
+}
+
+// Generates a random number such that 'out = random() * multiplier + offset'
+// where 'random()' generates a number between 0.0 (inclusive) and 1.0 (exclusive)
+Random: HxComp <group:@ion.misc::group-util> {
+  // Then current random number
+  out: StatusNumber <summary>
+
+  // The multiplier
+  multiplier: Float 1.0
+
+  // The offset
+  offset: Float
+
+  // How frequently to update the output
+  freq: Duration <minVal: 0sec> 1sec
+}

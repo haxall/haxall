@@ -1,0 +1,71 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   31 Jul 2025  Matthew Giannini  Creation
+//
+
+// TODO:FIXIT - icons and groups for everything
+
+Conversion: HxComp <abstract, group:@ion.misc::group-conversion>
+
+// Convert a Bool value to a StatusBool
+BoolToStatusBool: Conversion {
+  in: Bool <summary> "false"
+
+  out: StatusBool <summary, transient, readonly>
+}
+
+// Convert a StatusBool to a Bool value
+StatusBoolToBool: Conversion {
+  in: StatusBool? <summary>
+
+  out: Bool <summary, transient, readonly>
+
+  // When 'in' is null, set out to this value.
+  whenNull: Bool "false"
+}
+
+/* TODO: how to handle units/other "facets"
+// Convert an integer to a StatusNum
+IntToStatusNum: Conversion {
+  in: Int <summary>
+
+  out: StatusNumber <summary, transient, readonly>
+
+  unit: Unit?
+}
+*/
+
+// Convert a Number to a StatusNumber
+NumberToStatusNumber: Conversion {
+  in: Number <summary>
+
+  out: StatusNumber <summary, transient, readonly>
+}
+
+// Convert a StatusNumber to a Number
+StatusNumberToNumber: Conversion {
+  in: StatusNumber? <summary>
+
+  out: Number <summary, transient, readonly>
+
+  // When 'in' is null, set out to this value.
+  whenNull: Number
+}
+
+// Convert a Str to a StatusStr
+StrToStatusStr: Conversion {
+  in: Str <summary>
+
+  out: StatusStr <summary, transient, readonly>
+}
+
+// Convert a StatusStr to a StatusNumber. The string may contain a unit, such as "100m".
+// If the string cannot be parsed as a number, then out is set to NaN and fault.
+StatusStrToStatusNumber: Conversion {
+  in: StatusStr? <summary>
+
+  out: StatusNumber? <summary, transient, readonly>
+}

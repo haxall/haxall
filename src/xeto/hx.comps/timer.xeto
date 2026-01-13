@@ -1,0 +1,49 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   25 Jun 2025  Matthew Giannini  Creation
+//
+
+// Bool delay
+BoolDelay: HxComp <group:@ion.misc::group-time> {
+  // Input to the delay.
+  in: StatusBool? <summary>
+
+  // How long to wait before setting the out slot to true when
+  // the in slot transitions to true.
+  onDelay: Duration <minVal:0sec> 1sec
+
+  // How long to wait before setting the out slot to false when
+  // the in slot transitions to false.
+  offDelay: Duration <minVal:0sec> 1sec
+
+  // The value of the in slot after any delays are accounted for.
+  out: StatusBool? <summary, transient, readonly>
+
+  // The inverse of the current out slot.
+  outNot: StatusBool? <summary, transient, readonly>
+}
+
+// Current clock time
+CurTime: HxComp <group:@ion.misc::group-time> {
+  // How frequently to update the current time
+  updateFreq: Duration <minVal:0.5sec> 0.5sec
+
+  // The current time
+  out: DateTime <summary, transient, readonly>
+}
+
+// Computes the difference in time between 'in1' and 'in2' by subtracting
+// 'in2' from 'in1'.
+TimeDiff: HxComp <group:@ion.misc::group-time> {
+  // The base time from which 'in2' will be subtracted
+  in1: DateTime <summary>
+
+  // The time to subtract from 'in1'
+  in2: DateTime <summary>
+
+  // The time difference between 'in1' and 'in2'
+  out: Duration <summary, transient, readonly>
+}

@@ -1,0 +1,111 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   07 Aug 2025  Matthew Giannini  Creation
+//
+
+// TODO:FIXIT - icons and groups for everything
+
+
+// Concatenates up to four strings. Null inputs are ignored
+// and treated as empty strings.
+StrConcat: HxComp <group:@ion.misc::group-string> {
+  // Input A
+  inA: StatusStr? <summary>
+
+  // Input B
+  inB: StatusStr? <summary>
+
+  // Input C
+  inC: StatusStr? <summary>
+
+  // Input D
+  inD: StatusStr? <summary>
+
+  // The concatenation of (inA + inB + inC + inD)
+  out: StatusStr <summary, transient, readonly>
+}
+
+// Checks if 'inB' can be found within 'inA'.
+StrContains: HxComp <group:@ion.misc::group-string> {
+  // Defines the Str to check for 'inB'
+  inA: StatusStr? <summary>
+
+  // The Str to look for in 'inA'
+  inB: StatusStr? <summary>
+
+  // True if 'inA' contains 'inB'
+  out: StatusBool <summary, transient, readonly>
+
+  // The zero-based index to start checking for 'inB' in 'inA'.
+  fromIndex: Int 0
+
+  // The index where 'inB' was found, or -1 if it wasn't found
+  startIndex: Int <transient, readonly> -1
+
+  // The index in 'inA' immediately after where 'inB' was found,
+  // or -1 if it wasn't found
+  afterIndex: Int <transient, readonly> -1
+}
+
+// Computes the length of the input Str.
+StrLen: HxComp <group:@ion.misc::group-string> {
+  // The input Str
+  in: StatusStr? <summary>
+
+  // The length of 'in'
+  out: StatusNumber <summary, transient, readonly>
+}
+
+// Extracts a sub-string of the input.
+StrSubstr: HxComp <group:@ion.misc::group-string> {
+  // The input Str
+  in: StatusStr? <summary>
+
+  // The computed sub-string
+  out: StatusStr <summary, transient, readonly>
+
+  // The index to start extracting the sub-string
+  startIndex: Int <minVal: 0> 0
+
+  // The index to end extracting the sub-string. Use -1 to indicate
+  // the end of the string.
+  endIndex: Int -1
+}
+
+// Removes whitespace from the beginning and end of a Str
+StrTrim: HxComp <group:@ion.misc::group-string> {
+  // The input Str
+  in: StatusStr? <summary>
+
+  // The input Str with leading and trailing whitespace removed
+  out: StatusStr <summary, transient, readonly>
+}
+
+// Tests two strings based on the selected test type. All tests are computed
+// in terms of 'a <test> b'
+StrTest: HxComp <group:@ion.misc::group-string> {
+  // Input A
+  inA: StatusStr? <summary>
+
+  // Input B
+  inB: StatusStr? <summary>
+
+  // Result of the test
+  out: StatusBool <summary, transient, readonly>
+
+  // The test to perform on the inputs
+  test: StrTestType "eq"
+}
+
+// Tests available to the StrTest component.
+StrTestType: Enum {
+  eq
+  eqIgnoreCase
+  startsWith
+  endsWith
+  contains
+}
+

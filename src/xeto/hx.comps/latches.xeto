@@ -1,0 +1,43 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   01 Aug 2025  Matthew Giannini  Creation
+//
+
+// TODO:FIXIT - icons and groups for everything
+// Does clock need to be nullable - is that a different semantic?
+
+
+// A "rising-edge" latch
+Latch: HxComp <abstract, group:@ion.misc::group-latch> {
+  // When the clock transitions from false to true it will cause
+  // out to be set to current value of in.
+  clock: Bool <summary>
+
+  // The input status value. The output will be set when the clock
+  // transitions from false to true.
+  in: StatusVal? <summary>
+
+  // The latched output
+  out: StatusVal? <summary, transient, readonly>
+}
+
+// A Bool latch
+BoolLatch: Latch {
+  in: StatusBool?
+  out: StatusBool?
+}
+
+// A Number latch
+NumberLatch: Latch {
+  in: StatusNumber?
+  out: StatusNumber?
+}
+
+// A Str latch
+StrLatch: Latch {
+  in: StatusStr?
+  out: StatusStr?
+}

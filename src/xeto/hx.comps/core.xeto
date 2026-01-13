@@ -1,0 +1,43 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Sep 2024  Brian Frank  Creation
+//
+
+// Standard status flags
+Status: Dict {
+  alarm: Marker?       // In an alarm state
+  disabled: Marker?    // Disabled state
+  down: Marker?        // Network or communication error state
+  fault: Marker?       // Configuration or hardware error state
+  overridden: Marker?  // Manual override state
+  stale: Marker?       // Data is not fresh
+  unacked: Marker?     // Alarm has not been acknowledged
+}
+
+// StatusVal pairs status flags with a scalar value
+StatusVal: Dict <inputType:StatusValInput> {
+  val: Scalar     // Scalar value
+  status: Status  // Status flags
+}
+
+// StatusNumber pairs a number with status flags
+StatusNumber: StatusVal <color: "purple"> {
+  val: Number    // Numeric scalar value
+}
+
+// StatusBool pairs a boolean with status flags
+StatusBool: StatusVal <color:"lime"> {
+  val: Bool      // Boolean scalar value
+}
+
+// StatusStr pairs a string or enum name with status flags
+StatusStr: StatusVal <color:"amber"> {
+  val: Str       // String scalar value
+}
+
+// HxComp is the common base type for all control components
+HxComp: Comp <abstract>
+
