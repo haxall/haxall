@@ -8,18 +8,21 @@
 
 pragma: Lib <
   doc: "Core Components Library"
-  version: BuildVar "skyspark.version"
+  version: BuildVar "hx.version"
   depends: {
-    { lib: "sys",        versions: BuildVar "ph.depend"}
-    { lib: "sys.comp",   versions: BuildVar "ph.depend" }
-    { lib: "ion",        versions: BuildVar "ion.depend" }
-    { lib: "ion.inputs", versions: BuildVar "ion.depend" }
-    { lib: "ion.misc",   versions: BuildVar "ion.depend" }
+    { lib: "sys",      versions: BuildVar "ph.depend"}
+    { lib: "sys.comp", versions: BuildVar "ph.depend" }
   }
-  categories: {"skyspark"}
+  categories: {"haxall"}
+  license: BuildVar "hx.license"
   org: {
-    dis: BuildVar "skyspark.org.dis"
-    uri: BuildVar "skyspark.org.uri"
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
   }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
+  }
+
 >
 
