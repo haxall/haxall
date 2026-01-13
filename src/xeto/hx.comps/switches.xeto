@@ -9,7 +9,7 @@
 // TODO:FIXIT - icons and groups for everything
 
 // A switch selectes one of two inputs based on the current value of the 'inSwitch' slot.
-Switch: HxComp <abstract, group:@ion.misc::group-util> {
+Switch: HxComp <abstract> {
 
   // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
   inSwitch: StatusBool? <summary>
@@ -71,3 +71,4 @@ StrSwitch: Switch {
   // The output
   out: StatusStr? <summary, transient, readonly>
 }
+

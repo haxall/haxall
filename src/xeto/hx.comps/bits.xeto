@@ -9,7 +9,7 @@
 // TODO:FIXIT - icons and groups for everything
 
 // A bit-wise masking operation
-BitMask: HxComp <abstract, group:@ion.misc::group-util> {
+BitMask: HxComp <abstract> {
   // The input number
   in: StatusNumber? <summary>
 
@@ -28,3 +28,4 @@ BitOr: BitMask
 
 // Compute the bitwise 'xor' (exclusive or) of the input and the mask
 BitXor: BitMask
+

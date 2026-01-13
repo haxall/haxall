@@ -8,7 +8,7 @@
 
 // TODO:FIXIT - icons and groups for everything
 
-Conversion: HxComp <abstract, group:@ion.misc::group-conversion>
+Conversion: HxComp <abstract>
 
 // Convert a Bool value to a StatusBool
 BoolToStatusBool: Conversion {
@@ -69,3 +69,4 @@ StatusStrToStatusNumber: Conversion {
 
   out: StatusNumber? <summary, transient, readonly>
 }
+

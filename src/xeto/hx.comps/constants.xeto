@@ -6,20 +6,20 @@
 //   23 Jun 2025  Matthew Giannini  Creation
 //
 
-Const: HxComp <abstract, icon:"folder", group:@ion.misc::group-constants>
+Const: HxComp <abstract>
 
 // Boolean constant
-BoolConst: Const <icon:"circle-dot", color:"lime"> {
+BoolConst: Const {
   out: StatusBool? <summary>
 }
 
 // Number constant
-NumberConst: Const <icon:"circle-dot", color:"purple"> {
+NumberConst: Const {
   out: StatusNumber? <summary>
 }
 
 // Str constant
-StrConst: Const <icon:"case-sensitive", color:"amber"> {
+StrConst: Const {
   out: StatusStr? <summary>
 }
 

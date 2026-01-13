@@ -6,39 +6,39 @@
 //   03 Mar 2025  Matthew Giannini  Creation
 //
 
-BoolVar: Var <group:@ion.misc::group-vars> { val: Bool? }
-DateVar: Var <group:@ion.misc::group-vars> { val: Date? }
-DateTimeVar: Var <group:@ion.misc::group-vars> { val: DateTime? }
-NumberVar: Var <group:@ion.misc::group-vars> { val: Number? }
-RefVar: Var <group:@ion.misc::group-vars> { val: Ref? }
-StrVar: Var <group:@ion.misc::group-vars> { val: Str? }
-TimeVar: Var <group:@ion.misc::group-vars> { val: Time? }
+BoolVar: Var { val: Bool? }
+DateVar: Var { val: Date? }
+DateTimeVar: Var { val: DateTime? }
+NumberVar: Var { val: Number? }
+RefVar: Var { val: Ref? }
+StrVar: Var { val: Str? }
+TimeVar: Var { val: Time? }
 
-EntityVar: Var <group:@ion.misc::group-vars> { val: Entity? <transient> }
-GridVar: Var <group:@ion.misc::group-vars> { val: Grid? }
+EntityVar: Var { val: Entity? <transient> }
+GridVar: Var { val: Grid? }
 
 // this doesn't work because we can't introduce dependency on ph or ph.points or
 // we get a bunch of tag conflicts in the various hx.comps
 //PointVar: Var { val: Point? }
 
 
-PointVar: EntityVar <group:@ion.misc::group-points> {
-  bindSpec: Ref? <of:Spec, baseSpec:Entity>
+PointVar: EntityVar {
+  bindSpec: Ref? <of:Spec>
 }
 
 PointInput: PointVar <abstract> { curVal: StatusVal? <readonly, transient, summary> }
-NumberPointInput: PointInput <color:"purple"> { curVal: StatusNumber? }
-BoolPointInput: PointInput <color:"green"> { curVal: StatusBool? }
-StrPointInput: PointInput <color:"amber"> { curVal: StatusStr? }
+NumberPointInput: PointInput { curVal: StatusNumber? }
+BoolPointInput: PointInput { curVal: StatusBool? }
+StrPointInput: PointInput { curVal: StatusStr? }
 
 PointOutput: PointVar <abstract> {
   in: StatusVal? <summary>
   // bindToCurVal: Marker?
   bindToWriteLevel: Int? <minVal: 1, maxVal: 17>
 }
-NumberPointOutput: PointOutput <color:"purple"> { in: StatusNumber? }
-BoolPointOutput: PointOutput <color:"green"> { in: StatusBool? }
-StrPointOutput: PointOutput <color:"amber"> { in: StatusStr? }
+NumberPointOutput: PointOutput { in: StatusNumber? }
+BoolPointOutput: PointOutput { in: StatusBool? }
+StrPointOutput: PointOutput { in: StatusStr? }
 
 /*
 NumberPoint: HxComp <color:"purple"> { out: StatusNumber? <readonly, transient, summary> }
@@ -62,3 +62,4 @@ NumberWritable: NumberPoint {
   fallback: StatusNumber?
 }
 */
+

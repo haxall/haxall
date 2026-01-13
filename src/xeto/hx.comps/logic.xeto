@@ -7,13 +7,13 @@
 //
 
 // The base spec for all logic components
-Logic: HxComp <abstract, group:@ion.misc::group-logic, color:"lime"> {
+Logic: HxComp <abstract> {
   // The computed value
   out: StatusBool? <summary, transient, readonly>
 }
 
 // Computes the logical negation of its input
-Not: Logic <icon:"circle-slash-2"> {
+Not: Logic {
   in: StatusBool? <summary>
 }
 
@@ -33,13 +33,13 @@ QuadLogic: Logic <abstract> {
 }
 
 // Computes the logical "and" of its inputs
-And: QuadLogic <icon:"ampersand">
+And: QuadLogic
 
 // Computes the logical "or" of its inputs
-Or: QuadLogic <icon:"chevron-down">
+Or: QuadLogic
 
 // Computes the exclusive-or of its inputs
-Xor: QuadLogic <icon:"circle-plus">
+Xor: QuadLogic
 
 // The base spec for all mathematical comparison operators
 Comparison: Logic <abstract> {
@@ -51,20 +51,20 @@ Comparison: Logic <abstract> {
 }
 
 // Computes A > B
-GreaterThan: Comparison <icon:"chevron-right">
+GreaterThan: Comparison
 
 // Computes A >= B
-GreaterThanEqual: Comparison <icon:"chevron-right">
+GreaterThanEqual: Comparison
 
 // Computes A < B
-LessThan: Comparison <icon:"chevron-left">
+LessThan: Comparison
 
 // Computes A <= B
-LessThanEqual: Comparison <icon:"chevron-left">
+LessThanEqual: Comparison
 
 // Computes A == B
-Equal: Comparison <icon:"equal">
+Equal: Comparison
 
 // Computes A != B
-NotEqual: Comparison <icon:"equal-not">
+NotEqual: Comparison
 

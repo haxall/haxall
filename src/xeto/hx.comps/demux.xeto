@@ -9,7 +9,7 @@
 // TODO:FIXIT - icons and groups for everything
 
 // A digital input demultiplexer
-DigitalInputDemux: HxComp <group:@ion.misc::group-util> {
+DigitalInputDemux: HxComp {
   // The input
   in: StatusNumber? <summary>
 
@@ -36,7 +36,7 @@ DigitalInputDemux: HxComp <group:@ion.misc::group-util> {
 
 // Takes a 64-bit number (converted to an Int) and sets the various output bits accordingly.
 // It also sets the corresponding bytes outputs.
-NumberToBitsDemux: HxComp <group:@ion.misc::group-util> {
+NumberToBitsDemux: HxComp {
   // The input number
   in: StatusNumber? <summary>
 
@@ -256,3 +256,4 @@ NumberToBitsDemux: HxComp <group:@ion.misc::group-util> {
   // Byte 7
   byte7: StatusNumber? <summary, transient, readonly>
 }
+

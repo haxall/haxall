@@ -7,7 +7,7 @@
 //
 
 // Contains a slot for each status flag
-StatusTestComp : HxComp <icon:"flask-conical", group:@ion.misc::group-util> {
+StatusTestComp : HxComp {
   ok:         StatusNumber <summary, readonly>
   alarm:      StatusNumber <summary, readonly>
   disabled:   StatusNumber <summary, readonly>

@@ -8,10 +8,10 @@
 
 // A folder is used as the standard component for containing
 // other components.
-Folder : HxComp <icon:"folder", group:@ion.misc::group-util>
+Folder : HxComp
 
 // The output of this component generates a sine wave.
-SineWave: HxComp <icon:"audio-waveform", group:@ion.misc::group-util, color:"purple"> {
+SineWave: HxComp {
   // The computed sine wave
   out: StatusNumber <summary, transient, readonly>
 
@@ -28,7 +28,7 @@ SineWave: HxComp <icon:"audio-waveform", group:@ion.misc::group-util, color:"pur
   freq: Duration <minVal:1sec> 1sec
 }
 
-Ramp: HxComp <icon:"audio-waveform", group:@ion.misc::group-util, color:"purple"> {
+Ramp: HxComp {
   // The computed ramp value
   out: StatusNumber <summary, transient, readonly>
 
@@ -55,12 +55,12 @@ RampWaveform: Enum {
 }
 
 // A component that evaluates an Axon expression
-AxonComp : HxComp <icon:"variable", group:@ion.misc::group-util> {
+AxonComp : HxComp {
   axon: Str
 }
 
 // Computes the min, max, and avg of up to 10 inputs.
-MinMaxAvg: HxComp <group:@ion.misc::group-util> {
+MinMaxAvg: HxComp {
   // Input A
   inA: StatusNumber? <summary>
 
@@ -102,7 +102,7 @@ MinMaxAvg: HxComp <group:@ion.misc::group-util> {
 }
 
 // Generates an oscillating binary pulse
-MultiVibrator: HxComp <group:@ion.misc::group-util> {
+MultiVibrator: HxComp {
   // The current pulse value
   out: StatusBool <summary, transient, readonly>
 
@@ -116,7 +116,7 @@ MultiVibrator: HxComp <group:@ion.misc::group-util> {
 
 // Generates a random number such that 'out = random() * multiplier + offset'
 // where 'random()' generates a number between 0.0 (inclusive) and 1.0 (exclusive)
-Random: HxComp <group:@ion.misc::group-util> {
+Random: HxComp {
   // Then current random number
   out: StatusNumber <summary>
 
@@ -129,3 +129,4 @@ Random: HxComp <group:@ion.misc::group-util> {
   // How frequently to update the output
   freq: Duration <minVal: 0sec> 1sec
 }
+

@@ -8,7 +8,7 @@
 
 // TODO:FIXIT - icons and groups for everything
 
-Select: HxComp <abstract, group:@ion.misc::group-select> {
+Select: HxComp <abstract> {
   // The index of the input to select. If the value is greater than 'numInputs'
   // then the maximum active input will be selected.
   select: StatusNumber? <summary>
@@ -153,3 +153,4 @@ StrSelect: Select {
   // Input J
   inJ: StatusStr?
 }
+

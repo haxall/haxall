@@ -11,7 +11,7 @@
 
 // Concatenates up to four strings. Null inputs are ignored
 // and treated as empty strings.
-StrConcat: HxComp <group:@ion.misc::group-string> {
+StrConcat: HxComp {
   // Input A
   inA: StatusStr? <summary>
 
@@ -29,7 +29,7 @@ StrConcat: HxComp <group:@ion.misc::group-string> {
 }
 
 // Checks if 'inB' can be found within 'inA'.
-StrContains: HxComp <group:@ion.misc::group-string> {
+StrContains: HxComp {
   // Defines the Str to check for 'inB'
   inA: StatusStr? <summary>
 
@@ -51,7 +51,7 @@ StrContains: HxComp <group:@ion.misc::group-string> {
 }
 
 // Computes the length of the input Str.
-StrLen: HxComp <group:@ion.misc::group-string> {
+StrLen: HxComp {
   // The input Str
   in: StatusStr? <summary>
 
@@ -60,7 +60,7 @@ StrLen: HxComp <group:@ion.misc::group-string> {
 }
 
 // Extracts a sub-string of the input.
-StrSubstr: HxComp <group:@ion.misc::group-string> {
+StrSubstr: HxComp {
   // The input Str
   in: StatusStr? <summary>
 
@@ -76,7 +76,7 @@ StrSubstr: HxComp <group:@ion.misc::group-string> {
 }
 
 // Removes whitespace from the beginning and end of a Str
-StrTrim: HxComp <group:@ion.misc::group-string> {
+StrTrim: HxComp {
   // The input Str
   in: StatusStr? <summary>
 
@@ -86,7 +86,7 @@ StrTrim: HxComp <group:@ion.misc::group-string> {
 
 // Tests two strings based on the selected test type. All tests are computed
 // in terms of 'a <test> b'
-StrTest: HxComp <group:@ion.misc::group-string> {
+StrTest: HxComp {
   // Input A
   inA: StatusStr? <summary>
 

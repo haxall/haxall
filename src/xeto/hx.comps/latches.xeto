@@ -11,7 +11,7 @@
 
 
 // A "rising-edge" latch
-Latch: HxComp <abstract, group:@ion.misc::group-latch> {
+Latch: HxComp <abstract> {
   // When the clock transitions from false to true it will cause
   // out to be set to current value of in.
   clock: Bool <summary>
@@ -41,3 +41,4 @@ StrLatch: Latch {
   in: StatusStr?
   out: StatusStr?
 }
+
