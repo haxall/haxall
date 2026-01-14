@@ -158,7 +158,21 @@ class CompSpaceEdit
       dups[dup.id]  = dup
     }
 
-    // TODO:FIXIT duplicate sub-graph links
+    // now duplicate links within the sub-graph
+    origComps.each |comp, id|
+    {
+      comp.links.eachLink |toSlot, link|
+      {
+        // if "from" comp is not in the dup graph, ignore this link
+        origFrom := origComps[link.fromRef]
+        if (origFrom == null) return
+
+        // add the duplicated link
+        dupTo   := dups[origToDup[id]]
+        dupFrom := dups[origToDup[link.fromRef]]
+        this.link(dupFrom.id, link.fromSlot, dupTo.id, toSlot)
+      }
+    }
 
     return dups.vals
   }
