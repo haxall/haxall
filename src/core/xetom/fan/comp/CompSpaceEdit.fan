@@ -75,7 +75,7 @@ class CompSpaceEdit
     parent := readById(parentId)
     spec := cs.ns.spec(qname)
     comp := cs.createSpec(spec)
-    comp.set("compLayout", null)
+    comp.set("compLayout", layout)
     parent.add(comp)
     return comp
   }
