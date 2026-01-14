@@ -76,7 +76,7 @@ class CompSpaceEditTest: AbstractXetoTest
   Void testCreateAndDelete()
   {
     cs := basicSpace
-    comp := cs.edit.create("hx.test.xeto::TestCounter")
+    comp := cs.edit.create(cs.root.id, "hx.test.xeto::TestCounter")
     verifyEq(comp.typeof, TestCounter#)
 
     // link it up

@@ -70,12 +70,13 @@ class CompSpaceEdit
   **   c := edit.create("sys.comp::Comp", CompLayout(2,2))
   **
   ** See also `layout`
-  virtual Comp create(Str qname, CompLayout? layout := null)
+  virtual Comp create(Ref parentId, Str qname, CompLayout? layout := null)
   {
+    parent := readById(parentId)
     spec := cs.ns.spec(qname)
     comp := cs.createSpec(spec)
     if (layout != null) comp.set("compLayout", layout)
-    root.add(comp)
+    parent.add(comp)
     return comp
   }
 
@@ -112,6 +113,12 @@ class CompSpaceEdit
     return comp
   }
 
+  ** Convenience to delete all ids
+  virtual Void deleteAll(Ref[] ids)
+  {
+    ids.each |id| { delete(id) }
+  }
+
   ** Remove the Comp with the given id from the CompSpace. If the Comp is not found,
   ** this is a no-op. Throws an Err if you attempt to remove the root Comp.
   **
@@ -126,8 +133,9 @@ class CompSpaceEdit
 
   ** Duplicate the sub-graph of Comps specified by the given ids and add them
   ** to the CompSpace. Only links between Comps in the sub-graph are duplicated.
-  virtual Void duplicate(Ref[] ids)
+  virtual Comp[] duplicate(Ref[] ids)
   {
     throw Err("TODO: duplicate ${ids}")
   }
 }
+

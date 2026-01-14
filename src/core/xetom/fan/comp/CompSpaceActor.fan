@@ -304,7 +304,7 @@ const class CompSpaceActor : Actor
 
   private Dict onFeedCreate(CompSpace cs, Ref specRef, Number x, Number y)
   {
-    comp := cs.edit.create(specRef.id, CompLayout(x.toInt, y.toInt))
+    comp := cs.edit.create(cs.root.id, specRef.id, CompLayout(x.toInt, y.toInt))
     return CompUtil.toFeedDict(comp)
   }
 
