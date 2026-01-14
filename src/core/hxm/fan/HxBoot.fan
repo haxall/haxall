@@ -85,7 +85,6 @@ abstract class HxBoot
       "ion.form",
       "ion.inputs",
       "ion.misc",
-      "ion.spec",
       "ion.styles",
       "ion.table",
       "ion.ux",
