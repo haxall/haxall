@@ -33,32 +33,57 @@ class CompSpaceEdit
 // Api
 //////////////////////////////////////////////////////////////////////////
 
+  ** Lookup a Comp by id. The default implementation looks up the comp directly in the 'cs'
+  ** using `CompSpace.readById`.
+  virtual Comp? readById(Ref id, Bool checked := true)
+  {
+    cs.readById(id, checked)
+  }
+
+  ** Get the root Comp. The default implementation gets the root component from the 'cs'
+  ** using `CompSpace.root`
+  virtual Comp root() { cs.root }
+
   // TODO: need more discussion and design around error checking
   // e.g. see ionBlock::BlockLinkCheck - those types of checks moving into xetom
 
   ** Add a link between two slots
   virtual Void link(Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
   {
-    toComp := cs.readById(toRef)
+    toComp := readById(toRef)
     toComp.set("links", toComp.links.add(toSlot, Etc.link(fromRef, fromSlot)))
   }
 
   ** Remove a link between two slots
   virtual Void unlink(Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
   {
-    toComp := cs.readById(toRef)
+    toComp := readById(toRef)
     toComp.set("links", toComp.links.remove(toSlot, Etc.link(fromRef, fromSlot)))
   }
 
   ** Create a new Comp whose type is of the given qualified name. Add the new
-  ** Comp as a child of the CompSpace root. Returns the newly created Comp.
+  ** Comp as a child of the CompSpace root. You can also configure the default
+  ** layout for the Comp by passing in a `CompLayout`.
+  ** Returns the newly created Comp.
   **
   **   c := edit.create("sys.comp::Comp")
-  virtual Comp create(Str qname)
+  **   c := edit.create("sys.comp::Comp", CompLayout(2,2))
+  **
+  ** See also `layout`
+  virtual Comp create(Str qname, CompLayout? layout := null)
   {
     spec := cs.ns.spec(qname)
     comp := cs.createSpec(spec)
-    cs.root.add(comp)
+    if (layout != null) comp.set("compLayout", layout)
+    root.add(comp)
+    return comp
+  }
+
+  ** Layout the Comp with the given id. Returns the updated Comp.
+  virtual Comp layout(Ref id, CompLayout layout)
+  {
+    comp := readById(id)
+    comp.set("compLayout", layout)
     return comp
   }
 
@@ -67,7 +92,7 @@ class CompSpaceEdit
   ** on the Comps spec, then those keys are ignored. Returns the updated Comp.
   virtual Comp update(Ref id, Dict diff)
   {
-    comp  := cs.readById(id)
+    comp  := readById(id)
     slots := comp.spec.slots
     diff.each |v, n|
     {
@@ -93,9 +118,16 @@ class CompSpaceEdit
   ** Note that removing a Comp also causes all links to and from the Comp to be removed.
   virtual Void delete(Ref id)
   {
-    comp := cs.readById(id, false)
+    comp := readById(id, false)
     if (comp == null) return
     if (comp.parent == null) throw Err("Cannot delete root: ${id}")
     comp.parent.remove(comp.name)
+  }
+
+  ** Duplicate the sub-graph of Comps specified by the given ids and add them
+  ** to the CompSpace. Only links between Comps in the sub-graph are duplicated.
+  virtual Void duplicate(Ref[] ids)
+  {
+    throw Err("TODO: duplicate ${ids}")
   }
 }

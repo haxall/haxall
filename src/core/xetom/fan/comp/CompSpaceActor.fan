@@ -304,15 +304,13 @@ const class CompSpaceActor : Actor
 
   private Dict onFeedCreate(CompSpace cs, Ref specRef, Number x, Number y)
   {
-    comp := cs.edit.create(specRef.id)
-    comp.set("compLayout", CompLayout(x.toInt, y.toInt))
+    comp := cs.edit.create(specRef.id, CompLayout(x.toInt, y.toInt))
     return CompUtil.toFeedDict(comp)
   }
 
   private Obj? onFeedLayout(CompSpace cs, Ref compId, Number x, Number y, Number w)
   {
-    comp := cs.readById(compId)
-    comp.set("compLayout", CompLayout(x.toInt, y.toInt, w.toInt))
+    comp := cs.edit.layout(compId, CompLayout(x.toInt, y.toInt, w.toInt))
     return null
   }
 
@@ -333,8 +331,8 @@ const class CompSpaceActor : Actor
 
   private Obj? onFeedDuplicate(CompSpace cs, Ref[] ids)
   {
-    echo("Duplicate comps: $ids")
-    throw Err("TODO")
+    cs.edit.duplicate(ids)
+    return null
   }
 
   private Obj? onFeedDelete(CompSpace cs, Ref[] ids)
