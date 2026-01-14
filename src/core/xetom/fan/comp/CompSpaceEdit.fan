@@ -62,7 +62,7 @@ class CompSpaceEdit
   }
 
   ** Create a new Comp whose type is of the given qualified name. Add the new
-  ** Comp as a child of the CompSpace root. You can also configure the default
+  ** Comp as a child of the given parent Comp. You can also configure the default
   ** layout for the Comp by passing in a `CompLayout`.
   ** Returns the newly created Comp.
   **
@@ -75,7 +75,7 @@ class CompSpaceEdit
     parent := readById(parentId)
     spec := cs.ns.spec(qname)
     comp := cs.createSpec(spec)
-    if (layout != null) comp.set("compLayout", layout)
+    comp.set("compLayout", null)
     parent.add(comp)
     return comp
   }
