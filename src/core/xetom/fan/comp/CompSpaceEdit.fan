@@ -135,7 +135,32 @@ class CompSpaceEdit
   ** to the CompSpace. Only links between Comps in the sub-graph are duplicated.
   virtual Comp[] duplicate(Ref[] ids)
   {
-    throw Err("TODO: duplicate ${ids}")
+    // map comps to duplicate by id
+    origComps := Ref:Comp[:] { ordered = true }
+    Comp? parent := null
+    ids.each |id|
+    {
+      c := readById(id)
+      origComps[id] = c
+
+      // sanity check
+      if (parent == null) parent = c.parent
+      else if (parent !== c.parent) throw Err("Not all comps have the same parent")
+    }
+
+    // first just duplicate the comps
+    origToDup := Ref:Ref[:]                // original id to duplicated id
+    dups := Ref:Comp[:] { ordered = true}  // duplicated comps by id
+    origComps.each |comp, id|
+    {
+      dup := create(parent.id, comp.spec.qname)
+      origToDup[id] = dup.id
+      dups[dup.id]  = dup
+    }
+
+    // TODO:FIXIT duplicate sub-graph links
+
+    return dups.vals
   }
 }
 

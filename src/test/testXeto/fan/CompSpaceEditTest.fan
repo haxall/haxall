@@ -107,13 +107,34 @@ class CompSpaceEditTest: AbstractXetoTest
     verifyNull(add.get("ignore"))
   }
 
-  private CompSpace basicSpace()
+  Void testDuplicate()
+  {
+    cs := basicSpace
+
+    // duplicate single comp
+    ids   := [cs.root.get("c1")->id]
+    dups  := cs.edit.duplicate(ids)
+    verifyEq(dups.size, 1)
+    c1Dup := dups.first
+    verifyType(c1Dup, TestCounter#)
+    verifyNotEq(c1Dup.id, ids.first)
+
+    // duplicate multiple comps
+    ids  = [cs.root.get("c2")->id, cs.root.get("add")->id]
+    dups = cs.edit.duplicate(ids)
+    verifyEq(dups.size, 2)
+    verifyType(dups.first, TestCounter#)
+    verifyType(dups.last, TestAdd#)
+  }
+
+  private CompSpace basicSpace(Str xeto := loadBasicXeto)
   {
     ns := createNamespace(CompTest.loadTestLibs)
-    cs := CompSpace(ns).load(loadBasicXeto)
+    cs := CompSpace(ns).load(xeto)
     Actor.locals[CompSpace.actorKey] = cs
     cs.start
     return cs
   }
 }
+
 

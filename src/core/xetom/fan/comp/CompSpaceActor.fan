@@ -331,8 +331,8 @@ const class CompSpaceActor : Actor
 
   private Obj? onFeedDuplicate(CompSpace cs, Ref[] ids)
   {
-    cs.edit.duplicate(ids)
-    return null
+    comps := cs.edit.duplicate(ids)
+    return (Dict[])comps.map |comp| { CompUtil.toFeedDict(comp) }
   }
 
   private Obj? onFeedDelete(CompSpace cs, Ref[] ids)
