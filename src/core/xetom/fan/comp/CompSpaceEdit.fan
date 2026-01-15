@@ -30,19 +30,8 @@ class CompSpaceEdit
   CompSpace cs { private set }
 
 //////////////////////////////////////////////////////////////////////////
-// Api
+// Edits
 //////////////////////////////////////////////////////////////////////////
-
-  ** Lookup a Comp by id. The default implementation looks up the comp directly in the 'cs'
-  ** using `CompSpace.readById`.
-  virtual Comp? readById(Ref id, Bool checked := true)
-  {
-    cs.readById(id, checked)
-  }
-
-  ** Get the root Comp. The default implementation gets the root component from the 'cs'
-  ** using `CompSpace.root`
-  virtual Comp root() { cs.root }
 
   // TODO: need more discussion and design around error checking
   // e.g. see ionBlock::BlockLinkCheck - those types of checks moving into xetom
@@ -52,6 +41,7 @@ class CompSpaceEdit
   {
     toComp := readById(toRef)
     toComp.set("links", toComp.links.add(toSlot, Etc.link(fromRef, fromSlot)))
+    onCompUpdated(toComp)
   }
 
   ** Remove a link between two slots
@@ -59,6 +49,7 @@ class CompSpaceEdit
   {
     toComp := readById(toRef)
     toComp.set("links", toComp.links.remove(toSlot, Etc.link(fromRef, fromSlot)))
+    onCompUpdated(toComp)
   }
 
   ** Create a new Comp whose type is of the given qualified name. Add the new
@@ -77,6 +68,7 @@ class CompSpaceEdit
     comp := cs.createSpec(spec)
     comp.set("compLayout", layout)
     parent.add(comp)
+    onCompAdded(comp)
     return comp
   }
 
@@ -85,6 +77,7 @@ class CompSpaceEdit
   {
     comp := readById(id)
     comp.set("compLayout", layout)
+    onCompUpdated(comp)
     return comp
   }
 
@@ -110,6 +103,7 @@ class CompSpaceEdit
       else
         throw Err("TODO??? non-scalar ${n} => ${v} (${v.typeof}) binding=${binding}")
     }
+    onCompUpdated(comp)
     return comp
   }
 
@@ -129,6 +123,7 @@ class CompSpaceEdit
     if (comp == null) return
     if (comp.parent == null) throw Err("Cannot delete root: ${id}")
     comp.parent.remove(comp.name)
+    onCompRemoved(comp)
   }
 
   ** Duplicate the sub-graph of Comps specified by the given ids and add them
@@ -179,7 +174,29 @@ class CompSpaceEdit
       }
     }
 
+    // note we fire added callback by routing to create
     return dups.vals
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Overrides
+//////////////////////////////////////////////////////////////////////////
+
+  ** Lookup a Comp by id. The default implementation looks up the comp directly in the 'cs'
+  ** using `CompSpace.readById`.
+  virtual Comp? readById(Ref id, Bool checked := true) {  cs.readById(id, checked) }
+
+  ** Get the root Comp. The default implementation gets the root component from the 'cs'
+  ** using `CompSpace.root`
+  virtual Comp root() { cs.root }
+
+  ** Callback when component is added
+  virtual Void onCompAdded(Comp c) {}
+
+   ** Callback when component is updated
+  virtual Void onCompUpdated(Comp c) {}
+
+  ** Callback when component is removed
+  virtual Void onCompRemoved(Comp c) {}
 }
 
