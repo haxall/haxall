@@ -149,7 +149,7 @@ class CompSpaceEdit
     origComps.each |comp, id|
     {
       // create the comp and place it shift its location right and down by 1 unit
-      layout := comp.get("layout") as CompLayout
+      layout := comp.get("compLayout") as CompLayout
       if (layout != null) layout = CompLayout(layout.x+1, layout.y+1, layout.w)
       dup := create(parent.id, comp.spec.qname, layout)
 
