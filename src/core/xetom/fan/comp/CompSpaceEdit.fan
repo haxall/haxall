@@ -153,7 +153,12 @@ class CompSpaceEdit
     dups := Ref:Comp[:] { ordered = true}  // duplicated comps by id
     origComps.each |comp, id|
     {
-      dup := create(parent.id, comp.spec.qname)
+      // create the comp and place it shift its location right and down by 1 unit
+      layout := comp.get("layout") as CompLayout
+      if (layout != null) layout = CompLayout(layout.x+1, layout.y+1, layout.w)
+      dup := create(parent.id, comp.spec.qname, layout)
+
+      // update state
       origToDup[id] = dup.id
       dups[dup.id]  = dup
     }
