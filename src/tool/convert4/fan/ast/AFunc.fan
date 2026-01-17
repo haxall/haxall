@@ -67,17 +67,12 @@ class AFunc
     src := def["src"] as Str ?: throw Err("Missing axon src")
     axon := ast.config.ns.io.readAxon(src)->axon
 
-    fn := Parser(Loc.eval, src.in).parseTopWithParams(name)
-    params := fn.params.map |x->AParam|
-    {
-      pmeta := x.def == null ? Etc.dict0 : Etc.dict1("axon", x.def.toStr)
-      return AParam(x.name, AType.obj, pmeta)
-    }
+    sig := AxonConvertParser(src).parseSig
     returns := AParam("returns", AType.obj)
 
     meta := Etc.dictFromMap(mapMeta(ast, def))
 
-    func := make(name, doc, meta, params, returns, axon)
+    func := make(name, doc, meta, sig.aparams, returns, sig.body)
     ext.funcs.add(func)
   }
 
@@ -253,12 +248,12 @@ class AFunc
 
   new make(Str name, Str doc, Dict meta, AParam[] params, AParam returns, Str? axon)
   {
-    this.name    = name
-    this.doc     = doc
-    this.meta    = meta
-    this.params  = params
-    this.returns = returns
-    this.axon    = axon
+    this.name     = name
+    this.doc      = doc
+    this.meta     = meta
+    this.params   = params
+    this.returns  = returns
+    this.axonBody = axon
   }
 
   const Str name
@@ -266,7 +261,7 @@ class AFunc
   const Dict meta
   const AParam[] params
   const AParam returns
-  const Str? axon
+  const Str? axonBody
 
   Void eachSlot(|AParam, Bool needComma| f)
   {
@@ -298,6 +293,13 @@ const class AParam
     this.name = name
     this.type = type
     this.meta = meta
+  }
+
+  new makeFnParam(FnParam p)
+  {
+    this.name = p.name
+    this.type = AType.obj
+    this.meta = p.def == null ? Etc.dict0 : Etc.dict1("axon", p.def.toStr)
   }
 
   const Str name

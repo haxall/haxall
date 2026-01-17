@@ -150,13 +150,13 @@ internal class ConvertExtCmd : ConvertCmd
       if (comma) s.add(", ")
       genParam(s, p)
     }
-    if (f.axon != null)
+    if (f.axonBody != null)
     {
       heredoc := "---"
-      while (f.axon.contains(heredoc)) heredoc += "-"
+      while (f.axonBody.contains(heredoc)) heredoc += "-"
       s.add("\n")
       s.add("    <axon:").add(heredoc).add("\n")
-      f.axon.splitLines.each |line| { s.add("    ").add(line).add("\n") }
+      f.axonBody.splitLines.each |line| { s.add("    ").add(line).add("\n") }
       s.add("    ").add(heredoc).add(">\n").add("  }\n")
     }
     else

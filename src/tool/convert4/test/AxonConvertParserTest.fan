@@ -12,11 +12,11 @@ using haystack
 using concurrent
 
 **
-** DefCompTest
+** AxonConvertParserTest
 **
-class DefCompTest : HaystackTest
+class AxonConvertParserTest : HaystackTest
 {
-  Void testParse()
+  Void test()
   {
     // simple example
     verifyParse(
@@ -54,23 +54,23 @@ class DefCompTest : HaystackTest
 
   Void verifyParse(Str src, Str:Map params, Str body)
   {
-    p := AxonSigParser(src).parseCompDef
+    p := AxonConvertParser(src).parseSig
 
     if (false)
     {
       echo("#####")
       echo(src)
       echo
-      p.params.each |c| { echo("$c.name $c.meta") }
+      p.aparams.each |c| { echo("$c.name $c.meta") }
       echo("--->")
       echo(p.body)
       echo("<---")
     }
 
-    verifyEq(p.params.size, params.size)
+    verifyEq(p.aparams.size, params.size)
     params.each |expect, name|
     {
-      c := p.params.find { it.name == name } ?: throw Err(name)
+      c := p.aparams.find { it.name == name } ?: throw Err(name)
       verifyDictEq(c.meta, expect)
     }
     verifyEq(p.body, body)
