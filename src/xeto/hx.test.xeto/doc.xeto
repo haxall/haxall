@@ -36,3 +36,37 @@ Index: Dict {}
   dict: { dis:"nest dict", someMarker }
 }
 
+//
+// Test fix docs **bold**, *em*, 'inline' and
+// this is link to `site` tag.
+//
+// List of links:
+//   - `site`
+//   - [now func]`now`
+//
+// Ordered
+//   1. foo 'inline'
+//   2. bar 'inline'
+//   second line of bar
+//
+// H1 Title here [#foo]
+// #################
+//
+// H2 Title here [#bar]
+// ********************
+//
+// H3 Title here [#bar]
+// =================
+//
+// H4 Title here
+// -----------
+//
+FixDocs: Dict {
+  // Slot header
+  //   code here
+  //   here
+  a: Str
+
+  b: Str // after line 'inline'
+}
+
