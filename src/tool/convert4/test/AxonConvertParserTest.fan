@@ -18,7 +18,42 @@ class AxonConvertParserTest : HaystackTest
 {
   Void test()
   {
-    // simple example
+    // 0 params
+    verifyParse(
+      Str<|// ignore this
+           () =>  1 + 2
+           |>,
+       [:],
+       "1 + 2")
+
+    // 1 params
+    verifyParse(
+      Str<|(a) => do
+             "hello"
+           end|>,
+       [
+         "a":[:],
+       ],
+       """do
+            "hello"
+          end""")
+
+    // 2 params, defs
+    verifyParse(
+      Str<|(alpha: null, beta: 123) => do
+             x: alpha
+             x + beta // hi
+           end|>,
+       [
+         "alpha":["axon":"null"],
+         "beta":["axon":"123"],
+       ],
+       """do
+            x: alpha
+            x + beta // hi
+          end""")
+
+    // simple defcomp example
     verifyParse(
       Str<|defcomp
              inA: {is:^number, defVal:0}
@@ -41,7 +76,7 @@ class AxonConvertParserTest : HaystackTest
             // line3
           end""")
 
-    // no body
+    // defcomp no body
     verifyParse(
       Str<|defcomp
              cell1: {marker, foo:"!"}
@@ -61,7 +96,7 @@ class AxonConvertParserTest : HaystackTest
       echo("#####")
       echo(src)
       echo
-      p.aparams.each |c| { echo("$c.name $c.meta") }
+      p.aparams.each |x| { echo("$x.name: $x.type $x.meta") }
       echo("--->")
       echo(p.body)
       echo("<---")
@@ -70,8 +105,9 @@ class AxonConvertParserTest : HaystackTest
     verifyEq(p.aparams.size, params.size)
     params.each |expect, name|
     {
-      c := p.aparams.find { it.name == name } ?: throw Err(name)
-      verifyDictEq(c.meta, expect)
+      x := p.aparams.find { it.name == name } ?: throw Err(name)
+      verifyEq(x.type.sig, "Obj?")
+      verifyDictEq(x.meta, expect)
     }
     verifyEq(p.body, body)
   }
