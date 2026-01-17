@@ -28,6 +28,7 @@ internal class Parser
     this.compiler = step.compiler
     this.libName = compiler.libName
     this.doc = doc
+    this.libRef = doc as ALib
     this.isDataFile = doc.nodeType == ANodeType.dataDoc
     this.sys = step.sys
     this.fileLoc = fileLoc
@@ -56,6 +57,12 @@ internal class Parser
     {
       throw err(e.msg, curToLoc)
     }
+  }
+
+  ** Parse named function under +Funcs
+  ASpec parseFunc(ASpec funcs, Str? doc)
+  {
+    parseNamedSpec(funcs, doc)
   }
 
   ** Top level parse of data file - instances only.
@@ -87,7 +94,6 @@ internal class Parser
   ** The input stream is guaranteed to be closed upon exit.
   private Void parseLibFile(ALib lib)
   {
-    this.libRef = lib
     while (true)
     {
       if (!parseLibObj) break
@@ -139,9 +145,8 @@ internal class Parser
     consume(Token.plus)
     base := parseTypeRef ?: throw err("Expecting mixin type name")
     spec := ASpec(curToLoc, lib, null, base.name.name)
-    spec.ast.flavor = SpecFlavor.mixIn
+    spec.metaAddMixin
     spec.typeRef = base
-    spec.metaInit.map.add("mixin", sys.markerScalar(spec.loc))
 
     parseSpecMeta(spec)
     if (cur === Token.lbrace) parseSpecSlots(spec)

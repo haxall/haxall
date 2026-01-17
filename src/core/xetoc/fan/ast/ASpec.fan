@@ -136,6 +136,13 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
     return ast.meta
   }
 
+  ** Add mixin marker
+  Void metaAddMixin()
+  {
+    ast.flavor = SpecFlavor.mixIn
+    metaInit.map.add("mixin", sys.markerScalar(loc))
+  }
+
   ** Return if meta has the given tag
   Bool metaHas(Str name)
   {

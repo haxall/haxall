@@ -181,12 +181,10 @@ internal class Parse : Step
     catch (FileLocErr e)
     {
       err(e.msg, e.loc)
-      return null
     }
     catch (Err e)
     {
       err(e.toStr, loc, e)
-      return null
     }
   }
 
@@ -230,12 +228,41 @@ internal class Parse : Step
   private Void parseCompanionFuncs(ALib lib, Dict[] recs)
   {
     if (recs.isEmpty) return
-    s := StrBuf()
-    out := XetoPrinter(ns, s.out, companionPrintOpts)
-    out.w("+Funcs {").nl
-    recs.each |rec| { out.ast(rec) }
-    out.w("}")
-    parse(FileLoc("Funcs"), s.toStr, lib, compiler.srcBuildVars)
+
+    // create synthetic funcs mixin
+    funcs := ASpec(FileLoc("Funcs"), lib, null, "Funcs")
+    funcs.typeRef = sys.funcs
+    funcs.metaAddMixin
+    lib.tops.add(funcs.name, funcs)
+    acc := funcs.initDeclared
+
+    recs.each |rec|
+    {
+      // get name and use for the parser location
+      name := rec["name"] as Str
+      if (name == null) return err("Func rec missing name", FileLoc(rec.id.toStr))
+      loc := FileLoc(name)
+
+      // parse as single slot under our Funcs synthetic mixin; we
+      // pass the doc directly so it doesn't have to be parsed again
+      try
+      {
+        buf := StrBuf()
+        doc := rec["doc"] as Str
+        XetoPrinter(ns, buf.out, companionFuncPrintOpts).ast(rec)
+        src := buf.toStr
+        f := Parser(this, loc, src, lib, compiler.srcBuildVars).parseFunc(funcs, doc)
+        acc.add(name, f)
+      }
+      catch (FileLocErr e)
+      {
+        err(e.msg, e.loc)
+      }
+      catch (Err e)
+      {
+        err(e.toStr, loc, e)
+      }
+    }
   }
 
   private ASpec? synthetizeCompanionLibPragma(ALib lib)
@@ -252,6 +279,11 @@ internal class Parse : Step
   private once Dict companionPrintOpts()
   {
     Etc.dict2("noInferMeta", Marker.val, "qnameForce", Marker.val)
+  }
+
+  private once Dict companionFuncPrintOpts()
+  {
+    Etc.dict3("noInferMeta", Marker.val, "qnameForce", Marker.val, "noDocComment", Marker.val)
   }
 }
 

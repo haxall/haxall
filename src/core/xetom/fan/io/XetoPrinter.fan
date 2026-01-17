@@ -29,8 +29,9 @@ class XetoPrinter
     this.ns   = ns
     this.out  = out
     this.opts = opts
-    this.noInferMeta = opts.has("noInferMeta")
-    this.qnameForce  = opts.has("qnameForce")
+    this.noInferMeta  = opts.has("noInferMeta")
+    this.qnameForce   = opts.has("qnameForce")
+    this.noDocComment = opts.has("noDocComment")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -537,6 +538,7 @@ class XetoPrinter
   {
     str = str?.trimToNull
     if (str == null) return this
+    if (noDocComment) return this
     str.eachLine |line|
     {
       w("//")
@@ -671,6 +673,9 @@ class XetoPrinter
 
   ** Don't try to infer meta from ns
   Bool noInferMeta
+
+  ** Don't output doc comment
+  Bool noDocComment
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

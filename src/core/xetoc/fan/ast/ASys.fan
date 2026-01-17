@@ -21,6 +21,7 @@ internal class ASys
   ASpecRef str    := init("Str")
   ASpecRef ref    := init("Ref")
   ASpecRef dict   := init("Dict")
+  ASpecRef funcs  := init("Funcs")
   ASpecRef list   := init("List")
   ASpecRef and    := init("And")
   ASpecRef or     := init("Or")
