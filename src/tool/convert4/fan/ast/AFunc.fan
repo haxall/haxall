@@ -68,8 +68,12 @@ class AFunc
     axon := ast.config.ns.io.readAxon(src)->axon
 
     fn := Parser(Loc.eval, src.in).parseTopWithParams(name)
-    params := fn.params.map |x->AParam| { AParam(x.name, AType.obj, x.def?.toStr) }
-    returns := AParam("returns", AType.obj, null)
+    params := fn.params.map |x->AParam|
+    {
+      pmeta := x.def == null ? Etc.dict0 : Etc.dict1("axon", x.def.toStr)
+      return AParam(x.name, AType.obj, pmeta)
+    }
+    returns := AParam("returns", AType.obj)
 
     meta := Etc.dictFromMap(mapMeta(ast, def))
 
@@ -126,7 +130,7 @@ class AFunc
     // returns
     returnType := method.returns
     if (returnType.name == "Void") returnType = Obj?#
-    returns := AParam("returns", AType.map(returnType), null)
+    returns := AParam("returns", AType.map(returnType))
 
     // function stub
     return AFunc(name, doc, Etc.makeDict(meta), params, returns, null)
@@ -289,16 +293,16 @@ class AFunc
 
 const class AParam
 {
-  new make(Str name, AType type, Str? def)
+  new make(Str name, AType type, Dict meta := Etc.dict0)
   {
     this.name = name
     this.type = type
-    this.def  = def
+    this.meta = meta
   }
 
   const Str name
   const AType type
-  const Str? def
+  const Dict meta
 
   override Str toStr() { "$name: $type" }
 }

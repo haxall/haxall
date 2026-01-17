@@ -11,10 +11,10 @@ using haystack
 using axon
 
 **
-** DefCompParser is used to parse a 3.1 style defcomp function
-** into its cells and axon body.
+** AxonSigParser is used to parse a 3.1 style top-level signature as
+** parameters or defcomp cells into its params/cells and axon body.
 **
-class DefCompParser : Parser
+class AxonSigParser : Parser
 {
   new make(Str src) : super(Loc("convert4"), src.in) { this.src = src }
 
@@ -22,7 +22,7 @@ class DefCompParser : Parser
   const Str src
 
   ** Parsed cells
-  DefCompCell[] cells := [,]
+  AParam[] params := [,]
 
   ** Parsed axon body
   Str body := "null"
@@ -36,7 +36,7 @@ class DefCompParser : Parser
     // cells as "name: {meta}"
     while (cur !== Token.doKeyword && cur !== Token.endKeyword)
     {
-      cells.add(parseCell)
+      params.add(parseCell)
     }
 
     // source body if we have do block
@@ -59,25 +59,14 @@ class DefCompParser : Parser
     return this
   }
 
-  private DefCompCell parseCell()
+  private AParam parseCell()
   {
     name := consumeIdOrKeyword("Expecting cell name")
     consume(Token.colon)
     meta := constDict
     if (meta.has("name")) throw err("Comp cell meta cannot define 'name' tag")
     eos
-    return DefCompCell(name, meta)
+    return AParam(name, AType.obj, meta)
   }
-}
-
-**************************************************************************
-** DefCompCell
-**************************************************************************
-
-const class DefCompCell
-{
-  new make(Str n, Dict m) { name = n; meta = m }
-  const Str name
-  const Dict meta
 }
 

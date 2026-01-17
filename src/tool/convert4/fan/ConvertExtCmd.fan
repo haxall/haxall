@@ -203,7 +203,7 @@ internal class ConvertExtCmd : ConvertCmd
   Void genParam(StrBuf s, AParam p)
   {
     s.add(p.name).add(": ").add(p.type.sig)
-    if (p.def != null) s.add(" <axon:").add(p.def.toCode).add(">")
+    if (!p.meta.isEmpty) { s.add(" "); encodeFuncMeta(s, p.meta) }
   }
 
   Void genDoc(StrBuf s, Str? doc, Str indent)

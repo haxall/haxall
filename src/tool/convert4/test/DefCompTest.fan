@@ -52,25 +52,25 @@ class DefCompTest : HaystackTest
        "null")
   }
 
-  Void verifyParse(Str src, Str:Map cells, Str body)
+  Void verifyParse(Str src, Str:Map params, Str body)
   {
-    p := DefCompParser(src).parseCompDef
+    p := AxonSigParser(src).parseCompDef
 
     if (false)
     {
       echo("#####")
       echo(src)
       echo
-      p.cells.each |c| { echo("$c.name $c.meta") }
+      p.params.each |c| { echo("$c.name $c.meta") }
       echo("--->")
       echo(p.body)
       echo("<---")
     }
 
-    verifyEq(p.cells.size, cells.size)
-    cells.each |expect, name|
+    verifyEq(p.params.size, params.size)
+    params.each |expect, name|
     {
-      c := p.cells.find { it.name == name } ?: throw Err(name)
+      c := p.params.find { it.name == name } ?: throw Err(name)
       verifyDictEq(c.meta, expect)
     }
     verifyEq(p.body, body)
