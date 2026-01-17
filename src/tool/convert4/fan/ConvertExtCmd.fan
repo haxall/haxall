@@ -156,7 +156,11 @@ internal class ConvertExtCmd : ConvertCmd
       while (f.axonBody.contains(heredoc)) heredoc += "-"
       s.add("\n")
       s.add("    <axon:").add(heredoc).add("\n")
-      f.axonBody.splitLines.each |line| { s.add("    ").add(line).add("\n") }
+      f.axonBody.splitLines.each |line|
+      {
+        if (!line.trim.isEmpty) s.add("    ").add(line)
+        s.add("\n")
+      }
       s.add("    ").add(heredoc).add(">\n").add("  }\n")
     }
     else
@@ -200,10 +204,15 @@ internal class ConvertExtCmd : ConvertCmd
     }
   }
 
-  Void genParam(StrBuf s, AParam p)
+  Void genParam(StrBuf buf, AParam p)
   {
-    s.add(p.name).add(": ").add(p.type.sig)
-    if (!p.meta.isEmpty) { s.add(" "); encodeFuncMeta(s, p.meta) }
+    buf.add(p.name).add(": ").add(p.type.sig)
+    if (!p.meta.isEmpty)
+    {
+      buf.add(" <")
+      encodeDictPairs(buf, p.meta)
+      buf.add(">")
+    }
   }
 
   Void genDoc(StrBuf s, Str? doc, Str indent)

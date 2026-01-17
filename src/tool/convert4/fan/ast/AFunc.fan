@@ -65,7 +65,6 @@ class AFunc
 
     doc := def["doc"] as Str ?: ""
     src := def["src"] as Str ?: throw Err("Missing axon src")
-    axon := ast.config.ns.io.readAxon(src)->axon
 
     sig := AxonConvertParser(src).parseSig
     returns := AParam("returns", AType.obj)
@@ -237,9 +236,7 @@ class AFunc
       else echo("WARN: unhandled lazy param: $method $name")
     }
 
-    def := null // TODO
-
-    return AParam(name, AType.map(type), def)
+    return AParam(name, AType.map(type), Etc.dict0)
   }
 
 //////////////////////////////////////////////////////////////////////////

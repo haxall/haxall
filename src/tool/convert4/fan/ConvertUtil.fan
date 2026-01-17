@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 
 const class ConvertUtil
 {
@@ -34,6 +35,13 @@ const class ConvertUtil
       if (s.trimToNull == null) return ""
       else return s[indent..-1]
     }.join("\n")
+  }
+
+  ** Map defcomp cell meta to swizzle from old rule engine to new rule enigne meta
+  static Dict mapDefcompCellMeta(Dict meta)
+  {
+echo("~~~~ TODO: mapDefcompCellMeta: $meta")
+    return meta
   }
 }
 
