@@ -13,9 +13,6 @@ using util
 **
 ** XetoJsonReader
 **
-
-// TODO fidelity flag
-
 @Js
 class XetoJsonReader
 {
@@ -86,18 +83,17 @@ class XetoJsonReader
     return dict
   }
 
-  private Obj[] convertList(MNamespace ns, Obj?[] ls, Spec? spec)
+  private Obj?[] convertList(MNamespace ns, Obj?[] from, Spec? spec)
   {
     of := (spec == null) ? null : spec.of()
 
-    ls.each |v, i|
-    {
-      ls[i] = convert(ns, v, of)
-    }
-    return ls
+    to := from.contains(null) ? Obj?[,] : Obj[,]
+    from.each |v| { to.add(convert(ns, v, of)) }
+
+    return to
   }
 
-  private Obj convertScalar(MNamespace ns, Obj x, Spec? spec)
+  private Obj? convertScalar(MNamespace ns, Obj? x, Spec? spec)
   {
     if (fidelity === XetoFidelity.haystack)
     {

@@ -24,11 +24,23 @@ JsonScalars: {
   unitQuantity: UnitQuantity "electricCurrentDensity"
   spanMode: SpanMode "yesterday"
   version: Version "4.0.9"
-
-  scalarA: ScalarA "alpha"
-  scalarB: ScalarB "bravo"
 }
 
 @jsonScalarsA: JsonScalars {
+}
+
+JsonNest: {
+  foo: JsonFoo
+  dates: List <of:Date> 
+}
+
+JsonFoo: {
+  a: Int
+  b: Str
+}
+
+@jsonNestA: JsonNest {
+  foo: {a: 123, b: "xyz"}
+  dates: {"2024-11-26", "2024-11-27"}
 }
 

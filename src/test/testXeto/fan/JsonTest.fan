@@ -17,51 +17,72 @@ using haystack
 @Js
 class JsonTest : AbstractXetoTest
 {
-  Void test()
+  Void testHaystack()
   {
     ns := createNamespace(["hx.test.xeto"])
+    opts := Etc.dict1("haystack", m)
 
-    verifyRoundTrip(ns, null)
-    verifyRoundTrip(ns, true)
+    verifyHaystack(ns, null, null)
+    verifyHaystack(ns, true, true)
+    verifyHaystack(ns, "abc", "abc")
+    verifyHaystack(ns, n(1), n(1))
+    verifyHaystack(ns, 2, n(2))
+    verifyHaystack(ns, 3.4f, n(3.4f))
 
-    verifyRoundTrip(ns, "abc")
-    verifyRoundTrip(ns, "abc", ns.spec("sys::Str"))
-
-// todo fieldoy
-    verifyRoundTrip(ns, 1, ns.spec("sys::Int"))
-    verifyRoundTrip(ns, 1.234f, ns.spec("sys::Float"))
-    verifyRoundTrip(ns, n(10, "db"), ns.spec("sys::Number"))
-
-    verifyRoundTrip(ns,
+    verifyHaystack(ns,
+      DateTime.fromStr("2024-11-25T10:24:35-05:00 New_York"),
       DateTime.fromStr("2024-11-25T10:24:35-05:00 New_York"),
       ns.spec("sys::DateTime"))
 
-    verifyRoundTrip(ns,
-      ns.instance("hx.test.xeto::jsonScalarsA"))
+    verifyHaystack(ns,
+      [null, "true", 1, n(2)],
+      [null, "true", n(1), n(2)])
+
+    verifyHaystack(ns,
+      Etc.dict4("a", true, "b", "xyz", "c", n(1), "d", 2),
+      Etc.dict4("a", true, "b", "xyz", "c", n(1), "d", n(2)))
+  }
+
+  Void test()
+  {
+    ns := createNamespace(["hx.test.xeto"])
 
     verifyRoundTrip(ns,
       ns.instance("hx.test.xeto::jsonScalarsA"),
       ns.spec("hx.test.xeto::JsonScalars"))
 
-    //doc.xeto
-    //verifyListEq sys::Obj[] sys::Obj?[] false
-    //TAG FAILED: strs
-    verifyRoundTrip(ns,
-      ns.instance("hx.test.xeto::whitehouse"))
+    dict := ns.instance("hx.test.xeto::jsonNestA")
 
-    //instances.xeto
-    //verifyListEq sys::Obj[] sys::Obj?[] false
-    //TAG FAILED: a
     verifyRoundTrip(ns,
-      ns.instance("hx.test.xeto::lists"),
-      ns.spec("hx.test.xeto::ListOfTest"))
+      ns.instance("hx.test.xeto::jsonNestA"),
+      ns.spec("hx.test.xeto::JsonNest"))
   }
 
-  private Void verifyRoundTrip(MNamespace ns, Obj? a, Spec? spec := null)
+  private Void verifyHaystack(
+    MNamespace ns,
+    Obj? orig,
+    Obj? expect,
+    Spec? spec := null)
   {
+    str := toJson(orig)
+
+    read := XetoJsonReader(ns, str.in, spec, haystackOpts).readVal
+    if (orig is Dict)
+      verifyDictEq(read, expect)
+    else
+      verifyEq(read, expect)
+  }
+
+  private Void verifyRoundTrip(
+    MNamespace ns,
+    Obj? a,
+    Spec? spec := null,
+    Dict? opts := null)
+  {
+    //echo("=============================================================")
     str := toJson(a)
 
-    b := XetoJsonReader(ns, str.in, spec).readVal
+    b := XetoJsonReader(ns, str.in, spec, opts).readVal
     if (a is Dict)
       verifyDictEq(a, b)
     else
@@ -73,9 +94,11 @@ class JsonTest : AbstractXetoTest
     buf := Buf()
     XetoJsonWriter(buf.out, Etc.dict1("pretty", m)).writeVal(x)
     str := buf.flip.readAllStr
-    echo("=========================================")
-    echo(str)
+    //echo("-----------------------------------------")
+    //echo(str)
     return str
   }
+
+  private static const Dict haystackOpts := Etc.dict1("haystack", m)
 }
 
