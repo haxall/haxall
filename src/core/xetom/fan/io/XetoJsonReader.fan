@@ -24,11 +24,12 @@ class XetoJsonReader
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, InStream in, Spec? spec := null, Dict? opts := null)
+  new make(MNamespace ns, InStream in, Spec? rootSpec := null, Dict? opts := null)
   {
     this.ns = ns
     this.in = in
-    this.spec = spec
+    this.rootSpec = rootSpec
+    this.fidelity = XetoUtil.optFidelity(opts)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,37 +38,31 @@ class XetoJsonReader
 
   Obj? readVal()
   {
-    x := JsonInStream(in).readJson
-    return convert(ns, x, spec)
+    x := XetoJsonInStream(in).readJson
+    return convert(ns, x, rootSpec)
   }
 
-  private static Obj? convert(MNamespace ns, Obj? x, Spec? spec)
+  private Obj? convert(MNamespace ns, Obj? x, Spec? spec)
   {
-    if (x is Str)
-    {
-    // todo
-      if ((spec == null) || (spec.qname == "sys::Str"))
-        return x
-      else
-        return spec.binding.decodeScalar(x)
-    }
-    else if (x is Map)  return convertMap(ns, x, spec)
+    if      (x is Dict) return convertDict(ns, x, spec)
     else if (x is List) return convertList(ns, x, spec)
-
-    // null, Bool, Int, Float
-    else return x
+    else                return convertScalar(ns, x, spec)
   }
 
-  private static Dict convertMap(MNamespace ns, Str:Obj? map, Spec? spec)
+  private Dict convertDict(MNamespace ns, Dict dict, Spec? spec)
   {
-    // If the spec isn't specified, try to look it up within the map
+    // If the spec is null, try to look it up
     if (spec == null)
     {
-      if (map.containsKey("spec"))
-        spec = ns.spec(map["spec"])
+      if (dict.has("spec"))
+        spec = ns.spec(dict->spec)
     }
 
-    map.each |v, k|
+    members := (spec == null) ? null : spec.members
+    map := Str:Obj[:]
+
+    // each entry
+    dict.each |v, k|
     {
       // id and spec are Refs (and they do not have member entries)
       if (k == "id" || k == "spec")
@@ -77,46 +72,53 @@ class XetoJsonReader
       // handle normally
       else
       {
-        // use member spec to convert value
-        if (spec != null && spec.members.has(k)) // don't use has
-        {
-          x := convert(ns, v, spec.members.get(k)) // look members up once
-          if (v !== x)
-          {
-            map[k] = x
-          }
-        }
-        // convert un-typed nested maps
-        else if (v is Map)
-        {
-          x := convertMap(ns, v, null)
-          if (v !== x)
-          {
-            map[k] = x
-          }
-        }
-        // TODO list also
+        mspec := (members == null) ? null : members.get(k, false)
+        map[k] = convert(ns, v, mspec)
       }
     }
 
     // convert to dict
-    dict := Etc.dictFromMap(map)
-    if (spec != null)
+    dict = Etc.dictFromMap(map)
+
+    // apply spec binding, if we are not haystack
+    if ((spec != null) && (fidelity !== XetoFidelity.haystack))
       dict = spec.binding.decodeDict(dict)
     return dict
   }
 
-  private static Obj[] convertList(MNamespace ns, Obj?[] ls, Spec? spec)
+  private Obj[] convertList(MNamespace ns, Obj?[] ls, Spec? spec)
   {
-    of := spec.of()
+    of := (spec == null) ? null : spec.of()
 
     ls.each |v, i|
     {
-      x := convert(ns, v, of)
-      if (v !== x)
-        ls[i] = x
+      ls[i] = convert(ns, v, of)
     }
     return ls
+  }
+
+  private Obj convertScalar(MNamespace ns, Obj x, Spec? spec)
+  {
+    if (fidelity === XetoFidelity.haystack)
+    {
+      if (x is Str)
+      {
+        if ((spec != null) && spec.isHaystack)
+          return spec.binding.decodeScalar(x)
+      }
+      else if (x is Int) return Number.makeInt(x)
+      else if (x is Float) return Number.make(x)
+    }
+    else
+    {
+      if (x is Str)
+      {
+        if (spec != null)
+          return spec.binding.decodeScalar(x)
+      }
+    }
+
+    return x
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -125,6 +127,19 @@ class XetoJsonReader
 
   private MNamespace ns
   private InStream in
-  private Spec? spec
+  private Spec? rootSpec
+  private XetoFidelity fidelity
+}
+
+**************************************************************************
+** XetoJsonInStream
+**************************************************************************
+
+@Js
+internal class XetoJsonInStream : JsonInStream
+{
+  internal new make(InStream in) : super(in) {}
+
+  override Obj transformObj(Str:Obj? obj) { return Etc.makeDict(obj) }
 }
 
