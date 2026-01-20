@@ -103,7 +103,7 @@ class XetoJsonReader
     {
       if (x is Str)
       {
-        if ((spec != null) && spec.isHaystack)
+        if ((spec != null) && spec.type.isHaystack)
           return spec.binding.decodeScalar(x)
       }
       else if (x is Int) return Number.makeInt(x)
