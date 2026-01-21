@@ -41,9 +41,9 @@ class XetoJsonReader
 
   private Obj? convert(MNamespace ns, Obj? x, Spec? spec)
   {
-    if      (x is Dict) return convertDict(ns, x, spec)
-    else if (x is List) return convertList(ns, x, spec)
-    else                return convertScalar(ns, x, spec)
+    if (x is Dict) return convertDict(ns, x, spec)
+    if (x is List) return convertList(ns, x, spec)
+    return convertScalar(ns, x, spec)
   }
 
   private Dict convertDict(MNamespace ns, Dict dict, Spec? spec)
@@ -87,10 +87,10 @@ class XetoJsonReader
   {
     of := (spec == null) ? null : spec.of()
 
-    to := from.contains(null) ? Obj?[,] : Obj[,]
-    from.each |v| { to.add(convert(ns, v, of)) }
-
-    return to
+    if (from.contains(null))
+      return from.map |Obj? v->Obj?| { convert(ns, v, of) }
+    else
+      return from.map |Obj v->Obj| { convert(ns, v, of) }
   }
 
   private Obj? convertScalar(MNamespace ns, Obj? x, Spec? spec)
@@ -102,8 +102,8 @@ class XetoJsonReader
         if ((spec != null) && spec.type.isHaystack)
           return spec.binding.decodeScalar(x)
       }
-      else if (x is Int) return Number.makeInt(x)
-      else if (x is Float) return Number.make(x)
+      if (x is Int) return Number.makeInt(x)
+      if (x is Float) return Number.make(x)
     }
     else
     {
