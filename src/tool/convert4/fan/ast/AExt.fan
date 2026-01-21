@@ -94,6 +94,17 @@ class AExt
     }
   }
 
+  Bool dependOnRule()
+  {
+    funcs.any |func->Bool|
+    {
+      func.params.any |param->Bool|
+      {
+        param.meta.eachWhile |val, name->Bool?| { name.startsWith("rule") ? true : null } ?: false
+      }
+    }
+  }
+
   override Str toStr() { "$oldName [$type]" }
 }
 

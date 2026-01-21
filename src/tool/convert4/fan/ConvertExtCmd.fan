@@ -102,6 +102,7 @@ internal class ConvertExtCmd : ConvertCmd
     if (!ext.funcs.isEmpty)  addDepend(s, "axon", "hx")
     if (ext.libName != "hx") addDepend(s, "hx")
     if (ext.dependOnIon) addDepend(s, "ion")
+    if (ext.dependOnRule) addDepend(s, "hx.rule", "skyspark")
     s.add("  }")
     return s.toStr
   }
@@ -115,6 +116,7 @@ internal class ConvertExtCmd : ConvertCmd
     s.add(" versions: $versions")
     s.add(" }\n")
   }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Gen Funcs

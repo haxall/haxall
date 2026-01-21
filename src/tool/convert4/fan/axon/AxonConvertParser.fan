@@ -102,9 +102,10 @@ class AxonConvertParser : Parser
     consume(Token.colon)
     meta := constDict
     if (meta.has("name")) throw err("Comp cell meta cannot define 'name' tag")
+    type := ConvertUtil.cellToType(name, meta)
     meta = ConvertUtil.mapDefcompCellMeta(meta)
     eos
-    return AParam(name, AType.obj, meta)
+    return AParam(name, type, meta)
   }
 }
 

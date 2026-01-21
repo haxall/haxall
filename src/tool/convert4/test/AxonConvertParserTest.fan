@@ -66,9 +66,9 @@ class AxonConvertParserTest : HaystackTest
              end
            end|>,
        [
-         "inA":["is":Symbol("number"), "defVal":n(0)],
-         "inB":["is":Symbol("number"), "defVal":n(0), "foo":"bar"],
-         "out":["is":Symbol("number"), "ro":m],
+         "inA":["::type":"Number", "axon":n(0)],
+         "inB":["::type":"Number", "axon":n(0), "foo":"bar"],
+         "out":["::type":"Number", "ro":m],
        ],
        """do
             out = inA + inB
@@ -85,6 +85,37 @@ class AxonConvertParserTest : HaystackTest
          "cell1":["marker":m, "foo":"!"],
        ],
        "null")
+
+    // defcomp with rule mappings
+    verifyParse(
+      Str<|defcomp
+             target: {}
+             date: {}
+             dat: {bind:"discharge and temp and equipRef=={{target->id}}", watch}
+             all: {bindAll:"temp and equipRef=={{target->id}}"}
+             outA: {bindOut:"outA and equipRef=={{target->id}}", toCurVal}
+             outB: {bindOut:"outB and equipRef=={{target->id}}", toWriteLevel:14}
+             sum: {is:^number}
+             do
+               sum = dat["curVal"] * 2
+               outA = sum + 100
+               outB = sum + 200
+             end
+           end|>,
+      [
+        "target":["::type":"Entity"],
+        "date":["::type":"Date"],
+        "dat":["::type":"Entity", "ruleBind":"discharge and temp and equipRef=={{target->id}}"],
+        "all":["::type":"List", "of":Ref("sys::Entity"), "ruleBind":"temp and equipRef=={{target->id}}", "ruleNoWatch":m],
+        "outA":["::type":"Point", "ruleBind":"outA and equipRef=={{target->id}}", "ruleToCurVal":m],
+        "outB":["::type":"Point", "ruleBind":"outB and equipRef=={{target->id}}", "ruleToWriteLevel":n(14)],
+        "sum":["::type":"Number"]
+      ],
+      """do
+           sum = dat["curVal"] * 2
+           outA = sum + 100
+           outB = sum + 200
+         end""")
   }
 
   Void verifyParse(Str src, Str:Map params, Str body)
@@ -103,10 +134,11 @@ class AxonConvertParserTest : HaystackTest
     }
 
     verifyEq(p.aparams.size, params.size)
-    params.each |expect, name|
+    params.each |Str:Obj expect, Str name|
     {
+      t := expect.remove("::type") ?: "Obj?"
       x := p.aparams.find { it.name == name } ?: throw Err(name)
-      verifyEq(x.type.sig, "Obj?")
+      verifyEq(x.type.sig, t, "${name} ${x.type.sig} != ${t}")
       verifyDictEq(x.meta, expect)
     }
     verifyEq(p.body, body)
