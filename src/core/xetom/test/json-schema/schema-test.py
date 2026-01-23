@@ -6,7 +6,6 @@
 import json
 from jsonschema import validate, ValidationError
 
-# Open the file and load the data
 with (
     open('schema.json', 'r') as schema_file,
     open('instances.json', 'r') as instances_file
