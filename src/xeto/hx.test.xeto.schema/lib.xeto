@@ -1,0 +1,34 @@
+//
+// Copyright (c) 2023, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Oct 2023  Brian Frank  Creation
+//
+
+pragma: Lib <
+  doc: "Haxall test library"
+  version: BuildVar "hx.version"
+  depends: {
+    { lib: "sys",          versions: BuildVar "ph.depend" }
+    { lib: "sys.comp",     versions: BuildVar "ph.depend" }
+    { lib: "sys.api",      versions: BuildVar "ph.depend" }
+    { lib: "sys.template", versions: BuildVar "ph.depend" }
+    { lib: "ph",           versions: BuildVar "ph.depend" }
+    { lib: "ph.attrs",     versions: BuildVar "ph.depend" }
+    { lib: "ph.protocols", versions: BuildVar "ph.depend" }
+    { lib: "ph.points",    versions: BuildVar "ph.depend" }
+    { lib: "axon",         versions: BuildVar "hx.depend" }
+  }
+  categories: {"haxall"}
+  license: BuildVar "hx.license"
+  org: {
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
+  }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
+  }
+>
+

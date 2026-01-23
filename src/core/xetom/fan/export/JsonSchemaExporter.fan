@@ -78,13 +78,6 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
-    // TODO
-    if (!(spec.type.qname == "hx.test.xeto::Product" ||
-          spec.type.qname == "hx.test.xeto::OrderType" ||
-          spec.type.qname == "hx.test.xeto::Order"))
-      return
-
-
     if (spec.isEnum)
       doSpecEnum(spec)
     else
@@ -187,13 +180,10 @@ class JsonSchemaExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   private static const Str:[Obj:Obj] primitives := [
-    "sys::Str":      ["type": "string"],
-    "sys::Bool":     ["\$ref": "sys-5.0.0#/\$defs/Bool"],
-    "sys::Int":      ["\$ref": "sys-5.0.0#/\$defs/Int"],
-    "sys::Float":    ["\$ref": "sys-5.0.0#/\$defs/Float"],
-    "sys::Marker":   ["\$ref": "sys-5.0.0#/\$defs/Marker"],
-    "sys::Ref":      ["\$ref": "sys-5.0.0#/\$defs/Ref"],
-    "sys::DateTime": ["\$ref": "sys-5.0.0#/\$defs/DateTime"],
+    "sys::Str":   ["type": "string"],
+    "sys::Bool":  ["type": "boolean"],
+    "sys::Int":   ["type": "integer"],
+    "sys::Float": ["type": "number"],
   ]
 
   private Obj:Obj map := [:] { ordered = true }
