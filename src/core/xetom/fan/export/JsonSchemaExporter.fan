@@ -78,10 +78,32 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
+    if (seenAlready(spec))
+      return
+
     if (spec.isEnum)
       doSpecEnum(spec)
+    else if (spec.isScalar)
+      doSpecScalar(spec)
     else
-      doSpecDict(spec)
+      doSpecObj(spec)
+  }
+
+  private Bool seenAlready(Spec spec)
+  {
+    if (seen.containsKey(spec.qname))
+      return true
+    seen[spec.qname] = Marker.val
+    return false
+  }
+  private Str:Marker seen := Str:Marker[:]
+
+  private Void doSpecScalar(Spec spec)
+  {
+    defs[spec.name] = [
+      "type": "string",
+      "pattern": spec.meta["pattern"]
+    ]
   }
 
   private Void doSpecEnum(Spec spec)
@@ -92,7 +114,7 @@ class JsonSchemaExporter : Exporter
     ]
   }
 
-  private Void doSpecDict(Spec spec)
+  private Void doSpecObj(Spec spec)
   {
     //------------------------------
     // properties
@@ -127,25 +149,26 @@ class JsonSchemaExporter : Exporter
     // inheritance
 
     type := spec.type
-    if (type.isCompound)
-      throw Err("Compound type not supported: $type")
+    if (type.base != null)
+    {
+      if (type.isCompound)
+        throw Err("TODO Compound type not supported: $type")
 
-    if (type.base.qname == "sys::Dict")
-    {
-      defs[spec.name] = schema
+      if (type.base.qname == "sys::Dict")
+      {
+        defs[spec.name] = schema
+      }
+      else
+      {
+        defs[spec.name] = ["allOf": [
+          ["\$ref": typeRef(type.base, spec.lib) ],
+          schema
+        ]]
+      }
     }
-    else if (type.base.qname == "sys::Entity")
-    {
-      defs[spec.name] = ["allOf": [
-        ["\$ref": typeRef(type.base, spec.lib) ],
-        schema
-      ]]
-    }
-    else
-      throw Err("$type has unsupported base type")
   }
 
-  private static Obj:Obj prop(Spec slot, Lib lib)
+  private Obj:Obj prop(Spec slot, Lib lib)
   {
     // primitives
     prm := primitives.getChecked(slot.type.qname, false)
@@ -163,8 +186,10 @@ class JsonSchemaExporter : Exporter
       return ["\$ref": typeRef(slot.type, lib) ]
   }
 
-  private static Str typeRef(Spec type, Lib lib)
+  private Str typeRef(Spec type, Lib lib)
   {
+    doSpec(type)
+
     return (type.lib.name == lib.name) ?
       "#/\$defs/$type.name" :
       "${libNameVer(type.lib)}#/\$defs/$type.name"
