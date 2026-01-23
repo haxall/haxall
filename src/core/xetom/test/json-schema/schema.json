@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "hx.test.xeto.schema-4.0.4",
+  "title": "Haxall test library",
+  "$defs": {
+    "sys-5.0.0": {
+      "Entity": {
+        "additionalProperties": true,
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/sys-5.0.0/Ref"
+          },
+          "spec": {
+            "$ref": "#/$defs/sys-5.0.0/Ref"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Ref": {
+        "pattern": "[a-zA-Z\\d\\._~]*",
+        "type": "string"
+      },
+      "Marker": {
+        "pattern": "\u2713",
+        "type": "string"
+      },
+      "DateTime": {
+        "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)*[Z+-][\\d:]*[ ]*[-+a-zA-Z_\\d]*",
+        "type": "string"
+      }
+    },
+    "hx.test.xeto.schema-4.0.4": {
+      "Order": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/sys-5.0.0/Entity"
+          },
+          {
+            "additionalProperties": true,
+            "type": "object",
+            "properties": {
+              "orderType": {
+                "$ref": "#/$defs/hx.test.xeto.schema-4.0.4/OrderType"
+              },
+              "orderDate": {
+                "$ref": "#/$defs/sys-5.0.0/DateTime"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/hx.test.xeto.schema-4.0.4/Product"
+                }
+              },
+              "customerName": {
+                "type": "string"
+              },
+              "order": {
+                "$ref": "#/$defs/sys-5.0.0/Marker"
+              }
+            },
+            "required": [
+              "order",
+              "customerName",
+              "orderDate",
+              "orderType",
+              "items"
+            ]
+          }
+        ]
+      },
+      "OrderType": {
+        "type": "string",
+        "enum": [
+          "kitchen",
+          "bathRoom",
+          "livingRoom",
+          "secretLab"
+        ]
+      },
+      "Product": {
+        "additionalProperties": true,
+        "type": "object",
+        "properties": {
+          "product": {
+            "$ref": "#/$defs/sys-5.0.0/Marker"
+          },
+          "price": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "product",
+          "name",
+          "price"
+        ]
+      }
+    }
+  }
+}
+
