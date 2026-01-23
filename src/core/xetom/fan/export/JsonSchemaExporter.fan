@@ -78,7 +78,7 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
-    if (seenAlready(spec))
+    if (alreadyDefined(spec))
       return
 
     if (spec.isEnum)
@@ -89,29 +89,28 @@ class JsonSchemaExporter : Exporter
       doSpecObj(spec)
   }
 
-  private Bool seenAlready(Spec spec)
+  private Bool alreadyDefined(Spec spec)
   {
-    if (seen.containsKey(spec.qname))
+    if (defined.containsKey(spec.qname))
       return true
-    seen[spec.qname] = Marker.val
+    defined[spec.qname] = Marker.val
     return false
   }
-  private Str:Marker seen := Str:Marker[:]
 
   private Void doSpecScalar(Spec spec)
   {
-    defs[spec.name] = [
+    addDef(spec, [
       "type": "string",
       "pattern": spec.meta["pattern"]
-    ]
+    ])
   }
 
   private Void doSpecEnum(Spec spec)
   {
-    defs[spec.name] = [
+    addDef(spec, [
       "type": "string",
       "enum": spec.enum.keys
-    ]
+    ])
   }
 
   private Void doSpecObj(Spec spec)
@@ -156,14 +155,17 @@ class JsonSchemaExporter : Exporter
 
       if (type.base.qname == "sys::Dict")
       {
-        defs[spec.name] = schema
+        addDef(spec, schema)
       }
       else
       {
-        defs[spec.name] = ["allOf": [
-          ["\$ref": typeRef(type.base, spec.lib) ],
-          schema
-        ]]
+        addDef(
+          spec, [
+            "allOf": [
+              ["\$ref": typeRef(type.base)],
+              schema
+            ]
+          ])
       }
     }
   }
@@ -178,21 +180,29 @@ class JsonSchemaExporter : Exporter
     else if (slot.type.isList())
       return [
         "type": "array",
-         "items": [ "\$ref": typeRef(slot.of, lib) ]
+         "items": [ "\$ref": typeRef(slot.of) ]
       ]
 
     // anything else
     else
-      return ["\$ref": typeRef(slot.type, lib) ]
+      return ["\$ref": typeRef(slot.type) ]
   }
 
-  private Str typeRef(Spec type, Lib lib)
+  private Str typeRef(Spec type)
   {
     doSpec(type)
 
-    return (type.lib.name == lib.name) ?
-      "#/\$defs/$type.name" :
-      "${libNameVer(type.lib)}#/\$defs/$type.name"
+    nameVer := libNameVer(type.lib)
+    return "#/\$defs/$nameVer/$type.name"
+  }
+
+  private Void addDef(Spec type, Obj:Obj schema)
+  {
+    nameVer := libNameVer(type.lib)
+    if (!defs.containsKey(nameVer))
+      defs[nameVer] = Obj:Obj[:]
+
+    defs[nameVer][type.name] = schema
   }
 
   private static Str libNameVer(Lib lib)
@@ -211,8 +221,11 @@ class JsonSchemaExporter : Exporter
     "sys::Float": ["type": "number"],
   ]
 
+  // qnames that have already been defined
+  private Str:Marker defined := Str:Marker[:]
+
   private Obj:Obj map := [:] { ordered = true }
-  private Obj:Obj defs := [:] { ordered = true }
+  private Obj:[Obj:Obj] defs := [:] { ordered = true }
 }
 
 //    //------------------------------
