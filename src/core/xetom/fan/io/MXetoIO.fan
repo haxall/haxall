@@ -56,8 +56,7 @@ const final class MXetoIO : XetoIO
   override Obj? readJson(InStream in, Spec? spec := null, Dict? opts := null)
   {
     try
-      //return XetoJsonReader(ns, in, opts ?: Etc.dict0).readVal
-      throw Err("TODO")
+      return XetoJsonReader(ns, in, spec, opts ?: Etc.dict0).readVal
     finally
       in.close
   }
