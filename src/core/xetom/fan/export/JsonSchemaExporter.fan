@@ -190,8 +190,10 @@ class JsonSchemaExporter : Exporter
 
   private Str typeRef(Spec type)
   {
+    // recursively ensure that everything is defined.
     doSpec(type)
 
+    // create a typeref
     nameVer := libNameVer(type.lib)
     return "#/\$defs/$nameVer/$type.name"
   }
@@ -227,36 +229,3 @@ class JsonSchemaExporter : Exporter
   private Obj:Obj map := [:] { ordered = true }
   private Obj:[Obj:Obj] defs := [:] { ordered = true }
 }
-
-//    //------------------------------
-//    // inheritance
-//
-//    type := spec.type
-//
-//    // sys::Obj
-//    if (type.base == null)
-//    {
-//      defs[spec.qname] = schema
-//    }
-//    else
-//    {
-//      allOf := Obj[,]
-//
-//      // compound
-//      if (type.isCompound)
-//      {
-//        type.ofs.each |cmp|
-//        {
-//          allOf.add(["\$ref": typeRef(cmp, spec.lib) ])
-//        }
-//      }
-//      // single inheritance
-//      else
-//      {
-//        allOf.add(["\$ref": typeRef(type.base, spec.lib) ])
-//      }
-//
-//      allOf.add(schema)
-//      defs[spec.qname] = ["allOf": allOf]
-//    }
-//  }
