@@ -81,24 +81,18 @@ class XetoJsonWriter
     wc('{').nl
     indentation++
 
-    //--------------------------------------
     // spec
-
     indent.quoted("spec").wc(':').quoted("sys::Grid")
     wc(',').nl
 
-    //--------------------------------------
     // meta
-
     if (!grid.meta.isEmpty)
     {
       indent.quoted("meta").wc(':').writeVal(grid.meta)
       wc(',').nl
     }
 
-    //--------------------------------------
     // cols
-
     indent.quoted("cols").wc(':')
     wc('[').nl
     indentation++
@@ -107,7 +101,6 @@ class XetoJsonWriter
     {
       if (first) first = false
       else wc(',').nl
-
       if (c.meta.isEmpty)
         indent.writeVal(Etc.dict1("name", c.name))
       else
@@ -117,9 +110,7 @@ class XetoJsonWriter
     nl.indent.wc(']')
     wc(',').nl
 
-    //--------------------------------------
     // rows
-
     indent.quoted("rows").wc(':')
     wc('[').nl
     indentation++
@@ -133,9 +124,7 @@ class XetoJsonWriter
     indentation--
     nl.indent.wc(']')
 
-    //--------------------------------------
     // done
-
     indentation--
     nl.indent.wc('}')
     return this
