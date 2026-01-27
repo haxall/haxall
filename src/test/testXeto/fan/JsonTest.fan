@@ -58,6 +58,62 @@ class JsonTest : AbstractXetoTest
       ns.spec("hx.test.xeto::JsonNest"))
   }
 
+  Void testPretty()
+  {
+    verifyEq(
+      toJson(
+        Etc.dict3(
+          "a", 1,
+          "b", ["a", 1, [Etc.dict2("f", 4, "g", 5), 3, ["b", 4]]],
+          "c", Etc.dict2(
+            "d", 3,
+            "e", Etc.dict2("f", 4, "g", 5)))),
+      Str<|{
+             "a":1,
+             "b":[
+               "a",
+               1,
+               [
+                 {
+                   "f":4,
+                   "g":5
+                 },
+                 3,
+                 [
+                   "b",
+                   4
+                 ]
+               ]
+             ],
+             "c":{
+               "d":3,
+               "e":{
+                 "f":4,
+                 "g":5
+               }
+             }
+           }|>)
+  }
+
+//  Void testGrid()
+//  {
+//    ns := createNamespace(["hx.test.xeto"])
+//
+//    gb := GridBuilder()
+//    gb.addCol("a").addCol("b")
+//    gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
+//    gb.addDictRow(Etc.dict2("a", 1, "b", "y"))
+//    grid := gb.toGrid
+//    toJson(grid)
+//
+////    gb := GridBuilder()
+////    gb.addCol("a").addCol("b")
+////    gb.addRow([0, "b-0"])
+////    gb.addRow([1, "b-1"])
+////    grid := gb.toGrid
+////    toJson(grid)
+//  }
+
   private Void verifyHaystack(
     MNamespace ns,
     Obj? orig,
@@ -94,8 +150,8 @@ class JsonTest : AbstractXetoTest
     buf := Buf()
     XetoJsonWriter(buf.out, Etc.dict1("pretty", m)).writeVal(x)
     str := buf.flip.readAllStr
-    //echo("-----------------------------------------")
-    //echo(str)
+    echo("-----------------------------------------")
+    echo(str)
     return str
   }
 

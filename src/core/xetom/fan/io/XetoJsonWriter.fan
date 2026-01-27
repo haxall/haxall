@@ -40,6 +40,7 @@ class XetoJsonWriter
   {
     if (val is Dict) return writeDict(val)
     if (val is List) return writeList(val)
+    //if (val is Grid) return writeGrid(val)
     return writeScalar(val)
   }
 
@@ -55,7 +56,7 @@ class XetoJsonWriter
       indent.quoted(n).wc(':').writeVal(x)
     }
     indentation--
-    nl.wc('}')
+    nl.indent.wc('}')
     return this
   }
 
@@ -71,9 +72,32 @@ class XetoJsonWriter
       indent.writeVal(x)
     }
     indentation--
-    indent.wc(']')
+    nl.indent.wc(']')
     return this
   }
+
+//  private Void writeGrid(Grid grid)
+//  {
+//    wc('{').nl
+//    indentation++
+//
+//    indent.quoted("rows").wc(':')
+//    wc('[').nl
+//    indentation++
+//    first := true
+//    grid.each |row|
+//    {
+//      if (first) first = false
+//      else wc(',').nl
+//      indent.writeDict(row)
+//    }
+//    indentation--
+//    indent.wc(']')
+//
+//    indentation--
+//    indent.nl.wc('}')
+//    return this
+//  }
 
   private Void writeScalar(Obj? val)
   {
