@@ -24,6 +24,7 @@ class JsonTest : AbstractXetoTest
 
     verifyHaystack(ns, null, null)
     verifyHaystack(ns, true, true)
+    verifyHaystack(ns, m, m)
     verifyHaystack(ns, "abc", "abc")
     verifyHaystack(ns, n(1), n(1))
     verifyHaystack(ns, 2, n(2))
@@ -39,8 +40,8 @@ class JsonTest : AbstractXetoTest
       [null, "true", n(1), n(2)])
 
     verifyHaystack(ns,
-      Etc.dict4("a", true, "b", "xyz", "c", n(1), "d", 2),
-      Etc.dict4("a", true, "b", "xyz", "c", n(1), "d", n(2)))
+      Etc.dict5("z", m, "a", true, "b", "xyz", "c", n(1), "d", 2),
+      Etc.dict5("z", m, "a", true, "b", "xyz", "c", n(1), "d", n(2)))
   }
 
   Void test()
@@ -138,7 +139,7 @@ class JsonTest : AbstractXetoTest
     verifyRoundTrip(ns, grid)
 
     gb = GridBuilder()
-    gb.setMeta(Etc.dict1("foo", "quux"))
+    gb.setMeta(Etc.dict1("foo", m))
     gb.addCol("a").addCol("b", Etc.dict1("dis", "B"))
     gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
     gb.addDictRow(Etc.dict2("a", 1, "b", "y"))

@@ -105,14 +105,14 @@ class XetoJsonReader
     meta.each |v,k|
     {
       if (k == "#grid")
-        gb.setMeta(v)
+        gb.setMeta(convert(ns, v, null))
       else
-        cols[k] = v
+        cols[k] = convert(ns, v, null)
     }
 
     // add the columns and rows to the grid builder
     cols.each |v,k| { gb.addCol(k, v.isEmpty ? null : v) }
-    rows.each |r| { gb.addDictRow(r) }
+    rows.each |r| { gb.addDictRow(convert(ns, r, null)) }
 
     // done
     return gb.toGrid
@@ -134,6 +134,8 @@ class XetoJsonReader
     {
       if (x is Str)
       {
+        if ((spec == null) && (x == "✓"))
+          return Marker.val
         if ((spec != null) && spec.type.isHaystack)
           return spec.binding.decodeScalar(x)
       }
@@ -144,6 +146,8 @@ class XetoJsonReader
     {
       if (x is Str)
       {
+        if ((spec == null) && (x == "✓"))
+          return Marker.val
         if (spec != null)
           return spec.binding.decodeScalar(x)
       }
