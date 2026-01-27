@@ -90,26 +90,31 @@ class XetoJsonWriter
     //--------------------------------------
     // meta
 
-    indent.quoted("meta").wc(':')
-    wc('{').nl
-    indentation++
-    first := true
     if (!grid.meta.isEmpty)
     {
-      first = false
-      indent.quoted("#grid").wc(':').writeVal(grid.meta)
+      indent.quoted("meta").wc(':').writeVal(grid.meta)
+      wc(',').nl
     }
+
+    //--------------------------------------
+    // cols
+
+    indent.quoted("cols").wc(':')
+    wc('[').nl
+    indentation++
+    first := true
     grid.cols.each |c|
     {
-      if (!c.meta.isEmpty)
-      {
-        if (first) first = false
-        else wc(',').nl
-        indent.quoted(c.name).wc(':').writeVal(c.meta)
-      }
+      if (first) first = false
+      else wc(',').nl
+
+      if (c.meta.isEmpty)
+        indent.writeVal(Etc.dict1("name", c.name))
+      else
+        indent.writeVal(Etc.dict2("name", c.name, "meta", c.meta))
     }
     indentation--
-    nl.indent.wc('}')
+    nl.indent.wc(']')
     wc(',').nl
 
     //--------------------------------------

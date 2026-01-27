@@ -91,27 +91,26 @@ class XetoJsonReader
   private Grid convertGrid(MNamespace ns, Dict dict)
   {
     gb := GridBuilder()
-    meta := (Dict) dict->meta
-    rows := (List) dict->rows
 
-    // Set up columns by scanning every tag in every dict.
-    cols := Str:Dict[:]  // name:meta
-    rows.each |r|
-    {
-      (r as Dict).each |v,k| { cols[k] = Etc.dict0 }
-    }
+    // meta
+    meta := dict["meta"]
+    if (meta != null)
+      gb.setMeta(convert(ns, meta, null))
 
-    // add meta to columns, and to grid itself
-    meta.each |v,k|
+    // cols
+    cols := (List) dict->cols
+    cols.each |c|
     {
-      if (k == "#grid")
-        gb.setMeta(convert(ns, v, null))
+      col := (c as Dict)
+      meta = col["meta"]
+      if (meta == null)
+        gb.addCol(col->name)
       else
-        cols[k] = convert(ns, v, null)
+        gb.addCol(col->name, convert(ns, meta, null))
     }
 
-    // add the columns and rows to the grid builder
-    cols.each |v,k| { gb.addCol(k, v.isEmpty ? null : v) }
+    // rows
+    rows := (List) dict->rows
     rows.each |r| { gb.addDictRow(convert(ns, r, null)) }
 
     // done

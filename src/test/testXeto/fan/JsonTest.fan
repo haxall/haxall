@@ -107,13 +107,19 @@ class JsonTest : AbstractXetoTest
       Str<|{
              "spec":"sys::Grid",
              "meta":{
-               "#grid":{
-                 "foo":"quux"
-               },
-               "b":{
-                 "dis":"B"
-               }
+               "foo":"quux"
              },
+             "cols":[
+               {
+                 "name":"a"
+               },
+               {
+                 "name":"b",
+                 "meta":{
+                   "dis":"B"
+                 }
+               }
+             ],
              "rows":[
                {
                  "a":0,
@@ -132,10 +138,14 @@ class JsonTest : AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
 
     gb := GridBuilder()
+    grid := gb.toGrid
+    verifyRoundTrip(ns, grid)
+
+    gb = GridBuilder()
     gb.addCol("a").addCol("b")
     gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
     gb.addDictRow(Etc.dict2("a", 1, "b", "y"))
-    grid := gb.toGrid
+    grid = gb.toGrid
     verifyRoundTrip(ns, grid)
 
     gb = GridBuilder()
