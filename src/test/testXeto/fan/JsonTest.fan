@@ -93,6 +93,37 @@ class JsonTest : AbstractXetoTest
                }
              }
            }|>)
+
+    gb := GridBuilder()
+    gb.setMeta(Etc.dict1("foo", "quux"))
+    gb.addCol("a").addCol("b", Etc.dict1("dis", "B"))
+    gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
+    gb.addDictRow(Etc.dict2("a", 1, "b", "y"))
+    grid := gb.toGrid
+
+    verifyEq(
+      toJson(grid),
+      Str<|{
+             "spec":"sys::Grid",
+             "meta":{
+               "#grid":{
+                 "foo":"quux"
+               },
+               "b":{
+                 "dis":"B"
+               }
+             },
+             "rows":[
+               {
+                 "a":0,
+                 "b":"x"
+               },
+               {
+                 "a":1,
+                 "b":"y"
+               }
+             ]
+           }|>)
   }
 
   Void testGrid()
