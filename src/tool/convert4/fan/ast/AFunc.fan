@@ -148,6 +148,7 @@ class AFunc
     {
       // skip these
       if (n == "id")  return
+      if (n == "mod") return
       if (n == "def")  return
       if (n == "lib")  return
       if (n == "is")   return
