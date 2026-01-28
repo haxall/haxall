@@ -7,6 +7,7 @@
 //
 
 JsonScalars: {
+  marker: Marker
   bool: Bool "true"
   int: Int 123
   float: Float 72

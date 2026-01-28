@@ -24,6 +24,7 @@ class JsonTest : AbstractXetoTest
 
     verifyHaystack(ns, null, null)
     verifyHaystack(ns, true, true)
+    verifyHaystack(ns, m, m)
     verifyHaystack(ns, "abc", "abc")
     verifyHaystack(ns, n(1), n(1))
     verifyHaystack(ns, 2, n(2))
@@ -39,8 +40,8 @@ class JsonTest : AbstractXetoTest
       [null, "true", n(1), n(2)])
 
     verifyHaystack(ns,
-      Etc.dict4("a", true, "b", "xyz", "c", n(1), "d", 2),
-      Etc.dict4("a", true, "b", "xyz", "c", n(1), "d", n(2)))
+      Etc.dict5("z", m, "a", true, "b", "xyz", "c", n(1), "d", 2),
+      Etc.dict5("z", m, "a", true, "b", "xyz", "c", n(1), "d", n(2)))
   }
 
   Void test()
@@ -56,6 +57,104 @@ class JsonTest : AbstractXetoTest
     verifyRoundTrip(ns,
       ns.instance("hx.test.xeto::jsonNestA"),
       ns.spec("hx.test.xeto::JsonNest"))
+  }
+
+  Void testPretty()
+  {
+    verifyEq(
+      toJson(
+        Etc.dict3(
+          "a", 1,
+          "b", ["a", 1, [Etc.dict2("f", 4, "g", 5), 3, ["b", 4]]],
+          "c", Etc.dict2(
+            "d", 3,
+            "e", Etc.dict2("f", 4, "g", 5)))),
+      Str<|{
+             "a":1,
+             "b":[
+               "a",
+               1,
+               [
+                 {
+                   "f":4,
+                   "g":5
+                 },
+                 3,
+                 [
+                   "b",
+                   4
+                 ]
+               ]
+             ],
+             "c":{
+               "d":3,
+               "e":{
+                 "f":4,
+                 "g":5
+               }
+             }
+           }|>)
+
+    gb := GridBuilder()
+    gb.setMeta(Etc.dict1("foo", "quux"))
+    gb.addCol("a").addCol("b", Etc.dict1("dis", "B"))
+    gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
+    gb.addDictRow(Etc.dict2("a", 1, "b", "y"))
+    grid := gb.toGrid
+
+    verifyEq(
+      toJson(grid),
+      Str<|{
+             "spec":"sys::Grid",
+             "meta":{
+               "foo":"quux"
+             },
+             "cols":[
+               {
+                 "name":"a"
+               },
+               {
+                 "name":"b",
+                 "meta":{
+                   "dis":"B"
+                 }
+               }
+             ],
+             "rows":[
+               {
+                 "a":0,
+                 "b":"x"
+               },
+               {
+                 "a":1,
+                 "b":"y"
+               }
+             ]
+           }|>)
+  }
+
+  Void testGrid()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    gb := GridBuilder()
+    grid := gb.toGrid
+    verifyRoundTrip(ns, grid)
+
+    gb = GridBuilder()
+    gb.addCol("a").addCol("b")
+    gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
+    gb.addDictRow(Etc.dict2("a", 1, "b", "y"))
+    grid = gb.toGrid
+    verifyRoundTrip(ns, grid)
+
+    gb = GridBuilder()
+    gb.setMeta(Etc.dict1("foo", m))
+    gb.addCol("a").addCol("b", Etc.dict1("dis", "B"))
+    gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
+    gb.addDictRow(Etc.dict2("a", 1, "b", "y"))
+    grid = gb.toGrid
+    verifyRoundTrip(ns, grid)
   }
 
   private Void verifyHaystack(
@@ -81,10 +180,12 @@ class JsonTest : AbstractXetoTest
   {
     //echo("=============================================================")
     str := toJson(a)
-
     b := XetoJsonReader(ns, str.in, spec, opts).readVal
+
     if (a is Dict)
       verifyDictEq(a, b)
+    else if (a is Grid)
+      verifyGridEq(a, b)
     else
       verifyEq(a, b)
   }
