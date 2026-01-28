@@ -99,9 +99,8 @@ class XetoJsonReader
 
     // cols
     cols := (List) dict->cols
-    cols.each |c|
+    cols.each |Dict col|
     {
-      col := (c as Dict)
       meta = col["meta"]
       if (meta == null)
         gb.addCol(col->name)
