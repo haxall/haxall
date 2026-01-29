@@ -313,7 +313,7 @@ const class AParam
 
 const class AType
 {
-  static const AType obj := AType("Obj?")
+  static const AType obj := AType("sys::Obj?")
 
   static AType map(Type type)
   {
@@ -327,19 +327,19 @@ const class AType
   {
     switch(qname)
     {
-      case "axon::Fn":           return "Func"
-      case "haystack::Col":      return "Obj"
-      case "haystack::Row":      return "Obj"
-      case "haystack::Coord":    return "Obj"
-      case "haystack::DateSpan": return "Obj"
-      case "haystack::Symbol":   return "Obj"
-      case "haystack::Remove":   return "Obj"
-      case "haystack::Def":      return "Obj"
-      case "folio::Diff":        return "Obj"
-      case "axon::MStream":      return "Obj"
-      case "math::Matrix":       return "Grid"
+      case "axon::Fn":           return "sys::Func"
+      case "haystack::Col":      return "sys::Obj"
+      case "haystack::Row":      return "sys::Obj"
+      case "haystack::Coord":    return "sys::Obj"
+      case "haystack::DateSpan": return "sys::Obj"
+      case "haystack::Symbol":   return "sys::Obj"
+      case "haystack::Remove":   return "sys::Obj"
+      case "haystack::Def":      return "sys::Obj"
+      case "folio::Diff":        return "sys::Obj"
+      case "axon::MStream":      return "sys::Obj"
+      case "math::Matrix":       return "sys::Grid"
     }
-    if (qname.startsWith("mlExt::")) return "Obj"
+    if (qname.startsWith("mlExt::")) return "sys::Obj"
     return null
   }
 

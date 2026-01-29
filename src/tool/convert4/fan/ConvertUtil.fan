@@ -43,16 +43,16 @@ const class ConvertUtil
   static AType cellToType(Str cellName, Dict meta)
   {
     // handle various rule binds
-    if (meta.has("bind")) return AType("Entity")
-    else if (meta.has("bindAll")) return AType.map(List#)
-    else if (meta.has("bindOut")) return AType("Point")
+    if (meta.has("bind")) return AType("sys::Entity")
+    else if (meta.has("bindAll")) return AType("sys::List")
+    else if (meta.has("bindOut")) return AType("ph::Point")
 
     // special cell names
     _is := meta["is"] as Symbol
     switch (cellName)
     {
-      case "target": return symbolToType(_is) ?: AType("Entity")
-      case "date":   return symbolToType(_is) ?: AType("Date")
+      case "target": return symbolToType(_is) ?: AType("sys::Entity")
+      case "date":   return symbolToType(_is) ?: AType("sys::Date")
     }
 
     // final attempt is the raw conversion of is:^symbol
@@ -68,14 +68,14 @@ const class ConvertUtil
     name := s.name
     switch (name)
     {
-      case "bool":     return AType.map(Bool#)
-      case "date":     return AType.map(Date#)
-      case "dateTime": return AType.map(DateTime#)
-      case "number":   return AType.map(Number#)
-      case "str":      return AType.map(Str#)
-      case "ref":      return AType.map(Ref#)
-      case "dict":     return AType.map(Dict#)
-      case "grid":     return AType.map(Grid#)
+      case "bool":     return AType("sys::Bool")
+      case "date":     return AType("sys::Date")
+      case "dateTime": return AType("sys::DateTime")
+      case "number":   return AType("sys::Number")
+      case "str":      return AType("sys::Str")
+      case "ref":      return AType("sys::Ref")
+      case "dict":     return AType("sys::Dict")
+      case "grid":     return AType("sys::Grid")
       default:         return null
     }
   }

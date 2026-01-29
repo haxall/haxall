@@ -66,9 +66,9 @@ class AxonConvertParserTest : HaystackTest
              end
            end|>,
        [
-         "inA":["::type":"Number", "axon":n(0)],
-         "inB":["::type":"Number", "axon":n(0), "foo":"bar"],
-         "out":["::type":"Number", "ro":m],
+         "inA":["::type":"sys::Number", "axon":n(0)],
+         "inB":["::type":"sys::Number", "axon":n(0), "foo":"bar"],
+         "out":["::type":"sys::Number", "ro":m],
        ],
        """do
             out = inA + inB
@@ -103,13 +103,13 @@ class AxonConvertParserTest : HaystackTest
              end
            end|>,
       [
-        "target":["::type":"Entity"],
-        "date":["::type":"Date"],
-        "dat":["::type":"Entity", "ruleBind":"discharge and temp and equipRef=={{target->id}}"],
-        "all":["::type":"List", "of":Ref("sys::Entity"), "ruleBind":"temp and equipRef=={{target->id}}", "ruleNoWatch":m],
-        "outA":["::type":"Point", "ruleBind":"outA and equipRef=={{target->id}}", "ruleToCurVal":m],
-        "outB":["::type":"Point", "ruleBind":"outB and equipRef=={{target->id}}", "ruleToWriteLevel":n(14)],
-        "sum":["::type":"Number"]
+        "target":["::type":"sys::Entity"],
+        "date":["::type":"sys::Date"],
+        "dat":["::type":"sys::Entity", "ruleBind":"discharge and temp and equipRef=={{target->id}}"],
+        "all":["::type":"sys::List", "of":Ref("sys::Entity"), "ruleBind":"temp and equipRef=={{target->id}}", "ruleNoWatch":m],
+        "outA":["::type":"ph::Point", "ruleBind":"outA and equipRef=={{target->id}}", "ruleToCurVal":m],
+        "outB":["::type":"ph::Point", "ruleBind":"outB and equipRef=={{target->id}}", "ruleToWriteLevel":n(14)],
+        "sum":["::type":"sys::Number"]
       ],
       """do
            sum = dat["curVal"] * 2
@@ -136,7 +136,7 @@ class AxonConvertParserTest : HaystackTest
     verifyEq(p.aparams.size, params.size)
     params.each |Str:Obj expect, Str name|
     {
-      t := expect.remove("::type") ?: "Obj?"
+      t := expect.remove("::type") ?: "sys::Obj?"
       x := p.aparams.find { it.name == name } ?: throw Err(name)
       verifyEq(x.type.sig, t, "${name} ${x.type.sig} != ${t}")
       verifyDictEq(x.meta, expect)
