@@ -40,6 +40,7 @@ class XetoJsonWriter
   {
     if (val is Dict) return writeDict(val)
     if (val is List) return writeList(val)
+    if (val is Grid) return writeGrid(val)
     return writeScalar(val)
   }
 
@@ -55,7 +56,7 @@ class XetoJsonWriter
       indent.quoted(n).wc(':').writeVal(x)
     }
     indentation--
-    nl.wc('}')
+    nl.indent.wc('}')
     return this
   }
 
@@ -71,7 +72,61 @@ class XetoJsonWriter
       indent.writeVal(x)
     }
     indentation--
-    indent.wc(']')
+    nl.indent.wc(']')
+    return this
+  }
+
+  private Void writeGrid(Grid grid)
+  {
+    wc('{').nl
+    indentation++
+
+    // spec
+    indent.quoted("spec").wc(':').quoted("sys::Grid")
+    wc(',').nl
+
+    // meta
+    if (!grid.meta.isEmpty)
+    {
+      indent.quoted("meta").wc(':').writeVal(grid.meta)
+      wc(',').nl
+    }
+
+    // cols
+    indent.quoted("cols").wc(':')
+    wc('[').nl
+    indentation++
+    first := true
+    grid.cols.each |c|
+    {
+      if (first) first = false
+      else wc(',').nl
+      if (c.meta.isEmpty)
+        indent.writeVal(Etc.dict1("name", c.name))
+      else
+        indent.writeVal(Etc.dict2("name", c.name, "meta", c.meta))
+    }
+    indentation--
+    nl.indent.wc(']')
+    wc(',').nl
+
+    // rows
+    indent.quoted("rows").wc(':')
+    wc('[').nl
+    indentation++
+    first = true
+    grid.each |row|
+    {
+      if (first) first = false
+      else wc(',').nl
+      indent.writeVal(row)
+    }
+    indentation--
+    nl.indent.wc(']')
+
+    // done
+    indentation--
+    nl.indent.wc('}')
     return this
   }
 

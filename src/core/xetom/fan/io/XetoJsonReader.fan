@@ -26,6 +26,7 @@ class XetoJsonReader
     this.ns = ns
     this.in = in
     this.rootSpec = rootSpec
+    this.gridSpec = ns.spec("sys::Grid")
     this.fidelity = XetoUtil.optFidelity(opts)
   }
 
@@ -46,7 +47,7 @@ class XetoJsonReader
     return convertScalar(ns, x, spec)
   }
 
-  private Dict convertDict(MNamespace ns, Dict dict, Spec? spec)
+  private Obj convertDict(MNamespace ns, Dict dict, Spec? spec)
   {
     // If the spec is null, try to look it up
     if (spec == null)
@@ -54,6 +55,10 @@ class XetoJsonReader
       if (dict.has("spec"))
         spec = ns.spec(dict->spec)
     }
+
+    // Check for Grid special case
+    if (spec == gridSpec)
+      return convertGrid(ns, dict)
 
     members := (spec == null) ? null : spec.members
     map := Str:Obj[:]
@@ -83,6 +88,34 @@ class XetoJsonReader
     return dict
   }
 
+  private Grid convertGrid(MNamespace ns, Dict dict)
+  {
+    gb := GridBuilder()
+
+    // meta
+    meta := dict["meta"]
+    if (meta != null)
+      gb.setMeta(convert(ns, meta, null))
+
+    // cols
+    cols := (List) dict->cols
+    cols.each |Dict col|
+    {
+      meta = col["meta"]
+      if (meta == null)
+        gb.addCol(col->name)
+      else
+        gb.addCol(col->name, convert(ns, meta, null))
+    }
+
+    // rows
+    rows := (List) dict->rows
+    rows.each |r| { gb.addDictRow(convert(ns, r, null)) }
+
+    // done
+    return gb.toGrid
+  }
+
   private Obj?[] convertList(MNamespace ns, Obj?[] from, Spec? spec)
   {
     of := (spec == null) ? null : spec.of()
@@ -99,6 +132,8 @@ class XetoJsonReader
     {
       if (x is Str)
       {
+        if ((spec == null) && (x == "✓"))
+          return Marker.val
         if ((spec != null) && spec.type.isHaystack)
           return spec.binding.decodeScalar(x)
       }
@@ -109,6 +144,8 @@ class XetoJsonReader
     {
       if (x is Str)
       {
+        if ((spec == null) && (x == "✓"))
+          return Marker.val
         if (spec != null)
           return spec.binding.decodeScalar(x)
       }
@@ -124,6 +161,7 @@ class XetoJsonReader
   private MNamespace ns
   private InStream in
   private Spec? rootSpec
+  private Spec gridSpec
   private XetoFidelity fidelity
 }
 
@@ -136,6 +174,6 @@ internal class XetoJsonInStream : JsonInStream
 {
   internal new make(InStream in) : super(in) {}
 
-  override Obj transformObj(Str:Obj? obj) { return Etc.makeDict(obj) }
+  override Obj transformObj(Str:Obj? obj) { Etc.makeDict(obj) }
 }
 
