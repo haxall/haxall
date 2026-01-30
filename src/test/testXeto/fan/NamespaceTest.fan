@@ -313,6 +313,13 @@ class NamespaceTest : AbstractXetoTest
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
 
+    // grid
+    testGrid := lib.type("TestGrid")
+    verifyEq(testGrid.isGrid, true)
+    verifyEq(testGrid.base.qname, "sys::Grid")
+    verifyEq(testGrid.base.isGrid, true)
+    verifyEq(testGrid.base.base.isGrid, false)
+
     // nested - type with slot of its own type
     nestType := lib.type("TestNest")
     nestSlot := nestType.slot("nest")

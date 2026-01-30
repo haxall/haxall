@@ -241,6 +241,7 @@ const class XetoSpec : Spec, CNode
   override final Bool isChoice()    { m.hasFlag(MSpecFlags.choice) }
   override final Bool isDict()      { m.hasFlag(MSpecFlags.dict) }
   override final Bool isList()      { m.hasFlag(MSpecFlags.list) }
+  override final Bool isGrid()      { m.hasFlag(MSpecFlags.grid) }
   override final Bool isQuery()     { m.hasFlag(MSpecFlags.query) }
   override final Bool isFunc()      { m.hasFlag(MSpecFlags.func) }
   override final Bool isInterface() { m.hasFlag(MSpecFlags.interface) }

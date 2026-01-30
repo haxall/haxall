@@ -147,6 +147,7 @@ class EnumTest : AbstractXetoTest
     verifyEq(enum.isChoice, false)
     verifyEq(enum.isDict,   false)
     verifyEq(enum.isList,   false)
+    verifyEq(enum.isGrid,   false)
     verifyEq(enum.isQuery,  false)
   }
 

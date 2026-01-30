@@ -26,7 +26,6 @@ class XetoJsonReader
     this.ns = ns
     this.in = in
     this.rootSpec = rootSpec
-    this.gridSpec = ns.spec("sys::Grid")
     this.fidelity = XetoUtil.optFidelity(opts)
   }
 
@@ -49,38 +48,30 @@ class XetoJsonReader
 
   private Obj convertDict(MNamespace ns, Dict dict, Spec? spec)
   {
-    // If the spec is null, try to look it up
+    // if the spec is null, try to look it up
     if (spec == null)
     {
-      if (dict.has("spec"))
-        spec = ns.spec(dict->spec)
+      specRef := dict["spec"]
+      if (specRef != null)
+        spec = ns.spec(specRef.toStr)
     }
 
-    // Check for Grid special case
-    if (spec == gridSpec)
+    // check for Grid special case
+    if (spec != null && spec.isGrid)
       return convertGrid(ns, dict)
 
     members := (spec == null) ? null : spec.members
-    map := Str:Obj[:]
 
-    // each entry
-    dict.each |v, k|
+    // map dict pairs
+    dict = dict.map |v, k|
     {
       // id and spec are Refs (and they do not have member entries)
-      if (k == "id" || k == "spec")
-      {
-        map[k] = Ref.fromStr(v)
-      }
-      // handle normally
-      else
-      {
-        mspec := (members == null) ? null : members.get(k, false)
-        map[k] = convert(ns, v, mspec)
-      }
-    }
+      if (k == "id" || k == "spec") return Ref.fromStr(v)
 
-    // convert to dict
-    dict = Etc.dictFromMap(map)
+      // handle normally
+      mspec := (members == null) ? null : members.get(k, false)
+      return convert(ns, v, mspec)
+    }
 
     // apply spec binding, if we are not haystack
     if ((spec != null) && (fidelity !== XetoFidelity.haystack))
@@ -98,7 +89,7 @@ class XetoJsonReader
       gb.setMeta(convert(ns, meta, null))
 
     // cols
-    cols := (List) dict->cols
+    cols := dict["cols"] as Obj?[] ?: throw Err("Grid missing 'cols' list")
     cols.each |Dict col|
     {
       meta = col["meta"]
@@ -109,7 +100,7 @@ class XetoJsonReader
     }
 
     // rows
-    rows := (List) dict->rows
+    rows := dict["rows"] as Obj?[] ?: throw Err("Grid missing 'rows' list")
     rows.each |r| { gb.addDictRow(convert(ns, r, null)) }
 
     // done
@@ -161,7 +152,6 @@ class XetoJsonReader
   private MNamespace ns
   private InStream in
   private Spec? rootSpec
-  private Spec gridSpec
   private XetoFidelity fidelity
 }
 

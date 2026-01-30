@@ -300,6 +300,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   override Bool isChoice()    { hasFlag(MSpecFlags.choice) }
   override Bool isDict()      { hasFlag(MSpecFlags.dict) }
   override Bool isList()      { hasFlag(MSpecFlags.list) }
+  override Bool isGrid()      { hasFlag(MSpecFlags.grid) }
   override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
   override Bool isQuery()     { hasFlag(MSpecFlags.query) }
   override Bool isFunc()      { hasFlag(MSpecFlags.func) }

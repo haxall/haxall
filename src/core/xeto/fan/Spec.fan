@@ -184,6 +184,9 @@ const mixin Spec : Dict
   ** Inherits from 'sys::List' without considering And/Or
   @NoDoc abstract Bool isList()
 
+  ** Inherits from 'sys::Grid' without considering And/Or
+  @NoDoc abstract Bool isGrid()
+
   ** Inherits from 'sys::Query' without considering And/Or
   @NoDoc abstract Bool isQuery()
 

@@ -236,6 +236,7 @@ const class WrapSpec : Spec
   override final Bool isChoice()    { m.isChoice }
   override final Bool isDict()      { m.isDict }
   override final Bool isList()      { m.isList }
+  override final Bool isGrid()      { m.isGrid }
   override final Bool isQuery()     { m.isQuery }
   override final Bool isFunc()      { m.isFunc }
   override final Bool isInterface() { m.isInterface }
