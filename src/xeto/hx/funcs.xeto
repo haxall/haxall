@@ -338,7 +338,7 @@
   // Examples:
   //   companionParse("MySpec: Dict { dis: Str }")
   //   companionParse("@my-instance: Dict {}")
-  companionParse: Func { xeto: Str, returns: Dict }
+  companionParse: Func { xeto: Str, meta: Dict?, returns: Dict }
 
   // Print companion AST rec representation back a Xeto string - see `hx::ProjCompanion.print`.
   // Examples:

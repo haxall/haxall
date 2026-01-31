@@ -605,9 +605,9 @@ class HxFuncsTest : HxTest
         "axon":"a+b", "admin":m, "slots":slots])
 
     // parse
-    x = eval("""companionParse("Foo: Dict <abstract> { a: Obj?, b: Obj?, returns: Obj? }")""")
+    x = eval("""companionParse("Foo: Dict <abstract> { a: Obj?, b: Obj?, returns: Obj? }", {id:@123})""")
     verifyDictEq(x,
-      ["rt":"spec", "name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"),
+      ["id":Ref("123"), "rt":"spec", "name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"),
        "abstract":m, "slots":slots])
 
     // print

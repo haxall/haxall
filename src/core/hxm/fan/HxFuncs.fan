@@ -613,9 +613,9 @@ cx.ns.env->libCacheClear
   **   companionParse("MySpec: Dict { dis: Str }")
   **   companionParse("@my-instance: Dict {}")
   @Api @Axon
-  static Dict companionParse(Str xeto)
+  static Dict companionParse(Str xeto, Dict? meta := null)
   {
-    curContext.proj.companion.parse(xeto)
+    curContext.proj.companion.parse(xeto, meta)
   }
 
   ** Create func companion lib AST representation - see `hx::ProjCompanion.parseAxon`.

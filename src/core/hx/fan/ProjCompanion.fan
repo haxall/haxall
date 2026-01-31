@@ -70,7 +70,9 @@ const mixin ProjCompanion
   abstract Void remove(Ref id)
 
   ** Parse Xeto source representation into its rt rec AST representation.
-  abstract Dict parse(Str xeto)
+  ** The optional meta parameter may be used to add additional tags
+  ** into the rt record (such as carrying through the 'id' tag).
+  abstract Dict parse(Str xeto, Dict? meta := null)
 
   ** Parse Axon source representation into its rt rec AST representation.
   abstract Dict parseAxon(Str name, Str xeto, Dict? meta := null)

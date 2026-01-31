@@ -364,6 +364,14 @@ class RuntimeTest : HxTest
     rec = proj.companion.readByName("SpecA")
     verifyUnknownErr(Etc.dictSet(rec, "id", Ref.gen))
     verifyConcurrentErr(Etc.dictSet(rec, "mod", DateTime.nowUtc - 1hr))
+
+    // parse with meta
+    p := proj.companion.parse("// parse docs\nSpecA: Dict {}", Etc.dict2("id", recA.id, "su", m))
+    verifyEq(p.id, recA.id)
+    proj.companion.update(p)
+    specA = proj.companion.lib.spec("SpecA")
+    verifyEq(specA.metaOwn["doc"], "parse docs")
+    verifyEq(specA.metaOwn["su"], m)
   }
 
   Void rename(Str oldName, Str newName)

@@ -258,9 +258,10 @@ const class HxCompanion : ProjCompanion
 // Helper APIs
 //////////////////////////////////////////////////////////////////////////
 
-  override Dict parse(Str src)
+  override Dict parse(Str src, Dict? meta := null)
   {
-    ns.io.readAst(src, Etc.dict1("rtInclude", Marker.val))
+    rec := ns.io.readAst(src, Etc.dict1("rtInclude", Marker.val))
+    return Etc.dictMerge(rec, meta)
   }
 
   override Str print(Dict rec)
