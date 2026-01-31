@@ -566,14 +566,14 @@ cx.ns.env->libCacheClear
 // Companion Specs
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read a companion spec or instance by name - see `hx::ProjCompanion.read`.
+  ** Read a companion spec or instance by name - see `hx::ProjCompanion.readByName`.
   ** Examples:
-  **   companionRead("MySpec")
-  **   companionRead("my-instance")
+  **   companionReadByName("MySpec")
+  **   companionReadByName("my-instance")
   @Api @Axon
-  static Dict? companionRead(Str name, Bool checked := true)
+  static Dict? companionReadByName(Str name, Bool checked := true)
   {
-    curContext.proj.companion.read(name, checked)
+    curContext.proj.companion.readByName(name, checked)
   }
 
   ** Add new spec or instance to companion lib - see `hx::ProjCompanion.add`.
@@ -588,30 +588,23 @@ cx.ns.env->libCacheClear
 
   ** Update existing spec or instance in companion lib - see `hx::ProjCompanion.update`.
   ** Examples:
-  **   companionRead("MySpec").merge({base:@sys::Scalar}).companionUpdate
-  **   companionRead("myFunc").merge({axon:"(x)=>x"}).companionUpdate
+  **   companionReadByName("MySpec").merge({base:@sys::Scalar}).companionUpdate
+  **   companionReadByName("myFunc").merge({axon:"(x)=>x"}).companionUpdate
   @Api @Axon { admin=true }
   static Void companionUpdate(Dict rec)
   {
     curContext.proj.companion.update(rec)
   }
 
-  ** Rename spec or instance in companion lib - see `hx::ProjCompanion.rename`.
-  ** Examples:
-  **   companionRename("OldSpec", "NewSpec")
-  @Api @Axon { admin=true }
-  static Void companionRename(Str oldName, Str newName)
-  {
-    curContext.proj.companion.rename(oldName, newName)
-  }
-
   ** Remove a spec or instance from companion lib - see `hx::ProjCompanion.remove`.
+  ** The id argument can be any value accepted by `toRecId()`.
   ** Examples:
-  **   companionRemove("MySpec")
+  **   companionRemove(@123)
+  **   companionReadByName("MySpec").companionRemove
   @Api @Axon { admin=true }
-  static Void companionRemove(Str name)
+  static Void companionRemove(Obj id)
   {
-    curContext.proj.companion.remove(name)
+    curContext.proj.companion.remove(Etc.toId(id))
   }
 
   ** Parse xeto source to its companion lib AST representation - see `hx::ProjCompanion.parse`.

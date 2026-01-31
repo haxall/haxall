@@ -226,7 +226,8 @@ class RuntimeTest : HxTest
   {
     addLib("ph")
     addLib("hx.modbus")
-    verifyEq(proj.read("name==\"hx.modbus\"")->rt, "lib")
+    libRec := proj.read("name==\"hx.modbus\"")
+    verifyEq(libRec->rt, "lib")
 
     slots   := Etc.makeMapGrid(null, ["name":"dis", "type":Ref("sys::Str")])
     specRef := Ref("sys::Spec")
@@ -240,7 +241,7 @@ class RuntimeTest : HxTest
     verifyCompanionRecs(none, none, none, null)
 
     // add type - SpecA
-    proj.companion.add(d(["rt":"spec", "name":"SpecA", "base":Ref("sys::Dict"), "spec":specRef, "slots":slots, "doc":"testing", "admin":m]))
+    recA := proj.companion.add(d(["rt":"spec", "name":"SpecA", "base":Ref("sys::Dict"), "spec":specRef, "slots":slots, "doc":"testing", "admin":m]))
     digest = verifyCompanionRecs(["SpecA"], none, none, digest)
     specA := proj.companion.lib.spec("SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
@@ -249,10 +250,22 @@ class RuntimeTest : HxTest
     verifyEq(specA.slot("dis").type.name, "Str")
 
     // add func - specB
-    proj.companion.add(d(["rt":"func", "name":"specB", "base":Ref("sys::Func"), "spec":specRef]))
+    recB := proj.companion.add(d(["rt":"func", "name":"specB", "base":Ref("sys::Func"), "spec":specRef]))
     specB := proj.companion.lib.funcs.get("specB")
     digest = verifyCompanionRecs(["SpecA"], ["specB"], Str[,], digest)
     verifyEq(specB.base.qname, "sys::Func")
+
+    // reads
+    verifySame(proj.companion.readById(recA.id), recA)
+    verifySame(proj.companion.readById(recB.id), recB)
+    verifySame(proj.companion.readByName("SpecA"), recA)
+    verifySame(proj.companion.readByName("specB"), recB)
+    verifyEq(proj.companion.readById(Ref.gen, false), null)
+    verifyEq(proj.companion.readById(libRec.id, false), null)
+    verifyEq(proj.companion.readByName("hx.modbus", false), null)
+    verifyErr(UnknownRecErr#) { proj.companion.readById(Ref.gen) }
+    verifyErr(UnknownRecErr#) { proj.companion.readById(libRec.id) }
+    verifyErr(UnknownRecErr#) { proj.companion.readByName("hx.modbus") }
 
     // add spec errors
     companionMode = "add"
@@ -288,11 +301,11 @@ class RuntimeTest : HxTest
     verifyDuplicateErr(["rt":"instance", "name":"specA"])
 
     // add instance - hx.modbus (duplicate lib name)
-    proj.companion.add(d(["rt":"instance", "name":"hx.modbus", "spec":Ref("proj::SpecA"), "dis":"Lib Dup"]))
+    modbusRec := proj.companion.add(d(["rt":"instance", "name":"hx.modbus", "spec":Ref("proj::SpecA"), "dis":"Lib Dup"]))
     digest = verifyCompanionRecs(["SpecA"], ["specB"], Str["hx.modbus", "inst-a"], digest)
 
     // update spec - SpecA
-    proj.companion.update(d(["rt":"spec", "name":"SpecA", "base":siteRef, "spec":specRef, "slots":slots, "su":m]))
+    proj.companion.update(d(["id":recA.id, "rt":"spec", "name":"SpecA", "base":siteRef, "spec":specRef, "slots":slots, "su":m]))
     digest = verifyCompanionRecs(["SpecA"], ["specB"], Str["hx.modbus", "inst-a"], digest)
     specA = proj.companion.lib.spec("SpecA")
     verifyEq(specA.base.qname, "ph::Site")
@@ -302,63 +315,60 @@ class RuntimeTest : HxTest
 
     // update errors
     companionMode = "update"
-    verifyInvalidErr(["rt":null,   "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"bad",  "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":"bad",       "spec":specRef, "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":null,    "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":"Bad",   "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":specRef, "slots":"bad", "su":m])
-    verifyUnknownErr(["rt":"spec", "name":"SpecX", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["id":recA.id, "rt":null,   "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["id":recA.id, "rt":"bad",  "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["id":recA.id, "rt":"spec", "name":"SpecA", "base":"bad",   "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["id":recA.id, "rt":"spec", "name":"SpecA", "base":funcRef, "spec":null,    "slots":slots, "su":m])
+    verifyInvalidErr(["id":recA.id, "rt":"spec", "name":"SpecA", "base":funcRef, "spec":"Bad",   "slots":slots, "su":m])
+    verifyInvalidErr(["id":recA.id, "rt":"spec", "name":"SpecA", "base":funcRef, "spec":specRef, "slots":"bad", "su":m])
     verifyCompanionRecs(["SpecA"], ["specB"], Str["hx.modbus", "inst-a"], null)
+
 
     // re-boot project and verify libs/specs were persisted
     projRestart
     digest = verifyCompanionRecs(["SpecA"], ["specB"], Str["hx.modbus", "inst-a"], digest)
 
     // rename spec and instance
-    proj.companion.rename("specB", "specB2")
-    proj.companion.rename("hx.modbus", "hx.modbus2")
+    rename("specB", "specB2")
+    rename("hx.modbus", "hx.modbus2")
     digest = verifyCompanionRecs(["SpecA"], ["specB2"], Str["hx.modbus2", "inst-a"], digest)
 
     // rename errors
     companionMode = "rename"
     verifyUnknownErr("notFound", "newName")
-    verifyDuplicateErr("specB2", "SpecA")
+    verifyDuplicateErr("specB2", "specA")
+    verifyDuplicateErr("specB2", "sPECA")
+    verifyDuplicateErr("specB2", "speca")
 
     // remove spec and instance
-    proj.companion.remove("specB2")
-    proj.companion.remove("hx.modbus2")
-    proj.companion.remove("ignore-me-does-not-exist")
+    proj.companion.remove(recB.id)
+    proj.companion.remove(modbusRec.id)
     digest = verifyCompanionRecs(["SpecA"], none, Str["inst-a"], digest)
 
     // remove errors
     companionMode = "remove"
-    proj.companion.remove("hx.modbus")
+    verifyUnknownErr(Ref.gen)
+    verifyUnknownErr(proj.read("name==\"hx.modbus\"").id)
     verifyNotNull(proj.libs.get("hx.modbus"))
 
     // re-boot project and verify libs/specs were persisted
     projRestart
     digest = verifyCompanionRecs(["SpecA"], none, Str["inst-a"], digest)
 
-    // update switch spec <-> instance
-    /* we can't do this anymore because instances must start with lowercase
-    proj.companion.add(d(["rt":"spec",     "name":"A", "base":Ref("sys::Dict"), "spec":specRef]))
-    proj.companion.add(d(["rt":"instance", "name":"b", "foo":m]))
-    digest = verifyCompanionRecs(["A", "SpecA"], none, ["b", "inst-a"], digest)
-    proj.companion.update(d(["rt":"spec",     "name":"B", "base":Ref("sys::Dict"), "spec":specRef]))
-    proj.companion.update(d(["rt":"instance", "name":"a", "foo":m]))
-    digest = verifyCompanionRecs(["B", "SpecA"], none, ["a", "inst-a"], digest)
-    */
-
     // updates with id/mod
     companionMode = "update"
-    rec := proj.companion.read("SpecA")
+    rec := proj.companion.readByName("SpecA")
     proj.companion.update(Etc.dictSet(rec, "doc", "w/ id and mod"))
     specA = proj.companion.lib.spec("SpecA")
     verifyEq(specA.metaOwn["doc"], "w/ id and mod")
-    rec = proj.companion.read("SpecA")
-    verifyInvalidErr(Etc.dictSet(rec, "id", Ref.gen))
+    rec = proj.companion.readByName("SpecA")
+    verifyUnknownErr(Etc.dictSet(rec, "id", Ref.gen))
     verifyConcurrentErr(Etc.dictSet(rec, "mod", DateTime.nowUtc - 1hr))
+  }
+
+  Void rename(Str oldName, Str newName)
+  {
+    proj.companion.update(Etc.dictSet(proj.companion.readByName(oldName), "name", newName))
   }
 
   Str? companionMode
@@ -369,7 +379,7 @@ class RuntimeTest : HxTest
     {
       case "add":    proj.companion.add(d(a))
       case "update": proj.companion.update(d(a))
-      case "rename": proj.companion.rename(a, b)
+      case "rename": rename(a, b)
       case "remove": proj.companion.remove(a)
       default:       fail
     }
@@ -405,7 +415,7 @@ class RuntimeTest : HxTest
     {
       spec := proj.ns.spec("proj::$n")
       verifySame(spec.lib, proj.companion.lib)
-      rec := proj.companion.read(n)
+      rec := proj.companion.readByName(n)
       verifyEq(rec["rt"], "spec")
     }
 
@@ -416,7 +426,7 @@ class RuntimeTest : HxTest
     {
       spec := proj.ns.spec("proj::Funcs.$n")
       verifySame(spec.lib, proj.companion.lib)
-      rec := proj.companion.read(n)
+      rec := proj.companion.readByName(n)
       verifyEq(rec["rt"], "func")
     }
 
@@ -427,7 +437,7 @@ class RuntimeTest : HxTest
     expectInstances.each |n|
     {
       inst := proj.ns.instance("proj::$n")
-      rec := proj.companion.read(n)
+      rec := proj.companion.readByName(n)
       verifyEq(rec["rt"], "instance")
     }
 
@@ -486,7 +496,8 @@ class RuntimeTest : HxTest
     verifyEq(f.func.returns.type.qname, "sys::Obj")
 
     // update foo2
-    frec :=  proj.companion.parseAxon("foo2", "(a) => a * a", Etc.makeDict(["su":m, "qux":"test!"]))
+    fId := proj.companion.readByName("foo2").id
+    frec := proj.companion.parseAxon("foo2", "(a) => a * a", Etc.makeDict(["id":fId, "su":m, "qux":"test!"]))
     proj.companion.update(frec)
     f = proj.ns.spec("proj::Funcs.foo2")
     verifyEq(eval("foo2(3)"), n(9))

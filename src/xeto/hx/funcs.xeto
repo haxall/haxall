@@ -308,11 +308,11 @@
 // Companion
 //////////////////////////////////////////////////////////////////////////
 
-  // Read a companion spec or instance by name - see `hx::ProjCompanion.read`.
+  // Read a companion spec or instance by name - see `hx::ProjCompanion.readByName`.
   // Examples:
-  //   companionRead("MySpec")
-  //   companionRead("my-instance")
-  companionRead: Func <admin> { name: Str, checked: Bool, returns: Obj? }
+  //   companionReadByName("MySpec")
+  //   companionReadByName("my-instance")
+  companionReadByName: Func <admin> { name: Str, checked: Bool, returns: Obj? }
 
   // Add new spec or instance to companion lib - see `hx::ProjCompanion.add`.
   // Examples:
@@ -322,19 +322,16 @@
 
   // Update existing spec or instance in companion lib - see `hx::ProjCompanion.update`.
   // Examples:
-  //   companionRead("MySpec").merge({base:@sys::Scalar}).companionUpdate
-  //   companionRead("myFunc").merge({axon:"(x)=>x"}).companionUpdate
+  //   companionReadByName("MySpec").merge({base:@sys::Scalar}).companionUpdate
+  //   companionReadByName("myFunc").merge({axon:"(x)=>x"}).companionUpdate
   companionUpdate: Func <admin> { rec: Dict, returns: Obj? }
 
-  // Rename spec or instance in companion lib - see `hx::ProjCompanion.rename`.
-  // Examples:
-  //   companionRename("OldSpec", "NewSpec")
-  companionRename: Func <admin> { oldName: Str, newName: Str, returns: Obj? }
-
   // Remove a spec or instance from companion lib - see `hx::ProjCompanion.remove`.
+  // The id argument can be any value accepted by `toRecId()`.
   // Examples:
-  //   companionRemove("MySpec")
-  companionRemove: Func <admin> { name: Str, returns: Obj? }
+  //   companionRemove(@123)
+  //   companionReadByName("MySpec").companionRemove
+  companionRemove: Func <admin> { id: Obj, returns: Obj? }
 
   // Parse xeto source to its companion lib AST representation - see `hx::ProjCompanion.parse`.
   // Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.

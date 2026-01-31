@@ -570,25 +570,25 @@ class HxFuncsTest : HxTest
     verifyEq(spec.meta["doc"], ":-)")
 
     // read
-    rec := eval("""companionRead("Foo")""")
+    Dict rec := eval("""companionReadByName("Foo")""")
     verifySame(rec, proj.read("name==\"Foo\""))
-    verifyEq(eval("""companionRead("Bad", false)"""), null)
+    verifyEq(eval("""companionReadByName("Bad", false)"""), null)
 
     // update
-    eval("""companionUpdate({rt:"spec", name:"Foo", base:@sys::Scalar, spec:@sys::Spec, doc:":-("})""")
+    eval("""companionUpdate({id:$rec.id.toCode, rt:"spec", name:"Foo", base:@sys::Scalar, spec:@sys::Spec, doc:":-("})""")
     spec = proj.ns.spec("proj::Foo")
     verifySame(spec, proj.ns.spec("proj::Foo"))
     verifySame(spec.base, proj.ns.spec("sys::Scalar"))
     verifyEq(spec.meta["doc"], ":-(")
 
-    // rename
-    eval("""companionRename("Foo", "Bar")""")
+    // update rename
+    eval("""companionReadByName("Foo").merge({name:"Bar"}).companionUpdate""")
     spec = proj.ns.spec("proj::Bar")
     verifySame(spec, proj.ns.spec("proj::Bar"))
     verifySame(spec.base, proj.ns.spec("sys::Scalar"))
 
     // remove
-    eval("""companionRemove("Bar")""")
+    eval("""companionReadByName("Bar").companionRemove""")
     verifyEq(proj.ns.spec("proj::Bar", false), null)
 
     // parseAxon

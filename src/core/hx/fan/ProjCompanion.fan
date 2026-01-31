@@ -41,34 +41,33 @@ const mixin ProjCompanion
   ** Get simple error message to use if project companion lib is in error
   @NoDoc abstract Str? libErrMsg()
 
-  ** List all records for companion lib specs and instances
-  abstract Dict[] list()
+  ** Read all companion rt records
+  abstract Dict[] readAll()
 
-  ** Read the record for the given companion lib spec or instance
-  abstract Dict? read(Str name, Bool checked := true)
+  ** Read the companion rt record by id.  Raise exception or return
+  ** null if id does not exist or does not map to companion rt rec.
+  abstract Dict? readById(Ref id, Bool checked := true)
 
-  ** Add a new spec or instance to the companion lib. The given dict
+  ** Read the companion rt record by name.  Raise exception or return
+  ** null if name does not exist or does not map to companion rt rec.
+  abstract Dict? readByName(Str name, Bool checked := true)
+
+  ** Add a new spec or instance rt companion record. The given dict
   ** must match the AST respresentation as described in class header.
   ** Raise exception if a definition already exists for the defined name.
+  ** Return new companion rt record.  The namespace is reloaded on next access.
+  abstract Dict add(Dict rec)
+
+  ** Replace an existing companion rt record by id. The given dict must match
+  ** the AST respresentation as described in class header. Raise exception
+  ** if no existing definition for the dict id.  Return updated rt record.
   ** The namespace is reloaded on next access.
-  abstract Void add(Dict rec)
+  abstract Dict update(Dict rec)
 
-  ** Update an existing spec or instance to the companion lib. The given
-  ** dict must match the AST respresentation as described in class header.
-  ** Raise exception if no existing definition for name.  The namespace is
-  ** reloaded on next access.  If id/mod tags are passsed then they must
-  ** match the existing record in database.
-  abstract Void update(Dict rec)
-
-  ** Rename an existing spec or instance in the companion lib.
-  ** Raise exception if no existing definition for oldName or newName
-  ** already exists.  The namespace is reloaded on next access.
-  abstract Void rename(Str oldName, Str newName)
-
-  ** Remove the spec or instance definition by name from companion lib.
-  ** Ignore this call if there is no definition for name.  The namespace
-  ** is reloaded on next access.
-  abstract Void remove(Str name)
+  ** Remove the companion rt rec from database.  Raise exception if id
+  ** does not map to a exisiting rt record.  The namespace is reloaded
+  ** on next access.
+  abstract Void remove(Ref id)
 
   ** Parse Xeto source representation into its rt rec AST representation.
   abstract Dict parse(Str xeto)

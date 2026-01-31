@@ -104,7 +104,7 @@ class NamespaceTest : HxTest
     */
 
     // change namespace
-    proj.companion.update(Etc.dictSet(proj.companion.read("projB"), "axon", "20"))
+    proj.companion.update(Etc.dictSet(proj.companion.readByName("projB"), "axon", "20"))
     ns2 := proj.ns
     verifyNotSame(ns1, ns2)
     verifyEq(eval("projA()"), n(1))

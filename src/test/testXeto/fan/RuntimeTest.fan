@@ -31,21 +31,21 @@ class RuntimeTest : AbstractAxonTest
 
     // create a/b in companion
     x := proj.companion
-    x.add(x.parse("Alpha: Dict"))
-    x.add(x.parse("Bravo: Dict"))
+    aId := x.add(x.parse("Alpha: Dict")).id
+    bId := x.add(x.parse("Bravo: Dict")).id
     ad1 := ns.spec("proj::Alpha").inheritanceDigest
     bd1 := ns.spec("proj::Bravo").inheritanceDigest
     verifyDigestNotEq(ad1, bd1)
 
     // now change b inheritance
-    x.update(x.parse("Bravo: Alpha"))
+    x.update(Etc.dictSet(x.parse("Bravo: Alpha"), "id", bId))
     ad2 := ns.spec("proj::Alpha").inheritanceDigest
     bd2 := ns.spec("proj::Bravo").inheritanceDigest
     verifyDigestEq(ad1, ad2)
     verifyDigestNotEq(bd1, bd2)
 
     // now change a inheritance which changes b too
-    x.update(x.parse("Alpha: Entity"))
+    x.update(Etc.dictSet(x.parse("Alpha: Entity"), "id", aId))
     ad3 := ns.spec("proj::Alpha").inheritanceDigest
     bd3 := ns.spec("proj::Bravo").inheritanceDigest
     verifyDigestNotEq(ad2, ad3)
@@ -58,7 +58,7 @@ class RuntimeTest : AbstractAxonTest
     verifyEq(ast["ofs"], Obj?[Ref("ph::Equip"), Ref("proj::Alpha")])
     slot := (ast["slots"] as Grid).find { it->name == "list" }
     verifyDictEq(slot, ["name":"list", "type":Ref("sys::List"), "of":Ref("proj::Alpha")])
-    x.add(ast)
+    cId := x.add(ast).id
     ad4 := ns.spec("proj::Alpha").inheritanceDigest
     bd4 := ns.spec("proj::Bravo").inheritanceDigest
     cd4 := ns.spec("proj::Charlie").inheritanceDigest
@@ -66,7 +66,7 @@ class RuntimeTest : AbstractAxonTest
     verifyDigestEq(bd3, bd4)
 
     // verify compound type change
-    x.update(x.parse("Charlie: Ahu & Alpha"))
+    x.update(Etc.dictSet(x.parse("Charlie: Ahu & Alpha"), "id", cId))
     ad5 := ns.spec("proj::Alpha").inheritanceDigest
     bd5 := ns.spec("proj::Bravo").inheritanceDigest
     cd5 := ns.spec("proj::Charlie").inheritanceDigest

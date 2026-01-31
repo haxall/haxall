@@ -55,7 +55,7 @@ const class HxCompanion : ProjCompanion
 // CRUD
 //////////////////////////////////////////////////////////////////////////
 
-  override Dict[] list()
+  override Dict[] readAll()
   {
     acc := Dict[,]
     acc.capacity = 64
@@ -67,82 +67,84 @@ const class HxCompanion : ProjCompanion
     return acc
   }
 
-  override Dict? read(Str name, Bool checked := true)
+  override Dict? readById(Ref id, Bool checked := true)
+  {
+    rec := db.readById(id, checked)
+    if (rec == null) return null
+    if (isCompanionRec(rec)) return rec
+    if (checked) throw UnknownRecErr("Not companion rec: $id.toCode")
+    return null
+  }
+
+  override Dict? readByName(Str name, Bool checked := true)
   {
     matches := db.readAllList(Filter.eq("name", name))
     match := matches.find |rec| { isCompanionRec(rec) }
     if (match != null) return match
-    if (checked) throw UnknownRecErr("No spec or instance for name: $name")
+    if (checked) throw UnknownRecErr("No companion rec name: $name")
     return null
   }
 
-  override Void add(Dict rec)
+  override Dict add(Dict rec)
   {
     name := validate(rec)
-    doUpdate |->|
+    return doUpdate |->Dict?|
     {
       checkDupName(name)
-      db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted)))
+      return db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted))).newRec
     }
   }
 
-  override Void update(Dict rec)
+  override Dict update(Dict newRec)
   {
-    name := validate(rec)
-    doUpdate |->|
+    id := newRec.id
+    newName := validate(newRec)
+    return doUpdate |->Dict?|
     {
-      cur := read(name)
-      changes := updateDiff(name, cur, rec)
-      db.commit(Diff(cur, changes, Diff.bypassRestricted))
+      curRec  := readById(id)
+      curName := curRec->name.toStr
+      if (curName != newName) checkDupName(newName)
+      changes := updateDiff(curRec, newRec)
+      return db.commit(Diff(curRec, changes, Diff.bypassRestricted)).newRec
     }
   }
 
-  override Void rename(Str oldName, Str newName)
+  override Void remove(Ref id)
   {
-    doUpdate |->|
+    doUpdate |->Dict?|
     {
-      cur := read(oldName)
-      checkDupName(newName)
-      checkName(cur, newName)
-      db.commit(Diff(cur, Etc.dict1("name", newName), Diff.bypassRestricted))
-    }
-  }
-
-  override Void remove(Str name)
-  {
-    doUpdate |->|
-    {
-      cur := read(name, false)
-      if (cur == null) return
+      cur := readById(id)
       db.commit(Diff(cur, null, Diff.remove.or(Diff.bypassRestricted)))
+      return null
     }
   }
 
   private Void checkDupName(Str name)
   {
-    if (name.isEmpty) throw ArgErr("Invalid empty name")
-    flip := name[0].isUpper ? name.decapitalize : name.capitalize
-    if (read(name, false) != null) throw DuplicateNameErr(name)
-    if (read(flip, false) != null) throw DuplicateNameErr("$name (case insensitive)")
+    nameLower := name.lower
+    dup := readAll.find |x| { x->name.toStr.lower == nameLower }
+    if (dup != null) throw DuplicateNameErr("'$name' duplicates $dup.id.toCode '${dup->name}'")
   }
 
-  private Void doUpdate(|->| cb)
+  private Dict? doUpdate(|->Dict?| cb)
   {
     lock.lock
+    Dict? res
     try
-      cb()
+      res = cb()
     finally
       lock.unlock
     rt.libsRef.reload
+    return res
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private static Dict updateDiff(Str name, Dict oldRec, Dict newRec)
+  private static Dict updateDiff(Dict oldRec, Dict newRec)
   {
-    // first remove an existing spec/isntance tags
+    // first remove an existing spec/instance tags
     acc := Str:Obj[:]
     Ref? id
     DateTime? mod
@@ -159,7 +161,6 @@ const class HxCompanion : ProjCompanion
     {
       if (n == "id")  { if (v != id) throw InvalidCompanionRecErr("Cannot change id"); return }
       if (n == "mod") { if (v != mod) throw ConcurrentChangeErr("Rec has been modified"); return }
-      if (n == "name" && v != name) throw InvalidCompanionRecErr("Cannot change spec name: $name => $v")
       acc[n] = v
     }
     return Etc.dictFromMap(acc)
