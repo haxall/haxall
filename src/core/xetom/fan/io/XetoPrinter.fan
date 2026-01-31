@@ -425,6 +425,7 @@ class XetoPrinter
   {
     if (x is Dict) return dict(x)
     if (x is List) return list(x, inferred)
+    if (x is Grid) return list(((Grid)x).toRows, null) // TODO: how to handle?
     return scalar(x, inferred)
   }
 
