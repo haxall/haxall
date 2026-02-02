@@ -253,6 +253,7 @@ internal class GenPages: Step
     acc.ordered = true
     slots.each |slot|
     {
+      if (DocUtil.isSpecNoDoc(slot)) return
       d := genSlot(spec, slot)
       name := slot.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoNameCount++)
