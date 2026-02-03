@@ -1,0 +1,34 @@
+{
+  "order1234": {
+    "spec": "hx.test.xeto::Order",
+    "order": "✓",
+    "customerName": "Frodo Baggins",
+    "orderDate": "2025-12-16T13:40:00Z UTC",
+    "orderType": "secretLab",
+    "items": [
+      {
+        "product": "✓",
+        "name": "Deluxe Blender",
+        "price": "89.99",
+        "sku": "0",
+        "spec": "hx.test.xeto::Product"
+      },
+      {
+        "product": "✓",
+        "name": "Toaster Oven",
+        "price": "45.00",
+        "sku": "0",
+        "spec": "hx.test.xeto::Product"
+      },
+      {
+        "product": "✓",
+        "name": "Electric Kettle",
+        "price": "29.5",
+        "sku": "0",
+        "spec": "hx.test.xeto::Product"
+      }
+    ],
+    "id": "hx.test.xeto::order1234"
+  }
+}
+

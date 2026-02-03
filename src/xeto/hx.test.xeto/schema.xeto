@@ -1,0 +1,52 @@
+//
+// Copyright (c) 2023, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   16 Dec 2025  Mike Jarmy  Creation
+//
+
+Order : Entity {
+  order
+  customerName: Str
+  orderDate: DateTime
+  orderType: OrderType
+  items: List <of:Product>
+}
+
+OrderType: Enum {
+  kitchen
+  bathRoom
+  livingRoom
+  secretLab
+}
+
+Product : Dict {
+  product
+  name: Str
+  price: Float
+}
+
+@order1234: Order {
+  order
+  customerName: "Frodo Baggins"
+  orderDate: "2025-12-16T13:40:00Z"
+  orderType: "secretLab"
+  items: {
+    Product {
+      product
+      name: "Deluxe Blender"
+      price: 89.99
+    },
+    Product {
+      product
+      name: "Toaster Oven"
+      price: 45.00
+    },
+    Product {
+      product
+      name: "Electric Kettle"
+      price: 29.50
+    }
+  }
+}
