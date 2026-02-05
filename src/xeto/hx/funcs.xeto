@@ -312,19 +312,19 @@
   // Examples:
   //   companionReadByName("MySpec")
   //   companionReadByName("my-instance")
-  companionReadByName: Func <admin> { name: Str, checked: Bool, returns: Obj? }
+  companionReadByName: Func <admin> { name: Str, checked: Bool, returns: Dict? }
 
   // Add new spec or instance to companion lib - see `hx::ProjCompanion.add`.
   // Examples:
   //   companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
   //   companionParse("MySpec: Dict { dis: Str }").companionAdd
-  companionAdd: Func <admin> { rec: Dict, returns: Obj? }
+  companionAdd: Func <admin> { rec: Dict, returns: Dict }
 
   // Update existing spec or instance in companion lib - see `hx::ProjCompanion.update`.
   // Examples:
   //   companionReadByName("MySpec").merge({base:@sys::Scalar}).companionUpdate
   //   companionReadByName("myFunc").merge({axon:"(x)=>x"}).companionUpdate
-  companionUpdate: Func <admin> { rec: Dict, returns: Obj? }
+  companionUpdate: Func <admin> { rec: Dict, returns: Dict }
 
   // Remove a spec or instance from companion lib - see `hx::ProjCompanion.remove`.
   // The id argument can be any value accepted by `toRecId()`.

@@ -581,7 +581,7 @@ cx.ns.env->libCacheClear
   **   companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
   **   companionParse("MySpec: Dict { dis: Str }").companionAdd
   @Api @Axon { admin=true }
-  static Void companionAdd(Dict rec)
+  static Dict companionAdd(Dict rec)
   {
     curContext.proj.companion.add(rec)
   }
@@ -591,7 +591,7 @@ cx.ns.env->libCacheClear
   **   companionReadByName("MySpec").merge({base:@sys::Scalar}).companionUpdate
   **   companionReadByName("myFunc").merge({axon:"(x)=>x"}).companionUpdate
   @Api @Axon { admin=true }
-  static Void companionUpdate(Dict rec)
+  static Dict companionUpdate(Dict rec)
   {
     curContext.proj.companion.update(rec)
   }
