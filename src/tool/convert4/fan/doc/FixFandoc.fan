@@ -186,7 +186,9 @@ class FixFandoc
     try
     {
       buf := StrBuf(line.size)
-      doc := FandocParser().parse(loc.toStr, line.in)
+      parser := FandocParser()
+      parser.parseHeader = false
+      doc := parser.parse(loc.toStr, line.in)
       fixNode(doc, buf)
       return buf.toStr
     }
