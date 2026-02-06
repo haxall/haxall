@@ -265,31 +265,14 @@ internal class ConvertExtCmd : ConvertCmd
     }
   }
 
-  Str genHeader()
+  private Str genHeader()
   {
-    s := genMacro(ast.config.templateHeader) |n| { null }
-    return s.trim + "\n"
+    ast.config.genHeader
   }
 
-  Str genMacro(Str template, |Str->Str?| resolve)
+  private Str genMacro(Str template, |Str->Str?| resolve)
   {
-    macro := Macro(template)
-    vars := Str:Str[:]
-    macro.vars.each |name|
-    {
-      vars[name] = resolve(name) ?: resolveVarBuiltin(name)
-    }
-    return macro.apply |var| { vars[var] }
-  }
-
-  Str resolveVarBuiltin(Str var)
-  {
-    switch (var)
-    {
-      case "date":    return Date.today.toLocale("D MMM YYYY")
-      case "year":    return Date.today.toLocale("YYYY")
-    }
-    throw Err("Unknown template var: $var")
+    ast.config.genMacro(template, resolve)
   }
 
   once FixLinks fixLinks() { FixLinks.load }

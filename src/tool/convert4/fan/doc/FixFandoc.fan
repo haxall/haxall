@@ -18,7 +18,7 @@ using fandoc::Link
 **
 class FixFandoc
 {
-  static Str convertFandocFile(Str base, File fandocFile, FixLinks fixLinks)
+  static Str convertFandocFile(Str base, File fandocFile, FixLinks? fixLinks)
   {
     oldLines := fandocFile.readAllLines
 
@@ -43,7 +43,7 @@ class FixFandoc
     return newLines.join("\n")
   }
 
-  new make(Str base, FileLoc loc, Str[] lines, FixLinks fixLinks)
+  new make(Str base, FileLoc loc, Str[] lines, FixLinks? fixLinks)
   {
     this.base     = base
     this.loc      = loc
@@ -226,7 +226,10 @@ class FixFandoc
   private Void fixLink(Link n, StrBuf buf)
   {
     text := n.toText
-    uri := fixLinks.fix(base, n.uri)
+    uri := n.uri
+
+    if (fixLinks != null) uri = fixLinks.fix(base, n.uri)
+
     if (text == n.uri)
       buf.add("[").add(uri).add("]")
     else
@@ -262,7 +265,7 @@ class FixFandoc
   private Int linei
   private FixFandocMode mode := FixFandocMode.norm
   private Int modeIndent
-  private FixLinks fixLinks
+  private FixLinks? fixLinks
 }
 
 **************************************************************************

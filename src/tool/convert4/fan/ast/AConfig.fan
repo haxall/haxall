@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack
+using haystack::Macro
 
 **
 ** AST configuration
@@ -55,5 +56,32 @@ class AConfig
   Str[] funcMeta
 
   Namespace ns
+
+  Str genHeader()
+  {
+    s := genMacro(templateHeader) |n| { null }
+    return s.trim + "\n"
+  }
+
+  Str genMacro(Str template, |Str->Str?| resolve)
+  {
+    macro := Macro(template)
+    vars := Str:Str[:]
+    macro.vars.each |name|
+    {
+      vars[name] = resolve(name) ?: resolveVarBuiltin(name)
+    }
+    return macro.apply |var| { vars[var] }
+  }
+
+  Str resolveVarBuiltin(Str var)
+  {
+    switch (var)
+    {
+      case "date":    return Date.today.toLocale("D MMM YYYY")
+      case "year":    return Date.today.toLocale("YYYY")
+    }
+    throw Err("Unknown template var: $var")
+  }
 }
 
