@@ -21,6 +21,7 @@ class FixLinksTest : HaystackTest
     fixer = FixLinks.load
     base = "docHaystack::Overview"
     verifyFix("now()", "now()")
+    verifyFix("now",   "now()")
     verifyFix("docHaystack::Overview", "ph.doc::Overview")
     verifyFix("docHaystack::Filters", "ph.doc::Filters")
     verifyFix("docHaystack::Filters#numbers", "ph.doc::Filters#number-comparisons")

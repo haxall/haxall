@@ -19,11 +19,13 @@ using fandoc::Link
 class FixFandoc
 {
 
-  new make(FileLoc loc, Str[] lines)
+  new make(Str base, FileLoc loc, Str[] lines, FixLinks fixLinks)
   {
-    this.loc   = loc
-    this.lines = lines
-    this.types = FandocParser().parseLineTypes(lines)
+    this.base     = base
+    this.loc      = loc
+    this.lines    = lines
+    this.types    = FandocParser().parseLineTypes(lines)
+    this.fixLinks = fixLinks
   }
 
   Str[] fix()
@@ -200,8 +202,8 @@ class FixFandoc
   private Void fixLink(Link n, StrBuf buf)
   {
     text := n.toText
-    uri := n.uri
-    if (text == uri)
+    uri := fixLinks.fix(base, n.uri)
+    if (text == n.uri)
       buf.add("[").add(uri).add("]")
     else
       buf.add("[").add(text).add("](").add(uri).add(")")
@@ -229,12 +231,14 @@ class FixFandoc
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private Str base
   private FileLoc loc
   private Str[] lines
   private LineType[] types
   private Int linei
   private FixFandocMode mode := FixFandocMode.norm
   private Int modeIndent
+  private FixLinks fixLinks
 }
 
 **************************************************************************

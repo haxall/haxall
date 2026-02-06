@@ -75,6 +75,13 @@ class FixLinks
       return x
     }
 
+    // handle funcs without trailing ()
+    if (libName == null && frag == null)
+    {
+      func := ns.funcs.get(docName, false)
+      if (func != null) return docName + "()"
+    }
+
     // handle docs
     oldLib := libName ?: baseLib
     newDocLib := toNewDocLib(oldLib)

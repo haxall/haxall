@@ -29,6 +29,8 @@ class FixDocs : ConvertCmd
 
   override Int run()
   {
+    fixLinks = FixLinks.load
+
     if (targets == null || targets.isEmpty)
     {
       echo("No targets specified")
@@ -61,6 +63,8 @@ class FixDocs : ConvertCmd
       f.list.each |kid| { fixFile(kid) }
       return
     }
+
+    curBase = f.parent.name + "::" + f.name
 
     if (f.ext == "xeto") return fixXeto(f)
   }
@@ -147,13 +151,15 @@ class FixDocs : ConvertCmd
   Str[] fixSlashSlashDoc(Str[] lines)
   {
     // fix line-by-line to maintain original formatting
-    FixFandoc(curLoc, lines).fix
+    FixFandoc(curBase, curLoc, lines, fixLinks).fix
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  Str? curBase
   FileLoc curLoc := FileLoc.unknown
+  FixLinks? fixLinks
 }
 
