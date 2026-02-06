@@ -158,12 +158,13 @@ class FixDocs : ConvertCmd
     FixFandoc(curBase, curLoc, lines, fixLinks).fix
   }
 
+  once FixLinks fixLinks() { FixLinks.load }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   Str? curBase
   FileLoc curLoc := FileLoc.unknown
-  FixLinks? fixLinks
 }
 

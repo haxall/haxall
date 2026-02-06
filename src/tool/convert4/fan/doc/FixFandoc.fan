@@ -235,7 +235,7 @@ class FixFandoc
     text := n.toText
     uri := n.uri
 
-    if (fixLinks != null) uri = fixLinks.fix(base, n.uri)
+    if (fixLinks != null) uri = fixLinks.fix(base, uri)
 
     if (text == n.uri)
       buf.add("[").add(uri).add("]")

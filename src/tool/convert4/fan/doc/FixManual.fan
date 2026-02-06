@@ -24,6 +24,9 @@ class FixManual : ConvertCmd
 
   override Str summary() { "Convert fantom manual pod to markdown xeto lib" }
 
+  @Opt { help = "Output directory that contains src/xeto/{libName}" }
+  File? workDir
+
   @Arg { help = "Pod name to convert" }
   Str? podName
 
@@ -36,7 +39,11 @@ class FixManual : ConvertCmd
     pod := Pod.find(podName)
 
     // destination directory
-    xetoDir := Env.cur.workDir + `src/xeto/$libName/`
+    if (workDir != null)
+      workDir = workDir.uri.plusSlash.toFile
+    else
+      this.workDir = Env.cur.workDir
+    xetoDir := workDir + `src/xeto/$libName/`
 
     // generate lib.xeto
     genLibXeto(pod, xetoDir)
@@ -71,6 +78,7 @@ class FixManual : ConvertCmd
     // write out
     file := dir + `lib.xeto`
     file.out.print(header+"\n\n"+body).close
+    echo("Generate lib.xeto [$file.osPath]")
   }
 
   private Void genIndex(Pod pod, File dir)
@@ -92,17 +100,22 @@ class FixManual : ConvertCmd
       }
     }
     src := buf.toStr.trim
-    dir.plus(`index.md`).out.print(src).close
+    file := dir.plus(`index.md`)
+    echo("Generate lib.xeto [$file.osPath]")
+    file.out.print(src).close
   }
 
   private Void genChapter(Pod pod, File src, File dir)
   {
     // don't fix links
-    base := pod.name + "::" + src.name
-    markdown := FixFandoc.convertFandocFile(base, src, null)
+    base := pod.name + "::" + src.basename
+    markdown := FixFandoc.convertFandocFile(base, src, fixLinks)
     dst := dir + `${src.basename}.md`
+    echo("Generate chapter [$dst.osPath]")
     dst.out.print(markdown).close
   }
+
+  once FixLinks fixLinks() { FixLinks.load }
 
 }
 

@@ -41,9 +41,12 @@ Index: Dict {}
 // this is link to `site` tag.
 //
 // List of links:
-//   - `site`
+//   - `temp`
+//   - `sensor`
 //   - [now func]`now`
 //   - `docHaxall::Axon`
+//   - `simScenario`
+//   - `no2-concentration`
 //
 // Ordered
 //   1. foo 'inline'

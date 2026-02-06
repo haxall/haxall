@@ -16,7 +16,7 @@ class FixLinks
 {
   ** Create a linker instance - this is fairly expensive so a FixLinks
   ** should be created once and then reused.
-  static FixLinks load(Str:Str anchors := Str:Str[:])
+  static FixLinks load(Str:Str anchors := FandocAnchorMap.gen)
   {
     libs := XetoEnv.cur.repo.libs
     ns := XetoEnv.cur.createNamespaceFromNames(libs)
@@ -32,6 +32,9 @@ class FixLinks
   ** Fix link "x".  The oldBase must be old qname such as docHaystack::Overview
   Str fix(Str oldBase, Str x)
   {
+    // special pass thrus
+    if (specialPassThru.contains(x)) return x
+
     // handle absolute URIs
     if (x.startsWith("/") || x.contains("//")) return x
 
@@ -74,9 +77,26 @@ class FixLinks
       return x
     }
 
-    // handle funcs without trailing ()
+    // handle unqualifed simple names
     if (libName == null && frag == null)
     {
+      // try as global on PhEntity
+      phGlobal := ns.spec("ph::PhEntity").members.get(docName, false)
+      if (phGlobal != null) return phGlobal.qname
+
+      // try as type
+      types := ns.unqualifiedTypes(docName.capitalize)
+      if (types.size == 1) return types.first.qname
+
+      // if there is a dash, try to map conjunct to camel case
+      if (docName.contains("-"))
+      {
+        typeName := XetoUtil.dashedToCamel(docName).capitalize
+        types = ns.unqualifiedTypes(typeName)
+        if (types.size == 1) return types.first.qname
+      }
+
+      // try as func
       func := ns.funcs.get(docName, false)
       if (func != null) return docName + "()"
     }
@@ -91,7 +111,8 @@ class FixLinks
       if (frag == null) return newDocLink
 
       // handle frag
-      newFrag := anchors[oldLib + "::" + docName + "#" + frag] ?: frag
+      key := oldLib + "::" + (docName?.trimToNull ?: baseName) + "#" + frag
+      newFrag := anchors[key] ?: frag
       return newDocLink + "#" + newFrag
     }
 
@@ -124,5 +145,6 @@ class FixLinks
     return link
   }
 
+  Str[] specialPassThru := "association,contains,containedBy,is,relationship,tags,tagOn".split(',')
 }
 
