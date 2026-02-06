@@ -203,6 +203,8 @@ class FixFandoc
   {
     switch (n.id)
     {
+      case DocNodeId.doc:      fixElem(n, buf)
+
       case DocNodeId.text:     buf.add(n.toText)
 
       case DocNodeId.emphasis: fixElem(n, buf, "*")
@@ -212,8 +214,11 @@ class FixFandoc
       case DocNodeId.link:     fixLink(n, buf)
       case DocNodeId.image:    fixImage(n, buf)
 
-      case DocNodeId.para:     fixElem(n, buf)
-      case DocNodeId.doc:      fixElem(n, buf)
+      case DocNodeId.para:
+        a := ((Para)n).admonition
+        if (a != null) buf.add(a).add(": ") // this will occur on lines starting with TODO:
+        fixElem(n, buf)
+
       default: throw Err("TODO: $n.id $n")
     }
   }

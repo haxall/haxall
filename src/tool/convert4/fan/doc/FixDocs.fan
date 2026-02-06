@@ -29,8 +29,6 @@ class FixDocs : ConvertCmd
 
   override Int run()
   {
-    fixLinks = FixLinks.load
-
     if (targets == null || targets.isEmpty)
     {
       echo("No targets specified")
@@ -58,6 +56,8 @@ class FixDocs : ConvertCmd
 
   Void fixFile(File f)
   {
+    if (f.name == "lib.xeto") return
+
     if (f.isDir)
     {
       f.list.each |kid| { fixFile(kid) }
@@ -78,7 +78,7 @@ class FixDocs : ConvertCmd
     }
     else
     {
-      //echo("TOOD: rewrite $f")
+      f.out.printLine(lines.join("\n")).close
     }
   }
 
@@ -114,6 +114,7 @@ class FixDocs : ConvertCmd
       this.curLoc = FileLoc(f.osPath, i+1)
       if (!line.trimStart.startsWith("//"))
       {
+        // fix // comment
         comment := slashSlashComment(line, ss)
         newLine := line[0..<ss] + "// " + fixSlashSlashDoc([comment]).first
         newLines.add(newLine)
@@ -131,7 +132,10 @@ class FixDocs : ConvertCmd
       }
       fixSlashSlashDoc(block).each |newLine|
       {
-        newLines.add(prefix + " " + newLine)
+        if (newLine.all |ch| { ch == '/' })
+          newLines.add(prefix + newLine)
+        else
+          newLines.add(prefix + " " + newLine)
       }
     }
 
