@@ -99,7 +99,7 @@ class FixDocs : ConvertCmd
       // look for // comment
       line := oldLines[i]
       ss := line.index("//")
-      if (ss == null)
+      if (ss == null || (ss > 2 && line[ss-1] == ':'))
       {
         header = false
         newLines.add(line)

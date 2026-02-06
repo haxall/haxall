@@ -158,6 +158,7 @@ const class DocUtil
   {
    // we can assume one or two level tree of /index or /lib/page
     if (uri.path.isEmpty) return uri
+    if (uri.scheme != null) return uri
     s := StrBuf()
     if (cur.path.first != uri.path.first)
     {
