@@ -18,7 +18,7 @@ class FixLinksTest : HaystackTest
 {
   Void test()
   {
-    fixer = FixLinks.load
+    fixer = FixLinks.load(FandocAnchorMap.gen)
     base = "docHaystack::Overview"
     verifyFix("now()", "now()")
     verifyFix("now",   "now()")

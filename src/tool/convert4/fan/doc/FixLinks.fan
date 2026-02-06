@@ -16,11 +16,10 @@ class FixLinks
 {
   ** Create a linker instance - this is fairly expensive so a FixLinks
   ** should be created once and then reused.
-  static FixLinks load()
+  static FixLinks load(Str:Str anchors := Str:Str[:])
   {
     libs := XetoEnv.cur.repo.libs
     ns := XetoEnv.cur.createNamespaceFromNames(libs)
-    anchors := FixLinks#.pod.file(`/res/doc-anchors.txt`).readProps
     return make(ns, anchors)
   }
 

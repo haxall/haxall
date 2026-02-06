@@ -23,7 +23,7 @@ class FandocAnchorMap
 //////////////////////////////////////////////////////////////////////////
 
   ** Generate (must call from sf-misc)
-  static Void gen()
+  static Str:Str gen()
   {
     acc := Str:Str[:]
     Env.cur.path.each |pathDir|
@@ -41,7 +41,8 @@ class FandocAnchorMap
     }
 
     keys := acc.keys.sort
-    keys.each |k| { echo("$k=" + acc[k]) }
+    //keys.each |k| { echo("$k=" + acc[k]) }
+    return acc
   }
 
   static Void genFile(Str:Str acc, Str podName, File f)
