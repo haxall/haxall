@@ -25,6 +25,9 @@ internal class ConvertExtCmd : ConvertCmd
   @Opt { help = "Generate funcs.xeto" }
   Bool funcs
 
+  @Opt { help = "Convert pod.fandoc to doc.md" }
+  Bool doc
+
   @Opt { help = "Generate everything" }
   Bool all
 
@@ -58,6 +61,7 @@ internal class ConvertExtCmd : ConvertCmd
 
       if (all || libXeto) genLibXeto(ext)
       if (all || funcs)   genFuncs(ext)
+      if (all || doc)     genPodDoc(ext)
     }
     return 0
   }
@@ -228,6 +232,23 @@ internal class ConvertExtCmd : ConvertCmd
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Gen Funcs
+//////////////////////////////////////////////////////////////////////////
+
+  Void genPodDoc(AExt ext)
+  {
+    if (ext.pod.dir == null) return
+    fandocFile := ext.pod.dir + `pod.fandoc`
+    if (!fandocFile.exists) return
+
+    base := ext.oldName + "::pod.fandoc"
+    mdFile := ext.xetoSrcDir + `doc.md`
+
+    src := FixFandoc.convertFandocFile(base, fandocFile, fixLinks)
+    write("Doc.md", mdFile, src)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
@@ -270,6 +291,8 @@ internal class ConvertExtCmd : ConvertCmd
     }
     throw Err("Unknown template var: $var")
   }
+
+  once FixLinks fixLinks() { FixLinks.load }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

@@ -18,6 +18,30 @@ using fandoc::Link
 **
 class FixFandoc
 {
+  static Str convertFandocFile(Str base, File fandocFile, FixLinks fixLinks)
+  {
+    oldLines := fandocFile.readAllLines
+
+    comment := Str[,]
+    while (oldLines.first.startsWith("**"))
+    {
+      line := oldLines.removeAt(0).trimStart
+      while (!line.isEmpty && line[0] == '*') line = line[1..-1]
+      line = line.trim
+      if (!line.isEmpty) comment.add(line)
+    }
+
+    newLines := make(base, FileLoc(fandocFile), oldLines, fixLinks).fix
+
+    if (!comment.isEmpty)
+    {
+      comment.insert(0, "<!--")
+      comment.add("-->")
+      newLines.insertAll(0, comment)
+    }
+
+    return newLines.join("\n")
+  }
 
   new make(Str base, FileLoc loc, Str[] lines, FixLinks fixLinks)
   {
@@ -98,7 +122,7 @@ class FixFandoc
       case LineType.hr:         return line
       case LineType.preStart:   return fixPreStart
       case LineType.normal:     return fixNorm(line, curIndent)
-      default:                  throw Err(type.name)
+      default:                  throw Err("$type.name: $line")
     }
   }
 
