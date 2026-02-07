@@ -32,6 +32,7 @@ const class DocLinker
     if (x.startsWith("/") || x.contains("//")) return DocLinkUri(x.toUri)
 
     // parse into libName::docName.slotName#frag
+    orig := x
     Str? libName  := null
     Str? docName  := x
     Str? slotName := null
@@ -140,6 +141,15 @@ const class DocLinker
       if (frag != null && chapter.headings.get(frag) == null) return null
       return DocLinkUri(DocUtil.toUri(libName, docName, frag), docName)
     }
+
+    /* handle images (we don't call DocLinker for Image/Video nodes
+    if (slotName == "svg" || slotName == "png" || slotName == "jpeg")
+    {
+      uri := lib.files.list.find |uri| { uri.path.size == 1 && uri.name == orig }
+      if (uri != null) return DocLinkUri(orig.toUri, orig)
+      }
+    }
+    */
 
     return null
   }

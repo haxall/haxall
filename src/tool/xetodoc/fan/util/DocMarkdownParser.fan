@@ -162,16 +162,20 @@ internal class DocMarkdownParser : LinkResolver
 
   override Void resolve(LinkNode linkNode)
   {
-    orig := linkNode.destination
+    // we only process Link nodes, not Image/Video nodes
+    link := linkNode as Link
+    if (link == null) return
+
+    orig := link.destination
     try
     {
       res := linker.resolve(orig)
       if (res != null)
       {
         uri := res.uri
-        if (linkNode.shortcut) linkNode.setText(res.dis)
+        if (link.shortcut) link.setText(res.dis)
         if (compiler.mode.isHtml) uri = DocUtil.htmlUri(linker.uri, uri)
-        linkNode.destination = uri.toStr
+        link.destination = uri.toStr
       }
       else
       {

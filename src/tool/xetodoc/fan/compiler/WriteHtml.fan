@@ -23,6 +23,9 @@ internal class WriteHtml : Step
     // write each page
     eachPage |entry| { writePage(entry) }
 
+    // copy images
+    compiler.libs.each |lib| { copyImages(lib) }
+
     // write css file
     writeCss
   }
@@ -40,6 +43,25 @@ internal class WriteHtml : Step
     }
     finally out.close
     compiler.numFiles++
+  }
+
+  Void copyImages(Lib lib)
+  {
+    lib.files.list.each |uri|
+    {
+      if (uri.path.size == 1 && uri.mimeType.mediaType == "image")
+        copyImage(lib, uri)
+    }
+  }
+
+  Void copyImage(Lib lib, Uri uri)
+  {
+    try
+    {
+      dst := compiler.outDir + `${lib.name}/$uri.name`
+      lib.files.get(uri).copyTo(dst, ["overwrite":true])
+    }
+    catch (Err e) err("Cannot copy image $lib.name::$uri.name", FileLoc(lib.name), e)
   }
 
   Void writeCss()

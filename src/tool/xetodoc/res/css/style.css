@@ -212,3 +212,13 @@ xetodoc-chapter h1:not(:first-child) {
   font-size: 1.5em;
 }
 
+xetodoc-chapter h2 {
+  color: var(--name-color);
+  font-size: 1.3em;
+}
+
+xetodoc-chapter h3 {
+  color: var(--name-color);
+  font-size: 1.1em;
+}
+
