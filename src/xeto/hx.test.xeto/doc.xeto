@@ -50,6 +50,8 @@ Index: Dict {}
 //   - `synthetic-point`
 //   - `haystack::Grid`
 //   - `haystack::Grid.getRange`
+//   - `lib:task`
+//   - `lib-task::doc`
 //
 // Ordered
 //   1. foo 'inline'

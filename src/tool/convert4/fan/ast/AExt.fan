@@ -44,9 +44,9 @@ class AExt
     AFunc.scanExt(ast, ext)
   }
 
-  static Str oldNameToLibName(Ast ast, Str oldName)
+  static Str oldNameToLibName(Ast? ast, Str oldName)
   {
-    prefix  := ast.config.libPrefix
+    prefix  := ast == null ? "hx" : ast.config.libPrefix
     if (oldName == "axon") return "axon"
     if (oldName.endsWith("Auth")) return prefix + ".auth." + oldName[0..-5].lower
     if (prefix == oldName) return oldName

@@ -43,6 +43,31 @@ class FixLinks
     baseLib  := XetoUtil.qnameToLib(oldBase)
     baseName := XetoUtil.qnameToName(oldBase)
 
+    // handle lib:oldLib
+    if (x.startsWith("lib:"))
+    {
+      libName := oldNameToNewLibName(x[4..-1])
+      return libName + "::index"
+    }
+
+    // handle lib-oldLib::index or ext-oldLib::index
+    if (x.startsWith("lib-") || x.startsWith("ext-"))
+    {
+      // handle lib-oldLib::index
+      if (x.endsWith("::index"))
+      {
+        libName := oldNameToNewLibName(x[4..-8])
+        return libName + "::index"
+      }
+
+      // handle lib-oldLib::doc
+      if (x.endsWith("::doc"))
+      {
+        libName := oldNameToNewLibName(x[4..-6])
+        return libName + "::doc"
+      }
+    }
+
     // parse into libName::docName.slotName#frag
     orig := x
     Str? libName  := null
@@ -142,6 +167,12 @@ class FixLinks
   ** Map of old qnames to new anchor names:
   **   docTools::Setup#windowsServices = fantom-programs-as-windows-services
   const Str:Str anchors
+
+  ** Try to map oldLib name to new one
+  Str oldNameToNewLibName(Str oldLib)
+  {
+    AExt.oldNameToLibName(null, oldLib)
+  }
 
   ** Map old doc lib to new doc lib
   Str? toNewDocLib(Str lib)
