@@ -174,10 +174,19 @@ const class DocLinker
   }
 
   ** File location based on current lib/spec location
-  FileLoc loc()
+  FileLoc loc(FileLoc? markdownLoc)
   {
+    // spec use location where spec is defined
     if (doc is Spec) return ((Spec)doc).loc
-    if (doc is DocNamespaceChapter) return ((DocNamespaceChapter)doc).loc
+
+    // chapter use line within markdown
+    if (doc is DocNamespaceChapter)
+    {
+      loc := ((DocNamespaceChapter)doc).loc
+      if (markdownLoc != null) return FileLoc(loc.file, markdownLoc.line)
+      return loc
+    }
+
     if (lib != null) return lib.loc
     return FileLoc.unknown
   }

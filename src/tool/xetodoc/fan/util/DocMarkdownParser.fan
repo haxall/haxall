@@ -178,7 +178,11 @@ internal class DocMarkdownParser : LinkResolver
       }
       else
       {
-        warn("unresolved link [$orig]", FileLoc(this.loc.file, link.loc.line))
+        // for now don't report fantom links
+        if (orig.startsWith("fan.")) return
+
+        // warn
+        warn("unresolved link [$orig]", loc(link.loc))
       }
     }
     catch (Err e)
@@ -207,9 +211,9 @@ internal class DocMarkdownParser : LinkResolver
     return null
   }
 
-  private FileLoc loc()
+  private FileLoc loc(FileLoc? markdownLoc := null)
   {
-    linker.loc
+    linker.loc(markdownLoc)
   }
 
 //////////////////////////////////////////////////////////////////////////
