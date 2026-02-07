@@ -75,7 +75,7 @@ class FixFandoc
       {
         // ensure code indentation is preceded/followed by blank line
         newLine := fixLine(line, type)
-        newIsCodeIndent := isCodeIndent(newLine)
+        newIsCodeIndent := mode == FixFandocMode.preIndent
         if (newIsCodeIndent && !isBlank(acc.last) && !lastCodeIndent) acc.add("")
         if (lastCodeIndent && !newIsCodeIndent && !isBlank(newLine)) acc.add("")
         lastCodeIndent = newIsCodeIndent
@@ -86,8 +86,6 @@ class FixFandoc
 
     return acc
   }
-
-  private Bool isCodeIndent(Str line) { line.startsWith(Str.spaces(4)) }
 
   private Bool isBlank(Str? line) { line?.trimToNull == null }
 
