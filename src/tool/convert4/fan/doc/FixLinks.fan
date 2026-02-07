@@ -148,9 +148,18 @@ class FixLinks
   {
     switch (lib)
     {
+      case "docIntro":    return "fan.doc.intro"
+      case "docLang":     return "fan.doc.lang"
+      case "docDomkit":   return "fan.doc.domkit"
+      case "docFanr":     return "fan.doc.fanr"
+      case "docTools":    return "fan.doc.tools"
       case "docHaystack": return "ph.doc"
       case "docHaxall":   return "hx.doc.haxall"
       case "docSkySpark": return "hx.doc.skyspark"
+      case "docFresco":   return "hx.doc.fresco"
+      case "docAppNotes": return "hx.doc.appnotes"
+      case "docSkydive":  return "hx.doc.skydive"
+      case "docTraining": return "hx.doc.training"
       default:            return null
     }
   }
