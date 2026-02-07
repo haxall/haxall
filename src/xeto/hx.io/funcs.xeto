@@ -252,11 +252,11 @@
   // Write a grid to an [XML]`docHaxall::Xml` file.
   ioWriteXml: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
 
-  // Write an Axon data structure to RDF [Turtle]`docHaystack::Rdf` format.
+  // Write an Axon data structure to RDF [Turtle]`doc.xeto::Rdf` format.
   // The 'val' must be an Axon type that can be converted to a Grid.
   ioWriteTurtle: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
 
-  // Write an Axon data structure to RDF [JSON-LD]`docHaystack::Rdf` format.
+  // Write an Axon data structure to RDF [JSON-LD]`doc.xeto::Rdf` format.
   // The 'val' must be an Axon type that can be converted to a Grid.
   ioWriteJsonLd: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
 
