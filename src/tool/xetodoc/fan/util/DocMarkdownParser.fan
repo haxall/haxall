@@ -178,7 +178,7 @@ internal class DocMarkdownParser : LinkResolver
       }
       else
       {
-        warn("unresolved link [$orig]")
+        warn("unresolved link [$orig]", FileLoc(this.loc.file, link.loc.line))
       }
     }
     catch (Err e)
@@ -201,7 +201,7 @@ internal class DocMarkdownParser : LinkResolver
     compiler.err(msg, loc, e)
   }
 
-  private Obj? warn(Str msg)
+  private Obj? warn(Str msg, FileLoc loc := this.loc)
   {
     if (logWarn) compiler.warn(msg, loc)
     return null
