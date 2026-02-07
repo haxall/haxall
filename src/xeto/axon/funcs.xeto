@@ -307,10 +307,10 @@
 
   // Apply a [filter]`docHaystack::Filters` expression to a collection
   // of dicts.  The collection value may be any of the following:
-  //  - Grid: returns new grid with filtered rows
-  //  - Dict[]: returns list of filtered dicts (nulls are filtered out)
-  //  - Col[]: returns list of columns filtered by their meta
-  //  - Stream: filters stream of Dicts - see `docHaxall::Streams#filter`
+  //  - 'Grid': returns new grid with filtered rows
+  //  - 'Dict[]': returns list of filtered dicts (nulls are filtered out)
+  //  - 'Col[]': returns list of columns filtered by their meta
+  //  - 'Stream': filters stream of Dicts - see `docHaxall::Streams#filter`
   //
   // The filter parameter may one fo the following:
   //   - Axon expression which maps to a filter
@@ -1165,16 +1165,16 @@
   // representation.
   def: Func { symbol: Obj, checked: Bool, returns: Obj? }
 
-  // List all definitions in the context namespace as Def[].
+  // List all definitions in the context namespace as 'Def[]'.
   defs: Func { returns: List }
 
-  // List tag definitions in the context namespace as Def[].
+  // List tag definitions in the context namespace as 'Def[]'.
   tags: Func { returns: List }
 
-  // List term definitions (tags and conjuncts) in the context namespace as Def[].
+  // List term definitions (tags and conjuncts) in the context namespace as 'Def[]'.
   terms: Func { returns: List }
 
-  // List conjunct definitions in the context namespace as Def[].
+  // List conjunct definitions in the context namespace as 'Def[]'.
   conjuncts: Func { returns: List }
 
   // Return declared supertypes of the given def.  The result
@@ -1201,7 +1201,7 @@
   // Return list of tags to apply to implement the given def
   implement: Func <nodoc> { d: Obj, returns: List }
 
-  // Reflect the given subject dict into the list of its implemented Def[]
+  // Reflect the given subject dict into the list of its implemented 'Def[]'
   reflect: Func <nodoc> { dict: Dict, returns: List }
 
   // Generate a child prototype for the given parent dict.  This call

@@ -175,7 +175,7 @@
   ioStreamCsv: Func <admin> { handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Iterate the rows of a CSV file (comma separated values) and callback
-  // the given function with two parameters: Str[] cells of current row
+  // the given function with two parameters: 'Str[]' cells of current row
   // and zero based Number line number.
   //
   // The following options are supported:
@@ -203,8 +203,8 @@
   ioWriteCsv: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Write an Excel XLS file, where 'val' may be:
-  //   - Grid - writted a a single worksheet
-  //   - Grid[] - each grid is exported as a separate worksheet
+  //   - 'Grid' - writted a a single worksheet
+  //   - 'Grid[]' - each grid is exported as a separate worksheet
   //
   // By default each worksheet is named "Sheet1", "Sheet2", etc.  Use
   // a 'title' tag in Grid.meta to give the worksheets a specific name.
