@@ -165,11 +165,13 @@ internal class DocMarkdownParser : LinkResolver
     orig := linkNode.destination
     try
     {
-      dest := linker.resolve(orig)
-      if (dest != null)
+      res := linker.resolve(orig)
+      if (res != null)
       {
-        if (compiler.mode.isHtml) dest = DocUtil.htmlUri(linker.uri, dest)
-        linkNode.destination = dest.toStr
+        uri := res.uri
+        if (linkNode.shortcut) linkNode.setText(res.dis)
+        if (compiler.mode.isHtml) uri = DocUtil.htmlUri(linker.uri, uri)
+        linkNode.destination = uri.toStr
       }
       else
       {

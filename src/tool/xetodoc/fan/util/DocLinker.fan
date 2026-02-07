@@ -26,10 +26,10 @@ const class DocLinker
   }
 
   ** Resolve destination against current location or null if unresolved
-  Uri? resolve(Str x)
+  DocLinkUri? resolve(Str x)
   {
     // handle absolute URIs
-    if (x.startsWith("/") || x.contains("//")) return x.toUri
+    if (x.startsWith("/") || x.contains("//")) return DocLinkUri(x.toUri)
 
     // parse into libName::docName.slotName#frag
     Str? libName  := null
@@ -72,7 +72,8 @@ const class DocLinker
       {
         func = ns.funcs.get(name, false) // will raise ambiguous error
       }
-      return func != null ? DocUtil.specToUri(func) : null
+      if (func == null) return null
+      return DocLinkUri(DocUtil.specToUri(func), func.name + "()")
     }
 
     // handle #frag within chapter
@@ -80,7 +81,7 @@ const class DocLinker
     {
       chapter := (DocNamespaceChapter)doc
       if (chapter.headings[frag] == null) return null
-      return `#${frag}`
+      return DocLinkUri(`#${frag}`, frag)
     }
 
     // lib is required for everything else - resolve libName or use scope
@@ -101,17 +102,25 @@ const class DocLinker
     {
       if (slotName != null) return null
       if (frag != null) return null
-      return DocUtil.libToUri(libName)
+      return DocLinkUri(DocUtil.libToUri(libName), libName)
     }
 
     // doc - spec
     spec := resolveSpec(lib, docName)
     if (spec != null)
     {
+      dis := spec.name
       if (frag != null) return null
-      if (slotName != null) spec = spec.member(slotName, false)
-      if (spec == null) return null
-      return DocUtil.specToUri(spec)
+      if (slotName != null)
+      {
+        spec = spec.member(slotName, false)
+        if (spec == null) return null
+        if (spec.isFunc || spec.isGlobal)
+          dis = slotName
+        else
+          dis += "." + slotName
+      }
+      return DocLinkUri(DocUtil.specToUri(spec), dis)
     }
 
     // doc - instance
@@ -120,7 +129,7 @@ const class DocLinker
     {
       if (slotName != null) return null
       if (frag != null) return null
-      return DocUtil.toUri(libName, docName)
+      return DocLinkUri(DocUtil.toUri(libName, docName), docName)
     }
 
     // doc - chapter
@@ -129,7 +138,7 @@ const class DocLinker
     {
       if (slotName != null && slotName != "md") return null
       if (frag != null && chapter.headings.get(frag) == null) return null
-      return DocUtil.toUri(libName, docName, frag)
+      return DocLinkUri(DocUtil.toUri(libName, docName, frag), docName)
     }
 
     return null
@@ -167,5 +176,29 @@ const class DocLinker
   const Uri uri            // current location uri
   const Lib? lib           // current lib scope
   const Obj? doc           // current doc scope (Spec or DocNamespaceChapter)
+}
+
+**************************************************************************
+** DocLinkUri
+**************************************************************************
+
+** Result from DocLinker.resolve
+const class DocLinkUri
+{
+  ** Constructor
+  new make(Uri uri, Str dis := uri.toStr)
+  {
+    this.uri = uri
+    this.dis = dis
+  }
+
+  ** Normalized uri for the link
+  const Uri uri
+
+  ** Base display text to use if shortcut was used
+  const Str dis
+
+  ** Debug string
+  override Str toStr() { "[$dis]($uri)" }
 }
 

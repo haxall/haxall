@@ -502,33 +502,33 @@ class DocTest : AbstractXetoTest
     verifyLinker("https://xeto.dev/", "https://xeto.dev/")
 
     // absolute index
-    verifyLinker("ph.points::index", "/ph.points/index")
+    verifyLinker("ph.points::index", "/ph.points/index", "ph.points")
     verifyLinker("ph.points::index.bad", null)
     verifyLinker("ph.points::index#bad", null)
 
     // absolute spec
-    verifyLinker("sys::Spec", "/sys/Spec")
-    verifyLinker("ph::Equip", "/ph/Equip")
-    verifyLinker("ph.points::NumberPoint", "/ph.points/NumberPoint")
+    verifyLinker("sys::Spec", "/sys/Spec", "Spec")
+    verifyLinker("ph::Equip", "/ph/Equip", "Equip")
+    verifyLinker("ph.points::NumberPoint", "/ph.points/NumberPoint", "NumberPoint")
     verifyLinker("ph::Equip#bad",  null)
     verifyLinker("ph::Bad", null)
 
     // absolute slot
-    verifyLinker("sys::Spec.doc", "/sys/Spec#doc")
-    verifyLinker("ph::PhEntity.temp", "/ph/PhEntity#temp")
-    verifyLinker("hx::Funcs.read", "/hx/Funcs#read")
-    verifyLinker("hx.test.xeto::Index", "/hx.test.xeto/_Index")
+    verifyLinker("sys::Spec.doc", "/sys/Spec#doc", "Spec.doc")
+    verifyLinker("ph::PhEntity.temp", "/ph/PhEntity#temp", "temp")
+    verifyLinker("hx::Funcs.read", "/hx/Funcs#read", "read")
+    verifyLinker("hx.test.xeto::Index", "/hx.test.xeto/_Index", "Index")
     verifyLinker("ph::PhEntity.temp#bad", null)
     verifyLinker("ph::PhEntity.bad", null)
 
     // absolute instance
-    verifyLinker("hx.test.xeto::coerce", "/hx.test.xeto/coerce")
+    verifyLinker("hx.test.xeto::coerce", "/hx.test.xeto/coerce", "coerce")
     verifyLinker("hx.test.xeto::coerce.float", null)
     verifyLinker("hx.test.xeto::coerce#bad", null)
 
     // functions
-    verifyLinker("readAll()", "/hx/Funcs#readAll")
-    verifyLinker("hx::readAll()", "/hx/Funcs#readAll")
+    verifyLinker("readAll()", "/hx/Funcs#readAll", "readAll()")
+    verifyLinker("hx::readAll()", "/hx/Funcs#readAll", "readAll()")
     verifyLinker("hx::Funcs.readAll()", null)
     verifyLinker("hx::badFunc()", null)
     verifyLinker("doc.xeto::badFunc()", null)
@@ -541,28 +541,28 @@ class DocTest : AbstractXetoTest
     verifyLinker("hx::readAll().bad#bad", null)
 
     // absolute chapter
-    verifyLinker("doc.xeto::Xetodoc", "/doc.xeto/Xetodoc")
-    verifyLinker("doc.xeto::Xetodoc.md", "/doc.xeto/Xetodoc")
+    verifyLinker("doc.xeto::Xetodoc", "/doc.xeto/Xetodoc", "Xetodoc")
+    verifyLinker("doc.xeto::Xetodoc.md", "/doc.xeto/Xetodoc", "Xetodoc")
     verifyLinker("doc.xeto::Xetodoc.bad", null)
     verifyLinker("doc.xeto::Bad", null)
 
     // absolute chapter frags
-    verifyLinker("doc.xeto::Xetodoc#shortcut-links", "/doc.xeto/Xetodoc#shortcut-links")
-    verifyLinker("doc.xeto::Xetodoc.md#shortcut-links", "/doc.xeto/Xetodoc#shortcut-links")
+    verifyLinker("doc.xeto::Xetodoc#shortcut-links", "/doc.xeto/Xetodoc#shortcut-links", "Xetodoc")
+    verifyLinker("doc.xeto::Xetodoc.md#shortcut-links", "/doc.xeto/Xetodoc#shortcut-links", "Xetodoc")
     verifyLinker("doc.xeto::Xetodoc#bad", null)
     verifyLinker("doc.xeto::Xetodoc.md#bad", null)
     verifyLinker("doc.xeto::Xetodoc.md#Shortcut-Links", null)
 
     // relative specs
     lib = ns.lib("ph")
-    verifyLinker("Spec", "/sys/Spec")
-    verifyLinker("Site", "/ph/Site")
+    verifyLinker("Spec", "/sys/Spec", "Spec")
+    verifyLinker("Site", "/ph/Site", "Site")
     verifyLinker("NumberPoint", null)
 
     // relative slots
     lib = ns.lib("ph")
-    verifyLinker("Spec.doc", "/sys/Spec#doc")
-    verifyLinker("Equip.siteRef", "/ph/Equip#siteRef")
+    verifyLinker("Spec.doc", "/sys/Spec#doc", "Spec.doc")
+    verifyLinker("Equip.siteRef", "/ph/Equip#siteRef", "Equip.siteRef")
     verifyLinker("Equip#bad", null)
     verifyLinker("Equip.bad", null)
     verifyLinker("Equip.siteRef#bad", null)
@@ -572,18 +572,18 @@ class DocTest : AbstractXetoTest
     verifyLinker("Xetodoc", null)
     verifyLinker("Xetodoc.md", null)
     lib = ns.lib("doc.xeto")
-    verifyLinker("Xetodoc", "/doc.xeto/Xetodoc")
-    verifyLinker("Xetodoc.md", "/doc.xeto/Xetodoc")
-    verifyLinker("Xetodoc#tables", "/doc.xeto/Xetodoc#tables")
-    verifyLinker("Xetodoc.md#tables", "/doc.xeto/Xetodoc#tables")
+    verifyLinker("Xetodoc", "/doc.xeto/Xetodoc", "Xetodoc")
+    verifyLinker("Xetodoc.md", "/doc.xeto/Xetodoc", "Xetodoc")
+    verifyLinker("Xetodoc#tables", "/doc.xeto/Xetodoc#tables", "Xetodoc")
+    verifyLinker("Xetodoc.md#tables", "/doc.xeto/Xetodoc#tables", "Xetodoc")
     verifyLinker("Xetodoc#bad", null)
     verifyLinker("Xetodoc.md#bad", null)
     verifyLinker("#tables", null)
 
     // frags internal to chapter
     doc = docns.chapters(lib).getChecked("Xetodoc")
-    verifyLinker("#tables", "#tables")
-    verifyLinker("#shortcut-links", "#shortcut-links")
+    verifyLinker("#tables", "#tables", "tables")
+    verifyLinker("#shortcut-links", "#shortcut-links", "shortcut-links")
     verifyLinker("#bad", null)
     verifyLinker("#Shortcut-Links", null)
 
@@ -601,11 +601,12 @@ class DocTest : AbstractXetoTest
     verifyLinker("()", null)
   }
 
-  Void verifyLinker(Str link, Str? expect)
+  Void verifyLinker(Str link, Str? expect, Str? dis := expect)
   {
-    actual := DocLinker(docns, lib, doc).resolve(link)?.toStr
-    // echo; echo("--> $link"); echo("  > $actual ?= $expect")
-    verifyEq(actual, expect)
+    actual := DocLinker(docns, lib, doc).resolve(link)
+    //echo; echo("--> $link"); echo("  > $actual ?= $expect $dis")
+    verifyEq(actual?.uri?.toStr, expect)
+    verifyEq(actual?.dis, dis)
   }
 
   DocNamespace? docns

@@ -47,6 +47,7 @@ Index: Dict {}
 //   - `docHaxall::Axon`
 //   - `simScenario`
 //   - `no2-concentration`
+//   - `synthetic-point`
 //
 // Ordered
 //   1. foo 'inline'
