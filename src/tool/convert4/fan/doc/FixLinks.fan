@@ -44,6 +44,7 @@ class FixLinks
     baseName := XetoUtil.qnameToName(oldBase)
 
     // parse into libName::docName.slotName#frag
+    orig := x
     Str? libName  := null
     Str? docName  := x
     Str? slotName := null
@@ -78,7 +79,7 @@ class FixLinks
     }
 
     // handle unqualifed simple names
-    if (libName == null && frag == null)
+    if (libName == null && slotName == null && frag == null)
     {
       // try as global on PhEntity
       phGlobal := ns.spec("ph::PhEntity").members.get(docName, false)
@@ -116,7 +117,23 @@ class FixLinks
       return newDocLink + "#" + newFrag
     }
 
-    return x
+    // try as Fantom
+    if (libName != null)
+    {
+      pod := Pod.find(libName, false)
+      if (pod != null)
+      {
+        type := pod.type(docName, false)
+        if (type != null)
+        {
+          fan := "fan.$pod.name.lower::$type.name"
+          if (slotName != null) fan += "." + slotName
+          return fan
+        }
+      }
+    }
+
+    return orig
   }
 
   ** Kitchen sink namespace
@@ -132,8 +149,8 @@ class FixLinks
     switch (lib)
     {
       case "docHaystack": return "ph.doc"
-      case "docHaxall":   return "ph.hx.haxall"
-      case "docSkySpark": return "ph.hx.skyspark"
+      case "docHaxall":   return "hx.doc.haxall"
+      case "docSkySpark": return "hx.doc.skyspark"
       default:            return null
     }
   }

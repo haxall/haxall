@@ -48,6 +48,8 @@ Index: Dict {}
 //   - `simScenario`
 //   - `no2-concentration`
 //   - `synthetic-point`
+//   - `haystack::Grid`
+//   - `haystack::Grid.getRange`
 //
 // Ordered
 //   1. foo 'inline'

@@ -76,7 +76,7 @@ class FixFandoc
         // ensure code indentation is preceded/followed by blank line
         newLine := fixLine(line, type)
         newIsCodeIndent := isCodeIndent(newLine)
-        if (newIsCodeIndent && !isBlank(acc.last)) acc.add("")
+        if (newIsCodeIndent && !isBlank(acc.last) && !lastCodeIndent) acc.add("")
         if (lastCodeIndent && !newIsCodeIndent && !isBlank(newLine)) acc.add("")
         lastCodeIndent = newIsCodeIndent
 
