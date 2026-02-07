@@ -190,7 +190,7 @@
   // Strip any tags which cannot be persistently committed to Folio.
   // This includes special tags such as 'hisSize' and any transient tags
   // the record has defined.  If 'val' is Dict, then a single Dict is returned.
-  // Otherwise 'val' must be Dict[] or Grid and Dict[] is returned.
+  // Otherwise 'val' must be 'Dict[]' or Grid and 'Dict[]' is returned.
   // The 'mod' tag is stripped unless the '{mod}' option is specified.
   // The 'id' tag is not stripped for cases when adding records with
   // swizzled ids; pass '{-id}' in options to strip the 'id' tag also.
@@ -211,32 +211,32 @@
 //////////////////////////////////////////////////////////////////////////
 
   // Coerce a value to a Ref identifier:
-  //   - Ref returns itself
-  //   - Row or Dict, return 'id' tag
-  //   - Grid return first row id
+  //   - 'Ref' returns itself
+  //   - 'Row' or 'Dict', return 'id' tag
+  //   - 'Grid' return first row id
   toRecId: Func { val: Obj?, returns: Ref }
 
   // Coerce a value to a list of Ref identifiers:
-  //   - Ref returns itself as list of one
-  //   - Ref[] returns itself
-  //   - Dict return 'id' tag
-  //   - Dict[] return 'id' tags
-  //   - Grid return 'id' column
+  //   - 'Ref' returns itself as list of one
+  //   - 'Ref[]' returns itself
+  //   - 'Dict' return 'id' tag
+  //   - 'Dict[]' return 'id' tags
+  //   - 'Grid' return 'id' column
   toRecIdList: Func { val: Obj?, returns: List }
 
   // Coerce a value to a record Dict:
-  //   - Row or Dict returns itself
-  //   - Grid returns first row
-  //   - List returns first row (can be either Ref or Dict)
-  //   - Ref will make a call to read database
+  //   - 'Row' or 'Dict' returns itself
+  //   - 'Grid' returns first row
+  //   - 'List' returns first row (can be either Ref or Dict)
+  //   - 'Ref' will make a call to read database
   toRec: Func { val: Obj?, returns: Dict }
 
   // Coerce a value to a list of record Dicts:
-  //   - null return empty list
-  //   - Ref or Ref[] (will make a call to read database)
-  //   - Row or Row[] returns itself
-  //   - Dict or Dict[] returns itself
-  //   - Grid is mapped to list of rows
+  //   - 'null' return empty list
+  //   - 'Ref' or 'Ref[]' (will make a call to read database)
+  //   - 'Row' or 'Row[]' returns itself
+  //   - 'Dict' or 'Dict[]' returns itself
+  //   - 'Grid' is mapped to list of rows
   toRecList: Func { val: Obj?, returns: List }
 
 //////////////////////////////////////////////////////////////////////////

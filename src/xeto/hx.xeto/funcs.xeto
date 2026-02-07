@@ -101,7 +101,7 @@
   //
   // The default behavior for dict types is to return a single Dict.
   // However, if the type has a constrainted query, then an entire graph
-  // can be instantiated via the '{graph}' option in which case a Dict[] is
+  // can be instantiated via the '{graph}' option in which case a 'Dict[]' is
   // returned.  In graph mode an 'id' is generated for recs for cross-linking.
   //
   // Also see `xeto::Namespace.instantiate`.
