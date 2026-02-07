@@ -57,6 +57,7 @@ class FixFandoc
     acc := Str[,]
     acc.capacity = lines.size
 
+    lastCodeIndent := false
     for (i := 0; i<lines.size; ++i)
     {
       linei = i
@@ -72,11 +73,23 @@ class FixFandoc
       }
       else
       {
-        acc.add(fixLine(line, type))
+        // ensure code indentation is preceded/followed by blank line
+        newLine := fixLine(line, type)
+        newIsCodeIndent := isCodeIndent(newLine)
+        if (newIsCodeIndent && !isBlank(acc.last)) acc.add("")
+        if (lastCodeIndent && !newIsCodeIndent && !isBlank(newLine)) acc.add("")
+        lastCodeIndent = newIsCodeIndent
+
+        acc.add(newLine)
       }
     }
+
     return acc
   }
+
+  private Bool isCodeIndent(Str line) { line.startsWith(Str.spaces(4)) }
+
+  private Bool isBlank(Str? line) { line?.trimToNull == null }
 
 //////////////////////////////////////////////////////////////////////////
 // Block Lines
