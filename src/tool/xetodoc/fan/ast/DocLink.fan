@@ -12,6 +12,9 @@
 @Js
 const class DocLink
 {
+  ** Empty link
+  static const DocLink empty := make(``, "")
+
   ** Constructor
   new make(Uri uri, Str? dis)
   {

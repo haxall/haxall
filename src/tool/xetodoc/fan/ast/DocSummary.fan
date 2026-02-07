@@ -33,6 +33,9 @@ const class DocSummary
   ** Tags to annotate this summary
   const DocTag[] tags
 
+  ** Is the heading tag defined
+  Bool isHeading() { tags.any |tag| { tag.name == DocTags.heading.name } }
+
   ** Optional type ref used for some summaries (such as globals)
   const DocTypeRef? type
 

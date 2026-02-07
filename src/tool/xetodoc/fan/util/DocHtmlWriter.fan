@@ -330,7 +330,13 @@ class DocHtmlWriter : WebOutStream
 
     tabSection(title)
     props
-    summaries.each |s| { prop(s.link, s.text) }
+    summaries.each |s|
+    {
+      if (s.isHeading)
+        propHeading(s.text.html)
+      else
+        prop(s.link, s.text)
+    }
     propsEnd
     tabSectionEnd
 
@@ -368,6 +374,14 @@ class DocHtmlWriter : WebOutStream
       .tag(tagPropTd).propVal(val).tagEnd(tagPropTd)
       .tagEnd(tagProp).nl
     return this
+  }
+
+  private This propHeading(Str title)
+  {
+    tr
+    .tag(tagPropHeading, "colspan='2'").esc(title)
+    .tagEnd(tagPropHeading)
+    .trEnd
   }
 
   private This propName(Obj name)
@@ -503,19 +517,20 @@ class DocHtmlWriter : WebOutStream
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  static const Str tagPage       := "xetodoc-page"
-  static const Str tagNav        := "xetodoc-nav"
-  static const Str tagMain       := "xetodoc-main" // two column tab+section
-  static const Str tagTab        := "xetodoc-tab"
-  static const Str tagSection    := "xetodoc-section"
-  static const Str tagProps      := "xetodoc-prop-table"
-  static const Str tagProp       := "xetodoc-prop-tr"
-  static const Str tagPropTh     := "xetodoc-prop-th"
-  static const Str tagPropTd     := "xetodoc-prop-td"
-  static const Str tagSlot       := "xetodoc-slot"
-  static const Str tagSlotNested := "xetodoc-slot-nested"
-  static const Str tagChapter    := "xetodoc-chapter"
-  static const Str tagFooter     := "xetodoc-footer"
+  static const Str tagPage        := "xetodoc-page"
+  static const Str tagNav         := "xetodoc-nav"
+  static const Str tagMain        := "xetodoc-main" // two column tab+section
+  static const Str tagTab         := "xetodoc-tab"
+  static const Str tagSection     := "xetodoc-section"
+  static const Str tagProps       := "xetodoc-prop-table"
+  static const Str tagProp        := "xetodoc-prop-tr"
+  static const Str tagPropTh      := "xetodoc-prop-th"
+  static const Str tagPropTd      := "xetodoc-prop-td"
+  static const Str tagPropHeading := "xetodoc-prop-heading"
+  static const Str tagSlot        := "xetodoc-slot"
+  static const Str tagSlotNested  := "xetodoc-slot-nested"
+  static const Str tagChapter     := "xetodoc-chapter"
+  static const Str tagFooter      := "xetodoc-footer"
 
   Bool fullHtml := true
   Str footerText := "footer"

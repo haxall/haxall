@@ -169,6 +169,18 @@ xetodoc-prop-td p {
   margin: 0;
 }
 
+xetodoc-prop-heading {
+  display: table-cell;
+  font-weight: bold;
+  font-size: 130%;
+  text-align: left;
+  vertical-align: text-top;
+  padding: 30px 0 4px 0;
+  white-space: nowrap;
+  color: var(--title-color);
+}
+
+
 /***************************************************************
  * Slot Details
  **************************************************************/

@@ -115,8 +115,7 @@ internal class DocMarkdownParser : LinkResolver
       if (node is Heading)
       {
         text := textRend.render(node)
-        echo("TODO: heading $text")
-        //tags = [DocTag.intern(text)]
+        acc.add(DocSummary(DocLink.empty, DocMarkdown(text), [DocTags.heading]))
       }
       else if (node is ListBlock)
       {
