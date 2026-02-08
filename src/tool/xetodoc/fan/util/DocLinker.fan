@@ -139,7 +139,8 @@ const class DocLinker
     {
       if (slotName != null && slotName != "md") return null
       if (frag != null && chapter.headings.get(frag) == null) return null
-      return DocLinkUri(DocUtil.toUri(libName, docName, frag), docName)
+      dis := docName == "doc" ? libName : docName
+      return DocLinkUri(DocUtil.toUri(libName, docName, frag), dis)
     }
 
     /* handle images (we don't call DocLinker for Image/Video nodes
