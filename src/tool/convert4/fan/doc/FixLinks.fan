@@ -124,8 +124,13 @@ class FixLinks
         tops := lib.specs.list
         for (i := 0; i<tops.size; ++i)
         {
+          top := tops[i]
           m := tops[i].member(docName, false)
-          if (m != null) return m.qname
+          if (m != null)
+          {
+            if (m.parent == top) return m.parent.name + "." + m.name // keep unqualified if in my lib
+            return m.qname
+          }
         }
       }
 
