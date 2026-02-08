@@ -70,6 +70,7 @@ class ADefType
 
   private static AType? topTypeBase(Str baseIs)
   {
+    if (baseIs == "entity") return AType("Entity")
     if (baseIs == "conn") return AType("Conn")
     if (baseIs == "connPoint") return AType("ConnPoint")
     return null
@@ -97,7 +98,37 @@ class ADefType
     of := def["of"]
     if (of != null) meta["of"] = AType(of.toStr.capitalize)
 
+    if (def.has("transient")) meta["transient"] = Marker.val
+
+    enum := def["enum"]
+    if (enum != null)
+    {
+      enumType := scanDefEnum(ast, ext, name, enum)
+      type = AType(enumType.name + "?")
+    }
+
     return ADefSlot(name, type, doc, Etc.dictFromMap(meta))
+  }
+
+  private static ADefType scanDefEnum(Ast ast, AExt ext, Str parent, Obj enum)
+  {
+    name := parent.capitalize
+    t := make(name, "String enums for $parent", AType("Enum"))
+    ext.types.add(t)
+
+    if (enum is Dict)
+    {
+      ((Dict)enum).each |v, n|
+      {
+        doc := ""
+        if (v is Dict)
+          doc = ((Dict)v).get("doc") ?: ""
+        s := ADefSlot(n, AType("Marker"), doc)
+        t.slots[s.name] = s
+      }
+    }
+    else echo("WARN: scanDefEnum $ext.oldName::$parent [$enum.typeof]")
+    return t
   }
 
   new make(Str name, Str doc, AType base)

@@ -160,7 +160,8 @@ internal class ConvertExtCmd : ConvertCmd
   Void genSlot(StrBuf s, ADefSlot x)
   {
     genDoc(s, x.doc, "  ")
-    s.add("  $x.name: $x.type")
+    s.add("  $x.name")
+    if (x.type.toStr != "Marker") s.add(": ").add(x.type)
     if (!x.meta.isEmpty) { s.add(" "); encodeSpecMeta(s, x.meta) }
     s.add("\n")
   }
