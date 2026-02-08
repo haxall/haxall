@@ -87,6 +87,12 @@ const class DocNamespaceChapter
 
   override Str toStr() { loc.toStr }
 
+  once Str title()
+  {
+    if (name == "doc") return "$lib.name doc"
+    return name
+  }
+
   once Str:Str headings()
   {
     acc := Str:Str[:]

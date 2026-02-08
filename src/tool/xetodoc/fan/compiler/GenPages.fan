@@ -318,7 +318,7 @@ internal class GenPages: Step
     name  := uri.basename
     qname := lib.name + "::" + name
     doc   := docns.chapters(lib).get(name)
-    page  := DocChapter(libRef, qname, genDoc(markdown, doc), null, null)
+    page  := DocChapter(libRef, qname, doc.title, genDoc(markdown, doc), null, null)
     return addPage(page, page.doc,  null)
   }
 
