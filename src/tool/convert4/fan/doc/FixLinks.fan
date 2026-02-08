@@ -101,6 +101,15 @@ class FixLinks
       return newPath
     }
 
+    // handle doc#frag relative to current lib
+    if (docName == "doc" && frag != null)
+    {
+      newLibName := oldNameToNewLibName(baseLib)
+      podName := SpecBindings.cur.libToPod(newLibName) ?: "-"
+      frag = anchors.get(podName + "::pod", frag) ?: frag
+      return docName + "#" + frag
+    }
+
     // handle unqualifed simple names
     if (libName == null && slotName == null && frag == null)
     {
