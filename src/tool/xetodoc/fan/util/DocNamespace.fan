@@ -87,21 +87,38 @@ const class DocNamespaceChapter
 
   override Str toStr() { loc.toStr }
 
-  once Str title()
-  {
-    if (name == "doc") return "$lib.name doc"
-    return name
-  }
+  Str title() { parse; return titleRef.val }
+  private const AtomicRef titleRef := AtomicRef()
 
-  once Str:Str headings()
+  Str:Str headings() { parse; return headingsRef.val }
+  private const AtomicRef headingsRef := AtomicRef()
+
+  private Void parse()
   {
+    if (titleRef.val != null) return
+
     acc := Str:Str[:]
+    Str? title := null
     try
     {
-      proc := HeadingProcessor()
+      // read lines
+      lines := lib.files.get(`/${name}.md`).readAllLines
+
+      // check leading comment for title: xxxx
+      if (lines.first.trim == "<!--")
+      {
+        lines.eachWhile |line|
+        {
+          line = line.trim
+          if (line == "-->") return "break"
+          if (line.startsWith("title:"))
+            title = line[line.index(":")+1..-1].trim
+          return null
+        }
+      }
 
       // lazily parse just heading lines
-      lines := lib.files.get(`/${name}.md`).readAllLines
+      proc := HeadingProcessor()
       lines.each |line|
       {
         if (!line.startsWith("#")) return
@@ -116,7 +133,9 @@ const class DocNamespaceChapter
     {
       Console.cur.err("Cannot parse chapter [$uri]", e)
     }
-    return acc
+    if (name == "doc") title = "$lib.name doc"
+    titleRef.val = title ?: name
+    headingsRef.val = acc.toImmutable
   }
 
 }
