@@ -879,8 +879,8 @@
   nowTicks: Func { returns: Number }
 
   // Return if a timestamp is contained within a Date range.
-  // Range may be any value supported by `toDateSpan`.  Timestamp
-  // may be either a Date or a DateTime.  Also see `contains`.
+  // Range may be any value supported by `toDateSpan()`.  Timestamp
+  // may be either a Date or a DateTime.  Also see `contains()`.
   //
   // Examples:
   //   ts.occurred(thisWeek)

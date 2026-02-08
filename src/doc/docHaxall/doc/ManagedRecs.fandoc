@@ -77,10 +77,10 @@ abstract syntax tree of the Xeto (versus the source format).  This allows
 tools to construct and modify these records efficiently.
 
 The following Axon functions are used to work with the companion lib managed recs:
-  - `companionRead()`: read by name
+  - `companionReadById()`: read by id
+  - `companionReadByName()`: read by name
   - `companionAdd()`: add new companion rec
   - `companionUpdate()`: update existing companion rec
-  - `companionRename()`: rename companion rec
   - `companionRemove()`: remove companion rec
   - `companionParse()`: parse Xeto source into rec format
   - `companionPrint()`: print rec format back to Xeto
