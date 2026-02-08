@@ -12,3 +12,6 @@ Ext: Interface <abstract>
 // System level extension
 SysExt: Ext <abstract>
 
+// Secret string managed in password store
+Password: Scalar
+

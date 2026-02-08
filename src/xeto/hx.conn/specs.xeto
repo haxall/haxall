@@ -13,3 +13,6 @@ Conn: Entity <abstract>
 // Connector extension base type
 ConnExt: Ext <abstract>
 
+// Point which synchronizes data via a connector
+ConnPoint: Entity <abstract>
+
