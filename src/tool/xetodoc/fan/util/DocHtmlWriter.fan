@@ -81,13 +81,16 @@ class DocHtmlWriter : WebOutStream
     // chapter title
     nl.h1.esc(p.title).h1End.nl
 
-    // prev/next navigation
-    tag(tagNav).nl
-    ul
-    if (p.prev != null) li("class='prev'").link(p.prev, "\u00ab $p.prev.dis").liEnd; else li.w("&nbsp;").liEnd
-    if (p.next != null) li("class='next'").link(p.next, "$p.next.dis \u00bb").liEnd
-    ulEnd
-    tagEnd(tagNav).nl.nl
+    // prev/next navigation (only if multiple chapters)
+    if (p.prev != null || p.next != null)
+    {
+      tag(tagNav).nl
+      ul
+      if (p.prev != null) li("class='prev'").link(p.prev, "\u00ab $p.prev.dis").liEnd; else li.w("&nbsp;").liEnd
+      if (p.next != null) li("class='next'").link(p.next, "$p.next.dis \u00bb").liEnd
+      ulEnd
+      tagEnd(tagNav).nl.nl
+    }
 
     // body
     markdown(p.doc)
