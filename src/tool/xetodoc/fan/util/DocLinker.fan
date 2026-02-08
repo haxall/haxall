@@ -116,10 +116,7 @@ const class DocLinker
       {
         spec = spec.member(slotName, false)
         if (spec == null) return null
-        if (spec.isFunc || spec.isGlobal)
-          dis = slotName
-        else
-          dis += "." + slotName
+        dis = slotName
       }
       return DocLinkUri(DocUtil.specToUri(spec), dis)
     }

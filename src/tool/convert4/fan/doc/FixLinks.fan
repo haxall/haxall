@@ -108,6 +108,18 @@ class FixLinks
       phGlobal := ns.spec("ph::PhEntity").members.get(docName, false)
       if (phGlobal != null) return phGlobal.qname
 
+      // try as slot on types in this lib
+      lib := ns.lib(oldNameToNewLibName(baseLib), false)
+      if (lib != null)
+      {
+        types := lib.types.list
+        for (i := 0; i<types.size; ++i)
+        {
+          m := types[i].member(docName, false)
+          if (m != null) return m.qname
+        }
+      }
+
       // try as type
       types := ns.unqualifiedTypes(docName.capitalize)
       if (types.size == 1) return types.first.qname
