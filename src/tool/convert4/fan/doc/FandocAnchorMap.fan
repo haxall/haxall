@@ -12,36 +12,95 @@ using markdown
 
 **
 ** FandocAnchorMap is a one-time utility to generate a section anchor map
-** for all the common manuals (docHaystack, docHaxall, etc) into a text
-** file we can use for conversion tools.
+** for all the common manuals (docHaystack, docHaxall, etc) and any pod.fandoc
+** into a text file we can use for conversion tools.
 **
-class FandocAnchorMap
+const class FandocAnchorMap
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Load
+//////////////////////////////////////////////////////////////////////////
+
+  ** Load
+  static FandocAnchorMap load(File? file := null)
+  {
+    if (file == null) file = `/work/stuff/convert4/anchor-map.txt`.toFile
+    lines := file.readAllLines
+    acc := Str:[Str:Str][:]
+    [Str:Str]? cur
+    lines.each |line|
+    {
+      if (line[0] != ' ')
+      {
+        cur = Str:Str[:]
+        cur.ordered = true
+        acc[line.trim] = cur
+      }
+      else
+      {
+        pair := line.trim.split('=')
+        cur[pair.first] = pair.last
+      }
+    }
+
+    x := make(acc)
+    //x.dump
+    return x
+  }
+
+  ** Constructor
+  new make(Str:[Str:Str] map) { this.map = map }
+
+
+  ** Map keyed by qname for old:new
+  const Str:[Str:Str] map
+
+  ** Given an pod name "docHaxall::Conns" and old id such "included"
+  ** return the new text based is such as "included-connectors". Return
+  ** null if not found.
+  Str? get(Str qname, Str frag)
+  {
+    map[qname]?.get(frag)
+  }
+
+  ** Dump in same format we load
+  Void dump(OutStream out := Env.cur.out)
+  {
+    map.keys.sort.each |qname|
+    {
+      out.printLine(qname)
+      map[qname].each |v, n| { out.printLine(" $n=$v") }
+    }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Generator
 //////////////////////////////////////////////////////////////////////////
 
   ** Generate (must call from sf-misc)
-  static Str:Str gen()
+  static Str:Str generate()
   {
     acc := Str:Str[:]
     Env.cur.path.each |pathDir|
     {
       (pathDir + `src/`).walk |x|
       {
-        if (x.isDir && x.name.size > 4 && x.name.startsWith("doc") &&
-            x.name[3].isUpper && x.plus(`build.fan`).exists)
+        if (x.isDir && x.name.size > 4 && x.plus(`build.fan`).exists)
         {
           podName := x.name
           if (podName == "docXeto" || podName == "docOEM" || podName == "docCloud") return
-          x.walk |f| { if (f.ext == "fandoc") genFile(acc, podName, f) }
+          x.walk |f|
+          {
+            if (f.ext == "fandoc")
+            {
+              echo("$podName::$f.basename")
+              genFile(acc, podName, f)
+            }
+          }
         }
       }
     }
-
-    keys := acc.keys.sort
-    //keys.each |k| { echo("$k=" + acc[k]) }
     return acc
   }
 
@@ -76,6 +135,7 @@ class FandocAnchorMap
         to := proc.toAnchor(text)
 
         acc[key] = to
+        echo("  $id=$to")
       }
     }
   }

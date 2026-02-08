@@ -128,6 +128,15 @@ const class SpecBindings
   ** Map pod name to lib name (we do not handle multiple lib bindings)
   Str? podToLib(Str podName)  { podToLibs.get(podName) }
 
+  ** Map lib  name to pod name
+  Str? libToPod(Str libName)
+  {
+    x := loaders[libName] as Str
+    if (x == null) return x
+    if (x.contains("::")) return XetoUtil.qnameToLib(x)
+    return x
+  }
+
   ** List all bindings installed
   SpecBinding[] list()
   {

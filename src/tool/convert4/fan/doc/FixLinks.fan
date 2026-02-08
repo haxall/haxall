@@ -16,14 +16,14 @@ class FixLinks
 {
   ** Create a linker instance - this is fairly expensive so a FixLinks
   ** should be created once and then reused.
-  static FixLinks load(Str:Str anchors := FandocAnchorMap.gen)
+  static FixLinks load(FandocAnchorMap anchors := FandocAnchorMap.load)
   {
     libs := XetoEnv.cur.repo.libs
     ns := XetoEnv.cur.createNamespaceFromNames(libs)
     return make(ns, anchors)
   }
 
-  private new make(Namespace ns, Str:Str anchors)
+  private new make(Namespace ns, FandocAnchorMap anchors)
   {
     this.ns = ns
     this.anchors = anchors
@@ -49,25 +49,6 @@ class FixLinks
       libName := oldNameToNewLibName(x[4..-1])
       return libName + "::index"
     }
-
-    // handle lib-oldLib::index or ext-oldLib::index
-    if (x.startsWith("lib-") || x.startsWith("ext-"))
-    {
-      // handle lib-oldLib::index
-      if (x.endsWith("::index"))
-      {
-        libName := oldNameToNewLibName(x[4..-8])
-        return libName + "::index"
-      }
-
-      // handle lib-oldLib::doc
-      if (x.endsWith("::doc"))
-      {
-        libName := oldNameToNewLibName(x[4..-6])
-        return libName + "::doc"
-      }
-    }
-
     // parse into libName::docName.slotName#frag
     orig := x
     Str? libName  := null
@@ -101,6 +82,23 @@ class FixLinks
     {
       if (libName != null) echo("TODO: qname func: $x")
       return x
+    }
+
+    // handle lib-oldLib::index or ext-oldLib::doc
+    if (libName != null && (libName.startsWith("lib-") || libName.startsWith("ext-")))
+    {
+      // map "task" to "hx.task"
+      newLibName := oldNameToNewLibName(libName[4..-1])
+
+      newPath := newLibName + "::" + docName
+      if (frag != null)
+      {
+        // map new lib name to pod
+        podName := SpecBindings.cur.libToPod(newLibName) ?: "-"
+        frag = anchors.get(podName + "::pod", frag) ?: frag
+        newPath += "#" + frag
+      }
+      return newPath
     }
 
     // handle unqualifed simple names
@@ -137,8 +135,8 @@ class FixLinks
       if (frag == null) return newDocLink
 
       // handle frag
-      key := oldLib + "::" + (docName?.trimToNull ?: baseName) + "#" + frag
-      newFrag := anchors[key] ?: frag
+      podName := oldLib + "::" + (docName?.trimToNull ?: baseName)
+      newFrag := anchors.get(podName, frag) ?: frag
       return newDocLink + "#" + newFrag
     }
 
@@ -164,9 +162,9 @@ class FixLinks
   ** Kitchen sink namespace
   const Namespace ns
 
-  ** Map of old qnames to new anchor names:
+  ** Map of old anchors ids to new ids
   **   docTools::Setup#windowsServices = fantom-programs-as-windows-services
-  const Str:Str anchors
+  const FandocAnchorMap anchors
 
   ** Try to map oldLib name to new one
   Str oldNameToNewLibName(Str oldLib)

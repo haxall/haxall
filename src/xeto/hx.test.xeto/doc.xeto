@@ -52,6 +52,8 @@ Index: Dict {}
 //   - `haystack::Grid.getRange`
 //   - `lib:task`
 //   - `lib-task::doc`
+//   - `docHaxall::Conns#included`
+//   - `lib-task::doc#recTasks`
 //
 // Ordered
 //   1. foo 'inline'
