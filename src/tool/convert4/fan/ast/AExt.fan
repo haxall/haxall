@@ -42,6 +42,7 @@ class AExt
     }
 
     AFunc.scanExt(ast, ext)
+    ADefType.scanExt(ast, ext)
   }
 
   static Str oldNameToLibName(Ast? ast, Str oldName)
@@ -81,6 +82,8 @@ class AExt
   Bool hasExt() { specName != null }
 
   Dict[] defs := [,]
+
+  ADefType[] types := [,]
 
   Str? fantomFuncType
   AFunc[] funcs := [,]

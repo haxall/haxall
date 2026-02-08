@@ -12,7 +12,7 @@
 def: ^modbusPoint
 is: ^connPoint
 doc:
-  Point which synchronizes data via a Haystack connector.
+  Point which synchronizes data via a Modbus connector.
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////

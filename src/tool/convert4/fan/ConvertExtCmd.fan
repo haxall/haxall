@@ -22,6 +22,9 @@ internal class ConvertExtCmd : ConvertCmd
   @Opt { help = "Generate lib.xeto" }
   Bool libXeto
 
+  @Opt { help = "Generate types.xeto" }
+  Bool types
+
   @Opt { help = "Generate funcs.xeto" }
   Bool funcs
 
@@ -60,6 +63,7 @@ internal class ConvertExtCmd : ConvertCmd
       if (!run) return
 
       if (all || libXeto) genLibXeto(ext)
+      if (all || types)   genTypes(ext)
       if (all || funcs)   genFuncs(ext)
       if (all || doc)     genPodDoc(ext)
     }
@@ -121,6 +125,45 @@ internal class ConvertExtCmd : ConvertCmd
     s.add(" }\n")
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Gen Types
+//////////////////////////////////////////////////////////////////////////
+
+  Void genTypes(AExt ext)
+  {
+    if (ext.types.isEmpty) return
+
+    s := StrBuf()
+    s.add(genHeader)
+    s.add("\n")
+    ext.types.each |t|
+    {
+      genType(s, t)
+    }
+
+    file := ext.xetoSrcDir + `types.xeto`
+    write("Types", file, s.toStr)
+  }
+
+  Void genType(StrBuf s, ADefType x)
+  {
+    genDoc(s, x.doc, "")
+    s.add("$x.name: $x.base {\n")
+    x.slots.keys.sort.each |n, i|
+    {
+      if (i > 0) s.add("\n")
+      genSlot(s, x.slots[n])
+    }
+    s.add("}\n\n")
+  }
+
+  Void genSlot(StrBuf s, ADefSlot x)
+  {
+    genDoc(s, x.doc, "  ")
+    s.add("  $x.name: $x.type")
+    if (!x.meta.isEmpty) { s.add(" "); encodeSpecMeta(s, x.meta) }
+    s.add("\n")
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Gen Funcs
@@ -149,7 +192,7 @@ internal class ConvertExtCmd : ConvertCmd
   {
     genDoc(s, f.doc, "  ")
     s.add("  $f.name: Func ")
-    encodeFuncMeta(s, f.meta)
+    encodeSpecMeta(s, f.meta)
     s.add("{ ")
     f.eachSlot |p, comma|
     {
@@ -175,7 +218,7 @@ internal class ConvertExtCmd : ConvertCmd
     }
   }
 
-  Void encodeFuncMeta(StrBuf buf, Dict meta)
+  Void encodeSpecMeta(StrBuf buf, Dict meta)
   {
     if (meta.isEmpty) return
     buf.add("<")
@@ -203,6 +246,10 @@ internal class ConvertExtCmd : ConvertCmd
       buf.add("{")
       encodeDictPairs(buf, v)
       buf.add("}")
+    }
+    else if (v is AType)
+    {
+      buf.add(v.toStr)
     }
     else
     {

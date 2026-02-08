@@ -124,7 +124,7 @@ class AFunc
     // returns
     returnType := method.returns
     if (returnType.name == "Void") returnType = Obj?#
-    returns := AParam("returns", AType.map(returnType))
+    returns := AParam("returns", AType.fromFantom(returnType))
 
     // function stub
     return AFunc(name, doc, Etc.makeDict(meta), params, returns, null)
@@ -237,7 +237,7 @@ class AFunc
       else echo("WARN: unhandled lazy param: $method $name")
     }
 
-    return AParam(name, AType.map(type), Etc.dict0)
+    return AParam(name, AType.fromFantom(type), Etc.dict0)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -305,48 +305,5 @@ const class AParam
   const Dict meta
 
   override Str toStr() { "$name: $type" }
-}
-
-**************************************************************************
-** AType
-**************************************************************************
-
-const class AType
-{
-  static const AType obj := AType("sys::Obj?")
-
-  static AType map(Type type)
-  {
-    // specials
-    sig := mapSpecial(type.qname) ?: type.name
-    if (type.isNullable) sig = sig + "?"
-    return make(sig)
-  }
-
-  static Str? mapSpecial(Str qname)
-  {
-    switch(qname)
-    {
-      case "axon::Fn":           return "sys::Func"
-      case "haystack::Col":      return "sys::Obj"
-      case "haystack::Row":      return "sys::Obj"
-      case "haystack::Coord":    return "sys::Obj"
-      case "haystack::DateSpan": return "sys::Obj"
-      case "haystack::Symbol":   return "sys::Obj"
-      case "haystack::Remove":   return "sys::Obj"
-      case "haystack::Def":      return "sys::Obj"
-      case "folio::Diff":        return "sys::Obj"
-      case "axon::MStream":      return "sys::Obj"
-      case "math::Matrix":       return "sys::Grid"
-    }
-    if (qname.startsWith("mlExt::")) return "sys::Obj"
-    return null
-  }
-
-  new make(Str sig) { this.sig = sig }
-
-  const Str sig
-
-  override Str toStr() { sig }
 }
 
