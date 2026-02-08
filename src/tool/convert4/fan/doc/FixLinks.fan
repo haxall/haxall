@@ -117,14 +117,14 @@ class FixLinks
       phGlobal := ns.spec("ph::PhEntity").members.get(docName, false)
       if (phGlobal != null) return phGlobal.qname
 
-      // try as slot on types in this lib
+      // try as slot on types/mixins in this lib
       lib := ns.lib(oldNameToNewLibName(baseLib), false)
       if (lib != null)
       {
-        types := lib.types.list
-        for (i := 0; i<types.size; ++i)
+        tops := lib.specs.list
+        for (i := 0; i<tops.size; ++i)
         {
-          m := types[i].member(docName, false)
+          m := tops[i].member(docName, false)
           if (m != null) return m.qname
         }
       }
