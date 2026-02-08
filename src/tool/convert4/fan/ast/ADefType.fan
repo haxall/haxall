@@ -47,6 +47,10 @@ class ADefType
     t := make(name, doc, base)
     ext.types.add(t)
 
+    // add marker tag slot
+    markerName := defName
+    t.slots[markerName] = ADefSlot(markerName, AType("Marker"), "Marker tag for $name type")
+
     // now go thru all ext defs and check for slots
     ext.defs.each |x|
     {
