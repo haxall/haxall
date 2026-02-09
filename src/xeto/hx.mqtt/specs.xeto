@@ -1,0 +1,57 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// MQTT connector to an MQTT Broker.
+MqttConn: Conn {
+  // Used on an `mqttConn` to indicate which certificate and key pair to use
+  // for client authentication to the broker.
+  mqttCertAlias: Str?
+
+  // Whether to set the clean session flag on the connect request to the broker.
+  mqttCleanSession: Bool?
+
+  // The client identifier to use when connecting to the broker
+  mqttClientId: Str?
+
+  // Marker tag for MqttConn type
+  mqttConn
+
+  // How many times to retry sending messages that require acknowlegment
+  mqttMaxRetry: Int?
+
+  // How long to wait between retries for messages that require acknowlegment
+  mqttRetryInterval: Duration?
+
+  // MQTT protocol version
+  mqttVersion: MqttVersion?
+
+  // Password for authentication
+  password: Password?
+
+  // Universal resource identifier
+  uri: Uri?
+
+  // Username for authentication
+  username: Str?
+}
+
+// Point which synchronizes data via a MQTT connector.
+MqttPoint: ConnPoint {
+  // Used on a proxy point to reference its parent `mqttConn`
+  mqttConnRef: Ref? <of:MqttConn>
+
+  // Marker tag for MqttPoint type
+  mqttPoint
+}
+
+// String enums for mqttVersion
+MqttVersion: Enum {
+  v3_1_1
+  v5
+}
+
