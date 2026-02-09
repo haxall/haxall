@@ -29,13 +29,15 @@ class ConnTest : HxTest
   {
     addExt("hx.conn")
 
-    verifyModel("hx.haystack",  "haystack", "lcwhx")
-    verifyModel("hx.modbus",    "modbus",   "lcw")
-    verifyModel("hx.mqtt",      "mqtt",     "")
-    verifyModel("hx.test.conn", "connTest", "lcwh")
+    h := verifyModel("hx.haystack",  "haystack", "lcwhx", 1sec)
+    m := verifyModel("hx.modbus",    "modbus",   "lcw",   null)
+    q := verifyModel("hx.mqtt",      "mqtt",     "",      null)
+    t := verifyModel("hx.test.conn", "connTest", "lcwh",  33sec)
+
+    verifyEq(t.pollFreqDefault, 33sec)
   }
 
-  Void verifyModel(Str extName, Str prefix, Str flags)
+  ConnModel verifyModel(Str extName, Str prefix, Str flags, Duration? pollFreq)
   {
     ext := (ConnExt)addExt(extName)
     ext.spi.sync
@@ -49,8 +51,17 @@ class ConnTest : HxTest
     verifyEq(m.hasCur,      flags.contains("c"), "$prefix cur")
     verifyEq(m.hasWrite,    flags.contains("w"), "$prefix write")
     verifyEq(m.hasHis,      flags.contains("h"), "$prefix his")
+    verifyEq(m.pollFreqDefault, pollFreq)
+
+    if (m.hasCur)
+    {
+      verifyEq(m.curTag, "${prefix}Cur")
+      verifyEq(m.curTagType, Str#)
+    }
 
     verifyEq(m.writeLevelTag !== null, flags.contains("x"), "$prefix writeLevel")
+
+    return m
   }
 
 //////////////////////////////////////////////////////////////////////////

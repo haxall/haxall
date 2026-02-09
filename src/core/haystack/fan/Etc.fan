@@ -705,6 +705,7 @@ const class Etc
   {
     val := d[name]
     if (val === Remove.val) return remove
+    if (val is Duration) return val
     num := val as Number
     if (num != null) return num.toDuration
     return def

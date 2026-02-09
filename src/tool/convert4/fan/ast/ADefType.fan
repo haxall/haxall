@@ -120,6 +120,8 @@ class ADefType
 
     if (def.has("transient")) meta["transient"] = Marker.val
 
+    if (def.has("val")) meta["val"] = def["val"]
+
     enum := def["enum"]
     if (enum != null)
     {

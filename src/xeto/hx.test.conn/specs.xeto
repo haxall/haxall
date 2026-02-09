@@ -1,0 +1,21 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Port defs to xeto
+//
+
+ConnTestConn: Conn {
+  connTestConn
+  connTestPollFreq: Duration? 33sec
+}
+
+// Point which synchronizes data via a MQTT connector.
+ConnTestPoint: ConnPoint {
+  connTestConnRef: Ref? <of:ConnTestConn>
+  connTestCur: Str?
+  connTestWrite: Str?
+  connTestHis: Str?
+}
+

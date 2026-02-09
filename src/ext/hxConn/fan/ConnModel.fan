@@ -12,7 +12,7 @@ using haystack
 using hx
 
 **
-** ConnModel reflects defs to cache the features and tags supported
+** ConnModel reflects specs to cache the features and tags supported
 ** for a specific connector type.
 **
 @NoDoc
@@ -25,56 +25,57 @@ const final class ConnModel
     this.name = ext.modelName
     prefix := name
 
-    // TODO: still using defs to build model
-    ns := ext.proj.defs
-    libDef := ext.proj.defs.lib(name)
-    connDef := def(ns, ext, "${prefix}Conn")
-    features := connDef["connFeatures"] as Dict ?: Etc.dict0
+    // infer tag names from prefix
+    this.connTag    = prefix + "Conn"
+    this.connRefTag = this.connTag + "Ref"
+    this.pointTag   = prefix + "Point"
 
-    // check tag/func defs
-    this.connTag    = connDef.name
-    this.connRefTag = def(ns, ext, "${prefix}ConnRef").name
-    this.pointTag   = def(ns, ext, "${prefix}Point").name
+    // lookup key required specs
+    ns := ext.rt.ns
+    lib := ext.spec.lib
+    connSpec  := lib.type(connTag.capitalize)
+    pointSpec := lib.type(pointTag.capitalize)
+    features  := ext.spec.meta["connFeatures"] as Dict ?: throw Err("Must define connFeatures meta on $ext.spec")
 
     // cur tags
-    curTagDef := def(ns, ext, "${prefix}Cur", false)
-    if (curTagDef != null)
+    curTagSpec := pointSpec.slot("${prefix}Cur", false)
+    if (curTagSpec != null)
     {
-      this.curTag     = curTagDef.name
-      this.curTagType = toAddrType(curTagDef)
+      this.curTag     = curTagSpec.name
+      this.curTagType = toAddrType(curTagSpec)
     }
 
     // write addr
-    writeTagDef := def(ns, ext, "${prefix}Write", false)
-    if (writeTagDef != null)
+    writeTagSpec := pointSpec.slot("${prefix}Write", false)
+    if (writeTagSpec != null)
     {
-      this.writeTag      = writeTagDef.name
-      this.writeTagType  = toAddrType(writeTagDef)
-      this.writeLevelTag = def(ns, ext, "${prefix}WriteLevel", false)?.name
+      this.writeTag      = writeTagSpec.name
+      this.writeTagType  = toAddrType(writeTagSpec)
+      this.writeLevelTag = pointSpec.slot("${prefix}WriteLevel", false)?.name
     }
 
     // his addr
-    hisTagDef := def(ns, ext, "${prefix}His", false)
-    if (hisTagDef != null)
+    hisTagSpec := pointSpec.slot("${prefix}His", false)
+    if (hisTagSpec != null)
     {
-      this.hisTag     = hisTagDef.name
-      this.hisTagType = toAddrType(hisTagDef)
+      this.hisTag     = hisTagSpec.name
+      this.hisTagType = toAddrType(hisTagSpec)
     }
 
     // features
     this.hasLearn  = features.has("learn")
-    this.hasCur    = curTag != null
+    this.hasCur    = curTag   != null
     this.hasWrite  = writeTag != null
-    this.hasHis    = hisTag != null
+    this.hasHis    = hisTag   != null
     this.pollMode  = ConnPollMode.fromStr(features["pollMode"] ?: "disabled")
-    this.icon       = libDef["icon"] as Str ?: "conn"
+    this.icon      = features["icon"]?.toStr ?: (connSpec.lib.name.startsWith("hx.") ? name : "conn")
 
     // polling tags
     if (pollMode === ConnPollMode.manual)
     {
-      pollFreqTagDef := def(ns, ext, "${prefix}PollFreq")
-      this.pollFreqTag     = pollFreqTagDef.name
-      this.pollFreqDefault = (pollFreqTagDef["val"] as Number)?.toDuration ?: 10sec
+      pollFreqTagSpec := connSpec.slot("${prefix}PollFreq")
+      this.pollFreqTag     = pollFreqTagSpec.name
+      this.pollFreqDefault = Etc.dictGetDuration(pollFreqTagSpec.meta, "val", 10sec)
     }
 
     // helper classes
@@ -90,25 +91,9 @@ const final class ConnModel
     this.features = Etc.makeDict(f)
   }
 
-  private static Def? def(DefNamespace ns, ConnExt ext, Str symbol, Bool checked := true)
+  private static Type toAddrType(Spec spec)
   {
-    def := ns.def(symbol, false)
-    if (def == null)
-    {
-      if (checked) throw Err("Missing required def: $symbol")
-      return null
-    }
-// TODO
-//    if (def.lib !== ns.lib(ext.name)) throw Err("Def in wrong lib: $symbol [$def.lib != $ext.def]")
-    return def
-  }
-
-  private static Type toAddrType(Def def)
-  {
-    symbol := ((Symbol[])def["is"])[0].name
-    if (symbol == "str") return Str#
-    if (symbol == "uri") return Uri#
-    throw Err("Unsupported point address type: $symbol")
+    spec.type.fantomType
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -185,5 +170,18 @@ const final class ConnModel
 
   ** Does this connector support history synchronization
   const Bool hasHis
+
+//////////////////////////////////////////////////////////////////////////
+// Debug
+//////////////////////////////////////////////////////////////////////////
+
+  ** Debug dump
+  Void dump()
+  {
+    typeof.fields.each |f|
+    {
+      if (!f.isStatic) echo("$f.name: " + f.get(this))
+    }
+  }
 }
 

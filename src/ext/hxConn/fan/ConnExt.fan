@@ -29,6 +29,7 @@ abstract const class ConnExt : ExtObj, HxConnExt
       it.maxThreads = settings.effectiveMaxThreads
     }
     this.poller = ConnPoller(this)
+    this.modelRef = ConnModel(this)
   }
 
   ** Settings record
@@ -43,15 +44,8 @@ abstract const class ConnExt : ExtObj, HxConnExt
   private const AtomicRef pointExtRef := AtomicRef()
 
   ** Model which defines tags and functions for this connector.
-  ** The model is not available until after the library has started.
-  @NoDoc ConnModel? model(Bool checked := true)
-  {
-    m := modelRef.val
-    if (m != null) return m
-    if (checked) throw Err("Not avail until after start")
-    return null
-  }
-  private const AtomicRef modelRef := AtomicRef()
+  @NoDoc ConnModel model() { modelRef }
+  private const ConnModel modelRef
 
   ** Get the conn model name which is used to map to tags:
   **   - Library name: acme.foobar
@@ -69,14 +63,11 @@ abstract const class ConnExt : ExtObj, HxConnExt
 
   @NoDoc override const Str connRefTag := modelName + "ConnRef"
 
-  @NoDoc override Str icon() { model(false)?.icon ?: "conn" }
+  @NoDoc override Str icon() { model.icon }
 
   @NoDoc override Int numConns() { roster.numConns }
 
-  @NoDoc override Dict connFeatures()
-  {
-    (modelRef.val as ConnModel)?.features ?: Etc.dict2("name", modelName, "notStarted", Marker.val)
-  }
+  @NoDoc override Dict connFeatures() { model.features }
 
 //////////////////////////////////////////////////////////////////////////
 // Roster
@@ -121,10 +112,6 @@ abstract const class ConnExt : ExtObj, HxConnExt
 
     // update library level tuning default
     tuningRef.val = tunings.forLib(this)
-
-    // build def model
-    model := ConnModel(this)
-    this.modelRef.val = model
 
     // load roster
     roster.start(model)
