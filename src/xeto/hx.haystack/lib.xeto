@@ -29,5 +29,5 @@ pragma: Lib <
 >
 
 // Haystack HTTP API connector
-HaystackExt: ConnExt
+HaystackExt: ConnExt <connFeatures: {learn, pollMode:"manual"}>
 
