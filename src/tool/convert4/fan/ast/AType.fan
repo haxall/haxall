@@ -22,6 +22,7 @@ const class AType
   {
     isTag := def["is"]?.toStr
     if (isTag == null) return obj
+    if (isTag == "expr") return AType("AxonExpr?")
     return AType(isTag.capitalize + "?")
   }
 

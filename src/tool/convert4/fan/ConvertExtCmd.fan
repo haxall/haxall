@@ -132,6 +132,7 @@ internal class ConvertExtCmd : ConvertCmd
   Void genTypes(AExt ext)
   {
     if (ext.types.isEmpty) return
+    if (ext.oldName == "conn") return // manually curated
 
     s := StrBuf()
     s.add(genHeader)

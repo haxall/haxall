@@ -42,8 +42,10 @@ class ADefType
     if (baseIs == null) return null
 
     // special enum
+    /*
     if (baseIs == "str" && def.has("enum"))
       return scanDefEnum(ast, ext, defName, def["enum"])
+    */
 
     // only process top-level types
     base := topTypeBase(baseIs)

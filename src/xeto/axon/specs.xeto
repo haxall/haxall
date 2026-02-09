@@ -9,3 +9,6 @@
 // Future represents the result of an asynchronous computation.
 Future: Interface
 
+// Axon expression string
+AxonExpr: Scalar
+
