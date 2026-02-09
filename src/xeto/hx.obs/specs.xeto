@@ -1,0 +1,83 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// Observable subscription - see [docs]`docHaxall::Observables`.
+// This is a catch all spec to document all tags used by observable
+// framework, the design will evolve.
+Observable: Dict {
+
+  // Filter string to define the record data set observed.  If omitted
+  // then all records in the database are observed.  Note that obsFilter
+  // may **not** use the '->' pathing operator.
+  obsFilter: Filter?
+
+  // Subscribe to record commits in Folio - see [docs]`docHaxall::Observables#obsCommits`
+  obsCommits: Marker?
+
+  // Process when a new data item is added to the observed data set.
+  obsAdds: Marker?
+
+  // Fire add event for all existing records in data set on initialization.
+  obsAddOnInit: Marker?
+
+  // Process when an existing data item is updated in the observed data set.
+  obsUpdates: Marker?
+
+  // Process when an existing data item is removed from the observed data set.
+  obsRemoves: Marker?
+
+  // Subscribe to watch and unwatch events - see [docs]`docHaxall::Observables#obsWatches`
+  obsWatches: Marker?
+
+  // Subscribe to transient commits of curVal or curStatus - see [docs]`docHaxall::Observables#obsCurVals`
+  obsCurVals: Marker?
+
+  // Subscribe to history data updates- see [docs]`docHaxall::Observables#obsHisWrites`
+  obsHisWrites: Marker?
+
+  // Subscribe to writable point priority array updates - see [docs]`docHaxall::Observables#obsPointWrites`
+  obsPointWrites: Marker?
+
+  // Subscribe to event creation - see [docs]`docHaxall::Observables#obsEvents`
+  obsEvents: Marker?
+
+  // Subscribe to arc document changes - see [docs]`docHaxall::Observables#obsArcs`
+  obsArcs: Marker?
+
+  // Subscribe to rule engine sparks - see [docs]`docHaxall::Observables#obsSparks`
+  obsSparks: Marker?
+
+  // Filter on rule recs for obsSparks
+  obsRuleFilter: Filter?
+
+  // Filter on target recs for obsSparks
+  obsTargetFilter: Filter?
+
+  // Subscribe to scheduled timer event - see [docs]`docHaxall::Observables#obsSchedule`
+  obsSchedule: Marker?
+
+  // Schedule events with given frequency
+  obsScheduleFreq: Duration? 1sec
+
+  // Schedule events for given times of the day
+  obsScheduleTimes: List? <of:Time>
+
+  // Schedule events for given days of the month.  Encode as a comma separated
+  // list for day of the month such as "1,15".  Negative values may be used
+  // to represent days for end of the month.  For example "-1" represents
+  // the last day of the month, "-2" the second to last, etc.
+  obsScheduleDaysOfMonth: Str?
+
+  // Schedule events for given days of the week.  Encode as a comma separated
+  // list of the three letter enums: sun, mon, tue, wed, thu, fri, or sat.
+  obsScheduleDaysOfWeek: Str?
+
+  // Schedule events only during the configured span of time.
+  obsScheduleSpan: Span?
+}
+
