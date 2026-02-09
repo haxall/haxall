@@ -117,20 +117,19 @@ class FixLinks
       phGlobal := ns.spec("ph::PhEntity").members.get(docName, false)
       if (phGlobal != null) return phGlobal.qname
 
-      // try as slot on types/mixins in this lib
-      lib := ns.lib(oldNameToNewLibName(baseLib), false)
-      if (lib != null)
+      // try as slot on types/mixins in my own lib
+      m := tryAsMemberInLib(oldNameToNewLibName(baseLib), docName, true)
+      if (m != null) return m
+
+      // try as slot in other libs such connFoo -> hx.conn:SomeType.connFoo
+      otherLibs := ["conn", "haystack"]
+      for (i := 0; i<otherLibs.size; ++i)
       {
-        tops := lib.specs.list
-        for (i := 0; i<tops.size; ++i)
+        otherLib := otherLibs[i]
+        if (docName.startsWith(otherLib))
         {
-          top := tops[i]
-          m := tops[i].member(docName, false)
-          if (m != null)
-          {
-            if (m.parent == top) return m.parent.name + "." + m.name // keep unqualified if in my lib
-            return m.qname
-          }
+          m = tryAsMemberInLib("hx.$otherLib", docName, false)
+          if (m != null) return m
         }
       }
 
@@ -183,6 +182,29 @@ class FixLinks
     }
 
     return orig
+  }
+
+  private Str? tryAsMemberInLib(Str? libName, Str docName, Bool unqualOk)
+  {
+    // resolve lib
+    lib := ns.lib(libName, false)
+    if (lib == null) return null
+
+    // walk all the tops to see if we have member match
+    tops := lib.specs.list
+    for (i := 0; i<tops.size; ++i)
+    {
+      top := tops[i]
+      m := tops[i].member(docName, false)
+      if (m != null)
+      {
+        if (m.parent == top && unqualOk) return m.parent.name + "." + m.name
+        return m.qname
+      }
+    }
+
+    // no joy
+    return null
   }
 
   ** Kitchen sink namespace

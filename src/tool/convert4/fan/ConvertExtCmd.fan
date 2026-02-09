@@ -142,7 +142,8 @@ internal class ConvertExtCmd : ConvertCmd
       genType(s, t)
     }
 
-    file := ext.xetoSrcDir + `types.xeto`
+    file := ext.xetoSrcDir + `specs.xeto`
+    if (file.exists) return
     write("Types", file, s.toStr)
   }
 
