@@ -122,7 +122,7 @@ class FixLinks
       if (m != null) return m
 
       // try as slot in other libs such connFoo -> hx.conn:SomeType.connFoo
-      otherLibs := ["conn", "haystack"]
+      otherLibs := ["conn", "haystack", "obs"]
       for (i := 0; i<otherLibs.size; ++i)
       {
         otherLib := otherLibs[i]

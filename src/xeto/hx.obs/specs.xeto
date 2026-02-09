@@ -58,6 +58,15 @@ Observable: Dict {
   // Filter on target recs for obsSparks
   obsTargetFilter: Filter?
 
+  // Subscribe to MQTT connector published messages - see [docs]`lib-mqtt#subscribe`
+  obsMqtt: Marker?
+
+  // Subscribe to the topic on this MQTT connector
+  obsMqttConnRef: Ref?
+
+  // Receive published messages that match this filter
+  obsMqttTopic: Str?
+
   // Subscribe to scheduled timer event - see [docs]`docHaxall::Observables#obsSchedule`
   obsSchedule: Marker?
 
