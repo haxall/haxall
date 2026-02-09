@@ -1,0 +1,45 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// Google Nest connector
+NestConn: Conn {
+  // Marker tag for NestConn type
+  nestConn
+
+  // The OAuth client_id for your application.
+  // Follow the [prerequisites]`doc#prereqs` to obtain this value.
+  nestClientId: Password?
+
+  // The OAuth client_secret for your application.
+  // Follow the [prerequisites]`doc#prereqs` to obtain this value.
+  nestClientSecret: Password?
+
+  // The project identifier from your Google Device Access project.
+  // Follow the [prerequisites]`doc#prereqs` to obtain this value.
+  nestProjectId: Str?
+
+  // The OAuth refresh_token for your application.
+  // Follow the [prerequisites]`doc#prereqs` to obtain this value.
+  nestRefreshToken: Password?
+}
+
+// Point which synchronizes data via a Nest connector.
+NestPoint: ConnPoint {
+  // Marker tag for NestPoint type
+  nestPoint
+
+  // Used on a proxy point to reference its parent `nestConn`
+  nestConnRef: Ref? <of:NestConn>
+
+  // Nest address to use to get the current value.
+  nestCur: Str?
+
+  // Nest address to use to write a point value.
+  nestWrite: Str?
+}
+

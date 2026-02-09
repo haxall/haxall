@@ -27,5 +27,5 @@ pragma: Lib <
   libExt: NestExt
 >
 
-NestExt: ConnExt
+NestExt: ConnExt <connFeatures:{learn, pollMode:"buckets"}>
 
