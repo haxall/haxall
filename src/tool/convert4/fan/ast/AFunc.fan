@@ -142,10 +142,28 @@ class AFunc
     ast.config.funcMeta.contains(n) || ast.config.ns.metas.has(n)
   }
 
+  ** true if this tag belongs in the ruleReady config dict
+  static Bool isRuleReady(Str n)
+  {
+    switch (n)
+    {
+      case "dis":
+      case "help":
+      case "ruleOn":
+      case "sparkRule":
+      case "kpiRule":
+      case "curRule":
+        return true
+      default:
+        return false
+    }
+  }
+
   static Str:Obj mapMeta(Ast ast, Dict orig)
   {
     meta := Str:Obj[:]
     defMeta := Str:Obj[:]
+    ruleReady := Str:Obj[:]
 
     orig.each |v, n|
     {
@@ -163,14 +181,26 @@ class AFunc
       if (n == "src")  return
       if (n == "hisFuncReady") return
 
-      // if its defined in axon/config; otherwise stuff into defMeta
-      if (isFuncMeta(ast, n))
+
+      if (isRuleReady(n))
+      {
+        // if this is special rule ready tag put in ruleReady Dict
+        ruleReady[n] = v
+      }
+      else if (isFuncMeta(ast, n))
+      {
+        // if its defined in axon/config
         meta[n] = v
+      }
       else
+      {
+        // otherwise stuff into defMeta
         defMeta[n] = v
+      }
     }
 
     if (!defMeta.isEmpty) meta["defMeta"] = Etc.dictFromMap(defMeta)
+    if (!ruleReady.isEmpty) meta["ruleReady"] = Etc.dictFromMap(ruleReady)
 
     return meta
   }
