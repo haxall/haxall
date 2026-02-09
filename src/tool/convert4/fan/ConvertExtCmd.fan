@@ -149,7 +149,9 @@ internal class ConvertExtCmd : ConvertCmd
   {
     genDoc(s, x.doc, "")
     s.add("$x.name: $x.base {\n")
-    x.slots.keys.sort.each |n, i|
+    keys := x.slots.keys
+    if (x.base.toStr != "Enum") keys = keys.sort
+    keys.each |n, i|
     {
       if (i > 0) s.add("\n")
       genSlot(s, x.slots[n])

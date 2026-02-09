@@ -41,6 +41,10 @@ class ADefType
     baseIs := def["is"]?.toStr
     if (baseIs == null) return null
 
+    // special enum
+    if (baseIs == "str" && def.has("enum"))
+      return scanDefEnum(ast, ext, defName, def["enum"])
+
     // only process top-level types
     base := topTypeBase(baseIs)
     if (base == null) return null
@@ -58,9 +62,7 @@ class ADefType
     ext.defs.each |x, i|
     {
       // check tagOn
-      tagOn := x["tagOn"]?.toStr
-      if (tagOn == null) return
-      if (tagOn != defName) return
+      if (!isTagOnMatch(x["tagOn"], defName)) return
 
       // map to slot AST node
       slot := scanDefSlot(ast, ext, x)
@@ -77,9 +79,18 @@ class ADefType
   private static AType? topTypeBase(Str baseIs)
   {
     if (baseIs == "entity") return AType("Entity")
+    if (baseIs == "point") return AType("Entity")
     if (baseIs == "conn") return AType("Conn")
     if (baseIs == "connPoint") return AType("ConnPoint")
     return null
+  }
+
+  private static Bool isTagOnMatch(Obj? val, Str defName)
+  {
+    if (val == null) return false
+    if (val?.toStr == defName) return true
+    if (val is List) return ((Obj?[])val).any |x| { x?.toStr == defName }
+    return false
   }
 
   private static ADefSlot? scanDefSlot(Ast ast, AExt ext, Dict def)
@@ -88,10 +99,11 @@ class ADefType
     defx := def["defx"]?.toStr ?: ""
     switch (defx)
     {
-      case "uri":      return ADefSlot(defx, AType("Uri?"), "Universal resource identifier")
+      case "disabled": return ADefSlot(defx, AType("Marker?"), "Set into disabled state")
       case "password": return ADefSlot(defx, AType("Password?"), "Password for authentication")
-      case "username": return ADefSlot(defx, AType("Str?"), "Username for authentication")
       case "tz":       return ADefSlot(defx, AType("TimeZone?"), "Timezone")
+      case "username": return ADefSlot(defx, AType("Str?"), "Username for authentication")
+      case "uri":      return ADefSlot(defx, AType("Uri?"), "Universal resource identifier")
     }
 
     name := def["def"]?.toStr
@@ -110,6 +122,7 @@ class ADefType
     if (enum != null)
     {
       enumType := scanDefEnum(ast, ext, name, enum)
+      ext.types.add(enumType)
       type = AType(enumType.name + "?")
     }
 
@@ -120,7 +133,7 @@ class ADefType
   {
     name := parent.capitalize
     t := make(name, "String enums for $parent", AType("Enum"))
-    ext.types.add(t)
+    t.slots.ordered = true
 
     if (enum is Dict)
     {

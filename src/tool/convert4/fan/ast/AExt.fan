@@ -44,13 +44,15 @@ class AExt
     AFunc.scanExt(ast, ext)
     ADefType.scanExt(ast, ext)
 
-    if (pod.name == "hxConn")
+    if (pod.name == "???")
     {
       ext.defs.each |d, i|
       {
         if (ext.used[i]) return
         name := d["def"]?.toStr ?: d["defx"]?.toStr
-        echo("WARN: not used $name")
+        if (d.has("view") || name.startsWith("lib:") || name.startsWith("command:")) return
+        echo("--- WARN: not used $name")
+        //Etc.dictDump(d)
       }
     }
   }
