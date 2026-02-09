@@ -19,12 +19,16 @@ class AFunc
   static Void scanExt(Ast ast, AExt ext)
   {
     // look for trio files
-    ext.defs.each |def|
+    ext.defs.each |def, i|
     {
       try
-        scanDef(ast, ext, def)
-      catch (Err e)
-        Console.cur.err("Cannot scan def: $ext.oldName $def", e)
+      {
+        f := scanDef(ast, ext, def)
+        if (f == null) return
+        ext.funcs.add(f)
+        ext.used[i] = true
+      }
+      catch (Err e) Console.cur.err("Cannot scan def: $ext.oldName $def", e)
     }
 
     // look for Fantom class
@@ -47,7 +51,7 @@ class AFunc
 // Defs
 //////////////////////////////////////////////////////////////////////////
 
-  static Void scanDef(Ast ast, AExt ext, Dict def)
+  static AFunc? scanDef(Ast ast, AExt ext, Dict def)
   {
     Str? name
     if (def.has("func"))
@@ -61,7 +65,7 @@ class AFunc
       if (symbol != null && symbol.startsWith("func:"))
         name  = symbol[5..-1]
     }
-    if (name == null) return
+    if (name == null) return null
 
     doc := def["doc"] as Str ?: ""
     src := def["src"] as Str ?: throw Err("Missing axon src")
@@ -71,8 +75,7 @@ class AFunc
 
     meta := Etc.dictFromMap(mapMeta(ast, def))
 
-    func := make(name, doc, meta, sig.aparams, returns, sig.body)
-    ext.funcs.add(func)
+    return make(name, doc, meta, sig.aparams, returns, sig.body)
   }
 
 //////////////////////////////////////////////////////////////////////////

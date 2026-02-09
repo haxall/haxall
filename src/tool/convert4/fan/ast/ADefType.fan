@@ -18,41 +18,44 @@ class ADefType
 {
   static Void scanExt(Ast ast, AExt ext)
   {
-    ext.defs.each |def|
+    ext.defs.each |def, i|
     {
       try
-        scanDefType(ast, ext, def)
-      catch (Err e)
-        Console.cur.err("Cannot scan def: $ext.oldName $def", e)
+      {
+        t := scanDefType(ast, ext, def)
+        if (t == null) return
+        ext.types.add(t)
+        ext.used[i] = true
+      }
+      catch (Err e) Console.cur.err("Cannot scan def: $ext.oldName $def", e)
     }
   }
 
-  private static Void scanDefType(Ast ast, AExt ext, Dict def)
+  private static ADefType? scanDefType(Ast ast, AExt ext, Dict def)
   {
     // check if tag def
     defName := def["def"]?.toStr
-    if (defName == null || defName.contains("-") || defName.contains(":")) return
+    if (defName == null || defName.contains("-") || defName.contains(":")) return null
 
     // get is tag
     baseIs := def["is"]?.toStr
-    if (baseIs == null) return
+    if (baseIs == null) return null
 
     // only process top-level types
     base := topTypeBase(baseIs)
-    if (base == null) return
+    if (base == null) return null
 
     // create top type
     name := defName.capitalize
     doc := def["doc"] as Str ?: ""
     t := make(name, doc, base)
-    ext.types.add(t)
 
     // add marker tag slot
     markerName := defName
     t.slots[markerName] = ADefSlot(markerName, AType("Marker"), "Marker tag for $name type")
 
     // now go thru all ext defs and check for slots
-    ext.defs.each |x|
+    ext.defs.each |x, i|
     {
       // check tagOn
       tagOn := x["tagOn"]?.toStr
@@ -65,7 +68,10 @@ class ADefType
 
       // add to our type
       t.slots[slot.name] = slot
+      ext.used[i] = true
     }
+
+    return t
   }
 
   private static AType? topTypeBase(Str baseIs)

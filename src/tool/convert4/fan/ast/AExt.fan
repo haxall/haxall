@@ -38,11 +38,21 @@ class AExt
     libFile.parent.list.each |file|
     {
       if (file.ext == "trio")
-        TrioReader(file.in).readAllDicts.each |x| { ext.defs.add(x) }
+        TrioReader(file.in).readAllDicts.each |x| { ext.addDef(x) }
     }
 
     AFunc.scanExt(ast, ext)
     ADefType.scanExt(ast, ext)
+
+    if (pod.name == "hxConn")
+    {
+      ext.defs.each |d, i|
+      {
+        if (ext.used[i]) return
+        name := d["def"]?.toStr ?: d["defx"]?.toStr
+        echo("WARN: not used $name")
+      }
+    }
   }
 
   static Str oldNameToLibName(Ast? ast, Str oldName)
@@ -81,7 +91,15 @@ class AExt
 
   Bool hasExt() { specName != null }
 
-  Dict[] defs := [,]
+  Dict[] defs() { defsRef.ro }
+  Bool[] used := Bool[,]
+  private Dict[] defsRef := Dict[,]
+
+  Void addDef(Dict d)
+  {
+    defsRef.add(d)
+    used.add(false)
+  }
 
   ADefType[] types := [,]
 
