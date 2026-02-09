@@ -29,5 +29,5 @@ pragma: Lib <
 >
 
 // SQL connector
-SqlExt: ConnExt
+SqlExt: ConnExt <connFeatures:{}>
 

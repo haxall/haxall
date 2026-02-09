@@ -1,0 +1,50 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// SQL connector to a relational database using JDBC.
+SqlConn: Conn {
+  // Marker tag for SqlConn type
+  sqlConn
+
+  // JDBC database URI
+  uri: Uri?
+
+  // Username for authentication
+  username: Str?
+
+  // Password for authentication
+  password: Password?
+
+  // This is a tag which must be configured on each `sqlConn`
+  // record used by the `connSyncHis()` function.  The value must
+  // be an Axon expression which evaluates to a function with three
+  // parameters:
+  //   - sqlConn: the `sqlConn` record
+  //   - his: the `his-point` record being synced
+  //   - span: a range of two DateTime values
+  //
+  // The function must be return a grid with at exactly two columns for
+  // the history data to sync.  The first column must be a timestamp in the
+  // correct timezone.  The second column must be the value.
+  // See `doc#syncHis`.
+  sqlSyncHisExpr: Str?
+}
+
+// Point which synchronizes data via a SQL connector.
+SqlPoint: ConnPoint {
+  // Marker tag for SqlPoint type
+  sqlPoint
+
+  // Used on a proxy point to reference its parent `sqlConn`
+  sqlConnRef: Ref? <of:SqlConn>
+
+  // Arbitrary key used by the SQL connector to synchronized history data.
+  sqlHis: Str?
+
+}
+
