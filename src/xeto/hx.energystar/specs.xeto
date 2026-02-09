@@ -1,0 +1,86 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// Energy Star connector to a portfolio manager account.
+// See `doc#conns`.
+EnergyStarConn: Conn {
+  // Marker tag for EnergyStarConn type
+  energyStarConn
+
+  // Universal resource identifier
+  uri: Uri?
+
+  // Username for authentication
+  username: Str?
+
+  // Password for authentication
+  password: Password?
+
+  // Comma separated list of customer account ids used for the connection.
+  // See `doc#accounts`.
+  energyStarCustomerIds: Str?
+}
+
+// Point which synchronizes data via a EnergyStar connector.
+EnergyStarPoint: ConnPoint {
+  // Marker tag for EnergyStarPoint type
+  energyStarPoint
+
+  // Tag applied to a `ph::Point` record which marks the point as mapped to a
+  // meter in Portfolio Manager.  The tag value is the meter identifier in
+  // the Energy Star system.
+  energyStarMeter: Str?
+
+  // Map point to meter type
+  energyStarMeterType: EnergyStarMeterType?
+}
+
+// String enum for EnergyStar meter type applied to `energyStarMeter` points.
+EnergyStarMeterType: Enum {
+  coalAnthracite <key:"Coal Anthracite">
+  coalBituminous <key:"Coal Bituminous">
+  coke <key:"Coke">
+  diesel <key:"Diesel">
+  districtChilledWater_AbsorptionChillerUsingNaturalGas <key:"District Chilled Water - Absorption Chiller using Natural Gas">
+  districtChilledWater_Electric_DrivenChiller <key:"District Chilled Water - Electric-Driven Chiller">
+  districtChilledWater_Engine_DrivenChillerUsingNaturalGas <key:"District Chilled Water - Engine-Driven Chiller using Natural Gas">
+  districtChilledWater_Other <key:"District Chilled Water - Other">
+  districtHotWater <key:"District Hot Water">
+  districtSteam <key:"District Steam">
+  electric <key:"Electric">
+  electricOnSiteSolar <key:"Electric on Site Solar">
+  electricOnSiteWind <key:"Electric on Site Wind">
+  fuelOilNo1 <key:"Fuel Oil No 1">
+  fuelOilNo2 <key:"Fuel Oil No 2">
+  fuelOilNo4 <key:"Fuel Oil No 4">
+  fuelOilNo5Or6 <key:"Fuel Oil No 5 or 6">
+  kerosene <key:"Kerosene">
+  liquidPropane <key:"Liquid Propane">
+  naturalGas <key:"Natural Gas">
+  otherEnergy <key:"Other (Energy)">
+  propane <key:"Propane">
+  wood <key:"Wood">
+  itEquipmentInputEnergymetersOnEachPieceOfEquipment <key:"IT Equipment Input Energy (meters on each piece of equipment)">
+  powerDistributionUnitPDUInputEnergy <key:"Power Distribution Unit (PDU) Input Energy">
+  powerDistributionUnitPDUOutputEnergy <key:"Power Distribution Unit (PDU) Output Energy">
+  uninterruptiblePowerSupplyUPSOutputEnergy <key:"Uninterruptible Power Supply (UPS) Output Energy">
+  municipallySuppliedPotableWater_MixedIndoor_Outdoor <key:"Municipally Supplied Potable Water - Mixed Indoor/Outdoor">
+  municipallySuppliedPotableWater_Indoor <key:"Municipally Supplied Potable Water - Indoor">
+  municipallySuppliedPotableWater_Outdoor <key:"Municipally Supplied Potable Water - Outdoor">
+  municipallySuppliedReclaimedWater_MixedIndoor_Outdoor <key:"Municipally Supplied Reclaimed Water - Mixed Indoor/Outdoor">
+  municipallySuppliedReclaimedWater_Indoor <key:"Municipally Supplied Reclaimed Water - Indoor">
+  municipallySuppliedReclaimedWater_Outdoor <key:"Municipally Supplied Reclaimed Water - Outdoor">
+  other_MixedIndoor_OutdoorWater <key:"Other - Mixed Indoor/Outdoor (Water)">
+  other_Outdoor <key:"Other - Outdoor">
+  other_Indoor <key:"Other - Indoor">
+  averageInfluentFlow <key:"Average Influent Flow">
+  wellWater_MixedIndoor_Outdoor <key:"Well Water - Mixed Indoor/Outdoor">
+  wellWater_Indoor <key:"Well Water - Indoor">
+  wellWater_Outdoor <key:"Well Water - Outdoor">
+}
+
