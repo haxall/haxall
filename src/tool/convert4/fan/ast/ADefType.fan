@@ -125,7 +125,7 @@ class ADefType
     enum := def["enum"]
     if (enum != null)
     {
-      enumType := scanDefEnum(ast, ext, name, enum)
+      enumType := scanDefEnum(ast, ext, name, def)
       ext.types.add(enumType)
       type = AType(enumType.name + "?")
     }
@@ -133,24 +133,26 @@ class ADefType
     return ADefSlot(name, type, doc, Etc.dictFromMap(meta))
   }
 
-  private static ADefType scanDefEnum(Ast ast, AExt ext, Str parent, Obj enum)
+  private static ADefType scanDefEnum(Ast ast, AExt ext, Str parentName, Dict def)
   {
-    name := parent.capitalize
-    t := make(name, "String enums for $parent", AType("Enum"))
+    name := parentName.capitalize
+    tdoc := def["doc"] as Str ?: "String enums for $parentName"
+    t := make(name, tdoc, AType("Enum"))
     t.slots.ordered = true
 
-    if (enum is Dict)
+    ConvertUtil.parseEnum(def["enum"]).each |v, n|
     {
-      ((Dict)enum).each |v, n|
+      doc := v["doc"] ?: ""
+      meta := Etc.dict0
+      if (!Etc.isTagName(n))
       {
-        doc := ""
-        if (v is Dict)
-          doc = ((Dict)v).get("doc") ?: ""
-        s := ADefSlot(n, AType("Marker"), doc)
-        t.slots[s.name] = s
+        meta = Etc.dict1("key", n)
+        n = Etc.toTagName(n)
       }
+      s := ADefSlot(n, AType("Marker"), doc, meta)
+      t.slots[s.name] = s
     }
-    else echo("WARN: scanDefEnum $ext.oldName::$parent [$enum.typeof]")
+
     return t
   }
 
