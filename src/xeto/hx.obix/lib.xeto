@@ -29,5 +29,5 @@ pragma: Lib <
 >
 
 // oBIX connector
-ObixExt: ConnExt
+ObixExt: ConnExt <connFeatures:{learn, pollMode:"manual"}>
 
