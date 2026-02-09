@@ -1,0 +1,38 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// Ecobee connector
+EcobeeConn: Conn {
+  // Marker tag for EcobeeConn type
+  ecobeeConn
+
+  // Your Ecobee API Key
+  ecobeeClientId: Password?
+
+  // The refresh token you obtained for your API key
+  ecobeeRefreshToken: Password?
+}
+
+// Point which synchronizes data via an Ecobee connector.
+EcobeePoint: ConnPoint {
+  // Marker tag for EcobeePoint type
+  ecobeePoint
+
+  // Used on a proxy point to reference its parent `ecobeeConn`
+  ecobeeConnRef: Ref? <of:EcobeeConn>
+
+  // Ecobee address to use to get the current value.
+  ecobeeCur: Str?
+
+  // Ecobee address to use to sync point history.
+  ecobeeHis: Str?
+
+  // Ecobee address to use to write a point value.
+  ecobeeWrite: Str?
+}
+

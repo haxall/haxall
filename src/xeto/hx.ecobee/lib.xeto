@@ -27,5 +27,5 @@ pragma: Lib <
   libExt: EcobeeExt
 >
 
-EcobeeExt: ConnExt
+EcobeeExt: ConnExt <connFeatures:{learn, pollMode:"buckets"}>
 
