@@ -86,7 +86,7 @@
   // point.  The following algorithm is used to lookup the occupied point:
   //   1. Try to find in equip or parent of nested equip
   //   2. Try to find in space or parent of nested spaces
-  //   3. Try to find in site if site if tagged as `sitePoint`
+  //   3. Try to find in site if site if tagged as 'sitePoint'
   //
   // If there are no matches or multiple ambiguous matches, then return
   // null or raise an exception based on checked flag.
@@ -163,11 +163,11 @@
   // Return grid of thermistor table names as grid with one 'name' column
   pointThermistorTables: Func { returns: Grid }
 
-  // Return grid of current enum defs defined by `enumMeta`.
+  // Return grid of current enum defs defined by [enumMeta]`doc#enumMeta`.
   // This call forces a refresh of the definitions.
   enumDefs: Func { returns: Grid }
 
-  // Return definition of given enum def defined by `enumMeta`
+  // Return definition of given enum def defined by [enumMeta]`doc#enumMeta`.
   // This call forces a refresh of the definitions.
   enumDef: Func { id: Str, checked: Bool, returns: Grid? }
 
@@ -199,3 +199,4 @@
   pointExtSync: Func <nodoc, admin, deprecated> { returns: Obj? }
 
 }
+

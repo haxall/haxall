@@ -8,7 +8,8 @@
 
 +Funcs {
 
-  // Primary HTTP or HTTPS Uri - see `hx::HxHttpService.siteUri`
+  // Primary HTTP or HTTPS Uri configured via 'siteUri' in HTTP settings
   httpSiteUri: Func { returns: Uri }
 
 }
+

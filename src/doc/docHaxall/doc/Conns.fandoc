@@ -72,12 +72,12 @@ protocol to integrate with the external entity.
 
 The following tags are typically used to configure a connector:
   - 'fooConn': required marker tag for specific connector type
-  - `conn`: required marker tag
-  - `uri`: most connectors use this tag for the address of remote system
-  - `username`: when authentication is required to remote system
-  - `password`: when authentication is required, then password should be stored
+  - 'conn': required marker tag
+  - 'uri': most connectors use this tag for the address of remote system
+  - 'username': when authentication is required to remote system
+  - 'password': when authentication is required, then password should be stored
     in [password db]`Folio#passwords` by connector's record id
-  - `disabled`: marker tag which disables the connector
+  - 'disabled': marker tag which disables the connector
 
 The following transient status tags are managed by the framework itself:
   - `connStatus`: ok, down, fault or disabled
