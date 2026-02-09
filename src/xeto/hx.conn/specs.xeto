@@ -6,12 +6,23 @@
 //   23 Apr 2025  Brian Frank  Creation
 //
 
-// Connector extension base type
+// Connector extension base type. Must define 'connFeatures' meta tag.
 ConnExt: Ext <abstract> {
 
   // Reference to a tuning configuration defined by a `ConnTuning` rec.
   // See `docHaxall::ConnTuning#connTuning`
   connTuningRef: Ref? <of:ConnTuning>
+}
+
+// Spec meta tags
++Spec {
+  // Defines the features supported by a given connector.  This is
+  // a tag added to the 'conn' def itself.  The value is a dict with the
+  // following standardized keys:
+  // - 'learn': marker tag if point learn is supported
+  // - 'pollMode': manual or buckets
+  // Also see `docHaxall::CustomConns#defs`
+  connFeatures: Dict?
 }
 
 //////////////////////////////////////////////////////////////////////////
