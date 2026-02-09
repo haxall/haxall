@@ -6,13 +6,151 @@
 //   23 Apr 2025  Brian Frank  Creation
 //
 
+// Connector extension base type
+ConnExt: Ext <abstract> {
+
+  // Reference to a tuning configuration defined by a `ConnTuning` rec.
+  // See `docHaxall::ConnTuning#connTuning`
+  connTuningRef: Ref? <of:ConnTuning>
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Conn
+//////////////////////////////////////////////////////////////////////////
+
 // Connector for communication to a remote system.
 // See `docHaxall::Conns`
-Conn: Entity <abstract>
+Conn: Entity <abstract> {
 
-// Connector extension base type
-ConnExt: Ext <abstract>
+  // Marker tag for Conn type
+  conn
 
-// Point which synchronizes data via a connector
-ConnPoint: Entity <abstract>
+  // Timeout for messages send to the connector's actor thread.  It must
+  // be a number with a duration unit.  If omitted a default of 1min is used.
+  // This value effectively determines how long a blocking remote request should
+  // take before raising a timeout error.  For protocols which communicate
+  // via HTTP/TCP it is also used to configure the socket's receive timeout.
+  // See `docHaxall::ConnTuning#actorTimeout`
+  actorTimeout: Duration?
+
+  // Error message associated when `connStatus` indicates an error condition.
+  // See `docHaxall::Conns#connState`
+  connErr: Str? <transient>
+
+  // Linger timeout used to keep a connector open.
+  // If not configured then a default of 30sec is used.
+  // See `docHaxall::ConnTuning#connLinger`
+  connLinger: Duration?
+
+  // Duration used for connector open retries.  When a connector should be
+  // pinned opened for application use, then this frequency is used to periodically
+  // attempt retries.  For example if a down connector has watched points, then
+  // this frequency is used to determine how often we retry to reopen the
+  // connection. The default is 10sec if not specified.
+  // See `docHaxall::ConnTuning#connOpenRetryFreq`
+  connOpenRetryFreq: Duration?
+
+  // Duration used to configure the auto-ping feature on a given connector.
+  // When this tag is configured the connector will automatically attempt
+  // a ping based on the configured frequency.  For connectors which might
+  // not have watched points this ensures periodic checks of the connectivity
+  // status.  If this tag is not defined on a connector then the feature is
+  // disabled.  See `docHaxall::ConnTuning#connPingFreq`
+  connPingFreq: Duration?
+
+  // Current connection open/close state of a connector.
+  // See `docHaxall::Conns#connState`
+  connState: ConnState? <transient>
+
+  // Current status of a connector as one of the predefined strings
+  // See `docHaxall::Conns#connState`
+  connStatus: ConnStatus? <transient>
+
+  // Reference to a tuning configuration defined by a `ConnTuning` rec.
+  // See `docHaxall::ConnTuning#connTuning`
+  connTuningRef: Ref? <of:ConnTuning>
+
+  // Sets connector into disabled state to prevent communication
+  disabled: Marker?
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ConnPoint
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with a connector for data synchronization with remote system.
+ConnPoint: Entity <abstract> {
+
+  // Reference to a tuning configuration defined by a `ConnTuning` rec.
+  // See `docHaxall::ConnTuning#connTuning`
+  connTuningRef: Ref? <of:ConnTuning>
+
+  // Calibration value to apply to adjust the value read from the connector
+  // before updating curVal.  The conversion is applied to the `hxConn::ConnPoint.updateCurOk`
+  // value after `curConvert` is applied and before writing `curVal` to the database.
+  // See `docHaxall::Conns#convert`
+  curCalibration: Number?
+
+  // Conversion to apply when reading curVal from connector.
+  // The conversion is applied to the `hxConn::ConnPoint.updateCurOk` value
+  // before applying `curCalibration` and writing `curVal` to the database.
+  // See `docHaxall::Conns#convert`
+  curConvert: PointConvert?
+
+  // Conversion to apply when reading history data from connector.
+  // The conversion is applied to each item passed to `hxConn::ConnPoint.updateHisOk`
+  // before writing to the database.  This conversion happens *before* the
+  // `hisOnWrite` conversion hooks.  See `docHaxall::Conns#convert`
+  hisConvert: PointConvert?
+
+  // Conversion to apply when writing writeVal to the connector.
+  // The conversion is applied to `writeVal` before calling `hxConn::ConnDispatch.onWrite`.
+  // See `docHaxall::Conns#convert`
+  writeConvert: PointConvert?
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ConnTuning
+//////////////////////////////////////////////////////////////////////////
+
+// Marker applied to a rec which defines a tuning configuration.
+// See `docHaxall::ConnTuning#connTuning`
+ConnTuning: Entity {
+
+  // Marker tag for ConnTuning type
+  connTuning
+
+  // Frequency between polls of 'curVal'.
+  // See `docHaxall::ConnTuning#pollTime`.
+  pollTime: Duration?
+
+  // Time before a point's curStatus marked from "ok" to "stale"
+  // See `docHaxall::ConnTuning#staleTime`.
+  staleTime: Duration?
+
+  // Maximum time between writes used to send periodic writes.
+  // See `docHaxall::ConnTuning#writeMaxTime`.
+  writeMaxTime: Duration?
+
+  // Minimum time between writes used to throttle the speed of writes.
+  // See `docHaxall::ConnTuning#writeMinTime`.
+  writeMinTime: Duration?
+
+  // Issue a write every time the connector transitions from open to closed.
+  // See `docHaxall::ConnTuning#writeOnOpen`.
+  writeOnOpen: Marker?
+
+  // Issue a write when the system first starts up.  If missing then
+  // the first write is suppressed on startup.
+  // See `docHaxall::ConnTuning#writeOnStart`.
+  writeOnStart: Marker?
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PointConvert
+//////////////////////////////////////////////////////////////////////////
+
+// Point value conversion string used to normalize data to/from a remote system.
+// See `docHaxall::Conns#convert`
+PointConvert: Scalar
 

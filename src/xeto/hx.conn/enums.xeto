@@ -1,0 +1,37 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// Connector open/close state enumeration
+ConnState: Enum {
+  closed    // Connection is closed
+  closing   // Connection is currently being closed
+  open      // Connection is open
+  opening   // Connection is currently being opened
+}
+
+// Connector status enumeration
+ConnStatus: Enum {
+  ok       // All is okay
+  down     // Communication or network problem
+  fault    // Configuration problem
+  disabled // Manual disable
+  unknown  // Status not computed yet
+}
+
+// Connector trace item
+ConnTraceType: Enum <nodoc> {
+  phase     // Lifecycle phase event
+  dispatch  // Dispatch message
+  req       // Outgoing protocol request
+  res       // Incoming protocol response
+  event     // Unsolicited protocol event
+  log       // System log tracing
+  poll      // Poll check
+  hk        // House keeping
+}
+
