@@ -1,0 +1,58 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// Modbus connector
+ModbusConn: Conn {
+  // Applied to 'modbusConn' to allow for gaps in block reads. See
+  // `ext-modbus::doc#blockReads` for more information.
+  modbusBlockGap: Int?
+
+  // Applied to 'modbusConn' to limit the maximum number of registers to read in a
+  // block read. See `ext-modbus::doc#blockReads` for more information.
+  modbusBlockMax: Int?
+
+  // Marker tag for ModbusConn type
+  modbusConn
+
+  // How long to wait before timing out on a modbus read.
+  modbusReadTimeout: Duration?
+
+  // Applied to 'modbusConn' to define the register map CSV file.
+  // This URI must be a path relative to the project's home directory
+  // or can be a "fan://" URI to a CSV file bundled in a pod.
+  modbusRegMapUri: Uri?
+
+  // Applied to 'modbusConn' to identify the slave address on this
+  // modbus network.
+  modbusSlave: Int?
+
+  // How long to wait before timing out on a modbus write.
+  modbusWriteTimeout: Duration?
+
+  // Universal resource identifier
+  uri: Uri?
+}
+
+// Point which synchronizes data via a Modbus connector.
+ModbusPoint: ConnPoint {
+  // Used on a proxy point to reference its parent `modbusConn`
+  modbusConnRef: Ref? <of:ModbusConn> 
+
+  // Modbus address to use for current value subscriptions. See
+  // `ext-modbus::doc#cur` for format.
+  modbusCur: Str?
+
+  // Marker tag for ModbusPoint type
+  modbusPoint
+
+  // Used on a modbus proxy point to store the id of the entity in the
+  // remote system used to write `writeVal`.  See `ext-modbus::doc#write`
+  // for format.
+  modbusWrite: Str?
+}
+
