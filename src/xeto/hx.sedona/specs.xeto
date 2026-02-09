@@ -1,0 +1,39 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Feb 2026  Brian Frank  Creation
+//
+
+// Sedona Sox connector to a remote device.
+SedonaConn: Conn {
+  // Marker tag for SedonaConn type
+  sedonaConn
+
+  // Universal resource identifier
+  uri: Uri?
+
+  // Username for authentication
+  username: Str?
+
+  // Password for authentication
+  password: Password?
+}
+
+// Point which synchronizes data via a Sedona connector.
+SedonaPoint: ConnPoint {
+  // Marker tag for SedonaPoint type
+  sedonaPoint
+
+  // Used on a proxy point to reference its parent `sedonaConn`
+  sedonaConnRef: Ref? <of:SedonaConn>
+
+  // Sedona address to use for current value subscritions.
+  // Formatted as "compId.slot".
+  sedonaCur: Str?
+
+  // Sedona address to use for writing.  Formatted as "compId.slot".
+  sedonaWrite: Str?
+}
+

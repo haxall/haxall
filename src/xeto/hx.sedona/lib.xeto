@@ -29,5 +29,5 @@ pragma: Lib <
 >
 
 // Sedona Sox connector
-SedonaExt: ConnExt
+SedonaExt: ConnExt <connFeatures:{learn}>
 
