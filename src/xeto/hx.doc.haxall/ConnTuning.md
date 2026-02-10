@@ -103,8 +103,8 @@ options:
   - [writeOnStart](#writeonstart): issue a write on startup
 
 There are also some connector specific options such as:
-  - [bacnetCov]: enabled COV subscription
-  - [bacnetCovLifetime]: lease lifetime for COV subscriptions
+  - [hx.bacnet::ConnTuning.bacnetCov]: enabled COV subscription
+  - [hx.bacnet::ConnTuning.bacnetCovLifetime]: lease lifetime for COV subscriptions
 
 Every connector point is assigned to exactly one tuning configuration
 via the [hx.conn::Conn.connTuningRef] tag.  This tag is searched in the following order:
@@ -154,16 +154,16 @@ The following sections provide additional details on each of these point
 level tuning tags.
 
 ## pollTime
-The [pollTime] tag specifies a duration Number which is the frequency used
-to poll a point for [ph::PhEntity.curVal].  This tag is only used for connectors which
-use the buckets polling mode.  Connectors which use a COV subscription model
-will ignore this value.  If unspecified the default is 10sec.
+The [hx.conn::ConnTuning.pollTime] tag specifies a duration Number which is the
+frequency used to poll a point for [ph::PhEntity.curVal].  This tag is only used
+for connectors which use the buckets polling mode.  Connectors which use a COV
+subscription model will ignore this value.  If unspecified the default is 10sec.
 
 ## staleTime
-The [staleTime] tag specifies a duration Number used to transition a
-point's [ph::PhEntity.curStatus] tag from "ok" to "stale".  It ensures that users and applications
-are aware that data might not be fresh.  The transition to stale occurs
-when all the following conditions are met:
+The [hx.conn::ConnTuning.staleTime] tag specifies a duration Number used to
+transition a point's [ph::PhEntity.curStatus] tag from "ok" to "stale".  It
+ensures that users and applications are aware that data might not be fresh.
+The transition to stale occurs when all the following conditions are met:
   1. the point's `curStatus` is currently "ok"
   2. the point is **not** in a watch
   3. the last successful read exceeds the stale time
@@ -174,8 +174,8 @@ subscriptions might not be calling `updateCurOk` continuously if no changes
 are received.  If unspecified the default is 5min.
 
 ## writeMinTime
-The [writeMinTime] tag specifies a duration Number used to throttle
-the frequency of writes to the remote device.  For example if configured
+The [hx.conn::ConnTuning.writeMinTime] tag specifies a duration Number used to
+throttle the frequency of writes to the remote device.  For example if configured
 to 5sec, then writes will be issued no faster than 5sec.  After a successful
 write occurs, if any writes are attempted within that 5sec window then they
 are queued as a pending write.  After 5sec has elapsed the last pending
@@ -185,22 +185,22 @@ reports a write failure, then writeMinTime is not enforced on subsequent
 attempts.
 
 ## writeMaxTime
-The [writeMaxTime] tag specifies a duration Number used to issue
-periodic rewrites to the remote device.  For example if configured
+The [hx.conn::ConnTuning.writeMaxTime] tag specifies a duration Number used to
+issue periodic rewrites to the remote device.  For example if configured
 to 10min, then if no successful writes have been issued after 10min
 then a write is automatically scheduled to the connector's `onWrite`
 callback.  The writeMaxTime does not go into effect until after
 the project reaches [steady state](Runtime#steady-state).
 
 ## writeOnOpen
-The [writeOnOpen] marker tag is applied to issue a write whenever
-the connector transitions from closed to open.  This policy is typically
+The [hx.conn::ConnTuning.writeOnOpen] marker tag is applied to issue a write
+whenever the connector transitions from closed to open.  This policy is typically
 used when the remote device stores writes in RAM only and needs to be
 re-written after reboots.
 
 ## writeOnStart
-The [writeOnStart] marker tag is applied to issue a write when the
-system starts up.  If omitted then the system suppresses the initial
+The [hx.conn::ConnTuning.writeOnStart] marker tag is applied to issue a write
+when the system starts up.  If omitted then the system suppresses the initial
 priority array evaluation.
 
 # Details
@@ -261,8 +261,9 @@ a connector's [pollMode](fan.hxconn::ConnPollMode) is defined as `buckets` then
 the framework automatically allocates all points to *polling buckets*.
 Polling buckets can be used to tune the grouping and frequency of polls.
 Points are grouped into buckets via their unique [hx.conn::Conn.connTuningRef] tag.
-Poll frequency is configured via the [pollTime] tag.  Note that two different
-connTuning recs with the same pollTime are still modeled as two different buckets.
+Poll frequency is configured via the [hx.conn::ConnTuning.pollTime] tag.  Note
+that two different connTuning recs with the same pollTime are still modeled as
+two different buckets.
 
 Example:
 
@@ -302,3 +303,4 @@ the poll interval randomly within that 1sec window.
 Under the covers a bucket is polled with the [onPollBucket](fan.hxconn::ConnDispatch.onPollBucket)
 callback.  However, not all protocols support a batch read.  So it is possible
 that bucket polls might still require individual point level read requests.
+

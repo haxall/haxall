@@ -8,7 +8,7 @@ license:    Licensed under the Academic Free License version 3.0
 
 # Overview
 The connector framework is defined as a suite of Fantom APIs in the
-[hxConn](hxConn::index) pod.  The framework handles all the complicated
+[hxConn](fan.hxConn::index) pod.  The framework handles all the complicated
 details for threading, timers, and state management - it boils your
 implementation down to a set of callbacks.  This design allows you to quickly
 create own custom connectors and enforces consistency across all connector
@@ -229,7 +229,7 @@ watch strategies:
   - if the protocol does not support subscriptions, then your
     connector should use the poll scheduler to periodically poll
     the points in watch. Point polling is described in more detail
-    in the [polling]`#polling` section.
+    in the [polling](#polling) section.
 
 There are many ways that your points will end up synchronizing their
 current value:
@@ -339,3 +339,4 @@ instances for dispatch.  Here is some example code:
         return p.conn.send(HxMsg("pointSometing", p))
       }
     }
+

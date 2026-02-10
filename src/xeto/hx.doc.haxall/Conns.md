@@ -72,7 +72,7 @@ The following tags are typically used to configure a connector:
   - `uri`: most connectors use this tag for the address of remote system
   - `username`: when authentication is required to remote system
   - `password`: when authentication is required, then password should be stored
-    in [password db]`Folio#passwords` by connector's record id
+    in [password db](Folio#passwords)` by connector's record id
   - `disabled`: marker tag which disables the connector
 
 The following transient status tags are managed by the framework itself:
@@ -141,7 +141,7 @@ occurs one of two ways:
 The mechanism for current value synchronization is specific to each connector
 type and protocol.  However most connectors use one of the following strategies:
   - periodical polling of points in a watch - tunable by
-    the [pollTime]`ConnTuning#pollTime` configuration option
+    the [pollTime](ConnTuning#polltime) configuration option
   - change-of-value (COV) subscription for protocols which support it
 
 Connector points, which are using current value subscription will maintain
@@ -221,10 +221,10 @@ current value subscription and use local [history collection](hx.point::doc#his-
 # Point Conversions
 The following tags are used to configure conversions between the normalized
 data stored in Folio and the connector's remote device:
-  - [curConvert]: converts from raw read value to curVal
-  - [curCalibration]: adjusts read value before updating curVal
-  - [writeConvert]: converts local writeVal to raw value to write to remote system
-  - [hisConvert]: converts history items read from remote system before storing locally
+  - [hx.conn::ConnPoint.curConvert]: converts from raw read value to curVal
+  - [hx.conn::ConnPoint.curCalibration]: adjusts read value before updating curVal
+  - [hx.conn::ConnPoint.writeConvert]: converts local writeVal to raw value to write to remote system
+  - [hx.conn::ConnPoint.hisConvert]: converts history items read from remote system before storing locally
 
 The conversion is specified as a string using the [point convert syntax](hx.point::doc#point-conversion).
 
@@ -275,3 +275,4 @@ and [connSyncHis()] functions by using the [connPointsVia()] function.
 
 Note: the system cannot update its lookup tables on the fly when adding/changing
 the `connDupPref` tag.  You will need a restart for it to take effect.
+

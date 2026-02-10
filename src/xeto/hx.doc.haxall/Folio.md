@@ -76,7 +76,7 @@ There are a couple tags which have special meaning:
     that models data an end-user would see; this is the default tag used as
     the "title" of the record and links to the record; also see `haystack::Etc.dictToDis`
   - [hx::Entity.mod]: a DateTime timestamp indicating the last time the record
-    was modified; this value is used for [concurrency control]`#concurrency`
+    was modified; this value is used for [concurrency control](#concurrency-control)
 
 # Tags
 Tags are the name/value pairs stored in a record.  The name of a tag must
@@ -211,7 +211,7 @@ file in a version control system.  Diffs include the ability:
   - add or remove a record
   - update/add a set of tags on an existing record
   - remove a set of tags on an existing record (using the special
-    [remove]`haystack::Remove` value)
+    [remove](fan.haystack::Remove) value)
 
 In Fantom diffs are committed with the [fan.folio::Folio.commit] method:
 
@@ -231,7 +231,7 @@ but are not serialized to the file system.  Transient diffs do **not**
 update the [hx::Entity.mod] tag of the record.
 
 # Trash
-Records are moved into the *trash bin* by adding the [trash] marker
+Records are moved into the *trash bin* by adding the `trash` marker
 tag.  Trash recs continue to operate in the database just like any other
 record except they are not included in any read operations unless an
 explicit `{trash}` option is used (note the currently only readAll allows
