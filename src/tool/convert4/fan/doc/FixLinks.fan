@@ -113,9 +113,13 @@ class FixLinks
     // handle unqualifed simple names
     if (libName == null && slotName == null && frag == null)
     {
-      // try as global on PhEntity
-      phGlobal := ns.spec("ph::PhEntity").members.get(docName, false)
-      if (phGlobal != null) return phGlobal.qname
+      // try as global on PhEntity, User
+      trySpecs := tryAsMembers
+      for (i := 0; i<trySpecs.size; ++i)
+      {
+        m := trySpecs[i].members.get(docName, false)
+        if (m != null) return m.qname
+      }
 
       // try as slot on types/mixins in my own lib
       m := tryAsMemberInLib(oldNameToNewLibName(baseLib), docName, true)
@@ -218,6 +222,12 @@ class FixLinks
   Str oldNameToNewLibName(Str oldLib)
   {
     AExt.oldNameToLibName(null, oldLib)
+  }
+
+  ** Specs to try for globals
+  once Spec[] tryAsMembers()
+  {
+    [ns.specx(ns.spec("ph::PhEntity")), ns.specx(ns.spec("hx::User"))].toImmutable
   }
 
   ** Map old doc lib to new doc lib

@@ -41,6 +41,9 @@ Index: Dict {}
 // this is link to `site` tag.
 //
 // List of links:
+//   - `id`
+//   - `dis`
+//   - `userRole`
 //   - `temp`
 //   - `sensor`
 //   - [now func]`now`
