@@ -1,0 +1,196 @@
+<!--
+title:      ModbusExt
+author:     Andy Frank
+created:    19 Apr 2013
+copyright:  Copyright (c) 2022, SkyFoundry LLC
+license:    Licensed under the AFL v3.0
+-->
+
+# Overview
+The ModbusExt implements connector support for Modbus protocol.
+
+# Supported Protocols
+ModbusExt supports two protocols for accessing Modbus slave devices:
+
+## TCP/IP
+To setup a connector to access a Modbus slave over TCP/IP, we use the
+`modbus-tcp` URI scheme:
+
+    dis: "Modbus TCP/IP Connector"
+    conn
+    modbusConn
+    uri: `modbus-tcp://host/`
+    modbusSlave: 1
+    modbusRegMapUri: `data/modbus/xxx.csv`
+
+## RTU over TCP/IP
+To access the slave using serial RTU over a TCP connection, use the
+`modbus-rtutcp` scheme:
+
+    dis: "Modbus RTU over TCP/IP Connector"
+    conn
+    modbusConn
+    uri: `modbus-rtutcp://host/`
+    modbusSlave: 1
+    modbusRegMapUri: `data/modbus/xxx.csv`
+
+
+# Register Map
+Modbus connectors are required to define a register map using the
+[ModbusConn.modbusRegMapUri] tag. The register map specifies which points get read/written
+out of a Modbus slave. The register map URI must be a path relative to the
+project's home directory or can be a `fan://` URI to a CSV file bundled
+in a pod.
+
+Register maps are simple CSV files:
+
+    name, addr,  data, rw, scale, dis,  unit, tags
+    ping, 40001, u2,   r,  ,      Ping, ,
+    do0,  00017, bit,  rw, ,      DO-0, ,
+    do1,  00017, bit,  rw, ,      DO-1, ,
+    ai0,  40001, u2,   r,  ,      AI-0, ,
+    ai1,  40002, u2,   r,  *10,   AI-1, kW,   power
+
+
+## Addressing
+Register address are defined with `addr` column and specified using
+Modbus convention:
+
+    0xxxx  Coil              00001-065536
+    1xxxx  Discrete Input    10001-165536
+    3xxxx  Input Register    30001-365536
+    4xxxx  Holding Register  40001-465536
+
+## Ping
+A valid `ping` register is required in order to test connectivity to slave.
+
+## Data Type
+The `data` column specifies how register data is modeled.
+
+    bit  Bool
+    u1   Unsigned  8-bit Int
+    u2   Unsigned 16-bit Int
+    u4   Unsigned 32-bit Int
+    s1   Signed  8-bit Int
+    s2   Signed 16-bit Int
+    s4   Signed 32-bit Int
+    s8   Signed 64-bit Int
+    f4   32-bit Float
+    f8   64-bit Float
+
+### Bit Mask
+The `bit` data type supports a position notation for cases where bits are
+packed into input or holding registers:
+
+    name, addr,  data,  rw
+    do0,  40101, bit:0, rw
+    do1,  40101, bit:1, rw
+    do2,  40101, bit:2, rw
+
+### Word and Byte Order
+If register data is not stored in network byte order, you can specify the
+order using a suffix:
+
+    u2le   Unsigned 16-bit Int  Little endian byte and word order
+    u2leb  Unsigned 16-bit Int  Little endian byte order only
+    u2lew  Unsigned 16-bit Int  Little endian word order only
+
+## Read/Write
+Read and write permissions are configured using `rw` column:
+
+    rw  Register may be read and written
+    r   Register is read-only
+    w   Register is write-only
+
+## Scale Factor
+An optional scale factor can be applied to registers using the `scale` column.
+The scale format is `([op] [num])+` where the factor is a numeric constant.
+
+    add:    +1.5
+    minus:  -0.25
+    mult:   *10
+    div:    /1000
+
+You can also chain multiple scaling factors together:
+
+    chained: +32768 /10
+
+## Dis, Unit, Tags
+The `dis`, `unit`, and `tags` column allow optional pre-configuration for the
+point during the learn process:
+
+    name, addr,  data, rw, dis,  unit, tags
+    ai1,  40002, u2,   r,  AI-1, kW,   power foo bar
+
+
+# Current Points
+Modbus proxy points are configured with [ModbusPoint.modbusCur] tag, which maps to a valid
+register map name:
+
+    point
+    modbusConnRef: @conn
+    modbusCur: ai0
+
+
+# Writable Points
+Modbus proxy points are configured to write to remote system points via
+the [Funcs.modbusWrite] tag:
+
+    point
+    writable
+    modbusConnRef: @conn
+    modbusWrite: ao5
+
+# History
+History synchronization is not supported by Modbus.  You will need to use
+[collection](hx.point::doc#his-collect) to store history.
+
+# Block Reads
+Modbus connectors will attempt to optimize consecutive registers into a single
+block read when possible. This behavior can be tuned by adding the
+[ModbusConn.modbusBlockGap] and [ModbusConn.modbusBlockMax] tags to your `modbusConn` rec, or by configuring
+them on the connector's associated conn tuning rec.
+
+## modbusBlockGap
+By default, blocks require all points to be in truly consecutive registers:
+
+    // block 1
+    40001 u2
+    40002 u2
+    40003 u2
+
+    // block 2
+    40005 u2
+
+If you have a small gap in an otherwise sequential run of registers, you can
+tune to maintain a single read by adding the [ModbusConn.modbusBlockGap] tag to your conn
+rec. This tag specifies the maximum number of registers that can be skipped for
+a single block:
+
+    modbusConn
+    modbusBlockGap: 1
+
+    // block 1
+    40001 u2
+    40002 u2
+    40003 u2
+    40005 u2  // 400004 will be read but discarded
+
+## modbusBlockMax
+By default, blocks are limited to 100 total registers (which includes skipped
+registers from `modbusBlockGap`).  To force a connector to split blocks into
+smaller or larger chunks, add the [ModbusConn.modbusBlockMax] tag to your conn rec:
+
+    modbusConn
+    modbusBlockMax: 2
+
+    // block 1
+    40001 u2
+    40002 u2
+
+    // block 2
+    40003 u2
+    40004 u2
+
+Be aware a block read failure will result in the entire block's points being
+marked as fault.

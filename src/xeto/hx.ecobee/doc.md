@@ -1,0 +1,169 @@
+<!--
+title:      EcobeeExt
+author:     Matthew Giannini
+created:    08 Feb 2022
+copyright:  Copyright (c) 2022, SkyFoundry LLC
+license:    Licensed under the AFL v3.0
+-->
+
+# Overview
+The Ecobee library implements connector support for Ecobee Thermostats.
+
+# Prerequisites
+Before you can use the Ecobee connector, you need to follow these steps
+to acquire an API key and OAuth tokens for communicating with the API
+
+1. Register your device and create a developer account at this web page:
+`https://www.ecobee.com/en-us/developers/`
+1. Log into your [Ecobee portal](https://www.ecobee.com/consumerportal/index.html#/login)
+  1. Go the the developer menu item
+  1. Create your application using `Create New`
+  1. Make note of your API key for the next step
+1. Open a command prompt or terminal and run the following commands
+  1. `cd <installation_home>`
+  1. `./bin/fan hxEcobee::EcobeeAuthorization -scope smartRead`
+    - To enable read/write to your thermostat, use `-scope smartWrite` instead.
+    - Follow the instructions to obtain a PIN and authorize your application. After
+    completing the steps the program will provide you with the set of tags that must
+    be set on your connector as describe below.
+
+
+# Connectivity
+The Ecobee API is a RESTful API over HTTPS. You can connect to all your registered
+devices by creating an [EcobeeConn.ecobeeConn] rec (the values in `<>` are obtained
+by completing the prerequisites):
+
+```
+dis: "My Home"
+conn
+ecobeeConn
+ecobeeClientId: "<API key>"
+ecobeeRefreshToken: "<refresh token>"
+```
+
+# Current Values
+The Ecobee connector uses the [EcobeePoint.ecobeeCur] tag on a point to get the current value
+of a particular device property. The value of this tag is specified as:
+
+```
+<ecobeeCur> := <thermostat-id>('/' property-path)*
+<property-path> := <property name> | <property-selector>
+<property-name> := Str
+<property-selector> := <property-name> '[' [<property-name> '='] <value>']'
+<value> := Str
+
+NOTE: for the property-selector syntax you can omit the property-name if the value
+corresponds to an object's unique id.
+```
+
+Ecobee thermostats are represented in JSON format. This syntax is basically a way
+to navigate down the tree of JSON objects to get the property value you want.
+For more details on the Ecobee Thermostat object representation, see the
+[Ecobee Thermostat Object Documentation](https://www.ecobee.com/home/developer/api/documentation/v1/objects/Thermostat.shtml)
+
+For example: to get the the temperature currently reported by the thermostat, this
+is the `actualTemperature` property of the `runtime` object on the Thermostat. The
+[EcobeePoint.ecobeeCur] for this property on thremostat with id `12345`:
+
+```
+// The thermostat actual temperature
+ecobeeCur: "/12345/runtime/actualTemperature"
+
+// Thermostat JSON
+{
+  "identifier": "12345",
+  "runtime": {
+    "actualTemperature": 705
+    ...
+  }
+  ...
+}
+
+```
+
+Your thermostat may have multiple remote sensors connected to it. If you want to
+get the temperature being reported by a remote sensor you will need to use
+the `<property-selector>` syntax like below (because there are multiple remote sensors).
+The property-selector syntax must be used whenever an object is a list.
+
+```
+// The temperature reported by the "Game Room" remote sensor
+ecobeeCur: "/12345/remoteSensors[rs:100]/capability[type=temperature]/value"
+
+// Thermostat JSON
+{
+  "identifier": "12345",
+  ...
+  "remoteSensors": [
+    {
+      "id": "rs:100",
+      "name": "Game Room",
+      ...
+      "capability": [
+        {
+          "id": "1",
+          "type": "temperature",
+          "value": "705"
+        },
+        {
+          "id": "2",
+          "type": "occupancy",
+          "value": "false"
+        }
+      ]
+    },
+    {
+      "id": "ei:0",
+      "name": "Upstairs Thermostat",
+      ...
+      "capability": [
+        {
+          "id": "1",
+          "type": "temperature",
+          "value": "759"
+        },
+        {
+          "id": "2",
+          "type": "humidity",
+          "value": "31"
+        },
+        {
+          "id": "3",
+          "type": "occupancy",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}
+```
+
+# Writable Points
+The connector supports writing values to an Ecobee thermostat. Use the
+[EcobeePoint.ecobeeWrite] tag to configure the address for the point to write. It uses
+the same syntax defined above for [EcobeePoint.ecobeeCur].
+
+# History Points
+The connector supports reading historical trend data from the thermostat. Use the
+[EcobeePoint.ecobeeHis] tag to configure the address for the historical point to trend. It uses a similar
+syntax as defined above for [EcobeePoint.ecobeeCur]. Only runtime report data is currently supported.
+
+    ecobeeHis: <thermostat-id>/runtime/<runtimeReportProperty>
+
+The connector [learn](#learn) handles configuring this tag for the most common points
+but you can configure additional history points.
+See [Ecobee Runtime Reports](https://www.ecobee.com/home/developer/api/documentation/v1/operations/get-runtime-report.shtml)
+for more details on available runtime report properties and how they are reported.
+
+# Learn
+The Ecobee connector supports [connLearn()] to learn the most common points
+from your Thermostat. It will not show you all properties that can be learned
+about a thermostat - just the most common. You can always manually create a point
+and specify the [EcobeePoint.ecobeeCur] and [EcobeePoint.ecobeeWrite] using the syntax outlined above.
+
+# API Rate Limiting
+As detailed in the [Ecobee API Docs](https://www.ecobee.com/home/developer/api/documentation/v1/operations/get-thermostat-summary.shtml),
+polling for API changes should be limited to once every 3 minutes. The connector handles
+this for your. Even if your connector is configured with a [pollTime] of less than
+3 minutes, the connector will only attempt to sync current data values at 3 minute
+intervals.

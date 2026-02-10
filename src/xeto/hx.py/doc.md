@@ -1,0 +1,169 @@
+<!--
+title:      PyExt
+author:     Matthew Giannini
+created:    04 Nov 2021
+copyright:  Copyright (c) 2021, SkyFoundry LLC
+license:    Licensed under the Academic Free License version 3.0
+-->
+
+# Overview
+The Python library is used to execute Python code in a sandboxed Docker container.
+The default Docker image running in this container is configured to provide
+access to a number of Python libraries to facilitate scientific computing
+and machine learning.
+
+# Prerequisites
+The Python library requires access to a Docker instance through use of the `docker` extension.
+Docker must have the `hxpy` image installed in order to execute Python code. The `hxpy`
+image can be pulled from the Haxall GitHub package repository:
+
+```
+  > docker pull ghcr.io/haxall/hxpy:latest
+```
+
+If you are running SkySpark on a linux-based OS, then you **must** run SkySpark with
+Java 17+ in order to connect to the default docker daemon (this is because the default
+daemon must be accessed using a
+[Unix Domain Socket](https://en.wikipedia.org/wiki/Unix_domain_socket), and Java didn't
+add support for that until Java 16).  Note also that this Unix domain socket is typically
+owned by `root:docker` and you may need to add your user to the `docker` group in order
+to connect to the socket. If your user does not have access to the domain socket you
+will likely see an error like this:
+
+```
+  sys::IOErr: java.net.BindException: Permission denied
+```
+
+
+# Axon
+To run Python code, you must first open a session. Opening a session causes
+a new Docker container to be created and started. This container is running
+the `hxpy` Python module which is responsible for handling the various
+commands you can issues on a session. Use the [py()] Axon function to create a session.
+
+The general pattern for using a python session is:
+
+1. Create a session using [py()]
+1. Configure the session using funcs like [pyDefine()], [pyExec()], and [pyTimeout()]
+1. Evaluate an expression using [pyEval()] to get a result and close the session.
+
+The following is a simple example demonstrating this pattern. In this example
+we create a session, define some variables, and evaluate an expression. After this
+code executes, the `val` variable will have the value `200`.
+
+```
+  val: py()
+    .pyTimeout(10sec)
+    .pyDefine("a", 100)
+    .pyDefine("b", 2)
+    .pyExec("def mult(x, y): return x * y\n")
+    .pyEval("mult(a, b)")
+```
+
+# Persistent Sessions
+By default, a Python session is closed after a call to [pyEval()]. However, if you
+create a Python session in a [task](hx.task::doc), then the session will remain
+opened until the task is killed/removed. There is no need to call [taskLocalSet()]
+to save the Python session returned by [py()]. The first call to [py()] in your task
+will create a new Python session. Subsequent message processed by your task will
+re-use the same session. You will typically want to use [pyInit()] to do any one-time
+configuration of your python session in your task:
+
+```
+// Example task
+(msg) => do
+  v: msg["v"]
+  // This py() session will be remembered between task invocations
+  r: py()
+      .pyInit((session) => do
+         // this code will only be invoked once for the session
+         session.pyExec("def sq(x): return x * x\n")
+       end)
+      .pyDefine("v", v)
+      .pyEval("sq(v)")
+  echo("Got: " + r)
+end
+```
+
+# Data Marshalling
+You can use the [pyDefine()] function to pass variables to the remote the Python
+instance for use in your code. The Python library will convert Haystack types to
+Python types as defined in the table below. Only the marked data types can
+be returned using [pyEval()].
+
+```
+### Haystack    Python        pyEval()   Notes
+null        None          ✓
+Marker      Marker        ✓          hxpy.haystack.marker.Marker
+NA          NA            ✓          hxpy.haystack.na.NA
+Remove      Remove        ✓          hxpy.haystack.remove.Remove
+Bool        bool          ✓
+Number      int/float     ✓          Units not marshalled
+Ref         Ref           ✓          hxpy.haystack.ref.Ref
+Str         str           ✓
+Uri         str
+Time        datetime.time ✓
+DateTime    datetime.date ✓
+Buf         bytes         ✓
+Dict        dict          ✓
+List        list          ✓
+Grid        Grid          ✓          hxpy.haystack.grid.Grid (see below)
+MatrixGrid  numpy.ndarray ✓          see below
+```
+
+## Grid Marshalling
+The Python library has built-in support for marshalling Grids to Python types
+that are optimized and suitable for machine learning.
+
+By default, a Grid is marshalled to an `hxpy.haystack.grid.Grid` type in Python.
+It is very common in data science applications to work with tabular data using the
+`pandas.DataFrame` type. You can get a DataFrame from a Grid in your Python code
+by using `grid.to_dataframe()`. You can return a `pandas.DataFrame` as the result
+of an `pyEval()` expression and it will automatically be converted to a Grid. You
+can also convert a DataFrame to a Grid using the `Grid.from_dataframe(frame)` static
+method.
+
+    py().pyDefine("grid", grid).pyEval("str(grid.to_dataframe())")
+
+You can also convert a DataFrame to a Grid or GridBuilder using
+`Grid.from_dataframe(frame)` or `GridBuilder.from_dataframe(frame)` respectively. Use
+the latter when you need to add grid or column meta before creating the Grid.
+
+Any Grid that is converted to a matrix using [toMatrix()] will be converted
+to a `numpy.ndarray` for use in your Python code.
+
+    py().pyDefine("data", toMatrix(g)).pyEval("type(data)")
+
+# Python Environment
+The Docker container running Python will launch the [hxpy](https://github.com/haxall/haxall/tree/main/src/lib/hxPy/py/hxpy)
+module. Python code executed in this container has access to several common Python libraries that
+are useful for scientific computing and machine learning. The full list of
+available Python libraries is available
+[here](https://github.com/haxall/haxall/blob/main/src/lib/hxPy/py/hxpy/requirements.txt)
+
+## IO
+When the `hxpy` container is started, the current runtime project's `io/` directory will
+be mounted into the container at `/io/`. This allows you to create/read files between
+the Haxall environment and the Python container.
+
+```
+// Write a simple text file to the mounted io/ directory
+py()
+  .pyExec("""def ioTest():
+               with open("/io/example.txt", "w") as f:
+                 f.write("Testing IO Example")
+             """)
+  .pyEval("ioTest()")
+
+// read in Axon the contents of the file we just created in Python
+s: ioReadStr(`io/example.txt`)
+```
+
+# Docker in Docker
+In some deployments, the Haxall runtime itself is running in a Docker container. To use
+the Python lib in this case it becomes necessary to run Docker within Docker. The Haxall
+Docker instance needs to create a Python Docker instance and connect to it.
+
+You will need to create a Docker network for for your containers to run in. The Haxall
+runtime must be run in this network and you must use the `network` option of the [py()]
+func to have the python Docker instance also run in that network.
