@@ -1,0 +1,94 @@
+<!--
+title:      Runtime
+author:     Brian Frank
+created:    4 Aug 2021
+copyright:  Copyright (c) 2021, SkyFoundry LLC
+license:    Licensed under the Academic Free License version 3.0
+-->
+
+# Overview
+All system components are packaged into a single top-level object called
+the *runtime*.  The runtime is accessed via the [fan.hx::Runtime] API.  It
+is possible to run multiple runtimes within a single JVM.
+
+# Daemon
+The *Haxall daemon* is the default implementation of the runtime.  A daemon
+is created via the `hx init` command, and executed via `hx run`.  These
+commands are covered in the [Setup] chapter.
+
+You can customize the bootstrap of a deamon using the Fantom class `hxd::HxdBoot`.
+Here is an example to illustrate using custom config and required libs:
+
+    boot := HxdBoot
+    {
+      it.dir = myDatabaseDir
+      it.sysConfig["platformSerialSpi"] = "myPod::SerialSpiImpl"
+      it.bootLibs.add("acme.customlib")
+    }
+    boot.run
+
+Default behavior of the the daemon:
+  - creates an instance of HxFolio for the database
+  - simple user manager which stores users in the runtime database
+  - HTTP API with all the standard ops
+  - simple Axon shell as the UI
+  - provides basic in-memory historian using circular buffers
+
+# SkySpark
+SkySpark is multi-tenant and supports multiple project runtimes.  SkySpark
+implements one runtime for the system via [fan.hx::Sys].  Each project is
+also a full runtime via [fan.hx::Proj].  Note Haxall daemon that the single
+runtime implements *both* of these APIs.s
+
+SkySpark runs some low-level extensions at the system level .  For
+example, there is only one instance of the `hx.http` and `hx.api` (shared
+by all projects).  Then each run project runs its own instance of project
+extensions which includes libs like `hx.point`, `hx.task`, `hx.conn`, etc.
+
+# Lifecycle
+The runtime lifecycle defines a multi-stage series of phases for startup
+and shutdown.  Startup phases are:
+
+  1. Instantiation: libs are created, but only basic info is available
+  2. Start: libs can lookup services and other libs, kick off background processing
+  3. Ready: all libs have completed their onStart callback, HTTP port is opened
+  4. Steady state: delay after ready to given apps and connectors time to spin up
+
+The shutdown phases are:
+  1. Unready: shutdown external ports
+  2. Stop: cease all background processing
+
+Shutdown happens automatically when the runtime process is killed via
+[fan.sys::Env.addShutdownHook].
+
+See the [exts chapter](Exts#lifecycle) for how these phases map to the
+[fan.hx::Ext] callbacks.
+
+# Steady State
+Steady state is a configurable delay after bootstrap used to give the
+system time to reach equilibrium.  This gives internal services time to
+spin up before interacting with external systems. By default the steady
+state delay is 10sec.  It may be tuned by applying the [steadyState] tag
+to the [projMeta()] record.
+
+The configured delay starts after the database is loaded and all extensions
+have completed their [onStart](fan.hx::Ext.onStart) and [onReady](fan.hx::Ext.onReady)
+callbacks.  Once the delay expires, the [steady state](isSteadyState())
+flag transitions to true and extensions receive the [onSteadyState](fan.hx::Ext.onSteadyState)
+callback.
+
+Activities which occur *before* steady state:
+  - Applications which require current point values should initialize their
+    watches
+  - Connectors should begin polling/subscribing to watched points to ensure
+    data is up-to-date once steady state is reached
+
+Activities which occur *after* steady state:
+  - Tasks do not subscribe to their observables until steady state (including
+    scheduled tasks)
+  - Local history collection is suppressed until steady state
+  - Connector writes are suppressed until steady state, then the current
+    write level of all writable points is broadcast to connectors which
+    may issue a remote write if the `writeOnStart` tuning policy is configured
+  - Rule engine (SkySpark only) does not begin to compute rules until after
+    steady state

@@ -1,0 +1,128 @@
+<!--
+title:      Units
+author:     Brian Frank
+created:    15 Sep 2010
+copyright:  Copyright (c) 2010, SkyFoundry LLC
+license:    Licensed under the Academic Free License version 3.0
+-->
+
+# Overview
+All numbers in Folio and Axon may be annotated with an optional unit.
+Units are checked and carry through on all numeric operations.
+
+# Unit System
+As a general principle, all the data associated with a given site should
+exclusively use either the SI metric system or the US customary system.
+Mixing unit systems within one site will cause serious headaches for analytics
+which require temperature/pressure constants or correlation of variables
+of different units.  All the standard libraries assume that data within
+a given site (and its associated weather station) are consistently either
+metric or US customary.
+
+If you need to define a default constant in an function library designed
+to be used globally, then the convention is to create function which
+takes a site record.  A good example is `degreeDaysBase()` which defines
+a default degree-day balance point:
+
+    (site) => do
+      if (isMetric(site)) 18°C else 65°F
+    end
+
+Also see the [isMetric()] function in the core library.
+
+# Database
+The unit database used by SkySpark is defined by the [fan.sys::Unit] Fantom
+API.  It is stored as a text file under "etc/sys/units.txt".  Any unit
+identifier may be used immediately after a number literal to associate
+a unit:
+
+    23celsius         // full name allowed
+    102.5square_meter
+    23°C              // symbol preferred
+    102.5m²
+
+By convention the symbol is the preferred notation.
+All encoding to [ph.doc::Zinc] uses the symbol, not the full name.
+
+# Comparison
+Axon equality operators for numbers checks both the scalar and the
+unit.  However if one number has a null unit, then the comparison
+is based only on the scalar:
+
+    123ft == 123ft  >>  true
+    123ft == 123    >>  true
+    123ft == 123m   >>  false
+
+When performing greater or less than operations, the units much
+match or at least one must be null:
+
+    7ft > 3ft   >>  true
+    7ft > 3     >>  true
+    7ft > 3m    >>  raises UnitErr: ft <=> m
+
+# Arithmetic
+Arithmetic with units is handled as follows:
+
+    // addition (associative)
+    a + a      >>  a
+    a + null   >>  a
+    °F + Δ°F   >>  °F
+    °C + Δ°C   >>  °C
+    a + b      >>  throws UnitErr
+
+    // subtraction
+    a - a      >>  a
+    a - null   >>  a
+    null - a   >>  a
+    °F - °F    >>  Δ°F
+    °C - °C    >>  Δ°C
+    °F - Δ°F   >>  °F
+    °C - Δ°C   >>  °C
+    a - b      >>  throws UnitErr
+
+    // multiplication (associative)
+    a * b      >>  a * b
+    a * null   >>  a
+
+    // division
+    a / b      >>  a / b
+    a / null   >>  a
+    null / b   >>  throws UnitErr
+
+As a general rule, if one of the numbers has a null unit, then the
+other operand's unit is carried through.  Adding or subtracing two numbers
+with different units will raise an exception - automatic unit conversion
+is **not** performed.  We also make special allowances for °F and °C since
+these temperature systems are not zero based.
+
+Note that multiplication and division will attempt to derive the unit
+based on the unit of the operands.  The derived unit must be matched
+against a unit predefined by the unit database or else an UnitErr is thrown.
+
+Examples:
+
+    12kg + 5       >>  17 kg
+    12kg + 5kg     >>  17 kg
+    12kg + 5lb     >>  UnitErr: kg + lb
+    75°F - 50°F    >>  25 Δ°F
+    400kW * 2h     >>  800 kWh
+    800kW / 200m²  >>  4 kW/m²
+
+# Conversion
+You can use the [to()] function to convert between units:
+
+    65°F.to(1°C)     >>  18.333 °C
+    2000m².to(1ft²)  >>  21,527.83 ft²
+    100kWh.to(1BTU)  >>  341,280.104 BTU
+    100kWh.to(1L)    >>  Inconvertable units: kWh and L
+
+The scalar value of the to-unit is ignored, but by convention we use "1".
+Or you can use the unit string as follows:
+
+    65°F.to("°C")
+
+Use the [as()] function to change units without performing a conversion:
+
+    65°F.as(1°C)   >> 65°C
+    65°F.as("°C")  >> 65°C
+

@@ -1,0 +1,30 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   10 Feb 2026  Brian Frank  Creation
+//
+
+
+pragma: Lib <
+  doc: "Haxall Documentation"
+  version: BuildVar "hx.version"
+  depends: {
+    { lib: "sys" }
+  }
+  categories: {"haxall"}
+  license: BuildVar "hx.license"
+  org: {
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
+  }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
+  }
+  
+>
+
+
+

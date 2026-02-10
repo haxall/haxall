@@ -1,0 +1,551 @@
+<!--
+title:      Axon Language
+author:     Brian Frank
+created:    07 Jan 2010
+copyright:  Copyright (c) 2010, SkyFoundry LLC
+license:    Licensed under the Academic Free License version 3.0
+-->
+
+# Overview
+This chapter fully covers the the syntax constructs of the Axon
+programming language.  See [Axon] chapter for an overview of
+how Axon is used.
+
+# Scalars
+The following scalar literals are supported:
+  - Null: `null` keyword
+  - Bool: `true` or `false` keyword
+  - Number: `4`, `-91`, `10_000`, `9.23kg`, `5.4e-45`, `74.2°F`, `5min`
+  - Str: `"hello"` [string literals](#str-literals)
+  - Uri: ``io/sites.csv``
+  - Date: `YYYY-MM-DD`, `2010-01-27`
+  - Time: `[h]h:mm[:ss]`, `3:45`, `08:12:05` (always 24 hour)
+  - Range: `0..100`, `2010-01-01..2010-01-31`
+  - Date Range: `YYYY-MM`, `2008-02` is shortcut for `01-Feb-2008..29-Feb-2008`
+
+Numbers may be optionally annotated with a unit - see [Units].
+
+There is no literal representation for DateTime, Coord, or XStr.  Instead
+use an Axon function to construct:
+  - [sys::DateTime]: `dateTime(2012-10-19, 12:30)`
+  - [ph::Coord]: `coord(37.55, -77.55)`
+  - [ph::PhEntity.xstr]: xstr("Color", "red")
+
+# Str Literals
+There are three types of string literals in Axon:
+  - single quote string literals
+  - triple quote string literals
+  - raw string literals
+
+Single quote strings use the standard backslash escape sequence
+as C-like language.  For example use "\n" for the newline character
+and use "\"" to encode a quote char itself:
+
+    "line 1 \n line 2"
+    "embedded \"quotes\"!"
+
+Triple quote strings use backslash escapes, but do not require
+escaping of a single quote character.  Triple quoted strings may
+also span multiple lines, but the first non-whitespace char of each
+line must be aligned to the right of the opening quote:
+
+    // triple quote multi-line example
+    """This is a "multi-line" triple
+       quoted string"""
+
+    // above as a single line, single quoted string
+    "This is a \"multi-line\" triple\nquoted string"
+
+You can also create a raw string literal by prefixing a single quote
+string with the "r" character.  Raw string literals do not support backslash
+escapes making them useful for regular expressions:
+
+    // raw string literal example
+    r"\foo\"
+
+Note that the "$" character is reserved for future interpolation support
+and cannot be used in a string literal unless you backslash escape it:
+
+    // backslash escape dolloar sign
+    "\$100"
+
+# Lists
+Lists store a linear sequence of objects zero indexed by a Number.
+
+    []           // empty list
+    [6]          // single item list
+    [1, 2, 3]    // multiple items
+    [4, "four"]  // mixed item types
+
+Also see [AxonUsage#list-examples].
+
+# Dicts
+Dicts are name/value maps (associative arrays).  Any string key may be used
+used if quoted, but by convention most maps use valid identifiers as
+their keys.
+
+    {}                // empty dictionary
+    {foo:6}           // foo bound to 6
+    {foo:2+3}         // foo found to 5 (value can be any expr)
+    {foo}             // foo is bound to special "marker" value
+    {-foo}            // foo is bound to special "remove" value
+    {n:"Bob",age:35}  // mutiple value separated with comma
+    {"not tag"}       // use string literal for non-identifier keys
+
+Also see [AxonUsage#dict-examples].
+
+# Operators
+Operators in order of precedence:
+  - Primary: `(x)  x.y  x.y()  x->y  x[y]`
+  - Unary: `not x  -x`
+  - Multiplicative: `*  /`
+  - Additive: `+  -`
+  - Equality: `==  !=`
+  - Comparison: `<  <=  >=  >  <=>`
+  - Conditional And: `and`
+  - Conditional Or: `or`
+  - Assignment: `=`
+
+## Math Operators
+
+Mathematical operator rules for operands:
+
+    === Addition ===
+    num + num            >> num
+    date + num           >> date (num must be number of days)
+    dateTime + num       >> dateTime (num must have duration unit)
+    time + num           >> time (num must have duration unit)
+    dateSpan + num       >> dateSpan (num must have duration unit)
+    uri + str            >> uri concat
+    uri + uri            >> uri concat
+    str + obj            >> str concat
+    obj + str            >> str concat
+
+    === Subtraction ===
+    num - num            >> num
+    date - num           >> date (duration must be number of days)
+    date - date          >> num (difference in number of days)
+    dateTime - num       >> dateTime (num must have duration unit)
+    dateTime - dateTime  >> num (difference in number of hours)
+    time - num           >> time (num must have duration unit)
+    dateSpan - num       >> dateSpan (num must have duration unit)
+
+    === Multiplication ===
+    num * num            >> num
+
+    === Division ===
+    num / num            >> num
+
+Any math operation with null always results in null:
+
+    null + 2        >> null  // null always carries into result
+
+Any math operation with [na()] results in [na()]. However, null
+still has precedence over [na()]:
+
+    na() + 2        >> na()  // na() always carries into result
+    na() + 2 + null >> null  // null trumps na()
+
+
+See [Units] for how numbers with units are handled by comparison
+and arithmetic operators.
+
+## Equality Operators
+The `==` and `!=` operators test for equals and not equals respectively.
+These operators check for scalar value equality or reference equality.  They
+do **not** check for collection equalilty which can be tested with
+the [equals()] function.  Equality operators will work with null
+and disparate types.
+
+    3 == 4      >> false
+    4 == 4      >> true
+    4 != 4      >> false
+    4kW == 4m   >> false (different units)
+    4kW != 4m   >> true (different units)
+    5 == null   >> false
+    5 == "str"  >> false
+
+## Comparison Operators
+The following operators are used for order comparisons:
+
+    a < b     a is less than b
+    a <= b    a is less than or equal to b
+    a > b     a is greater than b
+    a >= b    a is greater than or equal to b
+    a <=> b   evaluate to -1, 0, 1 if a is less than, equal, or greater than b
+
+Comparison operators must be used with the same type.  However it is
+safe to compare against null where null is always less than any other value.
+The following comparisons will raise an exception:
+  - Comparing numbers with different units - see [Units#comparison]
+  - Comparing different types (such as comparing a Str and Number)
+  - Comparing collection types (List, Dict, or Grid)
+
+Examples:
+
+    3 < 5          >> true
+    3 > 5          >> false
+    null < 5       >> true (null less than everything)
+    3 <=> 5        >> -1
+    3kW <=> 3kW    >> 0
+    5kW <=> 3kW    >> 1
+    nan() < 4      >> true (nan less than all other numbers)
+    4m < 5kW       >> error (different unit)
+    4m < 5         >> true (non-null and null units ok)
+    5 < "str"      >> error (different types)
+    5 < na()       >> error (different types; may be relaxed in future)
+    ({a}) < ({b})  >> error (collection types cannot be compared)
+
+## Boolean Operators
+
+The `not`, `and`, and `or` operators work with boolean values
+according to standard truth tables for boolean logic.
+
+    === not ===
+    not true          >> false
+    not false         >> true
+
+    === and ===
+    true  and false   >> false
+    true  and true    >> true
+
+    === or ===
+    true  or false    >> true
+    false or false    >> false
+
+The `and` and `or` operators are *short circuiting* as follows:
+
+    a and b  // if a is false, then b is not evaluated
+    a or b   // if a is true, then b is not evaluated
+
+## Get and Trap Operators
+The indexing operator `target[key]` is a shortcut for the [get()]
+function. It can be used to index strings, lists, dicts, and grids:
+
+    str[index]         // get unicode char from string
+    str[start..end]    // slice/substring
+    list[index]        // get an item at zero based index
+    list[start..end]   // perform list slice
+    dict[key]          // lookup tag value by key
+    grid[num]          // get row at index
+    grid[start..end]   // slice of grid rows
+
+Like Fantom, negative indices may be used to access from the end
+of the string.
+
+The trap operator `->` is a shortcut for the [trap()] function.
+When used on a Dict, it looks up a tag value by name.  You can also
+use the `->` operator on a Ref which will automatically resolve
+the id using [readById()]:
+
+    id->foo            >>>  readById(id)->foo
+    id->siteRef->tag   >>>  readById(readById(id)->siteRef)->foo
+
+Both `[]` and `->` are used to lookup a tag value by name in
+a dict.  The difference is what happens when the key is not defined.
+The `[]` operator (or [get()] function) returns null when the key
+is not defined.  The `->` operator (or [trap()] function) raises
+an UnknownNameErr exception.  If you expect the tag to exist, use the `->`
+operator to get a meaningful exception as opposed to generic NullErr.  If
+you expect the tag might not exist, then use `[]`, but make sure to
+check for null.
+
+Also note that null values or sparse grid cells are treated as
+if the tag does not exist.  For example this code will raise an
+exception:
+
+     {foo:null}->foo
+
+# Def
+The colon operator is used to define a variable as name/value binding:
+
+    a: 5
+    b: 3
+    a + b  // yields 8
+
+You can re-assign the value of a variable using the `=` operator:
+
+    a: 4
+    a = a + 1
+
+The variable must already be defined via the `:` operator before it
+can be assigned, otherwise a runtime exception is raised.
+
+# Scoping
+Axon uses lexical scoping with closure support.  Each function call
+creates one scope.  Note that do blocks, if blocks, or try blocks
+do *not* create new scopes.  For example consider this code:
+
+    if (true) do
+      a: "foo"
+    end
+    return a
+
+In this case "foo" will be returned by `a`.  Once a variable is defined,
+it is visible anywhere in the function.  This model is more akin to
+JavaScript or Ruby, then static languages like Java or C#.
+
+Each nested function within a top-level function has visibility to its
+lexically scoped outer function's variables.  This design is known as
+[closures](http://en.wikipedia.org/wiki/Closure_(computer_science)).
+Here is a simple example:
+
+    num: 0
+    f: ()=> num = num+10
+    3.times(f)
+    return num
+
+In this example the function `f` passed to `times` is accessing the `num`
+variable from the outer scope.  The result will be 30.  However, a nested
+function can define a new variable which hides the outer scope:
+
+     x: "outer"
+     f: () => do
+       x: "inner"
+       return x
+     end
+     return [f(), x]
+
+In the example above the result will be "[inner, outer]".  The variable `x`
+inside `f` hides the outer scope which remains unchanged.
+
+Variable resolution is searched in the following order:
+  1. current function's variables
+  2. lexically scoped outer function's variables
+  3. [top-level namespace](Axon#toplevel-namespace)
+
+# Lambdas
+Lambdas are function definitions which take zero or more
+parameters and calculate a resulting value:
+
+    x => x * x         // parens optional if single param
+    (x) => x * x       // but you can use them
+    () => "some val"   // no params
+    (x, y) => x + y    // multiple params
+
+You'll often use the def operator to create named functions:
+
+    add: (x, y) => x + y
+    add(2, 3)  >>  5
+
+You can define a default value for parameters using the colon:
+
+    f: (a, b:2) => a + b
+
+# Calls
+You call a function with the `()` operator.
+
+The number of parameters a function expects is called its *arity*.
+You must pass enough arguments to a function to satisify its
+arity.  If function parameters have defaults, then those arguments
+may be omitted.  It is also permissible to pass *more* arguments
+to a function - the additional arguments are ignored:
+
+    f: (a, b:2, c:3) => a + b + c
+    f()               >> error!
+    f(10)             >> 15
+    f(10, 11)         >> 24
+    f(10, 11, 13)     >> 34
+    f(10, 11, 13, 14) >> 34
+
+If you leave off the `()` operator, then the expression evaluates
+to the function itself.  This is useful for passing functions
+around to perform higher order functional programing.
+
+# Dot Calls
+It is common to pipe the results of one function to another function
+to build up pipelines much like the Unix `|` operator.  Consider the
+following expression:
+
+    c(b(a()))
+
+In the expression above, we evaluate the function `a`, then pass
+the results to `b`, which in turn gets passed to `c`.  We can
+write the above using the `.` dot call operator:
+
+    a().b().c()
+    a().b.c        // may omit parens if no arguments
+
+Here are some more examples:
+
+    year(today())                   >> today().year
+    toStr(year(today()))            >> today().year.toStr
+    hisRead(readAll(kw), 2009)      >> readAll(kw).hisRead(2009)
+
+# Trailing Lambda
+Many functions are designed to take other functions as arguments.
+These functions are called *higher order functions*.  Consider
+a simple example:
+
+    // default is to sort by alphabetic order
+    list: ["cape", "ape", "batch"]
+    list.sort  >>  ["ape", "batch", "cape"]
+
+    // we can pass a function to sort by string length
+    list.sort((x, y) => x.size <=> y.size)  >>  ["ape", "cape", batch"]
+
+This pattern is so common that code can start to become confusing
+with the nesting parenthesis (much like Lisp code).  Axon borrows a
+pattern from Fantom and Ruby which allows you to pull the last
+argument outside of the parenthesis if it is a lambda expression:
+
+    list.sort() (x, y) => x.size <=> y.size  >>  ["ape", "cape", batch"]
+
+Note that when using dot calls you must include empty `()` parens before
+specifying the lambda argument.  The exception to this rule is if the
+lambda takes a single argument with no parens:
+
+    list: [3, 4, 1]
+    list.map x => -x      // ok
+    list.map() x => -x    // ok
+    list.map() (x) => -x  // ok
+    list.map (x) => -x    // not ok
+
+More examples:
+
+    eachDay(2010-07, day => echo(day))  // inside parens
+    eachDay(2010-07) day => echo(day)   // trailing outside parens
+
+# Partial Application
+When calling a function you can use the `_` symbol to perform
+*partial application*.  Partially applied functions evaluate to
+another function with one or more parameters bound.  For example:
+
+    add: (a, b) => a + b
+    inc: add(_, 1)
+    inc(3) >> 4
+
+In the example above the expression `add(_, 1)` created a new
+function with one parameter which was essentially a shortcut for
+this:
+
+    inc: (x) => add(x, 1)
+
+# Blocks
+Anywhere an expression is expected you can declare a *block*
+which is  series of expressions evaluated in order.  Blocks are
+declared with the `do` and `end` keywords.  Blocks are most often
+used with lambdas:
+
+    f: (a, b) => do
+      c: a + b
+      c*c
+    end
+
+    f(3, 4)  >>  49  which is (3+4) * (3+4)
+
+The entire block evaluates to the last expression, or you can
+use the `return` keyword to short circuit and immediately return
+a value:
+
+    f: (x) => do
+      if (x < 10) return "small"
+      if (x > 90) return "big"
+      "medium"
+    end
+
+    f(3)   >>  "small"
+    f(93)  >>  "big"
+    f(33)  >>  "medium"
+
+Note that `return` returns from the inner-most function, not
+necessarily the top level function.
+
+# If Expr
+The `if` expression is used to evaluate a block only if a given
+condition is true.  You can also use an `else` clause to evaluate
+a block if the condition is false.
+
+Like everything in Axon, `if` is itself an expression which evaluates
+to the result of true clause or false clause.  If the condition
+is false and there is no else clause then the if expression
+evaluates to null:
+
+    if (5.isOdd) "odd"              >> "odd"
+    if (4.isOdd) "odd"              >> null
+    if (4.isOdd) "odd" else "even"  >> "even"
+
+You can use a [do block](#blocks) if you need to evaluate multiple
+expressions inside the if expression:
+
+    if (cond1) do
+      ...
+    end else if (cond2) do
+      ...
+    end else do
+      ...
+    end
+
+As a convenience you can omit the `end` keyword if it immediately
+preceeds the `else` keyword:
+
+    if (cond1) do
+      ...
+    else if (cond2) do
+      ...
+    else do
+      ...
+    end
+
+# Throw Expr
+The `throw` expression is used to raise an exception.  Exceptions in
+Axon are [dicts](#dicts) which have the [err] marker tag and the [ph::PhEntity.dis]
+display message tag.  To raise an exception use the `throw` keyword
+followed by an expression which evaluates to a dict:
+
+    throw {dis:"deep doo-doo!", ts:now()}
+
+Note your dictionary can define any tags you might want to use in exception
+handling.  As a convenience you can also use a string:
+
+    throw {dis:"deep doo-doo!"}  // as dict
+    throw "deep doo-doo!"        // convenience for above
+
+The `err` tag is automatically added for you.
+
+# Try/Catch Expr
+The `try/catch` expression is used to trap exceptions.  Lets look
+at a simple example:
+
+    try
+      doSomethingDangerous()
+    catch
+      handleProblem()
+
+You can declare a variable to store the exception's dict as follows:
+
+    try
+      doSomethingDangerous()
+    catch (ex)
+      handleProblem(ex)
+
+The body of the try and catch clauses can be any expression or a `do` block.
+
+    try do
+      ...
+    end catch (ex) do
+      ...
+    end
+
+As a convenience you can omit the `end` keyword if it immediately
+preceed the `catch` keyword:
+
+    try do
+      ...
+    catch (ex) do
+      ...
+    end
+
+Like everything in Axon, try/catch is an expression which evaluates to a result.
+If no exception is thrown, then the whole try/catch expression evaluates to
+the try body clause, otherwise the expression evaluates to the catch block:
+
+    result: try getCurVal() catch "bad val"
+
+In the expression above if no exception is thrown by `getCurVal`, then its
+result is assigned to the variable `result`.  If an exception is thrown, then
+the string "bad val" is assigned to `result`.
+
+# Defcomp
+The `defcomp` keyword defines a component.  Components are discussed in
+detail in the [Comps] chapter.

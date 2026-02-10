@@ -1,0 +1,171 @@
+<!--
+title:      Setup
+author:     Brian Frank
+created:    16 Feb 2022
+copyright:  Copyright (c) 2022, SkyFoundry LLC
+license:    Licensed under the Academic Free License version 3.0
+-->
+
+# Overview
+Haxall bundles several command line tools:
+  - `hx`: Haxall daemon runtime
+  - `xeto`: Xeto command line tools
+  - `axonsh`: Axon shell command line tool
+
+Haxall is distributed as a simple ZIP file which can be installed
+as follows:
+  1. [Preinstall Java](#preinstall-java) on your machine
+  2. [Download](#download) and unzip the latest version
+  3. [Verify](#verify) installation by running `hx version`
+
+At this point you can use the `hx`, `xeto`, and `axonsh` command
+line tools.
+
+To setup the Haxall daemon runtime:
+  4. [Initialize](#init) a new database using `hx init`
+  5. [Run](#run) your new database using `hx run`
+  6. [Login](#login) and you can try out some Axon
+  7. [Import](#import) some data you can play with
+
+Also see [Fantom Setup](fan.doc.tools::Setup) for additional details.
+
+# Preinstall Java
+You must have Java 8 or later installed on your system as a prerequisite.
+We recommend using the latest LTS version which is currently Java 25.
+
+You should be able to test if Java is installed from the command line
+as follows:
+
+    prompt> java -version
+    java version "1.8.0_301"
+    Java(TM) SE Runtime Environment (build 1.8.0_301-b09)
+    Java HotSpot(TM) 64-Bit Server VM (build 25.301-b09, mixed mode)
+
+Make sure you using a 64-bit version of Java.
+
+On Windows and Unix, the "bin/fanlaunch" script will to choose the version
+of Java to use via the following rules from highest priority to lowest:
+  1. FAN_JAVA environment variable
+  2. JAVA_HOME environment variable
+  3. whatever Java is in your default path
+
+# Download
+New Haxall releases are posted typically every six to ten weeks.  The
+release schedule always follows SkySpark builds.  Builds are packaged into
+a zip file and posted on [GitHub](https://github.com/haxall/haxall/releases).
+
+Download the lastest release to your local machine and unzip it.  The
+root directory will be named "haxall-4.0.xx" based on the current build
+version.  This is called the *home* directory and is structured as follows:
+
+    {home}/           // home directory where you unzip
+       bin/           // batch and bash commands
+       lib/           // libraries
+         fan/         // fantom pods
+         java/        // sys.jar used to bootstrap Fantom
+       etc/           // configuration files
+
+# Verify
+After you unzip the distribution, you will find the executables in the "bin"
+directory.  On Unix you might need to call "chmod +x" on the shell scripts.
+Consider putting "bin" in your path as follows:
+
+    // Windows
+    set PATH=%PATH%;c:\haxall\bin
+
+    // Unix
+    PATH=$PATH:/opt/haxall/bin
+    chmod +x /opt/haxall/bin/*
+
+If you don't want to put bin into your path, then just make sure you `cd` to
+the home or bin directory to run commands.  If everything is installed
+correctly you should be able to run `hx version`:
+
+    haxall-4.0.4> bin/hx version
+
+    Haxall CLI
+    Copyright (c) 2009-2025, SkyFoundry LLC
+    Licensed under the Academic Free License version 3.0
+
+    hx.version:      4.0.4
+    java.version:    17.0.8
+    java.vm.name:    Java HotSpot(TM) 64-Bit Server VM
+    java.vm.vendor:  Oracle Corporation
+    java.vm.version: 17.0.8+9-LTS-211
+    java.home:       /Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+    fan.version:     1.0.82
+    fan.platform:    macosx-aarch64
+    fan.home:        /stuff/haxall-4.0.4
+
+The Haxall installation is a super-set of a standard Fantom installation.
+If you have any trouble, see [Fantom Setup](fan.doc.tools::Setup) to troubleshoot
+your environment.
+
+# Init
+Before you can run the Haxall daemon you must initialize a database.
+Note: this step is not required to use the `xeto` or `axonsh` command
+line tools.
+
+To initialize a daemon database use the `hx init` command.  Databases are
+stored in a directory which then becomes the name of your runtime.  To create
+a new project database named "demo":
+
+    haxall-4.0.4> bin/hx init demo
+
+    hx init [/stuff/haxall-4.0.4/demo]
+
+    su username> brian
+    su password> ######
+    su password (confirm)> ######
+    http port [8080]>
+
+    [06:26:25 16-Feb-22] [info] [init] Create projMeta
+    [06:26:25 16-Feb-22] [info] [init] Create lib [ph]
+    ...
+    [06:26:26 16-Feb-22] [info] [init] Update httpPort [8080]
+    [06:26:26 16-Feb-22] [info] [init] Create su ["brian"]
+
+    Success!
+
+You can rerun the `hx init` command again on the same directory to modify
+your superuser account or the HTTP port.
+
+# Run
+You can now run the database from the previous step using the `hx run`
+command:
+
+    haxall-4.0.4> bin/hx run demo
+    [06:29:06 16-Feb-22] [info] [web] http started on port 8080
+
+At this point you the sever is booted and accepting HTTP requests to
+the given port.  If the port cannot be opened then make sure no other
+software using the same port.  On unix make sure you are using a port
+greater than 1024.  Rerun `hx init` if you need to change your port.
+
+# Login
+Once the software is running you can hit it with your browser using
+[http://localhost:8080/] (or whatever port you
+are using).  Login using the username and password configured by `hx init`.
+By default you will be redirected to the Axon shell under "/shell".  You
+can try out some basic expressions to test the system:
+
+    now()
+    libs()
+    pods()
+
+# Import
+You can find some real world Haystack data on [project-haystack.org](https://project-haystack.org/example).
+From the Axon shell you can import one of the example projects using the
+following expression:
+
+    ioReadZinc(`https://project-haystack.org/example/download/alpha.zinc`).map(r=>diff(null, r, {add}).commit)
+
+This will populate your local database with the example data which you can
+query.  Try out the following expressions in the shell:
+
+    site
+    equip
+    ahu
+    read(ahu)->id
+    point and equipRef==read(ahu)->id
+    vav and airRef==read(ahu)->id
