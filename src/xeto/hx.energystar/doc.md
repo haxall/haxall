@@ -50,8 +50,8 @@ account with your Portfolio Manager account.  Upon your acceptance of
 that account connection, your customer will then share their properties and
 meters with your Portfolio Manager account using the "Set Up Web Services/Data Exchange"
 option on the "Sharing" tab of the Portfolio Manager user interface.
-Details on the connection and sharing process can be found on the [Portfolio Manager
-web site]`https://portfoliomanager.energystar.gov/webservices/pdf/Connection_and_Sharing_for_Data_Exchange_en_US.pdf`
+Details on the connection and sharing process can be found on the
+[Portfolio Manager web site](https://portfoliomanager.energystar.gov/webservices/pdf/Connection_and_Sharing_for_Data_Exchange_en_US.pdf).
 
 Once this is done you can configure the [EnergyStarConn.energyStarCustomerIds] tag on your connector
 record to determine which properties are being used by the project.
@@ -170,3 +170,4 @@ ENERGY STAR "Meter". These mappings are done manually, but you can use the
 Details button to compare the SkySpark and EnergyStar version side-by-side.
 
 Note that the app only works if one connector is defined.
+

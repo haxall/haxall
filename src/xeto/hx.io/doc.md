@@ -31,7 +31,7 @@ the following:
     project's io directory
   - Uri with `fan://` scheme will read files bundled in pods
   - Uri with `http://` or `https://` scheme will read using HTTP GET request (readonly)
-  - Uri with `ftp://` or `ftps://` scheme will retreive using [FTP](hx.io::doc#ftp)
+  - Uri with `ftp://` or `ftps://` scheme will retreive using [FTP](hx.io::doc#ftp-handles)
   - any Dict can be used as an IOHandle. Data will be stored in Folio keyed off the
     'id' of the rec. The data will be removed when the rec is deleted from folio.
 
@@ -96,3 +96,4 @@ Here are some basic examples:
     // parse an oBIX XML document and map into name/value pairs
     xmlRead(`http://obix.acme.com/obix/about`).xmlElems
       .map(x => {name:x.xmlAttr("name").xmlVal, val:x.xmlAttr("val").xmlVal})
+

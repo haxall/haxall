@@ -31,6 +31,9 @@ EnergyStarPoint: ConnPoint {
   // Marker tag for EnergyStarPoint type
   energyStarPoint
 
+  // Reference to connector
+  energyStarConnRef: Ref <of:EnergyStarConn>
+
   // Tag applied to a [ph::Point] record which marks the point as mapped to a
   // meter in Portfolio Manager.  The tag value is the meter identifier in
   // the Energy Star system.

@@ -12,7 +12,7 @@
   ioRandom: Func <admin> { size: Number, returns: Obj }
 
   // Configure an I/O handle to use the specified charset.  The handle
-  // is any supported [I/O handle](doc#handles) and the charset is a string
+  // is any supported [I/O handle](doc#io-handles) and the charset is a string
   // name supported by the JVM installation.  Standard charset names:
   //   - "UTF-8" 8-bit Unicode Transformation Format
   //   - "UTF-16BE": 16 bit Big Endian Unicode Transformation Format
@@ -393,7 +393,9 @@
   //   - `text`: render as plaintext
   //
   // Options:
-  //   - [pageSize]: determines the PDF page size
+  //   - `pageSize`: determines the PDF page sizePrinted page size formatted
+  //     as "width,height" with an explicit unit of "pt", "in", "mm", or "cm".
+  //     Examples "8.5in,11in" or "612pt,792pt"
   //
   // Examples:
   //

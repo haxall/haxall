@@ -15,10 +15,10 @@ and [nhaystackAx](https://stackhub.org/package/nHaystackAx) modules.
 
 The haystack connector provides full support for the following
 connector features:
-  - Learn tree via the [nav](op:nav) op
+  - Learn tree via the `nav` op
   - Current value subscription using [watches](hx.doc.haxall::Watches)
-  - Writable point support using [pointWrite](op:pointWrite) op
-  - History sync using the [hisRead](op:hisRead)  op
+  - Writable point support using `pointWrite` op
+  - History sync using the `hisRead` op
 
 Note the [HaystackPoint.haystackCur], [HaystackPoint.haystackWrite], and [HaystackPoint.haystackHis] addresses
 for this connector must all be *strings* (not refs).  This prevents them
@@ -44,5 +44,6 @@ would write its computed [ph::PhEntity.writeVal] to level 14 of "remote-point":
 
 # His Sync
 Haystack proxy points are configured for history synchronization via the
-[HaystackPoint.haystackHis] tag.  These points use the [hisRead](op:hisRead) op to read
+[HaystackPoint.haystackHis] tag.  These points use the `hisRead` op to read
 history data from the remote system.
+

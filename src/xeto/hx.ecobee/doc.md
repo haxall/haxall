@@ -164,6 +164,7 @@ and specify the [EcobeePoint.ecobeeCur] and [EcobeePoint.ecobeeWrite] using the 
 # API Rate Limiting
 As detailed in the [Ecobee API Docs](https://www.ecobee.com/home/developer/api/documentation/v1/operations/get-thermostat-summary.shtml),
 polling for API changes should be limited to once every 3 minutes. The connector handles
-this for your. Even if your connector is configured with a [pollTime] of less than
+this for your. Even if your connector is configured with a `pollTime` of less than
 3 minutes, the connector will only attempt to sync current data values at 3 minute
 intervals.
+

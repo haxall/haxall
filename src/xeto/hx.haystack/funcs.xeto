@@ -82,7 +82,7 @@
   // Options:
   //   - `debug`: dumps full expr with seralized scope to stdout
   //   - `evalTimeout`: duration number to override remote project's
-  //     default [evalTimeout]`docSkySpark::Tuning#folio`
+  //     default [evalTimeout](hx.doc.skyspark::Tuning#folio)
   //
   // Examples:
   //
@@ -92,3 +92,4 @@
   haystackEval: Func <admin> { conn: Obj, expr: Obj?, opts: Dict?, returns: Obj? }
 
 }
+

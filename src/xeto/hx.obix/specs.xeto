@@ -50,7 +50,7 @@ ObixPoint: ConnPoint {
 
 // WritablePoint mixin
 +WritablePoint {
-  // Server export of a [writable point]`ext-point::doc#write` as an
+  // Server export of a [writable point](hx.point::doc#point-writes) as an
   // 'obix:Writable:Point'.  The value must be a level between 1 and 17
   // which determines which level is written by the 'writePoint' operation.
   obixWritable: Int?

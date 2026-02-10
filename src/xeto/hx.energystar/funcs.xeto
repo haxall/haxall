@@ -159,7 +159,7 @@
   // accepted by [toRecList()].
   //
   // Each point is required:
-  //   - define [energyStarConnRef] tag for connector to use
+  //   - define [EnergyStarPoint.energyStarConnRef] tag for connector to use
   //   - define [EnergyStarPoint.energyStarMeter] for which meter it is mapped to
   //   - must be a point with historized consumption values
   //   - point's site must define [Site.energyStarSite] tag
@@ -173,7 +173,7 @@
   // accepted by [toRecList()].
   //
   // Each point is required:
-  //   - define [energyStarConnRef] tag for connector to use
+  //   - define [EnergyStarPoint.energyStarConnRef] tag for connector to use
   //   - define [EnergyStarPoint.energyStarMeter] for which meter it is mapped to
   //   - must be a point with historized consumption values
   //   - point's site must define [Site.energyStarSite] tag
@@ -225,3 +225,4 @@
   energyStarAppMeterDelete: Func <nodoc, admin> { meterArg: Obj?, returns: Obj? }
 
 }
+
