@@ -28,24 +28,24 @@ StrConcat: HxComp {
   out: StatusStr <summary, transient, readonly>
 }
 
-// Checks if 'inB' can be found within 'inA'.
+// Checks if `inB` can be found within `inA`.
 StrContains: HxComp {
-  // Defines the Str to check for 'inB'
+  // Defines the Str to check for `inB`
   inA: StatusStr? <summary>
 
-  // The Str to look for in 'inA'
+  // The Str to look for in `inA`
   inB: StatusStr? <summary>
 
-  // True if 'inA' contains 'inB'
+  // True if `inA` contains `inB`
   out: StatusBool <summary, transient, readonly>
 
-  // The zero-based index to start checking for 'inB' in 'inA'.
+  // The zero-based index to start checking for `inB` in `inA`.
   fromIndex: Int 0
 
-  // The index where 'inB' was found, or -1 if it wasn't found
+  // The index where `inB` was found, or -1 if it wasn't found
   startIndex: Int <transient, readonly> -1
 
-  // The index in 'inA' immediately after where 'inB' was found,
+  // The index in `inA` immediately after where `inB` was found,
   // or -1 if it wasn't found
   afterIndex: Int <transient, readonly> -1
 }
@@ -55,7 +55,7 @@ StrLen: HxComp {
   // The input Str
   in: StatusStr? <summary>
 
-  // The length of 'in'
+  // The length of `in`
   out: StatusNumber <summary, transient, readonly>
 }
 
@@ -85,7 +85,7 @@ StrTrim: HxComp {
 }
 
 // Tests two strings based on the selected test type. All tests are computed
-// in terms of 'a <test> b'
+// in terms of `a <test> b`
 StrTest: HxComp {
   // Input A
   inA: StatusStr? <summary>

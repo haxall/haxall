@@ -21,7 +21,7 @@ UnaryMath: Math <abstract> {
 // Computes the absolute value of its input
 AbsValue: UnaryMath
 
-// Computes out = e ^ inA where 'e' is Euler's number
+// Computes out = e ^ inA where `e` is Euler's number
 Exponential: UnaryMath
 
 // Computes out = inA!

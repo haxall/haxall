@@ -11,7 +11,7 @@ HaystackConn: Conn {
   // Marker tag for HaystackConn type
   haystackConn
 
-  // Applied to 'haystackConn' to tune the duration between watch polls.
+  // Applied to `haystackConn` to tune the duration between watch polls.
   // If not configured it defaults to 1sec.
   haystackPollFreq: Duration? <val:"1sec"> 
 
@@ -30,11 +30,11 @@ HaystackConn: Conn {
 
 // Point which synchronizes data via a Haystack connector.
 HaystackPoint: ConnPoint {
-  // Used on a proxy point to reference its parent `haystackConn`
+  // Used on a proxy point to reference its parent [HaystackConn.haystackConn]
   haystackConnRef: Ref? <of:HaystackConn> 
 
   // Used on a haystack proxy point to store the id of the entity in the
-  // remote system used to read and watch `curVal`.
+  // remote system used to read and watch [ph::PhEntity.curVal].
   haystackCur: Str?
 
   // Used on a haystack proxy point object to store the id of the historized
@@ -45,10 +45,10 @@ HaystackPoint: ConnPoint {
   haystackPoint
 
   // Used on a haystack proxy point to store the id of the entity in the
-  // remote system used to write `writeVal`.
+  // remote system used to write [ph::PhEntity.writeVal].
   haystackWrite: Str?
 
-  // Number between 1 and 16 used with `haystackWrite` to determine which
+  // Number between 1 and 16 used with [HaystackPoint.haystackWrite] to determine which
   // priority level of the remote system is written to.
   haystackWriteLevel: Int?
 }

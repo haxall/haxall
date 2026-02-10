@@ -13,7 +13,7 @@
   platformNetworkInterfaceGet: Func <su> { name: Str, returns: Dict }
 
   // Write the configure of an IP interface.  The config must
-  // be a dict that defines the 'name' tag for an existing interface.
+  // be a dict that defines the `name` tag for an existing interface.
   // See SPI class docs for modeling details.
   platformNetworkInterfaceSet: Func <su> { config: Dict, returns: Obj? }
 

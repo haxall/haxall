@@ -8,12 +8,12 @@
 
 // Modbus connector
 ModbusConn: Conn {
-  // Applied to 'modbusConn' to allow for gaps in block reads. See
-  // `ext-modbus::doc#blockReads` for more information.
+  // Applied to `modbusConn` to allow for gaps in block reads. See
+  // [hx.modbus::doc#block-reads] for more information.
   modbusBlockGap: Int?
 
-  // Applied to 'modbusConn' to limit the maximum number of registers to read in a
-  // block read. See `ext-modbus::doc#blockReads` for more information.
+  // Applied to `modbusConn` to limit the maximum number of registers to read in a
+  // block read. See [hx.modbus::doc#block-reads] for more information.
   modbusBlockMax: Int?
 
   // Marker tag for ModbusConn type
@@ -22,12 +22,12 @@ ModbusConn: Conn {
   // How long to wait before timing out on a modbus read.
   modbusReadTimeout: Duration?
 
-  // Applied to 'modbusConn' to define the register map CSV file.
+  // Applied to `modbusConn` to define the register map CSV file.
   // This URI must be a path relative to the project's home directory
   // or can be a "fan://" URI to a CSV file bundled in a pod.
   modbusRegMapUri: Uri?
 
-  // Applied to 'modbusConn' to identify the slave address on this
+  // Applied to `modbusConn` to identify the slave address on this
   // modbus network.
   modbusSlave: Int?
 
@@ -40,18 +40,18 @@ ModbusConn: Conn {
 
 // Point which synchronizes data via a Modbus connector.
 ModbusPoint: ConnPoint {
-  // Used on a proxy point to reference its parent `modbusConn`
+  // Used on a proxy point to reference its parent [ModbusConn.modbusConn]
   modbusConnRef: Ref? <of:ModbusConn> 
 
   // Modbus address to use for current value subscriptions. See
-  // `ext-modbus::doc#cur` for format.
+  // [hx.modbus::doc#current-points] for format.
   modbusCur: Str?
 
   // Marker tag for ModbusPoint type
   modbusPoint
 
   // Used on a modbus proxy point to store the id of the entity in the
-  // remote system used to write `writeVal`.  See `ext-modbus::doc#write`
+  // remote system used to write [ph::PhEntity.writeVal].  See [hx.modbus::doc#writable-points]
   // for format.
   modbusWrite: Str?
 }

@@ -8,13 +8,13 @@
 
 +Funcs {
 
-  // Deprecated - use `connPing()`
+  // Deprecated - use [connPing()]
   sedonaPing: Func <admin, deprecated> { conn: Obj, returns: Future }
 
-  // Deprecated - use `connSyncCur()`
+  // Deprecated - use [connSyncCur()]
   sedonaSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
 
-  // Deprecated - use `connLearn()`
+  // Deprecated - use [connLearn()]
   sedonaLearn: Func <nodoc, admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
 
   // Synchronously read the current state of the component

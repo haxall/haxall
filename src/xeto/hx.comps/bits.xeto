@@ -20,12 +20,12 @@ BitMask: HxComp <abstract> {
   out: StatusNumber? <summary, transient, readonly>
 }
 
-// Compute the bitwise 'and' value of the input and the mask
+// Compute the bitwise `and` value of the input and the mask
 BitAnd: BitMask
 
-// Compute the bitwise 'or' value of the input and the mask
+// Compute the bitwise `or` value of the input and the mask
 BitOr: BitMask
 
-// Compute the bitwise 'xor' (exclusive or) of the input and the mask
+// Compute the bitwise `xor` (exclusive or) of the input and the mask
 BitXor: BitMask
 

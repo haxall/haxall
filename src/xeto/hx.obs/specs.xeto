@@ -6,17 +6,17 @@
 //   9 Feb 2026  Brian Frank  Creation
 //
 
-// Observable subscription - see [docs]`docHaxall::Observables`.
+// Observable subscription - see [docs](hx.doc.haxall::Observables).
 // This is a catch all spec to document all tags used by observable
 // framework, the design will evolve.
 Observable: Dict {
 
   // Filter string to define the record data set observed.  If omitted
   // then all records in the database are observed.  Note that obsFilter
-  // may **not** use the '->' pathing operator.
+  // may **not** use the `->` pathing operator.
   obsFilter: Filter?
 
-  // Subscribe to record commits in Folio - see [docs]`docHaxall::Observables#obsCommits`
+  // Subscribe to record commits in Folio - see [docs](hx.doc.haxall::Observables#commits)
   obsCommits: Marker?
 
   // Process when a new data item is added to the observed data set.
@@ -31,25 +31,25 @@ Observable: Dict {
   // Process when an existing data item is removed from the observed data set.
   obsRemoves: Marker?
 
-  // Subscribe to watch and unwatch events - see [docs]`docHaxall::Observables#obsWatches`
+  // Subscribe to watch and unwatch events - see [docs](hx.doc.haxall::Observables#watches)
   obsWatches: Marker?
 
-  // Subscribe to transient commits of curVal or curStatus - see [docs]`docHaxall::Observables#obsCurVals`
+  // Subscribe to transient commits of curVal or curStatus - see [docs](hx.doc.haxall::Observables#cur-vals)
   obsCurVals: Marker?
 
-  // Subscribe to history data updates- see [docs]`docHaxall::Observables#obsHisWrites`
+  // Subscribe to history data updates- see [docs](hx.doc.haxall::Observables#his-writes)
   obsHisWrites: Marker?
 
-  // Subscribe to writable point priority array updates - see [docs]`docHaxall::Observables#obsPointWrites`
+  // Subscribe to writable point priority array updates - see [docs](hx.doc.haxall::Observables#point-writes)
   obsPointWrites: Marker?
 
-  // Subscribe to event creation - see [docs]`docHaxall::Observables#obsEvents`
+  // Subscribe to event creation - see [docs](hx.doc.haxall::Observables#events)
   obsEvents: Marker?
 
-  // Subscribe to arc document changes - see [docs]`docHaxall::Observables#obsArcs`
+  // Subscribe to arc document changes - see [docs](hx.doc.haxall::Observables#arcs)
   obsArcs: Marker?
 
-  // Subscribe to rule engine sparks - see [docs]`docHaxall::Observables#obsSparks`
+  // Subscribe to rule engine sparks - see [docs](hx.doc.haxall::Observables#sparks)
   obsSparks: Marker?
 
   // Filter on rule recs for obsSparks
@@ -58,7 +58,7 @@ Observable: Dict {
   // Filter on target recs for obsSparks
   obsTargetFilter: Filter?
 
-  // Subscribe to MQTT connector published messages - see [docs]`lib-mqtt::doc#subscribe`
+  // Subscribe to MQTT connector published messages - see [docs](hx.mqtt::doc#subscribe)
   obsMqtt: Marker?
 
   // Subscribe to the topic on this MQTT connector
@@ -67,7 +67,7 @@ Observable: Dict {
   // Receive published messages that match this filter
   obsMqttTopic: Str?
 
-  // Subscribe to scheduled timer event - see [docs]`docHaxall::Observables#obsSchedule`
+  // Subscribe to scheduled timer event - see [docs](hx.doc.haxall::Observables#schedule)
   obsSchedule: Marker?
 
   // Schedule events with given frequency

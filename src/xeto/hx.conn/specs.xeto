@@ -6,21 +6,21 @@
 //   23 Apr 2025  Brian Frank  Creation
 //
 
-// Connector extension base type. Must define 'connFeatures' meta tag.
+// Connector extension base type. Must define `connFeatures` meta tag.
 ConnExt: Ext <abstract> {
 
-  // Reference to a tuning configuration defined by a `ConnTuning` rec.
-  // See `docHaxall::ConnTuning#connTuning`
+  // Reference to a tuning configuration defined by a [hx.conn::ConnTuning] rec.
+  // See [hx.doc.haxall::ConnTuning#conntuning]
   connTuningRef: Ref? <of:ConnTuning>
 }
 
 // Spec meta tags
 +Spec {
   // Defines the features supported by a given connector.  This is
-  // a tag added to the 'conn' def itself.  The value is a dict with the
+  // a tag added to the `conn` def itself.  The value is a dict with the
   // following standardized keys:
-  // - 'learn': marker tag if point learn is supported
-  // - 'pollMode': manual or buckets
+  // - `learn`: marker tag if point learn is supported
+  // - `pollMode`: manual or buckets
   // Also see `docHaxall::CustomConns#defs`
   connFeatures: Dict?
 }
@@ -30,7 +30,7 @@ ConnExt: Ext <abstract> {
 //////////////////////////////////////////////////////////////////////////
 
 // Connector for communication to a remote system.
-// See `docHaxall::Conns`
+// See [hx.doc.haxall::Conns]
 Conn: Entity <abstract> {
 
   // Marker tag for Conn type
@@ -41,16 +41,16 @@ Conn: Entity <abstract> {
   // This value effectively determines how long a blocking remote request should
   // take before raising a timeout error.  For protocols which communicate
   // via HTTP/TCP it is also used to configure the socket's receive timeout.
-  // See `docHaxall::ConnTuning#actorTimeout`
+  // See [hx.doc.haxall::ConnTuning#actortimeout]
   actorTimeout: Duration?
 
-  // Error message associated when `connStatus` indicates an error condition.
-  // See `docHaxall::Conns#connState`
+  // Error message associated when [Conn.connStatus] indicates an error condition.
+  // See [hx.doc.haxall::Conns#connector-state]
   connErr: Str? <transient>
 
   // Linger timeout used to keep a connector open.
   // If not configured then a default of 30sec is used.
-  // See `docHaxall::ConnTuning#connLinger`
+  // See [hx.doc.haxall::ConnTuning#connlinger]
   connLinger: Duration?
 
   // Duration used for connector open retries.  When a connector should be
@@ -58,7 +58,7 @@ Conn: Entity <abstract> {
   // attempt retries.  For example if a down connector has watched points, then
   // this frequency is used to determine how often we retry to reopen the
   // connection. The default is 10sec if not specified.
-  // See `docHaxall::ConnTuning#connOpenRetryFreq`
+  // See [hx.doc.haxall::ConnTuning#connopenretryfreq]
   connOpenRetryFreq: Duration?
 
   // Duration used to configure the auto-ping feature on a given connector.
@@ -66,19 +66,19 @@ Conn: Entity <abstract> {
   // a ping based on the configured frequency.  For connectors which might
   // not have watched points this ensures periodic checks of the connectivity
   // status.  If this tag is not defined on a connector then the feature is
-  // disabled.  See `docHaxall::ConnTuning#connPingFreq`
+  // disabled.  See [hx.doc.haxall::ConnTuning#connpingfreq]
   connPingFreq: Duration?
 
   // Current connection open/close state of a connector.
-  // See `docHaxall::Conns#connState`
+  // See [hx.doc.haxall::Conns#connector-state]
   connState: ConnState? <transient>
 
   // Current status of a connector as one of the predefined strings
-  // See `docHaxall::Conns#connState`
+  // See [hx.doc.haxall::Conns#connector-state]
   connStatus: ConnStatus? <transient>
 
-  // Reference to a tuning configuration defined by a `ConnTuning` rec.
-  // See `docHaxall::ConnTuning#connTuning`
+  // Reference to a tuning configuration defined by a [hx.conn::ConnTuning] rec.
+  // See [hx.doc.haxall::ConnTuning#conntuning]
   connTuningRef: Ref? <of:ConnTuning>
 
   // Sets connector into disabled state to prevent communication
@@ -92,31 +92,31 @@ Conn: Entity <abstract> {
 // Point associated with a connector for data synchronization with remote system.
 ConnPoint: Entity <abstract> {
 
-  // Reference to a tuning configuration defined by a `ConnTuning` rec.
-  // See `docHaxall::ConnTuning#connTuning`
+  // Reference to a tuning configuration defined by a [hx.conn::ConnTuning] rec.
+  // See [hx.doc.haxall::ConnTuning#conntuning]
   connTuningRef: Ref? <of:ConnTuning>
 
   // Calibration value to apply to adjust the value read from the connector
-  // before updating curVal.  The conversion is applied to the `hxConn::ConnPoint.updateCurOk`
-  // value after `curConvert` is applied and before writing `curVal` to the database.
-  // See `docHaxall::Conns#convert`
+  // before updating curVal.  The conversion is applied to the [fan.hxconn::ConnPoint.updateCurOk]
+  // value after [ConnPoint.curConvert] is applied and before writing [ph::PhEntity.curVal] to the database.
+  // See [hx.doc.haxall::Conns#point-conversions]
   curCalibration: Number?
 
   // Conversion to apply when reading curVal from connector.
-  // The conversion is applied to the `hxConn::ConnPoint.updateCurOk` value
-  // before applying `curCalibration` and writing `curVal` to the database.
-  // See `docHaxall::Conns#convert`
+  // The conversion is applied to the [fan.hxconn::ConnPoint.updateCurOk] value
+  // before applying [ConnPoint.curCalibration] and writing [ph::PhEntity.curVal] to the database.
+  // See [hx.doc.haxall::Conns#point-conversions]
   curConvert: PointConvert?
 
   // Conversion to apply when reading history data from connector.
-  // The conversion is applied to each item passed to `hxConn::ConnPoint.updateHisOk`
+  // The conversion is applied to each item passed to [fan.hxconn::ConnPoint.updateHisOk]
   // before writing to the database.  This conversion happens *before* the
-  // `hisOnWrite` conversion hooks.  See `docHaxall::Conns#convert`
+  // [hisOnWrite] conversion hooks.  See [hx.doc.haxall::Conns#point-conversions]
   hisConvert: PointConvert?
 
   // Conversion to apply when writing writeVal to the connector.
-  // The conversion is applied to `writeVal` before calling `hxConn::ConnDispatch.onWrite`.
-  // See `docHaxall::Conns#convert`
+  // The conversion is applied to [ph::PhEntity.writeVal] before calling [fan.hxconn::ConnDispatch.onWrite].
+  // See [hx.doc.haxall::Conns#point-conversions]
   writeConvert: PointConvert?
 }
 
@@ -125,35 +125,35 @@ ConnPoint: Entity <abstract> {
 //////////////////////////////////////////////////////////////////////////
 
 // Marker applied to a rec which defines a tuning configuration.
-// See `docHaxall::ConnTuning#connTuning`
+// See [hx.doc.haxall::ConnTuning#conntuning]
 ConnTuning: Entity {
 
   // Marker tag for ConnTuning type
   connTuning
 
-  // Frequency between polls of 'curVal'.
-  // See `docHaxall::ConnTuning#pollTime`.
+  // Frequency between polls of `curVal`.
+  // See [hx.doc.haxall::ConnTuning#polltime].
   pollTime: Duration?
 
   // Time before a point's curStatus marked from "ok" to "stale"
-  // See `docHaxall::ConnTuning#staleTime`.
+  // See [hx.doc.haxall::ConnTuning#staletime].
   staleTime: Duration?
 
   // Maximum time between writes used to send periodic writes.
-  // See `docHaxall::ConnTuning#writeMaxTime`.
+  // See [hx.doc.haxall::ConnTuning#writemaxtime].
   writeMaxTime: Duration?
 
   // Minimum time between writes used to throttle the speed of writes.
-  // See `docHaxall::ConnTuning#writeMinTime`.
+  // See [hx.doc.haxall::ConnTuning#writemintime].
   writeMinTime: Duration?
 
   // Issue a write every time the connector transitions from open to closed.
-  // See `docHaxall::ConnTuning#writeOnOpen`.
+  // See [hx.doc.haxall::ConnTuning#writeonopen].
   writeOnOpen: Marker?
 
   // Issue a write when the system first starts up.  If missing then
   // the first write is suppressed on startup.
-  // See `docHaxall::ConnTuning#writeOnStart`.
+  // See [hx.doc.haxall::ConnTuning#writeonstart].
   writeOnStart: Marker?
 }
 
@@ -162,6 +162,6 @@ ConnTuning: Entity {
 //////////////////////////////////////////////////////////////////////////
 
 // Point value conversion string used to normalize data to/from a remote system.
-// See `docHaxall::Conns#convert`
+// See [hx.doc.haxall::Conns#point-conversions]
 PointConvert: Scalar
 

@@ -37,50 +37,47 @@ Index: Dict {}
 }
 
 //
-// Test fix docs **bold**, *em*, 'inline' and
-// this is link to `site` tag.
+// Test fix docs **bold**, *em*, `inline` and
+// this is link to [ph::PhEntity.site] tag.
 //
 // List of links:
-//   - `id`
-//   - `dis`
-//   - `userRole`
-//   - `temp`
-//   - `sensor`
-//   - [now func]`now`
-//   - `docHaxall::Axon`
-//   - `simScenario`
-//   - `no2-concentration`
-//   - `synthetic-point`
-//   - `haystack::Grid`
-//   - `haystack::Grid.getRange`
-//   - `lib:task`
-//   - `lib-task::doc`
-//   - `docHaxall::Conns#included`
-//   - `lib-task::doc#recTasks`
+//   - [sys::Entity.id]
+//   - [ph::PhEntity.dis]
+//   - [hx::User.userRole]
+//   - [ph::PhEntity.temp]
+//   - [ph::PhEntity.sensor]
+//   - [now func](now())
+//   - [hx.doc.haxall::Axon]
+//   - [ph::SimScenario]
+//   - [ph::No2Concentration]
+//   - [ph::SyntheticPoint]
+//   - [fan.haystack::Grid]
+//   - [fan.haystack::Grid.getRange]
+//   - [hx.task::index]
+//   - [hx.task::doc]
+//   - [hx.doc.haxall::Conns#included-connectors]
+//   - [hx.task::doc#record-tasks]
 //
 // Ordered
-//   1. foo 'inline'
-//   2. bar 'inline'
+//   1. foo `inline`
+//   2. bar `inline`
 //   second line of bar
 //
-// H1 Title here [#foo]
-// #################
+// # H1 Title here
 //
-// H2 Title here [#bar]
-// ********************
+// # H2 Title here
 //
-// H3 Title here [#bar]
-// =================
+// ## H3 Title here
 //
-// H4 Title here
-// -----------
+// ### H4 Title here
 //
 FixDocs: Dict {
   // Slot header
-  //   code here
-  //   here
+  //
+  //     code here
+  //     here
   a: Str
 
-  b: Str // after line 'inline'
+  b: Str // after line `inline`
 }
 

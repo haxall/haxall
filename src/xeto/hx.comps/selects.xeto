@@ -9,7 +9,7 @@
 // TODO:FIXIT - icons and groups for everything
 
 Select: HxComp <abstract> {
-  // The index of the input to select. If the value is greater than 'numInputs'
+  // The index of the input to select. If the value is greater than `numInputs`
   // then the maximum active input will be selected.
   select: StatusNumber? <summary>
 

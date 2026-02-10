@@ -8,29 +8,31 @@
 
 +Funcs {
 
-  // Deprecated - use `connPing()`
+  // Deprecated - use [connPing()]
   sqlPing: Func <admin, deprecated> { conn: Obj, returns: Future }
 
-  // Deprecated - use `connSyncHis()`
+  // Deprecated - use [connSyncHis()]
   sqlSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
 
   // Return plain text report on JDBC drivers installed.
   sqlDebugDrivers: Func <admin> { returns: Str }
 
   // Query the tables defined for the database.
-  // Return a grid with the 'name' column.
+  // Return a grid with the `name` column.
   //
   // Examples:
-  //   read(sqlConn).sqlTables
-  //   sqlTables(sqlConnId)
+  //
+  //     read(sqlConn).sqlTables
+  //     sqlTables(sqlConnId)
   sqlTables: Func <admin> { conn: Obj, returns: Grid }
 
   // Execute a SQL query and return the result as a grid.
   // Blob columns under 10K are returned as base64.
   //
   // Examples:
-  //   read(sqlConn).sqlQuery("select * from some_table")
-  //   sqlQuery(sqlConnId, "select * from some_table")
+  //
+  //     read(sqlConn).sqlQuery("select * from some_table")
+  //     sqlQuery(sqlConnId, "select * from some_table")
   //
   // WARNING: any admin user will have full access to query the
   // database based on the user account configured by the sqlConn.

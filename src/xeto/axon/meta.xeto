@@ -16,8 +16,8 @@
   // Deprecated feature slated for removal in future version
   deprecated: Marker?
 
-  //  Applied to an ext function to enable [override]`docHaxall::Axon#overrides`
-  //  by project level functions.
+  // Applied to an ext function to enable [override](hx.doc.haxall::Axon#function-overrides)
+  // by project level functions.
   overridable: Marker?
 
   // Registers a function as folding a given value type

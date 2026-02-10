@@ -114,8 +114,8 @@ MultiVibrator: HxComp {
   dutyCycle: Int <minVal:0, maxVal:100> 50
 }
 
-// Generates a random number such that 'out = random() * multiplier + offset'
-// where 'random()' generates a number between 0.0 (inclusive) and 1.0 (exclusive)
+// Generates a random number such that `out = random() * multiplier + offset`
+// where `random()` generates a number between 0.0 (inclusive) and 1.0 (exclusive)
 Random: HxComp {
   // Then current random number
   out: StatusNumber <summary>

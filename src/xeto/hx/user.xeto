@@ -18,7 +18,7 @@ User: Entity {
   dis: Str?
 
   // Indicates the fundamental permissions and access rights the user has.
-  // See [docSkySpark]`docSkySpark::Security#projUsers`
+  // See [docSkySpark](hx.doc.skyspark::Security#users)
   userRole: UserRole
 
   // User email address
@@ -32,7 +32,7 @@ User: Entity {
 }
 
 // Indicates what permissions and access rights the user has.
-// See [docSkySpark]`docSkySpark::Security#projUsers`
+// See [docSkySpark](hx.doc.skyspark::Security#users)
 UserRole: Enum {
   op     // the user is an operator
   admin  // the user is an administrator

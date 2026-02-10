@@ -23,7 +23,7 @@ StatusBoolToBool: Conversion {
 
   out: Bool <summary, transient, readonly>
 
-  // When 'in' is null, set out to this value.
+  // When `in` is null, set out to this value.
   whenNull: Bool "false"
 }
 
@@ -51,7 +51,7 @@ StatusNumberToNumber: Conversion {
 
   out: Number <summary, transient, readonly>
 
-  // When 'in' is null, set out to this value.
+  // When `in` is null, set out to this value.
   whenNull: Number
 }
 

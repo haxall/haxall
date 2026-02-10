@@ -19,7 +19,7 @@ GridVar: Var { val: Grid? }
 
 // this doesn't work because we can't introduce dependency on ph or ph.points or
 // we get a bunch of tag conflicts in the various hx.comps
-//PointVar: Var { val: Point? }
+// PointVar: Var { val: Point? }
 
 
 PointVar: EntityVar {

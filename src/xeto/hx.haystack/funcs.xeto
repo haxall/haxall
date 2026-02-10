@@ -8,29 +8,29 @@
 
 +Funcs {
 
-  // Deprecated - use `connPing()`
+  // Deprecated - use [connPing()]
   haystackPing: Func <admin, deprecated> { conn: Obj, returns: Future }
 
-  // Deprecated - use `connLearn()`
+  // Deprecated - use [connLearn()]
   haystackLearn: Func <admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
 
-  // Deprecated - use `connSyncCur()`
+  // Deprecated - use [connSyncCur()]
   haystackSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
 
-  // Deprecated - use `connSyncHis()`
+  // Deprecated - use [connSyncHis()]
   haystackSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
 
   // Perform Haystack HTTP API call to given Str op name and with
-  // given request grid (can be anything acceptable `toGrid`).  If
+  // given request grid (can be anything acceptable [toGrid()]).  If
   // the checked flag is true and server returns an error grid, then
-  // raise `haystack::CallErr`, otherwise return the grid itself.
-  // Result is returned as Grid.  Also see `haystack::Client.call`.
+  // raise [fan.haystack::CallErr], otherwise return the grid itself.
+  // Result is returned as Grid.  Also see [fan.haystack::Client.call].
   haystackCall: Func <admin> { conn: Obj, op: Str, req: Obj?, checked: Bool, returns: Grid }
 
   // Perform Haystack HTTP API call to read a record by its unique
   // identifier.  Return result as dict.  If the record is not found, then
   // return null or raise UnknownRecErr based on checked flag.  Also
-  // see `haystack::Client.readById`.
+  // see [fan.haystack::Client.readById].
   haystackReadById: Func <admin> { conn: Obj, id: Obj, checked: Bool, returns: Dict? }
 
   // Perform Haystack HTTP API call to read a list of records by their
@@ -38,24 +38,24 @@
   // respective id list (indexes line up).  If checked is true and any one
   // of the ids cannot be resolved then raise UnknownRecErr for first id not
   // resolved.  If checked is false, then each id not found has a row
-  // where every cell is null.  Also see `haystack::Client.readByIds`.
+  // where every cell is null.  Also see [fan.haystack::Client.readByIds].
   haystackReadByIds: Func <admin> { conn: Obj, ids: List, checked: Bool, returns: Grid }
 
   // Perform Haystack REST API call to read single entity with filter.
-  // The filter is an expression like `readAll`.  Return result as dict.
+  // The filter is an expression like [readAll()].  Return result as dict.
   // If the record is not found, then return null or raise UnknownRecErr
-  // based on checked flag.  Also see `haystack::Client.read`.
+  // based on checked flag.  Also see [fan.haystack::Client.read].
   haystackRead: Func <admin> { conn: Obj, filter: Filter, checked: Bool, returns: Dict? }
 
   // Perform Haystack REST API call to read all entities with filter.
-  // The filter is an expression like `readAll`.  Return results
-  // as grid.  Also see `haystack::Client.readAll`.
+  // The filter is an expression like [readAll()].  Return results
+  // as grid.  Also see [fan.haystack::Client.readAll].
   haystackReadAll: Func <admin> { conn: Obj, filter: Filter, returns: Grid }
 
   // Perform Haystack REST API "hisRead" call to read history
   // data for the record identified by the id (must be Ref).
   // The range is any string encoding supported by the REST API
-  // or any value supported by `toDateSpan`.  Return results
+  // or any value supported by [toDateSpan()].  Return results
   // as grid with "ts" and "val" column.
   haystackHisRead: Func <admin> { conn: Obj, id: Obj, range: Obj?, returns: Grid }
 
@@ -71,23 +71,24 @@
   // server which supports the "eval" REST op with an Axon
   // expression.  This function blocks while the network request is
   // made.  The result is always returned as a Grid using the same
-  // rules as `haystack::Etc.toGrid`.
+  // rules as [fan.haystack::Etc.toGrid].
   //
   // The expression to evaluate in the remote server may capture
   // variables from the local scope.  If these variables are atomic types,
   // then they are captured as defined by local scope and serialized
-  // to the remote server.  Pass '{debug}' for opts to dump to stdout
+  // to the remote server.  Pass `{debug}` for opts to dump to stdout
   // the actual expr with serialized scope.
   //
   // Options:
-  //   - 'debug': dumps full expr with seralized scope to stdout
-  //   - 'evalTimeout': duration number to override remote project's
+  //   - `debug`: dumps full expr with seralized scope to stdout
+  //   - `evalTimeout`: duration number to override remote project's
   //     default [evalTimeout]`docSkySpark::Tuning#folio`
   //
   // Examples:
-  //   read(haystackConn).haystackEval(3 + 4)
-  //   read(haystackConn).haystackEval(readAll(site))
-  //   read(haystackConn).haystackEval(readAll(kw).hisRead(yesterday))
+  //
+  //     read(haystackConn).haystackEval(3 + 4)
+  //     read(haystackConn).haystackEval(readAll(site))
+  //     read(haystackConn).haystackEval(readAll(kw).hisRead(yesterday))
   haystackEval: Func <admin> { conn: Obj, expr: Obj?, opts: Dict?, returns: Obj? }
 
 }

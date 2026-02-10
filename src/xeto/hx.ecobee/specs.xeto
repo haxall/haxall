@@ -23,7 +23,7 @@ EcobeePoint: ConnPoint {
   // Marker tag for EcobeePoint type
   ecobeePoint
 
-  // Used on a proxy point to reference its parent `ecobeeConn`
+  // Used on a proxy point to reference its parent [EcobeeConn.ecobeeConn]
   ecobeeConnRef: Ref? <of:EcobeeConn>
 
   // Ecobee address to use to get the current value.

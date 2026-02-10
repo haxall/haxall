@@ -26,7 +26,7 @@ SedonaPoint: ConnPoint {
   // Marker tag for SedonaPoint type
   sedonaPoint
 
-  // Used on a proxy point to reference its parent `sedonaConn`
+  // Used on a proxy point to reference its parent [SedonaConn.sedonaConn]
   sedonaConnRef: Ref? <of:SedonaConn>
 
   // Sedona address to use for current value subscritions.

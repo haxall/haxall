@@ -35,16 +35,16 @@ CurTime: HxComp {
   out: DateTime <summary, transient, readonly>
 }
 
-// Computes the difference in time between 'in1' and 'in2' by subtracting
-// 'in2' from 'in1'.
+// Computes the difference in time between `in1` and `in2` by subtracting
+// `in2` from `in1`.
 TimeDiff: HxComp {
-  // The base time from which 'in2' will be subtracted
+  // The base time from which `in2` will be subtracted
   in1: DateTime <summary>
 
-  // The time to subtract from 'in1'
+  // The time to subtract from `in1`
   in2: DateTime <summary>
 
-  // The time difference between 'in1' and 'in2'
+  // The time difference between `in1` and `in2`
   out: Duration <summary, transient, readonly>
 }
 

@@ -8,16 +8,16 @@
 
 // TODO:FIXIT - icons and groups for everything
 
-// A switch selectes one of two inputs based on the current value of the 'inSwitch' slot.
+// A switch selectes one of two inputs based on the current value of the `inSwitch` slot.
 Switch: HxComp <abstract> {
 
-  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>
 
-  // The output value when 'inSwitch' is true
+  // The output value when `inSwitch` is true
   inTrue: StatusVal? <summary>
 
-  // The output value when 'inSwitch' is false
+  // The output value when `inSwitch` is false
   inFalse: StatusVal? <summary>
 
   // The output
@@ -27,13 +27,13 @@ Switch: HxComp <abstract> {
 // A Bool switch
 BoolSwitch: Switch {
 
-  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>
 
-  // The output value when 'inSwitch' is true
+  // The output value when `inSwitch` is true
   inTrue: StatusBool? <summary>
 
-  // The output value when 'inSwitch' is false
+  // The output value when `inSwitch` is false
   inFalse: StatusBool? <summary>
 
   // The output
@@ -43,13 +43,13 @@ BoolSwitch: Switch {
 // A Number switch
 NumberSwitch: Switch {
 
-  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>
 
-  // The output value when 'inSwitch' is true
+  // The output value when `inSwitch` is true
   inTrue: StatusNumber? <summary>
 
-  // The output value when 'inSwitch' is false
+  // The output value when `inSwitch` is false
   inFalse: StatusNumber? <summary>
 
   // The output
@@ -59,13 +59,13 @@ NumberSwitch: Switch {
 // A Str switch
 StrSwitch: Switch {
 
-  // If true, then the output is set to 'inTrue'. Otherwise it is set to 'inFalse'
+  // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>
 
-  // The output value when 'inSwitch' is true
+  // The output value when `inSwitch` is true
   inTrue: StatusStr? <summary>
 
-  // The output value when 'inSwitch' is false
+  // The output value when `inSwitch` is false
   inFalse: StatusStr? <summary>
 
   // The output

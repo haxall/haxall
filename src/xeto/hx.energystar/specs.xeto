@@ -7,7 +7,7 @@
 //
 
 // Energy Star connector to a portfolio manager account.
-// See `doc#conns`.
+// See [doc#connectors].
 EnergyStarConn: Conn {
   // Marker tag for EnergyStarConn type
   energyStarConn
@@ -22,7 +22,7 @@ EnergyStarConn: Conn {
   password: Password?
 
   // Comma separated list of customer account ids used for the connection.
-  // See `doc#accounts`.
+  // See [doc#accounts].
   energyStarCustomerIds: Str?
 }
 
@@ -31,7 +31,7 @@ EnergyStarPoint: ConnPoint {
   // Marker tag for EnergyStarPoint type
   energyStarPoint
 
-  // Tag applied to a `ph::Point` record which marks the point as mapped to a
+  // Tag applied to a [ph::Point] record which marks the point as mapped to a
   // meter in Portfolio Manager.  The tag value is the meter identifier in
   // the Energy Star system.
   energyStarMeter: Str?
@@ -40,7 +40,7 @@ EnergyStarPoint: ConnPoint {
   energyStarMeterType: EnergyStarMeterType?
 }
 
-// String enum for EnergyStar meter type applied to `energyStarMeter` points.
+// String enum for EnergyStar meter type applied to [EnergyStarPoint.energyStarMeter] points.
 EnergyStarMeterType: Enum {
   coalAnthracite <key:"Coal Anthracite">
   coalBituminous <key:"Coal Bituminous">

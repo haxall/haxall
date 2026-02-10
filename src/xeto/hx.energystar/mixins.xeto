@@ -7,7 +7,7 @@
 //
 
 +Site {
-  // Tag applied to a `ph::Site` record which marks a site as mapped into
+  // Tag applied to a [ph::Site] record which marks a site as mapped into
   // Portfolio Manager.  The tag value is the property identifier in
   // the Energy Star system.
   energyStarSite: Str?
