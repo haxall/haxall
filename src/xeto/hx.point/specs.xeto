@@ -1,0 +1,67 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   10 Feb 2026  Brian Frank  Creation
+//
+
++Point {
+  // When configured `curVal` automatically tracks changes to `writeVal`
+  // and `curStatus` is set to "ok".  This tag is ignored if the current
+  // value is bound to connector.
+  curTracksWrite: Marker?
+
+  // Enables COV history collection of the `curVal`.  The tag value must
+  // be Marker to collect on any change.  Or if the point is Numeric,
+  // then the value may be a Number which indicates the tolerance a point
+  // must change before logged.
+  //
+  // COV collection is rate throttled using a limit determined as follows:
+  // - use `hisCollectCovRateLimit` if configured
+  // - if a numeric with `hisCollectInterval`, then never collect faster
+  //   than 1/10 of the interval or 1min (whichever is lower)
+  // - if a numeric without `hisCollectInterval` then use 1min as rate limit
+  // - fallback to 1sec rate limit for non-numerics
+  //
+  // Also see `doc#hisCollect`.
+  hisCollectCov: Obj?
+
+  // Rate limits the frequency for `hisCollectCov`.  When configured COV
+  // logging will never log any faster than this frequency.  For example
+  // if set to 10sec, then the historian will log no faster than every 10sec
+  // even if the underlying data is changing every second.
+  hisCollectCovRateLimit: Duration?
+
+  // Enables interval history collection of the `curVal`.  The value must
+  // be a duration Number with a "sec", "min," or "hr" unit:
+  //  - if secondly, then must be divisible evenly into a 60sec minute
+  //  - if minutely, then must be evenly divisible into a 60min hour
+  //  - if hourly, then must be evenly divisible into a 24hr day
+  //
+  // Also see `doc#hisCollect`.
+  hisCollectInterval: Duration? <minVal:1sec, maxVal:1day> 1min
+
+  // Historize the NA value whenever the `curVal` is null or `curStatus` is
+  // not equal to "ok".  If this marker is omitted, then no value is logged
+  // in this sitaution.  This behavior may be changed on for the entire
+  // project by adding this tag as a point setting.
+  hisCollectNA: Marker?
+
+  // This tag configures how long to buffer collected history items in
+  // memory before flushing them to the historian.  If this tag is missing, then
+  // collected items are immediately flushed to the historian and to disk.  But
+  // when this tag is configured with a duration number, items are be buffered
+  // in memory and then written to the historian in batch.  Batch writes enable
+  // more efficient compression of the history data and allows you to tune
+  // how often data is fsync'ed to disk.
+  hisCollectWriteFreq: Duration?
+}
+
+// Project singleton record with enumeration name/code definitions.
+// See `doc#enumMeta`.
+EnumMeta: Entity {
+  // Marker tag for EnumMeta record
+  enumMeta
+}
+
