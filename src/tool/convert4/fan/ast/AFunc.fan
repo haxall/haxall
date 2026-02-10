@@ -199,8 +199,15 @@ class AFunc
       }
     }
 
+    if (!ruleReady.isEmpty)
+    {
+      // must ast least have one of these tags
+      if (ruleReady.containsKey("sparkRule") || ruleReady.containsKey("kpiRule") || ruleReady.containsKey("curRule"))
+        meta["ruleReady"] = Etc.dictFromMap(ruleReady)
+      else
+        defMeta.addAll(ruleReady)
+    }
     if (!defMeta.isEmpty) meta["defMeta"] = Etc.dictFromMap(defMeta)
-    if (!ruleReady.isEmpty) meta["ruleReady"] = Etc.dictFromMap(ruleReady)
 
     return meta
   }
