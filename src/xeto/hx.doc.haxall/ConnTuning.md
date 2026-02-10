@@ -51,8 +51,8 @@ connector using the following tags:
 Each of the tags is discusssed in more detail below.
 
 ## actorTimeout
-The [actorTimeout] tag configures a duration for message timeouts.  This
-determines how long to block on a synchronous message to the actor when the
+The [hx.conn::Conn.actorTimeout] tag configures a duration for message timeouts.
+This determines how long to block on a synchronous message to the actor when the
 connector is busy blocking on I/O or processing previous messages.  Its
 most typically used by the [Conn.sendSync](fan.hxconn::Conn.sendSync) method
 used by many libs for connector specific functionality such as [haystackReadAll()].

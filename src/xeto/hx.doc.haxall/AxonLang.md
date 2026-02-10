@@ -306,8 +306,8 @@ function can define a new variable which hides the outer scope:
      end
      return [f(), x]
 
-In the example above the result will be "[inner, outer]".  The variable `x`
-inside `f` hides the outer scope which remains unchanged.
+In the example above the result will be `[inner, outer]`.  The
+variable `x` inside `f` hides the outer scope which remains unchanged.
 
 Variable resolution is searched in the following order:
   1. current function's variables
@@ -489,7 +489,7 @@ preceeds the `else` keyword:
 
 # Throw Expr
 The `throw` expression is used to raise an exception.  Exceptions in
-Axon are [dicts](#dicts) which have the [err] marker tag and the [ph::PhEntity.dis]
+Axon are [dicts](#dicts) which have the `err` marker tag and the [ph::PhEntity.dis]
 display message tag.  To raise an exception use the `throw` keyword
 followed by an expression which evaluates to a dict:
 
@@ -549,3 +549,4 @@ the string "bad val" is assigned to `result`.
 # Defcomp
 The `defcomp` keyword defines a component.  Components are discussed in
 detail in the [Comps] chapter.
+
