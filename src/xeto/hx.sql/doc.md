@@ -9,10 +9,10 @@ license:    Licensed under the AFL v3.0
 # Overview
 The SQL connector is used to integrate with relational database using JDBC.
 It follows the standard connector model:
-  - [Connectors](#conns): used to configure a JDBC connection to
+  - [Connectors](#connectors): used to configure a JDBC connection to
     a database server
   - [Functions](#funcs): provide access read/write for Axon scripts
-  - [His Sync](#syncHis): framework for scheduling synchronization
+  - [His Sync](#his-sync): framework for scheduling synchronization
     of external RDBMS data with the historian
 
 # Setup
@@ -119,3 +119,4 @@ Once everything is setup, you can use [hx.conn::Funcs.connSyncHis] to synchroniz
 more histories with the SQL connector:
 
     connSyncHis(points, pastWeek)
+

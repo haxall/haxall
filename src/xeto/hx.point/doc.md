@@ -116,7 +116,7 @@ write array.
 The functions above all require the `admin` user permission.  User interfaces
 should use the [pointOverrideCommand()] function.  This function allows
 the framework to grant override permissions to specific points.  In SkySpark
-this is configured with the [pointOverrideAccess] tag (not supported in Haxall).
+this is configured with the [hx.skyarc::User.pointOverrideAccess] tag (not supported in Haxall).
 
 # Point His
 Points which are historized are annotated with the [ph::PhEntity.his] marker tag.
@@ -254,7 +254,8 @@ The following functions may be used to query the enum definitions in effect:
 Point conversions are used to convert between the representations
 of external systems and the normalized local representations.  They
 are used by the [connector framework](hx.doc.haxall::Conns#point-conversions) with
-the [curConvert], [writeConvert], and [hisConvert] tags.  Use
+the [hx.conn::ConnPoint.curConvert], [hx.conn::ConnPoint.writeConvert], and
+[hx.conn::ConnPoint.hisConvert] tags.  Use
 cases include:
   - mathematical conversions of raw modbus registers
   - type conversions
@@ -389,3 +390,4 @@ Functions:
 Note that multiple conversions can be piped together by separating
 them with a space.  They are always evaluated left to right (there is
 no precedence for math operators).
+

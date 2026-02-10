@@ -67,6 +67,12 @@ Observable: Dict {
   // Receive published messages that match this filter
   obsMqttTopic: Str?
 
+  // MQTT Quality of Service (QoS)
+  // - '0' - At most once (fire-and-forget)
+  // - '1' - At least once
+  // - '2' - Exactly once
+  mqttQos: Int?
+
   // Subscribe to scheduled timer event - see [docs](hx.doc.haxall::Observables#schedule)
   obsSchedule: Marker?
 

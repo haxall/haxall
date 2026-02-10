@@ -101,13 +101,13 @@ also restart a task with the [taskRestart()] function.
 
 # Security
 Tasks are executed in an axon context using the local user with the
-username "task".  Use the [userAllow] function to grant specific
+username "task".  Use the [hx.skyarc::User.userAllow] function to grant specific
 superuser functions to your tasks.  The task user account must **not**
 be configured with the "su" role or it will not be used.
 
 If no user is defined by the username "task", then an inferred synthetic
 user with the "admin" role is used for all evaluations.  The synthetic
-user has its [projAccessFilter] set to restrict access to the local project
+user has its [hx.skyarc::User.projAccessFilter] set to restrict access to the local project
 only.  XQuery to other projects is not available.
 
 Remember that by default all admin users can create/edit tasks.  So it is
@@ -319,3 +319,4 @@ The `fault` column is the error message if the task has a configuration error.
 
 Note that all statistics such as `errNum` and `evalNum` are reset to zero
 when the task is [restarted](hx.task::doc#lifecycle) due to a configuration change.
+

@@ -111,7 +111,7 @@ where the keys and values are both 'Str'. User properties are a feature of MQTT 
 
 These are the config tags:
 
-- [mqttQos]: The maximum quality-of-service guarantee you are willing to accept
+- [hx.obs::Observable.mqttQos]: The maximum quality-of-service guarantee you are willing to accept
 for published messages.
 - [hx.obs::Observable.obsMqttConnRef]: Which connector to subscribe to the topic on
 - [hx.obs::Observable.obsMqttTopic]: the topic filter to subscribe with. This may be a specific topic,
@@ -172,3 +172,4 @@ taskExpr:
     diff(myPoint, {curVal:parseNumber(msg->theValue).as(msg->unit), curStatus:"ok"}, {transient}).commit
 end
 ```
+

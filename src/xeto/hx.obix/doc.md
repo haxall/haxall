@@ -69,7 +69,7 @@ Example:
 
 The following tags map to Obix contracts:
   - [ph::PhEntity.point] maps to `obix:Point`
-  - [obixWritable] maps to `obix:WritablePoint`
+  - [WritablePoint.obixWritable] maps to `obix:WritablePoint`
   - [ph::PhEntity.his] maps to `obix:History`
   - [ph::PhEntity.curVal] maps to point object `val` attribute
   - [ph::PhEntity.curStatus] maps to a point object `status` attribute
