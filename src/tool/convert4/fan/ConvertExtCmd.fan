@@ -143,11 +143,11 @@ internal class ConvertExtCmd : ConvertCmd
     }
 
     file := ext.xetoSrcDir + `specs.xeto`
-    if (file.exists) return
+    if (file.exists && !preview) return
     write("Types", file, s.toStr)
   }
 
-  Void genType(StrBuf s, ADefType x)
+  static Void genType(StrBuf s, ADefType x)
   {
     genDoc(s, x.doc, "")
     s.add("$x.name: $x.base {\n")
@@ -161,7 +161,7 @@ internal class ConvertExtCmd : ConvertCmd
     s.add("}\n\n")
   }
 
-  Void genSlot(StrBuf s, ADefSlot x)
+  static Void genSlot(StrBuf s, ADefSlot x)
   {
     genDoc(s, x.doc, "  ")
     s.add("  $x.name")
@@ -223,7 +223,7 @@ internal class ConvertExtCmd : ConvertCmd
     }
   }
 
-  Void encodeSpecMeta(StrBuf buf, Dict meta)
+  static Void encodeSpecMeta(StrBuf buf, Dict meta)
   {
     if (meta.isEmpty) return
     buf.add("<")
@@ -231,7 +231,7 @@ internal class ConvertExtCmd : ConvertCmd
     buf.add("> ")
   }
 
-  Void encodeDictPairs(StrBuf buf, Dict dict)
+  static Void encodeDictPairs(StrBuf buf, Dict dict)
   {
     first := true
     dict.each |v, n|
@@ -244,7 +244,7 @@ internal class ConvertExtCmd : ConvertCmd
     }
   }
 
-  Void encodeVal(StrBuf buf, Obj v)
+  static Void encodeVal(StrBuf buf, Obj v)
   {
     if (v is Dict)
     {
@@ -262,7 +262,7 @@ internal class ConvertExtCmd : ConvertCmd
     }
   }
 
-  Void genParam(StrBuf buf, AParam p)
+  static Void genParam(StrBuf buf, AParam p)
   {
     buf.add(p.name).add(": ").add(p.type.sig)
     if (!p.meta.isEmpty)
@@ -273,7 +273,7 @@ internal class ConvertExtCmd : ConvertCmd
     }
   }
 
-  Void genDoc(StrBuf s, Str? doc, Str indent)
+  static Void genDoc(StrBuf s, Str? doc, Str indent)
   {
     doc = doc.trimToNull
     if (doc == null) return ""

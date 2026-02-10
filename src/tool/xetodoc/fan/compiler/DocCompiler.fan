@@ -94,7 +94,10 @@ class DocCompiler
       t2 := Duration.now
       duration = t2 - t1
       if (outDir != null)
+      {
         info("Compiled docs $numFiles files in ${duration.toLocale} [$outDir.osPath]")
+        if (numWarns > 0) info("*** $numWarns WARNINGS ***")
+      }
       return this
     }
     catch (XetoCompilerErr e)
@@ -120,6 +123,7 @@ class DocCompiler
   ** Log warning message
   Void warn(Str msg, FileLoc loc, Err? cause := null)
   {
+    numWarns++
     log.warn(msg, loc, cause)
   }
 
@@ -162,6 +166,7 @@ class DocCompiler
   Duration? duration                  // run
   DocPage[] pages := [,]              // GenPages
   Int numFiles                        // WriteHtml, WriteJson
+  Int numWarns                        // warn
   private Str[] autoNames := [,]      // autoName
 }
 

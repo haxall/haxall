@@ -35,6 +35,7 @@ class Build : BuildPod
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
                "hxm @{hx.depend}",
+               "hxd @{hx.depend}",
                ]
     srcDirs = [`fan/`, `fan/ast/`, `fan/axon/`, `fan/doc/`, `test/`]
   }

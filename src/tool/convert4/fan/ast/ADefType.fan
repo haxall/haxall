@@ -22,30 +22,39 @@ class ADefType
     {
       try
       {
-        t := scanDefType(ast, ext, def)
-        if (t == null) return
-        ext.types.add(t)
+        types := scanDefType(ast, ext, def)
+        if (types == null) return
+        ext.types.addAll(types)
         ext.used[i] = true
       }
       catch (Err e) Console.cur.err("Cannot scan def: $ext.oldName $def", e)
     }
   }
 
-  private static ADefType? scanDefType(Ast ast, AExt ext, Dict def)
+  private static ADefType[]? scanDefType(Ast ast, AExt ext, Dict def)
   {
     // check if tag def
     defName := def["def"]?.toStr
     if (defName == null || defName.contains("-") || defName.contains(":")) return null
 
-    // get is tag
-    baseIs := def["is"]?.toStr
-    if (baseIs == null) return null
+    // now go thru all ext defs and get tag defs
+    tags := Dict[,]
+    ext.defs.each |x, i|
+    {
+      // check tagOn
+      if (!isTagOnMatch(x["tagOn"], defName)) return
+      tags.add(x)
+      ext.used[i] = true
+    }
 
-    // special enum
-    /*
-    if (baseIs == "str" && def.has("enum"))
-      return scanDefEnum(ast, ext, defName, def["enum"])
-    */
+    return fromDef(defName, def, tags)
+  }
+
+  static ADefType[]? fromDef(Str defName, Dict def, Dict[] tags)
+  {
+    // get is tag
+    baseIs := def["is"]
+    if (baseIs == null) return null
 
     // only process top-level types
     base := topTypeBase(baseIs)
@@ -60,30 +69,33 @@ class ADefType
     markerName := defName
     t.slots[markerName] = ADefSlot(markerName, AType("Marker"), "Marker tag for $name type")
 
-    // now go thru all ext defs and check for slots
-    ext.defs.each |x, i|
+    // now map tags to slots
+    enumTypes := ADefType[,]
+    tags.each |tag|
     {
-      // check tagOn
-      if (!isTagOnMatch(x["tagOn"], defName)) return
-
       // map to slot AST node
-      slot := scanDefSlot(ast, ext, x)
+      slot := scanDefSlot(tag)
       if (slot == null) return
 
       // add to our type
       t.slots[slot.name] = slot
-      ext.used[i] = true
+
+      // if enum tag, then generate as new Enum type
+      if (tag.has("enum") && slot.name != "tz")
+        enumTypes.add(scanDefEnum(slot.name, tag))
     }
 
-    return t
+    return [t].addAll(enumTypes)
   }
 
-  private static AType? topTypeBase(Str baseIs)
+  private static AType? topTypeBase(Obj baseIs)
   {
-    if (baseIs == "entity") return AType("Entity")
-    if (baseIs == "point") return AType("Entity")
-    if (baseIs == "conn") return AType("Conn")
-    if (baseIs == "connPoint") return AType("ConnPoint")
+    if (baseIs is List) baseIs = ((List)baseIs).first
+    x := baseIs.toStr
+    if (x == "entity") return AType("Entity")
+    if (x == "point") return AType("Entity")
+    if (x == "conn") return AType("Conn")
+    if (x == "connPoint") return AType("ConnPoint")
     return null
   }
 
@@ -95,7 +107,7 @@ class ADefType
     return false
   }
 
-  private static ADefSlot? scanDefSlot(Ast ast, AExt ext, Dict def)
+  private static ADefSlot? scanDefSlot(Dict def)
   {
     // special handling for common defx
     defx := def["defx"]?.toStr ?: ""
@@ -122,18 +134,10 @@ class ADefType
 
     if (def.has("val")) meta["val"] = def["val"]
 
-    enum := def["enum"]
-    if (enum != null)
-    {
-      enumType := scanDefEnum(ast, ext, name, def)
-      ext.types.add(enumType)
-      type = AType(enumType.name + "?")
-    }
-
     return ADefSlot(name, type, doc, Etc.dictFromMap(meta))
   }
 
-  private static ADefType scanDefEnum(Ast ast, AExt ext, Str parentName, Dict def)
+  private static ADefType scanDefEnum(Str parentName, Dict def)
   {
     name := parentName.capitalize
     tdoc := def["doc"] as Str ?: "String enums for $parentName"

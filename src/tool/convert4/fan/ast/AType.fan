@@ -20,10 +20,14 @@ const class AType
 
   static AType fromDef(Dict def)
   {
-    isTag := def["is"]?.toStr
+    isTag := def["is"]
     if (isTag == null) return obj
-    if (isTag == "expr") return AType("AxonExpr?")
-    return AType(isTag.capitalize + "?")
+    if (isTag is List) isTag = ((List)isTag).first
+    x := isTag.toStr
+    if (def.has("enum")) return AType(def->def.toStr.capitalize + "?")
+    if (x == "expr") return AType("AxonExpr?")
+    if (x == "filterStr") return AType("Filter?")
+    return AType(x.capitalize + "?")
   }
 
   static AType fromFantom(Type type)
