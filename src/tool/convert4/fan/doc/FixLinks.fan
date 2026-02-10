@@ -175,6 +175,7 @@ class FixLinks
       pod := Pod.find(libName, false)
       if (pod != null)
       {
+        if (docName == "index") return "fan.$pod.name.lower::index"
         type := pod.type(docName, false)
         if (type != null)
         {
