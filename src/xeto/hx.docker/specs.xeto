@@ -1,0 +1,37 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   10 Feb 2026  Brian Frank  Creation
+//
+
+// Docker image
+DockerImage: Entity {
+  // Marker tag for DockerImage type
+  dockerImage
+}
+
+// Docker container
+DockerContainer: Entity {
+  // Marker tag for DockerContainer type
+  dockerContainer
+
+  // Current status of a Docker container
+  dockerState: DockerState? <transient>
+
+  // Additional human-readable status of the container
+  dockerStatus: Str?
+}
+
+// Current status of a Docker container
+DockerState: Enum {
+  created
+  restarting
+  running
+  removing
+  paused
+  exited
+  dead
+}
+
