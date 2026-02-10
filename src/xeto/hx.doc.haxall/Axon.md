@@ -55,7 +55,7 @@ as follows:
     a rich library of functions for working with time series data
     such as time, date, and date range literals
   - **unit oriented**: all numbers in Axon and Folio can be annotated
-    with an explicit [unit]`Units` of measurement which is checked and
+    with an explicit [unit](Units) of measurement which is checked and
     carried through during arithmetic
 
 Experienced programmers should be able to pick up Axon very quickly,
@@ -63,31 +63,35 @@ however, a grounding in functional programming will definitely help.
 
 The [AxonLang] chapter digs into the syntax of the Axon language.
 
-# Func Recs
-Function records define new top-level functions with the following
-tags:
-  - [def()]: programmatic name of the function as symbol "func:{name}"
-  - [src]: Axon source code for function as string tag
+# Funcs
+Functions are defined in two locations:
 
-Here is a simple add function:
+1. In Xeto libs as methods within the [sys::Funcs] mixin
 
-    def: ^func:myAdd
-    src:
-      (a, b) => a + b
+2. As [managed recs](ManagedRecs) in the companion library
 
-In SkySpark only, an older style of function definitions may use
-the `func` and `name` tag:
+Here is an example of a simple function defined in a xeto lib:
 
-    name: "myAdd"
-    func
-    src:
-      (a, b) => a + b
+```xeto
++Funcs {
+
+  // add in Axon
+  addExample: Func { a: Number, b: Number, returns: Number
+    <axon:---
+     a + b
+     --->
+  }
+
+}
+```
+
+Note the spec slots define the parameters and return types and the
+spec `axon` metadata defines the function body.
 
 # Top-Level Namespace
 The top-level namespace of a runtime project is defined by:
-  1. core functions
-  2. named [func records](#func-recs)
-  3. libs enabled by the runtime
+  1. libs enabled by the runtime
+  2. companion lib funcs [func records](ManagedRecs#func-companion-recs)
 
 The following functions are useful for working with the top-level
 function namespace:
@@ -99,20 +103,19 @@ The name used in a function call can be either *qualified* or *unqualified*.
 Qualified functions specify an explicit library namespace using double
 colons:
 
-    equip::toPoints  // qualified in "equip" ext namespace
+    hx.point::toPoints  // qualified to "hx.point::Funcs.toPoints"
 
 Unqualified function names are resolved by the implicit namespace
 which is searched in this order:
   1. local namespace of function (parameter/variable names)
-  2. [func records](#func-recs)
-  3. runtime libs
+  2. funcs in the namespace
 
 ## Function Overrides
-If an lib function is tagged as [overridable], then you can *override*
+If an lib function is tagged as [axon::Spec.overridable], then you can *override*
 it by declaring a function record with the same name.  Functions resolved
 as a project rec take priority over the function defined by the extension.
 
-Attempts to override an ext function not marked as [overridable] will report
+Attempts to override an ext function not marked as [axon::Spec.overridable] will report
 an error and your rec function will not be accessible.
 
 You can access the built-in function in your override using its qualified name:
@@ -124,3 +127,4 @@ You can access the built-in function in your override using its qualified name:
       // route back to built-in version
       return geo::geoTz(val)
     end
+
