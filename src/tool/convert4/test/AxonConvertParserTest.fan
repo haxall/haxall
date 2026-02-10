@@ -91,8 +91,8 @@ class AxonConvertParserTest : HaystackTest
       Str<|defcomp
              target: {}
              date: {}
-             dat: {bind:"discharge and temp and equipRef=={{target->id}}", watch}
-             all: {bindAll:"temp and equipRef=={{target->id}}"}
+             dat: {bind:"discharge and temp and equipRef=={{target->id}}"}
+             all: {bindAll:"temp and equipRef=={{target->id}}", ruleNoWatch}
              outA: {bindOut:"outA and equipRef=={{target->id}}", toCurVal}
              outB: {bindOut:"outB and equipRef=={{target->id}}", toWriteLevel:14}
              sum: {is:^number}

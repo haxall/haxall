@@ -90,7 +90,7 @@ const class ConvertUtil
       // skip "is"
       if (k == "is") return
 
-      // watch will be handled after we scan all other meta
+      // watch is no longer configurable - rule engine controls when points are put into watch
       if (k == "watch") return
 
       // TODO: handle other Symbols?
@@ -113,9 +113,6 @@ const class ConvertUtil
         default:             acc[k] = v
       }
     }
-
-    // handle watch for inputs
-    if (input && meta.missing("watch")) acc["ruleNoWatch"] = Marker.val
 
     return Etc.makeDict(acc)
   }
