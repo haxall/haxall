@@ -1,0 +1,41 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   10 Feb 2026  Brian Frank  Creation
+//
+
+// User account record
+User: Entity {
+  // Marker tag for User type
+  user
+
+  // Username for account athentication
+  username: Str
+
+  // User display name
+  dis: Str?
+
+  // Indicates the fundamental permissions and access rights the user has.
+  // See [docSkySpark]`docSkySpark::Security#projUsers`
+  userRole: UserRole
+
+  // User email address
+  email: Str?
+
+  // The timestamp when user account was created
+  created: DateTime?
+
+  // Marker used to disable the user account
+  disabled: Marker?
+}
+
+// Indicates what permissions and access rights the user has.
+// See [docSkySpark]`docSkySpark::Security#projUsers`
+UserRole: Enum {
+  op     // the user is an operator
+  admin  // the user is an administrator
+  su     // the user is a super user
+}
+
