@@ -72,11 +72,11 @@ dicts according to the standardized [ontology](ph.doc::Ontology).
 There are a couple tags which have special meaning:
   - [sys::Entity.id]: all records have a required id tag with a Ref value which
     uniquely identifies the record
-  - [mod]: a DateTime timestamp indicating the last time the record
-    was modified; this value is used for [concurrency control]`#concurrency`
   - [ph::PhEntity.dis]: display name is an optional tag which should be used on any record
     that models data an end-user would see; this is the default tag used as
     the "title" of the record and links to the record; also see `haystack::Etc.dictToDis`
+  - [hx::Entity.mod]: a DateTime timestamp indicating the last time the record
+    was modified; this value is used for [concurrency control]`#concurrency`
 
 # Tags
 Tags are the name/value pairs stored in a record.  The name of a tag must
@@ -228,7 +228,7 @@ data this can cause serious performance issues.  To support real-time
 data, Folio supports the concepts of *transient diffs*.  Transient diffs
 are applied only to the [in-memory](#storage) representation of the records,
 but are not serialized to the file system.  Transient diffs do **not**
-update the [mod] tag of the record.
+update the [hx::Entity.mod] tag of the record.
 
 # Trash
 Records are moved into the *trash bin* by adding the [trash] marker
@@ -238,7 +238,7 @@ explicit `{trash}` option is used (note the currently only readAll allows
 options to read trash).
 
 # Concurrency Control
-All records support the required [mod] tag indicating the timestamp of their
+All records support the required [hx::Entity.mod] tag indicating the timestamp of their
 last persistent modification.  This timestamp is used to implement optimistic
 concurrency control.  This model allows queries and diffs to operate without
 explicit locking.  When constructing diffs, they are passed the version
@@ -248,8 +248,8 @@ commit fails with a `ConcurrentChangeErr`.
 
 Diffs support the ability to *force* a commit to by-pass concurrency
 control.  This is typically used when updating status tags under complete
-control of a given application.  Transient diffs to not update the [mod] tag,
-however unless the the force flag is used they are still checked for
+control of a given application.  Transient diffs to not update the [hx::Entity.mod]
+tag, however unless the the force flag is used they are still checked for
 concurrent change.
 
 # Passwords
@@ -293,3 +293,4 @@ following tags may be configured on the projMeta rec:
 
 In addition to the tags above the system automatically maintains
 a `version` tag on the projMeta record (do not modify this tag).
+

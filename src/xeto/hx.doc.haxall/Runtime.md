@@ -68,7 +68,7 @@ See the [exts chapter](Exts#lifecycle) for how these phases map to the
 Steady state is a configurable delay after bootstrap used to give the
 system time to reach equilibrium.  This gives internal services time to
 spin up before interacting with external systems. By default the steady
-state delay is 10sec.  It may be tuned by applying the [steadyState] tag
+state delay is 10sec.  It may be tuned by applying the `steadyState` tag
 to the [projMeta()] record.
 
 The configured delay starts after the database is loaded and all extensions
@@ -92,3 +92,4 @@ Activities which occur *after* steady state:
     may issue a remote write if the `writeOnStart` tuning policy is configured
   - Rule engine (SkySpark only) does not begin to compute rules until after
     steady state
+
