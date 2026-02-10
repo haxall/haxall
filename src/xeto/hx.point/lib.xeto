@@ -11,6 +11,7 @@ pragma: Lib <
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys",  versions: BuildVar "ph.depend" }
+    { lib: "ph",   versions: BuildVar "ph.depend" }
     { lib: "axon", versions: BuildVar "hx.depend" }
     { lib: "hx",   versions: BuildVar "hx.depend" }
   }
