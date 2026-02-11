@@ -37,6 +37,17 @@ class ADefType
     defName := def["def"]?.toStr
     if (defName == null || defName.contains("-") || defName.contains(":")) return null
 
+    /*
+    if (ext.oldName == "prov")
+    {
+      slot := scanDefSlot(def)
+      s := StrBuf()
+      ConvertExtCmd.genSlot(s, slot)
+      echo(s)
+      return null
+    }
+    */
+
     // now go thru all ext defs and get tag defs
     tags := Dict[,]
     ext.defs.each |x, i|
@@ -92,10 +103,12 @@ class ADefType
   {
     if (baseIs is List) baseIs = ((List)baseIs).first
     x := baseIs.toStr
-    if (x == "entity") return AType("Entity")
-    if (x == "point") return AType("Entity")
-    if (x == "conn") return AType("Conn")
-    if (x == "connPoint") return AType("ConnPoint")
+    if (x == "entity")     return AType("Entity")
+    if (x == "point")      return AType("Entity")
+    if (x == "conn")       return AType("Conn")
+    if (x == "connPoint")  return AType("ConnPoint")
+    if (x == "task")       return AType("Task")
+    if (x.startsWith("prov")) return AType(baseIs.toStr.capitalize)
     return null
   }
 

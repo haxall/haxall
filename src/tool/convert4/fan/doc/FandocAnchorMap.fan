@@ -31,6 +31,7 @@ const class FandocAnchorMap
     [Str:Str]? cur
     lines.each |line|
     {
+      if (line.trim.isEmpty) return
       if (line[0] != ' ')
       {
         cur = Str:Str[:]
