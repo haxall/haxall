@@ -111,7 +111,7 @@ ConnPoint: Entity <abstract> {
   // Conversion to apply when reading history data from connector.
   // The conversion is applied to each item passed to [fan.hxconn::ConnPoint.updateHisOk]
   // before writing to the database.  This conversion happens *before* the
-  // [hisOnWrite] conversion hooks.  See [hx.doc.haxall::Conns#point-conversions]
+  // [hx.his::HisPoint.hisOnWrite] conversion hooks.  See [hx.doc.haxall::Conns#point-conversions]
   hisConvert: PointConvert?
 
   // Conversion to apply when writing writeVal to the connector.

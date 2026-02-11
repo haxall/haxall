@@ -389,7 +389,7 @@
   // the visualization:
   //   - `table`: render grid as [table](hx.doc.fresco::Tables) (default)
   //   - `chart`: render grid as [chart](hx.doc.fresco::Charts)
-  //   - `fandoc`: render string as [fandoc](fandoc::pod-doc#overview)
+  //   - `fandoc`: render string as [fandoc](fan.fandoc::doc)
   //   - `text`: render as plaintext
   //
   // Options:
