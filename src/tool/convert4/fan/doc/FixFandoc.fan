@@ -33,6 +33,19 @@ class FixFandoc
 
     newLines := make(base, FileLoc(fandocFile), oldLines, fixLinks).fix
 
+    vimeoLine := comment.find |line| { line.startsWith("vimeo") }
+    if (vimeoLine != null)
+    {
+      // create line to show vimeo video
+      id := vimeoLine.split(':').last
+      if (id.contains("/")) id = id.split('/').last
+      videoLink := "![Video](video://vimeo/${id})"
+
+      // find heading
+      idx := newLines.findIndex { it.startsWith("#") } ?: 1
+      newLines.insertAll(idx, [videoLink, ""])
+    }
+
     if (!comment.isEmpty)
     {
       comment.insert(0, "<!--")
