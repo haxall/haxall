@@ -75,7 +75,7 @@ class JsonSchemaExporter : Exporter
 // private
 //////////////////////////////////////////////////////////////////////////
 
-  private Void doSpec(Spec spec)
+  Void doSpec(Spec spec)
   {
     if (alreadyDefined(spec))
       return
@@ -218,7 +218,7 @@ class JsonSchemaExporter : Exporter
     defs[nameVer][type.name] = schema
   }
 
-  private static Str libNameVer(Lib lib)
+  static Str libNameVer(Lib lib)
   {
      return "$lib.name-$lib.version"
   }
@@ -238,5 +238,5 @@ class JsonSchemaExporter : Exporter
   private Str:Marker defined := Str:Marker[:]
 
   private Obj:Obj map := [:] { ordered = true }
-  private Obj:[Obj:Obj] defs := [:] { ordered = true }
+  /*private*/ Obj:[Obj:Obj] defs := [:] { ordered = true }
 }
