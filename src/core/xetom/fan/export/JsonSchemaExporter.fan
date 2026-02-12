@@ -120,15 +120,12 @@ class JsonSchemaExporter : Exporter
     props := Obj:Obj[:]
     required := Obj[,]
 
-    slots := spec.slotsOwn()
-    if (!slots.isEmpty())
+    slots := spec.slots()
+    slots.each |slot, name|
     {
-      slots.each |slot, name|
-      {
-        if (!slot.isMaybe)
-          required.add(name)
-        props[name] = prop(slot, spec.lib)
-      }
+      if (!slot.isMaybe)
+        required.add(name)
+      props[name] = prop(slot, spec.lib)
     }
 
     //------------------------------
