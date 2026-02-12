@@ -514,7 +514,7 @@ class DocTest : AbstractXetoTest
     verifyLinker("ph::Bad", null)
 
     // absolute slot
-    verifyLinker("sys::Spec.doc", "/sys/Spec#doc", "Spec.doc")
+    verifyLinker("sys::Spec.doc", "/sys/Spec#doc", "doc")
     verifyLinker("ph::PhEntity.temp", "/ph/PhEntity#temp", "temp")
     verifyLinker("hx::Funcs.read", "/hx/Funcs#read", "read")
     verifyLinker("hx.test.xeto::Index", "/hx.test.xeto/_Index", "Index")
@@ -561,8 +561,8 @@ class DocTest : AbstractXetoTest
 
     // relative slots
     lib = ns.lib("ph")
-    verifyLinker("Spec.doc", "/sys/Spec#doc", "Spec.doc")
-    verifyLinker("Equip.siteRef", "/ph/Equip#siteRef", "Equip.siteRef")
+    verifyLinker("Spec.doc", "/sys/Spec#doc", "doc")
+    verifyLinker("Equip.siteRef", "/ph/Equip#siteRef", "siteRef")
     verifyLinker("Equip#bad", null)
     verifyLinker("Equip.bad", null)
     verifyLinker("Equip.siteRef#bad", null)

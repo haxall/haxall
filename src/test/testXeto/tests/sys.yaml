@@ -127,7 +127,7 @@ verifyType:
   name: "Ref"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str Reference to another dict.  The 'of' meta defines target type"
+    doc: "sys::Str Reference to another dict.  The `of` meta defines target type"
     pattern: "sys::Str [a-zA-Z\\d\\._~]*"
     sealed: "sys::Marker"
     val: "sys::Ref x"
@@ -149,7 +149,7 @@ verifyType:
   name: "Date"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str ISO 8601 date as year, month, day: '2011-06-07'"
+    doc: "sys::Str ISO 8601 date as year, month, day: `2011-06-07`"
     pattern: "sys::Str \\d{4}-\\d{2}-\\d{2}"
     sealed: "sys::Marker"
     val: "sys::Date 2000-01-01"
@@ -160,7 +160,7 @@ verifyType:
   name: "Time"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str ISO 8601 time as hour, minute, seconds: '09:51:27.354'"
+    doc: "sys::Str ISO 8601 time as hour, minute, seconds: `09:51:27.354`"
     pattern: "sys::Str \\d{2}:\\d{2}:\\d{2}(\\.\\d+)*"
     sealed: "sys::Marker"
     val: "sys::Time 00:00:00"
