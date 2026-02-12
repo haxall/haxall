@@ -461,7 +461,6 @@ class DataTestCase
 
   private Str scalarToStr(Obj x)
   {
-    if (x === Remove.val) return "none"
     return x.toStr
   }
 

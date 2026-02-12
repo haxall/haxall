@@ -64,7 +64,7 @@ internal class InheritMeta : Step
 
     // special handling for None val (which gets treated as meta remove)
     if (isSys && spec.name == "None")
-      acc["val"] = Remove.val
+      acc["val"] = None.val
 
     return Etc.dictFromMap(acc)
   }

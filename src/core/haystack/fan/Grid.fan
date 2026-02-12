@@ -461,7 +461,7 @@ const mixin Grid
   **
   ** Return a new Grid which is the result of applying the given
   ** diffs to this grid.  The diffs must have the same number of
-  ** rows as this grid. Any cells in the diffs with a Remove.val
+  ** rows as this grid. Any cells in the diffs with a None.val
   ** are removed from this grid, otherwise they are updated/added.
   **
   Grid commit(Grid diffs)
@@ -475,7 +475,7 @@ const mixin Grid
       x := Str:Obj?[:]
       x.ordered = true
       old.each |v, n| { x[n] = v }
-      diff.each |v, n| { if (v == Remove.val) x.remove(n); else x[n] = v }
+      diff.each |v, n| { if (v == None.val) x.remove(n); else x[n] = v }
       return Etc.makeDict(x)
     }
   }
@@ -986,7 +986,7 @@ const mixin Grid
   {
     val := r.val(c)
     if (val === Marker.val) return "M"
-    if (val === Remove.val) return "R"
+    if (val === None.val) return "R"
     if (val is DateTime && c.meta["format"] == null) return ((DateTime)val).toLocale("DD-MMM-YY hh:mm")
     s := r.disOf(c) ?: ""
     return s

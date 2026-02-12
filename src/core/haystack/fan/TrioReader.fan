@@ -218,7 +218,7 @@ class TrioReader : GridReader
       if (s == "NA")    return NA.val
       if (s == "NaN")   return Number.nan
       if (s == "INF")   return Number.posInf
-      if (s == "R")     return Remove.val
+      if (s == "R")     return None.val
       if (s == "Zinc:") return readAsZinc(readIndentedText)
       if (s == "Trio:") return readAsTrio(readIndentedText)
       if (s.endsWith(":")) throw Err("Unsupported indention format: $s")

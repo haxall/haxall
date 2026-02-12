@@ -81,7 +81,7 @@ class DisTest : AbstractFolioTest
     verifyDictDis(d,  "BX-0 C-1 D-1")
 
     // update bX to point to a
-    bx = commit(bx, ["dis":Remove.val, "disMacro":"\$aRef \$navName", "aRef":a.id, "navName":"BX-1"])
+    bx = commit(bx, ["dis":None.val, "disMacro":"\$aRef \$navName", "aRef":a.id, "navName":"BX-1"])
     syncDis
     verifyDictDis(a,  "A-1")
     verifyDictDis(b,  "A-1 B-1")

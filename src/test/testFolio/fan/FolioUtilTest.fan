@@ -116,12 +116,12 @@ class FolioUtilTest : HaystackTest
     verifyEq(Diff(old, ["curVal":n(123)], Diff.transient).flags, Diff.transient.or(Diff.curVal))
     verifyEq(Diff(old, ["ref":Ref("x")]).flags, Diff.treeUpdate)
     verifyEq(Diff(old, ["siteRef":Ref("new")]).flags, Diff.treeUpdate)
-    verifyEq(Diff(old, ["siteRef":Remove.val]).flags, 0) // do not detect this
+    verifyEq(Diff(old, ["siteRef":None.val]).flags, 0) // do not detect this
     verifyEq(Diff(old, ["dis":"change"]).flags, 0)  // do not need this
     verifyEq(Diff(old, ["foo":n(123)]).flags, 0)
-    verifyEq(Diff(old, ["foo":Remove.val]).flags, 0)
+    verifyEq(Diff(old, ["foo":None.val]).flags, 0)
     verifyEq(Diff(old, ["trash":Marker.val]).flags, Diff.treeUpdate)
-    verifyEq(Diff(old, ["trash":Remove.val]).flags, Diff.treeUpdate)
+    verifyEq(Diff(old, ["trash":None.val]).flags, Diff.treeUpdate)
   }
 
   Void verifyDiffErr(Dict? rec, Obj? changes, Int flags := 0)
@@ -306,14 +306,14 @@ class FolioUtilTest : HaystackTest
        item(ts("2016-03-01 00:50:01.987", tz), n(2)),
        item(ts("2016-03-01 00:50:02.070", tz), n(3)),
        item(ts("2016-03-01 00:50:02.071", tz), NA.val),
-       item(ts("2016-03-01 00:50:03.00", tz), Remove.val),
+       item(ts("2016-03-01 00:50:03.00", tz), None.val),
        item(ts("2016-03-01 00:50:04.00",  tz), n(16791117)),
        item(ts("2016-03-01 00:50:05.00",  tz), n(2059198223)),
        item(ts("2016-03-01 00:50:06.00",  tz), n(4275878552)),
        ],
       [item(ts("2016-03-01 00:50:01", tz), n(2)),
        item(ts("2016-03-01 00:50:02", tz), NA.val),
-       item(ts("2016-03-01 00:50:03", tz), Remove.val),
+       item(ts("2016-03-01 00:50:03", tz), None.val),
        item(ts("2016-03-01 00:50:04", tz), n(16791117)),
        item(ts("2016-03-01 00:50:05",  tz), n(2059198223)),
        item(ts("2016-03-01 00:50:06", tz), n(4275878552)),
@@ -387,15 +387,15 @@ class FolioUtilTest : HaystackTest
 
     verifyHisMerge(
       [,],
-      [item(ts("2016-03-01 00:02:00", tz), Remove.val)],
+      [item(ts("2016-03-01 00:02:00", tz), None.val)],
       [,]
       )
 
     verifyHisMerge(
       [,],
-      [item(ts("2016-03-01 00:01:00", tz), Remove.val),
+      [item(ts("2016-03-01 00:01:00", tz), None.val),
        item(ts("2016-03-01 00:03:00", tz), n(3)),
-       item(ts("2016-03-01 00:05:00", tz), Remove.val)],
+       item(ts("2016-03-01 00:05:00", tz), None.val)],
       [item(ts("2016-03-01 00:03:00", tz), n(3))]
       )
 
@@ -471,7 +471,7 @@ class FolioUtilTest : HaystackTest
        item(ts("2016-03-01 00:02:00", tz), n(2)),
        item(ts("2016-03-01 00:03:00", tz), n(3)),
        ],
-      [item(ts("2016-03-01 00:03:00", tz), Remove.val),
+      [item(ts("2016-03-01 00:03:00", tz), None.val),
        ],
       [item(ts("2016-03-01 00:01:00", tz), n(1)),
        item(ts("2016-03-01 00:02:00", tz), n(2))
@@ -482,8 +482,8 @@ class FolioUtilTest : HaystackTest
        item(ts("2016-03-01 00:02:00", tz), n(2)),
        item(ts("2016-03-01 00:03:00", tz), n(3)),
        ],
-      [item(ts("2016-03-01 00:03:00", tz), Remove.val),
-       item(ts("2016-03-01 00:04:00", tz), Remove.val),
+      [item(ts("2016-03-01 00:03:00", tz), None.val),
+       item(ts("2016-03-01 00:04:00", tz), None.val),
        item(ts("2016-03-01 00:05:00", tz), n(5)),
        ],
       [item(ts("2016-03-01 00:01:00", tz), n(1)),
@@ -509,9 +509,9 @@ class FolioUtilTest : HaystackTest
       [item(ts("2016-03-01 00:03:00", tz), n(3)),
        item(ts("2016-03-01 00:04:00", tz), n(4)),
        ],
-      [item(ts("2016-03-01 00:01:00", tz), Remove.val),
-       item(ts("2016-03-01 00:02:00", tz), Remove.val),
-       item(ts("2016-03-01 00:03:00", tz), Remove.val),
+      [item(ts("2016-03-01 00:01:00", tz), None.val),
+       item(ts("2016-03-01 00:02:00", tz), None.val),
+       item(ts("2016-03-01 00:03:00", tz), None.val),
        ],
       [item(ts("2016-03-01 00:04:00", tz), n(4))
        ])
@@ -520,11 +520,11 @@ class FolioUtilTest : HaystackTest
       [item(ts("2016-03-01 00:03:00", tz), n(3)),
        item(ts("2016-03-01 00:04:00", tz), n(4)),
        ],
-      [item(ts("2016-03-01 00:01:00", tz), Remove.val),
-       item(ts("2016-03-01 00:02:00", tz), Remove.val),
-       item(ts("2016-03-01 00:03:00", tz), Remove.val),
-       item(ts("2016-03-01 00:04:00", tz), Remove.val),
-       item(ts("2016-03-01 00:05:00", tz), Remove.val),
+      [item(ts("2016-03-01 00:01:00", tz), None.val),
+       item(ts("2016-03-01 00:02:00", tz), None.val),
+       item(ts("2016-03-01 00:03:00", tz), None.val),
+       item(ts("2016-03-01 00:04:00", tz), None.val),
+       item(ts("2016-03-01 00:05:00", tz), None.val),
        ],
       [,
        ])
@@ -538,11 +538,11 @@ class FolioUtilTest : HaystackTest
        ],
       [item(ts("2016-03-01 00:02:00", tz), n(22)),
        item(ts("2016-03-01 00:03:00", tz), n(33)),
-       item(ts("2016-03-01 00:05:00", tz), Remove.val),
+       item(ts("2016-03-01 00:05:00", tz), None.val),
        item(ts("2016-03-01 00:06:00", tz), n(66)),
-       item(ts("2016-03-01 00:07:00", tz), Remove.val),
+       item(ts("2016-03-01 00:07:00", tz), None.val),
        item(ts("2016-03-01 00:09:00", tz), n(99)),
-       item(ts("2016-03-01 00:08:00", tz), Remove.val),
+       item(ts("2016-03-01 00:08:00", tz), None.val),
        ],
       [item(ts("2016-03-01 00:01:00", tz), n(1)),
        item(ts("2016-03-01 00:02:00", tz), n(22)),
@@ -576,7 +576,7 @@ class FolioUtilTest : HaystackTest
             expected.add(changes.last)
           case 3:
             cur.add(item(ts, bad))
-            changes.add(item(ts, Remove.val))
+            changes.add(item(ts, None.val))
         }
       }
       verifyHisMerge(cur, changes, expected)

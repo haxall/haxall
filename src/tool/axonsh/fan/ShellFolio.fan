@@ -155,7 +155,7 @@ const class ShellFolio : Folio
     if (oldRec != null) oldRec.each |v, n| { tags[n] = v }
     diff.changes.each |v, n|
     {
-      if (v === Remove.val) tags.remove(n)
+      if (v === None.val) tags.remove(n)
       else tags[n] = commitNorm(v, internedIds)
     }
     tags["id"] = id

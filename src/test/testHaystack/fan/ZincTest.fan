@@ -91,7 +91,7 @@ class ZincTest : HaystackTest
        [n(2.3f), n(-5e-10f), n(2.4e20f), n(123e-10f)],
        ["", "a", "\" \\ \t \n \r", "\uabcd"],
        [`path`, Ref("12cbb082-0c02ae73"), n(4, "s"), n(-2.5f, "min")],
-       [Marker.val, Remove.val, Bin("image/png"), Bin("image/png")], // strip bin meta
+       [Marker.val, None.val, Bin("image/png"), Bin("image/png")], // strip bin meta
        [Date("2009-12-31"), Time("23:59:01"), Time("01:02:03.123"), DateTime("2009-02-03T04:05:06Z UTC")],
        [Number.posInf, Number.negInf, "", Number.nan],
        [Coord(12f,-34f), Coord(0.123f,-0.789f),Coord(84.5f,-77.45f), Coord(-90f,180f)],

@@ -145,7 +145,7 @@ internal class WriteRec
   private Void persist(WriteMgr mgr, Str tag, Obj? val)
   {
     if (rec[tag] == val) return
-    rec = mgr.proj.db.commit(Diff(rec, Etc.dict1(tag, val ?: Remove.val), Diff.force)).newRec
+    rec = mgr.proj.db.commit(Diff(rec, Etc.dict1(tag, val ?: None.val), Diff.force)).newRec
   }
 
   ** Update effective value and level.  Return true if there is an effective

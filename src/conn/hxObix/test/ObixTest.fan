@@ -563,7 +563,7 @@ class ObixTest : HxTest
   Void verifyClientWatches()
   {
     // clear server points
-    commit(this.pt1, ["curStatus":Remove.val], Diff.transient)
+    commit(this.pt1, ["curStatus":None.val], Diff.transient)
     commit(this.pt2, ["curStatus":"ok"], Diff.transient)
 
     // crate proxies for

@@ -73,7 +73,7 @@ internal class AScalar : AData
   override Obj asm() { asmRef ?: throw NotReadyErr(str) }
 
   ** Is this the none singleton
-  override Bool isNone() { asmRef === Remove.val }
+  override Bool isNone() { asmRef === None.val }
 
   ** Assembled value set in Reify
   Obj? asmRef

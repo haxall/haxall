@@ -72,7 +72,7 @@ class DictCollector
 
   private Void doSet(Str name, Obj? val)
   {
-    if (val === Remove.val)
+    if (val === None.val)
       map.remove(name)
     else
       map.set(name, val)

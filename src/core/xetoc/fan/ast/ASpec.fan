@@ -170,7 +170,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** Set the given meta tag to none singleton
   Void metaSetNone(Str name)
   {
-    metaSet(name, AScalar(loc, sys.none, "none", Remove.val))
+    metaSet(name, AScalar(loc, sys.none, "none", None.val))
   }
 
   ** Set the given meta tag to string value

@@ -66,7 +66,7 @@ class FactoryTest : AbstractXetoTest
     verifyScalar(ns, "sys::Version",  Version("1.2.3"))
 
     verifyScalar(ns, "sys::Marker",   Marker.val)
-    verifyScalar(ns, "sys::None",     Remove.val)
+    verifyScalar(ns, "sys::None",     None.val)
     verifyScalar(ns, "sys::NA",       NA.val)
     verifyScalar(ns, "sys::Number",   Number(80, Unit("%")))
     verifyScalar(ns, "sys::Ref",      Ref("abc"))

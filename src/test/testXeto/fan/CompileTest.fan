@@ -26,8 +26,8 @@ class CompileTest : AbstractXetoTest
     ns := createNamespace(["sys"])
     verifyScalar(ns, "sys::Marker",   Str<|Marker "✓"|>, m)
     verifyScalar(ns, "sys::Marker",   Str<|sys::Marker "✓"|>, m)
-    verifyScalar(ns, "sys::None",     Str<|None "none"|>, none)
-    verifyScalar(ns, "sys::None",     Str<|sys::None "none"|>, none)
+    verifyScalar(ns, "sys::None",     Str<|None "∅"|>, none)
+    verifyScalar(ns, "sys::None",     Str<|sys::None "∅"|>, none)
     verifyScalar(ns, "sys::NA",       Str<|sys::NA "na"|>, na)
     verifyScalar(ns, "sys::Str",      Str<|"hi"|>, "hi")
     verifyScalar(ns, "sys::Str",      Str<|Str "123"|>, "123")
@@ -639,8 +639,8 @@ class CompileTest : AbstractXetoTest
        Str<|A: Dict <baz, foo: NA "na"> {
               foo: Date <bar, qux> "2023-04-07"
             }
-            B : A <baz:None "none"> {
-              foo: Date <qux:None "none">
+            B : A <baz:None "∅"> {
+              foo: Date <qux:None "∅">
             }
 
             +Spec {

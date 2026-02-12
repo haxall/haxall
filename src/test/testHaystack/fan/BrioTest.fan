@@ -137,7 +137,7 @@ class BrioTest : HaystackTest
     verifyIO(null, 1)
     verifyIO(Marker.val, 1)
     verifyIO(NA.val, 1)
-    verifyIO(Remove.val, 1)
+    verifyIO(None.val, 1)
     verifyIO(true, 1)
     verifyIO(false, 1)
     verifyIO(n(12), 4)
@@ -193,11 +193,11 @@ class BrioTest : HaystackTest
     verifyIO(["a": n(2), "b": n(1.2f, "kW"), "c": n(123456789, "°F"), "d":n(-3, "_foo")])
 
     // dict nulls tags are not encoded
-    Dict dict := verifyIO(["x":null, "y":Remove.val, "z":"foo"])
+    Dict dict := verifyIO(["x":null, "y":None.val, "z":"foo"])
     map := Str:Obj?[:]
     dict.each |v, n| { map[n] = v }
     verifyEq(map.keys.sort, ["y", "z"])
-    verifyEq(map, Str:Obj?["y":Remove.val, "z":"foo"])
+    verifyEq(map, Str:Obj?["y":None.val, "z":"foo"])
 
     // dicts of different sizes
     verifyIO(Etc.dict1("x", n(10)))

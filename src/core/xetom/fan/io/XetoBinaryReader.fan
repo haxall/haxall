@@ -189,7 +189,7 @@ class XetoBinaryReader : XetoBinaryConst
       case ctrlNull:          return null
       case ctrlMarker:        return Marker.val
       case ctrlNA:            return NA.val
-      case ctrlRemove:        return Remove.val
+      case ctrlNone:          return None.val
       case ctrlTrue:          return true
       case ctrlFalse:         return false
       case ctrlStrConst:      return readStrConst

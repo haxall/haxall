@@ -85,7 +85,7 @@ const class FolioUtil
         // allow name tag be anything that is valid id (specs, instances, dotted lib names)
         if (!Ref.isId(val)) throw InvalidTagValErr("Invalid 'name' tag value ${val->toCode}")
       }
-      else if (val isnot Remove)
+      else if (val isnot None)
       {
         throw InvalidTagValErr("Tag 'name' must be a Str")
       }
@@ -127,7 +127,7 @@ const class FolioUtil
       if (transients.has(n)) return
       if (n == "mod" && opts.has("mod")) { acc[n] = v; return }
       if (DiffTagRule.isUncommittable(n)) return
-      if (n == "id" && opts["id"] === Remove.val) return
+      if (n == "id" && opts["id"] === None.val) return
       acc[n] = v
     }
     return Etc.makeDict(acc)
@@ -349,7 +349,7 @@ const class FolioUtil
       val := item.val
       if (val == null)
         throw HisWriteErr(rec, "Cannot write null val")
-      if (val.typeof !== kind.type && val !== NA.val && val !== Remove.val)
+      if (val.typeof !== kind.type && val !== NA.val && val !== None.val)
         throw HisWriteErr(rec, "Mismatched value type, rec kind $kind.name.toCode != item type $val.typeof.qname.toCode")
 
       // extra handling for Number values
@@ -402,12 +402,12 @@ const class FolioUtil
   ** Changes are applied as follows:
   **   - new items are interleaved into temporal order
   **   - if dup ts, then changes overwrites cur
-  **   - if changes is Remove.val it removed from cur
+  **   - if changes is None.val it removed from cur
   static HisItem[] hisWriteMerge(HisItem[] cur, HisItem[] changes)
   {
     // handle special cases
     if (changes.isEmpty) return cur.dup
-    if (cur.isEmpty) return changes.findAll |item| { item.val !== Remove.val }
+    if (cur.isEmpty) return changes.findAll |item| { item.val !== None.val }
 
     acc := HisItem[,]
     ax := cur;     a := cur.first;     ai := 0
@@ -423,14 +423,14 @@ const class FolioUtil
       }
       else if (a.ts > b.ts)
       {
-        if (b.val !== Remove.val) acc.add(b)
+        if (b.val !== None.val) acc.add(b)
         bi++
         if (bi >= bx.size) break
         b = bx[bi]
       }
       else // same ts
       {
-        if (b.val !== Remove.val) acc.add(b)
+        if (b.val !== None.val) acc.add(b)
         ai++
         bi++
         if (ai >= ax.size) break
@@ -440,7 +440,7 @@ const class FolioUtil
       }
     }
     while (ai < ax.size) { a = ax[ai++]; acc.add(a) }
-    while (bi < bx.size) { b = bx[bi++]; if (b.val !== Remove.val) acc.add(b) }
+    while (bi < bx.size) { b = bx[bi++]; if (b.val !== None.val) acc.add(b) }
     return acc
   }
 }
@@ -509,7 +509,7 @@ internal const class DiffTagRule
     if (diff.isBypassRestricted) return
 
     if (diff.isAdd) throw DiffErr("Cannot add rec with restricted tag: $name.toCode")
-    if (val === Remove.val) throw DiffErr("Cannot remove restricted tag: $name.toCode")
+    if (val === None.val) throw DiffErr("Cannot remove restricted tag: $name.toCode")
     throw DiffErr("Cannot set restricted tag: $name.toCode")
   }
 

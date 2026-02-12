@@ -112,7 +112,7 @@ class RosterTest : HxTest
     verifyWritable(a.id, null, 17)
 
     // remove writable tag
-    a = commit(a, ["writable":Remove.val])
+    a = commit(a, ["writable":None.val])
     sync
     verifyNotWritable(a.id)
 
@@ -177,7 +177,7 @@ class RosterTest : HxTest
     verifyHisCollectWatch([int, cov, a])
 
     // remove hisCollectCov tag
-    a = commit(a, ["hisCollectCov":Remove.val])
+    a = commit(a, ["hisCollectCov":None.val])
     sync
     verifyHisCollect(a.id, 5min, false)
     verifyHisCollectWatch([int, cov, a])
@@ -189,7 +189,7 @@ class RosterTest : HxTest
     verifyHisCollectWatch([int, cov, a])
 
     // remove hisCollectInterval tag
-    a = commit(a, ["hisCollectInterval":Remove.val])
+    a = commit(a, ["hisCollectInterval":None.val])
     sync
     verifyNotHisCollect(a.id)
     verifyHisCollectWatch([int, cov])

@@ -36,7 +36,7 @@ const abstract class Kind
   @NoDoc const static Kind na       := NAKind()
   @NoDoc const static Kind number   := NumberKind()
   @NoDoc const static Kind ref      := RefKind()
-  @NoDoc const static Kind remove   := RemoveKind()
+  @NoDoc const static Kind none     := NoneKind()
   @NoDoc const static Kind span     := SpanKind()
   @NoDoc const static Kind str      := StrKind()
   @NoDoc const static Kind symbol   := SymbolKind()
@@ -137,7 +137,7 @@ const abstract class Kind
     if (type === Date#)      return date
     if (type === Time#)      return time
     if (type === Bin#)       return bin
-    if (type === Remove#)    return remove
+    if (type === None#)      return none
     if (type === XStr#)      return xstr
     return null
   }
@@ -380,15 +380,15 @@ internal const final class NAKind : Kind
 }
 
 @Js
-internal const final class RemoveKind : Kind
+internal const final class NoneKind : Kind
 {
-  new make() : super("Remove", Remove#) {}
+  new make() : super("None", None#) {}
   override Bool isSingleton() { true }
   override Str valToZinc(Obj val) { "R" }
   override Str valToJson(Obj val) { "-:" }
-  override Str valToDis(Obj val, Dict meta := Etc.dict0) { "\u2716" }
-  override Str valToAxon(Obj val) { "removeMarker()" }
-  override Obj defVal() { Remove.val }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { "\u2205" }
+  override Str valToAxon(Obj val) { "noneMarker()" }
+  override Obj defVal() { None.val }
 }
 
 @Js

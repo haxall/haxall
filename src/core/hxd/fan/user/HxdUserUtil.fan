@@ -31,7 +31,7 @@ const class HxdUserUtil
     tags["user" ]    = Marker.val
     tags["created"]  = DateTime.now
     tags["userAuth"] = userAuth
-    tags["disabled"] = Remove.val
+    tags["disabled"] = None.val
     addUserSet(tags, "dis",      user)
     addUserSet(tags, "tz",       TimeZone.cur.toStr)
     addUserSet(tags, "userRole", "op")

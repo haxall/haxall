@@ -404,7 +404,7 @@ class HxFuncsTest : HxTest
 
     // diff only - remove tag
     d = eval("""diff({id:@14754350-63a873e5, mod:now()}, {-age}, {transient, force})""")
-    verifyDictEq(d.changes, ["age":Remove.val])
+    verifyDictEq(d.changes, ["age":None.val])
     verifyEq(d.flags, Diff.transient.or(Diff.force))
 
     // diff only - add with explicit id

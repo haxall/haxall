@@ -166,7 +166,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (val == null)         return writeNull
     if (val === Marker.val)  return writeMarker
     if (val === NA.val)      return writeNA
-    if (val === Remove.val)  return writeRemove
+    if (val === None.val)    return writeNone
     type := val.typeof
     if (type === Str#)      return writeStr(val)
     if (type === Number#)   return writeNumber(val)
@@ -208,9 +208,9 @@ class XetoBinaryWriter : XetoBinaryConst
     write(ctrlNA)
   }
 
-  private Void writeRemove()
+  private Void writeNone()
   {
-    write(ctrlRemove)
+    write(ctrlNone)
   }
 
   private Void writeBool(Bool val)

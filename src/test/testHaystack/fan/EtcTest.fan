@@ -255,11 +255,11 @@ class EtcTest : HaystackTest
     verifySame(Etc.dictMerge(x, empty), x)
 
     verifyMerge(empty, ["a":m], ["a":m])
-    verifyMerge(empty, ["a":Remove.val], empty)
-    verifyMerge(empty, ["a":m, "b":Remove.val], ["a":m])
+    verifyMerge(empty, ["a":None.val], empty)
+    verifyMerge(empty, ["a":m, "b":None.val], ["a":m])
     verifyMerge(["a":m, "b":"!"], empty, ["a":m, "b":"!"])
-    verifyMerge(["a":m, "b":"!"], ["b":Remove.val], ["a":m])
-    verifyMerge(["a":m, "b":"!"], ["c":Remove.val], ["a":m, "b":"!"])
+    verifyMerge(["a":m, "b":"!"], ["b":None.val], ["a":m])
+    verifyMerge(["a":m, "b":"!"], ["c":None.val], ["a":m, "b":"!"])
   }
 
   Void verifyMerge(Obj a, Obj b, Obj expected)
@@ -791,7 +791,7 @@ class EtcTest : HaystackTest
     verifyToHaystack(Ref.gen, null)
     verifyToHaystack(true, null)
     verifyToHaystack(Marker.val, null)
-    verifyToHaystack(Remove.val, null)
+    verifyToHaystack(None.val, null)
     verifyToHaystack(NA.val, null)
 
     verifyToHaystack([123], Obj?[n(123)])

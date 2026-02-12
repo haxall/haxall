@@ -531,7 +531,7 @@ class GridTest : HaystackTest
            |>))
 
     // Grid.addMeta again with remove
-    x = x.addMeta(Etc.makeDict(["m1":n(1), "m4":Remove.val]))
+    x = x.addMeta(Etc.makeDict(["m1":n(1), "m4":None.val]))
     verifyGridEq(x, g(
       Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   b dis:"B" mb,  c mc
@@ -561,8 +561,8 @@ class GridTest : HaystackTest
 
     // Grid.addColMeta with remove
     x = verifyView(x,
-      |Grid g->Grid| { g.addColMeta("c", Etc.makeDict(["mc":Marker.val, "foo":Marker.val, "bar":Remove.val])) },
-      |Grid g->Grid| { g.addColMeta(g.col("c"), Etc.makeDict(["mc":Marker.val, "foo":Marker.val, "bar":Remove.val])) },
+      |Grid g->Grid| { g.addColMeta("c", Etc.makeDict(["mc":Marker.val, "foo":Marker.val, "bar":None.val])) },
+      |Grid g->Grid| { g.addColMeta(g.col("c"), Etc.makeDict(["mc":Marker.val, "foo":Marker.val, "bar":None.val])) },
       Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   b dis:"B" mb, c mc foo
            "a", @1 "_1", 10ms

@@ -21,7 +21,7 @@ const final class Marker
 
   private new make() {}
 
-  ** Return "✓"
+  ** Return U+2713 "✓"
   override Str toStr() { "\u2713" }
 
   ** Return "✓"

@@ -242,7 +242,7 @@ internal final class ConnMgr
     changes := Str:Obj[:]
     r.each |v, n|
     {
-      if (v === Remove.val) { if (rec.has(n)) changes[n] = Remove.val }
+      if (v === None.val) { if (rec.has(n)) changes[n] = None.val }
       else { if (rec[n] != v) changes[n] = v }
     }
 

@@ -234,12 +234,12 @@ class ObserveTest : HxTest
     verifyCommit(foo, ["subType": "removed", "id": a1.id, "oldRec":a2, "newRec":empty])
 
     // remove trash tag
-    a4 := commit(a3, ["trash":Remove.val])
+    a4 := commit(a3, ["trash":None.val])
     verifyCommit(all, ["subType": "added", "id": a1.id, "oldRec":empty, "newRec":a4])
     verifyCommit(foo, ["subType": "added", "id": a1.id, "oldRec":empty, "newRec":a4])
 
     // remove foo tag
-    a5 := commit(a4, ["foo":Remove.val])
+    a5 := commit(a4, ["foo":None.val])
     verifyCommit(all, ["subType": "updated", "id": a1.id, "oldRec":a4, "newRec":a5])
     verifyCommit(foo, ["subType": "removed", "id": a1.id, "oldRec":a4, "newRec":a5])
 

@@ -97,7 +97,7 @@ class HisTest  : AbstractFolioTest
     verifyRead(a, null, items)
 
     // verify of we remove point tag exception is raised
-    a = commit(a, ["point":Remove.val])
+    a = commit(a, ["point":None.val])
     verifyErr(HisConfigErr#) { verifyRead(a, null, items) }
     verifyErr(HisConfigErr#) { verifyRead(a, Span.today, items) }
     verifyErr(HisConfigErr#) { folio.his.write(a.id, [item(DateTime.now.toTimeZone(tz), n(99))]) }
@@ -113,7 +113,7 @@ class HisTest  : AbstractFolioTest
     verifyErr(HisConfigErr#) { folio.his.write(a.id, [item(DateTime.now.toTimeZone(tz), n(99))]) }
 
     // remove trash
-    a = commit(a, ["trash":Remove.val])
+    a = commit(a, ["trash":None.val])
     verifyRead(a, null, items)
 
     // add aux tag
@@ -184,7 +184,7 @@ class HisTest  : AbstractFolioTest
     verifyRead(r, null, items)
 
     // remove unit
-    r = commit(r, ["unit":Remove.val])
+    r = commit(r, ["unit":None.val])
     folio.sync
     items = items.map |item->HisItem| { HisItem(item.ts, n(((Number)item.val).toFloat, null)) }
     verifyRead(r, null, items)

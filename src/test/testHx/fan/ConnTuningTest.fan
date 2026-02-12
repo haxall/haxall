@@ -71,7 +71,7 @@ class ConnTuningTest : HxTest
     t4 = commit(t4, ["dis":"T-4 New", "staleTime":n(44, "sec")])
     verifyTunings(fw, [t1, t2, t3, t4])
     verifySame(fw.tunings.get(t4.id), t4Old)
-    t4 = commit(t4, ["connTuning":Remove.val])
+    t4 = commit(t4, ["connTuning":None.val])
     verifyTunings(fw, [t1, t2, t3])
 
     // verify ConnExt, Conn, ConnPoint tuning....
@@ -315,7 +315,7 @@ class ConnTuningTest : HxTest
 
     // cleanup
     write(c, pt, null, 12)
-    t = commit(t, ["writeMinTime":Remove.val])
+    t = commit(t, ["writeMinTime":None.val])
     sync(c)
   }
 
@@ -364,7 +364,7 @@ class ConnTuningTest : HxTest
 
     // cleanup
     write(c, pt, null, 12)
-    t = commit(t, ["writeMaxTime":Remove.val])
+    t = commit(t, ["writeMaxTime":None.val])
     sync(c)
   }
 

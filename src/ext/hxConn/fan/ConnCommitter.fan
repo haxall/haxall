@@ -29,7 +29,7 @@ internal const final class ConnCommitter
     if (m[n0] == v0) return
 
     changes := Etc.dict1(
-      n0, v0 ?: Remove.val)
+      n0, v0 ?: None.val)
 
     commit(ext, rec, changes)
   }
@@ -41,8 +41,8 @@ internal const final class ConnCommitter
     if (m[n0] == v0 && m[n1] == v1) return
 
     changes := Etc.dict2(
-      n0, v0 ?: Remove.val,
-      n1, v1 ?: Remove.val)
+      n0, v0 ?: None.val,
+      n1, v1 ?: None.val)
 
     commit(ext, rec, changes)
   }
@@ -54,9 +54,9 @@ internal const final class ConnCommitter
     if (m[n0] == v0 && m[n1] == v1 && m[n2] == v2) return
 
     changes := Etc.dict3(
-      n0, v0 ?: Remove.val,
-      n1, v1 ?: Remove.val,
-      n2, v2 ?: Remove.val)
+      n0, v0 ?: None.val,
+      n1, v1 ?: None.val,
+      n2, v2 ?: None.val)
 
     commit(ext, rec, changes)
   }
@@ -68,7 +68,7 @@ internal const final class ConnCommitter
     acc := Etc.dictToMap(managed)
     changes.each |v, n|
     {
-      if (v === Remove.val) acc.remove(n)
+      if (v === None.val) acc.remove(n)
       else acc[n] = v
     }
     managedRef.val = Etc.makeDict(acc)

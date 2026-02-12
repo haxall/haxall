@@ -342,7 +342,7 @@ class Parser
       if (cur === Token.minus)
       {
         consume
-        val = Literal.removeVal
+        val = Literal.noneVal
       }
 
       Str? name
@@ -352,7 +352,7 @@ class Parser
       names.add(name)
       if (cur === Token.colon)
       {
-        if (val === Literal.removeVal) throw err("Cannot have both - and val in dict: $name")
+        if (val === Literal.noneVal) throw err("Cannot have both - and val in dict: $name")
         consume
         val = expr
       }

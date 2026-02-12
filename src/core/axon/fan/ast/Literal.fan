@@ -21,7 +21,7 @@ const class Literal : Expr
   const static Literal falseVal  := Literal(false)
   const static Literal nullVal   := Literal(null)
   const static Literal markerVal := Literal(Marker.val)
-  const static Literal removeVal := Literal(Remove.val)
+  const static Literal noneVal   := Literal(None.val)
 
   static Literal wrap(Obj? val)
   {

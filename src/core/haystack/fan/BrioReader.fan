@@ -37,7 +37,7 @@ class BrioReader : GridReader, BrioCtrl
       case ctrlNull:       return null
       case ctrlMarker:     return Marker.val
       case ctrlNA:         return NA.val
-      case ctrlRemove:     return Remove.val
+      case ctrlRemove:     return None.val
       case ctrlFalse:      return false
       case ctrlTrue:       return true
       case ctrlNumberI2:   return consumeNumberI2

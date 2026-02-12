@@ -105,7 +105,7 @@ class HaysonParser : JsonParser
     if (kind == "uri")      return Uri.fromStr(json["val"])
     if (kind == "symbol")   return Symbol.fromStr(json["val"])
     if (kind == "coord")    return Coord.make(json["lat"], json["lng"])
-    if (kind == "remove")   return Remove.val
+    if (kind == "remove")   return None.val
     if (kind == "na")       return NA.val
     if (kind == "xstr")     return XStr.decode(json["type"], json["val"])
     throw ParseErr("${json}")
@@ -338,7 +338,7 @@ class JsonV3Parser : JsonParser
       switch (s[0])
       {
         case 'm': return parseSingleton(s, Marker.val)
-        case '-': return parseSingleton(s, Remove.val)
+        case '-': return parseSingleton(s, None.val)
         case 'z': return parseSingleton(s, NA.val)
         case 'n': return parseNumber(s)
         case 'r': return parseRef(s)

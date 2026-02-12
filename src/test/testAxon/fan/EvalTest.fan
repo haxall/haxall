@@ -477,7 +477,7 @@ class EvalTest : AxonTest
   {
     verifyEval("{}", Str:Obj?[:])
     verifyEval("{a:3}", Str:Obj?["a":n(3)])
-    verifyEval("{a:3,b,c:5.2m,-foo}", Str:Obj?["a":n(3),"b":Marker.val,"c":n(5.2f, "m"), "foo":Remove.val])
+    verifyEval("{a:3,b,c:5.2m,-foo}", Str:Obj?["a":n(3),"b":Marker.val,"c":n(5.2f, "m"), "foo":None.val])
     verifyEval(
       "{
          a:3,

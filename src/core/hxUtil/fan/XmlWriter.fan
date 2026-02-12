@@ -122,7 +122,7 @@ class XmlWriter : GridWriter
 
   private Void writeValAttr(Obj? val)
   {
-    if (val == null || val === Marker.val || val === NA.val || val === Remove.val) return
+    if (val == null || val === Marker.val || val === NA.val || val === None.val) return
 
     if (val is Ref)
     {

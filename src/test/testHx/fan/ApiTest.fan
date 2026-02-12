@@ -103,7 +103,7 @@ abstract class ApiTest : HxTest
     verifySiteUri(`http://test-it/`)
 
     // clear siteUri in settings, fallback to default
-    ext.settingsUpdate(Diff(ext.settings, ["siteUri":Remove.val]))
+    ext.settingsUpdate(Diff(ext.settings, ["siteUri":None.val]))
     verifySiteUri(defSiteUri)
   }
 

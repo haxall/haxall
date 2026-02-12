@@ -110,7 +110,7 @@ class ZincReader : GridReader
         case "N":    return null
         case "M":    return Marker.val
         case "NA":   return NA.val
-        case "R":    return Remove.val
+        case "R":    return None.val
         case "NaN":  return Number.nan
         case "INF":  return Number.posInf
       }

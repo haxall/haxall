@@ -198,11 +198,11 @@ class ExtTest : HxTest
     verifyErr(UnknownNameErr#) { ext.settingsUpdate(Diff(Etc.dict0, null)) }
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff.makeAdd(["foo":m])) }
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, null, Diff.remove)) }
-    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["id":Remove.val])) }
-    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["mod":Remove.val])) }
-    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["rt":Remove.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["id":None.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["mod":None.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["rt":None.val])) }
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["rt":"foo"])) }
-    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["name":Remove.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["name":None.val])) }
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["name":"no.way"])) }
     verifyEq(ext.traces.val, "")
 
@@ -219,13 +219,13 @@ class ExtTest : HxTest
 
     // make update - Str:Obj
     ext.traces.val = ""
-    ext.settingsUpdate(["foo":"bar3", "port":Remove.val])
+    ext.settingsUpdate(["foo":"bar3", "port":None.val])
     verifySettings(ext, Etc.dict1("foo", "bar3"))
     verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")
 
     // make another update
     ext.traces.val = ""
-    ext.settingsUpdate(Diff(ext.settings, ["foo":Remove.val, "timeout":n(123), "qux":m]))
+    ext.settingsUpdate(Diff(ext.settings, ["foo":None.val, "timeout":n(123), "qux":m]))
     ext.spi.sync
     verifySettings(ext, Etc.dict2("timeout", n(123), "qux", m))
     verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")

@@ -151,8 +151,8 @@ internal class Commit
 
   private Void add()
   {
-    // strip Remove.val
-    tags = tags.findAll |v| { v != Remove.val }
+    // strip None.val
+    tags = tags.findAll |v| { v != None.val }
 
     // finialize persistent Dict and create blob
     tags["id"] = id
@@ -195,7 +195,7 @@ internal class Commit
     orig.each |v, n| { acc[n] = v }
     this.tags.each |v, n|
     {
-      if (v === Remove.val)
+      if (v === None.val)
       {
         acc.remove(n)
       }

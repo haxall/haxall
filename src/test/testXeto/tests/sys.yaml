@@ -19,9 +19,10 @@ verifyType:
   name: "None"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str None is the bottom type used to represent absense of value"
+    doc: "sys::Str None represents the absense of value"
     sealed: "sys::Marker"
-    val: "sys::None none"
+    val: "sys::None ∅"
+    pattern: "sys::Str ∅"
 ---
 name: "scalar"
 loadLib: "sys"

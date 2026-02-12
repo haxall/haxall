@@ -130,7 +130,7 @@ internal class WriteMgr : PointMgr
 
   private Dict sinkChanges(Dict rec, Obj? val, Number level)
   {
-    if (val == null) val = Remove.val
+    if (val == null) val = None.val
     curTracks := rec.has("curTracksWrite")
     if (curTracks)
        return Etc.dict4(

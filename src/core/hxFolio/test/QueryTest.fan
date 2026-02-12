@@ -44,10 +44,10 @@ class QueryTest : WhiteboxTest
     // make some modifications to trash by moving stuff into and
     // out of index, but leave things the same overall
     x1 = commit(x1, ["num":n(11), "bar":"c"])
-    x2 = commit(x2, ["trash":Remove.val])
+    x2 = commit(x2, ["trash":None.val])
     c  = commit(c,  ["trash":m])
     x2 = commit(x2, ["trash":m])
-    c  = commit(c,  ["trash":Remove.val])
+    c  = commit(c,  ["trash":None.val])
 
     close
   }

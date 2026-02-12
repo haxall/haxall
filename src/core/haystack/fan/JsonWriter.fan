@@ -205,7 +205,7 @@ class JsonWriter : GridWriter
     else if (val is Coord)       writeCoord(val)
     else if (val is XStr)        writeXStr(val)
     else if (val === Marker.val) out.print(Str<|{"_kind":"marker"}|>)
-    else if (val === Remove.val) out.print(Str<|{"_kind":"remove"}|>)
+    else if (val === None.val)   out.print(Str<|{"_kind":"remove"}|>)
     else if (val === NA.val)     out.print(Str<|{"_kind":"na"}|>)
     else if (val is Span)        writeScalar(XStr(val))
     else if (val is Bin)         writeScalar(XStr(val))

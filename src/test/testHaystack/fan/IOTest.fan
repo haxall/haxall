@@ -26,7 +26,7 @@ class IOTest : HaystackTest
     verifyIO(true,          "T",    Str<|true|>, "true")
     verifyIO(false,         "F",    Str<|false|>, "false")
     verifyIO(Marker.val,    "M",    Str<|"m:"|>, Str<|{"_kind":"marker"}|>)
-    verifyIO(Remove.val,    "R",    Str<|"-:"|>, Str<|{"_kind":"remove"}|>)
+    verifyIO(None.val,      "R",    Str<|"-:"|>, Str<|{"_kind":"remove"}|>)
     verifyIO(NA.val,        "NA",   Str<|"z:"|>, Str<|{"_kind":"na"}|>)
     verifyIO(Number.nan,    "NaN",  Str<|"n:NaN"|>, Str<|{"_kind":"number", "val":"NaN"}|>)
     verifyIO(Number.posInf, "INF",  Str<|"n:INF"|>, Str<|{"_kind":"number", "val":"INF"}|>)

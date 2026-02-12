@@ -87,7 +87,7 @@ const class MQuick
     if (type === Date#)      return date
     if (type === Time#)      return time
     if (type === XStr#)      return xstr
-    if (type === Remove#)    return remove
+    if (type === None#)      return remove
     return null
   }
 

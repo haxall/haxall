@@ -38,7 +38,7 @@ const mixin FolioHis
   ** Before writing the timestamps are normalized to 1sec or 1ms precision;
   ** items with duplicate normalized timestamps are removed.  If there is
   ** existing history data with a given timestamp then the new data overwrites
-  ** the current value, or if the new item's value is `haystack::Remove.val`
+  ** the current value, or if the new item's value is `xeto::None.val`
   ** then that item is removed.
   **
   ** The 'clear' and 'clearAll' options may be used clear a batch of

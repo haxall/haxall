@@ -243,7 +243,7 @@ const class EnergyStarFuncs
 
     tags := Str:Obj[:]
     remote.each |v, n| { tags[n] = v }
-    if (remote.missing("isFederalProperty")) tags["isFederalProperty"] = Remove.val
+    if (remote.missing("isFederalProperty")) tags["isFederalProperty"] = None.val
 
     rec := cx.proj.read("site and energyStarSite==$propertyId.toCode", false)
     if (rec == null)
@@ -282,7 +282,7 @@ const class EnergyStarFuncs
     // update any site recs that have that id
     cx.proj.readAll("site and energyStarSite==$propertyId.toCode").each |site|
     {
-      cx.proj.commit(Diff(site, ["energyStarSite":Remove.val], Diff.force))
+      cx.proj.commit(Diff(site, ["energyStarSite":None.val], Diff.force))
     }
 
     return "Removed property ${propertyId} from Energy Star Portfolio Manager"
@@ -475,8 +475,8 @@ const class EnergyStarFuncs
 
     tags := Str:Obj?[:]
     remote.each |v, n| { if (n != "dis") tags[n] = v }
-    if (remote.missing("metered")) tags["metered"] = Remove.val
-    if (remote.missing("inUse")) tags["inUse"] = Remove.val
+    if (remote.missing("metered")) tags["metered"] = None.val
+    if (remote.missing("inUse")) tags["inUse"] = None.val
 
     rec := cx.proj.read("point and energyStarMeter==$meterId.toCode", false)
     if (rec == null)
@@ -547,7 +547,7 @@ const class EnergyStarFuncs
     // update any meter recs that have that id
     cx.proj.readAll("point and energyStarMeter==$meterId.toCode").each |rec|
     {
-      cx.proj.commit(Diff(rec, ["energyStarMeter":Remove.val], Diff.force))
+      cx.proj.commit(Diff(rec, ["energyStarMeter":None.val], Diff.force))
     }
 
     return "Removed meter ${meterId} from Portfolio Manager"

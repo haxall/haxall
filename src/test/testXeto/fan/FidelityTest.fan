@@ -136,7 +136,7 @@ class FidelityTest : AbstractAxonTest
       if (kind === Kind.span) return
       if (kind === Kind.xstr) return
 
-      if (kind === Kind.remove) qname = "sys::None"
+      if (kind === Kind.none)   qname = "sys::None"
       if (kind === Kind.coord)  qname = "ph::Coord"
       if (kind === Kind.symbol) qname = "ph::Symbol"
 

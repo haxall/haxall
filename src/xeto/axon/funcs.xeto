@@ -103,7 +103,7 @@
   // Merge two Dicts together and return a new Dict.  Any tags
   // in `b` are added to `a`.  If `b` defines a tag already
   // in `a`, then it is overwritten by `b`.  If a tag in `b` is
-  // mapped to `Remove.val`, then that tag is removed from the
+  // mapped to `None.val`, then that tag is removed from the
   // result.
   merge: Func { a: Obj?, b: Obj?, returns: Obj? }
 
@@ -624,7 +624,10 @@
   // Get the marker value singleton [fan.xeto::Marker.val]
   marker: Func { returns: Marker }
 
-  // Get the remove value singleton [fan.haystack::Remove.val]
+  // Get the none value singleton [fan.xeto::None.val]
+  none: Func { returns: Obj }
+
+  // This method is for backward compatibility only - use [none()].
   removeMarker: Func { returns: Obj }
 
   // Get NA not-available singleton [fan.haystack::NA.val]

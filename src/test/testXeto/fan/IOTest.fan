@@ -30,7 +30,7 @@ class IOTest : AbstractXetoTest
     verifyIO(null)
     verifyIO(Marker.val)
     verifyIO(NA.val)
-    verifyIO(Remove.val)
+    verifyIO(None.val)
     verifyIO("foo")
     verifyIO(n(123))
     verifyIO(n(123, "°F"))

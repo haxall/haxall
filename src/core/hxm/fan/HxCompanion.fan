@@ -153,7 +153,7 @@ const class HxCompanion : ProjCompanion
       if (n == "id")   { id = v; return }
       if (n == "mod")  { mod = v; return }
       if (n == "rt" || n == "name") return
-      acc[n] = Remove.val
+      acc[n] = None.val
     }
 
     // add back in the update tag (check name is not modified)

@@ -220,7 +220,7 @@ const class AxonFuncs
   ** Merge two Dicts together and return a new Dict.  Any tags
   ** in 'b' are added to 'a'.  If 'b' defines a tag already
   ** in 'a', then it is overwritten by 'b'.  If a tag in 'b' is
-  ** mapped to 'Remove.val', then that tag is removed from the
+  ** mapped to 'None.val', then that tag is removed from the
   ** result.
   @Api @Axon static Obj? merge(Obj? a, Obj? b) { Etc.dictMerge(a, b) }
 
@@ -1075,8 +1075,11 @@ const class AxonFuncs
   ** Get the marker value singleton `xeto::Marker.val`
   @Api @Axon static Marker marker() { Marker.val }
 
-  ** Get the remove value singleton `haystack::Remove.val`
-  @Api @Axon static Remove removeMarker() { Remove.val }
+  ** Get the none value singleton `xeto::None.val`
+  @Api @Axon static None none() { None.val }
+
+  ** Prefer none() now
+  @Api @Axon static None removeMarker() { None.val }
 
   ** Get NA not-available singleton `haystack::NA.val`
   @Api @Axon static NA na() { NA.val }

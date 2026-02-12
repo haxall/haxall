@@ -42,20 +42,20 @@ class CommitTest : WhiteboxTest
 
     // verify persistent/transient tag override (CommitErr)
     verifyErr(CommitErr#) { commit(a, ["foo":"!"], Diff.transient) }
-    verifyErr(CommitErr#) { commit(a, ["foo":Remove.val], Diff.transient) }
+    verifyErr(CommitErr#) { commit(a, ["foo":None.val], Diff.transient) }
     verifyErr(CommitErr#) { commit(a, ["baz":"!"], 0) }
-    verifyErr(CommitErr#) { commit(a, ["baz":Remove.val], 0) }
+    verifyErr(CommitErr#) { commit(a, ["baz":None.val], 0) }
 
     // verify nothing changed from errors
     a = verifyCommit(a, [:], 0,
           ["dis":"A", "foo":"bar"], ["curVal":n(75), "curStatus":"ok", "baz":m])
 
     // remove persistent tag
-    a = verifyCommit(a, ["foo":Remove.val, "newP":m], 0,
+    a = verifyCommit(a, ["foo":None.val, "newP":m], 0,
           ["dis":"A", "newP":m], ["curVal":n(75), "curStatus":"ok", "baz":m])
 
     // remove transient tag
-    a = verifyCommit(a, ["baz":Remove.val], Diff.transient,
+    a = verifyCommit(a, ["baz":None.val], Diff.transient,
           ["dis":"A", "newP":m], ["curVal":n(75), "curStatus":"ok"])
 
     // reopen and verify transient's gone
@@ -147,7 +147,7 @@ class CommitTest : WhiteboxTest
     verifyTrash(d, true)
 
     // remove trash tag
-    commit(c, ["trash":Remove.val])
+    commit(c, ["trash":None.val])
     verifyTrash(a, false)
     verifyTrash(b, true)
     verifyTrash(c, false)

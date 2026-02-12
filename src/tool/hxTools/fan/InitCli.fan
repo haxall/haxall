@@ -175,7 +175,7 @@ internal class InitCli : HxCli
     if (httpsDisable && settings["httpsEnabled"] == true)
     {
       log.info("Disable https")
-      ext.settingsUpdate(["httpsEnabled":Remove.val])
+      ext.settingsUpdate(["httpsEnabled":None.val])
     }
   }
 

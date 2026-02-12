@@ -522,13 +522,13 @@ const class Etc
     if (b is Dict)
     {
       bd := (Dict)b
-      if (a.isEmpty) return dictRemoveAllWithVal(bd, Remove.val)
+      if (a.isEmpty) return dictRemoveAllWithVal(bd, None.val)
       if (bd.isEmpty) return a
 
       tags := dictToMap(a)
       dictEach(bd) |v, n|
       {
-        if (v === Remove.val) tags.remove(n)
+        if (v === None.val) tags.remove(n)
         else tags[n] = v
       }
       return makeDict(tags)
@@ -541,7 +541,7 @@ const class Etc
       tags := dictToMap(a)
       bm.each |v, n|
       {
-        if (v === Remove.val) tags.remove(n)
+        if (v === None.val) tags.remove(n)
         else tags[n] = v
       }
       return makeDict(tags)
@@ -704,7 +704,7 @@ const class Etc
   static Duration? dictGetDuration(Dict d, Str name, Duration? def := null, Duration? remove := def)
   {
     val := d[name]
-    if (val === Remove.val) return remove
+    if (val === None.val) return remove
     if (val is Duration) return val
     num := val as Number
     if (num != null) return num.toDuration
@@ -716,7 +716,7 @@ const class Etc
   static Int? dictGetInt(Dict d, Str name, Int? def := null, Int? remove := def)
   {
     val := d[name]
-    if (val === Remove.val) return remove
+    if (val === None.val) return remove
     num := val as Number
     if (num != null) return num.toInt
     return def

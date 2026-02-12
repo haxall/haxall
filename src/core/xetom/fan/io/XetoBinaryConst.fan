@@ -25,7 +25,7 @@ mixin XetoBinaryConst
   static const Int ctrlNull          := 1
   static const Int ctrlMarker        := 2
   static const Int ctrlNA            := 3
-  static const Int ctrlRemove        := 4
+  static const Int ctrlNone          := 4
   static const Int ctrlTrue          := 5
   static const Int ctrlFalse         := 6
   static const Int ctrlStrConst      := 7

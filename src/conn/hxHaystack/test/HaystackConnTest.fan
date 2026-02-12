@@ -369,7 +369,7 @@ class HaystackConnTest : HxTest
   Void resetCur(Dict r)
   {
     // not sure we need nor want this
-    //commit(r, ["curVal":Remove.val, "curStatus":Remove.val, "curErr":Remove.val], Diff.forceTransient)
+    //commit(r, ["curVal":None.val, "curStatus":None.val, "curErr":None.val], Diff.forceTransient)
   }
 
 //////////////////////////////////////////////////////////////////////////

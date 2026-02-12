@@ -417,7 +417,7 @@ internal class FolioFlatFileCommit
     if (oldRec != null) oldRec.each |v, n| { tags[n] = v }
     inDiff.changes.each |v, n|
     {
-      if (v === Remove.val) tags.remove(n)
+      if (v === None.val) tags.remove(n)
       else tags[n] = norm(v)
     }
     tags["id"] = id

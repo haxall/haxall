@@ -670,7 +670,7 @@ class Printer
 
   private Bool isNA(Obj? val) { val === NA.val }
 
-  private Bool isNone(Obj? val) { val === Remove.val }
+  private Bool isNone(Obj? val) { val === None.val }
 
 //////////////////////////////////////////////////////////////////////////
 // Options

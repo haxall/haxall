@@ -477,7 +477,7 @@ const class XetoUtil
     if (own.isEmpty) return
     own.each |v, n|
     {
-      if (v === Remove.val)
+      if (v === None.val)
         acc.remove(n)
       else
         acc[n] = v

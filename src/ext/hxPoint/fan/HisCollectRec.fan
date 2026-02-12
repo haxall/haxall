@@ -345,7 +345,7 @@ internal class HisCollectRec
 
     this.status = statusOk
     this.err = null
-    commit(mgr, Etc.dict2("hisStatus", statusOk, "hisErr", Remove.val))
+    commit(mgr, Etc.dict2("hisStatus", statusOk, "hisErr", None.val))
   }
 
   private Void updateStatusErr(HisCollectMgr mgr, Str err)

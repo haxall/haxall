@@ -189,7 +189,7 @@ class RuntimeTest : HxTest
     verifyErr(DiffErr#) { proj.metaUpdate(["name":"badone"]) }
     verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["rt":"foo"])) }
     verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["name":"badone"])) }
-    verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["projMeta":Remove.val])) }
+    verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["projMeta":None.val])) }
 
     // verify steady state timer
     verifyEq(proj.isSteadyState, false)
@@ -551,7 +551,7 @@ class RuntimeTest : HxTest
 
     // updates
     verifyManagedCheck |->| { proj.commit(Diff(managed, ["something":m])) }
-    verifyManagedCheck |->| { proj.commit(Diff(managed, ["rt":Remove.val])) }
+    verifyManagedCheck |->| { proj.commit(Diff(managed, ["rt":None.val])) }
     verifyManagedCheck |->| { proj.commit(Diff(managed, ["trash":m])) }
     verifyManagedCheck |->| { proj.commit(Diff(norm, ["something":m, "rt":m])) }
 

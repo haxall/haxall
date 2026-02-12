@@ -396,17 +396,17 @@ class BasicTest : AbstractFolioTest
   {
     f := open
 
-    a := addRec(["foo":"f", "bar":"b", "baz":Remove.val])
+    a := addRec(["foo":"f", "bar":"b", "baz":None.val])
     verifyDictEq(a, ["id":a.id, "mod":a->mod, "foo":"f", "bar":"b"])
 
-    a = commit(a, ["foo":Remove.val, "bar":"b", "baz":Remove.val])
+    a = commit(a, ["foo":None.val, "bar":"b", "baz":None.val])
     verifyDictEq(a, ["id":a.id, "mod":a->mod, "bar":"b"])
 
-    a = commit(a, ["bar":Remove.val])
+    a = commit(a, ["bar":None.val])
     verifyDictEq(a, ["id":a.id, "mod":a->mod])
 
-    verifyErr(DiffErr#) { commit(a, ["id":Remove.val]) }
-    verifyErr(DiffErr#) { commit(a, ["mod":Remove.val]) }
+    verifyErr(DiffErr#) { commit(a, ["id":None.val]) }
+    verifyErr(DiffErr#) { commit(a, ["mod":None.val]) }
 
     close
   }
@@ -532,7 +532,7 @@ class BasicTest : AbstractFolioTest
     folio.commitAll([
       Diff(b, ["trash":Marker.val]),
       Diff(c, ["trash":Marker.val]),
-      Diff(d, ["trash":Remove.val])])
+      Diff(d, ["trash":None.val])])
       d = folio.readById(dId)
 
     // readById

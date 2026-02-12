@@ -23,7 +23,7 @@ const class Diff
   ** Construct a modfication for an existing record.  The oldRec
   ** should be the instance which was read from the project.  Any
   ** tags to add/set/remove should be included in the changes dict.
-  ** Use `haystack::Remove.val` to indicate a tag should be removed.
+  ** Use `xeto::None.val` to indicate a tag should be removed.
   ** See `makeAdd` to create a Diff for adding a new record to a project.
   new make(Dict? oldRec, Obj? changes, Int flags := 0)
   {

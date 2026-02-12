@@ -19,7 +19,7 @@ using haystack
 class AbstractXetoTest : HaystackTest
 {
 
-  Obj none() { Remove.val }
+  Obj none() { None.val }
 
   Obj na() { NA.val }
 

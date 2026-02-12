@@ -35,7 +35,7 @@ class BrioWriter : GridWriter, BrioCtrl
     if (val == null)         return writeNull
     if (val === Marker.val)  return writeMarker
     if (val === NA.val)      return writeNA
-    if (val === Remove.val)  return writeRemove
+    if (val === None.val)    return writeRemove
     type := val.typeof
     if (type === Bool#)     return writeBool(val)
     if (type === Number#)   return writeNumber(val)

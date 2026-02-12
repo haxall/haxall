@@ -439,7 +439,7 @@ class NamespaceTest : AbstractXetoTest
   {
     verifySame(m, Marker.val)
     verifySame(na, NA.val)
-    verifySame(none, Remove.val)
+    verifySame(none, None.val)
     verifyEq(ref("foo"), Ref("foo", null))
     verifyValEq(ref("foo", "Foo"), Ref("foo", "Foo"))
     verifySame(dict0, Etc.dict0)

@@ -136,7 +136,7 @@ abstract class ConnDispatch
   ** Callback to handle ping of the connector.  Return custom
   ** status tags such as device version, etc to store on the connector
   ** record persistently.  If there are version tags which should be
-  ** removed then map those tags to Remove.val.  If ping fails then
+  ** removed then map those tags to None.val.  If ping fails then
   ** raise exception and the connector will be automatically closed.
   abstract Dict onPing()
 
