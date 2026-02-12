@@ -149,6 +149,7 @@ class ExtTest : HxTest
 
     // add hx.conn
     verifyGetByTypeNotFound(IConnExt#)
+    proj.libs.add("ph")
     proj.libs.add("hx.point")
     proj.libs.add("hx.conn")
     verifySame(verifyGetByType(IConnExt#), proj.exts.conn)

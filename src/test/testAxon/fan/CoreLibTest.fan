@@ -1040,6 +1040,8 @@ class CoreLibTest : HaystackTest
     verifyEval(Str<|{a, b:2}.equals({b:null, a})|>, false)
 
     verifyEval("marker()", Marker.val)
+    verifyEval("none()", None.val)
+    verifyEval("removeMarker()", None.val)
 
     verifyEval(Str<|isTagName("foo_bar")|>, true)
     verifyEval(Str<|isTagName("foo bar")|>, false)

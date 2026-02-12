@@ -387,7 +387,7 @@ internal const final class NoneKind : Kind
   override Str valToZinc(Obj val) { "R" }
   override Str valToJson(Obj val) { "-:" }
   override Str valToDis(Obj val, Dict meta := Etc.dict0) { "\u2205" }
-  override Str valToAxon(Obj val) { "noneMarker()" }
+  override Str valToAxon(Obj val) { "none()" }
   override Obj defVal() { None.val }
 }
 
