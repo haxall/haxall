@@ -316,9 +316,9 @@ TemplateDictC: {
 // Swagger
 //////////////////////////////////////////////////////////////////////////
 
-SquareNumber: Func { a: Number, returns: Number }
+ComplexValues: Func { a: JsonNest, returns: JsonFoo }
 
-AddNumbers: Func { a: Number, b: Number?, returns: Number }
+TwoParams: Func { a: Number, b: Number?, returns: Number }
 
 OptionalResponse: Func { a: Number, b: Number, returns: Number? }
 

@@ -238,5 +238,7 @@ class JsonSchemaExporter : Exporter
   private Str:Marker defined := Str:Marker[:]
 
   private Obj:Obj map := [:] { ordered = true }
-  /*private*/ Obj:[Obj:Obj] defs := [:] { ordered = true }
+
+  // internal so OpenAPIExporter can use it
+  Obj:[Obj:Obj] defs := [:] { ordered = true }
 }
