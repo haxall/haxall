@@ -80,72 +80,63 @@ class OpenAPIExporter : Exporter
     uri := "/api/" + spec.qname.replace("::", ".")
 
     props := Obj:Obj[:]
-    //required := Obj[,]
-    Str response := ""
+    required := Obj[,]
+    response := ""
+    responseRequired := false
 
     slots := spec.slots()
     slots.each |slot, name|
     {
-      //if (!slot.isMaybe)
-      //  required.add(name)
-
       if (name == "returns")
+      {
+        if (!slot.isMaybe)
+          responseRequired = true
         response = typeRef(slot.type)
+      }
       else
+      {
+        if (!slot.isMaybe)
+          required.add(name)
         props[name] = typeRef(slot.type)
+      }
     }
 
-    post := [
-      "requestBody": [
-        //"required": true,
-        "content": [
-          "application/json": [
-            "schema": [
-              "type": "object",
-              //"required": required,
-              "properties": props
-            ]
+    // request body
+    requestBody := [
+      "required": true,
+      "content": [
+        "application/json": [
+          "schema": [
+            "type": "object",
+            "required": required,
+            "properties": props
           ]
         ]
-      ],
-      "responses": [
-        "200": [
-          "content": [
-            "application/json": [
-              "schema": [
-                "\$ref": response
-              ]
-            ]
-          ]
-        ],
-        "400": "TODO"
       ]
     ]
 
-//"post": {
-//  "summary": "Add a new pet",
-//  "requestBody": {
-//    "description": "Information about the pet to add",
-//    "required": true,
-//    "content": {
-//      "application/json": {
-//        "schema": {
-//          "$ref": "#/components/schemas/Pet"
-//        }
-//      }
-//    }
-//  },
-//  "responses": {
-//    "201": {
-//      "description": "Pet created successfully"
-//    },
-//    "400": {
-//      "description": "Invalid input"
-//    }
-//  }
-//}
+    // responses
+    responses := Obj:Obj[:] { ordered = true }
+    responses["200"] = [
+      "content": [
+        "application/json": [
+          "schema": [
+            "\$ref": response
+          ]
+        ]
+      ]
+    ]
+    if (!responseRequired)
+      responses["204"] = ["description": "No data returned"]
+    responses["400"] = ["description": "TODO 4xx"]
 
-    paths[uri] = ["post": post]
+    // done
+    paths[uri] = [
+      "post": [
+        "requestBody": requestBody,
+        "responses": responses
+      ]
+    ]
   }
 
   private Str typeRef(Spec type)

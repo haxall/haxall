@@ -320,3 +320,5 @@ SquareNumber: Func { a: Number, returns: Number }
 
 AddNumbers: Func { a: Number, b: Number, returns: Number }
 
+OptionalResponse: Func { a: Number, b: Number, returns: Number? }
+
