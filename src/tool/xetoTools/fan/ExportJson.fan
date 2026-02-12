@@ -16,7 +16,7 @@ internal class ExportJson : ExportCmd
 {
   override Str name() { "export-json" }
 
-  override Str summary() { "Export Xeto to JSON" }
+  override Str summary() { "Export Xeto Instances to JSON" }
 
   @Opt { aliases=["e"]; help = "Generate inherited effective meta/slots (default is own)" }
   Bool effective

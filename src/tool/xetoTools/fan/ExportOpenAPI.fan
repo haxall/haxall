@@ -11,11 +11,11 @@ using xeto
 using haystack
 using xetom
 
-internal class ExportJsonSchema : ExportCmd
+internal class ExportOpenAPI : ExportCmd
 {
-  override Str name() { "export-json-schema" }
+  override Str name() { "export-openapi" }
 
-  override Str summary() { "Export Xeto Specs to JSON Schema" }
+  override Str summary() { "Export Xeto Funcs to OpenAPI" }
 
   override Int usage(OutStream out := Env.cur.out)
   {
@@ -26,7 +26,7 @@ internal class ExportJsonSchema : ExportCmd
 
   override Exporter initExporter(Namespace ns, OutStream out)
   {
-    return JsonSchemaExporter(ns, out, Etc.dict0)
+    return OpenAPIExporter(ns, out, Etc.dict0)
   }
 
   override Str toFileName(ExportTarget t)
