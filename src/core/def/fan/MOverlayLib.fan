@@ -70,7 +70,7 @@ class BOverlayLib
   Void addDef(Dict meta)
   {
     def := toDef(meta)
-    defsMap.set(def.symbol.toStr, def)
+    defsMap.add(def.symbol.toStr, def)
     defs.add(def)
   }
 
