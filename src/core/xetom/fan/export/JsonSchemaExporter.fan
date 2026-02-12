@@ -23,7 +23,6 @@ class JsonSchemaExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
-    //map["\$schema"] = "https://json-schema.org/draft/2020-12/schema"
     map["\$schema"] = "http://json-schema.org/draft-07/schema#"
   }
 
@@ -151,21 +150,33 @@ class JsonSchemaExporter : Exporter
     if (type.base != null)
     {
       if (type.isCompound)
-        throw Err("TODO Compound type not supported: $type")
-
-      if (type.base.qname == "sys::Dict")
       {
-        addDef(spec, schema)
+        if (!type.isAnd)
+          throw Err("TODO Compound type not supported: $type")
+
+        allOf := [schema]
+        type.ofs.each |of|
+        {
+          allOf.add(["\$ref": typeRef(of)])
+        }
+        addDef(spec, [ "allOf": allOf ])
       }
       else
       {
-        addDef(
-          spec, [
-            "allOf": [
-              ["\$ref": typeRef(type.base)],
-              schema
-            ]
-          ])
+        if (type.base.qname == "sys::Dict")
+        {
+          addDef(spec, schema)
+        }
+        else
+        {
+          addDef(
+            spec, [
+              "allOf": [
+                ["\$ref": typeRef(type.base)],
+                schema
+              ]
+            ])
+        }
       }
     }
   }
@@ -178,10 +189,13 @@ class JsonSchemaExporter : Exporter
 
     // list
     else if (slot.type.isList())
-      return [
-        "type": "array",
-         "items": [ "\$ref": typeRef(slot.of) ]
-      ]
+    {
+      res := Obj:Obj["type": "array"]
+      of := slot.of(false)
+      if (of != null)
+        res["items"] = ["\$ref": typeRef(of)]
+      return res
+    }
 
     // anything else
     else
