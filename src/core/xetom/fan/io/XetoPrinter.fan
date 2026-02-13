@@ -112,6 +112,7 @@ class XetoPrinter
     keys.moveTo("nodoc", 0)
     keys.moveTo("of", 0)
     keys.moveTo("defMeta", -1)
+    keys.moveTo("ruleReady", -1)
 
     sp.wc('<')
     spec := ns.sys.spec
@@ -234,10 +235,11 @@ class XetoPrinter
     x.each |v, n|
     {
       if (metaSkipAst.contains(n)) return
-      if (n == "defMeta" || n == "axon" || (v is Str && v.toStr.splitLines.size > 1))
+      if ( n == "axon" || n == "defMeta" || n== "ruleReady" || (v is Str && v.toStr.splitLines.size > 1))
         metaInlines.add(n)
     }
     metaInlines.sort
+    metaInlines.moveTo("ruleReady", 0)
     metaInlines.moveTo("defMeta", 0)
     metaInlines.moveTo("axon", -1)
     metaInlines.moveTo("compTree", -1)
