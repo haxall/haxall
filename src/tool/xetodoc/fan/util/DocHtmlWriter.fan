@@ -115,12 +115,30 @@ class DocHtmlWriter : WebOutStream
     tag(tagSearchHits)
     p.hits.each |hit|
     {
-      tag(tagSearchHit)
-      h3.link(hit.link).h3End
+      tag(tagSearchHit).nl
+      h3
+        docTags(hit.tags)
+        link(hit.link)
+      h3End
       markdown(hit.text)
       tagEnd(tagSearchHit).nl.nl
     }
     tagEnd(tagSearchHits)
+  }
+
+  private Void docTags(DocTag[] tags)
+  {
+    tags.each |tag| { docTag(tag) }
+  }
+
+  private Void docTag(DocTag x)
+  {
+    Str? attrs := null
+    tagColor := x.color
+    if (tagColor != null) attrs = "style='background-color: $tagColor;'"
+    tag(tagTag, attrs)
+    esc(x.name)
+    tagEnd(tagTag)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -569,6 +587,7 @@ class DocHtmlWriter : WebOutStream
   static const Str tagSearchInfo  := "xetodoc-search-info"
   static const Str tagSearchHits  := "xetodoc-search-hits"
   static const Str tagSearchHit   := "xetodoc-search-hit"
+  static const Str tagTag         := "xetodoc-tag"
 
   Bool fullHtml := true
   Str footerText := "footer"

@@ -285,3 +285,13 @@ xetodoc-search-hit p {
   padding: 0;
 }
 
+xetodoc-tag  {
+  padding: 2px 8px;
+  font-size: 75%;
+  color: #fff;
+  background: var(--name-color);
+  margin-right: 10px;
+  border: 0px solid #bbb;
+  border-radius: 10px;
+}
+
