@@ -33,6 +33,7 @@ class DocHtmlWriter : WebOutStream
       case DocPageType.chapter:  chapter(p)
       case DocPageType.lib:      lib(p)
       case DocPageType.index:    index(p)
+      case DocPageType.search:   search(p)
       default:                   throw Err(p.pageType.toStr)
     }
     pageEnd(p)
@@ -94,6 +95,32 @@ class DocHtmlWriter : WebOutStream
 
     // body
     markdown(p.doc)
+  }
+
+  private Void search(DocSearch p)
+  {
+    form("method='get' action='/doc/search'")
+     .p
+     .input("type='text' name='q' value='$p.pattern.toXml' placeholder='Search docs...'")
+     .pEnd
+     .formEnd
+     .nl
+
+    // number of hits info
+    tag(tagSearchInfo).nl
+    esc(p.info).nl
+    tagEnd(tagSearchInfo).nl.nl
+
+    // hits
+    tag(tagSearchHits)
+    p.hits.each |hit|
+    {
+      tag(tagSearchHit)
+      h3.link(hit.link).h3End
+      markdown(hit.text)
+      tagEnd(tagSearchHit).nl.nl
+    }
+    tagEnd(tagSearchHits)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -252,10 +279,10 @@ class DocHtmlWriter : WebOutStream
     tag(tagPage).nl.nl
 
     // <xetodoc-nav>
-    pageNav(p).nl.nl
+    if (p.pageType.includeNav) pageNav(p).nl.nl
 
     // <xetodoc-main>
-    tag(pageMainTag(p)).nl
+    if (p.pageType.useMainLayout) tag(pageMainTag(p)).nl
   }
 
   private This pageNav(DocPage p)
@@ -287,12 +314,17 @@ class DocHtmlWriter : WebOutStream
   private Void pageEnd(DocPage p)
   {
     // footer
-    tabSection("", "doc-footer")
-    tag(tagFooter).esc(footerText).tagEnd(tagFooter)
-    tabSectionEnd
+    if (p.pageType.includeFooter)
+    {
+      tabSection("", "doc-footer")
+      tag(tagFooter).esc(footerText).tagEnd(tagFooter)
+      tabSectionEnd
+    }
 
-    // </xetodoc-main> </xetodoc-page>
-    tagEnd(pageMainTag(p)).nl
+    // </xetodoc-main>
+    if (p.pageType.useMainLayout) tagEnd(pageMainTag(p)).nl
+
+    // </xetodoc-page>
     tagEnd(tagPage).nl
 
     // </body> </html>
@@ -534,6 +566,9 @@ class DocHtmlWriter : WebOutStream
   static const Str tagSlotNested  := "xetodoc-slot-nested"
   static const Str tagChapter     := "xetodoc-chapter"
   static const Str tagFooter      := "xetodoc-footer"
+  static const Str tagSearchInfo  := "xetodoc-search-info"
+  static const Str tagSearchHits  := "xetodoc-search-hits"
+  static const Str tagSearchHit   := "xetodoc-search-hit"
 
   Bool fullHtml := true
   Str footerText := "footer"

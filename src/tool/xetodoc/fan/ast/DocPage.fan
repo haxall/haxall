@@ -109,5 +109,17 @@ enum class DocPageType
   instance,
   chapter,
   search
+
+  ** Is this the search page type
+  Bool isSearch() { this === search }
+
+  ** Use the <xetodoc-main> two column layout for this page type
+  Bool useMainLayout() { !isSearch }
+
+  ** Include navigation bar for this page type
+  Bool includeNav() { !isSearch }
+
+  ** Include footer bar for this page type
+  Bool includeFooter() { !isSearch }
 }
 
