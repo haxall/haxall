@@ -76,7 +76,7 @@ class DocIndexer
       DocIndexerHtmlParser().parseSections(x.doc.html) |elem, title, body|
       {
         uri := x.uri
-        anchor := elem.attr("id")
+        anchor := elem.attr("id", false)
         if (anchor != null) uri = uri + `#${anchor.val}`
         level := elem.name[1].fromDigit
         type  := DocIndexerSectionType.heading(level)
