@@ -52,6 +52,10 @@ class DefBuilder
     // check if a feature key like "lib:ph"
     if (symbol.type.isKey) return toKey(b)
 
+    // check if we need define feature
+    if ((meta["is"] as List)?.first?.toStr == "feature")
+      toFeature(symbol.toStr)
+
     // fallback to MDef
     return toFallback(b)
   }
