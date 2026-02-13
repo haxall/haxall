@@ -67,8 +67,6 @@ internal class Parse : DefCompilerStep
     symbol := parseSymbol("def", dict["def"], loc)
     if (symbol == null) return
 
-    if (compiler.undefine(dict)) return
-
     addDef(loc, lib, symbol, dict)
   }
 

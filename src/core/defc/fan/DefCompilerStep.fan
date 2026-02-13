@@ -77,6 +77,8 @@ abstract class DefCompilerStep
       return null
     }
 
+    if (compiler.undefine(dict)) return null
+
     def := CDef(loc, lib, symbol, dict)
     lib.defs.add(symbol, def)
     return def

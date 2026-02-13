@@ -198,6 +198,7 @@ class DefCompiler
     s.add(libs.size).add(" libs, ")
     if (index != null) s.add(index.defs.size).add(" defs, ")
     if (index != null && index.hasProtos) s.add(index.protos.size).add(" protos, ")
+    s.add(index.defs.findAll { it.symbol.toStr.startsWith("func:") }.size).add(" funcs, ")
     s.add(dur.toLocale)
     return s.toStr
   }
