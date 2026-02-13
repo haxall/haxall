@@ -131,6 +131,7 @@ abstract class HxBoot
   **   - newProjExts: comma separated list of project exts
   **   - demogenMaxDays: Number of days to limit for smaller devices
   **   - undefs: comma separated list of symbols to remove from ns
+  **   - defFuncs: Marker to load funcs into DefNamespace (disabled otherwise)
   **
   Str:Obj? sysConfig := [:]
 
