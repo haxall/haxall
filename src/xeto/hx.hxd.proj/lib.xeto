@@ -7,6 +7,7 @@
 //
 
 pragma: Lib <
+  nodoc
   doc: "Haxall daemon project management extension"
   version: BuildVar "hx.version"
   depends: {

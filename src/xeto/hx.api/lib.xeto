@@ -7,6 +7,7 @@
 //
 
 pragma: Lib <
+  nodoc
   doc: "Haxall Haystack HTTP API extension"
   version: BuildVar "hx.version"
   depends: {

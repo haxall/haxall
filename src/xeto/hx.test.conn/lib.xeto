@@ -7,6 +7,7 @@
 //
 
 pragma: Lib <
+  nodoc
   doc: "Haxall test connector"
   version: BuildVar "hx.version"
   depends: {

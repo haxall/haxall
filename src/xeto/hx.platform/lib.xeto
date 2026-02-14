@@ -7,6 +7,7 @@
 //
 
 pragma: Lib <
+  nodoc
   doc: "Platform support for basic functionality"
   version: BuildVar "hx.version"
   depends: {

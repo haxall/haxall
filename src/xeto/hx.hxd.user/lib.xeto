@@ -7,6 +7,7 @@
 //
 
 pragma: Lib <
+  nodoc
   doc: "Authentication and user management"
   version: BuildVar "hx.version"
   depends: {
