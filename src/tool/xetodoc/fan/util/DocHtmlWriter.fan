@@ -248,7 +248,7 @@ class DocHtmlWriter : WebOutStream
 
   private Void nestedSlots(DocSlot spec)
   {
-    if (spec.slots.isEmpty) return
+    if (spec.slots.isEmpty || spec.type.isFunc) return
 
     tag(tagSlotNested).ul
     spec.slots.each |x| { li.nestedSlot(x).liEnd }
