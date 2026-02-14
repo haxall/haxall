@@ -495,6 +495,7 @@ class DocHtmlWriter : WebOutStream
     i := 0
     val.each |v, n|
     {
+      if (n == "spec") return
       if (i > 0) w(", ")
       w(n)
       if (v != Marker.val) { w(":"); propVal(v) }
