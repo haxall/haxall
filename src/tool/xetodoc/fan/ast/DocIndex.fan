@@ -24,7 +24,7 @@ const class DocIndex : DocPage
     libs.each |lib|
     {
       link := DocLink(DocUtil.libToUri(lib.name), lib.name)
-      doc  := DocMarkdown(lib.meta["doc"] ?: "") // TODO: needs to be in GenPages
+      doc  := DocMarkdown(lib.meta["doc"] ?: "")
       tags := DocUtil.genTags(ns, lib)
       summary := DocSummary(link, doc, tags)
 
@@ -36,7 +36,7 @@ const class DocIndex : DocPage
 
     // flatten groups
     groupNames := acc.keys.sort
-    ["doc", "sys", "ph"].eachr |n| { groupNames.moveTo(n, 0) }
+    ["doc", "sys"].eachr |n| { groupNames.moveTo(n, 0) }
     groups := DocIndexGroup[,]
     groupNames.each |n| { groups.add(DocIndexGroup(n, acc[n])) }
 
@@ -51,6 +51,8 @@ const class DocIndex : DocPage
   {
     name := lib.name
     toks := name.split('.', false)
+    if (name == "axon") return "hx"
+    if (toks.contains("doc")) return "doc"
     if (toks.size == 1) return name
     if (toks[0] == "cc") return toks[0] + "." + toks[1]
     return toks[0]
