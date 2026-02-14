@@ -272,7 +272,7 @@ xetodoc-search-hit h3 {
 }
 
 xetodoc-search-hit a {
-  color: var(--name-color);
+  color: var(--link-color);
   padding: 2px;
   text-decoration: none;
 }

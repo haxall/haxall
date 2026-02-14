@@ -53,9 +53,17 @@ class DocIndexer
   ** Add DocSlot section to index
   virtual Void addSlot(DocSpec parent, DocSlot slot)
   {
-    uri   := parent.uri + `#${slot.name}`
-    qname := parent.qname + "." + slot.name
-    doAdd(uri, parent.lib, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
+    uri := parent.uri + `#${slot.name}`
+    if (parent.name == "Funcs")
+    {
+      qname := parent.lib.name + "::" + slot.name
+      doAdd(uri, parent.lib, DocIndexerSectionType.func, [qname, slot.name], qname, slot.doc)
+    }
+    else
+    {
+      qname := parent.qname + "." + slot.name
+      doAdd(uri, parent.lib, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
+    }
   }
 
   ** Add DocInstance page to index
@@ -231,7 +239,7 @@ const class DocIndexerSection
   const Str body
 
   ** Debug string
-  override Str toStr() { "$uri $type $keys $title" }
+  override Str toStr() { "$uri | $type $type.weight | $keys" }
 }
 
 **************************************************************************
@@ -243,10 +251,11 @@ const class DocIndexerSection
 **
 enum class DocIndexerSectionType
 {
-  lib      (0.8f),
+  lib      (0.9f),
   type     (0.7f),
   global   (0.6f),
-  slot     (0.1f),
+  func     (0.4f),
+  slot     (0.4f),
   instance (0.0f),
   chapter  (1.0f),
   h1       (0.90f),

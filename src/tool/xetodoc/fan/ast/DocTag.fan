@@ -85,14 +85,12 @@ const class DocTag
   {
     switch (name)
     {
-      // axon funcs - orange
-      case "axon":
-      case "slot":
+      // funcs - orange
+      case "func":
         return "#ff8c00"
 
-      // tags - brown
-      case "tag":
-      case "conjunct":
+      // other slots - brown
+      case "slot":
         return "#8a7e5f"
 
       // fantom - purple
@@ -120,6 +118,8 @@ const class DocTags
   static const DocTag lib      := DocTag("lib")
   static const DocTag type     := DocTag("type")
   static const DocTag mixIn    := DocTag("mixin")
+  static const DocTag slot     := DocTag("slot")
+  static const DocTag func     := DocTag("func")
   static const DocTag instance := DocTag("instance")
   static const DocTag chapter  := DocTag("chapter")
   static const DocTag sys      := DocTag("sys")
