@@ -65,6 +65,7 @@ class DocHtmlWriter : WebOutStream
       specSig(p)
       markdown(p.doc)
     }
+
     dictSection("meta", p.meta)
     slotsSummary("slots", p.slots)
     slotsSummary("globals", p.globals)
@@ -156,12 +157,15 @@ class DocHtmlWriter : WebOutStream
     if (slots.isEmpty) return
     tabSection(title)
     props
+    propToggle("xetodoc-inherited", "Show inherited slots")
     slots.each |x, n|
     {
-      uri := slotIsOwn(x) ?
+      own := slotIsOwn(x)
+      attrs := own ? null : "class='xetodoc-inherited'"
+      uri := own ?
              ("#" +slotToElemId(x)).toUri :
              DocUtil.slotToUri(x.parent.qname, [n])
-      prop(DocLink(uri, n), x.doc.summary)
+      prop(DocLink(uri, n), x.doc.summary, attrs)
     }
     propsEnd
     tabSectionEnd
@@ -425,10 +429,10 @@ class DocHtmlWriter : WebOutStream
 
   private This propsEnd() { tagEnd(tagProps) }
 
-  private This prop(Obj name, Obj? val)
+  private This prop(Obj name, Obj? val, Str? attrs := null)
   {
     if (val == null) return this
-    tag(tagProp)
+    tag(tagProp, attrs)
       .tag(tagPropTh).propName(name).tagEnd(tagPropTh)
       .tag(tagPropTd).propVal(val).tagEnd(tagPropTd)
       .tagEnd(tagProp).nl
@@ -441,6 +445,17 @@ class DocHtmlWriter : WebOutStream
     .tag(tagPropHeading, "colspan='2'").esc(title)
     .tagEnd(tagPropHeading)
     .trEnd
+  }
+
+  private Void propToggle(Str className, Str msg)
+  {
+    js := "document.querySelectorAll('.${className}').forEach(el => el.classList.toggle('xetodoc-hidden'))"
+    tr.tag(tagPropToggle, "colspan='2'")
+    label
+    input("type=\"checkbox\" checked onchange=\"$js\"")
+    w(msg)
+    labelEnd
+    tagEnd(tagPropToggle).trEnd
   }
 
   private This propName(Obj name)
@@ -586,6 +601,7 @@ class DocHtmlWriter : WebOutStream
   static const Str tagPropTh      := "xetodoc-prop-th"
   static const Str tagPropTd      := "xetodoc-prop-td"
   static const Str tagPropHeading := "xetodoc-prop-heading"
+  static const Str tagPropToggle  := "xetodoc-prop-toggle"
   static const Str tagSlot        := "xetodoc-slot"
   static const Str tagSlotNested  := "xetodoc-slot-nested"
   static const Str tagChapter     := "xetodoc-chapter"

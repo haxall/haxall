@@ -181,6 +181,19 @@ xetodoc-prop-heading {
   color: var(--title-color);
 }
 
+xetodoc-prop-toggle {
+  display: table-cell;
+  margin: 0;
+  padding: 0;
+}
+
+xetodoc-prop-toggle input {
+  margin-left: 0;
+}
+
+.xetodoc-hidden {
+  display: none;
+}
 
 /***************************************************************
  * Slot Details
