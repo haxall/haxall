@@ -46,7 +46,8 @@ class DocIndexer
   ** Add DocType page to index
   virtual Void addSpec(DocSpec x)
   {
-    doAdd(x.uri, x.lib, DocIndexerSectionType.type, [x.qname, x.name], x.qname, x.doc)
+    type := x.flavor.isMixin ? DocIndexerSectionType.mixIn : DocIndexerSectionType.type
+    doAdd(x.uri, x.lib, type, [x.qname, x.name], x.qname, x.doc)
     x.eachSlotOwn |slot| { addSlot(x, slot) }
   }
 
@@ -253,6 +254,7 @@ enum class DocIndexerSectionType
 {
   lib      (0.9f),
   type     (0.7f),
+  mixIn    (0.5f),
   global   (0.6f),
   func     (0.4f),
   slot     (0.4f),
@@ -265,7 +267,10 @@ enum class DocIndexerSectionType
   private new make(Float weight)
   {
     this.weight = weight
-    this.tag    = (name[0] == 'h' && name.size == 2) ? "chapter" : name
+    if (name == "mixIn")
+      this.tag = "mixin"
+    else
+      this.tag = (name[0] == 'h' && name.size == 2) ? "chapter" : name
   }
 
   ** Boost weight from 1.0 (most important) to 0.0 (least important)

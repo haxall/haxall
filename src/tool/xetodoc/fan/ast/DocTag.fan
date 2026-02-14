@@ -89,6 +89,14 @@ const class DocTag
       case "func":
         return "#ff8c00"
 
+      // types - blue
+      case "type":
+        return "#3498db"
+
+      // mixin - yellow
+      case "mixin":
+        return "#f1c40f"
+
       // other slots - brown
       case "slot":
         return "#8a7e5f"
