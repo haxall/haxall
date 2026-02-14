@@ -54,6 +54,7 @@ class DocHtmlWriter : WebOutStream
     summarySection("chapters",  p.chapters)
     summarySection("mixins",    p.mixins)
     summarySection("types",     p.types)
+    summarySection("funcs",     p.funcs)
     summarySection("instances", p.instances)
   }
 

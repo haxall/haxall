@@ -58,6 +58,7 @@ const class DocLib : DocPage
     obj["meta"]    = meta.encode
     obj.addNotNull("tags",      DocTag.encodeList(tags))
     obj.addNotNull("specs",     DocSummary.encodeList(specs))
+    obj.addNotNull("funcs",     DocSummary.encodeList(funcs))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
     obj.addNotNull("chapters",  DocSummary.encodeList(chapters))
     if (!readme.isEmpty) obj["readme"] = readme.encode
@@ -76,6 +77,7 @@ const class DocLib : DocPage
       it.meta      = DocDict.decode(obj.get("meta"))
       it.tags      = DocTag.decodeList(obj.get("tags"))
       it.specs     = DocSummary.decodeList(obj["specs"])
+      it.funcs     = DocSummary.decodeList(obj["funcs"])
       it.instances = DocSummary.decodeList(obj["instances"])
       it.chapters  = DocSummary.decodeList(obj["chapters"])
       it.readme    = DocMarkdown.decode(obj["readme"])
@@ -91,11 +93,14 @@ const class DocLib : DocPage
   ** Top-level specs that types
   once DocSummary[] types() { flavor(SpecFlavor.type).toImmutable }
 
-  ** Top-level specs that globals
-  once DocSummary[] mixins() { flavor(SpecFlavor.mixIn).toImmutable }
+  ** Top-level specs that globals (omitsd Funcs)
+  once DocSummary[] mixins() { flavor(SpecFlavor.mixIn).findAll { it.link.uri.name != "Funcs" }.toImmutable }
 
   ** Find top-level specs of given flavor
   private DocSummary[] flavor(SpecFlavor f) { specs.findAll { it.flavor === f } }
+
+  ** Functions in the Funcs mixin
+  const DocSummary[] funcs
 
   ** Instances defined in this library
   const DocSummary[] instances
@@ -105,6 +110,7 @@ const class DocLib : DocPage
 
   ** Readme markdown if available
   const DocMarkdown readme := DocMarkdown.empty
+
 }
 
 **************************************************************************

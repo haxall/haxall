@@ -15,12 +15,12 @@ using haystack
 @Js
 const class DocIndex : DocPage
 {
-  ** Simple default implementation (at least for now)
-  static DocIndex makeForNamespace(Namespace ns)
+  ** Simple default implementation
+  static DocIndex makeForNamespace(Namespace ns, Lib[] libs)
   {
     // build doc summary for each lib and assign to a group name
     acc := Str:DocSummary[][:]
-    libs := ns.libs.dup.sort
+    libs = libs.dup.sort
     libs.each |lib|
     {
       link := DocLink(DocUtil.libToUri(lib.name), lib.name)

@@ -21,12 +21,12 @@ internal class GenPages: Step
     docns = DocNamespace(ns)
 
     // each lib
-    libGens := GenPage[,]
+    libGens := Lib[,]
     compiler.libs.each |lib|
     {
       if (DocUtil.isLibNoDoc(lib)) return
       g := genLib(lib)
-      libGens.add(g)
+      libGens.add(lib)
     }
 
     // build index
@@ -42,10 +42,9 @@ internal class GenPages: Step
 // Index
 //////////////////////////////////////////////////////////////////////////
 
-  private Void genIndex(GenPage[] libs)
+  private Void genIndex(Lib[] libs)
   {
-   // TOOD
-    page := DocIndex.makeForNamespace(ns)
+    page := DocIndex.makeForNamespace(ns, libs)
     compiler.pages.add(page)
   }
 
@@ -56,11 +55,13 @@ internal class GenPages: Step
   private GenPage genLib(Lib lib)
   {
     // setup current lib
-    this.lib    = lib
-    this.libRef = DocLibRef(lib.name, lib.version)
+    this.lib      = lib
+    this.libRef   = DocLibRef(lib.name, lib.version)
+    this.libFuncs = null
 
     // specs
     specs     := genLibSpecs
+    funcs     := genLibFuncs
     instances := genLibInstances
     chapters  := genLibChapters
 
@@ -74,6 +75,7 @@ internal class GenPages: Step
       it.depends   = genDepends(lib)
       it.tags      = DocUtil.genTags(ns, lib)
       it.specs     = specs
+      it.funcs     = funcs
       it.instances = instances
       it.chapters  = chapters
     }
@@ -96,6 +98,18 @@ internal class GenPages: Step
       summaries.add(g.summary)
     }
     return summaries
+  }
+
+  private DocSummary[] genLibFuncs()
+  {
+    if (libFuncs == null) return DocSummary#.emptyList
+    acc := DocSummary[,]
+    libFuncs.eachSlotOwn |s|
+    {
+      uri := DocUtil.qnameToUri(libFuncs.qname, s.name)
+      acc.add(DocSummary(DocLink(uri, s.name), s.doc.summary))
+    }
+    return acc
   }
 
   private DocSummary[] genLibInstances()
@@ -146,6 +160,7 @@ internal class GenPages: Step
   private GenPage genSpec(Spec x)
   {
     page := genSpecPage(x)
+    if (x.name == "Funcs") this.libFuncs = page
     return addPage(page, page.doc, page.tags)
   }
 
@@ -472,6 +487,7 @@ catch (Err e) echo("TODO: $e")
   private Str:DocMarkdown docCache := [:]
   private Str:Spec specxCache := [:]
   private Lib? lib
+  private DocSpec? libFuncs
   private DocLibRef? libRef
 }
 
