@@ -272,7 +272,9 @@ class DocHtmlWriter : WebOutStream
       {
         if (first) first = false
         else w(", ")
-        esc(nest.name) // TODO: this is going to need some work
+        esc(nest.name)
+        val := nest.meta.get("val")
+        if (val != null) { w(":"); propVal(val.toVal) }
       }
       w(" }")
     }
