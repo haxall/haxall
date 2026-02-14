@@ -568,7 +568,7 @@ class DocHtmlWriter : WebOutStream
 
   private Uri href(Uri uri)
   {
-    DocUtil.htmlUri(curPage.uri, uri)
+    hrefNorm ? DocUtil.htmlUri(curPage.uri, uri) : uri
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -595,6 +595,7 @@ class DocHtmlWriter : WebOutStream
   static const Str tagTag         := "xetodoc-tag"
 
   Bool fullHtml := true
+  Bool hrefNorm := true
   Str footerText := "footer"
   Str cssFilename := "xetodoc.css"
   Str? searchTitle
