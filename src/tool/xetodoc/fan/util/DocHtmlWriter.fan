@@ -99,16 +99,21 @@ class DocHtmlWriter : WebOutStream
 
   private Void search(DocSearch p)
   {
-    form("method='get' action='/doc/search'")
-     .p
-     .input("type='text' name='q' value='$p.pattern.toXml' placeholder='Search docs...'")
-     .pEnd
-     .formEnd
-     .nl
+    if (searchTitle != null) h1.esc(searchTitle).h1End
+
+    if (searchFormAction != null)
+    {
+      form("method='get' action='$searchFormAction'")
+       .p
+       .input("type='text' name='q' value='$p.pattern.toXml' placeholder='$searchPlaceholder'")
+       .pEnd
+       .formEnd
+       .nl
+    }
 
     // number of hits info
     tag(tagSearchInfo).nl
-    esc(p.info).nl
+    w(p.info).nl
     tagEnd(tagSearchInfo).nl.nl
 
     // hits
@@ -592,6 +597,9 @@ class DocHtmlWriter : WebOutStream
   Bool fullHtml := true
   Str footerText := "footer"
   Str cssFilename := "xetodoc.css"
+  Str? searchTitle
+  Uri? searchFormAction
+  Str searchPlaceholder := "Search docs..."
   private DocPage? curPage
 }
 
