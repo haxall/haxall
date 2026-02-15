@@ -39,7 +39,7 @@ internal class DocMarkdownParser : LinkResolver
 
     // check if we should parse just first sentence as summary
     summary := null
-    sentence := parseFirstSentence(markdown)
+    sentence := DocUtil.parseFirstSentence(markdown)
     if (sentence.size != markdown.size)
       summary = DocMarkdown(parseToHtml(sentence, false), null)
 
@@ -50,27 +50,6 @@ internal class DocMarkdownParser : LinkResolver
   {
     this.logWarn = logWarn
     return Xetodoc.toHtml(markdown, this)
-  }
-
-  static Str parseFirstSentence(Str s)
-  {
-    // this logic isn't exactly like firstSentence because we clip at colon
-    if (s.isEmpty) return ""
-
-    semicolon := s.index(";")
-    if (semicolon != null) s = s[0..<semicolon]
-
-    colon := s.index(":")
-    while (colon != null && colon + 1 < s.size && !s[colon+1].isSpace)
-      colon = s.index(":", colon+1)
-    if (colon != null) s = s[0..<colon]
-
-    period := s.index(".")
-    while (period != null && period + 1 < s.size && !s[period+1].isSpace)
-      period = s.index(".", period+1)
-    if (period != null) s = s[0..<period]
-
-    return s
   }
 
 //////////////////////////////////////////////////////////////////////////

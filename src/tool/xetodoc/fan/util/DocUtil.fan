@@ -170,6 +170,31 @@ const class DocUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Docs
+//////////////////////////////////////////////////////////////////////////
+
+  static Str parseFirstSentence(Str s)
+  {
+    // this logic isn't exactly like firstSentence because we clip at colon
+    if (s.isEmpty) return ""
+
+    semicolon := s.index(";")
+    if (semicolon != null) s = s[0..<semicolon]
+
+    colon := s.index(":")
+    while (colon != null && colon + 1 < s.size && !s[colon+1].isSpace)
+      colon = s.index(":", colon+1)
+    if (colon != null) s = s[0..<colon]
+
+    period := s.index(".")
+    while (period != null && period + 1 < s.size && !s[period+1].isSpace)
+      period = s.index(".", period+1)
+    if (period != null) s = s[0..<period]
+
+    return s
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Source Locations
 //////////////////////////////////////////////////////////////////////////
 
