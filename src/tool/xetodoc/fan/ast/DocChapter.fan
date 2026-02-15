@@ -53,7 +53,7 @@ const class DocChapter : DocPage
   const DocLink? next
 
   ** Markdown
-  const DocMarkdown doc
+  override const DocMarkdown doc
 
   ** Encode to a JSON object tree
   override Str:Obj encode()

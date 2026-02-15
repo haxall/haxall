@@ -77,7 +77,7 @@ const class DocSpec : AbstractDocSpec, DocPage
   const override DocDict meta
 
   ** Tags
-  const DocTag[] tags
+  const override DocTag[] tags
 
   ** Super type or null if this is 'sys::Obj'
   const DocTypeRef? base

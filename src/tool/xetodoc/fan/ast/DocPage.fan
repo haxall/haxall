@@ -26,6 +26,12 @@ const mixin DocPage
   ** Title
   abstract Str title()
 
+  ** Summary documentation for page
+  virtual DocMarkdown doc() { DocMarkdown.empty }
+
+  ** Tags fpor page
+  virtual DocTag[] tags() { DocTag.emptyList }
+
   ** Navigation breadcrumbs (from index down to and including this page)
   DocLink[] nav()
   {

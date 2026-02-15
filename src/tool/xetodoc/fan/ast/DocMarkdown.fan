@@ -46,7 +46,7 @@ const class DocMarkdown
   }
 
   ** Summary is first sentence of the text
-  internal const DocMarkdown summary
+  const DocMarkdown summary
 
 }
 

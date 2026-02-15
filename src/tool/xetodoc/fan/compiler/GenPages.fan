@@ -17,6 +17,12 @@ internal class GenPages: Step
 {
   override Void run()
   {
+    // add all extraPages pages first
+    compiler.extraPages.each |page|
+    {
+      addPage(page, page.doc, page.tags)
+    }
+
     // init document ns wrapper
     docns = DocNamespace(ns)
 
@@ -44,7 +50,13 @@ internal class GenPages: Step
 
   private Void genIndex(Lib[] libs)
   {
-    page := DocIndex.makeForNamespace(ns, libs)
+    libPages := DocLib[,]
+    pages.each |g|
+    {
+      if (g.page is DocLib) libPages.add(g.page)
+    }
+
+    page := DocIndex.makeForNamespace(ns, libPages)
     compiler.pages.add(page)
   }
 
@@ -69,6 +81,7 @@ internal class GenPages: Step
     page := DocLib
     {
       it.name      = lib.name
+      it.title     = lib.name
       it.version   = lib.version
       it.doc       = genDoc(lib.meta["doc"], null)
       it.meta      = genDict(lib.meta, libMeta)

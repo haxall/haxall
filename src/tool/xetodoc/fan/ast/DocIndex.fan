@@ -16,19 +16,17 @@ using haystack
 const class DocIndex : DocPage
 {
   ** Simple default implementation
-  static DocIndex makeForNamespace(Namespace ns, Lib[] libs)
+  static DocIndex makeForNamespace(Namespace ns, DocLib[] libPages)
   {
     // build doc summary for each lib and assign to a group name
     acc := Str:DocSummary[][:]
-    libs = libs.dup.sort
-    libs.each |lib|
+    libPages = libPages.dup.sort |a, b| { a.name <=> b.name }
+    libPages.each |libPage|
     {
-      link := DocLink(DocUtil.libToUri(lib.name), lib.name)
-      doc  := DocMarkdown(lib.meta["doc"] ?: "")
-      tags := DocUtil.genTags(ns, lib)
-      summary := DocSummary(link, doc, tags)
+      link := DocLink(libPage.uri, libPage.title)
+      summary := DocSummary(link, libPage.doc.summary, libPage.tags)
 
-      groupName := toGroupName(lib)
+      groupName := toGroupName(libPage.name)
       groupList := acc[groupName]
       if (groupList == null) acc[groupName] = groupList = DocSummary[,]
       groupList.add(summary)
@@ -37,6 +35,7 @@ const class DocIndex : DocPage
     // flatten groups
     groupNames := acc.keys.sort
     ["doc", "sys"].eachr |n| { groupNames.moveTo(n, 0) }
+    groupNames.moveTo("fantom", -1)
     groups := DocIndexGroup[,]
     groupNames.each |n| { groups.add(DocIndexGroup(n, acc[n])) }
 
@@ -47,13 +46,13 @@ const class DocIndex : DocPage
     }
   }
 
-  private static Str toGroupName(Lib lib)
+  private static Str toGroupName(Str libName)
   {
-    name := lib.name
-    toks := name.split('.', false)
-    if (name == "axon") return "hx"
+    toks := libName.split('.', false)
+    if (libName == "axon") return "hx"
     if (toks.contains("doc")) return "doc"
-    if (toks.size == 1) return name
+    if (toks.size == 1) return libName
+    if (toks[0] == "fan") return "fantom"
     if (toks[0] == "cc") return toks[0] + "." + toks[1]
     return toks[0]
   }

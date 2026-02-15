@@ -21,6 +21,9 @@ const class DocLib : DocPage
   ** URI relative to base dir to page
   override Uri uri() { DocUtil.libToUri(name) }
 
+  ** Title
+  override const Str title
+
   ** Dotted name for library
   const Str name
 
@@ -28,7 +31,7 @@ const class DocLib : DocPage
   const Version version
 
   ** Summary documentation for library
-  const DocMarkdown doc
+  override const DocMarkdown doc
 
   ** Metadata
   const DocDict meta
@@ -38,9 +41,6 @@ const class DocLib : DocPage
 
   ** Page type
   override DocPageType pageType() { DocPageType.lib }
-
-  ** Title
-  override Str title() { name }
 
   ** Library for this page (or null if top-level indexing)
   override DocLibRef? lib() { DocLibRef(name, version) }
@@ -52,6 +52,7 @@ const class DocLib : DocPage
     obj.ordered    = true
     obj["page"]    = pageType.name
     obj["name"]    = name
+    obj["title"]   = title
     obj["version"] = version.toStr
     obj["doc"]     = doc.encode
     obj["depends"] = DocLibDepend.encodeList(depends)
@@ -71,6 +72,7 @@ const class DocLib : DocPage
     DocLib
     {
       it.name      = obj.getChecked("name")
+      it.title     = obj.getChecked("title")
       it.version   = Version.fromStr(obj.getChecked("version"))
       it.doc       = DocMarkdown.decode(obj.get("doc"))
       it.depends   = DocLibDepend.decodeList(obj["depends"])
@@ -85,7 +87,7 @@ const class DocLib : DocPage
   }
 
   ** Tags to annotate this summary
-  const DocTag[] tags
+  const override DocTag[] tags
 
   ** Top-level type specs defined in this library
   const DocSummary[] specs
