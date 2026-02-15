@@ -17,6 +17,7 @@ abstract const class DocTypeRef
 {
   static DocTypeRef dict() { DocSimpleTypeRef.predefined.getChecked("sys::Dict") }
   static DocTypeRef list() { DocSimpleTypeRef.predefined.getChecked("sys::List") }
+  static DocTypeRef func() { DocSimpleTypeRef.predefined.getChecked("sys::Func") }
 
   ** Return qualified name (if compound "sys::And" or "sys::Or")
   abstract Str qname()

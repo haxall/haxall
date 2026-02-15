@@ -19,6 +19,12 @@ const class DocMarkdown
   ** Empty string
   static const DocMarkdown empty := make("")
 
+  ** Constructor for plain text
+  static DocMarkdown makePlain(Str plain)
+  {
+    make("<p>$plain.toXml</p>")
+  }
+
   ** Constructor
   new make(Str html, DocMarkdown? summary := null)
   {
