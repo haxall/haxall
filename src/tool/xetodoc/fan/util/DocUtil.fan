@@ -116,7 +116,7 @@ const class DocUtil
   }
 
   ** Convert spec or instance qualified name to its normalized URI
-  internal static Uri toUri(Str lib, Str name, Str? frag := null)
+  static Uri toUri(Str lib, Str name, Str? frag := null)
   {
     StrBuf(2+lib.size+name.size)
       .addChar('/')

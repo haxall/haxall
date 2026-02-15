@@ -13,7 +13,7 @@ using haystack
 **
 ** Axon library functions
 **
-@Js
+@NoDoc @Js
 const class AxonFuncs
 {
 

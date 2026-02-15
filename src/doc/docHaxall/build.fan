@@ -25,8 +25,8 @@ class Build : BuildPod
                "license.name": "Academic Free License 3.0",
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall",
-               "hx.docFantom": "true",
                ]
     resDirs = [`doc/`]
   }
 }
+

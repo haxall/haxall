@@ -15,6 +15,7 @@ using hx
 **
 ** Axon functions for py
 **
+@NoDoc
 const class PyFuncs
 {
 
