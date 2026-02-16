@@ -24,7 +24,8 @@ internal class GenPages: Step
     }
 
     // init document ns wrapper if not passed into compiler
-    this.docns = compiler.docns ?: DocNamespace(ns, compiler.libs)
+    if (compiler.docns == null) compiler.docns = DocNamespace(ns, compiler.libs)
+    this.docns = compiler.docns
 
     // each lib
     libGens := Lib[,]
