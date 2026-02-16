@@ -147,22 +147,17 @@ internal class DocMarkdownParser : LinkResolver
     orig := link.destination
     try
     {
+      // try with standard linker
       res := linker.resolve(orig)
-      if (res != null)
-      {
-        uri := res.uri
-        if (link.shortcut) link.setText(res.dis)
-        if (compiler.mode.isHtml) uri = DocUtil.htmlUri(linker.uri, uri)
-        link.destination = uri.toStr
-      }
-      else
-      {
-        // for now don't report fantom links
-        if (orig.startsWith("fan.")) return
 
-        // warn
-        warn("unresolved link [$orig]", loc(link.loc))
-      }
+      // if not found then output warning
+      if (res == null) return warn("unresolved link [$orig]", loc(link.loc))
+
+      // update link node
+      uri := res.uri
+      if (link.shortcut) link.setText(res.dis)
+      if (compiler.mode.isHtml) uri = DocUtil.htmlUri(linker.uri, uri)
+      link.destination = uri.toStr
     }
     catch (Err e)
     {

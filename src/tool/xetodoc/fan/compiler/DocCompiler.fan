@@ -173,6 +173,7 @@ class DocCompiler
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
   DocPage[] pages := [,]              // GenPages
+  Uri:DocPage pagesByUri := [:]       // GenPanes
   Int numFiles                        // WriteHtml, WriteJson
   Int numWarns                        // warn
   private Str[] autoNames := [,]      // autoName

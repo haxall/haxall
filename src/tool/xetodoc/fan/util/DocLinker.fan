@@ -17,7 +17,7 @@ using xetom
 class DocLinker
 {
   ** Constructor with given location; doc is Spec/DocNamespaceChapter
-  new make(DocNamespace ns, Lib? lib, Obj? doc := null)
+  new make(DocNamespace ns, Lib? lib, Obj? doc)
   {
     this.ns  = ns
     this.lib = lib
@@ -202,6 +202,54 @@ class DocLinker
   const Uri uri            // current location uri
   const Lib? lib           // current lib scope
   const Obj? doc           // current doc scope (Spec, DocNamespaceChapter)
+}
+
+**************************************************************************
+** DocLinker
+**************************************************************************
+
+** CompilerDocLinker extends DocLinker to look for unresolved links
+** in the extra pages (ie the fantom pages, etc)
+class CompilerDocLinker : DocLinker
+{
+  new make(DocCompiler c, Lib? lib, Obj? doc) : super(c.docns, lib, doc)
+  {
+    this.compiler = c
+  }
+
+  override DocLinkUri? doResolve(Str orig, Str? libName, Str docName, Str? slotName, Str? frag)
+  {
+    // standard implementation
+    res := super.doResolve(orig, libName, docName, slotName, frag)
+    if (res != null) return res
+
+    // lookup lib page for libName
+    if (libName == null) return null
+    page := compiler.pagesByUri.get(`/$libName/$docName`)
+    if (page == null) return null
+
+    // handle slot
+    if (slotName != null)
+    {
+      specPage := page as DocSpec
+      if (specPage == null) return null
+      slot := specPage.slots.get(slotName)
+      if (slot == null) return null
+      return DocLinkUri(page.uri + `#${slotName}`, specPage.name + "." + slotName)
+    }
+
+    // handle frag
+    if (frag != null)
+    {
+      // we don't handle this right now
+      echo("WARN: do not handle link to extra doc chapter anchor [$orig]")
+      return null
+    }
+
+    return DocLinkUri(page.uri, page.title)
+  }
+
+  DocCompiler compiler
 }
 
 **************************************************************************

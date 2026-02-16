@@ -152,7 +152,7 @@ internal class GenPages: Step
     }
 
     // if we had index.md, then use it for chapter summaries
-    linker := DocLinker(docns, lib)
+    linker := CompilerDocLinker(compiler, lib, null)
     summaries = DocMarkdownParser(compiler, linker).parseChapterIndex(summaries, mdIndex)
 
     // now backpatch chapter prev/next
@@ -435,7 +435,7 @@ catch (Err e) echo("TODO: $e")
     x := docCache[str]
     if (x == null)
     {
-      linker := DocLinker(docns, this.lib, libDoc)
+      linker := CompilerDocLinker(compiler, this.lib, libDoc)
       x = DocMarkdownParser(compiler, linker).parseDocMarkdown(str)
       docCache[str] = x
     }
@@ -486,6 +486,7 @@ catch (Err e) echo("TODO: $e")
     else
     {
       pages[x.uri] = x
+      compiler.pagesByUri.add(x.uri, x.page)
       compiler.pages.add(x.page)
     }
     return x
