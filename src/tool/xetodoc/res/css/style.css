@@ -10,8 +10,8 @@ xetodoc-page {
   display: block;
   font: 16px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
   line-height: 1.5em;
-  max-width: 960px;
-  margin-top: 1em;
+  width: min(960px, 100%);
+  margin: 1em auto 0 auto;
 
   --divider-border: 1px solid #eee;
 
@@ -96,7 +96,7 @@ xetodoc-nav li + li.next {
 xetodoc-main {
   margin: 20px 0 0 0;
   display: grid;
-  grid-template-columns: auto 850px;
+  grid-template-columns: max-content 1fr;
   grid-row-gap: 30px;
   grid-column-gap: 20px;
 }
@@ -108,6 +108,8 @@ xetodoc-tab {
   font-size: 100%;
   font-weight: normal;
   color: var(--sidebar-color);
+  max-width: 160px;
+  overflow-wrap: break-word;
 }
 
 xetodoc-section {
