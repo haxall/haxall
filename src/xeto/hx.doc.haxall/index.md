@@ -20,7 +20,6 @@
 
 - [AxonLang](AxonLang.md): Features of Axon programming language
 - [Streams](Streams.md): Asynchronous streams
-- [Comps](Comps.md): Axon components
 - [AxonUsage](AxonUsage.md): Example snippets of Axon code
 - [Units](Units.md): Units of measurement
 
@@ -38,3 +37,4 @@
 
 - [AxonGrammar](AxonGrammar.md): Formal BNF syntax grammar
 - [ChangeLog](ChangeLog.md): List of changes in each build
+

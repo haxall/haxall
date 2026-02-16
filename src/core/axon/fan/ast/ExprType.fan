@@ -24,8 +24,6 @@ enum class ExprType
   def,
   var,
   func,
-  compdef,
-  celldef,
   call,
   dotCall,
   staticCall,

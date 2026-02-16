@@ -2144,18 +2144,6 @@ const class AxonFuncs
     AxonFuncsUtil.funcs(AxonContext.curAxon, filterExpr)
   }
 
-  ** Return component definition.  The result is a grid where each row
-  ** corresponds to a cell and its associated meta data.  The grid
-  ** meta is the function level meta data.
-  **
-  ** Example:
-  **   compDef("compName")
-  @Api @Axon
-  static Grid? compDef(Obj name, Bool checked := true)
-  {
-    AxonFuncsUtil.compDef(AxonContext.curAxon, name, checked)
-  }
-
   ** Get the current top-level function's tags.
   @Api @Axon
   static Dict curFunc()

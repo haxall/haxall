@@ -23,10 +23,7 @@ Legend for BNF Grammar:
 
 # Productions
 
-    <topFunc>      :=  <lambda-n> | <defcomp>
-    <defcomp>      :=  "defcomp" <cells> [<do>] "end"
-    <cells>        :=  [<cell> <nl>]*
-    <cell>         :=  <id> <dict>
+    <topFunc>      :=  <lambda-n>
 
     <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
                        <return> | <throw> | <tryCatch> | <defcomp> |
@@ -127,3 +124,4 @@ Legend for BNF Grammar:
     <symbol>    :=  "^" refChar (refChar)*
     <refChar>   :=  <alpha> | <digit> | '_' | ':' | '.' | '~' | '-'
     <nl>        :=  newline "\n"
+

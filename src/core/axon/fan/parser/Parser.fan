@@ -149,48 +149,8 @@ class Parser
 
   private Fn defcomp(Str name, Dict meta)
   {
-    // defcomp keyword
-    compLoc := curLoc
-    consume(Token.defcompKeyword)
-    compRef := AtomicRef()
-
-    // cells as "name: {meta}"
-    cells := MCellDef[,]
-    cellsMap := Str:MCellDef[:]
-    while (cur !== Token.doKeyword && cur !== Token.endKeyword)
-    {
-      cellLoc := curLoc
-      c := cell(compRef, cells.size)
-      if (cellsMap[c.name] != null) throw err("Duplicate cell names: $c.name", cellLoc)
-      cells.add(c)
-      cellsMap.add(c.name, c)
-    }
-
-    // optional do/end bodhy
-    Expr body := Literal.nullVal
-    if (cur === Token.doKeyword) body = doBlock
-
-    // end keyword
-    consume(Token.endKeyword)
-
-    // create CompDef implementation
-    def := MCompDef(compLoc, name, meta, body, cells, cellsMap)
-    compRef.val = def
-
-    // update inner closures with reference to outer scope
-    bindInnersToOuter(def)
-
-    return def
-  }
-
-  private CellDef cell(AtomicRef compRef, Int index)
-  {
-    name := consumeIdOrKeyword("Expecting cell name")
-    consume(Token.colon)
-    meta := constDict
-    if (meta.has("name")) throw err("Comp cell meta cannot define 'name' tag")
-    eos
-    return MCellDef(compRef, index, name, meta)
+    // removed in 4.0.5
+    throw err("defcomp is not longer supported")
   }
 
 //////////////////////////////////////////////////////////////////////////

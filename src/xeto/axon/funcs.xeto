@@ -1306,15 +1306,6 @@
   //     funcs(sparkRule)     // match filter
   funcs: Func { filter: Filter, returns: Grid }
 
-  // Return component definition.  The result is a grid where each row
-  // corresponds to a cell and its associated meta data.  The grid
-  // meta is the function level meta data.
-  //
-  // Example:
-  //
-  //     compDef("compName")
-  compDef: Func { name: Obj, checked: Bool, returns: Grid? }
-
   // Get the current top-level function's tags.
   curFunc: Func { returns: Dict }
 

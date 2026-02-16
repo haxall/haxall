@@ -546,7 +546,3 @@ In the expression above if no exception is thrown by `getCurVal`, then its
 result is assigned to the variable `result`.  If an exception is thrown, then
 the string "bad val" is assigned to `result`.
 
-# Defcomp
-The `defcomp` keyword defines a component.  Components are discussed in
-detail in the [Comps] chapter.
-

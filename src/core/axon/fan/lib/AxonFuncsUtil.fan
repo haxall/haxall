@@ -93,29 +93,6 @@ internal const class AxonFuncsUtil
     return fnToDict(cx, fn)
   }
 
-  ** Find a top-level function by name and return its tags.
-  static Grid? compDef(AxonContext cx, Obj name, Bool checked)
-  {
-    fn := coerceToFn(cx, name, checked)
-    if (fn == null) return null
-    comp := fn as CompDef ?: throw Err("Func is not a comp: $fn.name")
-
-    cols := Etc.dictsNames(comp.cells)
-    cols.remove("name")
-
-    gb := GridBuilder().addCol("name").addColNames(cols)
-    gb.setMeta(fnToDict(cx, fn))
-    comp.cells.each |cell|
-    {
-      row := Obj?[,]
-      row.capacity = 1 + cols.size
-      row.add(cell.name)
-      cols.each |n| { row.add(cell[n]) }
-      gb.addRow(row)
-    }
-    return gb.toGrid
-  }
-
   ** Get the current top-level function's tags.
   static Dict curFunc(AxonContext cx)
   {
