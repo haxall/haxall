@@ -483,7 +483,7 @@ class DocTest : AbstractXetoTest
   Void testLinker()
   {
     ns := createNamespace(["ph.points", "hx", "hx.test.xeto", "doc.xeto"])
-    docns = DocNamespace(ns)
+    docns = DocNamespace(ns, ns.libs)
 
     // DocNamespace chapter heading parsing
     chapters := docns.chapters(ns.lib("hx.test.xeto"))
