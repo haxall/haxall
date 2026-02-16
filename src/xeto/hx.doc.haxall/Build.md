@@ -25,13 +25,13 @@ of [Fantom](https://fantom.org/) rather than building from scratch:
 
   1. [Download](https://fantom.org/download) and unzip latest version
 
-  2. See [Fantom Setup](fan.doc.tools::Setup)
+  2. See [Fantom Setup](fan.docTools::Setup)
 
   3. Make sure `fan` or `fan.bat` is in your executable path
 
 There are cases where the current version of the Haxall repo requires
 building Fantom from source.  We call this a *bootstrap* build because Fantom
-is used to compile Fantom itself.  See the [Bootstrap](fan.doc.tools::Bootstrap)
+is used to compile Fantom itself.  See the [Bootstrap](fan.docTools::Bootstrap)
 chapter for details.
 
 # Project Haystack
@@ -74,3 +74,4 @@ in `{haxall}/bin` cannot be used directly.  Instead you can run the Haxall comma
 line using the `fan <pod>` launcher like this:
 
     fan hx version
+

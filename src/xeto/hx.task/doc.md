@@ -7,7 +7,7 @@ copyright:  Copyright (c) 2020, SkyFoundry LLC, Licensed under the AFL v3.0
 
 # Overview
 The task extension defines a framework for running Axon on asynchronous
-background threads; it is based on the Fantom [actor framework](fan.doc.lang::Actors).
+background threads; it is based on the Fantom [actor framework](fan.docLang::Actors).
 
 A *task* is an [actor](fan.concurrent::Actor) which processes messages asynchronously
 with an Axon function.  When a message is sent to a task it is placed onto a

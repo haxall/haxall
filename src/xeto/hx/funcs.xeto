@@ -419,7 +419,7 @@
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
-  // Return [fan.hx::Proj.isSteadyState]
+  // Return [fan.hx::Runtime.isSteadyState]
   isSteadyState: Func { returns: Bool }
 
   // Return [about](op:about) dict

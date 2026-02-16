@@ -211,7 +211,7 @@ file in a version control system.  Diffs include the ability:
   - add or remove a record
   - update/add a set of tags on an existing record
   - remove a set of tags on an existing record (using the special
-    [remove](fan.haystack::Remove) value)
+    [none](fan.xeto::None) value)
 
 In Fantom diffs are committed with the [fan.folio::Folio.commit] method:
 

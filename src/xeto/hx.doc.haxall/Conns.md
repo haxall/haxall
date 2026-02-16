@@ -90,9 +90,9 @@ remote system during [ping](connPing()) and typically includes:
 # Connector State
 Every connector maintains an open/close state available via the [hx.conn::Conn.connState] tag:
   - `closed`: connector is closed
-  - `closing`: connector is currently inside its [onClose](fan.hxconn::ConnDispatch.onClose) callback
+  - `closing`: connector is currently inside its [onClose](fan.hxConn::ConnDispatch.onClose) callback
   - `open`: connector is open
-  - `opening`: connector is currently inside its [onOpen](fan.hxconn::ConnDispatch.onOpen) callback
+  - `opening`: connector is currently inside its [onOpen](fan.hxConn::ConnDispatch.onOpen) callback
 
 The framework manages the state, however the semantics of open will vary based
 on the connector type.  For session based HTTP connectors open means that a
@@ -108,7 +108,7 @@ Separately every connector maintains a status via the [hx.conn::Conn.connStatus]
   - `unknown`: status not computed yet (boot state)
 
 The status is managed by the framework; typically it is transitioned after
-the [onOpen](fan.hxconn::ConnDispatch.onOpen)  callback either succeeds or fails.
+the [onOpen](fan.hxConn::ConnDispatch.onOpen)  callback either succeeds or fails.
 Note that is common for the state to be both `ok` and `closed` - a connector is
 not kept open unless an application has a current need for it to be open.
 

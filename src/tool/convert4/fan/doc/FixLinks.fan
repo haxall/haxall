@@ -179,7 +179,7 @@ class FixLinks
         type := pod.type(docName, false)
         if (type != null)
         {
-          fan := "fan.$pod.name.lower::$type.name"
+          fan := "fan.$pod.name::$type.name"
           if (slotName != null) fan += "." + slotName
           return fan
         }

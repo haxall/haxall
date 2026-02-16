@@ -15,11 +15,11 @@ create own custom connectors and enforces consistency across all connector
 types.
 
 Key classes in the API:
-  - [fan.hxconn::ConnExt]: your HxLib subclass
-  - [fan.hxconn::Conn]: models one connector as an actor
-  - [fan.hxconn::ConnPoint]: models one point under a connector
-  - [fan.hxconn::ConnDispatch]: base class for callback handling
-  - [fan.hxconn::ConnTrace]: used to add tracing into your connector
+  - [fan.hxConn::ConnExt]: your HxLib subclass
+  - [fan.hxConn::Conn]: models one connector as an actor
+  - [fan.hxConn::ConnPoint]: models one point under a connector
+  - [fan.hxConn::ConnDispatch]: base class for callback handling
+  - [fan.hxConn::ConnTrace]: used to add tracing into your connector
 
 # Steps
 To create a custom connector requires the following steps:
@@ -46,7 +46,7 @@ deviate from the naming conventions - the framework expects your tags and
 class names to follow the standard naming patterns.
 
 # Fantom Pod
-All connectors must be defined as a Fantom [pod](fan.doc.lang::Pods).  You will
+All connectors must be defined as a Fantom [pod](fan.docLang::Pods).  You will
 typically have the following source level directory structure:
 
     hxFoo/
@@ -106,7 +106,7 @@ introspected by the framework when your connector boots.  The value must be
 a nested Dict that uses the following tags:
 
   - `learn`: marker tag if your connector supports [learn](#learn)
-  - `pollMode`: enum for [fan.hxconn::ConnPollMode] - see [below](#polling)
+  - `pollMode`: enum for [fan.hxConn::ConnPollMode] - see [below](#polling)
 
 If your connector will support points, then you will also need definitions
 for the point and associated addressing tags:
@@ -142,7 +142,7 @@ specific protocol.  Most connectors use `str` or `uri` for the
 address type.
 
 # ConnExt
-All connectors must create a subclass of [fan.hxconn::ConnExt].
+All connectors must create a subclass of [fan.hxConn::ConnExt].
 Here is an example:
 
     using hx
@@ -154,20 +154,20 @@ Here is an example:
 
 In most cases, this will just be empty stub code.  But there are some features
 which require overrides.  For example, if you want to add extra debugging into
-details, then you will override the [onConnDetails](fan.hxconn::ConnExt.onConnDetails)
-or [onPointDetails](fan.hxconn::ConnExt.onPointDetails) methods.
+details, then you will override the [onConnDetails](fan.hxConn::ConnExt.onConnDetails)
+or [onPointDetails](fan.hxConn::ConnExt.onPointDetails) methods.
 
 # ConnDispatch
-All connectors must create a subclass of [fan.hxconn::ConnDispatch] to handle
+All connectors must create a subclass of [fan.hxConn::ConnDispatch] to handle
 callbacks.  Any mutable state your connector manages should be stored in
 this class.  One instance of this class is instantiated per connector by
-the [fan.hxconn::Conn] actor.
+the [fan.hxConn::Conn] actor.
 
 All implementations must handle the following callbacks:
 
-  - [onOpen](fan.hxconn::ConnDispatch.onOpen)
-  - [onPing](fan.hxconn::ConnDispatch.onPing)
-  - [onClose](fan.hxconn::ConnDispatch.onClose)
+  - [onOpen](fan.hxConn::ConnDispatch.onOpen)
+  - [onPing](fan.hxConn::ConnDispatch.onPing)
+  - [onClose](fan.hxConn::ConnDispatch.onClose)
 
 Here is a simple stub example:
 
@@ -200,7 +200,7 @@ Here is a simple stub example:
 The learn feature is used to "walk" the external system's native data model
 to discover which points are available.  To add learn to your connector:
  1. define the `learn` tag in your conn defs [hx.conn::Spec.connFeatures]
- 2. override the [onLearn](fan.hxconn::ConnDispatch.onLearn) callback
+ 2. override the [onLearn](fan.hxConn::ConnDispatch.onLearn) callback
 
 The learn argument is an connector specific identifier used to keep of
 track of position within the tree or graph of the remote system's data model.
@@ -215,13 +215,13 @@ include standard point data like `point`, `fooPoint`, `fooCur`, `fooWrite`,
 
 # Point Cur
 Current value is synchronized manually via the [connSyncCur()] function which
-results in the [onSyncCur](fan.hxconn::ConnDispatch.onSyncCur) callback.  This
+results in the [onSyncCur](fan.hxConn::ConnDispatch.onSyncCur) callback.  This
 callback works with a batch of points.  If your protocol supports batch reads,
 then typically it most efficient to sync the entire batch.
 
 Continuous synchronization of current value is managed when the point is put
 into a [watch](hx.doc.haxall::Watches).  Watch state is managed by the callbacks
-[onWatch](fan.hxconn::ConnDispatch.onWatch) and [onUnwatch](fan.hxconn::ConnDispatch.onUnwatch).
+[onWatch](fan.hxConn::ConnDispatch.onWatch) and [onUnwatch](fan.hxConn::ConnDispatch.onUnwatch).
 Both callbacks work with a batch of points. Typically there are two
 watch strategies:
   - if the protocol supports change of value subscriptions, then map
@@ -239,9 +239,9 @@ current value:
   - periodic [polling](#polling)
 
 In all cases if the current value is read successfully, then the connector
-should call [updateCurOk](fan.hxconn::ConnPoint.updateCurOk) with the Haystack
+should call [updateCurOk](fan.hxConn::ConnPoint.updateCurOk) with the Haystack
 representation of the current value.  If an error is detected such as
-a bad address, then call [updateCurErr](fan.hxconn::ConnPoint.updateCurErr).
+a bad address, then call [updateCurErr](fan.hxConn::ConnPoint.updateCurErr).
 These methods manage the `curVal`, `curStatus`, and `curErr`
 tags for you automatically.
 
@@ -250,7 +250,7 @@ call `updateCurErr` with the exception.  The following exceptions type
 should be used for special cases:
   - [fan.haystack::FaultErr]: connector is communicating correctly, but
     there is a configuration error with the point
-  - [fan.hxconn::RemoteStatusErr]: remote point can be read correctly, but
+  - [fan.hxConn::RemoteStatusErr]: remote point can be read correctly, but
     the remote system status is not "ok".  For example if the remote
     point is "disabled", then use this exception to set the local point
     into "remoteDisabled"
@@ -258,16 +258,16 @@ should be used for special cases:
 # Point Writes
 The standard behavior of writable points is defined by the [point library](hx.point::doc#point-writes)
 which manages the 16-level priority array.  When it calculates a new effective
-level should be written, the framework issues the [onWrite](fan.hxconn::ConnDispatch.onWrite)
+level should be written, the framework issues the [onWrite](fan.hxConn::ConnDispatch.onWrite)
 callback.  Your callback should write the new value to the remote system, and
-then call [updateWriteOk](fan.hxconn::ConnPoint.updateWriteOk) or [updatWriteErr](fan.hxconn::ConnPoint.updateWriteErr).
+then call [updateWriteOk](fan.hxConn::ConnPoint.updateWriteOk) or [updatWriteErr](fan.hxConn::ConnPoint.updateWriteErr).
 
 # Point History Sync
 If the connector's protocol supports historical time-series synchronization,
-then implement the [onSyncHis](fan.hxconn::ConnDispatch.onSyncHis) callback.  Use
+then implement the [onSyncHis](fan.hxConn::ConnDispatch.onSyncHis) callback.  Use
 this callback to read the history items for the given timestamp range.  Your
-callback must then call [updateHisOk](fan.hxconn::ConnPoint.updateHisOk) with latest
-data or else call [updateHisErr](fan.hxconn::ConnPoint.updateHisErr) if there is an
+callback must then call [updateHisOk](fan.hxConn::ConnPoint.updateHisOk) with latest
+data or else call [updateHisErr](fan.hxConn::ConnPoint.updateHisErr) if there is an
 error.  The framework automatically handles writing to the historian and managing
 your `hisStatus` and `hisErr` tags.
 
@@ -280,7 +280,7 @@ features add the `pollMode` tag in the [hx.conn::Spec.connFeatures] of your conn
 ## Manual Polling
 Manual polling is used when your connector wishes to handle all polling details
 itself.  For example, it is used by the Haystack and oBIX connectors to implement the
-"poll for changes" design pattern.  The framework invokes the [onPollManual](fan.hxconn::ConnDispatch.onPollManual)
+"poll for changes" design pattern.  The framework invokes the [onPollManual](fan.hxConn::ConnDispatch.onPollManual)
 callback based on a configured frequency.  To use manual polling your library
 must define a tag named `fooPollFreq`:
 
@@ -295,15 +295,15 @@ The `val` tag determines the default frequency when not explicitly configured.
 Bucket polling is the standard, built-in strategy to achieve tunable, scalable
 polling for a large number of points. Bucket polling is described in detail in
 the [Tuning](ConnTuning#poll-buckets) chapter.  From an implementation
-perspective, all that you must do is override the [onPollBuckets](fan.hxconn::ConnDispatch.onPollBucket)
+perspective, all that you must do is override the [onPollBuckets](fan.hxConn::ConnDispatch.onPollBucket)
 callback.  If you don't override this method, then it will automatically
-route to [onSyncCur](fan.hxconn::ConnDispatch.onSyncCur).
+route to [onSyncCur](fan.hxConn::ConnDispatch.onSyncCur).
 
 # Custom Messaging
 Each Conn instance is a subclass of [fan.concurrent::Actor] which accepts
 messages typed as [fan.hx::HxMsg].  Built-in messages are routed to your
 ConnDispatch subclass via the various callbacks.  But you can also add custom
-messages which will be dispatched to the [onReceive](fan.hxconn::ConnDispatch.onReceive)
+messages which will be dispatched to the [onReceive](fan.hxConn::ConnDispatch.onReceive)
 callback.  This callback only receives messages which are not handled
 by the framework.  So when using this feature, make sure to use names
 which will never conflict with the built-in message types; a good technique

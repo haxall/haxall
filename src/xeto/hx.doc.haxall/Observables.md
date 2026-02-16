@@ -13,7 +13,7 @@ produces an unbounded stream of Dict data items called *observations*.
 An *observer* is a data consumer which subscribes to an observable's data
 stream.  A *subscription* is the binding between an observable and an
 observer.  All observers process their data items asynchronously on a background
-thread using an [Actor](fan.doc.lang::Actors).
+thread using an [Actor](fan.docLang::Actors).
 
 All observers are named with a marker def.  The following are
 the built-in [observables](hx.obs::Observable):
@@ -292,3 +292,4 @@ Event observations include the following tags:
 
 These are the config tags:
   - [hx.obs::Observable.obsFilter]: filter string for events to observe or omit for all events
+

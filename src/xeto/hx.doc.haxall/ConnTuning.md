@@ -26,7 +26,7 @@ via settings (tags on the library ext rec itself):
   - [maxThreads](#maxthreads): thread pool size
 
 ## maxThreads
-The connector framework is built using Fantom's [actor APIs](fan.doc.lang::Actors).
+The connector framework is built using Fantom's [actor APIs](fan.docLang::Actors).
 Each connector is itself an actor which executes on threads from a shared
 thread pool.  By default each connector library is allocated a max thread pool size
 of 100.  This means that at most 100 connectors of one type can concurrently do
@@ -54,7 +54,7 @@ Each of the tags is discusssed in more detail below.
 The [hx.conn::Conn.actorTimeout] tag configures a duration for message timeouts.
 This determines how long to block on a synchronous message to the actor when the
 connector is busy blocking on I/O or processing previous messages.  Its
-most typically used by the [Conn.sendSync](fan.hxconn::Conn.sendSync) method
+most typically used by the [Conn.sendSync](fan.hxConn::Conn.sendSync) method
 used by many libs for connector specific functionality such as [haystackReadAll()].
 
 This timeout is also used for all socket timeouts for connectors
@@ -257,7 +257,7 @@ function after a debugging session.
 
 # Poll Buckets
 Most simple connectors support curVal synchronization via polling.  When
-a connector's [pollMode](fan.hxconn::ConnPollMode) is defined as `buckets` then
+a connector's [pollMode](fan.hxConn::ConnPollMode) is defined as `buckets` then
 the framework automatically allocates all points to *polling buckets*.
 Polling buckets can be used to tune the grouping and frequency of polls.
 Points are grouped into buckets via their unique [hx.conn::Conn.connTuningRef] tag.
@@ -300,7 +300,7 @@ polled at the exact same interval.  In the example above, we have two buckets
 configured with a 1sec pollTime.  The system will automatically stagger
 the poll interval randomly within that 1sec window.
 
-Under the covers a bucket is polled with the [onPollBucket](fan.hxconn::ConnDispatch.onPollBucket)
+Under the covers a bucket is polled with the [onPollBucket](fan.hxConn::ConnDispatch.onPollBucket)
 callback.  However, not all protocols support a batch read.  So it is possible
 that bucket polls might still require individual point level read requests.
 

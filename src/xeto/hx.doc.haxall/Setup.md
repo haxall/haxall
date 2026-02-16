@@ -27,7 +27,7 @@ To setup the Haxall daemon runtime:
   6. [Login](#login) and you can try out some Axon
   7. [Import](#import) some data you can play with
 
-Also see [Fantom Setup](fan.doc.tools::Setup) for additional details.
+Also see [Fantom Setup](fan.docTools::Setup) for additional details.
 
 # Preinstall Java
 You must have Java 8 or later installed on your system as a prerequisite.
@@ -98,7 +98,7 @@ correctly you should be able to run `hx version`:
     fan.home:        /stuff/haxall-4.0.4
 
 The Haxall installation is a super-set of a standard Fantom installation.
-If you have any trouble, see [Fantom Setup](fan.doc.tools::Setup) to troubleshoot
+If you have any trouble, see [Fantom Setup](fan.docTools::Setup) to troubleshoot
 your environment.
 
 # Init
@@ -169,3 +169,4 @@ query.  Try out the following expressions in the shell:
     read(ahu)->id
     point and equipRef==read(ahu)->id
     vav and airRef==read(ahu)->id
+

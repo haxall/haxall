@@ -8,7 +8,7 @@
 
 +Funcs {
 
-  // Create a new [fan.hxpy::PySession] instance. Options:
+  // Create a new [fan.hxPy::PySession] instance. Options:
   //   - `image`: name of the Docker image to run. By default, the lib will
   //   try to run the following images in this order:
   //     1. `ghcr.io/haxall/hxpy:<ver>` (where ver = current library Haxall version)
