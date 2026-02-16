@@ -142,7 +142,7 @@ class DocLinker
     {
       if (slotName != null && slotName != "md") return null
       if (frag != null && chapter.headings.get(frag) == null) return null
-      dis := docName == "doc" ? libName : docName
+      dis := docName == "doc" ? libName : chapter.title
       return DocLinkUri(DocUtil.toUri(libName, docName, frag), dis)
     }
 
