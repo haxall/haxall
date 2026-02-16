@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Read Haystack data in [JSON]`docHaystack::Json` format.
+** Read Haystack data in [JSON]`ph.doc::Json` format.
 **
 @Js
 class JsonReader : GridReader

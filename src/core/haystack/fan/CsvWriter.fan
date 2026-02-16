@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Write Haystack data in [CSV]`docHaystack::Csv` format.
+** Write Haystack data in [CSV]`ph.doc::Csv` format.
 **
 @Js
 class CsvWriter : GridWriter

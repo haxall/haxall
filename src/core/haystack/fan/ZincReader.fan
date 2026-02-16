@@ -10,7 +10,7 @@
 using xeto
 
 **
-** Read Haystack data in [Zinc]`docHaystack::Zinc` format.
+** Read Haystack data in [Zinc]`ph.doc::Zinc` format.
 **
 @Js
 class ZincReader : GridReader

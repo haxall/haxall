@@ -2274,7 +2274,7 @@ const class AxonFuncs
 
   ** Localize column display names.  For each col which does not have
   ** an explicit dislay name, add a 'dis' tag based on the column name.
-  ** Also see `haystack::Grid.colsToLocale` and `docSkySpark::Localization#tags`.
+  ** Also see `haystack::Grid.colsToLocale` and `hx.doc.skyspark::Localization#tags`.
   @Api @Axon static Grid colsToLocale(Grid grid) { grid.colsToLocale }
 
   ** Get the localized string for the given tag name or qualified name.

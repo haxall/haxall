@@ -9,7 +9,7 @@
 using xeto
 
 **
-** Read Haystack data in [Trio]`docHaystack::Trio` format.
+** Read Haystack data in [Trio]`ph.doc::Trio` format.
 **
 @Js
 class TrioReader : GridReader

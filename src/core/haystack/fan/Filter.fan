@@ -14,7 +14,7 @@ using xeto
 
 **
 ** Filter models a declarative predicate for selecting dicts.
-** See `docHaystack::Filters` for details.
+** See `ph.doc::Filters` for details.
 **
 @Js
 const abstract class Filter
@@ -124,7 +124,7 @@ const abstract class Filter
 // Parse
 //////////////////////////////////////////////////////////////////////////
 
-  ** Parse a query from string - see `docHaystack::Filters` for format.
+  ** Parse a query from string - see `ph.doc::Filters` for format.
   ** If the query cannot be parsed then return null or throw
   ** ParseErr with location of error.
   static new fromStr(Str s, Bool checked := true)

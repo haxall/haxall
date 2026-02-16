@@ -12,7 +12,7 @@ using haystack
 
 **
 ** FolioFlatFile is a simple `Folio` implementation backed by
-** a [Trio]`docHaystack::Trio` flat file.
+** a [Trio]`ph.doc::Trio` flat file.
 **
 const class FolioFlatFile : Folio
 {

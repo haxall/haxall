@@ -9,7 +9,7 @@
 using xeto
 
 **
-** Write Haystack data in [Trio]`docHaystack::Trio` format.
+** Write Haystack data in [Trio]`ph.doc::Trio` format.
 **
 ** Options:
 **  - noSort: do not sort tag names

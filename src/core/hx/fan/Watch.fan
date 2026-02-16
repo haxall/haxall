@@ -15,7 +15,7 @@ using haystack
 **
 ** Watch is a subscription to a set of records in a project database.
 ** It provides an efficient mechanism to poll for changes.
-** Also see `docHaxall::Watches#fantom`.
+** Also see `hx.doc.haxall::Watches#fantom-apis`.
 **
 const abstract class Watch
 {
@@ -52,7 +52,7 @@ const abstract class Watch
   ** An empty list is returned if no changes have been made to the watched
   ** records since ticks.  There is no ordering to the resulting list.
   ** This method automatically renews the lease and keeps track of the
-  ** last poll ticks.  Also see `docHaxall::Watches#fantom`.
+  ** last poll ticks.  Also see `hx.doc.haxall::Watches#fantom-apis`.
   abstract Dict[] poll(Duration ticks := lastPoll)
 
   ** Update `lastRenew` just to maintain the lease, but don't

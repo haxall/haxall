@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Write Haystack data in [JSON]`docHaystack::Json` format.
+** Write Haystack data in [JSON]`ph.doc::Json` format.
 **
 @Js
 class JsonWriter : GridWriter

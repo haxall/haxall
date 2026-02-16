@@ -10,7 +10,7 @@
 using xeto
 
 **
-** Write Haystack data in [Zinc]`docHaystack::Zinc` format.
+** Write Haystack data in [Zinc]`ph.doc::Zinc` format.
 **
 @Js
 class ZincWriter : GridWriter

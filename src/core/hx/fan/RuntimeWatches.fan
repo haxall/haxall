@@ -19,7 +19,7 @@ using haystack
 const mixin RuntimeWatches
 {
   ** List the watches currently open for the runtime.
-  ** Also see `docHaxall::Watches#fantom`.
+  ** Also see `hx.doc.haxall::Watches#fantom-apis`.
   abstract Watch[] list()
 
   ** Return list of watches currently subscribed to the given id,
@@ -28,11 +28,11 @@ const mixin RuntimeWatches
 
   ** Find an open watch by its identifier.  If  not found
   ** then throw Err or return null based on checked flag.
-  ** Also see `docHaxall::Watches#fantom`.
+  ** Also see `hx.doc.haxall::Watches#fantom-apis`.
   abstract Watch? get(Str id, Bool checked := true)
 
   ** Open a new watch with given display string for debugging.
-  ** Also see `docHaxall::Watches#fantom`.
+  ** Also see `hx.doc.haxall::Watches#fantom-apis`.
   abstract Watch open(Str dis)
 
   ** Return if given record id is under at least one watch

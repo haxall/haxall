@@ -87,8 +87,8 @@ const final class ConnTuningRoster
 **************************************************************************
 
 **
-** ConnTuning models a `connTuning` rec.
-** See `docHaxall::ConnTuning`
+** ConnTuning models a `hx.conn::ConnTuning` spec record.
+** See `hx.doc.haxall::ConnTuning` chapter
 **
 const final class ConnTuning
 {
@@ -111,27 +111,27 @@ const final class ConnTuning
   override Str toStr() { "ConnTuning [$rec.id.toZinc]" }
 
   ** Frequency between polls of 'curVal'.
-  ** See See `docHaxall::ConnTuning#pollTime`.
+  ** See See `hx.doc.haxall::ConnTuning#polltime`.
   Duration pollTime() { config.pollTime }
 
   ** Time before a point's curStatus marked from "ok" to "stale".
-  ** See See `docHaxall::ConnTuning#staleTime`.
+  ** See See `hx.doc.haxall::ConnTuning#staletime`.
   Duration staleTime() { config.staleTime }
 
   ** Minimum time between writes used to throttle the speed of writes.
-  ** See See `docHaxall::ConnTuning#writeMinTime`.
+  ** See See `hx.doc.haxall::ConnTuning#writemintime`.
   Duration? writeMinTime() { config.writeMinTime }
 
   ** Maximum time between writes used to send periodic writes.
-  ** See See `docHaxall::ConnTuning#writeMaxTime`.
+  ** See See `hx.doc.haxall::ConnTuning#writemaxtime`.
   Duration? writeMaxTime() { config.writeMaxTime }
 
   ** Rewrite the point everytime time the connector transitions to open.
-  ** See See `docHaxall::ConnTuning#writeOnOpen`.
+  ** See See `hx.doc.haxall::ConnTuning#writeonopen`.
   Bool writeOnOpen() { config.writeOnOpen }
 
   ** Issue a write when system starts up, otherwise suppress it.
-  ** See `docHaxall::ConnTuning#writeOnStart`.
+  ** See `hx.doc.haxall::ConnTuning#writeonstart`.
   Bool writeOnStart() { config.writeOnStart }
 
   ** Rec configuration

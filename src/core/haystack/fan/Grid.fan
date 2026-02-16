@@ -11,7 +11,7 @@ using xeto
 **
 ** Two dimensional tabular data structure composed of Cols and Rows.
 ** Grids may be created by factory methods on `Etc` or using `GridBuilder`.
-** See [docHaystack]`docHaystack::Kinds#grid`.
+** See [docHaystack]`ph.doc::Kinds#grid`.
 **
 @Js
 const mixin Grid
@@ -827,7 +827,7 @@ const mixin Grid
   **
   ** Return a new Grid wich each col name mapped to its localized
   ** tag name if the col does not already have a display string.
-  ** See `Etc.tagToLocale` and `docSkySpark::Localization#tags`.
+  ** See `Etc.tagToLocale` and `hx.doc.skyspark::Localization#tags`.
   **
   Grid colsToLocale()
   {

@@ -179,21 +179,21 @@ abstract const class Folio
     checkRead.doReadByIds(ids).dicts(checked)
   }
 
-  ** Return the number of records which match given [filter]`docHaystack::Filters`.
+  ** Return the number of records which match given [filter]`ph.doc::Filters`.
   ** This method supports the same options as `readAll`.
   Int readCount(Filter filter, Dict? opts := null)
   {
     checkRead.doReadCount(filter, opts)
   }
 
-  ** Find the first record which matches the given [filter]`docHaystack::Filters`.
+  ** Find the first record which matches the given [filter]`ph.doc::Filters`.
   ** Throw UnknownRecErr or return null based on checked flag.
   Dict? read(Filter filter, Bool checked := true)
   {
     checkRead.doReadAll(filter, optsLimit1).dict(checked)
   }
 
-  ** Match all the records against a [filter]`docHaystack::Filters` and
+  ** Match all the records against a [filter]`ph.doc::Filters` and
   ** return as grid.
   **
   ** Options:
@@ -208,7 +208,7 @@ abstract const class Folio
       checkRead.doReadAll(filter, opts).dicts(false))
   }
 
-  ** Match all the records against a [filter]`docHaystack::Filters` and return
+  ** Match all the records against a [filter]`ph.doc::Filters` and return
   ** as list.  This method uses same semantics and options as `readAll`.
   Dict[] readAllList(Filter filter, Dict? opts := null)
   {

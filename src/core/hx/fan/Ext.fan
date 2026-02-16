@@ -83,7 +83,7 @@ const mixin Ext
   ** pool. This method should be called in the `onStart` callback.
   ** The observation is automatically unsubscribed on stop.  You should
   ** **not** unsubscribe this subscription - it must be managed by the
-  ** extension itself.  See `docHaxall::Observables#fantomObserve`.
+  ** extension itself.  See `hx.doc.haxall::Observables#fantom-observe`.
   Subscription observe(Str name, Dict config, Obj callback) { spi.observe(name, config, callback) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ abstract const class ExtObj : Ext
   ** Equality is based on reference equality
   override final Bool equals(Obj? that) { this === that }
 
-  ** Return `name`
+  ** Return 'name'
   override final Str toStr() { name }
 
   @NoDoc

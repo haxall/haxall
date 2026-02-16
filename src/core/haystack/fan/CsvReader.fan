@@ -9,7 +9,7 @@
 using util
 
 **
-** Read Haystack data in [CSV]`docHaystack::Csv` format.
+** Read Haystack data in [CSV]`ph.doc::Csv` format.
 **
 @Js
 class CsvReader : GridReader

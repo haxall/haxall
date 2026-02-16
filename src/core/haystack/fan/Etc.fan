@@ -1186,7 +1186,7 @@ const class Etc
 
   **
   ** Get the localized string for the given tag name for the
-  ** current locale. See `docSkySpark::Localization#tags`.
+  ** current locale. See `hx.doc.skyspark::Localization#tags`.
   **
   static Str tagToLocale(Str name)
   {

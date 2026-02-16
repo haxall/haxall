@@ -89,7 +89,7 @@ const mixin Runtime
   ** Has the runtime has reached steady state.  Steady state is reached
   ** after a configurable wait period elapses after the runtime is
   ** fully loaded.  This gives internal services time to spin up before
-  ** interacting with external systems.  See `docHaxall::Runtime#steadyState`.
+  ** interacting with external systems.  See `hx.doc.haxall::Runtime#steady-state`.
   abstract Bool isSteadyState()
 
   ** Watch subscriptions
@@ -134,15 +134,15 @@ const mixin Runtime
 
   ** Find the first record which matches the given filter string.
   ** Throw UnknownRecErr or return null based on checked flag.
-  ** See [Filter Chapter]`docHaystack::Filters` for filter format.
+  ** See [Filter Chapter]`ph.doc::Filters` for filter format.
   abstract Dict? read(Str filter, Bool checked := true)
 
   ** Match all the records against a filter string and return as grid.
-  ** See [Filter Chapter]`docHaystack::Filters` for filter format.
+  ** See [Filter Chapter]`ph.doc::Filters` for filter format.
   abstract Grid readAll(Str filter, Dict? opts := null)
 
   ** Match all the records against a filter string and return as
-  ** list.  See [Filter Chapter]`docHaystack::Filters` for filter
+  ** list.  See [Filter Chapter]`ph.doc::Filters` for filter
   ** format.  See `readAll` to return results as a grid.
   abstract Dict[] readAllList(Str filter, Dict? opts := null)
 

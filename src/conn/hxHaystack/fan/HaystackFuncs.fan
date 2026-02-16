@@ -145,7 +145,7 @@ const class HaystackFuncs
   ** Options:
   **   - 'debug': dumps full expr with seralized scope to stdout
   **   - 'evalTimeout': duration number to override remote project's
-  **     default [evalTimeout]`docSkySpark::Tuning#folio`
+  **     default [evalTimeout]`hx.doc.skyspark::Tuning#folio`
   **
   ** Examples:
   **   read(haystackConn).haystackEval(3 + 4)
