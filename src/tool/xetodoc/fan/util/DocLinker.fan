@@ -14,9 +14,9 @@ using xetom
 **
 ** DocLinker is use to resolve shortcut links against current location
 **
-const class DocLinker
+class DocLinker
 {
-  ** Constructor with given location
+  ** Constructor with given location; doc is Spec/DocNamespaceChapter
   new make(DocNamespace ns, Lib? lib, Obj? doc := null)
   {
     this.ns  = ns
@@ -34,7 +34,7 @@ const class DocLinker
     // parse into libName::docName.slotName#frag
     orig := x
     Str? libName  := null
-    Str? docName  := x
+    Str  docName  := x
     Str? slotName := null
     Str? frag     := null
 
@@ -59,6 +59,12 @@ const class DocLinker
       docName  = x = x[0..<dot]
     }
 
+    return doResolve(orig, libName, docName, slotName, frag)
+  }
+
+  ** Subclass hook after parsing libName::docName.slotName#frag'
+  virtual DocLinkUri? doResolve(Str orig, Str? libName, Str docName, Str? slotName, Str? frag)
+  {
     // handle function()
     if (docName.endsWith("()"))
     {
@@ -185,6 +191,9 @@ const class DocLinker
       return loc
     }
 
+    // if loc if file loc
+    if (doc is FileLoc) return doc
+
     if (lib != null) return lib.loc
     return FileLoc.unknown
   }
@@ -192,7 +201,7 @@ const class DocLinker
   const DocNamespace ns    // namespace and cached chapter headings
   const Uri uri            // current location uri
   const Lib? lib           // current lib scope
-  const Obj? doc           // current doc scope (Spec or DocNamespaceChapter)
+  const Obj? doc           // current doc scope (Spec, DocNamespaceChapter)
 }
 
 **************************************************************************

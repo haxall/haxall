@@ -201,6 +201,6 @@ internal class DocMarkdownParser : LinkResolver
 
   private DocCompiler compiler
   private Bool logWarn := true
-  private const DocLinker linker
+  private DocLinker linker
 }
 

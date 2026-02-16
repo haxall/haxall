@@ -30,6 +30,10 @@ class DocCompiler
   ** Namespace to generate
   const Namespace ns
 
+  ** Documented namespace which can be passed in for reuse
+  ** for cached chapter anchors; or lazily created when needed
+  DocNamespace? docns
+
   ** Libs to generate
   const Lib[] libs
 
@@ -166,7 +170,6 @@ class DocCompiler
 //////////////////////////////////////////////////////////////////////////
 
   DocCompileMode? mode                // init
-  DocNamespace? docns                 // can be passed in or lazily created
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
   DocPage[] pages := [,]              // GenPages
