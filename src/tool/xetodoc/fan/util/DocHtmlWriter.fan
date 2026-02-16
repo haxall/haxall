@@ -155,13 +155,17 @@ class DocHtmlWriter : WebOutStream
   private Void slotsSummary(Str title, Str:DocSlot slots)
   {
     if (slots.isEmpty) return
+    anyInherited := slots.any |x| { !slotIsOwn(x) }
     tabSection(title)
     props
-    propToggle("xetodoc-inherited", "Show inherited slots")
+    if (anyInherited)
+    {
+      propToggle("xetodoc-inherited", "Show inherited slots")
+    }
     slots.each |x, n|
     {
       own := slotIsOwn(x)
-      attrs := own ? null : "class='xetodoc-inherited'"
+      attrs := own ? null : "class='xetodoc-inherited xetodoc-hidden'"
       uri := own ?
              ("#" +slotToElemId(x)).toUri :
              DocUtil.slotToUri(x.parent.qname, [n])
@@ -454,7 +458,7 @@ class DocHtmlWriter : WebOutStream
     js := "document.querySelectorAll('.${className}').forEach(el => el.classList.toggle('xetodoc-hidden'))"
     tr.tag(tagPropToggle, "colspan='2'")
     label
-    input("type=\"checkbox\" checked onchange=\"$js\"")
+    input("type=\"checkbox\" onchange=\"$js\"")
     w(msg)
     labelEnd
     tagEnd(tagPropToggle).trEnd
