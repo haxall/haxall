@@ -19,22 +19,36 @@ using xeto
 const class DocNamespace
 {
   ** Constructor with base namespace
-  new make(Namespace ns)
+  new make(Namespace ns, Lib[] libs)
   {
-    this.ns = ns
+    this.ns   = ns
+    this.libs = libs
+    this.libsByName = Str:Lib[:].addList(libs) { it.name }
   }
 
   ** Base namespace
   const Namespace ns
 
-  ** Convenience
-  Lib[] libs() { ns.libs }
+  ** Libs we are documenting
+  const Lib[] libs
+
+  ** Libs we are documenting
+  const Str:Lib libsByName
 
   ** Convenience
-  Lib? lib(Str name, Bool checked) { ns.lib(name, checked) }
+  Lib? lib(Str name, Bool checked) { libsByName.getChecked(name, checked) }
 
-  ** Convenience
-  SpecMap funcs() { ns.funcs }
+  ** Lookup unqualified function - match only if there exatly one in documented libs
+  Spec? func(Str name)
+  {
+    matches := Spec[,]
+    libs.each |lib|
+    {
+      matches.addNotNull(lib.funcs.get(name, false))
+    }
+    if (matches.size == 1) return matches.first
+    return null
+  }
 
   ** Get chapters keyed by name for given lib
   Str:DocNamespaceChapter chapters(Lib lib)

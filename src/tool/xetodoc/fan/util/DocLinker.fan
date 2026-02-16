@@ -71,7 +71,7 @@ const class DocLinker
       }
       else
       {
-        func = ns.funcs.get(name, false) // will raise ambiguous error
+        func = ns.func(name)
       }
       if (func == null) return null
       return DocLinkUri(DocUtil.specToUri(func), func.name + "()")

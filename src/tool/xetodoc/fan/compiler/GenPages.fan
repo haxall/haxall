@@ -23,8 +23,8 @@ internal class GenPages: Step
       addPage(page, page.doc, page.tags)
     }
 
-    // init document ns wrapper
-    docns = DocNamespace(ns)
+    // init document ns wrapper if not passed into compiler
+    this.docns = compiler.docns ?: DocNamespace(ns, compiler.libs)
 
     // each lib
     libGens := Lib[,]

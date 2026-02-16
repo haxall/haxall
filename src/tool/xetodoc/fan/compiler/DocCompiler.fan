@@ -166,6 +166,7 @@ class DocCompiler
 //////////////////////////////////////////////////////////////////////////
 
   DocCompileMode? mode                // init
+  DocNamespace? docns                 // can be passed in or lazily created
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
   DocPage[] pages := [,]              // GenPages
