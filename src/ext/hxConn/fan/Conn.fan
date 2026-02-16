@@ -98,17 +98,17 @@ const final class Conn : Actor, HxConn
   ** Does the record have the 'disabled' marker configured
   Bool isDisabled() { config.isDisabled }
 
-  ** Timeout to use for I/O and actor messaging - see `actorTimeout`.
+  ** Timeout to use for I/O and actor messaging - see `hx.conn::Conn.actorTimeout`.
   Duration timeout() { config.timeout }
 
-  ** Frequency to retry opens. See `connOpenRetryFreq`.
+  ** Frequency to retry opens. See `hx.conn::Conn.connOpenRetryFreq`.
   Duration openRetryFreq() { config.openRetryFreq }
 
   ** Configured ping frequency to test connection or
-  ** null if feature is disabled - see `connPingFreq`
+  ** null if feature is disabled - see `hx.conn::Conn.connPingFreq`
   Duration? pingFreq() { config.pingFreq }
 
-  ** Configured linger timeout - see `connLinger`
+  ** Configured linger timeout - see `hx.conn::Conn.connLinger`
   Duration linger() { config.linger }
 
   ** Conn tuning configuration to use for this connector.

@@ -11,8 +11,9 @@ using haystack
 
 **
 ** ConnStatus enumeration.  This is a unified status value
-** that incorporates `connStatus`, `curStatus`, `writeStatus`
-** and `hisStatus`.  We do not model hisStatus pending/syncing.
+** that incorporates `hx.conn::Conn.connStatus`, `ph::CurPoint.curStatus`,
+** `ph::WritablePoint.writeStatus` and `ph::HisPoint.hisStatus`.  We do
+** not model hisStatus pending/syncing.
 **
 enum class ConnStatus
 {
@@ -113,3 +114,4 @@ enum class ConnState
   open,
   opening
 }
+

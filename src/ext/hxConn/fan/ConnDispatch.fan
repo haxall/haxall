@@ -15,7 +15,7 @@ using hx
 ** ConnDispatch provides an implementation for all callbacks.  A subclass
 ** is created by each connector to implement the various callbacks and
 ** store mutable state.  All dispatch callbacks are executed within the
-** parent Conn actor.  See `docHaxall::CustomConns#connDispatch`.
+** parent Conn actor.  See `hx.doc.haxall::CustomConns#conndispatch`.
 **
 abstract class ConnDispatch
 {
@@ -194,8 +194,9 @@ abstract class ConnDispatch
   ** Callback to write a point.  The connector should write 'info.val'
   ** to the remote system.  If successful then call `ConnPoint.updateWriteOk`.
   ** If there is an error then invoke `ConnPoint.updateWriteErr` or raise
-  ** an exception.  Note the value  may have been convered from `writeVal`
-  ** if `writeConvert` is configured.
+  ** an exception.  Note the value  may have been convered from
+  ** `ph::WritablePoint.writeVal` if `hx.conn::ConnPoint.writeConvert` is
+  ** configured.
   virtual Void onWrite(ConnPoint point, ConnWriteInfo event) {}
 
   ** Callback to synchronize the a point's history data from the

@@ -105,7 +105,7 @@ const mixin Grid
   }
 
   **
-  ** Return if this grid conforms to the [history grid shape]`lib-his::doc#hisGrid`:
+  ** Return if this grid conforms to the [history grid shape]`hx.his::doc#his-grid-shape`:
   **  - has at least two columns
   **  - first column is named "ts"
   **  - has meta hisStart and hisEnd DateTime values
