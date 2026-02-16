@@ -18,7 +18,7 @@ internal class WriteHtml : Step
   override Void run()
   {
     // doc setup
-    footerText = "Xetodoc \u2022 " + DateTime.now.toLocale("D-MMM-YYYY hh:mm zzz")
+    footerText = compiler.footer
 
     // write each page
     eachPage |entry| { writePage(entry) }

@@ -44,6 +44,9 @@ class DocCompiler
   ** generated to JSON or HTML and used to resolve shortcut links
   DocPage[] extraPages := [,]
 
+  ** Footer message
+  Str footer := "Xetodoc \u2022 " + DateTime.now.toLocale("D-MMM-YYYY hh:mm zzz")
+
   ** Logging
   XetoLog log := XetoLog.makeOutStream
 
