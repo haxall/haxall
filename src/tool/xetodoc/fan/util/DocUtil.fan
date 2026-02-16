@@ -89,7 +89,7 @@ const class DocUtil
   }
 
   ** Convert spec or instance qualified name to its normalized URI
-  internal static Uri specToUri(Spec spec)
+  static Uri specToUri(Spec spec)
   {
     Str? frag := null
     while (spec.parent != null)
