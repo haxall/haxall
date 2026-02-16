@@ -43,9 +43,14 @@ xetodoc-page code {
 xetodoc-page pre {
   font: 14px Menlo, Consolas, Courier, monospace;
   background: #f7f7f9;
-  margin: 1em 0;
-  padding: 1.5em;
+  color: #222;
+  margin: 0.5em 0;
+  padding: 1em;
   overflow: auto;
+}
+
+xetodoc-page pre code {
+  color: inherit;
 }
 
 xetodoc-page h1 {
