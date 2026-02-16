@@ -32,6 +32,16 @@ const class DocIndex : DocPage
       groupList.add(summary)
     }
 
+    // special handling for fantom
+    fantom := acc["fantom"]
+    if (fantom != null)
+    {
+      "sys,docIntro,docLang,docDomkit,docTools".split(',').eachr |n|
+      {
+        fantom.moveTo(fantom.find { it.link.dis == n }, 0)
+      }
+    }
+
     // flatten groups
     groupNames := acc.keys.sort
     ["doc", "sys"].eachr |n| { groupNames.moveTo(n, 0) }
