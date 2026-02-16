@@ -341,14 +341,20 @@ internal abstract class FoldExtreme : Fold
     }
     mode = FoldNumMode.ok
   }
-  override Obj? batch() { [mode, min, max] }
+  override Obj? batch()
+  {
+    // Note - must encode mode as Str since enums are not haystack types
+    [mode.toStr, min, max]
+  }
   override Void addBatch(Obj v)
   {
-    // handle where adding the result of a batch (which woudl be single number)
-    if (v is Number) v = [FoldNumMode.ok, v, v]
+    // handle where adding the result of a batch (which would be single number)
+    if (v is Number) v = [FoldNumMode.ok.toStr, v, v]
 
     state := (List)v
-    mode := state[0] as FoldNumMode
+
+    // batch mode is always encoded as Str, so decode it as FoldNumMode enum
+    mode := FoldNumMode.fromStr(state[0])
     switch (mode)
     {
       case FoldNumMode.first: return
