@@ -70,12 +70,12 @@ you include it using the heredoc syntax as follows:
 
     myAdd: Func { a:Number, b:Number, returns: Number
       <axon:---
-      (a, b) => a + b
+      a + b
       --->
     }
 
-Note that you need both the xeto spec signature, and to repeat the func params
-in your axon source. The names should match (but are not currently checked).
+Note that the parameters to the func are defined on the spec itself, as well as the
+return type.
 
 ## Fantom Funcs
 Fantom functions are defined as a static method in a class always called "FooFuncs"
