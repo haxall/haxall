@@ -61,3 +61,7 @@ TestRefs: Dict {
   instRef: @test-b
 }
 
+@simple-inst: {
+  dis: "hi"
+}
+

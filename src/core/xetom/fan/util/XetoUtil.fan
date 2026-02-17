@@ -88,7 +88,7 @@ const class XetoUtil
   ** Return if valid instance id/name (and must not start with uppercase)
   static Bool isInstanceName(Str n)
   {
-    Ref.isId(n) && !n[0].isUpper
+    Ref.isId(n) && !n[0].isUpper && !n.contains(":")
   }
 
   ** Return if name is "_" + digits

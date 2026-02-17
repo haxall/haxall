@@ -374,9 +374,9 @@ class ValidateTest : AbstractXetoTest
     ])
 
     // invalid target types in lib
-    verifyValidate(src, ["a":refFoo, "b":refFoo, "c":Ref("ph::op:about"), "d":[refBar2, Ref("ph::filetype:json")]], [
-      "Slot 'c': Ref target must be 'temp::Bar', target is 'ph::Op'",
-      "Slot 'd': Ref target must be 'temp::Bar', target is 'ph::Filetype'",
+    verifyValidate(src, ["a":refFoo, "b":refFoo, "c":Ref("hx.test.xeto::refs-a"), "d":[refBar2, Ref("hx.test.xeto::refs-a")]], [
+      "Slot 'c': Ref target must be 'temp::Bar', target is 'hx.test.xeto::TestRefs'",
+      "Slot 'd': Ref target must be 'temp::Bar', target is 'hx.test.xeto::TestRefs'",
     ])
 
     // ref type is spec (only in fitter)

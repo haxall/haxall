@@ -193,14 +193,6 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(elecMeter.slot("meter").type, marker)
     verifyEq(elecMeter.slot("equip").type, marker)
 
-    // feature instances
-    verifyFeatureInstance(ph.instance("filetype:zinc"),
-      ["id":Ref("ph::filetype:zinc"), "spec":Ref("ph::Filetype"), "filetype":m, "dis":"Zinc", "fileExt":"zinc", "mime":"text/zinc"])
-    verifyFeatureInstance(ph.instance("op:about"),
-      ["id":Ref("ph::op:about"), "spec":Ref("ph::Op"), "op":m, "noSideEffects":m])
-    verifyFeatureInstance(ph.instance("op:pointWrite"),
-      ["id":Ref("ph::op:pointWrite"), "spec":Ref("ph::Op"), "op":m])
-
     // siteRef
     verifySame(ns.spec("ph::PhEntity.siteRef").of, site)
     verifySame(ns.spec("ph::Equip.siteRef").of, site)
@@ -248,11 +240,6 @@ class NamespaceTest : AbstractXetoTest
       verifyErr(UnresolvedErr#) { ph.files.get(`bad`) }
       verifyErr(UnresolvedErr#) { ph.files.get(`bad`, true) }
     }
-  }
-
-  Void verifyFeatureInstance(Dict dict, Str:Obj expect)
-  {
-    verifyDictEq(dict, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -346,6 +333,9 @@ class NamespaceTest : AbstractXetoTest
     verifySame(sitem.slot("area").base, site.slot("area"))
     verifySame(site.slot("weatherStationRef").parent, site)
     verifyEq(sitem.slot("weatherStationRef", false), null)
+
+    // instances
+    verifyDictEq(lib.instance("simple-inst"), ["id":Ref("hx.test.xeto::simple-inst"), "dis":"hi"])
 
     // files
     files := lib.files
