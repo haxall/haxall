@@ -423,7 +423,11 @@ catch (Err e) echo("TODO: $e")
 
   private DocMarkdown genSpecDoc(Spec x)
   {
-    genDoc(x.meta["doc"], x)
+    doc := x.metaOwn.get("doc")
+    if (doc != null) return genDoc(doc, x)
+    if (x.isMember && x.type !== x.base) return genDoc(x.meta.get("doc"), x)
+    return DocMarkdown.empty
+
   }
 
   private DocMarkdown genDoc(Obj? val, Obj? libDoc)
