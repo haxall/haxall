@@ -7,6 +7,17 @@
 //    2 Jul 2025  Brian Frank  Move some exceptions from haystack
 //
 
+**
+** Xeto base class for errors that include metadata
+**
+@Js @NoDoc const class XetoErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+
+  ** Meta to include in error responses, error grids
+  virtual Dict meta() { EmptyDict.val }
+}
+
 ** UnknownNameErr is thrown when `Dict.trap` or `Grid.col` fails
 ** to resolve a name.
 @Js @NoDoc const class UnknownNameErr : Err
@@ -42,9 +53,16 @@
 **
 ** DependErr indicates a one or missing dependencies or circular depends
 **
-@Js @NoDoc const class DependErr : Err
+@Js @NoDoc const class DependErr : XetoErr
 {
   ** Construct with message and optional cause.
-  new make(Str? msg, Err? cause := null) : super(msg, cause) {}
+  new make(Str? msg, Err? cause := null, Dict? meta := null) : super(msg, cause)
+  {
+    this.meta = meta ?: EmptyDict.val
+  }
+
+  ** Metadata:
+  **   - unmet: Str[] of lib names must be enabled to meet depends
+  override const Dict meta
 }
 

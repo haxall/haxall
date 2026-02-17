@@ -13,7 +13,7 @@ using haystack
 ** AxonErr is the base class of `SyntaxErr` and `EvalErr`.
 **
 @Js
-const abstract class AxonErr : Err
+const abstract class AxonErr : XetoErr
 {
   new make(Str? msg, Loc loc, Err? cause := null) : super(msg, cause)
   {
@@ -67,7 +67,7 @@ const class EvalTimeoutErr : EvalErr
   }
 
   ** Meta to use for Grid.meta to indicate timeout
-  const Dict meta
+  override const Dict meta
 }
 
 **
@@ -76,13 +76,13 @@ const class EvalTimeoutErr : EvalErr
 @Js @NoDoc
 const class ThrowErr : EvalErr
 {
-  new make(AxonContext cx, Loc loc, Dict tags) : super(tags.dis, cx, loc)
+  new make(AxonContext cx, Loc loc, Dict meta) : super(meta.dis, cx, loc)
   {
-    this.tags = tags
+    this.meta = meta
   }
 
   ** Tags for exception - always has "err" marker and "dis" string.
-  const Dict tags
+  override const Dict meta
 }
 
 

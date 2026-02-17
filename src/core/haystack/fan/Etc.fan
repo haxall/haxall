@@ -1404,13 +1404,9 @@ const class Etc
       "errType": e.typeof.qname
     ]
 
-    // ThrowErr.tags
-    field := e.typeof.field("tags", false)
-    if (field != null)
-    {
-      tags := field.get(e) as Dict
-      if (tags != null) tags.each |v, n| { if (acc[n] == null) acc[n] = v }
-    }
+    // merge in XetoErr.meta
+    x := e as XetoErr
+    if (x != null) x.meta.each |v, n| { if (acc[n] == null) acc[n] = v }
 
     return makeDict(acc)
   }

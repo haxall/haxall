@@ -833,9 +833,9 @@ class EvalTest : AxonTest
     catch (ThrowErr e)
     {
       // e.trace
-      verifyEq(e.tags["err"], Marker.val)
-      verifyEq(e.tags.has("dis"), true)
-      expected.each |v, n| { verifyEq(e.tags[n], v) }
+      verifyEq(e.meta["err"], Marker.val)
+      verifyEq(e.meta.has("dis"), true)
+      expected.each |v, n| { verifyEq(e.meta[n], v) }
     }
   }
 

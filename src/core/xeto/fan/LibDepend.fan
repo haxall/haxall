@@ -32,7 +32,7 @@ const mixin LibDepend : Dict
   ** Version constraints that satisify this dependency
   abstract LibDependVersions versions()
 
-  ** String representation is "<qname> <versions>"
+  ** String representation is "<libName> <versions>"
   abstract override Str toStr()
 }
 

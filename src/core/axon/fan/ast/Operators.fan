@@ -208,7 +208,7 @@ internal const class TryCatch : Expr
       Dict? tags
       if (e is ThrowErr)
       {
-        tags = Etc.dictSet(((ThrowErr)e).tags, "errTrace", e.traceToStr)
+        tags = Etc.dictSet(((ThrowErr)e).meta, "errTrace", e.traceToStr)
       }
       else
       {
