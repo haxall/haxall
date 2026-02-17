@@ -15,9 +15,11 @@ using xetom
 @Js
 abstract const class DocTypeRef
 {
-  static DocTypeRef dict() { DocSimpleTypeRef.predefined.getChecked("sys::Dict") }
-  static DocTypeRef list() { DocSimpleTypeRef.predefined.getChecked("sys::List") }
-  static DocTypeRef func() { DocSimpleTypeRef.predefined.getChecked("sys::Func") }
+  static DocTypeRef dict()   { DocSimpleTypeRef.predefined.getChecked("sys::Dict") }
+  static DocTypeRef list()   { DocSimpleTypeRef.predefined.getChecked("sys::List") }
+  static DocTypeRef func()   { DocSimpleTypeRef.predefined.getChecked("sys::Func") }
+  static DocTypeRef marker() { DocSimpleTypeRef.predefined.getChecked("sys::Marker") }
+  static DocTypeRef str()    { DocSimpleTypeRef.predefined.getChecked("sys::Str") }
 
   ** Return qualified name (if compound "sys::And" or "sys::Or")
   abstract Str qname()

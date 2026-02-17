@@ -60,6 +60,10 @@ class DocHtmlWriter : WebOutStream
 
   private Void spec(DocSpec p)
   {
+    // specials
+    fanMeta := p.meta.get("fanMeta") as DocDict
+    if (fanMeta != null) return fantomType(p, fanMeta)
+
     pageHeader(p, p.flavor.name.lower) |self|
     {
       specSig(p)
@@ -290,6 +294,148 @@ class DocHtmlWriter : WebOutStream
   private static Str slotToElemId(DocSlot x) { x.name }
 
   private static Bool slotIsOwn(DocSlot x) { x.parent == null }
+
+//////////////////////////////////////////////////////////////////////////
+// Fantom
+//////////////////////////////////////////////////////////////////////////
+
+  private Void fantomType(DocSpec x, DocDict fanMeta)
+  {
+    what := x.flavor.isType ? "class" : "mixin"
+    pageHeader(x, what) |self|
+    {
+      fantomTypeSig(x, fanMeta, what)
+      markdown(x.doc)
+    }
+
+    ctors   := Str:DocSlot[:]
+    fields  := Str:DocSlot[:]
+    methods := Str:DocSlot[:]
+    x.slots.each |s|
+    {
+      isNew := fantomFlags(s.meta.get("fanMeta")).contains("new")
+      if (!s.type.isFunc) fields[s.name] = s
+      else if (isNew) ctors[s.name] = s
+      else methods[s.name] = s
+    }
+
+    slotsSummary("constructors", ctors)
+    slotsSummary("fields",       fields)
+    slotsSummary("methods",      methods)
+    x.slots.each |s| { if (slotIsOwn(s)) fantomSlotDetails(s) }
+  }
+
+  private Void fantomTypeSig(DocSpec x, DocDict fanMeta, Str what)
+  {
+    flags     := fantomFlags(fanMeta)
+    hasBase   := x.base != null
+    mixins    := fanMeta.getStr("mixins") ?: ""
+    hasMixins := !mixins.isEmpty
+
+    if (x.flavor.isMixin) flags.remove("abstract")
+
+    tag(tagSlot).code
+    w(flags.join(" ")).sp.esc(what).sp
+    esc(x.name)
+    if (hasBase || hasMixins) w(" : ")
+    if (hasBase) typeRef(x.base)
+    if (hasMixins)
+    {
+      mixins.split(',').each |qname, i|
+      {
+        if (hasBase || i > 0) w(", ")
+        fantomTypeRef(DocSimpleTypeRef("fan.$qname", false))
+      }
+    }
+    codeEnd.tagEnd(tagSlot).nl
+  }
+
+  private Void fantomSlotDetails(DocSlot slot)
+  {
+    tabSection(slot.name, slotToElemId(slot))
+    fantomSlotSig(slot)
+    markdown(slot.doc)
+    tabSectionEnd
+  }
+
+  private Void fantomSlotSig(DocSlot x)
+  {
+    tag(tagSlot).code
+
+    // flags
+    flags := fantomFlags(x.meta.get("fanMeta"))
+    if (!flags.isEmpty) w(flags.join(" ")).sp
+
+    // field vs method
+    if (x.type.isFunc)
+      fantomMethod(x, flags)
+    else
+      fantomField(x)
+
+    codeEnd.tagEnd(tagSlot).nl
+  }
+
+  private Void fantomField(DocSlot x)
+  {
+    fantomTypeRef(x.type).w(" : ").w(x.name)
+  }
+
+  private Void fantomMethod(DocSlot x, Str[] flags)
+  {
+    isNew := flags.contains("new")
+    returns := x.slots.find |v, n| { n == "returns" }
+    if (returns != null && !isNew) fantomTypeRef(returns.type).sp
+
+    esc(x.name).w("(")
+    first := true
+    x.slots.each |p|
+    {
+      if (p.name == "returns") return
+      if (first) first = false
+      else w(", ")
+      typeRef(p.type).sp.esc(p.name)
+    }
+    w(")")
+  }
+
+  private This fantomTypeRef(DocTypeRef x)
+  {
+    typeRef(x)
+  }
+
+  private Str[] fantomFlags(DocDict? fanMeta)
+  {
+    flags := fanMeta?.getStr("flags")
+    if (flags == null) return Str#.emptyList
+
+    isAbstract := false
+    isConst    := false
+    isNew      := false
+    isMixin    := false
+    isStatic   := false
+    isVirtual  := false
+
+    flags.split.each |f|
+    {
+      switch (f)
+      {
+        case "abstract": isAbstract = true
+        case "const":    isConst    = true
+        case "new":      isNew      = true
+        case "mixin":    isMixin    = true
+        case "static":   isStatic   = true
+        case "virtual":  isVirtual  = true
+      }
+    }
+
+    acc := Str[,]
+    if (isConst) acc.add("const")
+    if (isAbstract && !isMixin) acc.add("abstract")
+    if (isVirtual && !isAbstract) acc.add("virtual")
+    if (isStatic) acc.add("static")
+    if (isNew) acc.add("new")
+    return acc
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Page Chrome
@@ -567,17 +713,15 @@ class DocHtmlWriter : WebOutStream
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Markdown
+// Utils
 //////////////////////////////////////////////////////////////////////////
+
+  private This sp() { w(" ") }
 
   private This markdown(DocMarkdown md)
   {
     p.w(md.html).pEnd
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Links
-//////////////////////////////////////////////////////////////////////////
 
   private This link(DocLink link, Str? dis := null)
   {

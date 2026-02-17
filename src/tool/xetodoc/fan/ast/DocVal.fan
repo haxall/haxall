@@ -94,7 +94,13 @@ abstract const class DocVal
 @Js
 const class DocScalar : DocVal
 {
-  ** Cosntructor
+  ** Marker value
+  static once DocScalar marker() { make(DocTypeRef.marker, null, Marker.val.toStr) }
+
+  ** Construct generic string
+  static DocScalar str(Str v) { make(DocTypeRef.str, null, v) }
+
+  ** Constructor
   new make(DocTypeRef type, DocLink? link, Str scalar) : super(type, link)
   {
     this.scalar = scalar

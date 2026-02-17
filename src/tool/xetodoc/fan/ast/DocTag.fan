@@ -133,6 +133,7 @@ const class DocTags
   static const DocTag sys      := DocTag("sys")
   static const DocTag ph       := DocTag("ph")
   static const DocTag heading  := DocTag("heading")
+  static const DocTag fantom   := DocTag("fantom")
 
   static SpecFlavor? toFlavor(DocTag? tag)
   {

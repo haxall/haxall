@@ -18,6 +18,19 @@ const class DocDict : DocVal
   ** Empty doc dict
   static const DocDict empty := doMake(DocTypeRef.dict, null, Str:DocVal[:])
 
+  ** Make generic dict that contains only Marker, Str, or DocVal
+  static new makeGeneric(Str:Obj acc)
+  {
+    acc = acc.map |v->DocVal|
+    {
+      if (v is DocVal) return v
+      if (v is Str) return DocScalar.str(v)
+      if (v === Marker.val) return DocScalar.marker
+      throw Err("Unsupported geneirc val: $v [$v.typeof]")
+    }
+    return make(DocTypeRef.dict, null, acc)
+  }
+
   ** Constructor
   static new make(DocTypeRef type, DocLink? link, Str:DocVal dict)
   {
@@ -42,6 +55,12 @@ const class DocDict : DocVal
 
   ** Convenience for 'dict.get'
   DocVal? get(Str name) { dict.get(name) }
+
+  ** Convenience for 'dict.get' as string
+  Str? getStr(Str name) { dict.get(name)?.toVal as Str }
+
+  ** Return if given tag is defined
+  Bool has(Str name) { dict.get(name) != null }
 
   ** Map list items to dict
   override Obj? toVal()
