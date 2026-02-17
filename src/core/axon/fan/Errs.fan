@@ -52,6 +52,9 @@ const class EvalErr : AxonErr
 
   ** Axon trace of call stack and scope variables
   const Str axonTrace
+
+  ** Pass thru meta from cause if available
+  override Dict meta() { (cause as XetoErr)?.meta ?: Etc.dict0 }
 }
 
 **

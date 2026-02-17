@@ -61,8 +61,7 @@
     this.meta = meta ?: EmptyDict.val
   }
 
-  ** Metadata:
-  **   - unmet: Str[] of lib names must be enabled to meet depends
+  ** Metadata may contain 'unmet' grid of information of libs required
   override const Dict meta
 }
 

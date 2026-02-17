@@ -149,11 +149,13 @@ const class HxLibs : RuntimeLibs
     gb.setMeta(Etc.dict1("projName", rt.name))
     gb.addCol("name").addCol("libBasis").addCol("libStatus").addCol("sysOnly")
       .addCol("version").addCol("doc").addCol("err")
+      .addCol("depends", Etc.dict1("hidden", Marker.val))
 
     // add rest of the rows
     libs.each |HxLib x|
     {
       n := x.name
+      depends := x.ver.depends.join("\n")
       gb.addRow([
         n,
         x.basis.name,
@@ -161,7 +163,8 @@ const class HxLibs : RuntimeLibs
         Marker.fromBool(x.isSysOnly),
         x.ver.isNotFound ? null : x.ver.version.toStr,
         x.ver.doc,
-        ns.libErr(n, false)?.toStr
+        ns.libErr(n, false)?.toStr,
+        depends,
       ])
     }
     grid := gb.toGrid
@@ -349,17 +352,42 @@ const class HxLibs : RuntimeLibs
     }
 
     // verify depends will be met (either from curent or what we are adding)
-    unmet := LibDepend[,]
+    unmet := Str:LibDepend[:]
+    unmetFrom := Str:Str[:]
     names.each |name|
     {
-      unmet.clear
       acc[name].ver.depends.each |d|
       {
         x := acc[d.name]
-        if (x == null || !d.versions.contains(x.ver.version)) unmet.add(d)
+        if (x == null || !d.versions.contains(x.ver.version))
+        {
+          unmet[d.name] = d
+          unmetFrom[d.name] = name
+        }
       }
-      if (!unmet.isEmpty)
-        throw DependErr("Cannot add '$name', missing depends: " +unmet.join(", "))
+    }
+
+    // raise exception that includes detailed info on unmet depends
+    if (!unmet.isEmpty)
+    {
+      gb := GridBuilder().addCol("from").addCol("name").addCol("versions").addCol("err")
+      unmetNames := unmet.keys.sort
+      unmetNames.each |n|
+      {
+        from := unmetFrom[n]  // original lib with unmet dependency
+        d := unmet[n]         // LibDepend with missing dependency
+
+        // check that this depend can be met by current view
+        err := null
+        x := env.repo.latest(n, false)
+        if (x == null) err = "Dependency '$n' is not installed"
+        else if (!d.versions.contains(x.version)) err = "Dependency '$n' has unmet version constraints: $x.version != $d.versions"
+        else if (!rt.isSys && HxLib.isLibVersionSysOnly(x)) err = "Dependency '$n' must be first enabled from 'Sys Libs' view"
+
+        // add info about this unmet depend for UI views
+        gb.addRow([from, n, d.versions.toStr, err])
+      }
+      throw DependErr("Cannot add, missing depends: " + unmetNames.join(", "), null, Etc.dict1("unmet", gb.toGrid))
     }
   }
 
@@ -583,10 +611,10 @@ const class HxLib : RuntimeLib
 {
   internal new make(FileLibVersion ver, RuntimeLibBasis basis)
   {
-    this.ver       = ver
-    this.basis     = basis
+    this.ver        = ver
+    this.basis      = basis
     this.isBootOnly = isBootOnlyName(ver.name)
-    this.isSysOnly = ver.isHxSysOnly || isSysOnlyName(ver.name)
+    this.isSysOnly  = isLibVersionSysOnly(ver)
   }
 
   internal new makeCompanion(Version version)
@@ -600,6 +628,11 @@ const class HxLib : RuntimeLib
   {
     // for now just hardcode
     n == "hx.axonsh" || n.startsWith("hx.platform")
+  }
+
+  static Bool isLibVersionSysOnly(FileLibVersion ver)
+  {
+    ver.isHxSysOnly || isSysOnlyName(ver.name)
   }
 
   static Bool isSysOnlyName(Str n)
