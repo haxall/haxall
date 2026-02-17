@@ -398,8 +398,8 @@ const final class ConnPoint : HxConnPoint
              """)
 
     detailsAddr(s, model.curTag,   curAddr)
-    detailsAddr(s, model.writeTag, writeAddr)
     detailsAddr(s, model.hisTag,   hisAddr)
+    detailsAddr(s, model.writeTag, writeAddr, model.writeLevelTag)
 
     s.add("\n")
     committer.details(s)
@@ -455,10 +455,12 @@ const final class ConnPoint : HxConnPoint
     return s.toStr
   }
 
-  private static Void detailsAddr(StrBuf s, Str? tag, Obj? val)
+  private Void detailsAddr(StrBuf s, Str? tag, Obj? val, Str? levelTag := null)
   {
     if (tag == null) return
-    s.add("$tag:".padr(16)).add(val == null ? "-" : ZincWriter.valToStr(val)).add("\n")
+    s.add("$tag:".padr(16)).add(val == null ? "-" : ZincWriter.valToStr(val))
+    if (levelTag != null) s.add(" ").add(levelTag).add("=").add(rec.get(levelTag) ?: "missing")
+    s.add("\n")
   }
 }
 
