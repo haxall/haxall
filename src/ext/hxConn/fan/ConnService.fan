@@ -20,10 +20,8 @@ using hx
 ** a single registry to provide a consistent UI.
 **
 @NoDoc
-const class ConnService : IConnExt // TODO
+const class ConnService : IConnExt
 {
-
-override ExtSpi spi() { throw Err("TODO") }
 
 //////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -34,6 +32,8 @@ override ExtSpi spi() { throw Err("TODO") }
 //////////////////////////////////////////////////////////////////////////
 // HxConnService - Libs
 //////////////////////////////////////////////////////////////////////////
+
+  override ExtSpi spi() { throw UnsupportedErr() }
 
   override HxConnExt[] exts()
   {
