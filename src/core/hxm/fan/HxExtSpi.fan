@@ -48,6 +48,13 @@ const class HxExtSpi : Actor, ExtSpi
       // read settings
       settings := exts.rt.settingsMgr.extRead(name)
 
+      // boot hook to override settings
+      if (boot != null)
+      {
+        overrides := boot.extSettingsOverrides[name]
+        if (overrides != null) settings = Etc.dictMerge(settings, overrides)
+      }
+
       // create init object
       init := HxExtSpiInit
       {
