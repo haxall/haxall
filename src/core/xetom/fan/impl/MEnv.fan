@@ -110,7 +110,7 @@ abstract const class MEnv : XetoEnv
 
 
   ** Clear the lib cache
-  protected Void libCacheClear() { libsByName.clear }
+  override Void clearLibCache() { libsByName.clear }
 
   ** Lib cache keyed by lib name
   private const ConcurrentMap libsByName := ConcurrentMap()
@@ -205,7 +205,7 @@ abstract const class MEnv : XetoEnv
     build.each |v| { buildFiles[v.name] = XetoUtil.srcToLibZip(v) }
 
     // create namespace
-    libCacheClear
+    clearLibCache
     ns := MNamespace(this, libs, Etc.dict1("build", buildFiles))
 
     // report which libs could not be compiled

@@ -39,6 +39,8 @@ const class RemoteEnv : MEnv
 
   override Namespace createNamespaceFromData(Dict[] recs) { throw unavailErr() }
 
+  override Void clearLibCache() {}
+
   override Str mode() { "browser" }
 
   override Str:Str debugProps() { Str:Obj[:] }

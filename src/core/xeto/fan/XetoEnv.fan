@@ -83,6 +83,9 @@ abstract const class XetoEnv
   ** are used and resolve them to libs and build a namespace.
   @NoDoc abstract Namespace createNamespaceFromData(Dict[] recs)
 
+  ** Clear and libs cache in-memory and reload from disk on next access
+  @NoDoc abstract Void clearLibCache()
+
 //////////////////////////////////////////////////////////////////////////
 // Serialization
 //////////////////////////////////////////////////////////////////////////

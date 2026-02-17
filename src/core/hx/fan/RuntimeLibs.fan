@@ -48,6 +48,9 @@ const mixin RuntimeLibs
   ** Refresh the namespace based on current rt recs
   @NoDoc abstract Void refresh()
 
+  ** Remove all cached Xeto libs, reload from disk and rebuild namespace.
+  @NoDoc abstract Void reload()
+
   ** Remove all project libs; just for testing
   @NoDoc abstract Void clear()
 

@@ -213,6 +213,12 @@ const class HxLibs : RuntimeLibs
     ns
   }
 
+  override Void reload()
+  {
+    env.clearLibCache
+    refresh
+  }
+
   private Str[] checkDupNames(Str[] names)
   {
     map := Str:Str[:]

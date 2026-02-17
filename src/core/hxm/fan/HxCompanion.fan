@@ -294,35 +294,6 @@ const class HxCompanion : ProjCompanion
     return Etc.dictFromMap(acc)
   }
 
-  /* TODO
-  static Dict toOldFunc(Str name, Str axon, Dict meta := Etc.dict0)
-  {
-    acc := Str:Obj[:]
-    meta.each |v, n| { acc[n] = v }
-    acc["rt"]    = "func"
-    acc["name"]  = name
-    acc["spec"]  = specRef
-    acc["base"]  = funcRef
-    acc["axon"]  = axon
-    acc["slots"] = toOldFuncSlots(axon)
-    return Etc.dictFromMap(acc)
-  }
-
-  static Grid toOldFuncSlots(Str axon)
-  {
-    // parse axon to verify its correct
-    fn := Parser(Loc.synthetic, axon.in).parseTop("funcSlots", Etc.dict0)
-    gb := GridBuilder()
-    gb.addCol("name").addCol("type").addCol("maybe")
-    fn.params.each |p|
-    {
-      gb.addRow([p.name, objRef, Marker.val])
-    }
-    gb.addRow(["returns", objRef, Marker.val])
-    return gb.toGrid
-  }
-  */
-
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////

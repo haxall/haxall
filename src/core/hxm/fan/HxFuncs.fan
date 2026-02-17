@@ -454,10 +454,8 @@ const class HxFuncs
   {
     cx := Context.cur
     isShell := cx.sys.info.type.isAxonsh
-    cx.sys.log.info("libReload [$cx.user.username]")
-// TODO: fix for 4.0.5
-cx.ns.env->libCacheClear
-    cx.rt.libs.refresh
+    cx.rt.log.info("libReload [$cx.user.username]")
+    cx.rt.libs.reload
     return isShell ? "_no_echo_" : "reloaded"
   }
 
