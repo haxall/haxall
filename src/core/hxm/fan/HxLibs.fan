@@ -98,8 +98,8 @@ const class HxLibs : RuntimeLibs
     env.repo.libs.each |n|
     {
       if (acc[n] != null) return
-      if (n.startsWith("hx.hxd.")) return
       v := repo.latest(n)
+      if (!HxLib.showInstalled(v)) return
       acc[n] = HxLib(v, RuntimeLibBasis.disabled)
     }
     return acc.vals
@@ -624,6 +624,18 @@ const class HxLib : RuntimeLib
     this.isSysOnly = false
   }
 
+  static Bool showInstalled(FileLibVersion ver)
+  {
+    n := ver.name
+    if (n.startsWith("hx.hxd.")) return false
+
+    toks := n.split('.')
+    doc := toks.any |x| { x == "doc" }
+    if (doc) return false
+
+    return true
+  }
+
   static Bool isBootOnlyName(Str n)
   {
     // for now just hardcode
@@ -635,7 +647,7 @@ const class HxLib : RuntimeLib
     ver.isHxSysOnly || isSysOnlyName(ver.name)
   }
 
-  static Bool isSysOnlyName(Str n)
+  private static Bool isSysOnlyName(Str n)
   {
     if (n == "hx")   return true
     if (n == "axon") return true
