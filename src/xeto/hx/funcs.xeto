@@ -70,7 +70,7 @@
   //
   //     // return null for a given id if it does not exist
   //     readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
-  readByIds: Func { ids: List, checked: Bool, returns: Grid }
+  readByIds: Func { ids: List <of:Ref>, checked: Bool, returns: Grid }
 
   // Reall all records from the database which match the [filter](ph.doc::Filters).
   // The filter must an expression which matches the filter structure.
@@ -91,7 +91,7 @@
   // Read a list of ids as a stream of Dict records.
   // If checked if false, then records not found are skipped.
   // See [hx.doc.haxall::Streams#readbyidsstream].
-  readByIdsStream: Func { ids: List, checked: Bool, returns: Obj }
+  readByIdsStream: Func { ids: List <of:Ref>, checked: Bool, returns: Obj }
 
   // Reall all records which match filter as stream of Dict records.
   // See [hx.doc.haxall::Streams#readallstream].

@@ -210,19 +210,19 @@ class DocHtmlWriter : WebOutStream
   private Void funcSig(DocSlot slot)
   {
     w("(")
-    DocTypeRef? returns
+    DocSlot? returns
     first := true
     slot.slots.each |p|
     {
-      if (p.name == "returns") { returns = p.type; return }
+      if (p.name == "returns") { returns = p; return }
       if (first) first = false
       else w(", ")
       esc(p.name).w(": ")
-      typeRef(p.type)
+      paramRef(p)
     }
     w(") => ")
     if (returns == null) w("Obj?")
-    else typeRef(returns)
+    else paramRef(returns)
   }
 
   private Void slotMeta(DocSlot slot)
@@ -687,6 +687,14 @@ class DocHtmlWriter : WebOutStream
 //////////////////////////////////////////////////////////////////////////
 // TypeRef
 //////////////////////////////////////////////////////////////////////////
+
+  private This paramRef(DocSlot p)
+  {
+    x := p.type
+    typeRef(x)
+    if (x.of != null) w(" &lt;of:").typeRef(x.of).w("&gt;")
+    return this
+  }
 
   private This typeRef(DocTypeRef x)
   {
