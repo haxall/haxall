@@ -173,40 +173,43 @@ internal const final class ConnPointWriteState
 **
 const class ConnWriteInfo
 {
-  ** Constructor
+  ** Constructor from a live write observation (onPointWrite callback)
   internal new make(WriteObservation obs)
   {
-    this.raw     = obs.val
-    this.val     = obs.val
-    this.level   = obs.level.toInt
-    this.isFirst = obs.isFirst
-    this.who     = obs.who
-    this.opts    = obs.opts ?: Etc.dict0
-    this.extra   = ""
+    this.raw          = obs.val
+    this.val          = obs.val
+    this.level        = obs.level.toInt
+    this.isFirst      = obs.isFirst
+    this.isPointWrite = true
+    this.who          = obs.who
+    this.opts         = obs.opts ?: Etc.dict0
+    this.extra        = ""
   }
 
   ** Conversion constructor
   internal new convert(ConnWriteInfo orig, ConnPoint pt)
   {
-    this.raw     = orig.val
-    this.val     = pt.writeConvert.convert(pt.ext.pointExt, pt.rec, orig.val)
-    this.level   = orig.level
-    this.isFirst = orig.isFirst
-    this.who     = orig.who
-    this.opts    = orig.opts
-    this.extra   = orig.extra
+    this.raw          = orig.val
+    this.val          = pt.writeConvert.convert(pt.ext.pointExt, pt.rec, orig.val)
+    this.level        = orig.level
+    this.isFirst      = orig.isFirst
+    this.isPointWrite = orig.isPointWrite
+    this.who          = orig.who
+    this.opts         = orig.opts
+    this.extra        = orig.extra
   }
 
-  ** Copy with extra message
+  ** Copy with extra message (minTime/maxTime/onOpen housekeeping rewrites)
   internal new makeExtra(ConnWriteInfo orig, Str extra)
   {
-    this.raw     = orig.raw
-    this.val     = orig.val
-    this.level   = orig.level
-    this.isFirst = orig.isFirst
-    this.who     = orig.who
-    this.opts    = orig.opts
-    this.extra   = extra
+    this.raw          = orig.raw
+    this.val          = orig.val
+    this.level        = orig.level
+    this.isFirst      = orig.isFirst
+    this.isPointWrite = false
+    this.who          = orig.who
+    this.opts         = orig.opts
+    this.extra        = extra
   }
 
   ** Value to write to the remote system; might be converted from writeVal
@@ -218,8 +221,12 @@ const class ConnWriteInfo
   ** Local effective level; used to update writeLevel
   @NoDoc const Int level
 
-  ** Is the the first write since we booted up
+  ** Is the first write since we booted up
   @NoDoc const Bool isFirst
+
+  ** Is this write a live value from an onPointWrite observation
+  ** vs a housekeeping rewrite (minTime, maxTime, or onOpen)
+  @NoDoc const Bool isPointWrite
 
   ** Who made the write
   @NoDoc const Obj? who

@@ -41,19 +41,31 @@ const final class Conn : Actor, HxConn
     sendLater(Conn.houseKeepingFreq, Conn.houseKeepingMsg)
   }
 
-  private const static |HxMsg msg->Obj?| toCoalesceKey := |HxMsg msg->Obj?|
+  private const static |HxMsg->Obj?| toCoalesceKey := |HxMsg msg->Obj?|
   {
     // we coalesce write messages per point id
     if (msg.id === "write") return ((ConnPoint)msg.a).id
+
     // we coalesce poll messages
     if (msg.id === "poll")  return msg.id
+
+    // otherwise no coalescing
     return null
   }
 
-  private const static |HxMsg a, HxMsg b->HxMsg| toCoalesce := |HxMsg a, HxMsg b->HxMsg|
+  private const static |HxMsg, HxMsg->HxMsg| toCoalesce := |HxMsg oldMsg, HxMsg newMsg->HxMsg|
   {
-    // last write wins, previous queued up writes are discarded
-    return b
+    // live point writes must never be coalesced away by a
+    // housekeeping rewrite (minTime, maxTime, or onOpen)
+    if (newMsg.id === "write" && oldMsg.id === "write")
+    {
+      oldInfo := (ConnWriteInfo)oldMsg.b
+      newInfo := (ConnWriteInfo)newMsg.b
+      if (oldInfo.isPointWrite && !newInfo.isPointWrite) return oldMsg
+    }
+
+    // new incoming message wins
+    return newMsg
   }
 
 //////////////////////////////////////////////////////////////////////////
