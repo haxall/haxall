@@ -26,6 +26,16 @@ using folio
 **     verifyEq(y.dis, "It works!")
 **   }
 **
+** The following environment variables may be used to customize
+** behavior the tests when running in a SkySpark environment:
+**
+**   - 'HX_TEST_HTTP_PORT': http port to use when booting a runtime;
+**     the default is 8080 if not specified
+**
+**   - 'SKYSPARK_TEST_LIC_DIR': directory to look for license file(s)
+**     which are installed for the test system.  The default is the
+**     '{Env.workDir}/var/lic/'.
+**
 abstract class HxTest : HaystackTest
 {
 
@@ -52,6 +62,16 @@ abstract class HxTest : HaystackTest
   @NoDoc Void setupContext(Context? cx := null)
   {
     Actor.locals[Context.actorLocalsKey] = cx ?: makeContext
+  }
+
+  ** Lookup env variable and coerce to same type as def
+  @NoDoc static Obj envVar(Str key, Obj def)
+  {
+    val := Env.cur.vars.get(key)
+    if (val == null) return def
+    if (def is File) return File.os(val)
+    if (def is Int) return Int.fromStr(val)
+    return key
   }
 
 //////////////////////////////////////////////////////////////////////////
