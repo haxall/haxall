@@ -457,7 +457,7 @@ const class HxFuncs
     cx.sys.log.info("libReload [$cx.user.username]")
 // TODO: fix for 4.0.5
 cx.ns.env->libCacheClear
-    cx.rt.libs.reload
+    cx.rt.libs.refresh
     return isShell ? "_no_echo_" : "reloaded"
   }
 

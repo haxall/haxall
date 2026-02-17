@@ -134,7 +134,7 @@ const class HxCompanion : ProjCompanion
       res = cb()
     finally
       lock.unlock
-    rt.libsRef.reload
+    rt.libsRef.refresh
     return res
   }
 

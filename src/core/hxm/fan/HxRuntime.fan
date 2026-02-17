@@ -297,7 +297,7 @@ abstract const class HxRuntime : Runtime
       sys.proj.list.each |Obj proj|
       {
         if (proj !== this && proj is HxRuntime)
-          ((HxRuntime)proj).libsRef.reload
+          ((HxRuntime)proj).libsRef.refresh
       }
     }
   }

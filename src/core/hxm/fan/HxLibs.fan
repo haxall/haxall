@@ -68,7 +68,7 @@ const class HxLibs : RuntimeLibs
 
   HxNamespace ns()
   {
-    while (needReload.val) update(HxLibUpdate {})
+    while (needRefresh.val) update(HxLibUpdate {})
     return nsRef.val
   }
 
@@ -202,14 +202,14 @@ const class HxLibs : RuntimeLibs
     removeAll(toRemove)
   }
 
-  override Void reload()
+  override Void refresh()
   {
-    needReload.val = true
+    needRefresh.val = true
   }
 
-  Void reloadSync()
+  Void refreshSync()
   {
-    reload
+    refresh
     ns
   }
 
@@ -277,7 +277,7 @@ const class HxLibs : RuntimeLibs
     this.mapRef.val  = acc.toImmutable
     this.packRef.val = updatePack(ns, acc)
     this.companionLibDigestRef.val = "companion-${rt.name}-${Ref.gen.id}"
-    this.needReload.val = false
+    this.needRefresh.val = false
 
     // if this is initialization, then we are done
     if (u.init) return ns
@@ -536,7 +536,7 @@ const class HxLibs : RuntimeLibs
 //////////////////////////////////////////////////////////////////////////
 
   private const AtomicRef nsRef := AtomicRef()
-  private const AtomicBool needReload := AtomicBool(true)
+  private const AtomicBool needRefresh := AtomicBool(true)
   private const AtomicRef mapRef := AtomicRef()
   private const Lock lock := Lock.makeReentrant
   private const HxLib? companionLib
