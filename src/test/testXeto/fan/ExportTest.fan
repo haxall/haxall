@@ -29,6 +29,7 @@ class ExportTest : AbstractXetoTest
       "doc":lib->doc, "depends": depends, "spec":Ref("sys::Lib"),
       "categories":Obj?["haxall"],
       "license":"AFL-3.0",
+      "nodoc":m,
       "org":Etc.dict3("dis", "Haxall", "uri", `https://haxall.io/`, "spec", Ref("sys::LibOrg")),
       "vcs":Etc.dict3("type", "git", "uri", `https://github.com/haxall/haxall`, "spec", Ref("sys::LibVcs")),
     ])

@@ -40,6 +40,9 @@ class DocCompiler
   ** Output directory or if null then output to in-mem files field
   const File? outDir
 
+  ** Flag to include nodoc (they are excluded by default)
+  Bool includeNodocLibs
+
   ** Extra pages to include the compilation.  These pages are
   ** generated to JSON or HTML and used to resolve shortcut links
   DocPage[] extraPages := [,]

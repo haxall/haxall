@@ -29,7 +29,13 @@ class DocTest : AbstractXetoTest
     ns := createNamespace(["ph.points", "hx.test.xeto", "doc.xeto"])
     lib := ns.lib("hx.test.xeto")
     docXeto := ns.lib("doc.xeto")
-    compiler = DocCompiler { it.ns = ns; it.libs = [lib, docXeto]; it.outDir = tempDir }
+    compiler = DocCompiler
+    {
+      it.ns = ns
+      it.libs = [lib, docXeto]
+      it.outDir = tempDir
+      it.includeNodocLibs = true
+    }
     compiler.compileJson
 
     // lib - hx.test.xeto
