@@ -181,7 +181,7 @@ class EtcTest : HaystackTest
 
     verifySame(Etc.dictRemove(d, "foo"), d)
     d = Etc.dictRemove(d, "b")
-    verifyEq(d.typeof.qname, "haystack::EmptyDict")
+    verifyEq(d.typeof.qname, "xeto::EmptyDict")
     verifyDictEq(d, [:])
 
     d = Etc.dictSet(d, "x", n(3))

@@ -66,3 +66,21 @@ const mixin Dict
   }
 }
 
+**************************************************************************
+** EmptyDict
+**************************************************************************
+
+@NoDoc @Js
+const class EmptyDict : Dict
+{
+  static const EmptyDict val := EmptyDict()
+  override Bool isEmpty() { true }
+  override Obj? get(Str name) { null }
+  override Bool has(Str name) { false }
+  override Bool missing(Str name) { true }
+  override Void each(|Obj, Str| f) {}
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { null }
+  override This map(|Obj, Str->Obj| f) { this }
+  override Obj? trap(Str n, Obj?[]? a := null) { throw UnknownNameErr(n) }
+}
+

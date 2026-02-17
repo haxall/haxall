@@ -26,7 +26,7 @@ class DictTest : HaystackTest
     verifySame(Etc.dict0, Etc.dict0)
     verifySame(Etc.dict0, Etc.makeDict(Str:Obj?[:]))
     verifyDict(Str:Obj?[:])
-    verifyEq(Etc.makeDict(null).typeof.qname, "haystack::EmptyDict")
+    verifyEq(Etc.makeDict(null).typeof.qname, "xeto::EmptyDict")
 
     // test different sizes
     (1..10).each  |i| { verifyDictSize(i) }
