@@ -286,7 +286,7 @@
   // Examples:
   //
   //     specIs(Str, Scalar)     >>  true
-  //     specIs(Scalar, Scalar)  >>  false
+  //     specIs(Equip, Scalar)   >>  false
   //     specIs(Equip, Dict)     >>  true
   //     specIs(Meter, Equip)    >>  true
   //     specIs(Meter, Point)    >>  false

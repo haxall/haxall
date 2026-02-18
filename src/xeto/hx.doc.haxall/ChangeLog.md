@@ -6,7 +6,22 @@ copyright:  Copyright (c) 2021, SkyFoundry LLC
 license:    Licensed under the Academic Free License version 3.0
 -->
 
-*Build 4.0.5 (working)*
+*Build 4.0.5 (18 Feb 2026)*
+- New Xeto based documentation
+- Redesign xeto axon funcs to store only func body in axon meta
+- Axon defcomp support removed
+- Namespace readData/writeData moved to XetoIO readXeto/writeXeto
+- Rename Remove.val -> None.val
+- Formalize Comp execution behavior
+- Add slot param to Comp.onChange
+- Rename companionFunc -> companionParseAxon
+- Rename companionRead -> companionReadByName
+- Change companionRemove to work by id, not name
+- New funcs: callByName
+- Xeto support to export JSON schema
+- Connectors build model from specs
+- Timezone database update to 2025c
+- Conn fix to prevent write coalscing from house keeping msgs
 
 *Build 4.0.4 (7 Dec 2025)*
 - Xeto new globals design
@@ -226,3 +241,4 @@ license:    Licensed under the Academic Free License version 3.0
 
 *Build 3.1.1 (8 Sep 2021)*
 - Initial release
+
