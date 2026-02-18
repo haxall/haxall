@@ -38,7 +38,7 @@ The Grid to XML mapping is as follows:
    - One `<cols>` element with column definitions
    - Zero or more `<row>` elements with row definitions
  - A column definition is `<{name}>` with an optional `dis` attribute
-   and optional '<meta>' child element (dis meta is always skipped)
+   and optional `<meta>` child element (dis meta is always skipped)
  - Rows are encoded in `<row>` elements which contain values elements
  - Meta data and row values are encoded into `<{name}>` elements
  - Value cells always define a `kind` attribute with the kind name
@@ -159,3 +159,4 @@ Nested grid values:
 
 You can also access SkySpark data via [oBIX](hx.obix::doc) which
 is an alternate XML format.
+
