@@ -405,7 +405,7 @@ class DocHtmlWriter : WebOutStream
     if (fanSig == null)
     {
       fanMeta := slot.meta.get("fanMeta") as DocDict
-      fanSig = fanMeta?.getStr("sig")
+      fanSig = fanMeta?.getStr("fanSig")
     }
     if (fanSig != null)
       return w(fanSig) // already HTML
