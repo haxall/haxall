@@ -40,8 +40,10 @@ class DocCompiler
   ** Output directory or if null then output to in-mem files field
   const File? outDir
 
-  ** Flag to include nodoc (they are excluded by default)
-  Bool includeNodocLibs
+  ** Test mode does the following:
+  **   - includes nodoc libs (they are excluded by default)
+  **   - suppresses warnings
+  Bool testMode
 
   ** Extra pages to include the compilation.  These pages are
   ** generated to JSON or HTML and used to resolve shortcut links
@@ -138,6 +140,7 @@ class DocCompiler
   Void warn(Str msg, FileLoc loc, Err? cause := null)
   {
     numWarns++
+    if (testMode) return
     log.warn(msg, loc, cause)
   }
 

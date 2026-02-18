@@ -34,7 +34,7 @@ class DocTest : AbstractXetoTest
       it.ns = ns
       it.libs = [lib, docXeto]
       it.outDir = tempDir
-      it.includeNodocLibs = true
+      it.testMode = true
     }
     compiler.compileJson
 

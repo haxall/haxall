@@ -31,7 +31,7 @@ internal class GenPages: Step
     libGens := Lib[,]
     compiler.libs.each |lib|
     {
-      if (DocUtil.isLibNoDoc(lib) && !compiler.includeNodocLibs) return
+      if (DocUtil.isLibNoDoc(lib) && !compiler.testMode) return
       g := genLib(lib)
       libGens.add(lib)
     }
