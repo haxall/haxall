@@ -110,6 +110,7 @@ const class ConvertUtil
         case "defVal":       acc["axon"] = v
         case "toCurVal":     acc["ruleToCurVal"] = Marker.val
         case "toWriteLevel": acc["ruleToWriteLevel"] = v
+        case "ro":           acc["readonly"] = v
         default:             acc[k] = v
       }
     }
