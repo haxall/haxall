@@ -24,7 +24,6 @@ class OpenApiTest : AbstractXetoTest
     yw := YamlWriter(buf.out)
     yw.writeYaml(obj)
     result := buf.toStr
-    echo(result)
     verifyEq(result, exampleYaml)
   }
 

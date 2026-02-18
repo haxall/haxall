@@ -74,9 +74,19 @@ class OpenAPIExporter : Exporter
 
   private Void doSpec(Spec spec)
   {
-    if (!spec.isFunc)
-      return
+    if (spec.type.qname == "sys::Funcs")
+    {
+      slots := spec.slots()
+      slots.each |slot| { doFunc(slot) }
+    }
+    else if (spec.isFunc)
+    {
+      doFunc(spec)
+    }
+  }
 
+  private Void doFunc(Spec spec)
+  {
     uri := "/api/" + spec.qname.replace("::", ".")
 
     props := Obj:Obj[:]
@@ -103,34 +113,19 @@ class OpenAPIExporter : Exporter
 
     // request body
     requestBody := Obj:Obj[:] { ordered = true }
-    if (props.size == 1)
-    {
-      requestBody = [
-        "required": required.contains(props.keys[0]),
-        "content": [
-          "application/json": [
-            "schema": [
-                "\$ref": props.vals[0]
-            ]
+    requestBody = [
+      "required": true,
+      "content": [
+        "application/json": [
+          [
+            "type": "object",
+            "required": required,
+            "properties": props
           ]
         ]
       ]
-    }
-    else
-    {
-      requestBody = [
-        "required": true,
-        "content": [
-          "application/json": [
-            [
-              "type": "object",
-              "required": required,
-              "properties": props
-            ]
-          ]
-        ]
-      ]
-    }
+    ]
+
 
     // responses
     responses := Obj:Obj[:] { ordered = true }
