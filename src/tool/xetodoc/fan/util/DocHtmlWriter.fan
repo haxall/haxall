@@ -377,14 +377,14 @@ class DocHtmlWriter : WebOutStream
 
   private Void fantomField(DocSlot x)
   {
-    fantomTypeRef(x.type).w(" : ").w(x.name)
+    fantomSig(x).w(" : ").w(x.name)
   }
 
   private Void fantomMethod(DocSlot x, Str[] flags)
   {
     isNew := flags.contains("new")
     returns := x.slots.find |v, n| { n == "returns" }
-    if (returns != null && !isNew) fantomTypeRef(returns.type).sp
+    if (returns != null && !isNew) fantomSig(returns).sp
 
     esc(x.name).w("(")
     first := true
@@ -393,9 +393,24 @@ class DocHtmlWriter : WebOutStream
       if (p.name == "returns") return
       if (first) first = false
       else w(", ")
-      typeRef(p.type).sp.esc(p.name)
+      fantomSig(p).sp.esc(p.name)
     }
     w(")")
+  }
+
+  private This fantomSig(DocSlot slot)
+  {
+    // check if we pre-encoded the HTML for the signature
+    fanSig := slot.meta.getStr("fanSig")
+    if (fanSig == null)
+    {
+      fanMeta := slot.meta.get("fanMeta") as DocDict
+      fanSig = fanMeta?.getStr("sig")
+    }
+    if (fanSig != null)
+      return w(fanSig) // already HTML
+    else
+      return fantomTypeRef(slot.type)
   }
 
   private This fantomTypeRef(DocTypeRef x)
