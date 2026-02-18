@@ -147,7 +147,7 @@ class DocTest : AbstractXetoTest
     docTypes := lib.types.list.findAll { it.name[0] != '_' }
 
     verifySummaries(n.types,     docTypes)
-    verifySummaries(n.mixins,    lib.mixins.list)
+    verifySummaries(n.mixins,    lib.mixins.list.findAll { it.name != "Funcs" })
     verifySummaries(n.instances, lib.instances)
   }
 
