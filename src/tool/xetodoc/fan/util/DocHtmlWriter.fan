@@ -128,13 +128,20 @@ class DocHtmlWriter : WebOutStream
     {
       tag(tagSearchHit).nl
       h3
-        docTags(hit.tags)
+        searchTags(hit.tags)
         link(hit.link)
       h3End
       markdown(hit.text)
       tagEnd(tagSearchHit).nl.nl
     }
     tagEnd(tagSearchHits)
+  }
+
+  private Void searchTags(DocTag[] tags)
+  {
+    fantom := tags.find { it.name == DocTags.fantom.name }
+    if (fantom != null) docTags([fantom])
+    else docTags(tags)
   }
 
   private Void docTags(DocTag[] tags)

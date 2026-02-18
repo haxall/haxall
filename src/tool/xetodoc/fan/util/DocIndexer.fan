@@ -46,24 +46,27 @@ class DocIndexer
   ** Add DocType page to index
   virtual Void addSpec(DocSpec x)
   {
-    type := x.flavor.isMixin ? DocIndexerSectionType.mixIn : DocIndexerSectionType.type
-    doAdd(x.uri, x.lib, type, [x.qname, x.name], x.qname, x.doc)
-    x.eachSlotOwn |slot| { addSlot(x, slot) }
+    type      := x.flavor.isMixin ? DocIndexerSectionType.mixIn : DocIndexerSectionType.type
+    extraTags := x.tags.mapNotNull |t->Str?| { t.name == type.tag ? null : t.name }
+    qname     := x.qname
+    if (qname.startsWith("fan.")) qname = qname[4..-1]
+    doAdd(x.uri, x.lib, type, [x.qname, x.name], qname, x.doc, extraTags)
+    x.eachSlotOwn |slot| { addSlot(x, qname, slot, extraTags) }
   }
 
   ** Add DocSlot section to index
-  virtual Void addSlot(DocSpec parent, DocSlot slot)
+  virtual Void addSlot(DocSpec parent, Str parentQname, DocSlot slot, Str[] extraTags)
   {
     uri := parent.uri + `#${slot.name}`
     if (parent.name == "Funcs")
     {
       qname := parent.lib.name + "::" + slot.name
-      doAdd(uri, parent.lib, DocIndexerSectionType.func, [qname, slot.name], qname, slot.doc)
+      doAdd(uri, parent.lib, DocIndexerSectionType.func, [qname, slot.name], qname, slot.doc, extraTags)
     }
     else
     {
-      qname := parent.qname + "." + slot.name
-      doAdd(uri, parent.lib, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
+      qname := parentQname + "." + slot.name
+      doAdd(uri, parent.lib, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc, extraTags)
     }
   }
 
@@ -95,15 +98,17 @@ class DocIndexer
     catch (Err e) Console.cur.err("Cannot index $x.qname", e)
   }
 
-  private Void doAdd(Uri uri, DocLibRef? lib, DocIndexerSectionType type, Str[] keys, Str title, Obj body)
+  private Void doAdd(Uri uri, DocLibRef? lib, DocIndexerSectionType type, Str[] keys, Str title, Obj body,
+                     Str[] extraTags := Str#.emptyList)
   {
     add(DocIndexerSection {
-      it.uri   = uri
-      it.lib   = lib
-      it.type  = type
-      it.keys  = keys
-      it.title = title
-      it.body  = body as Str ?: parseHtmlToPlainText(uri, body)
+      it.uri       = uri
+      it.lib       = lib
+      it.type      = type
+      it.keys      = keys
+      it.title     = title
+      it.body      = body as Str ?: parseHtmlToPlainText(uri, body)
+      it.extraTags = extraTags
     })
   }
 
@@ -238,6 +243,12 @@ const class DocIndexerSection
 
   ** Body of section to index with parsing
   const Str body
+
+  ** Additional tags beyond the section type tag (e.g. "fantom")
+  const Str[] extraTags := Str#.emptyList
+
+  ** All tags (type is always the first tag)
+  Str[] tags() { [type.name].addAll(extraTags) }
 
   ** Debug string
   override Str toStr() { "$uri | $type $type.weight | $keys" }
