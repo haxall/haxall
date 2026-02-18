@@ -335,6 +335,7 @@ class DocHtmlWriter : WebOutStream
     if (x.flavor.isMixin) flags.remove("abstract")
 
     tag(tagSlot).code
+    fantomFacets(fanMeta)
     w(flags.join(" ")).sp.esc(what).sp
     esc(x.name)
     if (hasBase || hasMixins) w(" : ")
@@ -360,10 +361,12 @@ class DocHtmlWriter : WebOutStream
 
   private Void fantomSlotSig(DocSlot x)
   {
+    fanMeta := x.meta.get("fanMeta") as DocDict
     tag(tagSlot).code
+    fantomFacets(fanMeta)
 
     // flags
-    flags := fantomFlags(x.meta.get("fanMeta"))
+    flags := fantomFlags(fanMeta)
     if (!flags.isEmpty) w(flags.join(" ")).sp
 
     // field vs method
@@ -411,6 +414,20 @@ class DocHtmlWriter : WebOutStream
       return w(fanSig) // already HTML
     else
       return fantomTypeRef(slot.type)
+  }
+
+  private Void fantomFacets(DocDict? fanMeta)
+  {
+    facets := fanMeta?.get("facets") as DocList
+    if (facets == null) return
+    facets.list.each |DocDict f|
+    {
+      w("@")
+      typeRef(DocSimpleTypeRef("fan." + f.getStr("type"), false))
+      val := f.getStr("val")
+      if (val != null) w(" { ").esc(val).w(" }")
+      br
+    }
   }
 
   private This fantomTypeRef(DocTypeRef x)

@@ -15,6 +15,17 @@ using haystack
 @Js
 abstract const class DocVal
 {
+  ** Make generic object
+  static DocVal? makeGenericVal(Obj x)
+  {
+    if (x is DocVal) return x
+    if (x is Dict)   return DocDict.makeGeneric(Etc.dictToMap(x))
+    if (x is List)   return DocList.makeGeneric(x)
+    if (x is Str)    return DocScalar.str(x)
+    if (x === Marker.val) return DocScalar.marker
+    throw Err("Unsupported geneirc val: $x [$x.typeof]")
+  }
+
   ** Constructor
   new make(DocTypeRef type, DocLink? link := null)
   {
@@ -142,6 +153,13 @@ const class DocScalar : DocVal
 @Js
 const class DocList : DocVal
 {
+  ** Make generic list that contains only generic vals
+  static new makeGeneric(Obj[] acc)
+  {
+    acc = acc.map |v->DocVal| { makeGenericVal(v) }
+    return make(DocTypeRef.list, null, acc)
+  }
+
   ** Cosntructor
   new make(DocTypeRef type, DocLink? link, DocVal[]  list) : super(type, link)
   {

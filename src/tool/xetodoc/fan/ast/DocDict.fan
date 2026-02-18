@@ -18,16 +18,10 @@ const class DocDict : DocVal
   ** Empty doc dict
   static const DocDict empty := doMake(DocTypeRef.dict, null, Str:DocVal[:])
 
-  ** Make generic dict that contains only Marker, Str, or DocVal
+  ** Make generic dict that contains only generic vals
   static new makeGeneric(Str:Obj acc)
   {
-    acc = acc.map |v->DocVal|
-    {
-      if (v is DocVal) return v
-      if (v is Str) return DocScalar.str(v)
-      if (v === Marker.val) return DocScalar.marker
-      throw Err("Unsupported geneirc val: $v [$v.typeof]")
-    }
+    acc = acc.map |v->DocVal| { makeGenericVal(v) }
     return make(DocTypeRef.dict, null, acc)
   }
 
