@@ -248,7 +248,7 @@ const class DocIndexerSection
   const Str[] extraTags := Str#.emptyList
 
   ** All tags (type is always the first tag)
-  Str[] tags() { [type.name].addAll(extraTags) }
+  Str[] tags() { [type.tag].addAll(extraTags) }
 
   ** Debug string
   override Str toStr() { "$uri | $type $type.weight | $keys" }
