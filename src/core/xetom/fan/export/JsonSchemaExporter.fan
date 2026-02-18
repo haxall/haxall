@@ -21,8 +21,10 @@ class JsonSchemaExporter : Exporter
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
+  new make(MNamespace ns, OutStream out, Dict opts, Str refPath := "\$defs") : super(ns, out, opts)
   {
+    this.refPath = refPath
+
     map["\$schema"] = "http://json-schema.org/draft-07/schema#"
   }
 
@@ -80,8 +82,6 @@ class JsonSchemaExporter : Exporter
     if (alreadyDefined(spec))
       return
 
-    if (spec.isEnum)
-      doSpecEnum(spec)
     else if (spec.isScalar)
       doSpecScalar(spec)
     else
@@ -98,18 +98,22 @@ class JsonSchemaExporter : Exporter
 
   private Void doSpecScalar(Spec spec)
   {
-    addDef(spec, [
-      "type": "string",
-      "pattern": spec.meta["pattern"]
-    ])
-  }
+    if (spec.isEnum)
+    {
+      addDef(spec, [
+        "type": "string",
+        "enum": spec.enum.keys
+      ])
+    }
+    else
+    {
+      prm := primitives.getChecked(spec.qname, false)
 
-  private Void doSpecEnum(Spec spec)
-  {
-    addDef(spec, [
-      "type": "string",
-      "enum": spec.enum.keys
-    ])
+      addDef(spec, prm ?: [
+        "type": "string",
+        "pattern": spec.meta["pattern"]
+      ])
+    }
   }
 
   private Void doSpecObj(Spec spec)
@@ -125,7 +129,7 @@ class JsonSchemaExporter : Exporter
     {
       if (!slot.isMaybe)
         required.add(name)
-      props[name] = prop(slot, spec.lib)
+      props[name] = prop(slot)
     }
 
     //------------------------------
@@ -154,7 +158,7 @@ class JsonSchemaExporter : Exporter
         allOf := [schema]
         type.ofs.each |of|
         {
-          allOf.add(["\$ref": typeRef(of)])
+          allOf.add(typeRef(of))
         }
         addDef(spec, [ "allOf": allOf ])
       }
@@ -169,7 +173,7 @@ class JsonSchemaExporter : Exporter
           addDef(
             spec, [
               "allOf": [
-                ["\$ref": typeRef(type.base)],
+                typeRef(type.base),
                 schema
               ]
             ])
@@ -178,39 +182,12 @@ class JsonSchemaExporter : Exporter
     }
   }
 
-  private Obj:Obj prop(Spec slot, Lib lib)
-  {
-    // primitives
-    prm := primitives.getChecked(slot.type.qname, false)
-    if (prm != null) return prm
-
-    // list
-    else if (slot.type.isList())
-    {
-      res := Obj:Obj["type": "array"]
-      of := slot.of(false)
-      if (of != null)
-        res["items"] = ["\$ref": typeRef(of)]
-      return res
-    }
-
-    // anything else
-    else
-      return ["\$ref": typeRef(slot.type) ]
-  }
-
-  private Str typeRef(Spec type)
-  {
-    // recursively ensure that everything is defined.
-    doSpec(type)
-
-    // create a typeref
-    nameVer := libNameVer(type.lib)
-    return "#/\$defs/$nameVer/$type.name"
-  }
-
   private Void addDef(Spec type, Obj:Obj schema)
   {
+//    echo("---------------------------")
+//    echo("addDef: $type.qname")
+//    Err("foo").trace(Env.cur.out)
+
     nameVer := libNameVer(type.lib)
     if (!defs.containsKey(nameVer))
       defs[nameVer] = Obj:Obj[:]
@@ -218,16 +195,51 @@ class JsonSchemaExporter : Exporter
     defs[nameVer][type.name] = schema
   }
 
-  static Str libNameVer(Lib lib)
+  private static Str libNameVer(Lib lib)
   {
      return "$lib.name-$lib.version"
+  }
+
+  Obj:Obj prop(Spec slot)
+  {
+    // primitives
+    prm := primitives.getChecked(slot.type.qname, false)
+    if (prm != null) return prm
+
+    if (slot.type.base != null && slot.type.base.qname == "sys::Dict")
+    {
+      return Obj:Obj["type": "object"]
+    }
+
+    // list
+    if (slot.type.isList())
+    {
+      res := Obj:Obj["type": "array"]
+      of := slot.of(false)
+      if (of != null)
+        res["items"] = typeRef(of)
+      return res
+    }
+
+    // anything else
+    return typeRef(slot.type)
+  }
+
+  private Obj:Obj typeRef(Spec type)
+  {
+    // recursively ensure that everything is defined.
+    doSpec(type)
+
+    // create a typeref
+    nameVer := libNameVer(type.lib)
+    return ["\$ref": "#/$refPath/$nameVer/$type.name"]
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private static const Str:[Obj:Obj] primitives := [
+  static const Str:[Obj:Obj] primitives := [
     "sys::Str":   ["type": "string"],
     "sys::Bool":  ["type": "boolean"],
     "sys::Int":   ["type": "integer"],
@@ -237,8 +249,9 @@ class JsonSchemaExporter : Exporter
   // qnames that have already been defined
   private Str:Marker defined := Str:Marker[:]
 
+  private const Str refPath
+
   private Obj:Obj map := [:] { ordered = true }
 
-  // internal so OpenAPIExporter can use it
   Obj:[Obj:Obj] defs := [:] { ordered = true }
 }

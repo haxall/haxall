@@ -23,7 +23,7 @@ class OpenAPIExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
-    schemaExporter = JsonSchemaExporter(ns, out, Etc.dict0)
+    schemaExporter = JsonSchemaExporter(ns, out, Etc.dict0, "components")
 
     map["openapi"] = "3.0.0"
     map["paths"] = paths
@@ -91,7 +91,7 @@ class OpenAPIExporter : Exporter
 
     props := Obj:Obj[:]
     required := Obj[,]
-    response := ""
+    response := Obj:Obj[:]
     responseRequired := false
 
     slots := spec.slots()
@@ -101,13 +101,13 @@ class OpenAPIExporter : Exporter
       {
         if (!slot.isMaybe)
           responseRequired = true
-        response = typeRef(slot.type)
+        response = schemaExporter.prop(slot)
       }
       else
       {
         if (!slot.isMaybe)
           required.add(name)
-        props[name] = typeRef(slot.type)
+        props[name] = schemaExporter.prop(slot)
       }
     }
 
@@ -126,15 +126,12 @@ class OpenAPIExporter : Exporter
       ]
     ]
 
-
     // responses
     responses := Obj:Obj[:] { ordered = true }
     responses["200"] = [
       "content": [
         "application/json": [
-          "schema": [
-            "\$ref": response
-          ]
+          "schema": response
         ]
       ]
     ]
@@ -149,16 +146,6 @@ class OpenAPIExporter : Exporter
         "responses": responses
       ]
     ]
-  }
-
-  private Str typeRef(Spec type)
-  {
-    // recursively ensure that everything is defined.
-    schemaExporter.doSpec(type)
-
-    // create a typeref
-    nameVer := JsonSchemaExporter.libNameVer(type.lib)
-    return "#/components/$nameVer/$type.name"
   }
 
 //////////////////////////////////////////////////////////////////////////
