@@ -69,6 +69,18 @@ xetodoc-page p > img {
   max-width: 600px;
 }
 
+xetodoc-page table {
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+xetodoc-page table th,
+xetodoc-page table td {
+  border: 1px solid #ccc;
+  padding: 0.3em 0.6em;
+  text-align: left;
+}
+
 /*************************************************************************
  * Navigation
  ************************************************************************/
