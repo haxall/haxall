@@ -206,17 +206,19 @@ class JsonSchemaExporter : Exporter
     prm := primitives.getChecked(slot.type.qname, false)
     if (prm != null) return prm
 
+    // base obj -- "any" type
     if (slot.type.qname == "sys::Obj")
     {
       return Obj:Obj[:]
     }
 
+    // dict -> obj
     if (slot.type.qname == "sys::Dict")
     {
       return Obj:Obj["type": "object"]
     }
 
-    // list
+    // list -> array
     if (slot.type.isList())
     {
       res := Obj:Obj["type": "array"]
