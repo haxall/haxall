@@ -89,6 +89,11 @@ class OpenAPIExporter : Exporter
   {
     uri := "/api/" + spec.qname.replace("::", ".")
 
+//    //-------------------------------------------------
+//    if (!["/api/hx.Funcs.read"].contains(uri))
+//      return
+//    //-------------------------------------------------
+
     props := Obj:Obj[:]
     required := Obj[,]
     response := Obj:Obj[:]

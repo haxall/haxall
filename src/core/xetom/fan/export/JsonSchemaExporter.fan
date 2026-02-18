@@ -206,7 +206,7 @@ class JsonSchemaExporter : Exporter
     prm := primitives.getChecked(slot.type.qname, false)
     if (prm != null) return prm
 
-    if (slot.type.base != null && slot.type.base.qname == "sys::Dict")
+    if (slot.type.qname == "sys::Dict")
     {
       return Obj:Obj["type": "object"]
     }
