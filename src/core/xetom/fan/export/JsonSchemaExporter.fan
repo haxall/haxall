@@ -84,6 +84,8 @@ class JsonSchemaExporter : Exporter
 
     else if (spec.isScalar)
       doSpecScalar(spec)
+    else if (spec.isGrid)
+      doSpecGrid(spec)
     else
       doSpecObj(spec)
   }
@@ -158,7 +160,7 @@ class JsonSchemaExporter : Exporter
         allOf := [schema]
         type.ofs.each |of|
         {
-          allOf.add(typeRef(of))
+          allOf.add(ensureRef(of))
         }
         addDef(spec, [ "allOf": allOf ])
       }
@@ -173,7 +175,7 @@ class JsonSchemaExporter : Exporter
           addDef(
             spec, [
               "allOf": [
-                typeRef(type.base),
+                ensureRef(type.base),
                 schema
               ]
             ])
@@ -182,22 +184,65 @@ class JsonSchemaExporter : Exporter
     }
   }
 
-  private Void addDef(Spec type, Obj:Obj schema)
+  private Void doSpecGrid(Spec spec)
+  {
+    addDef(
+      spec,
+      [
+        "additionalProperties": true,
+        "type": "object",
+        "properties": [
+          "meta": [
+            "type": "object"
+          ],
+          "rows": [
+            "type": "array",
+            "items": [
+              "type": "object"
+            ]
+          ],
+          "cols": [
+            "type": "array",
+            "items": ref(spec.lib, "GridCol")
+          ]
+        ],
+        "required": [
+          "cols",
+          "rows"
+        ]
+      ],
+      "Grid")
+
+    addDef(
+      spec,
+      [
+        "type": "object",
+        "properties": [
+          "meta": [
+            "type": "object"
+          ],
+          "name": [
+            "type": "string"
+          ]
+        ],
+        "required": [
+          "name"
+        ]
+      ],
+      "GridCol")
+  }
+
+  private Void addDef(Spec spec, Obj:Obj schema, Str? name := null)
   {
 //    echo("---------------------------")
 //    echo("addDef: $type.qname")
 //    Err("foo").trace(Env.cur.out)
 
-    nameVer := libNameVer(type.lib)
+    nameVer := libNameVer(spec.lib)
     if (!defs.containsKey(nameVer))
       defs[nameVer] = Obj:Obj[:]
 
-    defs[nameVer][type.name] = schema
-  }
-
-  private static Str libNameVer(Lib lib)
-  {
-     return "$lib.name-$lib.version"
+    defs[nameVer][name ?: spec.name] = schema
   }
 
   Obj:Obj prop(Spec slot)
@@ -224,22 +269,30 @@ class JsonSchemaExporter : Exporter
       res := Obj:Obj["type": "array"]
       of := slot.of(false)
       if (of != null)
-        res["items"] = typeRef(of)
+        res["items"] = ensureRef(of)
       return res
     }
 
     // anything else
-    return typeRef(slot.type)
+    return ensureRef(slot.type)
   }
 
-  private Obj:Obj typeRef(Spec type)
+  private Obj:Obj ensureRef(Spec type)
   {
-    // recursively ensure that everything is defined.
+    // recursively ensure that the type is defined
     doSpec(type)
 
-    // create a typeref
-    nameVer := libNameVer(type.lib)
-    return ["\$ref": "#/$refPath/$nameVer/$type.name"]
+    return ref(type.lib, type.name)
+  }
+
+  private Obj:Obj ref(Lib lib, Str typeName)
+  {
+    return ["\$ref": "#/$refPath/${libNameVer(lib)}/$typeName"]
+  }
+
+  private static Str libNameVer(Lib lib)
+  {
+     return "$lib.name-$lib.version"
   }
 
 //////////////////////////////////////////////////////////////////////////

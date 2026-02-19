@@ -140,9 +140,17 @@ class OpenAPIExporter : Exporter
         ]
       ]
     ]
+
     if (!responseRequired)
       responses["204"] = ["description": "No data returned"]
-    responses["400"] = ["description": "TODO 4xx"]
+
+    responses["400"] = [
+      "content": [
+        "application/json": [
+          "schema": Obj:Obj[:]
+        ]
+      ]
+    ]
 
     // done
     paths[uri] = [
