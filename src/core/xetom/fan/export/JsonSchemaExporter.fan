@@ -126,7 +126,9 @@ class JsonSchemaExporter : Exporter
       {
         addDef(spec, prim ?: [
           "type": "string",
-          "pattern": pattern
+          "pattern": ((Str)pattern)
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
         ])
       }
     }
@@ -246,16 +248,6 @@ class JsonSchemaExporter : Exporter
       "GridCol" /* N.B. syntheticName */)
   }
 
-  private Void addDef(Spec spec, Obj:Obj schema, Str? syntheticName := null)
-  {
-    nameVer := libNameVer(spec.lib)
-
-    if (!defs.containsKey(nameVer))
-      defs[nameVer] = Obj:Obj[:] { ordered = true }
-
-    defs[nameVer][syntheticName ?: spec.name] = schema
-  }
-
   Obj:Obj prop(Spec slot)
   {
     // primitives
@@ -288,6 +280,13 @@ class JsonSchemaExporter : Exporter
     return ensureRef(slot.type)
   }
 
+  private Void addDef(Spec spec, Obj:Obj schema, Str? syntheticName := null)
+  {
+    libName := libNameVer(spec.lib)
+    specName := syntheticName ?: spec.name
+    defs["$libName-$specName"] = schema
+  }
+
   private Obj:Obj ensureRef(Spec type)
   {
     // recursively ensure that the type is defined
@@ -296,14 +295,15 @@ class JsonSchemaExporter : Exporter
     return ref(type.lib, type.name)
   }
 
-  private Obj:Obj ref(Lib lib, Str typeName)
+  private Obj:Obj ref(Lib lib, Str specName)
   {
-    return ["\$ref": "#/$refPath/${libNameVer(lib)}/$typeName"]
+    libName := libNameVer(lib)
+    return ["\$ref": "#/$refPath/$libName-$specName"]
   }
 
   private static Str libNameVer(Lib lib)
   {
-     return "$lib.name-$lib.version"
+     return "${lib.name}-${lib.version}".replace(".", "-")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -324,5 +324,5 @@ class JsonSchemaExporter : Exporter
 
   private Obj:Obj map := [:] { ordered = true }
 
-  Obj:[Obj:Obj] defs := [:] { ordered = true }
+  Obj:Obj defs := [:] { ordered = true }
 }

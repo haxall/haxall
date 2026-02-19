@@ -23,11 +23,27 @@ class OpenAPIExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
-    schemaExporter = JsonSchemaExporter(ns, out, Etc.dict0, "components")
+    schemaExporter = JsonSchemaExporter(ns, out, Etc.dict0, "components/schemas")
 
     map["openapi"] = "3.0.0"
+    map["info"] = [
+      "title": "Xeto OpenApi definition",
+      "version": "0.0.1"
+    ]
     map["paths"] = paths
-    map["components"] = schemaExporter.defs
+    map["components"] = [
+      "schemas": schemaExporter.defs,
+      "parameters": [
+        "projName": [
+          "name": "projName",
+          "in": "path",
+          "required": "true",
+          "schema": [
+            "type": "string",
+          ]
+        ]
+      ]
+    ]
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,7 +106,11 @@ class OpenAPIExporter : Exporter
 
   private Void doFunc(Spec spec)
   {
-    uri := "/api/" + spec.qname.replace("::", ".")
+    //-------------------------------------------------
+    if (!["hx::Funcs.read"].contains(spec.qname)) return
+    //-------------------------------------------------
+
+    uri := "/api/{projName}/" + spec.qname.replace("::", ".")
 
     props := Obj:Obj[:]
     required := Obj[,]
@@ -115,63 +135,46 @@ class OpenAPIExporter : Exporter
     }
 
     // request body
-    requestBody := Obj:Obj[:] { ordered = true }
+    reqSchema := ["type": "object", "properties": props]
     if (required.size > 0)
-    {
-      requestBody = [
-        "required": true,
-        "content": [
-          "application/json": [
-            [
-              "type": "object",
-              "required": required,
-              "properties": props
-            ]
-          ]
-        ]
-      ]
-    }
-    else
-    {
-      requestBody = [
-        "required": true,
-        "content": [
-          "application/json": [
-            [
-              "type": "object",
-              "properties": props
-            ]
-          ]
-        ]
-      ]
-    }
+      reqSchema["required"] = required
+    requestBody := [
+      "required": true,
+      "content": jsonSchema(reqSchema)
+    ]
 
     // responses
     responses := Obj:Obj[:] { ordered = true }
-    responses["200"] = [
-      "content": [
-        "application/json": [
-          "schema": response
-        ]
-      ]
+    responses["'200'"] = [
+      "description": "Success",
+      "content": jsonSchema(response)
     ]
 
     if (!responseRequired)
-      responses["204"] = ["description": "No data returned"]
-
-    responses["400"] = [
-      "content": [
-        "application/json": [
-          "schema": Obj:Obj[:]
-        ]
+      responses["'204'"] = [
+        "description": "No data returned"
       ]
+
+    responses["'400'"] = [
+      "description": "Bad Request",
+      "content": jsonSchema(["type": "object"])
     ]
 
     // done
     paths[uri] = [
       "post": [
         "requestBody": requestBody,
-        "responses": responses
+        "responses": responses,
+        "parameters": [["\$ref": "#/components/parameters/projName"]],
+      ]
+    ]
+  }
+
+  private static Obj:Obj jsonSchema(Obj:Obj schema)
+  {
+    return [
+      "application/json": [
+        "schema": schema
       ]
     ]
   }
