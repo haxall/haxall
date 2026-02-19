@@ -24,6 +24,8 @@ internal class DocMarkdownParser : LinkResolver
   new make(DocCompiler c, DocLinker linker)
   {
     this.compiler = c
+    // TODO:FIXIT - add warn handler
+    this.xetodoc = Xetodoc().withLinkResolver(this)//.onWarn |node,msg| { ... }
     this.linker = linker
   }
 
@@ -49,7 +51,7 @@ internal class DocMarkdownParser : LinkResolver
   private Str parseToHtml(Str markdown, Bool logWarn)
   {
     this.logWarn = logWarn
-    return Xetodoc.toHtml(markdown, this)
+    return xetodoc.toHtml(markdown)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -195,6 +197,7 @@ internal class DocMarkdownParser : LinkResolver
 //////////////////////////////////////////////////////////////////////////
 
   private DocCompiler compiler
+  private Xetodoc xetodoc
   private Bool logWarn := true
   private DocLinker linker
 }
