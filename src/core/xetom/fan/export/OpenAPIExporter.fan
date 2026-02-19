@@ -92,11 +92,6 @@ class OpenAPIExporter : Exporter
   {
     uri := "/api/" + spec.qname.replace("::", ".")
 
-//    //-------------------------------------------------
-//    if (!["/api/hx.Funcs.read"].contains(uri))
-//      return
-//    //-------------------------------------------------
-
     props := Obj:Obj[:]
     required := Obj[,]
     response := Obj:Obj[:]
@@ -121,18 +116,35 @@ class OpenAPIExporter : Exporter
 
     // request body
     requestBody := Obj:Obj[:] { ordered = true }
-    requestBody = [
-      "required": true,
-      "content": [
-        "application/json": [
-          [
-            "type": "object",
-            "required": required,
-            "properties": props
+    if (required.size > 0)
+    {
+      requestBody = [
+        "required": true,
+        "content": [
+          "application/json": [
+            [
+              "type": "object",
+              "required": required,
+              "properties": props
+            ]
           ]
         ]
       ]
-    ]
+    }
+    else
+    {
+      requestBody = [
+        "required": true,
+        "content": [
+          "application/json": [
+            [
+              "type": "object",
+              "properties": props
+            ]
+          ]
+        ]
+      ]
+    }
 
     // responses
     responses := Obj:Obj[:] { ordered = true }
