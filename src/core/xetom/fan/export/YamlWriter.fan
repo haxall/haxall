@@ -89,9 +89,12 @@ class YamlWriter
     return this
   }
 
-  private This w(Obj obj)
+  private This w(Obj? obj)
   {
-    out.print(obj.toStr)
+    if (obj == null)
+      out.print("null")
+    else
+      out.print(obj.toStr)
     return this
   }
 

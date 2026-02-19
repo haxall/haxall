@@ -41,9 +41,12 @@ class JsonSchemaExporter : Exporter
   {
     map["\$defs"] = defs
 
-    js := JsonOutStream(Env.cur.out)
-    js.prettyPrint = true
-    js.writeJson(map)
+    //js := JsonOutStream(Env.cur.out)
+    //js.prettyPrint = true
+    //js.writeJson(map)
+
+    ym := YamlWriter(Env.cur.out)
+    ym.writeYaml(map)
     return this
   }
 
@@ -109,12 +112,23 @@ class JsonSchemaExporter : Exporter
     }
     else
     {
-      prm := primitives.getChecked(spec.qname, false)
+      prim := primitives.getChecked(spec.qname, false)
+      if (prim != null) return prim
 
-      addDef(spec, prm ?: [
-        "type": "string",
-        "pattern": spec.meta["pattern"]
-      ])
+      pattern := spec.meta["pattern"]
+      if (pattern == null)
+      {
+        addDef(spec, prim ?: [
+          "type": "string",
+        ])
+      }
+      else
+      {
+        addDef(spec, prim ?: [
+          "type": "string",
+          "pattern": pattern
+        ])
+      }
     }
   }
 
@@ -229,27 +243,24 @@ class JsonSchemaExporter : Exporter
           "name"
         ]
       ],
-      "GridCol")
+      "GridCol" /* N.B. syntheticName */)
   }
 
-  private Void addDef(Spec spec, Obj:Obj schema, Str? name := null)
+  private Void addDef(Spec spec, Obj:Obj schema, Str? syntheticName := null)
   {
-//    echo("---------------------------")
-//    echo("addDef: $type.qname")
-//    Err("foo").trace(Env.cur.out)
-
     nameVer := libNameVer(spec.lib)
-    if (!defs.containsKey(nameVer))
-      defs[nameVer] = Obj:Obj[:]
 
-    defs[nameVer][name ?: spec.name] = schema
+    if (!defs.containsKey(nameVer))
+      defs[nameVer] = Obj:Obj[:] { ordered = true }
+
+    defs[nameVer][syntheticName ?: spec.name] = schema
   }
 
   Obj:Obj prop(Spec slot)
   {
     // primitives
-    prm := primitives.getChecked(slot.type.qname, false)
-    if (prm != null) return prm
+    prim := primitives.getChecked(slot.type.qname, false)
+    if (prim != null) return prim
 
     // base obj -- "any" type
     if (slot.type.qname == "sys::Obj")

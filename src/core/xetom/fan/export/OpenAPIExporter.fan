@@ -41,9 +41,12 @@ class OpenAPIExporter : Exporter
 
   override This end()
   {
-    js := JsonOutStream(Env.cur.out)
-    js.prettyPrint = true
-    js.writeJson(map)
+    //js := JsonOutStream(Env.cur.out)
+    //js.prettyPrint = true
+    //js.writeJson(map)
+
+    ym := YamlWriter(Env.cur.out)
+    ym.writeYaml(map)
     return this
   }
 
