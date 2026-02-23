@@ -160,7 +160,12 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec? type(Str qname, Bool checked := true)
   {
-    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+    colon := qname.index("::")
+    if (colon == null)
+    {
+      if (checked) throw ArgErr("Invalid qname: $qname")
+      return null
+    }
     libName := qname[0..<colon]
     typeName := qname[colon+2..-1]
     type := lib(libName, false)?.type(typeName, false)
@@ -171,7 +176,12 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec? spec(Str qname, Bool checked := true)
   {
-    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+    colon := qname.index("::")
+    if (colon == null)
+    {
+      if (checked) throw ArgErr("Invalid qname: $qname")
+      return null
+    }
 
     libName := qname[0..<colon]
     names := qname[colon+2..-1].split('.', false)
@@ -187,7 +197,12 @@ const class MNamespace : Namespace, CNamespace
 
   override Dict? instance(Str qname, Bool checked := true)
   {
-    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+    colon := qname.index("::")
+    if (colon == null)
+    {
+      if (checked) throw ArgErr("Invalid qname: $qname")
+      return null
+    }
 
     libName := qname[0..<colon]
     name := qname[colon+2..-1]
@@ -330,7 +345,7 @@ const class MNamespace : Namespace, CNamespace
     {
       specRef := dict["spec"] as Ref
       if (specRef == null) return sys.dict
-      return spec(specRef.id, checked)
+      return type(specRef.id, checked)
     }
 
     // look in Fantom class hiearchy

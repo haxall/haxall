@@ -116,6 +116,9 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.spec("foo.bar.baz::Qux") }
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Baz") }
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Str.foo") }
+    verifyEq(ns.spec("bad qname", false), null) // to ensure bad specOf refs don't fail
+    verifyEq(ns.type("bad qname", false), null)
+    verifyEq(ns.instance("bad qname", false), null)
 
     // reify scalar default values
     verifySame(sys.type("Unit").meta["val"], Unit("%"))
