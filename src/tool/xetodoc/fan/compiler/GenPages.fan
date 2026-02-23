@@ -123,7 +123,7 @@ internal class GenPages: Step
       uri := DocUtil.qnameToUri(libFuncs.qname, s.name)
       acc.add(DocSummary(DocLink(uri, s.name), s.doc.summary))
     }
-    return acc
+    return acc.sort |a, b| { a.link.dis <=> b.link.dis }
   }
 
   private DocSummary[] genLibInstances()
