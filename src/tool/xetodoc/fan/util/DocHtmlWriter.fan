@@ -239,6 +239,7 @@ class DocHtmlWriter : WebOutStream
     names := dict.keys
     names.remove("maybe")
     names.remove("ofs")
+    names.remove("axon")
     if (names.isEmpty) return this
 
     // sort

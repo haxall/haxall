@@ -47,6 +47,7 @@ abstract internal class Step
     baseType := XetoUtil.isAutoName(x.name) ? x.base : x.type
     base := DocSimpleTypeRef(baseType.qname, x.isMaybe)
     of := x.of(false)
+    if (of != null && base.qname == "sys::Grid" && of.qname == "sys::Dict") of = null
     if (of != null)
     {
       return DocOfTypeRef(base, genTypeRef(of))
