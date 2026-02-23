@@ -77,7 +77,9 @@ internal class Query : HaystackContext
              ns.unqualifiedType(specName)
       xetoIsSpecCache[specName] = spec
     }
-    return ns.specOf(rec).isa(spec)
+    recSpec := ns.specOf(rec, false)
+    if (recSpec == null) return false
+    return recSpec.isa(spec)
   }
 
   override Dict? deref(Ref id)
