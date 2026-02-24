@@ -24,7 +24,8 @@ abstract const class ExtWeb : WebMod
 
   ** Get the route name for this web extension. By default its
   ** the last name in the dotted lib path.  This must be a valid
-  ** path name (must not contain slashes).
+  ** path name (must not contain slashes).  Return the empty string to
+  ** service the "/" root index.
   virtual Str routeName() { ext.name.split('.').last }
 
   ** Base uri for this library's endpoint such as "/myLib/"

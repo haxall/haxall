@@ -231,7 +231,7 @@ const class HxExtRegistry
     {
       web := ext.web
       routeName := web.routeName
-      if (routeName.isEmpty || web.isUnsupported) return
+      if (web.isUnsupported) return
       if (webRoutes[routeName] != null) rt.log.warn("Duplicte ext routes: $routeName")
       webRoutes[routeName] = web
       if (web.indexPriority > webIndex.indexPriority) webIndex = web

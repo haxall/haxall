@@ -30,31 +30,8 @@ internal const class HttpRootMod : WebMod
 
   override Void onService()
   {
-    req := this.req
-    res := this.res
-
-    // use first level of my path to lookup route
-    routeName := req.modRel.path.first ?: ""
-
-    // if name is empty then authenticate and perform index redirect
-    if (routeName.isEmpty)
-    {
-      // index redirect
-      session := sys.user.authenticate(req, res)
-      if (session == null) return
-      cx := sys.newContextSession(session)
-      uri := ext.indexRedirectUri(cx)
-      return res.redirect(uri)
-    }
-
-    // get the webmod for given route
-    mod := sys.exts.webRoutes.get(routeName)
-    if (mod == null) return res.sendErr(404)
-
-    // dispatch to web mod
-    req.mod = mod
-    req.modBase = req.modBase + `$routeName/`
-    mod.onService
+    // route to ext
+    ext.onService(req, res)
   }
 }
 

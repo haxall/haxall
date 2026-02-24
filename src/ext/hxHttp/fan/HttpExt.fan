@@ -81,6 +81,37 @@ const class HttpExt : ExtObj, IHttpExt
     wisp.stop
   }
 
+  ** Top-level hook to service all HTTP requests
+  Void onService(WebReq req, WebRes res)
+  {
+    // use first level of my path to lookup route
+    routeName := req.modRel.path.first ?: ""
+
+    // get the webmod for given route
+    mod := sys.exts.webRoutes.get(routeName)
+    if (mod != null)
+    {
+      // dispatch to web mod
+      req.mod = mod
+      req.modBase = req.modBase + `$routeName/`
+      mod.onService
+      return
+    }
+
+    // if route name is empty then authenticate and perform index redirect
+    if (routeName.isEmpty)
+    {
+      session := sys.user.authenticate(req, res)
+      if (session == null) return
+      cx := sys.newContextSession(session)
+      uri := indexRedirectUri(cx)
+      return res.redirect(uri)
+    }
+
+    // 404 not found
+    return res.sendErr(404)
+  }
+
   ** Where do we redirect for "/" such as "/ui/homeProj".
   virtual Uri indexRedirectUri(Context cx)
   {
