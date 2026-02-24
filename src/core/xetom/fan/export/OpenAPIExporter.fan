@@ -120,16 +120,15 @@ class OpenAPIExporter : Exporter
     props := Obj:Obj[:]
     required := Obj[,]
     response := Obj:Obj[:]
-    responseRequired := false
 
     slots := spec.slots()
     slots.each |slot, name|
     {
       if (name == "returns")
       {
-        if (!slot.isMaybe)
-          responseRequired = true
         response = schemaExporter.prop(slot)
+        if (slot.isMaybe)
+          response["nullable"] = true
       }
       else
       {
@@ -154,11 +153,6 @@ class OpenAPIExporter : Exporter
       "description": "Success",
       "content": jsonSchema(response)
     ]
-
-    if (!responseRequired)
-      responses["'204'"] = [
-        "description": "No data returned"
-      ]
 
     responses["'400'"] = [
       "description": "Bad Request",
