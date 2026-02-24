@@ -108,10 +108,14 @@ class OpenAPIExporter : Exporter
   private Void doFunc(Spec spec)
   {
     //-------------------------------------------------
-    if (!["hx::Funcs.read"].contains(spec.qname)) return
+    //if (!["hx::Funcs.read"].contains(spec.qname)) return
     //-------------------------------------------------
 
-    uri := "/api/{projName}/" + spec.qname.replace("::", ".")
+    path := spec.qname
+    n := path.index("::Funcs.")
+    if (n != null)
+      path = path[0..n+1] + path[(n+"..Funcs.".size)..-1]
+    uri := "/api/{projName}/" + path.replace("::", ".")
 
     props := Obj:Obj[:]
     required := Obj[,]
