@@ -9,6 +9,7 @@
 using xeto
 using haystack
 using util
+using yaml
 
 **
 ** OpenAPI Exporter

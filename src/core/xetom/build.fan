@@ -30,6 +30,7 @@ class Build : BuildPod
                "crypto @{fan.depend}",
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
+               "yaml @{fan.depend}",
                "xeto @{hx.depend}",
                "haystack @{hx.depend}"]
   srcDirs = [`fan/ast/`,

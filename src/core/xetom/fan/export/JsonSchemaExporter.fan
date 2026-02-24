@@ -9,6 +9,7 @@
 using xeto
 using haystack
 using util
+using yaml
 
 **
 ** JSON Schema Exporter
