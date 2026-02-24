@@ -136,7 +136,7 @@ class HxdBoot : HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Initialize and kick off the runtime
-  HxdSys init()
+  virtual HxdSys init()
   {
     HxdSys(this).init(this)
   }
