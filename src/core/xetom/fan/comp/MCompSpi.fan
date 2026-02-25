@@ -295,7 +295,7 @@ class MCompSpi : CompSpi
 
   override Obj? call(Str name, Obj? arg)
   {
-    res := spec.slot(name).func.thunk.callList([comp, arg])
+    res := spec.slot(name).func.thunk.callComp(comp, arg)
 
     fat := slots.get(name) as FatSlot
     if (fat != null)

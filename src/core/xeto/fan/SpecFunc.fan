@@ -53,6 +53,10 @@ const mixin Thunk
 {
   ** Call the function with given args. Must be called within context
   abstract Obj? callList(Obj?[]? args := null)
+
+  ** Call an object oriented method on a component.  Must be called within context.
+  ** If not a component thunk then raise exception.
+  abstract Obj? callComp(Comp self, Obj? arg)
 }
 
 **************************************************************************

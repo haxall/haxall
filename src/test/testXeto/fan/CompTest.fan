@@ -430,6 +430,8 @@ class CompTest: AbstractXetoTest
     verifyMethod(c, "methodEcho",   "foo", "foo")
     verifyMethod(c, "methodEcho",   n(123), n(123))
     verifyMethod(c, "methodSquare", n(2), n(4))
+    verifyMethod(c, "methodUpper", "hi", "HI")
+    verifyMethod(c, "methodThis", "ignore", c)
 
     // verify bad fantom methods
     verifyInvalidMethod(c, "methodBad1", "Comp method missing @Api facet: testXeto::TestFoo.onMethodBad1")

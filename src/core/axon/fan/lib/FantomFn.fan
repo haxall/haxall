@@ -105,6 +105,11 @@ const class FantomFn : TopFn
 
   override Bool isNative() { true }
 
+  override Obj? callComp(Comp self, Obj? arg)
+  {
+    method.call(self, arg)
+  }
+
   override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
   {
     oldCx := AxonContext.curAxon(false)

@@ -49,10 +49,16 @@ const class TopFn : Fn, Thunk
   ** Return only name
   override Str toStr() { name }
 
-  ** Thunk.call implementation
+  ** Thunk.callList implementation
   override Obj? callList(Obj?[]? args := null)
   {
     call(AxonContext.curAxon, args ?: noArgs)
+  }
+
+  ** Thunk.callComp implementation
+  override Obj? callComp(Comp self, Obj? arg)
+  {
+    AxonContext.curAxon.callInNewFrame(this, [arg], Loc.unknown, ["this":self])
   }
 
   ** Add check call
