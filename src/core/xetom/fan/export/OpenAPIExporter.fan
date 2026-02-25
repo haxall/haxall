@@ -159,6 +159,11 @@ class OpenAPIExporter : Exporter
       "content": jsonSchema(["type": "object"])
     ]
 
+    responses["'500'"] = [
+      "description": "Internal Server Error",
+      "content": jsonSchema(["type": "object"])
+    ]
+
     // done
     paths[uri] = [
       "post": [
