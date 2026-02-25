@@ -6,6 +6,8 @@ copyright:  Copyright (c) 2021, SkyFoundry LLC
 license:    Licensed under the Academic Free License version 3.0
 -->
 
+*Build 4.0.6 (working)*
+
 *Build 4.0.5 (18 Feb 2026)*
 - New Xeto based documentation
 - Redesign xeto axon funcs to store only func body in axon meta
