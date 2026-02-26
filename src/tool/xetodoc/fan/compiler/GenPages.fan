@@ -148,6 +148,7 @@ internal class GenPages: Step
       md := lib.files.get(uri).readAllStr
       if (special == "index") { mdIndex = md; return }
       g := genChapter(uri, md)
+      if (g == null) return
       chapters.add(g.page)
       summaries.add(g.summary)
     }
@@ -341,12 +342,17 @@ internal class GenPages: Step
 // Chapter
 //////////////////////////////////////////////////////////////////////////
 
-  private GenPage genChapter(Uri uri, Str markdown)
+  private GenPage? genChapter(Uri uri, Str markdown)
   {
     // we backpatch the prev/next
     name  := uri.basename
     qname := lib.name + "::" + name
     doc   := docns.chapters(lib).get(name)
+    if (doc == null)
+    {
+      compiler.warn("Chapter not in index", FileLoc(qname))
+      return null // skip if not in index
+    }
     page  := DocChapter(libRef, qname, doc.title, genDoc(markdown, doc), null, null)
     return addPage(page, page.doc,  null)
   }
