@@ -164,14 +164,23 @@ class OpenAPIExporter : Exporter
       "content": jsonSchema(["type": "object"])
     ]
 
-    // done
-    paths[uri] = [
-      "post": [
-        "requestBody": requestBody,
-        "responses": responses,
-        "parameters": [["\$ref": "#/components/parameters/projName"]],
+    // GET
+    if (props.isEmpty && spec.meta.has("noSideEffects"))
+      paths[uri] = [
+        "get": [
+          "responses": responses,
+          "parameters": [["\$ref": "#/components/parameters/projName"]],
+        ]
       ]
-    ]
+    // POST
+    else
+      paths[uri] = [
+        "post": [
+          "requestBody": requestBody,
+          "responses": responses,
+          "parameters": [["\$ref": "#/components/parameters/projName"]],
+        ]
+      ]
   }
 
   private static Obj:Obj jsonSchema(Obj:Obj schema)
