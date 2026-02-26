@@ -56,7 +56,7 @@ const class DocLib : DocPage
     obj["version"] = version.toStr
     obj["doc"]     = doc.encode
     obj["depends"] = DocLibDepend.encodeList(depends)
-    obj["meta"]    = meta.encode
+    obj.addNotNull("meta",  meta.encode)
     obj.addNotNull("tags",      DocTag.encodeList(tags))
     obj.addNotNull("specs",     DocSummary.encodeList(specs))
     obj.addNotNull("funcs",     DocSummary.encodeList(funcs))
