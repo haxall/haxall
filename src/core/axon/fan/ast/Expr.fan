@@ -43,6 +43,28 @@ const abstract class Expr
     return v
   }
 
+  ** Visit this AST node and every one under it
+  @NoDoc Void visit(|Expr e| f)
+  {
+    f(this)
+    walk |k, v|
+    {
+      if (v is Expr)
+      {
+        ((Expr)v).visit(f)
+        return
+      }
+
+      if (v is List)
+      {
+        ((List)v).each |item|
+        {
+          if (item is Expr) ((Expr)item).visit(f)
+        }
+      }
+    }
+  }
+
   ** Walk through the AST tree to encode into dict/maps
   @NoDoc abstract Void walk(|Str key, Obj? val| f)
 

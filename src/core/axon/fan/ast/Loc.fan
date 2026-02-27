@@ -21,6 +21,9 @@ const class Loc
   ** Synthetic
   static const Loc synthetic := Loc("synthetic", 0)
 
+  ** Generic remote RPC call
+  @NoDoc static const Loc remote := Loc("remote", 0)
+
   ** Constructor
   new make(Str file, Int line := 0)
   {
