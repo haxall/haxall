@@ -86,12 +86,14 @@ class JsonSchemaExporter : Exporter
     if (alreadyDefined(spec))
       return
 
-    else if (spec.isScalar)
-      doSpecScalar(spec)
+    doc := spec.metaOwn["doc"]
+
+    if (spec.isScalar)
+      doSpecScalar(spec, doc)
     else if (spec.isGrid)
-      doSpecGrid(spec)
+      doSpecGrid(spec, doc)
     else
-      doSpecObj(spec)
+      doSpecObj(spec, doc)
   }
 
   private Bool alreadyDefined(Spec spec)
@@ -102,11 +104,11 @@ class JsonSchemaExporter : Exporter
     return false
   }
 
-  private Void doSpecScalar(Spec spec)
+  private Void doSpecScalar(Spec spec, Str? doc)
   {
     if (spec.isEnum)
     {
-      addDef(spec, [
+      addDef(spec, doc, [
         "type": "string",
         "enum": spec.enum.keys
       ])
@@ -119,13 +121,13 @@ class JsonSchemaExporter : Exporter
       pattern := spec.meta["pattern"]
       if (pattern == null)
       {
-        addDef(spec, prim ?: [
+        addDef(spec, doc, prim ?: [
           "type": "string",
         ])
       }
       else
       {
-        addDef(spec, prim ?: [
+        addDef(spec, doc, prim ?: [
           "type": "string",
           "pattern": ((Str)pattern)
             .replace("\\", "\\\\")
@@ -135,7 +137,7 @@ class JsonSchemaExporter : Exporter
     }
   }
 
-  private Void doSpecObj(Spec spec)
+  private Void doSpecObj(Spec spec, Str? doc)
   {
     //------------------------------
     // properties
@@ -179,18 +181,18 @@ class JsonSchemaExporter : Exporter
         {
           allOf.add(ensureRef(of))
         }
-        addDef(spec, [ "allOf": allOf ])
+        addDef(spec, doc, [ "allOf": allOf ])
       }
       else
       {
         if (type.base.qname == "sys::Dict")
         {
-          addDef(spec, schema)
+          addDef(spec, doc, schema)
         }
         else
         {
           addDef(
-            spec, [
+            spec, doc, [
               "allOf": [
                 ensureRef(type.base),
                 schema
@@ -201,10 +203,10 @@ class JsonSchemaExporter : Exporter
     }
   }
 
-  private Void doSpecGrid(Spec spec)
+  private Void doSpecGrid(Spec spec, Str? doc)
   {
     addDef(
-      spec,
+      spec, doc,
       [
         "additionalProperties": true,
         "type": "object",
@@ -227,11 +229,10 @@ class JsonSchemaExporter : Exporter
           "cols",
           "rows"
         ]
-      ],
-      "Grid")
+      ])
 
     addDef(
-      spec,
+      spec, null,
       [
         "type": "object",
         "properties": [
@@ -246,7 +247,7 @@ class JsonSchemaExporter : Exporter
           "name"
         ]
       ],
-      "GridCol" /* N.B. syntheticName */)
+      "GridCol" /* synthetic name */)
   }
 
   Obj:Obj prop(Spec slot)
@@ -281,8 +282,11 @@ class JsonSchemaExporter : Exporter
     return ensureRef(slot.type)
   }
 
-  private Void addDef(Spec spec, Obj:Obj schema, Str? syntheticName := null)
+  private Void addDef(Spec spec, Str? doc, Obj:Obj schema, Str? syntheticName := null)
   {
+    if (doc != null)
+      schema["description"] = doc
+
     libName := libNameVer(spec.lib)
     specName := syntheticName ?: spec.name
     defs["$libName-$specName"] = schema

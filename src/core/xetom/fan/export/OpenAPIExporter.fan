@@ -111,11 +111,11 @@ class OpenAPIExporter : Exporter
     //if (!["hx::Funcs.read"].contains(spec.qname)) return
     //-------------------------------------------------
 
-    path := spec.qname
-    n := path.index("::Funcs.")
+    uri := spec.qname
+    n := uri.index("::Funcs.")
     if (n != null)
-      path = path[0..n+1] + path[(n+"..Funcs.".size)..-1]
-    uri := "/api/{projName}/" + path.replace("::", ".")
+      uri = uri[0..n+1] + uri[(n+"..Funcs.".size)..-1]
+    uri = "/api/{projName}/" + uri.replace("::", ".")
 
     props := Obj:Obj[:]
     required := Obj[,]
@@ -164,23 +164,28 @@ class OpenAPIExporter : Exporter
       "content": jsonSchema(["type": "object"])
     ]
 
+    // path
+    path := Obj:Obj[:] { ordered = true }
+    doc := spec.metaOwn["doc"]
+    if (doc != null)
+      path["description"] = doc
+
     // GET
     if (props.isEmpty && spec.meta.has("noSideEffects"))
-      paths[uri] = [
-        "get": [
-          "responses": responses,
-          "parameters": [["\$ref": "#/components/parameters/projName"]],
-        ]
+      path["get"] =  [
+        "responses": responses,
+        "parameters": [["\$ref": "#/components/parameters/projName"]],
       ]
     // POST
     else
-      paths[uri] = [
-        "post": [
-          "requestBody": requestBody,
-          "responses": responses,
-          "parameters": [["\$ref": "#/components/parameters/projName"]],
-        ]
+      path["post"] =  [
+        "requestBody": requestBody,
+        "responses": responses,
+        "parameters": [["\$ref": "#/components/parameters/projName"]],
       ]
+
+    // done
+    paths[uri] = path
   }
 
   private static Obj:Obj jsonSchema(Obj:Obj schema)
