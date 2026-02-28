@@ -6,6 +6,9 @@
 //   18 Feb 2025  Brian Frank  Creation
 //
 
+using concurrent
+using xeto
+using xetom
 using haystack
 using axon
 
@@ -15,6 +18,24 @@ using axon
 @Js
 class FantomTest : HaystackTest
 {
+  CompSpace? cs
+  Comp? comp
+
+  override Void setup()
+  {
+    super.setup
+    ns := XetoEnv.cur.createNamespaceFromNames(["sys.comp"])
+    cs = CompSpace(ns).initRoot { TestComp() }
+    Actor.locals[CompSpace.actorKey] = cs
+    comp = TestComp()
+  }
+
+  override Void teardown()
+  {
+    super.teardown
+    Actor.locals.remove(CompSpace.actorKey)
+  }
+
   Void test()
   {
     // global axon functions
@@ -63,11 +84,21 @@ class FantomTest : HaystackTest
     verifyEval(Str<|FantomEx.fn5((a,b,c,d,e)=>[a, b, c, d, e])|>, Obj?["a", "b", "c", "d", "e"])
     verifyEval(Str<|FantomEx.fn6((a,b,c,d,e,f)=>[a, b, c, d, e, f])|>, Obj?["a", "b", "c", "d", "e", "f"])
 
+    // components
+    verifyEval(Str<|comp.spec|>, cs.ns.spec("sys.comp::Comp"))
+    verifyEval(Str<|comp.a|>, null)
+    verifyEval(Str<|comp.a = "1st"|>, "1st")
+    verifyEval(Str<|comp.dump|>, null)
+    verifyEval(Str<|comp.a|>, "1st")
+    verifyEval(Str<|comp.x|>, null)
+    verifyEval(Str<|comp.x = "2nd"|>, "2nd")
+    verifyEval(Str<|comp.x|>, "2nd")
+
     // errors
     verifyErrMsg(UnknownTypeErr#, "Bad") { eval("Bad.foo") }
     verifyErrMsg(UnknownTypeErr#, "sys::Bad") { eval("sys::Bad.foo") }
     verifyErrMsg(UnknownTypeErr#, "util::Console") { eval("util::Console.cur") }
-    verifyErrMsg(UnknownSlotErr#, "testAxon::FantomEx.bad") { eval("FantomEx.make.bad") }
+    verifyErrMsg(UnknownSlotErr#, "Unknown slot: testAxon::FantomEx.bad") { eval("FantomEx.make.bad") }
   }
 
   Void verifyEval(Str expr, Obj? expect)
@@ -79,7 +110,9 @@ class FantomTest : HaystackTest
 
   Obj? eval(Str expr)
   {
-    FantomTestContext(this).eval(expr)
+    cx := FantomTestContext(this)
+    cx.defOrAssign("comp", comp, Loc("test"))
+    return cx.eval(expr)
   }
 
 }
@@ -123,5 +156,19 @@ internal class FantomTestContext : TestContext
   }
 
   override AxonFFI? ffi
+}
+
+**************************************************************************
+** TestComp
+**************************************************************************
+
+@Js
+internal class TestComp : CompObj
+{
+  Str? a
+  {
+    get { get("a") }
+    set { set("a", it); echo("set a $it") }
+  }
 }
 

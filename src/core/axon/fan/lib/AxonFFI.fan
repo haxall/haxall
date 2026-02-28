@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 
 **
@@ -53,8 +54,22 @@ const class FantomAxonFFI : AxonFFI
 
   override Obj? callDot(AxonContext cx, Obj? target, Str name, Expr[] args)
   {
+    // lookup Fantom slot
     if (target == null) throw NullErr("Dot call on null target: $name")
-    slot := target.typeof.slot(name)
+    slot := target.typeof.slot(name, false)
+
+    // if Fantom slot is null, then try as comp
+    if (slot == null)
+    {
+      // check as comp or fail overall eval
+      comp := target as Comp ?: throw UnknownSlotErr("Unknown slot: ${target.typeof}.$name")
+
+      // only get supported right now
+      if (args.isEmpty) return comp.get(name)
+      throw Err("Invalid args to comp slot: ${target.typeof}.$name")
+    }
+
+    // field or method
     if (slot.isField)
     {
       if (args.isEmpty)
@@ -71,7 +86,27 @@ const class FantomAxonFFI : AxonFFI
   override Obj? fieldSet(AxonContext cx, Obj? target, Str name, Expr rhs)
   {
     if (target == null) throw NullErr("Field set on null target: $name")
-    field := target.typeof.slot(name) as Field ?: throw UnknownSlotErr("Field ${target.typeof}.$name")
+
+    // lookup Fantom slot
+    field := target.typeof.slot(name, false) as Field
+
+    // if Fantom slot is null, then try as comp
+    if (field == null)
+    {
+      // check as comp or fail overall eval
+      comp := target as Comp ?: throw UnknownSlotErr("Unknown slot: ${target.typeof}.$name")
+
+      // try to infer type from slot if defined
+      slot := comp.spec.slot(name, false)
+      type := slot != null ? slot.type.fantomType : Obj#
+      val := coerceToFantom(cx, rhs, type)
+
+      // set component slot
+      comp.set(name, val)
+      return val
+    }
+
+    // handle as fantom field
     if (field.isConst) throw Err("Field is const: $field")
     val := coerceToFantom(cx, rhs, field.type)
     field.set(target, val)
