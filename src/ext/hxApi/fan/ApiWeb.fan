@@ -36,7 +36,17 @@ const class ApiWeb : ExtWeb, WebOpUtil
       projName := path[0]
 
       // lookup project
-      rt := sys.proj.get(projName, false)
+      Runtime? rt := sys.proj.get(projName, false)
+
+      // allow cluster nodeId to be used as projName for sys
+      if (rt == null)
+      {
+        nodeId := sys.cluster(false)?.nodeId
+        if (nodeId != null && nodeId.segs.last.body == projName)
+          rt = sys
+      }
+
+      // no joy resolving runtime, return 404
       if (rt == null) return res.sendErr(404, "Proj not found")
 
       // handle web socket requests
