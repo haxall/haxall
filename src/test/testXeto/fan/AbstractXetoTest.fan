@@ -164,6 +164,7 @@ class AbstractXetoTest : HaystackTest
     names := expect.dup
     c.each |v, n|
     {
+      // echo("  $n = $v ?= " + expect[n])
       try
       {
         verifyValEq(v, expect[n])

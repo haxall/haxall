@@ -291,28 +291,34 @@ internal class CompFactory
 //////////////////////////////////////////////////////////////////////////
 
   ** Reify the given value
-  private Obj reify(Spec? slot, Obj v)
+  private Obj reify(Spec? spec, Obj v)
   {
     // swizzle refs
     if (v is Ref)  return swizzleRef(v)
 
     // check for comp/recursion
-    if (v is Dict) return reifyDict(v)
+    if (v is Dict) return reifyDict(spec, v)
     if (v is List) return reifyList(v)
 
     return v
   }
 
   ** Reify dict that might be a component type
-  private Obj reifyDict(Dict v)
+  private Obj reifyDict(Spec? spec, Dict v)
   {
     // check if dict needs to be reified as Comp instance
-    spec := dictToSpec(v)
+    if (spec == null) spec = dictToSpec(v)
     if (spec != null && spec.isa(compSpec))
+    {
       return reifyComp(spec, v)
+    }
 
     // recurse tags
-    v = v.map |kid| { reify(null, kid) }
+    v = v.map |kid,  name|
+    {
+      slot := spec?.slot(name, false)
+      return reify(slot, kid)
+    }
 
     // decode to fantom type
     if (spec != null && spec.binding.isDict)
