@@ -26,6 +26,18 @@ const abstract class Expr
   ** Evaluate this expression.
   abstract Obj? eval(AxonContext cx)
 
+  ** Evalute this expression as the body of a function
+  @NoDoc Obj? evalAsFnBody(AxonContext cx)
+  {
+    Obj? result := null
+    try
+      result = eval(cx)
+    catch (ReturnErr e)
+      result = ReturnErr.getVal
+    if (result is Grid) ((Grid)result).first // force lazy load grids
+    return result
+  }
+
   ** Encode the AST into a tree of dicts.  See `parseAst()`.
   Dict encode()
   {

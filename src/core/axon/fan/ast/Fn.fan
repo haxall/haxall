@@ -111,13 +111,7 @@ const class Fn : Expr, HaystackFunc
 
   @NoDoc virtual Obj? doCall(AxonContext cx, Obj?[] args)
   {
-    Obj? result := null
-    try
-      result = body.eval(cx)
-    catch (ReturnErr e)
-      result = ReturnErr.getVal
-    if (result is Grid) ((Grid)result).first // force lazy load grids
-    return result
+    body.evalAsFnBody(cx)
   }
 
   @NoDoc virtual Obj? evalParamDef(AxonContext cx, FnParam param)

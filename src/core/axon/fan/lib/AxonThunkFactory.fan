@@ -18,7 +18,6 @@ using haystack
 @Js @NoDoc
 const class AxonThunkFactory : ThunkFactory
 {
-
   override Thunk create(Spec spec, Pod? pod)
   {
     fn := doCreate(spec, pod)
@@ -129,7 +128,7 @@ const class AxonThunkFactory : ThunkFactory
 // Axon
 //////////////////////////////////////////////////////////////////////////
 
-  private TopFn? parseAxon(Spec spec, Dict meta, Str src)
+  virtual TopFn? parseAxon(Spec spec, Dict meta, Str src)
   {
     name   := spec.name
     qname  := meta->qname
