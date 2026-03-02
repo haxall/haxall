@@ -77,6 +77,20 @@ class Parser
     return fn
   }
 
+  ** Parse a list of expressions separated by "|" pipe
+  Expr[] parsePipeline()
+  {
+    acc := Expr[,]
+    acc.add(expr)
+    while (cur === Token.pipe)
+    {
+      consume
+      acc.add(expr)
+    }
+    if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
+    return acc
+  }
+
   ** Parse either type name, type qname, or default expression
   protected Expr axonParam()
   {
