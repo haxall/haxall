@@ -17,8 +17,8 @@ internal class ExportJsonSchema : ExportCmd
 
   override Str summary() { "Export Xeto Specs to JSON Schema" }
 
-  @Opt { help = "Output format -- must be either 'json' or 'yaml'" }
-  Str? outputFormat
+  @Opt { help = "Output format: json or yaml" }
+  Str? outFormat := "yaml"
 
   override Int usage(OutStream out := Env.cur.out)
   {
@@ -34,17 +34,17 @@ internal class ExportJsonSchema : ExportCmd
 
   private Dict makeOpts()
   {
-    if (outputFormat == null)
+    if (outFormat == null)
       return Etc.dict1("format", "yaml")
 
-    else if (outputFormat == "yaml")
+    else if (outFormat == "yaml")
       return Etc.dict1("format", "yaml")
 
-    else if (outputFormat == "json")
+    else if (outFormat == "json")
       return Etc.dict1("format", "json")
 
     else
-      throw Err("$outputFormat is an invalid output format")
+      throw Err("$outFormat is an invalid output format")
   }
 
   override Str toFileName(ExportTarget t)
