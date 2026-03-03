@@ -72,11 +72,8 @@ const abstract class ThunkFactory
   ** Factory for the VM - implementation lives in Axon
   static once ThunkFactory cur()
   {
-    if (Env.cur.isBrowser)
-    {
-      ion := Pod.find("ion", false)
-      if (ion != null) return Type.find("ion::UiThunkFactory").make
-    }
+    ion := Pod.find("ion", false)
+    if (ion != null) return Type.find("ion::UiThunkFactory").make
     return Type.find("axon::AxonThunkFactory").make
   }
 
