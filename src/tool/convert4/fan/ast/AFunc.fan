@@ -114,7 +114,7 @@ class AFunc
     name := method.name
     if (name[0] == '_') name = name[1..-1]
 
-    doc := metaDict["doc"] as Str ?: method.doc
+    doc := (metaDict["doc"] as Str ?: method.doc) ?: ""
 
     // meta
     meta := mapMeta(ast, metaDict)
