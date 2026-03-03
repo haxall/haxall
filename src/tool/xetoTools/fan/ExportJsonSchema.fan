@@ -15,7 +15,7 @@ internal class ExportJsonSchema : ExportCmd
 {
   override Str name() { "export-json-schema" }
 
-  override Str summary() { "Export Xeto to JSON" }
+  override Str summary() { "Export Xeto Specs to JSON Schema" }
 
   override Int usage(OutStream out := Env.cur.out)
   {
