@@ -275,6 +275,9 @@ class CompChangeEvent
 
   ** New value or null if removing slot
   Obj? newVal { private set }
+
+  ** Debug string - format subject to change
+  override Str toStr() { "$comp | $name | $oldVal => $newVal" }
 }
 
 **************************************************************************
