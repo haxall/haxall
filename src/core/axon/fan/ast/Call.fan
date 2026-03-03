@@ -109,6 +109,13 @@ internal const class DotCall : Call
 
   override Printer print(Printer out)
   {
+    // in RPC mode encode "this.foo" to "this_foo"
+    if (out.rpc)
+    {
+      thisGet := AxonRpc.toThisGetVar(this)
+      if (thisGet != null) return out.w(thisGet)
+    }
+
     out.atomicStart.atomic(args[0]).wc('.').expr(func).wc('(')
     args.each |arg, i|
     {

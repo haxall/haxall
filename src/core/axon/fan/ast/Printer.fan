@@ -83,8 +83,10 @@ class Printer
     isNewline = false
   }
 
+  internal Bool rpc
   private Int indentation := 0
   private Bool isNewline
   private StrBuf buf := StrBuf()
   private Int atomicLevel
 }
+

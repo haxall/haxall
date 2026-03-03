@@ -6,7 +6,9 @@
 //   27 Feb 2026  Brian Frank  Creation
 //
 
+using concurrent
 using xeto
+using xetom
 using haystack
 using axon
 
@@ -16,6 +18,24 @@ using axon
 @Js
 class RpcTest : AxonTest
 {
+  CompSpace? cs
+
+  override Void setup()
+  {
+    super.setup
+
+    ns := XetoEnv.cur.createNamespaceFromNames(["hx.test.xeto"])
+    ns.lib("hx.test.xeto")
+    cs = CompSpace(ns).initRoot { CompObj() }
+    Actor.locals[CompSpace.actorKey] = cs
+  }
+
+  override Void teardown()
+  {
+    super.teardown
+    Actor.locals.remove(CompSpace.actorKey)
+  }
+
   Void test()
   {
     // literals
@@ -43,11 +63,11 @@ class RpcTest : AxonTest
       cx.eval("c: 3 - 6")
     }
 
-    // list
-    verifyRpc("[a, b, c]", Obj?[n(1), n(2), n(3)]) |cx|
+    // list with nulls
+    verifyRpc("[a, b, c]", Obj?[n(1), null, n(3)]) |cx|
     {
       cx.eval("a: 1")
-      cx.eval("b: 2")
+      cx.eval("b: null")
       cx.eval("c: 3")
     }
 
@@ -66,6 +86,16 @@ class RpcTest : AxonTest
       cx.eval("b: \"beta\"")
     }
 
+    // handle this for components
+    verifyRpc(Str<|[this.a, this.b, this.c, this.d]|>, ["alpha", null, n(123), "tue"]) |cx|
+    {
+      comp := CompObj()
+      comp.set("a", "alpha")
+      comp.set("c", n(123))
+      comp.set("d", Weekday.tue) // map to haystack fidelity
+      cx.defOrAssign("this", comp, Loc.unknown)
+    }
+
   }
 
   Void verifyRpc(Str expr, Obj? expect, |AxonContext|? f := null)
@@ -78,10 +108,9 @@ class RpcTest : AxonTest
 
     actual := AxonRpc.eval(s, d)
 
-    /*
+   /*
     echo
     echo("@@@@ $expr")
-    Etc.dictDump(d)
     echo("  expect: $expect")
     echo("  actual: $actual")
     */
