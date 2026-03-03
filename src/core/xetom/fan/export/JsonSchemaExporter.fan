@@ -42,12 +42,22 @@ class JsonSchemaExporter : Exporter
   {
     map["\$defs"] = defs
 
-    //js := JsonOutStream(Env.cur.out)
-    //js.prettyPrint = true
-    //js.writeJson(map)
+    if (opts->format == "json")
+    {
+      js := JsonOutStream(Env.cur.out)
+      js.prettyPrint = true
+      js.writeJson(map)
+    }
+    else if (opts->format == "yaml")
+    {
+      ym := YamlWriter(Env.cur.out)
+      ym.writeYaml(map)
+    }
+    else
+    {
+      throw Err("${opts->format} is an invalid output format")
+    }
 
-    ym := YamlWriter(Env.cur.out)
-    ym.writeYaml(map)
     return this
   }
 
