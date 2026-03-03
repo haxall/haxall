@@ -292,7 +292,7 @@ class JsonSchemaExporter : Exporter
     defs["$libName-$specName"] = schema
   }
 
-  private Obj:Obj ensureRef(Spec type)
+  Obj:Obj ensureRef(Spec type)
   {
     // recursively ensure that the type is defined
     doSpec(type)

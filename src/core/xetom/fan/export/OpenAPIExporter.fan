@@ -26,6 +26,8 @@ class OpenAPIExporter : Exporter
   {
     schemaExporter = JsonSchemaExporter(ns, out, Etc.dict0, "components/schemas")
 
+    errRef = schemaExporter.ensureRef(ns.spec("sys::Err"))
+
     map["openapi"] = "3.0.0"
     map["info"] = [
       "title": "Xeto OpenApi definition",
@@ -156,12 +158,7 @@ class OpenAPIExporter : Exporter
 
     responses["'400'"] = [
       "description": "Bad Request",
-      "content": jsonSchema(["type": "object"])
-    ]
-
-    responses["'500'"] = [
-      "description": "Internal Server Error",
-      "content": jsonSchema(["type": "object"])
+      "content": jsonSchema(errRef)
     ]
 
     // path
@@ -202,6 +199,7 @@ class OpenAPIExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   private JsonSchemaExporter schemaExporter
+  private Obj:Obj errRef
 
   private Obj:Obj map := [:] { ordered = true }
   private Obj:Obj paths := [:] { ordered = true }
