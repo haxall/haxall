@@ -117,6 +117,7 @@ class AxonRpc
       cx.def(n, v, Loc.remote)
     }
     if (expr == null) throw Err("Missing _expr in rpc dict")
+    // echo("~~~ $expr"); echo("    $cx.varsInScope")
     return cx.eval(expr)
   }
 
