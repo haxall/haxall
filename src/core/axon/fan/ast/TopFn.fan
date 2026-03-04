@@ -16,6 +16,11 @@ using haystack
 @Js
 const class TopFn : Fn, Thunk
 {
+  internal static TopFn makeEvalWrapper(Expr expr)
+  {
+    make(expr.loc, "eval", Etc.dict0, FnParam.none, expr)
+  }
+
   new make(Loc loc, Str name, Dict meta, FnParam[] params, Expr body := Literal.nullVal)
     : super(loc, name, params, body)
   {

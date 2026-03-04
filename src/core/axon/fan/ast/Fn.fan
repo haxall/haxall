@@ -156,7 +156,7 @@ const class FnParam
 {
   static FnParam[] makeNum(Int num) { byNum[num] }
 
-  static const FnParam[] cells := [make("cells")]
+  static const FnParam[] none := FnParam[,]
 
   static FnParam[] makeFantomList(Func f)
   {

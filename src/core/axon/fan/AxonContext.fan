@@ -260,6 +260,12 @@ abstract class AxonContext : HaystackContext, CompContext
     return null
   }
 
+  ** Push new call frame to evaluate an expression
+  @NoDoc Obj? evalInNewFrame(Expr expr, Str:Obj? vars := Str:Obj?[:])
+  {
+    callInNewFrame(TopFn.makeEvalWrapper(expr), Obj#.emptyList, expr.loc, vars)
+  }
+
   ** Push new call frame onto the stack with given loc/vars and route to Fn.doCall
   @NoDoc Obj? callInNewFrame(Fn func, Obj?[] args, Loc callLoc, Str:Obj? vars := Str:Obj?[:])
   {
