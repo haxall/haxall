@@ -161,7 +161,7 @@ abstract class DefDocRenderer : DocRenderer
     }
   }
 
-  override Void onFandocErr(Err e, DocLoc loc)
+  Void onFandocErr(Err e, DocLoc loc)
   {
     msg := (e.typeof == Err# || e.typeof == DocErr#) ? e.msg : e.toStr
     echo("ERROR: $loc: $msg")
