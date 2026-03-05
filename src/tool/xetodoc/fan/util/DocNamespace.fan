@@ -115,33 +115,9 @@ const class DocNamespaceChapter
     Str? title := null
     try
     {
-      // read lines
-      lines := lib.files.get(`/${name}.md`).readAllLines
-
-      // check leading comment for title: xxxx
-      if (lines.first.trim == "<!--")
-      {
-        lines.eachWhile |line|
-        {
-          line = line.trim
-          if (line == "-->") return "break"
-          if (line.startsWith("title:"))
-            title = line[line.index(":")+1..-1].trim
-          return null
-        }
-      }
-
-      // lazily parse just heading lines
-      proc := HeadingProcessor()
-      lines.each |line|
-      {
-        if (!line.startsWith("#")) return
-        i := 0
-        while (i+1 < line.size && line[i] == '#') i++
-        text := line[i..-1].trim
-        anchor := proc.toAnchor(text)
-        acc[anchor] = text
-      }
+      xc := XetodocChapter.parse(lib.files.get(`/${name}.md`).readAllStr)
+      title = xc.meta["title"]
+      acc   = xc.anchorToTextMap
     }
     catch (Err e)
     {
