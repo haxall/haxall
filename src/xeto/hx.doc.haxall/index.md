@@ -12,6 +12,7 @@
 - [Namespace](Namespace.md): Xeto lib namespace
 - [Exts](Exts.md): Extensions
 - [ManagedRecs](ManagedRecs.md): Managed recs for meta, libs, and companion lib
+- [Comps](Comps.md): Xeto based component framework
 - [Observables](Observables.md): Observable subscription subsystem
 - [Watches](Watches.md): Subscription to record changes
 - [Crypto](Crypto.md): Help on managing keys and trusted certificates
