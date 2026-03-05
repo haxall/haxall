@@ -55,6 +55,9 @@ class DocCompiler
   ** Logging
   XetoLog log := XetoLog.makeOutStream
 
+  ** Hook to handle warnings just for unresolved links
+  |Str uri, FileLoc| warnLink := |Str uri, FileLoc loc| { warn("unresolved link [$uri]", loc) }
+
 //////////////////////////////////////////////////////////////////////////
 // Options
 //////////////////////////////////////////////////////////////////////////

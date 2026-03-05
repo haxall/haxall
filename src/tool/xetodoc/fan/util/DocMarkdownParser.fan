@@ -153,7 +153,7 @@ internal class DocMarkdownParser : LinkResolver
       res := linker.resolve(orig)
 
       // if not found then output warning
-      if (res == null) return warn("unresolved link [$orig]", loc(link.loc))
+      if (res == null) return warnLink(orig, loc(link.loc))
 
       // update link node
       uri := res.uri
@@ -179,6 +179,12 @@ internal class DocMarkdownParser : LinkResolver
   private Void err(Str msg, Err e)
   {
     compiler.err(msg, loc, e)
+  }
+
+  private Obj? warnLink(Str uri, FileLoc loc := this.loc)
+  {
+    if (logWarn) compiler.warnLink(uri, loc)
+    return null
   }
 
   private Obj? warn(Str msg, FileLoc loc := this.loc)
