@@ -7,6 +7,7 @@
 //   31 Jan 2022  Brian Frank  Redesign for Haxall
 //
 
+using xeto
 using haystack
 
 **
@@ -41,8 +42,14 @@ internal const final class ConnPointHisState
         }
       }
 
+      // build hisWrite opts - always use clip to span and
+      // also allow point to specify additional backdoor opts
+      opts := Etc.dict1("clip", span)
+      extraOpts := pt.rec["connHisWriteOpts"] as Dict
+      if (extraOpts != null) opts = Etc.dictMerge(opts, extraOpts)
+
       // write history items with clip span option
-      pt.proj.exts.his.write(rec, items, Etc.dict1("clip", span))
+      pt.proj.exts.his.write(rec, items, opts)
 
       return makeOk(old, lastItems.toStr)
     }
