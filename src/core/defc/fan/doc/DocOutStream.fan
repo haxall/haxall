@@ -225,7 +225,7 @@ class DocOutStream : WebOutStream
 
   This fandoc(DocFandoc doc)
   {
-    renderer.writeFandoc(doc)
+    renderer.writeFandoc(doc, DocFormat.fandoc)
     return this
   }
 

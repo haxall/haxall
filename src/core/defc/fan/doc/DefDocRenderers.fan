@@ -108,7 +108,7 @@ class DefPodIndexRenderer : DefDocRenderer
   private Void writeApiPodDoc(DocChapter chapter)
   {
     out.defSection("docs")
-    DefChapterRenderer(env, out, chapter).writeFandoc(chapter.doc)
+    DefChapterRenderer(env, out, chapter).writeFandoc(chapter.doc, DocFormat.fandoc)
     out.defSectionEnd
   }
 
