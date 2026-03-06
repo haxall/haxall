@@ -527,14 +527,21 @@ class CompTest: AbstractXetoTest
 
   Void testAxon()
   {
-    spec := cs.ns.spec("hx.test.xeto::TestAxonSquare")
-    x := cs.createSpec(spec)
-
+    // test just TestAxonSquare with axon
+    x := cs.createSpec(cs.ns.spec("hx.test.xeto::TestAxonSquare"))
     cs.root.add(x)
     x.set("in", n(3))
     verifyEq(x.get("out"), n(0))
     execute
     verifyEq(x.get("out"), n(9))
+
+    // now test compTree composite
+    y := cs.createSpec( cs.ns.spec("hx.test.xeto::TestAxonComposite"))
+    cs.root.add(y)
+    y.set("in", n(3))
+    verifyEq(y.get("out"), n(0))
+    execute
+    verifyEq(y.get("out"), n(81))
   }
 
 //////////////////////////////////////////////////////////////////////////

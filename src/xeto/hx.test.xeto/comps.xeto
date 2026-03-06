@@ -78,11 +78,18 @@ TestAxonComposite : Comp {
   out: Number
   <compTree: ---
   @root: This {
-    TestAxonSquare {
-      in: Link { fromRef:@root, fromSlot:"in" }
+    @a: TestAxonSquare {
+      links: {
+        in: Link { fromRef:@root, fromSlot:"in" }
+      }
+    }
+    @b: TestAxonSquare {
+      links: {
+        in: Link { fromRef:@a, fromSlot:"out" }
+      }
     }
     links: {
-      out: Link { fromRef:@square, fromSlot:"out" }
+      out: Link { fromRef:@b, fromSlot:"out" }
     }
   }
   --->
