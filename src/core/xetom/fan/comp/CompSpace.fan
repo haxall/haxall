@@ -136,18 +136,6 @@ class CompSpace : AbstractCompSpace
     CompFactory.create(this, [dict]).first
   }
 
-  ** Create children under existing parent given a dict repesentation
-  ** of the parent itself.  This is semantically the same as:
-  **   1. walking dict to find children dicts
-  **   2. calling createAll with the children dict representation
-  **   3. mounting them under parent with set
-  ** This method handles the tricky aspect of swizzling internal
-  ** refs in the dict tree to the actual parent's id.
-  Void createUnder(Comp parent, Dict dict)
-  {
-    CompFactory.createUnder(this, parent, dict)
-  }
-
   ** Create new list of component instances from dict state.
   ** Each dict must have a Comp spec tag.
   Comp[] createAll(Dict[] dicts)

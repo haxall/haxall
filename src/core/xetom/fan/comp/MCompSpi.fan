@@ -22,6 +22,7 @@ class MCompSpi : CompSpi
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
+  ** Constructed by initSpi using actor local
   new make(CompSpace cs, CompObj comp, Spec spec, Str:Obj slots)
   {
     this.cs      = cs
@@ -29,6 +30,27 @@ class MCompSpi : CompSpi
     this.specRef = spec
     this.slots   = slots
     this.id      = slots.getChecked("id")
+  }
+
+  ** Init is called in CompObj constructor after spiRef is set
+  override Void init()
+  {
+    // check if spec meta defines compTree
+    compTree := spec.meta.get("compTree") as Str
+    if (compTree == null) return
+
+    try
+    {
+      // compile xeto to This dict and mount
+      opts := Etc.dict1("this", spec)
+      dict := cs.ns.io.readXeto(compTree, opts) as Dict ?: throw Err("Expecting compTree to be Dict")
+      CompFactory.createUnder(cs, comp, dict)
+    }
+    catch (Err e)
+    {
+      msg := "ERROR: Cannot load compTree [$spec.qname]"
+      Console.cur.err(msg, e)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

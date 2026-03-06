@@ -30,7 +30,13 @@ internal class CompFactory
     return comps
   }
 
-  ** Create children under existing parent
+  ** Create children under existing parent given a compTree dict repesentation
+  ** of the parent itself.  This is semantically the  same as:
+  **   1. walking dict to find children dicts
+  **   2. calling createAll with the children dict representation
+  **   3. mounting them under parent with set
+  ** This method handles the tricky aspect of swizzling internal
+  ** refs in the dict tree to the actual parent's id.
   static Void createUnder(CompSpace cs, Comp parent, Dict dict)
   {
     // parent must be under cs

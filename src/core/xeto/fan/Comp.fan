@@ -210,6 +210,7 @@ class CompObj : Comp
   new make()
   {
     this.spiRef = AbstractCompSpace.cur.initSpi(this, null)
+    this.spiRef.init
   }
 
   ** Constructor for generic component with given spec
@@ -307,6 +308,7 @@ mixin AbstractCompSpace
 @Js @NoDoc
 mixin CompSpi
 {
+  abstract Void init()
   abstract Ref id()
   abstract Str dis()
   abstract Spec spec()
