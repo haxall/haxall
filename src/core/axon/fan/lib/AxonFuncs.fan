@@ -51,6 +51,7 @@ const class AxonFuncs
   **   - list(num): get item at given index (same semantics as Fantom)
   **   - list(range): get list slice at given index (same semantics as Fantom)
   **   - dict(key): get item with given key or return null
+  **   - comp(key): get slot with given key name or return null
   **   - grid(num): get row at given index
   **   - grid(range): `haystack::Grid.getRange`
   **
@@ -61,6 +62,7 @@ const class AxonFuncs
   @Api @Axon static Obj? get(Obj? val, Obj? key)
   {
     if (val is Dict) return ((Dict)val).get(key)
+    if (val is Comp) return ((Comp)val).get(key)
     if (key is ObjRange) return val->getRange(((ObjRange)key).toIntRange)
     if (val is Str) return Number.makeInt(((Str)val).get(((Number)key).toInt))
     if (key is Number) key = ((Number)key).toInt
@@ -138,19 +140,21 @@ const class AxonFuncs
   }
 
   ** If val is a Grid return if it has the given column name.
-  ** If val is a Dict return if the given name is mapped to a non-null value.
+  ** If val is a Dict/Comp return if the given name is mapped to a non-null value.
   @Api @Axon static Obj? has(Obj? val, Str name)
   {
     if (val is Dict) return ((Dict)val).has(name)
+    if (val is Comp) return ((Comp)val).has(name)
     if (val is Grid) return ((Grid)val).has(name)
     throw argErr("has", val)
   }
 
   ** If val is a Grid return if it does not have given column name.
-  ** If val is a Dict, return if the given name is not mapped to a non-null value.
+  ** If val is a Dict/Comp, return if the given name is not mapped to a non-null value.
   @Api @Axon static Obj? missing(Obj? val, Str name)
   {
     if (val is Dict) return ((Dict)val).missing(name)
+    if (val is Comp) return ((Comp)val).missing(name)
     if (val is Grid) return ((Grid)val).missing(name)
     throw argErr("missing", val)
   }
@@ -210,10 +214,12 @@ const class AxonFuncs
   ** Set a collection item and return a new collection.
   **  - List: set item by index key
   **  - Dict: set item by key name (if val is null, it is a remove)
+  **  - Comp: set slot by key name (if val is null, it is a remove)
   @Api @Axon static Obj? set(Obj? val, Obj? key, Obj? item)
   {
     if (val is List) return mutList(val).set(((Number)key).toInt, item)
     if (val is Dict) return Etc.dictSet(val, key, item)
+    if (val is Comp) return ((Comp)val).set(key, item)
     throw argErr("set", val)
   }
 

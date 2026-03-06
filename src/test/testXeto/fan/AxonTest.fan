@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 using haystack
 using axon
 using folio
@@ -31,6 +32,34 @@ class AxonTest : AbstractAxonTest
     verifyEq(x.fantomType, AxonExpr#)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Comp
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testComp()
+  {
+    cs := CompSpace(ns).initRoot { CompObj() }
+    x := cs.root
+
+    // test out axon methods
+    verifyCompAxon(x, Str<|x.has("foo")|>,      false)
+    verifyCompAxon(x, Str<|x.missing("foo")|>,  true)
+    verifyCompAxon(x, Str<|x.get("foo")|>,      null)
+    verifyCompAxon(x, Str<|x.set("foo", "!")|>, x)
+    verifyCompAxon(x, Str<|x.has("foo")|>,      true)
+    verifyCompAxon(x, Str<|x.missing("foo")|>,  false)
+    verifyCompAxon(x, Str<|x.get("foo")|>,      "!")
+  }
+
+  Void verifyCompAxon(Comp x, Str axon, Obj? expect)
+  {
+    cx := makeContext
+    cx.defOrAssign("x", x, Loc.eval)
+    actual := cx.eval(axon, Loc.eval)
+    // echo("---> $axon | $actual")
+    verifyEq(actual, expect)
+  }
 //////////////////////////////////////////////////////////////////////////
 // SpecsExpr
 //////////////////////////////////////////////////////////////////////////
