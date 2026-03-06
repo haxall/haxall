@@ -150,7 +150,7 @@ class RdfExporter : Exporter
 
     // choices (and enums) are instances of themselves;
     // everything is also a SHACL shape
-    if (isSelfInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
+    if (isThisInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
     else w("  a sh:NodeShape ;").nl
 
     // supertype
@@ -192,7 +192,7 @@ class RdfExporter : Exporter
     return this
   }
 
-  private Bool isSelfInstance(Spec x)
+  private Bool isThisInstance(Spec x)
   {
     if (x.isChoice)
     {

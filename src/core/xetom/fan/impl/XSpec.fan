@@ -227,7 +227,7 @@ const class WrapSpec : Spec
   override final Bool isGlobal()     { m.isGlobal }
 
   override final Bool isNone()      { m.isNone }
-  override final Bool isSelf()      { m.isSelf }
+  override final Bool isThis()      { m.isThis }
   override final Bool isMaybe()     { m.isMaybe }
   override final Bool isScalar()    { m.isScalar }
   override final Bool isMarker()    { m.isMarker }

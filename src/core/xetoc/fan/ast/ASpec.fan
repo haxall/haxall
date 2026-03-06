@@ -282,7 +282,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 
   override Bool isNone() { isSys && name == "None" }
 
-  override Bool isSelf() { isSys && name == "Self" }
+  override Bool isThis() { isSys && name == "This" }
 
   override Bool isEnum() { base != null && base.isSys && base.name == "Enum" }
 
@@ -311,7 +311,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 
   /*
   override Bool isNone()   { hasFlag(MSpecFlags.none) }
-  override Bool isSelf()   { hasFlag(MSpecFlags.self) }
+  override Bool isThis()   { hasFlag(MSpecFlags.self) }
   override Bool isEnum()   { hasFlag(MSpecFlags.enum) }
   override Bool isAnd()    { hasFlag(MSpecFlags.and) }
   override Bool isOr()     { hasFlag(MSpecFlags.or) }

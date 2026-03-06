@@ -232,7 +232,7 @@ const class XetoSpec : Spec, CNode
   override final Bool isGlobal()     { flavor.isGlobal }
 
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
-  override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }
+  override final Bool isThis()      { m.hasFlag(MSpecFlags.self) }
   override final Bool isMaybe()     { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar()    { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker()    { m.hasFlag(MSpecFlags.marker) }

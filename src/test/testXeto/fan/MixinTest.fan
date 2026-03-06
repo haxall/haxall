@@ -136,7 +136,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(m.isGlobal,    x.isGlobal)
     verifyEq(m.isSlot,      x.isSlot)
     verifyEq(m.isNone,      x.isNone)
-    verifyEq(m.isSelf,      x.isSelf)
+    verifyEq(m.isThis,      x.isThis)
     verifyEq(m.isScalar,    x.isScalar)
     verifyEq(m.isMarker,    x.isMarker)
     verifyEq(m.isRef,       x.isRef)

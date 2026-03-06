@@ -235,7 +235,7 @@ internal class InheritSlots : Step
         case "Query":     flags = flags.or(MSpecFlags.query)
         case "Ref":       flags = flags.or(MSpecFlags.ref)
         case "Scalar":    flags = flags.or(MSpecFlags.scalar)
-        case "Self":      flags = flags.or(MSpecFlags.self)
+        case "This":      flags = flags.or(MSpecFlags.self)
       }
     }
 

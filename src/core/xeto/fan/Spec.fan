@@ -157,8 +157,8 @@ const mixin Spec : Dict
   ** Is this the 'sys::None' spec itself
   @NoDoc abstract Bool isNone()
 
-  ** Is this the 'sys::Self' spec itself
-  @NoDoc abstract Bool isSelf()
+  ** Is this the 'sys::This' spec itself
+  @NoDoc abstract Bool isThis()
 
   ** Return component spec for a collection/ref type
   @NoDoc abstract Spec? of(Bool checked := true)

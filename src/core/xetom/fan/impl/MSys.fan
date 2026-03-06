@@ -20,7 +20,7 @@ const class MSys
     x := lib.m.specs
     this.obj      = x.get("Obj")
     this.none     = x.get("None")
-    this.self     = x.get("Self")
+    this.self     = x.get("This")
     this.seq      = x.get("Seq")
     this.dict     = x.get("Dict")
     this.list     = x.get("List")

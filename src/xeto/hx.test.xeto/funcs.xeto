@@ -286,8 +286,8 @@ testTemplateBindD: Template {
 //////////////////////////////////////////////////////////////////////////
 
 InterfaceA: Interface {
-  m1: Func <new> { returns: Self }
-  m9: Func <new> { returns: Self }
+  m1: Func <new> { returns: This }
+  m9: Func <new> { returns: This }
 
   s1: Func <static> { returns: Obj }
   s9: Func <static> { returns: Obj }
@@ -298,7 +298,7 @@ InterfaceA: Interface {
 }
 
 InterfaceB: InterfaceA {
-  m1: Func <new> { returns: Self }
+  m1: Func <new> { returns: This }
   s1: Func <static> { returns: Str }
   i1: Func { returns: Date }
   i2: Str

@@ -127,7 +127,7 @@ internal abstract class InferData : Step
   private ASpecRef inferDictSlotType(FileLoc loc, Spec slot)
   {
     type := slot.type
-    if (type.isSelf && curSpec != null) type = curSpec.type
+    if (type.isThis && curSpec != null) type = curSpec.type
     ref := ASpecRef(loc, type)
     ref.of = slot.of(false) // smuggle parameterized 'of' into ASpecRef
     return ref

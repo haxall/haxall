@@ -47,7 +47,7 @@ class NamespaceTest : AbstractXetoTest
 
     // types
     obj    := verifyLibType(ns, sys, "Obj",      null)
-    self   := verifyLibType(ns, sys, "Self",     obj)
+    self   := verifyLibType(ns, sys, "This",     obj)
     scalar := verifyLibType(ns, sys, "Scalar",   obj)
     none   := verifyLibType(ns, sys, "None",     scalar, none)
     marker := verifyLibType(ns, sys, "Marker",   scalar, m)
@@ -138,7 +138,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(item.slots, SpecMap.empty)
 
     // specials
-    verifyEq(self.isSelf, true)
+    verifyEq(self.isThis, true)
     verifyEq(none.isNone, true)
     verifyEq(or.isAnd, false)
     verifyEq(or.isOr, false)
