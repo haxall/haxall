@@ -72,12 +72,12 @@ as an argument:
 MyIncrement : Comp {
   in: Number
   out: Number
-  onExecute: Func <axon:"""this.set("out", this.get("in") + 1)""">
+  onExecute: Func <axon:"""this.set("out",  this->in + 1)""">
 }
 ```
 
 Note: today we don't allow the dot operator to get/set slots, so you must
-use the [get()] and [set()] functions.
+use the [trap()], [get()], and [set()] functions.
 
 # Composition
 

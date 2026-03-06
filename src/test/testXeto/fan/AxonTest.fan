@@ -50,6 +50,7 @@ class AxonTest : AbstractAxonTest
     verifyCompAxon(x, Str<|x.has("foo")|>,      true)
     verifyCompAxon(x, Str<|x.missing("foo")|>,  false)
     verifyCompAxon(x, Str<|x.get("foo")|>,      "!")
+    verifyCompAxon(x, Str<|x->foo|>,            "!")
   }
 
   Void verifyCompAxon(Comp x, Str axon, Obj? expect)

@@ -1104,7 +1104,7 @@ const class AxonFuncs
   ** Get the list of values used by a given dict
   @Api @Axon static Obj? vals(Dict dict) { Etc.dictVals(dict) }
 
-  ** Function for the '->' operator.  If the given value is a dict,
+  ** Function for the '->' operator.  If the given value is a dict/comp,
   ** then get a value by name, or throw UnknownNameErr if name not mapped.
   ** If the value is a Ref, then perform a checked 'readById', then perform
   ** the name lookup.
@@ -1116,6 +1116,7 @@ const class AxonFuncs
   @Api @Axon static Obj? _trap(Obj? val, Str name)
   {
     if (val is Dict)  return ((Dict)val).trap(name, null)
+    if (val is Comp)  return ((Comp)val).trap(name, null)
     if (val is Ref) return AxonContext.curAxon.deref(val).trap(name, null)
     throw argErr("trap", val)
   }
