@@ -73,6 +73,12 @@ TestAxonSquare : Comp {
     """>
 }
 
+TestIncrement : Comp {
+  in: Number
+  out: Number
+  onExecute: Func <axon:"""this.set("out",  this.get("in") + 1)""">
+}
+
 TestAxonComposite : Comp {
   in: Number
   out: Number

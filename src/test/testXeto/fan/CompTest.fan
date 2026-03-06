@@ -535,13 +535,21 @@ class CompTest: AbstractXetoTest
     execute
     verifyEq(x.get("out"), n(9))
 
-    // now test compTree composite
-    y := cs.createSpec( cs.ns.spec("hx.test.xeto::TestAxonComposite"))
-    cs.root.add(y)
-    y.set("in", n(3))
-    verifyEq(y.get("out"), n(0))
+    // test TestIncrement with axon
+    x = cs.createSpec(cs.ns.spec("hx.test.xeto::TestIncrement"))
+    cs.root.add(x)
+    x.set("in", n(3))
+    verifyEq(x.get("out"), n(0))
     execute
-    verifyEq(y.get("out"), n(81))
+    verifyEq(x.get("out"), n(4))
+
+    // now test compTree composite
+    x = cs.createSpec( cs.ns.spec("hx.test.xeto::TestAxonComposite"))
+    cs.root.add(x)
+    x.set("in", n(3))
+    verifyEq(x.get("out"), n(0))
+    execute
+    verifyEq(x.get("out"), n(81))
   }
 
 //////////////////////////////////////////////////////////////////////////
