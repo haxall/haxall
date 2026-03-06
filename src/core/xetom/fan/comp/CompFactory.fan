@@ -125,9 +125,10 @@ internal class CompFactory
     // create the children components
     kids := doCreate(kidDicts)
 
-    // reify non-kid values
+    // reify non-kid values - compTree provides defaults, instance values win
     toSet.each |v, n|
     {
+      if (parent.has(n)) return  // instance value already set, don't overwrite
       parent.set(n, reify(null, v))
     }
 
