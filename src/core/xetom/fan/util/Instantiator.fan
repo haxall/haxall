@@ -113,6 +113,10 @@ class Instantiator
   ** Instantiate a dict
   private Dict dict(XetoSpec spec)
   {
+    // check for explicit default value
+    val := spec.meta.get("val")
+    if (val is Dict) return val
+
     // build up dict tags
     acc := Str:Obj[:] { it.ordered = true }
     addId(acc)
