@@ -63,3 +63,28 @@ TestVal : Dict {
   status: Str
 }
 
+TestAxonSquare : Comp {
+  in: Number
+  out: Number
+  onExecute: Func <axon:"""do
+      in: this.get("in")
+      this.set("out", in*in)
+    end
+    """>
+}
+
+TestAxonComposite : Comp {
+  in: Number
+  out: Number
+  <compTree: ---
+  @root: This {
+    TestAxonSquare {
+      in: Link { fromRef:@root, fromSlot:"in" }
+    }
+    links: {
+      out: Link { fromRef:@square, fromSlot:"out" }
+    }
+  }
+  --->
+}
+

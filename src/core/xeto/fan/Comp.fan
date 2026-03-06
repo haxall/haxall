@@ -146,9 +146,10 @@ mixin Comp
   ** Schedule an callback to onExecute on the next execution cycle
   Void execute() { spi.execute }
 
-  ** Callback to recompute component state.
-  ** This is always called within a CompContext.
-  virtual Void onExecute() {}
+  ** Callback to recompute component state.  This is always called
+  ** within a CompContext.  If not overriden then the default behavior
+  ** attempts to call the 'onExecute' method defined in Xeto.
+  virtual Void onExecute() { spi.onExecute }
 
   ** How often should this component have its onExecute callback invoked.
   ** Return null if this component has no time based computation.
@@ -334,6 +335,7 @@ mixin CompSpi
   abstract Comp? child(Str name, Bool checked)
   abstract Void eachChild(|Comp,Str| f)
   abstract Void execute()
+  abstract Void onExecute()
   abstract Void dump(Console? con, Obj? opts)
 }
 

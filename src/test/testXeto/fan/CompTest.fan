@@ -42,6 +42,16 @@ class CompTest: AbstractXetoTest
     Actor.locals.remove(CompSpace.actorKey)
   }
 
+
+  Void execute(|This|? cb := null)
+  {
+    TestAxonContext(cs.ns).asCur |cx|
+    {
+      if (cb != null) cb(this)
+      cs.execute
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
@@ -509,6 +519,22 @@ class CompTest: AbstractXetoTest
   Void verifyInvalidMethod(Comp c, Str name, Str expect)
   {
     verifyErrMsg(Err#, expect) { c.call(name, null) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Axon
+//////////////////////////////////////////////////////////////////////////
+
+  Void testAxon()
+  {
+    spec := cs.ns.spec("hx.test.xeto::TestAxonSquare")
+    x := cs.createSpec(spec)
+
+    cs.root.add(x)
+    x.set("in", n(3))
+    verifyEq(x.get("out"), n(0))
+    execute
+    verifyEq(x.get("out"), n(9))
   }
 
 //////////////////////////////////////////////////////////////////////////

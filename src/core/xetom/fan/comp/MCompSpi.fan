@@ -444,6 +444,14 @@ class MCompSpi : CompSpi
     eachFat |fat| { fat.push }
   }
 
+  ** Default implementation trys to invoke onExecute method
+  override Void onExecute()
+  {
+    slot := spec.slot("onExecute", false)
+    if (slot == null) return
+    slot.func.thunk.callComp(comp, CompContext.curComp)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
