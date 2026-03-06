@@ -26,6 +26,7 @@ const mixin XetoIO
   ** two or more dicts then return a Dict[] of the instances.
   **
   ** Options
+  **   - this: Spec to bind to values typed as 'sys::This'
   **   - externRefs: marker to allow unresolved refs to compile
   **
   abstract Obj? readXeto(Str in, Dict? opts := null)

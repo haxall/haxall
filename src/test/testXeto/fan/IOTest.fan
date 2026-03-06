@@ -20,7 +20,11 @@ class IOTest : AbstractXetoTest
   TestClient? client
   TestServer? server
 
-  Void test()
+//////////////////////////////////////////////////////////////////////////
+// Basics
+//////////////////////////////////////////////////////////////////////////
+
+  Void testBasics()
   {
     ns := createNamespace(["sys", "ph", "hx.test.xeto"])
     server = TestServer(ns)
@@ -166,5 +170,49 @@ class IOTest : AbstractXetoTest
     }
     return binary
   }
+
+//////////////////////////////////////////////////////////////////////////
+// This
+//////////////////////////////////////////////////////////////////////////
+
+  Void testThis()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    spec := ns.spec("hx.test.xeto::InstantiateD")
+    expect := ["spec":spec.id, "numA":n(2026), "numB":n(37)]
+
+    verifyThis(ns, ns.spec("sys::Number"), n(123),
+      Str<|This "123"|>)
+
+    verifyThis(ns, spec, expect,
+      Str<|This {
+             numA: "2026"
+           }|>)
+
+   verifyThis(ns, spec, expect,
+     Str<|sys::This {
+            numA: "2026"
+          }|>)
+
+    verifyThis(ns, spec, expect.add("id", Ref("foo")),
+      Str<|@foo: This {
+            numA: "2026"
+           }|>)
+   }
+
+  Void verifyThis(Namespace ns, Spec spec, Obj expect, Str xeto)
+  {
+    // verify failures if this not injected
+    verifyErrMsg(XetoCompilerErr#, "Must set 'this' in opts") {ns.io.readXeto(xeto) }
+
+    // verify This infers injected type for its slots
+    x := ns.io.readXeto(xeto, Etc.dict1("this", spec))
+    if (expect is Map)
+      verifyDictEq(x, expect)
+    else
+      verifyValEq(x, expect)
+  }
+
 }
 

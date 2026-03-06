@@ -108,7 +108,7 @@ internal class Resolve : Step
         if (spec.isTop)
         {
           ref = ASpecRef(val.loc, ASimpleName(lib.name, spec.name))
-          ref.resolve(spec)
+          resolve(ref, spec)
         }
         else
         {
@@ -152,7 +152,7 @@ internal class Resolve : Step
     x := resolveInAst(ref, n.name)
     if (x != null)
     {
-      ref.resolve(x)
+      resolve(ref, x)
       return
     }
 
@@ -170,7 +170,7 @@ internal class Resolve : Step
     }
     else
     {
-      ref.resolve(matches.first)
+      resolve(ref, matches.first)
     }
   }
 
@@ -199,7 +199,7 @@ internal class Resolve : Step
     }
 
     // success!
-    ref.resolve((CNode)p)
+    resolve(ref, (CNode)p)
   }
 
   private Void resolveQualified(ARef ref)
@@ -214,7 +214,7 @@ internal class Resolve : Step
         if (allowUnresolved) return
         return err("$ref.what.capitalize '$n' not found in lib", ref.loc)
       }
-      ref.resolve(x)
+      resolve(ref, x)
       return
     }
 
@@ -235,7 +235,7 @@ internal class Resolve : Step
       if (allowUnresolved) return
       return err("Unresolved $ref.what '$n' in lib", ref.loc)
     }
-    ref.resolve(x)
+    resolve(ref, x)
   }
 
   private Obj? resolveInAst(ARef ref, Str name)
@@ -265,5 +265,14 @@ internal class Resolve : Step
     compiler.externRefs || mode.isAst
   }
 
+  ** Choke point for calling ARef.resolve
+  private Void resolve(ARef ref, CNode node)
+  {
+    // special handling for sys::This
+    if (!isSys && node === ns.sys.self && isData)
+      node = compiler.opts["this"] as CNode ?: throw err("Must set 'this' in opts", ref.loc)
+
+    ref.resolve(node)
+  }
 }
 
