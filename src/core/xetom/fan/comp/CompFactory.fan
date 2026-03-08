@@ -313,8 +313,11 @@ internal class CompFactory
   ** Reify dict that might be a component type
   private Obj reifyDict(Spec? spec, Dict v)
   {
+    // if no spec or dict has explicit spec use it,
+    // otherwise fallback to slot spec passed in
+    if (spec == null || spec.has("spec")) spec = dictToSpec(v)
+
     // check if dict needs to be reified as Comp instance
-    if (spec == null) spec = dictToSpec(v)
     if (spec != null && spec.isa(compSpec))
     {
       return reifyComp(spec, v)

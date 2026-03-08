@@ -236,7 +236,7 @@ class CompTest: AbstractXetoTest
     verifySame(a.parent, c)
     verifyEq(a.name, "a")
     verifySame(c.child("a"), a)
-    verifyCompEq(a, ["id":a.id,
+    verifyCompEq(a, ["id":a.id, "dis":"TestAdd",
       "spec":addSpec.id, "in1":TestVal(7), "in2":TestVal(5), "out":TestVal(0)])
 
     // verify it created b (two level child)
@@ -245,7 +245,7 @@ class CompTest: AbstractXetoTest
     verifyEq(b.name, "b")
     verifySame(c.child("nest"), nest)
     verifySame(nest.child("b"), b)
-    verifyCompEq(b, ["id":b.id,
+    verifyCompEq(b, ["id":b.id, "dis":"TestAdd",
       "spec":addSpec.id, "in1":TestVal(17), "in2":TestVal(15), "out":TestVal(0)])
 
     // verify unmounted
