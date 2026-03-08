@@ -317,16 +317,40 @@ class MCompSpi : CompSpi
 
   override Obj? call(Str name, Obj? arg)
   {
-    res := spec.slot(name).func.thunk.callComp(comp, arg)
+    slot := spec.slot(name)
+    ret := slot.func.thunk.callComp(comp, arg)
 
     fat := slots.get(name) as FatSlot
     if (fat != null)
     {
-      fat.called(res)
+      fat.called(ret)
       needsPush = true
     }
 
-    return res
+    // fire callback
+    called(CompCallEvent(comp, name, slot, arg, ret))
+
+    return ret
+  }
+
+  private Void called(CompCallEvent event)
+  {
+    try
+    {
+      // special callback
+      comp.onCallFw(event)
+
+      // standard callback
+      comp.onCall(event)
+
+      // space level callback
+      if (isMounted) cs.onCall(event)
+    }
+    catch (Err e)
+    {
+      echo("ERROR: $this onChange")
+      e.trace
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

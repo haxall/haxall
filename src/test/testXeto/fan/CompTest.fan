@@ -474,7 +474,7 @@ class CompTest: AbstractXetoTest
     verifyEq(spi.isFat("methodEcho"), true)
   }
 
-  Void verifyMethod(Comp c, Str name, Obj? arg, Obj? expect)
+  Void verifyMethod(TestFoo c, Str name, Obj? arg, Obj? expect)
   {
     verifyEq(c.spec.slot(name).isFunc, true)
 
@@ -500,6 +500,7 @@ class CompTest: AbstractXetoTest
 
     actual := c.call(name, arg)
     verifyEq(actual, expect)
+    verifyCalled(c, name, arg, expect)
 
     Actor.locals.remove(AxonContext.actorLocalsKey)
   }
@@ -519,6 +520,16 @@ class CompTest: AbstractXetoTest
   Void verifyInvalidMethod(Comp c, Str name, Str expect)
   {
     verifyErrMsg(Err#, expect) { c.call(name, null) }
+  }
+
+  Void verifyCalled(TestFoo comp, Str name, Obj? arg, Obj? ret)
+  {
+    e := comp.callEvent ?: throw Err("callEvent is null")
+    verifySame(e.comp, comp)
+    verifyEq(e.name, name)
+    verifySame(e.slot, comp.spec.slot(name))
+    verifyEq(e.arg, arg)
+    verifyEq(e.ret, ret)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -778,6 +789,7 @@ const class TestVal: WrapDict
 class TestFoo : CompObj
 {
   CompChangeEvent? change
+  CompCallEvent? callEvent
   Int numExecutes
 
   This reset()
@@ -794,6 +806,11 @@ class TestFoo : CompObj
   override Void onChange(CompChangeEvent e)
   {
     change = e
+  }
+
+  override Void onCall(CompCallEvent e)
+  {
+    callEvent = e
   }
 
   @Api private Obj? onMethodEcho(Obj? x) { x }

@@ -129,13 +129,19 @@ mixin Comp
   ** operation if a remove then newVal is null.
   virtual Void onChange(CompChangeEvent event) {}
 
+  ** Callback when a method is called on this instance.
+  virtual Void onCall(CompCallEvent event) {}
+
   ** Special onChange callback to handle built-in framework logic, called
   ** before onChange.  The default implementation calls execute if the
-  ** slot is not transient
+  ** slot is not transient.
   @NoDoc virtual Void onChangeFw(CompChangeEvent event)
   {
     if (event.slot != null && !event.slot.isTransient) execute
   }
+
+  ** Special callback to handle built-in framework logic when a method is called.
+  @NoDoc virtual Void onCallFw(CompCallEvent event) {}
 
   ** Callback whem mounted into a component space
   @NoDoc virtual Void onMount() {}
@@ -280,6 +286,44 @@ class CompChangeEvent
 
   ** Debug string - format subject to change
   override Str toStr() { "$comp | $name | $oldVal => $newVal" }
+}
+
+**************************************************************************
+** CompCallEvent
+**************************************************************************
+
+**
+** CompCallEvent includes details when a component method is called
+**
+@Js
+class CompCallEvent
+{
+  @NoDoc new make(Comp comp, Str name, Spec? slot, Obj? arg, Obj? ret)
+  {
+    this.comp = comp
+    this.name = name
+    this.slot = slot
+    this.arg  = arg
+    this.ret  = ret
+  }
+
+  ** Subject component
+  Comp comp { private set }
+
+  ** Name of slot called
+  const Str name
+
+  ** Spec of slot if defined for name (null if dynamic)
+  const Spec? slot
+
+  ** Argument passed
+  Obj? arg { private set }
+
+  ** Return value of the method
+  Obj? ret { private set }
+
+  ** Debug string - format subject to change
+  override Str toStr() { "$comp | $name | $arg => $ret" }
 }
 
 **************************************************************************

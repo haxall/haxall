@@ -296,6 +296,9 @@ class CompSpace : AbstractCompSpace
   ** The name and value are the slot modified, or null for a remove.
   virtual Void onChange(CompChangeEvent event) {}
 
+  ** Callback anytime a component method is called
+  virtual Void onCall(CompCallEvent event) {}
+
 //////////////////////////////////////////////////////////////////////////
 // Namespace
 //////////////////////////////////////////////////////////////////////////
