@@ -18,12 +18,31 @@ using haystack
 @Js @NoDoc
 const class AxonThunkFactory : ThunkFactory
 {
+
+//////////////////////////////////////////////////////////////////////////
+// ThunkFactory
+//////////////////////////////////////////////////////////////////////////
+
   override Thunk create(Spec spec, Pod? pod)
   {
     fn := doCreate(spec, pod)
     TopFn#qname->setConst(fn, spec.lib.name + "::" + spec.name)
     return fn
   }
+
+  override CompFunc compFunc(Comp c, Str n, Dict v)
+  {
+    AxonCompFunc(c, n, v)
+  }
+
+  override Dict readAxon(Namespace ns, Str src, Dict opts)
+  {
+    XetoAxonReader(ns, src, opts).read
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Spec
+//////////////////////////////////////////////////////////////////////////
 
   private TopFn doCreate(Spec spec, Pod? pod)
   {
@@ -175,16 +194,6 @@ const class AxonThunkFactory : ThunkFactory
     acc["name"]  = spec.name
     acc["qname"] = spec.lib.name + "::" + spec.name
     return Etc.dictFromMap(acc)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// I/O
-//////////////////////////////////////////////////////////////////////////
-
-  ** Hook for XetoIO.readAxon
-  override Dict readAxon(Namespace ns, Str src, Dict opts)
-  {
-    XetoAxonReader(ns, src, opts).read
   }
 }
 

@@ -101,3 +101,8 @@ TestAxonComposite : Comp {
   --->
 }
 
+TestNumberToStrFuncType: Func {
+  num: Number
+  returns: Str
+}
+

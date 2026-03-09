@@ -77,8 +77,11 @@ const abstract class ThunkFactory
     return Type.find("axon::AxonThunkFactory").make
   }
 
-  ** Factory hook
+  ** Factory hook for spec functions
   abstract Thunk create(Spec spec, Pod? pod)
+
+  ** Factory hook for CompFunc dicts
+  abstract CompFunc compFunc(Comp self, Str name, Dict val)
 
   ** Hook for XetoIO.readAxon
   abstract Dict readAxon(Namespace ns, Str src, Dict opts)

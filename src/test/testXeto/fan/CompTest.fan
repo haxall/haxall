@@ -446,8 +446,16 @@ class CompTest: AbstractXetoTest
     verifyFunc(c, "methodUpper", "hi", "HI")
     verifyFunc(c, "methodThis", "ignore", c)
 
-    // test instance methods
-    //c.set("instLower", CompFunc
+    // test instance method with default funcType
+    ns := cs.ns
+    funcType := ns.spec("sys.comp::CompFuncDefaultType")
+    c.set("instLower", ThunkFactory.cur.compFunc(c, "instLower", Etc.dict1("axon", "arg.lower")))
+    verifyFunc(c, "instLower", "Hello There", "hello there", funcType)
+
+    // test instance method with custom funcType
+    funcType = ns.spec("hx.test.xeto::TestNumberToStrFuncType")
+    c.set("instFoo", ThunkFactory.cur.compFunc(c, "instFoo", Etc.dict2("axon", "\"0x\" + num.toHex", "funcType", funcType.id)))
+    verifyFunc(c, "instFoo", n(123), "0x7b", funcType)
 
     // verify bad fantom methods
     verifyInvalidFunc(c, "methodBad1", "Comp method missing @Api facet: testXeto::TestFoo.onMethodBad1")
@@ -480,7 +488,7 @@ class CompTest: AbstractXetoTest
     verifyEq(spi.isFat("methodEcho"), true)
   }
 
-  Void verifyFunc(TestFoo c, Str name, Obj? arg, Obj? expect, Spec? funcType := null, Dict? meta := null)
+  Void verifyFunc(TestFoo c, Str name, Obj? arg, Obj? expect, Spec? funcType := null)
   {
 
     f := c.get(name) as CompFunc ?: throw Err("Missing func: $name")
@@ -518,19 +526,25 @@ class CompTest: AbstractXetoTest
     verifyEq(actual, expect)
     verifyCalled(c, name, arg, expect)
 
+    // echo("~~ $name ($arg) => $actual")
+
     Actor.locals.remove(AxonContext.actorLocalsKey)
   }
 
   Void verifyUnknownFunc(Comp c, Str name)
   {
     verifyEq(c.spec.slot(name, false), null)
-    verifyErr(UnknownFuncErr #) { c.call(name, false) }
+    verifyErr(UnknownFuncErr#) { c.call(name, false) }
+    verifyEq(c.funcType(name, false), null)
+    verifyErr(UnknownFuncErr#) { c.funcType(name) }
   }
 
   Void verifyNotFunc(Comp c, Str name, Str msg)
   {
     verifyEq(c.spec.slot(name).isFunc, false)
     verifyErrMsg(UnsupportedErr#, msg) { c.call(name, false) }
+    verifyEq(c.funcType(name, false), null)
+    verifyErr(UnknownFuncErr#) { c.funcType(name) }
   }
 
   Void verifyInvalidFunc(Comp c, Str name, Str expect)
