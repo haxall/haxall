@@ -21,8 +21,7 @@ final class FatSlot
   internal new make(Obj? val)
   {
     this.val = val
-    if (val != null && val isnot CompFunc)
-      this.pushVal = val
+    queuePush(val)
   }
 
   ** Const for this type
@@ -39,10 +38,19 @@ final class FatSlot
 //////////////////////////////////////////////////////////////////////////
 
   ** Update value and enqueue push when component slot set
-  Void set(Obj val) { this.val = this.pushVal = val }
+  Void set(Obj val) { this.val = val; queuePush(val) }
 
   ** Enqueue push when component method is called
-  Void called(Obj? ret) { this.pushVal = ret ?: nullPush }
+  Void called(Obj? ret) { queuePush(ret) }
+
+  ** Queue up value to push
+  private Void queuePush(Obj? x)
+  {
+    if (x == null)
+      pushVal = nullPush
+    else if (x isnot CompFunc)
+      pushVal = x
+  }
 
   ** Push to target components if there an enqueued value
   Void push()
@@ -63,12 +71,12 @@ final class FatSlot
   ** Push to given component and slot
   private Void pushTo(FatSlotPushTo x, Obj? val)
   {
-// TODO: don't lookuip slot twice
-    c := x.toComp
-    if (c.hasFunc(x.toSlot))
-      c.call(x.toSlot, val)
+    toComp := x.toComp
+    toSlot := x.toSlot
+    if (toComp.hasFunc(toSlot))
+      toComp.call(toSlot, val)
     else
-      c.set(x.toSlot, val)
+      toComp.set(toSlot, val)
   }
 
   ** Enqueued value to push to targets

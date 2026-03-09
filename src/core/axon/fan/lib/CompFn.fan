@@ -14,6 +14,7 @@ using xetom
 
 **
 ** CompFn is an Axon function backed by a Xeto component blocks
+** declared in compTree.
 **
 @Js @NoDoc
 const class CompFn : TopFn
