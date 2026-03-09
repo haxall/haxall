@@ -82,7 +82,7 @@ class MCompSpi : CompSpi
   override Obj? get(Str name)
   {
     x := slots.get(name)
-    if (x== null) return null
+    if (x == null) return null
     return slotVal(x)
   }
 
@@ -309,18 +309,23 @@ class MCompSpi : CompSpi
 // Methods & Call
 //////////////////////////////////////////////////////////////////////////
 
-  override Bool hasMethod(Str name)
+  override Bool hasFunc(Str name)
   {
-    slot := spec.slot(name, false)
-    return slot != null && slot.isFunc
+    get(name) is CompFunc
   }
 
   override Obj? call(Str name, Obj? arg)
   {
-    slot := spec.slot(name)
-    ret := slot.func.thunk.callComp(comp, arg)
+    // get slot value as func
+    x    := slots.get(name) ?: throw UnknownFuncErr("Missig comp func: $name")
+    fat  := x as FatSlot
+    val  := fat != null ? fat.val : x
+    func := val as MCompFunc ?: throw UnsupportedErr("Comp slot not func: $name [${val.typeof}]")
 
-    fat := slots.get(name) as FatSlot
+    // call func
+    ret := func.doCall(comp, arg)
+
+    // handle fat slot push
     if (fat != null)
     {
       fat.called(ret)
@@ -328,7 +333,7 @@ class MCompSpi : CompSpi
     }
 
     // fire callback
-    called(CompCallEvent(comp, name, slot, arg, ret))
+    called(CompCallEvent(comp, func, arg, ret))
 
     return ret
   }

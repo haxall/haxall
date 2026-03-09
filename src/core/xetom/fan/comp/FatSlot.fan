@@ -18,7 +18,12 @@ using haystack
 final class FatSlot
 {
   ** Constructor
-  internal new make(Obj? val) { this.val = this.pushVal = val }
+  internal new make(Obj? val)
+  {
+    this.val = val
+    if (val != null && val isnot CompFunc)
+      this.pushVal = val
+  }
 
   ** Const for this type
   static const Type type := FatSlot#
@@ -26,7 +31,7 @@ final class FatSlot
   ** Sentinel for pushing null
   static const Obj nullPush := "__null_push__"
 
-  ** Wrapped value or null for methods
+  ** Wrapped value or null if undefined fat slot
   internal Obj? val { private set }
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,8 +63,9 @@ final class FatSlot
   ** Push to given component and slot
   private Void pushTo(FatSlotPushTo x, Obj? val)
   {
+// TODO: don't lookuip slot twice
     c := x.toComp
-    if (c.hasMethod(x.toSlot))
+    if (c.hasFunc(x.toSlot))
       c.call(x.toSlot, val)
     else
       c.set(x.toSlot, val)

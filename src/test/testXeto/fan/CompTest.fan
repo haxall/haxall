@@ -69,12 +69,12 @@ class CompTest: AbstractXetoTest
     verifyEq(c.get("c"), null)
     verifyEq(c.has("b"), true)
     verifyEq(c.missing("b"), false)
-    verifyEq(c.hasMethod("b"), false)
+    verifyEq(c.hasFunc("b"), false)
 
     // not found
     verifyEq(c.has("notFound"), false)
     verifyEq(c.missing("notFound"), true)
-    verifyEq(c.hasMethod("notFound"), false)
+    verifyEq(c.hasFunc("notFound"), false)
     verifyEq(c.get("notFound"), null)
 
     // set as update
@@ -129,6 +129,7 @@ class CompTest: AbstractXetoTest
     // each
     expect := ["id":c.id, "spec":c.spec.id, "dis":"TestFoo", "a":"alpha",
       "b":"bravo!", "bar":n(123), "_0":"auto"]
+    c.spec.slots.each |s| { if (s.isFunc) expect[s.name] = (CompFunc)c.get(s.name) }
     map := Str:Obj?[:] { ordered = true }
     c.each |v, n| { map[n] = v }
     verifyEq(map, expect)
@@ -453,7 +454,7 @@ class CompTest: AbstractXetoTest
     verifyUnknownMethod(c, "notFound")
 
     // verify calling non-method slot
-    verifyNotMethod(c, "a", "Spec is not func: hx.test.xeto::TestFoo.a")
+    verifyNotMethod(c, "a", "Comp slot not func: a [sys::Str]")
 
     // fatten a slot and verify
     spi := (MCompSpi)c.spi
@@ -476,23 +477,26 @@ class CompTest: AbstractXetoTest
 
   Void verifyMethod(TestFoo c, Str name, Obj? arg, Obj? expect)
   {
-    verifyEq(c.spec.slot(name).isFunc, true)
+    f := c.get(name) ?: throw Err("Missing func: $name")
+    verifyEq(f is CompFunc, true)
+
+    slot := c.spec.slot(name)
+    if (slot != null) verifyEq(slot.isFunc, true)
 
     // verify no value for get, has, missing
-    verifyEq(c.get(name), null)
-    verifyEq(c.has(name), false)
-    verifyEq(c.missing(name), true)
-    verifyEq(c.hasMethod(name), true)
+    verifyEq(c.has(name), true)
+    verifyEq(c.missing(name), false)
+    verifyEq(c.hasFunc(name), true)
 
-    // verify method not in each
-    names := Str[,]
-    c.each |v, n| { names.add(n) }
-    verifyEq(names.contains(name), false)
+    // verify method in each
+    map := Str:Obj[:]
+    c.each |v, n| { map.add(n, v) }
+    verifySame(map[name], f)
 
-    // verify method not in eachWhile
-    names.clear
-    c.eachWhile |v, n| { names.add(n); return null }
-    verifyEq(names.contains(name), false)
+    // verify method in eachWhile
+    map.clear
+    c.eachWhile |v, n| { map.add(n, v); return null }
+    verifySame(map[name], f)
 
     // verify call
     cx := Type.find("testAxon::TestContext").make([this])
@@ -508,7 +512,7 @@ class CompTest: AbstractXetoTest
   Void verifyUnknownMethod(Comp c, Str name)
   {
     verifyEq(c.spec.slot(name, false), null)
-    verifyErr(UnknownSpecErr#) { c.call(name, false) }
+    verifyErr(UnknownFuncErr #) { c.call(name, false) }
   }
 
   Void verifyNotMethod(Comp c, Str name, Str msg)
@@ -527,7 +531,7 @@ class CompTest: AbstractXetoTest
     e := comp.callEvent ?: throw Err("callEvent is null")
     verifySame(e.comp, comp)
     verifyEq(e.name, name)
-    verifySame(e.slot, comp.spec.slot(name))
+    verifySame(e.func, comp.get(name))
     verifyEq(e.arg, arg)
     verifyEq(e.ret, ret)
   }

@@ -42,8 +42,8 @@ mixin Comp
   ** Get the given slot value or null if slot name not defined.
   @Operator Obj? get(Str name) { spi.get(name) }
 
-  ** Return if this component has a method by given name
-  Bool hasMethod(Str name) { spi.hasMethod(name) }
+  ** Return if this component has a CompFunc by given name
+  Bool hasFunc(Str name) { spi.hasFunc(name) }
 
   ** Return true if this component has slot with non-null value.
   Bool has(Str name) { spi.has(name) }
@@ -114,7 +114,7 @@ mixin Comp
     return this
   }
 
-  ** Call component method slot
+  ** Call component function slot by name - slot value must be `CompFunc`.
   Obj? call(Str name, Obj? arg)
   {
     spi.call(name, arg)
@@ -298,11 +298,10 @@ class CompChangeEvent
 @Js
 class CompCallEvent
 {
-  @NoDoc new make(Comp comp, Str name, Spec? slot, Obj? arg, Obj? ret)
+  @NoDoc new make(Comp comp, CompFunc func, Obj? arg, Obj? ret)
   {
     this.comp = comp
-    this.name = name
-    this.slot = slot
+    this.func = func
     this.arg  = arg
     this.ret  = ret
   }
@@ -310,11 +309,11 @@ class CompCallEvent
   ** Subject component
   Comp comp { private set }
 
-  ** Name of slot called
-  const Str name
+  ** Component slot name
+  Str name() { func.name }
 
-  ** Spec of slot if defined for name (null if dynamic)
-  const Spec? slot
+  ** Component function called
+  const CompFunc func
 
   ** Argument passed
   Obj? arg { private set }
@@ -323,7 +322,7 @@ class CompCallEvent
   Obj? ret { private set }
 
   ** Debug string - format subject to change
-  override Str toStr() { "$comp | $name | $arg => $ret" }
+  override Str toStr() { "$comp | $func.name | $arg => $ret" }
 }
 
 **************************************************************************
@@ -359,7 +358,7 @@ mixin CompSpi
   abstract Spec spec()
   abstract Int ver()
   abstract Obj? get(Str name)
-  abstract Bool hasMethod(Str name)
+  abstract Bool hasFunc(Str name)
   abstract Bool has(Str name)
   abstract Bool missing(Str name)
   abstract Void each(|Obj val, Str name| f)

@@ -213,6 +213,14 @@ internal class CompFactory
 
   private [Str:Comp]? initSlots(Spec spec, Str:Obj acc, [Str:Comp]? children, Dict slots)
   {
+    // init static funcs from spec
+    spec.slots.each |slot|
+    {
+      if (slot.isFunc && slot.func.arity == 1)
+        acc[slot.name] = SpecCompFunc(slot)
+    }
+
+    // init rest from the slots dict
     slots.each |v, n|
     {
       // skip
