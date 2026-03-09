@@ -30,9 +30,9 @@ const class AxonThunkFactory : ThunkFactory
     return fn
   }
 
-  override CompFunc compFunc(Comp c, Str n, Dict v)
+  override CompFunc compFunc(Dict dict)
   {
-    AxonCompFunc(c, n, v)
+    AxonCompFunc(dict)
   }
 
   override Dict readAxon(Namespace ns, Str src, Dict opts)

@@ -247,7 +247,7 @@ class CompObj : Comp
 ** a dict value.
 **
 @Js
-const mixin CompFunc {}
+const mixin CompFunc : Dict {}
 
 **************************************************************************
 ** CompContext

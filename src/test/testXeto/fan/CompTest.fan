@@ -449,12 +449,12 @@ class CompTest: AbstractXetoTest
     // test instance method with default funcType
     ns := cs.ns
     funcType := ns.spec("sys.comp::CompFuncDefaultType")
-    c.set("instLower", ThunkFactory.cur.compFunc(c, "instLower", Etc.dict1("axon", "arg.lower")))
+    c.set("instLower", ThunkFactory.cur.compFunc(Etc.dict1("axon", "arg.lower")))
     verifyFunc(c, "instLower", "Hello There", "hello there", funcType)
 
     // test instance method with custom funcType
     funcType = ns.spec("hx.test.xeto::TestNumberToStrFuncType")
-    c.set("instFoo", ThunkFactory.cur.compFunc(c, "instFoo", Etc.dict2("axon", "\"0x\" + num.toHex", "funcType", funcType.id)))
+    c.set("instFoo", ThunkFactory.cur.compFunc(Etc.dict2("axon", "\"0x\" + num.toHex", "funcType", funcType.id)))
     verifyFunc(c, "instFoo", n(123), "0x7b", funcType)
 
     // verify bad fantom methods

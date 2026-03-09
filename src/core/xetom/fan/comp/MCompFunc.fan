@@ -15,13 +15,9 @@ using haystack
 ** MCompFunc is base class for CompFunc implementations
 **
 @NoDoc @Js
-abstract const class MCompFunc : CompFunc
+abstract const class MCompFunc : WrapDict, CompFunc
 {
-  ** Constructor with name
-  new make(Str name) { this.name = name }
-
-  ** Slot name
-  const Str name
+  new make(Dict wrap) : super(wrap) {}
 
   ** Map to func type for given comp
   abstract Spec funcType(Comp self)
@@ -30,7 +26,7 @@ abstract const class MCompFunc : CompFunc
   abstract Obj? doCall(Comp self, Obj? arg)
 
   ** Debug string
-  override Str toStr() { "CompFunc $name" }
+  override Str toStr() { "CompFunc" }
 }
 
 **************************************************************************
@@ -43,7 +39,9 @@ abstract const class MCompFunc : CompFunc
 @Js
 internal const class SpecCompFunc : MCompFunc
 {
-  new make(Spec slot) : super(slot.name) {}
+  new make(Spec slot) : super(slot.metaOwn) { this.name = slot.name }
+
+  const Str name
 
   override Spec funcType(Comp self)
   {

@@ -81,7 +81,7 @@ const abstract class ThunkFactory
   abstract Thunk create(Spec spec, Pod? pod)
 
   ** Factory hook for CompFunc dicts
-  abstract CompFunc compFunc(Comp self, Str name, Dict val)
+  abstract CompFunc compFunc(Dict dict)
 
   ** Hook for XetoIO.readAxon
   abstract Dict readAxon(Namespace ns, Str src, Dict opts)
