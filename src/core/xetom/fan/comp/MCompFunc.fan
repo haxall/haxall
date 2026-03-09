@@ -23,7 +23,7 @@ abstract const class MCompFunc : WrapDict, CompFunc
   abstract Spec funcType(Comp self)
 
   ** Subclass hook to implement call
-  abstract Obj? doCall(Comp self, Obj? arg)
+  abstract Obj? doCall(Comp self, Str name, Obj? arg)
 
   ** Debug string
   override Str toStr() { "CompFunc" }
@@ -48,7 +48,7 @@ internal const class SpecCompFunc : MCompFunc
     self.spec.slot(name)
   }
 
-  override Obj? doCall(Comp self, Obj? arg)
+  override Obj? doCall(Comp self, Str name, Obj? arg)
   {
     funcType(self).func.thunk.callComp(self, arg)
   }

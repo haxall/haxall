@@ -496,10 +496,12 @@ class CompTest: AbstractXetoTest
     {
       slot := c.spec.slot(name)
       verifySame(c.funcType(name), slot)
+      verifyEq(f.typeof.qname, "xetom::SpecCompFunc")
     }
     else
     {
       verifySame(c.funcType(name), funcType)
+      verifyEq(f.typeof.qname, "axon::AxonCompFunc")
     }
 
     // verify no value for get, has, missing

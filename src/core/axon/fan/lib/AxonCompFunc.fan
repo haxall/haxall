@@ -14,8 +14,8 @@ using haystack
 **
 ** Instance comp func backed by instance dict
 **
-@Js
-internal const class AxonCompFunc : MCompFunc
+@NoDoc @Js
+abstract const class AbstractAxonCompFunc : MCompFunc
 {
   new make(Dict wrap) : super(wrap) {}
 
@@ -34,8 +34,18 @@ internal const class AxonCompFunc : MCompFunc
     if (ref == null) return ns.lib("sys.comp").spec("CompFuncDefaultType")
     return ns.spec(ref.id)
   }
+}
 
-  override Obj? doCall(Comp self, Obj? arg)
+**************************************************************************
+** AxonCompFunc
+**************************************************************************
+
+@Js
+internal const class AxonCompFunc : AbstractAxonCompFunc
+{
+  new make(Dict wrap) : super(wrap) {}
+
+  override Obj? doCall(Comp self, Str name, Obj? arg)
   {
     AxonContext.curAxon.evalInNewFrame(expr, ["this":self, argName(self):arg])
   }

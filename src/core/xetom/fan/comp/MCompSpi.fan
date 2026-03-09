@@ -333,7 +333,7 @@ class MCompSpi : CompSpi
     func := val as MCompFunc ?: throw UnsupportedErr("Comp slot not func: $name [${val.typeof}]")
 
     // call func
-    ret := func.doCall(comp, arg)
+    ret := func.doCall(comp, name, arg)
 
     // handle fat slot push
     if (fat != null)
