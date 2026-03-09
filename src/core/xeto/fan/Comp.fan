@@ -45,6 +45,10 @@ mixin Comp
   ** Return if this component has a CompFunc by given name
   Bool hasFunc(Str name) { spi.hasFunc(name) }
 
+  ** If name maps to CompFunc function slot, then return
+  ** spec for the function signature (parameter and return type).
+  Spec? funcType(Str name, Bool checked := true) { spi.funcType(name, checked) }
+
   ** Return true if this component has slot with non-null value.
   Bool has(Str name) { spi.has(name) }
 
@@ -233,6 +237,19 @@ class CompObj : Comp
 }
 
 **************************************************************************
+** CompFunc
+**************************************************************************
+
+**
+** Component method function value.  CompFuncs always take exactly one
+** parameter.  They can be declared statically as a slot using meta and
+** standard func signature pattern, or dynamically in instance data using
+** a dict value.
+**
+@Js
+const mixin CompFunc {}
+
+**************************************************************************
 ** CompContext
 **************************************************************************
 
@@ -298,9 +315,10 @@ class CompChangeEvent
 @Js
 class CompCallEvent
 {
-  @NoDoc new make(Comp comp, CompFunc func, Obj? arg, Obj? ret)
+  @NoDoc new make(Comp comp, Str name, CompFunc func, Obj? arg, Obj? ret)
   {
     this.comp = comp
+    this.name = name
     this.func = func
     this.arg  = arg
     this.ret  = ret
@@ -310,7 +328,7 @@ class CompCallEvent
   Comp comp { private set }
 
   ** Component slot name
-  Str name() { func.name }
+  const Str name
 
   ** Component function called
   const CompFunc func
@@ -322,7 +340,7 @@ class CompCallEvent
   Obj? ret { private set }
 
   ** Debug string - format subject to change
-  override Str toStr() { "$comp | $func.name | $arg => $ret" }
+  override Str toStr() { "$comp | $name | $arg => $ret" }
 }
 
 **************************************************************************
@@ -355,10 +373,12 @@ mixin CompSpi
   abstract Void init()
   abstract Ref id()
   abstract Str dis()
+  abstract Namespace ns()
   abstract Spec spec()
   abstract Int ver()
   abstract Obj? get(Str name)
   abstract Bool hasFunc(Str name)
+  abstract Spec? funcType(Str name, Bool checked := true)
   abstract Bool has(Str name)
   abstract Bool missing(Str name)
   abstract Void each(|Obj val, Str name| f)

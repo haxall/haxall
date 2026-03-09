@@ -431,30 +431,35 @@ class CompTest: AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Methods
+// Funcs
 //////////////////////////////////////////////////////////////////////////
 
-  Void testMethods()
+  Void testFuncs()
   {
     c := TestFoo()
     verifyEq(c.spec.qname, "hx.test.xeto::TestFoo")
-    verifyMethod(c, "methodEcho",   "foo", "foo")
-    verifyMethod(c, "methodEcho",   n(123), n(123))
-    verifyMethod(c, "methodSquare", n(2), n(4))
-    verifyMethod(c, "methodUpper", "hi", "HI")
-    verifyMethod(c, "methodThis", "ignore", c)
+
+    // test static/spec methods
+    verifyFunc(c, "methodEcho",   "foo", "foo")
+    verifyFunc(c, "methodEcho",   n(123), n(123))
+    verifyFunc(c, "methodSquare", n(2), n(4))
+    verifyFunc(c, "methodUpper", "hi", "HI")
+    verifyFunc(c, "methodThis", "ignore", c)
+
+    // test instance methods
+    //c.set("instLower", CompFunc
 
     // verify bad fantom methods
-    verifyInvalidMethod(c, "methodBad1", "Comp method missing @Api facet: testXeto::TestFoo.onMethodBad1")
-    verifyInvalidMethod(c, "methodBad2", "Comp method must not be static: testXeto::TestFoo.onMethodBad2")
-    verifyInvalidMethod(c, "methodBad3", "Comp method must have exactly one param: testXeto::TestFoo.onMethodBad3")
-    verifyInvalidMethod(c, "methodBad4", "Comp method must have exactly one param: testXeto::TestFoo.onMethodBad4")
+    verifyInvalidFunc(c, "methodBad1", "Comp method missing @Api facet: testXeto::TestFoo.onMethodBad1")
+    verifyInvalidFunc(c, "methodBad2", "Comp method must not be static: testXeto::TestFoo.onMethodBad2")
+    verifyInvalidFunc(c, "methodBad3", "Comp method must have exactly one param: testXeto::TestFoo.onMethodBad3")
+    verifyInvalidFunc(c, "methodBad4", "Comp method must have exactly one param: testXeto::TestFoo.onMethodBad4")
 
     // verify methods not found
-    verifyUnknownMethod(c, "notFound")
+    verifyUnknownFunc(c, "notFound")
 
     // verify calling non-method slot
-    verifyNotMethod(c, "a", "Comp slot not func: a [sys::Str]")
+    verifyNotFunc(c, "a", "Comp slot not func: a [sys::Str]")
 
     // fatten a slot and verify
     spi := (MCompSpi)c.spi
@@ -462,7 +467,7 @@ class CompTest: AbstractXetoTest
     fat := spi.fatten("methodEcho")
     verifyEq(spi.isFat("methodEcho"), true)
     verifySame(spi.fatten("methodEcho"), fat)
-    verifyMethod(c, "methodEcho",   n(123), n(123))
+    verifyFunc(c, "methodEcho",   n(123), n(123))
 
     // verify reorder ignores fat methods
     names := Str[,]
@@ -475,13 +480,19 @@ class CompTest: AbstractXetoTest
     verifyEq(spi.isFat("methodEcho"), true)
   }
 
-  Void verifyMethod(TestFoo c, Str name, Obj? arg, Obj? expect)
+  Void verifyFunc(TestFoo c, Str name, Obj? arg, Obj? expect, Spec? funcType := null, Dict? meta := null)
   {
-    f := c.get(name) ?: throw Err("Missing func: $name")
-    verifyEq(f is CompFunc, true)
 
-    slot := c.spec.slot(name)
-    if (slot != null) verifyEq(slot.isFunc, true)
+    f := c.get(name) as CompFunc ?: throw Err("Missing func: $name")
+    if (funcType == null)
+    {
+      slot := c.spec.slot(name)
+      verifySame(c.funcType(name), slot)
+    }
+    else
+    {
+      verifySame(c.funcType(name), funcType)
+    }
 
     // verify no value for get, has, missing
     verifyEq(c.has(name), true)
@@ -502,6 +513,7 @@ class CompTest: AbstractXetoTest
     cx := Type.find("testAxon::TestContext").make([this])
     Actor.locals[AxonContext.actorLocalsKey] = cx
 
+    c.callEvent = null
     actual := c.call(name, arg)
     verifyEq(actual, expect)
     verifyCalled(c, name, arg, expect)
@@ -509,19 +521,19 @@ class CompTest: AbstractXetoTest
     Actor.locals.remove(AxonContext.actorLocalsKey)
   }
 
-  Void verifyUnknownMethod(Comp c, Str name)
+  Void verifyUnknownFunc(Comp c, Str name)
   {
     verifyEq(c.spec.slot(name, false), null)
     verifyErr(UnknownFuncErr #) { c.call(name, false) }
   }
 
-  Void verifyNotMethod(Comp c, Str name, Str msg)
+  Void verifyNotFunc(Comp c, Str name, Str msg)
   {
     verifyEq(c.spec.slot(name).isFunc, false)
     verifyErrMsg(UnsupportedErr#, msg) { c.call(name, false) }
   }
 
-  Void verifyInvalidMethod(Comp c, Str name, Str expect)
+  Void verifyInvalidFunc(Comp c, Str name, Str expect)
   {
     verifyErrMsg(Err#, expect) { c.call(name, null) }
   }

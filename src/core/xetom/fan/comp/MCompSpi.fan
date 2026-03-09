@@ -61,6 +61,8 @@ class MCompSpi : CompSpi
 
   Comp comp { private set }
 
+  override Namespace ns() { cs.ns }
+
   override Spec spec() { specRef }
   internal Spec? specRef
 
@@ -314,6 +316,14 @@ class MCompSpi : CompSpi
     get(name) is CompFunc
   }
 
+  override Spec? funcType(Str name, Bool checked := true)
+  {
+    f := get(name) as MCompFunc
+    if (f != null) return f.funcType(comp)
+    if (checked) throw UnknownFuncErr("Missig comp func: $name")
+    return null
+  }
+
   override Obj? call(Str name, Obj? arg)
   {
     // get slot value as func
@@ -333,7 +343,7 @@ class MCompSpi : CompSpi
     }
 
     // fire callback
-    called(CompCallEvent(comp, func, arg, ret))
+    called(CompCallEvent(comp, name, func, arg, ret))
 
     return ret
   }

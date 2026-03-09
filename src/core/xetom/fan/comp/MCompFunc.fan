@@ -17,18 +17,17 @@ using haystack
 @Js
 abstract const class MCompFunc : CompFunc
 {
-  ** Bind specs when CompSpace namespace is updated
-  abstract Void updateNamespace(Namespace ns)
+  ** Constructor with name
+  new make(Str name) { this.name = name }
 
-  ** Choke-point for all component function calls
-  override final Obj? call(Comp self, Obj? arg)
-  {
-    ret := doCall(self, arg)
-    return ret
-  }
+  ** Slot name
+  const Str name
+
+  ** Map to func type for given comp
+  internal abstract Spec funcType(Comp self)
 
   ** Subclass hook to implement call
-  abstract Obj? doCall(Comp self, Obj? arg)
+  internal abstract Obj? doCall(Comp self, Obj? arg)
 
   ** Debug string
   override Str toStr() { "CompFunc $name" }
@@ -42,22 +41,19 @@ abstract const class MCompFunc : CompFunc
 ** Static comp func backed by func spec
 **
 @Js
-const class SpecCompFunc : MCompFunc
+internal const class SpecCompFunc : MCompFunc
 {
-  new make(Spec funcType) { this.funcType = funcType }
+  new make(Spec slot) : super(slot.name) {}
 
-  override Void updateNamespace(Namespace ns)
+  override Spec funcType(Comp self)
   {
-    #funcType->setConst(this, ns.spec(funcType.qname))
+    self.spec.slot(name)
   }
 
-  override const Spec funcType
-
-  override Str name() { funcType.name }
-
-  override Dict meta() { funcType.meta }
-
-  override Obj? doCall(Comp self, Obj? arg) { funcType.func.thunk.callComp(self, arg) }
+  override Obj? doCall(Comp self, Obj? arg)
+  {
+    funcType(self).func.thunk.callComp(self, arg)
+  }
 }
 
 **************************************************************************
@@ -68,32 +64,23 @@ const class SpecCompFunc : MCompFunc
 ** Instance comp func backed by instance dict
 **
 @Js
-const class DictCompFunc : MCompFunc
+internal const class DictCompFunc : MCompFunc
 {
-  new make(MNamespace ns, Str name, Dict val)
+  new make(Str name, Dict val) : super(name)
   {
-    this.name     = name
-    this.meta     = val
-    this.funcType = toFuncType(ns)
+    this.name = name
+    this.meta = val
   }
 
-  override Void updateNamespace(Namespace ns)
-  {
-    #funcType->setConst(this, toFuncType(ns))
-  }
+  const Dict meta
 
-  private Spec toFuncType(MNamespace ns)
+  override Spec funcType(Comp self)
   {
+    ns := self.spi.ns
     ref := meta["funcType"] as Ref
     if (ref == null) return ns.lib("sys.comp").spec("CompFuncDefaultType")
     return ns.spec(ref.id)
   }
-
-  override const Str name
-
-  override const Dict meta
-
-  override const Spec funcType
 
   override Obj? doCall(Comp self, Obj? arg)
   {
