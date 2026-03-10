@@ -404,7 +404,7 @@ class XetoPrinter
         if (first) first = false; else wc(',').sp
         v := meta[n]
         w(n)
-        if (v != Marker.val) wc(':').quoted(v.toStr)
+        if (v != Marker.val) wc(':').axonParamMetaVal(v)
       }
       wc('>')
     }
@@ -416,6 +416,14 @@ class XetoPrinter
       w(def)
     }
     return hasMeta
+  }
+
+  private Void axonParamMetaVal(Obj v)
+  {
+    if (v is Ref && v.toStr.contains("::"))
+      w(v.toStr)
+    else
+      quoted(v)
   }
 
 //////////////////////////////////////////////////////////////////////////

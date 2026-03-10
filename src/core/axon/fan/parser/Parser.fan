@@ -408,7 +408,7 @@ class Parser
       case Token.lt:    if (!inAxonParam) { consume; return Lt(expr, rangeExpr) }
       case Token.ltEq:  consume; return Le(expr, rangeExpr)
       case Token.gtEq:  consume; return Ge(expr, rangeExpr)
-      case Token.gt:    consume; return Gt(expr, rangeExpr)
+      case Token.gt:    if (!inAxonParam) { consume; return Gt(expr, rangeExpr) }
       case Token.cmp:   consume; return Cmp(expr, rangeExpr)
     }
     return expr
@@ -479,6 +479,7 @@ class Parser
   internal Expr termExpr(Expr? start := null)
   {
     expr := start ?: termBase
+    if (inAxonParam && expr.type === ExprType.topName) return expr
     while (true)
     {
       if (cur === Token.lparen && !nl)   { expr = call(expr, false); continue }

@@ -246,8 +246,10 @@ class XetoAxonReader
 
   private Obj? metaVal()
   {
-    // TODO
-    p.consumeVal
+    expr := p.axonParam
+    if (expr.type === ExprType.literal) return ((Literal)expr).val
+    if (expr.type === ExprType.topName) return resolveTypeName(((TopName)expr).name)
+    throw p.err("Unexpected meta value: $expr.type")
   }
 
   private Void paramDef(Str:Obj acc, Expr expr)

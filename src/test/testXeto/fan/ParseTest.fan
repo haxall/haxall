@@ -288,6 +288,18 @@ class ParseTest : AbstractXetoTest
         """echo("hello")""",
         null)
 
+
+    // meta with types
+    verifyAxon(ns, opts,
+      Str<|(a: List <of:Str>, b: Grid? <of:ph::Site>) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::List"), "of":Ref("sys::Str")],
+          ["name":"b", "type":Ref("sys::Grid"), "maybe":m, "of":Ref("ph::Site")],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
     // def expr - literals
     verifyAxon(ns, opts,
       Str<|(a: 123, b: "s", c: null) => echo("hello")|>,
@@ -295,6 +307,27 @@ class ParseTest : AbstractXetoTest
           ["name":"a", "type":Ref("sys::Obj"), "maybe":m, "axon":"123"],
           ["name":"b", "type":Ref("sys::Obj"), "maybe":m, "axon":"\"s\""],
           ["name":"c", "type":Ref("sys::Obj"), "maybe":m, "axon":"null"],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+
+    // def expr list literal with simple type
+    verifyAxon(ns, opts,
+      Str<|(a: List ["a", "b"]) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::List"), "axon":"""["a", "b"]"""],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
+
+    // def expr list literal with qname type
+    verifyAxon(ns, opts,
+      Str<|(a: sys::List ["a", "b"]) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::List"), "axon":"""["a", "b"]"""],
           ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
         ],
         """echo("hello")""",
@@ -420,7 +453,7 @@ class ParseTest : AbstractXetoTest
 
   Void verifyAxon(Namespace ns, Dict? opts, Str src, [Str:Obj][] eslots, Str eaxon, Str? edoc , Bool roundtrip := true)
   {
-    //if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
+    // if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
 
     actual := ns.io.readAxon(src, opts)
     aaxon  := (Str)actual->axon
