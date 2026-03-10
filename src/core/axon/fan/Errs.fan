@@ -24,7 +24,7 @@ const abstract class AxonErr : XetoErr
   override Str toStr()
   {
     str := super.toStr
-    if (!loc.isUnknown) str += " [$loc]"
+    if (!loc.isUnknown) str += " [$loc.join]"
     return str
   }
 
