@@ -7,7 +7,7 @@ license:    Licensed under the Academic Free License version 3.0
 -->
 
 # Overview
-The [sys.comp::index] specs define a general purpose ontology for modeling
+The [sys.comp](doc.xeto::Comps) library define a general purpose ontology for modeling
 component/block oriented systems.  Haxall provides a specific implementation
 of these specs for component oriented applications that all leverage a standard
 set of Fantom APIs and data flow engine.  This framework is used for the Ion
@@ -21,23 +21,25 @@ The key Fantom APIs are:
 
 # Slots
 
-Component slots come in two flavors: *fields* and *methods*.  Any slot
-with a [sys::Func] type is a method, and anything else is a field.  For
-example:
+Component slots come in two flavors: *fields* and *methods*.  A slot typed
+as a [sys::Func] with one parameter is a method, and anything else is a field.
+For example:
 
 ```xeto
 MyComp : Comp {
   field: Str
-  method: Func { returns: Str }
+  method: Func { arg: Str, returns: Str }
 }
 ```
+
+See [CompFuncs](doc.xeto::Comps#compfunc) for details on component methods.
 
 # Links
 
 The Haxall component engine uses a standardized data flow engine based
-on *links*.  A *link* is a data flow between two component slots.  Xeto defines
-a standardized link model based on the [sys.comp::Link] spec. Haxall uses this
-model to automatically propagate links between component slots during execution.
+on *links*.  Xeto defines a standardized link model described [here](doc.xeto::Comps#links).
+Haxall uses this model to automatically propagate links between component slots
+during execution.
 
 Links are always defined on the *to/target* component and refer back
 to the *from/source* component/slot. They are just normal dicts that use
