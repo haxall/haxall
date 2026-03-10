@@ -6,6 +6,7 @@
 //   9 Jan 2026  Brian Frank  Creation
 //
 
+using util
 using xeto
 using haystack
 using axon
@@ -16,7 +17,7 @@ using axon
 **
 class AxonConvertParser : Parser
 {
-  new make(Str src) : super(Loc("convert4"), src.in) { this.src = src }
+  new make(Str src) : super(src.in, FileLoc("convert4")) { this.src = src }
 
   ** Original source
   const Str src

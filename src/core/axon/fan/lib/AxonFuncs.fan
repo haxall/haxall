@@ -7,6 +7,7 @@
 //   01 Jan 2016  Brian Frank  Refactor for axon pod
 //
 
+using util
 using xeto
 using haystack
 
@@ -3047,7 +3048,7 @@ const class AxonFuncs
     cx := AxonContext.curAxon
     fn := func is Str ? cx.resolveTopFn(func) : (Fn)func
     if (args == null) args = Obj#.emptyList
-    return fn.callx(cx, args, Loc("call"))
+    return fn.callx(cx, args, FileLoc("call"))
   }
 
 
@@ -3079,7 +3080,7 @@ const class AxonFuncs
         break
     }
 
-    return fn.callx(cx, argsList, Loc("callByName"))
+    return fn.callx(cx, argsList, FileLoc("callByName"))
   }
 
   ** Convert a scalar, list, or dict value to its Axon code representation.
@@ -3111,7 +3112,7 @@ const class AxonFuncs
   static Obj? trace(Dict? opts := null)
   {
     cx := AxonContext.curAxon
-    str := cx.traceToStr(cx.curFunc?.loc ?: Loc.unknown, opts)
+    str := cx.traceToStr(cx.curFunc?.loc ?: FileLoc.unknown, opts)
     echo(str)
     return str
   }
@@ -3121,7 +3122,7 @@ const class AxonFuncs
   static Grid traceToGrid(Dict? opts := null)
   {
     cx := AxonContext.curAxon
-    return cx.traceToGrid(cx.curFunc?.loc ?: Loc.unknown, opts)
+    return cx.traceToGrid(cx.curFunc?.loc ?: FileLoc.unknown, opts)
   }
 
   ** Given an axon expression, validate the syntax.  If there are no errors
@@ -3131,7 +3132,7 @@ const class AxonFuncs
   {
     try
     {
-      Parser(Loc("checkSyntax"), src.in).parseTopWithParams("checkSyntax")
+      Parser(src.in, FileLoc("checkSyntax")).parseTopWithParams("checkSyntax")
       return Etc.makeEmptyGrid
     }
     catch (SyntaxErr e)

@@ -6,6 +6,7 @@
 //   14 Sep 2009  Brian Frank  Creation
 //
 
+using util
 using haystack
 
 **
@@ -22,7 +23,7 @@ internal const class Call : Expr
 
   override ExprType type() { ExprType.call }
 
-  override Loc loc() { func.loc }
+  override FileLoc loc() { func.loc }
 
   const Expr func
 

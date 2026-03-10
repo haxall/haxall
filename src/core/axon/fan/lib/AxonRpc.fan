@@ -6,6 +6,7 @@
 //    27 Feb 2026  Brian Frank  Creation
 //
 
+using util
 using xeto
 using xetom::XetoUtil
 using haystack
@@ -98,6 +99,7 @@ class AxonRpc
     var := (Var)dot.args[0]
     if (var.name != "this") return null
 
+
     // this is a match
     return "this_$dot.funcName"
   }
@@ -114,7 +116,7 @@ class AxonRpc
     {
       if (n == "_expr") { expr = v; return }
       if (v === None.val) v = null
-      cx.def(n, v, Loc.remote)
+      cx.def(n, v, FileLoc.remote)
     }
     if (expr == null) throw Err("Missing _expr in rpc dict")
     // echo("~~~ $expr"); echo("    $cx.varsInScope")

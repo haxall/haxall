@@ -89,7 +89,7 @@ class ShellContext : Context
     if (val !== noEcho) print(val)
 
     // save last value as "it"
-    if (val != null && val != noEcho) defOrAssign("it", val, Loc.eval)
+    if (val != null && val != noEcho) defOrAssign("it", val, FileLoc.eval)
     return 0
   }
 

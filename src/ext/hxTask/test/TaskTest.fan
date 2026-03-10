@@ -159,7 +159,7 @@ class TaskTest : HxTest
     verifyDictEq(eval("""taskRun(x=>x, {foo}).futureGet"""), ["foo":m])
 
     // test service
-    verifyEq(proj.exts.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
+    verifyEq(proj.exts.task.run(Parser("(msg)=>msg+100".in).parse, n(7)).get, n(107))
     verifyEq(proj.exts.task.cur(false), null)
     verifyErr(NotTaskContextErr#) { proj.exts.task.cur(true) }
 

@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 
@@ -21,7 +22,7 @@ const class TopFn : Fn, Thunk
     make(expr.loc, "eval", Etc.dict0, FnParam.none, expr)
   }
 
-  new make(Loc loc, Str name, Dict meta, FnParam[] params, Expr body := Literal.nullVal)
+  new make(FileLoc loc, Str name, Dict meta, FnParam[] params, Expr body := Literal.nullVal)
     : super(loc, name, params, body)
   {
     this.meta = meta
@@ -63,11 +64,11 @@ const class TopFn : Fn, Thunk
   ** Thunk.callComp implementation
   override Obj? callComp(Comp self, Obj? arg)
   {
-    AxonContext.curAxon.callInNewFrame(this, [arg], Loc.unknown, ["this":self])
+    AxonContext.curAxon.callInNewFrame(this, [arg], FileLoc.unknown, ["this":self])
   }
 
   ** Add check call
-  @NoDoc override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  @NoDoc override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
     cx.checkCall(this)
     return super.callx(cx, args, callLoc)

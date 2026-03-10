@@ -7,6 +7,7 @@
 //   29 Aug 2009  Brian Frank  Repurpose from old rec/query/change model
 //
 
+using util
 using xeto
 using haystack
 
@@ -21,7 +22,7 @@ class Tokenizer
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Loc startLoc, InStream in)
+  new make(InStream in, FileLoc startLoc := FileLoc.unknown)
   {
     this.startLoc = startLoc
     this.in  = in
@@ -526,7 +527,7 @@ class Tokenizer
 
   SyntaxErr err(Str msg) { SyntaxErr(msg, curLoc) }
 
-  Loc curLoc() { Loc(startLoc.file, startLoc.line + line) }
+  FileLoc curLoc() { FileLoc(startLoc.file, startLoc.line + line) }
 
 //////////////////////////////////////////////////////////////////////////
 // Char Reads
@@ -543,7 +544,7 @@ class Tokenizer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  Loc startLoc         // location immediately before first line
+  FileLoc startLoc     // location immediately before first line
   Token tok            // current token type
   Obj? val             // token literal or identifier
   Int line := 1        // current line number (one based)

@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 using obs
@@ -43,7 +44,7 @@ const class Task : Actor, Observer, HxTask
       if (exprVal isnot Str) return makeFault(ext, rec, "Invalid type 'taskExpr' tag, must be Str")
       Expr? expr
       try
-        expr = Parser(Loc("taskExpr"), exprVal.toStr.in).parse
+        expr = Parser(exprVal.toStr.in, FileLoc("taskExpr")).parse
       catch (Err e)
         return makeFault(ext, rec, "Invalid expr: $e")
 

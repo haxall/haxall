@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using xetom
 using haystack
@@ -108,7 +109,7 @@ abstract class AxonContext : HaystackContext, CompContext
     }
   }
 
-  private Spec? resolveUnqualifiedFunc(Str name, Loc loc, Bool checked)
+  private Spec? resolveUnqualifiedFunc(Str name, FileLoc loc, Bool checked)
   {
     // resolve func as list from namespace (cached in MNameespace)
     list := ns.funcs.getAll(name)
@@ -140,9 +141,9 @@ abstract class AxonContext : HaystackContext, CompContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Parse Axon expression
-  Expr parse(Str src, Loc loc := Loc.eval)
+  Expr parse(Str src, FileLoc loc := FileLoc.eval)
   {
-    parser := Parser(loc, src.in)
+    parser := Parser(src.in, loc)
     expr := parser.parse
     return expr
   }
@@ -159,7 +160,7 @@ abstract class AxonContext : HaystackContext, CompContext
 
   ** Evaluate an Axon expression within this context.
   ** Convenience for 'evalExpr(parse(src, loc))'
-  Obj? eval(Str src, Loc loc := Loc.eval)
+  Obj? eval(Str src, FileLoc loc := FileLoc.eval)
   {
     evalExpr(parse(src, loc))
   }
@@ -234,7 +235,7 @@ abstract class AxonContext : HaystackContext, CompContext
   @NoDoc static const Duration timeoutDef := 1min
 
   ** Check background cancel/timeout state
-  @NoDoc Void heartbeat(Loc loc)
+  @NoDoc Void heartbeat(FileLoc loc)
   {
     // heartbeat callback for job cancel
     heartbeatFunc?.call
@@ -267,7 +268,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Push new call frame onto the stack with given loc/vars and route to Fn.doCall
-  @NoDoc Obj? callInNewFrame(Fn func, Obj?[] args, Loc callLoc, Str:Obj? vars := Str:Obj?[:])
+  @NoDoc Obj? callInNewFrame(Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars := Str:Obj?[:])
   {
     frame := CallFrame(this, func, args, callLoc, vars)
     stack.push(frame)
@@ -285,7 +286,7 @@ abstract class AxonContext : HaystackContext, CompContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Define or assign given variable
-  @NoDoc Obj? defOrAssign(Str name, Obj? val, Loc loc)
+  @NoDoc Obj? defOrAssign(Str name, Obj? val, FileLoc loc)
   {
     f := stack.last
     if (f.has(name))
@@ -295,7 +296,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Define a new variable
-  internal Obj? def(Str name, Obj? val, Loc loc)
+  internal Obj? def(Str name, Obj? val, FileLoc loc)
   {
     f := stack.last
     if (f.has(name)) throw EvalErr("Symbol already bound '$name'", this, loc)
@@ -306,7 +307,7 @@ abstract class AxonContext : HaystackContext, CompContext
   internal CallFrame curFrame() { stack.last }
 
   ** Resolve a variable or raise exception if not bound
-  internal Obj? resolve(Str name, Loc loc)
+  internal Obj? resolve(Str name, FileLoc loc)
   {
     // find it in call stack frames
     frame := varFrame(name)
@@ -326,7 +327,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Assign to an existing variable
-  internal Obj? assign(Str name, Obj? val, Loc loc)
+  internal Obj? assign(Str name, Obj? val, FileLoc loc)
   {
     // find it in call stack frames
     frame := varFrame(name)
@@ -382,7 +383,7 @@ abstract class AxonContext : HaystackContext, CompContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Dump call stack trace to a string
-  @NoDoc Str traceToStr(Loc errLoc, Dict? opts := null)
+  @NoDoc Str traceToStr(FileLoc errLoc, Dict? opts := null)
   {
     s := StrBuf()
     trace(errLoc, s.out, opts)
@@ -390,7 +391,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Dump call stack trace to a grid
-  @NoDoc Grid traceToGrid(Loc errLoc, Dict? opts := null)
+  @NoDoc Grid traceToGrid(FileLoc errLoc, Dict? opts := null)
   {
     gb := GridBuilder().addCol("name").addCol("file").addCol("line").addCol("vars")
     traceWalk(errLoc, opts) |name, loc, vars|
@@ -401,12 +402,12 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Dump call stack trace to output stream
-  @NoDoc Void trace(Loc errLoc, OutStream out := Env.cur.out, Dict? opts := null)
+  @NoDoc Void trace(FileLoc errLoc, OutStream out := Env.cur.out, Dict? opts := null)
   {
     traceVars := opts != null && opts.has("vars")
     traceWalk(errLoc, opts) |name, loc, vars|
     {
-      if (loc === Loc.unknown)
+      if (loc === FileLoc.unknown)
         out.printLine("  $name")
       else
         out.printLine("  $name ($loc)")
@@ -417,7 +418,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Walk the trace call stack
-  @NoDoc Void traceWalk(Loc errLoc, Dict? opts, |Str name, Loc loc, Dict vars| f)
+  @NoDoc Void traceWalk(FileLoc errLoc, Dict? opts, |Str name, FileLoc loc, Dict vars| f)
   {
     for (i:= stack.size-1; i>=1; --i)
     {
@@ -475,7 +476,7 @@ abstract class AxonContext : HaystackContext, CompContext
 @Js
 internal class CallFrame
 {
-  new make(AxonContext cx, Fn func, Obj?[] args, Loc callLoc, Str:Obj? vars)
+  new make(AxonContext cx, Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars)
   {
     this.cx      = cx
     this.func    = func
@@ -538,11 +539,11 @@ internal class CallFrame
 
   override Str toStr() { "CallFrame $func.name [$callLoc]" }
 
-  private static const Fn rootFunc := Fn(Loc("root"), "root", FnParam[,])
+  private static const Fn rootFunc := Fn(FileLoc("root"), "root", FnParam[,])
   private static const Str nullVal := "_CallFrame.null_"
 
   AxonContext cx { private set }
-  const Loc callLoc
+  const FileLoc callLoc
   const Fn func
   private Str:Obj? vars
  }

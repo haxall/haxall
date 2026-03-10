@@ -241,7 +241,7 @@ abstract class HxTest : HaystackTest
   ** Verfiy evaluation raises given error type (wrapped by EvalErr)
   @NoDoc Void verifyEvalErr(Str axon, Type? errType)
   {
-    expr := Parser(Loc.eval, axon.in).parse
+    expr := Parser(axon.in).parse
     cx := makeContext
     EvalErr? err := null
     try { expr.eval(cx) } catch (EvalErr e) { err = e }

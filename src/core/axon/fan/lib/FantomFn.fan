@@ -6,6 +6,7 @@
 //   1 Jan 2016  Brian Frank  Creation
 //
 
+using util
 using xeto
 using haystack
 using concurrent
@@ -80,14 +81,14 @@ const class FantomFn : TopFn
   }
 
   protected new make(Str name, Dict meta, FnParam[] params, Method method)
-    : super(Loc(name), name, meta, params, Literal.nullVal)
+    : super(FileLoc(name), name, meta, params, Literal.nullVal)
   {
     if (!method.isStatic) throw Err("Method not static: $method")
     this.method = method
   }
 
   internal new makeComp(Spec spec, Dict meta, FnParam[] params, Method method)
-    : super.make(Loc(spec.name), spec.name, meta, params, Literal.nullVal)
+    : super.make(FileLoc(spec.name), spec.name, meta, params, Literal.nullVal)
   {
     this.method = method
   }
@@ -110,7 +111,7 @@ const class FantomFn : TopFn
     method.call(self, arg)
   }
 
-  override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
     oldCx := AxonContext.curAxon(false)
     setCx := cx !== oldCx
@@ -172,7 +173,7 @@ internal const class LazyFantomFn : FantomFn
 
   override Bool isLazy() { true }
 
-  override Obj? callLazy(AxonContext cx, Expr[] args, Loc callLoc)
+  override Obj? callLazy(AxonContext cx, Expr[] args, FileLoc callLoc)
   {
     super.callx(cx, args, callLoc)
   }
@@ -188,14 +189,14 @@ internal const class LazyFantomFn : FantomFn
 @NoDoc
 const class FantomClosureFn : Fn
 {
-  new make(Func f) : super(Loc("Fantom Func"), "fan", FnParam.makeFantomList(f))
+  new make(Func f) : super(FileLoc("Fantom Func"), "fan", FnParam.makeFantomList(f))
   {
     this.f = Unsafe(f)
   }
 
   override Bool isNative() { true}
 
-  override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
     ((Func)f.val).callList(args)
   }
@@ -210,14 +211,14 @@ const class FantomClosureFn : Fn
 @Js
 internal const class FilterFn : Fn
 {
-  new make(Filter filter) : super(Loc.unknown, "filterToFunc", [FnParam("dict")])
+  new make(Filter filter) : super(FileLoc.unknown, "filterToFunc", [FnParam("dict")])
   {
     this.filter = filter
   }
 
   const Filter filter
 
-  override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
     dict := args.first as Dict
     if (dict == null) throw err("Invalid arg, expected (Dict) not (${args.first?.typeof})", cx)

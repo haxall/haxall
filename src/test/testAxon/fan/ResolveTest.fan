@@ -6,6 +6,7 @@
 //   24 Jul 2025  Brian Frank  Garden City Beach
 //
 
+using util
 using xeto
 using haystack
 using axon
@@ -98,7 +99,7 @@ class ResolveTest : HxTest
 
     cx := makeContext
     ns := cx.ns
-    loc := Loc.synthetic
+    loc := FileLoc.synthetic
 
     now := ns.funcs.get("now").func.thunk
     verifyContext(cx.resolveTop(TopName(loc, null, "now")), now)

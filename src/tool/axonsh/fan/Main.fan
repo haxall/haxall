@@ -37,7 +37,7 @@ class Main
     arg := args[0]
 
     // setup shell args with everything after file name
-    cx.defOrAssign("args", mainArgs[mainArgs.index(arg)+1..-1], Loc("main"))
+    cx.defOrAssign("args", mainArgs[mainArgs.index(arg)+1..-1], FileLoc("main"))
 
     // if first arg is axon file, then run it as script
     if (arg.endsWith(".axon"))

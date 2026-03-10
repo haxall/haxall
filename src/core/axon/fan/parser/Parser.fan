@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 
@@ -21,10 +22,10 @@ class Parser
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Loc startLoc, InStream in)
+  new make(InStream in, FileLoc startLoc := FileLoc.unknown)
   {
     this.startLoc = startLoc
-    tokenizer = Tokenizer(startLoc, in)
+    tokenizer = Tokenizer(in, startLoc)
     cur = peek = peekPeek = Token.eof
     consume
     consume
@@ -807,7 +808,7 @@ class Parser
   ** This is a single point where we handle naming
   ** and lexically scoping all our functions.
   **
-  private Fn lambdaBody(Loc loc, FnParam[] params, Dict? topMeta := null)
+  private Fn lambdaBody(FileLoc loc, FnParam[] params, Dict? topMeta := null)
   {
     // create new scope of inner functions
     oldInners := inners
@@ -855,9 +856,9 @@ class Parser
     inners.each |inner| { inner.outerRef.val = fn }
   }
 
-  protected SyntaxErr err(Str msg, Loc loc := curLoc) { SyntaxErr(msg, loc) }
+  protected SyntaxErr err(Str msg, FileLoc loc := curLoc) { SyntaxErr(msg, loc) }
 
-  protected Loc curLoc() { Loc(startLoc.file, startLoc.line + curLine) }
+  protected FileLoc curLoc() { FileLoc(startLoc.file, startLoc.line + curLine) }
 
 //////////////////////////////////////////////////////////////////////////
 // Char Reads
@@ -928,7 +929,7 @@ class Parser
   private const static Expr[] noArgs  := Expr#.emptyList
   private const static FnParam[] noParams := FnParam#.emptyList
 
-  private Loc startLoc         // location immediately before first line
+  private FileLoc startLoc     // location immediately before first line
   private Tokenizer tokenizer  // stream tokenizer
 
   Token cur  { private set }   // current token

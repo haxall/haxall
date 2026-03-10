@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 
@@ -16,7 +17,7 @@ using haystack
 @Js
 const class Fn : Expr, HaystackFunc
 {
-  @NoDoc new make(Loc loc, Str name, FnParam[] params, Expr body := Literal.nullVal)
+  @NoDoc new make(FileLoc loc, Str name, FnParam[] params, Expr body := Literal.nullVal)
   {
     this.loc    = loc
     this.name   = name
@@ -26,7 +27,7 @@ const class Fn : Expr, HaystackFunc
 
   @NoDoc override ExprType type() { ExprType.func }
 
-  @NoDoc override const Loc loc
+  @NoDoc override const FileLoc loc
 
   ** Top-level name or debug name if closure
   const Str name
@@ -73,19 +74,19 @@ const class Fn : Expr, HaystackFunc
 
   ** Invoke this function with the given arguments.
   ** Note: the 'args' parameter must be mutable and may be modified
-  Obj? call(AxonContext cx, Obj?[] args) { callx(cx, args, Loc.unknown) }
+  Obj? call(AxonContext cx, Obj?[] args) { callx(cx, args, FileLoc.unknown) }
 
   @NoDoc final override Obj? haystackCall(HaystackContext cx, Obj?[] args)
   {
     call(cx, args)
   }
 
-  @NoDoc virtual Obj? callLazy(AxonContext cx, Expr[] args, Loc callLoc)
+  @NoDoc virtual Obj? callLazy(AxonContext cx, Expr[] args, FileLoc callLoc)
   {
     callx(cx, args.map |arg| { arg.eval(cx) }, callLoc)
   }
 
-  @NoDoc virtual Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  @NoDoc virtual Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
     // call heartbeat to check for interruption
     cx.heartbeat(callLoc)

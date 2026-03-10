@@ -6,13 +6,15 @@
 //   04 Sep 2009  Brian Frank  Creation
 //
 
+using util
+
 **
 ** DefineVar is used to bind a new variable name to a value.
 **
 @Js
 internal const class DefineVar : Expr
 {
-  new make(Loc loc, Str name, Expr val)
+  new make(FileLoc loc, Str name, Expr val)
   {
     this.loc  = loc
     this.name = name
@@ -21,7 +23,7 @@ internal const class DefineVar : Expr
 
   override ExprType type() { ExprType.def }
 
-  const override Loc loc
+  const override FileLoc loc
 
   const Str name
 
@@ -44,3 +46,4 @@ internal const class DefineVar : Expr
   }
 
 }
+

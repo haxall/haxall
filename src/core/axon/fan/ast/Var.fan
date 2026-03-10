@@ -6,17 +6,19 @@
 //   04 Sep 2009  Brian Frank  Creation
 //
 
+using util
+
 **
 ** Variable attempts to lookup to a variable name within its scope.
 **
 @Js
 internal const class Var : Expr
 {
-  new make(Loc loc, Str name) { this.loc = loc; this.name = name }
+  new make(FileLoc loc, Str name) { this.loc = loc; this.name = name }
 
   override ExprType type() { ExprType.var }
 
-  override const Loc loc
+  override const FileLoc loc
 
   const Str name
 
@@ -29,3 +31,4 @@ internal const class Var : Expr
   override Printer print(Printer out) { out.w(name) }
 
 }
+

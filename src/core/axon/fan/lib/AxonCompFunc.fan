@@ -6,6 +6,7 @@
 //    9 Mar 2026  Brian Frank  Creation
 //
 
+using util
 using xeto
 using xetom
 using haystack
@@ -53,7 +54,7 @@ internal const class AxonCompFunc : AbstractAxonCompFunc
   once Expr expr()
   {
     axon := get("axon") as Str ?: throw Err("No axon for CompFunc")
-    return Parser(Loc.eval, axon.in).expr
+    return Parser(axon.in).expr
   }
 }
 

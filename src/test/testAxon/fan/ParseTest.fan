@@ -33,13 +33,13 @@ class ParseTest : Test
 
   Void verifyExpr(Str s)
   {
-    e := Parser(Loc("test"), s.in).parse
+    e := Parser(s.in).parse
     verifyEq(e.toStr, s)
   }
 
   Void verifyExprErr(Str s)
   {
-    verifyErr(SyntaxErr#) { Parser(Loc("test"), s.in).parse }
+    verifyErr(SyntaxErr#) { Parser(s.in).parse }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ class ParseTest : Test
 
   Void verifyPipeline(Str s, Str[] expect)
   {
-    actual := Parser(Loc("test"), s.in).parsePipeline
+    actual := Parser(s.in).parsePipeline
     verifyEq(actual.size, expect.size)
     actual.each |a, i|
     {
@@ -98,7 +98,7 @@ class ParseTest : Test
 
   Void verifyPipelineErr(Str s)
   {
-    verifyErr(SyntaxErr#) { Parser(Loc("test"), s.in).parsePipeline }
+    verifyErr(SyntaxErr#) { Parser(s.in).parsePipeline }
   }
 }
 

@@ -6,6 +6,7 @@
 //   28 Sep 2025  Brian Frank  Creation
 //
 
+using util
 using xeto
 using xetom
 using haystack
@@ -18,7 +19,7 @@ using concurrent
 const class TemplateFn : TopFn
 {
   new make(Spec spec, Dict meta, FnParam[] params)
-    : super(Loc(spec.name), spec.name, meta, params, Literal.nullVal)
+    : super(FileLoc(spec.name), spec.name, meta, params, Literal.nullVal)
   {
     this.spec = spec
   }
@@ -288,7 +289,7 @@ internal class Templater
 
   private Obj? eval(Str expr)
   {
-    cx.defOrAssign("it", itStack.peek, Loc.synthetic)
+    cx.defOrAssign("it", itStack.peek, FileLoc.synthetic)
     return cx.eval(expr)
   }
 

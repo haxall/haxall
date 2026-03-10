@@ -1886,7 +1886,7 @@ class CoreLibTest : HaystackTest
 
   Void verifyEvalErr(Str axon, Type? errType)
   {
-    expr := Parser(Loc.eval, axon.in).parse
+    expr := Parser(axon.in).parse
     scope := makeContext
     EvalErr? err := null
     try { expr.eval(scope) } catch (EvalErr e) { err = e }

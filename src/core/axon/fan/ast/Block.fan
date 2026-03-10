@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 
 **
 ** Block is a sequence of expressions.  The entire block
@@ -23,7 +24,7 @@ internal const class Block : Expr
 
   override ExprType type() { ExprType.block }
 
-  override Loc loc() { exprs.first.loc }
+  override FileLoc loc() { exprs.first.loc }
 
   const Expr[] exprs
 
@@ -49,3 +50,4 @@ internal const class Block : Expr
     return out
   }
 }
+

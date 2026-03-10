@@ -926,14 +926,14 @@ class EvalTest : AxonTest
 
   Void verifySyntaxErr(Str src)
   {
-    verifyErr(SyntaxErr#) { Parser(Loc.eval, src.in).parse }
-    verifyErr(SyntaxErr#) { Parser(Loc.eval, (src+"\n").in).parse }
+    verifyErr(SyntaxErr#) { Parser(src.in).parse }
+    verifyErr(SyntaxErr#) { Parser((src+"\n").in).parse }
   }
 
   Void verifyAst(Str src, Str zinc)
   {
     flexList = true
-    expr := Parser(Loc("foo"), src.in).parse
+    expr := Parser(src.in).parse
     // echo(":: $expr.encode")
     // echo("   $zinc")
     verifyDictEq(expr.encode, ZincReader(zinc.in).readVal)
@@ -970,9 +970,8 @@ class EvalTest : AxonTest
              end
              map(list, a => a)
            end|>
-    loc := Loc("foo")
     tags := Etc.makeDict(["name":"a", "func":Marker.val])
-    Fn a := Parser(loc, src.in).parseTopWithParams("a")
+    Fn a := Parser(src.in).parseTopWithParams("a")
     Fn b := a.body->exprs->get(0)->val
     Fn c := b.body->exprs->get(0)->val
     Fn d := b.body->exprs->get(1)->val

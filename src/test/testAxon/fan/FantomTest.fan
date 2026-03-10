@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using xetom
 using haystack
@@ -111,7 +112,7 @@ class FantomTest : HaystackTest
   Obj? eval(Str expr)
   {
     cx := FantomTestContext(this)
-    cx.defOrAssign("comp", comp, Loc("test"))
+    cx.defOrAssign("comp", comp, FileLoc("test"))
     return cx.eval(expr)
   }
 

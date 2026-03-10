@@ -176,7 +176,7 @@ class TokenizerTest : Test
   Void verifyToks(Str src, Obj?[] toks)
   {
     acc := Obj?[,]
-    t := Tokenizer(Loc.eval, src.in)
+    t := Tokenizer(src.in)
     while (true)
     {
       x := t.next

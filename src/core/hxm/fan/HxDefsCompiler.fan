@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 using axon
@@ -253,7 +254,7 @@ const class FuncDef : MDef
   private Fn parseExpr()
   {
     if (src == null) throw Err("Func missing src: $this")
-    return Parser(Loc(lib.name + "::" +  name), src.in).parseTopWithParams(name, this)
+    return Parser(src.in, FileLoc(lib.name + "::" +  name)).parseTopWithParams(name, this)
   }
 
   private const Str? src

@@ -7,6 +7,7 @@
 //
 
 using web
+using util
 using xeto
 using haystack
 using axon
@@ -228,7 +229,7 @@ throw Err("TODO")
       if (rec.missing("func") || rec.missing("name")) return
       name := (Str)rec->name
       try
-        acc[name] = Parser(Loc(file.toStr), rec->src.toStr.in).parseTopWithParams(name, rec)
+        acc[name] = Parser(rec->src.toStr.in, FileLoc(file)).parseTopWithParams(name, rec)
       catch (Err e)
         echo("ERROR: Cannot load $name\n  $e")
     }

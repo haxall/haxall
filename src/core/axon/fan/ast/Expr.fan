@@ -6,6 +6,7 @@
 //   14 Sep 2009  Brian Frank  Creation
 //
 
+using util
 using xeto
 using haystack
 
@@ -21,7 +22,7 @@ const abstract class Expr
   @NoDoc abstract ExprType type()
 
   ** Location of this expression in source code or 'Loc.unknown'.
-  abstract Loc loc()
+  abstract FileLoc loc()
 
   ** Evaluate this expression.
   abstract Obj? eval(AxonContext cx)

@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using xetom
 using haystack
@@ -93,7 +94,7 @@ class RpcTest : AxonTest
       comp.set("a", "alpha")
       comp.set("c", n(123))
       comp.set("d", Weekday.tue) // map to haystack fidelity
-      cx.defOrAssign("this", comp, Loc.unknown)
+      cx.defOrAssign("this", comp, FileLoc.unknown)
     }
 
   }

@@ -6,6 +6,7 @@
 //   10 Mar 2023  Brian Frank  Creation
 //
 
+using util
 using xeto
 using xetom
 using haystack
@@ -56,8 +57,8 @@ class AxonTest : AbstractAxonTest
   Void verifyCompAxon(Comp x, Str axon, Obj? expect)
   {
     cx := makeContext
-    cx.defOrAssign("x", x, Loc.eval)
-    actual := cx.eval(axon, Loc.eval)
+    cx.defOrAssign("x", x, FileLoc.eval)
+    actual := cx.eval(axon, FileLoc.eval)
     // echo("---> $axon | $actual")
     verifyEq(actual, expect)
   }

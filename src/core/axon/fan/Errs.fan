@@ -6,6 +6,7 @@
 //   18 Apr 2010  Brian Frank  Refactor of axon vs axond
 //
 
+using util
 using xeto
 using haystack
 
@@ -15,7 +16,7 @@ using haystack
 @Js
 const abstract class AxonErr : XetoErr
 {
-  new make(Str? msg, Loc loc, Err? cause := null) : super(msg, cause)
+  new make(Str? msg, FileLoc loc, Err? cause := null) : super(msg, cause)
   {
     this.loc = loc
   }
@@ -27,7 +28,7 @@ const abstract class AxonErr : XetoErr
     return str
   }
 
-  const Loc loc
+  const FileLoc loc
 }
 
 **
@@ -36,7 +37,7 @@ const abstract class AxonErr : XetoErr
 @Js
 const class SyntaxErr : AxonErr
 {
-  new make(Str? msg, Loc loc, Err? cause := null) : super(msg, loc, cause) {}
+  new make(Str? msg, FileLoc loc, Err? cause := null) : super(msg, loc, cause) {}
 }
 
 **
@@ -45,7 +46,7 @@ const class SyntaxErr : AxonErr
 @Js
 const class EvalErr : AxonErr
 {
-  new make(Str? msg, AxonContext cx, Loc loc, Err? cause := null) : super(msg, loc, cause)
+  new make(Str? msg, AxonContext cx, FileLoc loc, Err? cause := null) : super(msg, loc, cause)
   {
     axonTrace = cx.traceToStr(loc)
   }
@@ -64,7 +65,7 @@ const class EvalErr : AxonErr
 @Js @NoDoc
 const class EvalTimeoutErr : EvalErr
 {
-  new make(Duration timeout, AxonContext cx, Loc loc) : super(msg.toLocale, cx, loc)
+  new make(Duration timeout, AxonContext cx, FileLoc loc) : super(msg.toLocale, cx, loc)
   {
     meta = Etc.makeDict(["more":Marker.val, "timeout": timeout.toLocale])
   }
@@ -79,7 +80,7 @@ const class EvalTimeoutErr : EvalErr
 @Js @NoDoc
 const class ThrowErr : EvalErr
 {
-  new make(AxonContext cx, Loc loc, Dict meta) : super(meta.dis, cx, loc)
+  new make(AxonContext cx, FileLoc loc, Dict meta) : super(meta.dis, cx, loc)
   {
     this.meta = meta
   }

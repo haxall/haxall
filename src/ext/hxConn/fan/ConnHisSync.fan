@@ -9,6 +9,7 @@
 //    5 Sep 2022  Brian Frank  Break out core logic into AbstractSyncHis
 //
 
+using util
 using xeto
 using haystack
 using axon
@@ -38,7 +39,7 @@ using folio
     commitPending
     points.each |pt, i|
     {
-      cx.heartbeat(Loc("connHisSync"))
+      cx.heartbeat(FileLoc("connHisSync"))
       trace("Syncing " + dis(pt).toCode + " (${i+1} of $num)...", i*100/num)
       r := sync(pt)
       if (r.has("err")) ++numErr; else ++numOk

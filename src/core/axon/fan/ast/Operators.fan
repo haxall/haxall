@@ -6,6 +6,7 @@
 //   04 Aug 2009  Brian Frank  Creation
 //
 
+using util
 using xeto
 using haystack
 
@@ -18,7 +19,7 @@ internal const abstract class UnaryOp : Expr
 {
   new make(Expr operand) { this.operand = operand }
 
-  override Loc loc() { operand.loc }
+  override FileLoc loc() { operand.loc }
 
   const Expr operand
 
@@ -54,7 +55,7 @@ internal const abstract class BinaryOp : Expr
 {
   new make(Expr lhs, Expr rhs) { this.lhs = lhs; this.rhs = rhs }
 
-  override Loc loc() { lhs.loc }
+  override FileLoc loc() { lhs.loc }
 
   const Expr lhs
 
@@ -95,7 +96,7 @@ internal const class Return : Expr
 
   override ExprType type() { ExprType.returnExpr }
 
-  override Loc loc() { expr.loc }
+  override FileLoc loc() { expr.loc }
 
   const Expr expr
 
@@ -125,7 +126,7 @@ internal const class Throw : Expr
 
   override ExprType type() { ExprType.throwExpr }
 
-  override Loc loc() { expr.loc }
+  override FileLoc loc() { expr.loc }
 
   const Expr expr
 
@@ -181,7 +182,7 @@ internal const class TryCatch : Expr
 
   override ExprType type() { ExprType.tryExpr }
 
-  override Loc loc() { tryExpr.loc }
+  override FileLoc loc() { tryExpr.loc }
 
   const Expr tryExpr
 
@@ -255,7 +256,7 @@ internal const class If : Expr
 
   override ExprType type() { ExprType.ifExpr }
 
-  override Loc loc() { cond.loc }
+  override FileLoc loc() { cond.loc }
 
   const Expr cond
 

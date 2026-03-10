@@ -187,14 +187,14 @@ internal class GenAxon : XetoCmd
   private Void reflectTrioFile(StubFunc[] acc, File f)
   {
     recs := TrioReader(f.in).readAllDicts
-    loc := Loc(f.pathStr)
+    loc := FileLoc(f)
     recs.each |rec|
     {
       if (rec.has("func")) acc.addNotNull(reflectTrioFunc(loc, rec))
     }
   }
 
-  private StubFunc? reflectTrioFunc(Loc loc, Dict rec)
+  private StubFunc? reflectTrioFunc(FileLoc loc, Dict rec)
   {
     name := rec["name"] as Str ?: throw Err("Func missing name: $rec")
     axon := rec["src"] as Str ?: throw Err("Func missing axon: $name")
@@ -211,7 +211,7 @@ internal class GenAxon : XetoCmd
     }
 
     // parse function to get param names
-    parser := Parser(loc, axon.in)
+    parser := Parser(axon.in, loc)
     fn := parser.parseTopWithParams(name)
     params := fn.params.map |p->StubParam| { StubParam(p.name, "Obj?") }
     returns := StubParam("returns", "Obj?")

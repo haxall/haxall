@@ -90,7 +90,7 @@ class OptimizeTest : AxonTest
 
   Void verifyNormalize(Str src, Str expected)
   {
-    actual := Parser(Loc.eval, src.in).parse.toStr
+    actual := Parser(src.in).parse.toStr
     // echo("\n------\n$actual")
     verifyEq(actual, expected)
   }

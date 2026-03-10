@@ -6,6 +6,7 @@
 //   17 Feb 2024  Brian Frank  Creation
 //
 
+using util
 using haystack
 using concurrent
 using xeto
@@ -21,7 +22,7 @@ const class CompFn : TopFn
 {
 
   protected new make(Str name, Dict meta, FnParam[] params, Str xeto)
-    : super(Loc(name), name, meta, params, Literal.nullVal)
+    : super(FileLoc(name), name, meta, params, Literal.nullVal)
   {
     this.xeto = xeto
   }
@@ -30,7 +31,7 @@ const class CompFn : TopFn
 
   override Bool isNative() { true }
 
-  override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
     // create component space from xeto
     ns := cx.ns

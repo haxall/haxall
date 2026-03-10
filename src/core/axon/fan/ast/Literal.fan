@@ -6,6 +6,7 @@
 //   30 Sep 2009  Brian Frank  Creation
 //
 
+using util
 using xeto
 using haystack
 
@@ -34,7 +35,7 @@ const class Literal : Expr
 
   override ExprType type() { ExprType.literal }
 
-  override Loc loc() { Loc.unknown }
+  override FileLoc loc() { FileLoc.unknown }
 
   const Obj? val
 
@@ -71,7 +72,7 @@ internal const class FilterExpr : Expr
 
   override ExprType type() { ExprType.filter }
 
-  override Loc loc() { Loc.unknown }
+  override FileLoc loc() { FileLoc.unknown }
 
   const Filter filter
 
@@ -106,7 +107,7 @@ internal const  class ListExpr : Expr
 
   override ExprType type() { ExprType.list }
 
-  override Loc loc() { vals.isEmpty ? Loc.unknown : vals.first.loc  }
+  override FileLoc loc() { vals.isEmpty ? FileLoc.unknown : vals.first.loc  }
 
   const Expr[] vals
 
@@ -143,9 +144,9 @@ internal const  class ListExpr : Expr
 @Js
 internal const class DictExpr : Expr
 {
-  const static DictExpr empty := make(Loc.unknown, Str#.emptyList, Expr#.emptyList, true)
+  const static DictExpr empty := make(FileLoc.unknown, Str#.emptyList, Expr#.emptyList, true)
 
-  new make(Loc loc, Str[] names, Expr[] vals, Bool allValsConst)
+  new make(FileLoc loc, Str[] names, Expr[] vals, Bool allValsConst)
   {
     this.loc   = loc
     this.names = names
@@ -163,7 +164,7 @@ internal const class DictExpr : Expr
 
   override ExprType type() { ExprType.dict }
 
-  override const Loc loc
+  override const FileLoc loc
 
   const Str[] names
 
@@ -219,7 +220,7 @@ internal const class RangeExpr : Expr
 
   override ExprType type() { ExprType.range }
 
-  override Loc loc() { start.loc  }
+  override FileLoc loc() { start.loc  }
 
   const Expr start
 

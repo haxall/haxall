@@ -6,6 +6,7 @@
 //   8 Jan 2026  Brian Frank  Creation
 //
 
+using util
 using xeto
 using xetom
 using haystack
@@ -92,7 +93,7 @@ class XetoAxonReader
     returns["name"] = "returns"
 
     // init tokenizer
-    this.p = Parser(Loc("readAxon"), src.in)
+    this.p = Parser(src.in, FileLoc("readAxon"))
 
     // (param1, param2, ...)
     p.consume(Token.lparen)

@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using xetom
 using haystack
@@ -151,9 +152,9 @@ const class AxonThunkFactory : ThunkFactory
   {
     name   := spec.name
     qname  := meta->qname
-    loc    := Loc(qname)
+    loc    := FileLoc.make(qname)
     params := toParams(qname, spec)
-    return Parser(loc, src.in).parseTopBody(name, params, meta)
+    return Parser(src.in, loc).parseTopBody(name, params, meta)
   }
 
   private TopFn? parseCompTree(Spec spec, Dict meta, Str src)
@@ -171,7 +172,7 @@ const class AxonThunkFactory : ThunkFactory
       if (defStr != null)
       {
         try
-          def = Parser(Loc(qname), defStr.in).expr
+          def = Parser(defStr.in, FileLoc(qname)).expr
         catch (Err e)
           throw ParseErr("Cannot parse func '$qname' param '$p.name': $defStr.toCode", e)
       }

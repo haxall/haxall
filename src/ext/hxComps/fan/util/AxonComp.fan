@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using haystack
 using hx
 using xeto
@@ -24,7 +25,7 @@ class AxonComp : HxComp
 
   /* ionc-end */
 
-  private static const Loc loc := Loc.make("AxonComp", 0)
+  private static const FileLoc loc := FileLoc.make("AxonComp", 0)
 
   override Void onExecute()
   {

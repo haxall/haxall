@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using xetom::XetoUtil
 using haystack
@@ -21,16 +22,16 @@ const class TopName : Expr
   static TopName? parse(Str s, Bool checked := true)
   {
     colon := s.index(":")
-    if (colon == null) return make(Loc.synthetic, null, s)
+    if (colon == null) return make(FileLoc.synthetic, null, s)
     if (colon == 0 || colon+2 >= s.size || s[colon+1] != ':')
     {
       if (!checked) return null
       throw ArgErr("Invalid qname: $s [$colon, $s.size]")
     }
-    return make(Loc.synthetic, s[0..<colon], s[colon+2..-1])
+    return make(FileLoc.synthetic, s[0..<colon], s[colon+2..-1])
   }
 
-  new make(Loc loc, Str? lib, Str name)
+  new make(FileLoc loc, Str? lib, Str name)
   {
     this.loc   = loc
     this.lib   = lib
@@ -40,7 +41,7 @@ const class TopName : Expr
 
   override ExprType type() { ExprType.topName }
 
-  override const Loc loc
+  override const FileLoc loc
 
   const Str? lib
 
