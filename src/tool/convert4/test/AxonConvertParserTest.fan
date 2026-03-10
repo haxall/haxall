@@ -68,7 +68,7 @@ class AxonConvertParserTest : HaystackTest
        [
          "inA":["::type":"sys::Number", "axon":n(0)],
          "inB":["::type":"sys::Number", "axon":n(0), "foo":"bar"],
-         "out":["::type":"sys::Number", "ro":m],
+         "out":["::type":"sys::Number", "readonly":m],
        ],
        """do
             out = inA + inB
