@@ -10,7 +10,8 @@ using concurrent
 using util
 
 **
-** CompSpace manages a tree of components and their execution environment.
+** CompSpace manages a tree of components and their execution
+** environment - see [documentation]`hx.doc.haxall::Comps`.
 **
 @Js
 class CompSpace
@@ -81,14 +82,14 @@ class CompSpace
   Comp createSpec(Spec spec, Dict? dict := null)  { spi.createSpec(spec, dict) }
 
   ** Create new component instance from dict state.
-  ** The dict must have a Comp spec tag.
+  ** The dict must have a spec tag that references a 'sys.comp::Comp' spec.
   Comp create(Dict dict) { spi.create(dict) }
 
   ** Create new list of component instances from dict state.
   ** Each dict must have a Comp spec tag.
   Comp[] createAll(Dict[] dicts) { spi.createAll(dicts) }
 
-  ** Read by id
+  ** Read a component by its id in this space
   Comp? readById(Ref id, Bool checked := true) { spi.readById(id, checked) }
 
   ** Iterate every component in space

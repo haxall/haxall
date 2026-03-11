@@ -316,9 +316,9 @@ class DocHtmlWriter : WebOutStream
       markdown(x.doc)
     }
 
-    ctors   := Str:DocSlot[:]
-    fields  := Str:DocSlot[:]
-    methods := Str:DocSlot[:]
+    ctors   := Str:DocSlot[:] { ordered = true }
+    fields  := Str:DocSlot[:] { ordered = true }
+    methods := Str:DocSlot[:] { ordered = true }
     x.slots.each |s|
     {
       isNew := fantomFlags(s.meta.get("fanMeta")).contains("new")

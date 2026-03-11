@@ -10,7 +10,7 @@ using concurrent
 using util
 
 **
-** Component or function block
+** Component or function block - see [documentation]`hx.doc.haxall::Comps`.
 **
 @Js
 mixin Comp
@@ -48,8 +48,7 @@ mixin Comp
   ** Return if this component has a CompFunc by given name
   Bool hasFunc(Str name) { spi.hasFunc(name) }
 
-  ** If name maps to CompFunc function slot, then return
-  ** spec for the function signature (parameter and return type).
+  ** Lookup func type signature for CompFunc function slot.
   Spec? funcType(Str name, Bool checked := true) { spi.funcType(name, checked) }
 
   ** Return true if this component has slot with non-null value.
@@ -215,8 +214,9 @@ mixin Comp
 **************************************************************************
 
 **
-** CompObj is the base class for all Comp subclasses.  All constructors
-** must be run within the context for a CompSpace.
+** CompObj is the base class for all Comp subclasses.  All
+** constructors must be run within the context for a CompSpace.
+** See [documentation]`hx.doc.haxall::Comps`.
 **
 @Js
 class CompObj : Comp
@@ -242,7 +242,7 @@ class CompObj : Comp
 ** Component method function value.  CompFuncs always take exactly one
 ** parameter.  They can be declared statically as a slot using meta and
 ** standard func signature pattern, or dynamically in instance data using
-** a dict value.
+** a dict value.   See [documentation]`doc.xeto::Comps#compfunc`
 **
 @Js
 const mixin CompFunc : Dict {}

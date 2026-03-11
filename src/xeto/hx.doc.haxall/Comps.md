@@ -17,7 +17,8 @@ The key Fantom APIs are:
 
 - [fan.xeto::Comp]\: mixin for all Haxall components
 - [fan.xeto::CompObj]\: base class for all Haxall components
-- `CompSpace`: top-level application for managing a component application (TODO: need to make this public)
+- [fan.xeto::CompSpace]\: top-level application for managing a tree of components
+  and their execution
 
 # Slots
 

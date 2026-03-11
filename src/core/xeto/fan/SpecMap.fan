@@ -7,7 +7,7 @@
 //
 
 **
-** SpecMap is a map of named Specs
+** SpecMap is a map of named Specs.
 **
 ** NOTE: in most cases name keys match the 'Spec.name' of slot specs
 ** themselves. However, in cases where the slot name is an auto-name
