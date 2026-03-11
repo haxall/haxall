@@ -50,6 +50,15 @@ const class DocTypeGraph
     edges := DocTypeGraphEdge.decodeList(obj["edges"])
     return make(types, edges)
   }
+
+  ** Debug dump
+  Void dump(OutStream out := Env.cur.out)
+  {
+    types.each |t, i|
+    {
+      out.print(i).print(": ").print(t).print(" | ").print(edges?.getSafe(i)).printLine
+    }
+  }
 }
 
 **************************************************************************
