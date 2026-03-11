@@ -3,7 +3,7 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   11 Mar 2026  Brian Frank  Creation
+//   11 Mar 2026  Trevor Adelman  Creation
 //
 
 using web
@@ -134,7 +134,7 @@ internal const class EchoMod : WebMod
     }
 
     body := ""
-    if (req.headers["Content-Length"] != null)
+    if (req.headers["Content-Type"] != null)
       body = req.in.readAllStr
 
     res.headers["Content-Type"] = "text/plain"

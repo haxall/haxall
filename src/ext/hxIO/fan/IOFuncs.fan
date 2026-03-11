@@ -971,24 +971,23 @@ const class IOFuncs
   ** The 'headers' parameter is an optional Dict of request headers.
   ** The 'body' parameter is any value accepted as an
   ** [I/O handle]`doc#handles` (Str, Buf, Uri, etc).  If non-null, it is
-  ** sent as the request body; Content-Type defaults to
+  ** streamed as the request body; Content-Type defaults to
   ** "application/octet-stream" when not specified in 'headers'.
   **
   ** The callback receives three arguments:
   **   - 'code': Number HTTP status code
   **   - 'headers': Dict of response headers
-  **   - 'body': response body as a Buf (usable as I/O handle)
+  **   - 'body': response body I/O handle for streaming reads
   **
   ** Examples:
-  **   // GET and parse JSON response
+  **   // GET and read response as string
   **   ioHttp(`http://example.com/api`, "GET", null, null,
-  **     (code, headers, body) => body.ioReadJson)
+  **     (code, headers, body) => ioReadStr(body))
   **
-  **   // POST with JSON body
+  **   // POST with body
   **   ioHttp(`http://example.com/api`, "POST",
-  **     {"Content-Type": "application/json"},
-  **     "{\"key\": \"value\"}",
-  **     (code, headers, body) => {code: code, data: body.ioReadJson})
+  **     {"Content-Type": "text/plain"}, "hello world",
+  **     (code, headers, body) => {code: code, body: ioReadStr(body)})
   **
   @Api @Axon { admin = true }
   static Obj? ioHttp(Uri uri, Str method, Dict? headers, Obj? body, Fn fn)
@@ -999,16 +998,22 @@ const class IOFuncs
     {
       c.reqMethod = method.upper
       headers?.each |v, n| { c.reqHeaders[n] = v.toStr }
-      if (body == null) c.writeReq
-      else c.writeBuf(c.reqMethod, toHandle(body).inToBuf)
+      if (body != null)
+      {
+        bodyBuf := toHandle(body).inToBuf
+        if (c.reqHeaders["Content-Type"] == null)
+          c.reqHeaders["Content-Type"] = "application/octet-stream"
+        c.reqHeaders["Content-Length"] = bodyBuf.size.toStr
+        c.writeReq
+        c.reqOut.writeBuf(bodyBuf.seek(0)).close
+      }
+      else c.writeReq
       c.readRes
-      resBuf := c.resCode == 204 || c.resCode == 304 ? Buf() : c.resBuf
-      return fn.call(cx, Obj?[Number(c.resCode), Etc.makeDict(c.resHeaders), resBuf])
+      resIn := c.resIn(false)
+      Obj resBody := resIn != null ? resIn : Buf()
+      return fn.call(cx, Obj?[Number(c.resCode), Etc.makeDict(c.resHeaders), resBody])
     }
-    finally
-    {
-      c.close
-    }
+    finally c.close
   }
 
 //////////////////////////////////////////////////////////////////////////

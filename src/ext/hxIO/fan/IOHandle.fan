@@ -29,6 +29,7 @@ abstract class IOHandle
   **   - sys::Uri like "io/..."
   **   - sys::Dict
   **   - sys::Buf
+  **   - sys::InStream
   **
   static IOHandle fromObj(Runtime rt, Obj? h)
   {
@@ -37,6 +38,7 @@ abstract class IOHandle
     if (h is Uri)      return fromUri(rt, h)
     if (h is Dict)     return fromDict(rt, h)
     if (h is Buf)      return BufHandle(h)
+    if (h is InStream) return InStreamHandle(h)
     throw ArgErr("Cannot obtain IO handle from ${h?.typeof}")
   }
 
@@ -504,6 +506,18 @@ internal class FtpHandle : DirectIO
     c.log = log
     return c
   }
+}
+
+**************************************************************************
+** InStreamHandle
+**************************************************************************
+
+internal class InStreamHandle : DirectIO
+{
+  new make(InStream in) { this.inRef = in }
+  private InStream inRef
+  override InStream in() { inRef }
+  override OutStream out() { throw UnsupportedErr("Cannot write to InStreamHandle") }
 }
 
 **************************************************************************
