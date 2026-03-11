@@ -961,6 +961,57 @@ const class IOFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// HTTP
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Make an HTTP request and process the response in a callback.
+  ** The connection is guaranteed to be closed when the callback returns.
+  **
+  ** The 'headers' parameter is an optional Dict of request headers.
+  ** The 'body' parameter is any value accepted as an
+  ** [I/O handle]`doc#handles` (Str, Buf, Uri, etc).  If non-null, it is
+  ** sent as the request body; Content-Type defaults to
+  ** "application/octet-stream" when not specified in 'headers'.
+  **
+  ** The callback receives three arguments:
+  **   - 'code': Number HTTP status code
+  **   - 'headers': Dict of response headers
+  **   - 'body': response body as a Buf (usable as I/O handle)
+  **
+  ** Examples:
+  **   // GET and parse JSON response
+  **   ioHttp(`http://example.com/api`, "GET", null, null,
+  **     (code, headers, body) => body.ioReadJson)
+  **
+  **   // POST with JSON body
+  **   ioHttp(`http://example.com/api`, "POST",
+  **     {"Content-Type": "application/json"},
+  **     "{\"key\": \"value\"}",
+  **     (code, headers, body) => {code: code, data: body.ioReadJson})
+  **
+  @Api @Axon { admin = true }
+  static Obj? ioHttp(Uri uri, Str method, Dict? headers, Obj? body, Fn fn)
+  {
+    cx := curContext
+    c := WebClient(uri)
+    try
+    {
+      c.reqMethod = method.upper
+      headers?.each |v, n| { c.reqHeaders[n] = v.toStr }
+      if (body == null) c.writeReq
+      else c.writeBuf(c.reqMethod, toHandle(body).inToBuf)
+      c.readRes
+      resBuf := c.resCode == 204 || c.resCode == 304 ? Buf() : c.resBuf
+      return fn.call(cx, Obj?[Number(c.resCode), Etc.makeDict(c.resHeaders), resBuf])
+    }
+    finally
+    {
+      c.close
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
