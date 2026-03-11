@@ -56,7 +56,6 @@ class CompSpaceEditTest: AbstractXetoTest
 
   Void testLink()
   {
-    cs := basicSpace
     add := cs.readById(addRef)
     verifyFalse(add.links.isLinked("in1"))
     edit(cs).link(c1Ref, "out", addRef, "in1")
@@ -67,7 +66,6 @@ class CompSpaceEditTest: AbstractXetoTest
 
   Void testUnlink()
   {
-    cs := basicSpace
     add := cs.readById(addRef)
     edit(cs).link(c1Ref, "out", addRef, "in1")
     verify(add.links.isLinked("in1"))
@@ -77,7 +75,6 @@ class CompSpaceEditTest: AbstractXetoTest
 
   Void testCreateAndDelete()
   {
-    cs := basicSpace
     comp := edit(cs).create(cs.root.id, "hx.test.xeto::TestCounter")
     verifyEq(comp.typeof, TestCounter#)
 
@@ -102,7 +99,6 @@ class CompSpaceEditTest: AbstractXetoTest
 
   Void testUpdate()
   {
-    cs := basicSpace
     diff := Etc.dict2("in1", TestVal(100), "ignore", "X")
     add := edit(cs).update(addRef, diff)
     verifyEq(add.get("in1"), TestVal(100))
@@ -111,8 +107,6 @@ class CompSpaceEditTest: AbstractXetoTest
 
   Void testDuplicate()
   {
-    cs := basicSpace
-
     // duplicate single comp
     ids   := [cs.root.get("c1")->id]
     dups  := edit(cs).duplicate(ids)
@@ -129,13 +123,5 @@ class CompSpaceEditTest: AbstractXetoTest
     verifyType(dups.last, TestAdd#)
   }
 
-  private CompSpace basicSpace(Str xeto := loadBasicXeto)
-  {
-    ns := createNamespace(CompTest.loadTestLibs)
-    cs := CompSpace(ns).load(xeto)
-    Actor.locals[CompSpace.actorKey] = cs
-    cs.start
-    return cs
-  }
 }
 
