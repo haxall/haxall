@@ -23,9 +23,9 @@ class MCompSpi : CompSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructed by initSpi using actor local
-  new make(CompSpace cs, CompObj comp, Spec spec, Str:Obj slots)
+  new make(MCompSpaceSpi csSpi, CompObj comp, Spec spec, Str:Obj slots)
   {
-    this.cs      = cs
+    this.csSpi   = csSpi
     this.comp    = comp
     this.specRef = spec
     this.slots   = slots
@@ -44,7 +44,7 @@ class MCompSpi : CompSpi
       // compile xeto to This dict and mount
       opts := Etc.dict1("this", spec)
       dict := cs.ns.io.readXeto(compTree, opts) as Dict ?: throw Err("Expecting compTree to be Dict")
-      CompFactory.createUnder(cs, comp, dict)
+      CompFactory.createUnder(csSpi, comp, dict)
     }
     catch (Err e)
     {
@@ -57,9 +57,11 @@ class MCompSpi : CompSpi
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  CompSpace cs { private set }
-
   Comp comp { private set }
+
+  MCompSpaceSpi csSpi { private set }
+
+  override CompSpace cs() { csSpi.cs }
 
   override Namespace ns() { cs.ns }
 
@@ -274,7 +276,7 @@ class MCompSpi : CompSpi
     childSpi := (MCompSpi)child.spi
     childSpi.nameRef = name
     childSpi.parentRef = this.comp
-    if (isMounted) cs.mount(child)
+    if (isMounted) csSpi.mount(child)
   }
 
   private Void removeChild(Comp child)
@@ -282,7 +284,7 @@ class MCompSpi : CompSpi
     childSpi := (MCompSpi)child.spi
     childSpi.nameRef = ""
     childSpi.parentRef = null
-    if (isMounted) cs.unmount(child)
+    if (isMounted) csSpi.unmount(child)
   }
 
   // Choke point for all slot changes
@@ -298,7 +300,7 @@ class MCompSpi : CompSpi
       comp.onChange(event)
 
       // space level callback
-      if (isMounted) cs.change(this, event)
+      if (isMounted) csSpi.change(this, event)
     }
     catch (Err e)
     {

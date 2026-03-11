@@ -52,12 +52,14 @@ class CompSpaceEditTest: AbstractXetoTest
           }|>
   }
 
+  CompSpaceEdit? edit(CompSpace cs) { ((MCompSpaceSpi)cs.spi).edit }
+
   Void testLink()
   {
     cs := basicSpace
     add := cs.readById(addRef)
     verifyFalse(add.links.isLinked("in1"))
-    cs.edit.link(c1Ref, "out", addRef, "in1")
+    edit(cs).link(c1Ref, "out", addRef, "in1")
     links := add.links.listOn("in1")
     verifyEq(links.size, 1)
     verifyDictEq(Etc.link(c1Ref, "out"), links.first)
@@ -67,23 +69,23 @@ class CompSpaceEditTest: AbstractXetoTest
   {
     cs := basicSpace
     add := cs.readById(addRef)
-    cs.edit.link(c1Ref, "out", addRef, "in1")
+    edit(cs).link(c1Ref, "out", addRef, "in1")
     verify(add.links.isLinked("in1"))
-    cs.edit.unlink(c1Ref, "out", addRef, "in1")
+    edit(cs).unlink(c1Ref, "out", addRef, "in1")
     verifyFalse(add.links.isLinked("in1"))
   }
 
   Void testCreateAndDelete()
   {
     cs := basicSpace
-    comp := cs.edit.create(cs.root.id, "hx.test.xeto::TestCounter")
+    comp := edit(cs).create(cs.root.id, "hx.test.xeto::TestCounter")
     verifyEq(comp.typeof, TestCounter#)
 
     // link it up
-    cs.edit.link(comp.id, "out", addRef, "in1")
+    edit(cs).link(comp.id, "out", addRef, "in1")
 
     // delete the comp
-    cs.edit.delete(comp.id)
+    edit(cs).delete(comp.id)
     verifyNull(cs.readById(comp.id, false))
 
     // links should be removed also
@@ -91,18 +93,18 @@ class CompSpaceEditTest: AbstractXetoTest
     verifyFalse(add.links.isLinked("in1"))
 
     // should be able to remove an id that doesn't exist
-    cs.edit.delete(comp.id)
+    edit(cs).delete(comp.id)
     verify(true)
 
     // cannot remove root
-    verifyErr(Err#) { cs.edit.delete(cs.root.id) }
+    verifyErr(Err#) { edit(cs).delete(cs.root.id) }
   }
 
   Void testUpdate()
   {
     cs := basicSpace
     diff := Etc.dict2("in1", TestVal(100), "ignore", "X")
-    add := cs.edit.update(addRef, diff)
+    add := edit(cs).update(addRef, diff)
     verifyEq(add.get("in1"), TestVal(100))
     verifyNull(add.get("ignore"))
   }
@@ -113,7 +115,7 @@ class CompSpaceEditTest: AbstractXetoTest
 
     // duplicate single comp
     ids   := [cs.root.get("c1")->id]
-    dups  := cs.edit.duplicate(ids)
+    dups  := edit(cs).duplicate(ids)
     verifyEq(dups.size, 1)
     c1Dup := dups.first
     verifyType(c1Dup, TestCounter#)
@@ -121,7 +123,7 @@ class CompSpaceEditTest: AbstractXetoTest
 
     // duplicate multiple comps
     ids  = [cs.root.get("c2")->id, cs.root.get("add")->id]
-    dups = cs.edit.duplicate(ids)
+    dups = edit(cs).duplicate(ids)
     verifyEq(dups.size, 2)
     verifyType(dups.first, TestCounter#)
     verifyType(dups.last, TestAdd#)
@@ -136,5 +138,4 @@ class CompSpaceEditTest: AbstractXetoTest
     return cs
   }
 }
-
 

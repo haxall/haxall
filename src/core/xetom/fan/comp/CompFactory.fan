@@ -23,10 +23,10 @@ internal class CompFactory
 //////////////////////////////////////////////////////////////////////////
 
   ** Create new list of components from a dicts
-  static Comp[] create(CompSpace cs, Dict[] dicts)
+  static Comp[] create(MCompSpaceSpi spi, Dict[] dicts)
   {
-    Comp[] comps := process(cs) |cf| { cf.doCreate(dicts) }
-    cs.onCreateList(comps)
+    Comp[] comps := process(spi) |cf| { cf.doCreate(dicts) }
+    spi.onCreateList(comps)
     return comps
   }
 
@@ -37,34 +37,34 @@ internal class CompFactory
   **   3. mounting them under parent with set
   ** This method handles the tricky aspect of swizzling internal
   ** refs in the dict tree to the actual parent's id.
-  static Void createUnder(CompSpace cs, Comp parent, Dict dict)
+  static Void createUnder(MCompSpaceSpi spi, Comp parent, Dict dict)
   {
     // parent must be under cs
-    if (cs !== ((MCompSpi)parent.spi).cs) throw Err("Comp in this space: $parent")
+    if (spi !== ((MCompSpi)parent.spi).csSpi) throw Err("Comp not in this space: $parent")
 
     // parent must match dict spec type
     if (parent.spec.id != dict["spec"]) throw Err("Mismatched comp spec: $parent.spec != " + dict["spec"])
 
     // route to factor and ensure onCreate callback
-    Comp[] comps := process(cs) |cf| { cf.doCreateUnder(parent, dict) }
-    cs.onCreateList(comps)
+    Comp[] comps := process(spi) |cf| { cf.doCreateUnder(parent, dict) }
+    spi.onCreateList(comps)
   }
 
   ** Call CompSpace.onCreate hook
-  private static Void onCreated(CompSpace cs, Comp[] comps)
+  private static Void onCreated(MCompSpaceSpi spi, Comp[] comps)
   {
-    comps.each |comp| { cs.onCreate(comp) }
+    comps.each |comp| { spi.onCreate(comp) }
   }
 
   ** Create the SPI for given component. This is called by
-  ** the CompObj constructor thru CompSpace actor local
-  static CompSpi initSpi(CompSpace cs, CompObj c, Spec? spec)
+  ** the CompObj constructor thru MCompSpaceSpi actor local
+  static CompSpi initSpi(MCompSpaceSpi spi, CompObj c, Spec? spec)
   {
-    process(cs) |cf| { cf.doInitSpi(c, spec) }
+    process(spi) |cf| { cf.doInitSpi(c, spec) }
   }
 
   ** Process a graph operation with single instance via actor local
-  private static Obj? process(CompSpace cs, |This->Obj?| f)
+  private static Obj? process(MCompSpaceSpi spi, |This->Obj?| f)
   {
     actorKey := "xetom::cf"
 
@@ -72,12 +72,12 @@ internal class CompFactory
     cur := Actor.locals.get(actorKey) as CompFactory
     if (cur != null)
     {
-      if (cur.cs === cs) return f(cur)
+      if (cur.spi === spi) return f(cur)
       throw Err("CompSpace.create is not reentrant; cannot call in from ctor")
     }
 
     // new top-level factory call
-    cur = make(cs)
+    cur = make(spi)
     Actor.locals.set(actorKey, cur)
     Obj? res
     try
@@ -88,10 +88,10 @@ internal class CompFactory
   }
 
   ** Private constructor
-  private new make(CompSpace cs)
+  private new make(MCompSpaceSpi spi)
   {
-    this.cs = cs
-    this.ns = cs.ns
+    this.spi = spi
+    this.ns  = spi.ns
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ internal class CompFactory
     return dicts.map |dict->Comp|
     {
       // reuse normal reifyComp code path
-      spec := cs.ns.spec(dict->spec.toStr)
+      spec := spi.ns.spec(dict->spec.toStr)
       comp := reifyComp(spec, dict)
       return comp
     }
@@ -189,7 +189,7 @@ internal class CompFactory
     children = initSlots(spec, acc, children, slots)
 
     // create spi
-    spi := MCompSpi(cs, c, spec, acc)
+    spi := MCompSpi(spi, c, spec, acc)
 
     // now wire up parent/child relationships
     if (children != null)
@@ -298,7 +298,7 @@ internal class CompFactory
   ** Generate a fresh new id for a component
   private Ref genId()
   {
-    cs.genId
+    spi.genId
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -385,7 +385,7 @@ internal class CompFactory
 
   private once Spec compSpec()
   {
-    cs.ns.lib("sys.comp").spec("Comp")
+    spi.ns.lib("sys.comp").spec("Comp")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -393,7 +393,7 @@ internal class CompFactory
 //////////////////////////////////////////////////////////////////////////
 
   private const Namespace ns
-  private CompSpace cs
+  private MCompSpaceSpi spi
   private CompSpiInit? curCompInit
   private [Ref:Ref]? swizzleMap
 }

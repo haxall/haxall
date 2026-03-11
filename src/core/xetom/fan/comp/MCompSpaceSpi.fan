@@ -12,12 +12,10 @@ using xeto
 using haystack
 
 **
-** CompSpace manages a tree of components.  It is the base class for
-** different component applications for control, Ion UI, and remote
-** programming
+** CompSpaceSpi implementation
 **
 @Js
-class CompSpace : AbstractCompSpace
+class MCompSpaceSpi : CompSpaceSpi
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -25,98 +23,81 @@ class CompSpace : AbstractCompSpace
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(Namespace ns)
+  new make(CompSpace cs, Namespace ns)
   {
+    this.cs = cs
     this.nsRef = ns
   }
 
   ** Initialize the root - this must be called exactly once during initialization
-  This initRoot(|This->Comp| f)
+  override Void initRoot(|CompSpace->Comp| f)
   {
     if (rootRef != null) throw Err("Root already initialized")
 
     // use callback to make root while this is installed as actor local
-    old := Actor.locals[actorKey]
-    Actor.locals[actorKey] = this
+    old := Actor.locals[CompSpace.actorKey]
+    Actor.locals[CompSpace.actorKey] = cs
     try
-      this.rootRef = f(this)
+      this.rootRef = f(cs)
     finally
-    Actor.locals.set(actorKey, old)
+    Actor.locals.set(CompSpace.actorKey, old)
     mount(root)
-
-    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
+  ** Parent CompSpace instance
+  CompSpace cs { private set }
+
   ** Current version of component changes
-  Int ver() { curVer }
+  override Int ver() { curVer }
 
   ** Has this space been started, but not stopped yet
-  Bool isRunning() { isRunningRef }
+  override Bool isRunning() { isRunningRef }
 
-  ** Start space.  Sublasses must begin to call checkTimers
-  Void start()
+  ** Start space.
+  override Void start()
   {
     isRunningRef = true
     timersNeedUpdate = true
-    onStart
+    cs.onStart
   }
 
-  ** Stop space.  Sublasses must cease to call checkTimers
-  Void stop()
+  ** Stop space.
+  override Void stop()
   {
     isRunningRef = false
-    onStop
+    cs.onStop
   }
-
-  ** Callback for subclasses on start
-  virtual Void onStart() {}
-
-  ** Callback for subclasses on stop
-  virtual Void onStop() {}
 
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
   ** Xeto namespace for this space
-  Namespace ns() { nsRef }
+  override Namespace ns() { nsRef }
   private Namespace nsRef
 
   ** Root component
-  virtual Comp root() { rootRef ?: throw Err("Must call initRoot") }
+  override Comp root() { rootRef ?: throw Err("Must call initRoot") }
 
 //////////////////////////////////////////////////////////////////////////
 // Loading/Saving
 //////////////////////////////////////////////////////////////////////////
 
-  ** Check that the xeto can be loaded or raise exception
-  This checkLoad(Str xeto)
-  {
-    parse(xeto)
-    return this
-  }
-
   ** Load tree from xeto instances
-  This load(Str xeto)
+  override Void load(Str xeto)
   {
-    root := parse(xeto)
+    root := CompUtil.parse(ns, xeto)
     initRoot |self->Comp| { create(root) }
-    return this
   }
 
   ** Save tree to xeto instances
-  Str save()
+  override Str save()
   {
     CompUtil.compSaveToXeto(ns, root)
-  }
-
-  private Dict parse(Str xeto)
-  {
-    ns.io.readXeto(xeto) as Dict ?: throw Err("Expecting one dict root")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,21 +105,21 @@ class CompSpace : AbstractCompSpace
 //////////////////////////////////////////////////////////////////////////
 
   ** Convenience to create new default component instance from spec.
-  Comp createSpec(Spec spec, Dict dict := Etc.dict0)
+  override Comp createSpec(Spec spec, Dict? dict := null)
   {
     create(Etc.dictSet(dict, "spec", spec.id))
   }
 
   ** Create new component instance from dict state.
   ** The dict must have a Comp spec tag.
-  Comp create(Dict dict)
+  override Comp create(Dict dict)
   {
     CompFactory.create(this, [dict]).first
   }
 
   ** Create new list of component instances from dict state.
   ** Each dict must have a Comp spec tag.
-  Comp[] createAll(Dict[] dicts)
+  override Comp[] createAll(Dict[] dicts)
   {
     CompFactory.create(this, dicts)
   }
@@ -153,13 +134,13 @@ class CompSpace : AbstractCompSpace
   virtual Void onCreate(Comp comp) {}
 
   ** Initialize server provider interface for given instance
-  override CompSpi initSpi(CompObj c, Spec? spec)
+  override CompSpi initCompSpi(CompObj c, Spec? spec)
   {
     CompFactory.initSpi(this, c, spec)
   }
 
   ** Read by id
-  Comp? readById(Ref id, Bool checked := true)
+  override Comp? readById(Ref id, Bool checked := true)
   {
     c := map.get(id)
     if (c != null) return c
@@ -168,9 +149,15 @@ class CompSpace : AbstractCompSpace
   }
 
   ** Iterate every component in space
-  Void each(|Comp| f)
+  override Void each(|Comp| f)
   {
     map.each(f)
+  }
+
+  ** Iterate every component in space until callback returns non-null
+  override Obj? eachWhile(|Comp->Obj?| f)
+  {
+    map.eachWhile(f)
   }
 
   ** Hook when component is modified
@@ -184,7 +171,7 @@ class CompSpace : AbstractCompSpace
 
     // invoke callback on space
     try
-      onChange(event)
+      cs.onChange(event)
     catch (Err e)
       err("CompSpace.onChange", e)
   }
@@ -200,7 +187,7 @@ class CompSpace : AbstractCompSpace
 
     // invoke callback on space
     try
-      onMount(c)
+      cs.onMount(c)
     catch (Err e)
       err("CompSpace.onMount", e)
 
@@ -235,7 +222,7 @@ class CompSpace : AbstractCompSpace
 
     // invoke callback on space
     try
-      onUnmount(c)
+      cs.onUnmount(c)
     catch (Err e)
       err("CompSpace.onUnmount", e)
 
@@ -286,19 +273,6 @@ class CompSpace : AbstractCompSpace
     spi.ver = this.curVer
   }
 
-  ** Callback when component is mounted into tree
-  virtual Void onMount(Comp c) {}
-
-  ** Callback when component is unmounted from tree
-  virtual Void onUnmount(Comp c) {}
-
-  ** Callback anytime a component in the space is modified.
-  ** The name and value are the slot modified, or null for a remove.
-  virtual Void onChange(CompChangeEvent event) {}
-
-  ** Callback anytime a component method is called
-  virtual Void onCall(CompCallEvent event) {}
-
 //////////////////////////////////////////////////////////////////////////
 // Namespace
 //////////////////////////////////////////////////////////////////////////
@@ -306,7 +280,7 @@ class CompSpace : AbstractCompSpace
   ** Modify the namespace on the fly.  Every component in the current tree
   ** must map to a spec in the new namespace or exception is raised.  This
   ** update does not check that components validate against the new specs.
-  Void updateNamespace(Namespace ns)
+  override Void updateNamespace(Namespace ns)
   {
     // first check that we have spec for each component
     updateCompSpec(root, ns, false)
@@ -343,7 +317,7 @@ class CompSpace : AbstractCompSpace
   ** the smallest timer increment.  For example if its called every 100ms
   ** then timers will only fire as fast as 100ms. The current context
   ** must be an CompContext.
-  Void execute()
+  override Void execute()
   {
     cx := CompContext.curComp
 
@@ -379,14 +353,14 @@ class CompSpace : AbstractCompSpace
   }
 
   ** Debug dump the topology
-  Void dumpTopology(OutStream out := Env.cur.out) { map.dumpTopology(out) }
+  override Void dumpTopology(OutStream out := Env.cur.out) { map.dumpTopology(out) }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
   ** Get the edit api for this CompSpace
-  virtual once CompSpaceEdit edit() { CompSpaceEdit(this) }
+  once CompSpaceEdit edit() { CompSpaceEdit(cs) }
 
   ** Generate new id
   internal Ref genId() { map.genId }

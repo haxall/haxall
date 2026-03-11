@@ -162,7 +162,7 @@ const class CompSpaceActor : Actor
     Actor.locals[CompSpace.actorKey] = cs
     nsRef.val = cs.ns
     state := CompSpaceActorState(cs)
-    cs.actorState = state
+    state.spi.actorState = state
     return state
   }
 
@@ -209,7 +209,7 @@ const class CompSpaceActor : Actor
     cs := state.cs
 
     // create new feed subscription
-    feed := CompSpaceFeed(cookie, cs.ver)
+    feed := CompSpaceFeed(cookie, cs.spi.ver)
     state.feeds.add(cookie, feed)
 
     // map children of root to dicts
@@ -238,7 +238,7 @@ const class CompSpaceActor : Actor
 
     // touch it to renew lease time and update lastPollVer
     lastVer := feed.lastPollVer
-    feed.lastPollVer = cs.ver
+    feed.lastPollVer = cs.spi.ver
     feed.touch
 
     // find all the dicts that have been updated since last ver
@@ -290,66 +290,66 @@ const class CompSpaceActor : Actor
   {
     switch (req->type)
     {
-      case "create":      return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
-      case "layout":      return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
-      case "link":        return onFeedLink(state.cs, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
-      case "unlink":      return onFeedUnlink(state.cs, req->links)
-      case "duplicate":   return onFeedDuplicate(state.cs, req->ids)
-      case "delete":      return onFeedDelete(state.cs, req->ids)
-      case "update":      return onFeedUpdate(state.cs, req->id, req->diff)
-      case "batchUpdate": return onFeedBatchUpdate(state.cs, req->diffs)
+      case "create":      return onFeedCreate(state, req->compSpec, req->x, req->y)
+      case "layout":      return onFeedLayout(state, req->id, req->x, req->y, req->w)
+      case "link":        return onFeedLink(state, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
+      case "unlink":      return onFeedUnlink(state, req->links)
+      case "duplicate":   return onFeedDuplicate(state, req->ids)
+      case "delete":      return onFeedDelete(state, req->ids)
+      case "update":      return onFeedUpdate(state, req->id, req->diff)
+      case "batchUpdate": return onFeedBatchUpdate(state, req->diffs)
       default:            throw Err("Unknown feedCall: $req")
     }
   }
 
-  private Dict onFeedCreate(CompSpace cs, Ref specRef, Number x, Number y)
+  private Dict onFeedCreate(CompSpaceActorState s, Ref specRef, Number x, Number y)
   {
-    comp := cs.edit.create(cs.root.id, specRef.id, CompLayout(x.toInt, y.toInt))
+    comp := s.edit.create(s.cs.root.id, specRef.id, CompLayout(x.toInt, y.toInt))
     return CompUtil.toFeedDict(comp)
   }
 
-  private Obj? onFeedLayout(CompSpace cs, Ref compId, Number x, Number y, Number w)
+  private Obj? onFeedLayout(CompSpaceActorState s, Ref compId, Number x, Number y, Number w)
   {
-    comp := cs.edit.layout(compId, CompLayout(x.toInt, y.toInt, w.toInt))
+    comp := s.edit.layout(compId, CompLayout(x.toInt, y.toInt, w.toInt))
     return null
   }
 
-  private Obj? onFeedLink(CompSpace cs, Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
+  private Obj? onFeedLink(CompSpaceActorState s, Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
   {
-    cs.edit.link(fromRef, fromSlot, toRef, toSlot)
+    s.edit.link(fromRef, fromSlot, toRef, toSlot)
     return null
   }
 
-  private Obj? onFeedUnlink(CompSpace cs, Grid links)
+  private Obj? onFeedUnlink(CompSpaceActorState s, Grid links)
   {
     links.each |link|
     {
-      cs.edit.unlink(link->fromRef, link->fromSlot, link->toRef, link->toSlot)
+      s.edit.unlink(link->fromRef, link->fromSlot, link->toRef, link->toSlot)
     }
     return null
   }
 
-  private Obj? onFeedDuplicate(CompSpace cs, Ref[] ids)
+  private Obj? onFeedDuplicate(CompSpaceActorState s, Ref[] ids)
   {
-    comps := cs.edit.duplicate(ids)
+    comps := s.edit.duplicate(ids)
     return (Dict[])comps.map |comp| { CompUtil.toFeedDict(comp) }
   }
 
-  private Obj? onFeedDelete(CompSpace cs, Ref[] ids)
+  private Obj? onFeedDelete(CompSpaceActorState s, Ref[] ids)
   {
-    ids.each |id| { cs.edit.delete(id) }
+    ids.each |id| { s.edit.delete(id) }
     return null
   }
 
-  private Obj? onFeedUpdate(CompSpace cs, Ref id, Dict diff)
+  private Obj? onFeedUpdate(CompSpaceActorState s, Ref id, Dict diff)
   {
-    cs.edit.update(id, diff)
+    s.edit.update(id, diff)
     return null
   }
 
-  private Obj? onFeedBatchUpdate(CompSpace cs, Dict[] diffs)
+  private Obj? onFeedBatchUpdate(CompSpaceActorState s, Dict[] diffs)
   {
-    diffs.each |diff| { onFeedUpdate(cs, diff.id, diff) }
+    diffs.each |diff| { onFeedUpdate(s, diff.id, diff) }
     return null
   }
 }
@@ -363,10 +363,16 @@ const class CompSpaceActor : Actor
 internal class CompSpaceActorState
 {
   ** Constructor
-  new make(CompSpace cs) { this.cs = cs }
+  new make(CompSpace cs) { this.cs = cs; this.spi = cs.spi }
 
   ** Component space managed inside actor
   CompSpace cs
+
+  ** Service provider interface for cs
+  MCompSpaceSpi spi
+
+  ** Convenience for spi.edit
+  CompSpaceEdit edit() { spi.edit }
 
   ** Subscriptions keyed by cookie
   Str:CompSpaceFeed feeds := [:]

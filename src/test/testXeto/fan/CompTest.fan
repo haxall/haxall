@@ -222,7 +222,7 @@ class CompTest: AbstractXetoTest
     verifyEq(add["out"], TestVal(0, ""))
 
     // create composite comp
-    c    := CompObj(composite)
+    c    := cs.createSpec(composite)
     a    := (Comp)c->a
     nest := (Comp)c->nest
     b    := (Comp)nest->b
@@ -281,35 +281,35 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
     folder := ns.spec("hx.test.xeto::TestFolder")
     add := ns.spec("hx.test.xeto::TestAdd")
-    cs := CompSpace(ns).initRoot { CompObj(folder) }
+    cs := CompSpace(ns).initRoot |cs| { cs.createSpec(folder) }
     Actor.locals[CompSpace.actorKey] = cs
     r := cs.root
 
     verifyTree(cs, "", null, r, [,])
 
     // add "a"
-    a := CompObj(folder); r.add(a, "a")
+    a := cs.createSpec(folder); r.add(a, "a")
     verifyTree(cs, "",  null, r, [a])
     verifyTree(cs, "a", r,    a, [,])
 
     // add "a.b"
-    b := CompObj(add); a.add(b, "b")
+    b := cs.createSpec(add); a.add(b, "b")
     verifyTree(cs, "",    null, r, [a])
     verifyTree(cs, "a",   r,    a, [b])
     verifyTree(cs, "a.b", a,    b, [,])
 
     // add "a.c"
-    c := CompObj(add); a.set("c", c)
+    c := cs.createSpec(add); a.set("c", c)
     verifyTree(cs, "",    null, r, [a])
     verifyTree(cs, "a",   r,    a, [b, c])
     verifyTree(cs, "a.b", a,    b, [,])
     verifyTree(cs, "a.c", a,    c, [,])
 
     // build mini-graph, then add
-    d := CompObj(folder)                 // a.d
-    e := CompObj(add);    d.add(e, "e")  // a.d.e
-    f := CompObj(folder); d.set("f", f)  // a.d.f
-    g := CompObj(add);    f.add(g, "g")  // a.d.f.g
+    d := cs.createSpec(folder)                 // a.d
+    e := cs.createSpec(add);    d.add(e, "e")  // a.d.e
+    f := cs.createSpec(folder); d.set("f", f)  // a.d.f
+    g := cs.createSpec(add);    f.add(g, "g")  // a.d.f.g
     a["d"] = d
     verifyTree(cs, "",        null, r, [a])
     verifyTree(cs, "a",       r,    a, [b, c, d])
@@ -606,10 +606,10 @@ class CompTest: AbstractXetoTest
     y := CompObj()
     z := CompObj()
 
-    // dump := |Str s| { echo("$s | cs=$cs.ver r=$r.spi.ver x=$x.spi.ver y=$y.spi.ver z=$z.spi.ver") }
+    // dump := |Str s| { echo("$s | cs=$cs.spi.ver r=$r.spi.ver x=$x.spi.ver y=$y.spi.ver z=$z.spi.ver") }
 
     // initial state
-    verifyEq(cs.ver, 1)
+    verifyEq(cs.spi.ver, 1)
     verifyEq(r.spi.ver, 1)
     verifyEq(x.spi.ver, 0)
 
@@ -619,19 +619,19 @@ class CompTest: AbstractXetoTest
 
     // mount x
     r.set("x", x)
-    verifyEq(cs.ver, 3)
+    verifyEq(cs.spi.ver, 3)
     verifyEq(r.spi.ver, 3)
     verifyEq(x.spi.ver, 2)
 
     // set x
     x.set("foo", "new foo")
-    verifyEq(cs.ver, 4)
+    verifyEq(cs.spi.ver, 4)
     verifyEq(r.spi.ver, 3)
     verifyEq(x.spi.ver, 4)
 
     // add x
     x.add("there", "baz")
-    verifyEq(cs.ver, 5)
+    verifyEq(cs.spi.ver, 5)
     verifyEq(r.spi.ver, 3)
     verifyEq(x.spi.ver, 5)
 
@@ -643,7 +643,7 @@ class CompTest: AbstractXetoTest
 
     // remove x
     x.remove("baz")
-    verifyEq(cs.ver, 7)
+    verifyEq(cs.spi.ver, 7)
     verifyEq(r.spi.ver, 3)
     verifyEq(x.spi.ver, 7)
     verifyEq(y.spi.ver, 0)
@@ -652,7 +652,7 @@ class CompTest: AbstractXetoTest
     // mount two comps
     y.set("z", z)
     x.add(y)
-    verifyEq(cs.ver, 10)
+    verifyEq(cs.spi.ver, 10)
     verifyEq(r.spi.ver, 3)
     verifyEq(x.spi.ver, 10)
     verifyEq(y.spi.ver, 8)
@@ -660,7 +660,7 @@ class CompTest: AbstractXetoTest
 
     // unmount two comps
     x.set(y.name, "replaced")
-    verifyEq(cs.ver, 13)
+    verifyEq(cs.spi.ver, 13)
     verifyEq(r.spi.ver, 3)
     verifyEq(x.spi.ver, 13)
     verifyEq(y.spi.ver, 11)

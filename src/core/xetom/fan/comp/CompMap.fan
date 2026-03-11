@@ -49,6 +49,9 @@ class CompMap
   ** Iterate comps
   Void each(|Comp| f) { byId.each(f) }
 
+  ** Iterate comps until callback returns non-null
+  Obj? eachWhile(|Comp->Obj?| f) { byId.eachWhile(f) }
+
 //////////////////////////////////////////////////////////////////////////
 // Topological Sort
 //////////////////////////////////////////////////////////////////////////

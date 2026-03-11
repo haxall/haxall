@@ -23,6 +23,18 @@ class CompUtil
     name == "id" || name == "spec"
   }
 
+  ** Check that the xeto can be loaded or raise exception
+  static Void checkLoad(Namespace ns, Str xeto)
+  {
+    parse(ns, xeto)
+  }
+
+  ** Parse xeto to dict root
+  internal static Dict parse(Namespace ns, Str xeto)
+  {
+    ns.io.readXeto(xeto) as Dict ?: throw Err("Expecting one dict root")
+  }
+
   ** Encode a component into a xeto string
   static Str compSaveToXeto(Namespace ns, Comp comp, Dict? opts := null)
   {

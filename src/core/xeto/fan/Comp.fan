@@ -20,6 +20,9 @@ mixin Comp
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
+  ** CompSpace used to create this component
+  CompSpace cs() { spi.cs }
+
   ** Return id that uniquely identifies this component within its space.
   Ref id() { spi.id }
 
@@ -212,7 +215,8 @@ mixin Comp
 **************************************************************************
 
 **
-** CompObj is the base class for all Comp subclasses
+** CompObj is the base class for all Comp subclasses.  All constructors
+** must be run within the context for a CompSpace.
 **
 @Js
 class CompObj : Comp
@@ -220,15 +224,9 @@ class CompObj : Comp
   ** Constructor for subclasses
   new make()
   {
-    this.spiRef = AbstractCompSpace.cur.initSpi(this, null)
+    cs := Actor.locals[CompSpace.actorKey] as CompSpace ?: throw Err("No CompSpace active for current thread")
+    this.spiRef = cs.spi.initCompSpi(this, null)
     this.spiRef.init
-  }
-
-  ** Constructor for generic component with given spec
-  static new makeForSpec(Spec spec) { doMakeForSpec(spec) }
-  private new doMakeForSpec(Spec spec)
-  {
-    this.spiRef = AbstractCompSpace.cur.initSpi(this, spec)
   }
 
   ** Service provider interface
@@ -249,23 +247,6 @@ class CompObj : Comp
 @Js
 const mixin CompFunc : Dict {}
 
-**************************************************************************
-** CompContext
-**************************************************************************
-
-**
-** Context for Comp.onExecute
-**
-@Js
-mixin CompContext : ActorContext
-{
-  ** Current context for actor thread
-  ** NOTE: this will be replaced by just ActorContext.cur in 4.0
-  @NoDoc static CompContext? curComp(Bool checked := true) { curx(checked) }
-
-  ** Current DateTime to use; might be simulated
-  abstract DateTime now()
-}
 
 **************************************************************************
 ** CompChangeEvent
@@ -344,26 +325,6 @@ class CompCallEvent
 }
 
 **************************************************************************
-** AbstractCompSpace
-**************************************************************************
-
-@Js @NoDoc
-mixin AbstractCompSpace
-{
-  ** Actor key for local CompSpace
-  static const Str actorKey := "xeto::cs"
-
-  ** Get the current space as actor local
-  internal static AbstractCompSpace cur()
-  {
-    Actor.locals[actorKey] ?: throw Err("No CompSpace active for current thread")
-  }
-
-  ** Initialize a new service provider interface for given component
-  abstract CompSpi initSpi(CompObj c, Spec? spec)
-}
-
-**************************************************************************
 ** CompSpi
 **************************************************************************
 
@@ -371,6 +332,7 @@ mixin AbstractCompSpace
 mixin CompSpi
 {
   abstract Void init()
+  abstract CompSpace cs()
   abstract Ref id()
   abstract Str dis()
   abstract Namespace ns()
