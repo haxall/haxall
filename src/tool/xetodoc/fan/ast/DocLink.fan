@@ -29,6 +29,9 @@ const class DocLink
   Str dis() { disRef ?: uri.toStr }
   private const Str? disRef
 
+  ** Debug string
+  override Str toStr() { "[$dis]($uri)" }
+
   ** Encode to a JSON object tree
   Str:Obj encode()
   {
