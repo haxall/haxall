@@ -26,12 +26,43 @@ class HttpTest : HxTest
     startServer
     try
     {
-      verifyGet
-      verifyPost
-      verifyPut
-      verifyDelete
-      verifyResHeaders
-      verify404
+      // create test file for file body tests
+      eval("""ioWriteStr("file body content", `io/http-test.txt`)""")
+
+      // response codes
+      verifyHttp(`/echo`, "GET", null, null, null, 200)
+      verifyHttp(`/bad`,  "GET", null, null, null, 404)
+
+      // str body with Content-Type
+      verifyHttp(`/echo`, "POST",
+        Str:Str["Content-Type":"text/plain"],
+        "hello world", null, 200)
+
+      // str body without Content-Type (defaults to application/octet-stream)
+      verifyHttp(`/echo`, "POST", null,
+        "no content type", null, 200)
+
+      // headers present but no Content-Type
+      verifyHttp(`/echo`, "POST",
+        Str:Str["X-Custom":"foo"],
+        "custom header", null, 200)
+
+      // buf body with binary content
+      verifyHttp(`/echo`, "POST",
+        Str:Str["Content-Type":"application/octet-stream"],
+        Buf().write(0xCA).write(0xFE).write(0xBA).write(0xBE).flip,
+        null, 200)
+
+      // file body
+      verifyHttp(`/echo`, "POST",
+        Str:Str["Content-Type":"text/plain"],
+        `io/http-test.txt`, null, 200)
+
+      // response body via ioReadJson
+      verifyHttp(`/json`, "GET", null, null, "json", 200)
+
+      // response body via ioReadStr
+      verifyHttp(`/echo`, "GET", null, null, "str", 200)
     }
     finally stopServer
   }
@@ -53,65 +84,62 @@ class HttpTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Tests
+// Verify
 //////////////////////////////////////////////////////////////////////////
 
-  Void verifyGet()
+  Void verifyHttp(Uri path, Str method, [Str:Str]? headers, Obj? body, Str? resReader, Int code := 200)
   {
-    Dict res := eval(
-      """ioHttp(`http://localhost:$port/echo`, "GET", null, null,
-           (code, headers, body) => {code: code, body: ioReadStr(body)})""")
-    verifyEq(res["code"], n(200))
-    verifyEq(res["body"].toStr.contains("method=GET"), true)
+    uri := "http://localhost:$port" + path.toStr
+    hExpr := toHeadersExpr(headers)
+    bExpr := toBodyExpr(body)
+
+    // choose callback based on response reader
+    cb := "(code, headers, body) => {code: code, body: ioReadStr(body)}"
+    if (resReader == "json")
+      cb = "(code, headers, body) => {code: code, json: ioReadJson(body)}"
+
+    axon := """ioHttp(`$uri`, "$method", $hExpr, $bExpr, $cb)"""
+
+    Dict res := eval(axon)
+    verifyEq(res["code"], n(code))
+
+    // verify method echoed back on 200
+    if (code == 200 && res.has("body"))
+      verify(res["body"].toStr.contains("method=$method"))
+
+    // verify JSON response parsed correctly
+    if (resReader == "json")
+    {
+      json := res["json"] as Dict
+      verifyEq(json["key"], "value")
+      verifyEq(json["num"], n(42))
+    }
   }
 
-  Void verifyPost()
+  private Str toHeadersExpr([Str:Str]? headers)
   {
-    Dict res := eval(
-      """ioHttp(`http://localhost:$port/echo`, "POST",
-           {"Content-Type":"text/plain"}, "hello world",
-           (code, headers, body) => {code: code, body: ioReadStr(body)})""")
-    verifyEq(res["code"], n(200))
-    verifyEq(res["body"].toStr.contains("method=POST"), true)
-    verifyEq(res["body"].toStr.contains("body=hello world"), true)
+    if (headers == null) return "null"
+    pairs := StrBuf()
+    headers.each |v, k|
+    {
+      if (pairs.size > 0) pairs.add(", ")
+      pairs.add("\"$k\": \"$v\"")
+    }
+    return "{$pairs}"
   }
 
-  Void verifyPut()
+  private Str toBodyExpr(Obj? body)
   {
-    Dict res := eval(
-      """ioHttp(`http://localhost:$port/echo`, "PUT",
-           {"Content-Type":"text/plain"}, "put data",
-           (code, headers, body) => {code: code, body: ioReadStr(body)})""")
-    verifyEq(res["code"], n(200))
-    verifyEq(res["body"].toStr.contains("method=PUT"), true)
-    verifyEq(res["body"].toStr.contains("body=put data"), true)
+    if (body == null) return "null"
+    if (body is Str)  return body.toStr.toCode
+    if (body is Uri)  return ((Uri)body).toCode
+    if (body is Buf)
+    {
+      b64 := ((Buf)body).toBase64
+      return "ioFromBase64(\"$b64\")"
+    }
+    throw ArgErr("Unsupported body type: $body.typeof")
   }
-
-  Void verifyDelete()
-  {
-    Dict res := eval(
-      """ioHttp(`http://localhost:$port/echo`, "DELETE", null, null,
-           (code, headers, body) => {code: code, body: ioReadStr(body)})""")
-    verifyEq(res["code"], n(200))
-    verifyEq(res["body"].toStr.contains("method=DELETE"), true)
-  }
-
-  Void verifyResHeaders()
-  {
-    Dict res := eval(
-      """ioHttp(`http://localhost:$port/echo`, "GET", null, null,
-           (code, headers, body) => headers)""")
-    verifyEq(res["X-Echo-Test"], "active")
-  }
-
-  Void verify404()
-  {
-    Dict res := eval(
-      """ioHttp(`http://localhost:$port/notfound`, "GET", null, null,
-           (code, headers, body) => {code: code})""")
-    verifyEq(res["code"], n(404))
-  }
-
 }
 
 **************************************************************************
@@ -125,7 +153,10 @@ internal const class EchoMod : WebMod
 {
   override Void onService()
   {
-    if (req.modRel.path.getSafe(0) == "notfound")
+    path := req.modRel.path.getSafe(0) ?: "echo"
+
+    // 404
+    if (path == "bad")
     {
       res.statusCode = 404
       res.headers["Content-Type"] = "text/plain"
@@ -133,15 +164,37 @@ internal const class EchoMod : WebMod
       return
     }
 
+    // JSON response for ioReadJson testing
+    if (path == "json")
+    {
+      res.headers["Content-Type"] = "application/json"
+      res.out.print(Str<|{"key":"value","num":42}|>).close
+      return
+    }
+
+    // echo request details
+    ct := req.headers["Content-Type"]
+    cl := req.headers["Content-Length"]
     body := ""
-    if (req.headers["Content-Type"] != null)
-      body = req.in.readAllStr
+    if (cl != null)
+    {
+      if (ct != null && ct.startsWith("text/"))
+        body = req.in.readAllStr
+      else
+      {
+        buf := Buf()
+        req.in.pipe(buf.out)
+        body = "bytes:$buf.size"
+      }
+    }
 
     res.headers["Content-Type"] = "text/plain"
     res.headers["X-Echo-Test"] = "active"
     out := res.out
     out.print("method=$req.method\n")
-    out.print("body=$body\n")
+    if (ct != null) out.print("content-type=$ct\n")
+    if (cl != null) out.print("content-length=$cl\n")
+    if (body.size > 0) out.print("body=$body\n")
     out.close
   }
 }
