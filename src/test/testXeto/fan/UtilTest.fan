@@ -988,7 +988,7 @@ class UtilTest : AbstractXetoTest
 
     verifyCommonSuper(ns, ["ph.points::DischargeAirTempSensor",
                            "ph.points::ReturnAirPressureSensor"],
-                           "ph.points::NumberPoint")
+                           "ph::NumberPoint")
   }
 
   Void verifyCommonSuper(Namespace ns, Str[] qnames, Str expect)

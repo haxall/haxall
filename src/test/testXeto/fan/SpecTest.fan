@@ -149,8 +149,8 @@ class SpecTest : AbstractXetoTest
     entity     := ns.spec("sys::Entity")
     phe        := ns.spec("ph::PhEntity")
     point      := ns.spec("ph::Point")
-    numPt      := ns.spec("ph.points::NumberPoint")
-    sensor     := ns.spec("ph.points::SensorPoint")
+    numPt      := ns.spec("ph::NumberPoint")
+    sensor     := ns.spec("ph::SensorPoint")
     tempPt     := ns.spec("ph.points::AirTempPoint")
     tempSensor := ns.spec("ph.points::AirTempSensor")
     dat        := ns.spec("ph.points::DischargeAirTempSensor")
@@ -255,7 +255,7 @@ class SpecTest : AbstractXetoTest
 
     s := verifyIsa(ns, "ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "ph::Point", true)
-    verifyIsa(ns, "ph.points::AirFlowSensor", "ph.points::SensorPoint", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "ph::SensorPoint", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, true)
 
@@ -418,20 +418,19 @@ class SpecTest : AbstractXetoTest
 
     ptSlots := [
       "id:Ref", "spec:Ref?",
-      "point:Marker", "cur:Marker?", "enum:Obj?",
+      "point:Marker", "cur:Marker?",
       "equipRef:Ref?", "his:Marker?", "kind:Kind",
-      "maxVal:Number?", "minVal:Number?",
       "pointFunction:PointFunction?", "pointQuantity:Quantity?", "pointSubject:Phenomenon?",
       "siteRef:Ref?", "spaceRef:Ref?", "systemRef:MultiRef?",
-      "tz:TimeZone?", "unit:Unit?", "writable:Marker?",
+      "tz:TimeZone?", "writable:Marker?",
       "equips:Query"]
-    numPtSlots := ptSlots.dup.set(ptSlots.findIndex { it == "unit:Unit?"}, "unit:Unit")
+    numPtSlots := ptSlots.dup.addAll(["unit:Unit", "maxVal:Number?", "minVal:Number?"])
     afSlots    := numPtSlots.dup.addAll(["air:Marker", "flow:Marker"])
     afsSlots   := afSlots.dup.add("sensor:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")
 
     verifySlots(ph.type("Point"), ptSlots)
-    verifySlots(phx.type("NumberPoint"), numPtSlots)
+    verifySlots(ph.type("NumberPoint"), numPtSlots)
     verifySlots(phx.type("AirFlowPoint"), afSlots)
     verifySlots(phx.type("AirFlowSensor"), afsSlots)
     verifySlots(phx.type("DischargeAirFlowSensor"), dafsSlots)

@@ -95,7 +95,7 @@ class ChoiceTest : AbstractXetoTest
      verifyEq(redPlus.isChoice, false)
 
      // verify compound types are not choices in ph.points
-     sensor  := ns.spec("ph.points::SensorPoint")
+     sensor  := ns.spec("ph::SensorPoint")
      ats     := ns.spec("ph.points::AirTempSensor")
      verifyEq(ats.isa(sensor), true)
      verifyEq(ats.isChoice, false)

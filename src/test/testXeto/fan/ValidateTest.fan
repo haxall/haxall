@@ -90,8 +90,8 @@ class ValidateTest : AbstractXetoTest
   {
     src :=
     Str<|Foo: {
-           n: Number <fixed> 123kW
-           u: Unit <fixed> "%"
+           n: Number <invariant> 123kW
+           u: Unit <invariant> "%"
          }
          |>
 
@@ -100,8 +100,8 @@ class ValidateTest : AbstractXetoTest
 
     // range errors
     verifyValidate(src, ["n":n(123, "W"), "u":Unit("A")], [
-      "Slot 'n': Must have fixed value '123kW'",
-      "Slot 'u': Must have fixed value '%'",
+      "Slot 'n': Must have invariant value '123kW'",
+      "Slot 'u': Must have invariant value '%'",
     ])
   }
 

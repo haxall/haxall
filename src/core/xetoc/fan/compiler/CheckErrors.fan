@@ -312,8 +312,8 @@ internal class CheckErrors : Step
     if (slot.ast.meta == null) return
 
     hasVal := slot.ast.meta.get("val") != null
-    if (hasVal && slot.base != null && slot.base.meta.has("fixed"))
-      err("Slot '$slot.name' is fixed and cannot declare new default value", slot.loc)
+    if (hasVal && slot.base != null && slot.base.meta.has("invariant"))
+      err("Slot '$slot.name' is invariant and cannot declare new default value", slot.loc)
   }
 
   Void checkMemberVal(ASpec slot)

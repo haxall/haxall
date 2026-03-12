@@ -33,7 +33,7 @@ const class CheckVal
 
   Void check(Spec spec, Obj x, |Str| onErr)
   {
-    checkFixed(spec, x, onErr)
+    checkInvariant(spec, x, onErr)
     if (spec.isScalar) return checkScalar(spec, x, onErr)
     if (spec.isList) return checkList(spec, x, onErr)
   }
@@ -42,14 +42,14 @@ const class CheckVal
 // Final
 //////////////////////////////////////////////////////////////////////////
 
-  private Void checkFixed(Spec spec, Obj x, |Str| onErr)
+  private Void checkInvariant(Spec spec, Obj x, |Str| onErr)
   {
-    if (spec.meta.missing("fixed")) return
+    if (spec.meta.missing("invariant")) return
 
-    // get the expected fixed value
+    // get the expected invariant value
     expect := spec.meta.get("val")
 
-    // check if actual matches expected fixed value
+    // check if actual matches expected invariant value
     if (Etc.eq(expect, x)) return
 
     // narrow expected value if using less than full fidelity
@@ -60,7 +60,7 @@ const class CheckVal
     }
 
     // no joy
-    onErr("Must have fixed value '$expect'")
+    onErr("Must have invariant value '$expect'")
   }
 
 //////////////////////////////////////////////////////////////////////////

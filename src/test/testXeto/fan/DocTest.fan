@@ -515,7 +515,7 @@ class DocTest : AbstractXetoTest
     // absolute spec
     verifyLinker("sys::Spec", "/sys/Spec", "Spec")
     verifyLinker("ph::Equip", "/ph/Equip", "Equip")
-    verifyLinker("ph.points::NumberPoint", "/ph.points/NumberPoint", "NumberPoint")
+    verifyLinker("ph.points::AirTempPoint", "/ph.points/AirTempPoint", "AirTempPoint")
     verifyLinker("ph::Equip#bad",  null)
     verifyLinker("ph::Bad", null)
 
@@ -563,7 +563,7 @@ class DocTest : AbstractXetoTest
     lib = ns.lib("ph")
     verifyLinker("Spec", "/sys/Spec", "Spec")
     verifyLinker("Site", "/ph/Site", "Site")
-    verifyLinker("NumberPoint", null)
+    verifyLinker("AirTempPoint", null)
 
     // relative slots
     lib = ns.lib("ph")

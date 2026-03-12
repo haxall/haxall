@@ -472,11 +472,11 @@ compileLib: |
   Foo: {
     a: Str "A"
     b: Str "B"
-    c: Str <fixed> "C"
+    c: Str <invariant> "C"
   }
 
   Bar: Foo {
-    b: Str <fixed> "Boo"
+    b: Str <invariant> "Boo"
   }
 
   Baz: Foo {
@@ -487,9 +487,9 @@ compileLib: |
   @errC: Foo { a:"alpha", b:"beta", c:"charlie" }
   @errB: Bar { a:"alpha", b:"beta", c:"C" }
 verifyErrs: |
-  Slot 'c' is fixed and cannot declare new default value
-  Slot 'c': Must have fixed value 'C'
-  Slot 'b': Must have fixed value 'Boo'
+  Slot 'c' is invariant and cannot declare new default value
+  Slot 'c': Must have invariant value 'C'
+  Slot 'b': Must have invariant value 'Boo'
 ---
 name: "fieldMethodOverride"
 compileLib: |
