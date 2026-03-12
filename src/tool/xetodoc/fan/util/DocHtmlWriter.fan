@@ -70,6 +70,7 @@ class DocHtmlWriter : WebOutStream
       markdown(p.doc)
     }
 
+    specSubtypes(p)
     dictSection("meta", p.meta)
     slotsSummary("slots", p.slots)
     slotsSummary("globals", p.globals)
@@ -190,6 +191,7 @@ class DocHtmlWriter : WebOutStream
   {
     tabSection(slot.name, slotToElemId(slot))
     slotSig(slot)
+    slotBase(slot)
     markdown(slot.doc)
     nestedSlots(slot)
     tabSectionEnd
@@ -203,6 +205,18 @@ class DocHtmlWriter : WebOutStream
     codeEnd.tagEnd(tagSlot).nl
   }
 
+  private Void specSubtypes(DocSpec spec)
+  {
+    if (spec.subtypes.isEmpty) return
+    tabSection("subtypes")
+    spec.subtypes.types.each |t, i|
+    {
+      if (i > 0) w("&nbsp;&nbsp;&#8203;")
+      typeRef(t)
+    }
+    tabSectionEnd
+  }
+
   private Void slotSig(DocSlot slot)
   {
     tag(tagSlot).code
@@ -211,7 +225,8 @@ class DocHtmlWriter : WebOutStream
     else
       typeRef(slot.type)
     slotMeta(slot)
-    codeEnd.tagEnd(tagSlot).nl
+    codeEnd
+    tagEnd(tagSlot).nl
   }
 
   private Void funcSig(DocSlot slot)
@@ -230,6 +245,12 @@ class DocHtmlWriter : WebOutStream
     w(") => ")
     if (returns == null) w("Obj?")
     else paramRef(returns)
+  }
+
+  private Void slotBase(DocSlot slot)
+  {
+    if (slot.base == null) return
+    tag(tagSlotBase).span.w("inherits ").link(slot.base).spanEnd.tagEnd(tagSlotBase).nl
   }
 
   private Void slotMeta(DocSlot slot)
@@ -803,6 +824,7 @@ class DocHtmlWriter : WebOutStream
   static const Str tagPropToggle  := "xetodoc-prop-toggle"
   static const Str tagSlot        := "xetodoc-slot"
   static const Str tagSlotNested  := "xetodoc-slot-nested"
+  static const Str tagSlotBase    := "xetodoc-slot-base"
   static const Str tagChapter     := "xetodoc-chapter"
   static const Str tagFooter      := "xetodoc-footer"
   static const Str tagSearchInfo  := "xetodoc-search-info"

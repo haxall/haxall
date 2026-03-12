@@ -234,8 +234,18 @@ xetodoc-slot a:hover {
   text-decoration: underline;
 }
 
+xetodoc-slot-base {
+  font-size: 80%;
+  display: block;
+  color: var(--sidebar-color);
+}
+
+xetodoc-slot-base a {
+  color: var(--sidebar-color);
+}
+
 xetodoc-slot-nested {
-  display: block
+  display: block;
 }
 
 xetodoc-slot-nested ul {

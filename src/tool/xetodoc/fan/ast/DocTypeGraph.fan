@@ -31,6 +31,9 @@ const class DocTypeGraph
   ** Used only for supertypes, not subtypes
   const DocTypeGraphEdge[]? edges
 
+  ** Empty list of types
+  Bool isEmpty() { types.isEmpty }
+
   ** Encode to a JSON object tree
   [Str:Obj]? encode()
   {

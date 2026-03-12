@@ -165,7 +165,15 @@ const class DocUtil
       if (cur.path.size > 1) s.add("../")
       if (uri.path.size > 1) s.add(uri.path[0]).addChar('/')
     }
-    s.add(uri.name).joinNotNull(ext, "").joinNotNull(uri.frag, "#")
+    name := uri.name
+    frag := uri.frag
+    if (name.contains("."))
+    {
+      toks := name.split('.')
+      name = toks[0]
+      frag = toks[1]
+    }
+    s.add(name).joinNotNull(ext, "").joinNotNull(frag, "#")
     return s.toStr.toUri
   }
 
