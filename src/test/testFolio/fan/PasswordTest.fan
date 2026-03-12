@@ -90,6 +90,15 @@ class PasswordTest : Test
     verifyEq(ps.get("p:new-ns:r:foo-bar"), "secret!")
     verifyEq(ps.get("abs:baz"), "boo!")
 
+    // add tests for uris + space
+    ps.set("https://acme.com/ foo-bar", "secret1")
+    ps.set("https://acme.com/?query#frag Baz-Qux", "secret2")
+    verifyEq(ps.get("https://acme.com/ foo-bar"), "secret1")
+    verifyEq(ps.get("https://acme.com/?query#frag Baz-Qux"), "secret2")
+    ps = PasswordStore.open(file, FolioConfig { it.dir = tempDir; it.idPrefix = "p:site:r:" })
+    verifyEq(ps.get("https://acme.com/ foo-bar"), "secret1")
+    verifyEq(ps.get("https://acme.com/?query#frag Baz-Qux"), "secret2")
+
     // save it to buf, create new empty file, and thren restore
     buf := ps.readBuf
     file.delete
