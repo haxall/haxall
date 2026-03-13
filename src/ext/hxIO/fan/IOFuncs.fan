@@ -971,8 +971,10 @@ const class IOFuncs
   ** The 'headers' parameter is an optional Dict of request headers.
   ** Header values may use the special ref `@password` to resolve
   ** a secret from the project's password store.  The password is
-  ** looked up by the key "<scheme>://<host>[:<port>]/ <header-name>".  If the
-  ** password is not found, an exception is raised.
+  ** looked up by the key "<scheme>://<host>[:<port>]/ <header-name>".
+  **
+  ** The password key is case sensitive.  If the password is not
+  ** found, an exception is raised.
   **
   ** The 'body' parameter is any value accepted as an
   ** [I/O handle]`doc#handles` (Str, Buf, Uri, etc).  If non-null, it is
@@ -1011,14 +1013,14 @@ const class IOFuncs
       headers?.each |v, n|
       {
         ref := v as Ref
-        if (ref != null && ref.id == "password")
+        if (ref != null)
         {
-          portStr := uri.port != null ? ":${uri.port}" : ""
-          pwKey := "${uri.scheme}://${uri.host}${portStr}/ $n"
+          if (ref.id != "password") throw Err("Unsupported header ref: @$ref.id")
+          pwKey := "${uri.scheme}://${uri.auth}/ $n"
           pw := cx.db.passwords.get(pwKey) ?: throw Err("Password not found: $pwKey")
           c.reqHeaders[n] = pw
         }
-        else c.reqHeaders[n] = v.toStr
+        else c.reqHeaders[n] = (Str)v
       }
       if (body != null)
       {

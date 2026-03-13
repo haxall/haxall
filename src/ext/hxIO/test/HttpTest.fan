@@ -72,6 +72,9 @@ class HttpTest : HxTest
 
       // password not found throws error
       verifyEvalErr("""ioHttp(`http://localhost:$port/echo`, "GET", {"X-Missing": @password}, null, (code, headers, body) => "ok")""", Err#)
+
+      // unsupported ref throws error
+      verifyEvalErr("""ioHttp(`http://localhost:$port/echo`, "GET", {"X-Bad": @badRef}, null, (code, headers, body) => "ok")""", Err#)
     }
     finally stopServer
   }
