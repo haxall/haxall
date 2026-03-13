@@ -434,6 +434,13 @@
   // The connection is guaranteed to be closed when the callback returns.
   //
   // The `headers` parameter is an optional Dict of request headers.
+  // Header values may use the special ref `@password` to resolve
+  // a secret from the project's password store.  The password is
+  // looked up by the key "<scheme>://<host>[:<port>]/ <header-name>".
+  //
+  // The password key is case sensitive.  If the password is not
+  // found, an exception is raised.
+  //
   // The `body` parameter is any value accepted as an
   // [I/O handle](doc#io-handles) (Str, Buf, Uri, etc).  If non-null, it is
   // streamed as the request body; Content-Type defaults to
@@ -454,6 +461,15 @@
   //     ioHttp(`http://example.com/api`, "POST",
   //       {"Content-Type": "text/plain"}, "hello world",
   //       (code, headers, body) => {code: code, body: ioReadStr(body)})
+  //
+  //     // Optionally use the password store for auth header
+  //     passwordSet("https://acme.com/ Secret-Header", "pass")
+  //
+  //     // Reference that password in the headers
+  //     ioHttp(`https://acme.com/api`, "POST",
+  //       {"Secret-Header": @password, "Content-Type": "application/json; charset=utf-8"},
+  //       body,
+  //       (code, headers, body) => {code: code, body: ioReadJson(body)})
   ioHttp: Func <admin> { uri: Uri, method: Str, headers: Dict?, body: Obj?, fn: Func, returns: Obj? }
 
 }

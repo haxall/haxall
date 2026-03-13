@@ -969,6 +969,13 @@ const class IOFuncs
   ** The connection is guaranteed to be closed when the callback returns.
   **
   ** The 'headers' parameter is an optional Dict of request headers.
+  ** Header values may use the special ref `@password` to resolve
+  ** a secret from the project's password store.  The password is
+  ** looked up by the key "<scheme>://<host>[:<port>]/ <header-name>".
+  **
+  ** The password key is case sensitive.  If the password is not
+  ** found, an exception is raised.
+  **
   ** The 'body' parameter is any value accepted as an
   ** [I/O handle]`doc#handles` (Str, Buf, Uri, etc).  If non-null, it is
   ** streamed as the request body; Content-Type defaults to
@@ -989,6 +996,12 @@ const class IOFuncs
   **     {"Content-Type": "text/plain"}, "hello world",
   **     (code, headers, body) => {code: code, body: ioReadStr(body)})
   **
+  **   // Use password store for auth header
+  **   passwordSet("https://acme.com/ Secret-Header", "pass")
+  **   ioHttp(`https://acme.com/api`, "POST",
+  **     {"Secret-Header": @password}, body,
+  **     (code, headers, body) => {code: code, body: ioReadStr(body)})
+  **
   @Api @Axon { admin = true }
   static Obj? ioHttp(Uri uri, Str method, Dict? headers, Obj? body, Fn fn)
   {
@@ -997,7 +1010,18 @@ const class IOFuncs
     try
     {
       c.reqMethod = method.upper
-      headers?.each |v, n| { c.reqHeaders[n] = v.toStr }
+      headers?.each |v, n|
+      {
+        ref := v as Ref
+        if (ref != null)
+        {
+          if (ref.id != "password") throw Err("Unsupported header ref: @$ref.id")
+          pwKey := "${uri.scheme}://${uri.auth}/ $n"
+          pw := cx.db.passwords.get(pwKey) ?: throw Err("Password not found: $pwKey")
+          c.reqHeaders[n] = pw
+        }
+        else c.reqHeaders[n] = (Str)v
+      }
       if (body != null)
       {
         bodyBuf := toHandle(body).inToBuf
