@@ -63,6 +63,15 @@ class HttpTest : HxTest
 
       // response body via ioReadStr
       verifyHttp(`/echo`, "GET", null, null, "str", 200)
+
+      // password header resolution
+      eval("""passwordSet("http://localhost:$port/ X-Secret", "my-secret-value")""")
+      Dict pwRes := eval("""ioHttp(`http://localhost:$port/echo`, "GET", {"X-Secret": @password}, null, (code, headers, body) => {code: code, body: ioReadStr(body)})""")
+      verifyEq(pwRes["code"], n(200))
+      verify(pwRes["body"].toStr.contains("x-secret=my-secret-value"))
+
+      // password not found throws error
+      verifyEvalErr("""ioHttp(`http://localhost:$port/echo`, "GET", {"X-Missing": @password}, null, (code, headers, body) => "ok")""", Err#)
     }
     finally stopServer
   }
@@ -87,7 +96,7 @@ class HttpTest : HxTest
 // Verify
 //////////////////////////////////////////////////////////////////////////
 
-  Void verifyHttp(Uri path, Str method, [Str:Str]? headers, Obj? body, Str? resReader, Int code := 200)
+  Void verifyHttp(Uri path, Str method, [Str:Obj]? headers, Obj? body, Str? resReader, Int code := 200)
   {
     uri := "http://localhost:$port" + path.toStr
     hExpr := toHeadersExpr(headers)
@@ -116,14 +125,15 @@ class HttpTest : HxTest
     }
   }
 
-  private Str toHeadersExpr([Str:Str]? headers)
+  private Str toHeadersExpr([Str:Obj]? headers)
   {
     if (headers == null) return "null"
     pairs := StrBuf()
     headers.each |v, k|
     {
       if (pairs.size > 0) pairs.add(", ")
-      pairs.add("\"$k\": \"$v\"")
+      if (v is Ref) pairs.add("\"$k\": @${(v as Ref).id}")
+      else pairs.add("\"$k\": \"$v\"")
     }
     return "{$pairs}"
   }
@@ -188,12 +198,15 @@ internal const class EchoMod : WebMod
       }
     }
 
+    xs := req.headers["X-Secret"]
+
     res.headers["Content-Type"] = "text/plain"
     res.headers["X-Echo-Test"] = "active"
     out := res.out
     out.print("method=$req.method\n")
     if (ct != null) out.print("content-type=$ct\n")
     if (cl != null) out.print("content-length=$cl\n")
+    if (xs != null) out.print("x-secret=$xs\n")
     if (body.size > 0) out.print("body=$body\n")
     out.close
   }
