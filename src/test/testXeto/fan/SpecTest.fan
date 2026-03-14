@@ -251,16 +251,21 @@ class SpecTest : AbstractXetoTest
     verifyIsa(ns, "sys::And",   "sys::And",   true, false)
     verifyIsa(ns, "sys::Or",    "sys::Or",    true, false)
 
+    verifyIsa(ns, "sys::Entity", "sys::Dict", true)
+    verifyIsa(ns, "sys::Entity", "sys::List", false)
+
     // env.print(env.spec("ph.points::DischargeAirTempSensor"))
 
     s := verifyIsa(ns, "ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "ph::Point", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "ph::SensorPoint", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Entity", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, true)
 
     s = verifyIsa(ns, "ph.points::AirTempSensor", "ph.points::AirTempPoint", true)
     s = verifyIsa(ns, "ph.points::AirTempSensor", "ph::Point", true)
+    s = verifyIsa(ns, "ph.points::AirTempSensor", "sys::Entity", true)
     verifyEq(s.isAnd, true)
 
     s = verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph::Point", true)
@@ -284,7 +289,7 @@ class SpecTest : AbstractXetoTest
     b := ns.type(bn)
     m := a.typeof.method("is${b.name}", false)
     isa := a.isa(b)
-    // echo("-> $a isa $b = $isa ?= $expect [$m]")
+    // echo("-> $a isa $b = $isa ?= $expect [$m] " + m?.call(a))
     verifyEq(isa, expect)
     if (m != null) verifyEq(m.call(a), expectMethod)
     return a

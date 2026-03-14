@@ -246,6 +246,7 @@ const class XetoSpec : Spec, CNode
   override final Bool isFunc()      { m.hasFlag(MSpecFlags.func) }
   override final Bool isInterface() { m.hasFlag(MSpecFlags.interface) }
   override final Bool isComp()      { m.hasFlag(MSpecFlags.comp) }
+  override final Bool isEntity()    { m.hasFlag(MSpecFlags.entity) }
   override final Bool isEnum()      { m.hasFlag(MSpecFlags.enum) }
   override final Bool isAnd()       { m.hasFlag(MSpecFlags.and) }
   override final Bool isOr()        { m.hasFlag(MSpecFlags.or) }

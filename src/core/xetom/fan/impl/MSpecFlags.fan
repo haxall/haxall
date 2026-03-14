@@ -24,7 +24,8 @@ const class MSpecFlags
   static const Int func        := 0x0400
   static const Int interface   := 0x0800
   static const Int comp        := 0x1000
-  static const Int transient   := 0x2000
+  static const Int entity      := 0x2000
+  static const Int transient   := 0x4000
   static const Int inheritMask := 0xFFFF
 
   // non-inherited flags
