@@ -574,9 +574,34 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
     spec := ns.spec("hx.test.xeto::TestAxonComposite")
     square := ns.spec("hx.test.xeto::TestAxonSquare")
-    dr := ns.instantiate(spec)
-    da := dr->a
-    db := dr->b
+
+    // create without genIds
+    Dict dr := ns.instantiate(spec)
+    Dict da := dr->a
+    Dict db := dr->b
+echo("--- no ids")
+Etc.dictDump(da)
+    verifyNull(dr["id"])
+    verifyNull(da["id"])
+    verifyNull(db["id"])
+    verifyEq(dr->spec, spec.id)
+    verifyEq(da->spec, square.id)
+    verifyEq(db->spec, square.id)
+    verifyInstantiateLinkDict(dr, "out", ".b", "out")
+    verifyInstantiateLinkDict(da, "in",  ".",  "in")
+    verifyInstantiateLinkDict(db, "in",  ".a", "out")
+
+echo("--- with ids")
+    dr = ns.instantiate(spec, Etc.dict1("genIds", m))
+Etc.dictDump(dr)
+echo
+    da = dr->a
+    db = dr->b
+Etc.dictDump(da)
+    verifyNotNull(dr["id"])
+    verifyNotNull(da["id"])
+    verifyNotNull(db["id"])
+    verifyDictEq(dr["point"], ["x":n(12), "y":n(34), "spec":Ref("hx.test.xeto::TestPoint")]) // no id!
     verifyEq(dr->spec, spec.id)
     verifyEq(da->spec, square.id)
     verifyEq(db->spec, square.id)
@@ -585,9 +610,9 @@ class CompTest: AbstractXetoTest
     verifyInstantiateLinkDict(db, "in",  ".a", "out")
 
     // now create comp instance
-    cr := cs.createSpec(spec)
-    ca := (Comp)cr->a
-    cb := (Comp)cr->b
+    Comp cr := cs.createSpec(spec)
+    Comp ca := cr->a
+    Comp cb := cr->b
     verifyEq(cr.spec, spec)
     verifyEq(ca.spec, square)
     verifyEq(cb.spec, square)

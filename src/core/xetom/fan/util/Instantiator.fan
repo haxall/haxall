@@ -14,12 +14,12 @@ using haystack
 ** Instantiator implements Namespace.instantiate with support
 ** for templating, graph instantiate, and pluggable options
 **
-** Options expanded from Namespace.instantiate for private use:
-**   - 'graph': Marker tag to instantiate graph of recs (will auto-generate ids)
+** Public options:
+**   - 'genIds': generate ids for entity and comp dicts
+**   - 'graph': marker tag to return Dict[] and generate child queries
 **   - 'abstract': marker to supress error if spec is abstract
-**   - 'id': Ref tag to include in new instance
 **   - 'haystack': marker tag to use Haystack level data fidelity
-** Extended:
+** Extended private use options:
 **   - 'graphInclude': map of Str:Str of qnames to explicitly include in graph
 **   - 'conn': connector to bind, must be dict of '{id:@x, addrSpec:@FooAddr}'
 **
@@ -28,15 +28,21 @@ class Instantiator
 {
   new make(MNamespace ns, Dict opts)
   {
+if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     this.ns       = ns
     this.opts     = opts
     this.fidelity = XetoUtil.optFidelity(opts)
     this.parent   = opts["parent"] as Dict
     this.isGraph  = opts.has("graph")
+    this.genIds   = opts.has("genIds") || this.isGraph
     this.graphInclude = opts["graphInclude"] as Str:Str
     this.addTestTag = opts["addTestTag"] as Str
     initConnOpts
   }
+
+//////////////////////////////////////////////////////////////////////////
+// instantiate
+//////////////////////////////////////////////////////////////////////////
 
   ** Instantiate default value of spec
   Obj? instantiate(XetoSpec spec)
@@ -119,7 +125,7 @@ class Instantiator
 
     // build up dict tags
     acc := Str:Obj[:] { it.ordered = true }
-    addId(acc)
+    addId(acc, spec)
     addSpec(acc, spec)
     addDis(acc, spec)
     addSlots(acc, spec)
@@ -135,11 +141,9 @@ class Instantiator
   }
 
   ** Add id if specified in opts or we are generating graph
-  private Void addId(Str:Obj acc)
+  private Void addId(Str:Obj acc, Spec spec)
   {
-    id := opts["id"]
-    if (id == null && isGraph) id = Ref.gen
-    if (id != null) acc["id"] = id
+    if (genIds && (spec.isEntity || spec.isComp)) acc["id"] = genId
   }
 
   ** Always add the spec tag
@@ -396,12 +400,20 @@ class Instantiator
   once Spec? addrSpec() { ns.spec("ph.protocols::ProtocolAddr", false) }
 
 //////////////////////////////////////////////////////////////////////////
+// Overrides
+//////////////////////////////////////////////////////////////////////////
+
+  ** Generate an id for new dict or null
+  protected Ref genId() { Ref.gen }
+
+//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   const MNamespace ns
   const Dict opts
   const XetoFidelity fidelity
+  const Bool genIds
   const Bool isGraph
   const Str? addTestTag
   private Dict? parent

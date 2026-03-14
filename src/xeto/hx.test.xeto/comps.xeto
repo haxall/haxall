@@ -82,6 +82,7 @@ TestIncrement : Comp {
 TestAxonComposite : Comp {
   in: Number
   out: Number
+  point: TestPoint { x:12, y:34 }
   a: TestAxonSquare {
     links: {
       in: Link { fromRef:@., fromSlot:"in" }
@@ -95,6 +96,11 @@ TestAxonComposite : Comp {
   links: {
     out: Link { fromRef:@.b, fromSlot:"out" }
   }
+}
+
+TestPoint: Dict {
+  x: Number
+  y: Number
 }
 
 TestNumberToStrFuncType: Func {

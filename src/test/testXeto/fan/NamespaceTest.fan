@@ -569,7 +569,7 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "ph::ElecMeter", ["dis":"ElecMeter", "spec":Ref("ph::ElecMeter"), "equip":m, "meter":m, "elec":m])
     verifyInstantiate(ns, "ph::AcElecMeter", ["dis":"AcElecMeter", "spec":Ref("ph::AcElecMeter"), "equip":m, "meter":m, "elec":m, "ac":m])
 
-    verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo", "Meter"), "dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m], ["id":Ref("foo")])
+    verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo", "Meter"), "dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m], Etc.dict1("genIds",m))
 
     verifyInstantiate(ns, "ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"),  "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
     verifyInstantiate(ns, "ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
@@ -645,13 +645,14 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(Err#) { ns.instantiate(ns.spec("sys::Scalar")) }
   }
 
-  Void verifyInstantiate(Namespace ns, Str qname, Obj? expect, Obj? opts := null)
+  Void verifyInstantiate(Namespace ns, Str qname, Obj? expect, Dict? opts := null)
   {
     spec := ns.spec(qname)
 
     opts = Etc.dictSet(Etc.makeDict(opts), "haystack", m)
     actual := ns.instantiate(spec, opts)
     // echo("-- $qname: $actual ?= $expect")
+    if (opts.has("genIds")) actual = Etc.dictSet(actual, "id", ((Map)expect).getChecked("id"))
     if (expect is Map)
       verifyInstantiateDictEq(ns, actual, expect)
     else

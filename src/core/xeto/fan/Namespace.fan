@@ -152,9 +152,9 @@ const mixin Namespace
   ** Raise exception if spec is abstract.
   **
   ** Options:
-  **   - 'graph': marker tag to instantiate graph of recs (will auto-generate ids)
+  **   - 'genIds': generate ids for entity and comp dicts
+  **   - 'graph': marker tag to return Dict[] and generate child queries
   **   - 'abstract': marker to supress error if spec is abstract
-  **   - 'id': Ref tag to include in new instance
   **   - 'haystack': marker tag to use Haystack level data fidelity
   abstract Obj? instantiate(Spec spec, Dict? opts := null)
 
