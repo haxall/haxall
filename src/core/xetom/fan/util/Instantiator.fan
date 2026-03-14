@@ -201,10 +201,9 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
       // the rule for maybe types is that slot definition
       // itself must define a default value or nested slots
       ownMeta := slot.metaOwn
-      if (slot.metaOwn.has("val") || !slot.slots.isEmpty)
-        return false
-      else
-        return true
+      if (slot.metaOwn.has("val")) return false
+      if (!slot.slots.isEmpty && !slot.type.isScalar) return false
+      return true
     }
 
     // ref

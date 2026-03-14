@@ -41,13 +41,13 @@ class EquipTest : AbstractXetoTest
       "navName":"ZoneAirTempSensor",
       "disMacro":"\$equipRef \$navName",
       "equipRef":eqId,
-      "unit":"°F", "kind":"Number", "tz":"UTC", "spec":zat.id],
+      "unit":"°F", "kind":"Number", "spec":zat.id],
       "zone,air,temp,sensor,point")
     verifyTemplate(recs[2], [
       "navName":"ZoneAirHumiditySensor",
       "disMacro":"\$equipRef \$navName",
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "tz":"UTC", "spec":zah.id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
     // instantiate with site + graphInclude
@@ -68,7 +68,7 @@ class EquipTest : AbstractXetoTest
       "disMacro":"\$equipRef \$navName",
       "siteRef":s.id,
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "tz":"UTC", "spec":zah.id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
 
@@ -91,7 +91,7 @@ class EquipTest : AbstractXetoTest
       "siteRef":s.id,
       "spaceRef":sp.id,
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "tz":"UTC", "spec":zah.id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
     // instantiate with equip that has siteRef, spaceRef, and systemRef
@@ -117,7 +117,7 @@ class EquipTest : AbstractXetoTest
       "spaceRef":sp.id,
       "systemRef":[sys.id],
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "tz":"UTC",  "spec":zah.id],
+      "unit":"%RH", "kind":"Number",  "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
     // instantiate with connector
@@ -138,7 +138,7 @@ class EquipTest : AbstractXetoTest
       "bacnetPoint":m,
       "bacnetConnRef":conn.id,
       "bacnetCur":"AI3",
-      "unit":"°F", "kind":"Number", "tz":"UTC", "spec":zat.id],
+      "unit":"°F", "kind":"Number", "spec":zat.id],
       "zone,air,temp,sensor,point")
     verifyTemplate(recs[2], [
       "navName":"ZoneAirHumiditySensor",
@@ -147,13 +147,13 @@ class EquipTest : AbstractXetoTest
       "bacnetPoint":m,
       "bacnetConnRef":conn.id,
       "bacnetCur":"AI4",
-      "unit":"%RH", "kind":"Number", "tz":"UTC", "spec":zah.id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
   }
 
   Void verifyTemplate(Dict rec, Str:Obj expect, Str markers)
   {
-echo; echo("---> $rec.dis"); Etc.dictDump(rec)
+    // echo; echo("---> $rec.dis"); Etc.dictDump(rec)
 
     expect.set("id", rec.id)
     markers.split(',').each |n| { expect.set(n, Marker.val) }
