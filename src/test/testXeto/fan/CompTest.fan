@@ -565,6 +565,54 @@ class CompTest: AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Composite Instantiate
+//////////////////////////////////////////////////////////////////////////
+
+  Void testCompositeInstantiate()
+  {
+    // test dict instantiate
+    ns := createNamespace(["hx.test.xeto"])
+    spec := ns.spec("hx.test.xeto::TestAxonComposite")
+    square := ns.spec("hx.test.xeto::TestAxonSquare")
+    dr := ns.instantiate(spec)
+    da := dr->a
+    db := dr->b
+    verifyEq(dr->spec, spec.id)
+    verifyEq(da->spec, square.id)
+    verifyEq(db->spec, square.id)
+    verifyInstantiateLinkDict(dr, "out", ".b", "out")
+    verifyInstantiateLinkDict(da, "in",  ".",  "in")
+    verifyInstantiateLinkDict(db, "in",  ".a", "out")
+
+    // now create comp instance
+    cr := cs.createSpec(spec)
+    ca := (Comp)cr->a
+    cb := (Comp)cr->b
+    verifyEq(cr.spec, spec)
+    verifyEq(ca.spec, square)
+    verifyEq(cb.spec, square)
+    verifyInstantiateLinkComp(cr, "out", cb, "out")
+    verifyInstantiateLinkComp(ca, "in",  cr,  "in")
+    verifyInstantiateLinkComp(cb, "in",  ca, "out")
+  }
+
+  Void verifyInstantiateLinkDict(Dict to, Str toSlot, Str fromRef, Str fromSlot)
+  {
+    links := (Links)to->links
+    link := (Link)links.get(toSlot)
+    verifyEq(link.fromRef, Ref(fromRef))
+    verifyEq(link.fromSlot, fromSlot)
+  }
+
+  Void verifyInstantiateLinkComp(Comp to, Str toSlot, Comp from, Str fromSlot)
+  {
+    links := to.links
+    link := (Link)links.get(toSlot)
+    verifyEq(link.fromRef, from.id)
+    verifyEq(link.fromSlot, fromSlot)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
 

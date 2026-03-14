@@ -82,23 +82,19 @@ TestIncrement : Comp {
 TestAxonComposite : Comp {
   in: Number
   out: Number
-  <compTree: ---
-  @root: This {
-    @a: TestAxonSquare {
-      links: {
-        in: Link { fromRef:@root, fromSlot:"in" }
-      }
-    }
-    @b: TestAxonSquare {
-      links: {
-        in: Link { fromRef:@a, fromSlot:"out" }
-      }
-    }
+  a: TestAxonSquare {
     links: {
-      out: Link { fromRef:@b, fromSlot:"out" }
+      in: Link { fromRef:@., fromSlot:"in" }
     }
   }
-  --->
+  b: TestAxonSquare {
+    links: {
+      in: Link { fromRef:@.a, fromSlot:"out" }
+    }
+  }
+  links: {
+    out: Link { fromRef:@.b, fromSlot:"out" }
+  }
 }
 
 TestNumberToStrFuncType: Func {

@@ -195,9 +195,9 @@ class Instantiator
     if (slot.isMaybe)
     {
       // the rule for maybe types is that slot definition
-      // itself must define a default value
+      // itself must define a default value or nested slots
       ownMeta := slot.metaOwn
-      if (slot.metaOwn.has("val"))
+      if (slot.metaOwn.has("val") || !slot.slots.isEmpty)
         return false
       else
         return true

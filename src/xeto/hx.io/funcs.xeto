@@ -437,8 +437,7 @@
   // Header values may use the special ref `@password` to resolve
   // a secret from the project's password store.  The password is
   // looked up by the key "<scheme>://<host>[:<port>]/ <header-name>".
-  //
-  // The password key is case sensitive.  If the password is not
+  // The password key is case sensitive; if the password is not
   // found, an exception is raised.
   //
   // The `body` parameter is any value accepted as an

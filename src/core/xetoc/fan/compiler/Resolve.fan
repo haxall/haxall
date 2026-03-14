@@ -162,6 +162,8 @@ internal class Resolve : Step
     if (matches.isEmpty)
     {
       if (allowUnresolved) return
+// TODO
+if (n.name.startsWith(".")) return
       err("Unresolved $ref.what: $n", ref.loc)
     }
     else if (matches.size > 1)
