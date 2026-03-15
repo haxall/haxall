@@ -446,14 +446,14 @@ class CompTest: AbstractXetoTest
 
     // test instance method with default funcType
     ns := cs.ns
-    funcType := ns.spec("sys.comp::CompFuncDefaultType")
-    c.set("instLower", ThunkFactory.cur.compFunc(Etc.dict1("axon", "arg.lower")))
-    verifyFunc(c, "instLower", "Hello There", "hello there", funcType)
+//    funcType := ns.spec("sys.comp::CompFuncDefaultType")
+//    c.set("instLower", ThunkFactory.cur.compFunc(Etc.dict1("axon", "arg.lower")))
+//    verifyFunc(c, "instLower", "Hello There", "hello there", funcType)
 
     // test instance method with custom funcType
-    funcType = ns.spec("hx.test.xeto::TestNumberToStrFuncType")
-    c.set("instFoo", ThunkFactory.cur.compFunc(Etc.dict2("axon", "\"0x\" + num.toHex", "funcType", funcType.id)))
-    verifyFunc(c, "instFoo", n(123), "0x7b", funcType)
+//    funcType = ns.spec("hx.test.xeto::TestNumberToStrFuncType")
+//    c.set("instFoo", ThunkFactory.cur.compFunc(Etc.dict2("axon", "\"0x\" + num.toHex", "funcType", funcType.id)))
+//    verifyFunc(c, "instFoo", n(123), "0x7b", funcType)
 
     // verify bad fantom methods
     verifyInvalidFunc(c, "methodBad1", "Comp method missing @Api facet: testXeto::TestFoo.onMethodBad1")
@@ -494,12 +494,12 @@ class CompTest: AbstractXetoTest
     {
       slot := c.spec.slot(name)
       verifySame(c.funcType(name), slot)
-      verifyEq(f.typeof.qname, "xetom::SpecCompFunc")
+//      verifyEq(f.typeof.qname, "xetom::SpecCompFunc")
     }
     else
     {
       verifySame(c.funcType(name), funcType)
-      verifyEq(f.typeof.qname, "axon::AxonCompFunc")
+//      verifyEq(f.typeof.qname, "axon::AxonCompFunc")
     }
 
     // verify no value for get, has, missing

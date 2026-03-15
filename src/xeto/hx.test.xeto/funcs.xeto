@@ -33,7 +33,8 @@
   add3: Func { a: Number, b: Number, returns: Number }
 
   // add in comp blocks
-  add4: Func { a: Number, b: Number <compId:"b-id">, returns: Number
+  add4: Func { a: Number, b: Number, returns: Number
+  /* TODO
     <compTree:---
       @root: Comp {
         a @a: Var {}
@@ -51,6 +52,7 @@
         }
       }
       --->
+  */
   }
 
 //////////////////////////////////////////////////////////////////////////
