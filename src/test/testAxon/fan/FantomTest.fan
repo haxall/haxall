@@ -26,15 +26,14 @@ class FantomTest : HaystackTest
   {
     super.setup
     ns := XetoEnv.cur.createNamespaceFromNames(["sys.comp"])
-    cs = CompSpace(ns).initRoot { TestComp() }
-    Actor.locals[CompSpace.actorKey] = cs
+    cs = CompSpace(ns).install
     comp = TestComp()
   }
 
   override Void teardown()
   {
+    CompSpace.uninstall
     super.teardown
-    Actor.locals.remove(CompSpace.actorKey)
   }
 
   Void test()

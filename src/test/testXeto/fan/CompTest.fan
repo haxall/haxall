@@ -32,14 +32,13 @@ class CompTest: AbstractXetoTest
 
     ns := createNamespace(["hx.test.xeto"])
     ns.lib("hx.test.xeto")
-    cs = CompSpace(ns).initRoot { CompObj() }
-    Actor.locals[CompSpace.actorKey] = cs
+    cs = CompSpace(ns).install
   }
 
   override Void teardown()
   {
+    CompSpace.uninstall
     super.teardown
-    Actor.locals.remove(CompSpace.actorKey)
   }
 
 
@@ -62,7 +61,7 @@ class CompTest: AbstractXetoTest
     spi := (MCompSpi)c.spi
 
     // initial state
-    verifyEq(c["id"], c.id)
+    verifyEq(c["id"], null)
     verifyEq(c.spec.name, "TestFoo")
     verifyEq(c.get("a"), "alpha")
     verifyEq(c.get("b"), "beta")
@@ -127,7 +126,7 @@ class CompTest: AbstractXetoTest
     verifyChanged(c, "_0", "auto")
 
     // each
-    expect := ["id":c.id, "spec":c.spec.id, "dis":"TestFoo", "a":"alpha",
+    expect := ["a":"alpha",
       "b":"bravo!", "bar":n(123), "_0":"auto"]
     c.spec.slots.each |s| { if (s.isFunc) expect[s.name] = (CompFunc)c.get(s.name) }
     map := Str:Obj?[:] { ordered = true }
@@ -163,8 +162,8 @@ class CompTest: AbstractXetoTest
     verifyChangeErr { c.set("spec", c.spec) }
     verifyChangeErr { c.remove("id") }
     verifyChangeErr { c.remove("spec") }
-    verifyDupNameErr { c.add(Ref.gen, "id") }
-    verifyDupNameErr { c.add(c.spec, "spec") }
+    verifyChangeErr { c.add(Ref.gen, "id") }
+    verifyChangeErr { c.add(c.spec, "spec") }
 
     // cannot set mutable values
     verifyMutErr { c.set("bad", this) }
@@ -215,30 +214,29 @@ class CompTest: AbstractXetoTest
     verifyEq(addSpec.isComp, true)
 
     // create empty add
-    TestAdd add := cs.createSpec(addSpec)
-    verifyEq(add["spec"], addSpec.id)
+    TestAdd add := cs.create(addSpec)
+    verifySame(add.spec, addSpec)
+    verifyEq(add["spec"], null)
     verifyEq(add["in1"], TestVal(0, ""))
     verifyEq(add["in2"], TestVal(0, ""))
     verifyEq(add["out"], TestVal(0, ""))
 
     // create composite comp
-    c    := cs.createSpec(composite)
+    c    := cs.create(composite)
     a    := (Comp)c->a
     nest := (Comp)c->nest
     b    := (Comp)nest->b
-    verifySame(c["spec"], composite.id)
+    verifySame(c.spec, composite)
+    verifySame(c["spec"], null)
     verifyEq(c["descr"], "test descr")
     verifyEq(c["dur"], 5min)
-    verifyCompEq(c, ["dis":"TestComposite", "id":c.id,
-      "spec":composite.id, "descr":"test descr", "dur":5min,
-      "a":a, "nest":nest])
+    verifyCompEq(c, ["descr":"test descr", "dur":5min, "a":a, "nest":nest])
 
     // verify it created a (one level child)
     verifySame(a.parent, c)
     verifyEq(a.name, "a")
     verifySame(c.child("a"), a)
-    verifyCompEq(a, ["id":a.id, "dis":"TestAdd",
-      "spec":addSpec.id, "in1":TestVal(7), "in2":TestVal(5), "out":TestVal(0)])
+    verifyCompEq(a, ["in1":TestVal(7), "in2":TestVal(5), "out":TestVal(0)])
 
     // verify it created b (two level child)
     verifySame(nest.parent, c)
@@ -246,8 +244,7 @@ class CompTest: AbstractXetoTest
     verifyEq(b.name, "b")
     verifySame(c.child("nest"), nest)
     verifySame(nest.child("b"), b)
-    verifyCompEq(b, ["id":b.id, "dis":"TestAdd",
-      "spec":addSpec.id, "in1":TestVal(17), "in2":TestVal(15), "out":TestVal(0)])
+    verifyCompEq(b, ["in1":TestVal(17), "in2":TestVal(15), "out":TestVal(0)])
 
     // verify unmounted
     verifyEq(c.name, "")
@@ -281,35 +278,36 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
     folder := ns.spec("hx.test.xeto::TestFolder")
     add := ns.spec("hx.test.xeto::TestAdd")
-    cs := CompSpace(ns).initRoot |cs| { cs.createSpec(folder) }
-    Actor.locals[CompSpace.actorKey] = cs
+    CompSpace.uninstall // from setup
+    cs := CompSpace(ns).install(folder)
     r := cs.root
+    verifySame(r.spec, folder)
 
     verifyTree(cs, "", null, r, [,])
 
     // add "a"
-    a := cs.createSpec(folder); r.add(a, "a")
+    a := cs.create(folder); r.add(a, "a")
     verifyTree(cs, "",  null, r, [a])
     verifyTree(cs, "a", r,    a, [,])
 
     // add "a.b"
-    b := cs.createSpec(add); a.add(b, "b")
+    b := cs.create(add); a.add(b, "b")
     verifyTree(cs, "",    null, r, [a])
     verifyTree(cs, "a",   r,    a, [b])
     verifyTree(cs, "a.b", a,    b, [,])
 
     // add "a.c"
-    c := cs.createSpec(add); a.set("c", c)
+    c := cs.create(add); a.set("c", c)
     verifyTree(cs, "",    null, r, [a])
     verifyTree(cs, "a",   r,    a, [b, c])
     verifyTree(cs, "a.b", a,    b, [,])
     verifyTree(cs, "a.c", a,    c, [,])
 
     // build mini-graph, then add
-    d := cs.createSpec(folder)                 // a.d
-    e := cs.createSpec(add);    d.add(e, "e")  // a.d.e
-    f := cs.createSpec(folder); d.set("f", f)  // a.d.f
-    g := cs.createSpec(add);    f.add(g, "g")  // a.d.f.g
+    d := cs.create(folder)                 // a.d
+    e := cs.create(add);    d.add(e, "e")  // a.d.e
+    f := cs.create(folder); d.set("f", f)  // a.d.f
+    g := cs.create(add);    f.add(g, "g")  // a.d.f.g
     a["d"] = d
     verifyTree(cs, "",        null, r, [a])
     verifyTree(cs, "a",       r,    a, [b, c, d])
@@ -604,7 +602,7 @@ class CompTest: AbstractXetoTest
     verifyNoDictLinks(db)
 
     // now create comp instance and verify links are reified
-    Comp cr := cs.spi->create2(spec)
+    Comp cr := cs.create(spec)
     Comp ca := cr->a
     Comp cb := cr->b
     verifyEq(cr.spec, spec)
@@ -637,7 +635,7 @@ class CompTest: AbstractXetoTest
   Void testAxon()
   {
     // test just TestAxonSquare with axon
-    x := cs.createSpec(cs.ns.spec("hx.test.xeto::TestAxonSquare"))
+    x := cs.create(cs.ns.spec("hx.test.xeto::TestAxonSquare"))
     cs.root.add(x)
     x.set("in", n(3))
     verifyEq(x.get("out"), n(0))
@@ -645,7 +643,7 @@ class CompTest: AbstractXetoTest
     verifyEq(x.get("out"), n(9))
 
     // test TestIncrement with axon
-    x = cs.createSpec(cs.ns.spec("hx.test.xeto::TestIncrement"))
+    x = cs.create(cs.ns.spec("hx.test.xeto::TestIncrement"))
     cs.root.add(x)
     x.set("in", n(3))
     verifyEq(x.get("out"), n(0))
@@ -653,9 +651,12 @@ class CompTest: AbstractXetoTest
     verifyEq(x.get("out"), n(4))
 
     // now test compTree composite
-    x = cs.createSpec( cs.ns.spec("hx.test.xeto::TestAxonComposite"))
+    x = cs.create(cs.ns.spec("hx.test.xeto::TestAxonComposite"))
+    verifyEq(x.isMounted, false)
     cs.root.add(x)
+    verifyEq(x.isMounted, true)
     x.set("in", n(3))
+    verifyEq(x.get("in"), n(3))
     verifyEq(x.get("out"), n(0))
     execute
     verifyEq(x.get("out"), n(81))
@@ -702,9 +703,9 @@ class CompTest: AbstractXetoTest
     verifyEq(x.spi.ver, 5)
 
     // reorder
-    verifyOrder(x, "id, spec, dis, foo, baz")
-    x.reorder(["id", "spec", "dis", "baz", "foo"])
-    verifyOrder(x, "id, spec, dis, baz, foo")
+    verifyOrder(x, "foo, baz")
+    x.reorder(["baz", "foo"])
+    verifyOrder(x, "baz, foo")
     verifyEq(x.spi.ver, 6)
 
     // remove x
@@ -740,7 +741,7 @@ class CompTest: AbstractXetoTest
   Void testReorder()
   {
     c := TestAdd()
-    fixed := ["id", "spec", "dis", "in1", "in2", "out"]
+    fixed := ["in1", "in2", "out"]
     verifyOrder(c, fixed.join(", "))
 
     c.set("a", n(1))
@@ -805,8 +806,6 @@ class CompTest: AbstractXetoTest
 
   CompSpace doTestLoad(Str xeto)
   {
-    ns := createNamespace(loadTestLibs)
-    cs := CompSpace(ns)
     cs.load(xeto)
 
     r := verifyLoadComp(cs, cs.root, "",  null, "TestFolder")

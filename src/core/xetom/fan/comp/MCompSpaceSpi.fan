@@ -29,18 +29,9 @@ class MCompSpaceSpi : CompSpaceSpi
     this.nsRef = ns
   }
 
-  ** Initialize the root - this must be called exactly once during initialization
-  override Void initRoot(|CompSpace->Comp| f)
+  override Void init(Spec rootSpec)
   {
-    if (rootRef != null) throw Err("Root already initialized")
-
-    // use callback to make root while this is installed as actor local
-    old := Actor.locals[CompSpace.actorKey]
-    Actor.locals[CompSpace.actorKey] = cs
-    try
-      this.rootRef = f(cs)
-    finally
-    Actor.locals.set(CompSpace.actorKey, old)
+    this.rootRef = create(rootSpec)
     mount(root)
   }
 
@@ -90,8 +81,9 @@ class MCompSpaceSpi : CompSpaceSpi
   ** Load tree from xeto instances
   override Void load(Str xeto)
   {
-    root := CompUtil.parse(ns, xeto)
-    initRoot |self->Comp| { create(root) }
+    unmount(rootRef)
+    rootRef = CompFactory(this).load(CompUtil.parse(ns, xeto), null)
+    mount(rootRef)
   }
 
   ** Save tree to xeto instances
@@ -104,43 +96,20 @@ class MCompSpaceSpi : CompSpaceSpi
 // Comp Management
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience to create new default component instance from spec.
-  override Comp createSpec(Spec spec, Dict? dict := null)
+  ** Initialize server provider interface for given instance
+  override CompSpi initCompSpi(CompObj c)
   {
-    create(Etc.dictSet(dict, "spec", spec.id))
+    CompFactory.initSpi(this, c)
   }
 
-  ** Create new component instance from dict state.
-  ** The dict must have a Comp spec tag.
-  override Comp create(Dict dict)
+  ** Create new component instance from spec.
+  override Comp create(Spec spec)
   {
-    CompFactory.create(this, [dict]).first
+    CompFactory(this).create(spec)
   }
-
-  ** Create new list of component instances from dict state.
-  ** Each dict must have a Comp spec tag.
-  override Comp[] createAll(Dict[] dicts)
-  {
-    CompFactory.create(this, dicts)
-  }
-
-  ** Create post-proessing
-  internal Void onCreateList(Comp[] comps)
-  {
-    comps.each |comp| { onCreate(comp) }
-  }
-
-  ** Create a new component from its spec
-  Comp create2(Spec spec) { CompFactory2(this).create(spec) }
 
   ** Create post-proessing
   virtual Void onCreate(Comp comp) {}
-
-  ** Initialize server provider interface for given instance
-  override CompSpi initCompSpi(CompObj c, Spec? spec)
-  {
-    CompFactory.initSpi(this, c, spec)
-  }
 
   ** Read by id
   override Comp? readById(Ref id, Bool checked := true)

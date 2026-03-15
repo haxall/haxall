@@ -22,7 +22,7 @@ class CompSpaceActorTest: AbstractXetoTest
     xeto := CompTest.loadTestXeto
 
     a := CompSpaceActor(ActorPool())
-    a.init(CompSpace#, [ns]).get
+    a.init(CompSpace(ns)).get
     a.load(xeto).get
     a.execute.get
   }

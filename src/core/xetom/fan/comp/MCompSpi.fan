@@ -29,7 +29,7 @@ class MCompSpi : CompSpi
     this.comp    = comp
     this.specRef = spec
     this.slots   = slots
-    this.id      = slots.getChecked("id")
+if (slots["id"] != null) throw Err("bad bad")
   }
 
   ** Init is called in CompObj constructor after spiRef is set
@@ -38,10 +38,14 @@ class MCompSpi : CompSpi
 newWay := this.comp == null
     this.comp = comp
 if (newWay) initChildren
+
     // check if spec meta defines compTree
     compTree := spec.meta.get("compTree") as Str
     if (compTree == null) return this
 
+echo("TODO: comp still using compTree $comp.spec")
+
+/*
     try
     {
       // compile xeto to This dict and mount
@@ -54,6 +58,7 @@ if (newWay) initChildren
       msg := "ERROR: Cannot load compTree [$spec.qname]"
       Console.cur.err(msg, e)
     }
+   */
     return this
   }
 
@@ -72,7 +77,8 @@ if (newWay) initChildren
   override Spec spec() { specRef }
   internal Spec? specRef
 
-  override const Ref id
+  override Ref id := Ref.nullRef { private set }
+  internal Void setId(Ref id) { this.id = id }
 
   override Int ver { internal set }
 
@@ -537,7 +543,6 @@ if (newWay) initChildren
     con.group(s.toStr)
     c.each |v, n|
     {
-      if (n == "id" || n == "spec" || n == "dis") return
       if (isDefault(c, n, v)) return
       if (v is Comp) return doDump(con, v, n, opts)
 

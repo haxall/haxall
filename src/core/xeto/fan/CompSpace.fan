@@ -23,17 +23,30 @@ class CompSpace
 
   ** Actors local key for CompSpace.  This actor local must
   ** be set before any Comp can be constructed against the namespace.
-  static const Str actorKey := "xeto::cs"
+  @NoDoc static const Str actorKey := "xeto::cs"
 
-  ** Constructor with namespace to use.  Must call `initRoot`
-  ** immediately after construction.
+
+  ** Constructor - must immediately call `install` after
   new make(Namespace ns)
   {
     this.spi = Type.find("xetom::MCompSpaceSpi").make([this, ns])
   }
 
-  ** Initialize the root; this must be called exactly once during initialization
-  This initRoot(|This->Comp| f) { spi.initRoot(f); return this }
+  ** Install actor local with given space and root spec.
+  ** If rootSpec is omitted, the root is initialized to generic `CompObj`.
+  This install(Spec? rootSpec := null)
+  {
+    if (Actor.locals[actorKey] != null) throw Err("CompSpace already installed for actor local")
+    Actor.locals[actorKey] = this
+    spi.init(rootSpec ?: ns.spec("sys.comp::Comp"))
+    return this
+  }
+
+  ** Uninstall the actor local if defined.
+  static Void uninstall()
+  {
+    Actor.locals.remove(actorKey)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Identity
@@ -78,16 +91,8 @@ class CompSpace
 // Comp Tree
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience to create new default component instance from spec.
-  Comp createSpec(Spec spec, Dict? dict := null)  { spi.createSpec(spec, dict) }
-
-  ** Create new component instance from dict state.
-  ** The dict must have a spec tag that references a 'sys.comp::Comp' spec.
-  Comp create(Dict dict) { spi.create(dict) }
-
-  ** Create new list of component instances from dict state.
-  ** Each dict must have a Comp spec tag.
-  Comp[] createAll(Dict[] dicts) { spi.createAll(dicts) }
+  ** Create new component instance for spec
+  Comp create(Spec spec)  { spi.create(spec) }
 
   ** Read a component by its id in this space
   Comp? readById(Ref id, Bool checked := true) { spi.readById(id, checked) }
@@ -149,8 +154,8 @@ mixin CompContext : ActorContext
 abstract class CompSpaceSpi
 {
   abstract Namespace ns()
-  abstract CompSpi initCompSpi(CompObj c, Spec? spec)
-  abstract Void initRoot(|CompSpace->Comp| f)
+  abstract Void init(Spec rootSpec)
+  abstract CompSpi initCompSpi(CompObj c)
   abstract Comp root()
   abstract Int ver()
   abstract Bool isRunning()
@@ -158,9 +163,7 @@ abstract class CompSpaceSpi
   abstract Void stop()
   abstract Void load(Str xeto)
   abstract Str save()
-  abstract Comp createSpec(Spec spec, Dict? dict := null)
-  abstract Comp create(Dict dict)
-  abstract Comp[] createAll(Dict[] dicts)
+  abstract Comp create(Spec spec)
   abstract Comp? readById(Ref id, Bool checked := true)
   abstract Void each(|Comp| f)
   abstract Obj? eachWhile(|Comp->Obj?| f)

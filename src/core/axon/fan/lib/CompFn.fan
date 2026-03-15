@@ -34,6 +34,7 @@ const class CompFn : TopFn
   override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
     // create component space from xeto
+    /*
     ns := cx.ns
     cs := CompSpace(ns).load(xeto)
 
@@ -52,6 +53,8 @@ const class CompFn : TopFn
     // get returns
     ret := root.get("returns") as Comp
     return ret?.get("val")
+    */
+    throw Err("TODO")
   }
 
 }

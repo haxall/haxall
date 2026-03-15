@@ -16,10 +16,27 @@ using haystack
 **
 class CompSpaceTest: AbstractXetoTest
 {
+  CompSpace? cs
+
+  override Void setup()
+  {
+    super.setup
+    cs = CompSpace(createNamespace(CompTest.loadTestLibs)).install
+  }
+
+  override Void teardown()
+  {
+    CompSpace.uninstall
+    super.teardown
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// RemovesTargetLinks
+//////////////////////////////////////////////////////////////////////////
+
   Void testUnmountRemovesTargetLinks()
   {
-    ns := createNamespace(CompTest.loadTestLibs)
-    cs := CompSpace(ns).load(CompTest.loadTestXeto)
+    cs.load(CompTest.loadTestXeto)
 
     TestAdd c := cs.root.get("c")
     c.set("in2", TestVal(100))
@@ -29,6 +46,8 @@ class CompSpaceTest: AbstractXetoTest
     // echo(cs.save)
     verifyEq(c.links.listOn("in2").size, 0)
     verifyEq(c.get("in2"), TestVal.makeNum(0))
+
+    CompSpace.uninstall
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,10 +56,6 @@ class CompSpaceTest: AbstractXetoTest
 
   Void testCompMap()
   {
-    // setup comp space
-    cs := CompSpace(createNamespace(CompTest.loadTestLibs))
-    Actor.locals[CompSpace.actorKey] = cs
-
     // init map with a-f
     m := CompMap()
     verifyCompMapSort(m, Comp[,])
@@ -248,8 +263,6 @@ class CompSpaceTest: AbstractXetoTest
 
   Void testExecute()
   {
-    ns := createNamespace(CompTest.loadTestLibs)
-    cs := CompSpace(ns)
     cs.load(executeTestXeto)
 
     a := (TestCounter)cs.root->a

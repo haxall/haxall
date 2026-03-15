@@ -14,7 +14,7 @@ using haystack
 ** CompSpaceActor is used to encapsulate a CompSpace and provide
 ** a thread safe API to execute, observe, and edit the component tree.
 ** To use:
-**   1. Call init with the ComponentSpace type and ctor args
+**   1. Call init with the ComponentSpace
 **   2. Call load with the Xeto string
 **   3. Call checkTimers periodically
 **
@@ -36,16 +36,8 @@ const class CompSpaceActor : Actor
   Namespace ns() { nsRef.val ?: throw Err("Must call init first") }
   private const AtomicRef nsRef := AtomicRef()
 
-  ** Initialize the CompSpace using given subtype and make args
-  ** Future evaluates to this.
-  Future init(Type csType, Obj?[] args)
-  {
-    send(ActorMsg("init", csType, args))
-  }
-
-  ** Initialize the CompSpace with an already constructed component space.
-  ** Future evaluates to this.
-  Future initSpace(CompSpace cs)
+  ** Initialize the CompSpace; Future evaluates to this.
+  Future init(CompSpace cs)
   {
     send(ActorMsg("init", Unsafe(cs)))
   }
@@ -107,7 +99,7 @@ const class CompSpaceActor : Actor
     if (state == null)
     {
       if (msg.id != "init") throw Err("Must call init first")
-      state = onInit(msg)
+      state = onInit(msg.a)
       Actor.locals["csas"] = state
       return this
     }
@@ -154,15 +146,14 @@ const class CompSpaceActor : Actor
 // CompSpace Management
 //////////////////////////////////////////////////////////////////////////
 
-  private CompSpaceActorState onInit(ActorMsg msg)
+  private CompSpaceActorState onInit(Unsafe unsafe)
   {
-    CompSpace cs := msg.a is Unsafe
-      ? ((Unsafe)msg.a).val
-      : ((Type)msg.a).make(msg.b)
+    CompSpace cs := unsafe.val
     Actor.locals[CompSpace.actorKey] = cs
     nsRef.val = cs.ns
     state := CompSpaceActorState(cs)
     state.spi.actorState = state
+    cs.spi.init(ns.spec("sys.comp::Comp")) // don't really love this
     return state
   }
 

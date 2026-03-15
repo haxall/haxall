@@ -48,17 +48,10 @@ class CompUtil
     acc := Str:Obj[:]
     spec := comp.spec
     links := comp.links
+    acc["id"] = comp.id
+    acc["spec"] = comp.spec.id
     comp.each |v, n|
     {
-      // must have spec tag
-      if (n == "spec") { acc[n] = v; return }
-
-      // don't encode dis
-      if (n == "dis") return
-
-      // don't encode id if opts
-      if (n == "id" && opts.has("omitId")) return
-
       // skip transients
       slot := spec.slot(n, false)
       if (slot != null && slot.meta.has("transient")) return

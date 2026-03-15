@@ -40,7 +40,7 @@ class AxonTest : AbstractAxonTest
   @HxTestProj
   Void testComp()
   {
-    cs := CompSpace(ns).initRoot { CompObj() }
+    cs := CompSpace(ns).install
     x := cs.root
 
     // test out axon methods
@@ -52,6 +52,8 @@ class AxonTest : AbstractAxonTest
     verifyCompAxon(x, Str<|x.missing("foo")|>,  false)
     verifyCompAxon(x, Str<|x.get("foo")|>,      "!")
     verifyCompAxon(x, Str<|x->foo|>,            "!")
+
+    CompSpace.uninstall
   }
 
   Void verifyCompAxon(Comp x, Str axon, Obj? expect)

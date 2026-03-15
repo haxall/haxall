@@ -228,12 +228,13 @@ class CompObj : Comp
     spi := Actor.locals["xeto.spi"] as CompSpi
     if (spi != null)
     {
+      Actor.locals.remove("xeto.spi")
       this.spiRef = spi.init(this)
       return
     }
 
     cs := Actor.locals[CompSpace.actorKey] as CompSpace ?: throw Err("No CompSpace active for current thread")
-    this.spiRef = cs.spi.initCompSpi(this, null)
+    this.spiRef = cs.spi.initCompSpi(this)
     this.spiRef.init(this)
   }
 

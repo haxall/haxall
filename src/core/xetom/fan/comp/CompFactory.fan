@@ -4,6 +4,7 @@
 //
 // History:
 //   22 May 2024  Brian Frank  Creation
+//   15 Mar 2026  Brian Frank  Resign to use spec and link meta
 //
 
 using concurrent
@@ -12,16 +13,51 @@ using xeto
 using haystack
 
 **
-** CompFactory is a temporary object used to create a swizzled
-** graph of components and their SPIs.
+** CompFactory creates a comp or comp tree from a spec.
 **
 @Js
-internal class CompFactory2
+internal class CompFactory
 {
+  static CompSpi initSpi(MCompSpaceSpi spi, CompObj c)
+  {
+    x := Actor.locals["xeto.spi"]
+    if (x != null) return x
+
+   // TODO: quick hack for now
+    return spi.create(spi.ns.specOf(c)).spi
+  }
+
   new make(MCompSpaceSpi spi)
   {
     this.spi = spi
     this.ns  = spi.ns
+  }
+
+  Comp load(Dict dict, Spec? spec)
+  {
+    if (spec == null) spec = ns.spec(dict->spec.toStr)
+    comp := create(spec)
+spi := (MCompSpi)comp.spi
+spi.setId(dict.id)
+    dict.each |v, n|
+    {
+      if (n == "id" || n == "spec") return
+      comp.set(n, reify(v))
+    }
+    return comp
+  }
+
+  private Obj reify(Obj v)
+  {
+    dict := v as Dict
+    specRef := dict?.get("spec")
+    if (specRef != null)
+    {
+      spec := ns.spec(specRef.toStr, false)
+      if (spec != null && spec.isComp)
+        return load(dict, spec)
+    }
+    return v
   }
 
   Comp create(Spec spec)
@@ -34,9 +70,9 @@ internal class CompFactory2
   private Comp doCreate(Spec spec)
   {
     acc := Str:Obj[:]
-    BackpatchLink[]? compLinks := null
+    acc.ordered = true
 
-    acc["id"] = spi.genId
+    BackpatchLink[]? compLinks := null
     spec.slots.each |slot|
     {
       acc.addNotNull(slot.name, createSlot(slot))
@@ -51,7 +87,7 @@ internal class CompFactory2
       // wire comp refence now that it has been created
       compLinks.each |x| { x.to = comp }
 
-      // add to all links
+      // add to all linkss
       allLinks.addAll(compLinks)
     }
 
@@ -60,15 +96,31 @@ internal class CompFactory2
 
   private Obj? createSlot(Spec spec)
   {
-    if (spec.isComp) return createChild(spec)
+    if (spec.isa(compSpec)) return createChild(spec)
     if (spec.isFunc) return createFunc(spec)
+    if (spec.isMaybe && skipMaybeSlot(spec)) return null
+    if (spec.name == "parentRef") return null
+    if (spec.name == "compName") return null
     if (spec.name == "compLayout") return null
+    if (spec.name == "links") return null
     return ns.instantiate(spec)
   }
 
-  private Obj? createFunc(Spec spec)
+  private Bool skipMaybeSlot(Spec slot)
   {
-    null
+    // TODO: dup logic in Instantiator
+    ownMeta := slot.metaOwn
+    if (slot.metaOwn.has("val")) return false
+    if (!slot.slots.isEmpty && !slot.type.isScalar) return false
+    return true
+  }
+
+  private Obj? createFunc(Spec slot)
+  {
+    if (slot.isFunc && slot.func.arity == 1)
+      return SpecCompFunc(slot)
+    else
+      return null
   }
 
   private Comp createChild(Spec spec)
@@ -120,6 +172,8 @@ internal class CompFactory2
   private Comp instantiate(Spec spec, Str:Obj slots)
   {
     compSpi := MCompSpi(spi, null, spec, slots)
+    compSpi.setId(spi.genId)
+
     Actor.locals["xeto.spi"] = compSpi
     try
       return toCompFantomType(spec).make
@@ -135,6 +189,11 @@ internal class CompFactory2
     if (t == xeto::Dict#) return toCompFantomType(spec.base)
     if (t.isMixin) return t.pod.type(t.name + "Obj")
     return t
+  }
+
+  private once Spec compSpec()
+  {
+    spi.ns.lib("sys.comp").spec("Comp")
   }
 
   private MCompSpaceSpi spi
@@ -160,6 +219,7 @@ internal class BackpatchLink
 ** CompFactory is a temporary object used to create a swizzled
 ** graph of components and their SPIs.
 **
+/*
 @Js
 internal class CompFactory
 {
@@ -557,4 +617,5 @@ internal const class CompSpiInit
   const Dict slots
   override Str toStr() { "CompSpiInit { $spec }" }
 }
+*/
 

@@ -23,19 +23,18 @@ class CompSpaceEditTest: AbstractXetoTest
     super.setup
 
     ns := createNamespace(CompTest.loadTestLibs)
-    this.cs = CompSpace(ns).load(loadBasicXeto)
-    Actor.locals[CompSpace.actorKey] = cs
+    this.cs = CompSpace(ns).install.load(loadBasicXeto)
     cs.start
 
-    addRef = cs.root.get("add")->id
-    c1Ref = cs.root.get("c1")->id
-    c2Ref = cs.root.get("c2")->id
+    addRef = ((Comp)cs.root.get("add")).id
+    c1Ref = ((Comp)cs.root.get("c1")).id
+    c2Ref = ((Comp)cs.root.get("c2")).id
   }
 
   override Void teardown()
   {
+    CompSpace.uninstall
     super.teardown
-    Actor.locals.remove(CompSpace.actorKey)
   }
 
   CompSpace? cs
@@ -108,7 +107,8 @@ class CompSpaceEditTest: AbstractXetoTest
   Void testDuplicate()
   {
     // duplicate single comp
-    ids   := [cs.root.get("c1")->id]
+    c1 := (Comp)cs.root.get("c1")
+    ids   := [c1.id]
     dups  := edit(cs).duplicate(ids)
     verifyEq(dups.size, 1)
     c1Dup := dups.first
@@ -116,7 +116,9 @@ class CompSpaceEditTest: AbstractXetoTest
     verifyNotEq(c1Dup.id, ids.first)
 
     // duplicate multiple comps
-    ids  = [cs.root.get("c2")->id, cs.root.get("add")->id]
+    c2 := (Comp)cs.root.get("c2")
+    add := (Comp)cs.root.get("add")
+    ids  = [c2.id, add.id]
     dups = edit(cs).duplicate(ids)
     verifyEq(dups.size, 2)
     verifyType(dups.first, TestCounter#)

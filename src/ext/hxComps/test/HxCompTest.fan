@@ -19,15 +19,14 @@ abstract class HxCompTest : HxTest
   override Void setup()
   {
     super.setup
-    cs = CompSpace(ns).initRoot { Folder() }
-    Actor.locals[CompSpace.actorKey] = cs
+    cs = CompSpace(ns).install(ns.spec("hx.comps::Folder"))
     cs.start
   }
 
   override Void teardown()
   {
     cs.stop
-    Actor.locals.remove(CompSpace.actorKey)
+    CompSpace.uninstall
     super.teardown
   }
 
@@ -43,7 +42,7 @@ abstract class HxCompTest : HxTest
   ** Utility to help with creating new comp instances
   Comp createComp(Obj obj)
   {
-    if (obj is Spec) return cs.createSpec(obj)
+    if (obj is Spec) return cs.create(obj)
     if (obj is Str)
     {
       s := obj as Str

@@ -27,14 +27,13 @@ class RpcTest : AxonTest
 
     ns := XetoEnv.cur.createNamespaceFromNames(["hx.test.xeto"])
     ns.lib("hx.test.xeto")
-    cs = CompSpace(ns).initRoot { CompObj() }
-    Actor.locals[CompSpace.actorKey] = cs
+    cs = CompSpace(ns).install
   }
 
   override Void teardown()
   {
+    CompSpace.uninstall
     super.teardown
-    Actor.locals.remove(CompSpace.actorKey)
   }
 
   Void test()
