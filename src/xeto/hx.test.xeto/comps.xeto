@@ -81,20 +81,14 @@ TestIncrement : Comp {
 
 TestAxonComposite : Comp {
   in: Number
-  out: Number
+  out: Number <link:"b.out">
+  str: Str "something here"
   point: TestPoint { x:12, y:34 }
   a: TestAxonSquare {
-    links: {
-      in: Link { fromRef:@., fromSlot:"in" }
-    }
+    in: Number <link:"in">
   }
   b: TestAxonSquare {
-    links: {
-      in: Link { fromRef:@.a, fromSlot:"out" }
-    }
-  }
-  links: {
-    out: Link { fromRef:@.b, fromSlot:"out" }
+    in: Number <link:"a.out">
   }
 }
 

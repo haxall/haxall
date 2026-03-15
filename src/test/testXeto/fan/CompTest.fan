@@ -579,25 +579,19 @@ class CompTest: AbstractXetoTest
     Dict dr := ns.instantiate(spec)
     Dict da := dr->a
     Dict db := dr->b
-echo("--- no ids")
-Etc.dictDump(da)
     verifyNull(dr["id"])
     verifyNull(da["id"])
     verifyNull(db["id"])
     verifyEq(dr->spec, spec.id)
     verifyEq(da->spec, square.id)
     verifyEq(db->spec, square.id)
-    verifyInstantiateLinkDict(dr, "out", ".b", "out")
-    verifyInstantiateLinkDict(da, "in",  ".",  "in")
-    verifyInstantiateLinkDict(db, "in",  ".a", "out")
+    verifyNoDictLinks(dr)
+    verifyNoDictLinks(da)
+    verifyNoDictLinks(db)
 
-echo("--- with ids")
     dr = ns.instantiate(spec, Etc.dict1("genIds", m))
-Etc.dictDump(dr)
-echo
     da = dr->a
     db = dr->b
-Etc.dictDump(da)
     verifyNotNull(dr["id"])
     verifyNotNull(da["id"])
     verifyNotNull(db["id"])
@@ -605,31 +599,30 @@ Etc.dictDump(da)
     verifyEq(dr->spec, spec.id)
     verifyEq(da->spec, square.id)
     verifyEq(db->spec, square.id)
-    verifyInstantiateLinkDict(dr, "out", ".b", "out")
-    verifyInstantiateLinkDict(da, "in",  ".",  "in")
-    verifyInstantiateLinkDict(db, "in",  ".a", "out")
+    verifyNoDictLinks(dr)
+    verifyNoDictLinks(da)
+    verifyNoDictLinks(db)
 
-    // now create comp instance
-    Comp cr := cs.createSpec(spec)
+    // now create comp instance and verify links are reified
+    Comp cr := cs.spi->create2(spec)
     Comp ca := cr->a
     Comp cb := cr->b
     verifyEq(cr.spec, spec)
-    verifyEq(ca.spec, square)
-    verifyEq(cb.spec, square)
-    verifyInstantiateLinkComp(cr, "out", cb, "out")
-    verifyInstantiateLinkComp(ca, "in",  cr,  "in")
-    verifyInstantiateLinkComp(cb, "in",  ca, "out")
+    verifyEq(ca.spec, spec.slot("a"))
+    verifyEq(cb.spec, spec.slot("b"))
+    verifySame(ca.parent, cr)
+    verifySame(cb.parent, cr)
+    verifyCompLink(cr, "out", cb, "out")
+    verifyCompLink(ca, "in",  cr,  "in")
+    verifyCompLink(cb, "in",  ca, "out")
   }
 
-  Void verifyInstantiateLinkDict(Dict to, Str toSlot, Str fromRef, Str fromSlot)
+  Void verifyNoDictLinks(Dict to)
   {
-    links := (Links)to->links
-    link := (Link)links.get(toSlot)
-    verifyEq(link.fromRef, Ref(fromRef))
-    verifyEq(link.fromSlot, fromSlot)
+    verifyEq(to["links"], null)
   }
 
-  Void verifyInstantiateLinkComp(Comp to, Str toSlot, Comp from, Str fromSlot)
+  Void verifyCompLink(Comp to, Str toSlot, Comp from, Str fromSlot)
   {
     links := to.links
     link := (Link)links.get(toSlot)

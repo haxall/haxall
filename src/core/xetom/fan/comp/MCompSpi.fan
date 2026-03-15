@@ -23,7 +23,7 @@ class MCompSpi : CompSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructed by initSpi using actor local
-  new make(MCompSpaceSpi csSpi, CompObj comp, Spec spec, Str:Obj slots)
+  new make(MCompSpaceSpi csSpi, CompObj? comp, Spec spec, Str:Obj slots)
   {
     this.csSpi   = csSpi
     this.comp    = comp
@@ -33,11 +33,14 @@ class MCompSpi : CompSpi
   }
 
   ** Init is called in CompObj constructor after spiRef is set
-  override Void init()
+  override This init(CompObj comp)
   {
+newWay := this.comp == null
+    this.comp = comp
+if (newWay) initChildren
     // check if spec meta defines compTree
     compTree := spec.meta.get("compTree") as Str
-    if (compTree == null) return
+    if (compTree == null) return this
 
     try
     {
@@ -51,13 +54,14 @@ class MCompSpi : CompSpi
       msg := "ERROR: Cannot load compTree [$spec.qname]"
       Console.cur.err(msg, e)
     }
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  Comp comp { private set }
+  CompObj? comp { private set }
 
   MCompSpaceSpi csSpi { private set }
 
@@ -268,6 +272,18 @@ class MCompSpi : CompSpi
 
     // fire callback
     changed(CompChangeEvent(comp, name, slot, oldVal, newVal))
+  }
+
+  private Void initChildren()
+  {
+    slots.each |val, name|
+    {
+      child := val as Comp
+      if (child == null) return
+      childSpi := (MCompSpi)child.spi
+      childSpi.nameRef = name
+      childSpi.parentRef = this.comp
+    }
   }
 
   internal Void addChild(Str name, Comp child)

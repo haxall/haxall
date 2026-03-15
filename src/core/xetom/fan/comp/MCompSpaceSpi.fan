@@ -130,6 +130,9 @@ class MCompSpaceSpi : CompSpaceSpi
     comps.each |comp| { onCreate(comp) }
   }
 
+  ** Create a new component from its spec
+  Comp create2(Spec spec) { CompFactory2(this).create(spec) }
+
   ** Create post-proessing
   virtual Void onCreate(Comp comp) {}
 

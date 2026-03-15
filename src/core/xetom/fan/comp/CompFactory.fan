@@ -7,8 +7,154 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
+
+**
+** CompFactory is a temporary object used to create a swizzled
+** graph of components and their SPIs.
+**
+@Js
+internal class CompFactory2
+{
+  new make(MCompSpaceSpi spi)
+  {
+    this.spi = spi
+    this.ns  = spi.ns
+  }
+
+  Comp create(Spec spec)
+  {
+    comp := doCreate(spec)
+    backpatchLinks(comp)
+    return comp
+  }
+
+  private Comp doCreate(Spec spec)
+  {
+    acc := Str:Obj[:]
+    BackpatchLink[]? compLinks := null
+
+    acc["id"] = spi.genId
+    spec.slots.each |slot|
+    {
+      acc.addNotNull(slot.name, createSlot(slot))
+      compLinks = checkLink(slot, compLinks)
+    }
+
+    comp := instantiate(spec, acc)
+
+    // if we have links add
+    if (compLinks != null)
+    {
+      // wire comp refence now that it has been created
+      compLinks.each |x| { x.to = comp }
+
+      // add to all links
+      allLinks.addAll(compLinks)
+    }
+
+    return comp
+  }
+
+  private Obj? createSlot(Spec spec)
+  {
+    if (spec.isComp) return createChild(spec)
+    if (spec.isFunc) return createFunc(spec)
+    if (spec.name == "compLayout") return null
+    return ns.instantiate(spec)
+  }
+
+  private Obj? createFunc(Spec spec)
+  {
+    null
+  }
+
+  private Comp createChild(Spec spec)
+  {
+    return doCreate(spec)
+  }
+
+  private BackpatchLink[]? checkLink(Spec spec, BackpatchLink[]? links)
+  {
+    path := spec.meta.get("link")
+    if (path == null) return links
+
+    link := BackpatchLink(spec.name, path.toStr)
+    if (links == null) links = BackpatchLink[,]
+    links.add(link)
+    return links
+  }
+
+  private Void backpatchLinks(Comp root)
+  {
+    allLinks.each |link| { backpatchLink(root, link) }
+  }
+
+  private Void backpatchLink(Comp root, BackpatchLink x)
+  {
+    // resolve path
+    names := x.path.split('.', false)
+    toComp := x.to
+    toSlot := x.toSlot
+    Comp? fromComp := root
+    fromSlot := names.last
+    for (i := 0; i<names.size-1; ++i)
+    {
+      fromComp = fromComp.get(names[i]) as Comp
+      if (fromComp == null)
+      {
+        Console.cur.warn("Invalid link path $x.path.toCode [$x.to]")
+        return
+      }
+    }
+
+    // echo("$fromComp . $fromSlot => $toComp . $toSlot")
+
+    // TODO: optimize this for the to comp
+    links := toComp.links.add(x.toSlot, Etc.link(fromComp.id, fromSlot))
+    toComp.set("links", links)
+  }
+
+  private Comp instantiate(Spec spec, Str:Obj slots)
+  {
+    compSpi := MCompSpi(spi, null, spec, slots)
+    Actor.locals["xeto.spi"] = compSpi
+    try
+      return toCompFantomType(spec).make
+    finally
+      Actor.locals.remove("xeto.spi")
+  }
+
+  private Type toCompFantomType(Spec spec)
+  {
+    // if there is no Fantom type registered this defaults
+    // to Dict in which case walk up class hierarchy
+    t := spec.fantomType
+    if (t == xeto::Dict#) return toCompFantomType(spec.base)
+    if (t.isMixin) return t.pod.type(t.name + "Obj")
+    return t
+  }
+
+  private MCompSpaceSpi spi
+  private Namespace ns
+  private BackpatchLink[] allLinks := [,]
+}
+
+@Js
+internal class BackpatchLink
+{
+  new make(Str toSlot, Str path) { this.toSlot = toSlot; this.path = path }
+
+  Comp? to
+  const Str toSlot
+  const Str path
+}
+
+**************************************************************************
+** Old Shit
+**************************************************************************
 
 **
 ** CompFactory is a temporary object used to create a swizzled
@@ -221,6 +367,7 @@ internal class CompFactory
     }
 
     // init rest from the slots dict
+    links := Link[,]
     slots.each |v, n|
     {
       // skip
