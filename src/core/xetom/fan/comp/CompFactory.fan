@@ -124,9 +124,9 @@ internal class CompFactory
 
   private Obj? createSlot(Spec spec)
   {
-    if (spec.isComp) return createChild(spec)
     if (spec.isFunc) return null
     if (spec.isMaybe && Instantiator.skipMaybe(spec)) return null
+    if (spec.isComp) return createChild(spec)
     if (spec.name == "parentRef") return null
     if (spec.name == "compName") return null
     if (spec.name == "compLayout") return null
