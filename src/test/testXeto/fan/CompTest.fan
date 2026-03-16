@@ -609,6 +609,7 @@ class CompTest: AbstractXetoTest
     // test just TestAxonSquare with axon
     x := cs.create(cs.ns.spec("hx.test.xeto::TestAxonSquare"))
     cs.root.add(x)
+    cs.start
     x.set("in", n(3))
     verifyEq(x.get("out"), n(0))
     execute
@@ -630,8 +631,13 @@ class CompTest: AbstractXetoTest
     x.set("in", n(3))
     verifyEq(x.get("in"), n(3))
     verifyEq(x.get("out"), n(0))
+    execute  // need two since we have feedback loop
     execute
-    verifyEq(x.get("out"), n(81))
+    verifyEq(x->a->in,  n(3))
+    verifyEq(x->a->out, n(9))
+    verifyEq(x->b->in,  n(9))
+    verifyEq(x->b->out, n(81))
+    verifyEq(x->out,    n(81))
   }
 
 //////////////////////////////////////////////////////////////////////////
