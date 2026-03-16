@@ -97,9 +97,9 @@ class MCompSpaceSpi : CompSpaceSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Initialize server provider interface for given instance
-  override CompSpi initCompSpi(CompObj c)
+  override CompSpi initCompSpi(CompObj comp)
   {
-    CompFactory.initSpi(this, c)
+    CompFactory(this).init(comp)
   }
 
   ** Create new component instance from spec.
@@ -107,9 +107,6 @@ class MCompSpaceSpi : CompSpaceSpi
   {
     CompFactory(this).create(spec)
   }
-
-  ** Create post-proessing
-  virtual Void onCreate(Comp comp) {}
 
   ** Read by id
   override Comp? readById(Ref id, Bool checked := true)

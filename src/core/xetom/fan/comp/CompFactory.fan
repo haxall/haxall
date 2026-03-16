@@ -18,32 +18,37 @@ using haystack
 @Js
 internal class CompFactory
 {
-  static CompSpi initSpi(MCompSpaceSpi spi, CompObj c)
-  {
-    x := Actor.locals["xeto.spi"]
-    if (x != null) return x
 
-   // TODO: quick hack for now
-    return spi.create(spi.ns.specOf(c)).spi
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
+  ** Constructor
+  new make(MCompSpaceSpi csSpi)
+  {
+    this.csSpi = csSpi
+    this.ns = csSpi.ns
   }
 
-  new make(MCompSpaceSpi spi)
-  {
-    this.spi = spi
-    this.ns  = spi.ns
-  }
+//////////////////////////////////////////////////////////////////////////
+// Load
+//////////////////////////////////////////////////////////////////////////
 
+  ** Load comp tree from dict tree and reuse the dict ids directory
   Comp load(Dict dict, Spec? spec)
   {
     if (spec == null) spec = ns.spec(dict->spec.toStr)
     comp := create(spec)
-spi := (MCompSpi)comp.spi
-spi.setId(dict.id)
+
+    id := dict["id"] as Ref
+    if (id != null) ((MCompSpi)comp.spi).setId(id)
+
     dict.each |v, n|
     {
       if (n == "id" || n == "spec") return
       comp.set(n, reify(v))
     }
+
     return comp
   }
 
@@ -60,38 +65,60 @@ spi.setId(dict.id)
     return v
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Create
+//////////////////////////////////////////////////////////////////////////
+
+  ** Create instance from spec
   Comp create(Spec spec)
   {
-    comp := doCreate(spec)
-    backpatchLinks(comp)
-    return comp
+    locals := Actor.locals
+    locals[actorKeyStub] = spec
+    try
+      return specToFantomType(spec).make
+    finally
+      locals.remove(actorKeyStub)
   }
 
-  private Comp doCreate(Spec spec)
+  private Type specToFantomType(Spec spec)
   {
-    acc := Str:Obj[:]
-    acc.ordered = true
+    // if there is no Fantom type registered this defaults
+    // to Dict in which case walk up class hierarchy
+    t := spec.fantomType
+    if (t == xeto::Dict#) return specToFantomType(spec.base)
+    if (t.isMixin) return t.pod.type(t.name + "Obj")
+    return t
+  }
 
-    BackpatchLink[]? compLinks := null
+  private Spec compToSpec(CompObj c)
+  {
+    spec := Actor.locals.remove(actorKeyStub) as Spec
+    if (spec != null)
+      return spec
+    else
+      return ns.specOf(c.typeof)
+  }
+
+  private static const Str actorKeyStub := "xetom.stub"
+
+//////////////////////////////////////////////////////////////////////////
+// Init
+//////////////////////////////////////////////////////////////////////////
+
+  MCompSpi init(CompObj comp)
+  {
+    // get stubbed spec or derive from type
+    spec := compToSpec(comp)
+
+    // build component slot map
+    slots := Str:Obj[:]
+    slots.ordered = true
     spec.slots.each |slot|
     {
-      acc.addNotNull(slot.name, createSlot(slot))
-      compLinks = checkLink(slot, compLinks)
+      slots.addNotNull(slot.name, createSlot(slot))
     }
 
-    comp := instantiate(spec, acc)
-
-    // if we have links add
-    if (compLinks != null)
-    {
-      // wire comp refence now that it has been created
-      compLinks.each |x| { x.to = comp }
-
-      // add to all linkss
-      allLinks.addAll(compLinks)
-    }
-
-    return comp
+    return MCompSpi(csSpi, comp, csSpi.genId, spec, slots)
   }
 
   private Obj? createSlot(Spec spec)
@@ -125,91 +152,19 @@ spi.setId(dict.id)
 
   private Comp createChild(Spec spec)
   {
-    return doCreate(spec)
-  }
-
-  private BackpatchLink[]? checkLink(Spec spec, BackpatchLink[]? links)
-  {
-    path := spec.meta.get("link")
-    if (path == null) return links
-
-    link := BackpatchLink(spec.name, path.toStr)
-    if (links == null) links = BackpatchLink[,]
-    links.add(link)
-    return links
-  }
-
-  private Void backpatchLinks(Comp root)
-  {
-    allLinks.each |link| { backpatchLink(root, link) }
-  }
-
-  private Void backpatchLink(Comp root, BackpatchLink x)
-  {
-    // resolve path
-    names := x.path.split('.', false)
-    toComp := x.to
-    toSlot := x.toSlot
-    Comp? fromComp := root
-    fromSlot := names.last
-    for (i := 0; i<names.size-1; ++i)
-    {
-      fromComp = fromComp.get(names[i]) as Comp
-      if (fromComp == null)
-      {
-        Console.cur.warn("Invalid link path $x.path.toCode [$x.to]")
-        return
-      }
-    }
-
-    // echo("$fromComp . $fromSlot => $toComp . $toSlot")
-
-    // TODO: optimize this for the to comp
-    links := toComp.links.add(x.toSlot, Etc.link(fromComp.id, fromSlot))
-    toComp.set("links", links)
-  }
-
-  private Comp instantiate(Spec spec, Str:Obj slots)
-  {
-    compSpi := MCompSpi(spi, null, spec, slots)
-    compSpi.setId(spi.genId)
-
-    Actor.locals["xeto.spi"] = compSpi
-    try
-      return toCompFantomType(spec).make
-    finally
-      Actor.locals.remove("xeto.spi")
-  }
-
-  private Type toCompFantomType(Spec spec)
-  {
-    // if there is no Fantom type registered this defaults
-    // to Dict in which case walk up class hierarchy
-    t := spec.fantomType
-    if (t == xeto::Dict#) return toCompFantomType(spec.base)
-    if (t.isMixin) return t.pod.type(t.name + "Obj")
-    return t
+    return create(spec)
   }
 
   private once Spec compSpec()
   {
-    spi.ns.lib("sys.comp").spec("Comp")
+    csSpi.ns.lib("sys.comp").spec("Comp")
   }
 
-  private MCompSpaceSpi spi
+  private MCompSpaceSpi csSpi
   private Namespace ns
-  private BackpatchLink[] allLinks := [,]
+  private CompFactoryStub[] stubs := [,]
 }
 
-@Js
-internal class BackpatchLink
-{
-  new make(Str toSlot, Str path) { this.toSlot = toSlot; this.path = path }
-
-  Comp? to
-  const Str toSlot
-  const Str path
-}
 
 **************************************************************************
 ** Old Shit

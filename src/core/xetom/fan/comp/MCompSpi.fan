@@ -23,43 +23,62 @@ class MCompSpi : CompSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructed by initSpi using actor local
-  new make(MCompSpaceSpi csSpi, CompObj? comp, Spec spec, Str:Obj slots)
+  new make(MCompSpaceSpi csSpi, CompObj comp, Ref id, Spec spec, Str:Obj slots)
   {
     this.csSpi   = csSpi
     this.comp    = comp
+    this.id      = id
     this.specRef = spec
     this.slots   = slots
-if (slots["id"] != null) throw Err("bad bad")
   }
 
-  ** Init is called in CompObj constructor after spiRef is set
-  override This init(CompObj comp)
+  ** Init is called after CompObj sets its spi to this instance
+  override Void init()
   {
-newWay := this.comp == null
-    this.comp = comp
-if (newWay) initChildren
+    // wire up children parent ref to me
+    initChildren
 
-    // check if spec meta defines compTree
-    compTree := spec.meta.get("compTree") as Str
-    if (compTree == null) return this
+    // if this is a top-level spec, then we have built
+    // the whole children tree and now we can backpatch links
+    if (spec.parent == null) backpatchLinks(comp, comp)
+  }
 
-echo("TODO: comp still using compTree $comp.spec")
-
-/*
-    try
+  ** Backpatch links
+  private Void backpatchLinks(Comp root, Comp x)
+  {
+    x.spec.slots.each |slot|
     {
-      // compile xeto to This dict and mount
-      opts := Etc.dict1("this", spec)
-      dict := cs.ns.io.readXeto(compTree, opts) as Dict ?: throw Err("Expecting compTree to be Dict")
-      CompFactory.createUnder(csSpi, comp, dict)
+      // check for link meta
+      link := slot.meta.get("link")
+      if (link != null) backpatchLink(root, x, slot, link.toStr)
+
+      // recurse
+      kid := x.get(slot.name) as Comp
+      if (kid != null) backpatchLinks(root, kid)
     }
-    catch (Err e)
+  }
+
+  private Void backpatchLink(Comp root, Comp toComp, Spec toSlot, Str path)
+  {
+    // resolve path from root down to fromComp/fromSlot
+    names := path.split('.', false)
+    Comp? fromComp := root
+    fromSlot := names.last
+    for (i := 0; i<names.size-1; ++i)
     {
-      msg := "ERROR: Cannot load compTree [$spec.qname]"
-      Console.cur.err(msg, e)
+      fromComp = fromComp.get(names[i]) as Comp
+      if (fromComp == null)
+      {
+        Console.cur.warn("Invalid link path $path.toCode [$toComp.id]")
+        return
+      }
     }
-   */
-    return this
+
+    //echo("$fromComp.id . $fromSlot => $toComp.id . $toSlot")
+
+    // add the link
+    links := toComp.links.add(toSlot.name, Etc.link(fromComp.id, fromSlot))
+    toComp.set("links", links)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,7 +96,7 @@ echo("TODO: comp still using compTree $comp.spec")
   override Spec spec() { specRef }
   internal Spec? specRef
 
-  override Ref id := Ref.nullRef { private set }
+  override Ref id
   internal Void setId(Ref id) { this.id = id }
 
   override Int ver { internal set }

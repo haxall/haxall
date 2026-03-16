@@ -224,18 +224,9 @@ class CompObj : Comp
   ** Constructor for subclasses
   new make()
   {
-    // TODO: new way
-    spi := Actor.locals["xeto.spi"] as CompSpi
-    if (spi != null)
-    {
-      Actor.locals.remove("xeto.spi")
-      this.spiRef = spi.init(this)
-      return
-    }
-
     cs := Actor.locals[CompSpace.actorKey] as CompSpace ?: throw Err("No CompSpace active for current thread")
     this.spiRef = cs.spi.initCompSpi(this)
-    this.spiRef.init(this)
+    this.spiRef.init
   }
 
   ** Service provider interface
@@ -255,7 +246,6 @@ class CompObj : Comp
 **
 @Js
 const mixin CompFunc : Dict {}
-
 
 **************************************************************************
 ** CompChangeEvent
@@ -340,7 +330,7 @@ class CompCallEvent
 @Js @NoDoc
 mixin CompSpi
 {
-  abstract This init(CompObj self)
+  abstract Void init()
   abstract CompSpace cs()
   abstract Ref id()
   abstract Str dis()
