@@ -29,21 +29,46 @@ class MCompSpaceSpi : CompSpaceSpi
     this.nsRef = ns
   }
 
-  override Void init(Spec rootSpec)
-  {
-    this.rootRef = create(rootSpec)
-    mount(root)
-  }
-
 //////////////////////////////////////////////////////////////////////////
-// Lifecycle
+// Identity
 //////////////////////////////////////////////////////////////////////////
 
   ** Parent CompSpace instance
   CompSpace cs { private set }
 
+  ** Xeto namespace for this space
+  override Namespace ns() { nsRef }
+  private Namespace nsRef
+
   ** Current version of component changes
   override Int ver() { curVer }
+
+  ** Root component
+  override Comp root() { rootRef ?: throw Err("Must call load") }
+
+//////////////////////////////////////////////////////////////////////////
+// Lifecycle
+//////////////////////////////////////////////////////////////////////////
+
+  ** Load root component
+  override Void load(Comp root)
+  {
+    if (rootRef != null) unmount(rootRef)
+    this.rootRef = root
+    mount(root)
+  }
+
+  ** Load tree from xeto instances
+  override Void loadXeto(Str xeto)
+  {
+    load(CompFactory(this).load(CompUtil.parse(ns, xeto), null))
+  }
+
+  ** Save tree to xeto instances
+  override Str saveXeto()
+  {
+    CompUtil.compSaveToXeto(ns, root)
+  }
 
   ** Has this space been started, but not stopped yet
   override Bool isRunning() { isRunningRef }
@@ -62,35 +87,6 @@ class MCompSpaceSpi : CompSpaceSpi
   {
     isRunningRef = false
     cs.onStop
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Identity
-//////////////////////////////////////////////////////////////////////////
-
-  ** Xeto namespace for this space
-  override Namespace ns() { nsRef }
-  private Namespace nsRef
-
-  ** Root component
-  override Comp root() { rootRef ?: throw Err("Must call initRoot") }
-
-//////////////////////////////////////////////////////////////////////////
-// Loading/Saving
-//////////////////////////////////////////////////////////////////////////
-
-  ** Load tree from xeto instances
-  override Void loadXeto(Str xeto)
-  {
-    unmount(rootRef)
-    rootRef = CompFactory(this).load(CompUtil.parse(ns, xeto), null)
-    mount(rootRef)
-  }
-
-  ** Save tree to xeto instances
-  override Str saveXeto()
-  {
-    CompUtil.compSaveToXeto(ns, root)
   }
 
 //////////////////////////////////////////////////////////////////////////

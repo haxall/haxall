@@ -277,8 +277,7 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
     folder := ns.spec("hx.test.xeto::TestFolder")
     add := ns.spec("hx.test.xeto::TestAdd")
-    CompSpace.uninstall // from setup
-    cs := CompSpace(ns).install(folder)
+    cs.load(cs.create(folder))
     r := cs.root
     verifySame(r.spec, folder)
 

@@ -25,20 +25,18 @@ class CompSpace
   ** be set before any Comp can be constructed against the namespace.
   @NoDoc static const Str actorKey := "xeto::cs"
 
-  ** Constructor - must immediately call `install` before creating
-  ** any components.
+  ** Constructor - must call `install` before creating any components.
   new make(Namespace ns)
   {
     this.spi = Type.find("xetom::MCompSpaceSpi").make([this, ns])
   }
 
-  ** Install actor local with given space and root spec.
-  ** If rootSpec is omitted, the root is initialized to generic `CompObj`.
-  This install(Spec? rootSpec := null)
+  ** Install this space as the actor local.
+  This install()
   {
     if (Actor.locals[actorKey] != null) throw Err("CompSpace already installed for actor local")
     Actor.locals[actorKey] = this
-    spi.init(rootSpec ?: ns.spec("sys.comp::Comp"))
+    load(CompObj()) // now safe to install default root
     return this
   }
 
@@ -66,6 +64,15 @@ class CompSpace
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
+  ** Load tree with root component
+  This load(Comp root) { spi.load(root); return this }
+
+  ** Load tree from xeto instance tree
+  @NoDoc This loadXeto(Str xeto) { spi.loadXeto(xeto); return this }
+
+  ** Save tree to xeto isntance tree
+  @NoDoc Str saveXeto() { spi.saveXeto }
+
   ** Has this space been started, but not stopped yet
   Bool isRunning() { spi.isRunning}
 
@@ -81,12 +88,6 @@ class CompSpace
   ** then timers will only fire as fast as 100ms. The current context
   ** must be an instance of `CompContext`.
   Void execute() { spi.execute }
-
-  ** Load tree from xeto instance tree
-  @NoDoc This loadXeto(Str xeto) { spi.loadXeto(xeto); return this }
-
-  ** Save tree to xeto isntance tree
-  @NoDoc Str saveXeto() { spi.saveXeto }
 
 //////////////////////////////////////////////////////////////////////////
 // Comp Tree
@@ -155,15 +156,15 @@ mixin CompContext : ActorContext
 abstract class CompSpaceSpi
 {
   abstract Namespace ns()
-  abstract Void init(Spec rootSpec)
   abstract CompSpi initCompSpi(CompObj c)
   abstract Comp root()
   abstract Int ver()
+  abstract Void load(Comp root)
+  abstract Void loadXeto(Str xeto)
+  abstract Str saveXeto()
   abstract Bool isRunning()
   abstract Void start()
   abstract Void stop()
-  abstract Void loadXeto(Str xeto)
-  abstract Str saveXeto()
   abstract Comp create(Spec spec)
   abstract Comp? readById(Ref id, Bool checked := true)
   abstract Void each(|Comp| f)
