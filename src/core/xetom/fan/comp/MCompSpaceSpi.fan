@@ -285,7 +285,7 @@ class MCompSpaceSpi : CompSpaceSpi
   ** must be an CompContext.
   override Void execute()
   {
-    if (!isRunningRef) throw Err("Not running")
+    if (!isRunningRef) throw Err("CompSpace not running")
 
     cx := CompContext.curComp
 

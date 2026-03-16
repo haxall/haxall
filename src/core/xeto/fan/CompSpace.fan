@@ -34,7 +34,7 @@ class CompSpace
   ** Install this space as the actor local.
   This install()
   {
-    if (Actor.locals[actorKey] != null) throw Err("CompSpace already installed for actor local")
+    if (Actor.locals[actorKey] != null) throw Err("CompSpace already installed for current thread")
     Actor.locals[actorKey] = this
     load(CompObj()) // now safe to install default root
     return this

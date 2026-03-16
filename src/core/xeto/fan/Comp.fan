@@ -221,7 +221,7 @@ class CompObj : Comp
   ** Constructor for subclasses
   new make()
   {
-    cs := Actor.locals[CompSpace.actorKey] as CompSpace ?: throw Err("No CompSpace active for current thread")
+    cs := Actor.locals[CompSpace.actorKey] as CompSpace ?: throw Err("No CompSpace installed for current thread")
     this.spiRef = cs.spi.initCompSpi(this)
     this.spiRef.init
   }
