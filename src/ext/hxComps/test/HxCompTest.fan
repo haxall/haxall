@@ -19,13 +19,11 @@ abstract class HxCompTest : HxTest
   override Void setup()
   {
     super.setup
-    cs = CompSpace(ns).install.load(Folder())
-    cs.start
+    cs = CompSpace(ns).install.load(Folder()).start
   }
 
   override Void teardown()
   {
-    cs.stop
     CompSpace.uninstall
     super.teardown
   }
@@ -50,7 +48,7 @@ abstract class HxCompTest : HxTest
       spec := ns.spec(s.contains("::") ? s : "hx.comps::${s}")
       return createComp(spec)
     }
-    if (obj is Dict) return cs.create(obj)
+//    if (obj is Dict) return createComp(obj->spec.toStr)
     // create a new instance of this component based on its spec
     if (obj is Comp) return createComp((obj as Comp).spec)
     throw ArgErr("${obj} (${obj.typeof})")
@@ -66,14 +64,12 @@ abstract class HxCompTest : HxTest
     return c
   }
 
-  ** Load the comp from its xeto, and add it under the root component.
-  ** Then immediately call CompSpace.execute and return the new comp.
-  Comp loadComp(Str xeto, Str? name := null)
+  ** Load the root from xeto and call execute, then return new root
+  Comp loadComp(Str xeto)
   {
-    c := createComp(ns.io.readXeto(xeto))
-    cs.root.add(c, name)
+    cs.loadXeto(xeto)
     cs.execute
-    return c
+    return cs.root
   }
 
   ** Set a comp slot, and then force CompSpace.execute

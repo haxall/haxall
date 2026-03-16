@@ -196,15 +196,7 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     if (slot.isQuery)  return true
     if (slot.isFunc)   return true
     if (slot.isChoice) return true // TODO: not sure about this one...
-    if (slot.isMaybe)
-    {
-      // the rule for maybe types is that slot definition
-      // itself must define a default value or nested slots
-      ownMeta := slot.metaOwn
-      if (slot.metaOwn.has("val")) return false
-      if (!slot.slots.isEmpty && !slot.type.isScalar) return false
-      return true
-    }
+    if (slot.isMaybe && skipMaybe(slot)) return true
 
     // ref
     if (slot.isRef)
@@ -218,6 +210,24 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     if (isPoint(parent) && isAddr(slot.type)) return true
 
     return false
+  }
+
+  ** Should we skip a maybe slot during instantiation
+  internal static Bool skipMaybe(Spec slot)
+  {
+    // if slot defines its own explict value then use it
+    ownMeta := slot.metaOwn
+    if (slot.metaOwn.has("val")) return false
+
+    // non-scalar types
+    if (!slot.type.isScalar)
+    {
+      // if the slot defines its own slots
+      if (!slot.slotsOwn.isEmpty) return false
+    }
+
+    // skip it
+    return true
   }
 
   ** Generate an enum default for the "enum" tag itself

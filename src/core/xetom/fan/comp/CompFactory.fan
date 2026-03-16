@@ -126,21 +126,12 @@ internal class CompFactory
   {
     if (spec.isComp) return createChild(spec)
     if (spec.isFunc) return null
-    if (spec.isMaybe && skipMaybeSlot(spec)) return null
+    if (spec.isMaybe && Instantiator.skipMaybe(spec)) return null
     if (spec.name == "parentRef") return null
     if (spec.name == "compName") return null
     if (spec.name == "compLayout") return null
     if (spec.name == "links") return null
     return ns.instantiate(spec)
-  }
-
-  private Bool skipMaybeSlot(Spec slot)
-  {
-    // TODO: dup logic in Instantiator
-    ownMeta := slot.metaOwn
-    if (slot.metaOwn.has("val")) return false
-    if (!slot.slots.isEmpty && !slot.type.isScalar) return false
-    return true
   }
 
   private Comp createChild(Spec spec)
