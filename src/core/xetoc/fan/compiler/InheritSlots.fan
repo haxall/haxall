@@ -279,6 +279,7 @@ internal class InheritSlots : Step
       if (ofs != null) ofs.each |of|
       {
         if (of.isAst) inherit(of)
+        if (of.isComp)   spec.flags = spec.flags.or(MSpecFlags.comp)
         if (of.isEntity) spec.flags = spec.flags.or(MSpecFlags.entity)
         autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, of)
       }

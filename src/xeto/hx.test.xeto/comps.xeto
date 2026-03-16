@@ -97,3 +97,6 @@ TestPoint: Dict {
   y: Number
 }
 
+TestMixinComp: Comp
+TestAndComp: TestIncrement & TestMixinComp
+

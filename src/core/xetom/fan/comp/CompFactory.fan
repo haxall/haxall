@@ -123,7 +123,7 @@ internal class CompFactory
 
   private Obj? createSlot(Spec spec)
   {
-    if (spec.isa(compSpec)) return createChild(spec)
+    if (spec.isComp) return createChild(spec)
     if (spec.isFunc) return null
     if (spec.isMaybe && skipMaybeSlot(spec)) return null
     if (spec.name == "parentRef") return null
@@ -145,11 +145,6 @@ internal class CompFactory
   private Comp createChild(Spec spec)
   {
     return create(spec)
-  }
-
-  private once Spec compSpec()
-  {
-    csSpi.ns.lib("sys.comp").spec("Comp")
   }
 
   private MCompSpaceSpi csSpi

@@ -206,11 +206,13 @@ class CompTest: AbstractXetoTest
   {
     composite := cs.ns.spec("hx.test.xeto::TestComposite")
     addSpec   := cs.ns.spec("hx.test.xeto::TestAdd")
+    andSpec   := cs.ns.spec("hx.test.xeto::TestAndComp")
 
     verifyEq(cs.ns.spec("sys::Str").isComp, false)
     verifyEq(cs.ns.spec("sys::Dict").isComp, false)
     verifyEq(composite.isComp, true)
     verifyEq(addSpec.isComp, true)
+    verifyEq(andSpec.isComp, true)
 
     // create empty add
     TestAdd add := cs.create(addSpec)
