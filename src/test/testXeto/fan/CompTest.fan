@@ -773,13 +773,13 @@ class CompTest: AbstractXetoTest
     cs := doTestLoad(loadTestXeto)
 
     // test save and round-trip
-    saved := cs.save
+    saved := cs.saveXeto
     doTestLoad(saved)
   }
 
   CompSpace doTestLoad(Str xeto)
   {
-    cs.load(xeto)
+    cs.loadXeto(xeto)
 
     r := verifyLoadComp(cs, cs.root, "",  null, "TestFolder")
     a := verifyLoadComp(cs, r->a,    "a", r,    "TestCounter")

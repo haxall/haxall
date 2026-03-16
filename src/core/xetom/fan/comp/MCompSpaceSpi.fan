@@ -80,7 +80,7 @@ class MCompSpaceSpi : CompSpaceSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Load tree from xeto instances
-  override Void load(Str xeto)
+  override Void loadXeto(Str xeto)
   {
     unmount(rootRef)
     rootRef = CompFactory(this).load(CompUtil.parse(ns, xeto), null)
@@ -88,7 +88,7 @@ class MCompSpaceSpi : CompSpaceSpi
   }
 
   ** Save tree to xeto instances
-  override Str save()
+  override Str saveXeto()
   {
     CompUtil.compSaveToXeto(ns, root)
   }

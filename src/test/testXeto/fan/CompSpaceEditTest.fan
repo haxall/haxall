@@ -23,7 +23,7 @@ class CompSpaceEditTest: AbstractXetoTest
     super.setup
 
     ns := createNamespace(CompTest.loadTestLibs)
-    this.cs = CompSpace(ns).install.load(loadBasicXeto)
+    this.cs = CompSpace(ns).install.loadXeto(loadBasicXeto)
     cs.start
 
     addRef = ((Comp)cs.root.get("add")).id

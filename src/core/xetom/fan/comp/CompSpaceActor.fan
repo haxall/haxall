@@ -44,15 +44,15 @@ const class CompSpaceActor : Actor
 
   ** Load the CompSpace with the given Xeto string.
   ** Future evaluates to this.
-  Future load(Str xeto)
+  Future loadXeto(Str xeto)
   {
-    send(ActorMsg("load", xeto))
+    send(ActorMsg("loadXeto", xeto))
   }
 
   ** Save to Xeto string
-  Future save()
+  Future saveXeto()
   {
-    send(ActorMsg("save"))
+    send(ActorMsg("saveXeto"))
   }
 
   ** Call `CompSpace.execute`
@@ -113,8 +113,8 @@ const class CompSpaceActor : Actor
       case "feedSubscribe":   return onFeedSubscribe(state, msg.a, msg.b)
       case "feedUnsubscribe": return onFeedUnsubscribe(state, msg.a)
       case "feedCall":        return onFeedCall(state, msg.a)
-      case "load":            return onLoad(cs, msg.a)
-      case "save":            return cs.save
+      case "loadXeto":        return onLoadXeto(cs, msg.a)
+      case "saveXeto":        return cs.saveXeto
     }
 
     // route to subclass dispatch
@@ -158,9 +158,9 @@ const class CompSpaceActor : Actor
     return state
   }
 
-  private This onLoad(CompSpace cs, Str xeto)
+  private This onLoadXeto(CompSpace cs, Str xeto)
   {
-    cs.load(xeto)
+    cs.loadXeto(xeto)
     return this
   }
 

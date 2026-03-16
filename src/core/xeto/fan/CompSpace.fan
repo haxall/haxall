@@ -82,11 +82,11 @@ class CompSpace
   ** must be an instance of `CompContext`.
   Void execute() { spi.execute }
 
-  ** Load tree from xeto instances
-  @NoDoc This load(Str xeto) { spi.load(xeto); return this }
+  ** Load tree from xeto instance tree
+  @NoDoc This loadXeto(Str xeto) { spi.loadXeto(xeto); return this }
 
-  ** Save tree to xeto instances
-  @NoDoc Str save() { spi.save }
+  ** Save tree to xeto isntance tree
+  @NoDoc Str saveXeto() { spi.saveXeto }
 
 //////////////////////////////////////////////////////////////////////////
 // Comp Tree
@@ -162,8 +162,8 @@ abstract class CompSpaceSpi
   abstract Bool isRunning()
   abstract Void start()
   abstract Void stop()
-  abstract Void load(Str xeto)
-  abstract Str save()
+  abstract Void loadXeto(Str xeto)
+  abstract Str saveXeto()
   abstract Comp create(Spec spec)
   abstract Comp? readById(Ref id, Bool checked := true)
   abstract Void each(|Comp| f)

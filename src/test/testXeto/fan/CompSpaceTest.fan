@@ -41,7 +41,7 @@ class CompSpaceTest: AbstractXetoTest
 
   Void testUnmountRemovesTargetLinks()
   {
-    cs.load(CompTest.loadTestXeto)
+    cs.loadXeto(CompTest.loadTestXeto)
 
     TestAdd c := cs.root.get("c")
     c.set("in2", TestVal(100))
@@ -265,7 +265,7 @@ class CompSpaceTest: AbstractXetoTest
 
   Void testExecute()
   {
-    cs.load(executeTestXeto)
+    cs.loadXeto(executeTestXeto)
 
     a := (TestCounter)cs.root->a
     b := (TestCounter)cs.root->b
