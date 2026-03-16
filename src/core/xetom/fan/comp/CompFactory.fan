@@ -122,21 +122,17 @@ internal class CompFactory
     return MCompSpi(csSpi, comp, csSpi.genId, spec, slots)
   }
 
-  private Obj? createSlot(Spec spec)
+  private Obj? createSlot(Spec slot)
   {
-    if (spec.isFunc) return null
-    if (spec.isMaybe && Instantiator.skipMaybe(spec)) return null
-    if (spec.isComp) return createChild(spec)
-    if (spec.name == "parentRef") return null
-    if (spec.name == "compName") return null
-    if (spec.name == "compLayout") return null
-    if (spec.name == "links") return null
-    return ns.instantiate(spec)
+    if (slot.isFunc) return null
+    if (slot.isMaybe && Instantiator.skipMaybe(slot)) return null
+    if (slot.isComp) return createChild(slot)
+    return ns.instantiate(slot)
   }
 
-  private Comp createChild(Spec spec)
+  private Comp createChild(Spec slot)
   {
-    return create(spec)
+    return create(slot)
   }
 
 //////////////////////////////////////////////////////////////////////////

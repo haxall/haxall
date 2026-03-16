@@ -555,7 +555,7 @@ class MCompSpi : CompSpi
   {
     s := StrBuf()
     if (name != null) s.add(name).add(": ")
-    s.add(c.spec.name).add(" @ ").add(c.id).add(" {")
+    s.add(c.spec.type.name).add(" @ ").add(c.id).add(" {")
     con.group(s.toStr)
     c.each |v, n|
     {
