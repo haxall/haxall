@@ -419,9 +419,8 @@ internal class Tokenizer
 
   private static Bool isRefChar(Int cur, Int peek)
   {
-// TODO: special handling for dot
     if (cur.isAlphaNum) return true
-    if (cur == '_' || cur == '~' || cur == '.') return true
+    if (cur == '_' || cur == '~') return true
     if (cur == ':' || cur == '-') return peek.isAlphaNum || peek == '_' || peek == '~'
     return false
   }
