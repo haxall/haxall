@@ -356,27 +356,18 @@ class MCompSpi : CompSpi
 
   override Bool hasFunc(Str name)
   {
-    get(name) is CompFunc
-  }
-
-  override Spec? funcType(Str name, Bool checked := true)
-  {
-    f := get(name) as MCompFunc
-    if (f != null) return f.funcType(comp)
-    if (checked) throw UnknownFuncErr("Missig comp func: $name")
-    return null
+    funcSlot(name) != null
   }
 
   override Obj? call(Str name, Obj? arg)
   {
     // get slot value as func
-    x    := slots.get(name) ?: throw UnknownFuncErr("Missig comp func: $name")
-    fat  := x as FatSlot
-    val  := fat != null ? fat.val : x
-    func := val as MCompFunc ?: throw UnsupportedErr("Comp slot not func: $name [${val.typeof}]")
+    slot := funcSlot(name) ?: throw UnknownFuncErr("Unknown func slot: $name")
+    fat  := slots.get(name) as FatSlot
+    //val  := fat != null ? fat.val : x
 
     // call func
-    ret := func.doCall(comp, name, arg)
+    ret := slot.func.thunk.callComp(comp, arg)
 
     // handle fat slot push
     if (fat != null)
@@ -386,9 +377,16 @@ class MCompSpi : CompSpi
     }
 
     // fire callback
-    called(CompCallEvent(comp, name, func, arg, ret))
+    called(CompCallEvent(comp, slot, arg, ret))
 
     return ret
+  }
+
+  private Spec? funcSlot(Str name)
+  {
+    slot := spec.slot(name, false)
+    if (slot != null && slot.isFunc) return slot
+    return null
   }
 
   private Void called(CompCallEvent event)

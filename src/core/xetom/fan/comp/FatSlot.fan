@@ -48,7 +48,7 @@ final class FatSlot
   {
     if (x == null)
       pushVal = nullPush
-    else if (x isnot CompFunc)
+    else
       pushVal = x
   }
 

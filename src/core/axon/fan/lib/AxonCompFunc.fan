@@ -11,6 +11,7 @@ using xeto
 using xetom
 using haystack
 
+/* TODO
 **
 **
 ** Instance comp func backed by instance dict
@@ -57,4 +58,5 @@ internal const class AxonCompFunc : AbstractAxonCompFunc
     return Parser(axon.in).expr
   }
 }
+*/
 

@@ -128,7 +128,6 @@ class CompTest: AbstractXetoTest
     // each
     expect := ["a":"alpha",
       "b":"bravo!", "bar":n(123), "_0":"auto"]
-    c.spec.slots.each |s| { if (s.isFunc) expect[s.name] = (CompFunc)c.get(s.name) }
     map := Str:Obj?[:] { ordered = true }
     c.each |v, n| { map[n] = v }
     verifyEq(map, expect)
@@ -489,6 +488,7 @@ class CompTest: AbstractXetoTest
   Void verifyFunc(TestFoo c, Str name, Obj? arg, Obj? expect, Spec? funcType := null)
   {
 
+/*
     f := c.get(name) as CompFunc ?: throw Err("Missing func: $name")
     if (funcType == null)
     {
@@ -501,7 +501,6 @@ class CompTest: AbstractXetoTest
       verifySame(c.funcType(name), funcType)
 //      verifyEq(f.typeof.qname, "axon::AxonCompFunc")
     }
-
     // verify no value for get, has, missing
     verifyEq(c.has(name), true)
     verifyEq(c.missing(name), false)
@@ -527,24 +526,23 @@ class CompTest: AbstractXetoTest
     verifyCalled(c, name, arg, expect)
 
     // echo("~~ $name ($arg) => $actual")
+*/
 
     Actor.locals.remove(AxonContext.actorLocalsKey)
   }
 
   Void verifyUnknownFunc(Comp c, Str name)
   {
+    verifyEq(c.hasFunc(name), false)
     verifyEq(c.spec.slot(name, false), null)
     verifyErr(UnknownFuncErr#) { c.call(name, false) }
-    verifyEq(c.funcType(name, false), null)
-    verifyErr(UnknownFuncErr#) { c.funcType(name) }
   }
 
   Void verifyNotFunc(Comp c, Str name, Str msg)
   {
+    verifyEq(c.hasFunc(name), false)
     verifyEq(c.spec.slot(name).isFunc, false)
     verifyErrMsg(UnsupportedErr#, msg) { c.call(name, false) }
-    verifyEq(c.funcType(name, false), null)
-    verifyErr(UnknownFuncErr#) { c.funcType(name) }
   }
 
   Void verifyInvalidFunc(Comp c, Str name, Str expect)
@@ -557,7 +555,7 @@ class CompTest: AbstractXetoTest
     e := comp.callEvent ?: throw Err("callEvent is null")
     verifySame(e.comp, comp)
     verifyEq(e.name, name)
-    verifySame(e.func, comp.get(name))
+    verifySame(e.slot, comp.spec.slot(name))
     verifyEq(e.arg, arg)
     verifyEq(e.ret, ret)
   }

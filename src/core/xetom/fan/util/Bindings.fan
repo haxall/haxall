@@ -119,7 +119,6 @@ const class SpecBindings
 
     // fallbacks
     add(CompBinding("sys.comp::Comp", xeto.type("Comp")))
-    add(CompFuncBinding("sys.comp::CompFunc", xeto.type("CompFunc")))
     add(dict)
   }
 
@@ -397,13 +396,6 @@ const class CompBinding : DictBinding
 {
   new make(Str spec, Type type) : super(spec, type) {}
   virtual This clone(Str spec, Type type) { make(spec, type) }
-}
-
-@Js
-const class CompFuncBinding : DictBinding
-{
-  new make(Str spec, Type type) : super(spec, type) {}
-  override Dict decodeDict(Dict xeto) { ThunkFactory.cur.compFunc(xeto) }
 }
 
 @Js

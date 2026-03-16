@@ -124,7 +124,7 @@ internal class CompFactory
   private Obj? createSlot(Spec spec)
   {
     if (spec.isa(compSpec)) return createChild(spec)
-    if (spec.isFunc) return createFunc(spec)
+    if (spec.isFunc) return null
     if (spec.isMaybe && skipMaybeSlot(spec)) return null
     if (spec.name == "parentRef") return null
     if (spec.name == "compName") return null
@@ -142,14 +142,6 @@ internal class CompFactory
     return true
   }
 
-  private Obj? createFunc(Spec slot)
-  {
-    if (slot.isFunc && slot.func.arity == 1)
-      return SpecCompFunc(slot)
-    else
-      return null
-  }
-
   private Comp createChild(Spec spec)
   {
     return create(spec)
@@ -162,9 +154,7 @@ internal class CompFactory
 
   private MCompSpaceSpi csSpi
   private Namespace ns
-  private CompFactoryStub[] stubs := [,]
 }
-
 
 **************************************************************************
 ** Old Shit

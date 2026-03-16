@@ -31,11 +31,6 @@ const class AxonThunkFactory : ThunkFactory
     return fn
   }
 
-  override CompFunc compFunc(Dict dict)
-  {
-    AxonCompFunc(dict)
-  }
-
   override Dict readAxon(Namespace ns, Str src, Dict opts)
   {
     XetoAxonReader(ns, src, opts).read

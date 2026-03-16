@@ -45,11 +45,8 @@ mixin Comp
   ** Get the given slot value or null if slot name not defined.
   @Operator Obj? get(Str name) { spi.get(name) }
 
-  ** Return if this component has a CompFunc by given name
+  ** Return if this component has a method function slot by given name
   Bool hasFunc(Str name) { spi.hasFunc(name) }
-
-  ** Lookup func type signature for CompFunc function slot.
-  Spec? funcType(Str name, Bool checked := true) { spi.funcType(name, checked) }
 
   ** Return true if this component has slot with non-null value.
   Bool has(Str name) { spi.has(name) }
@@ -235,19 +232,6 @@ class CompObj : Comp
 }
 
 **************************************************************************
-** CompFunc
-**************************************************************************
-
-**
-** Component method function value.  CompFuncs always take exactly one
-** parameter.  They can be declared statically as a slot using meta and
-** standard func signature pattern, or dynamically in instance data using
-** a dict value.   See [documentation]`doc.xeto::Comps#compfunc`
-**
-@Js
-const mixin CompFunc : Dict {}
-
-**************************************************************************
 ** CompChangeEvent
 **************************************************************************
 
@@ -295,11 +279,11 @@ class CompChangeEvent
 @Js
 class CompCallEvent
 {
-  @NoDoc new make(Comp comp, Str name, CompFunc func, Obj? arg, Obj? ret)
+  @NoDoc new make(Comp comp, Spec slot, Obj? arg, Obj? ret)
   {
     this.comp = comp
-    this.name = name
-    this.func = func
+    this.name = slot.name
+    this.slot = slot
     this.arg  = arg
     this.ret  = ret
   }
@@ -310,8 +294,8 @@ class CompCallEvent
   ** Component slot name
   const Str name
 
-  ** Component function called
-  const CompFunc func
+  ** Component function slot called
+  const Spec slot
 
   ** Argument passed
   Obj? arg { private set }
@@ -339,7 +323,6 @@ mixin CompSpi
   abstract Int ver()
   abstract Obj? get(Str name)
   abstract Bool hasFunc(Str name)
-  abstract Spec? funcType(Str name, Bool checked := true)
   abstract Bool has(Str name)
   abstract Bool missing(Str name)
   abstract Void each(|Obj val, Str name| f)
