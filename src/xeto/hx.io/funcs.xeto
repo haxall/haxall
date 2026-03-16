@@ -436,9 +436,10 @@
   // The `headers` parameter is an optional Dict of request headers.
   // Header values may use the special ref `@password` to resolve
   // a secret from the project's password store.  The password is
-  // looked up by the key "<scheme>://<host>[:<port>]/ <header-name>".
-  // The password key is case sensitive; if the password is not
-  // found, an exception is raised.
+  // looked up by the folllowing case sensitive key (raises exception
+  // if not found):
+  //
+  //     <scheme>://<host>[:<port>]/ <header-name>
   //
   // The `body` parameter is any value accepted as an
   // [I/O handle](doc#io-handles) (Str, Buf, Uri, etc).  If non-null, it is

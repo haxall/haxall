@@ -117,7 +117,7 @@ mixin Comp
     return this
   }
 
-  ** Call component function slot by name - slot value must be `CompFunc`.
+  ** Call component function slot by name.
   Obj? call(Str name, Obj? arg)
   {
     spi.call(name, arg)
