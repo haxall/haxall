@@ -21,12 +21,17 @@ class CompSpaceTest: AbstractXetoTest
   override Void setup()
   {
     super.setup
-    cs = CompSpace(createNamespace(CompTest.loadTestLibs)).install
+    ns := createNamespace(CompTest.loadTestLibs)
+    cs = CompSpace(ns).install.start
+    verifyEq(cs.isRunning, true)
+    verifySame(Actor.locals[CompSpace.actorKey], cs)
   }
 
   override Void teardown()
   {
     CompSpace.uninstall
+    verifyEq(cs.isRunning, false)
+    verifyEq(Actor.locals[CompSpace.actorKey], null)
     super.teardown
   }
 
@@ -141,9 +146,6 @@ class CompSpaceTest: AbstractXetoTest
     verifyPushTo(g, Str[,])
     verifyPushTo(h, Str[,])
     verifyPushTo(i, Str[,])
-
-    // cleanup
-    Actor.locals.remove(CompSpace.actorKey)
   }
 
   Comp compMapAdd(CompMap m, Str dis, Str expect)

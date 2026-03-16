@@ -25,8 +25,8 @@ class CompSpace
   ** be set before any Comp can be constructed against the namespace.
   @NoDoc static const Str actorKey := "xeto::cs"
 
-
-  ** Constructor - must immediately call `install` after
+  ** Constructor - must immediately call `install` before creating
+  ** any components.
   new make(Namespace ns)
   {
     this.spi = Type.find("xetom::MCompSpaceSpi").make([this, ns])
@@ -42,10 +42,11 @@ class CompSpace
     return this
   }
 
-  ** Uninstall the actor local if defined.
+  ** Stop and uninstall the actor local if defined.
   static Void uninstall()
   {
-    Actor.locals.remove(actorKey)
+    cs := Actor.locals.remove(actorKey) as CompSpace
+    if (cs != null) cs.stop
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,10 +70,10 @@ class CompSpace
   Bool isRunning() { spi.isRunning}
 
   ** Start space to initialize and begin `execute` calls
-  Void start() { spi.start }
+  This start() { spi.start; return this }
 
   ** Stop space to cleanup and cease `execute` calls
-  Void stop() { spi.stop }
+  This stop() { spi.stop; return this }
 
   ** This method should be called at periodically to execute components
   ** and check timers.  The frequency this method is called determines

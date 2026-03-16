@@ -154,6 +154,7 @@ const class CompSpaceActor : Actor
     state := CompSpaceActorState(cs)
     state.spi.actorState = state
     cs.spi.init(ns.spec("sys.comp::Comp")) // don't really love this
+    cs.start
     return state
   }
 

@@ -51,6 +51,7 @@ class MCompSpaceSpi : CompSpaceSpi
   ** Start space.
   override Void start()
   {
+    if (Actor.locals[CompSpace.actorKey] !== cs) throw Err("CompSpace not installed in actor local")
     isRunningRef = true
     timersNeedUpdate = true
     cs.onStart
@@ -288,6 +289,8 @@ class MCompSpaceSpi : CompSpaceSpi
   ** must be an CompContext.
   override Void execute()
   {
+    if (!isRunningRef) throw Err("Not running")
+
     cx := CompContext.curComp
 
     // if the component tree has been modified, we need to rebuild
