@@ -364,7 +364,6 @@ class MCompSpi : CompSpi
     // get slot value as func
     slot := funcSlot(name) ?: throw UnknownFuncErr("Unknown func slot: $name")
     fat  := slots.get(name) as FatSlot
-    //val  := fat != null ? fat.val : x
 
     // call func
     ret := slot.func.thunk.callComp(comp, arg)

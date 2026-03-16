@@ -97,8 +97,3 @@ TestPoint: Dict {
   y: Number
 }
 
-TestNumberToStrFuncType: Func {
-  num: Number
-  returns: Str
-}
-

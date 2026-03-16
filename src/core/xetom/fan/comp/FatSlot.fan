@@ -21,7 +21,7 @@ final class FatSlot
   internal new make(Obj? val)
   {
     this.val = val
-    queuePush(val)
+    if (val != null) queuePush(val)
   }
 
   ** Const for this type
@@ -44,13 +44,7 @@ final class FatSlot
   Void called(Obj? ret) { queuePush(ret) }
 
   ** Queue up value to push
-  private Void queuePush(Obj? x)
-  {
-    if (x == null)
-      pushVal = nullPush
-    else
-      pushVal = x
-  }
+  private Void queuePush(Obj? x) { pushVal = x ?: nullPush }
 
   ** Push to target components if there an enqueued value
   Void push()

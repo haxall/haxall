@@ -443,17 +443,6 @@ class CompTest: AbstractXetoTest
     verifyFunc(c, "methodUpper", "hi", "HI")
     verifyFunc(c, "methodThis", "ignore", c)
 
-    // test instance method with default funcType
-    ns := cs.ns
-//    funcType := ns.spec("sys.comp::CompFuncDefaultType")
-//    c.set("instLower", ThunkFactory.cur.compFunc(Etc.dict1("axon", "arg.lower")))
-//    verifyFunc(c, "instLower", "Hello There", "hello there", funcType)
-
-    // test instance method with custom funcType
-//    funcType = ns.spec("hx.test.xeto::TestNumberToStrFuncType")
-//    c.set("instFoo", ThunkFactory.cur.compFunc(Etc.dict2("axon", "\"0x\" + num.toHex", "funcType", funcType.id)))
-//    verifyFunc(c, "instFoo", n(123), "0x7b", funcType)
-
     // verify bad fantom methods
     verifyInvalidFunc(c, "methodBad1", "Comp method missing @Api facet: testXeto::TestFoo.onMethodBad1")
     verifyInvalidFunc(c, "methodBad2", "Comp method must not be static: testXeto::TestFoo.onMethodBad2")
@@ -464,7 +453,7 @@ class CompTest: AbstractXetoTest
     verifyUnknownFunc(c, "notFound")
 
     // verify calling non-method slot
-    verifyNotFunc(c, "a", "Comp slot not func: a [sys::Str]")
+    verifyNotFunc(c, "a", "Unknown func slot: a")
 
     // fatten a slot and verify
     spi := (MCompSpi)c.spi
@@ -487,34 +476,21 @@ class CompTest: AbstractXetoTest
 
   Void verifyFunc(TestFoo c, Str name, Obj? arg, Obj? expect, Spec? funcType := null)
   {
-
-/*
-    f := c.get(name) as CompFunc ?: throw Err("Missing func: $name")
-    if (funcType == null)
-    {
-      slot := c.spec.slot(name)
-      verifySame(c.funcType(name), slot)
-//      verifyEq(f.typeof.qname, "xetom::SpecCompFunc")
-    }
-    else
-    {
-      verifySame(c.funcType(name), funcType)
-//      verifyEq(f.typeof.qname, "axon::AxonCompFunc")
-    }
     // verify no value for get, has, missing
-    verifyEq(c.has(name), true)
-    verifyEq(c.missing(name), false)
+    verifyEq(c.get(name), null)
+    verifyEq(c.has(name), false)
+    verifyEq(c.missing(name), true)
     verifyEq(c.hasFunc(name), true)
 
-    // verify method in each
+    // verify method not in each
     map := Str:Obj[:]
     c.each |v, n| { map.add(n, v) }
-    verifySame(map[name], f)
+    verifyEq(map[name], null)
 
-    // verify method in eachWhile
+    // verify method not in eachWhile
     map.clear
     c.eachWhile |v, n| { map.add(n, v); return null }
-    verifySame(map[name], f)
+    verifyEq(map[name], null)
 
     // verify call
     cx := Type.find("testAxon::TestContext").make([this])
@@ -526,7 +502,6 @@ class CompTest: AbstractXetoTest
     verifyCalled(c, name, arg, expect)
 
     // echo("~~ $name ($arg) => $actual")
-*/
 
     Actor.locals.remove(AxonContext.actorLocalsKey)
   }
@@ -542,7 +517,7 @@ class CompTest: AbstractXetoTest
   {
     verifyEq(c.hasFunc(name), false)
     verifyEq(c.spec.slot(name).isFunc, false)
-    verifyErrMsg(UnsupportedErr#, msg) { c.call(name, false) }
+    verifyErrMsg(UnknownFuncErr#, msg) { c.call(name, false) }
   }
 
   Void verifyInvalidFunc(Comp c, Str name, Str expect)
