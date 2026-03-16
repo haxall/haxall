@@ -19,7 +19,7 @@ abstract class HxCompTest : HxTest
   override Void setup()
   {
     super.setup
-    cs = CompSpace(ns).install(ns.spec("hx.comps::Folder"))
+    cs = CompSpace(ns).install.load(Folder())
     cs.start
   }
 
