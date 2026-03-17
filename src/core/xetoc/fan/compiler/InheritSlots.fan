@@ -267,7 +267,6 @@ internal class InheritSlots : Step
   private Void inheritSlots(ASpec spec)
   {
     autoCount := 0
-    base      := spec.base
     slots     := Str:Spec[:] { ordered = true }
     globals   := Str:Spec[:] { ordered = true }
     SpecMap? baseGlobals := null
@@ -286,8 +285,11 @@ internal class InheritSlots : Step
     }
     else
     {
-      if (!base.isAst) baseGlobals = base.globals
-      autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, base)
+      from := spec.base
+      if (spec.isCovariantOverride) from = spec.type
+      if (from.isAst) inherit(from)
+      if (!from.isAst) baseGlobals = from.globals
+      autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, from)
     }
 
     // now merge in my own slots

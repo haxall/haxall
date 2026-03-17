@@ -410,6 +410,13 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** Mutable AST state
   ASpecState ast() { astRef.val }
   const Unsafe astRef
+
+  ** Is this a slot that has a covariant override type
+  Bool isCovariantOverride()
+  {
+    if (!isMember || base.isEnum) return false
+    return base.type != type
+  }
 }
 
 **************************************************************************

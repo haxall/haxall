@@ -17,7 +17,11 @@ class Main
   static Int main(Str[] args)
   {
     // use doMain to avoid java transpile reflection issues
-    Slot.findMethod("xetom::Main.doMain").callOn(null, [args])
+    t1 := Duration.now
+    res := Slot.findMethod("xetom::Main.doMain").callOn(null, [args])
+    t2 := Duration.now
+    //echo("Time " + (t2-t1).toLocale)
+    return res
   }
 }
 
