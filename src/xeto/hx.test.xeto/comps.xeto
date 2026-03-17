@@ -79,19 +79,6 @@ TestIncrement : Comp {
   onExecute: Func <axon:"""this.set("out",  this->in + 1)""">
 }
 
-TestAxonComposite : Comp {
-  in: Number
-  out: Number <link:"b.out">
-  str: Str "something here"
-  point: TestPoint { x:12, y:34 }
-  a: TestAxonSquare {
-    in: Number <link:"in">
-  }
-  b: TestAxonSquare {
-    in: Number <link:"a.out">
-  }
-}
-
 TestPoint: Dict {
   x: Number
   y: Number
@@ -99,4 +86,47 @@ TestPoint: Dict {
 
 TestMixinComp: Comp
 TestAndComp: TestIncrement & TestMixinComp
+
+TestAxonComposite : Comp {
+  in: Number
+  out: Number <link:"b.out"> // this.out -> b.out
+
+  str: Str "something here"
+  point: TestPoint { x:12, y:34 }
+
+  a: TestAxonSquare {
+    in: Number <link:"in"> // this.in -> a.in
+  }
+
+  b: TestAxonSquare {
+    in: Number <link:"a.out"> // a.out -> b.in
+  }
+}
+
+TestDeep2Composite : Comp {
+  topIn: Number
+  sub1: TestAxonComposite
+  topOut: Number <link:"folder.sub2.out">
+  folder: Comp {
+    sub2: TestAxonComposite
+    sub3: TestDeep1Composite {
+      in: Number <link:"topIn">
+    }
+  }
+}
+
+TestDeep1Composite : Comp {
+  in: Number
+  bar: Comp {
+    qux: Comp {
+      a: TestAxonSquare {
+        in: Number <link:"in"> // this.in-> a.in
+      }
+
+      b: TestAxonSquare {
+        in: Number <link:"bar.qux.a.out"> // a.out -> b.in
+      }
+    }
+  }
+}
 

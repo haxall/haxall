@@ -7,6 +7,7 @@
 //   21 May 2024  Brian Frank  Port into xetoEnv
 //
 
+using util
 using xeto
 using haystack
 
@@ -86,6 +87,34 @@ class CompUtil
       acc[n] = v
     }
     return Etc.dictFromMap(acc)
+  }
+
+  ** Given slot spec, get top-level type that scopes declaration of 'link' meta tag
+  static Spec toLinkScope(Spec slot)
+  {
+    p := slot.parent
+    while (p.parent != null) p = p.parent
+    return p
+  }
+
+  ** Get the root component to use for link path resolution.
+  static Comp toLinkRoot(Comp comp, Spec slot)
+  {
+    // get type that scopes the link meta tag declaration
+    scope := toLinkScope(slot)
+
+    // walk up my comp tree to find that type
+    while (comp.spec.type !== scope)
+    {
+      if (comp.parent == null)
+      {
+        Console.cur.warn("CompUtil.toLinkRoot $scope, $comp")
+        return comp
+      }
+      comp = comp.parent
+    }
+
+    return comp
   }
 
   ** Encode a component into a sys.comp::Comp dict representation (no children)

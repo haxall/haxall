@@ -40,26 +40,29 @@ class MCompSpi : CompSpi
 
     // if this is a top-level spec, then we have built
     // the whole children tree and now we can backpatch links
-    if (spec.parent == null) backpatchLinks(comp, comp)
+    if (spec.parent == null) backpatchLinks(comp)
   }
 
   ** Backpatch links
-  private Void backpatchLinks(Comp root, Comp x)
+  private Void backpatchLinks(Comp x)
   {
     x.spec.slots.each |slot|
     {
       // check for link meta
       link := slot.meta.get("link")
-      if (link != null) backpatchLink(root, x, slot, link.toStr)
+      if (link != null) backpatchLink(x, slot, link.toStr)
 
       // recurse
       kid := x.get(slot.name) as Comp
-      if (kid != null) backpatchLinks(root, kid)
+      if (kid != null) backpatchLinks(kid)
     }
   }
 
-  private Void backpatchLink(Comp root, Comp toComp, Spec toSlot, Str path)
+  private Void backpatchLink(Comp toComp, Spec toSlot, Str path)
   {
+    // get root based on scope of the link meta tag
+    root := CompUtil.toLinkRoot(toComp, toSlot)
+
     // resolve path from root down to fromComp/fromSlot
     names := path.split('.', false)
     Comp? fromComp := root
@@ -74,11 +77,10 @@ class MCompSpi : CompSpi
       }
     }
 
-    //echo("$fromComp.id . $fromSlot => $toComp.id . $toSlot")
-
     // add the link
     links := toComp.links.add(toSlot.name, Etc.link(fromComp.id, fromSlot))
     toComp.set("links", links)
+    //echo("$fromComp.id . $fromSlot => $toComp.id . $toSlot.name")
   }
 
 //////////////////////////////////////////////////////////////////////////

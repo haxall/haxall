@@ -537,6 +537,70 @@ class CompTest: AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Link Resolution
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLinkResolution()
+  {
+    ns  := cs.ns
+    lib := ns.lib("hx.test.xeto")
+    r   := cs.create(lib.spec("TestDeep2Composite"))
+
+    verifyLinkScope(r, "topOut", "TestDeep2Composite")
+    verifyLinkScope(r, "folder.sub2.out", "TestAxonComposite")
+    verifyLinkScope(r, "folder.sub2.a.in", "TestAxonComposite")
+    verifyLinkScope(r, "folder.sub2.b.in", "TestAxonComposite")
+    verifyLinkScope(r, "folder.sub3.in", "TestDeep2Composite")
+    verifyLinkScope(r, "folder.sub3.bar.qux.a.in", "TestDeep1Composite")
+
+    sub1   := (Comp)r->sub1
+    folder := (Comp)r->folder
+      sub2 := (Comp)folder->sub2
+        sub2a := (Comp)sub2->a
+        sub2b := (Comp)sub2->b
+      sub3 := (Comp)folder->sub3
+        bar := (Comp)sub3->bar
+          qux := (Comp)bar->qux
+            sub3a := (Comp)qux->a
+            sub3b := (Comp)qux->b
+
+    verifyLinkRoot(r,     "topOut", r)
+    verifyLinkRoot(sub3,  "in",     r)
+    verifyLinkRoot(sub2a, "out",    sub2a)
+    verifyLinkRoot(sub3,  "in",     r)
+    verifyLinkRoot(sub3a, "in",     sub3)
+
+    verifyCompLink(r,     "topOut", sub2,  "out")
+    verifyCompLink(sub2a, "in",     sub2,  "in")
+    verifyCompLink(sub2b, "in",     sub2a, "out")
+    verifyCompLink(sub2,  "out",    sub2b, "out")
+    verifyCompLink(sub3b, "in",     sub3a, "out")
+    verifyCompLink(sub3a, "in",     sub3,  "in")
+    verifyCompLink(sub3,  "in",     r,     "topIn")
+  }
+
+  Void verifyLinkScope(Comp r, Str path, Str expect)
+  {
+    spec := r.cs.ns.spec(r.spec.qname + "." + path)
+    actual := CompUtil.toLinkScope(spec)
+    verifyEq(actual.name, expect)
+  }
+
+  Void verifyLinkRoot(Comp c, Str slot, Comp expect)
+  {
+    actual := CompUtil.toLinkRoot(c, c.spec.slot(slot))
+    verifySame(actual, expect)
+  }
+
+  Void verifyCompLink(Comp to, Str toSlot, Comp from, Str fromSlot)
+  {
+    links := to.links
+    link := links.get(toSlot) as Link ?: throw Err("Missing link $from.id $fromSlot => $to.id $toSlot")
+    verifyEq(link.fromRef, from.id)
+    verifyEq(link.fromSlot, fromSlot)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Composite Instantiate
 //////////////////////////////////////////////////////////////////////////
 
@@ -592,14 +656,6 @@ class CompTest: AbstractXetoTest
   Void verifyNoDictLinks(Dict to)
   {
     verifyEq(to["links"], null)
-  }
-
-  Void verifyCompLink(Comp to, Str toSlot, Comp from, Str fromSlot)
-  {
-    links := to.links
-    link := (Link)links.get(toSlot)
-    verifyEq(link.fromRef, from.id)
-    verifyEq(link.fromSlot, fromSlot)
   }
 
 //////////////////////////////////////////////////////////////////////////
