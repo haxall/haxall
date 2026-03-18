@@ -149,6 +149,7 @@ abstract const class MEnv : XetoEnv
     {
       it.ns      = ns
       it.libName = libName
+      it.tempLib = true
       it.input   = src.toBuf.toFile(`temp.xeto`)
       it.applyOpts(opts)
     }

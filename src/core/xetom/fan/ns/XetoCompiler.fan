@@ -39,6 +39,9 @@ abstract class XetoCompiler
   ** Dotted name of library to compile
   Str? libName
 
+  ** Are we compiling a temp lib
+  Bool tempLib
+
   ** If set, then build this libraries xetolib zip to this file
   File? build
 

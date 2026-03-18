@@ -28,7 +28,7 @@ const class RemoteEnv : MEnv
 
   override File[] path() { throw unavailErr() }
 
-  override Str:Str buildVars() { throw unavailErr() }
+  override Str:Str buildVars() { Str:Str[:] }
 
   override Namespace createNamespace(LibVersion[] libs)
   {

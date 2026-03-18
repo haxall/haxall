@@ -27,7 +27,7 @@ internal class ProcessPragma : Step
       lib.ast.meta.metaParent = lib
       lib.ast.meta.typeRef = sys.lib
       lib.ast.version = toVersion
-      if (lib.name == XetoUtil.companionLibName)
+      if (lib.name == XetoUtil.companionLibName || compiler.tempLib)
         compiler.depends.list = nsToDepends
       else
         compiler.depends.list = pragmaToDepends
