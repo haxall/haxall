@@ -13,7 +13,7 @@ pragma: Lib <
   depends: {
     { lib: "sys" }
   }
-  categories: {"haxall"}
+  categories: {"haxall", "doc"}
   license: BuildVar "hx.license"
   org: {
    dis: BuildVar "hx.org.dis"
@@ -23,8 +23,6 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
-  
+
 >
-
-
 

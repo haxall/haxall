@@ -65,6 +65,14 @@ internal class RSpec: SpecBindingInfo
 
   override Bool isInterface() { hasFlag(MSpecFlags.interface) }
 
+  ** Is this a slot that has a covariant override type
+  Bool isCovariantOverride()
+  {
+    if (parent == null) return false
+    if (base.isQuery) return false
+    return baseIn != typeIn
+  }
+
   override Str toStr() { name }
 }
 
@@ -87,6 +95,14 @@ internal const class RSpecRef
   const Str type      // top-level type name code
   const Str slot      // first level slot or zero if type only
   const Str[]? more   // slot path below first slot (uncommon)
+
+
+  override Bool equals(Obj? that)
+  {
+    x := that as RSpecRef
+    if (x == null) return false
+    return lib == x.lib && type == x.type && slot == x.slot && more == x.more
+  }
 
   override Str toStr() { "$lib $type $slot $more" }
 }

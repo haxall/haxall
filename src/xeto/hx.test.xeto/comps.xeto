@@ -130,3 +130,22 @@ TestDeep1Composite : Comp {
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Remote loader handling covariant overrides
+//////////////////////////////////////////////////////////////////////////
+
+TestLabel : Comp {
+  text: Str "label!"
+  num: Number?
+}
+
+TestEdgeBox : Comp {
+  center: Comp
+}
+
+TestEdgeBoxComposite: Comp {
+  body: TestEdgeBox {
+    center: TestLabel { num: "2001" }
+  }
+}
+

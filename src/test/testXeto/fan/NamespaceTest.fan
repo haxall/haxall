@@ -361,6 +361,17 @@ class NamespaceTest : AbstractXetoTest
       verifyEq(res, "beta")
     }
 
+    // covariant overrides in remote loader
+    q := ns.spec("hx.test.xeto::TestEdgeBoxComposite.body.center")
+    verifyEq(q.name, "center")
+    verifyEq(q.base.qname, "hx.test.xeto::TestEdgeBox.center")
+    verifyEq(q.type.qname, "hx.test.xeto::TestLabel")
+    verifyEq(q.slot("text").type.qname, "sys::Str")
+    verifyEq(q.slot("num").type.qname, "sys::Number")
+    verifyEq(q.slot("text").meta["val"], "label!")
+    verifyEq(q.slot("num").meta["val"], n(2001))
+
+
     // this tests the case where the actual slots map keys don't
     // necessarily match the slot names themselves if they are
     // inherited using auto-naming; in the case of TemplateB the

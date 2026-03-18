@@ -135,7 +135,7 @@ internal class RemoteLoader
       x.meta       = inheritMeta(x, rbase)
       x.slotsOwn   = loadSlotsOwn(x.slotsOwnIn)
       x.globalsOwn = loadSlotsOwn(x.globalsOwnIn)
-      x.slots      = inheritSlots(x, rbase)
+      x.slots      = inheritSlots(x)
       x.args       = loadArgs(x, rbase)
     }
 
@@ -231,7 +231,7 @@ internal class RemoteLoader
     return Etc.dictFromMap(acc)
   }
 
-  private SpecMap inheritSlots(RSpec x, RSpec? rbase)
+  private SpecMap inheritSlots(RSpec x)
   {
     // if we encoded inherited refs for and/or types, then use that
     if (x.slotsInheritedIn != null)
@@ -249,8 +249,8 @@ internal class RemoteLoader
     // but for practical considerations this doesn't really matter
     baseSlots := SpecMap.empty
     try
-      baseSlots = rbase?.slots ?: x.base.slots
-    catch
+      baseSlots = inheritSlotsBaseMap(x)
+    catch (Err e)
       echo("WARN: base slots not avail [$x.qname]")
     if (x.slotsOwn.isEmpty) return baseSlots
 
@@ -272,6 +272,19 @@ internal class RemoteLoader
       acc[name] = slot
     }
     return SpecMap(acc)
+  }
+
+  private SpecMap inheritSlotsBaseMap(RSpec x)
+  {
+    // covariant override uses type to mirrorbehavior in xetoc::InheritSlots
+    if (x.isCovariantOverride)
+    {
+      type := resolve(x.typeIn, true)
+      return type.slots
+    }
+
+    // inherit from base slots
+    return x.base.slots
   }
 
   private SpecMap inheritSlotsFromRefs(RSpec x)
