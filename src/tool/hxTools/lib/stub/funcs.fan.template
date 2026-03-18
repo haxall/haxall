@@ -1,20 +1,20 @@
 {{header}}
 
+using xeto
 using haystack
 using hx
 using axon
 
 class {{typePrefix}}Funcs
 {
-  ** Convenience to get the current `HxContext`
-  private static HxContext curHx() { HxContext.curHx }
+  ** Convenience to get the current `Context`
+  private static Context curCx() { Context.cur }
 
-  ** Convenience to lookup {{typePrefix}}Lib in the given `HxContext`
-  private static {{typePrefix}}Lib lib(HxContext cx := curHx) { cx.rt.lib("{{defName}}") }
+  ** Convenience to lookup {{typePrefix}}Ext in the given `Context`
+  private static {{typePrefix}}Ext ext(Context cx := curCx) { cx.ext("{{xetoLib}}") }
 
-  ** Fandoc is used for reference docs
-  @Axon
-  static Str {{defName}}Fantom()
+  @Api @Axon
+  static Str {{funcPrefix}}Fantom()
   {
     "Hello world in Fantom!"
   }

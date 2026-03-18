@@ -1,9 +1,15 @@
 {{header}}
 
+using concurrent
+using xeto
 using haystack
 using hx
 using hxConn
+using folio
 
+**
+** Dispatch callback for the {{typePrefix}} connector
+**
 class {{typePrefix}}Dispatch : ConnDispatch
 {
 
@@ -13,8 +19,8 @@ class {{typePrefix}}Dispatch : ConnDispatch
 
   new make(Obj arg) : super(arg) {}
 
-  ** Convenience to get a strongly typed reference to your lib
-  private {{typePrefix}}Lib {{defName}}Lib() { lib }
+  ** Convenience to get a strongly typed reference to your ext
+  private {{typePrefix}}Ext {{funcPrefix}}Ext() { ext }
 
 //////////////////////////////////////////////////////////////////////////
 // Actor Receive

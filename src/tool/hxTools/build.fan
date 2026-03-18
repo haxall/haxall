@@ -30,6 +30,7 @@ class Build : BuildPod
                "crypto @{fan.depend}",
                "util @{fan.depend}",
                "xeto @{hx.depend}",
+               "xetom @{hx.depend}",
                "haystack @{hx.depend}",
                "def @{hx.depend}",
                "folio @{hx.depend}",

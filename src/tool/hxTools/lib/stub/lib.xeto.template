@@ -1,0 +1,25 @@
+{{header}}
+
+pragma: Lib <
+  doc: "{{desc}}"
+  version: {{version}}
+  depends: {
+    { lib:"sys",     versions: {{ph.depend}} }
+    { lib:"axon",    versions: {{hx.depend}} }
+    { lib:"hx",      versions: {{hx.depend}} }
+    {{connStart}}{ lib:"hx.conn", versions: {{hx.depend}} }{{connEnd}}
+  }
+  categories: {"haxall"}
+  license: {{bv-license}}
+  org: {
+    dis: {{bv-org}}
+    uri: {{bv-orgUri}}
+  }
+  vcs: {
+    type: {{bv-vcs}}
+    uri: {{bv-vcsUri}}
+  }
+  {{libExt}}
+>
+
+{{extSpec}}

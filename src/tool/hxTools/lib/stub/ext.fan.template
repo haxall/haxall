@@ -1,0 +1,23 @@
+{{header}}
+
+using concurrent
+using xeto
+using hx
+using folio
+
+const class {{typePrefix}}Ext : ExtObj
+{
+  ** Convenience to get the ext from the current `Context`.
+  static {{typePrefix}}Ext cur(Bool checked := true)
+  {
+    Context.cur.ext("{{xetoLib}}", checked)
+  }
+
+  override Void onStart()
+  {
+  }
+
+  override Void onStop()
+  {
+  }
+}

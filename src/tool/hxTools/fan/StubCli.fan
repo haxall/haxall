@@ -7,6 +7,8 @@
 //
 
 using util
+using xeto
+using xetom
 using haystack
 using hx
 
@@ -17,50 +19,84 @@ internal class StubCli : HxCli
 // Options
 //////////////////////////////////////////////////////////////////////////
 
-  @Opt { help = "pod type to stub: resource | fantom | conn" }
-  Str type := "fantom"
-
-  @Opt { help = "target base directory" }
-  File out := File(`./`)
-
-  @Opt { help = "description of the pod"}
+  @Opt { help = "Description" }
   Str? desc
 
-  @Opt { help = "author name" }
+  @Opt { help = "Author"; aliases=["a"] }
   Str? author
 
-  @Opt { help = "organization name" }
-  Str? org
-
-  @Opt { help = "organization website" }
-  Str? orgUri
-
-  @Opt { help = "project name" }
-  Str? proj
-
-  @Opt { help = "project website" }
-  Str? projUri
-
-  @Opt { help = "source code license" }
-  Str? lic
-
-  @Opt { help = "version control name (e.g. Git, Mercurial)" }
-  Str? vcs
-
-  @Opt { help = "URL where the source code is hosted" }
-  Str? vcsUri
-
-  @Opt { help = "generate skyarc.trio (default = false)" }
-  Bool skyarc
-
-  @Opt { help = "copy build.fan metadata from the given pod" }
+  @Opt { help = "Initialize with metadata from given pod's build.fan" }
   Str? meta
 
-  @Arg { help = "Haxall library name" }
-  Str? libName
+  @Opt { help = "Generate ext code in this directory (if -ext)" }
+  File out := File(`./`)
+
+  @Opt { help = "Xeto dir" }
+  File xetoDir := Env.cur.workDir.plus(`src/xeto/`)
+
+  @Opt { help = "Generate a Fantom extension with the given pod name" }
+  Str? ext
+
+  @Opt { help = "Generate the ext as a Connector (requires -ext)" }
+  Bool conn
+
+  @Opt { help = "Xeto library name to generate. Optional if -ext is given"; aliases=["xeto"] }
+  Str? xetoLib
+
+  @NoDoc @Opt
+  Bool sf
+
+  // @NoDoc @Opt { help = "Use defaults for a Haxall project"; aliases=["hx"] }
+  Bool haxall
 
 //////////////////////////////////////////////////////////////////////////
-// Usage
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
+  private const Date today := Date.today
+
+  ** Organization name
+  private Str? org
+
+  ** Organization website
+  private Str? orgUri
+
+  ** Project name
+  private Str? proj
+
+  ** Project uri
+  private Str? projUri
+
+  ** Version control name
+  private Str? vcs
+
+  ** URL where source code is hosted
+  private Str? vcsUri
+
+  ** Source code license
+  private Str? lic
+
+  ** Standard macros for use across generating all files
+  private Str:Str stdMacros := [:]
+
+//////////////////////////////////////////////////////////////////////////
+// Files
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get the directory for the generated xeto library
+  private File xetoLibDir() { xetoDir.plus(`${xetoLib}/`) }
+
+  private File? xetoLibFile
+  private File? xetoFuncsFile
+  private File? xetoDocFile
+
+  private File? buildFile
+  private File? extFile
+  private File? fanFuncsFile
+  private File? connDispatchFile
+
+//////////////////////////////////////////////////////////////////////////
+// Stub
 //////////////////////////////////////////////////////////////////////////
 
   override Int usage(OutStream out := Env.cur.out)
@@ -68,206 +104,155 @@ internal class StubCli : HxCli
     c := super.usage(out)
     out.printLine
     out.printLine(
-      """Notes: You will be prompted for any unspecified options that don't have default values.
+      """Examples:
+           # Create a new Fantom ext (implies -xetoLib acme.foo)
+           hx stub -ext acmeFoo
+
+           # Create a new Connector with explicit Xeto lib name
+           # Without -xetoLib the lib would default to acme.awesome.conn
+           hx stub -ext acmeAwesomeConn -xetoLib acme.awesomeconn
+
+           # Create a resource ext
+           hx stub -xetoLib acme.resources
          """)
     return c
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Fields
-//////////////////////////////////////////////////////////////////////////
-
-  ** Cache today's date
-  private const Date today := Date.today
-
-  ** Prefix to use for generated Fantom types
-  **   libName = "acmeFoo" => "Foo"
-  private Str? typePrefix
-
-  ** Library org prefix
-  **   libName = "acmeFoo" => "acme"
-  private Str? libOrg
-
-  ** The lib def name
-  private Str defName() { isHx ? typePrefix.decapitalize : libName }
-
-  ** Standard macros for use across generating all files
-  private Str:Str stdMacros := [:]
-
-  private File? buildFile
-  private File? podFandocFile
-  private File? libDefFile
-  private File? libFile
-  private File? fanFuncsFile
-  private File? connDispatchFile
-  private File? axonFuncsFile
-  private File? connDefFile
-  private File? connPointDefFile
-  private File? skyarcFile
-
-//////////////////////////////////////////////////////////////////////////
-// HxCli
-//////////////////////////////////////////////////////////////////////////
-
   override Str name() { "stub" }
 
-  override Str summary() { "Stub a new Haxall pod" }
+  override Str summary() { "Stub a new Xeto library" }
 
   override Int run()
   {
-    loadMeta
-    promptInput
-    if (!checkInput) return 1
-    initMacros
-    genFileNames
-    if (!confirm) return 1
-    genBuild
-    genLibDef
-    genLib
-    genFanFuncs
-    genAxonFuncs
-    genConnDef
-    genPointDef
-    genConnDispatch
-    genSkyarc
-    genPodFandoc
-    printLine("Done!")
-    return 0
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Load Meta
-//////////////////////////////////////////////////////////////////////////
-
-  private Void loadMeta()
-  {
-    if (meta == null) return
-    pod := Pod.find(meta)
-    if (org == null) this.org = pod.meta["org.name"]
-    this.orgUri   = pod.meta["org.uri"]
-    this.proj     = pod.meta["proj.name"]
-    this.projUri  = pod.meta["proj.uri"]
-    this.lic      = pod.meta["license.name"]
-    this.vcs      = pod.meta["vcs.name"]
-    this.vcsUri   = pod.meta["vcs.uri"]
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Prompt
-//////////////////////////////////////////////////////////////////////////
-
-  private Void promptInput()
-  {
-    // general
-    if (org == null)
+    try
     {
-      this.org = prompt("Organization name").trimToNull
+      init
+      promptInput
+      sanityChecks
+      initMacros
+      initFiles
+      confirm
+      genXeto
+      genPod
+      printLine("Done!")
+      return 0
     }
-    if (author == null)
+    catch (StubErr err)
     {
-      this.author = promptDef("Author", Env.cur.user)
-    }
-    if (desc == null)
-    {
-      this.desc = prompt("Pod summary")
-    }
-
-    // build.fan
-    if (orgUri == null)
-    {
-      this.orgUri = prompt("Organization URL")
-    }
-    if (proj == null)
-    {
-      this.proj = promptDef("Project Name", "Haxall")
-    }
-    if (projUri == null)
-    {
-      def := proj== "Haxall" ? "https://haxall.io" : ""
-      this.projUri = promptDef("Project URL", def)
-    }
-    isHaxall := proj == "Haxall"
-    if (lic == null)
-    {
-      this.lic = promptDef("License Name", "Academic Free License 3.0")
-    }
-    if (vcs == null)
-    {
-      def := isHaxall ? "Git" : ""
-      this.vcs = promptDef("VCS Name", def)
-      if (vcs.isEmpty) vcsUri = ""
-    }
-    if (vcsUri == null)
-    {
-      def := isHaxall ? "https://github.com/haxall/haxall" : ""
-      this.vcsUri = promptDef("VCS URL", def)
+      return fatal(err.msg)
     }
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Check Input
-//////////////////////////////////////////////////////////////////////////
-
-  private Bool checkInput()
-  {
-    // type
-    switch (type)
-    {
-      case "conn":
-      case "fantom":
-      case "resource":
-        // fall-through
-        ok := true
-      default:
-        return fatal("Invalid pod type: $type")
-    }
-    // pod name
-    if (!Etc.isTagName(libName)) return fatal("Library name must be a valid tag name: $libName")
-    if (libName.endsWith("Ext")) return fatal("Library name must not end with 'Ext': $libName")
-    idx := libName.chars.findIndex { it.isUpper }
-    if (idx == null || idx == 0) return fatal("Library name must start with lowercase prefix: $libName")
-    this.libOrg     = libName[0..<idx]
-    this.typePrefix = isHx ? libName[idx..-1] : libName.capitalize
-
-    // header
-    if (org == null)    return fatal("Must specify an organization")
-    if (author == null) return fatal("Must specify an author")
-
-    // out
-    out = out.normalize.uri.plusSlash.toFile + `$libName/`
-
-    // sanity check resource pod
-    if (isResource)
-    {
-      if (containsFcode)
-        return fatal("Cannot create resource pod.\n ${name} already exists and contains Fantom code: $out")
-    }
-
-    // all ok
-    return true
-  }
-
-  private Bool fatal(Str msg)
+  private Int fatal(Str msg)
   {
     printLine
     err(msg)
     printLine
     usage
-    return false
+    return 1
   }
 
-
 //////////////////////////////////////////////////////////////////////////
-// Init Macros
+// Initialization
 //////////////////////////////////////////////////////////////////////////
 
-  private Void initMacros()
+  ** Initialization prior to input collection
+  protected virtual Void init()
   {
-    stdMacros["org"]        = this.org
-    stdMacros["libName"]    = this.libName
-    stdMacros["defName"]    = this.defName
-    stdMacros["typePrefix"] = this.typePrefix
-    stdMacros["header"]     = applyTemplate(`header.template`, headerApply)
+    // init type
+    if (ext == null && xetoLib == null) throw StubErr("Must specify -ext or -xetoLib")
+    if (ext != null && xetoLib == null) xetoLib = XetoUtil.camelToDotted(ext)
+    if (!XetoUtil.isLibName(xetoLib)) throw StubErr("Not a valid Xeto library name: ${xetoLib}")
+
+    // check conn is an ext
+    if (conn && ext == null) throw StubErr("Must specify -ext with -conn")
+
+    // force haxall mode if lib name matches haxall prefix
+    if (xetoLib.startsWith("hx.")) haxall = true
+
+    if (haxall) initHaxall
+    if (meta != null) initMeta
+  }
+
+  private Void initHaxall()
+  {
+    if (ext != null)
+    {
+      if (ext.size < 3 || !ext.startsWith("hx") || !ext[2].isUpper)
+        throw StubErr("Invalid Haxall pod name: ${ext}")
+    }
+    if (!xetoLib.startsWith("hx."))
+      throw StubErr("Haxall Xeto lib must start with 'hx.': ${xetoLib}")
+
+    this.org     = sf ? "SkyFoundry" : null
+    this.orgUri  = sf ? "https://skyfoundry.com/" : null
+    this.proj    = "Haxall"
+    this.projUri = "https://haxall.io"
+    this.vcs     = "git"
+    this.vcsUri  = "https://github.com/haxall/haxall"
+    this.lic     = "AFL-3.0"
+  }
+
+  private Void initMeta()
+  {
+    pod := Pod.find(meta)
+    this.org      = pod.meta["org.name"]
+    this.orgUri   = pod.meta["org.uri"]
+    this.proj     = pod.meta["proj.name"]
+    this.projUri  = pod.meta["proj.uri"]
+    this.vcs      = pod.meta["vcs.name"]
+    this.vcsUri   = pod.meta["vcs.uri"]
+    this.lic      = pod.meta["license.name"]
+  }
+
+  ** Prompt for user input
+  protected virtual Void promptInput()
+  {
+    if (desc == null)   this.desc = prompt("Description of ext")
+    if (author == null) this.author = prompt("Author").trimToNull
+    if (org == null)    this.org = prompt("Organization name").trimToNull
+    if (orgUri == null) this.orgUri = prompt("Organization URL")
+    if (vcs == null)    this.vcs = promptDef("VCS name", "git")
+    if (vcsUri == null) this.vcsUri = prompt("VCS URL")
+    if (lic == null)    this.lic = promptDef("License Name", "AFL-3.0")
+    if (ext != null)
+    {
+      if (proj == null)    this.proj = prompt("Project name")
+      if (projUri == null) this.projUri = prompt("Project URL")
+    }
+  }
+
+  ** All inputs have been collected. Validate the inputs and throw
+  ** an error if generation should stop.
+  protected virtual Void sanityChecks()
+  {
+    if (!xetoDir.isDir) throw StubErr("-xetoDir is not a directory: ${xetoDir}")
+    if (org == null) throw StubErr("Must specify an organization")
+    if (author == null) throw StubErr("Must specify an author")
+
+    if (isResource) return
+
+    // check ext name
+    if (!Etc.isTagName(ext)) throw StubErr("Ext must be a valid tag name: ${ext}")
+    if (ext.endsWith("Ext")) throw StubErr("Ext name must not end with 'Ext': ${ext}")
+    idx := ext.chars.findIndex { it.isUpper }
+    if (idx == null || idx == 0) throw StubErr("Ext name must start with lowercase prefix: ${ext}")
+    if (haxall && idx != 2) throw StubErr("Invalid hx extension name: ${ext}")
+  }
+
+  ** Initialize macros for filling in templates
+  protected virtual Void initMacros()
+  {
+    stdMacros["org"]         = this.org
+    stdMacros["xetoLib"]     = this.xetoLib
+    stdMacros["funcPrefix"]  = funcPrefix
+    stdMacros["desc"]        = this.desc
+    stdMacros["header"]      = applyTemplate(`header.template`, headerApply)
+    if (isExt)
+    {
+      stdMacros["podName"]    = this.ext
+      stdMacros["typePrefix"] = typePrefix
+    }
   }
 
   private |Str->Str?| headerApply := |key->Str?| {
@@ -277,82 +262,136 @@ internal class StubCli : HxCli
       case "date":    return today.toLocale("DD MMM YYYY")
       case "org":     return this.org
       case "author":  return this.author
-      case "license": return isHx
+      case "license": return this.haxall
         ? "Licensed under the Academic Free License version 3.0"
         : this.lic
       default: return null
     }
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Generate File Names
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genFileNames()
+  private Void initFiles()
   {
-    buildFile     = out.plus(`build.fan`)
-    podFandocFile = out.plus(`pod.fandoc`)
-    libDefFile    = out.plus(`lib/lib.trio`)
-    if (isResource)
+    // xeto library
+    xetoLibFile   = xetoLibDir.plus(`lib.xeto`)
+    xetoFuncsFile = xetoLibDir.plus(`funcs.xeto`)
+    xetoDocFile   = xetoLibDir.plus(`doc.md`)
+
+    if (isResource) return
+
+    // ext
+    out          = out.normalize.uri.plusSlash.toFile.plus(`${ext}/`)
+    buildFile    = out.plus(`build.fan`)
+    extFile      = out.plus(`fan/${typePrefix}Ext.fan`)
+    fanFuncsFile = out.plus(`fan/${typePrefix}Funcs.fan`)
+
+    // conn
+    if (conn)
     {
-      axonFuncsFile = out.plus(`lib/funcs.trio`)
+      connDispatchFile = out.plus(`fan/${typePrefix}Dispatch.fan`)
     }
+  }
+
+  private Void confirm()
+  {
+    if (isResource)
+      printLine("=== Stub Xeto Resource Lib ${xetoLib.toCode} ===")
     else
     {
-      libFile      = out.plus(`fan/${typePrefix}Lib.fan`)
-      fanFuncsFile = out.plus(`fan/${typePrefix}Funcs.fan`)
-      if (isConn)
-      {
-        connDefFile = out.plus(`lib/conn.trio`)
-        connPointDefFile = out.plus(`lib/point.trio`)
-        connDispatchFile = out.plus(`fan/${typePrefix}Dispatch.fan`)
-      }
-      if (skyarc) skyarcFile = out.plus(`lib/skyarc.trio`)
+      type := conn ? "Conn" : "Ext"
+      printLine("=== Stub ${ext.toCode} (${type}) ===")
     }
-  }
 
-  private Bool confirm()
-  {
-    printLine("=== Stub $libName.toCode ${type} ===")
-    printLine("Org:     $org")
     printLine("Author:  $author")
     printLine("Summary: $desc")
+    if (meta != null) printLine("Using defaults from pod meta: ${meta}")
+    else if (haxall) printLine("Using Haxall defaults")
     printLine
 
-    printLine("Pod Meta")
-    printLine("  org.uri:".padr(22) + this.orgUri)
-    printLine("  proj.name:".padr(22) + this.proj)
-    printLine("  proj.uri:".padr(22) + this.projUri)
-    printLine("  license.name:".padr(22) + this.lic)
-    if (vcs != null)
-    {
-      printLine("  vcs.name:".padr(22) + this.vcs)
-      printLine("  vcs.uri:".padr(22) + this.vcsUri)
-    }
-    printLine
-
-    printLine("Generate Files:")
-    typeof.fields.each |field|
-    {
-      if (!field.name.endsWith("File")) return
-      f := field.get(this) as File
-      if (f != null)
-      {
-        s := "  $field.name.toDisplayName:".padr(22)
-        s += f.osPath
-        if (f.exists) s += " (OVERWRITE!!!)"
-        printLine(s)
-      }
-    }
-
-    cont :=  promptConfirm("Continue")
-    if (!cont) printLine("Cancelled")
-    return cont
+    listGeneratedFiles
+    if (!promptConfirm("Continue?")) throw StubErr("Cancelled")
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Gen Build
+// Xeto Library
 //////////////////////////////////////////////////////////////////////////
+
+  private Void genXeto()
+  {
+    genXetoLib
+    genXetoFuncs
+    genXetoDoc
+  }
+
+  ** Write lib.xeto
+  private Void genXetoLib()
+  {
+    hx      := this.haxall
+    extType := "${typePrefix}Ext"
+
+    xetoLibFile.out.writeChars(applyTemplate(`lib.xeto.template`) |key->Str?| {
+      switch (key)
+      {
+        case "version":    return hx ? Str<|BuildVar "hx.version"|> : Str<|"1.0.0"|>
+        case "ph.depend":  return Str<|BuildVar "ph.depend"|>
+        case "hx.depend":  return Str<|BuildVar "hx.depend"|>
+        case "bv-license": return hx ? Str<|BuildVar "hx.license"|> : this.lic.toCode
+        case "bv-org":     return hx ? Str<|BuildVar "hx.org.dis"|> : this.org.toCode
+        case "bv-orgUri":  return hx ? Str<|BuildVar "hx.org.uri"|> : this.orgUri.toCode
+        case "bv-vcs":     return hx ? Str<|BuildVar "hx.vcs.type"|> : this.vcs.toCode
+        case "bv-vcsUri":  return hx ? Str<|BuildVar "hx.vcs.uri"|> : this.vcsUri.toCode
+        case "libExt":     return isExt ? "libExt: ${extType}" : ""
+        case "connStart":  return conn ? "" : "/*"
+        case "connEnd":    return conn ? "" : "*/"
+      }
+      if (key == "extSpec")
+      {
+        if (isResource) return ""
+        if (conn) return "${extType}: ConnExt <connFeatures:{}>"
+        return "${extType}: Ext"
+      }
+      return null
+    }).close
+  }
+
+  ** Write funcs.xeto
+  private Void genXetoFuncs()
+  {
+    xetoFuncsFile.out.writeChars(applyTemplate(`funcs.xeto.template`) |key->Str?| {
+      if (key == "fantomFunc")
+      {
+        if (isResource) return ""
+        return """  // Markdown documentation for this func. Returns a simple
+                    // hello world message.
+                    ${funcPrefix}Fantom: Func { returns: Str? }"""
+      }
+      return null
+    }).close
+  }
+
+  ** Write doc.md
+  private Void genXetoDoc()
+  {
+    xetoDocFile.out.writeChars(applyTemplate(`doc.md.template`) |key->Str?| {
+      switch (key)
+      {
+        case "title": return xetoLib
+        default: return headerApply(key)
+      }
+    }).close
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Pod
+//////////////////////////////////////////////////////////////////////////
+
+  private Void genPod()
+  {
+    if (isResource) return
+    genBuild
+    genExt
+    genFanFuncs
+    genConnDispatch
+  }
 
   ** Write build.fan
   private Void genBuild()
@@ -366,48 +405,40 @@ internal class StubCli : HxCli
     else if (buildPod.config("skyarc.depend") != null) hxVer = "@{skyarc.depend}"
 
     depends := ["sys $fanVer"]
-    if (!isResource)
-    {
-      // fantom
-      depends.add("concurrent $fanVer")
-             .add("inet $fanVer")
 
-      // haxall
-      depends.add("haystack $hxVer")
-             .add("axon $hxVer")
-             .add("folio $hxVer")
-             .add("hx $hxVer")
+    // fantom
+    depends.add("concurrent $fanVer")
+           .add("inet $fanVer")
+           .add("crypto $fanVer")
 
-      if (isConn)
-      {
-        depends.add("hxConn $hxVer")
-      }
-    }
+    // haxall
+    depends.add("xeto $hxVer")
+           .add("haystack $hxVer")
+           .add("axon $hxVer")
+           .add("folio $hxVer")
+           .add("hx $hxVer")
+
+    // connector
+    if (conn) depends.add("hxConn $hxVer")
 
     // source directories
-    srcDirs := Uri[,]
-    if (!isResource)
-    {
-      srcDirs.add(`fan/`)
-    }
-
-    // resource directories
-    resDirs := Uri[`lib/`]
+    srcDirs := Uri[`fan/`]
 
     // apply template
     content := applyTemplate(`build.fan.template`) |key->Str?|
     {
       switch (key)
       {
-        case "desc":        return this.desc
-        case "orgUri":      return this.orgUri
-        case "proj":        return this.proj
-        case "projUri":     return this.projUri
-        case "lic":         return this.lic
-        case "vcs":         return this.vcs
-        case "vcsUri":      return this.vcsUri
-        case "depends":     return buildList(depends)
-        case "srcDirs":     return buildList(srcDirs)
+        case "desc":          return this.desc
+        case "orgUri":        return this.orgUri
+        case "proj":          return this.proj
+        case "projUri":       return this.projUri
+        case "lic":           return this.lic
+        case "vcs":           return this.vcs
+        case "vcsUri":        return this.vcsUri
+        case "depends":       return buildList(depends)
+        case "srcDirs":       return buildList(srcDirs)
+        case "xeto.bindings": return xetoLib.toCode
         default: return null
       }
     }
@@ -422,88 +453,16 @@ internal class StubCli : HxCli
     return s
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Gen lib.trio
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genLibDef()
+  private Void genExt()
   {
-    depends := ["^lib:ph", "^lib:axon", "^lib:hx"]
-    if (isConn) depends.add("^lib:conn")
-
-    libDefFile.out.writeChars(applyTemplate(`lib.trio.template`) |key->Str?| {
-      switch (key)
-      {
-        case "depends":  return depends.join(", ")
-        case "typeName": return isResource
-          ? ""
-          : "typeName: \"${libName}::${typePrefix}Lib\""
-      }
-      return null
-    }).close
+    template := conn ? `extConn.fan.template` : `ext.fan.template`
+    extFile.out.writeChars(applyTemplate(template)).close
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Gen Lib.fan
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genLib()
-  {
-    if (libFile == null) return
-    template := isConn ? `connLib.fan.template` : `lib.fan.template`
-    libFile.out.writeChars(applyTemplate(template)).close
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Gen Fantom Funcs
-//////////////////////////////////////////////////////////////////////////
 
   private Void genFanFuncs()
   {
-    if (fanFuncsFile == null) return
     fanFuncsFile.out.writeChars(applyTemplate(`funcs.fan.template`)).close
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Gen Axon Funcs
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genAxonFuncs()
-  {
-    if (axonFuncsFile == null) return
-    axonFuncsFile.out.writeChars(applyTemplate(`funcs.trio.template`)).close
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Gen conn.trio
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genConnDef()
-  {
-    if (connDefFile == null) return
-    connDefFile.out.writeChars(applyTemplate(`conn.trio.template`) |key->Str?| {
-      if (key == "connFeatures")
-      {
-        // TODO: more features
-        return "{pollMode:\"buckets\"}"
-      }
-      return null
-    }).close
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Gen point.trio
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genPointDef()
-  {
-    if (connPointDefFile == null) return
-    connPointDefFile.out.writeChars(applyTemplate(`connPoint.trio.template`)).close
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Gen Conn Dispatch
-//////////////////////////////////////////////////////////////////////////
 
   private Void genConnDispatch()
   {
@@ -512,44 +471,35 @@ internal class StubCli : HxCli
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Gen skyarc.trio
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genSkyarc()
-  {
-    if (skyarcFile == null) return
-    skyarcFile.out.writeChars(applyTemplate(`skyarc.trio.template`)).close
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Gen pod.fandoc
-//////////////////////////////////////////////////////////////////////////
-
-  private Void genPodFandoc()
-  {
-    if (podFandocFile == null) return
-    podFandocFile.out.writeChars(applyTemplate(`pod.fandoc.template`, headerApply)).close
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Util
 //////////////////////////////////////////////////////////////////////////
 
-  ** If 'out/fan/' exists, check if it contains any Fantom source files
-  private Bool containsFcode()
+  ** Get the default XetoEnv
+  private once XetoEnv xetoEnv() { XetoEnv.cur }
+
+  ** Prefix to use for axon funcs
+  **     funcPrefix = "acme.foo" => acmeFoo
+  **     funcPrefix = "hx.foo" => "foo"
+  private Str funcPrefix()
   {
-    fcode := false
-    out.plus(`fan/`).walk
-    {
-      if ("fan" == it.ext) fcode = true
-    }
-    return fcode
+    if (haxall) return xetoLib["hx.".size..-1]
+    return XetoUtil.dottedToCamel(xetoLib)
   }
 
-  private Bool isHx() { libOrg == "hx" }
-  private Bool isResource() { type == "resource" }
-  private Bool isConn() { type == "conn" }
-  private Bool isFan() { type == "fantom" || isConn }
+  ** Prefix to use for Fantom types
+  **     typePrefix = "acmeFoo" => "AcmeFoo"
+  **     typePrefix = "hxFoo" => "Foo"
+  private Str typePrefix()
+  {
+    if (haxall) return ext["hx".size..-1]
+    return ext.capitalize
+  }
+
+  ** Is this a resource lib
+  private Bool isResource() { ext == null && xetoLib != null }
+
+  ** Is this an ext
+  private Bool isExt() { !isResource }
 
   private Str applyTemplate(Uri uri, |Str->Str?|? resolve := null)
   {
@@ -583,5 +533,29 @@ internal class StubCli : HxCli
   ** Prompt for a value or return the default of nothing specified
   private Str promptDef(Str msg, Str def) { Env.cur.prompt("${msg} [$def]: ").trimToNull ?: def }
 
+  ** Iterate fields/methods of this type that ends with "File" and get their value.
+  ** Display if the value is non-null
+  private Void listGeneratedFiles()
+  {
+    printLine("Generate Files:")
+    typeof.slots.each |slot|
+    {
+      if (!slot.name.endsWith("File")) return
+      File? f
+      if (slot.isMethod)
+        f = ((Method)slot).call(this) as File
+      else
+        f = ((Field)slot).get(this) as File
+      if (f == null) return
+      s := "  ${slot.name.toDisplayName}:".padr(22)
+      s += f.osPath
+      if (f.exists) s += " (OVERWRITE!!!)"
+      printLine(s)
+    }
+  }
+}
 
+internal const class StubErr : Err
+{
+  new make(Str msg := "", Err? cause := null) : super(msg, cause) { }
 }

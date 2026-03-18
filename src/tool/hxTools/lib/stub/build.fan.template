@@ -4,13 +4,13 @@
 using build
 
 **
-** Build: {{libName}}
+** Build: {{podName}}
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "{{libName}}"
+    podName = "{{podName}}"
     summary = "{{desc}}"
     // version = Version("1.0")
     meta    = ["org.name":     "{{org}}",
@@ -27,7 +27,8 @@ class Build : BuildPod
     srcDirs = [
 {{srcDirs}}
     ]
-    resDirs = [`lib/`]
-    index   = ["ph.lib": "{{defName}}"]
+    index   = [
+      "xeto.bindings":{{xeto.bindings}},
+    ]
   }
 }

@@ -1,0 +1,28 @@
+{{header}}
+
+using concurrent
+using xeto
+using haystack
+using hx
+using hxConn
+
+const class {{typePrefix}}Ext : ConnExt
+{
+  ** Convenience to get the ext from the current `Context`.
+  static {{typePrefix}}Ext cur(Bool checked := true)
+  {
+    Context.cur.ext("{{xetoLib}}", checked)
+  }
+
+  override Void onStart()
+  {
+    // You *must* call super
+    super.onStart
+  }
+
+  override Void onStop()
+  {
+    // You *must* call super
+    super.onStop
+  }
+}

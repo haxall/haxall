@@ -1,0 +1,15 @@
+{{header}}
+
++Funcs {
+  // Markdown documentation for this func. Returns
+  // an hello world message.
+  {{funcPrefix}}: Func { returns: Str?
+    <axon:---
+    do
+      "Hello world from Axon!"
+    end
+    --->
+  }
+
+{{fantomFunc}}
+}
