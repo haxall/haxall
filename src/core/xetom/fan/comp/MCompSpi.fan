@@ -232,7 +232,7 @@ class MCompSpi : CompSpi
     {
       name = autoName
     }
-    set(name, val)
+    set(name, val, true)
   }
 
   private Str autoName()
@@ -247,10 +247,10 @@ class MCompSpi : CompSpi
 
   override Void remove(Str name)
   {
-    set(name, null)
+    set(name, null, true)
   }
 
-  override Void set(Str name, Obj? newVal)
+  override Void set(Str name, Obj? newVal, Bool checked)
   {
     // lookup slot
     slot := spec.slot(name, false)
@@ -293,7 +293,8 @@ class MCompSpi : CompSpi
     else
     {
       // remove
-      if (slot != null && !slot.isMaybe) throw InvalidChangeErr("'$name' may not be removed")
+      if (slot != null && !slot.isMaybe && checked)
+        throw InvalidChangeErr("'$name' may not be removed")
       slots.remove(name)
     }
 

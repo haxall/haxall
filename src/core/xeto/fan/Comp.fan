@@ -81,7 +81,7 @@ mixin Comp
   ** convenience for remove.
   @Operator This set(Str name, Obj? val)
   {
-    spi.set(name, val)
+    spi.set(name, val, true)
     return this
   }
 
@@ -328,7 +328,7 @@ mixin CompSpi
   abstract Void each(|Obj val, Str name| f)
   abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
   abstract Links links()
-  abstract Void set(Str name, Obj? val)
+  abstract Void set(Str name, Obj? val, Bool checked)
   abstract Void add(Obj val, Str? name)
   abstract Void remove(Str name)
   abstract Void reorder(Str[] names)
