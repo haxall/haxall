@@ -33,6 +33,9 @@ const class HxdUserExt : ExtObj, IUserExt
   ** Auto login a configured superuser account for testing
   const Bool noAuth := sys.config.has("noAuth")
 
+  ** Auto login superuser for loopback-only requests
+  const Bool authLocal := sys.config.has("authLocal")
+
   ** URI for login page
   const Uri loginUri := web.uri + `login`
 

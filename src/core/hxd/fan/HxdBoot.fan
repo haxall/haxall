@@ -171,6 +171,9 @@ internal class RunCli : HxCli
   @Opt { help = "Disable authentication and use superuser for all access" }
   Bool noAuth
 
+  @Opt { help = "Auto-login superuser for requests from loopback (127.0.0.1)" }
+  Bool authLocal
+
   @Arg { help = "Runtime database directory" }
   File? dir
 
@@ -178,6 +181,7 @@ internal class RunCli : HxCli
   {
     boot := HxdBoot("sys", dir)
     if (noAuth) boot.sysConfig["noAuth"] = Marker.val
+    if (authLocal) boot.sysConfig["authLocal"] = Marker.val
     return boot.run
   }
 }
