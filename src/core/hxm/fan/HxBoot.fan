@@ -119,6 +119,7 @@ abstract class HxBoot
   **   - test: Marker for HxTest runtime
   **   - safeMode: Marker to disable all project extensions
   **   - noAuth: Marker to disable authentication and use superuser
+  **   - authLocal: Marker to auto-login superuser for loopback requests only
   **   - apiExtWeb: qname for ApiExt ExtWeb class
   **   - platformSpi: qname for hxPlatform::PlatformSpi class
   **   - platformNetworkSpi: qname for hxPlatformNetwork::PlatformNetworkSpi class
@@ -148,6 +149,9 @@ abstract class HxBoot
 
   ** Lookup sysConfig noAuth flag
   Bool isNoAuth() { sysConfigGet("noAuth") != null }
+
+  ** Lookup sysConfig authLocal flag
+  Bool isAuthLocal() { sysConfigGet("authLocal") != null }
 
   ** Lookup sysConfig safeMode flag
   Bool isSafeMode() { sysConfigGet("safeMode") != null }
@@ -211,6 +215,13 @@ abstract class HxBoot
     {
       echo("##")
       echo("## NO AUTH - authentication is disabled!!!!")
+      echo("##")
+    }
+
+    if (isAuthLocal)
+    {
+      echo("##")
+      echo("## AUTH LOCAL - authentication restricted to loopback only")
       echo("##")
     }
 

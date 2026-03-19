@@ -115,6 +115,10 @@ internal class HxdUserAuth
     if (ext.noAuth)
       return ext.login(req, res, HxUser(rt.db.read(Filter("user and userRole==\"su\""))))
 
+    // auto login superuser for loopback-only requests
+    if (ext.authLocal && req.remoteAddr.isLoopback)
+      return ext.login(req, res, HxUser(rt.db.read(Filter("user and userRole==\"su\""))))
+
     // redirect to login
     return null
   }
