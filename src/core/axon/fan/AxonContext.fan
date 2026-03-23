@@ -336,10 +336,10 @@ abstract class AxonContext : HaystackContext, CompContext
     throw EvalErr("Unknown symbol '$name'", this, loc)
   }
 
-  ** Get the variables in scope
-  @NoDoc Str:Obj? varsInScope()
+  ** Get the variables in scope of given function/current scope
+  @NoDoc Str:Obj? varsInScope(Fn? curFunc := null)
   {
-    curFunc := scopeCurFunc
+    if (curFunc == null) curFunc = scopeCurFunc
 
     // walk stack bottom to top
     acc := Str:Obj?[:]
@@ -546,5 +546,5 @@ internal class CallFrame
   const FileLoc callLoc
   const Fn func
   private Str:Obj? vars
- }
+}
 
