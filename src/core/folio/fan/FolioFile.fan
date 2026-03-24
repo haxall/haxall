@@ -87,19 +87,24 @@ const abstract class MFolioFile : FolioFile
     // check if it is a xeto file
     if (!spec.isa(xeto.spec("sys::File"))) return onErr(id, checked, "Spec ${spec} is not a sys::File")
 
-    return toFile(id)
+    isDir := spec.isa(xeto.spec("sys.files::FileDir"))
+    uri   := `${id}`
+    if (isDir) uri = uri.plusSlash
+    return toFile(uri)
   }
 
   override Void delete(Ref id)
   {
-    toFile(norm(id)).delete
+    toFile(`${norm(id)}`).delete
   }
 
   ** Get the xeto namespace
   Namespace xeto() { folio.hooks.ns }
 
-  ** Sub-class hook to make a file instance for the rec with this id.
-  protected abstract File toFile(Ref id)
+  ** Sub-class hook to make a file instance for a rec. The uri is the 'id'
+  ** of the rec. When `get` is used to obtain the file, the uri will always
+  ** have a trailing slash to indicate a directory.
+  protected abstract File toFile(Uri uri)
 
   ** Handle checked errors
   protected File? onErr(Ref id, Bool checked, Str msg)
@@ -131,9 +136,9 @@ const class LocalFolioFile : MFolioFile
   ** Root directory for storing files
   const File dir
 
-  protected override File toFile(Ref id)
+  protected override File toFile(Uri uri)
   {
-    LocalRecFile(this, id)
+    LocalRecFile(this, uri)
   }
 }
 
@@ -147,10 +152,10 @@ const abstract class RecFile : SyntheticFile
 {
   ** Make a RecFile for the rec with this id. It is assumed that
   ** the id is already fully normalized.
-  new make(Folio folio, Ref id) : super(`${id}`)
+  new make(Folio folio, Uri uri) : super(uri)
   {
     this.folio = folio
-    this.id    = id
+    this.id    = Ref(uri.name)
   }
 
   protected const Folio folio
@@ -183,18 +188,6 @@ const abstract class RecFile : SyntheticFile
   {
     get { rec(false)?.get("mod") as DateTime }
     set { }
-  }
-
-  final override File plus(Uri uri, Bool checkSlash := true)
-  {
-    // always return a non-existent file if this is used
-    SyntheticFile(this.uri.plus(uri))
-  }
-
-  override File create()
-  {
-    if (!exists) withOut |out| { }
-    return this
   }
 
   final override Void delete()
@@ -231,6 +224,8 @@ const abstract class RecFile : SyntheticFile
 
   protected FolioFuture? commitFileSizeAsync(Int bytes)
   {
+    if (isDir) return null
+
     rec  := this.rec(false)
     if (rec == null) return null
 
@@ -251,11 +246,16 @@ const abstract class RecFile : SyntheticFile
 ** LocalRecFile
 **************************************************************************
 
+**
+** A rec file stored on the local filesystem
+**
 internal const class LocalRecFile : RecFile
 {
-  new make(LocalFolioFile folioFile, Ref id) : super(folioFile.folio, id)
+  new make(LocalFolioFile folioFile, Uri uri) : super(folioFile.folio, uri)
   {
-    this.localFile = folioFile.dir.plus(`b${id.hash.abs %1024}/${id}`)
+    // don't check slash so we can handle files *or* dirs
+    localUri := folioFile.dir.uri.plus(`b${id.hash.abs % 1024}/${uri}`)
+    this.localFile = File(localUri, false)
   }
 
   private const File localFile
@@ -269,6 +269,24 @@ internal const class LocalRecFile : RecFile
   {
     get { localFile.modified }
     set { }
+  }
+
+  override File create()
+  {
+    localFile.create
+    return this
+  }
+
+  override File plus(Uri uri, Bool checkSlash := true)
+  {
+    if (!isDir) return super.plus(uri, checkSlash)
+    return localFile.plus(uri, checkSlash).create
+  }
+
+  override File[] list(Regex? pattern := null)
+  {
+    if (!isDir) return super.list(pattern)
+    return localFile.list(pattern)
   }
 
   override Void onDelete()

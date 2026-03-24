@@ -36,6 +36,7 @@ class FileMgrTest : WhiteboxTest
     verifyNotNull(file)
     file.delete
     verifyFalse(file.exists)
+    verifyFalse(file.isDir)
 
     // writes
     verifyWrite(id, "this is a file!")
@@ -54,6 +55,61 @@ class FileMgrTest : WhiteboxTest
     folio.commit(Diff(folio.readById(id), null, Diff.remove))
     folio.sync
     verifyFalse(file.exists)
+    verifyNull(folio.file.get(id, false))
+  }
+
+  Void testDir()
+  {
+    ns := XetoEnv.cur.createNamespaceFromNames(["sys", "sys.files"])
+
+    open
+    // force files/ directory to be clean
+    folio.dir.plus(`../files/`).delete
+    folio.hooks = FileTestHooks(ns)
+
+    id := Ref("conversation-1")
+    rec := addRec([
+      "id":   id,
+      "spec": Ref("sys.files::FileDir"),
+    ])
+
+    // init
+    file := folio.file.get(rec.id, false)
+    verifyNotNull(file)
+    file.delete
+    verifyFalse(file.exists)
+    verify(file.isDir)
+    verify(file.list.isEmpty)
+
+    // create the dir
+    file.create
+    verify(file.exists)
+
+    // create a file
+    a := file.plus(`a.txt`)
+    a.out.writeChars("a").close
+    verify(a.exists)
+    verifyEq("a", a.in.readAllStr)
+
+    // list files
+    files := file.list
+    verifyEq(files.size, 1)
+    verifyEq(files.first, a)
+
+    // delete directory
+    file.delete
+    verifyFalse(file.exists)
+    verifyFalse(a.exists)
+
+    // removing the rec also delete the backing directory
+    a.out.writeChars("a").close
+    verify(file.exists)
+    verify(a.exists)
+    verifyEq("a", a.in.readAllStr)
+    folio.commit(Diff(folio.readById(id), null, Diff.remove))
+    folio.sync
+    verifyFalse(file.exists)
+    verifyFalse(a.exists)
     verifyNull(folio.file.get(id, false))
   }
 
