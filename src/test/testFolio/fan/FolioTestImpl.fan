@@ -31,6 +31,9 @@ class FolioFlatFileTestImpl : FolioTestImpl
 
   // don't support history API
   override Bool supportsHis() { false }
+
+  // don't support file API
+  override Bool supportsFile() { false }
 }
 
 **************************************************************************

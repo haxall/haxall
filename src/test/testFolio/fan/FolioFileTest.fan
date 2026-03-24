@@ -11,18 +11,22 @@ using xeto
 using haystack
 using folio
 
-**
-** FileMgrTest
-**
-class FileMgrTest : WhiteboxTest
+class FolioFileTest : AbstractFolioTest
 {
   static const Unit byte := Number.byte
+  Namespace? ns
 
-  Void test()
+  override Void setup()
   {
-    ns := XetoEnv.cur.createNamespaceFromNames(["sys", "sys.files"])
+    this.ns = XetoEnv.cur.createNamespaceFromNames(["sys", "sys.files"])
+  }
 
-    open
+  Void testFile() { runImpls }
+  Void doTestFile()
+  {
+    if (!impl.supportsFile) return
+
+    folio := open
     folio.hooks = FileTestHooks(ns)
 
     id := Ref("test-file")
@@ -56,13 +60,31 @@ class FileMgrTest : WhiteboxTest
     folio.sync
     verifyFalse(file.exists)
     verifyNull(folio.file.get(id, false))
+
+    // verify trashing rec
+    rec = addRec([
+      "id": id,
+      "spec": Ref("sys.files::PlainTextFile"),
+    ])
+
+    // moving the file to trash does not remove backing file
+    file = verifyWrite(id, "now i'm gonna delete the rec")
+    folio.commit(Diff(folio.readById(id), ["trash":Marker.val]))
+    folio.sync
+    verify(file.exists)
+
+    // emptying trash does remove backing file
+    folio.commitRemoveTrashAsync.get(5sec)
+    verifyFalse(file.exists)
+    verifyNull(folio.file.get(id, false))
   }
 
-  Void testDir()
+  Void testDir() { runImpls }
+  Void doTestDir()
   {
-    ns := XetoEnv.cur.createNamespaceFromNames(["sys", "sys.files"])
+    if (!impl.supportsFile) return
 
-    open
+    folio := open
     // force files/ directory to be clean
     folio.dir.plus(`../files/`).delete
     folio.hooks = FileTestHooks(ns)
@@ -111,6 +133,29 @@ class FileMgrTest : WhiteboxTest
     verifyFalse(file.exists)
     verifyFalse(a.exists)
     verifyNull(folio.file.get(id, false))
+
+    // verify trashing rec
+    rec = addRec([
+      "id": id,
+      "spec": Ref("sys.files::FileDir"),
+    ])
+
+    // moving the file to trash does not remove backing file or sub-files
+    a.out.writeChars("a").close
+    verify(file.exists)
+    verify(a.exists)
+    verifyEq("a", a.in.readAllStr)
+    folio.commit(Diff(folio.readById(id), ["trash":Marker.val]))
+    folio.sync
+    verify(file.exists)
+    verify(a.exists)
+    verifyEq("a", a.in.readAllStr)
+
+    // emptying trash does remove backing file and sub-files
+    folio.commitRemoveTrashAsync.get(5sec)
+    verifyFalse(file.exists)
+    verifyFalse(a.exists)
+    verifyNull(folio.file.get(id, false))
   }
 
   private File verifyWrite(Ref id, Str text)
@@ -138,4 +183,3 @@ const class FileTestHooks : FolioHooks
   override Void postCommit(FolioCommitEvent event) {}
   override Void postHisWrite(FolioHisEvent event) {}
 }
-

@@ -260,6 +260,11 @@ internal const class LocalRecFile : RecFile
 
   private const File localFile
 
+  override Int? size()
+  {
+    localFile.size
+  }
+
   override Bool exists()
   {
     localFile.exists

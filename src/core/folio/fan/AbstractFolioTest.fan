@@ -240,6 +240,9 @@ abstract class FolioTestImpl
   ** Does the implementation support the history API
   virtual Bool supportsHis() { true }
 
+  ** Does the implementation support the file API
+  virtual Bool supportsFile() { true }
+
   ** Does the implementation support re-opening with different id prefix
   virtual Bool supportsIdPrefixRename() { true }
 
