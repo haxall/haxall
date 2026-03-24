@@ -243,7 +243,7 @@ internal class Commit
     dict := rec.persistent
 
     // remove file
-    folio.file.get(dict.id, false)?.delete
+    folio.file.delete(dict.id)
 
     // clear Ref.dis
     rec.id.disVal = null
