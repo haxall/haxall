@@ -87,6 +87,7 @@ abstract class HxBoot
       "ion.misc",
       "ion.styles",
       "ion.table",
+      "ion.tool",
       "ion.ux",
     ]
   }
