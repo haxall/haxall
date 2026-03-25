@@ -82,6 +82,7 @@ abstract class HxBoot
       "ion.actions",
       "ion.card",
       "ion.doc",
+      "ion.editor",
       "ion.form",
       "ion.inputs",
       "ion.misc",
