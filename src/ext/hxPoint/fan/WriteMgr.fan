@@ -13,6 +13,7 @@ using haystack
 using folio
 using obs
 using hx
+using hxm
 
 **
 ** WriteMgrActor wraps the WriteMgr
@@ -166,6 +167,7 @@ internal class WriteMgr : PointMgr
     // We lazily create these events in the loop below
     ts := DateTime.now
     rec := writeRec.rec
+    cx := ext.rt.obs.newContext
     WriteObservation? eventEff := null
     WriteObservation? eventAll := null
 
@@ -176,7 +178,7 @@ internal class WriteMgr : PointMgr
       if (!effectiveChange && !sub.isAllWrites) return
 
       // short circuit if subscription filter doesn't match
-      if (!sub.include(rec)) return
+      if (!sub.include(rec, cx)) return
 
       // fire event to this subscriber
       if (sub.isAllWrites)

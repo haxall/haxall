@@ -43,11 +43,11 @@ const class RecSubscription : Subscription
   const Filter? filter
 
   ** Match the record against configured filter
-  Bool include(Dict rec)
+  Bool include(Dict rec, HaystackContext cx)
   {
     if (rec.isEmpty) return false
     if (filter == null) return true
-    return filter.matches(rec)
+    return filter.matches(rec, cx)
   }
 }
 

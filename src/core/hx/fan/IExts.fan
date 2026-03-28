@@ -83,6 +83,9 @@ const mixin IUserExt : SysExt
   ** Configured max sessions
   @NoDoc abstract Int maxSessions()
 
+  ** Dummy operator user to use for RuntimeObservables.newContext
+  @NoDoc abstract User obsContextUser()
+
 }
 
 **************************************************************************

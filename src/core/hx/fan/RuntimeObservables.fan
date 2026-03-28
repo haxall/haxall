@@ -20,6 +20,9 @@ const mixin RuntimeObservables
   ** Lookup a observable for the project by name.
   abstract Observable? get(Str name, Bool checked := true)
 
+  ** Construct new context with dummy operator to use for include checks
+  @NoDoc abstract Context newContext()
+
   ** Get the schedule observable
   @NoDoc abstract ScheduleObservable schedule()
 }

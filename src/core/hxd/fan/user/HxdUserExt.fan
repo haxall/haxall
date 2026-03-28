@@ -86,6 +86,9 @@ const class HxdUserExt : ExtObj, IUserExt
   ** Configured max sessions
   override Int maxSessions() { settings.maxSessions }
 
+  ** Obs include context user
+  override const User obsContextUser := HxUser(Etc.dict4("id",Ref("obs"), "username","obs", "userRole","op", "mod",DateTime.defVal))
+
 //////////////////////////////////////////////////////////////////////////
 // Session
 //////////////////////////////////////////////////////////////////////////

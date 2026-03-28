@@ -34,6 +34,7 @@ class Build : BuildPod
                 "axon @{hx.depend}",
                 "folio @{hx.depend}",
                 "hx @{hx.depend}",
+                "hxm @{hx.depend}",
                 "hxUtil @{hx.depend}",
                ]
     srcDirs = [`fan/`, `test/`]

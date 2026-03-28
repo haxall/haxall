@@ -106,6 +106,11 @@ const class HxObservables : Actor, RuntimeObservables
     listRef.val = list.toImmutable
   }
 
+  override Context newContext()
+  {
+    rt.newContext(rt.sys.user.obsContextUser)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Commits
 //////////////////////////////////////////////////////////////////////////
@@ -154,12 +159,13 @@ const class HxObservables : Actor, RuntimeObservables
 
   private Obj? onCommit(Diff diff, HxUser? user)
   {
+    cx := newContext
     oldRec := toDiffRec(diff.oldRec)
     newRec := toDiffRec(diff.newRec)
     commits.subscriptions.each |CommitsSubscription sub|
     {
-      oldMatch := sub.include(oldRec)
-      newMatch := sub.include(newRec)
+      oldMatch := sub.include(oldRec, cx)
+      newMatch := sub.include(newRec, cx)
       if (oldMatch)
       {
         if (newMatch)
@@ -214,12 +220,13 @@ const class HxObservables : Actor, RuntimeObservables
 
   private Obj? onCurVal(Diff diff)
   {
+    cx := newContext
     oldRec := toDiffRec(diff.oldRec)
     newRec := toDiffRec(diff.newRec)
     event  := CommitObservation(curVals, CommitObservationAction.updated, rt.now, diff.id, oldRec, newRec, null)
     curVals.subscriptions.each |CurValsSubscription sub|
     {
-      if (sub.include(newRec)) sub.send(event)
+      if (sub.include(newRec, cx)) sub.send(event)
     }
     return null
   }
@@ -234,9 +241,10 @@ const class HxObservables : Actor, RuntimeObservables
       return null
     }
     event := HisWriteObservation(hisWrites, rt.now, rec.id, rec, count, span, user?.meta)
+    cx := newContext
     hisWrites.subscriptions.each |HisWritesSubscription sub|
     {
-      if (sub.include(rec)) sub.send(event)
+      if (sub.include(rec, cx)) sub.send(event)
     }
     return null
   }
@@ -347,9 +355,10 @@ internal const class WatchesObservable : Observable
   private Void fire(Str subType, Dict[] recs)
   {
     ts := DateTime.now
+    cx := rt.obs.newContext
     subscriptions.each |WatchesSubscription sub|
     {
-      matches := sub.filter == null ? recs : recs.findAll |rec| { sub.include(rec) }
+      matches := sub.filter == null ? recs : recs.findAll |rec| { sub.include(rec, cx) }
       if (matches.isEmpty) return
       obs := makeObservation(ts, Etc.dict2("subType", subType, "recs", matches))
       sub.send(obs)
