@@ -50,12 +50,13 @@ const class AxonThunkFactory : ThunkFactory
     if (fn != null) return fn
 
     // check axon source
-    code := spec.meta["axon"] as Str
-    if (code  != null) return parseAxon(spec, meta, code)
+    js := spec.meta["axon"] as Str
+    if (js  != null) return createAxon(spec, meta, js)
 
-    // try compTree xeto source
-    comp := spec.meta["compTree"] as Str
-    if (comp != null) return parseCompTree(spec, meta, comp)
+    // check js source
+    code := spec.meta["js"] as Str
+    if (code != null) return createJavaScript(spec, meta, code)
+
 
     // check for template
     if (spec.func.isTemplate) return TemplateFn(spec, meta, toParams(meta->qname, spec))
@@ -143,19 +144,13 @@ const class AxonThunkFactory : ThunkFactory
 // Axon
 //////////////////////////////////////////////////////////////////////////
 
-  virtual TopFn? parseAxon(Spec spec, Dict meta, Str src)
+  virtual TopFn? createAxon(Spec spec, Dict meta, Str src)
   {
     name   := spec.name
     qname  := meta->qname
     loc    := FileLoc.make(qname)
     params := toParams(qname, spec)
     return Parser(src.in, loc).parseTopBody(name, params, meta)
-  }
-
-  private TopFn? parseCompTree(Spec spec, Dict meta, Str src)
-  {
-    params := spec.func.params.map |p->FnParam| { FnParam(p.name) }
-    return CompFn(spec.name, meta, params, src)
   }
 
   private FnParam[] toParams(Str qname, Spec spec)
@@ -173,6 +168,15 @@ const class AxonThunkFactory : ThunkFactory
       }
       return FnParam(p.name, def)
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// JavaScript
+//////////////////////////////////////////////////////////////////////////
+
+  virtual TopFn? createJavaScript(Spec spec, Dict meta, Str src)
+  {
+    throw UnsupportedErr("JavaScript functions not supported")
   }
 
 //////////////////////////////////////////////////////////////////////////
