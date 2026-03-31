@@ -241,6 +241,7 @@ internal final class ConnMgr
     changes := Str:Obj[:]
     r.each |v, n|
     {
+      if (v === NA.val) return
       if (v === Remove.val) { if (rec.has(n)) changes[n] = Remove.val }
       else { if (rec[n] != v) changes[n] = v }
     }
@@ -829,3 +830,4 @@ internal final class ConnMgr
   private Bool openForPing
   internal ConnPoint[] pointsInWatch := [,]
 }
+
