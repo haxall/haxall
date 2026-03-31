@@ -17,7 +17,6 @@ using xetom
 ** CompFn is an Axon function backed by a Xeto component blocks
 ** declared in compTree.
 **
-/* TODO
 @Js @NoDoc
 const class CompFn : TopFn
 {
@@ -34,6 +33,8 @@ const class CompFn : TopFn
 
   override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
+throw Err("TODO")
+/*
     // create component space from xeto
     ns := cx.ns
     cs := CompSpace(ns).load(xeto)
@@ -53,8 +54,8 @@ const class CompFn : TopFn
     // get returns
     ret := root.get("returns") as Comp
     return ret?.get("val")
+*/
   }
 
 }
-*/
 
