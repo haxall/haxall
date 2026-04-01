@@ -151,11 +151,13 @@ enum class SysInfoType
   hxd,
   axonsh,
   skyspark,
+  xs,
   xb
 
   Bool isHxd()      { this === hxd }
   Bool isAxonsh()   { this === axonsh }
   Bool isSkySpark() { this === skyspark }
+  Bool isXs()       { this === xs }
   Bool isXb()       { this === xb }
 }
 
