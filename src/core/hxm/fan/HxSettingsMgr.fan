@@ -46,7 +46,7 @@ const class HxSettingsMgr
   ** Read lib record by name
   Dict extRead(Str name)
   {
-    HxUtil.readLibRec(rt, name, false) ?: Etc.dict0
+    HxUtil.readLibRec(rt.db, name, false) ?: Etc.dict0
   }
 
   ** Update settings for given ext

@@ -182,21 +182,21 @@ const class HxUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Read the rt:meta record
-  @NoDoc static Dict? readMetaRec(Runtime rt, Bool checked := true)
+  @NoDoc static Dict? readMetaRec(Folio db, Bool checked := true)
   {
-    rt.db.read(Filter.eq("rt", "meta"), checked)
+    db.read(Filter.eq("rt", "meta"), checked)
   }
 
   ** Read the rt:lib record
-  @NoDoc static Dict? readLibRec(Runtime rt, Str name, Bool checked := true)
+  @NoDoc static Dict? readLibRec(Folio db, Str name, Bool checked := true)
   {
-    rt.db.read(Filter.eq("rt", "lib").and(Filter.eq("name", name)), checked)
+    db.read(Filter.eq("rt", "lib").and(Filter.eq("name", name)), checked)
   }
 
   ** Read all the rt:lib records
-  @NoDoc static Dict[] readLibRecs(Runtime rt)
+  @NoDoc static Dict[] readLibRecs(Folio db)
   {
-    rt.db.readAllList(Filter.eq("rt", "lib"))
+    db.readAllList(Filter.eq("rt", "lib"))
   }
 
 //////////////////////////////////////////////////////////////////////////

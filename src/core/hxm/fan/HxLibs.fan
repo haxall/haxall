@@ -526,7 +526,7 @@ const class HxLibs : RuntimeLibs
   private Str[] readLibNames()
   {
     acc := Str[,]
-    recs := HxUtil.readLibRecs(rt)
+    recs := HxUtil.readLibRecs(rt.db)
     recs.each |rec|
     {
       acc.addNotNull(rec["name"] as Str)
@@ -544,7 +544,7 @@ const class HxLibs : RuntimeLibs
     // remove diffs
     u.eachRemove |n|
     {
-      rec := HxUtil.readLibRec(rt, n, false)
+      rec := HxUtil.readLibRec(rt.db, n, false)
       if (rec == null) log.warn("Remove unknown lib: $n")
       else diffs.add(removeDiff(rec))
     }
