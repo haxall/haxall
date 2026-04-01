@@ -168,7 +168,7 @@ internal class RunCli : HxCli
 
   override Str summary() { "Run the daemon server" }
 
-  @Opt { help = "Disable authentication and use superuser for all access" }
+  @Opt { help = "Disable auth for loopback and auto-login with superuser" }
   Bool noAuth
 
   @Arg { help = "Runtime database directory" }

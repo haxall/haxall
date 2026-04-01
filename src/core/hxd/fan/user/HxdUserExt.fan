@@ -30,7 +30,7 @@ const class HxdUserExt : ExtObj, IUserExt
   ** Settings record
   override HxdUserSettings settings() { super.settings }
 
-  ** Auto login a configured superuser account for testing
+  ** Disable auth for loopback and auto-login with superuser
   const Bool noAuth := sys.config.has("noAuth")
 
   ** URI for login page

@@ -112,7 +112,7 @@ internal class HxdUserAuth
       return HxdUserAuthServerContext(ext).onService(req, res)
 
     // auto login superuser for testing
-    if (ext.noAuth)
+    if (ext.noAuth && req.remoteAddr.isLoopback)
       return ext.login(req, res, HxUser(rt.db.read(Filter("user and userRole==\"su\""))))
 
     // redirect to login
