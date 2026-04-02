@@ -1,4 +1,5 @@
 login.username=Username
+login.email=Email
 login.password=Password
 login.invalidUsernamePassword=Invalid username or password
 login.login=Login

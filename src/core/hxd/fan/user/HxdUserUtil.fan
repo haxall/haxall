@@ -32,6 +32,7 @@ const class HxdUserUtil
     tags["created"]  = DateTime.now
     tags["userAuth"] = userAuth
     tags["disabled"] = None.val
+    if (user.contains("@")) tags["email"] = user
     addUserSet(tags, "dis",      user)
     addUserSet(tags, "tz",       TimeZone.cur.toStr)
     addUserSet(tags, "userRole", "op")

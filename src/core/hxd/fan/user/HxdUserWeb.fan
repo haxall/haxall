@@ -58,6 +58,8 @@ const class HxdUserWeb : ExtWeb
     loginUri       := uri+`auth`
     redirectUri    := `/`
 
+    if (ext.sys.info.type.isXs) userLabel = "$<login.email>"
+
     res.headers["Content-Type"] = "text/html; charset=utf-8"
     out := res.out
     out.docType5.html.head.title.esc(title).titleEnd
