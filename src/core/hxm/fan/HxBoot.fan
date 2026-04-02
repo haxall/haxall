@@ -212,7 +212,7 @@ abstract class HxBoot
     if (isNoAuth)
     {
       echo("##")
-      echo("## NO AUTH - authentication is disabled!!!!")
+      echo("## NO AUTH - authentication is disabled on loopback!")
       echo("##")
     }
 
