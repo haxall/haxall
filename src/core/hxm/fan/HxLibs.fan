@@ -553,6 +553,11 @@ const class HxLibs : RuntimeLibs
     db.commitAll(diffs)
   }
 
+  static Filter readFilter(Str n)
+  {
+    Filter.eq("rt", "lib").and(Filter.eq("name", n))
+  }
+
   static Diff addDiff(Str n, Dict? extra := null)
   {
     diff := Etc.dict2("rt", "lib", "name", n)

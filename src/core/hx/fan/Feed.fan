@@ -21,7 +21,7 @@ abstract const class Feed
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Constructor - must safe not perform any I/O or multi-threading!
+  ** Constructor - must be thread safe not perform any I/O or multi-threading!
   new make(Context cx)
   {
     init := cx.feedInit
