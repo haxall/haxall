@@ -127,6 +127,7 @@ abstract class HxBoot
   **   - platformSerialSpi: qname for hxPlatformSerial::PlatformSerialSpi class
   **   - platformTimeSpi: qname for hxPlatformTime::PlatformTimeSpi class
   **   - hxLic: license Str or load from lic/xxx.trio
+  **   - ephemeralHttpPort: Marker to let OS assign HTTP port
   **
   ** SkySpark options:
   **   - safeMode: don't start exts (SkySpark only)

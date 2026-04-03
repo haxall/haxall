@@ -33,7 +33,8 @@ class Build : BuildPod
                "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
-               "hx @{hx.depend}"]
+               "hx @{hx.depend}",
+               "hxm @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
     index   = ["xeto.bindings": "hx.http", "ph.lib": "http"]

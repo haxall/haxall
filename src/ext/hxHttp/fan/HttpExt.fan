@@ -13,6 +13,7 @@ using web
 using wisp
 using haystack
 using hx
+using hxm
 
 **
 ** HTTP service handling
@@ -61,10 +62,14 @@ const class HttpExt : ExtObj, IHttpExt
       log.err("Failed to obtain entry with alias 'https' from the keystore. Disabling HTTPS")
     }
 
+    ephemeral := sys.config.has("ephemeralHttpPort")
+    httpPort  := ephemeral ? -1 : settings.httpPort
+    httpsPort := httpsEnabled ? settings.httpsPort : null
+
     wisp := WispService
     {
-      it.httpPort     = settings.httpPort
-      it.httpsPort    = httpsEnabled ? settings.httpsPort : null
+      it.httpPort     = httpPort
+      it.httpsPort    = httpsPort
       it.addr         = addr
       it.maxThreads   = settings.maxThreads
       it.root         = this.root
