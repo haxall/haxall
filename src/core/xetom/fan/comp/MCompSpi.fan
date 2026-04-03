@@ -568,6 +568,11 @@ class MCompSpi : CompSpi
       s.clear.add(n)
       if (v !==  Marker.val) s.add(": ").add(dumpValToStr(v))
       con.info(s.toStr)
+      if (n == "style")
+      {
+        method := c.typeof.method("styling", false)
+        if (method != null) con.info("styling: " + method.callOn(c, null))
+      }
     }
     con.groupEnd.info("}")
   }
