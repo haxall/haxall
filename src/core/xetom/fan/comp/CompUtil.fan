@@ -120,7 +120,10 @@ class CompUtil
   ** Encode a component into a sys.comp::Comp dict representation (no children)
   static Dict toFeedDict(Comp comp)
   {
-    acc := Str:Obj[:]
+    acc := Str:Obj[
+      "id":   comp.id,
+      "spec": comp.spec.type.id,
+    ]
     comp.each |v, n|
     {
       if (v is Comp) return
