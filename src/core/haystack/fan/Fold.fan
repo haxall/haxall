@@ -234,7 +234,7 @@ internal abstract class FoldNum : Fold
 
   abstract Void addNum(Float n)
 
-  Void addUnit(Unit? u)
+  virtual Void addUnit(Unit? u)
   {
     if (unit == undefined_unit)
     {
@@ -242,8 +242,10 @@ internal abstract class FoldNum : Fold
     }
     else if (unit != u)
     {
-      if (axon) throw UnitErr("${unit} + ${u}")
-      unit = null
+      // when running in axon mode we want the same behavior
+      // as adding two haystack Numbers
+      if (axon) unit = Number.plusUnit(unit, u)
+      else unit = null
     }
   }
 
