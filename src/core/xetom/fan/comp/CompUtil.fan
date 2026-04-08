@@ -122,7 +122,7 @@ class CompUtil
   {
     acc := Str:Obj[
       "id":   comp.id,
-      "spec": comp.spec.type.id,
+      "spec": comp.spec.id,
     ]
     comp.each |v, n|
     {
