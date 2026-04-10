@@ -96,6 +96,9 @@ class CompSpace
   ** Create new component instance for spec
   Comp create(Spec spec)  { spi.create(spec) }
 
+  ** Create new component instance tree from dicts
+  @NoDoc Comp createFromDict(Dict dict)  { spi.createFromDict(dict) }
+
   ** Read a component by its id in this space
   Comp? readById(Ref id, Bool checked := true) { spi.readById(id, checked) }
 
@@ -166,6 +169,7 @@ abstract class CompSpaceSpi
   abstract Void start()
   abstract Void stop()
   abstract Comp create(Spec spec)
+  abstract Comp createFromDict(Dict dict)
   abstract Comp? readById(Ref id, Bool checked := true)
   abstract Void each(|Comp| f)
   abstract Obj? eachWhile(|Comp->Obj?| f)

@@ -570,8 +570,8 @@ class MCompSpi : CompSpi
       con.info(s.toStr)
       if (n == "style")
       {
-        method := c.typeof.method("styling", false)
-        if (method != null) con.info("styling: " + method.callOn(c, null))
+        method := c.typeof.method("look", false)
+        if (method != null) con.info("look: " + method.callOn(c, null))
       }
     }
     con.groupEnd.info("}")

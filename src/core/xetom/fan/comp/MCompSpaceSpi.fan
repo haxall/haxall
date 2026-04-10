@@ -105,6 +105,12 @@ class MCompSpaceSpi : CompSpaceSpi
     CompFactory(this).create(spec)
   }
 
+  ** Create new component instance from dict.
+  override Comp createFromDict(Dict dict)
+  {
+    CompFactory(this).createFromDict(dict)
+  }
+
   ** Read by id
   override Comp? readById(Ref id, Bool checked := true)
   {

@@ -34,7 +34,7 @@ internal class CompFactory
 // Load
 //////////////////////////////////////////////////////////////////////////
 
-  ** Load comp tree from dict tree and reuse the dict ids directory
+  ** Load comp tree from dict tree where we use ids directly
   Comp load(Dict dict, Spec? spec)
   {
     if (spec == null) spec = ns.spec(dict->spec.toStr)
@@ -63,6 +63,28 @@ internal class CompFactory
         return load(dict, spec)
     }
     return v
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Create Dict
+//////////////////////////////////////////////////////////////////////////
+
+  ** Create from dict where we must swizzle ids
+  Comp createFromDict(Dict dict)
+  {
+    load(swizzleIds(dict), null)
+  }
+
+  private Dict swizzleIds(Dict dict)
+  {
+    oldToNew := Ref:Ref[:]
+    Etc.eachRef(dict) |id|
+    {
+      newId := id.id.contains("::") ? id : csSpi.genId
+      oldToNew[id] = newId
+    }
+
+    return Etc.mapRefs(dict) |id| { oldToNew.getChecked(id) }
   }
 
 //////////////////////////////////////////////////////////////////////////
