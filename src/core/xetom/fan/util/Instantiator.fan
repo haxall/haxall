@@ -52,9 +52,9 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
 
     // handle non-dict types
     if (spec.isNone)          return null
-    if (spec.type.isScalar)   return scalar(spec, opts)
-    if (spec.isList)          return list(spec, opts)
-    if (spec.isMultiRef)      return Ref#.emptyList
+    if (spec.type.isScalar)   return scalar(spec)
+    if (spec.isList)          return list(spec)
+    if (spec.isMultiRef)      return multiRef(spec)
     if (spec === ns.sys.dict) return Etc.dict0
 
     // special handling for Obj
@@ -85,8 +85,8 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
 // Non-Dicts
 //////////////////////////////////////////////////////////////////////////
 
-   ** Instantiate a list
-  private List list(XetoSpec spec, Dict opts)
+  ** Instantiate a list
+  private List list(XetoSpec spec)
   {
     of := spec.of(false)
     listOf := of == null ? Obj# : of.fantomType
@@ -104,8 +104,23 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     return acc.toImmutable
   }
 
+  ** MultiRef as ref or list
+  private Ref[] multiRef(XetoSpec spec)
+  {
+    // if single ref
+    val := spec.meta["val"] ?: spec.type.meta["val"]
+    if (val is Ref) return Ref[val]
+
+    // not sure about this, do we want to leave it as slot
+    // AST or turn it into list at compile time?
+    if (spec.slots.isEmpty) return Ref#.emptyList
+    acc := Ref[,]
+    spec.slots.each |x| { acc.addNotNull(x.meta["val"] as Ref) }
+    return acc
+  }
+
   ** Instantiate a scalar
-  private Obj scalar(XetoSpec spec, Dict opts)
+  private Obj scalar(XetoSpec spec)
   {
     x := spec.meta["val"] ?: spec.type.meta["val"]
     if (x == null) x = ""

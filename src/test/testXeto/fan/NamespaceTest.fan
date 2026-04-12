@@ -606,6 +606,8 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(dict["c"], "charlie-b")
     verifyEq(dict["d"], null)
     verifyEq(dict["icon"], Ref("hx.test.xeto::icon-b"))
+    verifyEq(dict["multiRef1"], Ref[Ref("hx.test.xeto::icon-a")])
+    verifyEq(dict["multiRef2"], Ref[Ref("hx.test.xeto::icon-a"), Ref("hx.test.xeto::icon-b")])
 
     dict = ns.instantiate(instantiateC)
     verifyEq(dict["a"], "alpha-b")
