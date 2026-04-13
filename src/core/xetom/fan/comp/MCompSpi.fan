@@ -38,9 +38,9 @@ class MCompSpi : CompSpi
     // wire up children parent ref to me
     initChildren
 
-    // if this is a top-level spec, then we have built
+    // if this is a link root spec, then we have built
     // the whole children tree and now we can backpatch links
-    if (spec.parent == null) backpatchLinks(comp)
+    if (CompUtil.isLinkRoot(spec)) backpatchLinks(comp)
   }
 
   ** Backpatch links

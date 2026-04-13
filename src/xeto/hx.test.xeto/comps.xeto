@@ -130,6 +130,17 @@ TestDeep1Composite : Comp {
   }
 }
 
+TestNestedComp : Func {
+  do: TestFolder {
+    r1: TestRamp
+    r2: TestRamp
+    a: TestAdd {
+      in1: TestVal <link:"r1.out">
+      in2: TestVal <link:"r2.out">
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Remote loader handling covariant overrides
 //////////////////////////////////////////////////////////////////////////

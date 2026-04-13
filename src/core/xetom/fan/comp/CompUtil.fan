@@ -94,11 +94,17 @@ class CompUtil
     return Etc.dictFromMap(acc)
   }
 
+  ** Return true if the spec is a link root
+  static Bool isLinkRoot(Spec spec)
+  {
+    spec.parent == null || !spec.parent.isComp
+  }
+
   ** Given slot spec, get top-level type that scopes declaration of 'link' meta tag
   static Spec toLinkScope(Spec slot)
   {
     p := slot.parent
-    while (p.parent != null) p = p.parent
+    while (!isLinkRoot(p)) p = p.parent
     return p
   }
 
@@ -109,7 +115,7 @@ class CompUtil
     scope := toLinkScope(slot)
 
     // walk up my comp tree to find that type
-    while (comp.spec.type !== scope)
+    while (comp.spec.type !== scope.type)
     {
       if (comp.parent == null)
       {

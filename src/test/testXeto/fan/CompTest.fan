@@ -540,6 +540,22 @@ class CompTest: AbstractXetoTest
 // Link Resolution
 //////////////////////////////////////////////////////////////////////////
 
+  ** This test verifies that links can be resolved when the root component for
+  ** link resolution is not the top-level spec itself. (e.g. a Func with a "do" block)
+  Void testCompNestedUnderNonComp()
+  {
+    ns  := cs.ns
+    lib := ns.lib("hx.test.xeto")
+    r   := cs.create(lib.spec("TestNestedComp").slot("do"))
+
+    r1 := (Comp)r->r1
+    r2 := (Comp)r->r2
+    a  := (Comp)r->a
+
+    verifyCompLink(a, "in1", r1, "out")
+    verifyCompLink(a, "in2", r2, "out")
+  }
+
   Void testLinkResolution()
   {
     ns  := cs.ns
