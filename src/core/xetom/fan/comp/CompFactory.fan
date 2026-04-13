@@ -46,7 +46,8 @@ internal class CompFactory
     dict.each |v, n|
     {
       if (n == "id" || n == "spec") return
-      comp.set(n, reify(v))
+      x := reify(v)
+      comp.set(n, x)
     }
 
     return comp
@@ -59,8 +60,13 @@ internal class CompFactory
     if (specRef != null)
     {
       spec := ns.spec(specRef.toStr, false)
-      if (spec != null && spec.isComp)
-        return load(dict, spec)
+      if (spec != null)
+      {
+        if (spec.isComp)
+          return load(dict, spec)
+        else
+          return spec.binding.decodeDict(dict)
+      }
     }
     return v
   }
