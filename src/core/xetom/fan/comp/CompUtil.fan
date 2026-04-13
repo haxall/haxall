@@ -37,9 +37,14 @@ class CompUtil
   }
 
   ** Encode a component into a xeto string
+  ** Options:
+  **   - noId: Marker to remove id from display
   static Str compSaveToXeto(Namespace ns, Comp comp, Dict? opts := null)
   {
-    ns.io.writeXetoToStr(compSaveToDict(comp, opts), Etc.dict0)
+    if (opts == null) opts = Etc.dict0
+    dict := compSaveToDict(comp, opts)
+    if (opts.has("noId")) dict = Etc.dictRemove(dict, "id")
+    return ns.io.writeXetoToStr(dict, opts)
   }
 
   ** Encode a component into a sys.comp::Comp dict representation (with children)
