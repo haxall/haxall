@@ -115,11 +115,12 @@ class CompUtil
     scope := toLinkScope(slot)
 
     // walk up my comp tree to find that type
-    while (comp.spec.type !== scope.type)
+    while (comp.spec.type !== scope)
     {
       if (comp.parent == null)
       {
-        Console.cur.warn("CompUtil.toLinkRoot $scope, $comp")
+        if (comp.spec.type !== scope.type)
+          Console.cur.warn("CompUtil.toLinkRoot $scope, $comp, $comp.spec.type")
         return comp
       }
       comp = comp.parent
