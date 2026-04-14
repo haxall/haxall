@@ -153,7 +153,8 @@ internal class FitsCmd : XetoCmd
     table.add(["id", "dis", "msg"])
     hits.each |hit|
     {
-      table.add([hit.id.id, hit.id.dis, hit.msg])
+      id := hit.id
+      table.add([id?.id, id?.dis, hit.msg])
     }
 
     con.info("")
