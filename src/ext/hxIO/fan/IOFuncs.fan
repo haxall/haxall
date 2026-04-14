@@ -478,15 +478,16 @@ const class IOFuncs
   {
     // parse options
     if (opts == null) opts = Etc.dict0
-    delimiter  := opts["delimiter"] as Str ?: ","
-    newline    := opts["newline"] as Str ?: "\n"
-    header     := opts["noHeader"] == null
-    stripUnits := opts["stripUnits"] != null
+    newline := opts["newline"] as Str ?: "\n"
+    csvOpts := Etc.dictMerge(opts, [
+      "showHeader": opts.missing("noHeader"),
+      "stripUnits": opts.has("stripUnits"),
+    ])
 
     grid := toDataGrid(val)
     return toHandle(handle).withOut |out|
     {
-      csv := CsvWriter(out) { it.delimiter = delimiter[0]; it.newline = newline; it.showHeader = header; it.stripUnits = stripUnits }
+      csv := CsvWriter(out, csvOpts) { it.newline = newline }
       csv.writeGrid(grid).close
     }
   }
