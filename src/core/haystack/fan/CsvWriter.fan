@@ -30,8 +30,6 @@ class CsvWriter : GridWriter
       this.showHeader = toShowHeader(opts)
       this.stripUnits = toStripUnits(opts)
     }
-    // need to configure delimiter on CsvOutStream also
-    this.out.delimiter = this.delimiter
   }
 
   private Int toDelimiter(Dict opts)
