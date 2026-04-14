@@ -311,6 +311,23 @@ class ExtTest : HxTest
   @HxTestProj
   Void testFileExt()
   {
+    addLib("hx.test.xeto")
+    makeContext.asCur |->|
+    {
+      verifyLibFiles
+      verifyIoFiles
+      verifyRecFiles
+    }
+  }
+
+  private Void verifyLibFiles()
+  {
+    f := verifyFileResolve(`lib/hx.test.xeto/res/a.txt`, true)
+    verifyEq(f.readAllStr, "alpha\n")
+  }
+
+  private Void verifyIoFiles()
+  {
     proj.dir.plus(`io/`).create
 
     // "io/"
@@ -354,9 +371,20 @@ class ExtTest : HxTest
     verifyFileUnsupported(`io/../bad.txt`)
   }
 
+  private Void verifyRecFiles()
+  {
+    f := verifyFileResolve(`rec/foo-bar`, false)
+
+    rec := addRec(["dis":"Test File", "spec":Ref("sys::File")])
+    f = verifyFileResolve(`rec/${rec.id}`, false)
+    f.withOut |out| { out.print("my test file") }
+    verifyEq(f.withIn |in| { in.readAllStr }, "my test file")
+  }
+
   File verifyFileResolve(Uri uri, Bool exists)
   {
     f := proj.sys.file.resolve(uri)
+    // echo(":: $uri | $f.typeof")
     verifyEq(f.uri, normUri(uri))
     verifyEq(f.isDir, uri.isDir)
     verifyEq(f.exists, exists)

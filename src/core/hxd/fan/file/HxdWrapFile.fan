@@ -15,36 +15,7 @@ using hxm
 using hxFolio
 using util
 
-**
-** Haxall daemon simple implementation for required file extension
-**
-internal const class HxdFileExt : ExtObj, IFileExt
-{
-  override File resolve(Uri uri)
-  {
-    // pathing check
-    if (uri.toStr.contains(".."))
-      throw UnsupportedErr("Uri must not contain '..' path: $uri")
-
-    // we only support {dir}/io/xxxxx paths right now
-    if (!uri.toStr.startsWith("io/"))
-      throw UnsupportedErr("Only io/ paths supportted")
-
-    // extra directory check to ensure we don't escape out of safe io/ directory
-    file := rt.dir + uri
-    if (!file.normalize.pathStr.startsWith(rt.dir.normalize.pathStr))
-      throw UnsupportedErr("Uri not under ${rt.dir} dir: $uri")
-
-    // use a wrapper which routes everything back to here for security checks
-    return HxdFile(this, uri, file)
-  }
-}
-
-**************************************************************************
-** HxdFile
-**************************************************************************
-
-internal const class HxdFile : SyntheticFile
+internal const class HxdWrapFile : SyntheticFile
 {
   new makeNew(HxdFileExt service, Uri uri, File file) : super.make(uri)
   {
@@ -85,7 +56,8 @@ internal const class HxdFile : SyntheticFile
     try
     {
       parentUri := uri.parent
-     if (parentUri != null) return service.resolve(parentUri)
+      if (parentUri != null && !parentUri.path.isEmpty)
+        return service.resolve(parentUri)
     }
     catch (Err e) {}
     return null
@@ -118,7 +90,7 @@ internal const class HxdFile : SyntheticFile
 
   override File moveTo(File to)
   {
-    file.moveTo((to as HxdFile)?.toLocal ?: to)
+    file.moveTo((to as HxdWrapFile)?.toLocal ?: to)
   }
 
   override Void delete()

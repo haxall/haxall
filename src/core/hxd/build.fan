@@ -43,7 +43,7 @@ class Build : BuildPod
                "hxm @{hx.depend}",
                "hxFolio @{hx.depend}",
                "hxUtil @{hx.depend}"]
-    srcDirs = [`fan/`, `fan/user/`]
+    srcDirs = [`fan/`, `fan/file/`, `fan/user/`]
     resDirs = [`locale/`, `res/`]
     docApi  = false
 
