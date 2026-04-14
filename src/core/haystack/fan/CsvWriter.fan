@@ -22,7 +22,7 @@ class CsvWriter : GridWriter
   ** Wrap output stream
   new make(OutStream out, Dict? opts := null)
   {
-    this.out = CsvOutStream(out)
+    this.rawOut = out
     if (opts != null)
     {
       this.delimiter  = toDelimiter(opts)
@@ -92,7 +92,7 @@ class CsvWriter : GridWriter
   This flush() { out.flush; return this }
 
   ** Close the underlying output stream
-  Bool close() {  out.close }
+  Bool close() { out.close }
 
   ** Write grid as CSV and return this
   override This writeGrid(Grid grid)
@@ -158,6 +158,10 @@ class CsvWriter : GridWriter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private CsvOutStream out
+  private OutStream rawOut
+  private once CsvOutStream out()
+  {
+    CsvOutStream(rawOut) { it.delimiter = this.delimiter }
+  }
 
 }
