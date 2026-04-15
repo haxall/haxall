@@ -948,10 +948,12 @@ class CoreLibTest : HaystackTest
     verifyEval("[nan(), 4m, null, 5m].fold(count)", n(4))
 
     verifyEval("[3m, 4m, 5m].fold(sum)", n(12, "m"))
+    verifyEval("[1, 2m].fold(sum)", n(3, "m"))
+    verifyEval("[1m, 2].fold(sum)", n(3, "m"))
     verifyEval("[nan(), nan(), nan()].fold(sum)", Number.nan)
     verifyEval("[nan(), 1m, nan(), 2m].fold(sum)", Number.nan)
+    verifyEval("[nan(), 1, nan(), 2m].fold(sum)", Number.nan)
     verifyEvalErr("[1m, 2ft].fold(sum)", UnitErr#)
-    verifyEvalErr("[nan(), 1, nan(), 2m].fold(sum)", UnitErr#)
 
     verifyEval("[].fold(min)", null)
     verifyEval("[2m].fold(min)", n(2, "m"))
