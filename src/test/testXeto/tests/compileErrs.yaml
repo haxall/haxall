@@ -19,8 +19,7 @@ compileLib: |
   Foo: Bar
   Bar: Foo
 verifyErrs: |
-  Cyclic inheritance: temp::Foo
-  Cyclic inheritance: temp::Bar
+  Cyclic inheritance: temp::Bar, temp::Foo
 ---
 name: "cycle3"
 compileLib: |
@@ -28,9 +27,7 @@ compileLib: |
   Bar: Baz
   Baz: Foo
 verifyErrs: |
-  Cyclic inheritance: temp::Foo
-  Cyclic inheritance: temp::Bar
-  Cyclic inheritance: temp::Baz
+  Cyclic inheritance: temp::Bar, temp::Baz, temp::Foo
 ---
 name: "conflictSlots1"
 compileLib: |

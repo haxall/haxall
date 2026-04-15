@@ -51,13 +51,15 @@ internal class InheritSlots : Step
     if (spec.ast.members != null) return
 
     // check for cyclic inheritance
-    // NOTE: this isn't quite right for OO interfaces and is recursing
-    // into method signatures and casuing false cyclic inheritance errors
-    if (stack.containsSame(spec) && !isSys && !spec.isInterfaceSlot)
+    if (isCyclicInheritance(spec) && !isSys)
     {
-      err("Cyclic inheritance: $spec.qname", spec.loc)
+      // report error for every type in the cycle
+      types := Str:Str[:]
+      stack.each |s| { if (s.isType) types[s.qname] = s.qname }
+      err("Cyclic inheritance: " + types.vals.sort.join(", "), spec.loc)
       spec.flags = 0
       setNoMembers(spec)
+      return
     }
 
     // push onto stack to keep track of cycles
@@ -68,6 +70,19 @@ internal class InheritSlots : Step
 
     // pop from stack
     stack.pop
+  }
+
+  private Bool isCyclicInheritance(ASpec spec)
+  {
+    // walk stack backwards checking if spec is already on the stack
+    // via a pure type inheritance path (not thru slot references)
+    for (i := stack.size - 1; i >= 0; --i)
+    {
+      s := stack[i]
+      if (s === spec) return true
+      if (!s.isType) return false
+    }
+    return false
   }
 
   private Void doInherit(ASpec spec)
