@@ -89,3 +89,9 @@ TestNest: Dict {
 
 TestGrid: Grid
 
+/*
+// cyclic slots+types
+TestTool: TestWidget
+TestWidget: Dict { tool: TestTool? }
+*/
+

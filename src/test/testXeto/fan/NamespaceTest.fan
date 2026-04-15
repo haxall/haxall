@@ -371,6 +371,11 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(q.slot("text").meta["val"], "label!")
     verifyEq(q.slot("num").meta["val"], n(2001))
 
+    /*
+    // cycles in type/slots in remote loader
+    verifySame(lib.spec("TestTool").base, lib.spec("TestWidget"))
+    verifySame(lib.spec("TestWidget").slot("tool").type, lib.spec("TestTool"))
+    */
 
     // this tests the case where the actual slots map keys don't
     // necessarily match the slot names themselves if they are

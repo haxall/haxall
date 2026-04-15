@@ -80,7 +80,14 @@ internal class InheritSlots : Step
     {
       s := stack[i]
       if (s === spec) return true
+
+      /*
+      // if we turn this on we can have slots that forward refernce
+      // subtypes of the parent type; however enabling that will
+      // break RemoteLoader which requires a single pass; see the
+      // hx.test.xeto test for "TestWidget" and "TestTool"
       if (!s.isType) return false
+      */
     }
     return false
   }
