@@ -686,3 +686,83 @@ internal class HxPointWriteOp : HxApiOp
   }
 }
 
+**************************************************************************
+** HxFileOp
+**************************************************************************
+
+internal class HxFileOp : HxApiOp
+{
+  override Bool isGetAllowed() { true }
+
+  override Grid onRequest(Grid req, Context cx) { throw UnsupportedErr() }
+
+  override Void onService(WebReq req, WebRes res, Context cx)
+  {
+    // {api file}/{path} => /{path}
+    path := `/` + req.modRel
+// cx.proj.log.info(">>> $req.modRel.toCode => $path.toCode")
+
+    // we need to allow directories for rec/ upload and other exts might want
+    // to support that also, so we won't enforce this check right now
+    // if (path.isDir) return res.sendErr(400, "Not a file: $req.uri")
+
+    // check for proj-relative path
+    fileExt  := cx.sys.file
+    subMount := path.path.first
+    if (subMount != "proj")
+    {
+      try
+      {
+        if (fileExt.resolve(`/proj/${cx.rt.name}/${subMount}/`).exists)
+          path = `/proj/${cx.rt.name}${path}`
+      }
+      catch (Err ignore) { }
+    }
+
+    switch (req.method)
+    {
+      case "GET":
+        onFileDownload(req, res, cx, path)
+      case "POST":
+      case "PUT":
+        // fall-through
+        onFileUpload(req, res, cx, path)
+      default:
+        res.sendErr(404)
+    }
+  }
+
+  ** note that download is only supported for the file ext
+  private Void onFileDownload(WebReq req, WebRes res, Context cx, Uri path)
+  {
+    if (path.isDir) return res.sendErr(404)
+    file := cx.sys.file.resolve(path)
+    FileWeblet(file).onService
+  }
+
+  private Void onFileUpload(WebReq req, WebRes res, Context cx, Uri path)
+  {
+    Ext ext := cx.sys.file
+
+    // handle ext delegation /uploads/<xeto lib>/<path>
+    names := path.path
+    if (names.first == "uploads")
+    {
+      ext  = cx.proj.ext(names[1])
+      path = path.getRangeToPathAbs(2..-1)
+    }
+
+    try
+    {
+      opts := Etc.dict1("path", path)
+      ret  := cx.asCur { ext.uploadHandler(req, res, opts).upload }
+      spi.writeRes(this, req, res, Etc.toGrid(ret))
+    }
+    catch (Err err)
+    {
+      err = Err("Upload failed by ${cx.user} for ${req.uri} (${path})", err)
+      ext.log.err(err.msg, err)
+      throw err
+    }
+  }
+}

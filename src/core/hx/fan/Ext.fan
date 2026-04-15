@@ -310,7 +310,7 @@ class FileUploadHandler : UploadHandler
     if (file.isDir) file = toDirFile
 
     // check if we need a rename
-    if (isRename) file = uniquify(file)
+    if (isRename && !isCreateRec) file = uniquify(file)
 
     // upload
     file.withOut |out|
