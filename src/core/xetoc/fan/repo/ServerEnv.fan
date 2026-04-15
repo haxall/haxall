@@ -40,6 +40,10 @@ const class ServerEnv : MEnv
     workDir = findWorkDir(`.git`)
     if (workDir != null) return make("git", [workDir, homeDir])
 
+    // check fantom Env.path
+    fanPath := Env.cur.path
+    if (fanPath.size > 1) return make("fan-env", fanPath)
+
     // fallback to just where fantom is installed
     return make("install", [homeDir])
   }
