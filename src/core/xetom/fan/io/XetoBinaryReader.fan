@@ -327,6 +327,7 @@ class XetoBinaryReader : XetoBinaryConst
   private Dict readDictTags()
   {
     acc := Str:Obj[:]
+    acc.ordered = true
     while (true)
     {
       name := readVal.toStr
