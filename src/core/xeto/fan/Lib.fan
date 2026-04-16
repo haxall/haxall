@@ -61,7 +61,7 @@ const mixin Lib : Dict
   abstract Dict? instance(Str name, Bool checked := true)
 
   ** Iterate the instances
-  abstract Void eachInstance(|Dict| f)
+  abstract Void eachInstance(|Dict, Str| f)
 
   ** Funcs declared by this lib under the 'Funcs' mixin.
   @NoDoc abstract SpecMap funcs()

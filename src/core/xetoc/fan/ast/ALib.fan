@@ -181,7 +181,7 @@ internal const class ALib : Lib, ADoc
 
   override Dict? instance(Str name, Bool checked := true) { throw UnsupportedErr() }
 
-  override Void eachInstance(|Dict| f) { throw UnsupportedErr() }
+  override Void eachInstance(|Dict,Str| f) { throw UnsupportedErr() }
 
   override SpecMap funcs() { throw UnsupportedErr() }
 

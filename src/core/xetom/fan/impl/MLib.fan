@@ -85,7 +85,7 @@ const final class MLib
     return null
   }
 
-  Void eachInstance(|Dict| f)
+  Void eachInstance(|Dict, Str| f)
   {
     instancesMap.each(f)
   }
@@ -218,7 +218,7 @@ const final class XetoLib : Lib, Dict
 
   override Dict? instance(Str name, Bool checked := true) { m.instance(name, checked) }
 
-  override Void eachInstance(|Dict| f) { m.eachInstance(f) }
+  override Void eachInstance(|Dict, Str| f) { m.eachInstance(f) }
 
   override SpecMap funcs() { m.funcs }
 
