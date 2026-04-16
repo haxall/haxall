@@ -50,6 +50,8 @@ const final class HisItem : Dict
 
   override Bool isEmpty() { false }
 
+  @NoDoc override Bool isOrdered() { true }
+
   @Operator override Obj? get(Str name)
   {
     if (name == "ts")  return ts

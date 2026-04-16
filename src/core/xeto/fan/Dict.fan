@@ -45,6 +45,9 @@ const mixin Dict
   ** mapped to a non-null value, then throw an UnknownNameErr.
   override abstract Obj? trap(Str name, Obj?[]? args := null)
 
+  ** Does this dict guarantee an order for name/value pairs
+  @NoDoc virtual Bool isOrdered() { false }
+
   ** Create a new instance of this dict with the same names,
   ** but apply the specified closure to generate new values.
   @NoDoc virtual This map(|Obj val, Str name->Obj| f)
@@ -75,6 +78,7 @@ const class EmptyDict : Dict
 {
   static const EmptyDict val := EmptyDict()
   override Bool isEmpty() { true }
+  override Bool isOrdered() { true }
   override Obj? get(Str name) { null }
   override Bool has(Str name) { false }
   override Bool missing(Str name) { true }

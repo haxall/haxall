@@ -25,6 +25,8 @@ class DictTest : HaystackTest
     // empty dict
     verifySame(Etc.dict0, Etc.dict0)
     verifySame(Etc.dict0, Etc.makeDict(Str:Obj?[:]))
+    verifyEq(Etc.dict0.isEmpty, true)
+    verifyEq(Etc.dict0.isOrdered, true)
     verifyDict(Str:Obj?[:])
     verifyEq(Etc.makeDict(null).typeof.qname, "xeto::EmptyDict")
 
@@ -121,6 +123,7 @@ class DictTest : HaystackTest
     verifyEq(b.typeof.qname, "haystack::Dict${size}")
     verifyDictEq(a, b)
     verifyDictImpl(a, Etc.dictToMap(b))
+    verifyEq(a.isOrdered, true)
   }
 
   Void verifyDict(Str:Obj? map)
@@ -232,6 +235,40 @@ class DictTest : HaystackTest
       verifyEq(d.typeof.qname, "haystack::Dict${expected.size}")
     else
       verifyEq(d.typeof.qname, "haystack::MapDict")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Ordered
+//////////////////////////////////////////////////////////////////////////
+
+  Void testOrdered()
+  {
+    verifyOrdered(Etc.dict0, true)
+    verifyOrdered(Etc.dict1("a","a"), true)
+    verifyOrdered(Etc.dict2("a","a", "b","b"), true)
+    verifyOrdered(Etc.dict3("a","a", "b","b", "c","c"), true)
+    verifyOrdered(Etc.dict4("a","a", "b","b", "c","c", "d","d"), true)
+    verifyOrdered(Etc.dict5("a","a", "b","b", "c","c", "d","d", "e","e"), true)
+    verifyOrdered(Etc.dict6("a","a", "b","b", "c","c", "d","d", "e","e", "f","f"), true)
+
+    map := Str:Obj[:]
+    7.times |i| { map["n"+i] = n(i) }
+    verifyOrdered(Etc.makeDict(map), false)
+    verifyOrdered(Etc.dictFromMap(map), false)
+
+    map = Str:Obj[:]
+    map.ordered = true
+    7.times |i| { map["n"+i] = n(i) }
+    verifyOrdered(Etc.makeDict(map), true)
+    verifyOrdered(Etc.dictFromMap(map), true)
+
+    verifyEq(HisItem(DateTime.now, "x"), true)
+  }
+
+  Void verifyOrdered(Dict d, Bool expect)
+  {
+    // echo("-- $d.typeof $d.isOrdered ?= $expect")
+    verifyEq(d.isOrdered, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -37,6 +37,7 @@ internal const class MapDict : AbstractDict
 {
   new make(Str:Obj? tags) { this.tags = tags }
   const Str:Obj? tags
+  override Bool isOrdered() { tags.ordered }
   override Bool isEmpty() { tags.isEmpty }
   override Obj? get(Str n) { tags.get(n) }
   override Void each(|Obj, Str| f)
@@ -64,6 +65,7 @@ internal const class NotNullMapDict : AbstractDict
 {
   new make(Str:Obj tags) { this.tags = tags }
   const Str:Obj tags
+  override Bool isOrdered() { tags.ordered }
   override Bool isEmpty() { tags.isEmpty }
   override Obj? get(Str n) { tags.get(n, null) }
   override Void each(|Obj, Str| f) { tags.each(f) }
@@ -78,6 +80,7 @@ internal const class NotNullMapDict : AbstractDict
 internal abstract const class DictX : AbstractDict
 {
   override final Bool isEmpty() { false }
+  override final Bool isOrdered() { true }
 }
 
 **************************************************************************
@@ -452,7 +455,7 @@ abstract const class WrapWithSpecDict : WrapDict
 
   abstract Ref defaultSpecRef()
 
-  override Bool isEmpty() {false }
+  override Bool isEmpty() { false }
 
   @Operator override Obj? get(Str n)
   {
