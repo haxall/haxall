@@ -43,6 +43,7 @@ abstract const class MEnv : XetoEnv
   override Dict dictMap(Dict x, |Obj val, Str name->Obj| f)
   {
     acc := Str:Obj[:]
+    if (x.isOrdered) acc.ordered = true
     x.each |v, n| { acc[n] = f(v, n) }
     return Etc.dictFromMap(acc)
   }
