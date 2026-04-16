@@ -11,6 +11,7 @@ using xeto
 using xeto::Comp
 using xetom
 using haystack
+using hx
 using axon
 
 **
@@ -268,6 +269,28 @@ class CompTest: AbstractXetoTest
     verifySame(cs.readById(c.id, false), c)
     verifySame(cs.readById(a.id, false), a)
     verifySame(cs.readById(b.id, false), b)
+  }
+
+  @HxTestProj
+  Void testCompSaveToAstSlots()
+  {
+    ns := initNamespace(["ph", "ph.points", "ph.attrs", "ph.protocols", "hx.test.xeto"])
+    lib := ns.lib("hx.test.xeto")
+    r   := cs.create(lib.spec("TestNestedComp").slot("do"))
+    ast := CompUtil.compSaveToAstSlots(r, "do")
+    ast = Etc.makeDict([
+      "rt": "func",
+      "name": "ramptest",
+      "base": Ref("sys::Func"),
+      "slots": Etc.makeDictGrid(null, ast),
+      "spec": Ref("sys::Spec"),
+    ])
+    rec := proj.companion.add(ast)
+    echo(rec)
+    spec := proj.companion.lib.spec("ramptest")
+    echo(spec)
+
+    // echo(proj.companion.print(ast))
   }
 
 //////////////////////////////////////////////////////////////////////////

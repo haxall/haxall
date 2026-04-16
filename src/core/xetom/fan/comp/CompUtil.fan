@@ -36,6 +36,89 @@ class CompUtil
     ns.io.readXeto(xeto) as Dict ?: throw Err("Expecting one dict root")
   }
 
+  static Dict compSaveToAstSlots(Comp comp, Str name, Dict? opts := null)
+  {
+    // map all component paths by id so we can efficiently resolve links
+    byId := Ref:Str[:]
+    todo := Comp[,]
+    Comp? cur  := comp
+    while (cur != null)
+    {
+      path := byId[cur.id]
+      cur.eachChild |child, childName|
+      {
+        byId[child.id] = path == null ? childName : "${path}.${childName}"
+        todo.push(child)
+      }
+      cur = todo.pop
+    }
+    return doCompSaveToAstSlots(comp, name, byId, opts ?: Etc.dict0)
+  }
+
+  private static Dict doCompSaveToAstSlots(Comp comp, Str name, Ref:Str byId, Dict opts)
+  {
+    ast   := Str:Obj?[:]
+    ast["name"]  = name
+    ast["type"]  = comp.spec.type.id
+    ast["maybe"] = comp.spec.isMaybe ? Marker.val : null
+
+    slots := Dict[,]
+    comp.each |val, slotName|
+    {
+      // links need to be encoded as slot meta
+      if (slotName == "links") return
+
+      links := comp.links.listOn(slotName)
+      if (links.size > 1) throw UnsupportedErr("TODO:FIXIT handle fan-in link encoding")
+
+      slotSpec := comp.spec.slot(slotName)
+      if (slotSpec.isTransient) return
+
+      // slot tags
+      slot := Str:Obj?[:]
+
+      // slot meta
+      slotSpec.metaOwn.each |v, n|
+      {
+        // we handle link and val encoding special
+        if (n == "val") return
+        slot[n] = v
+      }
+
+      if (slotSpec.isComp)
+      {
+        // TODO:FIXIT - can you link into a comp?
+        slot.addAll(Etc.dictToMap(doCompSaveToAstSlots(val, slotName, byId, opts)))
+        // slots.add(doCompSaveToAstSlots(val, slotName, byId, opts))
+      }
+      else
+      {
+        slot["name"]  = slotName
+        slot["type"]  = slotSpec.type.id
+        slot["maybe"] = slotSpec.isMaybe ? Marker.val : null
+        slot["val"]   = XetoUtil.toHaystack(val)
+        link := links.first
+        if (link != null)
+        {
+          compPath := byId[link.fromRef]
+          if (compPath == null) echo("BROKEN LINK: ${link} ${compPath} ${byId}")
+          slot["link"] = "${compPath}.${link.fromSlot}"
+        }
+      }
+      slots.add(Etc.makeDict(slot))
+    }
+
+    echo("=== ${comp} ($name)")
+    echo(ast)
+    if (!slots.isEmpty)
+    {
+      g := Etc.makeDictsGrid(null, slots)
+      g.dump
+      ast["slots"] = g
+    }
+    return Etc.makeDict(ast)
+  }
+
   ** Encode a component into a xeto string
   ** Options:
   **   - noId: Marker to remove id from display
