@@ -11,13 +11,12 @@ using util
 using xeto
 using xetom
 using haystack
-using hx
 
 **
 ** AbstractXetoTest
 **
 @Js
-class AbstractXetoTest : HxTest
+class AbstractXetoTest : HaystackTest
 {
 
   Obj none() { None.val }
@@ -75,20 +74,6 @@ class AbstractXetoTest : HxTest
   Dict[] compileDicts(Str s, Dict? opts := null)
   {
     createNamespace.io.readXetoDicts(s, opts)
-  }
-
-  Namespace initNamespace(Str[] libs)
-  {
-    // nuke existing using recs
-    proj.libs.clear
-
-    // add new using recs
-    libs.each |lib| { addLib(lib) }
-
-    // sync
-    proj.sync
-    ns := proj.ns
-    return ns
   }
 
   Void verifyFlavor(Namespace ns, Spec x, SpecFlavor expect)
