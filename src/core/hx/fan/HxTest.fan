@@ -133,7 +133,9 @@ abstract class HxTest : HaystackTest
   {
     // check if running in a SkySpark environment,
     // otherwise fallback to use hxd implemenntation
-    type := Type.find("skyarcd::ProjHxTestSpi", false) ?: Type.find("hxd::HxdTestSpi")
+    type := Type.find("skyarcd::ProjHxTestSpi", false)
+    if (type == null) type = Type.find("xs::XsTestSpi", false)
+    if (type == null) type = Type.find("hxd::HxdTestSpi")
     return type.make([this])
   }
 

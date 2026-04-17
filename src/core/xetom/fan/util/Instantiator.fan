@@ -139,7 +139,8 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     if (val is Dict) return val
 
     // build up dict tags
-    acc := Str:Obj[:] { it.ordered = true }
+    acc := Str:Obj[:]
+    acc.ordered = true
     addId(acc, spec)
     addSpec(acc, spec)
     addDis(acc, spec)
