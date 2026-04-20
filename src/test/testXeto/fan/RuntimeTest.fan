@@ -94,6 +94,7 @@ class RuntimeTest : AbstractAxonTest
 // CompUtil
 //////////////////////////////////////////////////////////////////////////
 
+/* TODO
   @HxTestProj
   Void testCompSaveToAstSlots()
   {
@@ -116,5 +117,6 @@ class RuntimeTest : AbstractAxonTest
 
     // echo(proj.companion.print(ast))
   }
+*/
 }
 

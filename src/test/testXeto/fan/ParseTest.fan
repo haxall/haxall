@@ -155,7 +155,7 @@ class ParseTest : AbstractXetoTest
   {
     // if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
     actual := ns.io.readAst(src, opts)
-    // actual.each |a, i| { if (i > 0) echo("---"); Etc.dictDump(a) }
+    //actual.each |a| { echo("---"); Etc.dictDump(a) }
     verifyDictEq(actual, expect)
 
     if (roundtrip)

@@ -110,7 +110,6 @@ class XetoPrinter
       keys.each |k, i|
       {
         v := meta[k]
-        if (k == "val" && isScalar(v)) { scalarVal = v; return }
         if (i > 0) wc(',').sp
         dictPair(spec, k, v, true)
       }
@@ -268,7 +267,6 @@ class XetoPrinter
     name  := x["name"] as Str ?: "_0"
     type  := x["type"]?.toStr
     slots := x["slots"] as Grid
-    val   := x["val"]
     maybe := x["maybe"] == Marker.val
     doc   := x["doc"] as Str
     tab
@@ -280,7 +278,6 @@ class XetoPrinter
       if (maybe) w("?")
     }
     meta(x, metaSkipAst)
-    if (val != null) sp.quoted(val.toStr)
     if (slots == null) nl
     else
     {
