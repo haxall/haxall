@@ -253,17 +253,23 @@ class PrinterTest : AbstractXetoTest
     date := ns.spec("sys::Date")
     a    := lib.spec("TestPrintA")
 
-    verifySpecMeta(a.slot("date1"), date, ["maybe":m, "val":Date("2026-04-20")])
-    verifySpecMeta(a.slot("date2"), date, ["val":Date("2026-04-20")])
-    verifySpecMeta(a.slot("date3"), date, ["val":Date("2026-04-20")])
-    verifySpecMeta(a.slot("date4"), date, ["val":Date("2026-04-20"), "metaQ":m])
+    dateMeta := Etc.dictToMap(date.meta)
+    dateMeta.set("maybe", m)
+    dateMeta.remove("sealed")
+    verifySpecMeta(a.slot("date1"), date, dateMeta.dup.set("val", Date("2026-04-20")))
+    verifySpecMeta(a.slot("date2"), date, dateMeta.dup.set("val", Date("2026-04-20")))
+    verifySpecMeta(a.slot("date3"), date, dateMeta.dup.set("val", Date("2026-04-20")))
+    verifySpecMeta(a.slot("date4"), date, dateMeta.dup.set("val", Date("2026-04-20")).set("metaQ",m))
+    verifySpecMeta(a.slot("date5"), date, dateMeta.dup.set("metaQ",m))
+    verifySpecMeta(a.slot("date6"), date, dateMeta.dup.set("metaQ",m).set("doc", "comment"))
   }
 
-  Void verifySpecMeta(Spec spec, Spec type, Str:Obj meta)
+  Void verifySpecMeta(Spec spec, Spec type, Str:Obj expectMeta)
   {
-echo("~~ $spec | $spec.type | $spec.metaOwn")
+    actualMeta := spec.meta
+    // echo("~~ $spec | $spec.type | $actualMeta")
     verifySame(spec.type, type)
-    verifyDictEq(spec.metaOwn, meta)
+    verifyDictEq(actualMeta, expectMeta)
   }
 
 //////////////////////////////////////////////////////////////////////////

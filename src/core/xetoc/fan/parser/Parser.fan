@@ -296,6 +296,7 @@ internal class Parser
   {
     if (cur === Token.lt)
     {
+      spec.ast.metaBrackets = true
       parseDict(null, Token.lt, Token.gt, spec.metaInit)
     }
   }
@@ -320,7 +321,8 @@ internal class Parser
       return
     }
 
-    if (spec.typeRef == null && !spec.isObj) throw err("Expected spec body, not $curToStr")
+    if (spec.typeRef == null && !spec.isObj && !spec.ast.metaBrackets)
+      throw err("Expected spec body, not $curToStr")
   }
 
   private Void parseSpecSlots(ASpec parent)

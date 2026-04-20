@@ -7,22 +7,28 @@
 //
 
 TestPrint: Dict {
+
   date1: Date?
   date2: Date?
   date3: Date?
   date4: Date?
+  date5: Date?
+  date6: Date?
+
   sv1: TestPrintStatusVal?
   sv2: TestPrintStatusVal?
-  sv3: TestPrintStatusVal?
   sn1: TestPrintStatusNum?
   sb1: TestPrintStatusBool?
 }
 
 TestPrintA: TestPrint {
+
   date1: Date? "2026-04-20"
   date2: "2026-04-20"
   date3: <> "2026-04-20"
   date4: <metaQ> "2026-04-20"
+  date5: <metaQ>
+  date6: <metaQ> // comment
 }
 
 TestPrintStatus: Scalar

@@ -111,8 +111,8 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** We refine type and base in InheritSlots step
   override Spec? base() { ast.base as Spec }
 
-  ** Default value if spec had scalar value
-  AScalar? val() { ast.val }
+  ** Default value of spec
+  AData? val() { ast.val }
 
   ** Parameterized arguments of/ofs (set in InheritMeta)
   MSpecArgs args() { ast.args ?: throw NotReadyErr(qname) }
@@ -126,6 +126,9 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////
+
+  ** Did the spec have <> meta
+  Bool metaBrackets() { ast.metaBrackets }
 
   ** Initialize meta data dict
   ADict metaInit()
@@ -438,8 +441,9 @@ internal class ASpecState
   SpecFlavor flavor
   ASpecRef? typeRef
   Spec? base
-  AScalar? val
-  ADict? meta      // only if there was "<>"
+  AData? val
+  Bool metaBrackets   // only if there was "<>"
+  ADict? meta
   Dict? metaOwn
   Dict? cmeta
   [Str:ASpec]? declared
