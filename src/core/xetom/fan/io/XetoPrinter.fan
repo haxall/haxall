@@ -41,20 +41,7 @@ class XetoPrinter
   ** Output a spec
   This spec(Spec spec)
   {
-    doSpec(spec, null, null)
-  }
-
-  ** Rewrite a spec with its original state, but update the
-  ** given inline meta tag (typiclaly axon/compTree).
-  This updateMetaInline(Spec spec, Str name, Str val)
-  {
-    doSpec(spec, name, val)
-  }
-
-  ** Common code for spec/updateMetaInline
-  private This doSpec(Spec spec, Str? metaName, Str? metaVal)
-  {
-    inlineMeta := toInlineMetaNames(spec.metaOwn).addNotNull(metaName).unique
+    inlineMeta := toInlineMetaNames(spec.metaOwn)
     metaSkip := metaSkipDef.dup.addAll(inlineMeta)
     specHeader(spec.name, spec.base, spec.metaOwn, metaSkip)
     if (spec.slots.isEmpty && inlineMeta.isEmpty) return nl
@@ -65,8 +52,7 @@ class XetoPrinter
     unindent
     inlineMeta.each |n|
     {
-      v := n == metaName ? metaVal : spec.meta[n]
-      nl.metaInline(n, v).nl
+      nl.metaInline(n, spec.meta[n]).nl
     }
     w("}").nl
     return this
@@ -86,7 +72,7 @@ class XetoPrinter
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkipDef := ["ofs", "axon", "axonTree", "compTree", "doc", "maybe", "val"]
+  static const Str[] metaSkipDef := ["ofs", "axon", "doc", "maybe"]
 
   ** Return tag names to encode as inline meta
   @NoDoc static Str[] toInlineMetaNames(Dict meta)
@@ -97,31 +83,46 @@ class XetoPrinter
   ** Write meta data dict. We always skip the skipMeta tags by default
   This meta(Dict meta, Str[] skip := metaSkipDef)
   {
-    // get keys to print
+    // get keys/scalarVal to print
     keys := Str[,]
+    scalarVal := null
     meta.each |v, n|
     {
-      if (!skip.contains(n)) keys.add(n)
+      if (n == "val" && isScalar(v))
+        scalarVal = v
+      else if (!skip.contains(n))
+        keys.add(n)
     }
-    if (keys.isEmpty) return this
 
-    // put keys in nice order
-    keys.sort
-    keys.moveTo("su", 0)
-    keys.moveTo("admin", 0)
-    keys.moveTo("nodoc", 0)
-    keys.moveTo("of", 0)
-    keys.moveTo("defMeta", -1)
-    keys.moveTo("ruleReady", -1)
-
-    sp.wc('<')
-    spec := ns.sys.spec
-    keys.each |k, i|
+    if (!keys.isEmpty)
     {
-      if (i > 0) wc(',').sp
-      dictPair(spec, k, meta[k], true)
+      // put keys in nice order
+      keys.sort
+      keys.moveTo("su", 0)
+      keys.moveTo("admin", 0)
+      keys.moveTo("nodoc", 0)
+      keys.moveTo("of", 0)
+      keys.moveTo("defMeta", -1)
+      keys.moveTo("ruleReady", -1)
+
+      sp.wc('<')
+      spec := ns.sys.spec
+      keys.each |k, i|
+      {
+        v := meta[k]
+        if (k == "val" && isScalar(v)) { scalarVal = v; return }
+        if (i > 0) wc(',').sp
+        dictPair(spec, k, v, true)
+      }
+      wc('>')
     }
-    return wc('>')
+
+    if (scalarVal != null)
+    {
+      sp.quoted(scalarVal.toStr)
+    }
+
+    return this
   }
 
   ** Encode inline meta as heredoc using current indentation
@@ -643,6 +644,8 @@ class XetoPrinter
   private Spec specOf(Obj? val) { ns.specOf(val) }
 
   private Bool isMarker(Obj? val) { val === Marker.val }
+
+  private Bool isScalar(Obj v) { v isnot Dict && v isnot List }
 
 //////////////////////////////////////////////////////////////////////////
 // OutStream Utils
