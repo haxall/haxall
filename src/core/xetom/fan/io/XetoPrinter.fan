@@ -65,7 +65,7 @@ class XetoPrinter
   {
     doc := meta["doc"] as Str
     if (doc != null) this.doc(doc)
-    w(name).wc(':').sp
+    tab.w(name).wc(':').sp
     this.type(type, meta)
     this.meta(meta, metaSkip)
     return this
@@ -136,7 +136,7 @@ class XetoPrinter
   ** Write a slot spec out using current indentation
   This slot(Spec slot)
   {
-    tab.specHeader(slot.name, slot.type, slot.metaOwn)
+    specHeader(slot.name, slot.type, slot.metaOwn)
 
     // this isn't super great until we really nail down spec vs instance slots
     subSlots := slot.slotsOwn
@@ -550,7 +550,7 @@ class XetoPrinter
     if (noDocComment) return this
     str.eachLine |line|
     {
-      w("//")
+      tab.w("//")
       if (!line.trim.isEmpty) sp.w(line.trimEnd)
       nl
     }

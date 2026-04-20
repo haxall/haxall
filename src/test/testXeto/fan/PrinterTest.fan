@@ -31,21 +31,22 @@ class PrinterTest : AbstractXetoTest
   Void testInstances()
   {
     // basic instance
-    out := newCase
+    opts := qnameForce
+    out := newCase(opts)
     out.instance(Etc.makeDict(["id":Ref("foo")]))
     verifyInstance(
       Str<|@foo: {}
           |>)
 
     // instance with spec tag
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"), "spec",Ref("hx.test.xeto::TestSite")))
     verifyInstance(
       Str<|@foo: hx.test.xeto::TestSite {}
           |>)
 
     // instance with different data types
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"), "marker",m, "str","hello", "date",Date("2025-08-29"), "num",n(123, "%")))
     verifyInstance(
       Str<|@foo: {
@@ -57,7 +58,7 @@ class PrinterTest : AbstractXetoTest
            |>)
 
     // instance with refs
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"), "a",Ref("abc"), "b",Ref("xyz-123", "Display")))
     verifyInstance(
       Str<|@foo: {
@@ -67,7 +68,7 @@ class PrinterTest : AbstractXetoTest
            |>)
 
     // instance with encoded strings
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"), "a",Str<|$<foo>|>, "b",Str<|_"x"_|>, "c","\u{0} \u{1f} \t \\ \$"))
     verifyInstance(
       Str<|@foo: {
@@ -78,7 +79,7 @@ class PrinterTest : AbstractXetoTest
            |>)
 
     // instance with multiline string
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"), "multi", "alpha\nbeta\ngamma", "b","single"))
     verifyInstance(
       Str<|@foo: {
@@ -92,7 +93,7 @@ class PrinterTest : AbstractXetoTest
            |>)
 
     // instance with untyped nested dicts
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"),
       "dict0",Etc.dict0,
       "dict1",Etc.dict1("foo","bar"),
@@ -111,7 +112,7 @@ class PrinterTest : AbstractXetoTest
            |>)
 
     // instance with typed nested dicts
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"),
       "dict0",Etc.dict1("spec",Ref("ph::Site")),
       "dict1",Etc.dict2("foo","bar", "spec",Ref("ph::Equip")),
@@ -130,7 +131,7 @@ class PrinterTest : AbstractXetoTest
            |>)
 
     // instance with typed nested dicts and ids
-    out = newCase
+    out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"),
       "dict0",Etc.dict2("id",Ref("a"), "spec",Ref("ph::Site")),
       "dict1",Etc.dict3("id",Ref("b"), "foo","bar", "spec",Ref("ph::Equip")),
@@ -149,7 +150,7 @@ class PrinterTest : AbstractXetoTest
            |>)
 
     // Namespace.writeData
-    out = newCase
+    out = newCase(opts)
     out.data([Etc.dictx("id",Ref("foo"), "spec",Ref("ph::Site")),
               Etc.dictx("id",Ref("bar"), "spec",Ref("ph::Site"), "site",m),
               Etc.dictx("id",Ref("baz"), "spec",Ref("ph::Site")),
@@ -180,25 +181,26 @@ class PrinterTest : AbstractXetoTest
   Void testSpecs()
   {
     // bare bones spec no meta
-    out := newCase
+    opts := qnameForce
+    out := newCase(opts)
     out.specHeader("foobar", ns.spec("sys::Func"), Etc.dict0)
     verifySpec(
       Str<|foobar: sys::Func|>)
 
     // spec with basic meta
-    out = newCase
+    out = newCase(opts)
     out.specHeader("foobar", ns.spec("sys::Func"), Etc.dictx("admin", m))
     verifySpec(
       Str<|foobar: sys::Func <admin>|>)
 
     // spec with basic meta
-    out = newCase
+    out = newCase(opts)
     out.specHeader("foobar", ns.spec("sys::Func"), Etc.dictx("admin", m, "text",Str<|$<copy>|>))
     verifySpec(
       Str<|foobar: sys::Func <admin, text:"$<copy>">|>)
 
     // verify doc, axon, nice marker order
-    out = newCase
+    out = newCase(opts)
     out.specHeader("foobar", ns.spec("sys::Func"),
       Etc.makeDict(["doc":"Line 1\n\nLine 2", "axon":"source code", "nodoc":m, "su":m, "text":Str<|$<copy>|>]))
     verifySpec(
@@ -208,7 +210,7 @@ class PrinterTest : AbstractXetoTest
            foobar: sys::Func <nodoc, su, text:"$<copy>">|>)
 
     // verify doc, axon, nice marker order
-    out = newCase()
+    out = newCase(opts)
     out.specHeader("foobar", "Func", Etc.dict0).w(" {").nl
        .indent
        .tab.metaInline("axon", "My axon line 1\nline 2\n").nl
@@ -224,14 +226,14 @@ class PrinterTest : AbstractXetoTest
           |>)
 
     // verify compound (AND)
-    out = newCase()
+    out = newCase(opts)
     ofs := ["ph::Ahu", "ph::Vav"]
     out.specHeader("Foo", "sys::And", Etc.dict1("ofs", ofs))
     verifySpec(
       Str<|Foo: ph::Ahu & ph::Vav|>)
 
     // verify compound (OR)
-    out = newCase()
+    out = newCase(opts)
     ofs = ["ph::Ahu", "ph::Vav", "ph::Fcu"]
     out.specHeader("Foo", "sys::Or", Etc.dict2("ofs", ofs, "admin", m))
     verifySpec(
@@ -251,8 +253,9 @@ class PrinterTest : AbstractXetoTest
   {
     lib  := ns.lib("hx.test.xeto")
     date := ns.spec("sys::Date")
-    a    := lib.spec("TestPrintA")
 
+    // TestPrintA
+    a  := lib.spec("TestPrintA")
     dateMeta := Etc.dictToMap(date.meta)
     dateMeta.set("maybe", m)
     dateMeta.remove("sealed")
@@ -262,6 +265,18 @@ class PrinterTest : AbstractXetoTest
     verifySpecMeta(a.slot("date4"), date, dateMeta.dup.set("val", Date("2026-04-20")).set("metaQ",m))
     verifySpecMeta(a.slot("date5"), date, dateMeta.dup.set("metaQ",m))
     verifySpecMeta(a.slot("date6"), date, dateMeta.dup.set("metaQ",m).set("doc", "comment"))
+    newCase.spec(a)
+    verifyOutput(
+       Str<|TestPrintA: TestPrint {
+              date1: Date? "2026-04-20"
+              date2: Date "2026-04-20"
+              date3: Date "2026-04-20"
+              date4: Date <metaQ> "2026-04-20"
+              date5: Date <metaQ>
+              // comment
+              date6: Date <metaQ>
+            }
+            |>)
   }
 
   Void verifySpecMeta(Spec spec, Spec type, Str:Obj expectMeta)
@@ -276,10 +291,11 @@ class PrinterTest : AbstractXetoTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  Dict qnameForce() { Etc.dict1("qnameForce", m) }
+
   XetoPrinter newCase(Dict? opts := null)
   {
     buf.clear
-    opts = Etc.dictMerge(Etc.dict1("qnameForce", m), opts)
     return XetoPrinter(ns, buf.out, opts)
   }
 
