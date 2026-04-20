@@ -244,6 +244,29 @@ class PrinterTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// More
+//////////////////////////////////////////////////////////////////////////
+
+  Void testMore()
+  {
+    lib  := ns.lib("hx.test.xeto")
+    date := ns.spec("sys::Date")
+    a    := lib.spec("TestPrintA")
+
+    verifySpecMeta(a.slot("date1"), date, ["maybe":m, "val":Date("2026-04-20")])
+    verifySpecMeta(a.slot("date2"), date, ["val":Date("2026-04-20")])
+    verifySpecMeta(a.slot("date3"), date, ["val":Date("2026-04-20")])
+    verifySpecMeta(a.slot("date4"), date, ["val":Date("2026-04-20"), "metaQ":m])
+  }
+
+  Void verifySpecMeta(Spec spec, Spec type, Str:Obj meta)
+  {
+echo("~~ $spec | $spec.type | $spec.metaOwn")
+    verifySame(spec.type, type)
+    verifyDictEq(spec.metaOwn, meta)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

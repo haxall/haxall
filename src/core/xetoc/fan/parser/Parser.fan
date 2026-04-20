@@ -296,7 +296,6 @@ internal class Parser
   {
     if (cur === Token.lt)
     {
-      if (spec.typeRef == null && !spec.isObj) throw err("Cannot have <> meta without type name")
       parseDict(null, Token.lt, Token.gt, spec.metaInit)
     }
   }
