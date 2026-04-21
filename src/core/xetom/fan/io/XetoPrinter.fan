@@ -40,21 +40,28 @@ class XetoPrinter
   ** Output a spec
   This spec(Spec spec)
   {
-    doSpec(XpReflectSpec(spec))
+    doSpec(XpReflectSpec(spec), false)
   }
 
   ** Common implementation for reflect Spec and AST dict
-  private This doSpec(XpSpec x)
+  private This doSpec(XpSpec x, Bool isSlot)
   {
     // doc
     if (x.doc != null) this.doc(x.doc)
 
     // name: Type <meta> "val"
     tab
-    if (x.name != null) w(x.name).wc(':').sp
-    if (x.type != null) type(x.type)
-    metaHeader(x)
-    if (x.val != null) sp.quoted(x.val)
+    if (isSlot && x.isBareMarker)
+    {
+      w(x.name)
+    }
+    else
+    {
+      if (x.name != null) w(x.name).wc(':').sp
+      if (x.type != null) type(x.type)
+      metaHeader(x)
+      if (x.val != null) sp.quoted(x.val)
+    }
 
     // if no slots or inline meta, all done
     if (!x.hasSlots && x.metaInline.isEmpty) return nl
@@ -62,7 +69,7 @@ class XetoPrinter
     // { ... }
     sp.w("{").nl
     indent
-    x.eachSlot |s| { doSpec(s) }
+    x.eachSlot |s| { doSpec(s, true) }
     metaInline(x)
     unindent
     tab.w("}").nl
@@ -164,7 +171,7 @@ class XetoPrinter
   ** Print AST spec representation
   This astSpec(Dict ast)
   {
-    doSpec(XpAstSpec(ast, true))
+    doSpec(XpAstSpec(ast, true), false)
   }
 
   ** Print AST instance representation
@@ -590,9 +597,11 @@ internal abstract const class XpSpec
   {
     if (name != null && XetoUtil.isAutoName(name)) name = null
 
-    this.name    = name
-    this.type    = type
-    this.metaOwn = metaOwn
+    this.name       = name
+    this.type       = type
+    this.metaOwn    = metaOwn
+    this.metaHeader = emptyMeta
+    this.metaInline = emptyMeta
 
     if (metaOwn.isEmpty) return
 
@@ -638,6 +647,13 @@ internal abstract const class XpSpec
 
   Obj metaGet(Str n) { metaOwn.get(n) ?: throw Err("Missing meta: $n") }
 
+  Bool noMeta() { metaHeader.isEmpty && metaInline.isEmpty }
+
+  Bool isBareMarker()
+  {
+    name != null && type != null && type.isMarker && !type.maybe && noMeta
+  }
+
   private static Bool isMetaInline(Obj v)
   {
     if (isScalar(v)) return v.toStr.contains("\n")
@@ -646,15 +662,15 @@ internal abstract const class XpSpec
 
   private static Bool isScalar(Obj v) { v isnot Dict && v isnot List }
 
-  private static const Str[] noMeta := Str[,]
+  private static const Str[] emptyMeta := Str[,]
 
-  const Str? name                   // type name / slot name (null for autoName)
-  const XpTypeRef? type             // type base / slot type (null for sys::Obj or inferred)
-  const Dict metaOwn                // metaOwn
-  const Str[] metaHeader := noMeta  // metaOwn to encode in header (excludes maybe, ofs, doc, val)
-  const Str[] metaInline := noMeta  // metaOwn to encode in body inline
-  const Str? doc                    // metaOwn doc tag (not inherited)
-  const Str? val                    // metaOwn scalar value (not inherited)
+  const Str? name            // type name / slot name (null for autoName)
+  const XpTypeRef? type      // type base / slot type (null for sys::Obj or inferred)
+  const Dict metaOwn         // metaOwn
+  const Str[] metaHeader     // metaOwn to encode in header (excludes maybe, ofs, doc, val)
+  const Str[] metaInline     // metaOwn to encode in body inline
+  const Str? doc             // metaOwn doc tag (not inherited)
+  const Str? val             // metaOwn scalar value (not inherited)
 }
 
 **************************************************************************
@@ -749,7 +765,8 @@ internal const class XpTypeRef
   const XpTypeRef[]? ofs     // meta ofs for And/Or type
 
   Bool isCompound() { (isAnd || isOr) && ofs != null}
-  Bool isAnd() { qname == "sys::And" }
-  Bool isOr() { qname == "sys::Or" }
+  Bool isAnd()    { qname == "sys::And" }
+  Bool isOr()     { qname == "sys::Or" }
+  Bool isMarker() { qname == "sys::Marker" }
 }
 

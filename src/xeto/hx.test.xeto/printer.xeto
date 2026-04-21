@@ -46,3 +46,11 @@ TestPrintC: TestPrint {
   sv2: <val:StatusNumber { val:"123" }>
 }
 
+TestPrintD: TestPrint {
+  marker1
+  marker2: Marker <admin>
+  marker3: Marker?
+  marker4: Marker? <admin>
+  marker5: Marker? <axon:"foo\nbar">
+}
+

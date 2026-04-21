@@ -241,6 +241,24 @@ class PrinterTest : AbstractXetoTest
               }>
             }
             |>)
+
+    // TestPrintD
+    d := lib.spec("TestPrintD")
+    newCase.spec(d)
+    verifyOutput(
+       Str<|TestPrintD: TestPrint {
+              marker1
+              marker2: Marker <admin>
+              marker3: Marker?
+              marker4: Marker? <admin>
+              marker5: Marker? {
+                <axon: ---
+                foo
+                bar
+                --->
+              }
+            }
+            |>)
   }
 
   Void verifySpecMeta(Spec spec, Spec type, Str:Obj expectMeta)
