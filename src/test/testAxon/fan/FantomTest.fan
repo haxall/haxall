@@ -52,6 +52,16 @@ class FantomTest : HaystackTest
     verifyEval(Str<|FantomEx.sx|>, "static field")
     verifyEval(Str<|testAxon::FantomEx.sx|>, "static field")
 
+    // constructor overloading
+    verifyEval(Str<|FantomEx().ctor|>, "make" )
+    verifyEval(Str<|FantomEx("hi").ctor|>, "make2 hi")
+    verifyEval(Str<|FantomEx("hi2").ctor|>, "make2 hi2") // cached
+    verifyEval(Str<|FantomEx(123).ctor|>, "make3 123")
+    verifyEval(Str<|FantomEx(2026-04-01, 2026-04-02).ctor|>, "make5 2026-04-01 2026-04-02 null")
+    verifyEval(Str<|FantomEx(2026-04-01, 2026-04-02, "x").ctor|>, "make5 2026-04-01 2026-04-02 x")
+    verifyEval(Str<|FantomEx(6, 7min).ctor|>, "make4 6 7min 99")
+    verifyEval(Str<|FantomEx(6, 7min, 88).ctor|>, "make4 6 7min 88")
+
     // instance Fantom method
     verifyEval(Str<|FantomEx.make.bar|>, "bar!")
     verifyEval(Str<|FantomEx.make.add1(4, 5)|>, n(9))
@@ -124,6 +134,13 @@ class FantomTest : HaystackTest
 @Js
 class FantomEx
 {
+  new make() { ctor = "make" }
+  new make2(Str s) { ctor = "make2 $s" }
+  new make3(Number n) { ctor = "make3 $n" }
+  new make4(Int x, Duration y, Int z := 99) { ctor = "make4 $x $y $z" }
+  new make5(Date x, Date y, Str? z := null) { ctor = "make5 $x $y $z" }
+
+  const Str ctor
   Str foo  := "foo!"
   Str bar() { "bar!" }
   Number add1(Number a, Number b) { a + b }

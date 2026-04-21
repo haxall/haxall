@@ -6,6 +6,7 @@
 //   14 Sep 2009  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using haystack
 
@@ -154,11 +155,13 @@ internal const class StaticCall : Call
 
   override const Str? funcName
 
+  const AtomicRef cache := AtomicRef(null)
+
   override Obj? eval(AxonContext cx)
   {
     // static calls route to FFI if installed
     ffi := cx.ffi ?: throw UnsupportedErr("Static call: ${target}.$funcName")
-    return ffi.callStatic(cx, target, funcName, args)
+    return ffi.callStatic(cx, target, funcName, args, cache)
   }
 
   override Printer print(Printer out)

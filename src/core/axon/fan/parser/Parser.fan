@@ -655,7 +655,7 @@ class Parser
   {
     if (target.isTopNameType)
     {
-      return StaticCall(target, "make", args)
+      return StaticCall(target, "<init>", args)
     }
     else
     {

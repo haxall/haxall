@@ -17,7 +17,7 @@ using haystack
 abstract const class AxonFFI
 {
   ** Static call on type
-  abstract Obj? callStatic(AxonContext cx, TopName type, Str name, Expr[] args)
+  abstract Obj? callStatic(AxonContext cx, TopName target, Str name, Expr[] args, AtomicRef cache)
 
   ** Instance call on this object
   abstract Obj? callDot(AxonContext cx, Obj? target, Str name, Expr[] args)
@@ -39,9 +39,22 @@ const class FantomAxonFFI : AxonFFI
     this.types = ConcurrentMap()
   }
 
-  override Obj? callStatic(AxonContext cx, TopName target, Str name, Expr[] args)
+  override Obj? callStatic(AxonContext cx, TopName target, Str name, Expr[] args, AtomicRef cache)
   {
-    slot := resolve(target).slot(name)
+    // resolve base type
+    type := resolve(target)
+
+    // constructors Foo() use the name <init>; it can be expensive to resolve
+    // overloaded constructors, so resolve once then cache for the call site
+    if (name == "<init>")
+    {
+      ctor := cache.val as Method
+      if (ctor == null) cache.val = ctor = resolveCtor(cx, type, args)
+      return call(cx, ctor, null, args)
+    }
+
+    // static field/method
+    slot := type.slot(name)
     if (slot.isField)
     {
       return get(slot, null)
@@ -129,7 +142,88 @@ const class FantomAxonFFI : AxonFFI
     return coerceFromFantom(m.callOn(target, args))
   }
 
-  private Obj? coerceToFantom(AxonContext cx, Expr expr, Type? type)
+//////////////////////////////////////////////////////////////////////////
+// Constructor Overrloading
+//////////////////////////////////////////////////////////////////////////
+
+  private Method resolveCtor(AxonContext cx, Type type, Expr[] argExprs)
+  {
+    // eagerly evaluate args
+    args := argExprs.map |argExpr, i| { argExpr.eval(cx) }
+
+    // first pass: potential matches on arity without type/coerce checking
+    matches := Method[,]
+    type.methods.each |m|
+    {
+      if (m.isCtor && isPotentialCtorMatch(m, args)) matches.add(m)
+    }
+
+    // if we found more than one, then filter ones that match based on types
+    if (matches.size > 1)
+    {
+      exacts := matches.findAll |m| { isExactCtorMatch(m, args) }
+      if (exacts.size == 1) matches = exacts
+    }
+
+    // if we still have multiple, then filter based on coercion
+    if (matches.size > 1)
+    {
+      matches = matches.findAll |m| { isCoerceCtorMatch(cx, m, args) }
+    }
+
+    // handle match, no matches, or ambiguous matches
+    if (matches.size == 1) return matches.first
+    if (matches.size == 0) throw Err("No constructor: " + ctorSig(type, args))
+    throw Err("Ambiguous constructor: " + ctorSig(type, args) + " [" + matches.join(",") { it.name } + "]")
+  }
+
+  private static Bool isPotentialCtorMatch(Method m, Obj?[] args)
+  {
+    required := 0
+    match := m.params.all |p, i|
+    {
+      if (!p.hasDefault) required++
+      if (i >= args.size) return p.hasDefault
+      return true // potential only
+    }
+    return match && required <= args.size && args.size <= m.params.size
+  }
+
+  private static Bool isExactCtorMatch(Method m, Obj?[] args)
+  {
+    m.params.all |p, i|
+    {
+      if (i >= args.size) return p.hasDefault
+      a := args[i]
+      if (a == null) return p.type.isNullable
+      return a.typeof.fits(p.type.toNonNullable)
+    }
+  }
+
+  private static Bool isCoerceCtorMatch(AxonContext cx, Method m, Obj?[] args)
+  {
+    m.params.all |p, i|
+    {
+      if (i >= args.size) return p.hasDefault
+      a := args[i]
+      if (a == null) return p.type.isNullable
+      a = coerceToFantomVal(cx, a, p.type)
+      return a.typeof.fits(p.type.toNonNullable)
+    }
+  }
+
+  private static Str ctorSig(Type type, Obj?[] args)
+  {
+    s := StrBuf().add(type.name).addChar('(')
+    args.each |a, i| { if (i > 0) s.add(", "); s.add(a?.typeof?.name) }
+    return s.addChar(')').toStr
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Coercion
+//////////////////////////////////////////////////////////////////////////
+
+  private static Obj? coerceToFantom(AxonContext cx, Expr expr, Type? type)
   {
     // if no Fantom parameter, then no coercion
     if (type == null) return expr.eval(cx)
@@ -137,9 +231,12 @@ const class FantomAxonFFI : AxonFFI
     // use Fantom type to lazily eval filters
     if (type == Filter#) return expr.evalToFilter(cx)
 
-    // evaluate
-    x := expr.eval(cx)
+    // evaluate and coerce the value
+    return coerceToFantomVal(cx, expr.eval(cx), type)
+  }
 
+  private static Obj? coerceToFantomVal(AxonContext cx, Obj? x, Type type)
+  {
     // coerce Fantom Int/Float/Duration -> Number
     if (type == Int#)
     {
@@ -164,7 +261,7 @@ const class FantomAxonFFI : AxonFFI
     return x
   }
 
-  private Obj? coerceFromFantom(Obj? x)
+  private static Obj? coerceFromFantom(Obj? x)
   {
     if (x is Num) return Number.makeNum(x)
     if (x is Duration) return Number.makeDuration(x, null)
