@@ -27,8 +27,17 @@ TestPrintA: TestPrint {
   date2: "2026-04-20"
   date3: <> "2026-04-20"
   date4: <metaQ> "2026-04-20"
-  date5: <metaQ>
+  date5: <metaQ, metaStr:"src code">
   date6: <metaQ> // comment
+
+  meta1: <metaStr:"">
+  meta2: <metaStr:"foo bar">
+  meta3: <metaQ, metaStr:"foo\nbar">
+
+  <axon:---
+  line 1
+  line 2
+  --->
 }
 
 TestPrintStatus: Scalar

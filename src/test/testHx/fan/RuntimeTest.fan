@@ -498,14 +498,14 @@ class RuntimeTest : HxTest
     // create axon func in proj
     f := addFunc("foo1", "() => today()")
     verifyEq(eval("foo1()"), Date.today)
-    verifyDictEq(f.metaOwn, Etc.dict1("axon", "today()\n"))
+    verifyDictEq(f.metaOwn, Etc.dict1("axon", "today()"))
     verifyEq(f.func.params.size, 0)
     verifyEq(f.func.returns.type.qname, "sys::Obj")
 
     // create axon func in proj with meta + params
     f = addFunc("foo2", "(a, b) => a + b", ["admin":m, "qux":"foo2"])
     verifyEq(eval("foo2(3, 4)"), n(7))
-    verifyDictEq(f.metaOwn, Etc.dict3("axon", "a + b\n", "admin", m, "qux", "foo2"))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "a + b", "admin", m, "qux", "foo2"))
     verifyEq(f.func.params.size, 2)
     verifyEq(f.func.params[0].name, "a")
     verifyEq(f.func.params[1].name, "b")
@@ -519,7 +519,7 @@ class RuntimeTest : HxTest
     proj.companion.update(frec)
     f = proj.ns.spec("proj::Funcs.foo2")
     verifyEq(eval("foo2(3)"), n(9))
-    verifyDictEq(f.metaOwn, Etc.dict3("axon", "a * a\n", "qux", "test!", "su", m))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "a * a", "qux", "test!", "su", m))
 
     // funcSlots
     src := "(r, s, p, q) => null"

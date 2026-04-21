@@ -180,77 +180,6 @@ class PrinterTest : AbstractXetoTest
 
   Void testSpecs()
   {
-    // bare bones spec no meta
-    opts := qnameForce
-    out := newCase(opts)
-    out.specHeader("foobar", ns.spec("sys::Func"), Etc.dict0)
-    verifySpec(
-      Str<|foobar: sys::Func|>)
-
-    // spec with basic meta
-    out = newCase(opts)
-    out.specHeader("foobar", ns.spec("sys::Func"), Etc.dictx("admin", m))
-    verifySpec(
-      Str<|foobar: sys::Func <admin>|>)
-
-    // spec with basic meta
-    out = newCase(opts)
-    out.specHeader("foobar", ns.spec("sys::Func"), Etc.dictx("admin", m, "text",Str<|$<copy>|>))
-    verifySpec(
-      Str<|foobar: sys::Func <admin, text:"$<copy>">|>)
-
-    // verify doc, axon, nice marker order
-    out = newCase(opts)
-    out.specHeader("foobar", ns.spec("sys::Func"),
-      Etc.makeDict(["doc":"Line 1\n\nLine 2", "axon":"source code", "nodoc":m, "su":m, "text":Str<|$<copy>|>]))
-    verifySpec(
-      Str<|// Line 1
-           //
-           // Line 2
-           foobar: sys::Func <nodoc, su, text:"$<copy>">|>)
-
-    // verify doc, axon, nice marker order
-    out = newCase(opts)
-    out.specHeader("foobar", "Func", Etc.dict0).w(" {").nl
-       .indent
-       .tab.metaInline("axon", "My axon line 1\nline 2\n").nl
-       .unindent
-       .w("}").nl
-    verifySpec(
-      Str<|foobar: Func {
-             <axon: ---
-             My axon line 1
-             line 2
-             --->
-           }
-          |>)
-
-    // verify compound (AND)
-    out = newCase(opts)
-    ofs := ["ph::Ahu", "ph::Vav"]
-    out.specHeader("Foo", "sys::And", Etc.dict1("ofs", ofs))
-    verifySpec(
-      Str<|Foo: ph::Ahu & ph::Vav|>)
-
-    // verify compound (OR)
-    out = newCase(opts)
-    ofs = ["ph::Ahu", "ph::Vav", "ph::Fcu"]
-    out.specHeader("Foo", "sys::Or", Etc.dict2("ofs", ofs, "admin", m))
-    verifySpec(
-      Str<|Foo: ph::Ahu | ph::Vav | ph::Fcu <admin>|>)
-  }
-
-  Void verifySpec(Str expect)
-  {
-    verifyOutput(expect)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// More
-//////////////////////////////////////////////////////////////////////////
-
-  Void testMore()
-  {
     lib  := ns.lib("hx.test.xeto")
     date := ns.spec("sys::Date")
 
@@ -263,18 +192,30 @@ class PrinterTest : AbstractXetoTest
     verifySpecMeta(a.slot("date2"), date, dateMeta.dup.set("val", Date("2026-04-20")))
     verifySpecMeta(a.slot("date3"), date, dateMeta.dup.set("val", Date("2026-04-20")))
     verifySpecMeta(a.slot("date4"), date, dateMeta.dup.set("val", Date("2026-04-20")).set("metaQ",m))
-    verifySpecMeta(a.slot("date5"), date, dateMeta.dup.set("metaQ",m))
+    verifySpecMeta(a.slot("date5"), date, dateMeta.dup.set("metaQ",m).set("metaStr", "src code"))
     verifySpecMeta(a.slot("date6"), date, dateMeta.dup.set("metaQ",m).set("doc", "comment"))
     newCase.spec(a)
     verifyOutput(
        Str<|TestPrintA: TestPrint {
               date1: Date? "2026-04-20"
-              date2: Date "2026-04-20"
-              date3: Date "2026-04-20"
-              date4: Date <metaQ> "2026-04-20"
-              date5: Date <metaQ>
+              date2: Date? "2026-04-20"
+              date3: Date? "2026-04-20"
+              date4: Date? <metaQ> "2026-04-20"
+              date5: Date? <metaQ, metaStr:"src code">
               // comment
-              date6: Date <metaQ>
+              date6: Date? <metaQ>
+              meta1: Dict <metaStr:"">
+              meta2: Dict <metaStr:"foo bar">
+              meta3: Dict <metaQ> {
+                <metaStr: ---
+                foo
+                bar
+                --->
+              }
+              <axon: ---
+              line 1
+              line 2
+              --->
             }
             |>)
   }
@@ -285,6 +226,55 @@ class PrinterTest : AbstractXetoTest
     // echo("~~ $spec | $spec.type | $actualMeta")
     verifySame(spec.type, type)
     verifyDictEq(actualMeta, expectMeta)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////////////
+
+  Void testAst()
+  {
+    verifyAst(
+      Str<|Foo: Dict {}|>,
+      Str<|Foo: sys::Dict
+           |>)
+
+    verifyAst(
+      Str<|Foo: Dict <abstract, axon:"src", su>|>,
+      Str<|Foo: sys::Dict <su, abstract, axon:"src">
+           |>)
+
+    verifyAst(
+      Str<|// documentation
+           // line 2
+           Foo: Dict {
+             dis: Str? <transient>  // display
+           }|>,
+      Str<|// documentation
+           // line 2
+           Foo: sys::Dict {
+             // display
+             dis: sys::Str? <transient>
+           }
+           |>)
+
+    verifyAst(
+      Str<|// documentation
+           Foo: Ahu & Vav & Fcu <admin> {
+             dis: Str? <axon:"src">
+           }|>,
+      Str<|// documentation
+           Foo: ph::Ahu & ph::Vav & ph::Fcu <admin> {
+             dis: sys::Str? <axon:"src">
+           }
+           |>)
+  }
+
+  Void verifyAst(Str src, Str expect)
+  {
+    ast := ns.io.readAst(src)
+    newCase(qnameForce).ast(ast)
+    verifyOutput(expect)
   }
 
 //////////////////////////////////////////////////////////////////////////

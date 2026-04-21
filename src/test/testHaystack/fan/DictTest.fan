@@ -262,7 +262,7 @@ class DictTest : HaystackTest
     verifyOrdered(Etc.makeDict(map), true)
     verifyOrdered(Etc.dictFromMap(map), true)
 
-    verifyEq(HisItem(DateTime.now, "x"), true)
+    verifyOrdered(HisItem(DateTime.now, "x"), true)
   }
 
   Void verifyOrdered(Dict d, Bool expect)

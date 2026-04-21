@@ -29,7 +29,6 @@ class XetoPrinter
     this.ns   = ns
     this.out  = out
     this.opts = opts
-    this.noInferMeta  = opts.has("noInferMeta")
     this.qnameForce   = opts.has("qnameForce")
     this.noDocComment = opts.has("noDocComment")
   }
@@ -41,122 +40,61 @@ class XetoPrinter
   ** Output a spec
   This spec(Spec spec)
   {
-    inlineMeta := toInlineMetaNames(spec.metaOwn)
-    metaSkip := metaSkipDef.dup.addAll(inlineMeta)
-    specHeader(spec.name, spec.base, spec.metaOwn, metaSkip)
-    if (spec.slots.isEmpty && inlineMeta.isEmpty) return nl
+    doSpec(XpReflectSpec(spec))
+  }
 
+  ** Common implementation for reflect Spec and AST dict
+  private This doSpec(XpSpec x)
+  {
+    // doc
+    if (x.doc != null) this.doc(x.doc)
+
+    // name: Type <meta> "val"
+    tab
+    if (x.name != null) w(x.name).wc(':').sp
+    if (x.type != null) type(x.type)
+    metaHeader(x)
+    if (x.val != null) sp.quoted(x.val)
+
+    // if no slots or inline meta, all done
+    if (!x.hasSlots && x.metaInline.isEmpty) return nl
+
+    // { ... }
     sp.w("{").nl
     indent
-    spec.slotsOwn.each |x| { slot(x) }
+    x.eachSlot |s| { doSpec(s) }
+    metaInline(x)
     unindent
-    inlineMeta.each |n|
-    {
-      nl.metaInline(n, spec.meta[n]).nl
-    }
-    w("}").nl
+    tab.w("}").nl
     return this
   }
 
-  ** Start new top-level spec or slot spec:
-  **   // doc from meta
-  **   name: type <meta>
-  This specHeader(Str name, Obj type, Dict meta := Etc.dict0, Str[] metaSkip := metaSkipDef)
+  ** Write spec meta data dict
+  private Void metaHeader(XpSpec x)
   {
-    doc := meta["doc"] as Str
-    if (doc != null) this.doc(doc)
-    tab.w(name).wc(':').sp
-    this.type(type, meta)
-    this.meta(meta, metaSkip)
-    return this
-  }
-
-  ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkipDef := ["ofs", "axon", "doc", "maybe"]
-
-  ** Return tag names to encode as inline meta
-  @NoDoc static Str[] toInlineMetaNames(Dict meta)
-  {
-    Etc.dictNames(meta).findAll |n| { meta[n].toStr.contains("\n") }
-  }
-
-  ** Write meta data dict. We always skip the skipMeta tags by default
-  This meta(Dict meta, Str[] skip := metaSkipDef)
-  {
-    // get keys/scalarVal to print
-    keys := Str[,]
-    scalarVal := null
-    meta.each |v, n|
+    if (x.metaHeader.isEmpty) return
+    sp.wc('<')
+    spec := ns.sys.spec
+    x.metaHeader.each |n, i|
     {
-      if (n == "val" && isScalar(v))
-        scalarVal = v
-      else if (!skip.contains(n))
-        keys.add(n)
+      v := x.metaGet(n)
+      if (i > 0) wc(',').sp
+      dictPair(spec, n, v, true)
     }
-
-    if (!keys.isEmpty)
-    {
-      // put keys in nice order
-      keys.sort
-      keys.moveTo("su", 0)
-      keys.moveTo("admin", 0)
-      keys.moveTo("nodoc", 0)
-      keys.moveTo("of", 0)
-      keys.moveTo("defMeta", -1)
-      keys.moveTo("ruleReady", -1)
-
-      sp.wc('<')
-      spec := ns.sys.spec
-      keys.each |k, i|
-      {
-        v := meta[k]
-        if (i > 0) wc(',').sp
-        dictPair(spec, k, v, true)
-      }
-      wc('>')
-    }
-
-    if (scalarVal != null)
-    {
-      sp.quoted(scalarVal.toStr)
-    }
-
-    return this
+    wc('>')
   }
 
   ** Encode inline meta as heredoc using current indentation
-  This metaInline(Str name, Obj v)
+  private Void metaInline(XpSpec x)
   {
-    wc('<').w(name).wc(':').sp
-    if (v is Str) heredoc(v)
-    else val(v, null)
-    return wc('>')
-  }
-
-  ** Write a slot spec out using current indentation
-  This slot(Spec slot)
-  {
-    specHeader(slot.name, slot.type, slot.metaOwn)
-
-    // this isn't super great until we really nail down spec vs instance slots
-    subSlots := slot.slotsOwn
-    if (!subSlots.isEmpty)
+    x.metaInline.each |n|
     {
-      sp.w("{").sp
-      first := true
-      subSlots.each |x|
-      {
-        v := x.metaOwn["val"]
-        if (v == null) return
-
-        if (first) first = false
-        else wc(',').sp
-        dictPair(null, x.name, v, true)
-      }
-      sp.w("}")
+      v := x.metaGet(n)
+      tab.wc('<').w(n).wc(':').sp
+      if (v is Str) heredoc(v)
+      else val(v, null)
+      wc('>').nl
     }
-    nl
-    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -195,7 +133,7 @@ class XetoPrinter
   **     n0: v0
   **     ...
   **   }
-  This instance(Dict x, Str[] skip := dictSkip)
+  This instance(Dict x)
   {
     // leading id
     id := x["id"] as Ref
@@ -206,7 +144,7 @@ class XetoPrinter
     }
 
     forceType := id == null
-    dict(x, skip, forceType).nl
+    dict(x, forceType).nl
     return this
   }
 
@@ -215,81 +153,19 @@ class XetoPrinter
 //////////////////////////////////////////////////////////////////////////
 
   ** Print dict AST representation of spec or instance
-  This ast(Dict x)
+  This ast(Dict ast)
   {
-    if (x["spec"]?.toStr == "sys::Spec")
-      return astSpec(x)
+    if (ast["spec"]?.toStr == "sys::Spec")
+      return astSpec(ast)
     else
-      return astInstance(x)
+      return astInstance(ast)
   }
 
   ** Print AST spec representation
-  This astSpec(Dict x)
+  This astSpec(Dict ast)
   {
-    name  := x["name"] as Str ?: throw Err("AST spec missing name: $x")
-    type  := x["base"]?.toStr ?: "Dict"
-    slots := x["slots"] as Grid
-
-    // pull multi-line meta out for inlines
-    metaInlines := Str[,]
-    x.each |v, n|
-    {
-      if (metaSkipAst.contains(n)) return
-      if ( n == "axon" || n == "defMeta" || n== "ruleReady" || (v is Str && v.toStr.splitLines.size > 1))
-        metaInlines.add(n)
-    }
-    metaInlines.sort
-    metaInlines.moveTo("ruleReady", 0)
-    metaInlines.moveTo("defMeta", 0)
-    metaInlines.moveTo("axon", -1)
-    metaInlines.moveTo("compTree", -1)
-
-    specHeader(name, type, x, metaSkipAst.dup.addAll(metaInlines))
-    if (slots == null && metaInlines.isEmpty) nl
-    else
-    {
-      sp.w("{").nl
-      indent
-      if (slots != null) slots.each |s| { astSlot(s) }
-      unindent
-      if (!metaInlines.isEmpty)
-      {
-        metaInlines.each |n| { nl.metaInline(n, x[n]).nl }
-      }
-      w("}").nl
-    }
-    return this
+    doSpec(XpAstSpec(ast, true))
   }
-
-  ** Print AST slot spec representation
-  This astSlot(Dict x)
-  {
-    name  := x["name"] as Str ?: "_0"
-    type  := x["type"]?.toStr
-    slots := x["slots"] as Grid
-    maybe := x["maybe"] == Marker.val
-    doc   := x["doc"] as Str
-    tab
-    if (doc != null) { this.doc(doc); tab }
-    if (!XetoUtil.isAutoName(name)) w(name).w(": ")
-    if (type != null)
-    {
-      w(typeName(type))
-      if (maybe) w("?")
-    }
-    meta(x, metaSkipAst)
-    if (slots == null) nl
-    else
-    {
-      sp.w("{").nl
-      indent
-      slots.each |s| { astSlot(s) }
-      unindent
-      tab.w("}").nl
-    }
-    return this
-  }
-
 
   ** Print AST instance representation
   This astInstance(Dict x)
@@ -302,20 +178,18 @@ class XetoPrinter
     indent
     x.each |v, n|
     {
-      if (n == "id" || n == "name" || n == "spec" || n == "rt" || n == "mod") return
+      if (skipInst.containsKey(n)) return
       tab.dictPair(null, n, v, false).nl
     }
     unindent
     return w("}").nl
   }
 
-  ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkipAst := ["id", "mod", "rt", "name", "ofs", "base", "type", "slots", "spec", "doc", "maybe", "val"]
-
 //////////////////////////////////////////////////////////////////////////
 // AST Axon Func
 //////////////////////////////////////////////////////////////////////////
 
+  ** Print axon source code from AST representation
   Void axon(Dict ast)
   {
     doc   := ast["doc"] as Str
@@ -443,7 +317,7 @@ class XetoPrinter
     if (x is Ref) return ref(x)
 
     spec := specOf(x)
-    if (x isnot Str && spec != inferred) type(spec, Etc.dict0).sp
+    if (x isnot Str && spec != inferred) type(XpTypeRef(spec)).sp
     str := spec.binding.encodeScalar(x)
     if (str.contains("\n")) indent.heredoc(str).unindent
     else quoted(str)
@@ -470,20 +344,17 @@ class XetoPrinter
     return this
   }
 
-  ** Standard dict skip tags
-  static const Str[] dictSkip := ["id", "spec"]
-
   ** Dict value
-  This dict(Dict x, Str[] skip := dictSkip, Bool forceType := false)
+  This dict(Dict x, Bool forceType := false)
   {
     spec := specOf(x)
-    if (spec.qname != "sys::Dict" || forceType) type(spec, Etc.dict0).sp
+    if (spec.qname != "sys::Dict" || forceType) type(XpTypeRef(spec)).sp
     wc('{')
     num := 0
     indent
     x.each |v, n|
     {
-      if (skip.contains(n)) return
+      if (skipDict.containsKey(n)) return
       num++
       nl.tab.dictPair(spec, n, v, false)
     }
@@ -496,7 +367,7 @@ class XetoPrinter
   This list(List list, Spec? inferred)
   {
     spec := inferred ?: specOf(list)
-    type(spec, Etc.dict0).sp.wc('{')
+    type(XpTypeRef(spec)).sp.wc('{')
     num := 0
     indent
     list.each |v|
@@ -543,7 +414,7 @@ class XetoPrinter
 //////////////////////////////////////////////////////////////////////////
 
   ** Write doc lines as // comments
-  This doc(Str? str)
+  private This doc(Str? str)
   {
     str = str?.trimToNull
     if (str == null) return this
@@ -557,27 +428,29 @@ class XetoPrinter
     return this
   }
 
-  ** Write type name where type can be string like "Str" or a Spec
-  This type(Obj type, Dict meta)
+  ** Write type reference with maybe and compound type support
+  private This type(XpTypeRef x)
   {
-    name := type is Spec ? ((Spec)type).qname : type.toStr
-    if (name == "sys::And" || name == "sys::Or")
+    // handle and/or compound type
+    if (x.isCompound)
     {
-      ofs := meta["ofs"] as List
-      sep := name == "sys::And" ? '&' : '|'
-      if (ofs != null)
+      sep := x.isAnd ? '&' : '|'
+      x.ofs.each |of, i|
       {
-        ofs.each |x, i|
-        {
-          if (i > 0) sp.wc(sep).sp
-          this.type(x, Etc.dict0)
-        }
-        return this
+        if (i > 0) sp.wc(sep).sp
+        this.type(of)
       }
+      return this
     }
 
-    w(typeName(name))
-    if (meta.has("maybe")) wc('?')
+    // qname or simple name
+    if (qnameForce || ns.unqualifiedTypes(x.name).size > 1)
+      w(x.qname)
+    else
+      w(x.name)
+
+    // maybe
+    if (x.maybe) wc('?')
     return this
   }
 
@@ -682,9 +555,6 @@ class XetoPrinter
   ** Force qnames
   Bool qnameForce
 
-  ** Don't try to infer meta from ns
-  Bool noInferMeta
-
   ** Don't output doc comment
   Bool noDocComment
 
@@ -692,8 +562,194 @@ class XetoPrinter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  ** Standard dict skip tags
+  static const Str:Str skipDict := Str:Str[:].setList(["id", "spec"])
+
+  ** Always skip these which should be encoded outside of meta
+  static const Str:Str skipInst := Str:Str[:].setList(["id", "name", "spec", "rt", "mod"])
+
+  ** Always skip these which should be encoded outside of meta
+  static const Str:Str skipMeta := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "ofs", "base", "type", "slots", "maybe"])
+
   const MNamespace ns       // xeto namespace
   private OutStream out     // output stream
   private Int indentation   // indentation level
+}
+
+**************************************************************************
+** XpSpec
+**************************************************************************
+
+**
+** XetoPrinter spec representation - handles both reflect Spec and AST dict
+**
+@Js
+internal abstract const class XpSpec
+{
+  new make(Str? name, XpTypeRef? type, Dict metaOwn)
+  {
+    if (name != null && XetoUtil.isAutoName(name)) name = null
+
+    this.name    = name
+    this.type    = type
+    this.metaOwn = metaOwn
+
+    if (metaOwn.isEmpty) return
+
+    header := Str[,]
+    inline := Str[,]
+
+    metaOwn.each |v, n|
+    {
+      // skip meta we handle specially
+      if (XetoPrinter.skipMeta.containsKey(n)) return
+      if (n == "doc") { this.doc = v.toStr; return }
+      if (n == "val" && isScalar(v)) { this.val = v.toStr; return }
+
+      // check if we should inline it
+      if (isMetaInline(v))
+        inline.add(n)
+      else
+        header.add(n)
+    }
+
+    // put header keys in nice order
+    if (!header.isEmpty)
+    {
+      header.sort
+      header.moveTo("su", 0)
+      header.moveTo("admin", 0)
+      header.moveTo("nodoc", 0)
+      header.moveTo("of", 0)
+      this.metaHeader = header
+    }
+
+    // put inline keys in nice order
+    if (!inline.isEmpty)
+    {
+      inline.sort
+      this.metaInline = inline
+    }
+  }
+
+  abstract Bool hasSlots()
+
+  abstract Void eachSlot(|XpSpec| f)
+
+  Obj metaGet(Str n) { metaOwn.get(n) ?: throw Err("Missing meta: $n") }
+
+  private static Bool isMetaInline(Obj v)
+  {
+    if (isScalar(v)) return v.toStr.contains("\n")
+    return false
+  }
+
+  private static Bool isScalar(Obj v) { v isnot Dict && v isnot List }
+
+  private static const Str[] noMeta := Str[,]
+
+  const Str? name                   // type name / slot name (null for autoName)
+  const XpTypeRef? type             // type base / slot type (null for sys::Obj or inferred)
+  const Dict metaOwn                // metaOwn
+  const Str[] metaHeader := noMeta  // metaOwn to encode in header (excludes maybe, ofs, doc, val)
+  const Str[] metaInline := noMeta  // metaOwn to encode in body inline
+  const Str? doc                    // metaOwn doc tag (not inherited)
+  const Str? val                    // metaOwn scalar value (not inherited)
+}
+
+**************************************************************************
+** XpReflectSpec
+**************************************************************************
+
+@Js
+internal const class XpReflectSpec : XpSpec
+{
+  new make(Spec spec) : super(spec.name, toType(spec), spec.metaOwn)
+  {
+    this.spec = spec
+  }
+
+  private static XpTypeRef? toType(Spec spec)
+  {
+    if (spec.flavor.isMember) return XpTypeRef.makeSpec(spec)
+    if (spec.base != null) return XpTypeRef.makeSpec(spec.base)
+    return null // sys::Obj
+  }
+
+  const Spec spec
+
+  override Bool hasSlots() { !spec.slotsOwn.isEmpty }
+
+  override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s)) } }
+}
+
+**************************************************************************
+** XpAstSpec
+**************************************************************************
+
+@Js
+internal const class XpAstSpec : XpSpec
+{
+  new make(Dict ast, Bool top)
+    : super(ast["name"], toType(ast, top), ast)
+  {
+    this.slots = ast["slots"] as Grid
+  }
+
+  private static XpTypeRef? toType(Dict ast, Bool top)
+  {
+    id := ast[top ? "base" : "type"]
+    if (id == null) return null
+    return XpTypeRef.makeId(id, ast)
+  }
+
+  override Bool hasSlots() { slots != null && !slots.isEmpty }
+
+  override Void eachSlot(|XpSpec| f) { slots.each |s| { f(XpAstSpec(s, false)) } }
+
+  const Grid? slots
+}
+
+**************************************************************************
+** XpTypeRef
+**************************************************************************
+
+**
+** XetoPrinter type ref representation
+**
+@Js
+internal const class XpTypeRef
+{
+  new makeSpec(Spec spec)
+  {
+    type := spec.type
+    this.id    = type.id
+    this.lib   = type.lib.name
+    this.name  = type.name
+    this.maybe = spec.flavor.isMember && spec.meta["maybe"] == Marker.val
+    this.ofs   = spec.ofs(false)?.map |x->XpTypeRef| { makeSpec(x) }
+  }
+
+  new makeId(Ref id, Dict meta)
+  {
+    s := id.id
+    colons := s.index("::") ?: throw Err("Not type qname: $id")
+    this.id    = id
+    this.lib   = s[0..<colons]
+    this.name  = s[colons+2..-1]
+    this.maybe = meta["maybe"] == Marker.val
+    this.ofs   = (meta["ofs"] as List)?.map |x->XpTypeRef| { makeId(x, Etc.dict0) }
+  }
+
+  const Ref id               // qualified name as id
+  Str qname() { id.id }      // qualified name
+  const Str lib              // library name
+  const Str name             // simple name
+  const Bool maybe           // maybe type
+  const XpTypeRef[]? ofs     // meta ofs for And/Or type
+
+  Bool isCompound() { (isAnd || isOr) && ofs != null}
+  Bool isAnd() { qname == "sys::And" }
+  Bool isOr() { qname == "sys::Or" }
 }
 
