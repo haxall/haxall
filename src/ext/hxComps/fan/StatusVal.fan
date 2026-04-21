@@ -166,8 +166,8 @@ const abstract class MStatusVal: StatusVal
 const final class MStatusNumber: MStatusVal, StatusNumber
 {
   static const Ref specRef := Ref("hx.comps::StatusNumber")
-  static new fromDict(Dict d) {make(d["val"] as Number ?: Number.zero, d["status"] as Status ?: Status.ok) }
-  new make(Number v, Status s) { this.num = v; this.status = s}
+  static new make(Dict d) {makeFields(d["val"] as Number ?: Number.zero, d["status"] as Status ?: Status.ok) }
+  new makeFields(Number v, Status s) { this.num = v; this.status = s}
   override Obj val() { num }
   override const Number num
   override const Status status
@@ -178,8 +178,8 @@ const final class MStatusNumber: MStatusVal, StatusNumber
 const final class MStatusBool: MStatusVal, StatusBool
 {
   static const Ref specRef := Ref("hx.comps::StatusBool")
-  static new fromDict(Dict d) {make(d["val"] as Bool ?: false, d["status"] as Status ?: Status.ok) }
-  new make(Bool v, Status s) { this.bool = v; this.status = s}
+  static new make(Dict d) {makeFields(d["val"] as Bool ?: false, d["status"] as Status ?: Status.ok) }
+  new makeFields(Bool v, Status s) { this.bool = v; this.status = s}
   override Obj val() { bool }
   override const Bool bool
   override const Status status
@@ -190,8 +190,8 @@ const final class MStatusBool: MStatusVal, StatusBool
 const final class MStatusStr: MStatusVal, StatusStr
 {
   static const Ref specRef := Ref("hx.comps::StatusStr")
-  static new fromDict(Dict d) {make(d["val"] as Str ?: "", d["status"] as Status ?: Status.ok) }
-  new make(Str v, Status s) { this.str = v; this.status = s}
+  static new make(Dict d) {makeFields(d["val"] as Str ?: "", d["status"] as Status ?: Status.ok) }
+  new makeFields(Str v, Status s) { this.str = v; this.status = s}
   override Obj val() { str }
   override const Str str
   override const Status status

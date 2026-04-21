@@ -100,8 +100,9 @@ class RuntimeTest : HxTest
     catch (DependErr e)
     {
       unmet := (Grid)e.meta->unmet
-      verifyEq(unmet.size, 4)
-      verifyEq(unmet[0]->name, "ph.attrs")
+      verifyEq(unmet.size, 5)
+      verifyEq(unmet[0]->name, "hx.comps")
+      verifyEq(unmet[1]->name, "ph.attrs")
     }
 
     // add new lib 'ph.points' which fills 'g36' depend

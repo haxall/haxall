@@ -23,25 +23,25 @@ const mixin Status : Dict
   static Status ok() { MStatus.empty }
 
   ** Instance with alarm flag set
-  static Status alarm() { MStatus.make(MStatus.flagAlarm) }
+  static Status alarm() { MStatus.makeFlags(MStatus.flagAlarm) }
 
   ** Instance with disabled flag set
-  static Status disabled() { MStatus.make(MStatus.flagDisabled) }
+  static Status disabled() { MStatus.makeFlags(MStatus.flagDisabled) }
 
   ** Instance with down flag set
-  static Status down() { MStatus.make(MStatus.flagDown) }
+  static Status down() { MStatus.makeFlags(MStatus.flagDown) }
 
   ** Instance with fault flag set
-  static Status fault() { MStatus.make(MStatus.flagFault) }
+  static Status fault() { MStatus.makeFlags(MStatus.flagFault) }
 
   ** Instance with overridden flag set
-  static Status overridden() { MStatus.make(MStatus.flagOverridden) }
+  static Status overridden() { MStatus.makeFlags(MStatus.flagOverridden) }
 
   ** Instance with stale flag set
-  static Status stale() { MStatus.make(MStatus.flagStale) }
+  static Status stale() { MStatus.makeFlags(MStatus.flagStale) }
 
   ** Instance with  flag set
-  static Status unacked() { MStatus.make(MStatus.flagUnacked) }
+  static Status unacked() { MStatus.makeFlags(MStatus.flagUnacked) }
 
   ** Get an instance by name
   static Status? fromName(Str name, Bool checked := true)
@@ -108,17 +108,17 @@ const mixin Status : Dict
 //////////////////////////////////////////////////////////////////////////
 
   ** Merge all this instance flags with the given instances flags.
-  Status set(Status that) { MStatus.make(this.flags.or(that.flags)) }
+  Status set(Status that) { MStatus.makeFlags(this.flags.or(that.flags)) }
 
   ** Clear this instance flags with the given instances flags
-  Status clear(Status that) {MStatus.make(this.flags.and(that.flags.not)) }
+  Status clear(Status that) { MStatus.makeFlags(this.flags.and(that.flags.not)) }
 
   ** Merge flags together for combination operations. If 'that' is null,
   ** return 'this'
   Status merge(Status? that) { MStatus.doMerge(this, that) }
 
   ** Get a new status where only the given flags are set
-  Status only(Status that) { MStatus.make(this.flags.and(that.flags)) }
+  Status only(Status that) { MStatus.makeFlags(this.flags.and(that.flags)) }
 
   ** Bitmask flags
   internal abstract Int flags()
@@ -137,7 +137,7 @@ const final class MStatus : Status
 // Factory
 //////////////////////////////////////////////////////////////////////////
 
-  static new fromDict(Dict d)
+  static new make(Dict d)
   {
     mask := 0
     d.each |v, n|
@@ -285,7 +285,7 @@ const final class MStatus : Status
 // Instances
 //////////////////////////////////////////////////////////////////////////
 
-  static new make(Int flags) { byMask[flags] }
+  static new makeFlags(Int flags) { byMask[flags] }
 
   internal static const MStatus[] byMask
   internal static const MStatus empty
