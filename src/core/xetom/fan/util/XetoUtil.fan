@@ -257,6 +257,20 @@ const class XetoUtil
 // Literals
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return if string is a valid unquoted number literal
+  static Bool isUnquotedNum(Str s)
+  {
+    if (s.isEmpty) return false
+    if (!s[0].isDigit) return false
+    return s.all |c| { isUnquotedNumChar(c) }
+  }
+
+  ** Return if string is a valid unquoted number literal char
+  static Bool isUnquotedNumChar(Int c)
+  {
+    c.isAlphaNum || c == '-' || c == '.' || c == '$' || c == ':' || c == '/' || c == '%' || c > 128
+  }
+
   ** Xeto quoted string (we don't escape $ like Fantom Str.toCode)
   static Str strToCode(Str s)
   {

@@ -6,6 +6,8 @@
 //   13 Aug 2022  Brian Frank  Creation
 //
 
+using xetom
+
 **
 ** Tokenizer generates Tokens from an input stream
 **
@@ -428,18 +430,13 @@ internal class Tokenizer
   private Token num()
   {
     s := StrBuf()
-    while (isNum(cur))
+    while (XetoUtil.isUnquotedNumChar(cur))
     {
       s.addChar(cur)
       consume
     }
     this.val = s.toStr
     return Token.scalar
-  }
-
-  private static Bool isNum(Int c)
-  {
-    c.isAlphaNum || c == '-' || c == '.' || c == '$' || c == ':' || c == '/' || c == '%' || c > 128
   }
 
   ** Parse a symbol token (typically into an operator).

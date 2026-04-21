@@ -52,8 +52,8 @@ class PrinterTest : AbstractXetoTest
       Str<|@foo: {
              marker
              str: "hello"
-             date: sys::Date "2025-08-29"
-             num: sys::Number "123%"
+             date: sys::Date 2025-08-29
+             num: sys::Number 123%
            }
            |>)
 
@@ -189,21 +189,23 @@ class PrinterTest : AbstractXetoTest
     dateMeta.set("maybe", m)
     dateMeta.remove("sealed")
     verifySpecMeta(a.slot("date1"), date, dateMeta.dup.set("val", Date("2026-04-20")))
-    verifySpecMeta(a.slot("date2"), date, dateMeta.dup.set("val", Date("2026-04-20")))
+    verifySpecMeta(a.slot("date2"), date, dateMeta.dup.set("val", Date("2026-04-20")) { remove("maybe") })
     verifySpecMeta(a.slot("date3"), date, dateMeta.dup.set("val", Date("2026-04-20")))
-    verifySpecMeta(a.slot("date4"), date, dateMeta.dup.set("val", Date("2026-04-20")).set("metaQ",m))
-    verifySpecMeta(a.slot("date5"), date, dateMeta.dup.set("metaQ",m).set("metaStr", "src code"))
-    verifySpecMeta(a.slot("date6"), date, dateMeta.dup.set("metaQ",m).set("doc", "comment"))
+    verifySpecMeta(a.slot("date4"), date, dateMeta.dup.set("val", Date("2026-04-20")))
+    verifySpecMeta(a.slot("date5"), date, dateMeta.dup.set("val", Date("2026-04-20")).set("metaQ",m))
+    verifySpecMeta(a.slot("date6"), date, dateMeta.dup.set("metaQ",m).set("metaStr", "src code"))
+    verifySpecMeta(a.slot("date7"), date, dateMeta.dup.set("metaQ",m).set("doc", "comment") { remove("maybe") })
     newCase.spec(a)
     verifyOutput(
        Str<|TestPrintA: TestPrint {
-              date1: Date? "2026-04-20"
-              date2: Date? "2026-04-20"
-              date3: Date? "2026-04-20"
-              date4: Date? <metaQ> "2026-04-20"
-              date5: Date? <metaQ, metaStr:"src code">
+              date1: 2026-04-20
+              date2: Date 2026-04-20
+              date3: 2026-04-20
+              date4: 2026-04-20
+              date5: <metaQ> 2026-04-20
+              date6: <metaQ, metaStr:"src code">
               // comment
-              date6: Date? <metaQ>
+              date7: Date <metaQ>
             }
             |>)
 
@@ -233,10 +235,10 @@ class PrinterTest : AbstractXetoTest
     verifyOutput(
        Str<|TestPrintC: TestPrint {
               sv1: StatusNumber {
-                val: Number "123"
+                val: 123
               }
-              sv2: StatusVal? <val:StatusNumber {
-                val: "123"
+              sv2: <val:StatusNumber {
+                val: 123
                 status: Status {}
               }>
             }
@@ -257,6 +259,31 @@ class PrinterTest : AbstractXetoTest
                 bar
                 --->
               }
+            }
+            |>)
+
+    // TestPrintE
+    e := lib.spec("TestPrintE")
+    newCase.spec(e)
+    verifyOutput(
+       Str<|TestPrintE: TestPrint {
+              s1: ""
+              s2: 123
+              s3: 123.4
+              s4: 123.4gH₂O/kgAir
+              s5: "123.4gH₂O/kgAir 123"
+            }
+            |>)
+
+    // TestPrintE with different options
+    newCase(Etc.dict2("showInferredTypes", m, "quoteNums", m)).spec(e)
+    verifyOutput(
+       Str<|TestPrintE: TestPrint {
+              s1: Str? ""
+              s2: Str? "123"
+              s3: Str? "123.4"
+              s4: Str? "123.4gH₂O/kgAir"
+              s5: Str? "123.4gH₂O/kgAir 123"
             }
             |>)
   }
@@ -334,7 +361,7 @@ class PrinterTest : AbstractXetoTest
   {
     actual := buf.toStr
 
-    if (true)
+    if (false)
     {
       echo
       echo("----")

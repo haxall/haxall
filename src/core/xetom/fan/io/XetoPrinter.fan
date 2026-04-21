@@ -29,8 +29,10 @@ class XetoPrinter
     this.ns   = ns
     this.out  = out
     this.opts = opts
-    this.qnameForce   = opts.has("qnameForce")
-    this.noDocComment = opts.has("noDocComment")
+    this.qnameForce        = opts.has("qnameForce")
+    this.noDocComment      = opts.has("noDocComment")
+    this.showInferredTypes = opts.has("showInferredTypes")
+    this.quoteNums         = opts.has("quoteNums")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,8 +59,8 @@ class XetoPrinter
     }
     else
     {
-      if (x.name != null) w(x.name).wc(':').sp
-      if (x.type != null) type(x.type)
+      if (x.name != null) w(x.name).wc(':')
+      if (x.type != null && (showInferredTypes || !x.isNonCovariantOverride)) sp.type(x.type)
       metaHeader(x)
       if (x.val != null) sp.quoted(x.val)
     }
@@ -484,6 +486,7 @@ class XetoPrinter
   ** Quoted string literal (we use our own since we don't escape $ like Fantom)
   This quoted(Str x)
   {
+    if (XetoUtil.isUnquotedNum(x) && !quoteNums) return w(x)
     wc('"')
     x.each |c|
     {
@@ -565,6 +568,12 @@ class XetoPrinter
   ** Don't output doc comment
   Bool noDocComment
 
+  ** Force use of inferred covaraint override types
+  Bool showInferredTypes
+
+  ** Force quoting of all numbers
+  Bool quoteNums
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
@@ -645,6 +654,8 @@ internal abstract const class XpSpec
 
   abstract Void eachSlot(|XpSpec| f)
 
+  abstract Bool isNonCovariantOverride()
+
   Obj metaGet(Str n) { metaOwn.get(n) ?: throw Err("Missing meta: $n") }
 
   Bool noMeta() { metaHeader.isEmpty && metaInline.isEmpty }
@@ -697,6 +708,13 @@ internal const class XpReflectSpec : XpSpec
   override Bool hasSlots() { !spec.slotsOwn.isEmpty }
 
   override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s)) } }
+
+  override Bool isNonCovariantOverride()
+  {
+    if (spec.flavor.isTop) return false
+    if (spec.base.isType) return false
+    return spec.base.type == spec.type && spec.meta["maybe"] == spec.base["maybe"]
+  }
 }
 
 **************************************************************************
@@ -722,6 +740,8 @@ internal const class XpAstSpec : XpSpec
   override Bool hasSlots() { slots != null && !slots.isEmpty }
 
   override Void eachSlot(|XpSpec| f) { slots.each |s| { f(XpAstSpec(s, false)) } }
+
+  override Bool isNonCovariantOverride() { false }
 
   const Grid? slots
 }

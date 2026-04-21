@@ -14,20 +14,28 @@ TestPrint: Dict {
   date4: Date?
   date5: Date?
   date6: Date?
+  date7: Date?
 
   sv1: StatusVal?
   sv2: StatusVal?
   sn1: StatusNumber?
   sb1: StatusBool?
+
+  s1: Str?
+  s2: Str?
+  s3: Str?
+  s4: Str?
+  s5: Str?
 }
 
 TestPrintA: TestPrint {
   date1: Date? "2026-04-20"
-  date2: "2026-04-20"
-  date3: <> "2026-04-20"
-  date4: <metaQ> "2026-04-20"
-  date5: <metaQ, metaStr:"src code">
-  date6: <metaQ> // comment
+  date2: Date "2026-04-20"
+  date3: 2026-04-20
+  date4: <> "2026-04-20"
+  date5: <metaQ> "2026-04-20"
+  date6: <metaQ, metaStr:"src code">
+  date7: Date <metaQ> // comment
 }
 
 TestPrintB: TestPrint {
@@ -52,5 +60,13 @@ TestPrintD: TestPrint {
   marker3: Marker?
   marker4: Marker? <admin>
   marker5: Marker? <axon:"foo\nbar">
+}
+
+TestPrintE: TestPrint {
+  s1: ""
+  s2: 123
+  s3: 123.4
+  s4: 123.4gH₂O/kgAir
+  s5: "123.4gH₂O/kgAir 123"
 }
 
