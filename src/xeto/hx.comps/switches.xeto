@@ -9,7 +9,7 @@
 // TODO:FIXIT - icons and groups for everything
 
 // A switch selectes one of two inputs based on the current value of the `inSwitch` slot.
-Switch: HxComp <abstract> {
+ValSwitch: HxComp <abstract> {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>
@@ -25,7 +25,7 @@ Switch: HxComp <abstract> {
 }
 
 // A Bool switch
-BoolSwitch: Switch {
+BoolSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>
@@ -41,7 +41,7 @@ BoolSwitch: Switch {
 }
 
 // A Number switch
-NumberSwitch: Switch {
+NumberSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>
@@ -57,7 +57,7 @@ NumberSwitch: Switch {
 }
 
 // A Str switch
-StrSwitch: Switch {
+StrSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary>

@@ -9,7 +9,7 @@
 **
 ** A switch selectes one of two inputs based on the current value of the 'inSwitch' slot.
 **
-abstract class Switch : HxComp
+abstract class ValSwitch : HxComp
 {
   /* ionc-start */
 
@@ -47,7 +47,7 @@ abstract class Switch : HxComp
 **
 ** A Bool switch
 **
-class BoolSwitch : Switch
+class BoolSwitch : ValSwitch
 {
   /* ionc-start */
 
@@ -69,7 +69,7 @@ class BoolSwitch : Switch
 **
 ** A Number switch
 **
-class NumberSwitch : Switch
+class NumberSwitch : ValSwitch
 {
   /* ionc-start */
 
@@ -91,7 +91,7 @@ class NumberSwitch : Switch
 **
 ** A Str switch
 **
-class StrSwitch : Switch
+class StrSwitch : ValSwitch
 {
   /* ionc-start */
 
