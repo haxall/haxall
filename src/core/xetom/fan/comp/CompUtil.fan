@@ -38,38 +38,22 @@ class CompUtil
 
   static Dict compSaveToAstSlots(Comp comp, Str name, Dict? opts := null)
   {
-    // map all component paths by id so we can efficiently resolve links
-    byId := Ref:Str[:]
-    todo := Comp[,]
-    Comp? cur  := comp
-    while (cur != null)
-    {
-      path := byId[cur.id]
-      cur.eachChild |child, childName|
-      {
-        byId[child.id] = path == null ? childName : "${path}.${childName}"
-        todo.push(child)
-      }
-      cur = todo.pop
-    }
-    return doCompSaveToAstSlots(comp, name, byId, opts ?: Etc.dict0)
+    doCompSaveToAstSlots(comp, name, 0, opts ?: Etc.dict0)
   }
 
-  private static Dict doCompSaveToAstSlots(Comp comp, Str name, Ref:Str byId, Dict opts)
+  static Dict doCompSaveToAstSlots(Comp comp, Str name, Int depth, Dict opts)
   {
-    ast   := Str:Obj?[:]
+    ast := Str:Obj?[:]
     ast["name"]  = name
     ast["type"]  = comp.spec.type.id
     ast["maybe"] = comp.spec.isMaybe ? Marker.val : null
 
+    slotDepth := depth + 1
     slots := Dict[,]
     comp.each |val, slotName|
     {
       // links need to be encoded as slot meta
       if (slotName == "links") return
-
-      links := comp.links.listOn(slotName)
-      if (links.size > 1) throw UnsupportedErr("TODO:FIXIT handle fan-in link encoding")
 
       slotSpec := comp.spec.slot(slotName)
       if (slotSpec.isTransient) return
@@ -80,7 +64,7 @@ class CompUtil
       // slot meta
       slotSpec.metaOwn.each |v, n|
       {
-        // we handle link and val encoding special
+        // we handle val encoding special
         if (n == "val") return
         slot[n] = v
       }
@@ -88,36 +72,54 @@ class CompUtil
       if (slotSpec.isComp)
       {
         // TODO:FIXIT - can you link into a comp?
-        slot.addAll(Etc.dictToMap(doCompSaveToAstSlots(val, slotName, byId, opts)))
-        // slots.add(doCompSaveToAstSlots(val, slotName, byId, opts))
+
+        // only descend to grandchild slots
+        if (slotDepth < 2)
+        {
+          childAst := doCompSaveToAstSlots(val, slotName, slotDepth, opts)
+          // if (!childAst.isEmpty) slot.addAll(Etc.dictToMap(childAst))
+          slot.addAll(Etc.dictToMap(childAst))
+        }
       }
       else
       {
-        slot["name"]  = slotName
-        slot["type"]  = slotSpec.type.id
-        slot["maybe"] = slotSpec.isMaybe ? Marker.val : null
-        slot["val"]   = XetoUtil.toHaystack(val)
-        link := links.first
-        if (link != null)
+        isDef := isDefault(comp, slotName, val)
+        if (!slot.isEmpty || !isDef)
         {
-          compPath := byId[link.fromRef]
-          if (compPath == null) echo("BROKEN LINK: ${link} ${compPath} ${byId}")
-          slot["link"] = "${compPath}.${link.fromSlot}"
+          slot["name"] = slotName
+        }
+
+        // val
+        if (!isDef)
+        {
+          slot["maybe"] = slotSpec.isMaybe ? Marker.val : null
+          slot["type"]  = slotSpec.type.id
+          hayVal := XetoUtil.toHaystack(val)
+          if (hayVal is Dict) hayVal = Etc.dictRemove(((Dict)hayVal), "spec")
+          slot["val"] = hayVal
         }
       }
-      slots.add(Etc.makeDict(slot))
+      if (!slot.isEmpty) slots.add(Etc.makeDict(slot))
     }
 
-    // echo("=== ${comp} ($name)")
-    // echo(ast)
+    echo("\n=== doCompSaveToAstSlots: depth=${depth} ${comp} ($name)")
+    echo(ast)
     if (!slots.isEmpty)
     {
       g := Etc.makeDictsGrid(null, slots)
-      // g.dump
+      g.dump
       ast["slots"] = g
     }
-
     return Etc.makeDict(ast)
+  }
+
+  private static Bool isDefault(Comp c, Str name, Obj val)
+  {
+    slot := c.spec.type.slot(name, false)
+    if (slot == null) return false
+    def := slot.meta.get("val")
+    if (slot.isList) return val is List && ((List)val).isEmpty
+    return def == val
   }
 
   ** Encode a component into a xeto string

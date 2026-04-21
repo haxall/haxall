@@ -142,6 +142,7 @@ TestNestedComp : Func {
       }
       in2: TestVal <link:"r2.out">
     }
+    deep2: TestDeep2Composite { topIn: 123 }
   }
 }
 
