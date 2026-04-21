@@ -184,7 +184,7 @@ class PrinterTest : AbstractXetoTest
     date := ns.spec("sys::Date")
 
     // TestPrintA
-    a  := lib.spec("TestPrintA")
+    a := lib.spec("TestPrintA")
     dateMeta := Etc.dictToMap(date.meta)
     dateMeta.set("maybe", m)
     dateMeta.remove("sealed")
@@ -204,6 +204,14 @@ class PrinterTest : AbstractXetoTest
               date5: Date? <metaQ, metaStr:"src code">
               // comment
               date6: Date? <metaQ>
+            }
+            |>)
+
+    // TestPrintB
+    b := lib.spec("TestPrintB")
+    newCase.spec(b)
+    verifyOutput(
+       Str<|TestPrintB: TestPrint {
               meta1: Dict <metaStr:"">
               meta2: Dict <metaStr:"foo bar">
               meta3: Dict <metaQ> {
@@ -216,6 +224,21 @@ class PrinterTest : AbstractXetoTest
               line 1
               line 2
               --->
+            }
+            |>)
+
+    // TestPrintC
+    c := lib.spec("TestPrintC")
+    newCase.spec(c)
+    verifyOutput(
+       Str<|TestPrintC: TestPrint {
+              sv1: StatusNumber {
+                val: Number "123"
+              }
+              sv2: StatusVal? <val:StatusNumber {
+                val: "123"
+                status: Status {}
+              }>
             }
             |>)
   }
@@ -293,7 +316,7 @@ class PrinterTest : AbstractXetoTest
   {
     actual := buf.toStr
 
-    if (false)
+    if (true)
     {
       echo
       echo("----")

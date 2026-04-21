@@ -20,6 +20,7 @@ pragma: Lib <
     { lib: "ph.protocols", versions: BuildVar "ph.depend" }
     { lib: "ph.points",    versions: BuildVar "ph.depend" }
     { lib: "axon",         versions: BuildVar "hx.depend" }
+    { lib: "hx.comps",     versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"

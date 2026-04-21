@@ -15,21 +15,22 @@ TestPrint: Dict {
   date5: Date?
   date6: Date?
 
-  sv1: TestPrintStatusVal?
-  sv2: TestPrintStatusVal?
-  sn1: TestPrintStatusNum?
-  sb1: TestPrintStatusBool?
+  sv1: StatusVal?
+  sv2: StatusVal?
+  sn1: StatusNumber?
+  sb1: StatusBool?
 }
 
 TestPrintA: TestPrint {
-
   date1: Date? "2026-04-20"
   date2: "2026-04-20"
   date3: <> "2026-04-20"
   date4: <metaQ> "2026-04-20"
   date5: <metaQ, metaStr:"src code">
   date6: <metaQ> // comment
+}
 
+TestPrintB: TestPrint {
   meta1: <metaStr:"">
   meta2: <metaStr:"foo bar">
   meta3: <metaQ, metaStr:"foo\nbar">
@@ -40,18 +41,8 @@ TestPrintA: TestPrint {
   --->
 }
 
-TestPrintStatus: Scalar
-
-TestPrintStatusVal: Dict {
-  val: Obj?
-  status: TestPrintStatus
-}
-
-TestPrintStatusNum: TestPrintStatusVal {
-  val: Number?
-}
-
-TestPrintStatusBool: TestPrintStatusVal {
-  val: Bool?
+TestPrintC: TestPrint {
+  sv1: StatusNumber { val:"123" }
+  sv2: <val:StatusNumber { val:"123" }>
 }
 

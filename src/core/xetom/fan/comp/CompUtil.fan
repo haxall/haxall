@@ -108,14 +108,15 @@ class CompUtil
       slots.add(Etc.makeDict(slot))
     }
 
-    echo("=== ${comp} ($name)")
-    echo(ast)
+    // echo("=== ${comp} ($name)")
+    // echo(ast)
     if (!slots.isEmpty)
     {
       g := Etc.makeDictsGrid(null, slots)
-      g.dump
+      // g.dump
       ast["slots"] = g
     }
+
     return Etc.makeDict(ast)
   }
 

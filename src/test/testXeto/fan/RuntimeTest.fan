@@ -94,7 +94,6 @@ class RuntimeTest : AbstractAxonTest
 // CompUtil
 //////////////////////////////////////////////////////////////////////////
 
-/* TODO
   @HxTestProj
   Void testCompSaveToAstSlots()
   {
@@ -111,12 +110,12 @@ class RuntimeTest : AbstractAxonTest
       "spec": Ref("sys::Spec"),
     ])
     rec := proj.companion.add(ast)
-    echo(rec)
-    spec := proj.companion.lib.spec("ramptest")
-    echo(spec)
+    //echo(rec)
+    spec := proj.companion.lib.funcs.get("ramptest")
+    //echo(spec)
 
-    // echo(proj.companion.print(ast))
+    //echo(proj.companion.print(ast))
   }
-*/
+
 }
 
