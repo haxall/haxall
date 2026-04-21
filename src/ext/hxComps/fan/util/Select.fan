@@ -6,7 +6,7 @@
 //   06 Aug 2025  Matthew Giannini  Creation
 //
 
-abstract class Select : HxComp
+abstract class ValSelect : HxComp
 {
   /* ionc-start */
 
@@ -94,7 +94,7 @@ abstract class Select : HxComp
 **
 ** A Bool select
 **
-class BoolSelect : Select
+class BoolSelect : ValSelect
 {
   /* ionc-start */
 
@@ -134,7 +134,7 @@ class BoolSelect : Select
 **
 ** A Number select
 **
-class NumberSelect : Select
+class NumberSelect : ValSelect
 {
   /* ionc-start */
 
@@ -174,7 +174,7 @@ class NumberSelect : Select
 **
 ** A Str select
 **
-class StrSelect : Select
+class StrSelect : ValSelect
 {
   /* ionc-start */
 

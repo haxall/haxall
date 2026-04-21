@@ -8,7 +8,7 @@
 
 // TODO:FIXIT - icons and groups for everything
 
-Select: HxComp <abstract> {
+ValSelect: HxComp <abstract> {
   // The index of the input to select. If the value is greater than `numInputs`
   // then the maximum active input will be selected.
   select: StatusNumber? <summary>
@@ -56,7 +56,7 @@ Select: HxComp <abstract> {
 }
 
 // A Bool select
-BoolSelect: Select {
+BoolSelect: ValSelect {
   // Input A
   inA: StatusStr? <summary>
 
@@ -89,7 +89,7 @@ BoolSelect: Select {
 }
 
 // A Number select
-NumberSelect: Select {
+NumberSelect: ValSelect {
   // Input A
   inA: StatusNumber? <summary>
 
@@ -122,7 +122,7 @@ NumberSelect: Select {
 }
 
 // A Str select
-StrSelect: Select {
+StrSelect: ValSelect {
   // Input A
   inA: StatusStr? <summary>
 
