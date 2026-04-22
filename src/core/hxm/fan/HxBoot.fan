@@ -40,6 +40,10 @@ abstract class HxBoot
     this.dbDir = dir + `db/`
     this.nsDir = dir + `ns/`
     this.actorPool = ActorPool { it.name = "Rt-$this.name" }
+
+    // special initialization
+    if (Env.cur.vars["HX_DEV_MODE"] == "true")
+      sysConfig["devMode"] = Marker.val
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -119,6 +123,7 @@ abstract class HxBoot
   **
   ** SysConfig meta to build Sys.config:
   **   - test: Marker for HxTest runtime
+  **   - devMode: Marker for devMode mode (initialize via env var HX_DEV_MODE)
   **   - safeMode: Marker to disable all project extensions
   **   - noAuth: Marker to disable authentication and use superuser
   **   - apiExtWeb: qname for ApiExt ExtWeb class

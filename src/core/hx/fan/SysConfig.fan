@@ -24,6 +24,7 @@ final const class SysConfig
     this.metaRef    = meta
     this.isTest     = meta.has("test")
     this.isSafeMode = meta.has("safeMode")
+    this.isDevMode  = meta.has("devMode")
   }
 
   ** Meta data
@@ -50,6 +51,9 @@ final const class SysConfig
 
   ** Was system started in safeMode to disable proj extensions
   const Bool isSafeMode
+
+  ** Is this a development system with devMode tag?
+  @NoDoc const Bool isDevMode
 
   ** Debug grid
   @NoDoc Grid debug()
