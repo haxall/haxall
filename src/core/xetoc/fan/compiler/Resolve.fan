@@ -97,26 +97,35 @@ internal class Resolve : Step
 
   private Void resolveSpec(ASpec spec)
   {
-    // if top level spec has a default value, then its scalar
-    // type is the spec itself and its implicitly a meta "def" tag
+    // spec meta "val" handling
     val := spec.val
-    if (val != null && !val.isAsm)
+    if (val != null)
     {
-      if (val.typeRef == null)
-      {
-        ASpecRef? ref
-        if (spec.isTop)
-        {
-          ref = ASpecRef(val.loc, ASimpleName(lib.name, spec.name))
-          resolve(ref, spec)
-        }
-        else
-        {
-          ref = spec.typeRef
-        }
-        val.typeRef = ref
-      }
+      // default value is implied to be the meta "val" tag
       spec.metaSet("val", val)
+    }
+    else
+    {
+      // check if "val" was defined inside the meta
+      val = spec.metaGet("val")
+    }
+
+    // the value is inferred to the type of the spec itself
+    if (val != null && val.typeRef == null)
+      val.typeRef = toSelfRef(spec, val.loc)
+  }
+
+  private ASpecRef? toSelfRef(ASpec spec, FileLoc loc)
+  {
+    if (spec.isTop)
+    {
+      ref := ASpecRef(loc, ASimpleName(lib.name, spec.name))
+      resolve(ref, spec)
+      return ref
+    }
+    else
+    {
+      return spec.typeRef
     }
   }
 
