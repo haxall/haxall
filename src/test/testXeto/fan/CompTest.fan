@@ -610,10 +610,15 @@ class CompTest: AbstractXetoTest
 
   Void verifyCompLink(Comp to, Str toSlot, Comp from, Str fromSlot)
   {
+    doVerifyCompLink(this, to, toSlot, from, fromSlot)
+  }
+
+  static Void doVerifyCompLink(Test t, Comp to, Str toSlot, Comp from, Str fromSlot)
+  {
     links := to.links
     link := links.get(toSlot) as Link ?: throw Err("Missing link $from.id $fromSlot => $to.id $toSlot")
-    verifyEq(link.fromRef, from.id)
-    verifyEq(link.fromSlot, fromSlot)
+    t.verifyEq(link.fromRef, from.id)
+    t.verifyEq(link.fromSlot, fromSlot)
   }
 
 //////////////////////////////////////////////////////////////////////////

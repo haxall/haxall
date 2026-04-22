@@ -66,6 +66,20 @@ class CompUtil
       {
         // we handle val encoding special
         if (n == "val") return
+        if (n == "link")
+        {
+          // only include link if it is changed from the defining spec
+          defTypeSlot := comp.spec.type.slot(slotName, false)
+          if (defTypeSlot != null && defTypeSlot.meta["link"] == v) return
+
+          // TODO:CLEANUP - leaving for now as possible alternative method,
+          // but it is not as robust if there are components with the same
+          // name at different levels of the tree.
+          // // make sure that the link path starts with a child of the root comp
+          // pathStart := ((Str)v).split('.').first
+          // r := depth == 0 ? comp : comp.parent
+          // if (!r.hasChild(pathStart)) return
+        }
         slot[n] = v
       }
 
@@ -77,17 +91,15 @@ class CompUtil
         if (slotDepth < 2)
         {
           childAst := doCompSaveToAstSlots(val, slotName, slotDepth, opts)
-          // if (!childAst.isEmpty) slot.addAll(Etc.dictToMap(childAst))
           slot.addAll(Etc.dictToMap(childAst))
         }
       }
       else
       {
         isDef := isDefault(comp, slotName, val)
-        if (!slot.isEmpty || !isDef)
-        {
-          slot["name"] = slotName
-        }
+
+        // name
+        if (!slot.isEmpty || !isDef) slot["name"] = slotName
 
         // val
         if (!isDef)
@@ -102,12 +114,12 @@ class CompUtil
       if (!slot.isEmpty) slots.add(Etc.makeDict(slot))
     }
 
-    echo("\n=== doCompSaveToAstSlots: depth=${depth} ${comp} ($name)")
-    echo(ast)
+    // echo("\n=== doCompSaveToAstSlots: depth=${depth} ${comp} ($name)")
+    // echo(ast)
     if (!slots.isEmpty)
     {
       g := Etc.makeDictsGrid(null, slots)
-      g.dump
+      // g.dump
       ast["slots"] = g
     }
     return Etc.makeDict(ast)

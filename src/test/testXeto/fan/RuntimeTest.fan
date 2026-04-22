@@ -101,7 +101,6 @@ class RuntimeTest : AbstractAxonTest
     cs  := CompSpace(ns).install
     lib := ns.lib("hx.test.xeto")
     r   := cs.create(lib.spec("TestNestedComp").slot("do"))
-    // r.dump
 
     ast := CompUtil.compSaveToAstSlots(r, "do")
     ast = Etc.makeDict([
@@ -120,12 +119,13 @@ class RuntimeTest : AbstractAxonTest
     // echo(r1Comp)
 
     rec := proj.companion.add(ast)
-    echo(rec)
     spec := proj.companion.lib.funcs.get("ramptest")
-    //echo(spec)
-
-    //echo(proj.companion.print(ast))
+    x  := cs.create(spec.slot("do"))
+    r1 := (Comp)x->r1
+    r2 := (Comp)x->r2
+    a  := (Comp)x->a
+    CompTest.doVerifyCompLink(this, a, "in1", r1, "out")
+    CompTest.doVerifyCompLink(this, a, "in2", r2, "out")
   }
-
 }
 
