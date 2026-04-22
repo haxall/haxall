@@ -32,9 +32,6 @@ mixin Comp
   ** Xeto type for this component
   Spec spec() { spi.spec }
 
-  ** Return debug string
-  override Str toStr() { spi.toStr }
-
   ** Service provider interface
   @NoDoc abstract CompSpi spi()
 
@@ -224,6 +221,13 @@ class CompObj : Comp
     cs := Actor.locals[CompSpace.actorKey] as CompSpace ?: throw Err("No CompSpace installed for current thread")
     this.spiRef = cs.spi.initCompSpi(this)
     this.spiRef.init
+  }
+
+  ** Return debug string
+  override final Str toStr()
+  {
+    // handle if toStr is called before spiRef is initialized
+    spiRef?.toStr ?: typeof.toStr
   }
 
   ** Service provider interface
