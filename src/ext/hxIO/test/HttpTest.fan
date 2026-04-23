@@ -87,6 +87,7 @@ class HttpTest : HxTest
   {
     wisp = Slot.findMethod("wisp::WispService.testSetup").call(EchoMod())
     wisp.start
+    wisp->waitUntilListening
     port = wisp->httpPort
   }
 
@@ -214,3 +215,4 @@ internal const class EchoMod : WebMod
     out.close
   }
 }
+

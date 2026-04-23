@@ -20,23 +20,27 @@ class IOTest : HxTest
   @HxTestProj
   Void testFileExt()
   {
-    ext := proj.sys.file
+    makeContext.asCur |cx|
+    {
+      ext := proj.sys.file
 
-    f := ext.resolve(`io/`)
-    verifyEq(f.uri, `io/`)
+      f := ext.resolve(`io/`)
+      verifyEq(f.uri, `io/`)
 
-    f = ext.resolve(`io/foo.txt`)
-    verifyEq(f.uri, `io/foo.txt`)
-    verifyEq(f.exists, false)
-    f.out.print("hi").close
+      f = ext.resolve(`io/foo.txt`)
+      verifyEq(f.uri, `io/foo.txt`)
+      verifyEq(f.exists, false)
+      f.out.print("hi").close
 
-    f = ext.resolve(`io/foo.txt`)
-    verifyEq(f.uri, `io/foo.txt`)
-    verifyEq(f.exists, true)
-    verifyEq(f.readAllStr, "hi")
+      f = ext.resolve(`io/foo.txt`)
+      verifyEq(f.uri, `io/foo.txt`)
+      verifyEq(f.exists, true)
+      verifyEq(f.readAllStr, "hi")
 
-    f = proj.dir + `io/foo.txt`
-    verifyEq(f.readAllStr, "hi")
+      f = proj.dir + `io/foo.txt`
+      verifyEq(f.readAllStr, "hi")
+      return null
+    }
   }
 
   @HxTestProj
@@ -328,21 +332,22 @@ class IOTest : HxTest
     projDir.plus(`io/foo.xeto`).out.print(
       Str<|sys::Dict {
              ref: @foo-bar
+             ver: Version "1.2.3"
            }|>).close
     xeto =  eval("""ioReadXeto(`io/foo.xeto`, {externRefs})""")
-    verifyDictEq(xeto, ["ref":Ref("foo-bar")])
+    verifyDictEq(xeto, ["ref":Ref("foo-bar"), "ver":"1.2.3"])
 
     // ioWriteXeto
     eval("""ioWriteXeto([{n:"Brian", age:30yr}, {n:"Andy", bday:1980-01-31}], `io/foo.xeto`)""")
     verifyEq(projDir.plus(`io/foo.xeto`).readAllStr.trim,
       """Dict {
            n: "Brian"
-           age: Number "30yr"
+           age: Number 30yr
          }
 
          Dict {
            n: "Andy"
-           bday: Date "1980-01-31"
+           bday: Date 1980-01-31
          }""")
 
     // ioZipDir

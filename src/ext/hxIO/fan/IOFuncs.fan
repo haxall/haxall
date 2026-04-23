@@ -384,7 +384,8 @@ const class IOFuncs
   {
     toHandle(handle).withIn |in|
     {
-      Context.cur.ns.io.readXeto(in.readAllStr, opts)
+      opts = Etc.dictSet(opts, "haystack", Marker.val) // force haystack level fidelity
+      return Context.cur.ns.io.readXeto(in.readAllStr, opts)
     }
   }
 

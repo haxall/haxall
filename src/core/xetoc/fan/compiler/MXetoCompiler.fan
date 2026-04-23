@@ -88,7 +88,11 @@ internal class MXetoCompiler : XetoCompiler
       ReifyInstances(),
       CheckErrors(),
     ])
-    return ast.asm
+
+    res := ast.asm
+    if (XetoUtil.optFidelity(opts).isHaystack)
+      res = XetoUtil.toHaystack(res)
+    return res
   }
 
   ** Parse input source to Dict AST representations

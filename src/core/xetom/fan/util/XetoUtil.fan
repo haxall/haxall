@@ -706,6 +706,8 @@ enum class XetoFidelity
 
   Bool isFull() { this === full }
 
+  Bool isHaystack() { this === haystack }
+
   ** Coerce value to the proper level of data fidelity
   Obj? coerce(Obj? x)
   {
