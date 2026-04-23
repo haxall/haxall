@@ -345,7 +345,7 @@ const class MNamespace : Namespace, CNamespace
     {
       specRef := dict["spec"] as Ref
       if (specRef == null) return sys.dict
-      return type(specRef.id, checked)
+      return spec(specRef.id, checked)
     }
 
     // look in Fantom class hiearchy

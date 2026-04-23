@@ -326,8 +326,16 @@ class XetoPrinter
     if (x is Ref) return ref(x)
 
     spec := specOf(x)
-    if (x isnot Str && spec != inferred) type(XpTypeRef(spec)).sp
-    str := spec.binding.encodeScalar(x)
+    Str? str
+    if (spec != null)
+    {
+      if (x isnot Str && spec != inferred) type(XpTypeRef(spec)).sp
+      str = spec.binding.encodeScalar(x)
+    }
+    else
+    {
+      str = x.toStr
+    }
     if (str.contains("\n")) indent.heredoc(str).unindent
     else quoted(str)
     return this
@@ -357,7 +365,7 @@ class XetoPrinter
   This dict(Dict x, Bool forceType := false)
   {
     spec := specOf(x)
-    if (spec.qname != "sys::Dict" || forceType) type(XpTypeRef(spec)).sp
+    if (spec != null && (spec.qname != "sys::Dict" || forceType)) type(XpTypeRef(spec)).sp
     wc('{')
     num := 0
     indent
@@ -376,7 +384,8 @@ class XetoPrinter
   This list(List list, Spec? inferred)
   {
     spec := inferred ?: specOf(list)
-    type(XpTypeRef(spec)).sp.wc('{')
+    if (spec != null) type(XpTypeRef(spec)).sp
+    wc('{')
     num := 0
     indent
     list.each |v|
@@ -521,7 +530,7 @@ class XetoPrinter
 
   private once Spec strSpec() { ns.sysLib.spec("Str") }
 
-  private Spec specOf(Obj? val) { ns.specOf(val) }
+  private Spec? specOf(Obj? val) { ns.specOf(val, false) }
 
   private Bool isMarker(Obj? val) { val === Marker.val }
 
