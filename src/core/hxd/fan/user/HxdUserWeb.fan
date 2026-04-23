@@ -30,8 +30,8 @@ const class HxdUserWeb : ExtWeb
       case "logout":      onLogout
       case "login.js":    onRes
       case "login.css":   onRes
-      case "logo.svg":    onRes
-      case "favicon.png": onRes
+      case "logo.svg":    onBrandRes
+      case "favicon.png": onBrandRes
       default:            res.sendErr(404)
     }
   }
@@ -56,15 +56,20 @@ const class HxdUserWeb : ExtWeb
     badCredsLabel  := "$<login.invalidUsernamePassword>"
     logoUri        := ext.sys.info.logoUri
     loginUri       := uri+`auth`
+    jsUri          := uri + `login.js`
+    cssUri         := uri + `login.css`
+    faviconUri     := uri + `favicon.png`
     redirectUri    := `/`
 
     if (ext.sys.info.type.isXs) userLabel = "$<login.email>"
 
     res.headers["Content-Type"] = "text/html; charset=utf-8"
     out := res.out
-    out.docType5.html.head.title.esc(title).titleEnd
-       .includeCss(uri+`login.css`)
-       .includeJs(uri+`login.js`)
+    out.docType5.html.head
+       .title.esc(title).titleEnd
+       .includeJs(jsUri)
+       .includeCss(cssUri)
+       .tag("link", "rel='icon' type='image/png' href='$faviconUri'", true).nl
     out.w("<meta name='viewport' content='user-scalable=no, width=device-width, initial-scale=1.0'/>").nl
     out.script.w(
         """hxLogin.passwordRequired = false;
@@ -126,7 +131,17 @@ const class HxdUserWeb : ExtWeb
 
   private Void onRes()
   {
-    file := typeof.pod.file(`/res/${req.modRel}`, false)
+    file := typeof.pod.file(`/res/${req.uri.name}`, false)
+    if (file == null) return res.sendErr(404)
+    FileWeblet(file).onService
+  }
+
+
+  private Void onBrandRes()
+  {
+    name := req.uri.name
+    file := ext.sys.ion(false)?.brandFile(name) ?:
+            typeof.pod.file(`/res/${req.uri.name}`, false)
     if (file == null) return res.sendErr(404)
     FileWeblet(file).onService
   }

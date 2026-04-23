@@ -190,6 +190,9 @@ const mixin IIonExt : SysExt
 {
   ** Called when records are add/removed in given runtime
   abstract Void updateNavTree(Runtime rt)
+
+  ** Brand asset file
+  abstract File? brandFile(Str name)
 }
 
 **************************************************************************
