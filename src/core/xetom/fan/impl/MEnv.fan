@@ -211,10 +211,25 @@ abstract const class MEnv : XetoEnv
     ns := MNamespace(this, libs, Etc.dict1("build", buildFiles))
 
     // report which libs could not be compiled
+    success := true
+    numOk   := 0
+    numErrs := 0
     ns.versions.each |v|
     {
-      if (ns.libStatus(v.name).isErr) echo("ERROR: could not compile $v.name.toCode")
+      if (ns.libStatus(v.name).isErr)
+      {
+        numErrs++
+        echo("\u274C ERROR: could not compile $v.name.toCode")
+      }
+      else
+      {
+        numOk++
+      }
     }
+    if (numErrs > 0)
+      echo("\u274C Failed [ $numErrs errs, $numOk ok]")
+    else
+      echo("\u2705 Success [$numOk libs]")
 
     return ns
   }
