@@ -20,9 +20,7 @@ const class RemoteEnv : MEnv
 
   override LocalRepo repo() { throw unavailErr() }
 
-  override RemoteRepo[] remoteRepos() { throw unavailErr() }
-
-  override RemoteRepo? remoteRepo(Uri uri, Bool checked := true) { throw unavailErr() }
+  override RemoteRepoRegistry remoteRepos() { throw unavailErr() }
 
   override File homeDir() { throw unavailErr() }
 

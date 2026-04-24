@@ -46,10 +46,7 @@ abstract const class XetoEnv
 
   ** Configured remote repos which can be used to install to the local repo.
   ** Not available in browser environemnts.
-  abstract RemoteRepo[] remoteRepos()
-
-  ** Lookup a remote repo by its URI.
-  abstract RemoteRepo? remoteRepo(Uri uri, Bool checked := true)
+  abstract RemoteRepoRegistry remoteRepos()
 
   ** Home directory where xeto software is installed
   ** Not available in browser environemnts.

@@ -1,0 +1,11 @@
+//
+// Config: xeto
+//
+// History:
+//   24 Apr 2026  Brian Frank  Creation
+//
+
+repo.xetodev.uri=https://xeto.dev/
+
+repo.cc.uri=https://github.com/Project-Haystack/xeto-cc
+

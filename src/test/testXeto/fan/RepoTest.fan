@@ -492,9 +492,11 @@ internal const class TestRepo : LocalRepo
 
   override Bool isRemote() { false }
 
-  override Uri uri() { `test:/` }
+  override Str name() { "local" }
 
-  override Str dis() { "Test Repo" }
+  override Uri uri() { `local:/` }
+
+  override Dict meta() { Etc.dict0 }
 
   override This rescan() { this }
 

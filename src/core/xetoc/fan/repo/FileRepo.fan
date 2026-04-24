@@ -32,9 +32,11 @@ const class FileRepo : LocalRepo
 
   override Bool isRemote() { false }
 
+  override Str name() { "local" }
+
   override Uri uri() { `local:/` }
 
-  override Str dis() { "Local" }
+  override Dict meta() { Etc.dict0 }
 
   internal FileRepoScan scan() { scanRef.val }
   private const AtomicRef scanRef := AtomicRef()

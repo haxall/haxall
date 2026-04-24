@@ -24,11 +24,15 @@ const mixin LibRepo
   ** Is this a remote repo used to install to the local
   abstract Bool isRemote()
 
+  ** Programmatic name for this repo.  Name is always a valid tag name.
+  ** The name "local" is reserved for the LocalRepo instance.
+  abstract Str name()
+
   ** Uri for this repo
   abstract Uri uri()
 
-  ** Display name for this repo
-  abstract Str dis()
+  ** Metadata for repo
+  abstract Dict meta()
 }
 
 **************************************************************************
@@ -86,5 +90,34 @@ const mixin LocalRepo : LibRepo
 @Js
 const mixin RemoteRepo : LibRepo
 {
+}
+
+**************************************************************************
+** RemoteRepoRegistry
+**************************************************************************
+
+**
+** RemoteRepoRegistry manages the configured remote lib repositories
+** for a given XetoEnv.  RemoteRepos must be configure with a programmatic name
+** and URI before use.  By default they are stored in "etc/xeto/config.props"
+** using the props "repo.{name}.*".
+**
+@Js
+const mixin RemoteRepoRegistry
+{
+  ** List configured repos
+  abstract RemoteRepo[] list()
+
+  ** Get remote repo by name
+  abstract RemoteRepo? get(Str name, Bool check := true)
+
+  ** Get remote repo by URI
+  abstract RemoteRepo? getByUri(Uri uri, Bool check := true)
+
+  ** Add a new repo to the registry.  The name must a valid tag name.
+  abstract RemoteRepo add(Str name, Uri uri, Dict meta)
+
+   ** Remove an existing repo from registry
+  abstract Void remove(Str name)
 }
 
