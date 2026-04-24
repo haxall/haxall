@@ -43,50 +43,50 @@ class CompUtil
 
   static Dict doCompSaveToAstSlots(Comp comp, Str name, Int depth, Dict opts)
   {
-    ast := Str:Obj?[:]
+    compSpec := comp.spec
+    ast      := Str:Obj?[:]
     ast["name"]  = name
-    ast["type"]  = comp.spec.type.id
-    ast["maybe"] = comp.spec.isMaybe ? Marker.val : null
+    ast["type"]  = compSpec.type.id
+    ast["maybe"] = compSpec.isMaybe ? Marker.val : null
 
     slotDepth := depth + 1
     slots := Dict[,]
     comp.each |val, slotName|
     {
-      // links need to be encoded as slot meta
-      if (slotName == "links") return
-
-      slotSpec := comp.spec.slot(slotName)
-      if (slotSpec.isTransient) return
-
       // slot tags
       slot := Str:Obj?[:]
 
-      // slot meta
-      slotSpec.metaOwn.each |v, n|
-      {
-        // we handle val encoding special
-        if (n == "val") return
-        if (n == "link")
-        {
-          // only include link if it is changed from the defining spec
-          defTypeSlot := comp.spec.type.slot(slotName, false)
-          if (defTypeSlot != null && defTypeSlot.meta["link"] == v) return
+      // links need to be encoded as slot meta
+      if (slotName == "links") return
 
-          // TODO:CLEANUP - leaving for now as possible alternative method,
-          // but it is not as robust if there are components with the same
-          // name at different levels of the tree.
-          // // make sure that the link path starts with a child of the root comp
-          // pathStart := ((Str)v).split('.').first
-          // r := depth == 0 ? comp : comp.parent
-          // if (!r.hasChild(pathStart)) return
+      links := comp.links.listOn(slotName)
+      if (links.size > 1) throw UnsupportedErr("TODO:FIXIT: handle fan-in links")
+
+      Comp? slotComp := val as Comp
+      slotSpec := compSpec.slot(slotName, false)
+
+      // do not encode transient slots
+      if (slotSpec?.isTransient ?: false) return
+
+      // slot meta
+      slotSpec?.metaOwn?.each |v, n|
+      {
+        switch (n)
+        {
+          case "doc":
+          case "link":
+          case "val":
+            // skip these
+            return
+          default:
+            // try to avoid duplicating meta that is defined on original type
+            if (compSpec.type.slot(slotName, false)?.metaOwn?.get(n) == v) return
+            slot[n] = XetoUtil.toHaystack(v)
         }
-        slot[n] = v
       }
 
-      if (slotSpec.isComp)
+      if (slotComp != null)
       {
-        // TODO:FIXIT - can you link into a comp?
-
         // only descend to grandchild slots
         if (slotDepth < 2)
         {
@@ -96,9 +96,20 @@ class CompUtil
       }
       else
       {
-        isDef := isDefault(comp, slotName, val)
+        // link
+        link := links.first
+        if (link != null)
+        {
+          // only link from children of the root comp
+          fromComp := comp.cs.readById(link.fromRef, false)
+          if (fromComp != null && fromComp.parent != null && fromComp.parent.parent == null)
+          {
+            slot["link"] = "${fromComp.name}.${link.fromSlot}"
+          }
+        }
 
         // name
+        isDef := isDefault(comp, slotName, val)
         if (!slot.isEmpty || !isDef) slot["name"] = slotName
 
         // val
@@ -110,6 +121,7 @@ class CompUtil
           if (hayVal is Dict) hayVal = Etc.dictRemove(((Dict)hayVal), "spec")
           slot["val"] = hayVal
         }
+
       }
       if (!slot.isEmpty) slots.add(Etc.makeDict(slot))
     }
