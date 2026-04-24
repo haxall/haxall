@@ -17,7 +17,7 @@ using haystack
 **
 class DependSolver
 {
-  new make(LibRepo repo, LibDepend[] targets)
+  new make(LocalRepo repo, LibDepend[] targets)
   {
     this.repo    = repo
     this.targets = targets
@@ -54,7 +54,7 @@ class DependSolver
     x.depends.each |sub| { solveDepend(x.name, sub) }
   }
 
-  const LibRepo repo
+  const LocalRepo repo
   private LibDepend[] targets
   private Str:LibVersion acc := [:]
 }

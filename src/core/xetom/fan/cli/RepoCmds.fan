@@ -45,7 +45,7 @@ internal class RepoCmd : XetoCmd
     return 0
   }
 
-  private Void listLib(LibRepo repo, Str name)
+  private Void listLib(LocalRepo repo, Str name)
   {
     // if not dumping all versions, just print latest
     if (!versions)

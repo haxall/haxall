@@ -62,7 +62,7 @@ const class HxLibs : RuntimeLibs
 
   const override XetoEnv env
 
-  LibRepo repo() { env.repo }
+  LocalRepo repo() { env.repo }
 
   Folio db() { rt.db }
 

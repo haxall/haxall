@@ -24,6 +24,9 @@ const mixin LibVersion
   ** Summary information or empty string if not available
   abstract Str doc()
 
+  ** Origin metadata if this lib was installed from a remote repo or null if unknown
+  abstract LibOrigin? origin()
+
   ** Sort by name, then version
   override final Int compare(Obj that)
   {
@@ -160,5 +163,29 @@ const mixin LibVersion
 
   static const Int flagHxSysOnly := 0x01
 
+}
+
+**************************************************************************
+** LibOrigin
+**************************************************************************
+
+**
+** LibOrigin models metadata and provenance for a library installed from a remote
+** repository.
+**
+@Js
+const mixin LibOrigin
+{
+  ** URI of the remote repo
+  abstract Uri uri()
+
+  ** Remote repo instance
+  abstract RemoteRepo repo()
+
+  ** DateTime when library was downloaded from remote repo
+  @NoDoc abstract DateTime? fetched
+
+  ** Metadata about the origin
+  @NoDoc abstract Dict meta()
 }
 

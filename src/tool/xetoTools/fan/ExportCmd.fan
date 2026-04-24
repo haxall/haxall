@@ -105,19 +105,19 @@ internal abstract class ExportCmd : XetoCmd
 // Find Targets
 //////////////////////////////////////////////////////////////////////////
 
-  private ExportTarget[] findTargets(LibRepo repo)
+  private ExportTarget[] findTargets(LocalRepo repo)
   {
     if (all) return findAllTargets(repo)
     if (targets == null) return ExportTarget[,]
     return targets.map |name->ExportTarget| { findTarget(repo, name) }
   }
 
-  private ExportTarget[] findAllTargets(LibRepo repo)
+  private ExportTarget[] findAllTargets(LocalRepo repo)
   {
     repo.libs.map |libName->ExportTarget| { findTarget(repo, libName) }
   }
 
-  private ExportTarget findTarget(LibRepo repo, Str name)
+  private ExportTarget findTarget(LocalRepo repo, Str name)
   {
     libName := name
     version := null

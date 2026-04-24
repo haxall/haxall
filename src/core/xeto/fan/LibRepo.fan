@@ -9,12 +9,40 @@
 using concurrent
 
 **
-** Library repository is a database of Xeto libs.  A repository
-** might provide access to multiple versions per library.  Use
-** 'XetoEnv.repo' to get the VMs default repo.
+** Library repository is a database of Xeto libs.  A repository might
+** provide access to multiple versions per library. This is the base class
+** for `LocalRepo` and `RemoteRepo`.  Use `XetoEnv.repo` to get the VM's local
+** repo used to build namespaces.  Use `XetoEnv.remoteRepos` to query configured
+** cloud based repositoriesthat can be used to install to the local repo.
 **
 @Js
 const mixin LibRepo
+{
+  ** Is this the local repo used to build namespaces
+  abstract Bool isLocal()
+
+  ** Is this a remote repo used to install to the local
+  abstract Bool isRemote()
+
+  ** Uri for this repo
+  abstract Uri uri()
+
+  ** Display name for this repo
+  abstract Str dis()
+}
+
+**************************************************************************
+** LocalRepo
+**************************************************************************
+
+**
+** LocalRepo models the set of Xeto libs installed on the local machine.
+** It is the authoritative source for runtime lib resolution and is target
+** of install operations from one or more `RemoteRepo` instances.  A given
+** XetoEnv always has exactly one LocalRepo accessed by `XetoEnv.repo`.
+**
+@Js
+const mixin LocalRepo : LibRepo
 {
   ** List the library names installed in the repository.
   abstract Str[] libs()
@@ -41,9 +69,22 @@ const mixin LibRepo
   ** based on the installed lib versions.
   abstract LibVersion[] solveDepends(LibDepend[] libs)
 
-  ** Rescan file system if this is a local repo
+  ** Rescan repo and update any cached information
   @NoDoc abstract This rescan()
+}
 
+**************************************************************************
+** RemoteRepo
+**************************************************************************
 
+**
+** RemoteRepo is the abstract base class for network-accessible
+** Xeto lib repositories. RemoteRepos are used to install/update to the
+** local repo.  Subclasses map to specific backends such as the 'xeto.dev'
+** registry or the GitHub HTTP API.
+**
+@Js
+const mixin RemoteRepo : LibRepo
+{
 }
 

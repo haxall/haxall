@@ -88,6 +88,9 @@ const class FileLibVersion : LibVersion
   override LibDepend[] depends() { loadMeta.dependsRef }
   private const LibDepend[]? dependsRef
 
+  override LibOrigin? origin() { loadMeta.originRef }
+  private const LibOrigin? originRef
+
   override Str doc() { loadMeta.docRef }
   private const Str? docRef
 

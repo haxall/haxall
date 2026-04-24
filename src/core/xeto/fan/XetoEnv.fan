@@ -35,14 +35,21 @@ abstract const class XetoEnv
 // API
 //////////////////////////////////////////////////////////////////////////
 
-  ** Is this a remote namespace loaded over a network transport.
+  ** Is this a remote environment loaded over a network transport.
   ** Remote environments must load libraries asynchronously and do
   ** not support the full feature set.
   @NoDoc abstract Bool isRemote()
 
-  ** Repository of all installed xeto libs.
+  ** Local repository of all installed xeto libs.
   ** Not available in browser environemnts.
-  abstract LibRepo repo()
+  abstract LocalRepo repo()
+
+  ** Configured remote repos which can be used to install to the local repo.
+  ** Not available in browser environemnts.
+  abstract RemoteRepo[] remoteRepos()
+
+  ** Lookup a remote repo by its URI.
+  abstract RemoteRepo? remoteRepo(Uri uri, Bool checked := true)
 
   ** Home directory where xeto software is installed
   ** Not available in browser environemnts.

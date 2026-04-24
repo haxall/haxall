@@ -128,6 +128,17 @@ const class ServerEnv : MEnv
     FileRepo(this)
   }
 
+  override RemoteRepo[] remoteRepos()
+  {
+    RemoteRepo#.emptyList
+  }
+
+  override RemoteRepo? remoteRepo(Uri uri, Bool checked := true)
+  {
+    if (checked) throw UnknownNameErr("Remote repo not configured: $uri")
+    return null
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Inheritance Digest
 //////////////////////////////////////////////////////////////////////////

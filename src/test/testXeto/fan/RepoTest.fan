@@ -129,7 +129,7 @@ class RepoTest : AbstractXetoTest
       ])
   }
 
-  Void verifyCheckDepends(LibRepo repo, Str names, Str:Err expectErrs := [:])
+  Void verifyCheckDepends(LocalRepo repo, Str names, Str:Err expectErrs := [:])
   {
     LibVersion[] libs := names.split(',').map |x->LibVersion|
     {
@@ -215,7 +215,7 @@ class RepoTest : AbstractXetoTest
       "ph.points dependency: ph 2.0.8 [ph-3.0.9]")
   }
 
-  Void verifySolveDepends(LibRepo repo, Str targetsStr, Str expectStr)
+  Void verifySolveDepends(LocalRepo repo, Str targetsStr, Str expectStr)
   {
     targets := depends(targetsStr)
     expects := expectStr.split(',').sort
@@ -226,7 +226,7 @@ class RepoTest : AbstractXetoTest
     verifyEq(actuals, expects)
   }
 
-  Void verifySolveDependsErr(LibRepo repo, Str targetsStr, Str expect)
+  Void verifySolveDependsErr(LocalRepo repo, Str targetsStr, Str expect)
   {
     targets := depends(targetsStr)
     // echo; echo("== verifySolveDependsErr: $targets")
@@ -484,9 +484,17 @@ class RepoTest : AbstractXetoTest
 ** TestRepo
 **************************************************************************
 
-internal const class TestRepo : LibRepo
+internal const class TestRepo : LocalRepo
 {
   new make(Str:TestLibVersion[] map) { this.map = map }
+
+  override Bool isLocal() { true }
+
+  override Bool isRemote() { false }
+
+  override Uri uri() { `test:/` }
+
+  override Str dis() { "Test Repo" }
 
   override This rescan() { this }
 
@@ -556,6 +564,7 @@ internal const class TestLibVersion : LibVersion
   override const Str name
   override const Version version
   override const LibDepend[] depends
+  override LibOrigin? origin() { null }
   override Str doc() { "" }
   override Bool isSrc() { false }
   override Int flags() { 0 }
