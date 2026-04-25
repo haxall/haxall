@@ -9,12 +9,12 @@
 using xeto
 
 **
-** AbstractRemoteRepo is based class for all RemoteRepo implementations
+** MRemoteRepo is based class for all RemoteRepo implementations
 **
 @Js
-const class AbstractRemoteRepo : RemoteRepo
+const class MRemoteRepo : MRepo, RemoteRepo
 {
-  new make(RemoteRepoInit init)
+  new make(RemoteRepoInit init) : super(init.env)
   {
     this.name    = init.name
     this.uri     = init.uri
@@ -33,6 +33,11 @@ const class AbstractRemoteRepo : RemoteRepo
   override final Bool isLocal() { false }
 
   override final Bool isRemote() { true }
+
+  override Dict? ping(Bool checked := true)
+  {
+    throw Err("not done!")
+  }
 }
 
 **************************************************************************
@@ -42,7 +47,8 @@ const class AbstractRemoteRepo : RemoteRepo
 @Js
 const class RemoteRepoInit
 {
-  new make(Str n, Uri u, Dict m, File d) { name = n; uri = u; meta = m; pathDir = d }
+  new make(XetoEnv e, Str n, Uri u, Dict m, File d) { env = e; name = n; uri = u; meta = m; pathDir = d }
+  const XetoEnv env
   const Str name
   const Uri uri
   const Dict meta

@@ -33,6 +33,9 @@ const mixin LibRepo
 
   ** Metadata for repo
   abstract Dict meta()
+
+  ** Perform search request on the repo
+  abstract LibRepoSearchRes search(LibRepoSearchReq req)
 }
 
 **************************************************************************
@@ -90,6 +93,10 @@ const mixin LocalRepo : LibRepo
 @Js
 const mixin RemoteRepo : LibRepo
 {
+  ** Ping the remote repo and return metadata; if not reachable raise an
+  ** exception or return null based on checked flag.
+  abstract Dict? ping(Bool checked := true)
+
   ** Directory in the path where this repo is configured.
   @NoDoc abstract File pathDir()
 }
@@ -107,6 +114,9 @@ const mixin RemoteRepo : LibRepo
 @Js
 const mixin RemoteRepoRegistry
 {
+  ** Get the default repo (always first in list if available)
+  abstract RemoteRepo? def(Bool checked := true)
+
   ** List configured repos sorted by name, but first is always default
   abstract RemoteRepo[] list()
 
@@ -127,5 +137,37 @@ const mixin RemoteRepoRegistry
   ** Options:
   **   - anyPathDir: marker tag to remove from any dir in path
   abstract Void remove(Str name, Dict? opts := null)
+}
+
+**************************************************************************
+** RemoteRepoSearchReq
+**************************************************************************
+
+**
+** LibRepoSearchReq encapsulates `LibRepo.search` request
+**
+@Js
+const class LibRepoSearchReq
+{
+  ** Constructor with just query string
+  new make(Str query) { this.query = query }
+
+  ** Query string
+  const Str query
+
+  ** Debug string
+  override Str toStr() { query }
+}
+
+**************************************************************************
+** LibRepoSearchRes
+**************************************************************************
+
+**
+** LibRepoSearchRes encapsulates `LibRepo.search` response
+**
+@Js
+const class LibRepoSearchRes
+{
 }
 

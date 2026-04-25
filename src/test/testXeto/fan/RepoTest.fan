@@ -450,7 +450,7 @@ class RepoTest : AbstractXetoTest
     testLibName = "cc.nosolven"
     addVer("10.0.10", "sys x.x.x, ph 9.x.x, foo x.x.x, bar x.x.x, qux x.x.x")
 
-    return TestRepo(testRepoMap)
+    return TestRepo(XetoEnv.cur, testRepoMap)
   }
 
   private [Str:TestLibVersion[]]? testRepoMap
@@ -484,19 +484,9 @@ class RepoTest : AbstractXetoTest
 ** TestRepo
 **************************************************************************
 
-internal const class TestRepo : LocalRepo
+internal const class TestRepo : MLocalRepo
 {
-  new make(Str:TestLibVersion[] map) { this.map = map }
-
-  override Bool isLocal() { true }
-
-  override Bool isRemote() { false }
-
-  override Str name() { "local" }
-
-  override Uri uri() { `local:/` }
-
-  override Dict meta() { Etc.dict0 }
+  new make(MEnv env, Str:TestLibVersion[] map) : super(env) { this.map = map }
 
   override This rescan() { this }
 

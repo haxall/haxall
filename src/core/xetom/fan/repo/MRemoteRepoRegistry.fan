@@ -76,6 +76,14 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     }
   }
 
+  override RemoteRepo? def(Bool checked := true)
+  {
+    def := list.first
+    if (def != null) return def
+    if (checked) throw Err("No remote repos configured")
+    return null
+  }
+
   override RemoteRepo[] list()
   {
     list := listRef.val as RemoteRepo[]
@@ -133,8 +141,8 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
   {
     if (name == "local" || uri == `local:/`) throw Err("Cannot register local")
     if (!Etc.isTagName(name)) throw Err("Invalid repo name: $name")
-    init := RemoteRepoInit(name, uri, meta, workDir)
-    r := AbstractRemoteRepo(init) // TODO
+    init := RemoteRepoInit(env, name, uri, meta, workDir)
+    r := MRemoteRepo(init) // TODO
     byName.add(name, r)
     byUri.add(uri, r)
     listRef.val = null

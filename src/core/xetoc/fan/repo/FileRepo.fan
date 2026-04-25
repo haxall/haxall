@@ -16,27 +16,14 @@ using haystack
 ** FileRepo is a file system based repo that uses the the Fantom path to
 ** find zip versions in "lib/xeto/" and sourceversion in "src/xeto/".
 **
-const class FileRepo : LocalRepo
+const class FileRepo : MLocalRepo
 {
-  new make(XetoEnv env)
+  new make(MEnv env) : super(env)
   {
-    this.env = env
     rescan
   }
 
   const Log log := Log.get("xeto")
-
-  const XetoEnv env
-
-  override Bool isLocal() { true }
-
-  override Bool isRemote() { false }
-
-  override Str name() { "local" }
-
-  override Uri uri() { `local:/` }
-
-  override Dict meta() { Etc.dict0 }
 
   internal FileRepoScan scan() { scanRef.val }
   private const AtomicRef scanRef := AtomicRef()
