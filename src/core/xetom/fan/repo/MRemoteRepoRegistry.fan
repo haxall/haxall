@@ -29,9 +29,12 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
   {
     byName.clear
     byUri.clear
+    defNameRef.val = null
     props := Env.cur.props(Pod.find("xeto"), `config.props`, 0ms)
     props.each |v, n|
     {
+      if (n == "repo.default") {defNameRef.val = v; return }
+
       if (n.startsWith("repo.") && n.endsWith(".uri"))
       {
         name := n[5 .. -5]
@@ -57,7 +60,16 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
 
   override RemoteRepo[] list()
   {
-    byName.vals(RemoteRepo#)
+    list := listRef.val as RemoteRepo[]
+    if (list == null)
+    {
+      list = (RemoteRepo[])byName.vals(RemoteRepo#)
+      list.sort |a, b| { a.name <=> b.name }
+      def := list.find { it.name == defNameRef.val }
+      if (def != null) list.moveTo(def, 0)
+      listRef.val = list = list.toImmutable
+    }
+    return list
   }
 
   override RemoteRepo? get(Str name, Bool check := true)
@@ -94,6 +106,7 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     r := AbstractRemoteRepo(init) // TODO
     byName.add(name, r)
     byUri.add(uri, r)
+    listRef.val = null
     return r
   }
 
@@ -103,9 +116,12 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     if (r == null) return
     byName.remove(r.name)
     byUri.remove(r.uri)
+    listRef.val = null
   }
 
   private const ConcurrentMap byName := ConcurrentMap()
-  private const ConcurrentMap byUri := ConcurrentMap()
+  private const ConcurrentMap byUri  := ConcurrentMap()
+  private const AtomicRef defNameRef := AtomicRef()
+  private const AtomicRef listRef    := AtomicRef()
 }
 

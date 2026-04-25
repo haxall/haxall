@@ -105,7 +105,7 @@ const mixin RemoteRepo : LibRepo
 @Js
 const mixin RemoteRepoRegistry
 {
-  ** List configured repos
+  ** List configured repos sorted by name, but first is always default
   abstract RemoteRepo[] list()
 
   ** Get remote repo by name
