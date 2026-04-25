@@ -224,7 +224,7 @@ abstract const class MEnv : XetoEnv
       if (ns.libStatus(v.name).isErr)
       {
         numErrs++
-        echo("\u274C ERROR: could not compile $v.name.toCode")
+        XetoUtil.printErr("ERROR: could not compile $v.name.toCode")
       }
       else
       {
@@ -232,9 +232,9 @@ abstract const class MEnv : XetoEnv
       }
     }
     if (numErrs > 0)
-      echo("\u274C Failed [ $numErrs errs, $numOk ok]")
+      XetoUtil.printErr("Failed [ $numErrs errs, $numOk ok]")
     else
-      echo("\u2705 Success [$numOk libs]")
+      XetoUtil.printOk("Success [$numOk libs]")
 
     return ns
   }

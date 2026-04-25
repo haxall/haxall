@@ -30,10 +30,32 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     byName.clear
     byUri.clear
     defNameRef.val = null
-    props := Env.cur.props(Pod.find("xeto"), `config.props`, 0ms)
+
+    // we do our own props using env path and keep track of dir
+    props := Str:Str[:]
+    propToDir := Str:File[:]
+    env.path.each |dir|
+    {
+      f := dir + `etc/xeto/config.props`
+      try
+      {
+        if (!f.exists) return
+        f.readProps.each |v, n|
+        {
+          props[n] = v
+          propToDir[n] = dir
+        }
+      }
+      catch (Err e)
+      {
+        Console.cur.err("ERROR: cannot read props: $f.osPath", e)
+      }
+    }
+
+    // now process
     props.each |v, n|
     {
-      if (n == "repo.default") {defNameRef.val = v; return }
+      if (n == "repo.default") { defNameRef.val = v; return }
 
       if (n.startsWith("repo.") && n.endsWith(".uri"))
       {
@@ -48,7 +70,8 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
             if (n2.startsWith(prefix) && n2 != n)
               meta.set(n2[prefix.size+1..-1], v2)
           }
-          register(name, uri, Etc.dictFromMap(meta))
+          workDir := propToDir.getChecked(n)
+          register(name, uri, Etc.dictFromMap(meta), workDir)
         }
         catch (Err e)
         {
@@ -88,21 +111,32 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     return null
   }
 
-  override RemoteRepo add(Str name, Uri uri, Dict meta)
+  override RemoteRepo add(Str name, Uri uri, Dict meta, Dict? opts := null)
   {
-    register(name, uri, meta)
+    if (opts == null) opts = Etc.dict0
+    pathDir := opts.get("pathDir") as File ?: Env.cur.workDir
+
+    r := register(name, uri, meta, pathDir)
+    return r
   }
 
-  override Void remove(Str name)
+  override Void remove(Str name, Dict? opts := null)
   {
+    if (opts == null) opts = Etc.dict0
+    anyPath := opts.has("anyPathDir")
+
+    r := get(name)
+    if (r.pathDir != env.workDir && !anyPath)
+      throw Err("Must use anyPathDir option to remove from non-workDir [$name]")
+
     unregister(name)
   }
 
-  private RemoteRepo register(Str name, Uri uri, Dict meta)
+  private RemoteRepo register(Str name, Uri uri, Dict meta, File workDir)
   {
     if (name == "local" || uri == `local:/`) throw Err("Cannot register local")
     if (!Etc.isTagName(name)) throw Err("Invalid repo name: $name")
-    init := RemoteRepoInit(name, uri, meta)
+    init := RemoteRepoInit(name, uri, meta, workDir)
     r := AbstractRemoteRepo(init) // TODO
     byName.add(name, r)
     byUri.add(uri, r)

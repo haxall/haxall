@@ -90,6 +90,8 @@ const mixin LocalRepo : LibRepo
 @Js
 const mixin RemoteRepo : LibRepo
 {
+  ** Directory in the path where this repo is configured.
+  @NoDoc abstract File pathDir()
 }
 
 **************************************************************************
@@ -115,9 +117,15 @@ const mixin RemoteRepoRegistry
   abstract RemoteRepo? getByUri(Uri uri, Bool check := true)
 
   ** Add a new repo to the registry.  The name must a valid tag name.
-  abstract RemoteRepo add(Str name, Uri uri, Dict meta)
+  ** Options:
+  **   - pathDir: dir in XetoEnv.path as alternative to workDir for configuration
+  abstract RemoteRepo add(Str name, Uri uri, Dict meta, Dict? opts := null)
 
-   ** Remove an existing repo from registry
-  abstract Void remove(Str name)
+  ** Remove an existing repo from registry. By default this operation will
+  ** only remove a repo configured in the workDir (use anyPathkDir to remove
+  ** from any dir in XetoEnv.path).
+  ** Options:
+  **   - anyPathDir: marker tag to remove from any dir in path
+  abstract Void remove(Str name, Dict? opts := null)
 }
 

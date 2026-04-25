@@ -132,8 +132,17 @@ abstract class XetoCmd : AbstractMain
   ** Print a line to stdout
   Void printLine(Str line := "") { echo(line) }
 
-  ** Print error message and return 1
-  Int err(Str msg) { printLine("ERROR: $msg"); return 1 }
+  ** Print unicode Check and message and return 0
+  Int ok(Str msg)
+  {
+    XetoUtil.printOk(msg)
+  }
+
+  ** Print unicode X and error message and return 1
+  Int err(Str msg, Err? err := null)
+  {
+    XetoUtil.printErr(msg, err)
+  }
 
   ** Output to a file or stdout and guaranteed closed
   Void withOut(File? arg, |OutStream| f)
