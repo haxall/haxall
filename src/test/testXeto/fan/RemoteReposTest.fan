@@ -31,7 +31,11 @@ class RemoteReposTest : AbstractXetoTest
     return this
   }
 
-  Void test()
+//////////////////////////////////////////////////////////////////////////
+// Config
+//////////////////////////////////////////////////////////////////////////
+
+  Void testConfig()
   {
     initEnv
     config := env.workDir.plus(`etc/xeto/config.props`)
@@ -52,11 +56,17 @@ class RemoteReposTest : AbstractXetoTest
 
     // add new one
     n1 := "test1"
-    u1  := `http:/test-1/`
+    u1  := `http://test-1/`
     m1 := Etc.dict3("m", m, "date", Date.today, "who", "me!")
     r1 := reg.add(n1, u1, m1)
     r := verifyRemote(n1, u1, m1)
+    verifyEq(r.typeof, TestRemoteRepo#)
     verifySame(r, r1)
+
+    // verify bad ones
+    verifyErr(Err#) { reg.add("foo bar", `http://foo-bar`, Etc.dict0) }
+    verifyErr(Err#) { reg.add(n1, `http://foo-bar`, Etc.dict0) }
+    verifyErr(Err#) { reg.add("fooBar", u1, Etc.dict0) }
 
     // verify saved config, reload and verify again
     verifyEq(config.exists, true)
@@ -65,10 +75,11 @@ class RemoteReposTest : AbstractXetoTest
 
     // now add another one
     n2 := "test2"
-    u2  := `http:/test-2/`
+    u2  := `http://test-2/`
     m2 := Etc.dict1("ts", DateTime.now)
     r2 := reg.add(n2, u2, m2)
     r = verifyRemote(n2, u2, m2)
+    verifyEq(r.typeof, TestRemoteRepo#)
     verifySame(r, r2)
 
     // verify saved config, reload and verify again
@@ -133,5 +144,29 @@ class RemoteReposTest : AbstractXetoTest
 
     return r
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Network calls
+//////////////////////////////////////////////////////////////////////////
+
+  Void testCalls()
+  {
+    initEnv
+    r := reg.add("test", `http://test-1/`, Etc.dict0)
+    verifyEq(r.typeof, TestRemoteRepo#)
+
+    verifyDictEq(r.ping, Etc.dict1("ping", "boom!"))
+  }
+}
+
+**************************************************************************
+** TestRemoteRepo
+**************************************************************************
+
+const class TestRemoteRepo : MRemoteRepo
+{
+  new make(RemoteRepoInit init) : super(init) {}
+
+  override Dict? ping(Bool checked := true) { Etc.dict1("ping", "boom!") }
 }
 

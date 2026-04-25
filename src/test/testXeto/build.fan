@@ -43,7 +43,9 @@ class Build : BuildPod
     index   = [
       "xeto.bindings": "hx.test.xeto testXeto::TestBindingLoader",
       "xeto.api":      "hx.test.xeto testXeto::TestApi",
-      "xeto.axon":     "hx.test.xeto testXeto::TestAxon"
+      "xeto.axon":     "hx.test.xeto testXeto::TestAxon",
+      "xeto.repo":    ["http://test-1/ testXeto::TestRemoteRepo",
+                       "http://test-2/ testXeto::TestRemoteRepo"]
     ]
   }
 }

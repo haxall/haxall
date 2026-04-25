@@ -141,8 +141,11 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
   {
     if (name == "local" || uri == `local:/`) throw Err("Cannot register local")
     if (!Etc.isTagName(name)) throw Err("Invalid repo name: $name")
+    if (byName.get(name) != null) throw Err("Duplicate repo name: $name")
+    if (byUri.get(uri) != null) throw Err("Duplicate repo uri: $uri")
+
     init := RemoteRepoInit(env, name, uri, meta, workDir)
-    r := MRemoteRepo(init) // TODO
+    r := MRemoteRepo.create(init)
     byName.add(name, r)
     byUri.add(uri, r)
     listRef.val = null

@@ -12,8 +12,25 @@ using xeto
 ** MRemoteRepo is based class for all RemoteRepo implementations
 **
 @Js
-const class MRemoteRepo : MRepo, RemoteRepo
+abstract const class MRemoteRepo : MRepo, RemoteRepo
 {
+  static MRemoteRepo create(RemoteRepoInit init)
+  {
+    // check indexed props to match a URI to a specific fantom type:
+    //    "xeto.repo": "uri qname"
+    //    "xeto.repo": "http://test-1/ testXeto::TestRemoteRepo"
+    typeName := Env.cur.index("xeto.repo").eachWhile |str|
+    {
+      sp := str.index(" ")
+      if (sp == null) return  null
+      uri := str[0..<sp]
+      if (uri != init.uri.toStr) return null
+      return str[sp+1..-1]
+    }
+    if (typeName == null) return TempRemoteRepo(init)
+    return Type.find(typeName).make([init])
+  }
+
   new make(RemoteRepoInit init) : super(init.env)
   {
     this.name    = init.name
@@ -33,6 +50,16 @@ const class MRemoteRepo : MRepo, RemoteRepo
   override final Bool isLocal() { false }
 
   override final Bool isRemote() { true }
+
+}
+
+**************************************************************************
+** TempRemoteRepo
+**************************************************************************
+
+internal const class TempRemoteRepo : MRemoteRepo
+{
+  new make(RemoteRepoInit init) : super(init) {}
 
   override Dict? ping(Bool checked := true)
   {
