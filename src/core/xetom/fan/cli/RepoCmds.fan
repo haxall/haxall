@@ -15,7 +15,7 @@ using xeto
 
 internal class RepoCmd : XetoCmd
 {
-  override Str name() { "repo" }
+  override Str cmdName() { "repo" }
 
   override Str summary() { "List locally installed libs" }
 

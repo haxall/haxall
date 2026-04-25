@@ -22,7 +22,7 @@ abstract class XetoCmd : AbstractMain
   ** Find a specific command or return null
   static XetoCmd? find(Str name)
   {
-    list.find |cmd| { cmd.name == name || cmd.aliases.contains(name) }
+    list.find |cmd| { cmd.cmdName == name || cmd.aliases.contains(name) }
   }
 
   ** List installed commands
@@ -58,24 +58,24 @@ abstract class XetoCmd : AbstractMain
       catch (Err e) echo("ERROR: invalid xeto.cmd $qname\n  $e")
     }
 
-    acc.sort |a, b| { a.name <=> b.name }
+    acc.sort |a, b| { a.cmdName <=> b.cmdName }
     return acc
   }
 
   ** App name is "xeto {name}"
-  override final Str appName() { "xeto $name" }
+  override final Str appName() { "xeto $cmdName" }
 
   ** Log name is "xeto"
   override Log log() { Log.get("xeto") }
 
   ** Command name
-  abstract Str name()
+  abstract Str cmdName()
 
   ** Command name alises/shortcuts
   virtual Str[] aliases() { Str[,] }
 
   ** Name and aliases
-  Str[] names() { [name].addAll(aliases) }
+  Str[] cmdNames() { [cmdName].addAll(aliases) }
 
   ** Run the command.  Return zero on success
   abstract override Int run()

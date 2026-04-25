@@ -12,7 +12,7 @@ using haystack
 
 internal class GenFantom : AbstractGenCmd
 {
-  override Str name() { "gen-fantom" }
+  override Str cmdName() { "gen-fantom" }
 
   override Str summary() { "Generate Xeto lib of interfaces for Fantom pods" }
 

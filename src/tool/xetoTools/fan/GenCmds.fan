@@ -97,7 +97,7 @@ internal abstract class AbstractGenCmd : XetoCmd
 
 internal class GenTz: AbstractGenCmd
 {
-  override Str name() { "gen-tz" }
+  override Str cmdName() { "gen-tz" }
 
   override Str summary() { "Generate Xeto sys 'tz.xeto' source code" }
 
@@ -138,7 +138,7 @@ internal class GenTz: AbstractGenCmd
 
 internal class GenUnits : AbstractGenCmd
 {
-  override Str name() { "gen-units" }
+  override Str cmdName() { "gen-units" }
 
   override Str summary() { "Generate Xeto sys 'unit.xeto' source code" }
 

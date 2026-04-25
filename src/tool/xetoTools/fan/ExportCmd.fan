@@ -31,6 +31,7 @@ internal abstract class ExportCmd : XetoCmd
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
+    n := cmdName
     out.printLine("Targets:")
     out.printLine("  ph.points                   // latest version of lib")
     out.printLine("  ph.points-1.0.43            // specific version of lib")
@@ -38,13 +39,13 @@ internal abstract class ExportCmd : XetoCmd
     out.printLine("  ph.points-1.0.43::RunCmd    // specific version of spec")
     out.printLine("  ion.actions::save           // instance in a lib")
     out.printLine("Examples:")
-    out.printLine("  xeto $name sys                   // latest version of lib")
-    out.printLine("  xeto $name sys-1.0.3             // specific lib version")
-    out.printLine("  xeto $name sys ph ph.points      // multiple libs")
-    out.printLine("  xeto $name ph::Rtu               // one spec")
-    out.printLine("  xeto $name ph -outFile foo.xeto  // output to file")
-    out.printLine("  xeto $name sys ph -outDir myDir  // output each target to file in dir")
-    out.printLine("  xeto $name -all -outDir myDir    // output every lib to file in dir")
+    out.printLine("  xeto $n sys                   // latest version of lib")
+    out.printLine("  xeto $n sys-1.0.3             // specific lib version")
+    out.printLine("  xeto $n sys ph ph.points      // multiple libs")
+    out.printLine("  xeto $n ph::Rtu               // one spec")
+    out.printLine("  xeto $n ph -outFile foo.xeto  // output to file")
+    out.printLine("  xeto $n sys ph -outDir myDir  // output each target to file in dir")
+    out.printLine("  xeto $n -all -outDir myDir    // output every lib to file in dir")
     return 1
   }
 

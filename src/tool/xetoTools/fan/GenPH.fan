@@ -16,7 +16,7 @@ using xetom
 
 internal class GenPH : AbstractGenCmd
 {
-  override Str name() { "gen-ph" }
+  override Str cmdName() { "gen-ph" }
 
   override Str summary() { "Generate Xeto ph lib source code from Haystack 4 defs" }
 

@@ -32,7 +32,7 @@ internal abstract class AbstractDocCmd : SrcLibCmd
     libs := vers.map |v->Lib| { ns.lib(v.name) }
 
     // output directory
-    outDir := this.outDir ?: Env.cur.workDir + `${name}/`
+    outDir := this.outDir ?: Env.cur.workDir + `${cmdName}/`
 
     // compile
     c := DocCompiler
@@ -54,7 +54,7 @@ internal abstract class AbstractDocCmd : SrcLibCmd
 
 internal class DocHtmlCmd : AbstractDocCmd
 {
-  override Str name() { "doc-html" }
+  override Str cmdName() { "doc-html" }
 
   override Str summary() { "Compile documentation to HTML files" }
 
@@ -67,7 +67,7 @@ internal class DocHtmlCmd : AbstractDocCmd
 
 internal class DocJsonCmd : AbstractDocCmd
 {
-  override Str name() { "doc-json" }
+  override Str cmdName() { "doc-json" }
 
   override Str summary() { "Compile documentation to JSON AST files" }
 

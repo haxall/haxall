@@ -13,7 +13,7 @@ using haystack
 
 internal class ExportRdf : ExportCmd
 {
-  override Str name() { "export-rdf" }
+  override Str cmdName() { "export-rdf" }
 
   override Str summary() { "Export Xeto to RDF" }
 

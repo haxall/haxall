@@ -14,7 +14,7 @@ using haystack
 
 internal class FitsCmd : XetoCmd
 {
-  override Str name() { "fits" }
+  override Str cmdName() { "fits" }
 
   override Str summary() { "Validate input data against configured specs" }
 
@@ -33,12 +33,13 @@ internal class FitsCmd : XetoCmd
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
+    n := cmdName
     out.printLine("Examples:")
-    out.printLine("  xeto $name recs.zinc            // Validate Zinc input file")
-    out.printLine("  xeto $name recs.json            // Validate Hayson input file")
-    out.printLine("  xeto $name recs.trio            // Validate Trio input file")
-    out.printLine("  xeto $name recs.trio -graph     // Validate graph queries")
-    out.printLine("  xeto $name recs.json -outFile stdout.zinc  // Output zinc to stdout")
+    out.printLine("  xeto $n recs.zinc            // Validate Zinc input file")
+    out.printLine("  xeto $n recs.json            // Validate Hayson input file")
+    out.printLine("  xeto $n recs.trio            // Validate Trio input file")
+    out.printLine("  xeto $n recs.trio -graph     // Validate graph queries")
+    out.printLine("  xeto $n recs.json -outFile stdout.zinc  // Output zinc to stdout")
     return 1
   }
 

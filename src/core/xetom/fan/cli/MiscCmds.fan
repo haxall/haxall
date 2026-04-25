@@ -15,7 +15,7 @@ using xeto
 
 internal class HelpCmd : XetoCmd
 {
-  override Str name() { "help" }
+  override Str cmdName() { "help" }
 
   override Str[] aliases() { ["-h", "-?"] }
 
@@ -39,7 +39,7 @@ internal class HelpCmd : XetoCmd
 
     // show summary for all commands; find longest command name
     cmds := list
-    Str[] names := cmds.map |cmd->Str| { cmd.names.join(", ") }
+    Str[] names := cmds.map |cmd->Str| { cmd.cmdNames.join(", ") }
     maxName := 4
     names.each |n| { maxName = maxName.max(n.size) }
 
@@ -62,7 +62,7 @@ internal class HelpCmd : XetoCmd
 
 internal class EnvCmd : XetoCmd
 {
-  override Str name() { "env" }
+  override Str cmdName() { "env" }
 
   override Str summary() { "Print environment and lib path info" }
 
@@ -82,7 +82,7 @@ internal class EnvCmd : XetoCmd
 
 internal class VersionCmd : XetoCmd
 {
-  override Str name() { "version" }
+  override Str cmdName() { "version" }
 
   override Str[] aliases() { ["-v"] }
 

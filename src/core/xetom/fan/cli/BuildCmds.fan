@@ -28,7 +28,7 @@ abstract class SrcLibCmd : XetoCmd
   @Arg { help = "List of lib names for any source lib in path" }
   Str[]? libs
 
-  override Str name() { "build" }
+  override Str cmdName() { "build" }
 
   override Str summary() { "Compile xeto source to xetolib" }
 
@@ -98,7 +98,7 @@ abstract class SrcLibCmd : XetoCmd
 **
 internal class CleanCmd : SrcLibCmd
 {
-  override Str name() { "clean" }
+  override Str cmdName() { "clean" }
 
   override Str summary() { "Delete all xetolib versions for source libs" }
 
@@ -130,7 +130,7 @@ internal class CleanCmd : SrcLibCmd
 **
 internal class BuildCmd : SrcLibCmd
 {
-  override Str name() { "build" }
+  override Str cmdName() { "build" }
 
   override Str[] aliases() { ["b"] }
 

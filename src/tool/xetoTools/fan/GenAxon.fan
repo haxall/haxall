@@ -14,7 +14,7 @@ using xetom
 
 internal class GenAxon : XetoCmd
 {
-  override Str name() { "gen-axon" }
+  override Str cmdName() { "gen-axon" }
 
   override Str summary() { "Generate Xeto func specs from Axon defined by Trio/Fantom" }
 

@@ -13,7 +13,7 @@ using xetom
 
 internal class ExportOpenApi : ExportCmd
 {
-  override Str name() { "export-openapi" }
+  override Str cmdName() { "export-openapi" }
 
   override Str summary() { "Export Xeto Funcs to OpenApi" }
 
@@ -23,7 +23,7 @@ internal class ExportOpenApi : ExportCmd
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
-    out.printLine("  xeto $name ph::Rtu")
+    out.printLine("  xeto $cmdName ph::Rtu")
     return 1
   }
 

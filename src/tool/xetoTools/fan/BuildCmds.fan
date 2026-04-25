@@ -26,7 +26,7 @@ internal class InitCmd : XetoCmd
   @Arg { help = "Dotted name of the new lib" }
   Str? libName
 
-  override Str name() { "init" }
+  override Str cmdName() { "init" }
 
   override Str summary() { "Stub out new xeto lib source dir" }
 

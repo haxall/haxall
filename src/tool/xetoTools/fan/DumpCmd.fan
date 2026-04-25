@@ -13,7 +13,7 @@ using xetom
 
 internal class DumpCmd : ExportCmd
 {
-  override Str name() { "dump" }
+  override Str cmdName() { "dump" }
 
   override Str summary() { "Debug dump" }
 

@@ -13,7 +13,7 @@ using xetom
 
 internal class ExportJsonSchema : ExportCmd
 {
-  override Str name() { "export-json-schema" }
+  override Str cmdName() { "export-json-schema" }
 
   override Str summary() { "Export Xeto Specs to JSON Schema" }
 
@@ -23,7 +23,7 @@ internal class ExportJsonSchema : ExportCmd
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
-    out.printLine("  xeto $name ph::Rtu")
+    out.printLine("  xeto $cmdName ph::Rtu")
     return 1
   }
 

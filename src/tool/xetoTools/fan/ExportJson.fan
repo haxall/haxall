@@ -14,7 +14,7 @@ using xetom
 
 internal class ExportJson : ExportCmd
 {
-  override Str name() { "export-json" }
+  override Str cmdName() { "export-json" }
 
   override Str summary() { "Export Xeto Instances to JSON" }
 
@@ -24,7 +24,7 @@ internal class ExportJson : ExportCmd
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
-    out.printLine("  xeto $name ph::Rtu -effective    // output effective meta and slots")
+    out.printLine("  xeto $cmdName ph::Rtu -effective    // output effective meta and slots")
     return 1
   }
 

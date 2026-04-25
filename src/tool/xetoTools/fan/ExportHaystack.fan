@@ -20,7 +20,7 @@ internal abstract class ExportHaystack : ExportCmd
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
-    out.printLine("  xeto $name ph::Rtu -effective    // output effective meta and slots")
+    out.printLine("  xeto $cmdName ph::Rtu -effective    // output effective meta and slots")
     return 1
   }
 
@@ -51,7 +51,7 @@ internal abstract class ExportHaystack : ExportCmd
 
 internal class ExportTrio :  ExportHaystack
 {
-  override Str name() { "export-trio" }
+  override Str cmdName() { "export-trio" }
 
   override Str summary() { "Export Xeto to Trio" }
 
@@ -64,7 +64,7 @@ internal class ExportTrio :  ExportHaystack
 
 internal class ExportZinc :  ExportHaystack
 {
-  override Str name() { "export-zinc" }
+  override Str cmdName() { "export-zinc" }
 
   override Str summary() { "Export Xeto to Zinc" }
 
@@ -77,7 +77,7 @@ internal class ExportZinc :  ExportHaystack
 
 internal class ExportHayson :  ExportHaystack
 {
-  override Str name() { "export-hayson" }
+  override Str cmdName() { "export-hayson" }
 
   override Str summary() { "Export Xeto to Haystack JSON" }
 
