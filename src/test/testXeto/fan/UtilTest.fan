@@ -665,6 +665,33 @@ class UtilTest : AbstractXetoTest
   */
 
 //////////////////////////////////////////////////////////////////////////
+// Dict <-> Props
+//////////////////////////////////////////////////////////////////////////
+
+  Void testDictToProps()
+  {
+    verifyDictToProps(Etc.dict0)
+    verifyDictToProps(Etc.dict1("foo", m))
+    verifyDictToProps(Etc.dict1("foo", "str"))
+    verifyDictToProps(Etc.dict1("foo", Date.today))
+    verifyDictToProps(Etc.dict1("foo", Etc.dict2("id",Ref.gen, "mod",DateTime.now)))
+    verifyDictToProps(Etc.dictx("a", m, "b", "str", "c", n(123), "d", DateTime.now, "e", Ref("x")))
+
+    verifyErr(ArgErr#)
+    {
+      verifyDictToProps(Etc.dict1("foo", Etc.makeListGrid(null, "val",  null, ["a", "b", "c"])))
+    }
+  }
+
+  Void verifyDictToProps(Dict d)
+  {
+    prefix := "something."
+    props := XetoUtil.dictToProps(prefix, d)
+    x := XetoUtil.propsToDict(prefix, props)
+    verifyDictEq(d, x)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // LibVersion
 //////////////////////////////////////////////////////////////////////////
 

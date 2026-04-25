@@ -36,7 +36,7 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     propToDir := Str:File[:]
     env.path.each |dir|
     {
-      f := dir + `etc/xeto/config.props`
+      f := toConfigFile(dir)
       try
       {
         if (!f.exists) return
@@ -62,16 +62,11 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
         name := n[5 .. -5]
         try
         {
-          uri := v.toUri
-          meta := Str:Obj[:]
-          prefix := "repo." + name + "."
-          props.each |n2, v2|
-          {
-            if (n2.startsWith(prefix) && n2 != n)
-              meta.set(n2[prefix.size+1..-1], v2)
-          }
+          uri     := v.toUri
+          prefix  := "repo." + name + "."
+          meta    := XetoUtil.propsToDict(prefix, props, ["uri"])
           workDir := propToDir.getChecked(n)
-          register(name, uri, Etc.dictFromMap(meta), workDir)
+          register(name, uri, meta, workDir)
         }
         catch (Err e)
         {
@@ -95,28 +90,29 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     return list
   }
 
-  override RemoteRepo? get(Str name, Bool check := true)
+  override RemoteRepo? get(Str name, Bool checked := true)
   {
     r := byName.get(name)
     if (r != null) return r
-    throw UnresolvedErr("Unknown remote repo: $name")
+    if (checked) throw UnresolvedErr("Unknown remote repo: $name")
     return null
   }
 
-  override RemoteRepo? getByUri(Uri uri, Bool check := true)
+  override RemoteRepo? getByUri(Uri uri, Bool checked := true)
   {
     r := byUri.get(uri)
     if (r != null) return r
-    throw UnresolvedErr("Unknown remote repo: $uri")
+    if (checked) throw UnresolvedErr("Unknown remote repo: $uri")
     return null
   }
 
   override RemoteRepo add(Str name, Uri uri, Dict meta, Dict? opts := null)
   {
     if (opts == null) opts = Etc.dict0
-    pathDir := opts.get("pathDir") as File ?: Env.cur.workDir
+    pathDir := opts.get("pathDir") as File ?: env.workDir
 
     r := register(name, uri, meta, pathDir)
+    saveConfigFile(r, false)
     return r
   }
 
@@ -130,6 +126,7 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
       throw Err("Must use anyPathDir option to remove from non-workDir [$name]")
 
     unregister(name)
+    saveConfigFile(r, true)
   }
 
   private RemoteRepo register(Str name, Uri uri, Dict meta, File workDir)
@@ -151,6 +148,38 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     byName.remove(r.name)
     byUri.remove(r.uri)
     listRef.val = null
+  }
+
+  private Void saveConfigFile(RemoteRepo repo, Bool remove)
+  {
+    name   := repo.name
+    prefix := "repo.${name}."
+    file   := toConfigFile(repo.pathDir)
+    lines  := file.exists ? file.readAllLines : Str[,]
+
+
+    // remove any lines with prefix
+    lines = lines.findAll |line|  { !line.startsWith(prefix) }
+
+    // append new/updated repo lines
+    if (!remove)
+    {
+      if (lines.last?.trimToNull != null) lines.add("")
+
+      lines.add(prefix+"uri=" + repo.uri)
+      XetoUtil.dictToProps(prefix, repo.meta).each |v, n|
+      {
+        lines.add("$n=$v")
+      }
+    }
+
+    // rewrite the file
+    file.out.print(lines.join("\n")).close
+  }
+
+  private static File toConfigFile(File pathDir)
+  {
+    pathDir + `etc/xeto/config.props`
   }
 
   private const ConcurrentMap byName := ConcurrentMap()

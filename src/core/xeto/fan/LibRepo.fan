@@ -111,10 +111,10 @@ const mixin RemoteRepoRegistry
   abstract RemoteRepo[] list()
 
   ** Get remote repo by name
-  abstract RemoteRepo? get(Str name, Bool check := true)
+  abstract RemoteRepo? get(Str name, Bool checked := true)
 
   ** Get remote repo by URI
-  abstract RemoteRepo? getByUri(Uri uri, Bool check := true)
+  abstract RemoteRepo? getByUri(Uri uri, Bool checked := true)
 
   ** Add a new repo to the registry.  The name must a valid tag name.
   ** Options:

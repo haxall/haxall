@@ -85,7 +85,7 @@ const class ServerEnv : MEnv
   }
 
   ** Constructor
-  private new make(Str mode, File[] path)
+  new make(Str mode, File[] path)
   {
     this.mode = mode
     this.path = path

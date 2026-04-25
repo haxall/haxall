@@ -460,6 +460,39 @@ const class XetoUtil
     return 0
   }
 
+  ** Encode dict to Fantom props syntax, one prop per tag encoded as zinc val
+  static Str:Str dictToProps(Str prefix, Dict d)
+  {
+    if (!prefix.endsWith(".")) throw ArgErr("prefix must end with dot")
+    acc := Str:Str[:]
+    acc.ordered = true
+    d.each |v, n|
+    {
+      zinc := ZincWriter.valToStr(v)
+      if (zinc.contains("\n")) throw ArgErr("Cannot encode value: $v [v.typeof]")
+      acc[prefix+n] = zinc
+    }
+    return acc
+  }
+
+  ** Decode Fantom props file back to zinc
+  static Dict propsToDict(Str prefix, Str:Str props, Str[]? skip := null)
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    props.each |pv, pn|
+    {
+      if (!pn.startsWith(prefix)) return
+
+      dn := pn[prefix.size..-1]
+      if (skip != null && skip.contains(dn)) return
+
+      dv := ZincReader(pv.in).readVal
+      acc[dn] = dv
+    }
+    return Etc.dictFromMap(acc)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Opts
 //////////////////////////////////////////////////////////////////////////
