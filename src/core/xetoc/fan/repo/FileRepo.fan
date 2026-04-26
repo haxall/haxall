@@ -43,17 +43,7 @@ const class FileRepo : MLocalRepo
 
   override LibVersion[] versions(Str name, Dict? opts := null)
   {
-    list := scan.map.get(name)
-    if (list == null) return LibVersion#.emptyList
-
-    // contrainsts
-    versions := XetoUtil.optVersionConstraints(opts)
-    if (versions != null) list = list.findAll { versions.contains(it.version) }
-
-    // limit
-    limit := XetoUtil.optInt(opts, "limit", Int.maxVal)
-    if (list.size > limit) list = list[0..<limit]
-    return list
+    findAllVersionsWithOpts(scan.map.get(name), opts)
   }
 
   override LibVersion[] solveDepends(LibDepend[] libs)

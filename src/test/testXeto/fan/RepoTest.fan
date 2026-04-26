@@ -502,8 +502,9 @@ internal const class TestLocalRepo : MLocalRepo
 
   override LibVersion[] versions(Str name, Dict? opts := null)
   {
-    versions := map.get(name) ?: LibVersion#.emptyList
-    return versions
+    list := map.get(name) ?: LibVersion[,]
+    list = list.dup.sortr
+    return findAllVersionsWithOpts(list, opts)
   }
 
   override LibVersion[] solveDepends(LibDepend[] libs)

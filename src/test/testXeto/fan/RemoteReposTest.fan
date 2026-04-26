@@ -197,15 +197,7 @@ const class TestRemoteRepo : MRemoteRepo
   override LibVersion[] versions(Str name, Dict? opts := null)
   {
     list := testLibs.findAll { it.name == name }
-
-    // contrainsts
-    versions := XetoUtil.optVersionConstraints(opts)
-    if (versions != null) list = list.findAll { versions.contains(it.version) }
-
-    // limit
-    limit := XetoUtil.optInt(opts, "limit", Int.maxVal)
-    if (list.size > limit) list = list[0..<limit]
-    return list
+    return findAllVersionsWithOpts(list, opts)
   }
 
   LibVersion[] testLibs()
