@@ -268,3 +268,63 @@ internal class RemoteSearchCmd : RepoRemoteCmd
   }
 }
 
+**************************************************************************
+** RemoteVersionsCmd
+**************************************************************************
+
+internal class RemoteVersionsCmd : RepoRemoteCmd
+{
+  override Str cmdName() { "remote-versions" }
+
+  override Str[] aliases() { ["rv"] }
+
+  override Str summary() { "Read version details from remote repo" }
+
+  @Arg { help = "Lib name to query" }
+  Str? name
+
+  @Opt { help = "Max number to query" }
+  Int limit := 1
+
+  @Opt { help = "Version constraints" }
+  Str? versions
+
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("Examples:")
+    out.printLine("  xeto remote-verions foo       // all versions of foo")
+    out.printLine("  xeto rv foo                   // using command alias")
+    out.printLine("  xeto rv foo -r acme foo       // from repo named 'acme'")
+    out.printLine("  xeto rv foo -limit 10         // increase limit to 10")
+    out.printLine("  xeto rv foo -versions '3.1.x' // match version constraints")
+    return 1
+  }
+
+  override Int run()
+  {
+    try
+    {
+      r := getRepo
+      constraints := versions == null ? null : LibDependVersions(versions)
+      opts := Etc.dict2x("limit", limit, "versions", constraints)
+      vers := r.versions(name, opts)
+
+      table := Obj[,]
+      table.add(["name", "version", "depends"])
+      vers.each |x|
+      {
+        table.add([x.name, x.version.toStr, x.depends.join(", ")])
+      }
+      Console.cur.table(table)
+
+      ok("Versions success [$r.name, $vers.size versions]")
+      return 0
+    }
+    catch (Err e)
+    {
+      return err("Versions failed [$getRepoName]", e)
+    }
+  }
+}
+

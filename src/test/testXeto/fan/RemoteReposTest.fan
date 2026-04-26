@@ -196,7 +196,16 @@ const class TestRemoteRepo : MRemoteRepo
 
   override LibVersion[] versions(Str name, Dict? opts := null)
   {
-    throw Err("TODO")
+    list := testLibs.findAll { it.name == name }
+
+    // contrainsts
+    versions := XetoUtil.optVersionConstraints(opts)
+    if (versions != null) list = list.findAll { versions.contains(it.version) }
+
+    // limit
+    limit := XetoUtil.optInt(opts, "limit", Int.maxVal)
+    if (list.size > limit) list = list[0..<limit]
+    return list
   }
 
   LibVersion[] testLibs()
@@ -205,11 +214,17 @@ const class TestRemoteRepo : MRemoteRepo
      lib("alpha.two",     "2.2.2", "sys"),
      lib("alpha.three",   "3.3.3", "sys"),
      lib("beta.one",      "1.0.1", "sys, sys.comp, alpha.one"),
+     lib("beta.two",      "2.0.0", "sys, sys.comp, alpha.one"),
+     lib("beta.two",      "2.0.1", "sys, sys.comp, alpha.one"),
      lib("beta.two",      "2.0.2", "sys, sys.comp, alpha.one"),
+     lib("beta.two",      "2.0.3", "sys, sys.comp, alpha.one"),
      lib("beta.three",    "3.0.3", "sys, sys.comp, alpha.one"),
      lib("charlie.one",   "1.0.1", "sys, ph, beta.one"),
      lib("charlie.two",   "2.0.2", "sys, ph, beta.one"),
      lib("charlie.three", "3.0.3", "sys, ph, beta.one"),
+     lib("charlie.three", "3.0.4", "sys, ph, beta.one"),
+     lib("charlie.three", "3.1.0", "sys, ph, beta.one"),
+     lib("charlie.three", "3.1.5", "sys, ph, beta.one"),
     ]
   }
 
