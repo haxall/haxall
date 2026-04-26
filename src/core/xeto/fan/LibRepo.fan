@@ -34,14 +34,19 @@ const mixin LibRepo
   ** Metadata for repo
   abstract Dict meta()
 
-  ** List the verions available for given library name.  If the library is
-  ** not available then raise exception or return null based on check flag.
-  abstract LibVersion[]? versions(Str name, Bool checked := true)
-
   ** Get the info for a specific library name and version. If the given
   ** library or version is not available then raise exception or return
   ** null based on the checked flag.
   abstract LibVersion? version(Str name, Version version, Bool checked := true)
+
+  ** List the verions available for given library name. The library versions
+  ** are sorted from latest to oldest.  If the library is not available always
+  ** return empty list.
+  **
+  ** Options:
+  **   - limit: max number to return
+  **   - versions: constraints as LibDependVersions instance
+  abstract LibVersion[] versions(Str name, Dict? opts := null)
 
   ** Get the latest version of the library name available.  If no versions
   ** are available then raise exception or return null based on check flag.

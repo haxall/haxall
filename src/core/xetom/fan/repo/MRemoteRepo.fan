@@ -50,7 +50,6 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
   override final Bool isLocal() { false }
 
   override final Bool isRemote() { true }
-
 }
 
 **************************************************************************
@@ -65,13 +64,7 @@ internal const class TempRemoteRepo : MRemoteRepo
 
   override RemoteRepoSearchRes search(RemoteRepoSearchReq req) { throw Err("TODO") }
 
-  override LibVersion[]? versions(Str name, Bool checked := true) { throw Err("TODO") }
-
-  override LibVersion? version(Str name, Version version, Bool checked := true) { throw Err("TODO") }
-
-  override LibVersion? latest(Str name, Bool checked := true) { throw Err("TODO") }
-
-  override LibVersion? latestMatch(LibDepend depend, Bool checked := true) { throw Err("TODO") }
+  override LibVersion[] versions(Str name, Dict? opts := null) { throw Err("TODO") }
 }
 
 **************************************************************************

@@ -305,107 +305,6 @@ class RepoTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// AllLoaded
-//////////////////////////////////////////////////////////////////////////
-
-  /* TODO: not needed anymore, async nuked
-  Void testAllLoaded()
-  {
-    // sync all libs
-    ns := initAllLoaded
-    libs := ns.libs
-    verifyAllLoaded(ns, libs)
-
-    // async all libs
-    ns = initAllLoaded
-    asyncLibs := null
-    ns.libsAllAsync |err, res| { asyncLibs = res } // 1st time
-    verifyAllLoaded(ns, asyncLibs)
-    asyncLibs = null
-    ns.libsAllAsync |err, res| { asyncLibs = res } // 2nd time
-    verifyAllLoaded(ns, asyncLibs)
-
-    // sync individual libs with depends
-    ns = initAllLoaded
-    verifyEq(ns.libStatus("ph"),        LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.notLoaded)
-    ns.lib("ph.points")
-    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
-    verifyEq(ns.isAllLoaded, false)
-    ns.lib("ph.equips")
-    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.ok)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
-    verifyEq(ns.isAllLoaded, true)
-    verifyAllLoaded(ns, ns.libs)
-
-    // async individual libs with depends
-    ns = initAllLoaded
-    verifyEq(ns.libStatus("ph"),        LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.notLoaded)
-    Lib? asyncLib := null
-    ns.libAsync("ph.points") |err, lib| { asyncLib = lib }
-    verifyEq(asyncLib?.name, "ph.points")
-    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
-    verifyEq(ns.isAllLoaded, false)
-    asyncLib = null
-    ns.libAsync("ph.equips") |err, lib| { asyncLib = lib }
-    verifyEq(asyncLib?.name, "ph.equips")
-    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.ok)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
-    verifyEq(ns.isAllLoaded, true)
-    verifyAllLoaded(ns, ns.libs)
-  }
-
-  Namespace initAllLoaded()
-  {
-    // need fresh env
-    env := ServerEnv.initPath
-    repo := env.repo
-
-    LibVersion sysVer      := repo.latest("sys")
-    LibVersion phVer       := repo.latest("ph")
-    LibVersion phPointsVer := repo.latest("ph.points")
-    LibVersion phEquipsVer := repo.latest("ph.equips")
-
-    ns := env.createNamespace([sysVer, phVer, phPointsVer, phEquipsVer])
-
-    verifyEq(ns.versions, [sysVer, phVer, phEquipsVer, phPointsVer])
-
-    verifyEq(ns.isAllLoaded, false)
-    verifyEq(ns.libStatus("sys"), LibStatus.ok)
-    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.notLoaded)
-
-    return ns
-  }
-
-  Void verifyAllLoaded(Namespace ns, Lib[] libs)
-  {
-    verifyEq(ns.isAllLoaded, true)
-    verifyEq(ns.libStatus("sys"), LibStatus.ok)
-    verifyEq(ns.libStatus("ph"), LibStatus.ok)
-    verifyEq(ns.libStatus("ph.equips"), LibStatus.ok)
-    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
-
-    verifyEq(libs.size, 4)
-    verifySame(libs[0], ns.lib("sys"))
-    verifySame(libs[1], ns.lib("ph"))
-    verifySame(libs[2], ns.lib("ph.equips"))
-    verifySame(libs[3], ns.lib("ph.points"))
-    verifySame(ns.libs, libs)
-  }
-  */
-
-//////////////////////////////////////////////////////////////////////////
 // Test Repo
 //////////////////////////////////////////////////////////////////////////
 
@@ -492,40 +391,10 @@ internal const class TestLocalRepo : MLocalRepo
 
   override Str[] libs() { map.keys.sort }
 
-  override LibVersion[]? versions(Str name, Bool checked := true)
+  override LibVersion[] versions(Str name, Dict? opts := null)
   {
-    versions := map.get(name)
-    if (versions != null) return versions
-    if (checked) throw UnknownLibErr(name)
-    return null
-  }
-
-  override LibVersion? latest(Str name, Bool checked := true)
-  {
-    versions := versions(name, checked)
-    if (versions != null) return versions.last
-    if (checked) throw UnknownLibErr(name)
-    return null
-  }
-
-  override LibVersion? latestMatch(LibDepend d, Bool checked := true)
-  {
-    versions := versions(d.name, checked)
-    if (versions != null)
-    {
-      match := versions.eachrWhile |x| { d.versions.contains(x.version) ? x : null }
-      if (match != null) return match
-    }
-    if (checked) throw UnknownLibErr(d.toStr)
-    return null
-  }
-
-  override LibVersion? version(Str name, Version version, Bool checked := true)
-  {
-    x := versions(name, checked)?.find |x| { version == x.version }
-    if (x != null) return x
-    if (checked) throw UnknownLibErr("$name-$version")
-    return null
+    versions := map.get(name) ?: LibVersion#.emptyList
+    return versions
   }
 
   override LibVersion[] solveDepends(LibDepend[] libs)

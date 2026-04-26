@@ -41,44 +41,12 @@ const class FileRepo : MLocalRepo
     scan.list
   }
 
-  override LibVersion[]? versions(Str name, Bool checked := true)
+  override LibVersion[] versions(Str name, Dict? opts := null)
   {
-    versions := scan.map.get(name)
-    if (versions != null) return versions
-    if (checked) throw UnknownLibErr(name)
-    return null
-  }
-
-  override LibVersion? latest(Str name, Bool checked := true)
-  {
-    versions := versions(name, checked)
-    if (versions != null) return versions.last
-    if (checked) throw UnknownLibErr(name)
-    return null
-  }
-
-  override LibVersion? latestMatch(LibDepend d, Bool checked := true)
-  {
-    versions := versions(d.name, checked)
-    if (versions != null)
-    {
-      match := versions.eachrWhile |x| { d.versions.contains(x.version) ? x : null }
-      if (match != null) return match
-    }
-    if (checked) throw UnknownLibErr(d.toStr)
-    return null
-  }
-
-  override LibVersion? version(Str name, Version version, Bool checked := true)
-  {
-    versions := versions(name, checked)
-    if (versions != null)
-    {
-      index := versions.binaryFind |x| { version <=> x.version }
-      if (index >= 0) return versions[index]
-    }
-    if (checked) throw UnknownLibErr("$name-$version")
-    return null
+    all := scan.map.get(name)
+    if (all == null) return LibVersion#.emptyList
+    if (opts == null || opts.isEmpty) return all
+    throw Err("TODO: opts")
   }
 
   override LibVersion[] solveDepends(LibDepend[] libs)

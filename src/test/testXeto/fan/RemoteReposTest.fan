@@ -194,22 +194,7 @@ const class TestRemoteRepo : MRemoteRepo
     return MRemoteRepoSearchRes { it.libs = matches }
   }
 
-  override LibVersion[]? versions(Str name, Bool checked := true)
-  {
-    throw Err("TODO")
-  }
-
-  override LibVersion? version(Str name, Version version, Bool checked := true)
-  {
-    throw Err("TODO")
-  }
-
-  override LibVersion? latest(Str name, Bool checked := true)
-  {
-    throw Err("TODO")
-  }
-
-  override LibVersion? latestMatch(LibDepend depend, Bool checked := true)
+  override LibVersion[] versions(Str name, Dict? opts := null)
   {
     throw Err("TODO")
   }
