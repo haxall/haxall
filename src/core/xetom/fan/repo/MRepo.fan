@@ -23,10 +23,5 @@ abstract const class MRepo : LibRepo
   }
 
   const MEnv env
-
-  override LibRepoSearchRes search(LibRepoSearchReq req)
-  {
-    throw Err("not done!")
-  }
 }
 

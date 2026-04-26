@@ -73,7 +73,7 @@ abstract const class MEnv : XetoEnv
     acc := LibVersion[,]
     XetoBinaryReader(in).readLibs(this) |lib|
     {
-      acc.add(RemoteLibVersion(lib.name, lib.version, lib.depends))
+      acc.add(RemoteLibVersion(lib.name, lib.version, "", lib.depends))
       libsByName.getOrAdd(lib.name, lib)
     }
     t2 := Duration.now

@@ -34,8 +34,22 @@ const mixin LibRepo
   ** Metadata for repo
   abstract Dict meta()
 
-  ** Perform search request on the repo
-  abstract LibRepoSearchRes search(LibRepoSearchReq req)
+  ** List the verions available for given library name.  If the library is
+  ** not available then raise exception or return null based on check flag.
+  abstract LibVersion[]? versions(Str name, Bool checked := true)
+
+  ** Get the info for a specific library name and version. If the given
+  ** library or version is not available then raise exception or return
+  ** null based on the checked flag.
+  abstract LibVersion? version(Str name, Version version, Bool checked := true)
+
+  ** Get the latest version of the library name available.  If no versions
+  ** are available then raise exception or return null based on check flag.
+  abstract LibVersion? latest(Str name, Bool checked := true)
+
+  ** Get the latest version that matches the given dependency.  If no matches
+  ** are available, then raise exception or return null based on check flag.
+  abstract LibVersion? latestMatch(LibDepend depend, Bool checked := true)
 }
 
 **************************************************************************
@@ -53,23 +67,6 @@ const mixin LocalRepo : LibRepo
 {
   ** List the library names installed in the repository.
   abstract Str[] libs()
-
-  ** List the verions available for given library name.  If the library is
-  ** not available then raise exception or return null based on check flag.
-  abstract LibVersion[]? versions(Str name, Bool checked := true)
-
-  ** Get the info for a specific library name and version. If the given
-  ** library or version is not available then raise exception or return
-  ** null based on the checked flag.
-  abstract LibVersion? version(Str name, Version version, Bool checked := true)
-
-  ** Get the latest version of the library name available.  If no versions
-  ** are available then raise exception or return null based on check flag.
-  abstract LibVersion? latest(Str name, Bool checked := true)
-
-  ** Get the latest version that matches the given dependency.  If no matches
-  ** are available, then raise exception or return null based on check flag.
-  abstract LibVersion? latestMatch(LibDepend depend, Bool checked := true)
 
   ** Solve the dependency graph for given list of libs and return a complete
   ** dependency graph.  Raise an exception is no solution can be computed
@@ -96,6 +93,9 @@ const mixin RemoteRepo : LibRepo
   ** Ping the remote repo and return metadata; if not reachable raise an
   ** exception or return null based on checked flag.
   abstract Dict? ping(Bool checked := true)
+
+  ** Perform search request on the remote repo
+  abstract RemoteRepoSearchRes search(RemoteRepoSearchReq req)
 
   ** Directory in the path where this repo is configured.
   @NoDoc abstract File pathDir()
@@ -144,30 +144,68 @@ const mixin RemoteRepoRegistry
 **************************************************************************
 
 **
-** LibRepoSearchReq encapsulates `LibRepo.search` request
+** RemoteRepoSearchReq encapsulates `RemoteRepo.search` request
 **
 @Js
-const class LibRepoSearchReq
+const class RemoteRepoSearchReq
 {
-  ** Constructor with just query string
-  new make(Str query) { this.query = query }
+  ** Constructor with query string and it-block
+  new make(Str query, |This|? f := null)
+  {
+    this.query = query
+    if (f != null) f(this)
+  }
 
   ** Query string
   const Str query
 
+  ** Requested limit (server may response with smaller limit)
+  const Int limit := 100
+
   ** Debug string
   override Str toStr() { query }
+
+  ** Default implementation of match - simple contains for now
+  @NoDoc Bool matches(LibVersion lib)
+  {
+    if (query == "*") return true
+    return lib.name.contains(query)
+  }
 }
 
 **************************************************************************
-** LibRepoSearchRes
+** RemoteRepoSearchRes
 **************************************************************************
 
 **
-** LibRepoSearchRes encapsulates `LibRepo.search` response
+** RemoteRepoSearchRes encapsulates `RemoteRepo.search` response
 **
 @Js
-const class LibRepoSearchRes
+const mixin RemoteRepoSearchRes
 {
+  ** Matching libs with following data:
+  **   - name
+  **   - version (latest by default)
+  **   - doc
+  abstract LibVersion[] libs()
+
+  ** Total count of matches
+  abstract Int total()
+
+  ** Actual limit used by remote server
+  abstract Int limit()
+
+  ** Offset for this page of results in the total
+  abstract Int offset()
+}
+
+@NoDoc @Js
+const class MRemoteRepoSearchRes : RemoteRepoSearchRes
+{
+  new make(|This| f) { f(this) }
+  override const LibVersion[] libs
+  override const Int total
+  override const Int limit
+  override const Int offset
 }
 

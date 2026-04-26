@@ -61,10 +61,17 @@ internal const class TempRemoteRepo : MRemoteRepo
 {
   new make(RemoteRepoInit init) : super(init) {}
 
-  override Dict? ping(Bool checked := true)
-  {
-    throw Err("not done!")
-  }
+  override Dict? ping(Bool checked := true) { throw Err("TODO") }
+
+  override RemoteRepoSearchRes search(RemoteRepoSearchReq req) { throw Err("TODO") }
+
+  override LibVersion[]? versions(Str name, Bool checked := true) { throw Err("TODO") }
+
+  override LibVersion? version(Str name, Version version, Bool checked := true) { throw Err("TODO") }
+
+  override LibVersion? latest(Str name, Bool checked := true) { throw Err("TODO") }
+
+  override LibVersion? latestMatch(LibDepend depend, Bool checked := true) { throw Err("TODO") }
 }
 
 **************************************************************************

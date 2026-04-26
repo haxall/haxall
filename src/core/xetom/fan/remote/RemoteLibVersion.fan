@@ -11,24 +11,25 @@ using concurrent
 using xeto
 
 **
-** RemoteLibVersion
+** RemoteLibVersion is used for both RemoteEnv and RemoteRepo
 **
 @Js
 const class RemoteLibVersion : LibVersion
 {
-  new make(Str name, Version version, LibDepend[] depends)
+  new make(Str name, Version version, Str doc, LibDepend[]? depends)
   {
-    this.name    = name
-    this.version = version
-    this.depends = depends
-    this.toStr   = "$name-$version"
+    this.name       = name
+    this.version    = version
+    this.doc        = doc
+    this.toStr      = "$name-$version"
+    this.dependsRef = depends
   }
 
   override const Str name
 
   override const Version version
 
-  override Str doc() { "" }
+  override const Str doc
 
   override LibOrigin? origin() { null }
 
@@ -50,7 +51,13 @@ const class RemoteLibVersion : LibVersion
 
   override const Str toStr
 
-  override const LibDepend[] depends
+  override LibDepend[]? depends(Bool checked := true)
+  {
+    if (dependsRef != null) return dependsRef
+    if (checked) throw UnsupportedErr("Depends not available")
+    return null
+  }
+  const LibDepend[]? dependsRef
 
 }
 

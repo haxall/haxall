@@ -18,8 +18,10 @@ const mixin LibVersion
   ** Library version
   abstract Version version()
 
-  ** Dependencies of this library
-  abstract LibDepend[] depends()
+  ** Dependencies of this library.  This field may be not be available
+  ** in remote repo searches in which case return raise exception or
+  ** return null based on checked flag.
+  abstract LibDepend[]? depends(Bool checked := true)
 
   ** Summary information or empty string if not available
   abstract Str doc()

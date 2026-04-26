@@ -247,9 +247,18 @@ internal class RemoteSearchCmd : RepoRemoteCmd
     try
     {
       r := getRepo
-      req := LibRepoSearchReq(query)
+      req := RemoteRepoSearchReq(query)
       res := r.search(req)
-      ok("Search success [$r.name]")
+
+      table := Obj[,]
+      table.add(["name", "latest", "doc"])
+      res.libs.each |lib|
+      {
+        table.add([lib.name, lib.version.toStr, lib.doc])
+      }
+      Console.cur.table(table)
+
+      ok("Search success [$r.name, $res.libs.size matches]")
       return 0
     }
     catch (Err e)

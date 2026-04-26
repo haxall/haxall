@@ -552,10 +552,11 @@ internal const class TestLocalRepo : MLocalRepo
 
 internal const class TestLibVersion : LibVersion
 {
-  new make(Str n, Version v, LibDepend[] d) { name = n; version = v; depends = d }
+  new make(Str n, Version v, LibDepend[] d) { name = n; version = v; dependsRef = d }
   override const Str name
   override const Version version
-  override const LibDepend[] depends
+  override LibDepend[]? depends(Bool checked := true) { dependsRef }
+  const LibDepend[] dependsRef
   override LibOrigin? origin() { null }
   override Str doc() { "" }
   override Bool isSrc() { false }

@@ -156,6 +156,25 @@ class RemoteReposTest : AbstractXetoTest
     verifyEq(r.typeof, TestRemoteRepo#)
 
     verifyDictEq(r.ping, Etc.dict1("ping", "boom!"))
+
+    verifySearch(r, RemoteRepoSearchReq("alpha"),
+      [["alpha.one",   "1.1.1"],
+       ["alpha.two",   "2.2.2"],
+       ["alpha.three", "3.3.3"]])
+
+  }
+
+  Void verifySearch(RemoteRepo r, RemoteRepoSearchReq req, Obj[][] expect)
+  {
+    res := r.search(req)
+    actual := res.libs
+    verifyEq(actual.size, expect.size)
+    actual.each |a, i|
+    {
+      e := expect[i]
+      verifyEq(a.name,         e[0])
+      verifyEq(a.version.toStr, e[1])
+    }
   }
 }
 
@@ -168,5 +187,51 @@ const class TestRemoteRepo : MRemoteRepo
   new make(RemoteRepoInit init) : super(init) {}
 
   override Dict? ping(Bool checked := true) { Etc.dict1("ping", "boom!") }
+
+  override RemoteRepoSearchRes search(RemoteRepoSearchReq req)
+  {
+    matches := testLibs.findAll { req.matches(it) }
+    return MRemoteRepoSearchRes { it.libs = matches }
+  }
+
+  override LibVersion[]? versions(Str name, Bool checked := true)
+  {
+    throw Err("TODO")
+  }
+
+  override LibVersion? version(Str name, Version version, Bool checked := true)
+  {
+    throw Err("TODO")
+  }
+
+  override LibVersion? latest(Str name, Bool checked := true)
+  {
+    throw Err("TODO")
+  }
+
+  override LibVersion? latestMatch(LibDepend depend, Bool checked := true)
+  {
+    throw Err("TODO")
+  }
+
+  LibVersion[] testLibs()
+  {
+    [lib("alpha.one",     "1.1.1", "sys"),
+     lib("alpha.two",     "2.2.2", "sys"),
+     lib("alpha.three",   "3.3.3", "sys"),
+     lib("beta.one",      "1.0.1", "sys, sys.comp, alpha.one"),
+     lib("beta.two",      "2.0.2", "sys, sys.comp, alpha.one"),
+     lib("beta.three",    "3.0.3", "sys, sys.comp, alpha.one"),
+     lib("charlie.one",   "1.0.1", "sys, ph, beta.one"),
+     lib("charlie.two",   "2.0.2", "sys, ph, beta.one"),
+     lib("charlie.three", "3.0.3", "sys, ph, beta.one"),
+    ]
+  }
+
+  LibVersion lib(Str n, Str v, Str depends := "")
+  {
+    d := depends.split(',').map |dn->LibDepend| { LibDepend(dn) }
+    return RemoteLibVersion(n, Version(v), "blah", d)
+  }
 }
 
