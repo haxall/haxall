@@ -152,7 +152,7 @@ class RemoteReposTest : AbstractXetoTest
   Void testCalls()
   {
     initEnv
-    r := reg.add("test", `http://test-1/`, Etc.dict0)
+    r := reg.add("test", `http://test-1/foo/bar`, Etc.dict0)
     verifyEq(r.typeof, TestRemoteRepo#)
 
     verifyDictEq(r.ping, Etc.dict1("ping", "boom!"))

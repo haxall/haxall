@@ -19,16 +19,22 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
     // check indexed props to match a URI to a specific fantom type:
     //    "xeto.repo": "uri qname"
     //    "xeto.repo": "http://test-1/ testXeto::TestRemoteRepo"
-    typeName := Env.cur.index("xeto.repo").eachWhile |str|
+    typeName := findTypeForUri(init.uri.toStr)
+    if (typeName == null) typeName = findTypeForUri(init.uri.plus(`/`).toStr)
+    if (typeName == null) return TempRemoteRepo(init)
+    return Type.find(typeName).make([init])
+  }
+
+  private static Str? findTypeForUri(Str match)
+  {
+    Env.cur.index("xeto.repo").eachWhile |str|
     {
       sp := str.index(" ")
       if (sp == null) return  null
       uri := str[0..<sp]
-      if (uri != init.uri.toStr) return null
+      if (uri != match) return null
       return str[sp+1..-1]
     }
-    if (typeName == null) return TempRemoteRepo(init)
-    return Type.find(typeName).make([init])
   }
 
   new make(RemoteRepoInit init) : super(init.env)
