@@ -23,7 +23,7 @@ abstract const class MLocalRepo : MRepo, LocalRepo
 
   override final Str name() { "local" }
 
-  override final Uri uri() { `local:/` }
+  override final Uri uri() { `local:` }
 
   override Dict meta() { Etc.dict0 }
 

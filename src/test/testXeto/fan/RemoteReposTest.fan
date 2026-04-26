@@ -124,7 +124,7 @@ class RemoteReposTest : AbstractXetoTest
     verifyEq(r.isLocal, true)
     verifyEq(r.isRemote, false)
     verifyEq(r.name, "local")
-    verifyEq(r.uri, `local:/`)
+    verifyEq(r.uri, `local:`)
   }
 
   RemoteRepo verifyRemote(Str n, Uri uri, Dict meta)

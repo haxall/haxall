@@ -28,6 +28,17 @@ internal class RepoCmd : XetoCmd
   @Arg { help = "Specific lib name or names to dump" }
   Str[]? libs
 
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("Examples:")
+    out.printLine("  xeto repo                // list the latest version of all libs")
+    out.printLine("  xeto repo sys -versions  // list all versions of the sys lib")
+    out.printLine("  xeto repo -full          // list full details of latest version of all libs")
+    out.printLine("  xeto repo sys -versions  // list the latest version of all libs")
+    return 1
+  }
+
   override Int run()
   {
     // find libs to list

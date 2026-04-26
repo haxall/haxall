@@ -69,6 +69,16 @@ internal class RemoteListCmd : RemoteCmd
   @Opt { help = "Include pathDir in the listing" }
   Bool pathDir
 
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("Examples:")
+    out.printLine("  xeto remote-list  // list the configured remote repos")
+    out.printLine("  xeto rl           // use command alias")
+    out.printLine("  xeto rl -pathDir  // include where config is defined in path")
+    return 1
+  }
+
   override Int run()
   {
     repos := registry.list
@@ -294,7 +304,6 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
     super.usage(out)
     out.printLine("Examples:")
     out.printLine("  xeto remote-verions foo      // all versions of foo")
-    out.printLine("  xeto rv foo                  // using command alias")
     out.printLine("  xeto rv foo                  // using command alias")
     out.printLine("  xeto rv foo -r acme foo      // from repo named 'acme'")
     out.printLine("  xeto rv foo -limit 10        // increase limit to 10")
