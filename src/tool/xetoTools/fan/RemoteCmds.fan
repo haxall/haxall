@@ -227,7 +227,7 @@ internal class RemoteSearchCmd : RepoRemoteCmd
 
   override Str[] aliases() { ["rs"] }
 
-  override Str summary() { "Ping a remote repo to ensure connectivity" }
+  override Str summary() { "Search the libs of remote repo" }
 
   @Arg { help = "Query string for libs to search" }
   Str? query
