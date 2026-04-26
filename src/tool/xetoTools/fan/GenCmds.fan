@@ -99,7 +99,7 @@ internal class GenTz: AbstractGenCmd
 {
   override Str cmdName() { "gen-tz" }
 
-  override Str summary() { "Generate Xeto sys 'tz.xeto' source code" }
+  override Str summary() { "Generate sys 'tz.xeto' source code" }
 
   @Opt { help = "Directory to output" }
   override File outDir := (Env.cur.workDir + `../xeto/src/xeto/sys/`).normalize
@@ -140,7 +140,7 @@ internal class GenUnits : AbstractGenCmd
 {
   override Str cmdName() { "gen-units" }
 
-  override Str summary() { "Generate Xeto sys 'unit.xeto' source code" }
+  override Str summary() { "Generate sys 'unit.xeto' source code" }
 
   @Opt { help = "Directory to output" }
   override File outDir := (Env.cur.workDir + `../xeto/src/xeto/sys/`).normalize

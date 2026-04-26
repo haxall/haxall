@@ -12,6 +12,7 @@ using haystack
 using axon
 using xetom
 
+/*
 internal class GenAxon : XetoCmd
 {
   override Str cmdName() { "gen-axon" }
@@ -262,4 +263,5 @@ internal const class StubParam
 
   override Str toStr() { "$name: $type"  }
 }
+*/
 

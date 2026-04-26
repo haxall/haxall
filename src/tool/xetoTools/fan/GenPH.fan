@@ -14,6 +14,7 @@ using def
 using defc
 using xetom
 
+/* Original code to generate ph 4.0 -> xeto ph 5.0
 internal class GenPH : AbstractGenCmd
 {
   override Str cmdName() { "gen-ph" }
@@ -718,4 +719,5 @@ internal class GenPH : AbstractGenCmd
   private DefNamespace? ns // compileNamespace
   private DefLib? ph       // compileNamespace
 }
+*/
 

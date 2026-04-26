@@ -10,6 +10,7 @@ using util
 using xeto
 using haystack
 
+/*
 internal class GenFantom : AbstractGenCmd
 {
   override Str cmdName() { "gen-fantom" }
@@ -286,4 +287,5 @@ internal class FantomGenWriter : GenWriter
     return this
   }
 }
+*/
 
