@@ -305,7 +305,7 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
     out.printLine("Examples:")
     out.printLine("  xeto remote-verions foo      // all versions of foo")
     out.printLine("  xeto rv foo                  // using command alias")
-    out.printLine("  xeto rv foo -r acme foo      // from repo named 'acme'")
+    out.printLine("  xeto rv foo -r acme          // from repo named 'acme'")
     out.printLine("  xeto rv foo -limit 10        // increase limit to 10")
     out.printLine("  xeto rv foo -versions 3.1.x  // match version constraints")
     out.printLine("  xeto rv foo-3.1.x            // convenience for above")

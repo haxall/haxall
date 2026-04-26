@@ -32,10 +32,10 @@ internal class RepoCmd : XetoCmd
   {
     super.usage(out)
     out.printLine("Examples:")
-    out.printLine("  xeto repo                // list the latest version of all libs")
-    out.printLine("  xeto repo sys -versions  // list all versions of the sys lib")
-    out.printLine("  xeto repo -full          // list full details of latest version of all libs")
-    out.printLine("  xeto repo sys -versions  // list the latest version of all libs")
+    out.printLine("  xeto repo                  // list the latest version of all libs")
+    out.printLine("  xeto repo sys -versions    // list all versions of the sys lib")
+    out.printLine("  xeto repo -full            // list full details of latest version of all libs")
+    out.printLine("  xeto repo -full -versions  // list the latest version of all libs")
     return 1
   }
 
