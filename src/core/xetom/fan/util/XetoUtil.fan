@@ -533,6 +533,15 @@ const class XetoUtil
     return XetoFidelity.full
   }
 
+  ** Get the key "versions" as LibDependVersions
+  static LibDependVersions? optVersionConstraints(Dict? opts)
+  {
+    v := opts?.get("versions")
+    if (v == null) return null
+    if (v is Str) return LibDependVersions.fromStr(v.toStr)
+    return v
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////

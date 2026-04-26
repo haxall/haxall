@@ -305,6 +305,115 @@ class RepoTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// FileRepo
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFileRepo()
+  {
+    tempDir := this.tempDir.normalize
+    path := Env.cur.path.dup.insert(0, tempDir)
+    env := ServerEnv("test", path)
+    verifyEq(env.workDir, tempDir)
+    verifyEq(env.installDir, tempDir)
+
+    // now generate lots of versions of a fake lib:
+    //   3.0.74 - 3.0.70
+    //   2.0.64 - 2.0.60
+    //   1.0.54 - 1.0.50
+    versions := Version[,]
+    for (i := 1; i<4; ++i)
+      for (j := i*10+40; j<i*10+45; ++j)
+        versions.add(Version([i, 0, j]))
+
+    n := "fake"
+    versions.each |v| { genFakeLib(env.workDir, n, v) }
+
+    repo := env.repo
+
+    // verify sorted oldest to newest
+    all := repo.versions(n)
+    // echo(all.join("\n"))
+    versions.sortr
+    verifyEq(all.first.version, versions.first)
+    verifyEq(all.last.version, versions.last)
+
+    // version for each one
+    versions.each |v|
+    {
+      x := repo.version(n, v)
+      verifyEq(x.name, n)
+      verifyEq(x.version, v)
+    }
+
+    // limits
+    verifyRepoLimit(repo, n, 1, all[0..0])
+    verifyRepoLimit(repo, n, 2, all[0..1])
+    verifyRepoLimit(repo, n, 3, all[0..2])
+    verifyRepoLimit(repo, n, 100, all)
+
+    // constraints
+    verifyRepoConstraints(repo, n, "x.x.x", null, all)
+    verifyRepoConstraints(repo, n, "3.x.x", null, all[0..4])
+    verifyRepoConstraints(repo, n, "2.x.x", null, all[5..9])
+    verifyRepoConstraints(repo, n, "2.x.x", 1, all[5..5])
+    verifyRepoConstraints(repo, n, "2.x.x", 2, all[5..6])
+
+    // latest
+    verifySame(repo.latest(n), all.first)
+
+    // lastestMatch
+    verifyRepoLatestMatch(repo, n, "x.x.x",  all.first)
+    verifyRepoLatestMatch(repo, n, "3.0.72", all.find { it.version.toStr == "3.0.72" })
+    verifyRepoLatestMatch(repo, n, "3.0.x",  all.find { it.version.toStr == "3.0.74" })
+    verifyRepoLatestMatch(repo, n, "2.0.x",  all.find { it.version.toStr == "2.0.64" })
+    verifyRepoLatestMatch(repo, n, "3.1.x",  null)
+
+    // bad lib
+    bad := "badOne"
+    verifyEq(repo.latest(bad, false), null)
+    verifyErr(UnknownLibErr#) { repo.latest(bad) }
+    verifyErr(UnknownLibErr#) { repo.latest(bad, true) }
+    verifyRepoLatestMatch(repo, bad, "x.x.x", null)
+    verifyRepoConstraints(repo, bad, "x.x.x", null, LibVersion[,])
+  }
+
+  Void verifyRepoLimit(LibRepo repo, Str n, Int limit, LibVersion[] expect)
+  {
+    actual := repo.versions(n, Etc.dict1("limit", limit))
+    verifyEq(actual, expect)
+
+    actual = repo.versions(n, Etc.dict1("limit", Number(limit)))
+    verifyEq(actual, expect)
+  }
+
+  Void verifyRepoConstraints(LibRepo repo, Str n, Str constraints, Int? limit, LibVersion[] expect)
+  {
+    actual := repo.versions(n, Etc.dict2x("versions", LibDependVersions(constraints), "limit", limit))
+    verifyEq(actual, expect)
+
+    actual = repo.versions(n, Etc.dict2x("versions", constraints, "limit", limit))
+    verifyEq(actual, expect)
+  }
+
+  Void verifyRepoLatestMatch(LibRepo repo, Str n, Str constraints, LibVersion? expect)
+  {
+    c := LibDepend(n, LibDependVersions(constraints))
+    actual := repo.latestMatch(c, false)
+    verifySame(actual, expect)
+    if (expect == null)
+    {
+      verifyErr(UnknownLibErr#) { repo.latestMatch(c) }
+      verifyErr(UnknownLibErr#) { repo.latestMatch(c, true) }
+    }
+  }
+
+  Void genFakeLib(File dir, Str n, Version v)
+  {
+    f := dir + `lib/xeto/${n}/${n}-${v}.xetolib`
+    f.out.print("fake").close
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Test Repo
 //////////////////////////////////////////////////////////////////////////
 

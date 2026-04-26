@@ -26,29 +26,26 @@ abstract const class MRepo : LibRepo
 
   override LibVersion? latest(Str name, Bool checked := true)
   {
-    versions := versions(name)
-    if (!versions.isEmpty) return versions.last
+    opts := Etc.dict1("limit", 1)
+    x := versions(name, opts).first
+    if (x != null) return x
     if (checked) throw UnknownLibErr(name)
     return null
   }
 
   override LibVersion? latestMatch(LibDepend d, Bool checked := true)
   {
-    versions := versions(d.name)
-    if (!versions.isEmpty)
-    {
-      match := versions.eachrWhile |x| { d.versions.contains(x.version) ? x : null }
-      if (match != null) return match
-    }
+    opts := Etc.dict2("limit", 1, "versions", d.versions)
+    x := versions(d.name, opts).first
+    if (x != null) return x
     if (checked) throw UnknownLibErr(d.toStr)
     return null
   }
 
   override LibVersion? version(Str name, Version version, Bool checked := true)
   {
-    versions := versions(name)
-    index := versions.binaryFind |x| { version <=> x.version }
-    if (index >= 0) return versions[index]
+    x := versions(name, Etc.dict1("versions", LibDependVersions(version))).first
+    if (x != null) return x
     if (checked) throw UnknownLibErr("$name-$version")
     return null
   }

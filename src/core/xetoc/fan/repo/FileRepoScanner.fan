@@ -33,7 +33,7 @@ internal class FileRepoScanner
     }
     acc.each |list, name|
     {
-      list.sort
+      list.sortr
     }
     t2 := Duration.now
     log.info("FileRepo scan [" + (t2-t1).toLocale + "]")
@@ -158,12 +158,12 @@ internal const class FileRepoScan
 {
   new make(Str:FileLibVersion[] map)
   {
-    this.list = map.keys.sort
-    this.map  = map
+    this.libNames = map.keys.sort
+    this.map      = map
   }
 
-  const Str[] list
-  const Str:FileLibVersion[] map
+  const Str[] libNames
+  const Str:FileLibVersion[] map  // sorted by version latest to oldest
   const Str ts := DateTime.now.toLocale("YYYY-MM-DD hh:mm:ss")
 }
 
