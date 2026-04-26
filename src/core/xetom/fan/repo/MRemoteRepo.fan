@@ -65,6 +65,8 @@ internal const class TempRemoteRepo : MRemoteRepo
   override RemoteRepoSearchRes search(RemoteRepoSearchReq req) { throw Err("TODO") }
 
   override LibVersion[] versions(Str name, Dict? opts := null) { throw Err("TODO") }
+
+  override Buf fetch(Str name, Version version) { throw Err("TODO") }
 }
 
 **************************************************************************

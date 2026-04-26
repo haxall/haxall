@@ -280,7 +280,7 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
 
   override Str summary() { "Read version details from remote repo" }
 
-  @Arg { help = "Lib name to query" }
+  @Arg { help = "Lib name or name-version to query" }
   Str? name
 
   @Opt { help = "Max number to query" }
@@ -293,11 +293,13 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
   {
     super.usage(out)
     out.printLine("Examples:")
-    out.printLine("  xeto remote-verions foo       // all versions of foo")
-    out.printLine("  xeto rv foo                   // using command alias")
-    out.printLine("  xeto rv foo -r acme foo       // from repo named 'acme'")
-    out.printLine("  xeto rv foo -limit 10         // increase limit to 10")
-    out.printLine("  xeto rv foo -versions '3.1.x' // match version constraints")
+    out.printLine("  xeto remote-verions foo      // all versions of foo")
+    out.printLine("  xeto rv foo                  // using command alias")
+    out.printLine("  xeto rv foo                  // using command alias")
+    out.printLine("  xeto rv foo -r acme foo      // from repo named 'acme'")
+    out.printLine("  xeto rv foo -limit 10        // increase limit to 10")
+    out.printLine("  xeto rv foo -versions 3.1.x  // match version constraints")
+    out.printLine("  xeto rv foo-3.1.x            // convenience for above")
     return 1
   }
 
@@ -306,9 +308,16 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
     try
     {
       r := getRepo
-      constraints := versions == null ? null : LibDependVersions(versions)
-      opts := Etc.dict2x("limit", limit, "versions", constraints)
-      vers := r.versions(name, opts)
+      n := name
+      c := versions == null ? null : LibDependVersions(versions)
+      if (n.contains("-"))
+      {
+        dash := n.index("-")
+        n = name[0..<dash]
+        c = LibDependVersions(name[dash+1..-1])
+      }
+      opts := Etc.dict2x("limit", limit, "versions", c)
+      vers := r.versions(n, opts)
 
       table := Obj[,]
       table.add(["name", "version", "depends"])
@@ -324,6 +333,75 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
     catch (Err e)
     {
       return err("Versions failed [$getRepoName]", e)
+    }
+  }
+}
+
+**************************************************************************
+** RemoteFetchCmd
+**************************************************************************
+
+internal class RemoteFetchCmd : RepoRemoteCmd
+{
+  override Str cmdName() { "remote-fetch" }
+
+  override Str[] aliases() { ["rf"] }
+
+  override Str summary() { "Download lib without installing it" }
+
+  @Arg { help = "Lib name or name-version to query" }
+  Str? name
+
+  @Opt { help = "Directory to download to" }
+  File? dir
+
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("Examples:")
+    out.printLine("  xeto remote-fetch foo     // fetch latest version of foo to cwd")
+    out.printLine("  xeto rf foo               // using command alias")
+    out.printLine("  xeto rf foo-1.2.3         // fetch specific version of foo")
+    out.printLine("  xeto rf foo -dir someDir  // fetch to a specific directory")
+    return 1
+  }
+
+  override Int run()
+  {
+    try
+    {
+      r := getRepo
+
+      // get name + version from arguments
+      n := name
+      v := null
+      if (n.contains("-"))
+      {
+        dash := n.index("-")
+        n = name[0..<dash]
+        v = Version(name[dash+1..-1])
+      }
+      else
+      {
+        v = r.latest(n).version
+      }
+
+      // fetch
+      buf := r.fetch(n, v)
+
+      // write to file
+      fileName := "${n}-${v}.xetolib"
+      file := dir == null ? File(fileName.toUri) : dir.uri.plusSlash.plusName(fileName).toFile
+      file.out.writeBuf(buf).close
+
+      // print success
+      size := file.size.toLocale("B")
+      ok("Fetched [$file.osPath, $size]")
+      return 0
+    }
+    catch (Err e)
+    {
+      return err("Fetch failed [$getRepoName $name]", e)
     }
   }
 }

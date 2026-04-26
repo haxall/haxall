@@ -197,6 +197,7 @@ const class TestRemoteRepo : MRemoteRepo
   override LibVersion[] versions(Str name, Dict? opts := null)
   {
     list := testLibs.findAll { it.name == name }
+    list = list.dup.sortr
     return findAllVersionsWithOpts(list, opts)
   }
 
@@ -218,6 +219,12 @@ const class TestRemoteRepo : MRemoteRepo
      lib("charlie.three", "3.1.0", "sys, ph, beta.one"),
      lib("charlie.three", "3.1.5", "sys, ph, beta.one"),
     ]
+  }
+
+  override Buf fetch(Str name, Version version)
+  {
+    lib := this.version(name, version)
+    return Buf().print("test $lib.toStr").toImmutable
   }
 
   LibVersion lib(Str n, Str v, Str depends := "")

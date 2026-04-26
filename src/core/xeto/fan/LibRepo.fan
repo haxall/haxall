@@ -102,6 +102,9 @@ const mixin RemoteRepo : LibRepo
   ** Perform search request on the remote repo
   abstract RemoteRepoSearchRes search(RemoteRepoSearchReq req)
 
+  ** Download the xetolib zip for given name and version
+  abstract Buf fetch(Str name, Version version)
+
   ** Directory in the path where this repo is configured.
   @NoDoc abstract File pathDir()
 }
