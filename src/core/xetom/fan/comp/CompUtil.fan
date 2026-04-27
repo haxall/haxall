@@ -115,8 +115,8 @@ class CompUtil
         // val
         if (!isDef)
         {
-          slot["maybe"] = slotSpec.isMaybe ? Marker.val : null
-          slot["type"]  = slotSpec.type.id
+          // slot["maybe"] = slotSpec.isMaybe ? Marker.val : null
+          // slot["type"]  = slotSpec.type.id
           hayVal := XetoUtil.toHaystack(val)
           if (hayVal is Dict) hayVal = Etc.dictRemove(((Dict)hayVal), "spec")
           slot["val"] = hayVal
