@@ -708,7 +708,7 @@ const class XetoUtil
       return x
     }
     if (x is Num) return Number.makeNum(x)
-    if (x is Duration) return Number.makeDuration(x)
+    if (x is Duration) return Number.makeDuration(x, null)
     return x.toStr
   }
 
