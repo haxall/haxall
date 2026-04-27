@@ -16,7 +16,7 @@ using xeto
 @Js
 const class RemoteLibVersion : LibVersion
 {
-  new make(Str name, Version version, Str doc, LibDepend[]? depends)
+  new make(Str name, Version version, Str doc := "", LibDepend[]? depends := null)
   {
     this.name       = name
     this.version    = version

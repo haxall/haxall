@@ -32,7 +32,7 @@ internal abstract class RemoteCmd : XetoCmd
 **
 internal abstract class RepoRemoteCmd : RemoteCmd
 {
-  @Opt { help = "Name of repo to ping (if not default)"; aliases = ["r"] }
+  @Opt { help = "Name of remote repo (if not default)"; aliases = ["r"] }
   Str? repo
 
   ** Get name for repo safely for error reporting
@@ -214,9 +214,9 @@ internal class RemotePingCmd : RepoRemoteCmd
   {
     try
     {
-      r := getRepo
-      meta := r.ping
-      ok("Ping success [$r.name]")
+      repo := getRepo
+      meta := repo.ping
+      ok("Ping success [$repo.name]")
       Etc.dictDump(meta)
       return 0
     }
@@ -256,9 +256,9 @@ internal class RemoteSearchCmd : RepoRemoteCmd
   {
     try
     {
-      r := getRepo
-      req := RemoteRepoSearchReq(query)
-      res := r.search(req)
+      repo := getRepo
+      req  := RemoteRepoSearchReq(query)
+      res  := repo.search(req)
 
       table := Obj[,]
       table.add(["name", "latest", "doc"])
@@ -268,7 +268,7 @@ internal class RemoteSearchCmd : RepoRemoteCmd
       }
       Console.cur.table(table)
 
-      ok("Search success [$r.name, $res.libs.size matches]")
+      ok("Search success [$repo.name, $res.libs.size matches]")
       return 0
     }
     catch (Err e)
@@ -316,17 +316,12 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
   {
     try
     {
-      r := getRepo
-      n := name
-      c := versions == null ? null : LibDependVersions(versions)
-      if (n.contains("-"))
-      {
-        dash := n.index("-")
-        n = name[0..<dash]
-        c = LibDependVersions(name[dash+1..-1])
-      }
+      repo := getRepo
+      arg  := LibDependArg(name)
+      n    := arg.name
+      c    := arg.constraints
       opts := Etc.dict2x("limit", limit, "versions", c)
-      vers := r.versions(n, opts)
+      vers := repo.versions(n, opts)
 
       table := Obj[,]
       table.add(["name", "version", "depends"])
@@ -336,7 +331,7 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
       }
       Console.cur.table(table)
 
-      ok("Versions success [$r.name, $vers.size versions]")
+      ok("Versions success [$repo.name, $vers.size versions]")
       return 0
     }
     catch (Err e)
@@ -379,24 +374,15 @@ internal class RemoteFetchCmd : RepoRemoteCmd
   {
     try
     {
-      r := getRepo
+      repo := getRepo
 
       // get name + version from arguments
-      n := name
-      v := null
-      if (n.contains("-"))
-      {
-        dash := n.index("-")
-        n = name[0..<dash]
-        v = Version(name[dash+1..-1])
-      }
-      else
-      {
-        v = r.latest(n).version
-      }
+      arg := LibVerArg(name)
+      n   := arg.name
+      v   := arg.version ?: repo.latest(n).version
 
       // fetch
-      buf := r.fetch(n, v)
+      buf := repo.fetch(n, v)
 
       // write to file
       fileName := "${n}-${v}.xetolib"
@@ -413,5 +399,57 @@ internal class RemoteFetchCmd : RepoRemoteCmd
       return err("Fetch failed [$getRepoName $name]", e)
     }
   }
+}
+
+**************************************************************************
+** LibArgs
+**************************************************************************
+
+** Parse "lib" or "lib-1.2.3" formats
+internal const class LibVerArg
+{
+  new make(Str s)
+  {
+    dash := s.index("-")
+    if (dash == null)
+    {
+      this.name = s
+    }
+    else
+    {
+      rest := s[dash+1..-1]
+      this.name    = s[0..<dash]
+      this.version = Version.fromStr(s[0..<dash])
+    }
+  }
+
+  const Str name
+  const Version? version // null if no dash
+}
+
+** Parse "lib" or "lib-3.x.x" formats
+internal const class LibDependArg
+{
+  new make(Str s)
+  {
+    dash := s.index("-")
+    if (dash == null)
+    {
+      this.name        = s
+      this.constraints = null
+      this.depend      = LibDepend(name)
+    }
+    else
+    {
+      rest := s[dash+1..-1]
+      this.name        = s[0..<dash]
+      this.constraints = LibDependVersions.fromStr(s[0..<dash])
+      this.depend      = LibDepend(name, constraints)
+    }
+  }
+
+  const Str name
+  const LibDepend depend
+  const LibDependVersions? constraints  // null if no dash
 }
 
