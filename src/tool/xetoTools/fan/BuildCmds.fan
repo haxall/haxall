@@ -13,20 +13,20 @@ using xetom
 using xetodoc
 
 **
-** InitCmd stubs out the source directory for a new xetolib zips
+** StubCmd stubs out the source directory for a new xetolib zips
 **
-internal class InitCmd : XetoCmd
+internal class StubCmd : XetoCmd
 {
   @Opt { help = "Output directory for new lib source dir" }
   File? dir
 
   @Opt { aliases=["y"]; help = "Skip confirmation" }
-  Bool noconfirm
+  Bool yes
 
   @Arg { help = "Dotted name of the new lib" }
   Str? libName
 
-  override Str cmdName() { "init" }
+  override Str cmdName() { "stub" }
 
   override Str summary() { "Stub out new xeto lib source dir" }
 
@@ -50,7 +50,7 @@ internal class InitCmd : XetoCmd
     echo("  specs.xeto: $specs.osPath")
     echo
 
-    if (!noconfirm)
+    if (!yes)
     {
       if (!promptConfirm("Generate?")) return 1
     }
