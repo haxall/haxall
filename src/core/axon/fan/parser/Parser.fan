@@ -78,8 +78,9 @@ class Parser
     return fn
   }
 
-  ** Parse a list of expressions separated by "|" pipe
-  Expr[] parsePipeline()
+  ** Parse a list of expressions separated by "|" pipe.
+  ** Must pass in a top-level function to bind the closures.
+  Expr[] parsePipeline(Fn top)
   {
     acc := Expr[,]
     acc.add(expr)
@@ -89,6 +90,7 @@ class Parser
       acc.add(expr)
     }
     if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
+    bindInnersToOuter(top)
     return acc
   }
 

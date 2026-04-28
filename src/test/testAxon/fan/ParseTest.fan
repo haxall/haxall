@@ -6,6 +6,7 @@
 //   2 Mar 2026  Brian Frank  Creation
 //
 
+using util
 using xeto
 using haystack
 using axon
@@ -88,7 +89,9 @@ class ParseTest : Test
 
   Void verifyPipeline(Str s, Str[] expect)
   {
-    actual := Parser(s.in).parsePipeline
+    dummyTop := TopFn(FileLoc.unknown, "dummy", Etc.dict0, FnParam[,])
+
+    actual := Parser(s.in).parsePipeline(dummyTop)
     verifyEq(actual.size, expect.size)
     actual.each |a, i|
     {
@@ -98,7 +101,7 @@ class ParseTest : Test
 
   Void verifyPipelineErr(Str s)
   {
-    verifyErr(SyntaxErr#) { Parser(s.in).parsePipeline }
+    verifyErr(SyntaxErr#) { verifyPipeline(s, Str[,]) }
   }
 }
 
