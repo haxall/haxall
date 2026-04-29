@@ -90,8 +90,10 @@ class CompUtil
         // only descend to grandchild slots
         if (slotDepth < 2)
         {
-          childAst := doCompSaveToAstSlots(val, slotName, slotDepth, opts)
-          slot.addAll(Etc.dictToMap(childAst))
+          childAst := Etc.dictToMap(doCompSaveToAstSlots(val, slotName, slotDepth, opts))
+          // force dynamic slots to be maybe so they can be removed
+          if (slotSpec == null) childAst["maybe"] = Marker.val
+          slot.addAll(childAst)
         }
       }
       else
