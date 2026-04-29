@@ -25,7 +25,7 @@ class RpcTest : AxonTest
   {
     super.setup
 
-    ns := XetoEnv.cur.createNamespaceFromNames(["hx.test.xeto"])
+    ns := XetoEnv.cur.resolveNamespace(["hx.test.xeto"])
     ns.lib("hx.test.xeto")
     cs = CompSpace(ns).install
   }

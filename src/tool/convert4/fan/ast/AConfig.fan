@@ -28,7 +28,7 @@ class AConfig
       if (n.startsWith("depend.")) dependVersions.set(n[7..-1], v)
     }
 
-    ns := XetoEnv.cur.createNamespaceFromNames(["axon", "hx"])
+    ns := XetoEnv.cur.resolveNamespace(["axon", "hx"])
 
     return make {
       it.libPrefix       = props.get("libPrefix", "hx")

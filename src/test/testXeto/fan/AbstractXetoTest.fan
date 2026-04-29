@@ -63,7 +63,7 @@ class AbstractXetoTest : HaystackTest
 
   Namespace createNamespace(Str[] libs := ["sys"])
   {
-    XetoEnv.cur.createNamespaceFromNames(libs)
+    XetoEnv.cur.resolveNamespace(libs)
   }
 
   Obj? compileData(Str s, Dict? opts := null)

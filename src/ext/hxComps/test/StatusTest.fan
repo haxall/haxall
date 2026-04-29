@@ -187,7 +187,7 @@ class StatusTest : HaystackTest
 
   once Namespace ns()
   {
-    XetoEnv.cur.createNamespaceFromNames(["hx.comps"])
+    XetoEnv.cur.resolveNamespace(["hx.comps"])
   }
 
   Obj parse(Str xeto)

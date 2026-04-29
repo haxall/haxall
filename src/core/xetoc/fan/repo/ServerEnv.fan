@@ -159,6 +159,11 @@ const class ServerEnv : MEnv
     repo.createNamespace(libs)
   }
 
+  override Namespace createInstalledNamespace()
+  {
+    createNamespace(repo.libs)
+  }
+
   override Namespace resolveNamespace(Str[] names)
   {
     repo.resolveNamespace(names)

@@ -29,7 +29,7 @@ class ExtTest : HxTest
   @HxTestProj
   Void testBindings()
   {
-    ns := XetoEnv.cur.createNamespaceFromNames(["hx.mqtt", "hx.haystack", "hx.point", "hx.task"])
+    ns := XetoEnv.cur.resolveNamespace(["hx.mqtt", "hx.haystack", "hx.point", "hx.task"])
     verifyBinding(ns, "hx.task::TaskExt", "hxTask::TaskExt")
     verifyBinding(ns, "hx.point::PointExt", "hxPoint::PointExt")
     verifyBinding(ns, "hx.haystack::HaystackExt", "hxHaystack::HaystackExt")

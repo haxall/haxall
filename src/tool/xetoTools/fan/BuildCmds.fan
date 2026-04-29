@@ -70,7 +70,7 @@ internal class StubCmd : XetoCmd
 
   private Void genMeta(File file)
   {
-    sysVer := XetoEnv.cur.createNamespaceFromNames(["sys"]).sysLib.version
+    sysVer := XetoEnv.cur.resolveNamespace(["sys"]).sysLib.version
     sysDepend := "" + sysVer.major + "." + sysVer.minor + ".x"
     file.out.print(
      """pragma: Lib <

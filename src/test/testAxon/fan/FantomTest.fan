@@ -25,7 +25,7 @@ class FantomTest : HaystackTest
   override Void setup()
   {
     super.setup
-    ns := XetoEnv.cur.createNamespaceFromNames(["sys.comp"])
+    ns := XetoEnv.cur.resolveNamespace(["sys.comp"])
     cs = CompSpace(ns).install
     comp = TestComp()
   }

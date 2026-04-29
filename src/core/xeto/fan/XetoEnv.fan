@@ -83,13 +83,12 @@ abstract const class XetoEnv
   ** versions, solve their dependency graph, and create a namespace.
   abstract Namespace resolveNamespace(Str[] names)
 
-  ** Given a list of library names, map to latest versions, solve
-  ** their dependency graph and create a namespace.
-Namespace createNamespaceFromNames(Str[] names) { resolveNamespace(names) }
-
   ** Given a set of a records with a 'spec' tag, derive which libs
   ** are used and resolve them to libs and build a namespace.
   @NoDoc abstract Namespace deriveNamespace(Dict[] recs)
+
+  ** Create a namespace for every lib installed in local repo
+  @NoDoc abstract Namespace createInstalledNamespace()
 
   ** Clear and libs cache in-memory and reload from disk on next access
   @NoDoc abstract Void clearLibCache()

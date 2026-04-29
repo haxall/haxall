@@ -181,7 +181,7 @@ class DataTestCase
 
   Void compileData(Str src)
   {
-    ns := XetoEnv.cur.createNamespaceFromNames(["sys"])
+    ns := XetoEnv.cur.resolveNamespace(["sys"])
     this.dataRef = compile |opts| { ns.io.readXeto(src, opts) }
   }
 

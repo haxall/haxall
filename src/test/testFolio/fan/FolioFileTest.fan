@@ -18,7 +18,7 @@ class FolioFileTest : AbstractFolioTest
 
   override Void setup()
   {
-    this.ns = XetoEnv.cur.createNamespaceFromNames(["sys", "sys.files"])
+    this.ns = XetoEnv.cur.resolveNamespace(["sys", "sys.files"])
   }
 
   Void testFile() { runImpls }
@@ -183,3 +183,4 @@ const class FileTestHooks : FolioHooks
   override Void postCommit(FolioCommitEvent event) {}
   override Void postHisWrite(FolioHisEvent event) {}
 }
+

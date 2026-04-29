@@ -27,17 +27,17 @@ class EnvTest : AbstractXetoTest
   Void testCache()
   {
     env1 := ServerEnv.initPath
-    a1 := env1.createNamespaceFromNames(["ph.points", "ph.attrs"])
-    b1 := env1.createNamespaceFromNames(["ph.points", "ph.equips"])
-    c1 := env1.createNamespaceFromNames(["ph.points", "ph.attrs", "ph.equips"])
+    a1 := env1.resolveNamespace(["ph.points", "ph.attrs"])
+    b1 := env1.resolveNamespace(["ph.points", "ph.equips"])
+    c1 := env1.resolveNamespace(["ph.points", "ph.attrs", "ph.equips"])
     verifyLibsSame(env1, a1, b1)
     verifyLibsSame(env1, a1, c1)
     verifyLibsSame(env1, b1, c1)
 
     env2 := ServerEnv.initPath
-    a2 := env2.createNamespaceFromNames(["ph.points", "ph.attrs"])
-    b2 := env2.createNamespaceFromNames(["ph.points", "ph.equips"])
-    c2 := env2.createNamespaceFromNames(["ph.points", "ph.attrs", "ph.equips"])
+    a2 := env2.resolveNamespace(["ph.points", "ph.attrs"])
+    b2 := env2.resolveNamespace(["ph.points", "ph.equips"])
+    c2 := env2.resolveNamespace(["ph.points", "ph.attrs", "ph.equips"])
     verifyLibsSame(env2, a2, b2)
     verifyLibsSame(env2, a2, c2)
     verifyLibsSame(env2, b2, c2)
@@ -80,7 +80,7 @@ class EnvTest : AbstractXetoTest
     benv := RemoteEnv()
 
     // serialize all libs
-    sns := senv.createNamespaceFromNames(["ph", "ph.points"])
+    sns := senv.resolveNamespace(["ph", "ph.points"])
     buf := Buf()
     senv.saveLibs(buf.out, sns.libs)
 
@@ -90,7 +90,7 @@ class EnvTest : AbstractXetoTest
     verifySerialization(sns, bns)
 
     // create new ns with more libs, but overlaps too
-    sns2 := senv.createNamespaceFromNames(["ph", "ph.points", "ph.attrs", "ph.equips"])
+    sns2 := senv.resolveNamespace(["ph", "ph.points", "ph.attrs", "ph.equips"])
     senv.saveLibs(buf.clear.out, sns2.libs)
     verifySame(sns.lib("sys"),       sns2.lib("sys"))
     verifySame(sns.lib("ph"),        sns2.lib("ph"))

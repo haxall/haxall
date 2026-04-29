@@ -30,7 +30,7 @@ abstract class HxCompTest : HxTest
 
   once Namespace ns()
   {
-    XetoEnv.cur.createNamespaceFromNames(["hx.comps"])
+    XetoEnv.cur.resolveNamespace(["hx.comps"])
   }
 
 //////////////////////////////////////////////////////////////////////////

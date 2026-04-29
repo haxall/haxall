@@ -26,7 +26,7 @@ class AxonTest : AbstractAxonTest
 
   Void testBindings()
   {
-    ns := XetoEnv.cur.createNamespaceFromNames(["axon"])
+    ns := XetoEnv.cur.resolveNamespace(["axon"])
 
     x := ns.spec("axon::AxonExpr")
     verifyEq(x.isScalar, true)
