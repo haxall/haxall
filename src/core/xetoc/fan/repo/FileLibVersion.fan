@@ -90,5 +90,54 @@ const class FileLibVersion : LibVersion
   override Bool isNotFound() { file === notFoundFile }
 
   override Bool isCompanion() { name === XetoUtil.companionLibName }
+
+//////////////////////////////////////////////////////////////////////////
+// Load
+//////////////////////////////////////////////////////////////////////////
+
+  ** Load from xetolib zip
+  static FileLibVersion loadZipFile(File file)
+  {
+    // sanity check name
+    name := file.basename
+    err := XetoUtil.libNameErr(name)
+    if (err != null) throw Err("Invalid lib name $name.toCode [$file.osPath]")
+
+    // try to parse meta.props
+    [Str:Str]? props
+    zip := Zip.open(file)
+    try
+    {
+      propsFile := zip.contents.get(`/meta.props`) ?: throw Err("Missing 'meta.props' in zip")
+      props = propsFile.readProps
+    }
+    finally zip.close
+
+    // version
+    version := Version.fromStr(props.getChecked("version"))
+
+    // doc
+    doc := props["doc"] ?: ""
+
+    // flags
+    flags := 0
+    if (props["hxSysOnly"] != null) flags = flags.or(FileLibVersion.flagHxSysOnly)
+
+    // depends
+    depends := LibDepend#.emptyList
+    dependsStr := props["depends"]?.trimToNull
+    if (dependsStr != null) depends = dependsStr.split(';').map |s->LibDepend| { parseDepend(s) }
+
+    // create
+    return FileLibVersion(name, version, file, doc, flags, depends)
+  }
+
+  private static LibDepend parseDepend(Str s)
+  {
+    sp := s.index(" ") ?: throw ParseErr("Invalid depend: $s")
+    n  := s[0..<sp].trim
+    v  := LibDependVersions(s[sp+1..-1])
+    return MLibDepend(n, v)
+  }
 }
 

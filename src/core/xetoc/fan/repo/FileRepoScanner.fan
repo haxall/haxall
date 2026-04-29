@@ -59,18 +59,8 @@ internal class FileRepoScanner
 
     try
     {
-      // try to parse meta.props
-      [Str:Str]? props
-      zip := Zip.open(f)
-      try
-      {
-        propsFile := zip.contents.get(`/meta.props`) ?: throw Err("Missing 'meta.props' in zip")
-        props = propsFile.readProps
-      }
-      finally zip.close
-
       // parse to entry and add to accumulator
-      entry := parseZipFile(name, f, props)
+      entry :=  FileLibVersion.loadZipFile(f)
       add(entry)
     }
     catch (Err e)
@@ -78,35 +68,6 @@ internal class FileRepoScanner
       log.warn("Cannot load lib meta $name.toCode [$f.osPath]", e)
       return null
     }
-  }
-
-  private FileLibVersion? parseZipFile(Str name, File file, Str:Str props)
-  {
-    // version
-    version := Version.fromStr(props.getChecked("version"))
-
-    // doc
-    doc := props["doc"] ?: ""
-
-    // flags
-    flags := 0
-    if (props["hxSysOnly"] != null) flags = flags.or(FileLibVersion.flagHxSysOnly)
-
-    // depends
-    depends := LibDepend#.emptyList
-    dependsStr := props["depends"]?.trimToNull
-    if (dependsStr != null) depends = dependsStr.split(';').map |s->LibDepend| { parseDepend(s) }
-
-    // create
-    return FileLibVersion(name, version, file, doc, flags, depends)
-  }
-
-  private static LibDepend parseDepend(Str s)
-  {
-    sp := s.index(" ") ?: throw ParseErr("Invalid depend: $s")
-    n  := s[0..<sp].trim
-    v  := LibDependVersions(s[sp+1..-1])
-    return MLibDepend(n, v)
   }
 
 //////////////////////////////////////////////////////////////////////////
