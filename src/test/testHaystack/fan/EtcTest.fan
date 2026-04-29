@@ -165,6 +165,23 @@ class EtcTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Dict Names
+//////////////////////////////////////////////////////////////////////////
+
+  Void testDictNames()
+  {
+    d := Etc.dict5("a", m, "d", m, "c", m, "b", m, "id", Ref("x"))
+    verifyDictNames(d, "id,a,b,c,d", "a,d,c,b,id")
+  }
+
+  Void verifyDictNames(Dict d, Str sort, Str noSort)
+  {
+    verifyEq(Etc.dictNames(d).join(","), noSort)
+    verifyEq(Etc.dictNames(d, true).join(","), sort)
+    verifyEq(Etc.dictsNames([d]).join(","), sort)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Dict Updates
 //////////////////////////////////////////////////////////////////////////
 

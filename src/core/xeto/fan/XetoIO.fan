@@ -41,6 +41,9 @@ const mixin XetoIO
   ** Write instance data to Xeto source code.  If the val is a Dict[], then
   ** it is flattened in the output.  The stream is left open and returned.
   **
+  ** Following options are supported
+  **   - noSort: marker to prevent dict tags from being sorted by name
+  **
   abstract OutStream writeXeto(OutStream out, Obj? val, Dict? opts := null)
 
   **

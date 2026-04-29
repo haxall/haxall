@@ -29,6 +29,7 @@ class XetoPrinter
     this.ns   = ns
     this.out  = out
     this.opts = opts
+    this.noSort            = opts.has("noSort")
     this.qnameForce        = opts.has("qnameForce")
     this.noDocComment      = opts.has("noDocComment")
     this.showInferredTypes = opts.has("showInferredTypes")
@@ -366,12 +367,17 @@ class XetoPrinter
   {
     spec := specOf(x)
     if (spec != null && (spec.qname != "sys::Dict" || forceType)) type(XpTypeRef(spec)).sp
+
+    // get names in nice order unless noSort
+    names := Etc.dictNames(x, !noSort)
+
     wc('{')
     num := 0
     indent
-    x.each |v, n|
+    names.each |n|
     {
       if (skipDict.containsKey(n)) return
+      v := x.get(n)
       num++
       nl.tab.dictPair(spec, n, v, false)
     }
@@ -570,6 +576,9 @@ class XetoPrinter
 
   ** Options passed
   const Dict opts
+
+  ** Do not sort dict names in output
+  Bool noSort
 
   ** Force qnames
   Bool qnameForce

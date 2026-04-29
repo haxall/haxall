@@ -366,9 +366,15 @@ const class Etc
 
   **
   ** Get a read/write list of the dict's name keys.
+  ** If sort is true, then sort them in standard order
+  ** using same algorthm as `dictsNames`.
   **
-  static Str[] dictNames(Dict d)
+  static Str[] dictNames(Dict d, Bool sort := false)
   {
+    // if sort, then route to common code in dictsNames
+    if (sort) return dictsNames([d])
+
+    // simple, optimized path
     names := Str[,]
     dictEach(d) |v, n| { names.add(n) }
     return names
