@@ -54,8 +54,11 @@ internal class RepoCmd : XetoCmd
     if (asTable)
     {
       table := Obj[,]
-      table.add(["name", "version"])
-      list.each |x| { table.add([x.name, x.version.toStr]) }
+      table.add(["name", "version", "doc"])
+      list.each |x|
+      {
+        table.add([x.name, x.version.toStr, x.doc.truncate(48, "...")])
+      }
       Console.cur.table(table)
     }
     else

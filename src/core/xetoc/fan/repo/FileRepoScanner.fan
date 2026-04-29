@@ -31,49 +31,87 @@ internal class FileRepoScanner
       scanZips(dir, dir+`lib/xeto/`)
       scanSrcs(dir, dir+`src/xeto/`)
     }
-    acc.each |list, name|
-    {
-      list.sortr
-    }
     t2 := Duration.now
     log.info("FileRepo scan [" + (t2-t1).toLocale + "]")
     return FileRepoScan(acc)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Lib Zips
+//////////////////////////////////////////////////////////////////////////
+
   private Void scanZips(File pathDir, File libXetoDir)
   {
-    libXetoDir.list.each |sub|
+    libXetoDir.list.each |f|
     {
-      if (sub.isDir) scanZipLib(sub)
+      scanZipFile(f)
     }
   }
 
-  private Void scanZipLib(File dir)
+  private Void scanZipFile(File f)
   {
-    name := dir.name
+    if (f.isDir || f.ext != "xetolib") return
+
+    // sanity check name
+    name := f.basename
     err := XetoUtil.libNameErr(name)
-    if (err != null) return log.warn("Invalid lib name $name.toCode [$dir.osPath]")
+    if (err != null) return log.warn("Invalid lib name $name.toCode [$f.osPath]")
 
-    dir.list.each |f|
+    try
     {
-      // only care about files with xetolib extension
-      if (f.isDir || f.ext != "xetolib") return
-
-      // parse filename as "{name}-{version}.xetolib"
-      Version? version
-      basename := f.basename
-      if (basename.size >= name.size + 6 && basename[name.size] == '-')
+      // try to parse meta.props
+      [Str:Str]? props
+      zip := Zip.open(f)
+      try
       {
-        version = Version.fromStr(basename[name.size+1..-1], false)
-        if (version != null && version.segments.size != 3)
-          return log.warn("Invalid xetolib version $version [$f.osPath]")
+        propsFile := zip.contents.get(`/meta.props`) ?: throw Err("Missing 'meta.props' in zip")
+        props = propsFile.readProps
       }
-      if (version == null) return log.warn("Invalid xetolib filename [$f.osPath]")
+      finally zip.close
 
-      // add to accumulator (lazily load depends)
-      add(FileLibVersion(name, version, f, null, 0, null))
+      // parse to entry and add to accumulator
+      entry := parseZipFile(name, f, props)
+      add(entry)
+    }
+    catch (Err e)
+    {
+      log.warn("Cannot load lib meta $name.toCode [$f.osPath]", e)
+      return null
     }
   }
+
+  private FileLibVersion? parseZipFile(Str name, File file, Str:Str props)
+  {
+    // version
+    version := Version.fromStr(props.getChecked("version"))
+
+    // doc
+    doc := props["doc"] ?: ""
+
+    // flags
+    flags := 0
+    if (props["hxSysOnly"] != null) flags = flags.or(FileLibVersion.flagHxSysOnly)
+
+    // depends
+    depends := LibDepend#.emptyList
+    dependsStr := props["depends"]?.trimToNull
+    if (dependsStr != null) depends = dependsStr.split(';').map |s->LibDepend| { parseDepend(s) }
+
+    // create
+    return FileLibVersion(name, version, file, doc, flags, depends)
+  }
+
+  private static LibDepend parseDepend(Str s)
+  {
+    sp := s.index(" ") ?: throw ParseErr("Invalid depend: $s")
+    n  := s[0..<sp].trim
+    v  := LibDependVersions(s[sp+1..-1])
+    return MLibDepend(n, v)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Source
+//////////////////////////////////////////////////////////////////////////
 
   private Void scanSrcs(File pathDir, File srcXetoDir)
   {
@@ -116,38 +154,38 @@ internal class FileRepoScanner
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
   private Void add(FileLibVersion entry)
   {
     name := entry.name
-    list := acc[name]
-    if (list == null)
+    dup := acc[name]
+
+    if (dup == null)
     {
-      acc[name] = [entry]
+      acc[name] = entry
       return
     }
 
-    dupIndex := list.findIndex |x| { x.version == entry.version }
-    if (dupIndex == null)
-    {
-      list.add(entry)
-      return
-    }
-
-    dup := list[dupIndex]
-    if (entry.file.isDir && dup.file.ext == "xetolib")
+    if (entry.isSrc && dup.file.ext == "xetolib")
     {
       // source dir hides xetolib
-      list.removeAt(dupIndex)
-      list.add(entry)
+      acc[name] = entry
       return
     }
 
     log.warn("Dup lib $name.toCode lib hidden [$entry.file.osPath]")
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
   private Log log
   private File[] path
-  private Str:FileLibVersion[] acc := [:]
+  private Str:FileLibVersion acc := [:]
 }
 
 **************************************************************************
@@ -156,14 +194,14 @@ internal class FileRepoScanner
 
 internal const class FileRepoScan
 {
-  new make(Str:FileLibVersion[] map)
+  new make(Str:FileLibVersion map)
   {
-    this.libNames = map.keys.sort
-    this.map      = map
+    this.list = map.vals.sort |a, b| { a.name <=> b.name }
+    this.map  = map
   }
 
-  const Str[] libNames
-  const Str:FileLibVersion[] map  // sorted by version latest to oldest
+  const FileLibVersion[] list
+  const Str:FileLibVersion map
   const Str ts := DateTime.now.toLocale("YYYY-MM-DD hh:mm:ss")
 }
 

@@ -36,15 +36,12 @@ const class FileRepo : MLocalRepo
     return this
   }
 
-  override LibVersion[] libs()
-  {
-    scan.libNames.map |n->LibVersion| { lib(n) }
-  }
+  override LibVersion[] libs() { scan.list }
 
   override LibVersion? lib(Str name, Bool checked := true)
   {
     lib := scan.map[name]
-    if (lib != null) return lib.first
+    if (lib != null) return lib
     if (checked) throw UnknownLibErr(name)
     return null
   }

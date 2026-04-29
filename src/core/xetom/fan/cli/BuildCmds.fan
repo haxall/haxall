@@ -97,7 +97,7 @@ internal class CleanCmd : SrcLibCmd
 {
   override Str cmdName() { "clean" }
 
-  override Str summary() { "Delete all xetolib versions for source libs" }
+  override Str summary() { "Delete xetolib versions for source libs" }
 
   override Int process(XetoEnv env, LibVersion[] vers)
   {
@@ -111,9 +111,9 @@ internal class CleanCmd : SrcLibCmd
   private Void clean(LibVersion v)
   {
     // directory for all xetolibs
-    libDir := XetoUtil.srcToLibDir(v)
-    printLine("Delete [$libDir.osPath]")
-    libDir.delete
+    zip := XetoUtil.srcToLibZip(v)
+    printLine("Delete [$zip.osPath]")
+    zip.delete
     return 0
   }
 }

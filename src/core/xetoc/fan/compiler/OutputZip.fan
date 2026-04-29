@@ -38,9 +38,6 @@ internal class OutputZip : Step
     // we only output zip in build mode
     if (!compiler.isBuild) return false
 
-    // for now skip this step in JS runtime
-    if (Env.cur.runtime == "js") return false
-
     return true
   }
 

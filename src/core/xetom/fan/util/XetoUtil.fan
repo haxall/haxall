@@ -415,17 +415,10 @@ const class XetoUtil
     return (v.file + `../../../`).normalize
   }
 
-  ** Return "{work}/lib/xeto/{name}" for source path of "{work}/src/xeto/{name}".
-  static File? srcToLibDir(LibVersion v)
-  {
-    srcToWorkDir(v) + `lib/xeto/${v.name}/`
-  }
-
-  ** Return "{work}/lib/xeto/{name}/{name}-{version}.xetolib" for
-  ** source path of "{work}/src/xeto/{name}".
+  ** Return "{work}/lib/xeto/{name}.xetolib" for zip path.
   static File? srcToLibZip(LibVersion v)
   {
-    srcToWorkDir(v) + `lib/xeto/${v.name}/${v.name}-${v.version}.xetolib`
+    srcToWorkDir(v) + `lib/xeto/${v.name}.xetolib`
   }
 
 //////////////////////////////////////////////////////////////////////////
