@@ -31,7 +31,7 @@ class PrinterTest : AbstractXetoTest
   Void testInstances()
   {
     // basic instance
-    opts := qnameForce
+    opts := Etc.dictSet(qnameForce, "noSort", m)
     out := newCase(opts)
     out.instance(Etc.makeDict(["id":Ref("foo")]))
     verifyInstance(
@@ -54,6 +54,18 @@ class PrinterTest : AbstractXetoTest
              str: "hello"
              date: sys::Date 2025-08-29
              num: sys::Number 123%
+           }
+           |>)
+
+    // with noSort
+    out = newCase(Etc.dictRemove(opts, "noSort"))
+    out.instance(Etc.dictx("id",Ref("foo"), "marker",m, "str","hello", "date",Date("2025-08-29"), "num",n(123, "%")))
+    verifyInstance(
+      Str<|@foo: {
+             date: sys::Date 2025-08-29
+             marker
+             num: sys::Number 123%
+             str: "hello"
            }
            |>)
 
@@ -182,6 +194,7 @@ class PrinterTest : AbstractXetoTest
   {
     lib  := ns.lib("hx.test.xeto")
     date := ns.spec("sys::Date")
+    opts := Etc.dict1("noSort", m)
 
     // TestPrintA
     a := lib.spec("TestPrintA")
@@ -195,7 +208,7 @@ class PrinterTest : AbstractXetoTest
     verifySpecMeta(a.slot("date5"), date, dateMeta.dup.set("val", Date("2026-04-20")).set("metaQ",m))
     verifySpecMeta(a.slot("date6"), date, dateMeta.dup.set("metaQ",m).set("metaStr", "src code"))
     verifySpecMeta(a.slot("date7"), date, dateMeta.dup.set("metaQ",m).set("doc", "comment") { remove("maybe") })
-    newCase.spec(a)
+    newCase(opts).spec(a)
     verifyOutput(
        Str<|TestPrintA: TestPrint {
               date1: 2026-04-20
@@ -211,7 +224,7 @@ class PrinterTest : AbstractXetoTest
 
     // TestPrintB
     b := lib.spec("TestPrintB")
-    newCase.spec(b)
+    newCase(opts).spec(b)
     verifyOutput(
        Str<|TestPrintB: TestPrint {
               meta1: Dict <metaStr:"">
@@ -231,7 +244,7 @@ class PrinterTest : AbstractXetoTest
 
     // TestPrintC
     c := lib.spec("TestPrintC")
-    newCase.spec(c)
+    newCase(opts).spec(c)
     verifyOutput(
        Str<|TestPrintC: TestPrint {
               sv1: StatusNumber {
@@ -246,7 +259,7 @@ class PrinterTest : AbstractXetoTest
 
     // TestPrintD
     d := lib.spec("TestPrintD")
-    newCase.spec(d)
+    newCase(opts).spec(d)
     verifyOutput(
        Str<|TestPrintD: TestPrint {
               marker1
@@ -264,7 +277,7 @@ class PrinterTest : AbstractXetoTest
 
     // TestPrintE
     e := lib.spec("TestPrintE")
-    newCase.spec(e)
+    newCase(opts).spec(e)
     verifyOutput(
        Str<|TestPrintE: TestPrint {
               s1: ""
