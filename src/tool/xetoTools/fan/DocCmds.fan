@@ -25,7 +25,7 @@ internal abstract class AbstractDocCmd : SrcLibCmd
   {
     // flatten and build namespace
     depends := vers.map |x->LibDepend| { x.asDepend }
-    flatten := env.repo.solveDepends(depends)
+    flatten := env.repo.resolveDepends(depends)
     ns := env.createNamespace(flatten)
 
     // get libs to compile

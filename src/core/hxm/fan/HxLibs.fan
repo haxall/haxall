@@ -95,10 +95,10 @@ const class HxLibs : RuntimeLibs
   override RuntimeLib[] installed()
   {
     acc := this.map.dup
-    env.repo.libs.each |n|
+    env.repo.libs.each |v|
     {
+      n := v.name
       if (acc[n] != null) return
-      v := repo.latest(n)
       if (!HxLib.showInstalled(v)) return
       acc[n] = HxLib(v, RuntimeLibBasis.disabled)
     }
@@ -236,7 +236,7 @@ const class HxLibs : RuntimeLibs
   override Void addDepends(Str name, Bool self)
   {
     // solve depends we need to enable too
-    depends := repo.solveDepends([LibDepend(name)])
+    depends := repo.resolveDepends([LibDepend(name)])
     names := depends.map |d->Str| { d.name }
     names = names.findAll |n| { !has(n) }
     if (!self) names.remove(name)
@@ -346,7 +346,7 @@ const class HxLibs : RuntimeLibs
       if (dup != null) throw ArgErr("Lib already enabled: $name [$dup.basis]")
 
       // find latest version and add with my basis
-      ver := repo.latest(name)
+      ver := repo.lib(name)
 
       acc[name] = HxLib(ver, myBasis)
     }
@@ -379,7 +379,7 @@ const class HxLibs : RuntimeLibs
 
         // check that this depend can be met by current view
         err := null
-        x := env.repo.latest(n, false)
+        x := env.repo.lib(n, false)
         if (x == null) err = "Dependency '$n' is not installed"
         else if (!d.versions.contains(x.version)) err = "Dependency '$n' has unmet version constraints: $x.version != $d.versions"
         else if (!rt.isSys && HxLib.isLibVersionSysOnly(x)) err = "Dependency '$n' must be first enabled from 'Sys Libs' view"
@@ -430,7 +430,7 @@ const class HxLibs : RuntimeLibs
 
   private LibVersion updateVersion(Str name)
   {
-    repo.latest(name, false) ?: FileLibVersion.makeNotFound(name)
+    repo.lib(name, false) ?: FileLibVersion.makeNotFound(name)
   }
 
   private CompanionRecs? updateCompanionRecs(HxNamespace? oldNs)

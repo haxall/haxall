@@ -48,7 +48,7 @@ class FixDocs : ConvertCmd
     f := File(target.toUri, false)
     if (f.exists) return fixFile(f)
 
-    lib := XetoEnv.cur.repo.latest(target, false)
+    lib := XetoEnv.cur.repo.lib(target, false)
     if (lib != null && lib.isSrc) return fixFile(lib.file)
 
     echo("ERROR: target not found: $target")

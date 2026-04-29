@@ -33,28 +33,6 @@ const mixin LibRepo
 
   ** Metadata for repo
   abstract Dict meta()
-
-  ** Get the info for a specific library name and version. If the given
-  ** library or version is not available then raise exception or return
-  ** null based on the checked flag.
-  abstract LibVersion? version(Str name, Version version, Bool checked := true)
-
-  ** List the verions available for given library name. The library versions
-  ** are sorted from latest to oldest.  If the library is not available always
-  ** return empty list.
-  **
-  ** Options:
-  **   - limit: max number to return
-  **   - versions: constraints as LibDependVersions instance
-  abstract LibVersion[] versions(Str name, Dict? opts := null)
-
-  ** Get the latest version of the library name available.  If no versions
-  ** are available then raise exception or return null based on check flag.
-  abstract LibVersion? latest(Str name, Bool checked := true)
-
-  ** Get the latest version that matches the given dependency.  If no matches
-  ** are available, then raise exception or return null based on check flag.
-  abstract LibVersion? latestMatch(LibDepend depend, Bool checked := true)
 }
 
 **************************************************************************
@@ -70,13 +48,19 @@ const mixin LibRepo
 @Js
 const mixin LocalRepo : LibRepo
 {
-  ** List the library names installed in the repository.
-  abstract Str[] libs()
+  ** List all libraries installed in the local repository.
+  abstract LibVersion[] libs()
 
-  ** Solve the dependency graph for given list of libs and return a complete
-  ** dependency graph.  Raise an exception is no solution can be computed
-  ** based on the installed lib versions.
-  abstract LibVersion[] solveDepends(LibDepend[] libs)
+  ** Lookup a library by name.
+  abstract LibVersion? lib(Str name, Bool checked := true)
+
+  ** Resolve the dependency graph for given list of libs and return a
+  ** complete dependency graph.  Raise an exception is no solution can be
+  ** computed based on the installed lib versions.
+  abstract LibVersion[] resolveDepends(LibDepend[] libs)
+
+  ** Resolve a library by its name and check its version contraints
+  @NoDoc abstract LibVersion? depend(LibDepend d, Bool checked := true)
 
   ** Rescan repo and update any cached information
   @NoDoc abstract This rescan()
@@ -101,6 +85,28 @@ const mixin RemoteRepo : LibRepo
 
   ** Perform search request on the remote repo
   abstract RemoteRepoSearchRes search(RemoteRepoSearchReq req)
+
+  ** Get the info for a specific library name and version. If the given
+  ** library or version is not available then raise exception or return
+  ** null based on the checked flag.
+  abstract LibVersion? version(Str name, Version version, Bool checked := true)
+
+  ** List the verions available for given library name. The library versions
+  ** are sorted from latest to oldest.  If the library is not available always
+  ** return empty list.
+  **
+  ** Options:
+  **   - limit: max number to return
+  **   - versions: constraints as LibDependVersions instance
+  abstract LibVersion[] versions(Str name, Dict? opts := null)
+
+  ** Get the latest version of the library name available.  If no versions
+  ** are available then raise exception or return null based on check flag.
+  abstract LibVersion? latest(Str name, Bool checked := true)
+
+  ** Get the latest version that matches the given dependency.  If no matches
+  ** are available, then raise exception or return null based on check flag.
+  abstract LibVersion? latestMatch(LibDepend depend, Bool checked := true)
 
   ** Download the xetolib zip for given name and version
   abstract Buf fetch(Str name, Version version)

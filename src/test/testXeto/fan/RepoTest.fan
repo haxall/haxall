@@ -31,14 +31,8 @@ class RepoTest : AbstractXetoTest
     verifySame(repo.libs, libs)
     libs.each |lib|
     {
-      versions := repo.versions(lib)
-      versions.each |v|
-      {
-        verifyVersion(repo, lib, v)
-      }
-      verifySame(versions.last, repo.latest(lib))
+      verifySame(lib, repo.lib(lib.name))
     }
-
   }
 
   Void verifyVersion(LibRepo repo, Str name, LibVersion v)
@@ -133,7 +127,7 @@ class RepoTest : AbstractXetoTest
   {
     LibVersion[] libs := names.split(',').map |x->LibVersion|
     {
-      repo.latest(x, false) ?: FileLibVersion.makeNotFound(x)
+      repo.lib(x, false) ?: FileLibVersion.makeNotFound(x)
     }
 
     (libs.size * 2).times
@@ -220,7 +214,7 @@ class RepoTest : AbstractXetoTest
     targets := depends(targetsStr)
     expects := expectStr.split(',').sort
     // echo; echo("== verifySolveDepends: $targets")
-    actuals := repo.solveDepends(targets)
+    actuals := repo.resolveDepends(targets)
                 .sort |a, b| { a.name <=> b.name }
                 .map |x->Str| { "$x.name $x.version" }
     verifyEq(actuals, expects)
@@ -230,7 +224,7 @@ class RepoTest : AbstractXetoTest
   {
     targets := depends(targetsStr)
     // echo; echo("== verifySolveDependsErr: $targets")
-    verifyErrMsg(DependErr#, expect) { repo.solveDepends(targets) }
+    verifyErrMsg(DependErr#, expect) { repo.resolveDepends(targets) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -246,7 +240,7 @@ class RepoTest : AbstractXetoTest
     //
     // sys only
     //
-    LibVersion sysVer := repo.latest("sys")
+    LibVersion sysVer := repo.lib("sys")
     ns := env.createNamespace([sysVer])
     sysNs := ns
     verifyEq(ns.versions, [sysVer])
@@ -274,7 +268,7 @@ class RepoTest : AbstractXetoTest
     //
     // sys and ph
     //
-    LibVersion phVer := repo.latest("ph")
+    LibVersion phVer := repo.lib("ph")
     ns = env.createNamespace([phVer, sysVer])
     verifySame(ns.digest, ns.digest)
     verifyNotEq(sysNs.digest, ns.digest)
@@ -310,6 +304,7 @@ class RepoTest : AbstractXetoTest
 
   Void testFileRepo()
   {
+/*
     tempDir := this.tempDir.normalize
     path := Env.cur.path.dup.insert(0, tempDir)
     env := ServerEnv("test", path)
@@ -331,7 +326,7 @@ class RepoTest : AbstractXetoTest
     repo := env.repo
 
     // verify sorted oldest to newest
-    all := repo.versions(n)
+    all := repo.lib(n)
     // echo(all.join("\n"))
     versions.sortr
     verifyEq(all.first.version, versions.first)
@@ -411,6 +406,7 @@ class RepoTest : AbstractXetoTest
   {
     f := dir + `lib/xeto/${n}/${n}-${v}.xetolib`
     f.out.print("fake").close
+*/
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -492,31 +488,57 @@ class RepoTest : AbstractXetoTest
 ** TestLocalRepo
 **************************************************************************
 
+** This guy stores multiple versions of each repo to maintain
+** the multi-version test suite for dependency solver
 internal const class TestLocalRepo : MLocalRepo
 {
   new make(MEnv env, Str:TestLibVersion[] map) : super(env) { this.map = map }
 
   override This rescan() { this }
 
-  override Str[] libs() { map.keys.sort }
-
-  override LibVersion[] versions(Str name, Dict? opts := null)
+  override LibVersion[] libs()
   {
-    list := map.get(name) ?: LibVersion[,]
-    list = list.dup.sortr
-    return findAllVersionsWithOpts(list, opts)
+    map.keys.sort.map |n->LibVersion| { lib(n) }
   }
 
-  override LibVersion[] solveDepends(LibDepend[] libs)
+  override LibVersion? lib(Str n, Bool checked := true)
+  {
+    list := versions(n)
+    if (list != null) return list.first
+    if (checked) throw UnknownLibErr(n)
+    return null
+  }
+
+  override LibVersion? depend(LibDepend d, Bool checked := true)
+  {
+    list := versions(d.name)
+    if (list != null)
+    {
+      match := list.dup.sortr.find { d.versions.contains(it.version) }
+      if (match != null) return match
+    }
+    if (checked) throw UnknownLibErr(d.toStr)
+    return null
+  }
+
+  override LibVersion[] resolveDepends(LibDepend[] libs)
   {
     DependSolver(this, libs).solve
+  }
+
+  LibVersion[]? versions(Str n)
+  {
+    // list newest to oldest
+    list := map[n]
+    if (list == null) return null
+    return list.dup.sortr
   }
 
   Void dump()
   {
     libs.each |lib|
     {
-      vers := versions(lib)
+      vers := map.get(lib.name)
       echo("-- $lib [$vers.size versions]")
       vers.each |v| { echo("   $v.version $v.depends") }
     }

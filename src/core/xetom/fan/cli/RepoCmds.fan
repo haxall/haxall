@@ -32,10 +32,11 @@ internal class RepoCmd : XetoCmd
   {
     super.usage(out)
     out.printLine("Examples:")
-    out.printLine("  xeto repo                  // list the latest version of all libs")
-    out.printLine("  xeto repo sys -versions    // list all versions of the sys lib")
-    out.printLine("  xeto repo -full            // list full details of latest version of all libs")
-    out.printLine("  xeto repo -full -versions  // list the latest version of all libs")
+    out.printLine("  xeto repo            // list all libs as table")
+    out.printLine("  xeto repo sys        // list specific lib")
+    out.printLine("  xeto repo sys ph     // list multiple libs")
+    out.printLine("  xeto repo sys -full  // list full details of a specific lib")
+    out.printLine("  xeto repo -full      // list full details of all libs")
     return 1
   }
 
@@ -43,46 +44,37 @@ internal class RepoCmd : XetoCmd
   {
     // find libs to list
     repo := XetoEnv.cur.repo
-    libNames := this.libs ?: repo.libs
-    echo
+    LibVersion[]? list
+    list = libs == null ?
+           repo.libs :
+           libs.map |n->LibVersion| { repo.lib(n) }
 
-    // dump each lib
-    libNames.each |libName|
+    // use table if not full
+    asTable := !full
+    if (asTable)
     {
-      listLib(repo, libName)
+      table := Obj[,]
+      table.add(["name", "version"])
+      list.each |x| { table.add([x.name, x.version.toStr]) }
+      Console.cur.table(table)
     }
-
-    echo
+    else
+    {
+      echo
+      list.each |x| { printFull(x) }
+      echo
+    }
     return 0
   }
 
-  private Void listLib(LocalRepo repo, Str name)
+  private Void printFull(LibVersion x)
   {
-    // if not dumping all versions, just print latest
-    if (!versions)
-    {
-      latest := repo.latest(name)
-      echo("$name [$latest.version]")
-      if (full) listFull(latest, Str.spaces(2))
-      return
-    }
-
-    // list all of them
-    versions := repo.versions(name)
-    echo
-    echo("$name")
-    versions.each |v|
-    {
-      echo("  $v.version")
-      if (full) listFull(v, Str.spaces(4))
-    }
-  }
-
-  private Void listFull(LibVersion v, Str indent)
-  {
-    echo(indent + "File:   $v.file.osPath")
-    echo(indent + "Doc:    $v.doc")
-    v.depends.each |d| { echo(indent + "Depend: $d" ) }
+    echo("$x.name")
+    echo("  Version: $x.version")
+    echo("  File:    $x.file.osPath")
+    echo("  Doc:     $x.doc")
+    if (x.origin != null) echo("  Origin: $x.origin")
+    echo("  Depends: " + x.depends.join(", "))
   }
 }
 

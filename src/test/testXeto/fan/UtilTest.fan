@@ -697,7 +697,7 @@ class UtilTest : AbstractXetoTest
 
   Void testLibVersion()
   {
-    verifyLibVersion(XetoEnv.cur.repo.latest("sys"))
+    verifyLibVersion(XetoEnv.cur.repo.lib("sys"))
     verifyLibVersion(RemoteLibVersion("foo.bar", Version("1.2.3"), "", LibDepend[,]))
   }
 

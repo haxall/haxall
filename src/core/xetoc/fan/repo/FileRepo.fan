@@ -36,17 +36,20 @@ const class FileRepo : MLocalRepo
     return this
   }
 
-  override Str[] libs()
+  override LibVersion[] libs()
   {
-    scan.libNames
+    scan.libNames.map |n->LibVersion| { lib(n) }
   }
 
-  override LibVersion[] versions(Str name, Dict? opts := null)
+  override LibVersion? lib(Str name, Bool checked := true)
   {
-    findAllVersionsWithOpts(scan.map.get(name), opts)
+    lib := scan.map[name]
+    if (lib != null) return lib.first
+    if (checked) throw UnknownLibErr(name)
+    return null
   }
 
-  override LibVersion[] solveDepends(LibDepend[] libs)
+  override LibVersion[] resolveDepends(LibDepend[] libs)
   {
     DependSolver(this, libs).solve
   }
@@ -56,18 +59,18 @@ const class FileRepo : MLocalRepo
     makeNamespace(libs)
   }
 
-  Namespace createFromNames(Str[] names)
+  Namespace resolveNamespace(Str[] names)
   {
     if (names.isEmpty) names = ["sys"]
     depends := names.map |n->LibDepend| { LibDepend(n) }
-    vers    := solveDepends(depends)
+    vers    := resolveDepends(depends)
     return createNamespace(vers)
   }
 
-  Namespace createFromData(Dict[] recs)
+  Namespace deriveNamespace(Dict[] recs)
   {
     libNames := XetoUtil.dataToLibs(recs)
-    return createFromNames(libNames)
+    return resolveNamespace(libNames)
   }
 
   private Namespace makeNamespace(LibVersion[] versions)

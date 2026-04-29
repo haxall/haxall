@@ -115,7 +115,7 @@ internal abstract class ExportCmd : XetoCmd
 
   private ExportTarget[] findAllTargets(LocalRepo repo)
   {
-    repo.libs.map |libName->ExportTarget| { findTarget(repo, libName) }
+    repo.libs.map |lib->ExportTarget| { findTarget(repo, lib.name) }
   }
 
   private ExportTarget findTarget(LocalRepo repo, Str name)
@@ -131,18 +131,8 @@ internal abstract class ExportCmd : XetoCmd
       specName = XetoUtil.qnameToName(name)
     }
 
-    // parse out version
-    if (libName.contains("-"))
-    {
-      dash := libName.index("-")
-      version = Version.fromStr(libName[dash+1..-1])
-      libName = libName[0..<dash]
-    }
-
     // resolve library version
-    lib := version == null ?
-           repo.latest(libName) :
-           repo.version(libName, version)
+    lib := repo.lib(libName)
 
     return ExportTarget(lib, specName)
   }
@@ -161,7 +151,7 @@ internal abstract class ExportCmd : XetoCmd
     }
 
     // solve dependencies
-    versions := env.repo.solveDepends(depends.vals)
+    versions := env.repo.resolveDepends(depends.vals)
 
     // create namespace from our dependency solution
     return env.createNamespace(versions)

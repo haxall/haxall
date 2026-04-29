@@ -37,9 +37,9 @@ const class RemoteEnv : MEnv
     MNamespace(this, libs)
   }
 
-  override Namespace createNamespaceFromNames(Str[] names) { throw unavailErr() }
+  override Namespace resolveNamespace(Str[] names) { throw unavailErr() }
 
-  override Namespace createNamespaceFromData(Dict[] recs) { throw unavailErr() }
+  override Namespace deriveNamespace(Dict[] recs) { throw unavailErr() }
 
   override Void clearLibCache() {}
 

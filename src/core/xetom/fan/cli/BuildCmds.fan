@@ -47,11 +47,8 @@ abstract class SrcLibCmd : XetoCmd
     {
       vers := LibVersion[,]
       inOsPath := allIn?.normalize?.pathStr
-      env.repo.libs.each |libName|
+      env.repo.libs.each |ver|
       {
-        ver := env.repo.latest(libName, false)
-        if (ver == null) return null
-
         f := ver.file(false)
         if (f == null) return
         if (!ver.isSrc) return
@@ -79,7 +76,7 @@ abstract class SrcLibCmd : XetoCmd
     // explicit list of lib names
     vers := libs.map |x->LibVersion|
     {
-      ver := env.repo.latest(x, false)
+      ver := env.repo.lib(x, false)
       if (ver == null || !ver.isSrc) throw Err("Lib src not available: $x")
       return ver
     }

@@ -159,14 +159,14 @@ const class ServerEnv : MEnv
     repo.createNamespace(libs)
   }
 
-  override Namespace createNamespaceFromNames(Str[] names)
+  override Namespace resolveNamespace(Str[] names)
   {
-    repo.createFromNames(names)
+    repo.resolveNamespace(names)
   }
 
-  override Namespace createNamespaceFromData(Dict[] recs)
+  override Namespace deriveNamespace(Dict[] recs)
   {
-    repo.createFromData(recs)
+    repo.deriveNamespace(recs)
   }
 
 //////////////////////////////////////////////////////////////////////////

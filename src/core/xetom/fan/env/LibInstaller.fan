@@ -68,7 +68,7 @@ class LibInstaller
     libs.each |lib|
     {
       n := lib.name
-      cur := env.repo.latest(n, false)
+      cur := env.repo.lib(n, false)
       if (cur != null) throw Err("Lib already installed: $n")
 
       p := LibInstallPlan
@@ -90,7 +90,7 @@ class LibInstaller
     libs.each |lib|
     {
       n := lib.name
-      cur := env.repo.latest(n)
+      cur := env.repo.lib(n)
 
       p := LibInstallPlan
       {
@@ -110,7 +110,7 @@ class LibInstaller
     acc := LibInstallPlan[,]
     libs.each |n|
     {
-      cur := env.repo.latest(n)
+      cur := env.repo.lib(n)
       p := LibInstallPlan
       {
         it.action = LibInstallAction.uninstall

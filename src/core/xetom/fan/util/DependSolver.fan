@@ -40,7 +40,7 @@ class DependSolver
     // if we have not, then find the latest version available that matches
     if (x == null)
     {
-      x = repo.latestMatch(d, false) ?: throw DependErr("$who dependency: $d.toStr [not found]")
+      x = repo.depend(d, false) ?: throw DependErr("$who dependency: $d.toStr [not found]")
       acc[x.name] = x
     }
 

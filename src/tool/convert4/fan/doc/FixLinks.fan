@@ -18,8 +18,7 @@ class FixLinks
   ** should be created once and then reused.
   static FixLinks load(FandocAnchorMap anchors := FandocAnchorMap.load)
   {
-    libs := XetoEnv.cur.repo.libs
-    ns := XetoEnv.cur.createNamespaceFromNames(libs)
+    ns := XetoEnv.cur.createNamespace(XetoEnv.cur.repo.libs)
     return make(ns, anchors)
   }
 

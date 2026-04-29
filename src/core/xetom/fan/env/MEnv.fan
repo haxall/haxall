@@ -205,7 +205,7 @@ abstract const class MEnv : XetoEnv
     }
 
     // solve dependency graph for full list of libs
-    libs := repo.solveDepends(buildAsDepends)
+    libs := repo.resolveDepends(buildAsDepends)
 
     // build map of lib name to
     buildFiles := Str:File[:]

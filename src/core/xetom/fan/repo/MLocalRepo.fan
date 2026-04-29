@@ -27,5 +27,13 @@ abstract const class MLocalRepo : MRepo, LocalRepo
 
   override Dict meta() { Etc.dict0 }
 
+  override LibVersion? depend(LibDepend d, Bool checked := true)
+  {
+    lib := lib(d.name, false)
+    if (lib != null && d.versions.contains(lib.version)) return lib
+    if (checked) throw UnknownLibErr(d.toStr)
+    return null
+  }
+
 }
 
