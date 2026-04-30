@@ -417,9 +417,8 @@ internal const class LibVerArg
     }
     else
     {
-      rest := s[dash+1..-1]
       this.name    = s[0..<dash]
-      this.version = Version.fromStr(s[0..<dash])
+      this.version = Version.fromStr(s[dash+1..-1])
     }
   }
 
@@ -441,9 +440,8 @@ internal const class LibDependArg
     }
     else
     {
-      rest := s[dash+1..-1]
       this.name        = s[0..<dash]
-      this.constraints = LibDependVersions.fromStr(s[0..<dash])
+      this.constraints = LibDependVersions.fromStr(s[dash+1..-1])
       this.depend      = LibDepend(name, constraints)
     }
   }
