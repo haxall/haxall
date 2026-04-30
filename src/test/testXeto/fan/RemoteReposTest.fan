@@ -261,6 +261,21 @@ class RemoteReposTest : AbstractXetoTest
     inst.execute
     verifyLibInstalled("alpha", "2.3.0")
     verifyLibInstalled("beta", "2.0.1")
+
+    // verify uninstall errors
+    verifyErr(UnknownLibErr#) { LibInstaller(env).uninstall(["notfound"]) }
+    verifyUnsolvable("Cannot uninstall 'sys', required by 'alpha'") { LibInstaller(env).uninstall(["sys"]) }
+    verifyUnsolvable("Cannot uninstall 'alpha', required by 'beta'") { LibInstaller(env).uninstall(["alpha"]) }
+
+    // uninstall
+    inst = LibInstaller(env).uninstall(["alpha", "beta"])
+    verifyPlan(inst,
+      """x alpha 2.3.0 -> null null
+         x beta 2.0.1 -> null null
+         """)
+    inst.execute
+    verifyLibNotInstalled("alpha")
+    verifyLibNotInstalled("beta")
   }
 
   Void verifyPlan(LibInstaller inst, Str expect)
@@ -277,7 +292,8 @@ class RemoteReposTest : AbstractXetoTest
     lines.each |e, i|
     {
       p := inst.plan[i]
-      a := p.action.name[0..0] + " " + p.name + " " +
+      sym := p.action.name == "uninstall" ? "x" :  p.action.name[0..0]
+      a := sym + " " + p.name + " " +
            p.curVer?.version + " -> " + p.newVer?.version + " " + p.repo
       if (p.transitive) a += " transitive"
       if (debug)
@@ -292,7 +308,13 @@ class RemoteReposTest : AbstractXetoTest
 
   Void verifyLibNotInstalled(Str n)
   {
-    local := XetoEnv.cur.repo
+    xf := env.workDir + `lib/xeto/${n}.xetolib`
+    verifyEq(xf.exists, false)
+
+    of := env.workDir + `lib/xeto/${n}-origin.props`
+    verifyEq(of.exists, false)
+
+    local := env.repo
     verifyEq(local.lib(n, false), null)
     verifyEq(local.libs.find { it.name == n }, null)
   }
@@ -395,12 +417,13 @@ const class TestRemoteRepo : MRemoteRepo
   override Buf fetch(Str name, Version version)
   {
     buf := Buf()
+    v := this.version(name, version)
     zip := Zip.write(buf.out)
     zip.writeNext(`/meta.props`)
        .printLine("name=$name")
        .printLine("version=$version")
        .printLine("doc=Test it!")
-       .printLine("depends=sys x.x.x")
+       .printLine("depends=" + v.depends.join(";"))
        .close
     zip.close
     return buf.toImmutable

@@ -101,14 +101,32 @@ class LibInstaller
   ** Plan an uninstall operation
   This uninstall(Str[] libs)
   {
-    acc := LibInstallPlan[,]
+    // build plan, lookup each lib as first step
+    acc := Str:LibInstallPlan[:]
     libs.each |n|
     {
       cur := env.repo.lib(n)
+      if (cur.isSrc) throw InstallPlanErr("Cannot delete source lib '$n'")
       p := LibInstallPlan.uninstall(cur)
-      acc.add(p)
+      acc.add(n, p)
     }
-    return initPlan(acc)
+
+    // now verify we aren't breaking any install depends
+    env.repo.libs.each |lib|
+    {
+      // skip it if its in our delete list
+      if (acc[lib.name] != null) return
+
+      // check
+      lib.depends.each |d|
+      {
+        toDelete := acc[d.name]
+        if (toDelete != null)
+          throw InstallPlanErr("Cannot uninstall '$toDelete.name', required by '$lib.name'")
+      }
+    }
+
+    return initPlan(acc.vals)
   }
 
   ** Set plan and return this
@@ -229,6 +247,13 @@ class LibInstaller
     fetched.each |f| { f.copyInto(workDirLib, moveOpts) }
     tempDir.delete
 
+    // finally delete any uninstalls
+    plan.each |p|
+    {
+      if (p.action === LibInstallAction.uninstall)
+        libDelete(p)
+    }
+
     // force reload of env
     env.repo.rescan
   }
@@ -258,7 +283,10 @@ class LibInstaller
 
   private Void libDelete(LibInstallPlan p)
   {
-    throw Err("TODO: delete: $p")
+    f := p.curVer.file
+    o := f.parent + `${p.name}-origin.props`
+    f.delete
+    o.delete
   }
 
 //////////////////////////////////////////////////////////////////////////
