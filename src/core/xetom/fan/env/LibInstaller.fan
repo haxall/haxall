@@ -25,9 +25,10 @@ class LibInstaller
   new make(XetoEnv env, Dict? opts := null)
   {
     if (opts == null) opts = Etc.dict0
-    this.env     = env
-    this.opts    = opts
-    this.upgrade = opts.has("upgrade")
+    this.env        = env
+    this.opts       = opts
+    this.upgrade    = opts.has("upgrade")
+    this.installDir = opts["installDir"] ?: env.installDir
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -43,6 +44,9 @@ class LibInstaller
   ** Option that allows install to update currently installed libs
   ** if required to meet dependencies (default is false)
   const Bool upgrade
+
+  ** Path directory as root of lib/xeto to install to
+  const File installDir
 
   ** Get the plan or raise exception if not planned
   LibInstallPlan[] plan() { planRef ?: throw Err("Not planned!") }
@@ -162,7 +166,7 @@ class LibInstaller
       origin := curVer.origin(false) ?: throw InstallPlanErr("No origin for '$d.name' that requires update")
       newVer = resolveRemoteDepend(origin.repo, d)
       if (newVer == null) throw InstallPlanErr("Unresolved depend '$d' in repo '$install.name'")
-      acc.add(name, LibInstallPlan.update(origin.repo, curVer, newVer, origin.transitive))
+      acc.add(name, LibInstallPlan.update(origin.repo, curVer, newVer, transitive))
     }
 
     // now ensure depends are solved
@@ -192,7 +196,50 @@ class LibInstaller
   ** Execute the plan
   Void execute()
   {
-    echo("TODO execute....")
+    // first pass fetches everything we need to temp directory
+    ts := DateTime.now.toLocale("YYMMDD-hhmmss")
+    tempDir := Env.cur.tempDir + `xeto-install-$ts/`
+    fetched := File[,]
+    plan.each |p|
+    {
+      if (p.action.isFetch)
+        fetched.addAll(fetch(p, tempDir))
+    }
+
+    // now move fetched files to the install workDir
+    workDirLib := installDir + `lib/xeto/`
+    fetched.each |f| { f.moveInto(workDirLib) }
+
+    // force reload of env
+    env.repo.rescan
+  }
+
+  ** Fetch plan lib
+  private File[] fetch(LibInstallPlan p, File tempDir)
+  {
+    try
+    {
+      libFile := tempDir.plus(`${p.name}.xetolib`)
+      originFile := tempDir.plus(`${p.name}-origin.props`)
+
+      // fetch from remote repo
+      contents := p.repo.fetch(p.name, p.newVer.version)
+      libFile.out.writeBuf(contents).close
+
+      // write origin file
+      originFile.out.writeProps(p.toOriginProps(contents)).close
+
+      return [libFile, originFile]
+    }
+    catch (Err e)
+    {
+      throw InstallExecuteErr("Fetch failed for lib '$p.name' from '$p.repo.name'", e)
+    }
+  }
+
+  private Void libDelete(LibInstallPlan p)
+  {
+    throw Err("TODO: delete: $p")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -278,6 +325,18 @@ const class LibInstallPlan
 
   ** Debug string
   override Str toStr() { "$action $curVer -> $newVer" }
+
+  ** Origin props file
+  Str:Str toOriginProps(Buf contents)
+  {
+    if (repo == null) throw Err("Not origin action $this")
+    return Str:Str[
+      "repo":    repo.name,
+      "uri":     repo.uri.toStr,
+      "fetched": DateTime.now.toStr,
+      "digest":  "sha256:" + contents.toDigest("SHA-256").toBase64Uri,
+    ]
+  }
 }
 
 **************************************************************************
@@ -291,5 +350,7 @@ enum class LibInstallAction
   update,
   uninstall,
   none
+
+  Bool isFetch() { this === install || this === update }
 }
 

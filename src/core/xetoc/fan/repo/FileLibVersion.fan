@@ -9,6 +9,7 @@
 using concurrent
 using xeto
 using xetom
+using haystack
 
 **
 ** LibVersion implementation for FileRepo
@@ -78,13 +79,6 @@ const class FileLibVersion : LibVersion
   override LibDepend[]? depends(Bool checked := true) { dependsRef }
   private const LibDepend[] dependsRef
 
-  override LibOrigin? origin(Bool checked := true)
-  {
-    // TODO
-    if (checked) throw Err("No origin for '$name'")
-    return null
-  }
-
   override const Str doc
 
   override const Int flags
@@ -144,5 +138,61 @@ const class FileLibVersion : LibVersion
     v  := LibDependVersions(s[sp+1..-1])
     return MLibDepend(n, v)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Origin
+//////////////////////////////////////////////////////////////////////////
+
+  override LibOrigin? origin(Bool checked := true)
+  {
+    if (originRef == null) loadOrigin
+    if (originRef != null) return originRef
+    if (checked) throw Err("No origin for '$name'")
+    return null
+  }
+  private const LibOrigin? originRef
+
+  private Void loadOrigin()
+  {
+    // lazy load origin
+    if (isSrc) return
+    f := file.parent + `${name}-origin.props`
+    if (!f.exists) return
+
+    try
+      #originRef->setConst(this, MLibOrigin(f))
+    catch (Err e)
+      throw Err("Cannot load origin file [$f.osPath]", e)
+  }
+}
+
+**************************************************************************
+** MLibOrigin
+**************************************************************************
+
+@Js
+internal const class MLibOrigin : LibOrigin
+{
+  new make(File f)
+  {
+    acc := Str:Obj[:]
+    f.readProps.each |Obj? v, Str n|
+    {
+      if (n == "uri") v = Uri.fromStr(v)
+      else if (n == "fetched") v = DateTime.fromStr(v)
+      acc[n] = v
+    }
+    meta := Etc.dictFromMap(acc)
+
+    this.repoName = meta->repo
+    this.uri      = meta->uri
+    this.fetched  = meta->fetched
+    this.meta     = meta
+  }
+
+  override const Str repoName
+  override const Uri uri
+  override const DateTime fetched
+  override const Dict meta
 }
 

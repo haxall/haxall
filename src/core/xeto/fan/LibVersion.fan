@@ -178,17 +178,14 @@ const mixin LibVersion
 @Js
 const mixin LibOrigin
 {
+  ** Remote repo name
+  abstract Str repoName()
+
   ** URI of the remote repo
   abstract Uri uri()
 
-  ** Remote repo instance
-  abstract RemoteRepo repo()
-
   ** DateTime when library was downloaded from remote repo
-  @NoDoc abstract DateTime? fetched
-
-  ** Was lib installed due to a transitive dependency
-  @NoDoc abstract Bool transitive
+  @NoDoc abstract DateTime fetched()
 
   ** Metadata about the origin
   @NoDoc abstract Dict meta()

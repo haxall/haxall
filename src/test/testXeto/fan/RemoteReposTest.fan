@@ -239,6 +239,16 @@ class RemoteReposTest : AbstractXetoTest
     verifyUnsolvable("Unresolved dependency 'notfound x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.c")]) }
     verifyUnsolvable("Unresolved dependency 'bad.c 9.0.0' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.d")]) }
     verifyUnsolvable("Unresolved dependency 'whatitis x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("whatitis")]) }
+
+    // ok lets run the beta (+alpha) plan
+    inst = LibInstaller(env).install(remote, [LibDepend("beta")])
+    verifyPlan(inst,
+      """i alpha null -> 2.3.0 test transitive
+         i beta null -> 2.0.1 test
+         """)
+    inst.execute
+    verifyLibInstalled("alpha", "2.3.0")
+    verifyLibInstalled("beta", "2.0.1")
   }
 
   Void verifyPlan(LibInstaller inst, Str expect)
@@ -273,6 +283,31 @@ class RemoteReposTest : AbstractXetoTest
     local := XetoEnv.cur.repo
     verifyEq(local.lib(n, false), null)
     verifyEq(local.libs.find { it.name == n }, null)
+  }
+
+  Void verifyLibInstalled(Str n, Str v)
+  {
+    xf := env.workDir + `lib/xeto/${n}.xetolib`
+    verifyEq(xf.exists, true)
+
+    of := env.workDir + `lib/xeto/${n}-origin.props`
+    verifyEq(of.exists, true)
+    // echo(of.readProps)
+
+    // verify lib basics
+    lib := env.repo.lib(n)
+    verifyEq(lib.name, n)
+    verifyEq(lib.version.toStr, v)
+    verifyEq(lib.file.parent, env.workDir + `lib/xeto/`)
+
+    // verify origin
+    o := lib.origin
+    verifyEq(o.repoName, remote.name)
+    verifyEq(o.uri, remote.uri)
+    verifyEq(o.fetched.date, Date.today)
+    verifyEq(o.meta->fetched, o.fetched)
+    verifySame(o.meta->uri, o.uri)
+    verifySame(o.meta->repo, o.repoName)
   }
 
   Void verifyUnsolvable(Str msg, |Test->LibInstaller| f)
@@ -347,8 +382,16 @@ const class TestRemoteRepo : MRemoteRepo
 
   override Buf fetch(Str name, Version version)
   {
-    lib := this.version(name, version)
-    return Buf().print("test $lib.toStr").toImmutable
+    buf := Buf()
+    zip := Zip.write(buf.out)
+    zip.writeNext(`/meta.props`)
+       .printLine("name=$name")
+       .printLine("version=$version")
+       .printLine("doc=Test it!")
+       .printLine("depends=sys x.x.x")
+       .close
+    zip.close
+    return buf.toImmutable
   }
 
   LibVersion lib(Str n, Str v, Str depends := "")
