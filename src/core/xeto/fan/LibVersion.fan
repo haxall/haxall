@@ -26,8 +26,8 @@ const mixin LibVersion
   ** Summary information or empty string if not available
   abstract Str doc()
 
-  ** Origin metadata if this lib was installed from a remote repo or null if unknown
-  abstract LibOrigin? origin()
+  ** Origin metadata if this lib was installed from a remote repo
+  abstract LibOrigin? origin(Bool checked := true)
 
   ** Sort by name, then version
   override final Int compare(Obj that)
@@ -186,6 +186,9 @@ const mixin LibOrigin
 
   ** DateTime when library was downloaded from remote repo
   @NoDoc abstract DateTime? fetched
+
+  ** Was lib installed due to a transitive dependency
+  @NoDoc abstract Bool transitive
 
   ** Metadata about the origin
   @NoDoc abstract Dict meta()

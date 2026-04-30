@@ -72,6 +72,9 @@ internal class InstallCmd : AbstractInstallCmd
   @Opt { help = "Name of remote repo (if not default)"; aliases = ["r"] }
   Str? repo
 
+  @Opt { help = "Upgrade currently installed libs if needed"; aliases=["u"] }
+  Bool upgrade
+
   @Arg { help = "Libs to install formatted as name or name-x.x.x" }
   Str[]? libs
 
@@ -87,6 +90,7 @@ internal class InstallCmd : AbstractInstallCmd
     out.printLine("  xeto i foo -r acme   // install from remote repo named 'acme'")
     out.printLine("  xeto i foo -preview  // dry run preview only")
     out.printLine("  xeto i foo -y        // skip confirmation")
+    out.printLine("  xeto i foo -upgrade  // update installed libs if needed to meet foo depends")
     return 1
   }
 
@@ -94,9 +98,10 @@ internal class InstallCmd : AbstractInstallCmd
   {
     try
     {
+      opts := Etc.dict1x("upgrade", Marker.fromBool(upgrade))
       repo := remote(repo)
       libs := this.libs.map |x->LibDepend| { LibDependArg(x).depend }
-      inst := LibInstaller(env).install(repo, libs)
+      inst := LibInstaller(env, opts).install(repo, libs)
       return previewAndExecute(inst)
     }
     catch (Err e)

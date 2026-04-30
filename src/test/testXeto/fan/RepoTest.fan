@@ -558,7 +558,7 @@ internal const class TestLibVersion : LibVersion
   override const Version version
   override LibDepend[]? depends(Bool checked := true) { dependsRef }
   const LibDepend[] dependsRef
-  override LibOrigin? origin() { null }
+  override LibOrigin? origin(Bool checked := true) { null }
   override Str doc() { "" }
   override Bool isSrc() { false }
   override Int flags() { 0 }

@@ -22,7 +22,13 @@ class LibInstaller
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(XetoEnv env) { this.env = env }
+  new make(XetoEnv env, Dict? opts := null)
+  {
+    if (opts == null) opts = Etc.dict0
+    this.env     = env
+    this.opts    = opts
+    this.upgrade = opts.has("upgrade")
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // State
@@ -30,6 +36,13 @@ class LibInstaller
 
   ** Environment
   const XetoEnv env
+
+  ** Options
+  const Dict opts
+
+  ** Option that allows install to update currently installed libs
+  ** if required to meet dependencies (default is false)
+  const Bool upgrade
 
   ** Get the plan or raise exception if not planned
   LibInstallPlan[] plan() { planRef ?: throw Err("Not planned!") }
@@ -64,44 +77,21 @@ class LibInstaller
   ** Plan an install operation from given repo
   This install(RemoteRepo repo, LibDepend[] libs)
   {
-    acc := LibInstallPlan[,]
+    // sanity check none are already installed
     libs.each |lib|
     {
-      n := lib.name
-      cur := env.repo.lib(n, false)
-      if (cur != null) throw Err("Lib already installed: $n")
-
-      p := LibInstallPlan
-      {
-        it.action = LibInstallAction.install
-        it.name   = n
-        it.newVer = RemoteLibVersion(n, Version("0.0.0")) // TODO
-        it.repo   = repo
-      }
-      acc.add(p)
+      cur := env.repo.lib(lib.name, false)
+      if (cur != null) throw InstallPlanErr("Lib '$lib.name' already installed (run update)")
     }
-    return initPlan(acc)
+    initPlan(resolvePlan(repo, libs))
+    return this
   }
 
   ** Plan an update operation using origin repo of each lib
   This update(LibDepend[] libs)
   {
-    acc := LibInstallPlan[,]
-    libs.each |lib|
-    {
-      n := lib.name
-      cur := env.repo.lib(n)
-
-      p := LibInstallPlan
-      {
-        it.action = LibInstallAction.update
-        it.name   = n
-        it.curVer = cur
-        it.newVer = RemoteLibVersion(n, Version("0.0.0")) // TODO
-      }
-      acc.add(p)
-    }
-    return initPlan(acc)
+    initPlan(resolvePlan(null, libs))
+    return this
   }
 
   ** Plan an uninstall operation
@@ -111,13 +101,7 @@ class LibInstaller
     libs.each |n|
     {
       cur := env.repo.lib(n)
-      p := LibInstallPlan
-      {
-        it.action = LibInstallAction.uninstall
-        it.name   = n
-        it.curVer = cur
-        it.newVer = null
-      }
+      p := LibInstallPlan.uninstall(cur)
       acc.add(p)
     }
     return initPlan(acc)
@@ -129,6 +113,76 @@ class LibInstaller
     if (planRef != null) throw Err("Already planned!")
     planRef = plan
     return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Resolve
+//////////////////////////////////////////////////////////////////////////
+
+  ** Resolve a lib dependency against given repo
+  private LibInstallPlan[] resolvePlan(RemoteRepo? repo, LibDepend[] libs)
+  {
+    // recursively solve dependencies
+    acc := Str:LibInstallPlan[:]
+    libs.each |lib|
+    {
+      resolveDepend(acc, repo, lib, false)
+    }
+
+    // normalize plan
+    list := acc.vals
+    // list = list.findAll |p| { p.action != LibInstallAction.none }
+    list.sort |a, b| { a.name <=> b.name }
+    return list
+  }
+
+  ** Recursively solve dependencies
+  private Void resolveDepend(Str:LibInstallPlan acc, RemoteRepo? install, LibDepend d, Bool transitive)
+  {
+    // skip if already processed
+    name := d.name
+    if (acc[name] != null) return
+
+    // check if we have a current version
+    LibVersion? curVer := env.repo.lib(name, false)
+    LibVersion? newVer := null
+
+    // if not installed, then this is an install action
+    if (curVer == null)
+    {
+      if (install == null) throw InstallPlanErr("Install from undefined remote repo")
+      newVer = resolveRemoteDepend(install, d)
+      acc.add(name, LibInstallPlan.install(install, newVer, transitive))
+    }
+
+    // check if we need an update an installed version
+    else if (!d.versions.contains(curVer.version))
+    {
+      if (install != null && !upgrade) throw InstallPlanErr("Install requires upgrade to '$d.name' (run with -upgrade flag)")
+      origin := curVer.origin(false) ?: throw InstallPlanErr("No origin for '$d.name' that requires update")
+      newVer = resolveRemoteDepend(origin.repo, d)
+      if (newVer == null) throw InstallPlanErr("Unresolved depend '$d' in repo '$install.name'")
+      acc.add(name, LibInstallPlan.update(origin.repo, curVer, newVer, origin.transitive))
+    }
+
+    // now ensure depends are solved
+    xVer := newVer ?: curVer
+    xVer.depends.each |x|
+    {
+      resolveDepend(acc, install, x, true)
+    }
+  }
+
+  private LibVersion? resolveRemoteDepend(RemoteRepo? repo, LibDepend d)
+  {
+    ver := repo.latestMatch(d, false)
+    if (ver == null) throw InstallPlanErr("Unresolved dependency '$d' in repo '$repo.name'")
+    return ver
+  }
+
+  private RemoteRepo? origin(LibVersion v)
+  {
+    throw Err("TODO")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -157,6 +211,50 @@ class LibInstaller
 **
 const class LibInstallPlan
 {
+  ** Install constructor
+  internal new install(RemoteRepo repo, RemoteLibVersion newVer, Bool transitive)
+  {
+    this.action     = LibInstallAction.install
+    this.name       = newVer.name
+    this.curVer     = null
+    this.newVer     = newVer
+    this.repo       = repo
+    this.transitive = transitive
+  }
+
+  ** Update constructor
+  internal new update(RemoteRepo repo, LibVersion curVer, RemoteLibVersion newVer, Bool transitive)
+  {
+    this.action     = LibInstallAction.update
+    this.name       = curVer.name
+    this.curVer     = curVer
+    this.newVer     = newVer
+    this.repo       = repo
+    this.transitive = transitive
+  }
+
+  ** Uninstall constructor
+  internal new uninstall(LibVersion curVer)
+  {
+    this.action     = LibInstallAction.uninstall
+    this.name       = curVer.name
+    this.curVer     = curVer
+    this.newVer     = null
+    this.repo       = null
+    this.transitive = false
+  }
+
+   ** None constructor
+  internal new none(LibVersion curVer)
+  {
+    this.action     = LibInstallAction.none
+    this.name       = curVer.name
+    this.curVer     = curVer
+    this.newVer     = null
+    this.repo       = null
+    this.transitive = false
+  }
+
   ** Constructor
   internal new make(|This| f) { f(this) }
 

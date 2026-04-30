@@ -20,3 +20,8 @@ const class NotReadyErr : Err
   new make(Str msg := "") : super(msg) {}
 }
 
+const class InstallPlanErr: Err
+{
+  new make(Str msg := "", Err? cause := null) : super(msg, cause) {}
+}
+

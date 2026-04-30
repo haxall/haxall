@@ -78,7 +78,12 @@ const class FileLibVersion : LibVersion
   override LibDepend[]? depends(Bool checked := true) { dependsRef }
   private const LibDepend[] dependsRef
 
-  override LibOrigin? origin() { null } // TODO
+  override LibOrigin? origin(Bool checked := true)
+  {
+    // TODO
+    if (checked) throw Err("No origin for '$name'")
+    return null
+  }
 
   override const Str doc
 

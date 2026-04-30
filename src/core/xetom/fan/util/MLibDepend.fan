@@ -17,6 +17,7 @@ const class MLibDepend : Dict, LibDepend
 {
   new makeFields(Str name, LibDependVersions versions := LibDependVersions.wildcard, FileLoc loc := FileLoc.synthetic)
   {
+    if (!XetoUtil.isLibName(name)) throw ArgErr("Invalid lib name: $name")
     this.name = name
     this.versions = versions
     this.loc = loc

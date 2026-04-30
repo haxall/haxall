@@ -58,6 +58,8 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
 
   override final Bool isRemote() { true }
 
+  override final Str toStr() { name }
+
   ** Utility to filter a list of options with opts to implement
   ** the standard LibRepo.versions behavior
   static LibVersion[] findAllVersionsWithOpts(LibVersion[]? list, Dict? opts)

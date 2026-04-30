@@ -158,10 +158,14 @@ class RemoteReposTest : AbstractXetoTest
     verifyDictEq(r.ping, Etc.dict1("ping", "boom!"))
 
     verifySearch(r, RemoteRepoSearchReq("alpha"),
-      [["alpha.one",   "1.1.1"],
-       ["alpha.two",   "2.2.2"],
-       ["alpha.three", "3.3.3"]])
-
+      [["alpha", "1.0.1"],
+       ["alpha", "1.0.2"],
+       ["alpha", "1.1.0"],
+       ["alpha", "1.1.9"],
+       ["alpha", "1.2.0"],
+       ["alpha", "2.0.0"],
+       ["alpha", "2.3.0"]]
+       )
   }
 
   Void verifySearch(RemoteRepo r, RemoteRepoSearchReq req, Obj[][] expect)
@@ -176,6 +180,111 @@ class RemoteReposTest : AbstractXetoTest
       verifyEq(a.version.toStr, e[1])
     }
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Install
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInstall()
+  {
+    initEnv
+    remote = reg.add("test", `http://test-1/foo/bar`, Etc.dict0)
+
+    verifyLibNotInstalled("alpha")
+    verifyLibNotInstalled("beta")
+    verifyLibNotInstalled("charlie")
+
+    // simple plan with one lib, no depends
+    inst := LibInstaller(env).install(remote, [LibDepend("alpha")])
+    verifyPlan(inst,
+      """i alpha null -> 2.3.0 test
+         """)
+
+    // simple plan with one lib and constraints
+    c1xx := LibDependVersions("1.x.x")
+    inst = LibInstaller(env).install(remote, [LibDepend("alpha", c1xx)])
+    verifyPlan(inst,
+      """i alpha null -> 1.2.0 test
+         """)
+
+    // simple plan with two libs, no depends
+    inst = LibInstaller(env).install(remote, [LibDepend("alpha"), LibDepend("delta")])
+    verifyPlan(inst,
+      """i alpha null -> 2.3.0 test
+         i delta null -> 4.0.0 test
+         """)
+
+    // one plan with direct depends
+    inst = LibInstaller(env).install(remote, [LibDepend("beta")])
+    verifyPlan(inst,
+      """i alpha null -> 2.3.0 test transitive
+         i beta null -> 2.0.1 test
+         """)
+
+    // one plan with multiple transitive depends
+    inst = LibInstaller(env).install(remote, [LibDepend("charlie")])
+    verifyPlan(inst,
+      """i alpha null -> 1.1.9 test transitive
+         i beta null -> 1.1.0 test transitive
+         i charlie null -> 2.0.1 test
+         """)
+
+    // verify unsolvable plans
+    verifyUnsolvable("Lib 'sys' already installed (run update)") { LibInstaller(env).install(remote, [LibDepend("sys")]) }
+    verifyUnsolvable("Lib 'ph' already installed (run update)") { LibInstaller(env).install(remote, [LibDepend("ph")]) }
+    verifyUnsolvable("Install requires upgrade to 'ph.points' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("echo")]) }
+    verifyUnsolvable("No origin for 'ph.points' that requires update") { LibInstaller(env, Etc.dict1("upgrade", m)).install(remote, [LibDepend("echo")]) }
+    verifyUnsolvable("Install requires upgrade to 'sys' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("bad.a")]) }
+    verifyUnsolvable("Install requires upgrade to 'sys' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("bad.b")]) }
+    verifyUnsolvable("Unresolved dependency 'notfound x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.c")]) }
+    verifyUnsolvable("Unresolved dependency 'bad.c 9.0.0' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.d")]) }
+    verifyUnsolvable("Unresolved dependency 'whatitis x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("whatitis")]) }
+  }
+
+  Void verifyPlan(LibInstaller inst, Str expect)
+  {
+    debug := false
+    if (debug)
+    {
+      echo
+      echo("### verifyPlan ###")
+      inst.planDump
+    }
+
+    lines := expect.trim.splitLines
+    lines.each |e, i|
+    {
+      p := inst.plan[i]
+      a := p.action.name[0..0] + " " + p.name + " " +
+           p.curVer?.version + " -> " + p.newVer?.version + " " + p.repo
+      if (p.transitive) a += " transitive"
+      if (debug)
+      {
+        echo("--> $e")
+        echo("  > $a")
+      }
+      verifyEq(a, e)
+    }
+    verifyEq(lines.size, inst.plan.size)
+  }
+
+  Void verifyLibNotInstalled(Str n)
+  {
+    local := XetoEnv.cur.repo
+    verifyEq(local.lib(n, false), null)
+    verifyEq(local.libs.find { it.name == n }, null)
+  }
+
+  Void verifyUnsolvable(Str msg, |Test->LibInstaller| f)
+  {
+    verifyErrMsg(InstallPlanErr#, msg)
+    {
+      inst := f(this)
+      inst.planDump
+    }
+  }
+
+  RemoteRepo? remote
 }
 
 **************************************************************************
@@ -203,21 +312,36 @@ const class TestRemoteRepo : MRemoteRepo
 
   LibVersion[] testLibs()
   {
-    [lib("alpha.one",     "1.1.1", "sys"),
-     lib("alpha.two",     "2.2.2", "sys"),
-     lib("alpha.three",   "3.3.3", "sys"),
-     lib("beta.one",      "1.0.1", "sys, sys.comp, alpha.one"),
-     lib("beta.two",      "2.0.0", "sys, sys.comp, alpha.one"),
-     lib("beta.two",      "2.0.1", "sys, sys.comp, alpha.one"),
-     lib("beta.two",      "2.0.2", "sys, sys.comp, alpha.one"),
-     lib("beta.two",      "2.0.3", "sys, sys.comp, alpha.one"),
-     lib("beta.three",    "3.0.3", "sys, sys.comp, alpha.one"),
-     lib("charlie.one",   "1.0.1", "sys, ph, beta.one"),
-     lib("charlie.two",   "2.0.2", "sys, ph, beta.one"),
-     lib("charlie.three", "3.0.3", "sys, ph, beta.one"),
-     lib("charlie.three", "3.0.4", "sys, ph, beta.one"),
-     lib("charlie.three", "3.1.0", "sys, ph, beta.one"),
-     lib("charlie.three", "3.1.5", "sys, ph, beta.one"),
+    [lib("alpha",   "1.0.1", "sys"),
+     lib("alpha",   "1.0.2", "sys"),
+     lib("alpha",   "1.1.0", "sys"),
+     lib("alpha",   "1.1.9", "sys"),
+     lib("alpha",   "1.2.0", "sys"),
+     lib("alpha",   "2.0.0", "sys"),
+     lib("alpha",   "2.3.0", "sys"),
+
+     lib("beta",    "1.0.1", "sys, sys.comp, alpha-1.0.1"),
+     lib("beta",    "1.0.2", "sys, sys.comp, alpha-1.0.2"),
+     lib("beta",    "1.1.0", "sys, sys.comp, alpha-1.1.x"),
+     lib("beta",    "1.2.0", "sys, sys.comp, alpha-1.2.0"),
+     lib("beta",    "2.0.0", "sys, sys.comp, alpha-2.0.0"),
+     lib("beta",    "2.0.1", "sys, sys.comp, alpha-2.x.x"),
+
+     lib("charlie", "1.0.1", "sys, ph, beta-1.1.x"),
+     lib("charlie", "2.0.1", "sys, ph, beta-1.1.x"),
+
+     lib("delta",   "4.0.0", "sys, ph.points"),
+
+     lib("echo",     "4.0.0", "sys, ph.points-7.x.x"),
+
+     lib("ph.points", "7.0.1", "sys"),
+     lib("ph.points", "7.0.2", "sys"),
+     lib("ph.points", "7.0.3", "sys"),
+
+     lib("bad.a",   "4.0.0", "sys-6.x.x"),
+     lib("bad.b",   "4.0.0", "bad.a"),
+     lib("bad.c",   "4.0.0", "notfound"),
+     lib("bad.d",   "4.0.0", "bad.c-9.0.0"),
     ]
   }
 
@@ -229,7 +353,13 @@ const class TestRemoteRepo : MRemoteRepo
 
   LibVersion lib(Str n, Str v, Str depends := "")
   {
-    d := depends.split(',').map |dn->LibDepend| { LibDepend(dn) }
+    d := depends.split(',').map |dx->LibDepend|
+    {
+      toks := dx.split('-')
+      dn := toks[0]
+      dc := toks.getSafe(1) ?: LibDependVersions.wildcard.toStr
+      return LibDepend(dn, LibDependVersions(dc))
+    }
     return RemoteLibVersion(n, Version(v), "blah", d)
   }
 }

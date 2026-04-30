@@ -31,7 +31,11 @@ const class RemoteLibVersion : LibVersion
 
   override const Str doc
 
-  override LibOrigin? origin() { null }
+  override LibOrigin? origin(Bool checked := true)
+  {
+    if (checked) throw Err("No origin for '$name'")
+    return null
+  }
 
   override Int flags() { 0 } // not supported client side
 
