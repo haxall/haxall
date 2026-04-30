@@ -240,11 +240,23 @@ class RemoteReposTest : AbstractXetoTest
     verifyUnsolvable("Unresolved dependency 'bad.c 9.0.0' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.d")]) }
     verifyUnsolvable("Unresolved dependency 'whatitis x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("whatitis")]) }
 
-    // ok lets run the beta (+alpha) plan
-    inst = LibInstaller(env).install(remote, [LibDepend("beta")])
+    // ok lets run the install beta (+alpha) plan
+    c11x := LibDependVersions("1.1.x")
+    inst = LibInstaller(env).install(remote, [LibDepend("beta", c11x)])
     verifyPlan(inst,
-      """i alpha null -> 2.3.0 test transitive
-         i beta null -> 2.0.1 test
+      """i alpha null -> 1.1.9 test transitive
+         i beta null -> 1.1.0 test
+         """)
+    inst.execute
+    verifyLibInstalled("alpha", "1.1.9")
+    verifyLibInstalled("beta", "1.1.0")
+
+    // now lets upgrade beta
+    c2xx := LibDependVersions("2.x.x")
+    inst = LibInstaller(env).update([LibDepend("beta", c2xx)])
+    verifyPlan(inst,
+      """u alpha 1.1.9 -> 2.3.0 test transitive
+         u beta 1.1.0 -> 2.0.1 test
          """)
     inst.execute
     verifyLibInstalled("alpha", "2.3.0")

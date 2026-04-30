@@ -162,11 +162,10 @@ class LibInstaller
     // check if we need an update an installed version
     else if (!d.versions.contains(curVer.version))
     {
-      if (install != null && !upgrade) throw InstallPlanErr("Install requires upgrade to '$d.name' (run with -upgrade flag)")
-      origin := curVer.origin(false) ?: throw InstallPlanErr("No origin for '$d.name' that requires update")
-      newVer = resolveRemoteDepend(origin.repo, d)
+      origin := toUpdateRepo(install, curVer)
+      newVer = resolveRemoteDepend(origin, d)
       if (newVer == null) throw InstallPlanErr("Unresolved depend '$d' in repo '$install.name'")
-      acc.add(name, LibInstallPlan.update(origin.repo, curVer, newVer, transitive))
+      acc.add(name, LibInstallPlan.update(origin, curVer, newVer, transitive))
     }
 
     // now ensure depends are solved
@@ -184,9 +183,27 @@ class LibInstaller
     return ver
   }
 
-  private RemoteRepo? origin(LibVersion v)
+  private RemoteRepo? toUpdateRepo(RemoteRepo? install, LibVersion v)
   {
-    throw Err("TODO")
+    // cannot update from install without explicit -u flag
+    if (install != null && !upgrade)
+      throw InstallPlanErr("Install requires upgrade to '$v.name' (run with -upgrade flag)")
+
+    // get origin
+    o := v.origin(false)
+    if (o == null)
+      throw InstallPlanErr("No origin for '$v.name' that requires update")
+
+    // assume uri is auth first
+    repo := env.remoteRepos.getByUri(o.uri, false)
+    if (repo != null) return repo
+
+    // fallback to name
+    repo = env.remoteRepos.get(o.repoName, false)
+    if (repo != null) return repo
+
+    // give up
+    throw InstallPlanErr("Origin for lib '$v.name' is not configured: $o.repoName $o.uri")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -208,7 +225,9 @@ class LibInstaller
 
     // now move fetched files to the install workDir
     workDirLib := installDir + `lib/xeto/`
-    fetched.each |f| { f.moveInto(workDirLib) }
+    moveOpts := ["overwrite":true]
+    fetched.each |f| { f.copyInto(workDirLib, moveOpts) }
+    tempDir.delete
 
     // force reload of env
     env.repo.rescan
