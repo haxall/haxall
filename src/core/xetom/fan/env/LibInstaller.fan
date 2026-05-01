@@ -111,38 +111,61 @@ class LibInstaller
       acc.add(n, p)
     }
 
-    // now verify we aren't breaking any install depends
-    env.repo.libs.each |lib|
-    {
-      // skip it if its in our delete list
-      if (acc[lib.name] != null) return
-
-      // check
-      lib.depends.each |d|
-      {
-        toDelete := acc[d.name]
-        if (toDelete != null)
-          throw InstallPlanErr("Cannot uninstall '$toDelete.name', required by '$lib.name'")
-      }
-    }
-
-    return initPlan(acc.vals)
+    return initPlan(acc)
   }
 
   ** Set plan and return this
-  private This initPlan(LibInstallPlan[] plan)
+  private This initPlan(Str:LibInstallPlan plan)
   {
     if (planRef != null) throw Err("Already planned!")
-    planRef = plan
+
+    // verify against current installation
+    verify(plan)
+
+    // normalize plan
+    list := plan.vals
+    list.sort |a, b| { a.name <=> b.name }
+
+    planRef = list
     return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Verify
+//////////////////////////////////////////////////////////////////////////
+
+  ** Verify that any updates/uninstalls won't break existing depends
+  private Void verify(Str:LibInstallPlan plan)
+  {
+    // now verify we aren't breaking any install depends
+    env.repo.libs.each |lib|
+    {
+      // skip this lib if in our plan
+      if (plan[lib.name] != null) return
+
+      // check depends
+      lib.depends.each |d|
+      {
+        // find depend in plan
+        x := plan[d.name]
+        if (x == null) return
+
+        // check update doesn't break constraints
+        if (x.newVer == null)
+          throw InstallPlanErr("Cannot uninstall '$x.name', required by '$lib.name'")
+        else if (!d.versions.contains(x.newVer.version))
+          throw InstallPlanErr("Update of '$x.name' to $x.newVer.version breaks '$lib.name' version constraints '$d.versions'")
+      }
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Resolve
 //////////////////////////////////////////////////////////////////////////
 
-  ** Resolve a lib dependency against given repo
-  private LibInstallPlan[] resolvePlan(RemoteRepo? repo, LibDepend[] libs)
+  ** Resolve a lib dependency against given repo.
+  ** Common implementation b/w install and update
+  private Str:LibInstallPlan resolvePlan(RemoteRepo? repo, LibDepend[] libs)
   {
     // recursively solve dependencies
     acc := Str:LibInstallPlan[:]
@@ -150,12 +173,7 @@ class LibInstaller
     {
       resolveDepend(acc, repo, lib, false)
     }
-
-    // normalize plan
-    list := acc.vals
-    // list = list.findAll |p| { p.action != LibInstallAction.none }
-    list.sort |a, b| { a.name <=> b.name }
-    return list
+    return acc
   }
 
   ** Recursively solve dependencies
@@ -210,7 +228,7 @@ class LibInstaller
     // get origin
     o := v.origin(false)
     if (o == null)
-      throw InstallPlanErr("No origin for '$v.name' that requires update")
+      throw InstallPlanErr("Install requires upgrade to '$v.name' that has no origin")
 
     // assume uri is auth first
     repo := env.remoteRepos.getByUri(o.uri, false)
@@ -338,17 +356,6 @@ const class LibInstallPlan
     this.transitive = false
   }
 
-   ** None constructor
-  internal new none(LibVersion curVer)
-  {
-    this.action     = LibInstallAction.none
-    this.name       = curVer.name
-    this.curVer     = curVer
-    this.newVer     = null
-    this.repo       = null
-    this.transitive = false
-  }
-
   ** Constructor
   internal new make(|This| f) { f(this) }
 
@@ -395,8 +402,7 @@ enum class LibInstallAction
 {
   install,
   update,
-  uninstall,
-  none
+  uninstall
 
   Bool isFetch() { this === install || this === update }
 }

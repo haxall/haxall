@@ -164,7 +164,8 @@ class RemoteReposTest : AbstractXetoTest
        ["alpha", "1.1.9"],
        ["alpha", "1.2.0"],
        ["alpha", "2.0.0"],
-       ["alpha", "2.3.0"]]
+       ["alpha", "2.3.0"],
+       ["need.alpha11", "1.0.0"]]
        )
   }
 
@@ -172,6 +173,7 @@ class RemoteReposTest : AbstractXetoTest
   {
     res := r.search(req)
     actual := res.libs
+    // echo(res.libs.join("\n"))
     verifyEq(actual.size, expect.size)
     actual.each |a, i|
     {
@@ -230,15 +232,15 @@ class RemoteReposTest : AbstractXetoTest
          """)
 
     // verify unsolvable plans
-    verifyUnsolvable("Lib 'sys' already installed (run update)") { LibInstaller(env).install(remote, [LibDepend("sys")]) }
-    verifyUnsolvable("Lib 'ph' already installed (run update)") { LibInstaller(env).install(remote, [LibDepend("ph")]) }
-    verifyUnsolvable("Install requires upgrade to 'ph.points' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("echo")]) }
-    verifyUnsolvable("No origin for 'ph.points' that requires update") { LibInstaller(env, Etc.dict1("upgrade", m)).install(remote, [LibDepend("echo")]) }
-    verifyUnsolvable("Install requires upgrade to 'sys' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("bad.a")]) }
-    verifyUnsolvable("Install requires upgrade to 'sys' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("bad.b")]) }
-    verifyUnsolvable("Unresolved dependency 'notfound x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.c")]) }
-    verifyUnsolvable("Unresolved dependency 'bad.c 9.0.0' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.d")]) }
-    verifyUnsolvable("Unresolved dependency 'whatitis x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("whatitis")]) }
+    verifyPlanErr("Lib 'sys' already installed (run update)") { LibInstaller(env).install(remote, [LibDepend("sys")]) }
+    verifyPlanErr("Lib 'ph' already installed (run update)") { LibInstaller(env).install(remote, [LibDepend("ph")]) }
+    verifyPlanErr("Install requires upgrade to 'ph.points' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("echo")]) }
+    verifyPlanErr("Install requires upgrade to 'ph.points' that has no origin") { LibInstaller(env, Etc.dict1("upgrade", m)).install(remote, [LibDepend("echo")]) }
+    verifyPlanErr("Install requires upgrade to 'sys' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("bad.a")]) }
+    verifyPlanErr("Install requires upgrade to 'sys' (run with -upgrade flag)") { LibInstaller(env).install(remote, [LibDepend("bad.b")]) }
+    verifyPlanErr("Unresolved dependency 'notfound x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.c")]) }
+    verifyPlanErr("Unresolved dependency 'bad.c 9.0.0' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("bad.d")]) }
+    verifyPlanErr("Unresolved dependency 'whatitis x.x.x' in repo 'test'") { LibInstaller(env).install(remote, [LibDepend("whatitis")]) }
 
     // ok lets run the install beta (+alpha) plan
     c11x := LibDependVersions("1.1.x")
@@ -251,8 +253,27 @@ class RemoteReposTest : AbstractXetoTest
     verifyLibInstalled("alpha", "1.1.9")
     verifyLibInstalled("beta", "1.1.0")
 
-    // now lets upgrade beta
+    // install need.alpha11
+    inst = LibInstaller(env).install(remote, [LibDepend("need.alpha11")])
+    verifyPlan(inst,
+      """i need.alpha11 null -> 1.0.0 test
+         """)
+    inst.execute
+    verifyLibInstalled("need.alpha11", "1.0.0")
+
+    // now lets upgrade beta and verify can't b/c of need.alpha11
     c2xx := LibDependVersions("2.x.x")
+    verifyPlanErr("Update of 'alpha' to 2.3.0 breaks 'need.alpha11' version constraints '1.1.x'") { LibInstaller(env).update([LibDepend("beta", c2xx)]) }
+
+    // uinstall need.alpha11
+    inst = LibInstaller(env).uninstall(["need.alpha11"])
+    verifyPlan(inst,
+      """x need.alpha11 1.0.0 -> null null
+         """)
+    inst.execute
+    verifyLibNotInstalled("need.alpha11")
+
+    // now its safe to upgrade beta
     inst = LibInstaller(env).update([LibDepend("beta", c2xx)])
     verifyPlan(inst,
       """u alpha 1.1.9 -> 2.3.0 test transitive
@@ -264,8 +285,8 @@ class RemoteReposTest : AbstractXetoTest
 
     // verify uninstall errors
     verifyErr(UnknownLibErr#) { LibInstaller(env).uninstall(["notfound"]) }
-    verifyUnsolvable("Cannot delete source lib 'sys'") { LibInstaller(env).uninstall(["sys"]) }
-    verifyUnsolvable("Cannot uninstall 'alpha', required by 'beta'") { LibInstaller(env).uninstall(["alpha"]) }
+    verifyPlanErr("Cannot delete source lib 'sys'") { LibInstaller(env).uninstall(["sys"]) }
+    verifyPlanErr("Cannot uninstall 'alpha', required by 'beta'") { LibInstaller(env).uninstall(["alpha"]) }
 
     // uninstall
     inst = LibInstaller(env).uninstall(["alpha", "beta"])
@@ -344,7 +365,7 @@ class RemoteReposTest : AbstractXetoTest
     verifySame(o.meta->repo, o.repoName)
   }
 
-  Void verifyUnsolvable(Str msg, |Test->LibInstaller| f)
+  Void verifyPlanErr(Str msg, |Test->LibInstaller| f)
   {
     verifyErrMsg(InstallPlanErr#, msg)
     {
@@ -402,6 +423,8 @@ const class TestRemoteRepo : MRemoteRepo
      lib("delta",   "4.0.0", "sys, ph.points"),
 
      lib("echo",     "4.0.0", "sys, ph.points-7.x.x"),
+
+     lib("need.alpha11",  "1.0.0", "sys, alpha-1.1.x"),
 
      lib("ph.points", "7.0.1", "sys"),
      lib("ph.points", "7.0.2", "sys"),
