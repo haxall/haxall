@@ -552,6 +552,19 @@ const class XetoUtil
     }
   }
 
+  ** Choke point to generate a xetolib meta.props contents
+  static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
+  {
+    props := Str:Str[:]
+    props.ordered = true
+    props["name"]    = name
+    props["version"] = version.toStr
+    props["depends"] = depends.join(";")
+    props["doc"]     = meta["doc"] as Str ?: ""
+    props.addNotNull("hxSysOnly", meta.has("hxSysOnly") ? "true" : null)
+    return props
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Inheritance
 //////////////////////////////////////////////////////////////////////////

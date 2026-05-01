@@ -264,7 +264,7 @@ class RemoteReposTest : AbstractXetoTest
 
     // verify uninstall errors
     verifyErr(UnknownLibErr#) { LibInstaller(env).uninstall(["notfound"]) }
-    verifyUnsolvable("Cannot uninstall 'sys', required by 'alpha'") { LibInstaller(env).uninstall(["sys"]) }
+    verifyUnsolvable("Cannot delete source lib 'sys'") { LibInstaller(env).uninstall(["sys"]) }
     verifyUnsolvable("Cannot uninstall 'alpha', required by 'beta'") { LibInstaller(env).uninstall(["alpha"]) }
 
     // uninstall
@@ -420,10 +420,7 @@ const class TestRemoteRepo : MRemoteRepo
     v := this.version(name, version)
     zip := Zip.write(buf.out)
     zip.writeNext(`/meta.props`)
-       .printLine("name=$name")
-       .printLine("version=$version")
-       .printLine("doc=Test it!")
-       .printLine("depends=" + v.depends.join(";"))
+       .writeProps(XetoUtil.buildLibMetaProps(name, version, v.depends, Etc.dict0))
        .close
     zip.close
     return buf.toImmutable

@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 
 **
 ** Output xetolib zip file
@@ -43,14 +44,8 @@ internal class OutputZip : Step
 
   private Void writeMeta(Zip zip, Str path)
   {
-    meta := Str:Str[:]
-    meta.ordered = true
-    meta["name"]    = lib.name
-    meta["version"] = lib.version.toStr
-    meta["depends"] = depends.list.join(";")
-    meta["doc"]     = lib.meta["doc"] as Str ?: ""
-    meta.addNotNull("hxSysOnly", lib.meta.has("hxSysOnly") ? "true" : null)
-    zip.writeNext(path.toUri).writeProps(meta).close
+    props := XetoUtil.buildLibMetaProps(lib.name, lib.version, depends.list, lib.meta)
+    zip.writeNext(path.toUri).writeProps(props).close
   }
 
   private Void writeBuildVars(Zip zip, Str path)
