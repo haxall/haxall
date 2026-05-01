@@ -131,6 +131,9 @@ class CompSpace
   ** Callback anytime a component method is called
   @NoDoc virtual Void onCall(CompCallEvent event) {}
 
+  ** Callback when the namespace is updated
+  @NoDoc virtual Void onNamespaceModified(Namespace ns) {}
+
 }
 
 **************************************************************************

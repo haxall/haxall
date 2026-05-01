@@ -262,6 +262,9 @@ class MCompSpaceSpi : CompSpaceSpi
 
     // now update my own namespace ref
     nsRef = ns
+
+    // notify CompSpace
+    cs.onNamespaceModified(ns)
   }
 
   ** Recursively walk the component tree to update specs
