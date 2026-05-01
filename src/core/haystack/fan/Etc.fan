@@ -429,7 +429,11 @@ const class Etc
   static Str:Obj? dictToMap(Dict? d)
   {
     map := Str:Obj?[:]
-    if (d != null) dictEach(d) |v, n| { map[n] = v }
+    if (d != null)
+    {
+      if (d.isOrdered) map.ordered = true
+      dictEach(d) |v, n| { map[n] = v }
+    }
     return map
   }
 
