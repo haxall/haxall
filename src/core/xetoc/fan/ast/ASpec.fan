@@ -311,6 +311,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   override Bool isComp()      { hasFlag(MSpecFlags.comp) }
   override Bool isEntity()    { hasFlag(MSpecFlags.entity) }
   override Bool isTransient() { hasFlag(MSpecFlags.transient) }
+  override Bool isOutput()    { hasFlag(MSpecFlags.output) }
   override Bool isHaystack()  { hasFlag(MSpecFlags.haystack) }
 
   /*

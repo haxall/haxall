@@ -200,6 +200,7 @@ internal class InheritSlots : Step
     {
       flags = setMetaFlag(flags, x, "maybe",     MSpecFlags.maybe)
       flags = setMetaFlag(flags, x, "transient", MSpecFlags.transient)
+      flags = setMetaFlag(flags, x, "output",    MSpecFlags.output)
     }
 
     // if my base is compound type

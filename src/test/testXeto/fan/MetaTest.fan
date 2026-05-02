@@ -49,12 +49,12 @@ class MetaTest : AbstractXetoTest
 
     verifyHasMeta(a,  a.meta,  ["metaQ":m, "metaR":m])
     verifyHasMeta(ax, ax.meta, ["metaQ":m, "metaR":m, "transient":m])
-    verifyHasMeta(ay, ay.meta, ["metaQ":m, "metaR":m, "transient":m])
+    verifyHasMeta(ay, ay.meta, ["metaQ":m, "metaR":m, "transient":m, "output":m])
     verifyHasMeta(az, az.meta, [:])
 
     verifyHasMeta(b,  b.meta,  ["metaNum":Number(123), "metaQ":m])
     verifyHasMeta(bx, bx.meta, ["metaQ":m, "metaR":m, "transient":m])
-    verifyHasMeta(by, by.meta, ["metaQ":m, "transient":m])
+    verifyHasMeta(by, by.meta, ["metaQ":m, "transient":m, "output":m])
     verifyHasMeta(bz, bz.meta, [:])
 
     // alts use embedded meta
@@ -75,6 +75,10 @@ class MetaTest : AbstractXetoTest
     verifyEq(bx.isTransient, true)
     verifyEq(by.isTransient, true)
     verifyEq(bz.isTransient, false)
+
+    verifyEq(bx.isOutput, false)
+    verifyEq(by.isOutput, true)
+    verifyEq(bz.isOutput, false)
   }
 
   Void verifyHasMeta(Spec x, Dict actual, Str:Obj expect)

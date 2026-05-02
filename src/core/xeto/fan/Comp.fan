@@ -134,10 +134,10 @@ mixin Comp
 
   ** Special onChange callback to handle built-in framework logic, called
   ** before onChange.  The default implementation calls execute if the
-  ** slot is not transient.
+  ** slot is not an output.
   @NoDoc virtual Void onChangeFw(CompChangeEvent event)
   {
-    if (event.slot != null && !event.slot.isTransient) execute
+    if (event.slot != null && !event.slot.isOutput) execute
   }
 
   ** Special callback to handle built-in framework logic when a method is called.
@@ -149,15 +149,17 @@ mixin Comp
   ** Callback whem mounted into a component space
   @NoDoc virtual Void onUnmount() {}
 
-  ** Schedule an callback to onExecute on the next execution cycle
+  ** Schedule an callback to onExecute on the next execution cycle.
+  ** See `hx.doc.haxall::Comps#execution`.
   Void execute() { spi.execute }
 
   ** Callback to recompute component state.  This is always called
   ** within a CompContext.  If not overriden then the default behavior
   ** attempts to call the 'onExecute' method defined in Xeto.
+  ** See `hx.doc.haxall::Comps#execution`.
   virtual Void onExecute() { spi.onExecute }
 
-  ** How often should this component have its onExecute callback invoked.
+  ** How often should this component have its `onExecute` callback invoked.
   ** Return null if this component has no time based computation.
   virtual Duration? onExecuteFreq() { null }
 

@@ -20,6 +20,12 @@
   // by project level functions.
   overridable: Marker?
 
+  // Output marker indicates that a component slot is an output data value.
+  // Changes to an output slots do **not** automatically trigger a
+  // component execution.  Outputs should typically also be marked
+  // transient.  See [hx.doc.haxall::Comps#execution] for more details.
+  output: Marker?
+
   // Registers a function as folding a given value type
   foldOn: Str? <nodoc>
 

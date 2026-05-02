@@ -120,8 +120,9 @@ There are several ways a component can be scheduled for execution:
 
 2. Schedule periodic executions by overriding [fan.xeto::Comp.onExecuteFreq]
 
-3. Components are automatically schedule for execute if any non-transient slot
-   is modified by set/add/remove
+3. Components are automatically scheduled for execute if any non-output slot
+   is modified by set/add/remove; outputs are specifically tagged with
+   the [axon::Spec.output] marker tag
 
 Whenever a component updates a field or calls a method, the new value is queued
 to be pushed to any linked slots.  During execution each componet pushes any queued
@@ -138,8 +139,8 @@ as an argument:
 
 ```xeto
 MyIncrement : Comp {
-  in: Number
-  out: Number
+  in: Number <transient>
+  out: Number <output, transient>
   onExecute: Func <axon:"""this.set("out",  this->in + 1)""">
 }
 ```

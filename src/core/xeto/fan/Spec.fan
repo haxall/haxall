@@ -211,6 +211,9 @@ const mixin Spec : Dict
   ** Is this the 'transient' meta flag set
   @NoDoc abstract Bool isTransient()
 
+  ** Is this the 'output' meta flag set
+  @NoDoc abstract Bool isOutput()
+
   ** Is this a spec in the sys lib
   @NoDoc abstract Bool isSys()
 

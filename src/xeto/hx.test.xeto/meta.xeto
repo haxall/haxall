@@ -22,7 +22,7 @@
 
 MetaInheritA: Dict <metaQ, metaR> {
   x: Str <metaQ, metaR, transient>
-  y: Str <metaQ, metaR, transient>
+  y: Str <metaQ, metaR, transient, output>
   z: Str
 }
 

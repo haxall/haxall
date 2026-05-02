@@ -249,6 +249,7 @@ const class WrapSpec : Spec
   override final Bool isHaystack()  { m.isHaystack }
   override final Bool isCompound()  { m.isCompound }
   override final Bool isTransient() { m.isTransient }
+  override final Bool isOutput()    { m.isOutput }
 
   override final Int flags() { m.flags }
 

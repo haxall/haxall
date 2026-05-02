@@ -18,7 +18,7 @@ TestAdd : Comp {
 TestNumberAdd : Comp {
   in1: Number
   in2: Number
-  out: Number <transient>
+  out: Number <transient, output>
 }
 
 TestRamp : Comp {
@@ -27,7 +27,7 @@ TestRamp : Comp {
 }
 
 TestCounter : Comp {
-  out: TestVal <transient>
+  out: TestVal <output>
 }
 
 TestComposite : Comp {

@@ -86,7 +86,7 @@ class CompSpace
   ** and check timers.  The frequency this method is called determines
   ** the smallest timer increment.  For example if its called every 100ms
   ** then timers will only fire as fast as 100ms. The current context
-  ** must be an instance of `CompContext`.
+  ** must be an instance of `CompContext`.  See `hx.doc.haxall::Comps#execution`.
   Void execute() { spi.execute }
 
 //////////////////////////////////////////////////////////////////////////
