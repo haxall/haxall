@@ -143,6 +143,7 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     fanKey := "env." + envKey
     f := env.workDir + `fan.props`
     savePropsFile(f, fanKey, val)
+    env.envVarSet(envKey, val)
     return envKey
   }
 

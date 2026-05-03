@@ -150,12 +150,10 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
   }
 
   ** Return env var value for given name
-  static Str? toAuthTokenEnvVal(Str? key)
+  Str? toAuthTokenEnvVal(Str? key)
   {
-    if (key == null) return null
-    return Env.cur.vars.get(key)
+    key == null ? null : env.envVarGet(key)
   }
-
 }
 
 **************************************************************************
@@ -164,7 +162,7 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
 
 internal const class TempRemoteRepo : MRemoteRepo
 {
-  new make(RemoteRepoInit init) : super(init) { Err().trace }
+  new make(RemoteRepoInit init) : super(init) {}
 
   override Dict? ping(Bool checked := true) { throw Err("TODO") }
 

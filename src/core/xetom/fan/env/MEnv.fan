@@ -191,6 +191,27 @@ abstract const class MEnv : XetoEnv
   private const AtomicInt tempCompileCount := AtomicInt()
 
 //////////////////////////////////////////////////////////////////////////
+// Env
+//////////////////////////////////////////////////////////////////////////
+
+  Void envVarSet(Str key, Str? val)
+  {
+    // we use in-memory map for variables set during this VM
+    // session since we don't have a way to update Env.vars
+    if (val != null) vars.set(key, val)
+    else vars.remove(key)
+  }
+
+  Str? envVarGet(Str key)
+  {
+    // we use in-memory map for variables set during this VM
+    // session since we don't have a way to update Env.vars
+    vars.get(key) ?: Env.cur.vars.get(key)
+  }
+
+  const ConcurrentMap vars := ConcurrentMap()
+
+//////////////////////////////////////////////////////////////////////////
 // Build
 //////////////////////////////////////////////////////////////////////////
 
