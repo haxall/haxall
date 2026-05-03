@@ -105,12 +105,15 @@ class RemoteReposTest : AbstractXetoTest
     reg.saveAuthToken("test2", "new-secret")
     verifyAuthToken("test2", "XETO_REPO_TEST2", "new-secret")
     reg.saveAuthToken("test2", null)
-    verifyAuthToken("test2", null, null)
+    verifyAuthToken("test2", "XETO_REPO_TEST2", null)
+    reg.saveAuthToken("test2", "another")
+    verifyAuthToken("test2", "XETO_REPO_TEST2", "another")
 
-    // remove test2
+    // remove test2 (and verify it removed auth too)
     reg.remove(n2)
     verifyEq(reg.get(n1, false), null)
     verifyEq(reg.get(n2, false), null)
+    verifyAuthToken("test2", "XETO_REPO_TEST2", null)
 
     // verify saved config, reload and verify again
     verifyEq(config.exists, true)
@@ -153,7 +156,7 @@ class RemoteReposTest : AbstractXetoTest
     return r
   }
 
-  Void verifyAuthToken(Str n, Str? expectKey, Str? expectVal)
+  Void verifyAuthToken(Str n, Str expectKey, Str? expectVal)
   {
     // verify in fan.props
     f := env.workDir + `fan.props`
@@ -163,11 +166,11 @@ class RemoteReposTest : AbstractXetoTest
 
     // verify in APIs
     reg := env.remoteRepos
-    MRemoteRepo r := reg.get(n)
-    actualKey := r.authTokenEnvName
-    actualVal := r.authToken(false)
+    MRemoteRepo? r := reg.get(n, false)
+    actualKey := r?.authTokenEnvName
+    actualVal := r?.authToken(false)
     // echo("~~ $n | $actualKey = $actualVal")
-    verifyEq(actualKey, expectKey)
+    verifyEq(actualKey, expectVal == null ? null : expectKey)
     verifyEq(actualVal, expectVal)
   }
 

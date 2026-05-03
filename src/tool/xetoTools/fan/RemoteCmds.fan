@@ -403,9 +403,9 @@ internal class RemoteLogoutCmd : RepoRemoteCmd
   {
     super.usage(out)
     out.printLine("Examples:")
-    out.printLine("  xeto remote-logout           // remove token for default repo")
-    out.printLine("  xeto remote-logout -r acme   // remove token for repo named 'acme'")
-    out.printLine("  xeto remote-logout-t github  // remove default token use for all github repos")
+    out.printLine("  xeto remote-logout            // remove token for default repo")
+    out.printLine("  xeto remote-logout -r acme    // remove token for repo named 'acme'")
+    out.printLine("  xeto remote-logout -t github  // remove default token use for all github repos")
     return 1
   }
 
@@ -413,7 +413,7 @@ internal class RemoteLogoutCmd : RepoRemoteCmd
   {
     try
     {
-      name := type ?: getRepo.name
+      name := type ?: getRepoName
 
       key  := env.remoteRepos.saveAuthToken(name, null)
 

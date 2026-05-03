@@ -135,6 +135,7 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
 
     unregister(name)
     saveConfigFile(r, true)
+    saveAuthToken(name, null)
   }
 
   override Str saveAuthToken(Str name, Str? val)
