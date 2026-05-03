@@ -105,6 +105,57 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
     if (checked) throw UnknownLibErr("$name-$version")
     return null
   }
+
+  ** Return if an env var name if auth token is configured for this repo
+  override Str? authTokenEnvName()
+  {
+    key1 := toAuthTokenEnvKey(name)
+    val1 := toAuthTokenEnvVal(key1)
+    if (val1 != null) return key1
+
+    key2 := toAuthTokenEnvKey(authTokenTypeName)
+    val2 := toAuthTokenEnvVal(key2)
+    if (val2 != null) return key2
+
+    return null
+  }
+
+  ** Get configured auth token for this repo as environment variable:
+  **   1. XETO_REPO_{name}: by repo name
+  **   2. XETO_REPO_{type}: by repo type if not null
+  **   3. Raise exception or null based on checked flag
+  Str? authToken(Bool checked := true)
+  {
+    key1 := toAuthTokenEnvKey(name)
+    val1 := toAuthTokenEnvVal(key1)
+    if (val1 != null) return val1
+
+    key2 := toAuthTokenEnvKey(authTokenTypeName)
+    val2 := toAuthTokenEnvVal(key2)
+    if (val2 != null) return val2
+
+    if (!checked) return null
+    what := key2 == null ? key1 : "$key1 or $key2"
+    throw Err("Missing env var: $what")
+  }
+
+  ** Type name to use for a group of repos such as "github"
+  virtual Str? authTokenTypeName() { null }
+
+  ** Return env var name formatted as XETO_REPO_{x}
+  static Str? toAuthTokenEnvKey(Str? x)
+  {
+    if (x == null) return x
+    return "XETO_REPO_${x.upper}"
+  }
+
+  ** Return env var value for given name
+  static Str? toAuthTokenEnvVal(Str? key)
+  {
+    if (key == null) return null
+    return Env.cur.vars.get(key)
+  }
+
 }
 
 **************************************************************************
@@ -113,7 +164,7 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
 
 internal const class TempRemoteRepo : MRemoteRepo
 {
-  new make(RemoteRepoInit init) : super(init) {}
+  new make(RemoteRepoInit init) : super(init) { Err().trace }
 
   override Dict? ping(Bool checked := true) { throw Err("TODO") }
 

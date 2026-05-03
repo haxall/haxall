@@ -85,7 +85,7 @@ internal class RemoteListCmd : RemoteCmd
 
     table := Obj[,]
 
-    header := ["name", "uri"]
+    header := ["name", "uri", "authToken"]
     if (pathDir) header.add("pathDir")
     header.add("notes")
     table.add(header)
@@ -93,7 +93,8 @@ internal class RemoteListCmd : RemoteCmd
     repos.each |r, i|
     {
       notes := i == 0 ? "default" : ""
-      row := [r.name, r.uri.toStr]
+      authToken := r.authTokenEnvName
+      row := [r.name, r.uri.toStr, authToken]
       if (pathDir) row.add(r.pathDir.osPath)
       row.add(notes)
       table.add(row)
@@ -337,6 +338,91 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
     catch (Err e)
     {
       return err("Versions failed [$getRepoName]", e)
+    }
+  }
+}
+
+**************************************************************************
+** RemoteLoginCmd
+**************************************************************************
+
+internal class RemoteLoginCmd : RepoRemoteCmd
+{
+  override Str cmdName() { "remote-login" }
+
+  override Str summary() { "Configure a remote repo bearer token in fan.props" }
+
+  @Opt { help = "Configure token for type of repos"; aliases=["t"] }
+  Str? type
+
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("Examples:")
+    out.printLine("  xeto remote-login            // configure token for default repo")
+    out.printLine("  xeto remote-login -r acme    // configure token for repo named 'acme'")
+    out.printLine("  xeto remote-login -t github  // configure default token use for all github repos")
+    return 1
+  }
+
+  override Int run()
+  {
+    try
+    {
+      name := type ?: getRepo.name
+
+      val := Env.cur.promptPassword("Enter $name token> ").trim
+      if (val.isEmpty) return err("Cancelled")
+
+      key := env.remoteRepos.saveAuthToken(name, val)
+
+      ok("Login success [$key]")
+      return 0
+    }
+    catch (Err e)
+    {
+      return err("Login failed [$getRepoName]", e)
+    }
+  }
+}
+
+**************************************************************************
+** RemoteLogoutCmd
+**************************************************************************
+
+internal class RemoteLogoutCmd : RepoRemoteCmd
+{
+  override Str cmdName() { "remote-logout" }
+
+  override Str summary() { "Remove a remote repo bearer token from fan.props" }
+
+  @Opt { help = "Configure token for type of repos"; aliases=["t"] }
+  Str? type
+
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("Examples:")
+    out.printLine("  xeto remote-logout           // remove token for default repo")
+    out.printLine("  xeto remote-logout -r acme   // remove token for repo named 'acme'")
+    out.printLine("  xeto remote-logout-t github  // remove default token use for all github repos")
+    return 1
+  }
+
+  override Int run()
+  {
+    try
+    {
+      name := type ?: getRepo.name
+
+      key  := env.remoteRepos.saveAuthToken(name, null)
+
+      ok("Logout success [$key]")
+      return 0
+    }
+    catch (Err e)
+    {
+      return err("Login failed [$getRepoName]", e)
     }
   }
 }

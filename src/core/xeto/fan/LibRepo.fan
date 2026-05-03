@@ -111,6 +111,9 @@ const mixin RemoteRepo : LibRepo
   ** Download the xetolib zip for given name and version
   abstract Buf fetch(Str name, Version version)
 
+  ** Return if an env var name if auth token is configured for this repo
+  @NoDoc abstract Str? authTokenEnvName()
+
   ** Directory in the path where this repo is configured.
   @NoDoc abstract File pathDir()
 }
@@ -151,6 +154,11 @@ const mixin RemoteRepoRegistry
   ** Options:
   **   - anyPathDir: marker tag to remove from any dir in path
   abstract Void remove(Str name, Dict? opts := null)
+
+  ** Save an authentication token to fan.props for the given remote name
+  ** or remote type. Return the env var name which is always formatted
+  ** as "XETO_REPO_{name}".  If token is null, then the remove the token
+  abstract Str saveAuthToken(Str name, Str? token)
 }
 
 **************************************************************************

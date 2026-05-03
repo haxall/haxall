@@ -137,6 +137,15 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
     saveConfigFile(r, true)
   }
 
+  override Str saveAuthToken(Str name, Str? val)
+  {
+    envKey := MRemoteRepo.toAuthTokenEnvKey(name)
+    fanKey := "env." + envKey
+    f := env.workDir + `fan.props`
+    savePropsFile(f, fanKey, val)
+    return envKey
+  }
+
   private RemoteRepo register(Str name, Uri uri, Dict meta, File workDir)
   {
     if (name == "local" || uri == `local:/`) throw Err("Cannot register local")
@@ -182,6 +191,32 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
       {
         lines.add("$n=$v")
       }
+    }
+
+    // rewrite the file
+    file.out.print(lines.join("\n")).close
+  }
+
+  private Void savePropsFile(File file, Str key, Str? val)
+  {
+    lines  := file.exists ? file.readAllLines : Str[,]
+
+    // find key with key=
+    prefix := key + "="
+    i := lines.findIndex |line| { line.startsWith(prefix) }
+
+    // replace or append
+    if (i != null)
+    {
+      if (val != null)
+        lines.set(i, "$key=$val")
+      else
+        lines.removeAt(i)
+    }
+    else
+    {
+      if (val != null)
+        lines.add("$key=$val")
     }
 
     // rewrite the file

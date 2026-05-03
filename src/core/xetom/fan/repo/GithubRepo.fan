@@ -445,11 +445,8 @@ const class GithubRepo : MRemoteRepo
   ** Clear all caches so the next call re-fetches from GitHub.
   Void clearCache() { manifestRef.val = null; libCache.clear }
 
-  ** Resolve auth token from GITHUB_TOKEN environment variable.
-  private Str resolveToken()
-  {
-    return Env.cur.vars["GITHUB_TOKEN"] ?: throw Err("GitHub token required: set GITHUB_TOKEN in fan.props")
-  }
+  ** Type name to use for a group of repos such as "github"
+  override Str? authTokenTypeName() { "github" }
 
 //////////////////////////////////////////////////////////////////////////
 // GitHub GraphQL API
@@ -461,7 +458,7 @@ const class GithubRepo : MRemoteRepo
   private Str:Obj? graphql(Str query)
   {
     wc := WebClient(graphqlUri)
-    wc.reqHeaders["Authorization"] = "Bearer ${resolveToken}"
+    wc.reqHeaders["Authorization"] = "Bearer ${authToken}"
     wc.reqHeaders["Content-Type"]  = "application/json"
     wc.reqHeaders["User-Agent"]    = "github"
     try
@@ -482,3 +479,4 @@ const class GithubRepo : MRemoteRepo
     finally wc.close
   }
 }
+
