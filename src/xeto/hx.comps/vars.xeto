@@ -26,13 +26,13 @@ PointVar: EntityVar {
   bindSpec: Ref? <of:Spec>
 }
 
-PointInput: PointVar <abstract> { curVal: StatusVal? <readonly, transient, summary> }
+PointInput: PointVar <abstract> { curVal: StatusVal? <readonly, transient, summary, output> }
 NumberPointInput: PointInput { curVal: StatusNumber? }
 BoolPointInput: PointInput { curVal: StatusBool? }
 StrPointInput: PointInput { curVal: StatusStr? }
 
 PointOutput: PointVar <abstract> {
-  in: StatusVal? <summary>
+  in: StatusVal? <summary, transient>
   // bindToCurVal: Marker?
   bindToWriteLevel: Int? <minVal: 1, maxVal: 17>
 }

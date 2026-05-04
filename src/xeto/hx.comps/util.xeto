@@ -13,7 +13,7 @@ Folder : HxComp
 // The output of this component generates a sine wave.
 SineWave: HxComp {
   // The computed sine wave
-  out: StatusNumber <summary, transient, readonly>
+  out: StatusNumber <summary, transient, readonly, output>
 
   // The amount of time it takes to output one complete cycle
   period: Duration 30sec
@@ -30,7 +30,7 @@ SineWave: HxComp {
 
 Ramp: HxComp {
   // The computed ramp value
-  out: StatusNumber <summary, transient, readonly>
+  out: StatusNumber <summary, transient, readonly, output>
 
   // The amount of time it takes to output one complete cycle
   period: Duration 30sec
@@ -62,49 +62,49 @@ AxonComp : HxComp {
 // Computes the min, max, and avg of up to 10 inputs.
 MinMaxAvg: HxComp {
   // Input A
-  inA: StatusNumber? <summary>
+  inA: StatusNumber? <summary, transient>
 
   // Input B
-  inB: StatusNumber? <summary>
+  inB: StatusNumber? <summary, transient>
 
   // Input C
-  inC: StatusNumber?
+  inC: StatusNumber? <transient>
 
   // Input D
-  inD: StatusNumber?
+  inD: StatusNumber? <transient>
 
   // Input E
-  inE: StatusNumber?
+  inE: StatusNumber? <transient>
 
   // Input F
-  inF: StatusNumber?
+  inF: StatusNumber? <transient>
 
   // Input G
-  inG: StatusNumber?
+  inG: StatusNumber? <transient>
 
   // Input H
-  inH: StatusNumber?
+  inH: StatusNumber? <transient>
 
   // Input I
-  inI: StatusNumber?
+  inI: StatusNumber? <transient>
 
   // Input J
-  intJ: StatusNumber?
+  inJ: StatusNumber? <transient>
 
   // The minimum value
-  min: StatusNumber? <summary, transient, readonly>
+  min: StatusNumber? <summary, transient, readonly, output>
 
   // The maximum value
-  max: StatusNumber? <summary, transient, readonly>
+  max: StatusNumber? <summary, transient, readonly, output>
 
   // Average of non-null inputs
-  avg: StatusNumber? <summary, transient, readonly>
+  avg: StatusNumber? <summary, transient, readonly, output>
 }
 
 // Generates an oscillating binary pulse
 MultiVibrator: HxComp {
   // The current pulse value
-  out: StatusBool <summary, transient, readonly>
+  out: StatusBool <summary, transient, readonly, output>
 
   // How long it takes to complete a single on-off cycle
   period: Duration <minVal:200ms> 1sec
@@ -118,7 +118,7 @@ MultiVibrator: HxComp {
 // where `random()` generates a number between 0.0 (inclusive) and 1.0 (exclusive)
 Random: HxComp {
   // Then current random number
-  out: StatusNumber <summary>
+  out: StatusNumber <summary, transient, readonly, output>
 
   // The multiplier
   multiplier: Float 1.0

@@ -12,7 +12,7 @@
 ValSwitch: HxComp <abstract> {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  inSwitch: StatusBool? <summary>
+  inSwitch: StatusBool? <summary, transient>
 
   // The output value when `inSwitch` is true
   inTrue: StatusVal? <summary>
@@ -21,14 +21,14 @@ ValSwitch: HxComp <abstract> {
   inFalse: StatusVal? <summary>
 
   // The output
-  out: StatusVal? <summary, transient, readonly>
+  out: StatusVal? <summary, transient, readonly, output>
 }
 
 // A Bool switch
 BoolSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  inSwitch: StatusBool? <summary>
+  inSwitch: StatusBool? <summary, transient>
 
   // The output value when `inSwitch` is true
   inTrue: StatusBool? <summary>
@@ -37,14 +37,14 @@ BoolSwitch: ValSwitch {
   inFalse: StatusBool? <summary>
 
   // The output
-  out: StatusBool? <summary, transient, readonly>
+  out: StatusBool? <summary, transient, readonly, output>
 }
 
 // A Number switch
 NumberSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  inSwitch: StatusBool? <summary>
+  inSwitch: StatusBool? <summary, transient>
 
   // The output value when `inSwitch` is true
   inTrue: StatusNumber? <summary>
@@ -53,14 +53,14 @@ NumberSwitch: ValSwitch {
   inFalse: StatusNumber? <summary>
 
   // The output
-  out: StatusNumber? <summary, transient, readonly>
+  out: StatusNumber? <summary, transient, readonly, output>
 }
 
 // A Str switch
 StrSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  inSwitch: StatusBool? <summary>
+  inSwitch: StatusBool? <summary, transient>
 
   // The output value when `inSwitch` is true
   inTrue: StatusStr? <summary>
@@ -69,6 +69,6 @@ StrSwitch: ValSwitch {
   inFalse: StatusStr? <summary>
 
   // The output
-  out: StatusStr? <summary, transient, readonly>
+  out: StatusStr? <summary, transient, readonly, output>
 }
 

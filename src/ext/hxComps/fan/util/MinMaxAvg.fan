@@ -44,7 +44,7 @@ class MinMaxAvg : HxComp
   virtual StatusNumber? inI() { get("inI") }
 
   ** Input J
-  virtual StatusNumber? intJ { get {get("intJ")} set {set("intJ", it)} }
+  virtual StatusNumber? inJ { get {get("inJ")} set {set("inJ", it)} }
 
   ** The minimum value
   virtual StatusNumber? min() { get("min") }

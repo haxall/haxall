@@ -11,13 +11,13 @@
 // A bit-wise masking operation
 BitMask: HxComp <abstract> {
   // The input number
-  in: StatusNumber? <summary>
+  in: StatusNumber? <summary, transient>
 
   // The mask to apply to when doing the bit operation
   mask: StatusNumber? <summary>
 
   // The computed value
-  out: StatusNumber? <summary, transient, readonly>
+  out: StatusNumber? <summary, transient, readonly, output>
 }
 
 // Compute the bitwise `and` value of the input and the mask

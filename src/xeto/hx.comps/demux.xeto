@@ -11,17 +11,17 @@
 // A digital input demultiplexer
 DigitalInputDemux: HxComp {
   // The input
-  in: StatusNumber? <summary>
+  in: StatusNumber? <summary, transient>
 
   offset: Float
 
-  out1: StatusBool? <summary, transient, readonly>
+  out1: StatusBool? <summary, transient, readonly, output>
 
-  out2: StatusBool? <summary, transient, readonly>
+  out2: StatusBool? <summary, transient, readonly, output>
 
-  out3: StatusBool? <summary, transient, readonly>
+  out3: StatusBool? <summary, transient, readonly, output>
 
-  out4: StatusBool? <summary, transient, readonly>
+  out4: StatusBool? <summary, transient, readonly, output>
 
   out1Value: Float 4.80f
 
@@ -38,222 +38,222 @@ DigitalInputDemux: HxComp {
 // It also sets the corresponding bytes outputs.
 NumberToBitsDemux: HxComp {
   // The input number
-  in: StatusNumber? <summary>
+  in: StatusNumber? <summary, transient>
 
   // Bit 0
-  bit0: StatusBool? <summary, transient, readonly>
+  bit0: StatusBool? <summary, transient, readonly, output>
 
   // Bit 1
-  bit1: StatusBool? <summary, transient, readonly>
+  bit1: StatusBool? <summary, transient, readonly, output>
 
   // Bit 2
-  bit2: StatusBool? <summary, transient, readonly>
+  bit2: StatusBool? <summary, transient, readonly, output>
 
   // Bit 3
-  bit3: StatusBool? <summary, transient, readonly>
+  bit3: StatusBool? <summary, transient, readonly, output>
 
   // Bit 4
-  bit4: StatusBool? <summary, transient, readonly>
+  bit4: StatusBool? <summary, transient, readonly, output>
 
   // Bit 5
-  bit5: StatusBool? <summary, transient, readonly>
+  bit5: StatusBool? <summary, transient, readonly, output>
 
   // Bit 6
-  bit6: StatusBool? <summary, transient, readonly>
+  bit6: StatusBool? <summary, transient, readonly, output>
 
   // Bit 7
-  bit7: StatusBool? <summary, transient, readonly>
+  bit7: StatusBool? <summary, transient, readonly, output>
 
   // Bit 8
-  bit8: StatusBool? <summary, transient, readonly>
+  bit8: StatusBool? <summary, transient, readonly, output>
 
   // Bit 9
-  bit9: StatusBool? <summary, transient, readonly>
+  bit9: StatusBool? <summary, transient, readonly, output>
 
   // Bit 10
-  bit10: StatusBool? <summary, transient, readonly>
+  bit10: StatusBool? <summary, transient, readonly, output>
 
   // Bit 11
-  bit11: StatusBool? <summary, transient, readonly>
+  bit11: StatusBool? <summary, transient, readonly, output>
 
   // Bit 12
-  bit12: StatusBool? <summary, transient, readonly>
+  bit12: StatusBool? <summary, transient, readonly, output>
 
   // Bit 13
-  bit13: StatusBool? <summary, transient, readonly>
+  bit13: StatusBool? <summary, transient, readonly, output>
 
   // Bit 14
-  bit14: StatusBool? <summary, transient, readonly>
+  bit14: StatusBool? <summary, transient, readonly, output>
 
   // Bit 15
-  bit15: StatusBool? <summary, transient, readonly>
+  bit15: StatusBool? <summary, transient, readonly, output>
 
   // Bit 16
-  bit16: StatusBool? <summary, transient, readonly>
+  bit16: StatusBool? <summary, transient, readonly, output>
 
   // Bit 17
-  bit17: StatusBool? <summary, transient, readonly>
+  bit17: StatusBool? <summary, transient, readonly, output>
 
   // Bit 18
-  bit18: StatusBool? <summary, transient, readonly>
+  bit18: StatusBool? <summary, transient, readonly, output>
 
   // Bit 19
-  bit19: StatusBool? <summary, transient, readonly>
+  bit19: StatusBool? <summary, transient, readonly, output>
 
   // Bit 20
-  bit20: StatusBool? <summary, transient, readonly>
+  bit20: StatusBool? <summary, transient, readonly, output>
 
   // Bit 21
-  bit21: StatusBool? <summary, transient, readonly>
+  bit21: StatusBool? <summary, transient, readonly, output>
 
   // Bit 22
-  bit22: StatusBool? <summary, transient, readonly>
+  bit22: StatusBool? <summary, transient, readonly, output>
 
   // Bit 23
-  bit23: StatusBool? <summary, transient, readonly>
+  bit23: StatusBool? <summary, transient, readonly, output>
 
   // Bit 24
-  bit24: StatusBool? <summary, transient, readonly>
+  bit24: StatusBool? <summary, transient, readonly, output>
 
   // Bit 25
-  bit25: StatusBool? <summary, transient, readonly>
+  bit25: StatusBool? <summary, transient, readonly, output>
 
   // Bit 26
-  bit26: StatusBool? <summary, transient, readonly>
+  bit26: StatusBool? <summary, transient, readonly, output>
 
   // Bit 27
-  bit27: StatusBool? <summary, transient, readonly>
+  bit27: StatusBool? <summary, transient, readonly, output>
 
   // Bit 28
-  bit28: StatusBool? <summary, transient, readonly>
+  bit28: StatusBool? <summary, transient, readonly, output>
 
   // Bit 29
-  bit29: StatusBool? <summary, transient, readonly>
+  bit29: StatusBool? <summary, transient, readonly, output>
 
   // Bit 30
-  bit30: StatusBool? <summary, transient, readonly>
+  bit30: StatusBool? <summary, transient, readonly, output>
 
   // Bit 31
-  bit31: StatusBool? <summary, transient, readonly>
+  bit31: StatusBool? <summary, transient, readonly, output>
 
   // Bit 32
-  bit32: StatusBool? <summary, transient, readonly>
+  bit32: StatusBool? <summary, transient, readonly, output>
 
   // Bit 33
-  bit33: StatusBool? <summary, transient, readonly>
+  bit33: StatusBool? <summary, transient, readonly, output>
 
   // Bit 34
-  bit34: StatusBool? <summary, transient, readonly>
+  bit34: StatusBool? <summary, transient, readonly, output>
 
   // Bit 35
-  bit35: StatusBool? <summary, transient, readonly>
+  bit35: StatusBool? <summary, transient, readonly, output>
 
   // Bit 36
-  bit36: StatusBool? <summary, transient, readonly>
+  bit36: StatusBool? <summary, transient, readonly, output>
 
   // Bit 37
-  bit37: StatusBool? <summary, transient, readonly>
+  bit37: StatusBool? <summary, transient, readonly, output>
 
   // Bit 38
-  bit38: StatusBool? <summary, transient, readonly>
+  bit38: StatusBool? <summary, transient, readonly, output>
 
   // Bit 39
-  bit39: StatusBool? <summary, transient, readonly>
+  bit39: StatusBool? <summary, transient, readonly, output>
 
   // Bit 40
-  bit40: StatusBool? <summary, transient, readonly>
+  bit40: StatusBool? <summary, transient, readonly, output>
 
   // Bit 41
-  bit41: StatusBool? <summary, transient, readonly>
+  bit41: StatusBool? <summary, transient, readonly, output>
 
   // Bit 42
-  bit42: StatusBool? <summary, transient, readonly>
+  bit42: StatusBool? <summary, transient, readonly, output>
 
   // Bit 43
-  bit43: StatusBool? <summary, transient, readonly>
+  bit43: StatusBool? <summary, transient, readonly, output>
 
   // Bit 44
-  bit44: StatusBool? <summary, transient, readonly>
+  bit44: StatusBool? <summary, transient, readonly, output>
 
   // Bit 45
-  bit45: StatusBool? <summary, transient, readonly>
+  bit45: StatusBool? <summary, transient, readonly, output>
 
   // Bit 46
-  bit46: StatusBool? <summary, transient, readonly>
+  bit46: StatusBool? <summary, transient, readonly, output>
 
   // Bit 47
-  bit47: StatusBool? <summary, transient, readonly>
+  bit47: StatusBool? <summary, transient, readonly, output>
 
   // Bit 48
-  bit48: StatusBool? <summary, transient, readonly>
+  bit48: StatusBool? <summary, transient, readonly, output>
 
   // Bit 49
-  bit49: StatusBool? <summary, transient, readonly>
+  bit49: StatusBool? <summary, transient, readonly, output>
 
   // Bit 50
-  bit50: StatusBool? <summary, transient, readonly>
+  bit50: StatusBool? <summary, transient, readonly, output>
 
   // Bit 51
-  bit51: StatusBool? <summary, transient, readonly>
+  bit51: StatusBool? <summary, transient, readonly, output>
 
   // Bit 52
-  bit52: StatusBool? <summary, transient, readonly>
+  bit52: StatusBool? <summary, transient, readonly, output>
 
   // Bit 53
-  bit53: StatusBool? <summary, transient, readonly>
+  bit53: StatusBool? <summary, transient, readonly, output>
 
   // Bit 54
-  bit54: StatusBool? <summary, transient, readonly>
+  bit54: StatusBool? <summary, transient, readonly, output>
 
   // Bit 55
-  bit55: StatusBool? <summary, transient, readonly>
+  bit55: StatusBool? <summary, transient, readonly, output>
 
   // Bit 56
-  bit56: StatusBool? <summary, transient, readonly>
+  bit56: StatusBool? <summary, transient, readonly, output>
 
   // Bit 57
-  bit57: StatusBool? <summary, transient, readonly>
+  bit57: StatusBool? <summary, transient, readonly, output>
 
   // Bit 58
-  bit58: StatusBool? <summary, transient, readonly>
+  bit58: StatusBool? <summary, transient, readonly, output>
 
   // Bit 59
-  bit59: StatusBool? <summary, transient, readonly>
+  bit59: StatusBool? <summary, transient, readonly, output>
 
   // Bit 60
-  bit60: StatusBool? <summary, transient, readonly>
+  bit60: StatusBool? <summary, transient, readonly, output>
 
   // Bit 61
-  bit61: StatusBool? <summary, transient, readonly>
+  bit61: StatusBool? <summary, transient, readonly, output>
 
   // Bit 62
-  bit62: StatusBool? <summary, transient, readonly>
+  bit62: StatusBool? <summary, transient, readonly, output>
 
   // Bit 63
-  bit63: StatusBool? <summary, transient, readonly>
+  bit63: StatusBool? <summary, transient, readonly, output>
 
   // Byte 0
-  byte0: StatusNumber? <summary, transient, readonly>
+  byte0: StatusNumber? <summary, transient, readonly, output>
 
   // Byte 1
-  byte1: StatusNumber? <summary, transient, readonly>
+  byte1: StatusNumber? <summary, transient, readonly, output>
 
   // Byte 2
-  byte2: StatusNumber? <summary, transient, readonly>
+  byte2: StatusNumber? <summary, transient, readonly, output>
 
   // Byte 3
-  byte3: StatusNumber? <summary, transient, readonly>
+  byte3: StatusNumber? <summary, transient, readonly, output>
 
   // Byte 4
-  byte4: StatusNumber? <summary, transient, readonly>
+  byte4: StatusNumber? <summary, transient, readonly, output>
 
   // Byte 5
-  byte5: StatusNumber? <summary, transient, readonly>
+  byte5: StatusNumber? <summary, transient, readonly, output>
 
   // Byte 6
-  byte6: StatusNumber? <summary, transient, readonly>
+  byte6: StatusNumber? <summary, transient, readonly, output>
 
   // Byte 7
-  byte7: StatusNumber? <summary, transient, readonly>
+  byte7: StatusNumber? <summary, transient, readonly, output>
 }
 

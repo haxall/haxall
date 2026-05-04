@@ -12,6 +12,7 @@ pragma: Lib <
   depends: {
     { lib: "sys",      versions: BuildVar "ph.depend"}
     { lib: "sys.comp", versions: BuildVar "ph.depend" }
+    { lib: "axon",     versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"

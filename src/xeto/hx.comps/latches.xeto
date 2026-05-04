@@ -18,10 +18,10 @@ Latch: HxComp <abstract> {
 
   // The input status value. The output will be set when the clock
   // transitions from false to true.
-  in: StatusVal? <summary>
+  in: StatusVal? <summary, transient>
 
   // The latched output
-  out: StatusVal? <summary, transient, readonly>
+  out: StatusVal? <summary, transient, readonly, output>
 }
 
 // A Bool latch

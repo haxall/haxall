@@ -13,31 +13,31 @@
 // and treated as empty strings.
 StrConcat: HxComp {
   // Input A
-  inA: StatusStr? <summary>
+  inA: StatusStr? <summary, transient>
 
   // Input B
-  inB: StatusStr? <summary>
+  inB: StatusStr? <summary, transient>
 
   // Input C
-  inC: StatusStr? <summary>
+  inC: StatusStr? <summary, transient>
 
   // Input D
-  inD: StatusStr? <summary>
+  inD: StatusStr? <summary, transient>
 
   // The concatenation of (inA + inB + inC + inD)
-  out: StatusStr <summary, transient, readonly>
+  out: StatusStr <summary, transient, readonly, output>
 }
 
 // Checks if `inB` can be found within `inA`.
 StrContains: HxComp {
   // Defines the Str to check for `inB`
-  inA: StatusStr? <summary>
+  inA: StatusStr? <summary, transient>
 
   // The Str to look for in `inA`
-  inB: StatusStr? <summary>
+  inB: StatusStr? <summary, transient>
 
   // True if `inA` contains `inB`
-  out: StatusBool <summary, transient, readonly>
+  out: StatusBool <summary, transient, readonly, output>
 
   // The zero-based index to start checking for `inB` in `inA`.
   fromIndex: Int 0
@@ -53,19 +53,19 @@ StrContains: HxComp {
 // Computes the length of the input Str.
 StrLen: HxComp {
   // The input Str
-  in: StatusStr? <summary>
+  in: StatusStr? <summary, transient>
 
   // The length of `in`
-  out: StatusNumber <summary, transient, readonly>
+  out: StatusNumber <summary, transient, readonly, output>
 }
 
 // Extracts a sub-string of the input.
 StrSubstr: HxComp {
   // The input Str
-  in: StatusStr? <summary>
+  in: StatusStr? <summary, transient>
 
   // The computed sub-string
-  out: StatusStr <summary, transient, readonly>
+  out: StatusStr <summary, transient, readonly, output>
 
   // The index to start extracting the sub-string
   startIndex: Int <minVal: 0> 0
@@ -78,23 +78,23 @@ StrSubstr: HxComp {
 // Removes whitespace from the beginning and end of a Str
 StrTrim: HxComp {
   // The input Str
-  in: StatusStr? <summary>
+  in: StatusStr? <summary, transient>
 
   // The input Str with leading and trailing whitespace removed
-  out: StatusStr <summary, transient, readonly>
+  out: StatusStr <summary, transient, readonly, output>
 }
 
 // Tests two strings based on the selected test type. All tests are computed
 // in terms of `a <test> b`
 StrTest: HxComp {
   // Input A
-  inA: StatusStr? <summary>
+  inA: StatusStr? <summary, transient>
 
   // Input B
-  inB: StatusStr? <summary>
+  inB: StatusStr? <summary, transient>
 
   // Result of the test
-  out: StatusBool <summary, transient, readonly>
+  out: StatusBool <summary, transient, readonly, output>
 
   // The test to perform on the inputs
   test: StrTestType "eq"

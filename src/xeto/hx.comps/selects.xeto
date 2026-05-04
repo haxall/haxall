@@ -14,37 +14,37 @@ ValSelect: HxComp <abstract> {
   select: StatusNumber? <summary>
 
   // Input A
-  inA: StatusVal? <summary>
+  inA: StatusVal? <summary, transient>
 
   // Input B
-  inB: StatusVal? <summary>
+  inB: StatusVal? <summary, transient>
 
   // Input C
-  inC: StatusVal? <summary>
+  inC: StatusVal? <summary, transient>
 
   // Input D
-  inD: StatusVal? <summary>
+  inD: StatusVal? <summary, transient>
 
   // Input E
-  inE: StatusVal?
+  inE: StatusVal? <transient>
 
   // Input F
-  inF: StatusVal?
+  inF: StatusVal? <transient>
 
   // Input G
-  inG: StatusVal?
+  inG: StatusVal? <transient>
 
   // Input H
-  inH: StatusVal?
+  inH: StatusVal? <transient>
 
   // Input I
-  inI: StatusVal?
+  inI: StatusVal? <transient>
 
   // Input J
-  inJ: StatusVal?
+  inJ: StatusVal? <transient>
 
   // The out slot is set to the selected input
-  out: StatusVal? <summary, transient, readonly>
+  out: StatusVal? <summary, transient, readonly,output>
 
   // If true, then inputs are indexed by zero (0). If false,
   // inputs are indexed by 1, and any select <= 1 will select the

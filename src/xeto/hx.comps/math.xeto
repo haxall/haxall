@@ -9,13 +9,13 @@
 // The base spec for all math components
 Math: HxComp <abstract> {
   // The computed value
-  out: StatusNumber? <summary, transient, readonly>
+  out: StatusNumber? <summary, transient, readonly, output>
 }
 
 // The base spec for all math components that operate on one input
 UnaryMath: Math <abstract> {
   // Input A
-  inA: StatusNumber? <summary>
+  inA: StatusNumber? <summary, transient>
 }
 
 // Computes the absolute value of its input
@@ -60,10 +60,10 @@ ArcTangent: UnaryMath
 // The base spec for all math components that operate on two inputs
 BinaryMath: Math <abstract> {
   // Input A
-  inA: StatusNumber? <summary>
+  inA: StatusNumber? <summary, transient>
 
   // Input B
-  inB: StatusNumber? <summary>
+  inB: StatusNumber? <summary, transient>
 }
 
 // Computes the difference of its inputs (A - B)
@@ -81,16 +81,16 @@ Power: BinaryMath
 // The base spec for all math components that operate on up to four inputs
 QuadMath: Math <abstract> {
   // Input A
-  inA: StatusNumber? <summary>
+  inA: StatusNumber? <summary, transient>
 
   // Input B
-  inB: StatusNumber? <summary>
+  inB: StatusNumber? <summary, transient>
 
   // Input C
-  inC: StatusNumber?
+  inC: StatusNumber? <transient>
 
   // Input D
-  inD: StatusNumber?
+  inD: StatusNumber? <transient>
 }
 
 // Computes the sum of its inputs

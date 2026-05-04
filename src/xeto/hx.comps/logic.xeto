@@ -9,27 +9,27 @@
 // The base spec for all logic components
 Logic: HxComp <abstract> {
   // The computed value
-  out: StatusBool? <summary, transient, readonly>
+  out: StatusBool? <summary, transient, readonly, output>
 }
 
 // Computes the logical negation of its input
 Not: Logic {
-  in: StatusBool? <summary>
+  in: StatusBool? <summary, transient>
 }
 
 // The base spec for all logic components that operate on up to four inputs
 QuadLogic: Logic <abstract> {
   // Input A
-  inA: StatusBool? <summary>
+  inA: StatusBool? <summary, transient>
 
   // Input B
-  inB: StatusBool? <summary>
+  inB: StatusBool? <summary, transient>
 
   // Input C
-  inC: StatusBool?
+  inC: StatusBool? <transient>
 
   // Input D
-  inD: StatusBool?
+  inD: StatusBool? <transient>
 }
 
 // Computes the logical "and" of its inputs
@@ -44,10 +44,10 @@ Xor: QuadLogic
 // The base spec for all mathematical comparison operators
 Comparison: Logic <abstract> {
   // Input A
-  inA: StatusNumber? <summary>
+  inA: StatusNumber? <summary, transient>
 
   // Input B
-  inB: StatusNumber? <summary>
+  inB: StatusNumber? <summary, transient>
 }
 
 // Computes A > B

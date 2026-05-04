@@ -12,16 +12,16 @@ Conversion: HxComp <abstract>
 
 // Convert a Bool value to a StatusBool
 BoolToStatusBool: Conversion {
-  in: Bool <summary> "false"
+  in: Bool <summary, transient> "false"
 
-  out: StatusBool <summary, transient, readonly>
+  out: StatusBool <summary, transient, readonly, output>
 }
 
 // Convert a StatusBool to a Bool value
 StatusBoolToBool: Conversion {
-  in: StatusBool? <summary>
+  in: StatusBool? <summary, transient>
 
-  out: Bool <summary, transient, readonly>
+  out: Bool <summary, transient, readonly, output>
 
   // When `in` is null, set out to this value.
   whenNull: Bool "false"
@@ -40,16 +40,16 @@ IntToStatusNum: Conversion {
 
 // Convert a Number to a StatusNumber
 NumberToStatusNumber: Conversion {
-  in: Number <summary>
+  in: Number <summary, transient>
 
-  out: StatusNumber <summary, transient, readonly>
+  out: StatusNumber <summary, transient, readonly, output>
 }
 
 // Convert a StatusNumber to a Number
 StatusNumberToNumber: Conversion {
-  in: StatusNumber? <summary>
+  in: StatusNumber? <summary, transient>
 
-  out: Number <summary, transient, readonly>
+  out: Number <summary, transient, readonly, output>
 
   // When `in` is null, set out to this value.
   whenNull: Number
@@ -57,16 +57,16 @@ StatusNumberToNumber: Conversion {
 
 // Convert a Str to a StatusStr
 StrToStatusStr: Conversion {
-  in: Str <summary>
+  in: Str <summary, transient>
 
-  out: StatusStr <summary, transient, readonly>
+  out: StatusStr <summary, transient, readonly, output>
 }
 
 // Convert a StatusStr to a StatusNumber. The string may contain a unit, such as "100m".
 // If the string cannot be parsed as a number, then out is set to NaN and fault.
 StatusStrToStatusNumber: Conversion {
-  in: StatusStr? <summary>
+  in: StatusStr? <summary, transient>
 
-  out: StatusNumber? <summary, transient, readonly>
+  out: StatusNumber? <summary, transient, readonly, output>
 }
 

@@ -9,7 +9,7 @@
 // Bool delay
 BoolDelay: HxComp {
   // Input to the delay.
-  in: StatusBool? <summary>
+  in: StatusBool? <summary, transient>
 
   // How long to wait before setting the out slot to true when
   // the in slot transitions to true.
@@ -20,10 +20,10 @@ BoolDelay: HxComp {
   offDelay: Duration <minVal:0sec> 1sec
 
   // The value of the in slot after any delays are accounted for.
-  out: StatusBool? <summary, transient, readonly>
+  out: StatusBool? <summary, transient, readonly, output>
 
   // The inverse of the current out slot.
-  outNot: StatusBool? <summary, transient, readonly>
+  outNot: StatusBool? <summary, transient, readonly, output>
 }
 
 // Current clock time
@@ -32,19 +32,19 @@ CurTime: HxComp {
   updateFreq: Duration <minVal:0.5sec> 0.5sec
 
   // The current time
-  out: DateTime <summary, transient, readonly>
+  out: DateTime <summary, transient, readonly, output>
 }
 
 // Computes the difference in time between `in1` and `in2` by subtracting
 // `in2` from `in1`.
 TimeDiff: HxComp {
   // The base time from which `in2` will be subtracted
-  in1: DateTime <summary>
+  in1: DateTime <summary, transient>
 
   // The time to subtract from `in1`
-  in2: DateTime <summary>
+  in2: DateTime <summary, transient>
 
   // The time difference between `in1` and `in2`
-  out: Duration <summary, transient, readonly>
+  out: Duration <summary, transient, readonly, output>
 }
 
