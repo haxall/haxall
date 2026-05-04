@@ -16,7 +16,7 @@ using hxm
 **
 ** Bootstrap loader for ShellSys
 **
-class ShellBoot : HxBoot
+class ShellBoot : HxSysBoot
 {
   new make() : super("axonsh", Env.cur.tempDir)
   {
@@ -49,7 +49,7 @@ class ShellBoot : HxBoot
     return ShellFolio(config)
   }
 
-  ShellSys init()
+  override ShellSys init()
   {
     ShellSys(this).init(this)
   }

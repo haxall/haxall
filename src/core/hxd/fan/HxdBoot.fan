@@ -20,7 +20,7 @@ using hxUtil
 **
 ** Bootstrap loader for Haxall daemon
 **
-class HxdBoot : HxBoot
+class HxdBoot : HxSysBoot
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -136,10 +136,8 @@ class HxdBoot : HxBoot
     db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted)))
   }
 
-  HxdSys init() { initSys }
-
   ** Initialize the sys instance
-  override HxdSys initSys()
+  override HxdSys init()
   {
     if (!isSetup) throw NotSetupErr("Database not found [$dbDir.osPath]")
     return HxdSys(this).init(this)

@@ -218,6 +218,13 @@ const class HxUtil
   ** Dump a specific thread by its id
   static Str threadDump(Int id) { HxThreadDump().toThread(id) }
 
+  ** Default hostOS sysMeta
+  @NoDoc static Str hostOs()
+  {
+    env := Env.cur.vars
+    return env["os.name"] + " " + env["os.arch"] + " " + env["os.version"]
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Internal
 //////////////////////////////////////////////////////////////////////////

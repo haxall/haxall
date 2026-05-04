@@ -16,7 +16,8 @@ using hxUtil
 using xetoc
 
 **
-** HxBoot is base class for all HxRuntime bootstrap
+** HxBoot is base class for bootstrap of all HxRuntimes.
+** It is the base class of HxSysBoot and HxProjBoot.
 **
 abstract class HxBoot
 {
@@ -41,10 +42,6 @@ abstract class HxBoot
     this.dbDir = dir + `db/`
     this.nsDir = dir + `ns/`
     this.actorPool = ActorPool { it.name = "Rt-$this.name" }
-
-    // special initialization
-    if (Env.cur.vars["HX_DEV_MODE"] == "true")
-      sysConfig["devMode"] = Marker.val
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,58 +95,11 @@ abstract class HxBoot
     ]
   }
 
-  **
-  ** SysInfo metadata to build Sys.info:
-  **   - version (without patch number)
-  **   - type (SysInfoType enum)
-  **   - hostOs, hostModel, hostId?
-  **   - productName, productVersion, productUri
-  **   - vendorName, vendorUri
-  **   - licProduct?
-  **
-  Str:Obj? sysInfo := [
-    "version":        typeof.pod.version.segments[0..2].join("."),
-    "hostOs":         hostOs,
-    "hostModel":      "Haxall (${Env.cur.os})",
-    "productName":    "Haxall",
-    "productVersion": typeof.pod.version.toStr,
-    "productUri":     `https://haxall.io/`,
-    "vendorName":     "SkyFoundry",
-    "vendorUri":      `https://skyfoundry.com/`,
-  ]
-
   ** Lookup sys version
-  Version sysInfoVersion() { Version.fromStr(sysInfo.getChecked("version")) }
+  abstract Version sysInfoVersion()
 
-  **
-  ** SysConfig meta to build Sys.config:
-  **   - test: Marker for HxTest runtime
-  **   - devMode: Marker for devMode mode (initialize via env var HX_DEV_MODE)
-  **   - safeMode: Marker to disable all project extensions
-  **   - noAuth: Marker to disable auth for loopback and auto-login with superuser
-  **   - console: Marker to run interactive console after boot
-  **   - apiExtWeb: qname for ApiExt ExtWeb class
-  **   - platformSpi: qname for hxPlatform::PlatformSpi class
-  **   - platformNetworkSpi: qname for hxPlatformNetwork::PlatformNetworkSpi class
-  **   - platformSerialSpi: qname for hxPlatformSerial::PlatformSerialSpi class
-  **   - platformTimeSpi: qname for hxPlatformTime::PlatformTimeSpi class
-  **   - hxLic: license Str or load from lic/xxx.trio
-  **   - ephemeralHttpPort: Marker to let OS assign HTTP port
-  **
-  ** SkySpark options:
-  **   - safeMode: don't start exts (SkySpark only)
-  **   - newProjExts: comma separated list of project exts
-  **   - demogenMaxDays: Number of days to limit for smaller devices
-  **   - undefs: comma separated list of symbols to remove from ns
-  **   - defFuncs: Marker to load funcs into DefNamespace (disabled otherwise)
-  **
-  Str:Obj? sysConfig := [:]
-
-  ** Get tag from sysConfig if booting Sys or from projSys if booting Proj
-  Obj? sysConfigGet(Str name)
-  {
-    sysConfig.get(name) ?: projSys?.config?.get(name)
-  }
+  ** Get tag from sysConfig
+  abstract Obj? sysConfigGet(Str name)
 
   ** Extension settings overrides keyed by lib name such "hx.http".  This
   ** is a dict that is merged into the settings stored on disk (it does *not*
@@ -168,9 +118,6 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 // Hooks
 //////////////////////////////////////////////////////////////////////////
-
-  ** If booting a project, then the parent Sys instance
-  virtual Sys? projSys() { null }
 
   ** Initalize runtime meta
   virtual HxMeta initMeta(HxRuntime rt)
@@ -207,34 +154,6 @@ abstract class HxBoot
     HxFolioHooks(rt)
   }
 
-  ** Create SysInfo instance from sysInfo (sys boot only)
-  virtual SysInfo initSysInfo()
-  {
-    meta := Etc.dictFromMap(sysInfo.findNotNull)
-    return SysInfo(meta)
-  }
-
-  ** Create SysConfig instance from sysConfig (sys boot only)
-  virtual SysConfig initSysConfig()
-  {
-    if (isNoAuth)
-    {
-      echo("##")
-      echo("## NO AUTH - authentication is disabled on loopback!")
-      echo("##")
-    }
-
-    if (isSafeMode)
-    {
-      echo("##")
-      echo("## SAFE MODE - proj extensions disabled!!!!")
-      echo("##")
-    }
-
-    meta := Etc.dictFromMap(sysConfig.findNotNull)
-    return SysConfig(meta)
-  }
-
   ** Create background manager
   virtual HxBackgroundMgr initBackgroundMgr(HxRuntime rt)
   {
@@ -265,30 +184,47 @@ abstract class HxBoot
     HxObservables(rt)
   }
 
-  ** Create console
-  virtual HxConsole initConsole(Sys sys)
-  {
-    HxmConsole(sys)
-  }
+}
 
-//////////////////////////////////////////////////////////////////////////
-// Utils
-//////////////////////////////////////////////////////////////////////////
+**************************************************************************
+** HxProjBoot
+**************************************************************************
 
-  ** Sanity check runtime against this boot
-  internal Void check(HxRuntime rt)
-  {
-    if (rt.isProj && !rt.isSys)
-    {
-      if (projSys == null) throw Err("Must override HxBoot.projSys")
-    }
-  }
+**
+** HxProjBoot is base class for bootstrap of multi-tenant Proj runtimes
+**
+abstract class HxProjBoot : HxBoot
+{
+  ** Constructor
+  new make(Sys sys, Str name, File dir) : super(name, dir) { this.sysRef = sys }
 
-  ** Default hostOS sysMeta
-  static Str hostOs()
+  ** Parent Sys instance
+  virtual Sys sys() { sysRef }
+  const Sys sysRef
+
+  ** Lookup sys version
+  override Version sysInfoVersion() { sys.info.version }
+
+  ** Get tag from sysConfig
+  override Obj? sysConfigGet(Str name) { sys.config.get(name) }
+}
+
+**************************************************************************
+** HxSysBoot
+**************************************************************************
+
+**
+** HxSysBoot is base class for bootstrap of HxSys runtimes
+**
+abstract class HxSysBoot : HxBoot
+{
+
+  ** Constructor
+  new make(Str name, File dir) : super(name, dir)
   {
-    env := Env.cur.vars
-    return env["os.name"] + " " + env["os.arch"] + " " + env["os.version"]
+    // special initialization
+    if (Env.cur.vars["HX_DEV_MODE"] == "true")
+      sysConfig["devMode"] = Marker.val
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -316,12 +252,104 @@ abstract class HxBoot
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Config
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** SysInfo metadata to build Sys.info:
+  **   - version (without patch number)
+  **   - type (SysInfoType enum)
+  **   - hostOs, hostModel, hostId?
+  **   - productName, productVersion, productUri
+  **   - vendorName, vendorUri
+  **   - licProduct?
+  **
+  Str:Obj? sysInfo := [
+    "version":        typeof.pod.version.segments[0..2].join("."),
+    "hostOs":         HxUtil.hostOs,
+    "hostModel":      "Haxall (${Env.cur.os})",
+    "productName":    "Haxall",
+    "productVersion": typeof.pod.version.toStr,
+    "productUri":     `https://haxall.io/`,
+    "vendorName":     "SkyFoundry",
+    "vendorUri":      `https://skyfoundry.com/`,
+  ]
+
+  **
+  ** SysConfig meta to build Sys.config:
+  **   - test: Marker for HxTest runtime
+  **   - devMode: Marker for devMode mode (initialize via env var HX_DEV_MODE)
+  **   - safeMode: Marker to disable all project extensions
+  **   - noAuth: Marker to disable auth for loopback and auto-login with superuser
+  **   - console: Marker to run interactive console after boot
+  **   - apiExtWeb: qname for ApiExt ExtWeb class
+  **   - platformSpi: qname for hxPlatform::PlatformSpi class
+  **   - platformNetworkSpi: qname for hxPlatformNetwork::PlatformNetworkSpi class
+  **   - platformSerialSpi: qname for hxPlatformSerial::PlatformSerialSpi class
+  **   - platformTimeSpi: qname for hxPlatformTime::PlatformTimeSpi class
+  **   - hxLic: license Str or load from lic/xxx.trio
+  **   - ephemeralHttpPort: Marker to let OS assign HTTP port
+  **
+  ** SkySpark options:
+  **   - safeMode: don't start exts (SkySpark only)
+  **   - newProjExts: comma separated list of project exts
+  **   - demogenMaxDays: Number of days to limit for smaller devices
+  **   - undefs: comma separated list of symbols to remove from ns
+  **   - defFuncs: Marker to load funcs into DefNamespace (disabled otherwise)
+  **
+  Str:Obj? sysConfig := [:]
+
+  ** Lookup sys version
+  override Version sysInfoVersion() { Version.fromStr(sysInfo.getChecked("version")) }
+
+  ** Get tag from sysConfig if booting Sys or from projSys if booting Proj
+  override Obj? sysConfigGet(Str name) { sysConfig.get(name) }
+
+//////////////////////////////////////////////////////////////////////////
+// Hooks
+//////////////////////////////////////////////////////////////////////////
+
+  ** Create SysInfo instance from sysInfo (sys boot only)
+  virtual SysInfo initSysInfo()
+  {
+    meta := Etc.dictFromMap(sysInfo.findNotNull)
+    return SysInfo(meta)
+  }
+
+  ** Create SysConfig instance from sysConfig (sys boot only)
+  virtual SysConfig initSysConfig()
+  {
+    if (isNoAuth)
+    {
+      echo("##")
+      echo("## NO AUTH - authentication is disabled on loopback!")
+      echo("##")
+    }
+
+    if (isSafeMode)
+    {
+      echo("##")
+      echo("## SAFE MODE - proj extensions disabled!!!!")
+      echo("##")
+    }
+
+    meta := Etc.dictFromMap(sysConfig.findNotNull)
+    return SysConfig(meta)
+  }
+
+  ** Create console
+  virtual HxConsole initConsole(Sys sys)
+  {
+    HxmConsole(sys)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Init+Run
 //////////////////////////////////////////////////////////////////////////
 
   ** Initialize the system (to use standard run).
   ** Raise NotSetupErr to route to notSetup handling.
-  virtual HxSys initSys() { throw UnsupportedErr() }
+  abstract HxSys init()
 
   ** Standardized init and run
   virtual Int run()
@@ -329,7 +357,7 @@ abstract class HxBoot
     // init system
     HxSys? sys := null
     try
-      sys = initSys
+      sys = init
     catch (NotSetupErr e)
       return notSetup(e)
 

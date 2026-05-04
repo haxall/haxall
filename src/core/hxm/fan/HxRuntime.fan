@@ -28,7 +28,6 @@ abstract const class HxRuntime : Runtime
   ** Boot constructor
   new make(HxBoot boot)
   {
-    boot.check(this)
     this.name          = boot.name
     this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
@@ -311,7 +310,7 @@ abstract const class HxRuntime : Runtime
 abstract const class HxSys : HxRuntime, Sys
 {
   ** Constructor
-  new make(HxBoot boot) : super(boot)
+  new make(HxSysBoot boot) : super(boot)
   {
     this.info    = boot.initSysInfo
     this.config  = boot.initSysConfig
