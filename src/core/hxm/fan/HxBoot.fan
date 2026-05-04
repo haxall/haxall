@@ -235,7 +235,7 @@ abstract class HxSysBoot : HxBoot
   **   - noAuth: disable auth for loopback and auto-login with superuser
   **   - safeMode: disable all project extensions
   **   - console: run interactive console after boot
-  This initOpts(AbstractMain main)
+  virtual This initOpts(AbstractMain main)
   {
     if (hasBoolOpt(main, "noAuth"))   sysConfig["noAuth"] = Marker.val
     if (hasBoolOpt(main, "safeMode")) sysConfig["safeMode"] = Marker.val
@@ -351,33 +351,30 @@ abstract class HxSysBoot : HxBoot
   ** Raise NotSetupErr to route to notSetup handling.
   abstract HxSys init()
 
-  ** Standardized init and run
-  virtual Int run()
+  ** Standardized system init and start.  This call blocks
+  ** until the all system and projs exts are started and ready.
+  ** Raise NotSetupErr to route to notSetup handling.
+  virtual HxSys boot()
   {
     // init system
-    HxSys? sys := null
-    try
-      sys = init
-    catch (NotSetupErr e)
-      return notSetup(e)
+    sys := init
 
     // install shutdown handler
     Env.cur.addShutdownHook(sys.shutdownHook)
 
     // start system
-    sys.start
+    return sys.start
+  }
 
-    // wait until HttpExt is opened and assigned port
-    /*
-    http := sys.ext("hx.http", false) as IHttpExt
-    if (http != null)
-    {
-      try
-        httpReady(http.waitUntilListening(30sec).httpPort)
-      catch (Err e)
-        e.trace
-    }
-    */
+  ** Standardized boot and enter run loop
+  Int run()
+  {
+    // boot the system
+    HxSys? sys := null
+    try
+      sys = boot
+    catch (NotSetupErr e)
+      return notSetup(e)
 
     // run console or sleep forever
     if (sys.config.has("console"))
@@ -387,14 +384,11 @@ abstract class HxSysBoot : HxBoot
     return 0
   }
 
-  ** Handle not setup error
+  ** Handle not setup error on run
   virtual Int notSetup(NotSetupErr e)
   {
     echo("ERROR: system is not setup - $e.msg")
     return 1
   }
-
-  ** Callback when HTTP port is opened
-  virtual Void httpReady(Int? port) {}
 }
 
