@@ -34,6 +34,12 @@ const mixin IHttpExt : SysExt
   ** an absolute URI such 'https://acme.com/'
   abstract Uri siteUri()
 
+  ** Get the HTTP port or null if using HTTPS
+  @NoDoc abstract Int? httpPort()
+
+  ** Get the HTTPS port or null if using HTTP
+  @NoDoc abstract Int? httpsPort()
+
   ** Root web module
   @NoDoc abstract WebMod? root(Bool checked := true)
 }

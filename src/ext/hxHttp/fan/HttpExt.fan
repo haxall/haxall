@@ -20,7 +20,7 @@ using hxm
 **
 const class HttpExt : ExtObj, IHttpExt
 {
-  WispService wisp() { wispRef.val }
+  WispService wisp() { wispRef.val ?: throw Err("Not ready") }
   private const AtomicRef wispRef := AtomicRef(null)
 
   ** Settings record
@@ -46,6 +46,12 @@ const class HttpExt : ExtObj, IHttpExt
     else
       return `http://${host}:${settings.httpPort}/`
   }
+
+  ** Get the HTTP port or null if using HTTPS
+  override Int? httpPort() { wisp.httpPort }
+
+  ** Get the HTTPS port or null if using HTTP
+  override Int? httpsPort() { wisp.httpsPort }
 
   ** Ready callback
   override Void onReady()
@@ -78,6 +84,9 @@ const class HttpExt : ExtObj, IHttpExt
     }
     wispRef.val = wisp
     wisp.start
+
+    // don't return until wisp is listening
+    wisp.waitUntilListening(30sec)
   }
 
   ** Unready callback
