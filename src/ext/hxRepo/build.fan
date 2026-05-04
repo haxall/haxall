@@ -1,23 +1,23 @@
 #! /usr/bin/env fan
 //
-// Copyright (c) 2021, SkyFoundry LLC
+// Copyright (c) 2026, SkyFoundry LLC
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   20 May 2021   Brian Frank  Creation
+//   3 May 2026  Trevor Adelman  Creation
 //
 
 using build
 
 **
-** Build: testHx
+** Build: hxRepo
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "testHx"
-    summary = "Tests for Haxall runtime"
+    podName = "hxRepo"
+    summary = "Xeto remote repo management and installation"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -26,24 +26,12 @@ class Build : BuildPod
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
-               "concurrent @{fan.depend}",
-               "inet @{fan.depend}",
                "xeto @{hx.depend}",
                "xetom @{hx.depend}",
                "haystack @{hx.depend}",
-               "auth @{hx.depend}",
                "axon @{hx.depend}",
-               "obs @{hx.depend}",
-               "folio @{hx.depend}",
-               "hx @{hx.depend}",
-               "hxm @{hx.depend}",
-               "hxd @{hx.depend}",
-               "hxFolio @{hx.depend}",
-               "hxConn @{hx.depend}",
-               "hxRepo @{hx.depend}"]
+               "hx @{hx.depend}"]
     srcDirs = [`fan/`]
-    resDirs = [`lib/`, `lib/connTest/`]
-    index =   ["xeto.bindings":["hx.test", "hx.test.conn"], "ph.lib":"connTest" ]
+    index   = ["xeto.bindings":"hx.repo"]
   }
 }
-
