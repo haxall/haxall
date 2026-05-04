@@ -37,4 +37,48 @@ class RepoFuncsTest : HxTest
     verifyEq(cc["uri"],  `https://github.com/Project-Haystack/xeto-cc`)
   }
 
+  @HxTestProj
+  Void testLibRepoAddRemove()
+  {
+    addLib("hx.repo")
+
+    // add a new repo
+    Dict added := eval("""libRepoAdd("testrepo", `https://example.com/xeto`)""")
+    verifyEq(added["name"], "testrepo")
+    verifyEq(added["uri"],  `https://example.com/xeto`)
+
+    // verify it shows up in list
+    Grid grid := eval("libRepos()")
+    row := grid.find { it->name == "testrepo" } ?: throw Err()
+    verifyEq(row["name"], "testrepo")
+    verifyEq(row["uri"],  `https://example.com/xeto`)
+
+    // remove
+    Str removed := eval("""libRepoRemove("testrepo")""")
+    verifyEq(removed, "removed")
+
+    // verify it's gone
+    grid = eval("libRepos()")
+    verifyEq(grid.find { it->name == "testrepo" }, null)
+  }
+
+  @HxTestProj
+  Void testLibRepoLoginLogout()
+  {
+    addLib("hx.repo")
+
+    // login sets auth token
+    Str envName := eval("""libRepoLogin("xetodev", "test-token-123")""")
+    verify(envName.contains("XETO_REPO"))
+
+    // verify token shows in repo list
+    Grid grid := eval("libRepos()")
+    xetodev := grid.find { it->name == "xetodev" } ?: throw Err()
+    verifyNotNull(xetodev["authToken"])
+
+    // logout clears auth token
+    envName = eval("""libRepoLogout("xetodev")""")
+    verify(envName.contains("XETO_REPO"))
+  }
+
 }

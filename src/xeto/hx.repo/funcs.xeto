@@ -18,6 +18,52 @@
   //   ```axon
   //   libRepos()
   //   ```
-  libRepos: Func <admin> { returns: Grid }
+  libRepos: Func <su> { returns: Grid }
+
+  // Add a new remote repo configuration.  The name must be a valid
+  // tag name and the uri must be a valid URI for the repo endpoint.
+  //
+  // Examples:
+  //   ```axon
+  //   libRepoAdd("myrepo", `https://example.com/xeto`)
+  //   ```
+  libRepoAdd: Func <su> { name: Str, uri: Uri }
+
+  // Remove a remote repo configuration by name.
+  //
+  // Examples:
+  //   ```axon
+  //   libRepoRemove("myrepo")
+  //   ```
+  libRepoRemove: Func <su> { name: Str }
+
+  // Ping a remote repo and return metadata.  If repo is null
+  // then the default repo is used.
+  //
+  // Examples:
+  //   ```axon
+  //   libRepoPing(null)
+  //   libRepoPing("xetodev")
+  //   ```
+  libRepoPing: Func <su> { repo: Str?, returns: Dict }
+
+  // Save an authentication token for a remote repo.  The token
+  // is persisted to fan.props as an environment variable.  If repo
+  // is null then the default repo is used.
+  //
+  // Examples:
+  //   ```axon
+  //   libRepoLogin("xetodev", "my-secret-token")
+  //   ```
+  libRepoLogin: Func <su> { repo: Str?, token: Str }
+
+  // Remove the authentication token for a remote repo.  If repo
+  // is null then the default repo is used.
+  //
+  // Examples:
+  //   ```axon
+  //   libRepoLogout("xetodev")
+  //   ```
+  libRepoLogout: Func <su> { repo: Str? }
 
 }
