@@ -15,8 +15,9 @@
   //   - `authToken`: env var name if auth token is configured
   //
   // Examples:
-  //
-  //     libRepos()
+  //   ```axon
+  //   libRepos()
+  //   ```
   libRepos: Func <admin> { returns: Grid }
 
 }

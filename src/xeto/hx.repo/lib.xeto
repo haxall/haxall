@@ -7,7 +7,7 @@
 //
 
 pragma: Lib <
-  doc: "Remote repository management functions"
+  doc: "Xeto remote repo management and installation"
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys",  versions: BuildVar "ph.depend" }

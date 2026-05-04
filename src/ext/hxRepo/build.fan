@@ -17,7 +17,7 @@ class Build : BuildPod
   new make()
   {
     podName = "hxRepo"
-    summary = "Remote repository management"
+    summary = "Xeto remote repo management and installation"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
