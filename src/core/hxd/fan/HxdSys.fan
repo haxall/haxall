@@ -16,26 +16,16 @@ using folio
 using hx
 using hxm
 
-const class HxdSys : HxRuntime, Sys, Proj
+const class HxdSys : HxSys, Proj
 {
   new make(HxdBoot boot) : super(boot)
   {
-    this.info      = boot.initSysInfo
-    this.config    = boot.initSysConfig
     this.companion = HxCompanion(this)
   }
-
-  override final Sys sys() { this }
-
-  override final Bool isSys() { true }
 
   override final Bool isProj() { true }
 
   override File varDir() { this.dir }
-
-  override const SysInfo info
-
-  override const SysConfig config
 
   override const ProjCompanion companion
 }

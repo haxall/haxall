@@ -219,7 +219,7 @@ abstract const class HxRuntime : Runtime
     Future.waitForAll(futures)
 
     // Synchronously startup all projects
-    startProjs
+    if (this is HxSys) ((HxSys)this).startProjs
 
     // onReady callback
     futures = exts.map |lib->Future| { ((HxExtSpi)lib.spi).ready }
@@ -246,7 +246,7 @@ abstract const class HxRuntime : Runtime
     Future.waitForAll(futures)
 
     // Synchronously shutdown all projects
-    stopProjs
+    if (this is HxSys) ((HxSys)this).stopProjs
 
     // onStop callback
     futures = exts.map |lib->Future| { ((HxExtSpi)lib.spi).stop }
@@ -259,15 +259,6 @@ abstract const class HxRuntime : Runtime
     actorPool.kill
     return this
   }
-
-  ** Callback for systems to open/start projects
-  protected virtual Void startProjs() {}
-
-  ** Callback for systems to stop/close projects
-  protected virtual Void stopProjs() {}
-
-  ** Function that calls stop
-  const |->| shutdownHook := |->| { stop }
 
   private const AtomicBool isRunningRef := AtomicBool()
   private const AtomicBool isStarted := AtomicBool()
@@ -307,6 +298,46 @@ abstract const class HxRuntime : Runtime
   {
     Type.find("hxIon::IonProjData").make([this])
   }
+
+}
+
+**************************************************************************
+** HxSys
+**************************************************************************
+
+**
+** Base class for HxRuntimes that are Sys
+**
+abstract const class HxSys : HxRuntime, Sys
+{
+  ** Constructor
+  new make(HxBoot boot) : super(boot)
+  {
+    this.info    = boot.initSysInfo
+    this.config  = boot.initSysConfig
+    this.console = boot.initConsole(this)
+  }
+
+  override Sys sys() { this }
+
+  override Bool isProj() { false }
+
+  override final Bool isSys() { true }
+
+  override const SysInfo info
+
+  override const SysConfig config
+
+  override const HxConsole console
+
+  ** Callback for systems to open/start projects
+  protected virtual Void startProjs() {}
+
+  ** Callback for systems to stop/close projects
+  protected virtual Void stopProjs() {}
+
+  ** Function that calls stop
+  const |->| shutdownHook := |->| { stop }
 
 }
 

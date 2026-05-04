@@ -66,6 +66,9 @@ const mixin Ext
   ** Service provider interface
   @NoDoc abstract ExtSpi spi()
 
+  ** Return console commands
+  @NoDoc virtual HxConsoleCmd[] consoleCmds() { HxConsoleCmd#.emptyList }
+
 //////////////////////////////////////////////////////////////////////////
 // Observables
 //////////////////////////////////////////////////////////////////////////

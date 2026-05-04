@@ -15,26 +15,18 @@ using hxm
 **
 ** ShellSys implements a limited, single-threaded runtime for the shell.
 **
-const class ShellSys : HxRuntime, Sys, Proj
+const class ShellSys : HxSys, Proj
 {
   new make(ShellBoot boot) : super(boot)
   {
-    this.info      = boot.initSysInfo
-    this.config    = boot.initSysConfig
     this.companion = HxCompanion(this)
   }
 
   override final Sys sys() { this }
 
-  override final Bool isSys() { true }
-
   override final Bool isProj() { true }
 
   override File varDir() { this.dir }
-
-  override const SysInfo info
-
-  override const SysConfig config
 
   override const ProjCompanion companion
 

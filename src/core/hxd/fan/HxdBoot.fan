@@ -57,6 +57,11 @@ class HxdBoot : HxBoot
 // HxBoot Overrides
 //////////////////////////////////////////////////////////////////////////
 
+  Bool isSetup()
+  {
+    this.dbDir.plus(`folio.index`).exists
+  }
+
   override Folio initFolio()
   {
     config := FolioConfig
@@ -131,29 +136,13 @@ class HxdBoot : HxBoot
     db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted)))
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Run
-//////////////////////////////////////////////////////////////////////////
+  HxdSys init() { initSys }
 
-  ** Initialize and kick off the runtime
-  virtual HxdSys init()
+  ** Initialize the sys instance
+  override HxdSys initSys()
   {
-    HxdSys(this).init(this)
-  }
-
-  ** Initialize and kick off the runtime
-  Int run()
-  {
-    // load project
-    rt := init
-
-    // install shutdown handler
-    Env.cur.addShutdownHook(rt.shutdownHook)
-
-    // startup proj
-    rt.start
-    Actor.sleep(Duration.maxVal)
-    return 0
+    if (!isSetup) throw NotSetupErr("Database not found [$dbDir.osPath]")
+    return HxdSys(this).init(this)
   }
 }
 
@@ -171,14 +160,15 @@ internal class RunCli : HxCli
   @Opt { help = "Disable auth for loopback and auto-login with superuser" }
   Bool noAuth
 
+  @Opt { help = "Run interactive console after boot" }
+  Bool console
+
   @Arg { help = "Runtime database directory" }
   File? dir
 
   override Int run()
   {
-    boot := HxdBoot("sys", dir)
-    if (noAuth) boot.sysConfig["noAuth"] = Marker.val
-    return boot.run
+    HxdBoot("sys", dir).initOpts(this).run
   }
 }
 

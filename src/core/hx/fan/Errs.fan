@@ -66,3 +66,9 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+** System not fully setup
+@NoDoc const class NotSetupErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+

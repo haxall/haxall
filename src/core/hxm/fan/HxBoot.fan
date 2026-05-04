@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 using folio
@@ -15,13 +16,13 @@ using hxUtil
 using xetoc
 
 **
-** Haxall project bootstrap is used to create or boot a project
+** HxBoot is base class for all HxRuntime bootstrap
 **
 abstract class HxBoot
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Constructor
+// Initialization
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
@@ -125,7 +126,8 @@ abstract class HxBoot
   **   - test: Marker for HxTest runtime
   **   - devMode: Marker for devMode mode (initialize via env var HX_DEV_MODE)
   **   - safeMode: Marker to disable all project extensions
-  **   - noAuth: Marker to disable authentication and use superuser
+  **   - noAuth: Marker to disable auth for loopback and auto-login with superuser
+  **   - console: Marker to run interactive console after boot
   **   - apiExtWeb: qname for ApiExt ExtWeb class
   **   - platformSpi: qname for hxPlatform::PlatformSpi class
   **   - platformNetworkSpi: qname for hxPlatformNetwork::PlatformNetworkSpi class
@@ -263,6 +265,12 @@ abstract class HxBoot
     HxObservables(rt)
   }
 
+  ** Create console
+  virtual HxConsole initConsole(Sys sys)
+  {
+    HxmConsole(sys)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
@@ -283,5 +291,82 @@ abstract class HxBoot
     return env["os.name"] + " " + env["os.arch"] + " " + env["os.version"]
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Main
+//////////////////////////////////////////////////////////////////////////
+
+  ** Init from a command line main using standardized args:
+  **   - noAuth: disable auth for loopback and auto-login with superuser
+  **   - safeMode: disable all project extensions
+  **   - console: run interactive console after boot
+  This initOpts(AbstractMain main)
+  {
+    if (hasBoolOpt(main, "noAuth"))   sysConfig["noAuth"] = Marker.val
+    if (hasBoolOpt(main, "safeMode")) sysConfig["safeMode"] = Marker.val
+    if (hasBoolOpt(main, "console"))  sysConfig["console"] = Marker.val
+    return this
+  }
+
+  ** Does given main have the bool option field name and is it set
+  Bool hasBoolOpt(AbstractMain main, Str name)
+  {
+    field := main.typeof.field(name, false)
+    if (field == null || field.type !== Bool#) return false
+    return field.get(main)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Init+Run
+//////////////////////////////////////////////////////////////////////////
+
+  ** Initialize the system (to use standard run).
+  ** Raise NotSetupErr to route to notSetup handling.
+  virtual HxSys initSys() { throw UnsupportedErr() }
+
+  ** Standardized init and run
+  virtual Int run()
+  {
+    // init system
+    HxSys? sys := null
+    try
+      sys = initSys
+    catch (NotSetupErr e)
+      return notSetup(e)
+
+    // install shutdown handler
+    Env.cur.addShutdownHook(sys.shutdownHook)
+
+    // start system
+    sys.start
+
+    // wait until HttpExt is opened and assigned port
+    /*
+    http := sys.ext("hx.http", false) as IHttpExt
+    if (http != null)
+    {
+      try
+        httpReady(http.waitUntilListening(30sec).httpPort)
+      catch (Err e)
+        e.trace
+    }
+    */
+
+    // run console or sleep forever
+    if (sys.config.has("console"))
+      return sys.console.run
+    else
+      Actor.sleep(Duration.maxVal)
+    return 0
+  }
+
+  ** Handle not setup error
+  virtual Int notSetup(NotSetupErr e)
+  {
+    echo("ERROR: system is not setup - $e.msg")
+    return 1
+  }
+
+  ** Callback when HTTP port is opened
+  virtual Void httpReady(Int? port) {}
 }
 
