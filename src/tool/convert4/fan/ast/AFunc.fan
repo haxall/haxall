@@ -150,6 +150,7 @@ class AFunc
       case "dis":
       case "help":
       case "ruleOn":
+      case "color":
       case "sparkRule":
       case "kpiRule":
       case "curRule":
