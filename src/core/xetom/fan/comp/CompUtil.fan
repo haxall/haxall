@@ -114,8 +114,8 @@ class CompUtil
         isDef := isDefault(comp, slotName, val)
         if (!slot.isEmpty || !isDef) slot["name"] = slotName
 
-        // val
-        if (!isDef)
+        // val - only encode if not default and not linked
+        if (!isDef && slot["link"] == null)
         {
           // slot["maybe"] = slotSpec.isMaybe ? Marker.val : null
           // slot["type"]  = slotSpec.type.id
