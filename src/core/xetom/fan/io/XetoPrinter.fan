@@ -305,7 +305,7 @@ class XetoPrinter
     if (v is Ref && v.toStr.contains("::"))
       w(v.toStr)
     else
-      quoted(v)
+      w(v.toStr.toCode) // escape $ in axon source
   }
 
 //////////////////////////////////////////////////////////////////////////

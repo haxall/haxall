@@ -312,6 +312,17 @@ class ParseTest : AbstractXetoTest
         """echo("hello")""",
         null)
 
+    // meta and def expr with escapes
+    // we always escape $ in Axon even in meta
+    verifyAxon(ns, opts,
+      Str<|(a: Str "\$7", b: Str <val:"\$6">) => echo("hello")|>,
+        [
+          ["name":"a", "type":Ref("sys::Str"), "axon":Str<|"\$7"|>],
+          ["name":"b", "type":Ref("sys::Str"), "val":Str<|$6|>],
+          ["name":"returns", "type":Ref("sys::Obj"), "maybe":m],
+        ],
+        """echo("hello")""",
+        null)
 
     // def expr list literal with simple type
     verifyAxon(ns, opts,
