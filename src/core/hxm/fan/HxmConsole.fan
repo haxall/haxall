@@ -73,6 +73,25 @@ const class HxmConsole : HxConsole
     return null
   }
 
+  override Obj? inContext(|Context->Obj?| f)
+  {
+    if (sys.config.meta.missing("noAuth"))
+    {
+      warn("Must use -noAuth to execute context aware commands")
+      return null
+    }
+
+    user:= sys.user.read(Filter("user and userRole==\"su\""))
+    return rt.newContext(user).asCur |cx| { f(cx) }
+  }
+
+  ** Debug dump given object
+  private Void dump(Obj? x)
+  {
+    if (x is Grid) ((Grid)x).dump
+    else info(x)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Run Loop
 //////////////////////////////////////////////////////////////////////////
@@ -267,6 +286,17 @@ const class HxmConsole : HxConsole
       info(HxUtil.threadDumpAll)
     else
       info(HxUtil.threadDump(id))
+  }
+
+  @HxmConsoleCmd { help="Evalate axon expression"
+    usage="""eval <expr>   Evaluate given expr""" }
+  Void onEval(Str input)
+  {
+    inContext |cx|
+    {
+      dump(cx.eval(input))
+      return null
+    }
   }
 
 }

@@ -35,6 +35,9 @@ abstract const class HxConsole : Console
   ** Enter the console read-eval-print loop and block forever until quit
   abstract Int run()
 
+  ** Run a callback within a context.  This can only be used
+  ** if the process with started with the '-noAuth' flag.
+  abstract Obj? inContext(|Context->Obj?| cx)
 }
 
 **************************************************************************
