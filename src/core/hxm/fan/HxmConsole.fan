@@ -136,6 +136,7 @@ const class HxmConsole : HxConsole
     // prompt for additional lines until empty
     if (isMultiLine(input))
     {
+      if (input.endsWith("\\")) input = input[0..-2].trim
       x := StrBuf().add(input).add("\n")
       while (true)
       {
@@ -150,10 +151,11 @@ const class HxmConsole : HxConsole
   }
 
   ** Return if we should enter multi-line input mode
-  private Bool isMultiLine(Str expr)
+  private Bool isMultiLine(Str line)
   {
-    if (expr.endsWith("do")) return true
-    if (expr.endsWith("{")) return true
+    if (line.endsWith("\\")) return true
+    if (line.endsWith("do")) return true
+    if (line.endsWith("{"))  return true
     return false
   }
 
