@@ -186,9 +186,9 @@ const class CryptoKeyStore : KeyStore
     actor.send(HxMsg("save", Unsafe(out), options)).get(timeout)
   }
 
-  override This setPrivKey(Str alias, PrivKey priv, Cert[] chain)
+  override This setPrivKey(Str alias, PrivKey priv, Cert[] chain, Str:Str attrs := [:])
   {
-    actor.send(HxMsg("set", alias, priv, chain)).get(timeout)
+    actor.send(HxMsg("set", alias, priv, chain, attrs.toImmutable)).get(timeout)
   }
 
   override This setTrust(Str alias, Cert cert)
@@ -263,7 +263,7 @@ const class CryptoKeyStore : KeyStore
   {
     alias := (Str)msg.a
     if (msg.b == null) keystore.remove(alias)
-    else if (msg.b is PrivKey) keystore.setPrivKey(alias, msg.b, msg.c)
+    else if (msg.b is PrivKey) keystore.setPrivKey(alias, msg.b, msg.c, msg.d)
     else if (msg.b is Cert) keystore.setTrust(alias, msg.b)
     else if (msg.b is KeyStoreEntry) keystore.set(alias, msg.b)
     else throw ArgErr("$msg")
