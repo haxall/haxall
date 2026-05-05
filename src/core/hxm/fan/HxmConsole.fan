@@ -51,11 +51,17 @@ const class HxmConsole : HxConsole
   override HxConsoleCmd[] cmds()
   {
     acc := HxConsoleCmd[,]
-    builtin(acc, "quit",  "Shutdown the runtime", ["q"])
-    builtin(acc, "help",  "Print command list", ["?"])
-    builtin(acc, "projs", "List projects")
-    builtin(acc, "proj",  "Set current project")
+
+    // find built-ins
+    typeof.methods.each |m|
+    {
+      f := m.facet(HxmConsoleCmd#, false)
+      if (f != null) acc.add(BuiltinConsoleCmd(m, f))
+    }
+
+    // exts for current runtime
     rt.exts.each |ext| { acc.addAll(ext.consoleCmds) }
+
     return acc.sort |a, b| { a.name <=> b.name }
   }
 
@@ -65,11 +71,6 @@ const class HxmConsole : HxConsole
     if (cmd != null) return cmd
     if (checked) throw Err("Unknown console cmd: $name")
     return null
-  }
-
-  private Void builtin(HxConsoleCmd[] acc, Str name, Str help, Str[]? alias := null)
-  {
-    acc.add(HxmConsoleCmd(name, help, alias ?: Str#.emptyList))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -92,7 +93,11 @@ const class HxmConsole : HxConsole
         // get command name
         name := input
         sp := input.index(" ")
-        if (sp != null)
+        if (sp == null)
+        {
+          input = ""
+        }
+        else
         {
           name = input[0..<sp]
           input = input[sp+1..-1].trimStart
@@ -136,18 +141,25 @@ const class HxmConsole : HxConsole
     // prompt for additional lines until empty
     if (isMultiLine(input))
     {
-      if (input.endsWith("\\")) input = input[0..-2].trim
-      x := StrBuf().add(input).add("\n")
+      x := addLine(StrBuf(), input)
       while (true)
       {
         next := Env.cur.prompt(".".mult(prompt.size)+" ")
         if (next.trim.isEmpty) break
-        x.add(next).add("\n")
+        addLine(x, next)
       }
       input = x.toStr
     }
 
     return input
+  }
+
+  ** Add normalized line (strip trailing backslash)
+  private StrBuf addLine(StrBuf s, Str line)
+  {
+    if (line.endsWith("\\")) line = line[0..-2].trimEnd
+    s.add(line).add("\n")
+    return s
   }
 
   ** Return if we should enter multi-line input mode
@@ -191,8 +203,28 @@ const class HxmConsole : HxConsole
 // Commands
 //////////////////////////////////////////////////////////////////////////
 
+  @HxmConsoleCmd { help="Shutdown and exit"; aliases=["q"] }
+  Void onQuit(Str input)
+  {
+  }
+
+  @HxmConsoleCmd { help="Command help"; aliases=["?"]
+    usage="""help        List all commands
+             help <cmd>  Usage for given command""" }
   Void onHelp(Str input)
   {
+    if (!input.isEmpty)
+    {
+      info("")
+      cmd := cmd(input, false)
+      if (cmd == null)
+        warn("Help command not found: $input")
+      else
+        cmd.usage(this)
+      info("")
+      return
+    }
+
     t := Obj[,]
     t.add(["Name", "Help"])
     cmds.each |cmd|
@@ -204,6 +236,7 @@ const class HxmConsole : HxConsole
     table(t)
   }
 
+  @HxmConsoleCmd { help="List projs" }
   Void onProjs(Str input)
   {
     t := Obj[,]
@@ -215,29 +248,69 @@ const class HxmConsole : HxConsole
     table(t)
   }
 
+  @HxmConsoleCmd { help="Set current proj"
+    usage="""proj <name>  Set given proj as current
+             proj sys     Set sys as current""" }
   Void onProj(Str input)
   {
     projRef.val = input == "sys" ? null : sys.proj.get(input)
     info("Current proj is now '$rt.name'")
   }
 
+  @HxmConsoleCmd { help="Thread dump"
+    usage="""threads        Dump all threads
+             threads <id>   Dump thread id""" }
+  Void onThreads(Str input)
+  {
+    id := input.toInt(10, false)
+    if (id == null)
+      info(HxUtil.threadDumpAll)
+    else
+      info(HxUtil.threadDump(id))
+  }
 
 }
 
 **************************************************************************
-** HxmConsoleCmd (for built-in commands)
+** ConsoleCmd
 **************************************************************************
 
-internal const class HxmConsoleCmd : HxConsoleCmd
+facet class HxmConsoleCmd
 {
-  new make(Str n, Str h, Str[] a) { name = n; help = h; aliases = a }
+  const Str help
+  const Str? usage
+  const Str[] aliases := Str[,]
+}
+
+**************************************************************************
+** BuiltinConsoleCmd
+**************************************************************************
+
+internal const class BuiltinConsoleCmd : HxConsoleCmd
+{
+  new make(Method m, HxmConsoleCmd f)
+  {
+    method = m
+    facet  = f
+    name   = m.name[2..-1].decapitalize
+  }
+  const Method method
+  const HxmConsoleCmd facet
   const override Str name
-  const override Str help
-  const override Str[] aliases
+  override Str help() { facet.help }
+  override Str[] aliases() { facet.aliases }
+
+  override Void usage(HxConsole c)
+  {
+    if (facet.usage == null)
+      super.usage(c)
+    else
+      c.info(facet.usage)
+  }
 
   override Void execute(HxConsole c, Str cmd)
   {
-    c.typeof.method("on" + name.capitalize).callOn(c, [cmd])
+    method.callOn(c, [cmd])
   }
 }
 

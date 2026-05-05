@@ -53,6 +53,9 @@ abstract const class HxConsoleCmd
   ** Help string
   abstract Str help()
 
+  ** Print usage
+  virtual Void usage(HxConsole c) { c.info("$name  $help") }
+
   ** Aliases for the command
   virtual Str[] aliases() { Str#.emptyList }
 
