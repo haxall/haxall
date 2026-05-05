@@ -66,4 +66,83 @@
   //   ```
   libRepoLogout: Func <su> { repo: Str? }
 
+  // Search a remote repo for libs matching the query string.
+  // If repo is null then the default repo is used.
+  //
+  // Examples:
+  //   ```axon
+  //   libSearch(null, "*")
+  //   libSearch("xetodev", "ph")
+  //   ```
+  libSearch: Func <su> { repo: Str?, query: Str, returns: Grid }
+
+  // List available versions for a lib from a remote repo.
+  // If repo is null then the default repo is used.  Options
+  // include `limit` and `versions` for version constraints.
+  //
+  // Examples:
+  //   ```axon
+  //   libVersions(null, "ph")
+  //   libVersions("xetodev", "ph", {limit: 5})
+  //   libVersions(null, "ph", {versions: "4.x.x"})
+  //   ```
+  libVersions: Func <su> { repo: Str?, lib: Str, opts: Dict?, returns: Grid }
+
+  // Install one or more libs from a remote repo to disk.  The libs
+  // argument accepts a single lib name or a list of lib names.  Use
+  // the format "lib-version" to specify version constraints, for
+  // example "ph-5.0.6" or "ph-5.x.x".  If no version constraint is
+  // specified, the latest available version is used.  If repo is null
+  // then the default repo is used.  Pass `{preview}` in opts to
+  // return the plan without executing.
+  //
+  // Examples:
+  //   ```axon
+  //   libInstall(null, "acme.widgets")
+  //   libInstall(null, "acme.widgets-1.x.x")
+  //   libInstall(null, ["acme.widgets", "acme.core"])
+  //   libInstall(null, "acme.widgets", {preview})
+  //   ```
+  libInstall: Func <su> { repo: Str?, libs: Obj, opts: Dict?, returns: Grid }
+
+  // Update one or more installed libs from their origin repo.
+  // The libs argument accepts a single lib name or a list of
+  // lib names.  Use the format "lib-version" to specify version
+  // constraints, for example "ph-5.x.x".  If no version constraint
+  // is specified, the latest available version is used.  Pass
+  // `{preview}` in opts to return the plan without executing.
+  //
+  // Examples:
+  //   ```axon
+  //   libUpdate("ph")
+  //   libUpdate("ph-5.x.x")
+  //   libUpdate(["ph", "ph.points"])
+  //   libUpdate("ph", {preview})
+  //   ```
+  libUpdate: Func <su> { libs: Obj, opts: Dict?, returns: Grid }
+
+  // Uninstall one or more libs from disk.  The libs argument
+  // accepts a single lib name or a list of lib names.  Raises
+  // an exception if any of the libs are currently enabled
+  // in the runtime.
+  //
+  // Examples:
+  //   ```axon
+  //   libUninstall("acme.widgets")
+  //   libUninstall(["acme.widgets", "acme.core"])
+  //   ```
+  libUninstall: Func <su> { libs: Obj, returns: Grid }
+
+  // Fetch a xetolib zip for a specific lib and version from a remote
+  // repo and write it to an I/O handle.  If repo is null then the
+  // default repo is used.  The handle follows the same conventions
+  // as `ioWriteStr`.  Returns a Dict with `lib`, `version`, `size`,
+  // and `uri` of the written file.
+  //
+  // Examples:
+  //   ```axon
+  //   libFetch(null, "ph", "4.0.5", `io/ph.xetolib`)
+  //   ```
+  libFetch: Func <su> { repo: Str?, lib: Str, version: Str, handle: Obj, returns: Dict }
+
 }

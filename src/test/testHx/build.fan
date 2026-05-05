@@ -40,7 +40,9 @@ class Build : BuildPod
                "hxd @{hx.depend}",
                "hxFolio @{hx.depend}",
                "hxConn @{hx.depend}",
-               "hxRepo @{hx.depend}"]
+               "hxRepo @{hx.depend}",
+               "xetoc @{hx.depend}",
+               "testXeto @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`, `lib/connTest/`]
     index =   ["xeto.bindings":["hx.test", "hx.test.conn"], "ph.lib":"connTest" ]
