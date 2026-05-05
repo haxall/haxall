@@ -71,8 +71,8 @@ const mixin IProjExt : SysExt
 **
 const mixin IUserExt : SysExt
 {
-  ** Lookup a user by username.  If not found then raise
-  ** exception or return null based on the checked flag.
+  ** Lookup a user by Ref id, Str username or Filter.  If not found
+  ** then raise exception or return null based on the checked flag.
   abstract User? read(Obj username, Bool checked := true)
 
   ** Authenticate a web request and return a session.  If request

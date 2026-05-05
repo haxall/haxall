@@ -47,13 +47,19 @@ const class HxdUserExt : ExtObj, IUserExt
 // HxdUserService
 //////////////////////////////////////////////////////////////////////////
 
-  ** Lookup a user by username.  If not found then raise
-  ** exception or return null based on the checked flag.
+  ** Lookup a user by Ref id, Str username or Filter.  If not found
+  ** then raise exception or return null based on the checked flag.
   override HxUser? read(Obj username, Bool checked := true)
   {
-    rec := username is Ref ?
-           rt.db.readById(username, false) :
-           rt.db.read(Filter.eq("username", username.toStr).and(Filter.has("user")), false)
+    Dict? rec
+    if (username is Ref)
+      rec = rt.db.readById(username, false)
+    else if (username is Str)
+      rec = rt.db.read(Filter.has("user").and(Filter.eq("username", username.toStr)), false)
+    else if (username is Filter)
+      rec = rt.db.read(Filter.has("user").and(username), false)
+    else
+      throw ArgErr("Invalid type for username [$username.typeof]")
     if (rec != null) return HxUser(rec)
     if (checked) throw UnknownRecErr("User not found: $username")
     return null
