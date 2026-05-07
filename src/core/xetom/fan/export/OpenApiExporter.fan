@@ -130,35 +130,22 @@ class OpenApiExporter : Exporter
       uri = uri[0..n+1] + uri[(n+"..Funcs.".size)..-1]
     uri = "/api/{projName}/" + uri.replace("::", ".")
 
-    props := Obj:Obj[:]
-    required := Obj[,]
-    response := Obj:Obj[:]
-
-    slots := spec.slots()
-    slots.each |slot, name|
-    {
-      if (name == "returns")
-      {
-        response = schemaExporter.prop(slot)
-        if (slot.isMaybe)
-          response["nullable"] = true
-      }
-      else
-      {
-        if (!slot.isMaybe)
-          required.add(name)
-        props[name] = schemaExporter.prop(slot)
-      }
-    }
-
     // request body
-    reqSchema := ["type": "object", "properties": props]
-    if (required.size > 0)
-      reqSchema["required"] = required
+    reqSchema := schemaExporter.funcToParams(spec)
+    props := (Str:Obj)reqSchema["properties"]
     requestBody := [
       "required": true,
       "content": jsonSchema(reqSchema)
     ]
+
+    // response
+    response := Obj:Obj[:]
+    returns := spec.slot("returns", false)
+    if (returns != null)
+    {
+      response = schemaExporter.prop(returns)
+      if (returns.isMaybe) response["nullable"] = true
+    }
 
     // responses
     responses := Obj:Obj[:] { ordered = true }
