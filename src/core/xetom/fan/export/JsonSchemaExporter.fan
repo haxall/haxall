@@ -88,6 +88,30 @@ class JsonSchemaExporter : Exporter
     return this
   }
 
+  ** Convert a func spec's parameters into a JSON Schema object.
+  ** The 'returns' slot is skipped. Referenced types are registered in 'defs'.
+  Str:Obj funcToParams(Spec funcSpec)
+  {
+    if (!funcSpec.isFunc) throw ArgErr("Not a func: $funcSpec.qname")
+
+    props := Str:Obj[:] { ordered = true }
+    required := Obj[,]
+
+    funcSpec.slots.each |slot, name|
+    {
+      if (name == "returns") return
+      if (!slot.isMaybe) required.add(name)
+      props[name] = prop(slot)
+    }
+
+    schema := Str:Obj[:] { ordered = true }
+    schema["type"] = "object"
+    schema["properties"] = props
+    if (required.size > 0)
+      schema["required"] = required
+    return schema
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // private
 //////////////////////////////////////////////////////////////////////////
@@ -314,7 +338,7 @@ class JsonSchemaExporter : Exporter
   private Obj:Obj ref(Lib lib, Str specName)
   {
     libName := libNameVer(lib)
-    return ["\$ref": "#/$refPath/$libName-$specName"]
+    return Obj:Obj["\$ref": "#/$refPath/$libName-$specName"]
   }
 
   private static Str libNameVer(Lib lib)
@@ -327,10 +351,10 @@ class JsonSchemaExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   static const Str:[Obj:Obj] primitives := [
-    "sys::Str":   ["type": "string"],
-    "sys::Bool":  ["type": "boolean"],
-    "sys::Int":   ["type": "integer"],
-    "sys::Float": ["type": "number"],
+    "sys::Str":   Obj:Obj["type": "string"],
+    "sys::Bool":  Obj:Obj["type": "boolean"],
+    "sys::Int":   Obj:Obj["type": "integer"],
+    "sys::Float": Obj:Obj["type": "number"],
   ]
 
   // qnames that have already been defined

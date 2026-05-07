@@ -49,3 +49,6 @@ npm/
 # env variables
 *.env
 
+# claude
+.claude/
+
