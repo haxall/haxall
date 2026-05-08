@@ -14,6 +14,8 @@ using yaml
 **
 ** JSON Schema Exporter
 **
+** This class does not write anything to output stream until end.
+**
 @Js
 class JsonSchemaExporter : Exporter
 {
@@ -22,7 +24,7 @@ class JsonSchemaExporter : Exporter
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, OutStream out, Dict opts, Str refPath := "\$defs") : super(ns, out, opts)
+  new make(MNamespace ns, OutStream out, Dict opts := Etc.dict0, Str refPath := "\$defs") : super(ns, out, opts)
   {
     this.refPath = refPath
 
@@ -287,9 +289,25 @@ class JsonSchemaExporter : Exporter
 
   Obj:Obj prop(Spec slot)
   {
-    // primitives
+    res := propSchema(slot)
+
+    // attach the slot's own doc as description.  for $ref-shaped
+    // results we wrap in allOf because draft-07 ignores any sibling
+    // keys to $ref; for non-$ref results description is a direct
+    // sibling key.
+    doc := slot.metaOwn["doc"] as Str
+    if (doc == null) return res
+    if (res.containsKey("\$ref"))
+      return Obj:Obj["allOf": Obj[res], "description": doc]
+    res["description"] = doc
+    return res
+  }
+
+  private Obj:Obj propSchema(Spec slot)
+  {
+    // primitives -- dup the const lookup so the caller can mutate
     prim := primitives.getChecked(slot.type.qname, false)
-    if (prim != null) return prim
+    if (prim != null) return prim.dup
 
     // base obj -- "any" type
     if (slot.type.qname == "sys::Obj")
