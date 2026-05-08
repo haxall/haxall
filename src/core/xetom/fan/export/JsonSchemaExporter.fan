@@ -299,15 +299,16 @@ class JsonSchemaExporter : Exporter
     if (doc == null) return res
     if (res.containsKey("\$ref"))
       return Obj:Obj["allOf": Obj[res], "description": doc]
+    res = res.rw
     res["description"] = doc
     return res
   }
 
   private Obj:Obj propSchema(Spec slot)
   {
-    // primitives -- dup the const lookup so the caller can mutate
+    // primitives
     prim := primitives.getChecked(slot.type.qname, false)
-    if (prim != null) return prim.dup
+    if (prim != null) return prim
 
     // base obj -- "any" type
     if (slot.type.qname == "sys::Obj")
