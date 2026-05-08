@@ -13,8 +13,8 @@ using haystack
 **
 ** Utilities for AxonFuncs
 **
-@Js
-internal const class AxonFuncsUtil
+@NoDoc @Js
+const class AxonFuncsUtil
 {
   static Obj? sort(Obj val, Obj? sorter, Bool ascending)
   {
@@ -69,13 +69,7 @@ internal const class AxonFuncsUtil
 
     // iterate the namespace: skip nodoc and filter mismatches
     acc := Dict[,]
-    cx.ns.funcs.each |spec|
-    {
-      meta := AxonThunkFactory.specToFnMeta(spec)
-      if (meta.has("nodoc")) return
-      if (filter != null && !filter.matches(meta, cx)) return
-      acc.add(meta)
-    }
+    eachFunc(cx, filter) |meta| { acc.add(meta) }
 
     // strip src for security
     names := Etc.dictsNames(acc)
@@ -83,6 +77,18 @@ internal const class AxonFuncsUtil
     names.moveTo("qname", 0)
     names.moveTo("name", 0)
     return GridBuilder().addColNames(names).addDictRows(acc).toGrid
+  }
+
+  ** Iterate all the top-levels functions in the current project
+  static Void eachFunc(AxonContext cx, Filter? filter, |Dict,Spec| f)
+  {
+    cx.ns.funcs.each |spec|
+    {
+      meta := AxonThunkFactory.specToFnMeta(spec)
+      if (meta.has("nodoc")) return
+      if (filter != null && !filter.matches(meta, cx)) return
+      f(meta, spec)
+    }
   }
 
   ** Find a top-level function by name and return its tags.
