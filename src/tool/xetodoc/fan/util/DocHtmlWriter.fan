@@ -90,7 +90,7 @@ class DocHtmlWriter : WebOutStream
     nl.h1.esc(p.title).h1End.nl
 
     // prev/next navigation (only if multiple chapters)
-    if (p.prev != null || p.next != null)
+    if ((p.prev != null || p.next != null) && includeChrome)
     {
       tag(tagNav).nl
       ul
@@ -516,6 +516,8 @@ class DocHtmlWriter : WebOutStream
        .body("style='padding:0; background:#fff; margin:1em 4em 3em 6em;'")
     }
 
+    if (!includeChrome) return this
+
     // <xetodoc-page>
     tag(tagPage).nl.nl
 
@@ -554,6 +556,8 @@ class DocHtmlWriter : WebOutStream
 
   private Void pageEnd(DocPage p)
   {
+    if (!includeChrome) return this
+
     // footer
     if (p.pageType.includeFooter)
     {
@@ -832,7 +836,8 @@ class DocHtmlWriter : WebOutStream
   static const Str tagSearchHit   := "xetodoc-search-hit"
   static const Str tagTag         := "xetodoc-tag"
 
-  Bool fullHtml := true
+  Bool fullHtml := true       // full html/head/body tags
+  Bool includeChrome := true  // nav header, footer, etc
   Bool hrefNorm := true
   Str footerText := "footer"
   Str cssFilename := "xetodoc.css"
