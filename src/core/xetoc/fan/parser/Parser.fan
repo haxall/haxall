@@ -122,7 +122,7 @@ internal class Parser
 
     if (cur === Token.plus) return parseLibMixin(doc)
 
-    if (cur === Token.ref) return parseLibData
+    if (cur === Token.ref) return parseLibData(doc)
 
     throw err("Expecting instance data or spec, not $curToStr")
   }
@@ -158,10 +158,11 @@ internal class Parser
   }
 
   ** Parse top level instance data and add it to lib
-  private Bool parseLibData()
+  private Bool parseLibData(Str? doc)
   {
     // parse named instance
     data := parseNamedData
+    if (doc != null) dictSetStr(data, "doc", doc)
     parseLibObjEnd("instance")
 
     return true
@@ -704,6 +705,11 @@ internal class Parser
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  private Void dictSetStr(ADict dict, Str name, Str val)
+  {
+    dict.set(name, AScalar(dict.loc, sys.str, val, val))
+  }
 
   private Void addDataDict(ADict list, AData data)
   {

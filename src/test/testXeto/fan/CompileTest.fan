@@ -416,6 +416,7 @@ class CompileTest : AbstractXetoTest
              obj: Obj
            }
 
+           // doc here
            @brian: Person {first:"Brian", last:"Frank"}
 
            @alice: Person {
@@ -443,7 +444,7 @@ class CompileTest : AbstractXetoTest
     spec := lib.type("Person")
 
     b := verifyLibInstance(lib, spec, "brian",
-      ["person":m, "first":"Brian", "last":"Frank", "born": Date("2000-01-01")])
+      ["person":m, "first":"Brian", "last":"Frank", "born": Date("2000-01-01"), "doc":"doc here"])
 
     n1 := verifyLibInstance(lib, spec, "nest1",
       ["person":m, "first":"Bird", "last":"Nest1", "born": Date("2000-01-01"), "boss":Ref("${lib.name}::nest2")])
