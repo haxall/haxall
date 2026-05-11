@@ -44,10 +44,10 @@ class CompSpaceEditTest: AbstractXetoTest
 
   static Str loadBasicXeto()
   {
-     Str<|@root: TestFolder {
-            c1 @c1:  TestCounter {}
-            c2 @c2:  TestCounter {}
-            add @add: TestAdd {}
+     Str<|TestFolder {
+            c1: TestCounter {}
+            c2: TestCounter {}
+            add: TestAdd {}
           }|>
   }
 
@@ -65,11 +65,23 @@ class CompSpaceEditTest: AbstractXetoTest
 
   Void testUnlink()
   {
-    add := cs.readById(addRef)
-    edit(cs).link(c1Ref, "out", addRef, "in1")
-    verify(add.links.isLinked("in1"))
-    edit(cs).unlink(c1Ref, "out", addRef, "in1")
-    verifyFalse(add.links.isLinked("in1"))
+    TestAxonContext(cs.ns).asCur |cx|
+    {
+      add := cs.readById(addRef)
+      edit(cs).link(c1Ref, "out", addRef, "in1")
+      verify(add.links.isLinked("in1"))
+
+      cs.execute
+      verifyEq(cs.root.child("add").get("in1"), TestVal(1))
+      verifyEq(cs.root.child("add").get("out"), TestVal(1))
+
+      edit(cs).unlink(c1Ref, "out", addRef, "in1")
+      verifyFalse(add.links.isLinked("in1"))
+      verifyEq(cs.root.child("add").get("in1"), TestVal(0))
+
+      cs.execute
+      verifyEq(cs.root.child("add").get("out"), TestVal(0))
+    }
   }
 
   Void testCreateAndDelete()

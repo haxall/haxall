@@ -44,11 +44,18 @@ class CompSpaceEdit
     onCompUpdated(toComp)
   }
 
-  ** Remove a link between two slots
+  ** Remove a link between two slots. This will reset the toSlot to its default value.
   virtual Void unlink(Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
   {
+    // remove link
     toComp := readById(toRef)
     toComp.set("links", toComp.links.remove(toSlot, Etc.link(fromRef, fromSlot)))
+
+    // reset to default value
+    toSlotSpec := toComp.spec.slot(toSlot).type
+    defVal := cs.ns.instantiate(toSlotSpec)
+    toComp.set(toSlot, defVal)
+
     onCompUpdated(toComp)
   }
 
