@@ -873,13 +873,13 @@
   times: Func { times: Number, fn: Func, returns: Obj? }
 
   // Return if an integer is an odd number.
-  isOdd: Func { val: Number, returns: Obj? }
+  isOdd: Func { val: Number, returns: Bool }
 
   // Return if an integer is an even number.
-  isEven: Func { val: Number, returns: Obj? }
+  isEven: Func { val: Number, returns: Bool }
 
   // Return absolute value of a number, if null return null
-  abs: Func { val: Number?, returns: Obj? }
+  abs: Func { val: Number?, returns: Number? }
 
   // Return if `val` is the Number representation of not-a-number
   isNaN: Func { val: Obj?, returns: Bool }
