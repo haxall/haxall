@@ -28,7 +28,6 @@ const class HxmConsole : HxConsole
   new make(Sys sys)
   {
     this.sys  = sys
-    this.projRef.val = sys as Proj
     this.base = Console.cur
   }
 
@@ -100,8 +99,18 @@ const class HxmConsole : HxConsole
 // Run Loop
 //////////////////////////////////////////////////////////////////////////
 
+  private Proj? initProj()
+  {
+    if (sys is Proj) return (Proj)sys
+    projs := sys.proj.list
+    if (projs.size == 1) return projs.first
+    return null
+  }
+
   override Int run()
   {
+    this.projRef.val = initProj
+
     while (isRunning.val)
     {
       try
