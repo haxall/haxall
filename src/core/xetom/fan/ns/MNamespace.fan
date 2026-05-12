@@ -518,6 +518,14 @@ const class CompanionRecs
 
   ** Thunks to reuse by spec name
   const Str:Thunk thunks
+
+  ** Get a map of companion recs by their name
+  once Str:Dict byName()
+  {
+    acc := Str:Dict[:]
+    recs.each |rec| { acc[rec->name] = rec }
+    return acc.toImmutable
+  }
 }
 
 **************************************************************************
