@@ -7,6 +7,8 @@
 //    2 Jul 2025  Brian Frank  Move some exceptions from haystack
 //
 
+using util
+
 **
 ** Xeto base class for errors that include metadata
 **
@@ -16,6 +18,9 @@
 
   ** Meta to include in error responses, error grids
   virtual Dict meta() { EmptyDict.val }
+
+  ** Location or Loc.unknown if not applicable
+  virtual FileLoc loc() { FileLoc.unknown }
 }
 
 ** UnknownNameErr is thrown when `Dict.trap` or `Grid.col` fails

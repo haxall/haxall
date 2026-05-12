@@ -28,7 +28,7 @@ const abstract class AxonErr : XetoErr
     return str
   }
 
-  const FileLoc loc
+  override const FileLoc loc
 }
 
 **

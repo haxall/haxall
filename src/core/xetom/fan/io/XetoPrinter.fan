@@ -757,7 +757,7 @@ internal const class XpAstSpec : XpSpec
 
   override Bool hasSlots() { slots != null && !slots.isEmpty }
 
-  override Void eachSlot(|XpSpec| f) { slots.each |s| { f(XpAstSpec(s, false)) } }
+  override Void eachSlot(|XpSpec| f) { slots?.each |s| { f(XpAstSpec(s, false)) } }
 
   override Bool isNonCovariantOverride() { false }
 
