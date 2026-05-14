@@ -12,6 +12,7 @@ using haystack
 **
 ** AiWriter formats values into text optimized for AI/LLM consumption.
 **
+@Js
 class AiWriter
 {
   ** Construct with out stream or if null to StrBuf
