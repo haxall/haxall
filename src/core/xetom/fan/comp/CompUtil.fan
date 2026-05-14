@@ -138,7 +138,7 @@ class CompUtil
     return Etc.makeDict(ast)
   }
 
-  private static Bool isDefault(Comp c, Str name, Obj val)
+  static Bool isDefault(Comp c, Str name, Obj val)
   {
     slot := c.spec.type.slot(name, false)
     if (slot == null) return false
