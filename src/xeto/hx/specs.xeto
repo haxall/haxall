@@ -22,3 +22,16 @@ Password: Scalar
   mod: DateTime
 }
 
+// AI skill defines a capability bundle to give an LLM agent competence in a
+// task.  Skill instances are defined as Xeto lib instance with corresponding
+// markdown prompt.  The skill name is the unqualified instance name with
+// the "skill-" prefix stripped.  The prompt should be defined as a file in the
+// lib named "/skills/{name}.md".  Skills can be defined in the project database,
+// in which case the prompt must have a `name` and `prompt` tag.
+AiSkill: Entity {
+  doc: Str                             // Short summary doc that describes the skill
+  keywords: List? <of:Str>             // List of keywords that trigger the skill
+  include: List? <of:Ref<of:AiSkill>>  // Skills always included with this skill
+  seeAlso: List? <of:Ref<of:AiSkill>>  // Skills related which may be used
+}
+
