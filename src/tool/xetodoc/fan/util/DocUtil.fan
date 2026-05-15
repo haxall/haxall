@@ -276,6 +276,7 @@ const class DocUtil
     lib.files.list.each |uri|
     {
       if (uri.ext != "md") return
+      if (uri.toStr.startsWith("/skills/")) return // skip ai skills
       n := uri.name.lower
       if (n == "index.md") return f(uri, "index")
       if (n == "readme.md") return f(uri, "readme")
