@@ -94,13 +94,9 @@ class HxDefCompiler : DefCompiler
 
   Dict? podToMeta(Pod pod)
   {
-    // check for lib.trio meta file
+    // check for lib.trio meta file, if missing then its not a old defs lib
     libFile := pod.file(`/lib/lib.trio`, false)
-    if (libFile == null)
-    {
-      if (pod.name != "hxIon") echo("WARN: no lib.trio found in pod [$pod.name]")
-      return null
-    }
+    if (libFile == null) return null
 
     meta := CompilerInput.parseLibMetaFile(this, libFile) as Dict
     if (meta != null)
