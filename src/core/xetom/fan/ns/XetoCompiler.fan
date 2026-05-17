@@ -8,6 +8,7 @@
 //  18 Aug 2025  Brian Frank  Split public API into xetom
 //
 
+using util
 using xeto
 
 **
@@ -67,5 +68,33 @@ abstract class XetoCompiler
   ** Must setup libName and input to the "lib.xeto" file
   abstract LibVersion parseLibMeta()
 
+  ** Parse top-level spec and symbols in the library
+  ** Must setup libName and input to the lib directory
+  abstract XetoParseSymbol[] parseLibSymbols()
+
 }
+
+**************************************************************************
+** XetoParseSymbol
+**************************************************************************
+
+** XetoCompilerSymbol models top-level spec/instance from parseLibSymbols
+@Js
+const class XetoParseSymbol
+{
+  ** Constructor
+  new make(FileLoc l, Str n, XetoParseSymbolType t) { loc = l; name = n; type = t }
+
+  ** File location
+  const FileLoc loc
+
+  ** Instance name or spec name of the symbol
+  const Str name
+
+  ** Symbol type: type, mixin, instance
+  const XetoParseSymbolType type
+}
+
+@Js
+enum class XetoParseSymbolType { type, mixIn, instance }
 

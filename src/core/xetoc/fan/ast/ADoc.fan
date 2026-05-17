@@ -34,6 +34,9 @@ internal mixin ADoc : ANode
   ** Walk only instances bottom-up
   abstract Void walkInstancesBottomUp(|ANode| f)
 
+  ** Top-level symbols for doc
+  abstract XetoParseSymbol[] symbols()
+
 }
 
 **************************************************************************
@@ -97,6 +100,13 @@ internal class ADataDoc : ADoc
   override Void walkInstancesBottomUp(|ANode| f) { walkBottomUp(f) }
 
   override Void dump(OutStream out := Env.cur.out, Str indent := "") { root.dump(out, indent) }
+
+  override XetoParseSymbol[] symbols()
+  {
+    acc := XetoParseSymbol[,]
+    ast.instances.each |x| { acc.add(x.toSymbol) }
+    return acc
+  }
 
 }
 

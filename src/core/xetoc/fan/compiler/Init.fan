@@ -111,3 +111,19 @@ internal class InitParseLibMeta : InitLib
   override Bool nsRequired() { false }
 }
 
+
+**************************************************************************
+** InitParseSymbols
+**************************************************************************
+
+**
+** Initialize to parseSymbols
+**
+@Js
+internal class InitParseSymbols : InitLib
+{
+  new make() : super(CompileMode.parseSymbols) {}
+
+  override Bool nsRequired() { false }
+}
+

@@ -252,5 +252,11 @@ internal class AInstance : ADict, CInstance
 
   ** Return scalar id
   override const Ref id
+
+  ** To parse symbol
+  XetoParseSymbol toSymbol()
+  {
+    XetoParseSymbol(loc, name.toStr, XetoParseSymbolType.instance)
+  }
 }
 

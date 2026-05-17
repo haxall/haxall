@@ -118,6 +118,14 @@ internal const class ALib : Lib, ADoc
     ast.instances.each |x| { if (!x.isNested) x.walkTopDown(f) }
   }
 
+  override XetoParseSymbol[] symbols()
+  {
+    acc := XetoParseSymbol[,]
+    ast.tops.each |x| { acc.add(x.toSymbol) }
+    ast.instances.each |x| { acc.add(x.toSymbol) }
+    return acc
+  }
+
   ** Auto naming for synthetic specs
   Str autoName() { "_" + (ast.autoNameCount++) }
 

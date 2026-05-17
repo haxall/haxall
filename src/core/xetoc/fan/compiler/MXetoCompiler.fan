@@ -130,6 +130,17 @@ internal class MXetoCompiler : XetoCompiler
     return FileLibVersion(libName, lib.version, dir, doc, flags, depends.list)
   }
 
+  ** Parse top-level symbols in lib directory
+  override XetoParseSymbol[] parseLibSymbols()
+  {
+    run([
+      InitParseSymbols(),
+      Parse(),
+    ])
+
+    return ast.symbols
+  }
+
   ** Run the pipeline with the given steps
   internal This run(Step[] steps)
   {
@@ -250,7 +261,8 @@ enum class CompileMode
   lib,
   data,
   ast,
-  parseLibMeta
+  parseLibMeta,
+  parseSymbols
 
   Bool isLib() { this === lib }
 
@@ -258,6 +270,6 @@ enum class CompileMode
 
   Bool isAst() { this === ast }
 
-  Bool isLibPragma() { this === lib || this === parseLibMeta }
+  Bool isLibPragma() { this === lib || this === parseLibMeta || this === parseSymbols }
 }
 

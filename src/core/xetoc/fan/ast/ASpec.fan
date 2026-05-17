@@ -123,6 +123,12 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** True if we parsed this as a nested spec ref
   Bool parsedSyntheticRef() { ast.parsedSyntheticRef }
 
+  ** To parse symbol
+  XetoParseSymbol toSymbol()
+  {
+    XetoParseSymbol(loc, name, isMixin ? XetoParseSymbolType.mixIn : XetoParseSymbolType.type)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////
