@@ -161,13 +161,13 @@ const class CryptoFuncs
   private static Grid cryptoStdDisplay(Grid input)
   {
     cols := input.colNames
-    preferredOrder := ["id", "alias", "ca", "selfSigned", "notAfter", "keyAlg", "keySize", "subject", "issuer"]
+    preferredOrder := ["id", "alias", "ca", "selfSigned", "notAfter", "keyAlg", "keySize", "subject", "subjectAltNames", "issuer"]
     sorted := preferredOrder.intersection(cols)
     sorted.each |c, i| { cols = cols.moveTo(c, i)}
 
     hidden := Etc.dict1("hidden", Marker.val)
 
-    return input.reorderCols(cols).addColMeta("id", hidden)
+    return input.reorderCols(cols).addColMeta("id", hidden).addColMeta("subjectAltNames", hidden)
   }
 
   ** Attempt to sort the certificate chain from Root to End Entity.
@@ -340,6 +340,7 @@ const class CryptoFuncs
       tags["notAfter"]  = cert->notAfter
       tags["keyAlg"] = key.algorithm
       tags["keySize"] = Number.makeInt(key.keySize).toLocale("#")
+      tags["subjectAltNames"] = cert.subjectAltNames.map |san| { san.toStr }
     }
     catch (Err ignore) { }
 
