@@ -62,7 +62,7 @@ final const class Ref
 
   ** Construct a Ref that encodes a URI.  The URI is percent encoded
   ** then tilde encoded into a valid Ref id with the "uri" scheme prefix.
-  static Ref makeUri(Uri uri, Str? dis := null)
+  static new makeUri(Uri uri, Str? dis := null)
   {
     encoded := uri.encode
     buf := StrBuf(encoded.size + 8)
