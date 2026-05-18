@@ -308,6 +308,27 @@ const class MNamespace : Namespace, CNamespace
     }
   }
 
+  override Spec fileSpec(MimeType mime)
+  {
+    map := fileSpecMap.val as Str:Spec
+    if (map == null)
+    {
+      acc := Str:Spec[:]
+      fileType := sys.file
+      eachType |spec|
+      {
+        if (!spec.isa(fileType)) return
+        m := spec.meta["mimeType"] as Str
+        if (m == null) return
+        mt := MimeType(m, false)
+        if (mt != null) acc[mt.noParams.toStr] = spec
+      }
+      map = acc.toImmutable
+      fileSpecMap.val = map
+    }
+    return map[mime.noParams.toStr] ?: sys.file
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Unqualified Lookups
 //////////////////////////////////////////////////////////////////////////
@@ -497,6 +518,7 @@ const class MNamespace : Namespace, CNamespace
   const Dict opts
   private const ConcurrentMap entriesMap := ConcurrentMap()
   private const AtomicRef libsRef := AtomicRef()
+  private const AtomicRef fileSpecMap := AtomicRef()
 }
 
 **************************************************************************

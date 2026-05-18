@@ -885,5 +885,46 @@ class NamespaceTest : AbstractXetoTest
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// FileSpec
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFileSpec()
+  {
+    ns := createNamespace(["sys", "sys.files"])
+
+    // known mime types
+    verifyFileSpec(ns, "text/plain", "sys.files::PlainTextFile")
+    verifyFileSpec(ns, "text/csv", "sys.files::CsvFile")
+    verifyFileSpec(ns, "text/html", "sys.files::HtmlFile")
+    verifyFileSpec(ns, "text/markdown", "sys.files::MarkdownFile")
+    verifyFileSpec(ns, "text/xml", "sys.files::XmlFile")
+    verifyFileSpec(ns, "text/yaml", "sys.files::YamlFile")
+    verifyFileSpec(ns, "application/json", "sys.files::JsonFile")
+    verifyFileSpec(ns, "application/pdf", "sys.files::PdfFile")
+    verifyFileSpec(ns, "application/zip", "sys.files::ZipFile")
+    verifyFileSpec(ns, "image/png", "sys.files::PngFile")
+    verifyFileSpec(ns, "image/jpeg", "sys.files::JpegImage")
+    verifyFileSpec(ns, "image/svg+xml", "sys.files::SvgFile")
+
+    // params should be ignored
+    verifyFileSpec(ns, "text/plain; charset=utf-8", "sys.files::PlainTextFile")
+    verifyFileSpec(ns, "text/html; charset=utf-8", "sys.files::HtmlFile")
+
+    // unknown mime type falls back to sys::File
+    verifyFileSpec(ns, "application/x-unknown", "sys::File")
+
+    // without sys.files loaded falls back to sys::File
+    ns2 := createNamespace(["sys"])
+    verifyFileSpec(ns2, "text/plain", "sys::File")
+  }
+
+  private Void verifyFileSpec(Namespace ns, Str mime, Str qname)
+  {
+    spec := ns.fileSpec(MimeType(mime))
+    verifyNotNull(spec)
+    verifyEq(spec.qname, qname)
+  }
+
 }
 
