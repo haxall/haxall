@@ -376,20 +376,10 @@ class FileUploadHandler : UploadHandler
   ** Get the File spec that best fits file being uploaded
   protected Spec toSpec(Str? filename)
   {
-    fileSpec := cx.ns.spec("sys::File")
-
     mime := filename?.toUri?.mimeType
     if (mime == null) mime = MimeType.fromStr(req.headers["Content-Type"] ?: "", false)
-    if (mime == null) return fileSpec
-
-    return cx.ns.eachTypeWhile |spec->Obj?|
-    {
-      if (spec.isa(fileSpec) && MimeType(spec.meta["mimeType"] ?: "", false) == mime)
-      {
-        return spec
-      }
-      return null
-    } ?: fileSpec
+    if (mime == null) return cx.ns.spec("sys::File")
+    return cx.ns.fileSpec(mime)
   }
 }
 
