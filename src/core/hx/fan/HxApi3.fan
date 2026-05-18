@@ -709,7 +709,7 @@ internal class HxFileOp : HxApiOp
     // check for proj-relative path
     fileExt  := cx.sys.file
     subMount := path.path.first
-    if (subMount != "proj")
+    if (!cx.sys.isProj && subMount != "proj")
     {
       try
       {
