@@ -60,6 +60,25 @@ final const class Ref
     return makeSegs(str, null, [RefSeg("", str)])
   }
 
+  ** Construct a Ref that encodes a URI.  The URI is percent encoded
+  ** then tilde encoded into a valid Ref id with the "uri" scheme prefix.
+  static Ref makeUri(Uri uri, Str? dis := null)
+  {
+    encoded := uri.encode
+    buf := StrBuf(encoded.size + 8)
+    buf.add("uri:")
+    encoded.each |ch|
+    {
+      if (ch == '~')
+        buf.addChar('~').add(ch.toHex(2))
+      else if (isIdChar(ch))
+        buf.addChar(ch)
+      else
+        buf.addChar('~').add(ch.toHex(2))
+    }
+    return makeImpl(buf.toStr, dis)
+  }
+
   ** Construct with 64-bit handle
   @NoDoc static new makeHandle(Int handle)
   {
@@ -210,6 +229,37 @@ final const class Ref
 
   ** Is this a spec ref with double colons
   Bool isSpec() { id.contains("::") }
+
+  ** Is this a ref that encodes a URI via `makeUri`
+  Bool isUri() { id.startsWith("uri:") }
+
+  ** If this is a URI encoded ref, decode back to the URI.  Raise
+  ** error or return null null if this ref was not created via `makeUri`.
+  Uri? toUri(Bool checked := true)
+  {
+    if (!isUri)
+    {
+      if (checked) throw UnsupportedErr("Not uri ref: $this")
+      return null
+    }
+    buf := StrBuf(id.size)
+    i := 4
+    while (i < id.size)
+    {
+      ch := id[i]
+      if (ch == '~' && i + 2 < id.size)
+      {
+        buf.addChar(Int.fromStr(id[i+1..i+2], 16))
+        i += 3
+      }
+      else
+      {
+        buf.addChar(ch)
+        i++
+      }
+    }
+    return Uri.decode(buf.toStr)
+  }
 
   ** Return if the string is a valid Ref identifier or error message if not
   internal static Str? isIdErr(Str n)
@@ -440,5 +490,6 @@ const class RefSchemes
   static const Str lic     := "lic"
   static const Str replica := "replica"
   static const Str subnet  := "subnet"
+  static const Str uri     := "uri"
 }
 

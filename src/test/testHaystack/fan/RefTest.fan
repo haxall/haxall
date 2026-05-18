@@ -122,5 +122,56 @@ class RefTest : HaystackTest
     verifyErr(ArgErr#) { Ref("foo").toAbs("p") }
     verifyErr(ArgErr#) { Ref("foo").toAbs("x y") }
   }
+
+  Void testUri()
+  {
+    // not a uri ref
+    verifyEq(Ref("foo").isUri, false)
+    verifyEq(Ref("foo").toUri(false), null)
+    verifyEq(Ref("p:demo:r:abc").isUri, false)
+    verifyEq(Ref("p:demo:r:abc").toUri(false), null)
+    verifyErr(UnsupportedErr#) { Ref("foo").toUri }
+    verifyErr(UnsupportedErr#) { Ref("foo").toUri(true) }
+
+    // simple URIs
+    verifyUri(`http://example.com`)
+    verifyUri(`http://example.com/`)
+    verifyUri(`http://example.com/foo`)
+    verifyUri(`http://example.com/foo/bar`)
+    verifyUri(`https://example.com/path?q=hello`)
+    verifyUri(`https://example.com/path?q=hello&x=1`)
+    verifyUri(`https://example.com/path#frag`)
+    verifyUri(`https://example.com/path?q=1#frag`)
+    verifyUri(`ftp://files.example.com/pub/docs`)
+
+    // URIs with characters that need encoding
+    verifyUri(`http://example.com/a@b`)
+    verifyUri(`http://example.com/foo/bar?a=1&b=2`)
+    verifyUri(`http://example.com/path with spaces`)
+    verifyUri(`http://example.com/café`)
+    verifyUri(`http://user:pass@host/path`)
+
+    // tilde in URI
+    verifyUri(`http://example.com/~user/home`)
+
+    // edge cases
+    verifyUri(`/relative/path`)
+    verifyUri(`file.txt`)
+    verifyUri(`mailto:user@host.com`)
+
+    // verify the ref id is valid
+    ref := Ref.makeUri(`http://example.com/foo?bar=baz`)
+    verifyEq(Ref.isId(ref.id), true)
+    verify(ref.id.startsWith("uri:"))
+  }
+
+  Void verifyUri(Uri uri)
+  {
+    ref := Ref.makeUri(uri)
+    // echo("-- $uri | $ref")
+    verifyEq(ref.isUri, true)
+    verifyEq(Ref.isId(ref.id), true)
+    verifyEq(ref.toUri, uri)
+  }
 }
 
