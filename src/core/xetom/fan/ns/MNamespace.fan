@@ -308,8 +308,9 @@ const class MNamespace : Namespace, CNamespace
     }
   }
 
-  override Spec fileSpec(MimeType mime)
+  override Spec fileSpec(MimeType? mime)
   {
+    if (mime == null) return sys.file
     map := fileSpecMap.val as Str:Spec
     if (map == null)
     {

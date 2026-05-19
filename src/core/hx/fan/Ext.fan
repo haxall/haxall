@@ -378,7 +378,6 @@ class FileUploadHandler : UploadHandler
   {
     mime := filename?.toUri?.mimeType
     if (mime == null) mime = MimeType.fromStr(req.headers["Content-Type"] ?: "", false)
-    if (mime == null) return cx.ns.spec("sys::File")
     return cx.ns.fileSpec(mime)
   }
 }

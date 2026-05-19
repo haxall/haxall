@@ -128,8 +128,8 @@ const mixin Namespace
 
   ** Lookup the file spec for the given MIME type.  File specs are
   ** subtypes of 'sys::File' that declare a 'mimeType' in their metadata.
-  ** Returns 'sys::File' if no more specific match is found.
-  @NoDoc abstract Spec fileSpec(MimeType mime)
+  ** Returns 'sys::File' if mime is null or matches are found.
+  @NoDoc abstract Spec fileSpec(MimeType? mime)
 
 /////////////////////////
 /////////////////////////////////////////////////
