@@ -25,7 +25,12 @@ const abstract class HxDynamicMount : HxMount
 // DynamicMount
 //////////////////////////////////////////////////////////////////////////
 
-  // TODO: mount/unmount
+  ** Mount the given submount at the appropriate location in the tree. The path
+  ** is the current mount-relative path that still needs to be resolved before it
+  ** can be mounted. Returns the given submount.
+  virtual HxMount mount(HxMount submount, Uri path) { throw UnsupportedErr() }
+
+  virtual Void unmount(Uri path) { }
 
   ** Get the submount that should handle this uri
   abstract HxMount? resolveSubmount(Uri uri)

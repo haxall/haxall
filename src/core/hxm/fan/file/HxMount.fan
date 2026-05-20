@@ -44,6 +44,9 @@ const abstract class HxMount
     return mountPoint.plus(mountRel)
   }
 
+  ** Cleanup any resources allocated by the mount because it is being closed/unmounted
+  virtual Void close() { }
+
 //////////////////////////////////////////////////////////////////////////////////
 // File - all these methods have the same semantics as similarly
 // named methods on sys::File except that they take a Uri (usually mount-relative

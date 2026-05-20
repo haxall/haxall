@@ -27,10 +27,9 @@ internal const class HxdFileExt : HxFileExt
 {
   new make()
   {
-    this.root = HxdRootMount(this)
   }
 
-  override const HxdRootMount root
+  override const HxdRootMount root := HxdRootMount(this)
 
   override UploadHandler uploadHandler(WebReq req, WebRes res, Dict opts)
   {
