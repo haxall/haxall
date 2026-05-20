@@ -24,6 +24,9 @@ abstract const class HxFileExt : ExtObj, IFileExt
   ** Get the root of the filesystem
   abstract HxMount root()
 
+  ** Get file access control for the given mount
+  virtual HxFileAccess fileAccess(HxMount mount) { HxFileAccess(mount) }
+
   ** Resolve the uri in the filesystem.
   override File resolve(Uri uri) { HxMountFile(uri) }
 }

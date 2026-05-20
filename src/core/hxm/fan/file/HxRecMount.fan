@@ -24,8 +24,7 @@ const class HxRecMount : HxWrapMount
   override File resolve(Uri uri, Str mode := "r")
   {
     if (isRoot(uri)) return nonexistent(uri)
-    // TODO:FIXIT security checks
-    // if (!isFileAccessible(...)
+    if (!fileAccess.allowed(uri, mode)) return nonexistent(uri)
     if (uri.path.size != 1) throw ArgErr("Invalid rec uri: ${uri}")
 
     // resolve the backing file against folio file implementation

@@ -111,9 +111,8 @@ const class HxLibMount : HxMount
   {
     if (path.isDir) return true
 
-    // TODO:FIXIT Security checks
-    // // check whitelist for a file
-    // if (!isWhitelisted(path)) return false
+    // check whitelist for a file
+    if (!fileAccess.whitelisted(path)) return false
 
     return true
   }

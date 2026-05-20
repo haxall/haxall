@@ -20,6 +20,7 @@ const class HxLocalMount : HxWrapMount
   new make(HxFileExt ext, Dict config) : super(ext, config)
   {
     this.localRoot = ((Uri)config["localPath"]).toFile
+    if (!localRoot.isDir) throw ArgErr("Not a directory: ${localRoot}")
   }
 
   ** Files in this mount are resolved relative to this directory
@@ -36,20 +37,36 @@ const class HxLocalMount : HxWrapMount
     if (!file.normalize.pathStr.startsWith(localRoot.normalize.pathStr))
       throw ArgErr("Uri not under ${localRoot}: ${uri}")
 
-    // TODO - chokepoint for security checks
+    // check access
+    if (!fileAccess.allowed(uri, mode)) return nonexistent(uri)
+
     return file
   }
 
   override File[] list(Uri uri)
   {
+    access := this.fileAccess
     acc := File[,]
     resolve(uri).list.each |file|
     {
       fileRel := file.uri.relTo(localRoot.uri)
-      // TODO: security checks
+      if (!access.allowed(fileRel, "r")) return
       acc.add(ext.resolve(mountAbs(fileRel)))
     }
     return acc
+  }
+
+  override Void delete(Uri uri)
+  {
+    if (isRoot(uri))
+    {
+      // do not delete localRoot itself, only its children
+      localRoot.list.each |child| { child.delete }
+    }
+    else
+    {
+      super.delete(uri)
+    }
   }
 }
 
