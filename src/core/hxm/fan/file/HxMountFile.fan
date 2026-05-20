@@ -56,7 +56,6 @@ const class HxMountFile : SyntheticFile
 
   override File[] list(Regex? pattern := null)
   {
-    if (!uri.isDir) return File[,]
     files := root.list(uri)
     if (pattern == null) return files
     return files.findAll |f| { pattern.matches(f.name) }

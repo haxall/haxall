@@ -90,7 +90,10 @@ internal const class HxdRootMount : HxDynamicMount
 
   override HxMount? resolveSubmount(Uri uri)
   {
-    mounts.find |mount| { uri.pathStr.startsWith(mount.mountPoint.pathStr) }
+    // force root submountes to be a dir
+    if (uri.path.size == 1 && !uri.isDir) uri = uri.plusSlash
+
+    return mounts.find |mount| { uri.pathStr.startsWith(mount.mountPoint.pathStr) }
   }
 
   override File[] list(Uri uri)
