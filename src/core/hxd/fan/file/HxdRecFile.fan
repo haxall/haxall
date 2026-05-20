@@ -18,6 +18,7 @@ using util
 **
 ** Models a file mounted in the /rec/ virtual file system
 **
+/*
 internal const class HxdRecFile : SyntheticFile
 {
   new makeNew(Context cx, Uri uri) : super.make(uri)
@@ -108,3 +109,4 @@ internal const class HxdRecFile : SyntheticFile
   private File? recFile() { cx.db.file.get(id, false) }
 }
 
+*/

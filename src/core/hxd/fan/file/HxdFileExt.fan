@@ -23,68 +23,72 @@ using util
 **  - `lib/`: xeto lib files
 **  - `io/`: proj io/ directory
 **
-internal const class HxdFileExt : ExtObj, IFileExt
+internal const class HxdFileExt : HxFileExt
 {
+  new make()
+  {
+    this.root = HxdRootMount(this)
+  }
+
+  override const HxdRootMount root
+
   override UploadHandler uploadHandler(WebReq req, WebRes res, Dict opts)
   {
     FileUploadHandler(req, res, opts)
   }
-
-  override File resolve(Uri uri)
-  {
-    if (uri.toStr.contains("..")) throw UnsupportedErr("Uri must not contain '..' path: $uri")
-    return doResolve(uri, Context.cur) ?: nonexistent(uri)
-  }
-
-  internal File? doResolve(Uri uri, Context cx)
-  {
-    mount := uri.path.getSafe(0)
-    switch (mount)
-    {
-      case "io":  return resolveIo(uri, cx)
-      case "rec": return resolveRec(uri, cx)
-      case "lib": return resolveLib(uri, cx)
-      default:    return null
-    }
-  }
-
-  private File resolveIo(Uri uri, Context cx)
-  {
-    // extra directory check to ensure we don't escape out of safe io/ directory
-    file := rt.dir + uri
-    if (!file.normalize.pathStr.startsWith(rt.dir.normalize.pathStr))
-      throw UnsupportedErr("Uri not under ${rt.dir} dir: $uri")
-
-    // use a wrapper which routes everything back to here for security checks
-    return HxdWrapFile(this, uri, file)
-  }
-
-  private File? resolveLib(Uri uri, Context cx)
-  {
-    // "/lib/{lib-name}/{file-uri}
-
-    if (uri.path.size < 3) return null
-
-    libName := uri.path[1]
-    lib :=  cx.ns.lib(libName, false)
-    if (lib == null) return null
-
-    fileUri := uri.getRangeToPathAbs(2..-1)
-    file := lib.files.get(fileUri, false)
-    if (file == null) return file
-    return HxdWrapFile(this, uri, file)
-  }
-
-  private File? resolveRec(Uri uri, Context cx)
-  {
-    // /rec/{id}
-    if (uri.path.size > 2) return null
-    return HxdRecFile(cx, uri)
-  }
-
-  private File nonexistent(Uri uri)
-  {
-    SyntheticFile(uri)
-  }
 }
 
+**************************************************************************
+** HxdRootMount
+**************************************************************************
+
+internal const class HxdRootMount : HxDynamicMount
+{
+  new make(HxFileExt ext) : super(ext, Etc.dict1("mountPath", `/`))
+  {
+    this.mounts = [
+      ioMount,
+      libMount,
+      recMount,
+    ]
+  }
+
+  private HxLocalMount ioMount()
+  {
+    HxLocalMount(ext, Etc.dict3(
+      "mountPoint", `/io/`,
+      "localPath",   rt.dir.plus(`io/`).uri,
+      "frozen",      Marker.val
+    ))
+  }
+
+  private HxLibMount libMount()
+  {
+    HxLibMount(ext, Etc.dict2(
+      "mountPoint", `/lib/`,
+      "frozen",     Marker.val
+    ))
+  }
+
+  private HxRecMount recMount()
+  {
+    HxRecMount(ext, Etc.dict2(
+      "mountPoint", `/rec/`,
+      "frozen",     Marker.val
+    ))
+  }
+
+  override const HxMount[] mounts
+
+  override HxMount? resolveSubmount(Uri uri)
+  {
+    mounts.find |mount| { uri.pathStr.startsWith(mount.mountPoint.pathStr) }
+  }
+
+  override File[] list(Uri uri)
+  {
+    if (isRoot(uri)) return mounts.map |mount| { ext.resolve(`/${mount.name}/`) }
+
+    return resolveSubmount(uri)?.list(submountRelUri(uri)) ?: File[,]
+  }
+}

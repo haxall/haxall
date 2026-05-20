@@ -40,7 +40,10 @@ class Build : BuildPod
                "folio @{hx.depend}",
                "hx @{hx.depend}",
                "hxUtil @{hx.depend}"]
-    srcDirs = [`fan/`]
+    srcDirs = [
+                `fan/`,
+                `fan/file/`,
+              ]
     index   = ["xeto.bindings": "hx"]
   }
 }
