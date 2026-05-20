@@ -92,12 +92,12 @@ const abstract class HxMount
 
   virtual InStream in(Uri uri, Int? bufferSize)
   {
-    throw ioErr("Read not supported", uri)
+    throw ioErr("in() not supported", uri)
   }
 
   virtual Obj? withIn(Uri uri, [Str:Obj]? opts, |InStream->Obj?| f)
   {
-    throw ioErr("Read not supported", uri)
+    throw ioErr("withIn() not supported", uri)
   }
 
   virtual OutStream out(Uri uri, Bool append, Int? bufferSize)

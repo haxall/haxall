@@ -87,7 +87,9 @@ const abstract class HxDynamicMount : HxMount
 
   override InStream in(Uri uri, Int? bufferSize)
   {
-    resolveSubmount(uri)?.in(submountRelUri(uri), bufferSize) ?: super.in(uri, bufferSize)
+    sub := resolveSubmount(uri)
+    echo("$uri => $sub")
+    return resolveSubmount(uri)?.in(submountRelUri(uri), bufferSize) ?: super.in(uri, bufferSize)
   }
 
   override Obj? withIn(Uri uri, [Str:Obj]? opts, |InStream->Obj?| f)

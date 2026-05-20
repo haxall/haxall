@@ -51,7 +51,7 @@ const class HxLibMount : HxMount
 
   override File[] list(Uri uri)
   {
-    xeto := rt.ns
+    xeto := cx.ns
 
     // list all libs
     if (isRoot(uri)) return xeto.libs.map { ext.resolve(mountAbs(`${it.name}/`)) }
@@ -96,6 +96,11 @@ const class HxLibMount : HxMount
       return fileUri
     }
     return child == null
+  }
+
+  override InStream in(Uri uri, Int? bufferSize)
+  {
+    toLibFile(uri)?.in(bufferSize) ?: throw IOErr("${uri}")
   }
 
   override Obj? withIn(Uri uri, [Str:Obj]? opts, |InStream->Obj?| f)
@@ -154,7 +159,7 @@ const class HxLibMount : HxMount
     libName := uri.path.getSafe(0)
     if (libName == null) return null
 
-    return rt.ns.lib(libName, false)
+    return cx.ns.lib(libName, false)
   }
 
   ** {xetoLib}/{path} => {path}
