@@ -137,3 +137,36 @@ const class HxMountFile : SyntheticFile
     root.withOut(uri, null, f)
   }
 }
+
+
+**
+** Utility class for mounts that have synthetic directory structure
+** but real Files backing them (e.g. pods)
+**
+@NoDoc const class HxMountSyntheticDir : SyntheticFile
+{
+  new make(Uri uri, HxMount mount) : super(uri)
+  {
+    this.mount = mount
+  }
+
+  private const HxMount mount
+
+  private HxFileExt fileExt() { mount.ext }
+
+  override Bool exists() { true }
+
+  override File? parent()
+  {
+    parentUri := uri.parent
+    if (parentUri == null) return null
+    return fileExt.resolve(parentUri)
+  }
+
+  override File[] list(Regex? pattern := null)
+  {
+    files := mount.list(uri)
+    if (pattern == null) return files
+    return files.findAll |f| { pattern.matches(f.name) }
+  }
+}

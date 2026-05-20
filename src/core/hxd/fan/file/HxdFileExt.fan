@@ -49,6 +49,7 @@ internal const class HxdRootMount : HxDynamicMount
     this.mounts = [
       ioMount,
       libMount,
+      podMount,
       recMount,
     ]
   }
@@ -66,6 +67,14 @@ internal const class HxdRootMount : HxDynamicMount
   {
     HxLibMount(ext, Etc.dict2(
       "mountPoint", `/lib/`,
+      "frozen",     Marker.val
+    ))
+  }
+
+  private HxPodMount podMount()
+  {
+    HxPodMount(ext, Etc.dict2(
+      "mountPoint", `/pod/`,
       "frozen",     Marker.val
     ))
   }
