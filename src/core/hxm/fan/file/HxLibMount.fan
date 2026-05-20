@@ -98,10 +98,10 @@ const class HxLibMount : HxMount
     return child == null
   }
 
-  override InStream in(Uri uri, Int? bufferSize)
-  {
-    toLibFile(uri)?.in(bufferSize) ?: throw IOErr("${uri}")
-  }
+  // override InStream in(Uri uri, Int? bufferSize)
+  // {
+  //   toLibFile(uri)?.in(bufferSize) ?: throw IOErr("${uri}")
+  // }
 
   override Obj? withIn(Uri uri, [Str:Obj]? opts, |InStream->Obj?| f)
   {
