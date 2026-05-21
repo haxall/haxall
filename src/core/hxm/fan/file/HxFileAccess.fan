@@ -123,24 +123,14 @@ const class HxFileAccess
     return allowAccess
   }
 
-  private AccessGrant? toGrant(Uri grant, Str mode)
-  {
-    if (grant.isPathRel)
-    {
-      // if there is no proj in current context then we can't grant access to
-      // proj-relative uris
-      try grant = mount.ext.projAbsUri(grant)
-      catch (Err err) return null
-    }
-    return AccessGrant(grant, mode)
-  }
+  protected virtual AccessGrant? toGrant(Uri grant, Str mode) { AccessGrant(grant, mode) }
 }
 
 **************************************************************************
 ** AccessGrant
 **************************************************************************
 
-internal const class AccessGrant
+@NoDoc const class AccessGrant
 {
   new make(Uri uri, Str mode)
   {

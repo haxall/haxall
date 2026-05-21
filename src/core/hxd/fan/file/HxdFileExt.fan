@@ -25,13 +25,9 @@ using util
 **
 internal const class HxdFileExt : HxFileExt
 {
-  new make()
-  {
-  }
+  new make() { }
 
   override const HxdRootMount root := HxdRootMount(this)
-
-  override Uri projAbsUri(Uri relUri) { `/`.plus(relUri) }
 
   override UploadHandler uploadHandler(WebReq req, WebRes res, Dict opts)
   {
