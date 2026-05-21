@@ -25,6 +25,8 @@ const class HxLibMount : HxMount
   {
   }
 
+  private Namespace ns() { rt.ns }
+
 //////////////////////////////////////////////////////////////////////////
 // Mount
 //////////////////////////////////////////////////////////////////////////
@@ -51,10 +53,8 @@ const class HxLibMount : HxMount
 
   override File[] list(Uri uri)
   {
-    xeto := cx.ns
-
     // list all libs
-    if (isRoot(uri)) return xeto.libs.map { ext.resolve(mountAbs(`${it.name}/`)) }
+    if (isRoot(uri)) return ns.libs.map { ext.resolve(mountAbs(`${it.name}/`)) }
 
     acc := File[,]
 
@@ -159,7 +159,7 @@ const class HxLibMount : HxMount
     libName := uri.path.getSafe(0)
     if (libName == null) return null
 
-    return cx.ns.lib(libName, false)
+    return ns.lib(libName, false)
   }
 
   ** {xetoLib}/{path} => {path}
