@@ -24,6 +24,13 @@ abstract const class HxFileExt : ExtObj, IFileExt
   ** Get the root of the filesystem
   abstract HxMount root()
 
+  ** Get the absolute uri within the project for this ext for the given relative uri
+  ** Throws an Err if there is no project available
+  virtual Uri projAbsUri(Uri relUri)
+  {
+    `/proj/${rt.name}/`.plus(relUri)
+  }
+
   ** Get file access control for the given mount
   virtual HxFileAccess fileAccess(HxMount mount) { HxFileAccess(mount) }
 

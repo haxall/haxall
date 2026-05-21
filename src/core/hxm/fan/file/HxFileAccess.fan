@@ -127,12 +127,10 @@ const class HxFileAccess
   {
     if (grant.isPathRel)
     {
-      echo("TODO FIXIT: DO WE GET HERE?")
-      throw Err("TODO:FIXIT")
-      // // if there is no proj in current context then we can't grant access to
-      // // proj-relative uris
-      // if (cx.proj(false) == null) return null
-      // grant = FileExt.toProjAbsUri(cx, grant)
+      // if there is no proj in current context then we can't grant access to
+      // proj-relative uris
+      try grant = mount.ext.projAbsUri(grant)
+      catch (Err err) return null
     }
     return AccessGrant(grant, mode)
   }
