@@ -25,7 +25,7 @@ const class HxLibMount : HxMount
   {
   }
 
-  private Namespace ns() { rt.ns }
+  private Namespace ns() { cx.ns }
 
 //////////////////////////////////////////////////////////////////////////
 // Mount

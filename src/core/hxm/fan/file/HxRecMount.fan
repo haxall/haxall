@@ -29,7 +29,7 @@ const class HxRecMount : HxWrapMount
 
     // resolve the backing file against folio file implementation
     ref := Ref(uri.name)
-    return cx.proj.db.file.get(ref, false)
+    return cx.proj.db.file.get(ref, false) ?: nonexistent(uri)
   }
 
   override File[] list(Uri uri)
