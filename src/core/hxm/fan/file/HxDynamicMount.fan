@@ -47,6 +47,7 @@ const abstract class HxDynamicMount : HxMount
 
   override Bool exists(Uri uri)
   {
+    if (isRoot(uri)) return true
     return resolveSubmount(uri)?.exists(submountRelUri(uri)) ?: false
   }
 
@@ -105,5 +106,10 @@ const abstract class HxDynamicMount : HxMount
     submount := resolveSubmount(uri)
     if (submount != null) submount.withOut(submountRelUri(uri), opts, f)
     else super.withOut(uri, opts, f)
+  }
+
+  override File moveTo(Uri uri, File to)
+  {
+    resolveSubmount(uri)?.moveTo(submountRelUri(uri), to) ?: throw ioErr("Unsupported for mount", uri)
   }
 }

@@ -28,7 +28,14 @@ const abstract class HxMount
   ** Mount config
   const Dict config
 
+//////////////////////////////////////////////////////////////////////////
+// HxMount
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get the current context
   protected virtual Context cx() { Context.cur }
+
+  ** Get the ext runtime
   protected Runtime rt() { ext.rt }
 
   ** The full, absolute path of this mount in the virtual filesystem
@@ -36,6 +43,9 @@ const abstract class HxMount
 
   ** The name of this mount
   Str name() { mountPoint.name }
+
+  ** Display name
+  virtual Str dis() { config["dis"] as Str ?: typeof.name[0..<-"Mount".size] }
 
   ** Get the absolute path through the virtual filesystem to the mount-relative uri
   Uri mountAbs(Uri mountRel)
@@ -117,15 +127,17 @@ const abstract class HxMount
     // try to make this as efficient as possible
 
     // 1) determine which submounts ultimately handle this uri
-    thisSub := targetMount(mountAbs(uri))
-    thatSub := targetMount(to.uri)
-    if (thatSub == null) return nonAtomicMoveTo(uri, to)
+    thisSubInfo := targetMount(mountAbs(uri))
+    thatSubInfo := targetMount(to.uri)
+    if (thatSubInfo == null) return nonAtomicMoveTo(uri, to)
 
     // 2) get backing files
-    if (thisSub is HxLocalMount && thatSub is HxLocalMount)
+    thisSub := thisSubInfo[0] as HxLocalMount
+    thatSub := thatSubInfo[0] as HxLocalMount
+    if (thisSub != null && thatSub != null)
     {
-      File thisRaw := thisSub->resolve(uri, "rw")
-      File thatRaw := thatSub->resolve(to.uri, "rw")
+      File thisRaw := thisSub.resolve(uri, "rw")
+      File thatRaw := thatSub.resolve(thatSubInfo[1], "rw")
       thisRaw.moveTo(thatRaw)
     }
     else
@@ -133,28 +145,6 @@ const abstract class HxMount
       nonAtomicMoveTo(uri, to)
     }
     return to
-    /*
-    thisRaw := backingFile(uri, "rw")
-    thatRaw := mod.root.backingFile(to.uri, "rw")
-    if (thatRaw == null) return nonAtomicMoveTo(uri ,to)
-
-    // Delegate directly to backing files if
-    // 1) they are both local mounts, in which case we use standard "local"
-    //    filesystem moveTo
-    // 2) or, the two mounts are the same instance, in which case we assume
-    //    a backing file moveTo is safe
-    isLocal := thisSub is HxLocalMount && thatSub is HxLocalMount
-    isSame  := thisSub === thatSub
-    if (isLocal || isSame)
-    {
-      thisRaw.moveTo(thatRaw)
-    }
-    else
-    {
-      nonAtomicMoveTo(uri, to)
-    }
-    return to
-    */
   }
 
   ** Copy the file or directory designated by 'uri' to the specified location.
@@ -173,7 +163,7 @@ const abstract class HxMount
 
   HxFileAccess fileAccess() { ext.fileAccess(this) }
 
-  protected Bool precheckAllowed(Uri uri, Str mode) { true }
+  protected virtual Bool precheckAllowed(Uri uri, Str mode) { true }
 
 //////////////////////////////////////////////////////////////////////////
 // Util
@@ -186,10 +176,11 @@ const abstract class HxMount
     IOErr("${msg}: ${mountAbs(uri)} [${mountPoint}]", cause)
   }
 
-  protected HxMount? targetMount(Uri uri, HxDynamicMount dyn := ext->root)
+  private List? targetMount(Uri uri, HxDynamicMount dyn := ext.root)
   {
     m := dyn.resolveSubmount(uri)
-    if (m isnot HxDynamicMount) return m
+    if (m == null) return null
+    if (m isnot HxDynamicMount) return [m, dyn.submountRelUri(uri)]
     return targetMount(dyn.submountRelUri(uri), m)
   }
 }
