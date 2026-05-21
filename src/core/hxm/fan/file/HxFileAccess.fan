@@ -31,7 +31,8 @@ const class HxFileAccess
   virtual Bool allowed(Uri uri, Str mode)
   {
     // check if context has an override for checking access
-    if (!checkOverride(uri, mode)) return false
+    res := checkOverride(uri, mode)
+    if (res != null) return res
 
     // do custom mount accessibility checks before standard file access filters
     if (!mount.precheckAllowed(uri, mode)) return false
@@ -46,13 +47,15 @@ const class HxFileAccess
     return checkGrants(uri, mode)
   }
 
-  protected virtual Bool checkOverride(Uri uri, Str mode)
+  ** If there is an access override in the context return its result. Otherwise
+  ** return null to keep going with normal file access checks.
+  protected virtual Bool? checkOverride(Uri uri, Str mode)
   {
-    func := cx.stash["hxFile.isFileAccessible"] as Func
+    func := cx.stash["hxFile.allowed"] as Func
     // TODO: this check should be deprecated and removed; this is the old name
     if (func == null) func = cx.stash["fileMod.isFileAccessible"] as Func
     if (func != null) return func.call(cx, uri, mode)
-    return true
+    return null
   }
 
   ** Admins have access to every file unless one of the the file
