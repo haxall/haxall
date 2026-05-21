@@ -92,7 +92,7 @@ const abstract class HxMount
 
   virtual InStream in(Uri uri, Int? bufferSize)
   {
-    throw ioErr("File.in() not supported", uri)
+    throw ioErr("Not supported. Use File.withIn() instead", uri)
   }
 
   virtual Obj? withIn(Uri uri, [Str:Obj]? opts, |InStream->Obj?| f)
@@ -102,7 +102,7 @@ const abstract class HxMount
 
   virtual OutStream out(Uri uri, Bool append, Int? bufferSize)
   {
-    throw ioErr("File.out() not supported", uri)
+    throw ioErr("Not supported. Use File.withOut() instead", uri)
   }
 
   virtual Void withOut(Uri uri, [Str:Obj]? opts, |OutStream| f)
