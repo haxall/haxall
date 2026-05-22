@@ -915,6 +915,10 @@ class NamespaceTest : AbstractXetoTest
     // without sys.files loaded falls back to sys::File
     ns2 := createNamespace(["sys"])
     verifyFileSpec(ns2, "csv", "sys::File")
+
+    // dir
+    verifySame(ns.specForFile(Env.cur.path.first), ns.spec("sys.files::FileDir"))
+    verifySame(ns2.specForFile(Env.cur.path.first), ns2.spec("sys::File"))
   }
 
   private Void verifyFileSpec(Namespace ns, Str ext, Str qname)

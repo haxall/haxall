@@ -308,6 +308,16 @@ const class MNamespace : Namespace, CNamespace
     }
   }
 
+  override Spec specForFile(File file)
+  {
+    if (file.isDir)
+    {
+      dir := lib("sys.files", false)?.spec("FileDir")
+      if (dir != null) return dir
+    }
+    return specForFileExt(file.ext)
+  }
+
   override Spec specForFileExt(Str? ext)
   {
     if (ext == null) return sys.file
