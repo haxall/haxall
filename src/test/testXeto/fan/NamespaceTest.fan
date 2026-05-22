@@ -893,37 +893,36 @@ class NamespaceTest : AbstractXetoTest
   {
     ns := createNamespace(["sys", "sys.files"])
 
-    // known mime types
-    verifyFileSpec(ns, "text/plain", "sys.files::PlainTextFile")
-    verifyFileSpec(ns, "text/csv", "sys.files::CsvFile")
-    verifyFileSpec(ns, "text/html", "sys.files::HtmlFile")
-    verifyFileSpec(ns, "text/markdown", "sys.files::MarkdownFile")
-    verifyFileSpec(ns, "text/xml", "sys.files::XmlFile")
-    verifyFileSpec(ns, "text/yaml", "sys.files::YamlFile")
-    verifyFileSpec(ns, "application/json", "sys.files::JsonFile")
-    verifyFileSpec(ns, "application/pdf", "sys.files::PdfFile")
-    verifyFileSpec(ns, "application/zip", "sys.files::ZipFile")
-    verifyFileSpec(ns, "image/png", "sys.files::PngFile")
-    verifyFileSpec(ns, "image/jpeg", "sys.files::JpegImage")
-    verifyFileSpec(ns, "image/svg+xml", "sys.files::SvgFile")
+    // known ext types
+    verifyFileSpec(ns, "txt", "sys.files::PlainTextFile")
+    verifyFileSpec(ns, "csv", "sys.files::CsvFile")
+    verifyFileSpec(ns, "fan", "sys.files::FantomFile")
+    verifyFileSpec(ns, "html", "sys.files::HtmlFile")
+    verifyFileSpec(ns, "md", "sys.files::MarkdownFile")
+    verifyFileSpec(ns, "xml", "sys.files::XmlFile")
+    verifyFileSpec(ns, "yaml", "sys.files::YamlFile")
+    verifyFileSpec(ns, "json", "sys.files::JsonFile")
+    verifyFileSpec(ns, "pdf", "sys.files::PdfFile")
+    verifyFileSpec(ns, "zip", "sys.files::ZipFile")
+    verifyFileSpec(ns, "png", "sys.files::PngFile")
+    verifyFileSpec(ns, "jpg", "sys.files::JpegImage")
+    verifyFileSpec(ns, "jpeg", "sys.files::JpegImage")
+    verifyFileSpec(ns, "svg", "sys.files::SvgFile")
 
-    // params should be ignored
-    verifyFileSpec(ns, "text/plain; charset=utf-8", "sys.files::PlainTextFile")
-    verifyFileSpec(ns, "text/html; charset=utf-8", "sys.files::HtmlFile")
-
-    // unknown mime type falls back to sys::File
-    verifyFileSpec(ns, "application/x-unknown", "sys::File")
+    // unknown ext type falls back to sys::File
+    verifyFileSpec(ns, "foobar", "sys::File")
 
     // without sys.files loaded falls back to sys::File
     ns2 := createNamespace(["sys"])
-    verifyFileSpec(ns2, "text/plain", "sys::File")
+    verifyFileSpec(ns2, "csv", "sys::File")
   }
 
-  private Void verifyFileSpec(Namespace ns, Str mime, Str qname)
+  private Void verifyFileSpec(Namespace ns, Str ext, Str qname)
   {
-    spec := ns.fileSpec(MimeType(mime))
-    verifyNotNull(spec)
+    spec := ns.specForFileExt(ext)
+    // echo(">>> $ext => $spec")
     verifyEq(spec.qname, qname)
+    verifySame(ns.specForFileExt(ext.upper), spec)
   }
 
 }

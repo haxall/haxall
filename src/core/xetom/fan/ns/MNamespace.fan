@@ -308,10 +308,10 @@ const class MNamespace : Namespace, CNamespace
     }
   }
 
-  override Spec fileSpec(MimeType? mime)
+  override Spec specForFileExt(Str? ext)
   {
-    if (mime == null) return sys.file
-    map := fileSpecMap.val as Str:Spec
+    if (ext == null) return sys.file
+    map := specByFileExt.val as Str:Spec
     if (map == null)
     {
       acc := Str:Spec[:]
@@ -319,15 +319,21 @@ const class MNamespace : Namespace, CNamespace
       eachType |spec|
       {
         if (!spec.isa(fileType)) return
-        m := spec.meta["mimeType"] as Str
-        if (m == null) return
-        mt := MimeType(m, false)
-        if (mt != null) acc[mt.noParams.toStr] = spec
+        s := spec.meta["fileExts"] as Str
+        if (s == null) return
+        if (s.contains(" "))
+        {
+          s.split.each |tok| { acc[tok.lower] = spec }
+        }
+        else
+        {
+         acc[s.lower] = spec
+        }
       }
       map = acc.toImmutable
-      fileSpecMap.val = map
+      specByFileExt.val = map
     }
-    return map[mime.noParams.toStr] ?: sys.file
+    return map[ext.lower] ?: sys.file
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -519,7 +525,7 @@ const class MNamespace : Namespace, CNamespace
   const Dict opts
   private const ConcurrentMap entriesMap := ConcurrentMap()
   private const AtomicRef libsRef := AtomicRef()
-  private const AtomicRef fileSpecMap := AtomicRef()
+  private const AtomicRef specByFileExt := AtomicRef()
 }
 
 **************************************************************************

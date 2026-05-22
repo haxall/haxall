@@ -126,10 +126,10 @@ const mixin Namespace
   ** List all unqualified types against loaded libs.
   @NoDoc abstract Spec[] unqualifiedTypes(Str name)
 
-  ** Lookup the file spec for the given MIME type.  File specs are
-  ** subtypes of 'sys::File' that declare a 'mimeType' in their metadata.
-  ** Returns 'sys::File' if mime is null or matches are found.
-  @NoDoc abstract Spec fileSpec(MimeType? mime)
+  ** Lookup the file spec for the given file extension.  File specs are
+  ** subtypes of 'sys::File' that declare a 'fileExts' in their metadata.
+  ** Returns 'sys::File' if extension is null or no matches are found.
+  @NoDoc abstract Spec specForFileExt(Str? ext)
 
 /////////////////////////
 /////////////////////////////////////////////////
