@@ -56,7 +56,7 @@ const class PyFuncs
   ** Typically, this func is used in the context of a task since the python
   ** session in a task is persistent. This allows to do any one-time `pyExec()`
   ** or `pyDefine()` when the task is first creatd.
-  @Axon { admin=true }
+  @Api @Axon { admin=true }
   static PySession pyInit(PySession py, Fn fn)
   {
     cx := AxonContext.curAxon
