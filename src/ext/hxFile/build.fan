@@ -39,7 +39,7 @@ class Build : BuildPod
     srcDirs = [`fan/`,
                `fan/mounts/`,
               ]
-    resDirs = [`lib/`,]
     index   = ["xeto.bindings":"hx.file"]
   }
 }
+
