@@ -1,18 +1,19 @@
 //
 // Copyright (c) 2025, SkyFoundry LLC
-// Licensed under the Academic Free License version 3.0
+// All Rights Reserved
 //
 // History:
-//   22 Jul 2025  Brian Frank  Garden City Beach
+//   29 Jul 2025  Brian Frank  Refactor for 4.0
 //
 
 pragma: Lib <
   nodoc
-  doc: "Haxall daemon file extension"
+  doc: "Haxall file extension"
   version: BuildVar "hx.version"
   depends: {
-    { lib: "sys", versions: BuildVar "ph.depend" }
-    { lib: "hx", versions: BuildVar "hx.depend" }
+    { lib: "sys",  versions: BuildVar "ph.depend" }
+    { lib: "axon", versions: BuildVar "hx.depend" }
+    { lib: "hx",   versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"
@@ -24,9 +25,9 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
-  libExt: HxdFileExt
+  libExt: HxFileExt
 >
 
-// Haxall daemon file management extension
-HxdFileExt: SysExt
+// Haxall file management extension
+HxFileExt: SysExt
 

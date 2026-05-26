@@ -1,47 +1,43 @@
 //
-// Copyright (c) 2021, SkyFoundry LLC
+// Copyright (c) 2026, SkyFoundry LLC
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   13 Aug 2021  Brian Frank  Creation
-//   22 Aug 2025  Brian Frank  Garden City (refactor for 4.0)
+//   20 May 2026  Matthew Giannini  Creation
 //
 
 using concurrent
-using web
+using util
 using xeto
 using haystack
 using hx
-using hxm
-using hxFolio
-using util
 
 **
-** Haxall daemon simple implementation for file extension
-** with support for the following virtual namespaces:
-**  - `rec/`: files stored as recs in folio backed by file system
-**  - `lib/`: xeto lib files
-**  - `io/`: proj io/ directory
+** Exposes a virtual filesystem for Haxall.
 **
-internal const class HxdFileExt : HxFileExt
+const class HxFileExt : ExtObj, IFileExt
 {
-  new make() { }
-
-  override const HxdRootMount root := HxdRootMount(this)
-
-  override UploadHandler uploadHandler(WebReq req, WebRes res, Dict opts)
+  new make()
   {
-    FileUploadHandler(req, res, opts)
   }
+
+  ** Get the root of the filesystem
+  virtual once HxDynamicMount root() { HxRootMount(this) }
+
+  ** Get file access control for the given mount
+  virtual HxFileAccess fileAccess(HxMount mount) { HxFileAccess(mount) }
+
+  ** Resolve the uri in the filesystem.
+  override File resolve(Uri uri) { HxMountFile(uri) }
 }
 
 **************************************************************************
-** HxdRootMount
+** HxRootMount
 **************************************************************************
 
-internal const class HxdRootMount : HxDynamicMount
+internal const class HxRootMount : HxDynamicMount
 {
-  new make(HxFileExt ext) : super(ext, Etc.dict1("mountPath", `/`))
+  new make(HxFileExt ext) : super(ext, Etc.dict1("mountPoint", `/`))
   {
     this.mounts = [
       ioMount,

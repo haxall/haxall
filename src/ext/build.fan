@@ -18,6 +18,7 @@ class Build : BuildGroup
     [
       `hxXeto/build.fan`,
       `hxApi/build.fan`,
+      `hxFile/build.fan`,
       `hxCrypto/build.fan`,
       `hxHttp/build.fan`,
       `hxMath/build.fan`,

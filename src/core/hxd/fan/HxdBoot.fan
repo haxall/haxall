@@ -63,7 +63,7 @@ class HxdBoot : HxSysBoot
       "hx.http",
       "hx.repo",
       "hx.xeto",
-      "hx.hxd.file",
+      "hx.file",
       "hx.hxd.his",
       "hx.hxd.proj",
       "hx.hxd.user",

@@ -1,0 +1,26 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// All Rights Reserved
+//
+// History:
+//   29 Jul 2025  Brian Frank  Refactor for 4.0
+//
+
++Funcs {
+
+  fileUnmount: Func <nodoc, su> { path: Uri, returns: Obj? }
+
+  // New action
+  fileMountNew: Func <nodoc, su> { fileMountDict: Obj, returns: Grid }
+
+  // List all mounts recursively, but only show user-defined mounts
+  fileMounts: Func <nodoc, su> { returns: Grid }
+
+  fileMount: Func <nodoc, su> { path: Uri, returns: Obj? }
+
+  fileMountRemove: Func <nodoc, su> { path: Uri, returns: Obj? }
+
+  // Delete action
+  fileMountDelete: Func <nodoc, su, defMeta:{disKey:"ui::delete", confirm:{icon:"warn", disKey:"ui::mountDeleteConfirm", detailsKey:"ui::mountDeleteConfirmDetails"}, select, multi}> { mountRefs: Obj, returns: Grid }
+
+}
