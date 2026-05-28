@@ -191,7 +191,7 @@ class GlobalTest : AbstractXetoTest
 
   Void testPhShared()
   {
-    ns := createNamespace(["sys", "ph", "ph.points", "ph.attrs", "ph.points.elec"])
+    ns := createNamespace(["sys", "ph", "ph.points", "ph.attrs", "ph.elec"])
 
     entity := ns.spec("ph::PhEntity")
 

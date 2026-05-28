@@ -135,6 +135,7 @@ abstract const class MEnv : XetoEnv
       it.libName = v.name
       it.input   = v.file
       it.build   = build?.get(v.name)
+      it.applyOpts(ns.opts)
     }
     return c.compileLib
   }
@@ -216,7 +217,7 @@ abstract const class MEnv : XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Run build thru this env (not really thread safe)
-  Namespace build(LibVersion[] build)
+  Namespace build(LibVersion[] build, Dict? opts := null)
   {
     // turn verions to lib depends
     buildAsDepends := build.map |v->LibDepend|
@@ -234,7 +235,8 @@ abstract const class MEnv : XetoEnv
 
     // create namespace
     clearLibCache
-    ns := MNamespace(this, libs, Etc.dict1("build", buildFiles))
+    opts = Etc.dictMerge(opts ?: Etc.dict0, Etc.dict1("build", buildFiles))
+    ns := MNamespace(this, libs, opts)
 
     // report which libs could not be compiled
     success := true
