@@ -657,16 +657,19 @@ class BasicTest : AbstractFolioTest
     dPost := folio.commit(dPre)
     verifyHooks(t, cx, [aPre, bPre, cPre, dPre], [aPost, bPost, cPost, dPost])
 
-    ePre := Diff(cPost.newRec, ["another":"!"], Diff.transient)
-    ePost := folio.commit(ePre)
-    verifyHooks(t, cx, [aPre, bPre, cPre, dPre, ePre], [aPost, bPost, cPost, dPost, ePost])
+    if (impl.supportsTransient)
+    {
+      ePre := Diff(cPost.newRec, ["another":"!"], Diff.transient)
+      ePost := folio.commit(ePre)
+      verifyHooks(t, cx, [aPre, bPre, cPre, dPre, ePre], [aPost, bPost, cPost, dPost, ePost])
 
-    xPre := Diff.makeAdd(["dis":"x"])
-    yPre := Diff.makeAdd(["dis":"y", "throw":m])
-    verifyErr(IOErr#) { folio.commitAll([xPre, yPre]) }
-    verifyHooks(t, cx, [aPre, bPre, cPre, dPre, ePre, xPre, yPre], [aPost, bPost, cPost, dPost, ePost])
-    verifyEq(folio.readCount(Filter("dis==\"x\"")), 0)
-    verifyEq(folio.readCount(Filter("dis==\"y\"")), 0)
+      xPre := Diff.makeAdd(["dis":"x"])
+      yPre := Diff.makeAdd(["dis":"y", "throw":m])
+      verifyErr(IOErr#) { folio.commitAll([xPre, yPre]) }
+      verifyHooks(t, cx, [aPre, bPre, cPre, dPre, ePre, xPre, yPre], [aPost, bPost, cPost, dPost, ePost])
+      verifyEq(folio.readCount(Filter("dis==\"x\"")), 0)
+      verifyEq(folio.readCount(Filter("dis==\"y\"")), 0)
+    }
 
     if (impl.supportsHis)
     {
