@@ -140,6 +140,8 @@ const class HxLibMount : HxMount
 
     if (path.isDir)
     {
+      // if it is just the lib dir then it always exists
+      if (path == `/`) return uri
       return lib.files.list.eachWhile |libUri|
       {
         libUri.pathOnly.toStr.startsWith(path.toStr) ? libUri : null
