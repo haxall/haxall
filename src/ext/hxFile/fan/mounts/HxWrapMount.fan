@@ -32,10 +32,12 @@ const abstract class HxWrapMount : HxMount
 
   override DateTime? modified(Uri uri) { resolve(uri).modified }
 
-  override Str:Obj attrs(Uri uri)
+  override Str:Obj? attrs(Uri uri)
   {
     f := resolve(uri)
     return [
+      "modified":   f.modified,
+      "size":       f.size,
       "hidden":     f.isHidden,
       "readable":   f.isReadable,
       "writable":   f.isWritable,

@@ -35,7 +35,7 @@ const class HxMountFile : SyntheticFile
     set { throw UnsupportedErr() }
   }
 
-  private Str:Obj? attrs() { root.attrs(uri) }
+  internal Str:Obj? attrs() { root.attrs(uri) }
 
   override Bool isHidden() { attrs["hidden"] }
 
@@ -56,7 +56,7 @@ const class HxMountFile : SyntheticFile
 
   override File[] list(Regex? pattern := null)
   {
-    files := root.list(uri)
+    File[] files := root.list(uri).map { HxListFile.wrap(it) }
     if (pattern == null) return files
     return files.findAll |f| { pattern.matches(f.name) }
   }
@@ -137,6 +137,51 @@ const class HxMountFile : SyntheticFile
   }
 }
 
+**************************************************************************
+** HxListFile
+**************************************************************************
+
+**
+** Only used to wrap HxMountFile.list() files. It caches the file attrs so we
+** don't have to do a full security-checked resolution to get these values.
+** Should only be used as a result of HxMountFile.list() and should generally
+** only be used in cases where the file is not being cached/store; only for
+** obtaining file attributes.
+**
+internal const class HxListFile : SyntheticFile
+{
+  static File wrap(File f)
+  {
+    f is HxMountFile ? HxListFile(f) : f
+  }
+
+  private new make(HxMountFile f) : super(f.uri)
+  {
+    this.f = f
+    this.attrs = f.attrs
+  }
+
+  private const HxMountFile f
+  private const Str:Obj attrs
+
+  override DateTime? modified { get { attrs["modified"] } set { } }
+  override Int? size() { attrs["size"] }
+  override Bool isHidden() { attrs["hidden"] == true }
+  override Bool isReadable() { attrs["readable"] == true }
+  override Bool isWritable() { attrs["writable"] == true }
+  override Bool isExecutable() { attrs["executable"] == true }
+
+  override File[] list(Regex? pattern := null) { f.list(pattern) }
+  override File plus(Uri path, Bool checkSlash := true) { f.plus(path, checkSlash) }
+  override Void delete() { f.delete }
+  override Obj? withIn(|InStream->Obj?| f) { this.f.withIn(f) }
+  override Void withOut(|OutStream| f) { this.f.withOut(f) }
+}
+
+
+**************************************************************************
+** HxMountSyntheticDir
+**************************************************************************
 
 **
 ** Utility class for mounts that have synthetic directory structure

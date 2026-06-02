@@ -41,6 +41,18 @@ const class HxLibMount : HxMount
     toLibFile(uri)?.size
   }
 
+  override Str:Obj? attrs(Uri uri)
+  {
+    acc := super.attrs(uri)
+    f := toLibFile(uri)
+    if (f != null)
+    {
+      acc["modified"] = f.modified
+      acc["size"] = f.size
+    }
+    return acc
+  }
+
   override Bool isEmpty(Uri uri)
   {
     uri.isDir ? list(uri).isEmpty : (size(uri) ?: 0) == 0

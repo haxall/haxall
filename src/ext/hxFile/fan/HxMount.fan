@@ -73,7 +73,7 @@ const abstract class HxMount
 
   virtual DateTime? modified(Uri uri) { null }
 
-  virtual Str:Obj attrs(Uri uri)
+  virtual Str:Obj? attrs(Uri uri)
   {
     ["hidden": false,
      "readable": true,

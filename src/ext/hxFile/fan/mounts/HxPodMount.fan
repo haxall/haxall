@@ -29,7 +29,19 @@ const class HxPodMount : HxWrapMount
     return podUri.toFile
   }
 
- override File[] list(Uri uri)
+  override Str:Obj? attrs(Uri uri)
+  {
+    f := resolve(uri)
+    return [
+      "modified":   f.modified,
+      "size":       f.size,
+      "hidden":     f.isHidden,
+      "readable":   f.isReadable,
+      "writable":   f.isWritable,
+      "executable": f.isExecutable,
+    ]
+  }
+  override File[] list(Uri uri)
   {
     // list all pods
     if (isRoot(uri)) return Pod.list.map { ext.resolve(mountAbs(`$it.name/`)) }
