@@ -56,8 +56,8 @@ abstract const class ExtWeb : WebMod
 
   ** Handle a .well-known/ request. The WebReq.modBase will be '/.well-known/'. You can
   ** use WebReq.modRel to get the well-known path being serviced. The default
-  ** implementation sends a 501 error.
-  @NoDoc virtual Void onWellKnown() { res.sendErr(501) }
+  ** implementation sends a 404 error.
+  @NoDoc virtual Void onWellKnown() { res.sendErr(404) }
 }
 
 **************************************************************************
