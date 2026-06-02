@@ -47,6 +47,17 @@ abstract const class ExtWeb : WebMod
 
   ** Return index redirect URI to use for given user context
   @NoDoc virtual Uri indexRedirect(Context cx) { `/${routeName}` }
+
+  ** Get the list of .well-known/ names that this web service can handle.
+  **
+  **   ["openid-configuration", "acme-challenge"]
+  **
+  @NoDoc virtual Str[] wellKnownRoutes() { Str#.emptyList }
+
+  ** Handle a .well-known/ request. The WebReq.modBase will be '/.well-known/'. You can
+  ** use WebReq.modRel to get the well-known path being serviced. The default
+  ** implementation sends a 501 error.
+  @NoDoc virtual Void onWellKnown() { res.sendErr(501) }
 }
 
 **************************************************************************

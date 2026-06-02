@@ -98,19 +98,10 @@ const class HttpExt : ExtObj, IHttpExt
   ** Top-level hook to service all HTTP requests
   Void onService(WebReq req, WebRes res)
   {
-    // use first level of my path to lookup route
+    // try to dispatch the req based on the first level of the path
     routeName := req.modRel.path.first ?: ""
-
-    // get the webmod for given route
-    mod := sys.exts.webRoutes.get(routeName)
-    if (mod != null)
-    {
-      // dispatch to web mod
-      req.mod = mod
-      req.modBase = req.modBase + `$routeName/`
-      mod.onService
-      return
-    }
+    if (routeExt(routeName, req, res)) return
+    if (routeWellKnown(routeName, req, res)) return
 
     // if route name is empty then authenticate and perform index redirect
     if (routeName.isEmpty)
@@ -124,6 +115,39 @@ const class HttpExt : ExtObj, IHttpExt
 
     // 404 not found
     return res.sendErr(404)
+  }
+
+  ** Dispatch the given route to a webmod. Return true if handled.
+  private Bool routeExt(Str routeName, WebReq req, WebRes res)
+  {
+    // lookup ext that handles this route
+    mod := sys.exts.webRoutes.get(routeName)
+    if (mod == null) return false
+
+    // route it
+    req.mod = mod
+    req.modBase = req.modBase + `${routeName}/`
+    mod.onService
+    return true
+  }
+
+  ** Dispatch a well-known route. Return true if handled.
+  **
+  ** '/.well-known/{registeredName}[/path]'
+  private Bool routeWellKnown(Str routeName, WebReq req, WebRes res)
+  {
+    if (routeName != ".well-known") return false
+
+    // lookup .well-known handler for this route
+    registeredName := req.modRel.path.getSafe(1) ?: ""
+    mod := sys.exts.webRoutes.get("${routeName}/${registeredName}")
+    if (mod == null) return false
+
+    // route it
+    req.mod = mod
+    req.modBase = req.modBase + `${routeName}/`
+    mod.onWellKnown
+    return true
   }
 
   ** Where do we redirect for "/" such as "/ui/homeProj".

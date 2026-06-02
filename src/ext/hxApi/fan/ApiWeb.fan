@@ -24,6 +24,21 @@ const class ApiWeb : ExtWeb, WebOpUtil
 
   override DefNamespace defs() { ext.rt.defs }
 
+  override const Str[] wellKnownRoutes := ["health"]
+
+  override Void onWellKnown()
+  {
+    ** Service simple health check
+    if (req.isGet && req.modRel.pathStr == "health")
+    {
+      res.statusCode = 200
+      res.headers["Content-Type"] = "application/json"
+      res.headers["Cache-Control"] = "no-cache, no-store"
+      return res.out.printLine(Str<|{"status":"ok"}|>).close
+    }
+    return super.onWellKnown
+  }
+
   override Void onService()
   {
     req := this.req

@@ -235,6 +235,15 @@ const class HxExtRegistry
       if (webRoutes[routeName] != null) rt.log.warn("Duplicte ext routes: $routeName")
       webRoutes[routeName] = web
       if (web.indexPriority > webIndex.indexPriority) webIndex = web
+
+      // map .well-known/ routes
+      web.wellKnownRoutes.each |name|
+      {
+        wk := ".well-known/${name}"
+        if (wk.toUri.path.size > 2) rt.log.err("Invalid .well-known/ route: ${name}")
+        if (webRoutes[wk] != null) rt.log.warn("Duplicate .well-known/ route: ${wk}")
+        webRoutes[wk] = web
+      }
     }
 
     // save lookup tables
