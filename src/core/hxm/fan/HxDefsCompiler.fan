@@ -36,7 +36,8 @@ class HxDefCompiler : DefCompiler
     // include base def libs
     "ph,phScience,phIoT,phIct,hx,obs,axon".split(',').each |name|
     {
-      pod  := Pod.find(name)
+      pod := Pod.find(name, false)
+      if (pod == null) return
       meta := podToMeta(pod)
       acc.add(name, HxLibInput(name, pod, meta))
     }
