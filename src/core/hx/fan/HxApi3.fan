@@ -170,9 +170,11 @@ internal class HxExtOp : HxApiOp
   override Void onService(WebReq req, WebRes res, Context cx)
   {
     // TODO: rel paths not working great
-    routeName := req.modRel.path.getSafe(2)
-    modBase := `/api/${cx.rt.name}/ext/${routeName}/`
 
+    // by the time the op is called the modBase is `/api/{proj}/ext/` which means
+    // the route name is the first element of modRel
+    routeName := req.modRel.path.getSafe(0) ?: ""
+    modBase := `/api/${cx.rt.name}/ext/${routeName}/`
     mod := cx.rt.exts.webRoutes.get(routeName)
     if (mod == null) return res.sendErr(404)
 
