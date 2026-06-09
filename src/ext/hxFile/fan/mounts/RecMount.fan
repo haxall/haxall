@@ -15,9 +15,9 @@ using hx
 **
 ** Mount folio rec files into the virtual filesystem as 'rec/{id}'
 **
-const class HxRecMount : HxWrapMount
+const class RecMount : WrapMount
 {
-  new make(HxFileExt ext, Dict config) : super(ext, config)
+  new make(FileExt ext, Dict config) : super(ext, config)
   {
   }
 

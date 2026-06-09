@@ -15,9 +15,9 @@ using hx
 **
 ** Makes pod files and their resources available as: '{podName}/{path}'
 **
-const class HxPodMount : HxWrapMount
+const class PodMount : WrapMount
 {
-  new make(HxFileExt ext, Dict config) : super(ext, config)
+  new make(FileExt ext, Dict config) : super(ext, config)
   {
   }
 
@@ -150,7 +150,7 @@ const class HxPodMount : HxWrapMount
   }
 
   ** Should only be used on paths
-  private Bool canAccess(Uri path, HxFileAccess access := this.fileAccess)
+  private Bool canAccess(Uri path, FileAccess access := this.fileAccess)
   {
     // cannot access /lib/ files
     if (path.toStr.startsWith("/lib/")) return false

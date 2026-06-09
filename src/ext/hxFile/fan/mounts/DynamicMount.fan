@@ -15,7 +15,7 @@ using hx
 **
 ** Dynamic mounts support mounting/unmounting submounts
 **
-const abstract class HxDynamicMount : HxMount
+const abstract class DynamicMount : Mount
 {
   new make(IFileExt ext, Dict config) : super(ext, config)
   {
@@ -28,18 +28,18 @@ const abstract class HxDynamicMount : HxMount
   ** Mount the given submount at the appropriate location in the tree. The path
   ** is the current mount-relative path that still needs to be resolved before it
   ** can be mounted. Returns the given submount.
-  virtual HxMount mount(HxMount submount, Uri path) { throw UnsupportedErr() }
+  virtual Mount mount(Mount submount, Uri path) { throw UnsupportedErr() }
 
   virtual Void unmount(Uri path) { }
 
   ** Get the submount that should handle this uri
-  abstract HxMount? resolveSubmount(Uri uri)
+  abstract Mount? resolveSubmount(Uri uri)
 
   ** Get a new uri that is relative to its submount
   virtual Uri submountRelUri(Uri uri) { uri.relTo(resolveSubmount(uri).mountPoint) }
 
   ** List all direct mounts (non-recursive)
-  abstract HxMount[] mounts()
+  abstract Mount[] mounts()
 
 //////////////////////////////////////////////////////////////////////////
 // Mount

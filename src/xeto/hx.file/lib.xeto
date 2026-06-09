@@ -25,9 +25,9 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
-  libExt: HxFileExt
+  libExt: FileExt
 >
 
 // Haxall file management extension
-HxFileExt: SysExt
+FileExt: SysExt
 

@@ -15,9 +15,9 @@ using hx
 **
 ** Mounts a local filesystem directory
 **
-const class HxLocalMount : HxWrapMount
+const class LocalMount : WrapMount
 {
-  new make(HxFileExt ext, Dict config) : super(ext, config)
+  new make(FileExt ext, Dict config) : super(ext, config)
   {
     this.localRoot = ((Uri)config["localPath"]).toFile
     if (!localRoot.isDir) throw ArgErr("Not a directory: ${localRoot}")

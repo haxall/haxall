@@ -15,9 +15,9 @@ using hx
 **
 ** A mount that delegates all operations to another "backing" file
 **
-const abstract class HxWrapMount : HxMount
+const abstract class WrapMount : Mount
 {
-  new make(HxFileExt ext, Dict config) : super(ext, config)
+  new make(FileExt ext, Dict config) : super(ext, config)
   {
   }
 

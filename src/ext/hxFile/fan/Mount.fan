@@ -14,16 +14,16 @@ using hx
 **
 ** A mount point in the virtual filesystem
 **
-const abstract class HxMount
+const abstract class Mount
 {
-  new make(HxFileExt ext, Dict config)
+  new make(FileExt ext, Dict config)
   {
     this.ext = ext
     this.config = config
   }
 
   ** The file ext
-  const HxFileExt ext
+  const FileExt ext
 
   ** Mount config
   const Dict config
@@ -132,8 +132,8 @@ const abstract class HxMount
     if (thatSubInfo == null) return nonAtomicMoveTo(uri, to)
 
     // 2) get backing files
-    thisSub := thisSubInfo[0] as HxLocalMount
-    thatSub := thatSubInfo[0] as HxLocalMount
+    thisSub := thisSubInfo[0] as LocalMount
+    thatSub := thatSubInfo[0] as LocalMount
     if (thisSub != null && thatSub != null)
     {
       File thisRaw := thisSub.resolve(uri, "rw")
@@ -161,7 +161,7 @@ const abstract class HxMount
 // Security
 //////////////////////////////////////////////////////////////////////////
 
-  HxFileAccess fileAccess() { ext.fileAccess(this) }
+  FileAccess fileAccess() { ext.fileAccess(this) }
 
   protected virtual Bool precheckAllowed(Uri uri, Str mode) { true }
 
@@ -176,11 +176,11 @@ const abstract class HxMount
     IOErr("${msg}: ${mountAbs(uri)} [${mountPoint}]", cause)
   }
 
-  private List? targetMount(Uri uri, HxDynamicMount dyn := ext.root)
+  private List? targetMount(Uri uri, DynamicMount dyn := ext.root)
   {
     m := dyn.resolveSubmount(uri)
     if (m == null) return null
-    if (m isnot HxDynamicMount) return [m, dyn.submountRelUri(uri)]
+    if (m isnot DynamicMount) return [m, dyn.submountRelUri(uri)]
     return targetMount(dyn.submountRelUri(uri), m)
   }
 }

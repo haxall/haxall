@@ -14,14 +14,14 @@ using hx
 **
 ** Manages file access checks for the file ext
 **
-const class HxFileAccess
+const class FileAccess
 {
-  new make(HxMount mount)
+  new make(Mount mount)
   {
     this.mount = mount
   }
 
-  const HxMount mount
+  const Mount mount
   Context cx() { mount.cx }
   User user() { cx.user }
 

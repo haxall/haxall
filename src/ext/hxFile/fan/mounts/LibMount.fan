@@ -19,9 +19,9 @@ using hx
 ** though they may be stored in directories in the lib itself. So we have
 ** to do some work to figure out the actual filesystem layout of the lib.
 **
-const class HxLibMount : HxMount
+const class LibMount : Mount
 {
-  new make(HxFileExt ext, Dict config) : super(ext, config)
+  new make(FileExt ext, Dict config) : super(ext, config)
   {
   }
 

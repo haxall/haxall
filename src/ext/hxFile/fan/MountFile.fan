@@ -14,14 +14,14 @@ using hx
 **
 ** A file in the virtual filesystem.
 **
-const class HxMountFile : SyntheticFile
+const class MountFile : SyntheticFile
 {
   new make(Uri uri) : super(uri)
   {
   }
 
-  virtual HxFileExt fileExt() { Context.cur.sys.file }
-  virtual HxMount root() { fileExt.root }
+  virtual FileExt fileExt() { Context.cur.sys.file }
+  virtual Mount root() { fileExt.root }
 
   override Bool exists() { root.exists(uri) }
 
@@ -95,7 +95,7 @@ const class HxMountFile : SyntheticFile
     if (to.exists) throw IOErr("to already exists: $to")
 
     // to maintain security, we do not move files to non-mount files
-    if (to isnot HxMountFile) throw IOErr("Cannot move to file of type $to.typeof: $to")
+    if (to isnot MountFile) throw IOErr("Cannot move to file of type $to.typeof: $to")
 
     return root.moveTo(uri, to)
   }
@@ -152,16 +152,16 @@ internal const class HxListFile : SyntheticFile
 {
   static File wrap(File f)
   {
-    f is HxMountFile ? HxListFile(f) : f
+    f is MountFile ? HxListFile(f) : f
   }
 
-  private new make(HxMountFile f) : super(f.uri)
+  private new make(MountFile f) : super(f.uri)
   {
     this.f = f
     this.attrs = f.attrs
   }
 
-  private const HxMountFile f
+  private const MountFile f
   private const Str:Obj attrs
 
   override DateTime? modified { get { attrs["modified"] } set { } }
@@ -189,14 +189,14 @@ internal const class HxListFile : SyntheticFile
 **
 @NoDoc const class HxMountSyntheticDir : SyntheticFile
 {
-  new make(Uri uri, HxMount mount) : super(uri)
+  new make(Uri uri, Mount mount) : super(uri)
   {
     this.mount = mount
   }
 
-  private const HxMount mount
+  private const Mount mount
 
-  private HxFileExt fileExt() { mount.ext }
+  private FileExt fileExt() { mount.ext }
 
   override Bool exists() { true }
 

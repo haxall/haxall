@@ -15,29 +15,29 @@ using hx
 **
 ** Exposes a virtual filesystem for Haxall.
 **
-const class HxFileExt : ExtObj, IFileExt
+const class FileExt : ExtObj, IFileExt
 {
   new make()
   {
   }
 
   ** Get the root of the filesystem
-  virtual once HxDynamicMount root() { HxRootMount(this) }
+  virtual once DynamicMount root() { RootMount(this) }
 
   ** Get file access control for the given mount
-  virtual HxFileAccess fileAccess(HxMount mount) { HxFileAccess(mount) }
+  virtual FileAccess fileAccess(Mount mount) { FileAccess(mount) }
 
   ** Resolve the uri in the filesystem.
-  override File resolve(Uri uri) { HxMountFile(uri) }
+  override File resolve(Uri uri) { MountFile(uri) }
 }
 
 **************************************************************************
 ** HxRootMount
 **************************************************************************
 
-internal const class HxRootMount : HxDynamicMount
+internal const class RootMount : DynamicMount
 {
-  new make(HxFileExt ext) : super(ext, Etc.dict1("mountPoint", `/`))
+  new make(FileExt ext) : super(ext, Etc.dict1("mountPoint", `/`))
   {
     this.mounts = [
       ioMount,
@@ -47,42 +47,42 @@ internal const class HxRootMount : HxDynamicMount
     ]
   }
 
-  private HxLocalMount ioMount()
+  private LocalMount ioMount()
   {
-    HxLocalMount(ext, Etc.dict3(
+    LocalMount(ext, Etc.dict3(
       "mountPoint", `/io/`,
       "localPath",   rt.dir.plus(`io/`).uri,
       "frozen",      Marker.val
     ))
   }
 
-  private HxLibMount libMount()
+  private LibMount libMount()
   {
-    HxLibMount(ext, Etc.dict2(
+    LibMount(ext, Etc.dict2(
       "mountPoint", `/lib/`,
       "frozen",     Marker.val
     ))
   }
 
-  private HxPodMount podMount()
+  private PodMount podMount()
   {
-    HxPodMount(ext, Etc.dict2(
+    PodMount(ext, Etc.dict2(
       "mountPoint", `/pod/`,
       "frozen",     Marker.val
     ))
   }
 
-  private HxRecMount recMount()
+  private RecMount recMount()
   {
-    HxRecMount(ext, Etc.dict2(
+    RecMount(ext, Etc.dict2(
       "mountPoint", `/rec/`,
       "frozen",     Marker.val
     ))
   }
 
-  override const HxMount[] mounts
+  override const Mount[] mounts
 
-  override HxMount? resolveSubmount(Uri uri)
+  override Mount? resolveSubmount(Uri uri)
   {
     // force root submountes to be a dir
     if (uri.path.size == 1 && !uri.isDir) uri = uri.plusSlash
