@@ -203,6 +203,7 @@ class XetoBinaryReader : XetoBinaryConst
       case ctrlDuration:      return Duration(readF8.toInt)
       case ctrlUri:           return readUri
       case ctrlRef:           return readRef
+      case ctrlRefNoDis:      return Ref(readStr)
       case ctrlDate:          return readDate
       case ctrlTime:          return readTime
       case ctrlDateTime:      return readDateTime

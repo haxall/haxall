@@ -269,9 +269,18 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeRef(Ref ref)
   {
-    write(ctrlRef)
-    writeStr(ref.id)
-    writeStr(ref.disVal ?: "")
+    dis := ref.disVal
+    if (dis == null || !encodeRefDis)
+    {
+      write(ctrlRefNoDis)
+      writeStr(ref.id)
+    }
+    else
+    {
+      write(ctrlRef)
+      writeStr(ref.id)
+      writeStr(dis)
+    }
   }
 
   private This writeDate(Date val)
@@ -443,7 +452,7 @@ class XetoBinaryWriter : XetoBinaryConst
       return
     }
 
-    // string we havea already encoded in this string
+    // string we havea already encoded in this stream
     index := strs[val]
     if (index != null)
     {
@@ -522,5 +531,6 @@ class XetoBinaryWriter : XetoBinaryConst
   private BrioConsts cp
   private Str:Int strs := Str:Int[:]
   private Bool inLib
+  Bool encodeRefDis := true
 }
 

@@ -175,6 +175,41 @@ class IOTest : AbstractXetoTest
 // This
 //////////////////////////////////////////////////////////////////////////
 
+  Void testRefNoDis()
+  {
+    // ref with dis when encodeRefDis is true (default)
+    ref := Ref("foo", "Foo Dis")
+    buf := Buf()
+    w := XetoBinaryWriter(buf.out)
+    w.writeVal(ref)
+    r := XetoBinaryReader(buf.flip.in)
+    x := r.readVal as Ref
+    verifyEq(x.id, "foo")
+    verifyEq(x.disVal, "Foo Dis")
+
+    // ref with dis when encodeRefDis is false
+    buf.clear
+    w = XetoBinaryWriter(buf.out)
+    w.encodeRefDis = false
+    w.writeVal(ref)
+    r = XetoBinaryReader(buf.flip.in)
+    x = r.readVal as Ref
+    verifyEq(x.id, "foo")
+    verifyEq(x.disVal, null)
+
+    // ref without dis always encodes the same
+    refNoDis := Ref("bar")
+    buf.clear
+    w = XetoBinaryWriter(buf.out)
+    w.writeVal(refNoDis)
+    size1 := buf.size
+    buf.clear
+    w = XetoBinaryWriter(buf.out)
+    w.encodeRefDis = false
+    w.writeVal(refNoDis)
+    verifyEq(buf.size, size1)
+  }
+
   Void testThis()
   {
     ns := createNamespace(["hx.test.xeto"])
