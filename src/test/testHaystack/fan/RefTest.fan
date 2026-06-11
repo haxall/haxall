@@ -164,8 +164,12 @@ class RefTest : HaystackTest
     verifyEq(Ref.isId(ref.id), true)
     verify(ref.id.startsWith("uri:"))
 
-    // tildeEncode fails on unicode > 0xFF
-    verifyErr(ArgErr#) { Ref.tildeEncode(StrBuf(), "中") }
+    // tildeEncode handles unicode
+    verifyTilde("\u00e9", "~e9")                   // e-acute (Latin1)
+    verifyTilde("\u00e9sum\u00e9", "~e9sum~e9")    // accented with ASCII
+    verifyTilde("\u4e2d", "~u4e2d")                // CJK (BMP)
+    verifyTilde("\u65e5\u672c", "~u65e5~u672c")    // multi-char CJK
+    verifyTilde("\u{01f600}", "~ud83d~ude00")      // emoji (surrogate pair)
   }
 
   Void verifyUri(Uri uri)
@@ -175,6 +179,15 @@ class RefTest : HaystackTest
     verifyEq(ref.isUri, true)
     verifyEq(Ref.isId(ref.id), true)
     verifyEq(ref.toUri, uri)
+  }
+
+  Void verifyTilde(Str orig, Str expectedEncoded)
+  {
+    encoded := Ref.tildeEncode(StrBuf(), orig).toStr
+    verifyEq(encoded, expectedEncoded)
+    verifyEq(Ref.isId(encoded), true)
+    decoded := Ref.tildeDecode(encoded)
+    verifyEq(decoded, orig)
   }
 }
 

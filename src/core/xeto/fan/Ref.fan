@@ -240,23 +240,31 @@ final const class Ref
     return Uri.decode(tildeDecode(id, 4))
   }
 
-  ** Encode special chars as ~XX hex values into given buffer
+  ** Encode special chars into given buffer.  Chars 0x00-0xFF use
+  ** two digit ~XX encoding.  Chars above 0xFF use ~uXXXX (4 digit).
+  ** Supplementary plane chars encode as surrogate pairs (~uXXXX~uXXXX).
   @NoDoc static StrBuf tildeEncode(StrBuf buf, Str s)
   {
     s.each |ch|
     {
-      if (ch > 0xFF) throw ArgErr("tildeEncode does not handle unicode: 0x${ch.toHex}")
       if (isIdChar(ch) && ch != '~')
         buf.addChar(ch)
-      else
+      else if (ch <= 0xFF)
         buf.addChar('~')
+           .addChar(ch.shiftr(4).and(0xf).toDigit(16))
+           .addChar(ch.and(0xf).toDigit(16))
+      else
+        buf.addChar('~').addChar('u')
+           .addChar(ch.shiftr(12).and(0xf).toDigit(16))
+           .addChar(ch.shiftr(8).and(0xf).toDigit(16))
            .addChar(ch.shiftr(4).and(0xf).toDigit(16))
            .addChar(ch.and(0xf).toDigit(16))
     }
     return buf
   }
 
-  ** Decode ~XX hex values starting at given offset
+  ** Decode tilde-encoded values starting at given offset.
+  ** Supports ~XX (2 digit) and ~uXXXX (4 digit).
   @NoDoc static Str tildeDecode(Str s, Int off := 0)
   {
     buf := StrBuf(s.size - off)
@@ -264,10 +272,26 @@ final const class Ref
     while (i < s.size)
     {
       ch := s[i]
-      if (ch == '~' && i + 2 < s.size)
+      if (ch == '~' && i + 1 < s.size)
       {
-        buf.addChar(s[i+1].fromDigit(16).shiftl(4).or(s[i+2].fromDigit(16)))
-        i += 3
+        if (s[i+1] == 'u' && i + 5 < s.size)
+        {
+          buf.addChar(s[i+2].fromDigit(16).shiftl(12)
+            .or(s[i+3].fromDigit(16).shiftl(8))
+            .or(s[i+4].fromDigit(16).shiftl(4))
+            .or(s[i+5].fromDigit(16)))
+          i += 6
+        }
+        else if (i + 2 < s.size)
+        {
+          buf.addChar(s[i+1].fromDigit(16).shiftl(4).or(s[i+2].fromDigit(16)))
+          i += 3
+        }
+        else
+        {
+          buf.addChar(ch)
+          i++
+        }
       }
       else
       {
