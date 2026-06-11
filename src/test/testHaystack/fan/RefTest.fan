@@ -163,6 +163,9 @@ class RefTest : HaystackTest
     ref := Ref.makeUri(`http://example.com/foo?bar=baz`)
     verifyEq(Ref.isId(ref.id), true)
     verify(ref.id.startsWith("uri:"))
+
+    // tildeEncode fails on unicode > 0xFF
+    verifyErr(ArgErr#) { Ref.tildeEncode(StrBuf(), "中") }
   }
 
   Void verifyUri(Uri uri)

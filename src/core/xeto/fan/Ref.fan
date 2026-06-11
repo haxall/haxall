@@ -67,15 +67,7 @@ final const class Ref
     encoded := uri.encode
     buf := StrBuf(encoded.size + 8)
     buf.add("uri:")
-    encoded.each |ch|
-    {
-      if (ch == '~')
-        buf.addChar('~').add(ch.toHex(2))
-      else if (isIdChar(ch))
-        buf.addChar(ch)
-      else
-        buf.addChar('~').add(ch.toHex(2))
-    }
+    tildeEncode(buf, encoded)
     return makeImpl(buf.toStr, dis)
   }
 
@@ -230,6 +222,9 @@ final const class Ref
   ** Is this a spec ref with double colons
   Bool isSpec() { id.contains("::") }
 
+  ** Is this a ref that encodes a SNI via Sni.id
+  @NoDoc Bool isSni() { id.startsWith("sni:") }
+
   ** Is this a ref that encodes a URI via `makeUri`
   Bool isUri() { id.startsWith("uri:") }
 
@@ -242,14 +237,36 @@ final const class Ref
       if (checked) throw UnsupportedErr("Not uri ref: $this")
       return null
     }
-    buf := StrBuf(id.size)
-    i := 4
-    while (i < id.size)
+    return Uri.decode(tildeDecode(id, 4))
+  }
+
+  ** Encode special chars as ~XX hex values into given buffer
+  @NoDoc static StrBuf tildeEncode(StrBuf buf, Str s)
+  {
+    s.each |ch|
     {
-      ch := id[i]
-      if (ch == '~' && i + 2 < id.size)
+      if (ch > 0xFF) throw ArgErr("tildeEncode does not handle unicode: 0x${ch.toHex}")
+      if (isIdChar(ch) && ch != '~')
+        buf.addChar(ch)
+      else
+        buf.addChar('~')
+           .addChar(ch.shiftr(4).and(0xf).toDigit(16))
+           .addChar(ch.and(0xf).toDigit(16))
+    }
+    return buf
+  }
+
+  ** Decode ~XX hex values starting at given offset
+  @NoDoc static Str tildeDecode(Str s, Int off := 0)
+  {
+    buf := StrBuf(s.size - off)
+    i := off
+    while (i < s.size)
+    {
+      ch := s[i]
+      if (ch == '~' && i + 2 < s.size)
       {
-        buf.addChar(Int.fromStr(id[i+1..i+2], 16))
+        buf.addChar(s[i+1].fromDigit(16).shiftl(4).or(s[i+2].fromDigit(16)))
         i += 3
       }
       else
@@ -258,7 +275,7 @@ final const class Ref
         i++
       }
     }
-    return Uri.decode(buf.toStr)
+    return buf.toStr
   }
 
   ** Return if the string is a valid Ref identifier or error message if not
