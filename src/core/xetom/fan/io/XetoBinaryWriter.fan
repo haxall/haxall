@@ -452,7 +452,7 @@ class XetoBinaryWriter : XetoBinaryConst
       return
     }
 
-    // string we havea already encoded in this stream
+    // string we have already encoded in this stream
     index := strs[val]
     if (index != null)
     {
@@ -462,11 +462,15 @@ class XetoBinaryWriter : XetoBinaryConst
     }
 
     // new string from stream
-    //BrioConstTrace.trace(val)
+    // BrioConstTrace.trace(val)
     strs[val] = strs.size
     write(ctrlStrNew)
-    size := val.size
-    writeVarInt(size)
+    writeRawStr(val)
+  }
+
+  Void writeRawStr(Str val)
+  {
+    writeVarInt(val.size)
     val.each |char| { out.writeChar(char) }
   }
 
