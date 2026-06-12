@@ -230,6 +230,18 @@ const class MNamespace : Namespace, CNamespace
     return acc.vals.toImmutable
   }
 
+  override Spec[] mixinsOwn(Spec type)
+  {
+    if (!type.isType) throw ArgErr("Not type spec: $type")
+    acc := Spec[,]
+    libs.each |lib|
+    {
+      m := lib.mixinFor(type, false)
+      if (m != null) acc.add(m)
+    }
+    return acc.toImmutable
+  }
+
   override once SpecMap metas()
   {
     specx(sys.spec).slots

@@ -85,6 +85,10 @@ const mixin Namespace
   ** This operation can be expensive.
   abstract Spec[] mixinsFor(Spec type)
 
+  ** Get only the mixins registered directly for the given type
+  ** without walking the inheritance hierarchy.
+  abstract Spec[] mixinsOwn(Spec type)
+
   ** Get the effective spec metadata slots.
   ** This is semantically equivalent to 'specx(Spec).slots'.
   abstract SpecMap metas()

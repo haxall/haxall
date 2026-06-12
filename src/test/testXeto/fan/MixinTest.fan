@@ -50,6 +50,11 @@ class MixinTest : AbstractXetoTest
     verifyEq(ns.mixinsFor(testSite), Spec[sitem])
     verifyEq(ns.mixinsFor(testSite).isImmutable, true)
 
+    verifyEq(ns.mixinsOwn(str), Spec[,])
+    verifyEq(ns.mixinsOwn(site), Spec[sitem])
+    verifyEq(ns.mixinsOwn(testSite), Spec[,])
+    verifyEq(ns.mixinsOwn(testSite).isImmutable, true)
+
     verifyEq(lib.mixins.list, Spec[csm, funcs, phasem, sitem, specm])
     verifySame(lib.mixinFor(site), sitem)
     verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
