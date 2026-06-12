@@ -24,20 +24,22 @@ const class ServerSession : UserSession
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(SessionExt ext, User user, Dict meta)
+  new make(SessionExt ext, User user, Str key, Str attestKey, Dict meta)
   {
-    this.extRef = ext
-    this.created = DateTime.now
-    this.id = meta.id
-    this.key = meta["key"] ?: throw ArgErr("Session 'key' not specified")
-    this.attestKey = meta["attestKey"] ?: throw ArgErr("Session 'attestKey' not specified")
-    this.meta = normalize(meta)
-    userRef.val = user
+    this.extRef    = ext
+    userRef.val    = user
+    this.id        = Ref.gen
+    this.key       = key
+    this.attestKey = attestKey
+    this.meta      = normalize(meta)
+    this.created   = DateTime.now
     touch(null)
   }
 
   private Dict normalize(Dict meta)
   {
+    if (meta.has("key")) throw ArgErr("Session 'key' must not be in meta")
+    if (meta.has("attestKey")) throw ArgErr("Session 'attestKey' must not be in meta")
     return meta
   }
 
@@ -51,13 +53,13 @@ const class ServerSession : UserSession
   override User user() { userRef.val }
   private const AtomicRef userRef := AtomicRef()
 
+  override const Dict meta
+
   override const Ref id
 
   override const Str key
 
   override const Str attestKey
-
-  override const Dict meta
 
   override const DateTime created
 
@@ -83,15 +85,7 @@ const class ServerSession : UserSession
 
   override Bool isExpired(Duration now)
   {
-    basis := this.touched
-    if (meta.has("fixedLease")) basis = created.ticks
+    basis := this.isFixedLease ? created.ticks : this.touched
     return now.ticks - basis > this.lease.ticks
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Util
-//////////////////////////////////////////////////////////////////////////
-
-  Bool isCluster() { meta.has("cluster") }
-  Bool isWeb() { meta.has("web") }
 }

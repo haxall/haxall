@@ -41,7 +41,7 @@ const class SessionFuncs
   {
     gb := GridBuilder()
     gb.addCol("username").addCol("count")
-    ext.userCountEach |u, c| { gb.addRow2(u, Number(c)) }
+    ext.sessionMap.userCountEach |u, c| { gb.addRow2(u, Number(c)) }
     return gb.toGrid
   }
 

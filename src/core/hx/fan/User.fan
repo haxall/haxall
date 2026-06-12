@@ -73,11 +73,8 @@ const mixin User
 @Js
 const mixin UserSession
 {
-  ** Session metadata
-  abstract Dict meta()
-
   ** A unique session identifier that does not expose the session key.
-  abstract Ref id()
+  @NoDoc abstract Ref id()
 
   ** Unique session key
   abstract Str key()
@@ -91,19 +88,22 @@ const mixin UserSession
   ** Authenticated username associated with the session
   Str username() { user.username }
 
+  ** Session metadata
+  @NoDoc abstract Dict meta()
+
   ** The client's remote address. The default implementation uses the 'remoteAddr'
   ** tag of the meta, or returns 'unknown' if not specified.
-  virtual Str remoteAddr() { meta["remoteAddr"] ?: "unknown" }
+  @NoDoc virtual Str remoteAddr() { meta["remoteAddr"] ?: "unknown" }
 
   ** User agent of the client. The default implementation use the 'userAgent' tag
   ** of the meta, or returns 'unknown' if not specified.
-  virtual Str userAgent() { meta["userAgent"] ?: "unknown" }
+  @NoDoc virtual Str userAgent() { meta["userAgent"] ?: "unknown" }
 
   ** Session creation time
-  abstract DateTime created()
+  @NoDoc abstract DateTime created()
 
   ** Get the system ticks when the session was last touched
-  abstract Int touched()
+  @NoDoc abstract Int touched()
 
   ** Touch this session to update its usage. If the user is non-null
   ** the user is updated for the session. It is an error to change
@@ -111,10 +111,19 @@ const mixin UserSession
   @NoDoc abstract Void touch(User? user)
 
   ** How long before this session times out due to inactivity.
-  abstract Duration lease()
+  @NoDoc abstract Duration lease()
 
   ** Is the session expired
-  abstract Bool isExpired(Duration now)
+  @NoDoc abstract Bool isExpired(Duration now)
+
+  ** Is this a cluster session
+  @NoDoc virtual Bool isCluster() { meta.has("cluster") }
+
+  ** Is this a web session
+  @NoDoc virtual Bool isWeb() { meta.has("web") }
+
+  ** Is this a fixed lease session
+  @NoDoc virtual Bool isFixedLease() { meta.has("fixedLease") }
 }
 
 **************************************************************************

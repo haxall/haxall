@@ -28,17 +28,8 @@ const class SessionExt : ExtObj, ISessionExt
   {
   }
 
-  ** Lock to make session management atomic
-  private const Lock sessionLock := Lock.makeReentrant
-
-  ** Sessions mapped by Ref id
-  private const ConcurrentMap byId := ConcurrentMap()
-
-  ** Sessions mapped by session key
-  private const ConcurrentMap byKey := ConcurrentMap()
-
-  ** The number of sessions (Int) open for a user (keyed by username)
-  private const ConcurrentMap userCounts := ConcurrentMap()
+  ** Map of all open sessions
+  internal const SessionMap sessionMap := SessionMap()
 
 //////////////////////////////////////////////////////////////////////////
 // Ext
@@ -73,10 +64,17 @@ const class SessionExt : ExtObj, ISessionExt
 // ISessionExt
 //////////////////////////////////////////////////////////////////////////
 
-  override ServerSession open(User user, Dict? meta := null)
+  final override ServerSession open(User user, Dict? meta := null)
   {
     req   := Actor.locals["web.req"] as WebReq
     acc   := Etc.dictToMap(meta)
+
+    // only internal implementation may set keys, so remove them if they
+    // were passed in. do not treat this as an error right now
+    acc.remove("key")
+    acc.remove("attestKey")
+
+    // web meta
     if (req != null)
     {
       injectWebMeta(req, acc)
@@ -84,16 +82,20 @@ const class SessionExt : ExtObj, ISessionExt
     }
 
     // auto-generate key and attest key if they are missing
-    if (acc["id"] as Ref == null) acc["id"] = Ref.gen
-    if (acc["key"] == null) acc["key"] = genKey("web-")
-    if (acc["attestKey"] == null) acc["attestKey"] = genKey("a-")
+    key := acc.remove("key") ?: genKey("web-")
+    attestKey := acc.remove("attestKey") ?: genKey("a-")
 
-    // hook to create a session based on the current meta
-    session := createSession(user, acc)
+    // create and register the session
+    session := register(createSession(user, key, attestKey, acc))
 
-    // open and register the session
-    return doOpen(session)
+    // sub-class hook
+    onOpen(session)
+
+    return session
   }
+
+  ** Callback after a session is opened and registered.
+  protected virtual Void onOpen(ServerSession session) { }
 
   private Void injectWebMeta(WebReq req, Str:Obj? meta)
   {
@@ -112,75 +114,55 @@ const class SessionExt : ExtObj, ISessionExt
   }
 
   ** Callback to create a user session instance.
-  protected virtual ServerSession createSession(User user, Str:Obj? meta)
+  protected virtual ServerSession createSession(User user, Str key, Str attestKey, Str:Obj? meta)
   {
-    ServerSession(this, user, Etc.makeDict(meta))
+    ServerSession(this, user, key, attestKey, Etc.makeDict(meta))
   }
 
   ** Chokepoint for registering a newly opened session.
-  protected ServerSession doOpen(ServerSession session)
+  private ServerSession register(ServerSession session)
   {
     username := session.username
 
-    return sessionLock.withLock |->Obj?| {
-      // check session limits
-      if (!session.user.isSu)
-      {
-        // user limit
-        if (userCount(username) >= settings.maxSessionsPerUser)
-          throw MaxSessionsErr("Max sessions exceeded for user: ${username}")
+    // check session limits
+    if (!session.user.isSu)
+    {
+      // user limit
+      if (sessionMap.userCount(username) >= settings.maxSessionsPerUser)
+        throw MaxSessionsErr("Max sessions exceeded for user: ${username}")
 
-        // system limit
-        if (byKey.size >= settings.maxSessions)
-          throw MaxSessionsErr("Max total sessions exceeded")
-      }
-
-      // register the session
-      try
-      {
-        userCounts.set(username, userCount(username)+1)
-        byId.add(session.id, session)
-        byKey.add(session.key, session)
-      }
-      catch (Err err)
-      {
-        close(session)
-        throw err
-      }
-      return session
+      // system limit
+      if (this.size >= settings.maxSessions)
+        throw MaxSessionsErr("Max total sessions exceeded")
     }
+
+    // register the session
+    sessionMap.add(session)
+
+    return session
   }
 
-  override ServerSession? get(Str key, Bool checked := true)
+  override ServerSession? get(Str key, Bool checked := true) { sessionMap.get(key, checked) }
+
+  ** Get a session by its id.
+  ServerSession? getById(Ref id, Bool checked := true) { sessionMap.getById(id, checked) }
+
+  ** Get the number of sessions opened for thie given username
+  Int userCount(Str username) { sessionMap.userCount(username) }
+
+  override ServerSession[] list() { sessionMap.list }
+
+  override Int size() { sessionMap.size }
+
+  final override Void close(UserSession session)
   {
-    s := byKey.get(key)
-    if (s != null) return s
-    if (checked) throw UnknownNameErr(key)
-    return null
+    sessionMap.remove(session)
+    onClose(session)
   }
 
-  ServerSession? getById(Ref id, Bool checked := true)
-  {
-    s := byId.get(id)
-    if (s != null) return s
-    if (checked) throw UnknownNameErr("$id")
-    return null
-  }
-
-  override ServerSession[] list() { byKey.vals(ServerSession#) }
-
-  override Int size() { byKey.size }
-
-  override Void close(UserSession session)
-  {
-    username := session.username
-    sessionLock.withLock |->Obj?| {
-      byId.remove(session.id)
-      byKey.remove(session.key)
-      userCounts.set(username, userCount(username)-1)
-      return null
-    }
-  }
+  ** Callback when a session is closed. The session will already be unmapped
+  ** when this is called
+  protected virtual Void onClose(UserSession session) { }
 
 //////////////////////////////////////////////////////////////////////////
 // Func Support
@@ -223,14 +205,7 @@ const class SessionExt : ExtObj, ISessionExt
 // Util
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get the number of sessions opened with this username
-  Int userCount(Str username) { userCounts.get(username) ?: 0 }
 
-  ** Iterate user count map
-  Void userCountEach(|Str username, Int count| f)
-  {
-    userCounts.each |Int i, Str u| { f(u, i) }
-  }
 
   static Str toRemoteAddr(WebReq req)
   {
