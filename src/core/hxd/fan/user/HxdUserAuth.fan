@@ -59,16 +59,16 @@ internal class HxdUserAuth
   }
 
   ** Called when request maps to an authenticated session
-  private UserSession authenticated(HxdUserSession session)
+  private UserSession authenticated(UserSession session)
   {
-    // refresh session and construct context
-    user := session.isCluster ? session.user : ext.read(session.user.id)
+    // refresh session
+    user := session.meta.has("cluster") ? session.user : ext.read(session.user.id)
     session.touch(user)
     return session
   }
 
   ** Check if cookies provide an valid session token
-  private HxdUserSession? checkCookie()
+  private UserSession? checkCookie()
   {
     // check if session cookie was passed in request
     key := req.cookies[ext.cookieName]
@@ -105,7 +105,7 @@ internal class HxdUserAuth
 
   ** Check if Authorization header provides an valid session token.
   ** Or if defined then peform standard Haystack auth pipeline.
-  private HxdUserSession? checkAuthorization()
+  private UserSession? checkAuthorization()
   {
     // if the Authorization header specified use standard auth pipeline
     if (req.headers.containsKey("Authorization"))
@@ -119,7 +119,7 @@ internal class HxdUserAuth
     return null
   }
 
-  private HxdUserSession? checkCluster()
+  private UserSession? checkCluster()
   {
     // if this is a cluster tunneled request then the stash defines
     // the node, username, session key, and attest key
@@ -154,7 +154,7 @@ internal class HxdUserAuth
       user := cluster.stashedUser(node, username)
 
       // create cluster session
-      session = ext.sessions.openCluster(req, sessionKey, attestKey, user)
+      session = ext.sessions.open(user)
       return session
     }
   }

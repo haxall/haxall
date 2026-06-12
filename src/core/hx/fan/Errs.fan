@@ -6,6 +6,8 @@
 //   22 Jul 2021  Brian Frank  Creation
 //
 
+using web
+
 ** Unknown project
 @NoDoc const class UnknownProjErr : Err
 {
@@ -72,3 +74,12 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+** Thrown when there are too many user sessions open
+@NoDoc const class MaxSessionsErr : Err
+{
+  new make(Str msg) : super(msg, null) {}
+
+  const Int resCode := 503
+
+  Void sendErr(WebRes res) { res.sendErr(resCode, msg) }
+}

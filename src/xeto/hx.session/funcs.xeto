@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   10 Jun 2026  Matthew Giannini  Creation
+//
+
++Funcs {
+
+  sessionCountByUser: Func <nodoc, su> { returns: Grid }
+
+  sessionDetails: Func <nodoc, su> { returns: Grid }
+
+  sessionLogout: Func <nodoc, su, defMeta:{disKey:"ui::logout", select}> { sessionRefs: Obj?, returns: Obj? }
+
+  sessions: Func <nodoc, su> { returns: Grid }
+
+}

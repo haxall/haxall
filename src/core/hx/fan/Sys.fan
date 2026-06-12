@@ -59,5 +59,8 @@ const mixin Sys : Runtime
 
   ** User management system extension (required)
   @NoDoc virtual IUserExt user()  { exts.getByType(IUserExt#) }
+
+  ** User session management (required)
+  @NoDoc virtual ISessionExt session() { exts.getByType(ISessionExt#) }
 }
 

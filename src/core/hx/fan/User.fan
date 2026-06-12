@@ -73,7 +73,13 @@ const mixin User
 @Js
 const mixin UserSession
 {
-  ** Unique identifier for session
+  ** Session metadata
+  abstract Dict meta()
+
+  ** A unique session identifier that does not expose the session key.
+  abstract Ref id()
+
+  ** Unique session key
   abstract Str key()
 
   ** Attestation session key used as secondary verification of cookie key
@@ -84,6 +90,31 @@ const mixin UserSession
 
   ** Authenticated username associated with the session
   Str username() { user.username }
+
+  ** The client's remote address. The default implementation uses the 'remoteAddr'
+  ** tag of the meta, or returns 'unknown' if not specified.
+  virtual Str remoteAddr() { meta["remoteAddr"] ?: "unknown" }
+
+  ** User agent of the client. The default implementation use the 'userAgent' tag
+  ** of the meta, or returns 'unknown' if not specified.
+  virtual Str userAgent() { meta["userAgent"] ?: "unknown" }
+
+  ** Session creation time
+  abstract DateTime created()
+
+  ** Get the system ticks when the session was last touched
+  abstract Int touched()
+
+  ** Touch this session to update its usage. If the user is non-null
+  ** the user is updated for the session. It is an error to change
+  ** users for a session.
+  @NoDoc abstract Void touch(User? user)
+
+  ** How long before this session times out due to inactivity.
+  abstract Duration lease()
+
+  ** Is the session expired
+  abstract Bool isExpired(Duration now)
 }
 
 **************************************************************************

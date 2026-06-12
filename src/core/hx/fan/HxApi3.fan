@@ -103,7 +103,7 @@ internal class HxCloseOp : HxApiOp
 {
   override Grid onRequest(Grid req, Context cx)
   {
-    cx.sys.user.closeSession(cx.session)
+    cx.sys.session.close(cx.session)
     return Etc.emptyGrid
   }
 }

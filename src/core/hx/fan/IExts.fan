@@ -79,19 +79,46 @@ const mixin IUserExt : SysExt
   ** is not authenticated then redirect to login page and return null.
   abstract UserSession? authenticate(WebReq req, WebRes res, Dict? opts := null)
 
-  ** Close the given authentication session
-  @NoDoc abstract Void closeSession(UserSession session)
-
   ** Create a user instance.  The tags arg may be a dict or a map.
   ** The user is given admin role if 'userRole' is not specified.
   @NoDoc abstract User makeUser(Str username, Obj? tags := null)
 
-  ** Configured max sessions
-  @NoDoc abstract Int maxSessions()
-
   ** Dummy operator user to use for RuntimeObservables.newContext
   @NoDoc abstract User obsContextUser()
 
+}
+
+**************************************************************************
+** ISessionExt
+**************************************************************************
+
+**
+** User session management extension
+**
+@NoDoc const mixin ISessionExt : SysExt
+{
+  ** Open a new session for the given user. Meta may be any additional
+  ** information you want to store on the session. The session manager may also
+  ** add additional tags to the meta when creating the session.
+  **
+  ** The following meta must be supported by all implementations:
+  **   - 'fixedLease' (Marker): indicates that once the session is created it
+  **   has a fixed lease lifetime (see `UserSession.lease`). Touching the session
+  **   will not extend the lifetime of the session.
+  **
+  abstract UserSession open(User user, Dict? meta := null)
+
+  ** List all server sessions.
+  abstract UserSession[] list()
+
+  ** Get the number of open sessions
+  abstract Int size()
+
+  ** Get a server session but its key. Throws an error if checked; otherwise returns null.
+  abstract UserSession? get(Str key, Bool checked := true)
+
+  ** Close the given session.
+  abstract Void close(UserSession session)
 }
 
 **************************************************************************

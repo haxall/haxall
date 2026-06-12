@@ -122,6 +122,7 @@ const class HxdUserWeb : ExtWeb
     session := ext.authenticate(req, res)
     if (session == null) return
     ext.sessions.close(session)
+    ext.log.info("Logout: ${session.username}")
     res.redirect(ext.loginUri)
   }
 

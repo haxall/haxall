@@ -25,7 +25,7 @@ const class HxdUserExt : ExtObj, IUserExt
   override const HxdUserWeb web := HxdUserWeb(this)
 
   ** Session management
-  const HxdUserSessions sessions := HxdUserSessions(this)
+  ISessionExt sessions() { sys.session }
 
   ** Settings record
   override HxdUserSettings settings() { super.settings }
@@ -72,12 +72,6 @@ const class HxdUserExt : ExtObj, IUserExt
     HxdUserAuth(this, req, res).authenticate
   }
 
-  ** Close the given authentication session
-  override Void closeSession(UserSession session)
-  {
-    sessions.close(session)
-  }
-
   ** Create synthetic user.  The tags arg may be a dict or a map.
   override HxUser makeUser(Str username, Obj? extra := null)
   {
@@ -89,9 +83,6 @@ const class HxdUserExt : ExtObj, IUserExt
     return HxUser(Etc.makeDict(tags))
   }
 
-  ** Configured max sessions
-  override Int maxSessions() { settings.maxSessions }
-
   ** Obs include context user
   override const User obsContextUser := HxUser(Etc.dict4("id",Ref("obs"), "username","obs", "userRole","op", "mod",DateTime.defVal))
 
@@ -100,14 +91,15 @@ const class HxdUserExt : ExtObj, IUserExt
 //////////////////////////////////////////////////////////////////////////
 
   ** Open a new session for given user account
-  internal HxdUserSession login(WebReq req, WebRes res, HxUser user)
+  internal UserSession login(WebReq req, WebRes res, HxUser user)
   {
-    session := sessions.open(req, user)
+    log.info("Login: $user.username")
+    session := sessions.open(user)
     addSessionCookie(req, res, session)
     return session
   }
 
-  private Void addSessionCookie(WebReq req, WebRes res, HxdUserSession session)
+  private Void addSessionCookie(WebReq req, WebRes res, UserSession session)
   {
     overrides := Field:Obj?[:]
 
@@ -136,16 +128,5 @@ const class HxdUserExt : ExtObj, IUserExt
     http := sys.exts.getByType(IHttpExt#, false) as IHttpExt
     cookieNameRef.val = "hx-session-" + (http?.siteUri?.port ?: 80)
   }
-
-  ** Run house keeping couple times a minute
-  override Duration? houseKeepingFreq() { 17sec }
-
-  ** Cleanup expired sessions
-  override Void onHouseKeeping()
-  {
-    lease := (settings["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
-    sessions.onHouseKeeping(lease)
-  }
-
 }
 
