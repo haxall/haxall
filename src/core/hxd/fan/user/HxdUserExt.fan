@@ -130,6 +130,45 @@ const class HxdUserExt : ExtObj, IUserExt
     // set cookie name so its unique per http port
     http := sys.exts.getByType(IHttpExt#, false) as IHttpExt
     cookieNameRef.val = "hx-session-" + (http?.siteUri?.port ?: 80)
+
+    // observer
+    config := Etc.makeDict([
+      "obsUpdates": Marker.val,
+      "obsRemoves": Marker.val,
+      "obsFilter": "user",
+    ])
+    observe("obsCommits", config, #onCommit)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Observations
+//////////////////////////////////////////////////////////////////////////
+
+  private Void onCommit(Dict msg)
+  {
+    subType := msg["subType"]
+    if (subType == "updated")
+    {
+      newRec := msg["newRec"] as Dict
+      user   := HxUser(newRec)
+      if (user.isDisabled) closeAllSessionsForUser(user.id)
+    }
+    else if (subType == "removed")
+    {
+      oldRec := msg["oldRec"] as Dict
+      user   := HxUser(oldRec)
+      closeAllSessionsForUser(user.id)
+    }
+  }
+
+  private Void closeAllSessionsForUser(Ref id)
+  {
+    userSessions(id).each |session| { sessions.close(session) }
+  }
+
+  private UserSession[] userSessions(Ref id)
+  {
+    sessions.list.findAll |session| { session.user.id == id }
   }
 }
 
