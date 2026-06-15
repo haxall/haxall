@@ -13,6 +13,7 @@ using web
 using xeto
 using haystack
 using axon
+using folio
 
 **
 ** Base class for system level only extensions
@@ -85,6 +86,9 @@ const mixin IUserExt : SysExt
 
   ** Dummy operator user to use for RuntimeObservables.newContext
   @NoDoc abstract User obsContextUser()
+
+  ** Get the Folio database where user recs are stored
+  @NoDoc abstract Folio db()
 
 }
 
