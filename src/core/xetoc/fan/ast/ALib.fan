@@ -20,12 +20,13 @@ internal const class ALib : Lib, ADoc
    ** Constructor
   new make(MXetoCompiler c, FileLoc loc, Str name)
   {
-    this.loc      = loc
-    this.astRef   = Unsafe(ALibState(c))
-    this.id       = Ref("lib:$name")
-    this.name     = name
-    this.isSys    = name == "sys"
-    this.asm      = XetoLib()
+    this.loc         = loc
+    this.astRef      = Unsafe(ALibState(c))
+    this.id          = Ref("lib:$name")
+    this.name        = name
+    this.isSys       = name == "sys"
+    this.isCompanion = name == XetoUtil.companionLibName
+    this.asm         = XetoLib()
   }
 
   ** File location
@@ -45,6 +46,9 @@ internal const class ALib : Lib, ADoc
 
   ** Is this the core sys library
   override const Bool isSys
+
+  ** Is this the proj comanion library
+  override const Bool isCompanion
 
   ** XetoLib instance - we backpatch the "m" field in Assemble step
   const override XetoLib asm

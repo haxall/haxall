@@ -22,6 +22,7 @@ const final class MLib
     this.name         = name
     this.id           = Ref(StrBuf(4+name.size).add("lib:").add(name).toStr, null)
     this.isSys        = name == "sys"
+    this.isCompanion  = name == XetoUtil.companionLibName
     this.meta         = meta
     this.flags        = flags
     this.version      = version
@@ -40,6 +41,8 @@ const final class MLib
   const Str name
 
   const Bool isSys
+
+  const Bool isCompanion
 
   const Dict meta
 
@@ -223,6 +226,8 @@ const final class XetoLib : Lib, Dict
   override SpecMap funcs() { m.funcs }
 
   override Bool isSys() { m.isSys }
+
+  override Bool isCompanion() { m.isCompanion }
 
   override Bool hasMarkdown() { m.hasFlag(MLibFlags.hasMarkdown )}
 

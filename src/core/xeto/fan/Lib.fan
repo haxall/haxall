@@ -69,6 +69,9 @@ const mixin Lib : Dict
   ** Is this the 'sys' library
   @NoDoc abstract Bool isSys()
 
+  ** Is this the 'proj' companion library
+  @NoDoc abstract Bool isCompanion()
+
   ** Does this library contain markdown resource files
   @NoDoc abstract Bool hasMarkdown()
 
