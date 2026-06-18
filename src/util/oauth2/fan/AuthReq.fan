@@ -153,13 +153,6 @@ internal const class LoopbackMod : WebMod
     // complete the response future with an error
     authRes.completeErr(AuthReqErr(q))
 
-    errorUri := (q["error_uri"] as Str)?.toUri
-    if (errorUri != null)
-    {
-      res.redirect(errorUri)
-      return true
-    }
-
     res.headers["Content-Type"] = "text/html; charset=utf-8"
 
     desc := q["error_description"] ?: "No futher details available"
