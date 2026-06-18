@@ -11,6 +11,7 @@ using auth
 using haystack
 using hx
 using hxm
+using folio
 
 **
 ** User library authentication pipeline.
@@ -19,19 +20,18 @@ internal class HxdUserAuth
 {
   new make(HxdUserExt ext, WebReq req, WebRes res)
   {
-    this.rt  = ext.rt
     this.ext = ext
     this.req = req
     this.res = res
   }
-
-  const Runtime rt
 
   const HxdUserExt ext
 
   WebReq req { private set }
 
   WebRes res { private set }
+
+  private Folio db() { ext.db }
 
   ** Authenticate the request and return a new context.  If request
   ** is not authenticated then redirect to login and return null.
@@ -113,7 +113,7 @@ internal class HxdUserAuth
 
     // auto login superuser for testing
     if (ext.noAuth && req.remoteAddr.isLoopback)
-      return ext.login(req, res, HxUser(rt.db.read(Filter("user and userRole==\"su\""))))
+      return ext.login(req, res, HxUser(db.read(Filter("user and userRole==\"su\""))))
 
     // redirect to login
     return null
@@ -167,9 +167,7 @@ internal class HxdUserAuth
 
 internal class HxdUserAuthServerContext : AuthServerContext
 {
-  new make(HxdUserExt ext) { this.rt = ext.rt; this.ext = ext }
-
-  const Runtime rt
+  new make(HxdUserExt ext) { this.ext = ext }
 
   const HxdUserExt ext
 
@@ -193,7 +191,7 @@ internal class HxdUserAuthServerContext : AuthServerContext
   {
     hxUser := ext.read(user.username, false)
     if (hxUser == null) return null
-    return rt.db.passwords.get(hxUser.id.id)
+    return ext.db.passwords.get(hxUser.id.id)
   }
 
   override Str login()
