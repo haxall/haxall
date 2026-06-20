@@ -113,6 +113,15 @@ const class DocLib : DocPage
   ** Readme markdown if available
   const DocMarkdown readme := DocMarkdown.empty
 
+  ** Iterate each child page summary in the lib
+  Void eachChildSummary(|DocSummary summary, DocTag type| f)
+  {
+    chapters.each  |x| { f(x, DocTags.chapter) }
+    types.each     |x| { f(x, DocTags.type) }
+    mixins.each    |x| { f(x, DocTags.mixIn) }
+    funcs.each     |x| { f(x, DocTags.func) }
+    instances.each |x| { f(x, DocTags.instance) }
+  }
 }
 
 **************************************************************************
