@@ -19,7 +19,7 @@ Password: Scalar
 +Entity {
   // Last modified time of record -
   // see [details](hx.doc.haxall::Folio#concurrency-control).
-  mod: DateTime
+  mod: DateTime?
 }
 
 // AI skill defines a capability bundle to give an LLM agent competence in a

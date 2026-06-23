@@ -159,6 +159,34 @@ class MixinTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Fits
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFits()
+  {
+    ns   := createNamespace(["ph", "hx.test.xeto"])
+    site := ns.spec("ph::Site")
+
+    // mixin-contributed required slot must be enforced
+    ok := Etc.dict4("id", ref("x"), "site", m, "dis", "Site",  "newSlot", "x")
+    verifyEq(ns.fits(ok, site), true)
+    verifyFitsExplain(ns, ok, site, Str[,])
+
+    missing := Etc.dict3("id", ref("x"), "site", m, "dis", "Site")
+    verifyEq(ns.fits(missing, site), false)
+    verifyFitsExplain(ns, missing, site, [
+      "Slot 'newSlot': Missing required slot"
+      ])
+
+    // subtype inherits the mixin contribution
+    testSite := ns.spec("hx.test.xeto::TestSite")
+    verifyEq(ns.fits(missing, testSite), false)
+    verifyFitsExplain(ns, missing, testSite, [
+      "Slot 'newSlot': Missing required slot"
+      ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Enum
 //////////////////////////////////////////////////////////////////////////
 

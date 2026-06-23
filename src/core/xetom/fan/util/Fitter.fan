@@ -47,7 +47,7 @@ internal class Fitter
     if (b.isDict)
     {
       if (!a.isDict) return false
-      return specFitsStruct(a, b)
+      return specFitsStruct(specx(a), specx(b))
     }
 
     // no joy
@@ -76,11 +76,11 @@ internal class Fitter
     if (valType == null)
       return explainNoType(val)
 
-    // check dict using structural typing
+    // check dict using structural typing (use specx so mixin slots/meta are enforced)
     if (val is Dict && spec.isa(ns.sys.dict))
     {
       this.curId = ((Dict)val).get("id") as Ref
-      return fitsStruct(val, spec)
+      return fitsStruct(val, specx(spec))
     }
 
     // check list using structural typing
@@ -145,19 +145,17 @@ internal class Fitter
     if (type.isChoice && slots.isEmpty) return false
 
     matchFail := false  // did we have any failed matches
-    matchSucc := 0      // num of success matches
-    matchId   := false
+    matchSucc := 0      // num of distinctive success matches
     slots.each |slot|
     {
       match := fitsSlot(dict, slot)
       if (match == null) return // null means we just skipped optional slot
-      if (match) { matchSucc++; if (slot.name == "id") matchId = true }
+      // Entity-baseline slots (id, spec, mod) come from sys::Entity or its
+      // mixins and don't distinguish one Entity subtype from another
+      if (match) { if (!isEntityBaselineSlot(slot)) matchSucc++ }
       else matchFail = true
       if (failFast && matchFail) return
     }
-
-    // we don't consider only Entity.id a valid match
-    if (matchSucc == 1 && matchId) matchSucc = 0
 
     // check values that don't have slot defs
     dict.each |v, n|
@@ -186,6 +184,26 @@ internal class Fitter
 
     // must have at least one success unless type is sys::Dict itself
     return matchSucc > 0 || type === ns.sys.dict
+  }
+
+  ** Identity/metadata tags every rec has (id, dis, mod) — matching these
+  ** doesn't distinguish one structural type from another
+  private Bool isEntityBaselineSlot(Spec slot)
+  {
+    name := slot.name
+    return name == "id" || name == "dis" || name == "mod"
+  }
+
+  ** Cached lookup of the extended spec.  Same Fitter instance reuses the
+  ** same XSpec wrapper across recursive valFits calls — significant for
+  ** deep dicts and for fitsStruct iterating slots whose types share a parent.
+  private Spec specx(Spec spec)
+  {
+    cached := specxCache[spec]
+    if (cached != null) return cached
+    result := ns.specx(spec)
+    specxCache[spec] = result
+    return result
   }
 
   private Bool? fitsSlot(Dict dict, Spec slot)
@@ -457,6 +475,7 @@ internal class Fitter
   private const CheckVal checkVal
   private XetoContext cx
   private Str[] slotStack := [,]
+  private Spec:Spec specxCache := [:]
 }
 
 **************************************************************************

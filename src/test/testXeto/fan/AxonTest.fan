@@ -438,13 +438,15 @@ class AxonTest : AbstractAxonTest
 
     verifyFitsExplain(Str<|fitsExplain({}, Dict)|>, [,])
 
-    verifyFitsExplain(Str<|fitsExplain({id:@x, site}, Site)|>, [,])
+    verifyFitsExplain(Str<|fitsExplain({id:@x, site, newSlot:"x"}, Site)|>, [,])
     verifyFitsExplain(Str<|fitsExplain({}, Site)|>, [
       "Slot 'id': Missing required slot",
-      "Slot 'site': Missing required marker"
+      "Slot 'site': Missing required marker",
+      "Slot 'newSlot': Missing required slot"
       ])
     verifyFitsExplain(Str<|fitsExplain({id:@x}, Site)|>, [
-      "Slot 'site': Missing required marker"
+      "Slot 'site': Missing required marker",
+      "Slot 'newSlot': Missing required slot"
       ])
 
     verifyFitsExplain(Str<|fitsExplain({id:@x, ahu, equip, siteRef:@s}, Ahu, {ignoreRefs})|>, [,])
@@ -503,7 +505,7 @@ class AxonTest : AbstractAxonTest
 
     grid := (Grid)eval("readAll(equip).sortDis.fitsMatchAll")
     verifyFitsMatchAll(grid, ahu,   ["ph::Ahu"])
-    verifyFitsMatchAll(grid, elec,  ["ph::Ahu", "ph::Elec", "ph::ElecMeter"])
+    verifyFitsMatchAll(grid, elec,  ["ph::Ahu", "ph::Elec", "ph::ElecEquip", "ph::ElecMeter"])
     verifyFitsMatchAll(grid, meter, ["ph::Ahu", "ph::Meter"])
     verifyFitsMatchAll(grid, rtu,   ["ph::Rtu"])
   }
