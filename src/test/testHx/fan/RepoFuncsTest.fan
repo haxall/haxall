@@ -162,7 +162,7 @@ class RepoFuncsTest : RemoteReposTest
 
     // fetches lib bytes and writes to file handle
     rt.dir.plus(`io/`).create
-    fetchUri := `io/fetch-test.xetolib`
+    fetchUri := `/io/fetch-test.xetolib`
     Dict fd := RepoFuncs.libFetch("test", "alpha", "2.3.0", fetchUri)
     verifyEq(fd["lib"], "alpha")
     verifyEq(fd["version"], "2.3.0")
