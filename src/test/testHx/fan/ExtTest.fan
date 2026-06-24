@@ -323,7 +323,7 @@ class ExtTest : HxTest
   private Void verifyLibFiles()
   {
     f := verifyFileResolve(`lib/hx.test.xeto/res/a.txt`, true)
-    verifyEq(f.readAllStr, "alpha\n")
+    verifyEq(f.withIn |in->Obj?| { in.readAllStr }, "alpha\n")
   }
 
   private Void verifyIoFiles()
@@ -333,11 +333,11 @@ class ExtTest : HxTest
     // "io/"
     f := verifyFileResolve(`io/`, true)
     verifyEq(f.isDir, true)
-    verifyEq(f.list, File[,])
+    verify(f.list.isEmpty)
     if (sys.info.type.isSkySpark)
       verifyEq(f.parent.uri, `/proj/${proj.name}/`)
     else
-      verifyEq(f.parent, null)
+      verifyEq(f.parent.uri, `/`)
 
     // "io/a.txt"
     f = verifyFileResolve(`io/a.txt`, false)
@@ -393,9 +393,10 @@ class ExtTest : HxTest
 
   Uri normUri(Uri uri)
   {
-    if (uri.toStr.startsWith("io/"))
+    // if (uri.toStr.startsWith("io/"))
+    if (uri.isRel)
     {
-      return sys.info.type.isSkySpark ? "/proj/${proj.name}/${uri}".toUri : uri
+      return sys.info.type.isSkySpark ? "/proj/${proj.name}/${uri}".toUri : "/${uri}".toUri
     }
     return uri
   }
