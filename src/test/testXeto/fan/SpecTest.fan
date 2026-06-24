@@ -376,6 +376,81 @@ class SpecTest : AbstractXetoTest
    }
 
 //////////////////////////////////////////////////////////////////////////
+// Merge Inherited Global Slots
+//////////////////////////////////////////////////////////////////////////
+
+  Void testMergeGlobalSlotsCrossLib()
+  {
+    // ElecEquipA/B come from already-compiled hx.test.xeto, so their elec
+    // slots are assembled specs (not AST) -> exercises the cross-lib path
+    // where both supers and the global live in dependency libs
+    ns := createNamespace(["ph", "hx.test.xeto"])
+    lib := ns.compileTempLib(
+      Str<|pragma: Lib < version: "0.0.0", depends: { {lib:"sys"}, {lib:"ph"}, {lib:"hx.test.xeto"} } >
+           X: ElecEquipA & ElecEquipB
+           |>)
+
+    // ElecEquipA/B inherit the global elec unchanged, so the And merges
+    global := ns.spec("ph::PhEntity.elec")
+    elec := lib.type("X").slot("elec")
+    verifyEq(elec.name, "elec")
+    verifySame(elec.base, global)
+    verifyEq(elec.type.qname, "sys::Marker")
+
+    // negative cross-lib: ElecEquipMaybeA makes elec optional ('?'), so its
+    // assembled slot has own meta {maybe} and the And merge still conflicts.
+    // This proves the assembled-spec meta check is load-bearing (the slot's
+    // base is still the global, so base equality alone is not enough)
+    maybeSlot := ns.spec("hx.test.xeto::ElecEquipMaybeA").slot("elec")
+    verifySame(maybeSlot.base, global)        // base is still the global
+    verifyEq(maybeSlot.metaOwn.isEmpty, false) // but it added own meta (maybe)
+    Err? err
+    try
+      ns.compileTempLib(
+        Str<|pragma: Lib < version: "0.0.0", depends: { {lib:"sys"}, {lib:"ph"}, {lib:"hx.test.xeto"} } >
+             Y: ElecEquipMaybeA & ElecEquipB
+             |>)
+    catch (Err e) err = e
+    verifyNotNull(err, "expected conflict")
+    verify(err.msg.contains("Conflicing inherited slots"), err.msg)
+  }
+
+  Void testMergeGlobalSlots()
+  {
+    ns := createNamespace(["sys", "ph"])
+
+    // two types add the same unchanged global; an And merge of them
+    // can cleanly inherit the global without a conflict error
+    // (conflict cases covered in compileErrs.yaml)
+    lib := ns.compileTempLib(
+      Str<|A: Equip { elec }
+           B: Equip { elec }
+           SubB: B
+           AB: A & SubB
+           |>)
+
+    a  := lib.type("A")
+    b  := lib.type("B")
+    ab := lib.type("AB")
+    global := ns.spec("ph::PhEntity.elec")
+    verifyEq(global.isGlobal, true)
+
+    // A.elec and B.elec are slots on their types whose base is the global
+    verifySame(a.slot("elec").parent, a)
+    verifySame(a.slot("elec").base, global)
+    verifySame(b.slot("elec").parent, b)
+    verifySame(b.slot("elec").base, global)
+
+    // the And merge cleanly inherits the slot from the first super (A); its
+    // base is still the global ph::PhEntity.elec
+    elec := ab.slot("elec")
+    verifyEq(elec.name, "elec")
+    verifySame(elec, a.slot("elec"))
+    verifySame(elec.base, global)
+    verifyEq(elec.type.qname, "sys::Marker")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Subtypes
 //////////////////////////////////////////////////////////////////////////
 

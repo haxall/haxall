@@ -32,3 +32,16 @@ EquipB : EquipA {
   }
 }
 
+// inheriting global thru multple inheritance paths:
+
+ElecEquipA : Equip { elec }
+
+ElecEquipB : Equip { elec }
+
+ElecEquipSubB : ElecEquipB
+
+ElecEquipAB : ElecEquipA & ElecEquipSubB
+
+// makes the global elec optional, so its slot has own meta (maybe)
+ElecEquipMaybeA : Equip { elec: Marker? }
+

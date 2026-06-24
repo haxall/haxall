@@ -37,6 +37,27 @@ compileLib: |
 verifyErrs: |
   Conflicing inherited slots: temp::Foo.x, temp::Bar.x
 ---
+name: "conflictSlotsGlobalMeta"
+compileLib: |
+  g: Number
+  A: {g: Number <minVal:0>}
+  B: {g}
+  SubB: B
+  AB: A & SubB
+verifyErrs: |
+  Conflicing inherited slots: temp::A.g, temp::B.g
+---
+name: "conflictSlotsGlobalCovariant"
+compileLib: |
+  g: Number
+  MyNumber: Number
+  A: {g: MyNumber}
+  B: {g}
+  SubB: B
+  AB: A & SubB
+verifyErrs: |
+  Conflicing inherited slots: temp::A.g, temp::B.g
+---
 name: "enumInherit"
 compileLib: |
   Foo: Enum <sealed> {

@@ -408,6 +408,16 @@ const class XetoUtil
     return x.meta.trap(name, args)
   }
 
+  ** Is the given spec a slot that covariantly narrows its base's type.
+  ** Works for both AST specs and assembled specs.
+  static Bool isCovariantOverride(Spec x)
+  {
+    if (!x.isMember) return false
+    base := x.base
+    if (base == null || base.isEnum) return false
+    return base.type !== x.type
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dirs
 //////////////////////////////////////////////////////////////////////////

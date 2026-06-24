@@ -422,11 +422,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   const Unsafe astRef
 
   ** Is this a slot that has a covariant override type
-  Bool isCovariantOverride()
-  {
-    if (!isMember || base.isEnum) return false
-    return base.type != type
-  }
+  Bool isCovariantOverride() { XetoUtil.isCovariantOverride(this) }
 }
 
 **************************************************************************

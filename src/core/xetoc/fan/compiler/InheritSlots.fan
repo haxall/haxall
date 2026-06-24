@@ -425,9 +425,35 @@ internal class InheritSlots : Step
     if (isDerivedFrom(a, b)) return b
     if (isDerivedFrom(b, a)) return a
 
+    // if both slots are unchanged references to the same global, then
+    // we can cleanly inherit without conflict; keep the first slot since
+    // both are structurally identical refs to the same global (its own
+    // base still chains to that global)
+    if (a.base === b.base && isUnchangedGlobalRef(a) && isUnchangedGlobalRef(b))
+      return a
+
     // no resolution
     err("Conflicing inherited slots: $a.qname, $b.qname", spec.loc)
     return a
+  }
+
+  ** Is the given slot just an unchanged reference to a global; that is its
+  ** base is a global and it has not added new meta nor a covariant type
+  ** override.  Slot may be an AST spec from this lib or an assembled spec
+  ** inherited from a dependency.
+  private Bool isUnchangedGlobalRef(Spec slot)
+  {
+    base := slot.base
+    if (base == null || !base.isGlobal) return false
+
+    // covariant type override
+    if (XetoUtil.isCovariantOverride(slot)) return false
+
+    // no own meta; AST specs haven't reified metaOwn yet at this step
+    // so check the raw declared meta, otherwise use assembled metaOwn
+    ast := slot as ASpec
+    if (ast != null) return ast.ast.meta == null || ast.ast.meta.size == 0
+    return slot.metaOwn.isEmpty
   }
 
   ** Is b derived from a through its base inheritance chain
