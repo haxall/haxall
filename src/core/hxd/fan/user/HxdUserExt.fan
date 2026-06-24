@@ -73,6 +73,10 @@ const class HxdUserExt : ExtObj, IUserExt
     session := HxdUserAuth(this, req, res).authenticate
     if (session == null) return null
 
+    // verify the user has access to the runtime
+    user := session.user
+    if (!user.access.canSeeProj(rt.meta)) return null
+
     // create a context and install it into current actor
     cx :=  rt.newContextSession(session)
     Actor.locals[ActorContext.actorLocalsKey] = cx
