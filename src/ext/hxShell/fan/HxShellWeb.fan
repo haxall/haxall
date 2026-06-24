@@ -31,12 +31,10 @@ const class HxShellWeb : ExtWeb
 
   override Void onService()
   {
-    session := ext.sys.user.authenticate(req, res)
-    if (session == null) return
+    cx := ext.sys.user.authenticate(req, res, ext.rt)
+    if (cx == null) return
 
-    if (!session.user.isSu) return res.sendErr(403)
-
-    cx := ext.rt.newContextSession(session)
+    if (!cx.user.isSu) return res.sendErr(403)
 
     route := req.modRel.path.getSafe(0)
     switch (route)

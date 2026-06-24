@@ -106,9 +106,8 @@ const class HttpExt : ExtObj, IHttpExt
     // if route name is empty then authenticate and perform index redirect
     if (routeName.isEmpty)
     {
-      session := sys.user.authenticate(req, res)
-      if (session == null) return
-      cx := sys.newContextSession(session)
+      cx := sys.user.authenticate(req, res, sys)
+      if (cx == null) return
       uri := indexRedirectUri(cx)
       return res.redirect(uri)
     }

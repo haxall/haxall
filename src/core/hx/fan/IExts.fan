@@ -76,9 +76,10 @@ const mixin IUserExt : SysExt
   ** then raise exception or return null based on the checked flag.
   abstract User? read(Obj username, Bool checked := true)
 
-  ** Authenticate a web request and return a session.  If request
-  ** is not authenticated then redirect to login page and return null.
-  abstract UserSession? authenticate(WebReq req, WebRes res, Dict? opts := null)
+  ** Authenticate a web request and return an authenticated Context for the given rt.
+  ** The context will be installed to current actor if authentication is successful.
+  ** If the request is not authenticated then redirect to login page and return null.
+  abstract Context? authenticate(WebReq req, WebRes res, Runtime rt, Dict? opts := null)
 
   ** Create a user instance.  The tags arg may be a dict or a map.
   ** The user is given admin role if 'userRole' is not specified.

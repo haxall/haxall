@@ -67,9 +67,17 @@ const class HxdUserExt : ExtObj, IUserExt
 
   ** Authenticate a web request and return a context.  If request
   ** is not authenticated then redirect to login page and return null.
-  override UserSession? authenticate(WebReq req, WebRes res, Dict? opts := null)
+  override Context? authenticate(WebReq req, WebRes res, Runtime rt, Dict? opts := null)
   {
-    HxdUserAuth(this, req, res).authenticate
+    // authenticate to get a session
+    session := HxdUserAuth(this, req, res).authenticate
+    if (session == null) return null
+
+    // create a context and install it into current actor
+    cx :=  rt.newContextSession(session)
+    Actor.locals[ActorContext.actorLocalsKey] = cx
+
+    return cx
   }
 
   ** Create synthetic user.  The tags arg may be a dict or a map.

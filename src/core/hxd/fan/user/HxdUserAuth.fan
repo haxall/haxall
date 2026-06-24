@@ -6,6 +6,7 @@
 //   28 May 2021  Brian Frank  Creation
 //
 
+using concurrent
 using web
 using auth
 using haystack
@@ -62,7 +63,7 @@ internal class HxdUserAuth
   private UserSession authenticated(UserSession session)
   {
     // refresh session
-    user := session.meta.has("cluster") ? session.user : ext.read(session.user.id)
+    user := session.isCluster ? session.user : ext.read(session.user.id)
     session.touch(user)
     return session
   }

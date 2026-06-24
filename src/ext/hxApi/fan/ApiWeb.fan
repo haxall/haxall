@@ -74,11 +74,9 @@ const class ApiWeb : ExtWeb, WebOpUtil
       }
 
       // authenticate user
-      session := sys.user.authenticate(req, res)
-      if (session == null) return
-      cx := rt.newContextSession(session)
+      cx := sys.user.authenticate(req, res, rt)
+      if (cx == null) return
       cx.timeout = rt.meta.evalTimeout
-      Actor.locals[Context.actorLocalsKey] = cx
 
       // anything else must be /api/{projName}/{opName}/...
       if (path.size < 2) return res.sendErr(404)

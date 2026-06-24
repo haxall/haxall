@@ -119,7 +119,7 @@ const class HxdUserWeb : ExtWeb
 
   private Void onLogout()
   {
-    session := ext.authenticate(req, res)
+    session := ext.authenticate(req, res, ext.rt)?.session
     if (session == null) return
     ext.sessions.close(session)
     ext.log.info("Logout: ${session.username}")
