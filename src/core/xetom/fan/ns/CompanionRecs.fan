@@ -28,6 +28,7 @@ const class CompanionRecs
   {
     list := CompanionRec[,]
     byId := Ref:CompanionRec[:]
+    byName := Str:CompanionRec[:]
     recs.each |dict|
     {
       name := dict["name"] as Str
@@ -35,10 +36,12 @@ const class CompanionRecs
       rec := CompanionRec(dict, name)
       list.add(rec)
       byId[rec.id] = rec
+      byName[rec.name] = rec
     }
-    this.list    = list
-    this.byIdMap = byId
-    this.thunks  = thunks
+    this.list      = list
+    this.byIdMap   = byId
+    this.byNameMap = byName
+    this.thunks    = thunks
   }
 
   ** Companion recs
@@ -53,6 +56,15 @@ const class CompanionRecs
     r := byIdMap[id]
     if (r != null) return r
     if (checked) throw UnknownRecErr(id.toStr)
+    return null
+  }
+
+  ** Lookup rec by name
+  CompanionRec? recByName(Str name, Bool checked := true)
+  {
+    r := byNameMap[name]
+    if (r != null) return r
+    if (checked) throw UnknownRecErr(name)
     return null
   }
 
@@ -72,6 +84,7 @@ const class CompanionRecs
   Void reset() { list.each |r| { r.reset } }
 
   private const Ref:CompanionRec byIdMap
+  private const Str:CompanionRec byNameMap
 }
 
 **************************************************************************
@@ -109,6 +122,9 @@ const class CompanionRec
   ** the rec<->loc mapping (the id, which is unique even across recs that share
   ** a name).
   const FileLoc loc
+
+  ** Mod tag
+  DateTime mod() { rec->mod }
 
   ** Is this rec a function (rt == "func")
   Bool isFunc() { rec["rt"] == "func" }

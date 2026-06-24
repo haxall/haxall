@@ -452,13 +452,8 @@ const class HxLibs : RuntimeLibs
     acc := Str:Thunk[:]
     if (oldNs == null) return acc
 
-    // build up map of old recs by name
+    // old recs by name
     oldCompanionRecs := oldNs.companionRecs
-    oldRecsByName := Str:Dict[:]
-    oldCompanionRecs.each |oldRec|
-    {
-      oldRecsByName[oldRec.name] = oldRec.rec
-    }
 
     // now walk thru new records and try to reuse thunk
     oldLib := oldNs.lib(XetoUtil.companionLibName, false)
@@ -468,7 +463,7 @@ const class HxLibs : RuntimeLibs
       if (name == null) return
 
       // if old rec is not match, then do not reuse
-      oldRec := oldRecsByName[name]
+      oldRec := oldCompanionRecs.recByName(name, false)?.rec
       if (newRec !== oldRec) return
 
       // try to reuse from previous proj lib, but if it failed to
