@@ -28,7 +28,15 @@ const class FileExt : ExtObj, IFileExt
   virtual FileAccess fileAccess(Mount mount) { FileAccess(mount) }
 
   ** Resolve the uri in the filesystem.
-  override File resolve(Uri uri) { MountFile(uri) }
+  override File resolve(Uri uri)
+  {
+    if (uri.isPathRel)
+    {
+      // there is only the root (sys) project to resolve against
+      uri = `/`.plus(uri)
+    }
+    return MountFile(uri)
+  }
 }
 
 **************************************************************************
