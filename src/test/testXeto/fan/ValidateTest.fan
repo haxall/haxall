@@ -450,12 +450,12 @@ class ValidateTest : AbstractXetoTest
     verifyEq(re.matches("LAV9X"), false)
 
     re = Regex(ns.spec("ph.protocols::ModbusAddr.addr").meta["pattern"])
-    verifyEq(re.matches("40000"),  true)
-    verifyEq(re.matches("41234"),  true)
-    verifyEq(re.matches("41abcd"), false)
-    verifyEq(re.matches("4123"),   false)
-    verifyEq(re.matches("412345"), false)
-    verifyEq(re.matches("51234"),  false)
+    verifyEq(re.matches("400000"),  true)
+    verifyEq(re.matches("401234"),  true)
+    verifyEq(re.matches("41abcd"),  false)
+    verifyEq(re.matches("4123"),    false)
+    verifyEq(re.matches("1234567"), false)
+    verifyEq(re.matches("51234"),   false)
   }
 
 //////////////////////////////////////////////////////////////////////////
