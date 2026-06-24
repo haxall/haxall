@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 
 **
@@ -229,6 +230,50 @@ class MixinTest : AbstractXetoTest
     verifyEq(item.meta["foo"], null)
     verifyEq(itemx.meta["foo"], foo)
     verifyDictEq(itemx.meta, Etc.dictSet(item.meta, "foo", foo))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Multi-File Mixin
+//////////////////////////////////////////////////////////////////////////
+
+  ** Verify hx.test.xeto defines +Funcs across funcs.xeto and funcs2.xeto
+  Void testMultiFile()
+  {
+    ns    := createNamespace(["hx.test.xeto"])
+    funcs := ns.lib("hx.test.xeto").spec("Funcs")
+
+    // func declared in funcs.xeto
+    verifyNotNull(funcs.slot("ping1", false))
+
+    // func declared in the second file funcs2.xeto merged in
+    fromSecond := funcs.slot("funcFrom2ndMixin", false)
+    verifyNotNull(fromSecond)
+    verifyEq(fromSecond.isFunc, true)
+  }
+
+  ** Only one declaration of a multi-file mixin may carry meta.
+  Void testMultiFileMeta()
+  {
+    ns := createNamespace(["sys"])
+
+    // meta on a single +Funcs block (with a second slots-only block) is fine
+    lib := ns.compileTempLib(
+      Str<|+Funcs <doc:"the funcs mixin"> { a: Func {} }
+           +Funcs { b: Func {} }
+           |>)
+    funcs := lib.spec("Funcs")
+    verifyEq(funcs.isMixin, true)
+    verifyNotNull(funcs.slot("a", false))
+    verifyNotNull(funcs.slot("b", false))
+
+    // meta on two +Funcs blocks is an error
+    verifyErrMsg(XetoCompilerErr#, "Multi-file mixin 'Funcs' meta already declared")
+    {
+      ns.compileTempLib(
+        Str<|+Funcs <doc:"first"> { a: Func {} }
+             +Funcs <doc:"second"> { b: Func {} }
+             |>)
+    }
   }
 }
 

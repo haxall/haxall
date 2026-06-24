@@ -139,11 +139,37 @@ internal class Parser
     return true
   }
 
-  ** Parse top level mixin and add it to lib
+  ** Parse top level mixin and add it to lib.  A mixin may be defined across
+  ** multiple files: a second '+Type' with the same name merges its slots into
+  ** the existing mixin spec rather than being a duplicate (multi-file mixin).
   private Bool parseLibMixin(Str? doc)
   {
     consume(Token.plus)
     base := parseTypeRef ?: throw err("Expecting mixin type name")
+
+    // if a mixin of this name already exists, merge into it.  At most one
+    // declaration of a multi-file mixin may carry meta (the primary); the
+    // others are slots-only.  This is order-independent: whichever block
+    // declares meta first claims it, and a second meta block is the error.
+    existing := lib.tops[base.name.name]
+    if (existing != null && existing.isMixin)
+    {
+      if (cur === Token.lt && existing.metaBrackets)
+      {
+        // second meta block: report once, and parse the meta into a throwaway
+        // spec so we don't also raise duplicate-tag errors against the primary
+        compiler.err2("Multi-file mixin '$existing.name' meta already declared", existing.loc, curToLoc)
+        parseSpecMeta(ASpec(curToLoc, lib, null, existing.name))
+      }
+      else
+      {
+        parseSpecMeta(existing)
+      }
+      if (cur === Token.lbrace) parseSpecSlots(existing)
+      return true
+    }
+
+    // first (or only) declaration for this mixin name
     spec := ASpec(curToLoc, lib, null, base.name.name)
     spec.metaAddMixin
     spec.typeRef = base
