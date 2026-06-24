@@ -169,7 +169,7 @@ const class HxLibs : RuntimeLibs
           numErr := recs.numErrs
           numOk  := recs.list.size - numErr
           if (numErr > 0) status = "warn"
-          err = numErr > 0 ? "$numOk recs ok, $numErr err" : "$numOk recs ok"
+          err = numErr > 0 ? "$numOk ok, $numErr err" : "$numOk ok"
         }
       }
 
