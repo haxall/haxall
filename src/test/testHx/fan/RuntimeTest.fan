@@ -57,7 +57,7 @@ class RuntimeTest : HxTest
     }
     initExpectFromBoot()
     expectExts := ["hx.api", "hx.crypto", "hx.file",
-      "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj"]
+      "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj", "hx.session"]
 
     // verify initial state
     verifyEq(p.name, boot.name)
@@ -782,8 +782,11 @@ class RuntimeTest : HxTest
     webRoutes := Str:ExtWeb[:]
     list.each |x|
     {
-      r := x.web.routeName
-      if (!r.isEmpty) webRoutes[r] = x.web
+      web := x.web
+      if (web.isUnsupported) return
+      r := web.routeName
+      if (!r.isEmpty) webRoutes[r] = web
+      web.wellKnownRoutes.each |name| { webRoutes[".well-known/${name}"] = web }
     }
     verifyEq(p.exts.webRoutes, webRoutes)
     verifyEq(p.exts.webRoutes.isImmutable, true)
