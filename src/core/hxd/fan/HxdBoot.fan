@@ -60,6 +60,7 @@ class HxdBoot : HxSysBoot
       "hx",
       "hx.api",
       "hx.crypto",
+      "hx.session",
       "hx.http",
       "hx.repo",
       "hx.xeto",
