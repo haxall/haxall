@@ -129,6 +129,9 @@ const class CompanionRec
   ** Is this rec a function (rt == "func")
   Bool isFunc() { rec["rt"] == "func" }
 
+  ** Rec kind: the "rt" tag, one of "spec", "func", or "instance"
+  Str kind() { rec->rt }
+
   ** Current status (mutable; starts ok)
   CompanionRecStatus status() { statusRef.val }
 

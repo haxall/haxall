@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 using haystack
 using axon
 using folio
@@ -634,6 +635,46 @@ const class HxFuncs
   static Str companionPrint(Dict rec)
   {
     curContext.proj.companion.print(rec)
+  }
+
+  ** Return grid of the companion lib records and their per-rec compile status
+  **   - id: rec id
+  **   - name: spec/func/instance name
+  **   - rt: "spec", "func", or "instance"
+  **   - libStatus: "ok" or "err"
+  **   - err: compiler error messages if the rec is in error
+  @Api @Axon { admin=true }
+  static Grid companionStatus(Dict? opts := null)
+  {
+    if (opts == null) opts = Etc.dict0
+    ns   := curContext.proj.ns as MNamespace
+    recs := ns?.companionRecs
+
+    // filter by show: ok-only, err-only, or all
+    show := (opts["show"] as Str)?.lower ?: ""
+    list := recs?.list?.dup ?: CompanionRec[,]
+    if (show.contains("ok"))  list = list.findAll |r| { r.status.isOk }
+    if (show.contains("err")) list = list.findAll |r| { r.status.isErr }
+
+    gb := GridBuilder()
+    gb.addCol("id").addCol("name").addCol("rt").addCol("libStatus").addCol("err")
+    list.sort |a, b| { a.name <=> b.name }.each |rec|
+    {
+      status := rec.status
+      gb.addRow([
+        rec.id,
+        rec.name,
+        rec.kind,
+        status.isErr ? "err" : "ok",
+        status.isErr ? status.errs.join("\n") { it.msg } : null,
+      ])
+    }
+    grid := gb.toGrid
+
+    search := opts["search"] as Str
+    if (search != null) grid = grid.filter(Filter.search(search))
+
+    return grid
   }
 
 //////////////////////////////////////////////////////////////////////////

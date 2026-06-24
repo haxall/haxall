@@ -538,6 +538,38 @@ class RuntimeTest : HxTest
     // doc survives the print->parse round-trip (printer emits // on every line)
     verifyEq(proj.companion.lib.funcs.get("goodFunc").meta["doc"], funcDoc)
 
+    // companionStatus grid reports per-rec status
+    statusGrid := (Grid)eval("companionStatus()")
+    goodRow := statusGrid.find |r| { r->name == "goodFunc" }
+    badRow  := statusGrid.find |r| { r->name == "badFunc" }
+    verifyEq(goodRow->rt, "func")
+    verifyEq(goodRow->libStatus, "ok")
+    verifyEq(goodRow["err"], null)
+    verifyEq(badRow->libStatus, "err")
+    verifyNotNull(badRow["err"])
+
+    // companionStatus show option: ok-only and err-only
+    okGrid := (Grid)eval("companionStatus({show:\"ok\"})")
+    verify(okGrid.all |r| { r->libStatus == "ok" })
+    verifyNotNull(okGrid.find |r| { r->name == "goodFunc" })
+    verifyEq(okGrid.find |r| { r->name == "badFunc" }, null)
+    errGrid := (Grid)eval("companionStatus({show:\"err\"})")
+    verify(errGrid.all |r| { r->libStatus == "err" })
+    verifyNotNull(errGrid.find |r| { r->name == "badFunc" })
+    verifyEq(errGrid.find |r| { r->name == "goodFunc" }, null)
+
+    // companionStatus search option filters the grid
+    searchGrid := (Grid)eval("companionStatus({search:\"goodFunc\"})")
+    verifyEq(searchGrid.size, 1)
+    verifyEq(searchGrid.first->name, "goodFunc")
+
+    // lib status table shows "warn" for proj when recs are in error, with
+    // an ok/err count summary in the err column
+    libsGrid := (Grid)eval("libs()")
+    projRow  := libsGrid.find |r| { r->name == "proj" }
+    verifyEq(projRow->libStatus, "warn")
+    verify((projRow->err as Str).contains("err"))
+
     // recovery: fix Bad's base -> Bad, Sub, SubSub all recover
     proj.companion.update(d(["id":bad.id, "rt":"spec", "name":"Bad", "base":dictRef, "spec":specRef]))
     verifyRecOk("Bad")

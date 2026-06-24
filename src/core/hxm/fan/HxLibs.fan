@@ -156,14 +156,31 @@ const class HxLibs : RuntimeLibs
     {
       n := x.name
       depends := x.ver.depends.join("\n")
+      status := ns.libStatus(n, false)?.name ?: "disabled"
+      err    := ns.libErr(n, false)?.toStr
+
+      // companion lib reports per-rec status: warn if any rec in error, and
+      // always summarize the ok/err rec counts in the err column
+      if (n == XetoUtil.companionLibName)
+      {
+        recs := ns.companionRecs
+        if (recs != null)
+        {
+          numErr := recs.numErrs
+          numOk  := recs.list.size - numErr
+          if (numErr > 0) status = "warn"
+          err = numErr > 0 ? "$numOk recs ok, $numErr err" : "$numOk recs ok"
+        }
+      }
+
       gb.addRow([
         n,
         x.basis.name,
-        ns.libStatus(n, false)?.name ?: "disabled",
+        status,
         Marker.fromBool(x.isSysOnly),
         x.ver.isNotFound ? null : x.ver.version.toStr,
         x.ver.doc,
-        ns.libErr(n, false)?.toStr,
+        err,
         depends,
       ])
     }

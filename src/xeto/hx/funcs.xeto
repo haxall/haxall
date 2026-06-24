@@ -365,6 +365,14 @@
   //     companionRead("MySpec").companionPrint
   companionPrint: Func { rec: Dict, returns: Str }
 
+  // Return grid of the companion lib records and their per-rec compile status:
+  //  - id: rec id
+  //  - name: spec/func/instance name
+  //  - rt: "spec", "func", or "instance"
+  //  - libStatus: "ok" or "err"
+  //  - err: compiler error messages if the rec is in error
+  companionStatus: Func <admin> { opts: Dict?, returns: Grid }
+
   // Create func companion lib AST representation - see [fan.hx::ProjCompanion.parseAxon].
   // Pipe to [companionAdd()] or [companionUpdate()] to update from Xeto source.
   // Examples:
