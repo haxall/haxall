@@ -55,6 +55,12 @@ abstract class XetoCompiler
   ** Apply options
   abstract Void applyOpts(Dict? opts)
 
+  ** Errors accumulated during compilation.  After a failed compileLib this
+  ** holds every error the failing stage reported (not just the one thrown by
+  ** bombIfErr).  Used by the companion quarantine driver to attribute errors
+  ** to recs.
+  XetoCompilerErr[] errs := [,]
+
   ** Compile input directory to library
   abstract Lib compileLib()
 

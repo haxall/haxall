@@ -200,12 +200,14 @@ internal class Parse : Step
     // no resource files
     lib.ast.files = EmptyLibFiles.val
 
-    // parse each record
-    recs := ns.companionRecs?.recs ?: throw Err("No companion recs")
-    funcs := Dict[,]
-    recs.each |rec|
+    // parse each record; skip recs already marked in error so partial
+    // compilation only compiles the still-ok subset (see CompanionCompiler)
+    companionRecs := ns.companionRecs ?: throw Err("No companion recs")
+    funcs := CompanionRec[,]
+    companionRecs.each |rec|
     {
-      if (rec["rt"] == "func")
+      if (rec.status.isErr) return
+      if (rec.isFunc)
         funcs.add(rec)
       else
         parseCompanionRec(lib, rec)
@@ -215,17 +217,16 @@ internal class Parse : Step
     parseCompanionFuncs(lib, funcs)
   }
 
-  private Void parseCompanionRec(ALib lib, Dict rec)
+  private Void parseCompanionRec(ALib lib, CompanionRec rec)
   {
     // this is not very efficient, but for now just print each
     // dict back to Xeto source code to parse
-    name := rec["name"] as Str ?: throw Err("Rec missing name: $rec.id.toZinc")
     s := StrBuf()
-    XetoPrinter(ns, s.out, companionPrintOpts).ast(rec)
-    parse(FileLoc(name), s.toStr, lib, compiler.srcBuildVars)
+    XetoPrinter(ns, s.out, companionPrintOpts).ast(rec.rec)
+    parse(rec.loc, s.toStr, lib, compiler.srcBuildVars)
   }
 
-  private Void parseCompanionFuncs(ALib lib, Dict[] recs)
+  private Void parseCompanionFuncs(ALib lib, CompanionRec[] recs)
   {
     if (recs.isEmpty) return
 
@@ -238,21 +239,16 @@ internal class Parse : Step
 
     recs.each |rec|
     {
-      // get name and use for the parser location
-      name := rec["name"] as Str
-      if (name == null) return err("Func rec missing name", FileLoc(rec.id.toStr))
-      loc := FileLoc(name)
-
       // parse as single slot under our Funcs synthetic mixin; we
       // pass the doc directly so it doesn't have to be parsed again
       try
       {
         buf := StrBuf()
-        doc := rec["doc"] as Str
-        XetoPrinter(ns, buf.out, companionFuncPrintOpts).ast(rec)
+        doc := rec.rec["doc"] as Str
+        XetoPrinter(ns, buf.out, companionFuncPrintOpts).ast(rec.rec)
         src := buf.toStr
-        f := Parser(this, loc, src, lib, compiler.srcBuildVars).parseFunc(funcs, doc)
-        acc.add(name, f)
+        f := Parser(this, rec.loc, src, lib, compiler.srcBuildVars).parseFunc(funcs, doc)
+        acc.add(rec.name, f)
       }
       catch (FileLocErr e)
       {
@@ -260,7 +256,7 @@ internal class Parse : Step
       }
       catch (Err e)
       {
-        err(e.toStr, loc, e)
+        err(e.toStr, rec.loc, e)
       }
     }
   }

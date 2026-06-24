@@ -128,8 +128,21 @@ abstract const class MEnv : XetoEnv
   ** Compile specific lib
   private XetoLib compile(MNamespace ns, LibVersion v)
   {
+    /*
+    // the companion lib supports partial compilation
+    if (v.name == XetoUtil.companionLibName && ns.companionRecs != null)
+      return CompanionCompiler(this, ns, v).compile
+    */
+
+    return initCompiler(ns, v).compileLib
+  }
+
+  ** Construct a compiler for one pass.  Returned so callers (the companion
+  ** quarantine driver) can read the accumulated errors after a failed compile.
+  internal XetoCompiler initCompiler(MNamespace ns, LibVersion v)
+  {
     build := ns.opts.get("build") as Str:File
-    c := XetoCompiler.init
+    return XetoCompiler.init
     {
       it.ns      = ns
       it.libName = v.name
@@ -137,7 +150,6 @@ abstract const class MEnv : XetoEnv
       it.build   = build?.get(v.name)
       it.applyOpts(ns.opts)
     }
-    return c.compileLib
   }
 
   ** Compile temp lib from source

@@ -551,35 +551,6 @@ const class MNamespace : Namespace, CNamespace
 }
 
 **************************************************************************
-** CompanionRecs
-**************************************************************************
-
-@Js
-const class CompanionRecs
-{
-  ** Construct with list of recs and thunks to reuse
-  new make(Dict[] recs, Str:Thunk thunks)
-  {
-    this.recs   = recs
-    this.thunks = thunks
-  }
-
-  ** Companion recs from database
-  const Dict[] recs
-
-  ** Thunks to reuse by spec name
-  const Str:Thunk thunks
-
-  ** Get a map of companion recs by their name
-  once Str:Dict byName()
-  {
-    acc := Str:Dict[:]
-    recs.each |rec| { acc[rec->name] = rec }
-    return acc.toImmutable
-  }
-}
-
-**************************************************************************
 **MLibEntry
 **************************************************************************
 

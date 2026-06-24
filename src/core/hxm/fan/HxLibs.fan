@@ -455,11 +455,9 @@ const class HxLibs : RuntimeLibs
     // build up map of old recs by name
     oldCompanionRecs := oldNs.companionRecs
     oldRecsByName := Str:Dict[:]
-    oldCompanionRecs.recs.each |oldRec|
+    oldCompanionRecs.each |oldRec|
     {
-      name := oldRec["name"] as Str
-      if (name == null) return
-      oldRecsByName[name] = oldRec
+      oldRecsByName[oldRec.name] = oldRec.rec
     }
 
     // now walk thru new records and try to reuse thunk

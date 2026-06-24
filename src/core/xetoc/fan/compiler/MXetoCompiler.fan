@@ -228,7 +228,6 @@ internal class MXetoCompiler : XetoCompiler
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  XetoCompilerErr[] errs := [,]        // err
   internal Dict opts := Etc.dict0      // applyOpts
   internal ASys sys                    // make
   internal ADepends depends            // make
