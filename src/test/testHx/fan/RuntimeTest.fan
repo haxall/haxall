@@ -467,6 +467,113 @@ class RuntimeTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Companion Partial Compilation
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testCompanionPartial()
+  {
+    addLib("ph")
+    specRef := Ref("sys::Spec")
+    dictRef := Ref("sys::Dict")
+
+    // helper to add a spec rec (structurally valid; may fail to compile)
+    addSpec := |Str name, Ref base->Dict|
+    {
+      proj.companion.add(d(["rt":"spec", "name":name, "base":base, "spec":specRef]))
+    }
+
+    // baseline: two good specs both load
+    good1 := addSpec("Good1", dictRef)
+    good2 := addSpec("Good2", dictRef)
+    verifyRecOk("Good1")
+    verifyRecOk("Good2")
+    verifyEq(proj.companion.lib.spec("Good1").base.qname, "sys::Dict")
+
+    // add one bad spec (base is an unresolvable proj:: ref); good ones still load
+    bad := addSpec("Bad", Ref("proj::Nope"))
+    verifyRecOk("Good1")
+    verifyRecOk("Good2")
+    verifyRecErr("Bad")
+    verifyEq(proj.companion.lib.spec("Good1", false)?.name, "Good1")
+    verifyEq(proj.companion.lib.spec("Good2", false)?.name, "Good2")
+    verifyEq(proj.companion.lib.spec("Bad", false), null)
+
+    // cascade: Sub subtypes Bad.  This proves the quarantine loop iterates:
+    // Sub's only fault is its base ref to proj::Bad.  In the first pass Bad is
+    // still in the candidate set (it has its own error but is present), so
+    // proj::Bad resolves and Sub would compile ok.  Sub can ONLY fault on a
+    // later pass after Bad has been trimmed and the lib recompiled.
+    sub := addSpec("Sub", Ref("proj::Bad"))
+    verifyRecOk("Good1")
+    verifyRecOk("Good2")
+    verifyRecErr("Bad")
+    verifyRecErr("Sub")
+    verifyEq(proj.companion.lib.spec("Sub", false), null)
+
+    // cascade chain: SubSub subtypes Sub -> all three fault
+    subsub := addSpec("SubSub", Ref("proj::Sub"))
+    verifyRecOk("Good1")
+    verifyRecErr("Bad")
+    verifyRecErr("Sub")
+    verifyRecErr("SubSub")
+
+    // bad instance: only that instance faults
+    proj.companion.add(d(["rt":"instance", "name":"badInst", "spec":Ref("proj::Nope")]))
+    proj.companion.add(d(["rt":"instance", "name":"goodInst", "spec":Ref("proj::Good1")]))
+    verifyRecErr("badInst")
+    verifyRecOk("goodInst")
+    verifyRecOk("Good1")
+
+    // recovery: fix Bad's base -> Bad, Sub, SubSub all recover
+    proj.companion.update(d(["id":bad.id, "rt":"spec", "name":"Bad", "base":dictRef, "spec":specRef]))
+    verifyRecOk("Bad")
+    verifyRecOk("Sub")
+    verifyRecOk("SubSub")
+    verifyRecErr("badInst")  // unrelated bad instance still bad
+    verifyEq(proj.companion.lib.spec("Bad").base.qname, "sys::Dict")
+    verifyEq(proj.companion.lib.spec("SubSub").base.qname, "proj::Sub")
+
+    // removing the root cause: re-break Bad then remove it -> Sub/SubSub cascade,
+    // but stay loadable once their now-missing base is gone? no: they reference
+    // proj::Bad which no longer exists, so they fault by unresolved ref
+    proj.companion.update(d(["id":bad.id, "rt":"spec", "name":"Bad", "base":Ref("proj::Nope"), "spec":specRef]))
+    verifyRecErr("Bad")
+    verifyRecErr("Sub")
+    verifyRecErr("SubSub")
+    proj.companion.remove(bad.id)
+    verifyRecErr("Sub")     // Sub's base proj::Bad now truly missing
+    verifyRecErr("SubSub")
+    verifyRecOk("Good1")
+    verifyRecOk("goodInst")
+  }
+
+  ** Verify the named companion rec compiled ok
+  Void verifyRecOk(Str name)
+  {
+    rec := companionRec(name)
+    verifyEq(rec.status.isOk, true, "$name expected ok, got $rec.status")
+    // ok rec is present in the compiled lib
+    verifyNotNull(proj.companion.lib(false))
+  }
+
+  ** Verify the named companion rec was quarantined with an error
+  Void verifyRecErr(Str name)
+  {
+    rec := companionRec(name)
+    verifyEq(rec.status.isErr, true, "$name expected err, got $rec.status")
+    verify(!rec.status.errs.isEmpty)
+  }
+
+  ** Lookup the live CompanionRec by name (triggers lazy compile via .lib)
+  CompanionRec companionRec(Str name)
+  {
+    proj.companion.lib(false)  // force partial compile
+    recs := ((MNamespace)proj.ns).companionRecs ?: throw Err("no companionRecs")
+    return recs.list.find |r| { r.name == name } ?: throw Err("no rec: $name")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
 
