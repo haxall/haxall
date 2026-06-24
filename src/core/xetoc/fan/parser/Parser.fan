@@ -59,12 +59,6 @@ internal class Parser
     }
   }
 
-  ** Parse named function under +Funcs
-  ASpec parseFunc(ASpec funcs, Str? doc)
-  {
-    parseNamedSpec(funcs, doc)
-  }
-
   ** Top level parse of data file - instances only.
   ** The input stream is guaranteed to be closed upon exit.
   private Void parseDataFile(ADataDoc doc)

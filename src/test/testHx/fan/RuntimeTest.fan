@@ -525,6 +525,19 @@ class RuntimeTest : HxTest
     verifyRecOk("goodInst")
     verifyRecOk("Good1")
 
+    // funcs are each parsed as their own +Funcs block, so a bad func is
+    // quarantined independently while good funcs still load
+    specRefF := Ref("sys::Spec")
+    funcDoc  := "line one\n\nline three"  // multi-line doc with internal blank
+    proj.companion.add(d(["rt":"func", "name":"goodFunc", "base":Ref("sys::Func"), "spec":specRefF, "doc":funcDoc]))
+    proj.companion.add(d(["rt":"func", "name":"badFunc", "base":Ref("proj::Nope"), "spec":specRefF]))
+    verifyRecOk("goodFunc")
+    verifyRecErr("badFunc")
+    verifyNotNull(proj.companion.lib.funcs.get("goodFunc", false))
+    verifyEq(proj.companion.lib.funcs.get("badFunc", false), null)
+    // doc survives the print->parse round-trip (printer emits // on every line)
+    verifyEq(proj.companion.lib.funcs.get("goodFunc").meta["doc"], funcDoc)
+
     // recovery: fix Bad's base -> Bad, Sub, SubSub all recover
     proj.companion.update(d(["id":bad.id, "rt":"spec", "name":"Bad", "base":dictRef, "spec":specRef]))
     verifyRecOk("Bad")

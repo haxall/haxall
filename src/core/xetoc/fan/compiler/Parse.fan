@@ -200,65 +200,36 @@ internal class Parse : Step
     // no resource files
     lib.ast.files = EmptyLibFiles.val
 
-    // parse each record; skip recs already marked in error so partial
-    // compilation only compiles the still-ok subset (see CompanionCompiler)
+    // parse each record as its own compilation unit under the rec id so a
+    // parse error in one rec is attributed to that rec and quarantined
+    // independently; skip recs already marked in error so partial compilation
+    // only compiles the still-ok subset (see CompanionCompiler).  Funcs are
+    // each printed as their own '+Funcs' block which merge into one mixin
+    // (see multi-file mixins).
     companionRecs := ns.companionRecs ?: throw Err("No companion recs")
-    funcs := CompanionRec[,]
     companionRecs.each |rec|
     {
       if (rec.status.isErr) return
-      if (rec.isFunc)
-        funcs.add(rec)
-      else
-        parseCompanionRec(lib, rec)
+      parseCompanionRec(lib, rec)
     }
-
-    // parse functions
-    parseCompanionFuncs(lib, funcs)
   }
 
   private Void parseCompanionRec(ALib lib, CompanionRec rec)
   {
-    // this is not very efficient, but for now just print each
-    // dict back to Xeto source code to parse
+    // print the dict back to Xeto source code to parse; a func is wrapped in
+    // its own '+Funcs' mixin block so all funcs merge into one Funcs spec
     s := StrBuf()
-    XetoPrinter(ns, s.out, companionPrintOpts).ast(rec.rec)
-    parse(rec.loc, s.toStr, lib, compiler.srcBuildVars)
-  }
-
-  private Void parseCompanionFuncs(ALib lib, CompanionRec[] recs)
-  {
-    if (recs.isEmpty) return
-
-    // create synthetic funcs mixin
-    funcs := ASpec(FileLoc("Funcs"), lib, null, "Funcs")
-    funcs.typeRef = sys.funcs
-    funcs.metaAddMixin
-    lib.tops.add(funcs.name, funcs)
-    acc := funcs.initDeclared
-
-    recs.each |rec|
+    if (rec.isFunc)
     {
-      // parse as single slot under our Funcs synthetic mixin; we
-      // pass the doc directly so it doesn't have to be parsed again
-      try
-      {
-        buf := StrBuf()
-        doc := rec.rec["doc"] as Str
-        XetoPrinter(ns, buf.out, companionFuncPrintOpts).ast(rec.rec)
-        src := buf.toStr
-        f := Parser(this, rec.loc, src, lib, compiler.srcBuildVars).parseFunc(funcs, doc)
-        acc.add(rec.name, f)
-      }
-      catch (FileLocErr e)
-      {
-        err(e.msg, e.loc)
-      }
-      catch (Err e)
-      {
-        err(e.toStr, rec.loc, e)
-      }
+      s.add("+Funcs {\n")
+      XetoPrinter(ns, s.out, companionPrintOpts).ast(rec.rec)
+      s.add("}\n")
     }
+    else
+    {
+      XetoPrinter(ns, s.out, companionPrintOpts).ast(rec.rec)
+    }
+    parse(rec.loc, s.toStr, lib, compiler.srcBuildVars)
   }
 
   private ASpec? synthetizeCompanionLibPragma(ALib lib)
@@ -275,11 +246,6 @@ internal class Parse : Step
   private once Dict companionPrintOpts()
   {
     Etc.dict2("noInferMeta", Marker.val, "qnameForce", Marker.val)
-  }
-
-  private once Dict companionFuncPrintOpts()
-  {
-    Etc.dict3("noInferMeta", Marker.val, "qnameForce", Marker.val, "noDocComment", Marker.val)
   }
 }
 
