@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 
 **
@@ -412,7 +413,73 @@ class NamespaceTest : AbstractXetoTest
     xySigs := Str[,]
     xyPts.slots.each |x, n| { xySigs.add("$x.type.name") }
     verifyEq(xySigs, ["ZoneAirTempSensor", "ZoneCo2Sensor"])
+
+    // multiple inheritance of points query where the spec ALSO declares its
+    // own points: EquipXYOwn : EquipWithPointsX & EquipWithPointsY { points: {...} }
+    // should union X's, Y's, and its own constraint
+    xyoPts := lib.spec("EquipXYOwn").slot("points")
+    xyoSigs := Str[,]
+    xyoPts.slots.each |x, n| { xyoSigs.add("$n | $x.qname | $x.type.name") }
+    verifyEq(xyoSigs, [
+      "_0 | hx.test.xeto::EquipWithPointsX.points._0 | ZoneAirTempSensor",
+      "_1 | hx.test.xeto::EquipWithPointsY.points._0 | ZoneCo2Sensor",
+      "_2 | hx.test.xeto::EquipXYOwn.points._0 | DischargeAirTempSensor"])
  }
+
+//////////////////////////////////////////////////////////////////////////
+// Query Merge Conflict
+//////////////////////////////////////////////////////////////////////////
+
+  Void testQueryMergeConflict()
+  {
+    ns := createNamespace(["sys", "ph", "ph.points"])
+
+    pragma :=
+      Str<|pragma: Lib < version: "0.0.0", depends: {
+             {lib:"sys"}, {lib:"ph"}, {lib:"ph.points"} } >
+           |>
+
+    // unnamed (auto-named) constraints never collide: each gets a fresh
+    // auto-name, so merging the same type from both supertypes plus own is ok
+    lib := ns.compileTempLib(pragma +
+      Str<|A : Equip { points: { ZoneAirTempSensor } }
+           B : Equip { points: { ZoneAirTempSensor } }
+           C : A & B { points: { ZoneAirTempSensor } }
+           |>)
+    cPts := lib.spec("C").slot("points")
+    verifyEq(cPts.slots.names, ["_0", "_1", "_2"])
+
+    // named constraints merge cleanly when names are distinct
+    lib = ns.compileTempLib(pragma +
+      Str<|A : Equip { points: { temp: ZoneAirTempSensor } }
+           B : Equip { points: { co2: ZoneCo2Sensor } }
+           C : A & B { points: { discharge: DischargeAirTempSensor } }
+           |>)
+    verifyEq(lib.spec("C").slot("points").slots.names, ["temp", "co2", "discharge"])
+
+    // own query constraint reuses a name contributed by a supertype query
+    verifyErrMsg(XetoCompilerErr#, "Duplicate query slot 'temp'")
+    {
+      ns.compileTempLib(pragma +
+        Str<|A : Equip { points: { temp: ZoneAirTempSensor } }
+             B : Equip { points: { co2: ZoneCo2Sensor } }
+             C : A & B { points: { temp: DischargeAirTempSensor } }
+             |>)
+    }
+
+    // two supertypes contribute the same named constraint: caught by the
+    // generic inherited-slot conflict handler
+    Err? err := null
+    try
+      ns.compileTempLib(pragma +
+        Str<|A : Equip { points: { temp: ZoneAirTempSensor } }
+             B : Equip { points: { temp: ZoneCo2Sensor } }
+             C : A & B
+             |>)
+    catch (Err e) err = e
+    verifyNotNull(err, "expected conflict")
+    verify(err.msg.contains("Conflicing inherited slots"), err.msg)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // NameTable

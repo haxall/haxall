@@ -468,28 +468,55 @@ internal class InheritSlots : Step
   {
     // TODO: we need a lot of checking to verify a and b derive from same query
 
-    // create new merged slot
+    // the merged query is a single declared slot that unions the constraints
+    // of both supertype queries.  if the spec also declares its own query of
+    // this name (e.g. "A & B { points: { ... } }") then that slot is the merge
+    // target and its own constraints union in too; otherwise synthesize one
+    // finalize type/base/flags here even when reusing the own slot: we set
+    // its members below which short-circuits its own later inherit pass, so
+    // its type/base/flags would otherwise never get computed
     loc := spec.loc
-    ASpec merge := ASpec(loc, lib, spec, name)
+    own := spec.declared?.get(name)
+    merge := own ?: ASpec(loc, lib, spec, name)
     merge.typeRef = ASpecRef(loc, a.type)
     merge.ast.base = a
     merge.flags = a.flags
 
-    // merge in slots from both a and b
-    acc := Str:Spec[:]
-    acc.ordered = true
+    // union the constraints inherited from a and b, then the merge's own
+    acc := Str:Spec[:] { ordered = true }
     autoCount := 0
     autoCount = inheritSlotsFrom(merge, acc, emptySpecMap, autoCount, a)
     autoCount = inheritSlotsFrom(merge, acc, emptySpecMap, autoCount, b)
+    autoCount = addQueryOwnSlots(own, acc, autoCount)
 
     specMap := SpecMap(acc)
     merge.ast.members = specMap
     merge.ast.slots   = specMap
 
-    // we need to make this a new declared slot
-    spec.initDeclared.add(name, merge)
-
+    // the merge is a declared slot of the spec (reusing the own slot if any)
+    spec.initDeclared[name] = merge
     return merge
+  }
+
+  ** Union the spec's own declared query constraints into the accumulator,
+  ** processing each now since the merge's members are already finalized and
+  ** so won't be recursed by the normal child inheritance pass.  Constraints
+  ** may be auto-named or explicitly named; a named constraint cannot reuse a
+  ** name already contributed by an inherited supertype query.
+  private Int addQueryOwnSlots(ASpec? own, Str:Spec acc, Int autoCount)
+  {
+    if (own?.declared == null) return autoCount
+    own.declared.dup.each |slot|
+    {
+      inherit(slot)
+      name := slot.name
+      if (XetoUtil.isAutoName(name))
+        name = compiler.autoName(autoCount++)
+      else if (acc[name] != null)
+        err("Duplicate query slot '$name'", slot.loc)
+      acc[name] = slot
+    }
+    return autoCount
   }
 
 //////////////////////////////////////////////////////////////////////////

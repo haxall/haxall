@@ -49,6 +49,15 @@ EquipWithPointsY : Equip {
 
 EquipXY : EquipWithPointsX & EquipWithPointsY
 
+// multiple inheritance of points query where the spec also declares its own
+// points: should union all three (X's, Y's, and own).  uses auto-named
+// constraints since those exercise the remote loader's key/name divergence
+EquipXYOwn : EquipWithPointsX & EquipWithPointsY {
+  points: {
+    DischargeAirTempSensor { BacnetAddr { addr: "AI3" } }
+  }
+}
+
 // inheriting global thru multple inheritance paths:
 
 ElecEquipA : Equip { elec }
