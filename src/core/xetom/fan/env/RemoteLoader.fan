@@ -291,10 +291,9 @@ internal class RemoteLoader
   {
     acc := Str:XetoSpec[:]
     acc.ordered = true
-    x.slotsInheritedIn.each |ref|
+    x.slotsInheritedIn.each |ref, slotName|
     {
-      slot := resolve(ref, true)
-      if (acc[slot.name] == null) acc[slot.name] = slot
+      if (acc[slotName] == null) acc[slotName] = resolve(ref, true)
     }
     x.slotsOwn.each |slot|
     {

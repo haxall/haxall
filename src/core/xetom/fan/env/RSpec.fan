@@ -44,7 +44,7 @@ internal class RSpec: SpecBindingInfo
   Str[]? metaInheritedIn
   RSpec[]? slotsOwnIn
   RSpec[]? globalsOwnIn
-  RSpecRef[]? slotsInheritedIn
+  [Str:RSpecRef]? slotsInheritedIn  // keyed by unique SpecMap name
 
   // RemoteLoader.loadSpec
   Bool isLoaded

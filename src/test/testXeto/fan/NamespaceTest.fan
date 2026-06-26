@@ -400,6 +400,18 @@ class NamespaceTest : AbstractXetoTest
       "_0 | hx.test.xeto::EquipA.points._0 | _0: ZoneAirTempSensor",
       "_1 | hx.test.xeto::EquipA.points._1 | _1: ZoneAirHumiditySensor",
       "_2 | hx.test.xeto::EquipB.points._0 | _0: ZoneCo2Sensor"])  // not _2 key maps to name_0
+
+    // multiple inheritance of points query: EquipXY : EquipWithPointsX & EquipWithPointsY
+    // should merge points from both supertypes (ZoneAirTempSensor from X,
+    // ZoneCo2Sensor from Y)
+    xPts  := lib.spec("EquipWithPointsX").slot("points")
+    yPts  := lib.spec("EquipWithPointsY").slot("points")
+    xyPts := lib.spec("EquipXY").slot("points")
+    verifyEq(xPts.slots.names, ["_0"])
+    verifyEq(yPts.slots.names, ["_0"])
+    xySigs := Str[,]
+    xyPts.slots.each |x, n| { xySigs.add("$x.type.name") }
+    verifyEq(xySigs, ["ZoneAirTempSensor", "ZoneCo2Sensor"])
  }
 
 //////////////////////////////////////////////////////////////////////////

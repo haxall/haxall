@@ -118,14 +118,14 @@ class XetoBinaryReader : XetoBinaryConst
     return acc
   }
 
-  private RSpecRef[] readInheritedSlotRefs()
+  private Str:RSpecRef readInheritedSlotRefs()
   {
-    acc := RSpecRef[,]
+    acc := Str:RSpecRef[:] { ordered = true }
     while (true)
     {
-      ref := readSpecRef
-      if (ref == null) break
-      acc.add(ref)
+      key := readStr
+      if (key.isEmpty) break
+      acc[key] = readSpecRef
     }
     return acc
   }

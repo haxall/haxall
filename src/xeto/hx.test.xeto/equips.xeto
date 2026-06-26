@@ -32,6 +32,23 @@ EquipB : EquipA {
   }
 }
 
+// multiple inheritance of points query: EquipWithPointsX and EquipWithPointsY
+// each define a distinct point, and EquipXY combines both via And type
+
+EquipWithPointsX : Equip {
+  points: {
+    ZoneAirTempSensor { BacnetAddr { addr: "AI1" } }
+  }
+}
+
+EquipWithPointsY : Equip {
+  points: {
+    ZoneCo2Sensor { BacnetAddr { addr: "AI2" } }
+  }
+}
+
+EquipXY : EquipWithPointsX & EquipWithPointsY
+
 // inheriting global thru multple inheritance paths:
 
 ElecEquipA : Equip { elec }

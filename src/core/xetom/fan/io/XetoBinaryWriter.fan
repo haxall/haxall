@@ -83,15 +83,37 @@ class XetoBinaryWriter : XetoBinaryConst
     writeOwnSlots(x.slotsOwn)
     writeOwnSlots(x.globalsOwn)
     writeVarInt(m.flags)
-    if (!x.isCompound && !x.isNone) write(XetoBinaryConst.specOwnOnly)
+    if (!useInheritedEncoding(x)) write(XetoBinaryConst.specOwnOnly)
     else
     {
-      // for and/or types we encoded inherited meta/slots to
-      // avoid duplicating that complicated logic in the client
+      // when the client cannot cleanly reconstruct effective slots from
+      // base+own, we encode the full inherited meta/slots so it doesn't
+      // have to duplicate that complicated logic; this covers and/or types
+      // and merged query slots produced by multiple inheritance
       write(XetoBinaryConst.specInherited)
       writeDict(m.meta)
       writeInheritedSlotRefs(x)
     }
+  }
+
+  ** The client reconstructs effective slots as base.slots + slotsOwn.  When
+  ** that isn't sufficient we instead encode the full inherited slot refs so
+  ** the client doesn't have to duplicate complicated inheritance logic.  This
+  ** is required for and/or types and for merged query slots created by
+  ** multiple inheritance (whose effective slots come from two supertypes but
+  ** aren't captured by base+own).
+  private Bool useInheritedEncoding(XetoSpec x)
+  {
+    if (x.isCompound || x.isNone) return true
+    return x.isQuery && x.slots.size > inheritedSlotsBaseSize(x)
+  }
+
+  ** Number of slots the client would inherit from base when reconstructing
+  private Int inheritedSlotsBaseSize(XetoSpec x)
+  {
+    base := x.base
+    if (base == null) return 0
+    return base.slots.size + x.slotsOwn.size
   }
 
   private Void writeInheritedMetaNames(XetoSpec x)
@@ -113,12 +135,16 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeInheritedSlotRefs(XetoSpec x)
   {
-    x.slots.each |slot|
+    // iterate with map key (not slot.name) since auto-named query slots
+    // merged via inheritance have unique keys that differ from their
+    // own name; we write that unique key so the client can rekey correctly
+    x.slots.each |slot, name|
     {
-      if (x.slotOwn(slot.name, false) != null) return
+      if (x.slotsOwn.get(name, false) != null) return
+      writeStr(name)
       writeSpecRef(slot)
     }
-    writeSpecRef(null)
+    writeStr("")
   }
 
   private Void writeSpecRef(XetoSpec? spec)
