@@ -96,24 +96,18 @@ class XetoBinaryWriter : XetoBinaryConst
     }
   }
 
-  ** The client reconstructs effective slots as base.slots + slotsOwn.  When
-  ** that isn't sufficient we instead encode the full inherited slot refs so
-  ** the client doesn't have to duplicate complicated inheritance logic.  This
-  ** is required for and/or types and for merged query slots created by
-  ** multiple inheritance (whose effective slots come from two supertypes but
-  ** aren't captured by base+own).
+  ** Should we encode full effective inherited slot refs instead of letting
+  ** the client reconstruct slots as base.slots + slotsOwn?  Inlining is always
+  ** safe; we only need to ensure it's used whenever reconstruction would be
+  ** wrong, so we keep this test simple and err toward inlining:
+  **   - and/or types: effective slots come from multiple supertypes
+  **   - queries with constraints: auto-named constraints merged from multiple
+  **     supertypes have unique map keys that diverge from Spec.name and can't
+  **     be rebuilt; a query with no slots has nothing to reconstruct so it
+  **     takes the cheaper own-only encoding
   private Bool useInheritedEncoding(XetoSpec x)
   {
-    if (x.isCompound || x.isNone) return true
-    return x.isQuery && x.slots.size > inheritedSlotsBaseSize(x)
-  }
-
-  ** Number of slots the client would inherit from base when reconstructing
-  private Int inheritedSlotsBaseSize(XetoSpec x)
-  {
-    base := x.base
-    if (base == null) return 0
-    return base.slots.size + x.slotsOwn.size
+    x.isCompound || x.isNone || (x.isQuery && !x.slots.isEmpty)
   }
 
   private Void writeInheritedMetaNames(XetoSpec x)
@@ -135,12 +129,14 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeInheritedSlotRefs(XetoSpec x)
   {
-    // iterate with map key (not slot.name) since auto-named query slots
-    // merged via inheritance have unique keys that differ from their
-    // own name; we write that unique key so the client can rekey correctly
+    // write each effective inherited slot keyed by its unique map name (not
+    // slot.name) since auto-named query slots merged via inheritance have
+    // unique keys that diverge from their own name; the client rekeys with
+    // this name then layers slotsOwn on top.  Skip own slots by identity:
+    // their map key may be auto-renamed and not match slotsOwn's key.
     x.slots.each |slot, name|
     {
-      if (x.slotsOwn.get(name, false) != null) return
+      if (x.slotsOwn.get(slot.name, false) === slot) return
       writeStr(name)
       writeSpecRef(slot)
     }

@@ -289,15 +289,23 @@ internal class RemoteLoader
 
   private SpecMap inheritSlotsFromRefs(RSpec x)
   {
+    // inherited slots carry their unique map key (which may diverge from
+    // slot.name for auto-named query constraints merged across supertypes)
     acc := Str:XetoSpec[:]
     acc.ordered = true
+    autoCount := 0
     x.slotsInheritedIn.each |ref, slotName|
     {
+      if (XetoUtil.isAutoName(slotName)) autoCount++
       if (acc[slotName] == null) acc[slotName] = resolve(ref, true)
     }
+    // layer own slots on top, re-autonaming so they don't collide with
+    // inherited auto-named slots (mirrors base+own reconstruction)
     x.slotsOwn.each |slot|
     {
-      acc[slot.name] = slot
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = XetoUtil.autoName(autoCount++)
+      acc[name] = slot
     }
     return SpecMap(acc)
   }
