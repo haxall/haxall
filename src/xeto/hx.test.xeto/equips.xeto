@@ -58,6 +58,22 @@ EquipXYOwn : EquipWithPointsX & EquipWithPointsY {
   }
 }
 
+// three-way merge of points query (merged pairwise), with and without an own
+// points; own constraints order after all the supertype constraints
+EquipWithPointsZ : Equip {
+  points: {
+    DischargeAirFlowSensor { BacnetAddr { addr: "AI6" } }
+  }
+}
+
+Equip3 : EquipWithPointsX & EquipWithPointsY & EquipWithPointsZ
+
+Equip3Own : EquipWithPointsX & EquipWithPointsY & EquipWithPointsZ {
+  points: {
+    DischargeAirTempSensor { BacnetAddr { addr: "AI3" } }
+  }
+}
+
 // inheriting global thru multple inheritance paths:
 
 ElecEquipA : Equip { elec }

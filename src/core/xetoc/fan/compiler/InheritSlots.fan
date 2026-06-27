@@ -469,25 +469,37 @@ internal class InheritSlots : Step
     // TODO: we need a lot of checking to verify a and b derive from same query
 
     // the merged query is a single declared slot that unions the constraints
-    // of both supertype queries.  if the spec also declares its own query of
-    // this name (e.g. "A & B { points: { ... } }") then that slot is the merge
-    // target and its own constraints union in too; otherwise synthesize one
-    // finalize type/base/flags here even when reusing the own slot: we set
-    // its members below which short-circuits its own later inherit pass, so
-    // its type/base/flags would otherwise never get computed
+    // of all the supertype queries, followed by the spec's own declared query
+    // constraints if it has one (e.g. "A & B { points: { ... } }").  with three
+    // or more supertypes the slots are merged pairwise - "merge(merge(A, B), C)"
+    // - so on the second and later pass "a" is the merge slot we already built
+    // (it lives in the spec's declared map) and we just union in the next
+    // supertype "b"; the own constraints are re-ordered to stay last each pass.
     loc := spec.loc
-    own := spec.declared?.get(name)
-    merge := own ?: ASpec(loc, lib, spec, name)
-    merge.typeRef = ASpecRef(loc, a.type)
-    merge.ast.base = a
-    merge.flags = a.flags
+    cur := spec.declared?.get(name)
+    extending := a === cur
+    merge := extending ? (ASpec)a : (cur ?: ASpec(loc, lib, spec, name))
+    if (!extending)
+    {
+      // finalize type/base/flags now (even when reusing the spec's own slot):
+      // we set members below which short-circuits the slot's own later inherit
+      // pass, so these would otherwise never get computed.  skipped when
+      // extending since "a" is the merge itself (base would self-cycle)
+      merge.typeRef = ASpecRef(loc, a.type)
+      merge.ast.base = a
+      merge.flags = a.flags
+    }
 
-    // union the constraints inherited from a and b, then the merge's own
+    // union the constraints of both supertype queries, then fold the merge's
+    // own declared constraints last so they always order after the supertypes
+    // (even when extending pairwise for 3+ types).  the merge's own constraints
+    // are parented to the merge, so we skip them while accumulating supertypes
+    // and add them from its declared slots afterwards
     acc := Str:Spec[:] { ordered = true }
     autoCount := 0
-    autoCount = inheritSlotsFrom(merge, acc, emptySpecMap, autoCount, a)
-    autoCount = inheritSlotsFrom(merge, acc, emptySpecMap, autoCount, b)
-    autoCount = addQueryOwnSlots(own, acc, autoCount)
+    autoCount = mergeQueryConstraints(merge, acc, autoCount, a.slots.list, false)
+    autoCount = mergeQueryConstraints(merge, acc, autoCount, b.slots.list, false)
+    autoCount = mergeQueryConstraints(merge, acc, autoCount, cur?.declared?.vals, true)
 
     specMap := SpecMap(acc)
     merge.ast.members = specMap
@@ -498,17 +510,20 @@ internal class InheritSlots : Step
     return merge
   }
 
-  ** Union the spec's own declared query constraints into the accumulator,
-  ** processing each now since the merge's members are already finalized and
-  ** so won't be recursed by the normal child inheritance pass.  Constraints
-  ** may be auto-named or explicitly named; a named constraint cannot reuse a
-  ** name already contributed by an inherited supertype query.
-  private Int addQueryOwnSlots(ASpec? own, Str:Spec acc, Int autoCount)
+  ** Union one query's constraints into the merged accumulator.  Constraints
+  ** may be auto-named (re-numbered to stay unique) or explicitly named (which
+  ** cannot reuse a name already in the accumulator).  When 'own' is true the
+  ** constraints are the merge's own declared slots: they are processed now
+  ** (their inherit pass won't recurse them since the merge's members are
+  ** already finalized).  When false they are inherited from a supertype query,
+  ** and any already parented to the merge are its own constraints (added last
+  ** via the 'own' pass) so we skip them here.
+  private Int mergeQueryConstraints(ASpec merge, Str:Spec acc, Int autoCount, Spec[]? slots, Bool own)
   {
-    if (own?.declared == null) return autoCount
-    own.declared.dup.each |slot|
+    slots?.each |slot|
     {
-      inherit(slot)
+      if (own) inherit(slot)  // own constraints are this lib's ASpecs
+      else if (slot.parent === merge) return  // own constraint, folded in last
       name := slot.name
       if (XetoUtil.isAutoName(name))
         name = compiler.autoName(autoCount++)

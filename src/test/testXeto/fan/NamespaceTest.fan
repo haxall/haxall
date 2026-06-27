@@ -424,7 +424,22 @@ class NamespaceTest : AbstractXetoTest
       "_0 | hx.test.xeto::EquipWithPointsX.points._0 | ZoneAirTempSensor",
       "_1 | hx.test.xeto::EquipWithPointsY.points._0 | ZoneCo2Sensor",
       "_2 | hx.test.xeto::EquipXYOwn.points._0 | DischargeAirTempSensor"])
+
+    // three-way merge (merged pairwise): all supertype constraints unioned
+    verifyEq(typeQueryPointTypes(lib.spec("Equip3")),
+      ["ZoneAirTempSensor", "ZoneCo2Sensor", "DischargeAirFlowSensor"])
+
+    // three-way merge plus an own points: own constraint orders last
+    verifyEq(typeQueryPointTypes(lib.spec("Equip3Own")),
+      ["ZoneAirTempSensor", "ZoneCo2Sensor", "DischargeAirFlowSensor", "DischargeAirTempSensor"])
  }
+
+  private Str[] typeQueryPointTypes(Spec spec)
+  {
+    acc := Str[,]
+    spec.slot("points").slots.each |x| { acc.add(x.type.name) }
+    return acc
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Query Merge Conflict
@@ -467,18 +482,15 @@ class NamespaceTest : AbstractXetoTest
              |>)
     }
 
-    // two supertypes contribute the same named constraint: caught by the
-    // generic inherited-slot conflict handler
-    Err? err := null
-    try
+    // two supertypes contribute the same named constraint
+    verifyErrMsg(XetoCompilerErr#, "Duplicate query slot 'temp'")
+    {
       ns.compileTempLib(pragma +
         Str<|A : Equip { points: { temp: ZoneAirTempSensor } }
              B : Equip { points: { temp: ZoneCo2Sensor } }
              C : A & B
              |>)
-    catch (Err e) err = e
-    verifyNotNull(err, "expected conflict")
-    verify(err.msg.contains("Conflicing inherited slots"), err.msg)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
