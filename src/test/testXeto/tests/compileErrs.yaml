@@ -58,6 +58,14 @@ compileLib: |
 verifyErrs: |
   Conflicing inherited slots: temp::A.g, temp::B.g
 ---
+name: "mergeUnrelatedQueries"
+compileLib: |
+  A: Dict { foo: Query<of:Point> {} }
+  B: Dict { foo: Query<of:Equip> {} }
+  AB: A & B
+verifyErrs: |
+  Cannot merge unrelated query slots 'foo': temp::A.foo and temp::B.foo
+---
 name: "enumInherit"
 compileLib: |
   Foo: Enum <sealed> {

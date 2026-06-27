@@ -466,7 +466,15 @@ internal class InheritSlots : Step
 
   private Spec mergeQuerySlots(ASpec spec, Str name, Spec a, Spec b)
   {
-    // TODO: we need a lot of checking to verify a and b derive from same query
+    // a query can only be merged if both sides refine a single original query
+    // definition in the inheritance tree (e.g. both refine "ph::Equip.points").
+    // two independent queries with the same slot name are not the same query
+    // even if their meta matches, so they cannot be unioned
+    if (queryOrigin(a) !== queryOrigin(b))
+    {
+      err("Cannot merge unrelated query slots '$name': $a.qname and $b.qname", spec.loc)
+      return a
+    }
 
     // the merged query is a single declared slot that unions the constraints
     // of all the supertype queries, followed by the spec's own declared query
@@ -532,6 +540,16 @@ internal class InheritSlots : Step
       acc[name] = slot
     }
     return autoCount
+  }
+
+  ** The original query definition a query slot refines: walk the base chain to
+  ** the slot whose base is the bare query type rather than another query slot
+  ** (e.g. "ph::Equip.points", whose base is "sys::Query").  Two queries can only
+  ** be merged if they share the same origin.
+  private Spec queryOrigin(Spec q)
+  {
+    while (q.base != null && q.base.isQuery && q.base.isSlot) q = q.base
+    return q
   }
 
 //////////////////////////////////////////////////////////////////////////
