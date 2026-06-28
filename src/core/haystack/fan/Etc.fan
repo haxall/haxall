@@ -665,6 +665,8 @@ const class Etc
   **
   static Bool dictEq(Dict a, Dict b)
   {
+    if (a.isEmpty) return b.isEmpty
+    if (b.isEmpty) return false
     x := a.eachWhile |v, n| { eq(b[n], v) ? null : "ne" }
     if (x != null) return false
     x = b.eachWhile |v, n| { a.has(n) ? null : "ne" }
