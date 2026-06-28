@@ -16,7 +16,7 @@ using haystack
 **
 const mixin Observation : Dict
 {
-  ** Type name which matches `Observable.name` and the def name
+  ** Type name which matches [Observable.name] and the def name
   abstract Str type()
 
   ** Subtype name if available which is specific to the observable type

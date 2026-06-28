@@ -44,7 +44,7 @@ const class PlaintextScheme : AuthScheme
 
 **
 ** XPlainText scheme supports unoffical x-plaintext auth scheme. It functions
-** exactly the same as 'plaintext' except for the scheme name.
+** exactly the same as `plaintext` except for the scheme name.
 **
 @NoDoc const class XPlaintextScheme : PlaintextScheme
 {

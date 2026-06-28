@@ -28,8 +28,8 @@ const class CryptoFuncs
   ** the given alias. A new 2048-bit RSA key will be generated and
   ** then self-signed for the given subject DN. The following options
   ** are supported for configuring the signing:
-  **   - 'notBefore' (Date): the start date for certificate validity period (default=today)
-  **   - 'notAfter' (Date): the end date for the certificate validity period (default=today+365day)
+  **   - `notBefore` (Date): the start date for certificate validity period (default=today)
+  **   - `notAfter` (Date): the end date for the certificate validity period (default=today+365day)
   **
   ** This func will throw an error if an entry with the given alias already exists.
   @Api @Axon { su = true }
@@ -105,7 +105,7 @@ const class CryptoFuncs
   }
 
   ** Add certificate chain for a URI to the trust store.
-  ** Dict must define 'alias' Str and 'uri' URI.
+  ** Dict must define `alias` Str and `uri` URI.
   @NoDoc @Api @Axon { su = true }
   static Grid cryptoTrustUri(Obj dict)
   {

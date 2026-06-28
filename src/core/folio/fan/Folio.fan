@@ -155,7 +155,7 @@ abstract const class Folio
   ** Read underlying record (return null for trash, do _not_ check permissions)
   @NoDoc protected abstract FolioRec? doReadRecById(Ref id)
 
-  ** Convenience for `readByIds` with single id.
+  ** Convenience for [readByIds] with single id.
   Dict? readById(Ref id, Bool checked := true)
   {
     readRecById(id, checked)?.dict
@@ -166,7 +166,7 @@ abstract const class Folio
   ** then every id must be found in the project or UnknownRecErr
   ** is thrown.  If checked is false, then an unknown record is
   ** returned as a row with every column set to null (including
-  ** the 'id' tag).
+  ** the `id` tag).
   Grid readByIds(Ref[] ids, Bool checked := true)
   {
     checkRead.doReadByIds(ids).grid(checked)
@@ -179,21 +179,21 @@ abstract const class Folio
     checkRead.doReadByIds(ids).dicts(checked)
   }
 
-  ** Return the number of records which match given [filter]`ph.doc::Filters`.
-  ** This method supports the same options as `readAll`.
+  ** Return the number of records which match given [filter](ph.doc::Filters).
+  ** This method supports the same options as [readAll].
   Int readCount(Filter filter, Dict? opts := null)
   {
     checkRead.doReadCount(filter, opts)
   }
 
-  ** Find the first record which matches the given [filter]`ph.doc::Filters`.
+  ** Find the first record which matches the given [filter](ph.doc::Filters).
   ** Throw UnknownRecErr or return null based on checked flag.
   Dict? read(Filter filter, Bool checked := true)
   {
     checkRead.doReadAll(filter, optsLimit1).dict(checked)
   }
 
-  ** Match all the records against a [filter]`ph.doc::Filters` and
+  ** Match all the records against a [filter](ph.doc::Filters) and
   ** return as grid.
   **
   ** Options:
@@ -208,8 +208,8 @@ abstract const class Folio
       checkRead.doReadAll(filter, opts).dicts(false))
   }
 
-  ** Match all the records against a [filter]`ph.doc::Filters` and return
-  ** as list.  This method uses same semantics and options as `readAll`.
+  ** Match all the records against a [filter](ph.doc::Filters) and return
+  ** as list.  This method uses same semantics and options as [readAll].
   Dict[] readAllList(Filter filter, Dict? opts := null)
   {
     checkRead.doReadAll(filter, opts).dicts
@@ -274,7 +274,7 @@ abstract const class Folio
 // Commits
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for `commitAll` with a single diff.
+  ** Convenience for [commitAll] with a single diff.
   Diff commit(Diff diff)
   {
     checkWrite.doCommitAllSync([diff], cxCommitInfo).diff
@@ -287,13 +287,13 @@ abstract const class Folio
   **
   ** If any of the records have been modified since they were read
   ** for the given change set then ConcurrentChangeErr is thrown
-  ** unless 'Diff.force' configured.
+  ** unless `Diff.force` configured.
   Diff[] commitAll(Diff[] diffs)
   {
     checkWrite.doCommitAllSync(diffs, cxCommitInfo).diffs
   }
 
-  ** Convenience for `commitAllAsync` with a single diff.
+  ** Convenience for [commitAllAsync] with a single diff.
   FolioFuture commitAsync(Diff diff)
   {
     checkWrite.doCommitAllAsync([diff], cxCommitInfo)

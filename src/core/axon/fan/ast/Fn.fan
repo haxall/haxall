@@ -73,7 +73,7 @@ const class Fn : Expr, HaystackFunc
   @NoDoc virtual Bool isDeprecated() { false }
 
   ** Invoke this function with the given arguments.
-  ** Note: the 'args' parameter must be mutable and may be modified
+  ** Note: the `args` parameter must be mutable and may be modified
   Obj? call(AxonContext cx, Obj?[] args) { callx(cx, args, FileLoc.unknown) }
 
   @NoDoc final override Obj? haystackCall(HaystackContext cx, Obj?[] args)

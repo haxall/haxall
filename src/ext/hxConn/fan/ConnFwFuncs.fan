@@ -19,14 +19,15 @@ using hx
 @NoDoc
 const class ConnFwFuncs
 {
-  ** Return the points for a connector as list of dicts.  The 'conn'
-  ** parameter may be anything accepted by `toRecId()`.  If 'conn' cannot be
+  ** Return the points for a connector as list of dicts.  The `conn`
+  ** parameter may be anything accepted by [toRecId()].  If `conn` cannot be
   ** be mapped to an active connector then raise an exception or return an
   ** empty list based on checked flag.
   **
   ** Examples:
-  **   read(haystackConn).connPoints
-  **   connPoints(@my-conn-id)
+  **
+  **     read(haystackConn).connPoints
+  **     connPoints(@my-conn-id)
   @Api @Axon
   static Dict[] connPoints(Obj conn, Bool checked := true)
   {
@@ -44,12 +45,13 @@ const class ConnFwFuncs
 
   **
   ** Perform a ping on the given connector and return a future.
-  ** The future result is the connector rec dict.  The 'conn' parameter
-  ** may be anything accepted by `toRecId()`.
+  ** The future result is the connector rec dict.  The `conn` parameter
+  ** may be anything accepted by [toRecId()].
   **
   ** Examples:
-  **   read(conn).connPing
-  **   connPing(connId)
+  **
+  **     read(conn).connPing
+  **     connPing(connId)
   **
   @Api @Axon { admin = true }
   static Future connPing(Obj conn)
@@ -59,12 +61,13 @@ const class ConnFwFuncs
 
   **
   ** Force the given connector closed and return a future.
-  ** The future result is the connector rec dict.  The 'conn'
-  ** parameter may be anything accepted by `toRecId()`.
+  ** The future result is the connector rec dict.  The `conn`
+  ** parameter may be anything accepted by [toRecId()].
   **
   ** Examples:
-  **   read(conn).connClose
-  **   connClose(connId)
+  **
+  **     read(conn).connClose
+  **     connClose(connId)
   **
   @Api @Axon { admin = true }
   static Future connClose(Obj conn)
@@ -74,13 +77,14 @@ const class ConnFwFuncs
 
   **
   ** Perform a learn on the given connector and return a future.
-  ** The future result is the learn grid.  The 'conn' parameter may
-  ** be anything acceptable by `toRecId()`.  The 'arg' is an opaque
-  ** identifier used to walk the learn tree via the 'learn' column.
-  ** Pass null for 'arg' to return the root of the learn tree.
+  ** The future result is the learn grid.  The `conn` parameter may
+  ** be anything acceptable by [toRecId()].  The `arg` is an opaque
+  ** identifier used to walk the learn tree via the `learn` column.
+  ** Pass null for `arg` to return the root of the learn tree.
   **
   ** Examples:
-  **   connLearn(connId, learnArg)
+  **
+  **     connLearn(connId, learnArg)
   **
   @Api @Axon { admin = true }
   static Future connLearn(Obj conn, Obj? arg := null)
@@ -90,12 +94,13 @@ const class ConnFwFuncs
 
   **
   ** Perform a remote sync of current values for the given points.
-  ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
+  ** The `points` parameter may be anything acceptable by [toRecIdList()].
   ** Return a list of futures for each unique connector.  The result
-  ** of each future is unspecified.  Also see `docHaxall::Conns#cur`.
+  ** of each future is unspecified.  Also see [docHaxall::Conns#point-cur].
   **
   ** Examples:
-  **   readAll(bacnetCur).connSyncCur
+  **
+  **     readAll(bacnetCur).connSyncCur
   **
   @Api @Axon { admin = true }
   static Future[] connSyncCur(Obj points)
@@ -112,15 +117,16 @@ const class ConnFwFuncs
 
   **
   ** Perform a remote sync of history data for the given points.
-  ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
-  ** The 'span' parameter is anything acceptable by `toSpan()`.  Or pass
-  ** null for span to perform a sync for items after the point's `hisEnd`.
+  ** The `points` parameter may be anything acceptable by [toRecIdList()].
+  ** The `span` parameter is anything acceptable by [toSpan()].  Or pass
+  ** null for span to perform a sync for items after the point's [hisEnd].
   ** This blocks the calling thread until each point is synchronized one
   ** by one.  Normally it should only be called within a task.  The result
-  ** from this function is undefined.  Also see `docHaxall::Conns#hisSync`.
+  ** from this function is undefined.  Also see [docHaxall::Conns#point-history-sync].
   **
   ** Examples:
-  **   readAll(haystackHis).connSyncHis(null)
+  **
+  **     readAll(haystackHis).connSyncHis(null)
   **
   @Api @Axon { admin = true }
   static Obj? connSyncHis(Obj points, Obj? span := null)
@@ -132,7 +138,7 @@ const class ConnFwFuncs
 
   **
   ** Return debug details for a connector or a connector point.
-  ** The argument is anything acceptable by `toRecId()`.  The result
+  ** The argument is anything acceptable by [toRecId()].  The result
   ** is returned as a plain text string.
   **
   @Api @Axon { admin = true }
@@ -150,14 +156,15 @@ const class ConnFwFuncs
   ** or connector.  This function is required when points are associated
   ** with multiple connectors.  Pass a connector library name to select
   ** for a protocol.  Or pass a connector id/rec to select via a specific
-  ** connector.  Also see `docHaxall::Conns#multipleConns`.
+  ** connector.  Also see [docHaxall::Conns#multiple-connectors].
   **
   ** Examples:
-  **    // explicitly sync via the SQL connector library
-  **    readAll(sqlConnRef).connPointsVia("sql").connSyncHis
   **
-  **    // get debug details for specific connector
-  **    connPointsVia(pt, pt->bacnetConnRef).connDetails
+  **      // explicitly sync via the SQL connector library
+  **      readAll(sqlConnRef).connPointsVia("sql").connSyncHis
+  **
+  **      // get debug details for specific connector
+  **      connPointsVia(pt, pt->bacnetConnRef).connDetails
   **
   @Api @Axon { admin = true }
   static Obj connPointsVia(Obj points, Obj libOrConn)
@@ -201,7 +208,7 @@ const class ConnFwFuncs
 
   **
   ** Return true or false if given connector has its tracing enabled.
-  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  ** The `conn` parameter can be anything acceptable by [toRecId()].
   **
   @Api @Axon { admin = true }
   static Bool connTraceIsEnabled(Obj conn)
@@ -211,7 +218,7 @@ const class ConnFwFuncs
 
   **
   ** Enable tracing on the given connector.
-  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  ** The `conn` parameter can be anything acceptable by [toRecId()].
   **
   @Api @Axon { admin = true }
   static Void connTraceEnable(Obj conn)
@@ -221,7 +228,7 @@ const class ConnFwFuncs
 
   **
   ** Disable tracing on the given connector.
-  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  ** The `conn` parameter can be anything acceptable by [toRecId()].
   **
   @Api @Axon { admin = true }
   static Void connTraceDisable(Obj conn)
@@ -231,7 +238,7 @@ const class ConnFwFuncs
 
   **
   ** Clear the trace log for the given connector.
-  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  ** The `conn` parameter can be anything acceptable by [toRecId()].
   **
   @Api @Axon { admin = true }
   static Void connTraceClear(Obj conn)
@@ -254,12 +261,13 @@ const class ConnFwFuncs
 
   **
   ** Read a connector trace log as a grid.  If tracing is not enabled
-  ** for the given connector, then an empty grid is returned.  The 'conn'
-  ** parameter may be anything acceptable by `toRecId()`.
+  ** for the given connector, then an empty grid is returned.  The `conn`
+  ** parameter may be anything acceptable by [toRecId()].
   **
   ** Examples:
-  **   read(conn).connTrace
-  **   connTrace(connId)
+  **
+  **     read(conn).connTrace
+  **     connTrace(connId)
   **
   @Api @Axon { admin = true }
   static Grid connTrace(Obj conn, Dict? opts := null)

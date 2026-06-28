@@ -22,15 +22,15 @@ internal mixin ANode
   abstract ANodeType nodeType()
 
   ** Recursively walk thru the AST up the tree:
-  **   1.  Process any node type information
-  **   2.  Process children nodes (meta, slots, etc)
-  **   3.  Process node itself
+  **   1. Process any node type information
+  **   2. Process children nodes (meta, slots, etc)
+  **   3. Process node itself
   abstract Void walkBottomUp(|ANode| f)
 
   ** Recursively walk thru the AST down the tree:
-  **   1.  Process any node type information
-  **   2.  Process node itself
-  **   3.  Process children nodes (meta, slots, etc)
+  **   1. Process any node type information
+  **   2. Process node itself
+  **   3. Process children nodes (meta, slots, etc)
   abstract Void walkTopDown(|ANode| f)
 
   ** Assembled value - raise exception if not assembled yet

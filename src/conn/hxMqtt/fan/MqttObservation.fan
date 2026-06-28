@@ -12,7 +12,7 @@ using obs
 using mqtt
 
 **
-** MqttObservation is an observation event for an 'obsMqtt' stream
+** MqttObservation is an observation event for an `obsMqtt` stream
 **
 @NoDoc
 const class MqttObservation : Observation

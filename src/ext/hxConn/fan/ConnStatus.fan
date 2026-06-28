@@ -11,8 +11,8 @@ using haystack
 
 **
 ** ConnStatus enumeration.  This is a unified status value
-** that incorporates `hx.conn::Conn.connStatus`, `ph::CurPoint.curStatus`,
-** `ph::WritablePoint.writeStatus` and `ph::HisPoint.hisStatus`.  We do
+** that incorporates [hx.conn::Conn.connStatus], [ph::CurPoint.curStatus],
+** [ph::WritablePoint.writeStatus] and [ph::HisPoint.hisStatus].  We do
 ** not model hisStatus pending/syncing.
 **
 enum class ConnStatus
@@ -28,16 +28,16 @@ enum class ConnStatus
   remoteFault,
   remoteDisabled
 
-  ** Is the `unknown` instance
+  ** Is the [unknown] instance
   Bool isUnknown() { this === unknown }
 
-  ** Is the `ok` instance
+  ** Is the [ok] instance
   Bool isOk() { this === ok }
 
-  ** Is the `disabled` instance
+  ** Is the [disabled] instance
   Bool isDisabled() { this === disabled }
 
-  ** Return if this is not `isRemote`
+  ** Return if this is not [isRemote]
   Bool isLocal() { remoteToLocal == null }
 
   ** Is this is a remote status
@@ -104,7 +104,7 @@ enum class ConnStatus
 **************************************************************************
 
 **
-** ConnState enum models the 'connState' status tag for open/close state
+** ConnState enum models the `connState` status tag for open/close state
 **
 @NoDoc
 enum class ConnState

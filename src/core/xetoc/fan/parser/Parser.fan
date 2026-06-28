@@ -134,7 +134,7 @@ internal class Parser
   }
 
   ** Parse top level mixin and add it to lib.  A mixin may be defined across
-  ** multiple files: a second '+Type' with the same name merges its slots into
+  ** multiple files: a second `+Type` with the same name merges its slots into
   ** the existing mixin spec rather than being a duplicate (multi-file mixin).
   private Bool parseLibMixin(Str? doc)
   {

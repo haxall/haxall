@@ -36,7 +36,7 @@ class Tokenizer
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Read the next token, store result in `tok` and `val`
+  ** Read the next token, store result in [tok] and [val]
   **
   Token next()
   {

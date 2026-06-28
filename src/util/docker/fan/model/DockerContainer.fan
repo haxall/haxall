@@ -45,13 +45,13 @@ const class DockerContainer : DockerObj
   ** User-defined key/value metadata
   const Str:Str labels := [:]
 
-  ** The state of this container(e.g. 'Exited')
+  ** The state of this container(e.g. `Exited`)
   const Str state
 
-  ** Additional human-readable status of this container (e.g. 'Exit 0')
+  ** Additional human-readable status of this container (e.g. `Exit 0`)
   const Str status
 
-  ** Network settings. Use `network()` to get the endpoint configuration for
+  ** Network settings. Use [network()] to get the endpoint configuration for
   ** a specific network
   const [Str:[Str:EndpointSettings]] networkSettings := [:]
 

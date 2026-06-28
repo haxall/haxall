@@ -55,7 +55,7 @@ const class CompSpaceActor : Actor
     send(ActorMsg("saveXeto"))
   }
 
-  ** Call `CompSpace.execute`
+  ** Call [CompSpace.execute]
   Future execute(Dict opts := Etc.dict0)
   {
     send(ActorMsg("execute", opts))
@@ -136,7 +136,7 @@ const class CompSpaceActor : Actor
   ** Subclass hook to execute the component space. The CompContext
   ** will already have been installed as an actor local when this is invoked.
   **
-  ** The default implementation simply calls 'execute()' on the component space.
+  ** The default implementation simply calls `execute()` on the component space.
   protected virtual Void onExecuteSpace(CompSpace cs)
   {
     cs.execute

@@ -91,12 +91,12 @@ const mixin UserSession
   ** Session metadata
   @NoDoc abstract Dict meta()
 
-  ** The client's remote address. The default implementation uses the 'remoteAddr'
-  ** tag of the meta, or returns 'unknown' if not specified.
+  ** The client's remote address. The default implementation uses the `remoteAddr`
+  ** tag of the meta, or returns `unknown` if not specified.
   @NoDoc virtual Str remoteAddr() { meta["remoteAddr"] ?: "unknown" }
 
-  ** User agent of the client. The default implementation use the 'userAgent' tag
-  ** of the meta, or returns 'unknown' if not specified.
+  ** User agent of the client. The default implementation use the `userAgent` tag
+  ** of the meta, or returns `unknown` if not specified.
   @NoDoc virtual Str userAgent() { meta["userAgent"] ?: "unknown" }
 
   ** Session creation time

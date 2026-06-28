@@ -18,11 +18,11 @@ const mixin Reflection
   abstract Dict subject()
 
   ** List of def terms implemented by the subject.  This list includes all
-  ** conjuncts; for example '{hot, water}', will include 'hot', 'water',
-  ** and 'hot-water'.  But note these defs are the declared terms only, not
+  ** conjuncts; for example `{hot, water}`, will include `hot`, `water`,
+  ** and `hot-water`.  But note these defs are the declared terms only, not
   ** the full list of all inferred tags through inheritance.  For example if
-  ** subject has the 'ahu' tag, then this list does *not* automatically
-  ** include the 'airHandlingEquip' tag (unless was explicitly included
+  ** subject has the `ahu` tag, then this list does *not* automatically
+  ** include the `airHandlingEquip` tag (unless was explicitly included
   ** in the the subject dict).
   abstract Def[] defs()
 
@@ -35,9 +35,9 @@ const mixin Reflection
 
   ** Return best fit, most specific entity marker(s) for the subject.
   ** This function automatically removes supertype tags.  For example if
-  ** the subject is '{rtu, ahu, equip}', then just '[rtu]' is returned.
-  ** However if the subject has multiple leaf types such as '{cur, his, point}'
-  ** then '[cur-point, his-point]' is returned.  If the subject does not
+  ** the subject is `{rtu, ahu, equip}`, then just `[rtu]` is returned.
+  ** However if the subject has multiple leaf types such as `{cur, his, point}`
+  ** then `[cur-point, his-point]` is returned.  If the subject does not
   ** implement any entity subtype markers then return empty list.
   abstract Def[] entityTypes()
 

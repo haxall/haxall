@@ -147,7 +147,7 @@ const abstract class Mount
     return to
   }
 
-  ** Copy the file or directory designated by 'uri' to the specified location.
+  ** Copy the file or directory designated by `uri` to the specified location.
   ** Then, delete the source file or directory
   protected File nonAtomicMoveTo(Uri uri, File to)
   {

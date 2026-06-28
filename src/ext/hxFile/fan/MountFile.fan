@@ -81,7 +81,7 @@ const class MountFile : SyntheticFile
   ** Move this file to the specified location.  If this file is
   ** a directory, then the entire directory is moved.  If the
   ** target file already exists or the move fails, then an IOErr
-  ** is thrown.  Return the 'to' destination file.
+  ** is thrown.  Return the `to` destination file.
   **
   override File moveTo(File to)
   {

@@ -23,8 +23,8 @@ const class Diff
   ** Construct a modfication for an existing record.  The oldRec
   ** should be the instance which was read from the project.  Any
   ** tags to add/set/remove should be included in the changes dict.
-  ** Use `xeto::None.val` to indicate a tag should be removed.
-  ** See `makeAdd` to create a Diff for adding a new record to a project.
+  ** Use [xeto::None.val] to indicate a tag should be removed.
+  ** See [makeAdd] to create a Diff for adding a new record to a project.
   new make(Dict? oldRec, Obj? changes, Int flags := 0)
   {
     this.changes = Etc.makeDict(changes)
@@ -100,7 +100,7 @@ const class Diff
   ** Target record id
   const Ref id
 
-  ** Timestamp version of `oldRec` or null if adding new record
+  ** Timestamp version of [oldRec] or null if adding new record
   const DateTime? oldMod
 
   ** Original record or null if adding new record
@@ -109,10 +109,10 @@ const class Diff
   ** Updated record which is null until after commit
   const Dict? newRec
 
-  ** Timestamp version of `newRec` or null
+  ** Timestamp version of [newRec] or null
   const DateTime? newMod
 
-  ** Changes applied to `oldRec` with resulting `newRec`
+  ** Changes applied to [oldRec] with resulting [newRec]
   const Dict changes
 
   ** Bitmask meta-data for diff
@@ -122,31 +122,31 @@ const class Diff
 // Flags
 //////////////////////////////////////////////////////////////////////////
 
-  ** Flag bitmask for `isAdd`
+  ** Flag bitmask for [isAdd]
   static const Int add := 0x01
 
-  ** Flag bitmask for `isRemove`
+  ** Flag bitmask for [isRemove]
   static const Int remove  := 0x02
 
-  ** Flag bitmask for `isTransient`
+  ** Flag bitmask for [isTransient]
   static const Int transient := 0x04
 
-  ** Flag bitmask for `isForce`
+  ** Flag bitmask for [isForce]
   static const Int force := 0x08
 
-  ** Flag bitmask for `isBypassRestricted`
+  ** Flag bitmask for [isBypassRestricted]
   @NoDoc static const Int bypassRestricted := 0x10
 
-  ** Flag bitmask for `isCurVal`
+  ** Flag bitmask for [isCurVal]
   @NoDoc static const Int curVal := 0x20
 
   ** Flag bitmask indicating changes dict has point tag
   @NoDoc static const Int point := 0x40
 
-  ** Flag bitmask for `isTreeUpdate`
+  ** Flag bitmask for [isTreeUpdate]
   @NoDoc static const Int treeUpdate := 0x80
 
-  ** Flag bitmask for `force` and `transient`
+  ** Flag bitmask for [force] and [transient]
   static const Int forceTransient := force.or(transient)
 
   ** Update diff - not an add nor a remove
@@ -164,7 +164,7 @@ const class Diff
 
   ** Flag indicating that changes should be applied regardless
   ** of other concurrent changes which may be been applied after
-  ** the `oldRec` version was read.
+  ** the [oldRec] version was read.
   Bool isForce() { flags.and(force) != 0 }
 
   ** Flag indicating bypass of restricted handling for system

@@ -23,21 +23,21 @@ const class ModbusFuncs
   ** Utility to get the current Context
   private static Context cx() { Context.cur }
 
-  ** Deprecated - use `connPing()`
+  ** Deprecated - use [connPing()]
   @Deprecated @Api @Axon { admin = true }
   static Future modbusPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
-  ** Deprecated - use `connLearn()`
+  ** Deprecated - use [connLearn()]
   @Deprecated @Api @Axon { admin = true }
   static Grid modbusLearn(Obj conn, Obj? arg := null)
   {
     ConnFwFuncs.connLearn(conn, arg).get(1min)
   }
 
-  ** Deprecated - use `connSyncCur()`
+  ** Deprecated - use [connSyncCur()]
   @Deprecated @Api @Axon { admin = true }
   static Obj? modbusSyncCur(Obj points)
   {
@@ -46,9 +46,9 @@ const class ModbusFuncs
 
   **
   ** Read a point value for given register name on connector instance.
-  ** The 'regs' argument may be a single 'Str' name, or a 'Str[]' for a
+  ** The `regs` argument may be a single `Str` name, or a `Str[]` for a
   ** block read. The grid returned will contain a row for each register
-  ** requested and two columns: 'name' and 'val'.
+  ** requested and two columns: `name` and `val`.
   **
   @Api @Axon { admin = true }
   static Grid modbusRead(Obj conn, Obj regs)
@@ -69,7 +69,7 @@ const class ModbusFuncs
 
   ** Return given register map contents. Do not include the file extension in the name.
   **
-  **  modbusRegMap("myRegisterMap")
+  ** modbusRegMap("myRegisterMap")
   @Api @Axon
   static Grid modbusRegMap(Str name)
   {

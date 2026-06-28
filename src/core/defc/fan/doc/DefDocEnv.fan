@@ -225,7 +225,7 @@ const class DefDocEnv : DocEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** List all all associations to generate a documentation section.
-  ** These are marked with 'docAssociation' such as tags, quantities.
+  ** These are marked with `docAssociation` such as tags, quantities.
   DocDef[] docAssociations()
   {
     // cache this since is expensive and used on every page
@@ -239,7 +239,7 @@ const class DefDocEnv : DocEnv
   }
   private const AtomicRef docSectionsRef := AtomicRef()
 
-  ** List all tags marked as 'docSection' such as tags, quantities.
+  ** List all tags marked as `docSection` such as tags, quantities.
   DocDef[] associations(DocDef parent, DocDef association)
   {
     resolveList(ns.associations(parent.def, association.def), true)
@@ -251,9 +251,9 @@ const class DefDocEnv : DocEnv
 
   **
   ** Extended link shortcuts
-  **  - `equip` => lib-phIoT/equip
-  **  - `tz`    => lib-ph/tz  (tags trump funcs)
-  **  - `tz()`  => lib-core/func~tz  (force func to trump tags)
+  **  - [equip] => lib-phIoT/equip
+  **  - [tz]    => lib-ph/tz  (tags trump funcs)
+  **  - [tz()]  => lib-core/func~tz  (force func to trump tags)
   **
   override DocLink? link(Doc from, Str link, Bool checked := true)
   {

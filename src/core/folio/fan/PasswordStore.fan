@@ -43,7 +43,7 @@ const class PasswordStore
 // Access
 //////////////////////////////////////////////////////////////////////////
 
-  ** File used to store passwords passed to `open` method.
+  ** File used to store passwords passed to [open] method.
   @NoDoc const File file
 
   ** Logging

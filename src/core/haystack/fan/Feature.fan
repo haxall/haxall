@@ -24,7 +24,7 @@ const mixin Feature
   abstract Def? def(Str name, Bool checked := true)
 
   ** Build a list of all defs within this feature.  This call
-  ** can be expensive so prefer `eachDef` or `findDefs`.
+  ** can be expensive so prefer [eachDef] or [findDefs].
   @NoDoc abstract Def[] defs()
 
   ** Iterate all the definitions within this feature namespace

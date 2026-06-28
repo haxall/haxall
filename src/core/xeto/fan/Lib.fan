@@ -39,13 +39,13 @@ const mixin Lib : Dict
   ** Top level specs keyed by simple name (types and mixins)
   abstract SpecMap specs()
 
-  ** Convenience for 'specs.get'
+  ** Convenience for `specs.get`
   abstract Spec? spec(Str name, Bool checked := true)
 
   ** Top level type specs keyed by simple name (excludes synthetic types)
   abstract SpecMap types()
 
-  ** Convenience for 'types.get'
+  ** Convenience for `types.get`
   abstract Spec? type(Str name, Bool checked := true)
 
   ** Top level mixin specs keyed by simple name
@@ -63,13 +63,13 @@ const mixin Lib : Dict
   ** Iterate the instances
   abstract Void eachInstance(|Dict, Str| f)
 
-  ** Funcs declared by this lib under the 'Funcs' mixin.
+  ** Funcs declared by this lib under the `Funcs` mixin.
   @NoDoc abstract SpecMap funcs()
 
-  ** Is this the 'sys' library
+  ** Is this the `sys` library
   @NoDoc abstract Bool isSys()
 
-  ** Is this the 'proj' companion library
+  ** Is this the `proj` companion library
   @NoDoc abstract Bool isCompanion()
 
   ** Does this library contain markdown resource files

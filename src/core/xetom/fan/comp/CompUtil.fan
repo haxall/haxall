@@ -211,7 +211,7 @@ class CompUtil
     spec.parent == null || !spec.parent.isComp
   }
 
-  ** Given slot spec, get top-level type that scopes declaration of 'link' meta tag
+  ** Given slot spec, get top-level type that scopes declaration of `link` meta tag
   static Spec toLinkScope(Spec slot)
   {
     p := slot.parent

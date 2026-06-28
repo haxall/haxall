@@ -10,7 +10,7 @@
 using xeto
 
 **
-** Write Haystack data in [Zinc]`ph.doc::Zinc` format.
+** Write Haystack data in [Zinc](ph.doc::Zinc) format.
 **
 @Js
 class ZincWriter : GridWriter
@@ -42,7 +42,7 @@ class ZincWriter : GridWriter
 
   **
   ** Format a set of tags to a string in memory which can be parsed with
-  ** `ZincReader.readTags`.  The tags can be a 'Dict' or a 'Str:Obj' map.
+  ** [ZincReader.readTags].  The tags can be a `Dict` or a `Str:Obj` map.
   ** This method is only available for legacy purposes.  Newer code should
   ** use valToStr.
   **

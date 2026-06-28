@@ -11,7 +11,7 @@
 using concurrent
 
 **
-** SerialSocket provides I/O access to a serial port opened by `SerialLib.open`
+** SerialSocket provides I/O access to a serial port opened by [SerialLib.open]
 **
 abstract class SerialSocket
 {

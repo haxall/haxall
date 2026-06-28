@@ -132,7 +132,7 @@ internal final class ConnMgr
     }
   }
 
-  ** Close a pinned application opened by `openPin`.
+  ** Close a pinned application opened by [openPin].
   Void closePin(Str app)
   {
     if (vars.closePin(app))
@@ -142,7 +142,7 @@ internal final class ConnMgr
     }
   }
 
-  ** Open this connector and call `onOpen`.
+  ** Open this connector and call [onOpen].
   private Void open(Str app)
   {
     if (isDisabled) return
@@ -177,7 +177,7 @@ internal final class ConnMgr
     checkWriteOnOpen
   }
 
-  ** Force this connector closed and call `onClose`.
+  ** Force this connector closed and call [onClose].
   ** Reason is a string message or Err exception
   Dict close(Obj? cause)
   {
@@ -212,7 +212,7 @@ internal final class ConnMgr
   }
 
   ** Ping this connector and call onPing.  If the connector
-  ** is not currently open then call `openLinger`
+  ** is not currently open then call [openLinger]
   Dict ping()
   {
     // ensure open

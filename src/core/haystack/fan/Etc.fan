@@ -33,9 +33,9 @@ const class Etc
   @NoDoc static const Dict[] emptyDictList := Dict[,]
 
   **
-  ** Make a Dict instance where 'val' is one of the following:
-  **   - Dict: return 'val'
-  **   - null: return `dict0`
+  ** Make a Dict instance where `val` is one of the following:
+  **   - Dict: return `val`
+  **   - null: return [dict0]
   **   - Str:Obj?: wrap map as Dict
   **   - Str[]: dictionary of key/Marker value pairs
   **
@@ -93,7 +93,7 @@ const class Etc
 
   **
   ** Make a Dict with one name/value pair.
-  ** Backward compatibility only for nullable values, use `dict1` now.
+  ** Backward compatibility only for nullable values, use [dict1] now.
   **
   @Deprecated { msg = "Use dict1" }
   static Dict makeDict1(Str n, Obj? v)
@@ -103,7 +103,7 @@ const class Etc
 
   **
   ** Make a Dict with two name/value pairs.
-  ** Backward compatibility only for nullable values, use `dict2` now.
+  ** Backward compatibility only for nullable values, use [dict2] now.
   **
   @Deprecated { msg = "Use dict2" }
   static Dict makeDict2(Str n0, Obj? v0, Str n1, Obj? v1)
@@ -113,7 +113,7 @@ const class Etc
 
   **
   ** Make a Dict with three name/value pairs.
-  ** Backward compatibility only for nullable values, use `dict3` now.
+  ** Backward compatibility only for nullable values, use [dict3] now.
   **
   @Deprecated { msg = "Use dict3" }
   static Dict makeDict3(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2)
@@ -123,7 +123,7 @@ const class Etc
 
   **
   ** Make a Dict with four name/value pairs.
-  ** Backward compatibility only for nullable values, use `dict4` now.
+  ** Backward compatibility only for nullable values, use [dict4] now.
   **
   @Deprecated { msg = "Use dict4" }
   static Dict makeDict4(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3)
@@ -133,7 +133,7 @@ const class Etc
 
   **
   ** Make a Dict with five name/value pairs.
-  ** Backward compatibility only for nullable values, use `dict5` now.
+  ** Backward compatibility only for nullable values, use [dict5] now.
   **
   @Deprecated { msg = "Use dict5" }
   static Dict makeDict5(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3, Str n4, Obj? v4)
@@ -143,7 +143,7 @@ const class Etc
 
   **
   ** Make a Dict with six name/value pairs.
-  ** Backward compatibility only for nullable values, use `dict6` now.
+  ** Backward compatibility only for nullable values, use [dict6] now.
   **
   @Deprecated { msg = "Use dict6" }
   static Dict makeDict6(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3, Str n4, Obj? v4, Str n5, Obj? v5)
@@ -357,7 +357,7 @@ const class Etc
   }
 
   **
-  ** Make a list of Dict instances using `makeDict`.
+  ** Make a list of Dict instances using [makeDict].
   **
   static Dict[] makeDicts(Obj?[] maps)
   {
@@ -367,7 +367,7 @@ const class Etc
   **
   ** Get a read/write list of the dict's name keys.
   ** If sort is true, then sort them in standard order
-  ** using same algorthm as `dictsNames`.
+  ** using same algorthm as [dictsNames].
   **
   static Str[] dictNames(Dict d, Bool sort := false)
   {
@@ -424,7 +424,7 @@ const class Etc
 
   **
   ** Convert a Dict to a read/write map.  This method is expensive,
-  ** when possible you should instead use `xeto::Dict.each`.
+  ** when possible you should instead use [xeto::Dict.each].
   **
   static Str:Obj? dictToMap(Dict? d)
   {
@@ -524,7 +524,7 @@ const class Etc
   ** Add/set all the name/value pairs in a with those defined
   ** in b.  If b defines a remove value then that name/value is
   ** removed from a.  The b parameter may be any value
-  ** accepted by `makeDict`
+  ** accepted by [makeDict]
   **
   static Dict dictMerge(Dict a, Obj? b)
   {
@@ -586,7 +586,7 @@ const class Etc
   **
   ** Set a name/val pair in an existing dict or if dict is null then
   ** create a new dict with given name/val pair. If val is null
-  ** this is semantically equivalent to 'dictRemove(d, name)'.
+  ** this is semantically equivalent to `dictRemove(d, name)`.
   **
   static Dict dictSet(Dict? d, Str name, Obj? val)
   {
@@ -650,8 +650,8 @@ const class Etc
 
   **
   ** Construct an object which wraps a dict and is suitable to use
-  ** for a hash key in a `sys::Map`.  The key provides implementations
-  ** of `sys::Obj.hash` and `sys::Obj.equals` based on the
+  ** for a hash key in a [sys::Map].  The key provides implementations
+  ** of [sys::Obj.hash] and [sys::Obj.equals] based on the
   ** the name/value pairs in the dict.  Hash keys do not support
   ** Dicts which contain anything but scalar values (nested lists,
   ** dicts, and grids are silently ignored for hash/equality purposes).
@@ -660,7 +660,7 @@ const class Etc
 
   **
   ** Return if two dicts are equal with same name/value pairs.
-  ** Value are compared via the `sys::Obj.equals` method.  Ordering
+  ** Value are compared via the [sys::Obj.equals] method.  Ordering
   ** of the dict tags is not considered.
   **
   static Bool dictEq(Dict a, Dict b)
@@ -692,7 +692,7 @@ const class Etc
   }
 
   **
-  ** Map dict tags to a string such as '{tag1:val1, ...}'
+  ** Map dict tags to a string such as `{tag1:val1, ...}`
   **
   @NoDoc
   static Str dictToStr(Dict d)
@@ -764,7 +764,7 @@ const class Etc
     return val.toStr
   }
 
-  ** Coerce dict to Haystack types, see `toHaystack`.
+  ** Coerce dict to Haystack types, see [toHaystack].
   static Dict dictToHaystack(Dict dict, Dict? opts := null)
   {
     dict.map |x| { toHaystack(x, opts) }
@@ -829,12 +829,12 @@ const class Etc
 
   **
   ** Given a dict, attempt to find the best display string:
-  **   1. 'dis' tag
-  **   2. 'disMacro' tag returns `macro` using dict as scope
-  **   3. 'disKey' maps to qname locale key
-  **   4. 'name' tag
-  **   5. 'tag' tag
-  **   6. 'id' tag
+  **   1. `dis` tag
+  **   2. `disMacro` tag returns [macro] using dict as scope
+  **   3. `disKey` maps to qname locale key
+  **   4. `name` tag
+  **   5. `tag` tag
+  **   6. `id` tag
   **   7. default
   **
   static Str? dictToDis(Dict dict, Str? def := "")
@@ -922,7 +922,7 @@ const class Etc
   }
 
   **
-  ** Sort a list by display name.  The 'getDis' name function
+  ** Sort a list by display name.  The `getDis` name function
   ** is used to extract the display name from each item or if null
   ** then the list is assumed to be display names.  The sort
   ** is performed in-place mutating the list.
@@ -975,13 +975,13 @@ const class Etc
   **
   ** Process macro pattern with given scope of variable name/value pairs.
   ** The pattern is a Unicode string with embedded expressions:
-  **  - '$tag': resolve tag name from scope, variable name ends
-  **    with first non-tag character, see `Etc.isTagName`
-  **  - '${tag}': resolve tag name from scope
-  **  - '$<pod::key>': localization key
+  **  - `$tag`: resolve tag name from scope, variable name ends
+  **    with first non-tag character, see [Etc.isTagName]
+  **  - `${tag}`: resolve tag name from scope
+  **  - `$<pod::key>`: localization key
   **
   ** Any variables which cannot be resolved in the scope are
-  ** returned as-is (such '$name') in the result string.
+  ** returned as-is (such `$name`) in the result string.
   **
   ** If a tag resolves to Ref, then we use Ref.dis for string.
   **
@@ -994,9 +994,9 @@ const class Etc
   }
 
   **
-  ** Return the list of variable tag names used in the given `macro`
-  ** pattern.  This includes "$tag" and "${tag}" variables, but does
-  ** not include "$<pod::key>" localization keys.
+  ** Return the list of variable tag names used in the given [macro]
+  ** pattern.  This includes `$tag` and `${tag}` variables, but does
+  ** not include `$<pod::key>` localization keys.
   **
   static Str[] macroVars(Str pattern)
   {
@@ -1078,9 +1078,9 @@ const class Etc
   **
   ** Return if the given string is a legal kind name:
   **   - first char must be ASCII upper case
-  **     letter: 'a' - 'z'
+  **     letter: `a` - `z`
   **   - rest of chars must be ASCII letter or
-  **     digit: 'a' - 'z', 'A' - 'Z', '0' - '9', or '_'
+  **     digit: `a` - `z`, `A` - `Z`, `0` - `9`, or `_`
   **
   static Bool isKindName(Str n)
   {
@@ -1091,9 +1091,9 @@ const class Etc
   **
   ** Return if the given string is a legal tag name:
   **   - first char must be ASCII lower case letter or underbar:
-  **     'a' - 'z' or '_'
+  **     `a` - `z` or `_`
   **   - rest of chars must be ASCII letter,digit, or underbar:
-  **     'a' - 'z', 'A' - 'Z', '0' - '9', or '_'
+  **     `a` - `z`, `A` - `Z`, `0` - `9`, or `_`
   **   - if first char is underbar, then it must have a
   **     at least one additional alpha-num character
   **   - or if first two chars are underbar, then must be
@@ -1198,7 +1198,7 @@ const class Etc
 
   **
   ** Get the localized string for the given tag name for the
-  ** current locale. See `hx.doc.skyspark::Localization#tags`.
+  ** current locale. See [hx.doc.skyspark::Localization#tags].
   **
   static Str tagToLocale(Str name)
   {
@@ -1210,9 +1210,10 @@ const class Etc
   **
   ** Return if given name is/starts with prefix using camel
   ** case notation:
-  **   nameStartsWith("foo", "foo")     // true
-  **   nameStartsWith("foo", "fooBar")  // true
-  **   nameStartsWith("foo", "fool")    // false
+  **
+  **     nameStartsWith("foo", "foo")     // true
+  **     nameStartsWith("foo", "fooBar")  // true
+  **     nameStartsWith("foo", "fool")    // false
   **
   @NoDoc static Bool nameStartsWith(Str prefix, Str name)
   {
@@ -1272,11 +1273,11 @@ const class Etc
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Iterate a [discrete period]`discretePeriods()` string formatted in base64.
-  ** Call the iterator function for each period where 'time' is offset in minutes
-  ** from base timestamp and 'dur' is duration of period in minutes (assuming
-  ** a minutely interval).  This method may also be used `discreteEnumPeriods()`
-  ** in which case the 'dur' parameter will be the enum ordinal.
+  ** Iterate a [discrete period](discretePeriods()) string formatted in base64.
+  ** Call the iterator function for each period where `time` is offset in minutes
+  ** from base timestamp and `dur` is duration of period in minutes (assuming
+  ** a minutely interval).  This method may also be used [discreteEnumPeriods()]
+  ** in which case the `dur` parameter will be the enum ordinal.
   **
   static Void discretePeriods(Str str, |Int time, Int dur| f)
   {
@@ -1300,11 +1301,11 @@ const class Etc
 
   **
   ** Return periods as human readable time/duration or time/enum pairs using
-  ** current locale.  If the rec passed has an `enum` tag then we interpret
+  ** current locale.  If the rec passed has an [enum] tag then we interpret
   ** the periods as enum values, otherwise binary on duration values.  If there are
   ** more than max pairs then show only max and add "...". This method assumes
   ** the all time offsets are minutes after given start time, unless the rec passed
-  ** has the 'discreteInterval' tag in which case then it is used to determine
+  ** has the `discreteInterval` tag in which case then it is used to determine
   ** the time/duration pairs.
   **
   @NoDoc static Str discretePeriodsDis(Dict rec, DateTime start, Str periods, Int max := 5)
@@ -1379,7 +1380,7 @@ const class Etc
 
   **
   ** Construct an empty grid with just the given grid level meta-data.
-  ** The meta parameter can be any `makeDict` value.
+  ** The meta parameter can be any [makeDict] value.
   **
   static Grid makeEmptyGrid(Obj? meta := null)
   {
@@ -1400,11 +1401,11 @@ const class Etc
 
   **
   ** Map an exception to its standard tags:
-  **   - 'dis': error display string
-  **   - 'err': marker
-  **   - 'errTrace': Str stack dump
-  **   - 'axonTrace': Axon stack dump (if applicable)
-  **   - 'errType': exception type qname
+  **   - `dis`: error display string
+  **   - `err`: marker
+  **   - `errTrace`: Str stack dump
+  **   - `axonTrace`: Axon stack dump (if applicable)
+  **   - `errType`: exception type qname
   **
   static Dict toErrMeta(Err e)
   {
@@ -1461,7 +1462,7 @@ const class Etc
   }
 
   **
-  ** Convenience for `makeDictGrid`
+  ** Convenience for [makeDictGrid]
   **
   static Grid makeMapGrid(Obj? meta, Str:Obj? row)
   {
@@ -1469,7 +1470,7 @@ const class Etc
   }
 
   **
-  ** Convenience for `makeDictsGrid`
+  ** Convenience for [makeDictsGrid]
   **
   static Grid makeMapsGrid(Obj? meta, [Str:Obj?][] rows)
   {
@@ -1479,7 +1480,7 @@ const class Etc
 
   **
   ** Construct a grid for a Dict row.
-  ** The meta parameter can be any `makeDict` value.
+  ** The meta parameter can be any [makeDict] value.
   **
   static Grid makeDictGrid(Obj? meta, Dict row)
   {
@@ -1501,8 +1502,8 @@ const class Etc
 
   **
   ** Construct a grid for a list of Dict rows.  The meta parameter
-  ** can be any `makeDict` value.  Any null dicts result in an empty
-  ** row of all nulls.  If no non-null rows, then return `makeEmptyGrid`.
+  ** can be any [makeDict] value.  Any null dicts result in an empty
+  ** row of all nulls.  If no non-null rows, then return [makeEmptyGrid].
   **
   static Grid makeDictsGrid(Obj? meta, Dict?[] rows)
   {
@@ -1524,7 +1525,7 @@ const class Etc
 
   **
   ** Construct a grid with one column for a list.  The meta
-  ** and colMeta parameters can be any `makeDict` value.
+  ** and colMeta parameters can be any [makeDict] value.
   **
   static Grid makeListGrid(Obj? meta, Str colName, Obj? colMeta, Obj?[] rows)
   {
@@ -1538,7 +1539,7 @@ const class Etc
   **
   ** Construct a grid for a list of rows, where each row is
   ** a list of cells.  The meta and colMetas parameters can
-  ** be any `makeDict` value.
+  ** be any [makeDict] value.
   **
   static Grid makeListsGrid(Obj? meta, Str[] colNames, Obj?[]? colMetas, Obj?[][] rows)
   {
@@ -1585,7 +1586,7 @@ const class Etc
   **
   ** Coerce a value to a Ref identifier:
   **   - Ref returns itself
-  **   - Row or Dict, return 'id' tag
+  **   - Row or Dict, return `id` tag
   **   - Grid return first row id
   **
   static Ref toId(Obj? val)
@@ -1600,9 +1601,9 @@ const class Etc
   ** Coerce a value to a list of Ref identifiers:
   **   - Ref returns itself as list of one
   **   - Ref[] returns itself
-  **   - Dict return 'id' tag
-  **   - Dict[] return 'id' tags
-  **   - Grid return 'id' column
+  **   - Dict return `id` tag
+  **   - Dict[] return `id` tags
+  **   - Grid return `id` column
   **
   static Ref[] toIds(Obj? val)
   {
@@ -1786,16 +1787,16 @@ const class Etc
 
   **
   ** Coerce an object to a DateSpan:
-  **   - 'Func': function which evaluates to date range (must be run in a context)
-  **   - 'DateSpan': return itself
-  **   - 'Date': one day range
-  **   - 'Span': return `haystack::Span.toDateSpan`
-  **   - 'Str': evaluates to `haystack::DateSpan.fromStr`
-  **   - 'Date..Date': starting and ending date (inclusive)
-  **   - 'Date..Number': starting date and num of days (day unit required)
-  **   - 'DateTime..DateTime': use starting/ending dates; if end is midnight,
+  **   - `Func`: function which evaluates to date range (must be run in a context)
+  **   - `DateSpan`: return itself
+  **   - `Date`: one day range
+  **   - `Span`: return [haystack::Span.toDateSpan]
+  **   - `Str`: evaluates to [haystack::DateSpan.fromStr]
+  **   - `Date..Date`: starting and ending date (inclusive)
+  **   - `Date..Number`: starting date and num of days (day unit required)
+  **   - `DateTime..DateTime`: use starting/ending dates; if end is midnight,
   **     then use previous date
-  **   - 'Number': convert as year
+  **   - `Number`: convert as year
   **
   static DateSpan toDateSpan(Obj? val, HaystackContext? cx := null)
   {
@@ -1827,17 +1828,17 @@ const class Etc
   }
 
   **
-  ** Coerce an object to a `Span` with optional timezone:
-  **   - 'Span': return itself
-  **   - 'Span+tz': update timezone using same dates only if aligned to midnight
-  **   - 'Str': return `haystack::Span.fromStr` using current timezone
-  **   - 'Str+tz': return `haystack::Span.fromStr` using given timezone
-  **   - 'DateTime..DateTime': range of two DateTimes
-  **   - 'Date..DateTime': start day for date until the end timestamp
-  **   - 'DateTime..Date': start timestamp to end of day for end date
-  **   - 'DateTime': span of a single timestamp
-  **   - 'DateSpan': anything accepted by `toDateSpan` in current timezone
-  **   - 'DateSpan+tz': anything accepted by `toDateSpan` using given timezone
+  ** Coerce an object to a [Span] with optional timezone:
+  **   - `Span`: return itself
+  **   - `Span+tz`: update timezone using same dates only if aligned to midnight
+  **   - `Str`: return [haystack::Span.fromStr] using current timezone
+  **   - `Str+tz`: return [haystack::Span.fromStr] using given timezone
+  **   - `DateTime..DateTime`: range of two DateTimes
+  **   - `Date..DateTime`: start day for date until the end timestamp
+  **   - `DateTime..Date`: start timestamp to end of day for end date
+  **   - `DateTime`: span of a single timestamp
+  **   - `DateSpan`: anything accepted by [toDateSpan] in current timezone
+  **   - `DateSpan+tz`: anything accepted by [toDateSpan] using given timezone
   **
   static Span toSpan(Obj? val, TimeZone? tz := null, HaystackContext? cx := null)
   {
@@ -1908,9 +1909,9 @@ const class Etc
   }
 
   ** Indent every line of the given string.  Flags:
-  **   - 'x': strip empty lines
-  **   - '<': add leading leading newline
-  **   - '>': add trailing newline
+  **   - `x`: strip empty lines
+  **   - `<`: add leading leading newline
+  **   - `>`: add trailing newline
   @NoDoc static Str indent(Str str, Int indent := 2, Str flags := ">")
   {
     s := StrBuf()
@@ -1938,8 +1939,9 @@ const class Etc
   }
 
   ** Given command line args, turn into a map:
-  **   -foo -bar baz         // input
-  **   [foo:true, bar:baz]   // output
+  **
+  **     -foo -bar baz         // input
+  **     [foo:true, bar:baz]   // output
   @NoDoc static Str:Str toCliArgsMap(Str[] args)
   {
     acc := Str:Str[:]

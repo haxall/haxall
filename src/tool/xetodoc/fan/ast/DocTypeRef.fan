@@ -36,10 +36,10 @@ abstract const class DocTypeRef
   ** Return if this is a Maybe type
   abstract Bool isMaybe()
 
-  ** Return if is a parameterized type with 'of'
+  ** Return if is a parameterized type with `of`
   virtual Bool isOf() { false }
 
-  ** Return of the 'of' parameterized type
+  ** Return of the `of` parameterized type
   virtual DocTypeRef? of() { null }
 
   ** Return if this is an And/Or type

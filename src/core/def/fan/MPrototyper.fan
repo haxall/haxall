@@ -24,7 +24,7 @@ internal class MPrototyper
     this.parentReflect = ns.reflect(parent)
   }
 
-  ** Implementation for 'Namespace.proto' and 'Namespace.protos'
+  ** Implementation for `Namespace.proto` and `Namespace.protos`
   Dict[] generate(Dict? proto)
   {
     computeFlattenTags
@@ -39,7 +39,7 @@ internal class MPrototyper
 
   ** Reflect all the defs implemented by the parent and compute
   ** list of tags which are "flattened" into children protos.  For
-  ** example children of a 'duct' will flatten the specific 'ductSection'.
+  ** example children of a `duct` will flatten the specific `ductSection`.
   private Void computeFlattenTags()
   {
     // walk each def implemented by the parent
@@ -62,8 +62,8 @@ internal class MPrototyper
   }
 
   ** If given def should be flattened into children of current parent
-  ** then return tag to apply.  For example if flattening 'ductSectionType'
-  ** and the parent has 'discharge' then return "discharge" to add
+  ** then return tag to apply.  For example if flattening `ductSectionType`
+  ** and the parent has `discharge` then return "discharge" to add
   ** as a marker into all the children
   private Def? applyFlattenTag(Reflection parentReflect, Def toFlatten)
   {

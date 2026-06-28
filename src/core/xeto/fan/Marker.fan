@@ -16,7 +16,7 @@ const final class Marker
   ** Singleton value
   const static Marker val := Marker()
 
-  ** Always return `val`
+  ** Always return [val]
   static new fromStr(Str s) { val }
 
   private new make() {}

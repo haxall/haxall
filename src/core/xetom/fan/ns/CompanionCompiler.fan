@@ -16,7 +16,7 @@ using haystack
 ** set, and if it fails, mark every rec that errored with an error status and
 ** recompile.  The parser skips recs already in error, so each pass sees only
 ** the still-ok recs.  This isolates a bad rec so the rest of the companion lib
-** still loads, with per-rec status recorded on each `CompanionRec`.
+** still loads, with per-rec status recorded on each [CompanionRec].
 **
 ** The dependency cascade is automatic: marking a bad base spec in error makes
 ** its subtypes fail to resolve on the next pass, so they get quarantined

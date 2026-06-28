@@ -24,12 +24,12 @@ class HostConfig
 
   ** Memory limit in bytes
   Int memory := 0 { private set }
-  ** Set the `memory` and return this
+  ** Set the [memory] and return this
   This withMemory(Int bytes) { this.memory = bytes.max(0); return this }
 
   ** Volume bindings for the container
   Bind[]? binds { private set }
-  ** Set the `binds` and return this. Overwrites any existing binds.
+  ** Set the [binds] and return this. Overwrites any existing binds.
   This withBinds(Bind[] binds) { this.binds = binds; return this }
   ** Add a volume binding and return this
   This withBind(Bind bind)
@@ -50,9 +50,9 @@ class HostConfig
   }
 
   ** Network mode to use for this container. Supported standard values are:
-  ** 'bridge', 'host', 'none', and 'container:<name|id>'. Any other value is taken
+  ** `bridge`, `host`, `none`, and `container:<name|id>`. Any other value is taken
   ** as a custom network's name to which this container should connect to.
   Str? networkMode { private set }
-  ** Set the `networkMode` and return this
+  ** Set the [networkMode] and return this
   This withNetworkMode(Str networkMode) { this.networkMode = networkMode; return this }
 }

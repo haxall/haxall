@@ -14,7 +14,7 @@ using haystack
 ** Settings wraps a dict that maps tags to statically typed fields
 ** for extension settings.  To use this API:
 **   1. Create subclass of Settings
-**   2. Annotate const instance fields with [@Setting]`Setting`
+**   2. Annotate const instance fields with [@Setting](Setting)
 **   3. Create constructor with Dict and it-block callback
 **
 ** The following coercions are supported:
@@ -24,16 +24,16 @@ using haystack
 **
 ** Example:
 **
-**    const class ExampleSettings : Settings
-**    {
-**      static new wrap(Dict d, |Str|? onErr := null) { create(ExampleRec#, d, onErr) }
+**      const class ExampleSettings : Settings
+**      {
+**        static new wrap(Dict d, |Str|? onErr := null) { create(ExampleRec#, d, onErr) }
 **
-**      new make(Dict d, |This| f) : super(d) { f(this) }
+**        new make(Dict d, |This| f) : super(d) { f(this) }
 **
-**      @Setting const Int limit := 99
+**        @Setting const Int limit := 99
 **
-**      @Setting const Duration timeout := 3sec
-**    }
+**        @Setting const Duration timeout := 3sec
+**      }
 **
 @Js
 const class Settings : Dict
@@ -121,7 +121,7 @@ const class Settings : Dict
 **************************************************************************
 
 **
-** Facet to annotate a `Settings` field.
+** Facet to annotate a [Settings] field.
 **
 @Js
 facet class Setting

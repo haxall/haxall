@@ -65,7 +65,7 @@ const class MFeature : Feature
   }
 
   ** Build a list of all defs within this feature.  This call
-  ** can be expensive so prefer `eachDef` or `findDefs`.
+  ** can be expensive so prefer [eachDef] or [findDefs].
   override Def[] defs()
   {
     acc := allocList(listCapacity.val)

@@ -31,9 +31,9 @@ const class HttpSettings : Settings
   @Setting { restart=true }
   const Str? addr
 
-  ** If false all traffic is handled in plaintext on 'httpPort'.  If set
-  ** to true, then all traffic is forced to use HTTPS on 'httpsPort' and
-  ** requests to 'httpPort' are redirected.
+  ** If false all traffic is handled in plaintext on `httpPort`.  If set
+  ** to true, then all traffic is forced to use HTTPS on `httpsPort` and
+  ** requests to `httpPort` are redirected.
   @Setting { restart=true }
   const Bool httpsEnabled := false
 
@@ -41,7 +41,7 @@ const class HttpSettings : Settings
   @Setting { restart=true }
   const Int httpPort := 8080
 
-  ** Port for HTTPS; only applicable if 'httpsEnabled'
+  ** Port for HTTPS; only applicable if `httpsEnabled`
   @Setting { restart=true }
   const Int httpsPort := 443
 

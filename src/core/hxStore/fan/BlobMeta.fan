@@ -18,7 +18,7 @@ native const final class BlobMeta
   ** Size in bytes
   Int size()
 
-  ** Convenience for `readU1`
+  ** Convenience for [readU1]
   @Operator Int get(Int index)
 
   ** Get one byte as unsigned 8-bit integer at given index

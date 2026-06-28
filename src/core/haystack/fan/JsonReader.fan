@@ -10,21 +10,23 @@ using util
 using xeto
 
 **
-** Read Haystack data in [JSON]`ph.doc::Json` format.
+** Read Haystack data in [JSON](ph.doc::Json) format.
 **
 @Js
 class JsonReader : GridReader
 {
 
   ** Wrap input stream. By default, the reader decodes JSON in the Haystack 4 (Hayson)
-  ** format. Use the 'v3' option to decode JSON in the Haystack 3 format.
+  ** format. Use the `v3` option to decode JSON in the Haystack 3 format.
   **
   ** The following opts are supported:
-  **  - 'v3' (Marker): read JSON encoded in the Haystack 3 format
+  **  - `v3` (Marker): read JSON encoded in the Haystack 3 format
   **
-  **   g := JsonReader(in).readGrid
+  ** ```fantom
+  ** g := JsonReader(in).readGrid
   **
-  **   val := JsonReader(in, Etc.makeDict(["v3":Marker.val])).readVal
+  ** val := JsonReader(in, Etc.makeDict(["v3":Marker.val])).readVal
+  ** ```
   new make(InStream in, Dict? opts := null)
   {
     this.in = JsonInStream(in)
@@ -45,7 +47,7 @@ class JsonReader : GridReader
     }
   }
 
-  ** Convenience for `readVal` as Grid
+  ** Convenience for [readVal] as Grid
   override Grid readGrid() { readVal }
 
   private JsonInStream in

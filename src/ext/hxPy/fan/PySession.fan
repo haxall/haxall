@@ -48,7 +48,7 @@ mixin PySession
 **************************************************************************
 
 **
-** HxpySession opens a connection to a python process running 'hxpy'.
+** HxpySession opens a connection to a python process running `hxpy`.
 **
 @NoDoc class HxpySession : PySession
 {
@@ -57,8 +57,8 @@ mixin PySession
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  ** Make an unconnected session. Must call `connect()` before invoking
-  ** any `eval()` calls.
+  ** Make an unconnected session. Must call [connect()] before invoking
+  ** any [eval()] calls.
   new make(|This|? f := null) : this.make_priv(null, f) { }
 
   ** Connect the session running on the given server uri.

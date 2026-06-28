@@ -25,7 +25,7 @@ abstract const class NestResource
   Uri name() { ((Str)json["name"]).toUri }
 
   ** The id or this particular resource. Typically this is the last
-  ** value in the `name` path.
+  ** value in the [name] path.
   virtual Str id() { name.path.last ?: "" }
 
   ** Custom name for this resource

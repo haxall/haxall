@@ -13,7 +13,7 @@ using axon
 using folio
 
 **
-** Implementation of shell 'load()' function
+** Implementation of shell `load()` function
 **
 internal class ShellLoader
 {

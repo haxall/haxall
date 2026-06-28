@@ -26,7 +26,7 @@ const class ModbusRegMap
 
   **
   ** Given a modbusConn rec, lookup its configured register map.
-  ** There must be 'modbusRegMapUri' tag with a URI to the CSV file
+  ** There must be `modbusRegMapUri` tag with a URI to the CSV file
   ** as "fan:" URI or path relative to the project directory.
   ** Raise an error if not configured correctly or CSV cannot be
   ** loaded.

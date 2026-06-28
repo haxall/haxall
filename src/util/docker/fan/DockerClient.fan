@@ -12,7 +12,7 @@ using util
 **
 ** DockerClient provides conveniences for creating commands to
 ** communicate with the Docker daemon. All commands are initially
-** configured based on the `DockerConfig` used to construct the client.
+** configured based on the [DockerConfig] used to construct the client.
 **
 class DockerClient
 {

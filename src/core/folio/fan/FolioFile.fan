@@ -17,13 +17,13 @@ using haystack
 ** to the local filesystem or cloud.
 **
 ** Files stored in a FolioFile implementation have certain constraints. You
-** can only read and write them using `File.withIn` and `File.withOut` respectively.
-** You will get an `IOErr` if you attempt to use `File.in` or `File.out`. After a write
+** can only read and write them using [File.withIn] and [File.withOut] respectively.
+** You will get an [IOErr] if you attempt to use [File.in] or [File.out]. After a write
 ** to a file, the corresponding rec in Folio will asynchronously be updated to add
-** the 'fileSize' tag (size in bytes).
+** the `fileSize` tag (size in bytes).
 **
-** `File.exists` will only return 'true' if the backing file exists; that is, it
-** has been written to. `File.delete` will delete the backing file, but will not
+** [File.exists] will only return `true` if the backing file exists; that is, it
+** has been written to. [File.delete] will delete the backing file, but will not
 ** delete the corresponding rec in Folio.
 **
 ** When a file rec is removed from Folio, it's backing file is also removed from the
@@ -32,11 +32,11 @@ using haystack
 @NoDoc
 const mixin FolioFile
 {
-  ** Get the backing [file]`File` for the rec with the given id. If 'checked'
+  ** Get the backing [file](File) for the rec with the given id. If `checked`
   ** is true, throw an error if the rec doesn't exist in folio, or if the rec
-  ** is not a xeto 'sys::File'. Otherwise, return null.
+  ** is not a xeto `sys::File`. Otherwise, return null.
   **
-  ** See `FolioFile` for more details about working with the backing file.
+  ** See [FolioFile] for more details about working with the backing file.
   abstract File? get(Ref id, Bool checked := true)
 
   ** Forcefully delete the backing file for the rec with the given id. No checks
@@ -101,8 +101,8 @@ const abstract class MFolioFile : FolioFile
   ** Get the xeto namespace
   Namespace xeto() { folio.hooks.ns }
 
-  ** Sub-class hook to make a file instance for a rec. The uri is the 'id'
-  ** of the rec. When `get` is used to obtain the file, the uri will always
+  ** Sub-class hook to make a file instance for a rec. The uri is the `id`
+  ** of the rec. When [get] is used to obtain the file, the uri will always
   ** have a trailing slash to indicate a directory.
   protected abstract File toFile(Uri uri)
 
@@ -177,13 +177,13 @@ const abstract class RecFile : SyntheticFile
   ** Sub-types must provide an implementation that adheres to FolioFile semantics
   override abstract Bool exists()
 
-  ** The default implementation gets the 'fileSize' from the folio rec if it is set
+  ** The default implementation gets the `fileSize` from the folio rec if it is set
   override Int? size()
   {
     (rec(false)?.get("fileSize") as Number)?.toInt
   }
 
-  ** The default implementation gets the 'mod' from the folio rec
+  ** The default implementation gets the `mod` from the folio rec
   override DateTime? modified
   {
     get { rec(false)?.get("mod") as DateTime }

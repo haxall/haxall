@@ -11,7 +11,7 @@ using haystack
 using def
 
 **
-** GenProtos recursively processes 'children' prototypes
+** GenProtos recursively processes `children` prototypes
 **
 internal class GenProtos : DefCompilerStep
 {

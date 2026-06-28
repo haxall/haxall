@@ -23,7 +23,7 @@ class Client
 //////////////////////////////////////////////////////////////////////////
 
   ** Open with URI of project such as "http://host/api/myProj/".
-  ** Throw IOErr for network/connection error or 'AuthErr' if
+  ** Throw IOErr for network/connection error or `AuthErr` if
   ** credentials are not authenticated.
   static Client open(Uri uri, Str username, Str password, [Str:Obj]? opts := null)
   {
@@ -74,7 +74,7 @@ class Client
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Close the session by sending the 'close' op.
+  ** Close the session by sending the `close` op.
   **
   Void close()
   {
@@ -83,7 +83,7 @@ class Client
 
   **
   ** Call "about" operation to query server summary info.
-  ** Also see [HTTP API]`ph.doc::Ops#about`.
+  ** Also see [HTTP API](ph.doc::Ops#about).
   **
   Dict about()
   {
@@ -93,8 +93,8 @@ class Client
   **
   ** Call "read" operation to read a record by its identifier.  If the
   ** record is not found then return null or raise UnknownRecException
-  ** based on checked flag.  Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [HTTP API]`ph.doc::Ops#read`.
+  ** based on checked flag.  Raise [haystack::CallErr] if server returns error grid.
+  ** Also see [HTTP API](ph.doc::Ops#read).
   **
   Dict? readById(Obj id, Bool checked := true)
   {
@@ -111,8 +111,8 @@ class Client
   ** id list (indexes line up).  If checked is true and any one of the
   ** ids cannot be resolved then raise UnknownRecErr for first id not
   ** resolved.  If checked is false, then each id not found has a row
-  ** where every cell is null.  Raise `haystack::CallErr` if server returns error
-  ** grid.  Also see [HTTP API]`ph.doc::Ops#read`.
+  ** where every cell is null.  Raise [haystack::CallErr] if server returns error
+  ** grid.  Also see [HTTP API](ph.doc::Ops#read).
   **
   Grid readByIds(Obj[] ids, Bool checked := true)
   {
@@ -126,8 +126,8 @@ class Client
   ** Call "read" operation to read a record that matches the given filter.
   ** If there is more than one record, then it is undefined which one is
   ** returned.  If there are no matches then return null or raise
-  ** UnknownRecException based on checked flag.  Raise `haystack::CallErr` if server
-  ** returns error grid.  Also see [HTTP API]`ph.doc::Ops#read`.
+  ** UnknownRecException based on checked flag.  Raise [haystack::CallErr] if server
+  ** returns error grid.  Also see [HTTP API](ph.doc::Ops#read).
   **
   Dict? read(Str filter, Bool checked := true)
   {
@@ -140,8 +140,8 @@ class Client
 
   **
   ** Call "read" operation to read a record all recs which match the
-  ** given filter.  Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [HTTP API]`ph.doc::Ops#read`.
+  ** given filter.  Raise [haystack::CallErr] if server returns error grid.
+  ** Also see [HTTP API](ph.doc::Ops#read).
   **
   Grid readAll(Str filter)
   {
@@ -151,8 +151,8 @@ class Client
 
   **
   ** Evaluate an Axon expression and return results as Grid.
-  ** Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [HTTP API]`hx.doc.skyspark::Ops#eval`.
+  ** Raise [haystack::CallErr] if server returns error grid.
+  ** Also see [HTTP API](hx.doc.skyspark::Ops#eval).
   **
   Grid eval(Str expr)
   {
@@ -162,21 +162,22 @@ class Client
   **
   ** Commit a set of diffs.  The req parameter must be a grid
   ** with a "commit" tag in the grid.meta.  The rows are the
-  ** items to commit.  Return result as Grid or or raise `haystack::CallErr`
+  ** items to commit.  Return result as Grid or or raise [haystack::CallErr]
   ** if server returns error grid.
   **
-  ** Also see [HTTP API]`hx.doc.skyspark::Ops#commit`.
+  ** Also see [HTTP API](hx.doc.skyspark::Ops#commit).
   **
   ** Examples:
-  **   // add new record
-  **   tags := ["site":Marker.val, "dis":"Example Site"])
-  **   toCommit := Etc.makeDictGrid(["commit":"add"], tags)
-  **   client.commit(toCommit)
   **
-  **   // update dis tag
-  **   changes := ["id": orig->id, "mod":orig->mod, "dis": "New dis"]
-  **   toCommit := Etc.makeDictGrid(["commit":"update"], changes)
-  **   client.commit(toCommit)
+  **     // add new record
+  **     tags := ["site":Marker.val, "dis":"Example Site"])
+  **     toCommit := Etc.makeDictGrid(["commit":"add"], tags)
+  **     client.commit(toCommit)
+  **
+  **     // update dis tag
+  **     changes := ["id": orig->id, "mod":orig->mod, "dis": "New dis"]
+  **     toCommit := Etc.makeDictGrid(["commit":"update"], changes)
+  **     client.commit(toCommit)
   **
   Grid commit(Grid req)
   {
@@ -188,7 +189,7 @@ class Client
   ** Call the given REST operation with its request grid and
   ** return the response grid.  If req is null, then an empty
   ** grid used for request.  If the checked flag is true and server
-  ** returns an error grid, then raise `haystack::CallErr`, otherwise return
+  ** returns an error grid, then raise [haystack::CallErr], otherwise return
   ** the grid itself.
   **
   Grid call(Str op, Grid? req := null, Bool checked := true)

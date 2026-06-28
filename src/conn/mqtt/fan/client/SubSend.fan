@@ -19,7 +19,7 @@ using concurrent
 ** - QoS 2
 ** - No Local is disabled (false)
 ** - Retain as Published is turned off (false)
-** - Retain Handling is set to 'send'
+** - Retain Handling is set to `send`
 final class SubSend
 {
 
@@ -55,7 +55,7 @@ final class SubSend
 //////////////////////////////////////////////////////////////////////////
 
   ** Set the topic filter to subscribe to. You must set a topic filter
-  ** before you call `send`.
+  ** before you call [send].
   This topicFilter(Str topicFilter)
   {
     this._topicFilter = Topic.validateFilter(topicFilter)
@@ -72,7 +72,7 @@ final class SubSend
   This qos2() { qos(QoS.two) }
 
   ** Request maximum QoS
-  ** 'qos' may be either `QoS` or an Int.
+  ** `qos` may be either [QoS] or an Int.
   This qos(Obj qos)
   {
     if (qos is Int) qos = QoS.vals[(Int)qos]
@@ -133,7 +133,7 @@ final class SubSend
 
   ** Set the explicit subscription listener to use for this subscription.
   ** This will permanently invalidate any calls to the convenience
-  ** methods `onSubscribe`, `onMessage`, and `onUnsubscribe`.
+  ** methods [onSubscribe], [onMessage], and [onUnsubscribe].
   This listener(SubscriptionListener listener)
   {
     this._listener = listener
@@ -145,7 +145,7 @@ final class SubSend
 //////////////////////////////////////////////////////////////////////////
 
   ** Build and send the subscribe packet. A future is returned that will be
-  ** completed when the 'SUBACK' is received.
+  ** completed when the `SUBACK` is received.
   Future send()
   {
     if (_topicFilter == null) throw ArgErr("Topic filter not set")

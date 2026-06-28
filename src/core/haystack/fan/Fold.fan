@@ -22,7 +22,7 @@ abstract class Fold
 
   ** Lookup a fold by name and create an instance with the given meta.
   ** The implementation of the fold will adhere to Axon semantics. If the
-  ** fold is not found, throw an `UnknownNameErr` if checked; otherwise return null.
+  ** fold is not found, throw an [UnknownNameErr] if checked; otherwise return null.
   static Fold? createAxon(Str name, Dict meta := Etc.dict0, Bool checked := true)
   {
     createFold(name, true, meta, checked)
@@ -30,7 +30,7 @@ abstract class Fold
 
   ** Lookup a fold by name and create an instance with the given meta.
   ** The implementation of the fold will adhere to Pivot table semantics. If the
-  ** fold is not found, throw an `UnknownNameErr` if checked; otherwise return null.
+  ** fold is not found, throw an [UnknownNameErr] if checked; otherwise return null.
   static Fold? createPivot(Str name, Dict meta := Etc.dict0, Bool checked := true)
   {
     createFold(name, false, meta, checked)
@@ -102,7 +102,7 @@ abstract class Fold
   ** Configuration metadata for the fold.
   const Dict meta
 
-  ** Convenience for '!axon'
+  ** Convenience for `!axon`
   Bool pivot() { !axon }
 
   ** The name of this fold
@@ -115,7 +115,7 @@ abstract class Fold
   abstract Void add(Obj val)
 
   ** Accumulate a value associated with a timestamp. The default
-  ** implementation ignores the timestamp and calls 'add(val)'.
+  ** implementation ignores the timestamp and calls `add(val)`.
   virtual Void addHis(DateTime ts, Obj val) { add(val) }
 
   ** Batch the accumalation into an object for serialization

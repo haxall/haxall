@@ -117,12 +117,12 @@ const class EcobeeSettings : EcobeeObj
   const Str? humidifierMode
 
   ** The thermostat backlight intensity when on. A value between
-  ** 0 and 10, with 0 meaning 'off' - the zero value may not be honored by
+  ** 0 and 10, with 0 meaning `off` - the zero value may not be honored by
   ** all ecobee versions
   const Int? backlightOnIntensity
 
   ** The thermostat backlight intensity when asleep. A value between
-  ** 0 and 10, with 0 meaning 'off' - the zero value may not be honored
+  ** 0 and 10, with 0 meaning `off` - the zero value may not be honored
   ** by all ecobee versions
   const Int? backlightSleepIntensity
 
@@ -193,7 +193,7 @@ const class EcobeeSettings : EcobeeObj
   ** The dehumidification set point in percentage.
   const Int? dehumidifierLevel
 
-  **  Whether the thermostat should use AC overcool to dehumidify.
+  ** Whether the thermostat should use AC overcool to dehumidify.
   ** When set to true a positive integer value must be supplied for
   ** dehumidifyOvercoolOffset otherwise an API validation exception will be thrown.
   const Bool? dehumidifyWithAC
@@ -273,7 +273,7 @@ const class EcobeeSettings : EcobeeObj
   ** Whether an installer code is required
   const Bool? installerCodeRequired
 
-  **  Whether Demand Response requests are accepted by this thermostat.
+  ** Whether Demand Response requests are accepted by this thermostat.
   ** Possible values are: always, askMe, customerSelect, defaultAccept, defaultDecline, never.
   const Str? drAccept
 
@@ -376,7 +376,7 @@ const class EcobeeSettings : EcobeeObj
   ** temperature is under a specific threshold, currently 55F. The default value is false.
   const Bool? coolingLockout
 
-  **  Whether to use the ventilator to dehumidify when climate or calendar event
+  ** Whether to use the ventilator to dehumidify when climate or calendar event
   ** indicates the owner is home. The default value is false.
   const Bool? ventilatorFreeCooling
 

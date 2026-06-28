@@ -61,13 +61,13 @@ class CompSpaceEdit
 
   ** Create a new Comp whose type is of the given qualified name. Add the new
   ** Comp as a child of the given parent Comp. You can also configure the default
-  ** layout for the Comp by passing in a `CompLayout`.
+  ** layout for the Comp by passing in a [CompLayout].
   ** Returns the newly created Comp.
   **
-  **   c := edit.create("sys.comp::Comp")
-  **   c := edit.create("sys.comp::Comp", CompLayout(2,2))
+  **     c := edit.create("sys.comp::Comp")
+  **     c := edit.create("sys.comp::Comp", CompLayout(2,2))
   **
-  ** See also `layout`
+  ** See also [layout]
   virtual Comp create(Ref parentId, Str qname, CompLayout? layout := null)
   {
     parent := readById(parentId)
@@ -189,12 +189,12 @@ class CompSpaceEdit
 // Overrides
 //////////////////////////////////////////////////////////////////////////
 
-  ** Lookup a Comp by id. The default implementation looks up the comp directly in the 'cs'
-  ** using `CompSpace.readById`.
+  ** Lookup a Comp by id. The default implementation looks up the comp directly in the `cs`
+  ** using [CompSpace.readById].
   virtual Comp? readById(Ref id, Bool checked := true) {  cs.readById(id, checked) }
 
-  ** Get the root Comp. The default implementation gets the root component from the 'cs'
-  ** using `CompSpace.root`
+  ** Get the root Comp. The default implementation gets the root component from the `cs`
+  ** using [CompSpace.root]
   virtual Comp root() { cs.root }
 
   ** Callback when component is added

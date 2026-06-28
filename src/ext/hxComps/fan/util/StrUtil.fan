@@ -49,28 +49,28 @@ class StrConcat : HxComp
 }
 
 **
-** Checks if 'inB' can be found within 'inA'.
+** Checks if `inB` can be found within `inA`.
 **
 class StrContains : HxComp
 {
   /* ionc-start */
 
-  ** Defines the Str to check for 'inB'
+  ** Defines the Str to check for `inB`
   virtual StatusStr? inA() { get("inA") }
 
-  ** The Str to look for in 'inA'
+  ** The Str to look for in `inA`
   virtual StatusStr? inB() { get("inB") }
 
-  ** True if 'inA' contains 'inB'
+  ** True if `inA` contains `inB`
   virtual StatusBool out() { get("out") }
 
-  ** The zero-based index to start checking for 'inB' in 'inA'.
+  ** The zero-based index to start checking for `inB` in `inA`.
   virtual Int fromIndex { get {get("fromIndex")} set {set("fromIndex", it)} }
 
-  ** The index where 'inB' was found, or -1 if it wasn't found
+  ** The index where `inB` was found, or -1 if it wasn't found
   virtual Int startIndex() { get("startIndex") }
 
-  ** The index in 'inA' immediately after where 'inB' was found,
+  ** The index in `inA` immediately after where `inB` was found,
   ** or -1 if it wasn't found
   virtual Int afterIndex() { get("afterIndex") }
 
@@ -100,7 +100,7 @@ class StrLen : HxComp
   ** The input Str
   virtual StatusStr? in() { get("in") }
 
-  ** The length of 'in'
+  ** The length of `in`
   virtual StatusNumber out() { get("out") }
 
   /* ionc-end */
@@ -180,7 +180,7 @@ class StrTrim : HxComp
 
 **
 ** Tests two strings based on the selected test type. All tests are computed
-** in terms of 'a <test> b'
+** in terms of `a <test> b`
 **
 class StrTest : HxComp
 {

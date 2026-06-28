@@ -20,15 +20,15 @@ class ListContainersCmd : DockerJsonCmd
   ** Show all containers. By default, only running containers are shown
   @JsonIgnore
   Bool showAll := false { private set }
-  ** Set `showAll` and return this
+  ** Set [showAll] and return this
   This withShowAll(Bool showAll) { this.showAll = showAll; return this }
 
   ** Filters to process on the container list, encoded as JSON
-  ** (a 'map[string] []string').  For example, '{"status": ["paused"]}' will only
+  ** (a `map[string] []string`).  For example, `{"status": ["paused"]}` will only
   ** return paused containers.
   @JsonIgnore
   Str? filters { private set }
-  ** Set the `filters` and return this
+  ** Set the [filters] and return this
   This withFilters(Str? filters) { this.filters = filters; return this }
 
 //////////////////////////////////////////////////////////////////////////

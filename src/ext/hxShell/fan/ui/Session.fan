@@ -33,7 +33,7 @@ const class Session
   ** User record
   const Dict user
 
-  ** Convenience for `call` to the eval op
+  ** Convenience for [call] to the eval op
   ApiCallFuture eval(Str expr)
   {
     call("eval", Etc.makeDictGrid(null, Etc.dict1("expr", expr)))

@@ -68,7 +68,7 @@ const mixin Filetype : Def
     throw Err("Invalid GridReader.make signature: $ctor")
   }
 
-  ** Build standard opts dict for `writer` and `reader` methods.
+  ** Build standard opts dict for [writer] and [reader] methods.
   **  - ns: required for def aware formats like RDF
   **  - mime: if HTTP op, can be used to pick version fallbacks
   **  - arg: explicit opts argument such as ioReadJson options

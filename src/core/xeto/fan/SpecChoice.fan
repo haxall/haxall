@@ -9,7 +9,7 @@
 using util
 
 **
-** Choice APIs for a specific choice spec via `Namespace.choice`.
+** Choice APIs for a specific choice spec via [Namespace.choice].
 **
 @Js
 const mixin SpecChoice
@@ -38,7 +38,8 @@ const mixin SpecChoice
 
   ** Return single choice selection considering validation rules.
   ** This method is a semantically equivalent to:
-  **    selections(instance, checked).first
+  **
+  **      selections(instance, checked).first
   abstract Spec? selection(Dict instance, Bool checked := true)
 
   ** List the choice direct subtypes of given base (defaults to root choice).

@@ -30,8 +30,8 @@ abstract const class EcobeeObj
   ** Get the name of the json key for this object when it is stored as the
   ** value in a json map.
   **
-  **   Example:
-  **   EcobeeSelection => selection
+  **     Example:
+  **     EcobeeSelection => selection
   virtual Str jsonKey() { typeof.name[("Ecobee".size)..-1].decapitalize }
 
   ** Encode this object to a JSON string

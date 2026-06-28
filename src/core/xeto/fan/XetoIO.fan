@@ -9,7 +9,7 @@
 using util
 
 **
-** XetoIO is used to read/write various Xeto formats via `Namespace.io`.
+** XetoIO is used to read/write various Xeto formats via [Namespace.io].
 **
 @Js
 const mixin XetoIO
@@ -26,13 +26,13 @@ const mixin XetoIO
   ** two or more dicts then return a Dict[] of the instances.
   **
   ** Options
-  **   - this: Spec to bind to values typed as 'sys::This'
+  **   - this: Spec to bind to values typed as `sys::This`
   **   - externRefs: marker to allow unresolved refs to compile
   **
   abstract Obj? readXeto(Str in, Dict? opts := null)
 
   **
-  ** Convenience for `readXeto` but always returns data as list of dicts.
+  ** Convenience for [readXeto] but always returns data as list of dicts.
   ** If the data is not a Dict nor list of Dicts, then raise an exception.
   **
   abstract Dict[] readXetoDicts(Str in, Dict? opts := null)
@@ -57,7 +57,7 @@ const mixin XetoIO
 
   **
   ** Read xeto instance data from JSON.  The given spec is used
-  ** to infer the JSON object if no 'spec' tag is defined.
+  ** to infer the JSON object if no `spec` tag is defined.
   ** The stream guaranteed to be closed upon return.
   **
   abstract Obj? readJson(InStream in, Spec? spec := null, Dict? opts := null)

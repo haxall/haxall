@@ -101,10 +101,10 @@ internal abstract class EcobeeConnTask
 
 @NoDoc const class EcobeePropSpec
 {
-  ** <prop-name>('[' (<keyProp> = )<val> ']')
+  ** <prop-name>(`[` (<keyProp> = )<val> `]`)
   **
-  **   capability[type=temperature]
-  **   runtimeSensors[rs:100]
+  **     capability[type=temperature]
+  **     runtimeSensors[rs:100]
   static new fromStr(Str s)
   {
     selectIdx := s.index("[")

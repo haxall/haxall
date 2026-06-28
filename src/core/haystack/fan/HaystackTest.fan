@@ -18,7 +18,7 @@ using xeto
 abstract class HaystackTest : Test
 {
 
-  ** Convenience for constructing a `haystack::Number` where
+  ** Convenience for constructing a [haystack::Number] where
   ** unit may be either a Str name or a Unit instance.
   static Number? n(Num? val, Obj? unit := null)
   {
@@ -27,7 +27,7 @@ abstract class HaystackTest : Test
     return Number(val.toFloat, unit)
   }
 
-  ** Convenience for `xeto::Marker.val`
+  ** Convenience for [xeto::Marker.val]
   static const Marker m := Marker.val
 
   ** Access test def namespace.  We assume running in a
@@ -256,7 +256,7 @@ abstract class HaystackTest : Test
     verifyEq(a.dis, b.dis, msg)
   }
 
-  ** Verify contents of two lists using `verifyValEq`
+  ** Verify contents of two lists using [verifyValEq]
   virtual Void verifyListEq(List a, List b, Str? msg := null)
   {
     verifyEq(a.typeof, b.typeof, msg)

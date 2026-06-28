@@ -41,12 +41,12 @@ const class EnergyStarFuncs
 
   **
   ** Read properties as grid with following columns:
-  **   - 'id': energy star property id str
-  **   - 'dis': display name of the property
+  **   - `id`: energy star property id str
+  **   - `dis`: display name of the property
   **
   ** By default this returns the properties associated with the
   ** connector's accountId.  However if the connector defines the
-  ** `energyStarCustomerIds` tag, then those account ids are
+  ** [energyStarCustomerIds] tag, then those account ids are
   ** used to populate the property list.
   **
   @Api @Axon
@@ -75,7 +75,7 @@ const class EnergyStarFuncs
 
   **
   ** Read the given property and return as Dict.
-  ** See `doc#siteMapping`.
+  ** See [doc#siteMapping].
   **
   @Api @Axon
   static Dict energyStarPropertyRead(Obj? conn, Str propertyId)
@@ -109,16 +109,17 @@ const class EnergyStarFuncs
 
   **
   ** Read a list of metrics for a specific property.  The month to be
-  ** should be passed as month literal 'YYYY-MM' or any Date in that month.
+  ** should be passed as month literal `YYYY-MM` or any Date in that month.
   ** The metrics to be read as passed as Dict or markers and returned as
   ** a Dict with the resulting values.  If the metric is not available, then
   ** it is not included in the resulting Dict.
   **
   ** For list of metrics to query see
-  ** [EnergyStar Docs]`http://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetrics/get`.
+  ** [EnergyStar Docs](http://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetrics/get).
   **
   ** Example:
-  **   energyStarPropertyMetrics(conn, "123", 2013-01, {score})  >>>  {score: 67}
+  **
+  **     energyStarPropertyMetrics(conn, "123", 2013-01, {score})  >>>  {score: 67}
   **
   @Api @Axon
   static Dict energyStarPropertyMetrics(Obj? conn, Str propertyId, Obj? month, Dict metrics)
@@ -163,10 +164,10 @@ const class EnergyStarFuncs
 
   **
   ** Create or update a property in Portfolio Manager from a local site record.
-  ** If the rec has `energyStarSite` tag then it is the property id to update.
+  ** If the rec has [energyStarSite] tag then it is the property id to update.
   ** Otherwise a new property is created under the connector's account
-  ** and the `energyStarSite` tag is added to the site record.
-  ** See `doc#siteMapping`.
+  ** and the [energyStarSite] tag is added to the site record.
+  ** See [doc#siteMapping].
   **
   @Api @Axon { admin = true }
   static Obj? energyStarPropertyPush(Obj? conn, Obj site)
@@ -226,12 +227,12 @@ const class EnergyStarFuncs
 
   **
   ** Create or update a local site record from a property in Portfolio Manager.
-  ** If an existing rec has `energyStarSite` tag then it is the site to update.
+  ** If an existing rec has [energyStarSite] tag then it is the site to update.
   ** Otherwise create a new site record.  Note if there is navigation recs
   ** above the site level, then you must manually add the appropiate ref tags.
   ** If creating a new record, not all the tags may be get automatically created,
   ** so check the record in the BuilderApp.
-  ** See `doc#siteMapping`.
+  ** See [doc#siteMapping].
   **
   @Api @Axon { admin = true }
   static Obj? energyStarPropertyPull(Obj? conn, Str propertyId)
@@ -267,7 +268,7 @@ const class EnergyStarFuncs
   ** Delete the property identified by the given property id string from
   ** the energy star Portfolio Manager.
   **
-  ** Any site recs with matching 'energyStarSite' value also have have
+  ** Any site recs with matching `energyStarSite` value also have have
   ** that tag removed.
   **
   @Api @Axon { admin = true }
@@ -295,8 +296,8 @@ const class EnergyStarFuncs
   **
   ** Read list of customers that you are connected with as grid
   ** with following columns:
-  **   - 'id': energy star customer id str
-  **   - 'dis': display name of the customer
+  **   - `id`: energy star customer id str
+  **   - `dis`: display name of the customer
   **
   @Api @Axon
   static Grid energyStarCustomerList(Obj? conn)
@@ -325,9 +326,9 @@ const class EnergyStarFuncs
 
   **
   ** Read meters for given property as grid with following columns:
-  **   - 'id': energy star meter id str
-  **   - 'dis': display name of the meter
-  **   - 'association': meter/property association formatted
+  **   - `id`: energy star meter id str
+  **   - `dis`: display name of the meter
+  **   - `association`: meter/property association formatted
   **     as "meter: representation" such as "energyMeter: Whole Property".
   **     If this cell is null, then an association has not been made yet.
   **
@@ -378,7 +379,7 @@ const class EnergyStarFuncs
 
   **
   ** Read the given meter and return as Dict.
-  ** See `doc#meterMapping`.
+  ** See [doc#meterMapping].
   **
   @Api @Axon
   static Dict energyStarMeterRead(Obj? conn, Str meterId)
@@ -407,9 +408,9 @@ const class EnergyStarFuncs
 
   **
   ** Create or update a meter in Portfolio Manager from a local meter point record.
-  ** If the rec has `energyStarMeter` tag then it is the meter id to update.
-  ** Otherwise create a new meter and add `energyStarMeter` tag to the site record.
-  ** See `doc#meterMapping`.
+  ** If the rec has [energyStarMeter] tag then it is the meter id to update.
+  ** Otherwise create a new meter and add [energyStarMeter] tag to the site record.
+  ** See [doc#meterMapping].
   **
   @Api @Axon { admin = true }
   static Obj? energyStarMeterPush(Obj? conn, Obj point)
@@ -457,12 +458,12 @@ const class EnergyStarFuncs
 
   **
   ** Create or update a local meter point record from a meter in Portfolio Manager.
-  ** If an existing rec has `energyStarMeter` tag then it is the point to update.
+  ** If an existing rec has [energyStarMeter] tag then it is the point to update.
   ** If the point has to be created, then it is always placed under the main
-  ** electrict meter queried by 'elecMeter and siteMeter'.  Or if a main meter is
+  ** electrict meter queried by `elecMeter and siteMeter`.  Or if a main meter is
   ** not found, one is automatically created.  The point many not have all its tags
   ** automatically created, so check the record in the BuilderApp.
-  ** See `doc#meterMapping`.
+  ** See [doc#meterMapping].
   **
   @Api @Axon { admin = true }
   static Obj? energyStarMeterPull(Obj? conn, Obj site, Str meterId)
@@ -532,7 +533,7 @@ const class EnergyStarFuncs
   ** Delete the meter identified by the given meter id string from
   ** the energy star Portfolio Manager.
   **
-  ** Any recs with matching 'energyStarMeter' value also have have
+  ** Any recs with matching `energyStarMeter` value also have have
   ** that tag removed.
   **
   @Api @Axon { admin = true }
@@ -560,10 +561,10 @@ const class EnergyStarFuncs
   **
   ** This function recreates the list of property/meter associations in
   ** Energy Star.  The site must be an id or record for a site which has
-  ** been mapped to Energy Star with an `energyStarSite` tag.  Associations
+  ** been mapped to Energy Star with an [energyStarSite] tag.  Associations
   ** are created for every meter point within the site which has been
-  ** mapped with the `energyStarMeter` tag.  All associations are currently
-  ** mapped as "Whole Property'.  See `doc#associations`.
+  ** mapped with the [energyStarMeter] tag.  All associations are currently
+  ** mapped as "Whole Property'.  See [doc#associations].
   **
   @Api @Axon
   static Obj energyStarPropertyAssociationsPush(Obj? conn, Obj site)
@@ -824,19 +825,19 @@ const class EnergyStarFuncs
   }
 
   ** Write onsite green power renewable details.
-  ** See `https://portfoliomanager.energystar.gov/webservices/home/api/meter/onsite/post`
+  ** See [https://portfoliomanager.energystar.gov/webservices/home/api/meter/onsite/post]
   ** for details on this API request.
-  **   - 'meterId': The meter id of the meter to write details for
-  **   - 'detail': A Dict containing the details to write. The structure of this
+  **   - `meterId`: The meter id of the meter to write details for
+  **   - `detail`: A Dict containing the details to write. The structure of this
   **   Dict must adhere to the 'onsiteRenewableDetail.xsd' schema specified by
   **   the API in the link above. It is your responsibility to construct a details
   **   that meets the semantic constraints of the api - this func does constraint
   **   checking.
   **
-  ** pre>
+  ** ```fantom
   ** detail: {currentAsOf: 2024-12-06, energyUsedOnsite: {recOwnership: "Owned"}, energyExportedToGrid: {recOwnership: "Owned"}}
   ** energyStarOnsiteRenewableDetailWrite(conn, meterId, detail)
-  ** <pre
+  ** ```
   @Api @Axon { admin = true }
   static Obj? energyStarOnsiteRenewableDetailWrite(Obj? conn, Str meterId, Dict detail)
   {
@@ -882,13 +883,13 @@ const class EnergyStarFuncs
   **
   ** Pull energy star usage into the given mapped meter points history.
   ** The proxies may be any set of points
-  ** accepted by `toRecList`.
+  ** accepted by [toRecList].
   **
   ** Each point is required:
-  **   - define `energyStarConnRef` tag for connector to use
-  **   - define `energyStarMeter` for which meter it is mapped to
+  **   - define [energyStarConnRef] tag for connector to use
+  **   - define [energyStarMeter] for which meter it is mapped to
   **   - must be a point with historized consumption values
-  **   - point's site must define `energyStarSite` tag
+  **   - point's site must define [energyStarSite] tag
   **
   ** The EnergyStar usage must provide daily values which are mapped
   ** to midnight of the starting date.
@@ -905,23 +906,23 @@ const class EnergyStarFuncs
   **
   ** Push the daily rollup consumption of mapped meter points to
   ** portfolio manager.  The proxies may be any set of points
-  ** accepted by `toRecList`.
+  ** accepted by [toRecList].
   **
   ** Each point is required:
-  **   - define `energyStarConnRef` tag for connector to use
-  **   - define `energyStarMeter` for which meter it is mapped to
+  **   - define [energyStarConnRef] tag for connector to use
+  **   - define [energyStarMeter] for which meter it is mapped to
   **   - must be a point with historized consumption values
-  **   - point's site must define `energyStarSite` tag
+  **   - point's site must define [energyStarSite] tag
   **
-  ** If the range is null, then we perform a read using `energyStarUsageRead`
+  ** If the range is null, then we perform a read using [energyStarUsageRead]
   ** to find the last endDate written.  Then we assume a range of endDate+1day
   ** to yesterday.  This guarantees that we are only pushing newer data to
   ** portfolio manager.
   **
   ** The usage to push is calcualted by perform a daily rollup on the history
-  ** using the `sum` function:
+  ** using the [sum] function:
   **
-  **   read(proxy).hisRead(range).hisClip.hisRollup(sum, 1day)
+  **     read(proxy).hisRead(range).hisClip.hisRollup(sum, 1day)
   **
   @Api @Axon { admin = true }
   static Obj? energyStarHisPush(Obj proxies, Obj? range)
@@ -981,12 +982,12 @@ const class EnergyStarFuncs
 
   **
   ** Create an account from Dict with following tags:
-  **   - 'username'
-  **   - 'password'
-  **   - 'firstName'
-  **   - 'lastName'
-  **   - 'email'
-  **   - 'org'
+  **   - `username`
+  **   - `password`
+  **   - `firstName`
+  **   - `lastName`
+  **   - `email`
+  **   - `org`
   **
   ** Return new account id
   **

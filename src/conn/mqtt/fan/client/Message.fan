@@ -24,11 +24,11 @@ const class Message
 
   ** The application payload.
   **
-  ** Since it is 'const' make sure you use [payload.in]`sys::Buf.in` to read
+  ** Since it is `const` make sure you use [payload.in](sys::Buf.in) to read
   ** the contents of the payload.
   const Buf payload
 
-  ** The requested [quality of service]`QoS`
+  ** The requested [quality of service](QoS)
   const QoS qos
 
   ** Should the message be retained?

@@ -36,7 +36,7 @@ const class IOFuncs
 
   **
   ** Configure an I/O handle to use the specified charset.  The handle
-  ** is any supported [I/O handle]`doc#handles` and the charset is a string
+  ** is any supported [I/O handle](doc#handles) and the charset is a string
   ** name supported by the JVM installation.  Standard charset names:
   **   - "UTF-8" 8-bit Unicode Transformation Format
   **   - "UTF-16BE": 16 bit Big Endian Unicode Transformation Format
@@ -45,11 +45,12 @@ const class IOFuncs
   **   - "US-ASCII": 7-bit ASCII
   **
   ** Examples:
-  **   // write text file in UTF-16BE
-  **   ioWriteStr(str, ioCharset(`io/foo.txt`, "UTF-16BE"))
   **
-  **   // read CSV file in ISO-8859-1
-  **   ioCharset(`io/foo.csv`, "ISO-8859-1").ioReadCsv
+  **     // write text file in UTF-16BE
+  **     ioWriteStr(str, ioCharset(`io/foo.txt`, "UTF-16BE"))
+  **
+  **     // read CSV file in ISO-8859-1
+  **     ioCharset(`io/foo.csv`, "ISO-8859-1").ioReadCsv
   **
   @Api @Axon { admin = true }
   static Obj? ioCharset(Obj? handle, Str charset)
@@ -63,7 +64,8 @@ const class IOFuncs
   ** if the handle doesn't support append mode.
   **
   ** Example:
-  **   ioWriteStr("append a line\n", ioAppend(`io/foo.txt`))
+  **
+  **     ioWriteStr("append a line\n", ioAppend(`io/foo.txt`))
   **
   @Api @Axon { admin = true }
   static Obj? ioAppend(Obj? handle)
@@ -77,18 +79,18 @@ const class IOFuncs
 
   **
   ** Read a directory listing, return a grid with cols:
-  **   - 'uri': Uri for handle to read/write the file
-  **   - 'name': filename string
-  **   - 'mimeType': file mime type or null if unknown
-  **   - 'dir':  marker if file is a sub-directory or null
-  **   - 'size': size of file in bytes or null
-  **   - 'mod':  modified timestamp or null if unknown
+  **   - `uri`: Uri for handle to read/write the file
+  **   - `name`: filename string
+  **   - `mimeType`: file mime type or null if unknown
+  **   - `dir`:  marker if file is a sub-directory or null
+  **   - `size`: size of file in bytes or null
+  **   - `mod`:  modified timestamp or null if unknown
   **
   ** If the I/O handle does not map to a file in the virtual file system then
   ** throw an exception.
   **
-  **   ioDir(`io/`)             // read files in project's io/ directory
-  **   ioDir(`fan://haystack`)  // read files in pod
+  **     ioDir(`io/`)             // read files in project's io/ directory
+  **     ioDir(`fan://haystack`)  // read files in pod
   **
   @Api @Axon { admin = true }
   static Grid ioDir(Obj? handle)
@@ -99,13 +101,13 @@ const class IOFuncs
 
   **
   ** Get information about a file handle and return a Dict with the
-  ** same tags as `ioDir()`.
+  ** same tags as [ioDir()].
   **
   ** If the I/O handle does not map to a file in the virtual file system then
   ** throw an exception.
   **
-  **   ioInfo(`io/`)            // read file info for the project's io/ directory
-  **   ioInfo(`io/sites.trio`)  // read file info for the io/sites.trio file
+  **     ioInfo(`io/`)            // read file info for the project's io/ directory
+  **     ioInfo(`io/sites.trio`)  // read file info for the io/sites.trio file
   **
   @Api @Axon { admin = true }
   static Dict ioInfo(Obj? handle)
@@ -135,8 +137,9 @@ const class IOFuncs
   ** If creating a file that already exists, it is overwritten as empty.
   **
   ** Examples:
-  **   ioCreate(`io/new-dir/`)        // create new empty directory
-  **   ioCreate(`io/new-file.txt`)    // create new empty file
+  **
+  **     ioCreate(`io/new-dir/`)        // create new empty directory
+  **     ioCreate(`io/new-file.txt`)    // create new empty file
   **
   @Api @Axon { admin = true }
   static Obj? ioCreate(Obj? handle)
@@ -171,15 +174,16 @@ const class IOFuncs
   ** a local file or directory on the file system.
   **
   ** If during the copy, an existing file of the same name is found,
-  ** then the "overwrite" option should be to marker or 'true' to
-  ** overwrite or 'false' to skip.  Or if overwrite is not defined
+  ** then the "overwrite" option should be to marker or `true` to
+  ** overwrite or `false` to skip.  Or if overwrite is not defined
   ** then an IOErr is raised.
   **
   ** Examples:
-  **   ioCopy(`io/dir/`, `io/dir-copy/`)
-  **   ioCopy(`io/file.txt`, `io/file-copy.txt`)
-  **   ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite})
-  **   ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite:false})
+  **
+  **     ioCopy(`io/dir/`, `io/dir-copy/`)
+  **     ioCopy(`io/file.txt`, `io/file-copy.txt`)
+  **     ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite})
+  **     ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite:false})
   **
   @Api @Axon { admin = true }
   static Obj? ioCopy(Obj? from, Obj? to, Dict opts := Etc.dict0)
@@ -234,15 +238,16 @@ const class IOFuncs
 
   **
   ** Read an I/O handle into memory as a list of string lines.
-  ** Lines are processed according to `sys::InStream.readLine` semanatics.
+  ** Lines are processed according to [sys::InStream.readLine] semanatics.
   **
   ** By default the maximum line size read is 4kb of Unicode
   ** characters (not bytes).  This limit may be overridden using
   ** the option key "limit".
   **
   ** Examples:
-  **   ioReadLines(`io/file.txt`)
-  **   ioReadLines(`io/file.txt`, {limit: 10_000})
+  **
+  **     ioReadLines(`io/file.txt`)
+  **     ioReadLines(`io/file.txt`, {limit: 10_000})
   **
   @Api @Axon { admin = true }
   static Str[] ioReadLines(Obj? handle, Dict? opts := null)
@@ -271,7 +276,7 @@ const class IOFuncs
 
   ** For each line of the given source stream call the given function
   ** with two parameters: Str line and zero based Number line number.
-  ** Lines are processed according to `sys::InStream.eachLine`.
+  ** Lines are processed according to [sys::InStream.eachLine].
   @Api @Axon { admin = true }
   static Obj? ioEachLine(Obj? handle, Fn fn)
   {
@@ -290,7 +295,7 @@ const class IOFuncs
   }
 
   ** Read a stream of lines.  Lines are processed according to
-  ** `sys::InStream.eachLine`.  See `docHaxall::Streams#ioStreamLines`.
+  ** [sys::InStream.eachLine].  See [docHaxall::Streams#iostreamlines].
   @Api @Axon { admin = true }
   static Obj ioStreamLines(Obj? handle)
   {
@@ -314,7 +319,7 @@ const class IOFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Read a [Trio]`docHaystack::Trio` file into memory as a list of Dicts.
+  ** Read a [Trio](docHaystack::Trio) file into memory as a list of Dicts.
   **
   @Api @Axon { admin = true }
   static Dict[] ioReadTrio(Obj? handle)
@@ -326,8 +331,8 @@ const class IOFuncs
   }
 
   **
-  ** Write dicts to a [Trio]`docHaystack::Trio` file.
-  ** The 'val' may be can be any format accepted by `toRecList`.
+  ** Write dicts to a [Trio](docHaystack::Trio) file.
+  ** The `val` may be can be any format accepted by [toRecList].
   **
   ** Following options are supported
   **   - noSort: marker to prevent tags from being sorted by name
@@ -347,7 +352,7 @@ const class IOFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Read a [Zinc]`docHaystack::Zinc` file into memory as a Haystack data type.
+  ** Read a [Zinc](docHaystack::Zinc) file into memory as a Haystack data type.
   **
   @Api @Axon { admin = true }
   static Grid ioReadZinc(Obj? handle)
@@ -359,7 +364,7 @@ const class IOFuncs
   }
 
   **
-  ** Write a Grid to the [Zinc]`docHaystack::Zinc` format.
+  ** Write a Grid to the [Zinc](docHaystack::Zinc) format.
   **
   @Api @Axon { admin = true }
   static Obj? ioWriteZinc(Obj? val, Obj? handle)
@@ -377,7 +382,7 @@ const class IOFuncs
 
   **
   ** Read a Xeto data file into memory as a Haystack data type.
-  ** See `xeto::XetoIO.readXeto` for details and options.
+  ** See [xeto::XetoIO.readXeto] for details and options.
   **
   @Api @Axon { admin = true }
   static Obj? ioReadXeto(Obj? handle, Obj? opts := null)
@@ -391,7 +396,7 @@ const class IOFuncs
 
   **
   ** Write value to a Xeto text format file.
-  ** See `xeto::XetoIO.writeXeto` for details and options.
+  ** See [xeto::XetoIO.writeXeto] for details and options.
   **
   @Api @Axon { admin = true }
   static Obj? ioWriteXeto(Obj? val, Obj? handle, Obj? opts := null)
@@ -410,9 +415,9 @@ const class IOFuncs
   ** Read a CSV (comma separated values) file into memory as a Grid.
   ** CSV format is implemented as specified by RFC 4180:
   **   - rows are delimited by a newline
-  **   - cells are separated by 'delimiter' char
-  **   - cells containing the delimiter, '"' double quote, or
-  **     newline are quoted; quotes are escaped as '""'
+  **   - cells are separated by `delimiter` char
+  **   - cells containing the delimiter, `"` double quote, or
+  **     newline are quoted; quotes are escaped as `""`
   **   - empty cells are normalized into null
   **
   ** The following options are supported:
@@ -420,7 +425,7 @@ const class IOFuncs
   **   - noHeader: if present then don't treat first row as col names,
   **     instead use "v0", "v1", etc
   **
-  ** Also see `ioStreamCsv`, `ioEachCsv`, `ioWriteCsv`, and `docHaystack::Csv`.
+  ** Also see [ioStreamCsv], [ioEachCsv], [ioWriteCsv], and [docHaystack::Csv].
   **
   @Api @Axon { admin = true }
   static Grid ioReadCsv(Obj? handle, Dict? opts := null)
@@ -430,9 +435,9 @@ const class IOFuncs
 
   **
   ** Read a stream of dicts from a comma separated value file.  This
-  ** function uses the same options and semantics as `ioReadCsv` except
+  ** function uses the same options and semantics as [ioReadCsv] except
   ** it streams the rows as dicts instead of reading to an in-memory grid.
-  ** See `docHaxall::Streams#ioStreamCsv`.
+  ** See [docHaxall::Streams#iostreamcsv].
   **
   @Api @Axon { admin = true }
   static Obj? ioStreamCsv(Obj? handle, Dict? opts := null)
@@ -448,7 +453,7 @@ const class IOFuncs
   ** The following options are supported:
   **   - delimiter: separator char as string, default is ","
   **
-  ** Also `ioReadCsv`, `ioWriteCsv`, and `docHaystack::Csv`.
+  ** Also [ioReadCsv], [ioWriteCsv], and [docHaystack::Csv].
   **
   @Api @Axon { admin = true }
   static Obj? ioEachCsv(Obj? handle, Dict? opts, Fn fn)
@@ -457,13 +462,13 @@ const class IOFuncs
   }
 
   **
-  ** Write a grid to a [CSV]`docHaystack::Csv` (comma separated values) file.
+  ** Write a grid to a [CSV](docHaystack::Csv) (comma separated values) file.
   **
   ** CSV format is implemented as specified by RFC 4180:
   **   - rows are delimited by a newline
-  **   - cells are separated by 'delimiter' char
-  **   - cells containing the delimiter, '"' double quote, or
-  **     newline are quoted; quotes are escaped as '""'
+  **   - cells are separated by `delimiter` char
+  **   - cells containing the delimiter, `"` double quote, or
+  **     newline are quoted; quotes are escaped as `""`
   **
   ** The following options are supported:
   **   - delimiter: separator char as string, default is ","
@@ -472,7 +477,7 @@ const class IOFuncs
   **     written as a header row.
   **   - stripUnits: write all numbers without a unit
   **
-  ** Also `ioReadCsv`, `ioEachCsv`, and `docHaystack::Csv`.
+  ** Also [ioReadCsv], [ioEachCsv], and [docHaystack::Csv].
   **
   @Api @Axon { admin = true }
   static Obj? ioWriteCsv(Obj? val, Obj? handle, Dict? opts := null)
@@ -497,15 +502,16 @@ const class IOFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Write an Excel XLS file, where 'val' may be:
+  ** Write an Excel XLS file, where `val` may be:
   **   - Grid - writted a a single worksheet
   **   - Grid[] - each grid is exported as a separate worksheet
   **
   ** By default each worksheet is named "Sheet1", "Sheet2", etc.  Use
-  ** a 'title' tag in Grid.meta to give the worksheets a specific name.
+  ** a `title` tag in Grid.meta to give the worksheets a specific name.
   **
   ** Example:
-  **   readAll(site).ioWriteExcel(`io/sites.xls`)
+  **
+  **     readAll(site).ioWriteExcel(`io/sites.xls`)
   **
   @Api @Axon { admin = true }
   static Obj? ioWriteExcel(Obj? val, Obj? handle)
@@ -536,12 +542,12 @@ const class IOFuncs
   ** Read a JSON file into memory. This function can used to read any
   ** arbitrary JSON nested object/array structure which can be accessed
   ** as Axon dicts/lists.  The default decoding assumes Haystack 4 JSON
-  ** format (Hayson).  Also see `ioReadJsonGrid` if reading a Haystack
+  ** format (Hayson).  Also see [ioReadJsonGrid] if reading a Haystack
   ** formatted grid.
   **
   ** Object keys which are not valid tag names will decode correctly
   ** and can be used in-process.  But they will not serialize correctly
-  ** over the HTTP API.  You can use the 'safeNames' option to force object
+  ** over the HTTP API.  You can use the `safeNames` option to force object
   ** keys to be safe tag names (but you will lose the original key names).
   **
   ** The following options are supported:
@@ -570,7 +576,7 @@ const class IOFuncs
 
   **
   ** Read a JSON file formatted as a standardized Haystack grid
-  ** into memory. See `ioReadJson` to read arbitrary JSON structured data.
+  ** into memory. See [ioReadJson] to read arbitrary JSON structured data.
   **
   @Api @Axon { admin = true }
   static Grid ioReadJsonGrid(Obj? handle, Dict? opts := null)
@@ -583,9 +589,9 @@ const class IOFuncs
 
   **
   ** Write an Axon data structure to JSON. By default,
-  ** Haystack 4 (Hayson) encoding is used. The 'val' may be:
+  ** Haystack 4 (Hayson) encoding is used. The `val` may be:
   **   - One of the SkySpark types that can be mapped to JSON.
-  **     See `docHaystack::Json` for type mapping.
+  **     See [docHaystack::Json] for type mapping.
   **
   ** The following options are supported:
   **   - noEscapeUnicode: do not escape characters over 0x7F
@@ -608,7 +614,7 @@ const class IOFuncs
 // HTML
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write an Axon data structure to HTML. The 'val' must be an
+  ** Write an Axon data structure to HTML. The `val` must be an
   ** Axon type that can be converted to a Grid.
   @Api @Axon { admin = true }
   static Obj? ioWriteHtml(Obj? val, Obj? handle, Dict opts := Etc.dict0)
@@ -625,7 +631,7 @@ const class IOFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Write a grid to an [XML]`docHaxall::Xml` file.
+  ** Write a grid to an [XML](docHaxall::Xml) file.
   **
   @Api @Axon { admin = true }
   static Obj? ioWriteXml(Obj? val, Obj? handle)
@@ -641,8 +647,8 @@ const class IOFuncs
 // RDF
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write an Axon data structure to RDF [Turtle]`docHaystack::Rdf` format.
-  ** The 'val' must be an Axon type that can be converted to a Grid.
+  ** Write an Axon data structure to RDF [Turtle](docHaystack::Rdf) format.
+  ** The `val` must be an Axon type that can be converted to a Grid.
   @Api @Axon { admin = true }
   static Obj? ioWriteTurtle(Obj? val, Obj? handle)
   {
@@ -653,8 +659,8 @@ const class IOFuncs
     }
   }
 
-  ** Write an Axon data structure to RDF [JSON-LD]`docHaystack::Rdf` format.
-  ** The 'val' must be an Axon type that can be converted to a Grid.
+  ** Write an Axon data structure to RDF [JSON-LD](docHaystack::Rdf) format.
+  ** The `val` must be an Axon type that can be converted to a Grid.
   @Api @Axon { admin = true }
   static Obj? ioWriteJsonLd(Obj? val, Obj? handle)
   {
@@ -671,16 +677,17 @@ const class IOFuncs
 
   **
   ** Read a zip file's entry listing, return a grid with cols:
-  **   - 'path': path of entry inside zip as Uri
-  **   - 'size': size of file in bytes or null
-  **   - 'mod':  modified timestamp or null if unknown
+  **   - `path`: path of entry inside zip as Uri
+  **   - `size`: size of file in bytes or null
+  **   - `mod`:  modified timestamp or null if unknown
   **
   ** The handle must reference a zip file in the file system.
-  ** Use `ioZipEntry` to perform a read operation on one of the
+  ** Use [ioZipEntry] to perform a read operation on one of the
   ** entries in the zip file.
   **
   ** Example:
-  **   ioZipDir(`io/batch.zip`)
+  **
+  **     ioZipDir(`io/batch.zip`)
   **
   @Api @Axon { admin = true }
   static Grid ioZipDir(Obj? handle)
@@ -708,15 +715,16 @@ const class IOFuncs
 
   **
   ** Return a I/O handle which may be used to read from a zip
-  ** entry within a zip file.  The 'handle' parameter must be
+  ** entry within a zip file.  The `handle` parameter must be
   ** an I/O handle which references a zip file in the file system.
-  ** The 'path' parameter must be a Uri which identifies the
-  ** path of the entry within the zip file.  See `ioZipDir` to
+  ** The `path` parameter must be a Uri which identifies the
+  ** path of the entry within the zip file.  See [ioZipDir] to
   ** read the listing of paths within a zip.
   **
   ** Example:
-  **   // read CSV file from within a zip
-  **   ioZipEntry(`io/batch.zip`, `/zone-temp.csv`).ioReadCsv
+  **
+  **     // read CSV file from within a zip
+  **     ioZipEntry(`io/batch.zip`, `/zone-temp.csv`).ioReadCsv
   **
   @Api @Axon { admin = true }
   static Obj? ioZipEntry(Obj? handle, Uri path)
@@ -733,11 +741,12 @@ const class IOFuncs
   ** Wrap an I/O handle to GZIP compress/uncompress.
   **
   ** Example:
-  **   // generate GZIP CSV file
-  **   readAll(site).ioWriteCsv(ioGzip(`io/sites.gz`))
   **
-  **   // read GZIP CSV file
-  **   ioGzip(`io/sites.gz`).ioReadCsv
+  **     // generate GZIP CSV file
+  **     readAll(site).ioWriteCsv(ioGzip(`io/sites.gz`))
+  **
+  **     // read GZIP CSV file
+  **     ioGzip(`io/sites.gz`).ioReadCsv
   **
   @Api @Axon { admin = true }
   static Obj? ioGzip(Obj? handle)
@@ -751,11 +760,12 @@ const class IOFuncs
 
   **
   ** Return an I/O handle to decode from a base64 string.
-  ** Also see `ioToBase64()` and `sys::Buf.fromBase64`
+  ** Also see [ioToBase64()] and [sys::Buf.fromBase64]
   **
   ** Example:
-  **   // decode base64 to a string
-  **   ioFromBase64("c2t5c3Bhcms").ioReadStr
+  **
+  **     // decode base64 to a string
+  **     ioFromBase64("c2t5c3Bhcms").ioReadStr
   **
   @Api @Axon { admin = true }
   static Obj? ioFromBase64(Str s)
@@ -765,16 +775,17 @@ const class IOFuncs
 
   **
   ** Encode an I/O handle into a base64 string.  The default behavior
-  ** is to encode using RFC 2045 (see `sys::Buf.toBase64`).  Use the '{uri}'
-  ** option to encode a URI-safe URI via RFC 4648 (see `sys::Buf.toBase64Uri`).
-  ** Also see `ioFromBase64`.
+  ** is to encode using RFC 2045 (see [sys::Buf.toBase64]).  Use the `{uri}`
+  ** option to encode a URI-safe URI via RFC 4648 (see [sys::Buf.toBase64Uri]).
+  ** Also see [ioFromBase64].
   **
   ** Example:
-  **   // encode string to base64
-  **   ioToBase64("myusername:mysecret")
   **
-  **   // encode string to base64 without padding using URI safe chars
-  **   ioToBase64("myusername:mysecret", {uri})
+  **     // encode string to base64
+  **     ioToBase64("myusername:mysecret")
+  **
+  **     // encode string to base64 without padding using URI safe chars
+  **     ioToBase64("myusername:mysecret", {uri})
   **
   @Api @Axon { admin = true }
   static Str ioToBase64(Obj? handle, Dict? opts := null)
@@ -795,10 +806,11 @@ const class IOFuncs
 
   **
   ** Generate a cycle reduancy check code as a Number.
-  ** See `sys::Buf.crc` for available algorithms.
+  ** See [sys::Buf.crc] for available algorithms.
   **
   ** Example:
-  **   ioCrc("foo", "CRC-32").toHex
+  **
+  **     ioCrc("foo", "CRC-32").toHex
   **
   @Api @Axon { admin = true }
   static Number ioCrc(Obj? handle, Str algorithm)
@@ -808,10 +820,11 @@ const class IOFuncs
 
   **
   ** Generate a one-way hash of the given I/O handle.
-  ** See `sys::Buf.toDigest` for available algorithms.
+  ** See [sys::Buf.toDigest] for available algorithms.
   **
   ** Example:
-  **   ioDigest("foo", "SHA-1").ioToBase64
+  **
+  **     ioDigest("foo", "SHA-1").ioToBase64
   **
   @Api @Axon { admin = true }
   static Obj? ioDigest(Obj? handle, Str algorithm)
@@ -821,10 +834,11 @@ const class IOFuncs
 
   **
   ** Generate an HMAC message authentication as specified by RFC 2104.
-  ** See `sys::Buf.hmac`.
+  ** See [sys::Buf.hmac].
   **
   ** Example:
-  **   ioHmac("foo", "SHA-1", "secret").ioToBase64
+  **
+  **     ioHmac("foo", "SHA-1", "secret").ioToBase64
   **
   @Api @Axon { admin = true }
   static Obj? ioHmac(Obj? handle, Str algorithm, Obj? key)
@@ -833,10 +847,11 @@ const class IOFuncs
   }
 
   **
-  ** Generate a password based cryptographic key. See `sys::Buf.pbk`.
+  ** Generate a password based cryptographic key. See [sys::Buf.pbk].
   **
   ** Example:
-  **   ioPbk("PBKDF2WithHmacSHA1", "secret", ioRandom(64), 1000, 20).ioToBase64
+  **
+  **     ioPbk("PBKDF2WithHmacSHA1", "secret", ioRandom(64), 1000, 20).ioToBase64
   **
   @Api @Axon { admin = true }
   static Obj? ioPbk(Str algorithm, Str password, Obj? salt, Number iterations, Number keyLen)
@@ -866,11 +881,12 @@ const class IOFuncs
   **   - UTF-8: 0xEF_BB_BF
   **
   ** Examples:
-  **   // skip leading 4 lines in a CSV file
-  **   ioSkip(`io/foo.csv`, {lines:4}).ioReadCsv
   **
-  **   // skip byte order mark
-  **   ioSkip(`io/foo.csv`, {bom}).ioReadCsv
+  **     // skip leading 4 lines in a CSV file
+  **     ioSkip(`io/foo.csv`, {lines:4}).ioReadCsv
+  **
+  **     // skip byte order mark
+  **     ioSkip(`io/foo.csv`, {bom}).ioReadCsv
   **
   @Api @Axon { admin = true }
   static Obj? ioSkip(Obj? handle, Dict opts)
@@ -885,23 +901,24 @@ const class IOFuncs
   **
   ** Render data to a PDF file.  The grid meta "view" tag determines
   ** the visualization:
-  **   - 'table': render grid as [table]`docFresco::Tables` (default)
-  **   - 'chart': render grid as [chart]`docFresco::Charts`
-  **   - 'fandoc': render string as [fandoc]`fandoc::pod-doc#overview`
-  **   - 'text': render as plaintext
+  **   - `table`: render grid as [table](docFresco::Tables) (default)
+  **   - `chart`: render grid as [chart](docFresco::Charts)
+  **   - `fandoc`: render string as [fandoc](fandoc::pod-doc#overview)
+  **   - `text`: render as plaintext
   **
   ** Options:
-  **   - `pageSize`: determines the PDF page size
+  **   - [pageSize]\: determines the PDF page size
   **
   ** Examples:
-  **   // render as chart with default page size
-  **   read(power).hisRead(yesterday).ioWritePdf(`io/portrait.pdf`)
   **
-  **   // render as chart with landscape page size of 11" x 8.5"
-  **   read(power).hisRead(yesterday).ioWritePdf(`io/landscape.pdf`, {pageSize:"11in,8.5in"})
+  **     // render as chart with default page size
+  **     read(power).hisRead(yesterday).ioWritePdf(`io/portrait.pdf`)
   **
-  **   // render table as single auto-fit page
-  **   readAll(site).ioWritePdf(`io/sites.pdf`, {pageSize:"auto"})
+  **     // render as chart with landscape page size of 11" x 8.5"
+  **     read(power).hisRead(yesterday).ioWritePdf(`io/landscape.pdf`, {pageSize:"11in,8.5in"})
+  **
+  **     // render table as single auto-fit page
+  **     readAll(site).ioWritePdf(`io/sites.pdf`, {pageSize:"auto"})
   **
   ** Note: this feature is available in SkySpark only
   **
@@ -924,15 +941,16 @@ const class IOFuncs
   }
 
   **
-  ** Render data to an SVG file.  Pass 'size' option to specify
-  ** the SVG 'viewBox', 'width', and 'height' attribtues (defaults
+  ** Render data to an SVG file.  Pass `size` option to specify
+  ** the SVG `viewBox`, `width`, and `height` attribtues (defaults
   ** to "1000,800").  The visualization is determined by the grid meta
-  ** "view" tag - see `ioWritePdf()` for specifics.
+  ** "view" tag - see [ioWritePdf()] for specifics.
   **
   ** Examples:
-  **   read(power).hisRead(yesterday).ioWriteSvg(`io/example.svg`)
   **
-  **   read(power).hisRead(yesterday).ioWriteSvg(`io/example.svg`, {size:"600,400"})
+  **     read(power).hisRead(yesterday).ioWriteSvg(`io/example.svg`)
+  **
+  **     read(power).hisRead(yesterday).ioWriteSvg(`io/example.svg`, {size:"600,400"})
   **
   ** Note: this feature is available in SkySpark only
   **
@@ -948,7 +966,7 @@ const class IOFuncs
   }
 
   **
-  ** Export a view to the given file handle - see `docFresco::Export`.
+  ** Export a view to the given file handle - see [docFresco::Export].
   **
   ** Note: this feature is available in SkySpark only
   **
@@ -969,39 +987,40 @@ const class IOFuncs
   ** Make an HTTP request and process the response in a callback.
   ** The connection is guaranteed to be closed when the callback returns.
   **
-  ** The 'headers' parameter is an optional Dict of request headers.
-  ** Header values may use the special ref `@password` to resolve
+  ** The `headers` parameter is an optional Dict of request headers.
+  ** Header values may use the special ref [@password] to resolve
   ** a secret from the project's password store.  The password is
   ** looked up by the key "<scheme>://<host>[:<port>]/ <header-name>".
   **
   ** The password key is case sensitive.  If the password is not
   ** found, an exception is raised.
   **
-  ** The 'body' parameter is any value accepted as an
-  ** [I/O handle]`doc#handles` (Str, Buf, Uri, etc).  If non-null, it is
+  ** The `body` parameter is any value accepted as an
+  ** [I/O handle](doc#handles) (Str, Buf, Uri, etc).  If non-null, it is
   ** streamed as the request body; Content-Type defaults to
-  ** "application/octet-stream" when not specified in 'headers'.
+  ** "application/octet-stream" when not specified in `headers`.
   **
   ** The callback receives three arguments:
-  **   - 'code': Number HTTP status code
-  **   - 'headers': Dict of response headers
-  **   - 'body': response body I/O handle for streaming reads
+  **   - `code`: Number HTTP status code
+  **   - `headers`: Dict of response headers
+  **   - `body`: response body I/O handle for streaming reads
   **
   ** Examples:
-  **   // GET and read response as string
-  **   ioHttp(`http://example.com/api`, "GET", null, null,
-  **     (code, headers, body) => ioReadStr(body))
   **
-  **   // POST with body
-  **   ioHttp(`http://example.com/api`, "POST",
-  **     {"Content-Type": "text/plain"}, "hello world",
-  **     (code, headers, body) => {code: code, body: ioReadStr(body)})
+  **     // GET and read response as string
+  **     ioHttp(`http://example.com/api`, "GET", null, null,
+  **       (code, headers, body) => ioReadStr(body))
   **
-  **   // Use password store for auth header
-  **   passwordSet("https://acme.com/ Secret-Header", "pass")
-  **   ioHttp(`https://acme.com/api`, "POST",
-  **     {"Secret-Header": @password}, body,
-  **     (code, headers, body) => {code: code, body: ioReadStr(body)})
+  **     // POST with body
+  **     ioHttp(`http://example.com/api`, "POST",
+  **       {"Content-Type": "text/plain"}, "hello world",
+  **       (code, headers, body) => {code: code, body: ioReadStr(body)})
+  **
+  **     // Use password store for auth header
+  **     passwordSet("https://acme.com/ Secret-Header", "pass")
+  **     ioHttp(`https://acme.com/api`, "POST",
+  **       {"Secret-Header": @password}, body,
+  **       (code, headers, body) => {code: code, body: ioReadStr(body)})
   **
   @Api @Axon { admin = true }
   static Obj? ioHttp(Uri uri, Str method, Dict? headers, Obj? body, Fn fn)

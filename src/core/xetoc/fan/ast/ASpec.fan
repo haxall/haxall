@@ -100,7 +100,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** String returns qname
   override Str toStr() { qname }
 
-  ** Is given spec the 'sys::Obj' type
+  ** Is given spec the `sys::Obj` type
   Bool isObj() { lib.isSys && name == "Obj" }
 
   ** Type signature after colon - set in Parser, InheritSlots.
@@ -117,7 +117,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** Parameterized arguments of/ofs (set in InheritMeta)
   MSpecArgs args() { ast.args ?: throw NotReadyErr(qname) }
 
-  ** True if we parsed this spec as an '&' or '|' type
+  ** True if we parsed this spec as an `&` or `|` type
   Bool parsedCompound() { ast.parsedCompound }
 
   ** True if we parsed this as a nested spec ref

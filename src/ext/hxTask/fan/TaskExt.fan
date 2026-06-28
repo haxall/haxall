@@ -102,7 +102,7 @@ const class TaskExt : ExtObj, ITaskExt
     pool.kill
   }
 
-  ** Event when 'task' records are modified
+  ** Event when `task` records are modified
   internal Void onTaskEvent(CommitObservation e)
   {
     // on update or remove, then kill existing task

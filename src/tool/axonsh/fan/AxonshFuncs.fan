@@ -35,8 +35,9 @@ const class AxonshFuncs
 
   ** Print help summary or help on a specific command.
   ** Examples:
-  **    help()        // print summary
-  **    help(using)   // print help for the using function
+  **
+  **      help()        // print summary
+  **      help(using)   // print help for the using function
   @Api static Obj? help(Obj? func := null)
   {
     out := cx.printer
@@ -161,21 +162,22 @@ const class AxonshFuncs
   ** Load the in-memory database from an Uri.  The uri must be have http/https
   ** scheme or reference a file on the local file system (using forward slash).
   ** The filename must have one of the following file extensions: zinc, json,
-  ** trio, or csv.  Each record should define an 'id' tag, or if missing then
+  ** trio, or csv.  Each record should define an `id` tag, or if missing then
   ** an id will assigned automatically.
   **
   ** Options:
   **   - shortIds: will swizzle all internal refs to short ids
   **
   ** Examples:
-  **   // load from the a local file
-  **   load(`folder/site.json`)
   **
-  **   // load from the a local file and use short ids
-  **   load(`folder/site.json`, {shortIds})
+  **     // load from the a local file
+  **     load(`folder/site.json`)
   **
-  **   // load from a HTTP URI
-  **   load(`https://project-haystack.org/example/download/bravo.zinc`)
+  **     // load from the a local file and use short ids
+  **     load(`folder/site.json`, {shortIds})
+  **
+  **     // load from a HTTP URI
+  **     load(`https://project-haystack.org/example/download/bravo.zinc`)
   **
   @Api static Obj? load(Uri uri, Dict? opts := null)
   {

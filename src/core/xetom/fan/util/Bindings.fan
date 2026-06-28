@@ -36,11 +36,11 @@ const class SpecBindings
 
   ** Build registry of lib name to loader type:
   **
-  **   // use pod loader
-  **   index = ["xeto.bindings": "libName"]
+  **     // use pod loader
+  **     index = ["xeto.bindings": "libName"]
   **
-  **   // use specific SpecBindingLoader class
-  **   index = ["xeto.bindings": "libName ion::XetoBindingLoader"]
+  **     // use specific SpecBindingLoader class
+  **     index = ["xeto.bindings": "libName ion::XetoBindingLoader"]
   **
   ** The loaderType is qname of SpecBindingLoader Fantom class
   ** or if is a pod name we load via PodBindingLoader

@@ -10,7 +10,7 @@ using concurrent
 using util
 
 **
-** Component or function block - see [documentation]`hx.doc.haxall::Comps`.
+** Component or function block - see [documentation](hx.doc.haxall::Comps).
 **
 @Js
 mixin Comp
@@ -51,7 +51,7 @@ mixin Comp
   ** Return true if this component does not have slot with non-null value.
   Bool missing(Str name) { spi.missing(name) }
 
-  ** Iterate slot name/value pairs using same semantics as `get`.
+  ** Iterate slot name/value pairs using same semantics as [get].
   Void each(|Obj val, Str name| f) { spi.each(f) }
 
   ** Iterate name/value pairs until callback returns non-null
@@ -150,16 +150,16 @@ mixin Comp
   @NoDoc virtual Void onUnmount() {}
 
   ** Schedule an callback to onExecute on the next execution cycle.
-  ** See `hx.doc.haxall::Comps#execution`.
+  ** See [hx.doc.haxall::Comps#execution].
   Void execute() { spi.execute }
 
   ** Callback to recompute component state.  This is always called
   ** within a CompContext.  If not overriden then the default behavior
-  ** attempts to call the 'onExecute' method defined in Xeto.
-  ** See `hx.doc.haxall::Comps#execution`.
+  ** attempts to call the `onExecute` method defined in Xeto.
+  ** See [hx.doc.haxall::Comps#execution].
   virtual Void onExecute() { spi.onExecute }
 
-  ** How often should this component have its `onExecute` callback invoked.
+  ** How often should this component have its [onExecute] callback invoked.
   ** Return null if this component has no time based computation.
   virtual Duration? onExecuteFreq() { null }
 
@@ -212,7 +212,7 @@ mixin Comp
 **
 ** CompObj is the base class for all Comp subclasses.  All
 ** constructors must be run within the context for a CompSpace.
-** See [documentation]`hx.doc.haxall::Comps`.
+** See [documentation](hx.doc.haxall::Comps).
 **
 @Js
 class CompObj : Comp

@@ -10,7 +10,7 @@ using web
 
 **
 ** AuthMsg models a scheme name and set of parameters according
-** to [RFC 7235]`https://tools.ietf.org/html/rfc7235`.  To simplify
+** to [RFC 7235](https://tools.ietf.org/html/rfc7235).  To simplify
 ** parsing, we restrict the grammar to be auth-param and token (the
 ** token68 and quoted-string productions are not allowed).
 **
@@ -22,7 +22,7 @@ const class AuthMsg
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Parse a list of AuthSchemes such as a list of 'challenge'
+  ** Parse a list of AuthSchemes such as a list of `challenge`
   ** productions for the WWW-Authentication header per RFC 7235.
   static AuthMsg[] listFromStr(Str s)
   {

@@ -669,7 +669,8 @@ const class XetoUtil
 
   ** Given a list of specs, remove any specs that are
   ** supertypes of other specs in this same list:
-  **   [Equip, Meter, ElecMeter, Vav]  => ElecMeter, Vav
+  **
+  **     [Equip, Meter, ElecMeter, Vav]  => ElecMeter, Vav
   static Spec[] excludeSupertypes(Spec[] list)
   {
     if (list.size <= 1) return list.dup
@@ -754,7 +755,7 @@ const class XetoUtil
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return if lib name 'd' is under lib 'x' name's dependency graph
+  ** Return if lib name `d` is under lib `x` name's dependency graph
   static Bool isInDepends(Namespace ns, Str x, Str d)
   {
     if (x == d) return true

@@ -15,7 +15,7 @@ using hx
 ** ConnDispatch provides an implementation for all callbacks.  A subclass
 ** is created by each connector to implement the various callbacks and
 ** store mutable state.  All dispatch callbacks are executed within the
-** parent Conn actor.  See `hx.doc.haxall::CustomConns#conndispatch`.
+** parent Conn actor.  See [hx.doc.haxall::CustomConns#conndispatch].
 **
 abstract class ConnDispatch
 {
@@ -58,7 +58,7 @@ abstract class ConnDispatch
 
   ** Current version of the record.
   ** This dict only represents the current persistent tags.
-  ** It does not track transient changes such as 'connStatus'.
+  ** It does not track transient changes such as `connStatus`.
   Dict rec() { conn.rec }
 
   ** ConnMgr wrapper which handles implementation logic
@@ -76,10 +76,10 @@ abstract class ConnDispatch
   ** Return if there is one or more points currently in watch.
   Bool hasPointsWatched() { mgr.hasPointsWatched }
 
-  ** Set the `Conn.data` value.  The value must be immutable.
+  ** Set the [Conn.data] value.  The value must be immutable.
   Void setConnData(Obj? val) { conn.setData(mgr, val) }
 
-  ** Set the `ConnPoint.data` value.  The value must be immutable.
+  ** Set the [ConnPoint.data] value.  The value must be immutable.
   Void setPointData(ConnPoint pt, Obj? val) { pt.setData(mgr, val) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ abstract class ConnDispatch
     return this
   }
 
-  ** Close a pinned application opened by `openPin`.
+  ** Close a pinned application opened by [openPin].
   @NoDoc Void closePin(Str app)
   {
     mgr.closePin(app)
@@ -127,7 +127,7 @@ abstract class ConnDispatch
 
   ** Callback to handle opening the connection.  Raise DownErr or FaultErr
   ** if the connection failed.  This callback is always called before
-  ** operations such as `onPing`.
+  ** operations such as [onPing].
   abstract Void onOpen()
 
   ** Callback to handle close of the connection.
@@ -142,15 +142,15 @@ abstract class ConnDispatch
 
   ** Callback to handle learn tree navigation.  This method should
   ** return a grid where the rows are either navigation elements
-  ** to traverse or points to map.  The 'learn' tag is used to indicate
+  ** to traverse or points to map.  The `learn` tag is used to indicate
   ** a row which may be "dived into" to navigate the remote system's tree.
-  ** The 'learn' value is passed back to this function to get the next
+  ** The `learn` value is passed back to this function to get the next
   ** level of the tree.  A null arg should return the root of the learn tree.
   **
-  ** Also see `ConnExt.onLearn` which provides the top-level callback
+  ** Also see [ConnExt.onLearn] which provides the top-level callback
   ** for learn.  If your learn implementation does not require an open
-  ** connection, then use the 'ConnExt' level callback.  By default that
-  ** callback will dispatch a message to Conn actor, perform `open`, and
+  ** connection, then use the `ConnExt` level callback.  By default that
+  ** callback will dispatch a message to Conn actor, perform [open], and
   ** then invoke this callback.
   **
   ** The following tags should be used to indicate points to map:
@@ -168,42 +168,42 @@ abstract class ConnDispatch
   virtual Grid onLearn(Obj? arg) { throw UnsupportedErr() }
 
   ** Callback made periodically for manual polling.  This callback
-  ** is only invoked if `Conn.pollMode` is configured as "manual".
-  ** The frequency of the callback is determined by `Conn.pollFreq`.
-  ** Use `pointsWatched` to list of points currently being watched.
+  ** is only invoked if [Conn.pollMode] is configured as "manual".
+  ** The frequency of the callback is determined by [Conn.pollFreq].
+  ** Use [pointsWatched] to list of points currently being watched.
   virtual Void onPollManual() { }
 
   ** Callback to poll a bucket of points with the same tuning config.
-  ** Default implementation calls `onSyncCur`.  This callback is only
-  ** used if the `Conn.pollMode` is configured as "buckets".
+  ** Default implementation calls [onSyncCur].  This callback is only
+  ** used if the [Conn.pollMode] is configured as "buckets".
   virtual Void onPollBucket(ConnPoint[] points) { onSyncCur(points) }
 
   ** Callback to synchronize the given list of points.  The result
-  ** of this call should be to invoke `ConnPoint.updateCurOk` or
-  ** `ConnPoint.updateCurErr` on each point.  All the points
-  ** are guaranteed to return true for [isCurEnabled]`ConnPoint.isCurEnabled`
+  ** of this call should be to invoke [ConnPoint.updateCurOk] or
+  ** [ConnPoint.updateCurErr] on each point.  All the points
+  ** are guaranteed to return true for [isCurEnabled](ConnPoint.isCurEnabled)
   virtual Void onSyncCur(ConnPoint[] points) {}
 
   ** Callback when one or more points are put into watch mode.  All the
-  ** points are guaranteed to return true for [isCurEnabled]`ConnPoint.isCurEnabled`
+  ** points are guaranteed to return true for [isCurEnabled](ConnPoint.isCurEnabled)
   virtual Void onWatch(ConnPoint[] points) {}
 
   ** Callback when one or more points are taken out of watch mode.
   virtual Void onUnwatch(ConnPoint[] points) {}
 
-  ** Callback to write a point.  The connector should write 'info.val'
-  ** to the remote system.  If successful then call `ConnPoint.updateWriteOk`.
-  ** If there is an error then invoke `ConnPoint.updateWriteErr` or raise
+  ** Callback to write a point.  The connector should write `info.val`
+  ** to the remote system.  If successful then call [ConnPoint.updateWriteOk].
+  ** If there is an error then invoke [ConnPoint.updateWriteErr] or raise
   ** an exception.  Note the value  may have been convered from
-  ** `ph::WritablePoint.writeVal` if `hx.conn::ConnPoint.writeConvert` is
+  ** [ph::WritablePoint.writeVal] if [hx.conn::ConnPoint.writeConvert] is
   ** configured.
   virtual Void onWrite(ConnPoint point, ConnWriteInfo event) {}
 
   ** Callback to synchronize the a point's history data from the
   ** connector.  The result of this callback must be to invoke
-  ** `ConnPoint.updateHisOk` or `ConnPoint.updateHisErr` (or just
+  ** [ConnPoint.updateHisOk] or [ConnPoint.updateHisErr] (or just
   ** raise exception).  The return of this method should be
-  ** whatever 'updateHisXXX' returns.
+  ** whatever `updateHisXXX` returns.
   virtual Obj? onSyncHis(ConnPoint point, Span span) { throw UnsupportedErr() }
 
   ** Callback made periodically every few seconds to handle background tasks.

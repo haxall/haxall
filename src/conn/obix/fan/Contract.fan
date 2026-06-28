@@ -41,7 +41,7 @@ const class Contract
   const Uri[] uris
 
   **
-  ** Convenience for 'uris.isEmpty'.
+  ** Convenience for `uris.isEmpty`.
   **
   Bool isEmpty() { return uris.isEmpty }
 

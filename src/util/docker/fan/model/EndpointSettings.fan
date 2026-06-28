@@ -38,7 +38,7 @@ const class EndpointSettings : DockerObj
   ** IPv4 address
   const Str iPAddress
 
-  ** Convenience to get the an `IpAddr` for the IPv4 address.
+  ** Convenience to get the an [IpAddr] for the IPv4 address.
   IpAddr? ipv4() { toIpAddr(iPAddress) }
 
   ** Mask length of the IPv4 address
@@ -53,7 +53,7 @@ const class EndpointSettings : DockerObj
   ** Global IPv6 address
   const Str globalIPv6Address
 
-  ** Convenience to get the an `IpAddr` for the IPv6 address.
+  ** Convenience to get the an [IpAddr] for the IPv6 address.
   IpAddr? ipv6() { toIpAddr(globalIPv6Address) }
 
   ** Mask length of the global IPv6 address

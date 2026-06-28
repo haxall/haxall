@@ -20,21 +20,21 @@ using hxConn
 **
 const class SedonaFuncs
 {
-  ** Deprecated - use `connPing()`
+  ** Deprecated - use [connPing()]
   @Deprecated @Api @Axon { admin = true }
   static Future sedonaPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
-  ** Deprecated - use `connSyncCur()`
+  ** Deprecated - use [connSyncCur()]
   @Deprecated @Api @Axon { admin = true }
   static Future[] sedonaSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
   }
 
-  ** Deprecated - use `connLearn()`
+  ** Deprecated - use [connLearn()]
   @NoDoc @Api @Axon { admin = true }
   static Grid sedonaLearn(Obj conn, Obj? arg := null)
   {

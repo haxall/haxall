@@ -10,7 +10,7 @@ abstract class ValSelect : HxComp
 {
   /* ionc-start */
 
-  ** The index of the input to select. If the value is greater than 'numInputs'
+  ** The index of the input to select. If the value is greater than `numInputs`
   ** then the maximum active input will be selected.
   virtual StatusNumber? select { get {get("select")} set {set("select", it)} }
 

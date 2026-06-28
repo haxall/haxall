@@ -11,7 +11,7 @@ using concurrent
 **
 ** Library namespace is a pinned manifest of specific library versions.
 ** Namespaces may lazily load their libs, in which case not all operations
-** are supported. Create a new namespace via `XetoEnv.createNamespace`.
+** are supported. Create a new namespace via [XetoEnv.createNamespace].
 **
 @Js
 const mixin Namespace
@@ -47,12 +47,12 @@ const mixin Namespace
   abstract Bool hasLib(Str name)
 
   ** Return load status for the given library name:
-  **   - 'ok': library is included and loaded successfully
-  **   - 'err': library is included but could not be loaded
+  **   - `ok`: library is included and loaded successfully
+  **   - `err`: library is included but could not be loaded
   **   - null/exception if library not included
   abstract LibStatus? libStatus(Str name, Bool checked := true)
 
-  ** Exception for a library with lib status of 'err', or null otherwise.
+  ** Exception for a library with lib status of `err`, or null otherwise.
   ** Return null/exception if library not included
   abstract Err? libErr(Str name, Bool checked := true)
 
@@ -63,7 +63,7 @@ const mixin Namespace
   ** List all libraries. Any libs which cannot be compiled are excluded.
   abstract Lib[] libs()
 
-  ** Get the 'sys' library
+  ** Get the `sys` library
   @NoDoc abstract Lib sysLib()
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,11 +90,11 @@ const mixin Namespace
   abstract Spec[] mixinsOwn(Spec type)
 
   ** Get the effective spec metadata slots.
-  ** This is semantically equivalent to 'specx(Spec).slots'.
+  ** This is semantically equivalent to `specx(Spec).slots`.
   abstract SpecMap metas()
 
   ** Get the effective map of all functions.
-  ** This is semantically equivalent to 'specx(Funcs).slots'.
+  ** This is semantically equivalent to `specx(Funcs).slots`.
   abstract SpecMap funcs()
 
   ** Compute the extended type spec by merging all meta and slots from
@@ -134,8 +134,8 @@ const mixin Namespace
   @NoDoc abstract Spec specForFile(File file)
 
   ** Lookup the file spec for the given file extension.  File specs are
-  ** subtypes of 'sys::File' that declare a 'fileExts' in their metadata.
-  ** Returns 'sys::File' if extension is null or no matches are found.
+  ** subtypes of `sys::File` that declare a `fileExts` in their metadata.
+  ** Returns `sys::File` if extension is null or no matches are found.
   @NoDoc abstract Spec specForFileExt(Str? ext)
 
 /////////////////////////
@@ -143,17 +143,17 @@ const mixin Namespace
 // Reflection
 //////////////////////////////////////////////////////////////////////////
 
-  ** Spec for Fantom `sys::Type` or the typeof given object
+  ** Spec for Fantom [sys::Type] or the typeof given object
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
   ** Return if the given instance fits the spec via structural typing.
   ** Options:
-  **   - 'graph': marker to also check graph of references such as required points
-  **   - 'ignoreRefs': marker to ignore if refs resolve to valid target
-  **   - 'haystack': marker tag to use Haystack level data fidelity
+  **   - `graph`: marker to also check graph of references such as required points
+  **   - `ignoreRefs`: marker to ignore if refs resolve to valid target
+  **   - `haystack`: marker tag to use Haystack level data fidelity
   abstract Bool fits(Obj? val, Spec spec, Dict? opts := null)
 
-  ** Return if spec 'a' fits spec 'b' based on structural typing.
+  ** Return if spec `a` fits spec `b` based on structural typing.
   @NoDoc abstract Bool specFits(Spec a, Spec b, Dict? opts := null)
 
   ** Query a relationship using the given subject and query spec.
@@ -165,19 +165,19 @@ const mixin Namespace
   ** Raise exception if spec is abstract.
   **
   ** Options:
-  **   - 'genIds': generate ids for entity and comp dicts
-  **   - 'graph': marker tag to return Dict[] and generate child queries
-  **   - 'abstract': marker to supress error if spec is abstract
-  **   - 'haystack': marker tag to use Haystack level data fidelity
+  **   - `genIds`: generate ids for entity and comp dicts
+  **   - `graph`: marker tag to return Dict[] and generate child queries
+  **   - `abstract`: marker to supress error if spec is abstract
+  **   - `haystack`: marker tag to use Haystack level data fidelity
   abstract Obj? instantiate(Spec spec, Dict? opts := null)
 
   ** Return choice API for given spec. Callers should prefer the slot
   ** over the type since the slot determines maybe and multi-choice flags.
-  ** Raise exception if `Spec.isChoice` is false.
+  ** Raise exception if [Spec.isChoice] is false.
   abstract SpecChoice choice(Spec spec)
 
   ** Analyze the subject dict and return its slot types. Use the given
-  ** spec or if null, then use 'spec' tag on dict itself.  Reflection
+  ** spec or if null, then use `spec` tag on dict itself.  Reflection
   ** performs the following normalization:
   **   - maps every name/value pair to a ReflectSlot
   **   - maps every slot from spec (even if not defined by dict)
@@ -189,11 +189,11 @@ const mixin Namespace
 //////////////////////////////////////////////////////////////////////////
 
   ** Validate a single value against a spec.  If spec is null,
-  ** then validate against 'specOf(val)'. Should be called within an
+  ** then validate against `specOf(val)`. Should be called within an
   ** XetoContext context to verify external refs.
   abstract ValidateReport validate(Obj? val, Spec? spec := null, Dict? opts := null)
 
-  ** Validate a graph of records using their configured 'spec' tag.
+  ** Validate a graph of records using their configured `spec` tag.
   ** Should be called within an XetoContext context to verify external refs.
   abstract ValidateReport validateAll(Dict[] subjects, Dict? opts := null)
 

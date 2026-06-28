@@ -10,8 +10,8 @@ using xeto
 
 **
 ** Two dimensional tabular data structure composed of Cols and Rows.
-** Grids may be created by factory methods on `Etc` or using `GridBuilder`.
-** See [docHaystack]`ph.doc::Kinds#grid`.
+** Grids may be created by factory methods on [Etc] or using [GridBuilder].
+** See [docHaystack](ph.doc::Kinds#grid).
 **
 @Js
 const mixin Grid
@@ -33,13 +33,13 @@ const mixin Grid
   abstract Col? col(Str name, Bool checked := true)
 
   **
-  ** Convenience for `cols` mapped to `Col.name`.  The
+  ** Convenience for [cols] mapped to [Col.name].  The
   ** resulting list is safe for mutating.
   **
   Str[] colNames() { cols.map |col->Str| { col.name } }
 
   **
-  ** Convenience for `cols` mapped to `Col.dis`.  The
+  ** Convenience for [cols] mapped to [Col.dis].  The
   ** resulting list is safe for mutating.
   **
   Str[] colDisNames() { cols.map |col->Str| { col.dis } }
@@ -68,7 +68,7 @@ const mixin Grid
   abstract Obj? eachWhile(|Row row, Int index->Obj?| f)
 
   **
-  ** Convenience for `size` equal to zero.
+  ** Convenience for [size] equal to zero.
   **
   Bool isEmpty() { size == 0 }
 
@@ -105,7 +105,7 @@ const mixin Grid
   }
 
   **
-  ** Return if this grid conforms to the [history grid shape]`hx.his::doc#his-grid-shape`:
+  ** Return if this grid conforms to the [history grid shape](hx.his::doc#his-grid-shape):
   **  - has at least two columns
   **  - first column is named "ts"
   **  - has meta hisStart and hisEnd DateTime values
@@ -218,8 +218,8 @@ const mixin Grid
   }
 
   **
-  ** Convenience for `sort` which sorts the given column.
-  ** The 'col' parameter can be a `Col` or a str name.  The sorting
+  ** Convenience for [sort] which sorts the given column.
+  ** The `col` parameter can be a [Col] or a str name.  The sorting
   ** algorithm used is the same one used by the table UI based on
   ** the localized display string.  If column is not found then
   ** return this.
@@ -233,7 +233,7 @@ const mixin Grid
   }
 
   **
-  ** Sort the given column in reverse.  See `sortCol`
+  ** Sort the given column in reverse.  See [sortCol]
   **
   Grid sortColr(Obj col)
   {
@@ -244,7 +244,7 @@ const mixin Grid
   }
 
   **
-  ** Sort using `Etc.compareDis` and `xeto::Dict.dis`.
+  ** Sort using [Etc.compareDis] and [xeto::Dict.dis].
   **
   Grid sortDis()
   {
@@ -255,7 +255,7 @@ const mixin Grid
   }
 
   **
-  ** Extract 'id' column to list of Refs
+  ** Extract `id` column to list of Refs
   **
   @NoDoc Ref[] ids()
   {
@@ -277,7 +277,7 @@ const mixin Grid
 
   **
   ** Find one matching row or return null if no matches.
-  ** Also see `findIndex` and `findAll`.
+  ** Also see [findIndex] and [findAll].
   **
   Row? find(|Row, Int index->Bool| f)
   {
@@ -286,7 +286,7 @@ const mixin Grid
 
   **
   ** Find one matching row index or return null if no matches.
-  ** Also see `find`.
+  ** Also see [find].
   **
   Int? findIndex(|Row, Int index->Bool| f)
   {
@@ -296,7 +296,7 @@ const mixin Grid
   **
   ** Return a new grid which finds matching the rows in this
   ** grid.  The has the same meta and column definitions.
-  ** Also see `find` and `filter`.
+  ** Also see [find] and [filter].
   **
   Grid findAll(|Row, Int index->Bool| f)
   {
@@ -307,7 +307,7 @@ const mixin Grid
 
   **
   ** Return a new grid which finds matching rows based
-  ** on the given filter.  Also see `findAll`.
+  ** on the given filter.  Also see [findAll].
   **
   Grid filter(Filter filter, HaystackContext? cx := null)
   {
@@ -434,9 +434,9 @@ const mixin Grid
     return list
   }
 
-  ** Replace every cell with the given 'from' value with the 'to' value.
+  ** Replace every cell with the given `from` value with the `to` value.
   ** The resulting grid has the same grid and col meta.  Replacement comparison
-  ** is by via Fantom equality via '==' operator, so it will only replace
+  ** is by via Fantom equality via `==` operator, so it will only replace
   ** scalar values or null.
   Grid replace(Obj? from, Obj? to)
   {
@@ -481,8 +481,8 @@ const mixin Grid
   }
 
   **
-  ** Join two grids by column name.  The 'joinCol' parameter may
-  ** be a `Col` or col name.  Current implementation requires:
+  ** Join two grids by column name.  The `joinCol` parameter may
+  ** be a [Col] or col name.  Current implementation requires:
   **  - grids cannot have conflicting col names (other than join col)
   **  - each row in both grids must have a unique value for join col
   **  - grid level meta is merged
@@ -555,8 +555,8 @@ const mixin Grid
 
   **
   ** Return a new grid with grid level meta-data replaced by given
-  ** meta.  The meta may be any value accepted by `Etc.makeDict`.
-  ** Also see `addMeta`.
+  ** meta.  The meta may be any value accepted by [Etc.makeDict].
+  ** Also see [addMeta].
   **
   Grid setMeta(Obj? meta)
   {
@@ -567,9 +567,9 @@ const mixin Grid
 
   **
   ** Return a new grid with additional grid level meta-data.
-  ** The new tags are merged according to `Etc.dictMerge`.
-  ** The meta may be any value accepted by `Etc.makeDict`
-  ** Also see `setMeta`.
+  ** The new tags are merged according to [Etc.dictMerge].
+  ** The meta may be any value accepted by [Etc.makeDict]
+  ** Also see [setMeta].
   **
   Grid addMeta(Obj? meta)
   {
@@ -581,7 +581,7 @@ const mixin Grid
   **
   ** Return a new grid with an additional column.  The cells of the
   ** column are created by calling the mapping function for each row.
-  ** The meta may be any value accepted by `Etc.makeDict`
+  ** The meta may be any value accepted by [Etc.makeDict]
   **
   Grid addCol(Str name, Obj? meta, |Row, Int->Obj?| f)
   {
@@ -639,7 +639,7 @@ const mixin Grid
 
   **
   ** Return a new grid with the given column renamed.
-  ** The 'oldCol' parameter may be a `Col` or col name.
+  ** The `oldCol` parameter may be a [Col] or col name.
   **
   Grid renameCol(Obj oldCol, Str newName)
   {
@@ -697,7 +697,7 @@ const mixin Grid
   **
   ** Return a new grid with the columns reordered.  The
   ** given list of names represents the new order and must
-  ** contain the same current `Col` instances or column names.
+  ** contain the same current [Col] instances or column names.
   ** Any column names not found are ignored.
   **
   Grid reorderCols(Obj[] cols)
@@ -724,9 +724,9 @@ const mixin Grid
 
   **
   ** Return new grid with column meta-data replaced by given meta.
-  ** The 'col' parameter may be either a `Col` or column name.
-  ** The meta may be any value accepted by `Etc.makeDict`
-  ** If column is not found then return this.  Also see `addColMeta`.
+  ** The `col` parameter may be either a [Col] or column name.
+  ** The meta may be any value accepted by [Etc.makeDict]
+  ** If column is not found then return this.  Also see [addColMeta].
   **
   Grid setColMeta(Obj col, Obj? meta)
   {
@@ -739,10 +739,10 @@ const mixin Grid
 
   **
   ** Return a new grid with additional column meta-data.
-  ** The new tags are merged according to `Etc.dictMerge`.
-  ** The 'col' parameter may be either a `Col` or column name.
-  ** The meta may be any value accepted by `Etc.makeDict`.
-  ** If column is not found then return this. Also see `setColMeta`.
+  ** The new tags are merged according to [Etc.dictMerge].
+  ** The `col` parameter may be either a [Col] or column name.
+  ** The meta may be any value accepted by [Etc.makeDict].
+  ** If column is not found then return this. Also see [setColMeta].
   **
   Grid addColMeta(Obj col, Obj? meta)
   {
@@ -755,7 +755,7 @@ const mixin Grid
 
   **
   ** Return a new grid with the given column removed.
-  ** The 'col' parameter may be either a `Col` or column name.
+  ** The `col` parameter may be either a [Col] or column name.
   ** If column doesn't exist return this grid.
   **
   Grid removeCol(Obj col)
@@ -777,7 +777,7 @@ const mixin Grid
 
   **
   ** Return a new grid with all the columns removed except
-  ** the given columns.  The 'toKeep' columns can be `Col`
+  ** the given columns.  The `toKeep` columns can be [Col]
   ** instances or column names.  Columns not found are silently
   ** ignored.
   **
@@ -794,7 +794,7 @@ const mixin Grid
 
   **
   ** Return a new grid with all the given columns removed.
-  ** The 'toRemove' columns can be `Col` instances or column names.
+  ** The `toRemove` columns can be [Col] instances or column names.
   ** Columns not found are silently ignored.
   **
   Grid removeCols(Obj[] toRemove)
@@ -827,7 +827,7 @@ const mixin Grid
   **
   ** Return a new Grid wich each col name mapped to its localized
   ** tag name if the col does not already have a display string.
-  ** See `Etc.tagToLocale` and `hx.doc.skyspark::Localization#tags`.
+  ** See [Etc.tagToLocale] and [hx.doc.skyspark::Localization#tags].
   **
   Grid colsToLocale()
   {
@@ -846,7 +846,7 @@ const mixin Grid
   ** Return a new grid with only rows that define a unique key
   ** by the given key columns.  If multiple rows have the same
   ** key cells, then the first row is returned and subsequent
-  ** rows are removed.  The 'keyCols' can be `Col` instances or
+  ** rows are removed.  The `keyCols` can be [Col] instances or
   ** column names.
   **
   Grid unique(Obj[] keyCols)

@@ -33,7 +33,7 @@ const mixin DefNamespace
   abstract Def? def(Str symbol, Bool checked := true)
 
   ** Build a list of all defs in this namespace.  This call
-  ** can be expensive so prefer `eachDef` or `findDefs`.
+  ** can be expensive so prefer [eachDef] or [findDefs].
   @NoDoc abstract Def[] defs()
 
   ** Iterate all defs in the namespace.
@@ -67,16 +67,16 @@ const mixin DefNamespace
   @NoDoc abstract Filetype[] filetypes()
 
   ** Lookup a file type by name key or MIME type name.
-  ** If using a mime type, then use 'MimeType.noParams.toStr'.
+  ** If using a mime type, then use `MimeType.noParams.toStr`.
   @NoDoc abstract Filetype? filetype(Str name, Bool checked := true)
 
 //////////////////////////////////////////////////////////////////////////
 // Fits
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return if 'def' fits the given 'base' definition.  If true this
-  ** means that 'def' is assignable to types of 'base'.  This is effectively
-  ** the same as checking if 'inheritance(def)' contains base.
+  ** Return if `def` fits the given `base` definition.  If true this
+  ** means that `def` is assignable to types of `base`.  This is effectively
+  ** the same as checking if `inheritance(def)` contains base.
   @NoDoc abstract Bool fits(Def def, Def base)
 
   ** Return if def fits marker
@@ -129,7 +129,7 @@ const mixin DefNamespace
   ** Association define ontological relationships between definitions.
   @NoDoc abstract Def[] associations(Def parent, Def association)
 
-  ** Convenience for 'associations(parent, ^tags)'
+  ** Convenience for `associations(parent, ^tags)`
   @NoDoc abstract Def[] tags(Def parent)
 
   ** Match the value to one of the core kind defs

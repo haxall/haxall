@@ -139,10 +139,11 @@ class XetoPrinter
   }
 
   ** Instance:
-  **   @id: Spec {
-  **     n0: v0
-  **     ...
-  **   }
+  **
+  **     @id: Spec {
+  **       n0: v0
+  **       ...
+  **     }
   This instance(Dict x)
   {
     // leading id

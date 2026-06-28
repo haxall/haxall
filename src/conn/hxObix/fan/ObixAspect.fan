@@ -15,7 +15,7 @@ using hxConn
 
 **
 ** ObixAspect is used to enhance an ObixProxy to provide contract
-** support such as 'obix:History'.
+** support such as `obix:History`.
 **
 abstract const class ObixAspect
 {

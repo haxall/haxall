@@ -48,17 +48,17 @@ class ObixClient
   const Uri lobbyUri
 
   **
-  ** About object relative URI - either set manually or via `readLobby`.
+  ** About object relative URI - either set manually or via [readLobby].
   **
   Uri? aboutUri
 
   **
-  ** Batch operation relative URI - either set manually or via `readLobby`.
+  ** Batch operation relative URI - either set manually or via [readLobby].
   **
   Uri? batchUri
 
   **
-  ** Watch service relative URI - either set manually or via `readLobby`
+  ** Watch service relative URI - either set manually or via [readLobby]
   **
   Uri? watchServiceUri
 
@@ -68,7 +68,7 @@ class ObixClient
 
   **
   ** Read the lobby object.  This method will set the
-  ** `aboutUri` and `batchUri` fields.
+  ** [aboutUri] and [batchUri] fields.
   **
   ObixObj readLobby()
   {
@@ -80,8 +80,8 @@ class ObixClient
   }
 
   **
-  ** Read about object.  The `aboutUri` must be either set
-  ** manually or via `readLobby`.
+  ** Read about object.  The [aboutUri] must be either set
+  ** manually or via [readLobby].
   **
   ObixObj readAbout()
   {
@@ -91,7 +91,7 @@ class ObixClient
 
   **
   ** Perform a batch read for all the given URIs.  The
-  ** `batchUri` must be either set manually or via `readLobby`.
+  ** [batchUri] must be either set manually or via [readLobby].
   **
   ObixObj[] batchRead(Uri[] uris)
   {
@@ -119,7 +119,7 @@ class ObixClient
   }
 
   **
-  ** Create a new watch from via `watchServiceUri` and return the
+  ** Create a new watch from via [watchServiceUri] and return the
   ** object which represents the watch.  Raise err if watch service
   ** isn't available.
   **
@@ -148,21 +148,21 @@ class ObixClient
 
   **
   ** Read an obix document with the specified href.
-  ** If the result is an '<err>' object, then throw
+  ** If the result is an `<err>` object, then throw
   ** an ObixErr with the object.
   **
   ObixObj read(Uri uri) { send(uri, "GET", null) }
 
   **
   ** Write an obix document to the specified href and return
-  ** the server's result.  If the result is an '<err>' object,
+  ** the server's result.  If the result is an `<err>` object,
   ** then throw an ObixErr with the object.
   **
   ObixObj write(ObixObj obj) { send(obj.href, "PUT", obj) }
 
   **
   ** Invoke the operation identified by the specified href.
-  ** If the result is* an '<err>' object, then throw an ObixErr
+  ** If the result is* an `<err>` object, then throw an ObixErr
   ** with the object.
   **
   ObixObj invoke(Uri uri, ObixObj in) { send(uri, "POST", in) }
@@ -290,7 +290,7 @@ class ObixClient
 **************************************************************************
 
 **
-** Represents a clients side watch for an `ObixClient`
+** Represents a clients side watch for an [ObixClient]
 **
 class ObixClientWatch
 {

@@ -104,30 +104,30 @@ const final class Conn : Actor, HxConn
 
   ** Current version of the record.
   ** This dict only represents the current persistent tags.
-  ** It does not track transient changes such as 'connStatus'.
+  ** It does not track transient changes such as `connStatus`.
   override Dict rec() { config.rec }
 
-  ** Does the record have the 'disabled' marker configured
+  ** Does the record have the `disabled` marker configured
   Bool isDisabled() { config.isDisabled }
 
-  ** Timeout to use for I/O and actor messaging - see `hx.conn::Conn.actorTimeout`.
+  ** Timeout to use for I/O and actor messaging - see [hx.conn::Conn.actorTimeout].
   Duration timeout() { config.timeout }
 
-  ** Frequency to retry opens. See `hx.conn::Conn.connOpenRetryFreq`.
+  ** Frequency to retry opens. See [hx.conn::Conn.connOpenRetryFreq].
   Duration openRetryFreq() { config.openRetryFreq }
 
   ** Configured ping frequency to test connection or
-  ** null if feature is disabled - see `hx.conn::Conn.connPingFreq`
+  ** null if feature is disabled - see [hx.conn::Conn.connPingFreq]
   Duration? pingFreq() { config.pingFreq }
 
-  ** Configured linger timeout - see `hx.conn::Conn.connLinger`
+  ** Configured linger timeout - see [hx.conn::Conn.connLinger]
   Duration linger() { config.linger }
 
   ** Conn tuning configuration to use for this connector.
   ConnTuning tuning() { config.tuning ?: ext.tuning }
 
   ** Library specific connector data.  This value is managed by the
-  ** connector actor via `ConnDispatch.setConnData`.
+  ** connector actor via [ConnDispatch.setConnData].
   Obj? data() { dataRef.val }
   private const AtomicRef dataRef := AtomicRef()
   internal Void setData(ConnMgr mgr, Obj? val) { dataRef.val = val }
@@ -242,7 +242,7 @@ const final class Conn : Actor, HxConn
     ext.onLearn(this, arg)
   }
 
-  ** Actor messages are routed to `ConnDispatch`
+  ** Actor messages are routed to [ConnDispatch]
   override Obj? receive(Obj? m)
   {
     msg := (HxMsg)m

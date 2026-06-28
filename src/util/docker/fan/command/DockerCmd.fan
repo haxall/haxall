@@ -16,7 +16,7 @@ abstract class DockerHttpCmd
 {
   new make(|This|? f := null) { f?.call(this) }
 
-  ** The `DockerClient` to use for sending requests to the Docker daemon
+  ** The [DockerClient] to use for sending requests to the Docker daemon
   @JsonIgnore
   protected DockerClient? client { internal set }
   This withClient(DockerClient client) { this.client = client; return this }
@@ -25,7 +25,7 @@ abstract class DockerHttpCmd
 
   ** Sends the command to the docker daemon and handles the response.
   **
-  ** The `DockerHttpRes` is guaranteed to be closed when this method completes.
+  ** The [DockerHttpRes] is guaranteed to be closed when this method completes.
   Obj? send(|DockerHttpRes res->Obj?| f)
   {
     if (client == null) throw DockerErr("DockerClient not set")
@@ -41,7 +41,7 @@ abstract class DockerHttpCmd
   }
 
   ** Get the HTTP request builder for this command. By default, the builder
-  ** is initialized to do a 'POST' for the command `apiPath`.
+  ** is initialized to do a `POST` for the command [apiPath].
   protected virtual DockerHttpReqBuilder httpReq()
   {
     DockerHttpReq.builder.withMethod("POST").withPath(verApiPath)
@@ -49,11 +49,11 @@ abstract class DockerHttpCmd
 
   ** Get the unversioned URI for this command.
   **
-  ** Example: `/containers/list`
+  ** Example: [/containers/list]
   protected abstract Uri apiPath()
 
   ** Get the versioned command URI path.
-  ** The veresion specified in the `DockerConfig` is used.
+  ** The veresion specified in the [DockerConfig] is used.
   private Uri verApiPath()
   {
     `/v${dockerConfig.apiVer}/`.plus(apiPath.relTo(`/`))
@@ -66,7 +66,7 @@ abstract class DockerHttpCmd
   }
 
   ** Execute the command. By default, the request is sent to Docker
-  ** and the *closed* `DockerHttpRes` is returned.
+  ** and the *closed* [DockerHttpRes] is returned.
   virtual Obj exec()
   {
     send |DockerHttpRes res->DockerHttpRes| { res }

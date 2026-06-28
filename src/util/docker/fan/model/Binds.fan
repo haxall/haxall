@@ -51,7 +51,7 @@ const class Bind
     f(this)
   }
 
-  ** Regex to split the str encoding of a bind by ':' but not ':\' (Windows)
+  ** Regex to split the str encoding of a bind by `:` but not `:\` (Windows)
   private static const Regex regex := Regex.fromStr(":(?!\\\\)")
 
   ** The host source path (for bind mounts) or volume name (for named volumes)

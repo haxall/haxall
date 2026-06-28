@@ -8,7 +8,7 @@
 
 
 **
-** Writes RDF in [Turtle]`https://www.w3.org/TR/turtle/` format
+** Writes RDF in [Turtle](https://www.w3.org/TR/turtle/) format
 **
 @Js class TurtleOutStream : RdfOutStream
 {
@@ -171,19 +171,19 @@
   ** Return true if the given string is a legal label name for a blank node.
   **
   ** The characters in the label are built upon PN_CHARS_BASE, liberalized as follows
-  **   - The characters '_' and digits may appear anywhere in a blank node label.
-  **   - The character '.' may appear anywhere except the first or last character.
-  **   - The characters '-', U+00B7, U+0300 to U+036F and U+203F to U+2040 are permitted
+  **   - The characters `_` and digits may appear anywhere in a blank node label.
+  **   - The character `.` may appear anywhere except the first or last character.
+  **   - The characters `-`, U+00B7, U+0300 to U+036F and U+203F to U+2040 are permitted
   **     anywhere except the first character.
   **
-  ** pre>
+  ** ```fantom
   ** PN_CHARS_BASE ::= [A-Z] | [a-z] | [#x00C0-#x00D6] | [#x00D8-#x00F6]
   ** | [#x00F8-#x02FF] | [#x0370-#x037D] | [#x037F-#x1FFF] | [#x200C-#x200D]
   ** | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF]
   ** | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
-  ** <pre
+  ** ```
   **
-  ** See `https://www.w3.org/TR/turtle/#BNodes`
+  ** See [https://www.w3.org/TR/turtle/#BNodes]
   static Bool isLabelName(Str name)
   {
     if (name.isEmpty) return false
@@ -198,7 +198,7 @@
     }
   }
 
-  ** Validate the blank node and return it if it is valid; otherwise raise `ArgErr`.
+  ** Validate the blank node and return it if it is valid; otherwise raise [ArgErr].
   static Iri validateBlankNode(Iri iri)
   {
     if (!iri.isBlankNode)       throw ArgErr("Not a blank node: $iri")

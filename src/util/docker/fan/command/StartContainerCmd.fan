@@ -24,7 +24,7 @@ class StartContainerCmd : DockerHttpCmd
 
   ** ID or name of the container
   Str id { private set }
-  ** Set the `id` and return this
+  ** Set the [id] and return this
   This withId(Str id) { this.id = id; return this }
 
 //////////////////////////////////////////////////////////////////////////

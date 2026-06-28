@@ -11,7 +11,7 @@ using xeto
 using haystack
 
 **
-** Response from a `Folio` database that provides access to eventual result
+** Response from a [Folio] database that provides access to eventual result
 **
 const class FolioFuture : Future
 {
@@ -69,9 +69,9 @@ const class FolioFuture : Future
     return rd.dicts
   }
 
-  ** Return the result of `dicts` as a grid.  If checked is false,
+  ** Return the result of [dicts] as a grid.  If checked is false,
   ** then an unknown records are returned as a row with every column
-  ** set to null (including the 'id' tag).
+  ** set to null (including the `id` tag).
   @NoDoc Grid grid(Bool checked := true)
   {
     Etc.makeDictsGrid(null, dicts(checked))

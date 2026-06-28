@@ -10,8 +10,8 @@ using xeto
 using haystack
 
 **
-** Generates a random number such that 'out = random() * multiplier + offset'
-** where 'random()' generates a number between 0.0 (inclusive) and 1.0 (exclusive)
+** Generates a random number such that `out = random() * multiplier + offset`
+** where `random()` generates a number between 0.0 (inclusive) and 1.0 (exclusive)
 **
 class Random : HxComp
 {

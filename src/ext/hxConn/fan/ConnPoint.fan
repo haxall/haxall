@@ -59,7 +59,7 @@ const final class ConnPoint : HxConnPoint
 
   ** Current version of the record.
   ** This dict only represents the current persistent tags.
-  ** It does not track transient changes such as 'curVal' and 'curStatus'.
+  ** It does not track transient changes such as `curVal` and `curStatus`.
   override Dict rec() { config.rec }
 
   ** Current address tag value if configured on the point
@@ -95,34 +95,34 @@ const final class ConnPoint : HxConnPoint
   ** - the point is not disabled
   Bool isHisEnabled() { config.isHisEnabled }
 
-  ** Point kind defined by rec 'kind' tag
+  ** Point kind defined by rec `kind` tag
   Kind kind() { config.kind }
 
-  ** Timezone defined by rec 'tz' tag
+  ** Timezone defined by rec `tz` tag
   TimeZone tz() { config.tz }
 
-  ** Unit defined by rec 'unit' tag or null
+  ** Unit defined by rec `unit` tag or null
   Unit? unit() { config.unit }
 
   ** Conn tuning configuration to use for this point
   ConnTuning tuning() { config.tuning ?: conn.tuning }
 
-  ** Current value adjustment defined by rec 'curCalibration' tag
+  ** Current value adjustment defined by rec `curCalibration` tag
   @NoDoc Number? curCalibration() { config.curCalibration }
 
-  ** Current value conversion if defined by rec 'curConvert' tag
+  ** Current value conversion if defined by rec `curConvert` tag
   @NoDoc PointConvert? curConvert() { config.curConvert }
 
-  ** Write value conversion if defined by rec 'writeTag' tag
+  ** Write value conversion if defined by rec `writeTag` tag
   @NoDoc PointConvert? writeConvert() { config.writeConvert }
 
-  ** History value conversion if defined by rec 'hisConvert' tag
+  ** History value conversion if defined by rec `hisConvert` tag
   @NoDoc PointConvert? hisConvert() { config.hisConvert }
 
-  ** Is the record missing 'disabled' marker configured
+  ** Is the record missing `disabled` marker configured
   Bool isEnabled() { !config.isDisabled }
 
-  ** Does the record have the 'disabled' marker configured
+  ** Does the record have the `disabled` marker configured
   Bool isDisabled() { config.isDisabled }
 
   ** Is this point currently in one or more watches
@@ -130,7 +130,7 @@ const final class ConnPoint : HxConnPoint
   internal const AtomicBool isWatchedRef := AtomicBool(false)
 
   ** Library specific point data.  This value is managed by the
-  ** connector actor via `ConnDispatch.setPointData`.
+  ** connector actor via [ConnDispatch.setPointData].
   Obj? data() { dataRef.val }
   private const AtomicRef dataRef := AtomicRef()
   internal Void setData(ConnMgr mgr, Obj? val) { dataRef.val = val }
@@ -297,8 +297,8 @@ const final class ConnPoint : HxConnPoint
 //////////////////////////////////////////////////////////////////////////
 
   ** Write new history items and update status.  Span should be same value
-  ** passed to 'onSyncHis'.  The items will be normalized, clipped by span,
-  ** converted by 'hisConvert' if configured, and then and written to historian.
+  ** passed to `onSyncHis`.  The items will be normalized, clipped by span,
+  ** converted by `hisConvert` if configured, and then and written to historian.
   Obj? updateHisOk(HisItem[] items, Span span)
   {
     s := ConnPointHisState.updateOk(this, items, span)

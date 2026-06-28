@@ -13,7 +13,7 @@ using haystack
 using hx
 
 **
-** Exposes Xeto libraries and their files as: '{xetoLib}/{path}'
+** Exposes Xeto libraries and their files as: `{xetoLib}/{path}`
 **
 ** The Xeto LibFiles API only lists resource files (not directories), even
 ** though they may be stored in directories in the lib itself. So we have

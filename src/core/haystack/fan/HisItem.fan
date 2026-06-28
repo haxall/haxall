@@ -93,8 +93,8 @@ const final class HisItem : Dict
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return a new `HisItem` with the same timestamp as this one, and with
-  ** val set to the result of calling 'f' with this item's current val.
+  ** Return a new [HisItem] with the same timestamp as this one, and with
+  ** val set to the result of calling `f` with this item's current val.
   @NoDoc HisItem mapVal(|Obj?->Obj?| f) { make(ts, f(val)) }
 
 //////////////////////////////////////////////////////////////////////////

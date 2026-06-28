@@ -53,12 +53,12 @@ abstract const class XetoEnv
   abstract File homeDir()
 
   ** Working directory - first directory in the path.  The workDir
-  ** is used as default location for 'xeto init' to create new libs.
+  ** is used as default location for `xeto init` to create new libs.
   ** Not available in browser environemnts.
   abstract File workDir()
 
-  ** Default install directory for 'xeto install'.
-  ** Default is the `workDir`
+  ** Default install directory for `xeto install`.
+  ** Default is the [workDir]
   ** Not available in browser environemnts.
   abstract File installDir()
 
@@ -83,7 +83,7 @@ abstract const class XetoEnv
   ** versions, solve their dependency graph, and create a namespace.
   abstract Namespace resolveNamespace(Str[] names)
 
-  ** Given a set of a records with a 'spec' tag, derive which libs
+  ** Given a set of a records with a `spec` tag, derive which libs
   ** are used and resolve them to libs and build a namespace.
   @NoDoc abstract Namespace deriveNamespace(Dict[] recs)
 

@@ -10,7 +10,7 @@ using util
 
 **
 ** Haxall console is the a simple terminal UI launched by a Runtime using
-** the '-console' flag.  It always runs within the same process as the
+** the `-console` flag.  It always runs within the same process as the
 ** runtime itself.
 **
 @NoDoc
@@ -36,7 +36,7 @@ abstract const class HxConsole : Console
   abstract Int run()
 
   ** Run a callback within a context.  This can only be used
-  ** if the process with started with the '-noAuth' flag.
+  ** if the process with started with the `-noAuth` flag.
   abstract Obj? inContext(|Context->Obj?| cx)
 
   ** Set flag to exit the VM on the next cycle

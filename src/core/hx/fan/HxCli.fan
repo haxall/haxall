@@ -13,7 +13,7 @@ using util
 **
 **  1. Define subclass of HxCli
 **  2. Register type qname via indexed prop as "hx.cli"
-**  3. Annotate options and args using `util::AbstractMain` design
+**  3. Annotate options and args using [util::AbstractMain] design
 **
 abstract class HxCli : AbstractMain
 {

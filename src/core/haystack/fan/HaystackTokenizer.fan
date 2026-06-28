@@ -39,7 +39,7 @@ class HaystackTokenizer
   ** Current token value based on type:
   **  - id: identifier string
   **  - literals: the literal value
-  **  - keyword: value mapped by `keywords`
+  **  - keyword: value mapped by [keywords]
   **  - comment: comment line if keepComments set
   **  - ParseErr: the error message
   Obj? val
@@ -53,7 +53,7 @@ class HaystackTokenizer
   ** Tokenize the map's keys as keyword tokens instead of identifiers
   [Str:Obj]? keywords
 
-  ** Read the next token, store result in `tok` and `val`
+  ** Read the next token, store result in [tok] and [val]
   HaystackToken next()
   {
     // reset

@@ -7,12 +7,12 @@
 //
 
 **
-** ObixErr is used to raise an obix '<err>' object as a
+** ObixErr is used to raise an obix `<err>` object as a
 ** Fantom exception.
 **
 const class ObixErr : Err
 {
-  ** Convert error message and cause back to an '<err>' object
+  ** Convert error message and cause back to an `<err>` object
   static ObixObj toObj(Str msg, Err? cause := null)
   {
     obj :=  ObixObj { elemName = "err"; display = msg }
@@ -21,7 +21,7 @@ const class ObixErr : Err
     return obj
   }
 
-  ** Convert to '<err>' with BadUriErr contract
+  ** Convert to `<err>` with BadUriErr contract
   static ObixObj toUnresolvedObj(Uri uri)
   {
     ObixObj
@@ -45,12 +45,12 @@ const class ObixErr : Err
     this.display  = display
   }
 
-  ** The 'is' attribute of the '<err>' object
+  ** The `is` attribute of the `<err>` object
   const Contract contract
 
-  ** The 'display' attribute of the '<err>' object
+  ** The `display` attribute of the `<err>` object
   const Str display
 
-  ** Return if the oBIX error defines the 'obix:BadUriErr' contract
+  ** Return if the oBIX error defines the `obix:BadUriErr` contract
   Bool isBadUri() { contract.uris.contains(`obix:BadUriErr`) }
 }

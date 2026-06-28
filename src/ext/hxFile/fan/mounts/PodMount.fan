@@ -13,7 +13,7 @@ using haystack
 using hx
 
 **
-** Makes pod files and their resources available as: '{podName}/{path}'
+** Makes pod files and their resources available as: `{podName}/{path}`
 **
 const class PodMount : WrapMount
 {

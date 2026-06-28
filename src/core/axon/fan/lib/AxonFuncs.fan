@@ -22,10 +22,10 @@ const class AxonFuncs
 // Collections
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return if two values are equivalent.  Unlike the standard '==' operator
+  ** Return if two values are equivalent.  Unlike the standard `==` operator
   ** this function will compare the contents of collection values such
   ** as lists, dicts, and grids.  For non-collection values, the result
-  ** is the same as the '==' operator.  This function does not work with
+  ** is the same as the `==` operator.  This function does not work with
   ** lazy grids such as hisRead result.
   @Api @Axon static Obj? _equals(Obj? a, Obj? b) { Etc.eq(a, b) }
 
@@ -54,12 +54,13 @@ const class AxonFuncs
   **   - dict(key): get item with given key or return null
   **   - comp(key): get slot with given key name or return null
   **   - grid(num): get row at given index
-  **   - grid(range): `haystack::Grid.getRange`
+  **   - grid(range): [haystack::Grid.getRange]
   **
-  ** The get function maybe be accessed using the '[]' shortcut operator:
-  **    list[3]  >>  list.get(3)
+  ** The get function maybe be accessed using the `[]` shortcut operator:
   **
-  ** See `docHaxall::AxonLang#getAndTrap`.
+  **      list[3]  >>  list.get(3)
+  **
+  ** See [docHaxall::AxonLang#get-and-trap-operators].
   @Api @Axon static Obj? get(Obj? val, Obj? key)
   {
     if (val is Dict) return ((Dict)val).get(key)
@@ -76,7 +77,7 @@ const class AxonFuncs
   **   - list(num): get item at given index or null is index invalid
   **   - list(range): get list slice with safe index
   **   - grid(num): get row at given index or null if index invalid
-  **   - grid(range): `haystack::Grid.getRange` with safe range
+  **   - grid(range): [haystack::Grid.getRange] with safe range
   @Api @Axon static Obj? getSafe(Obj? val, Obj? key)
   {
     // key must be int or range
@@ -122,7 +123,7 @@ const class AxonFuncs
   ** if the collection is empty:
   **   - list: item at index 0
   **   - grid: first frow
-  **   - stream: first item; see `docHaxall::Streams#first`
+  **   - stream: first item; see [docHaxall::Streams#first]
   @Api @Axon static Obj? first(Obj? val)
   {
     if (val is MStream) return FirstStream(val).run
@@ -133,7 +134,7 @@ const class AxonFuncs
   ** if the collection is empty:
   **   - list: item at index -1
   **   - grid: item at index -1
-  **   - stream: last item; see `docHaxall::Streams#last`
+  **   - stream: last item; see [docHaxall::Streams#last]
   @Api @Axon static Obj? last(Obj? val)
   {
     if (val is MStream) return LastStream(val).run
@@ -160,11 +161,11 @@ const class AxonFuncs
     throw argErr("missing", val)
   }
 
-  ** Return the first match of 'x' in 'val' searching forward, starting
+  ** Return the first match of `x` in `val` searching forward, starting
   ** at the specified offset index.  A negative offset may be used to
   ** access from the end of string.  Return null if no occurences are found:
-  **  - if 'val' is Str, then 'x' is substring.
-  **  - if 'val' is List, then 'x' is item to search.
+  **  - if `val` is Str, then `x` is substring.
+  **  - if `val` is List, then `x` is item to search.
   @Api @Axon static Obj? index(Obj val, Obj x, Number offset := Number.zero)
   {
     if (val is Str)  { r := ((Str)val).index(x, offset.toInt);  return r == null ? null : Number.makeInt(r) }
@@ -172,11 +173,11 @@ const class AxonFuncs
     throw argErr("index", val)
   }
 
-  ** Return the last match of 'x' in 'val' searching backward, starting
+  ** Return the last match of `x` in `val` searching backward, starting
   ** at the specified offset index.  A negative offset may be used to
   ** access from the end of string.  Return null if no occurences are found:
-  **  - if 'val' is Str, then 'x' is substring.
-  **  - if 'val' is List, then 'x' is item to search.
+  **  - if `val` is Str, then `x` is substring.
+  **  - if `val` is List, then `x` is item to search.
   @Api @Axon static Obj? indexr(Obj val, Obj x, Number offset := Number.negOne)
   {
     if (val is Str)  { r := ((Str)val).indexr(x, offset.toInt);  return r == null ? null : Number.makeInt(r) }
@@ -184,11 +185,11 @@ const class AxonFuncs
     throw argErr("indexr", val)
   }
 
-  ** Return if 'val' contains 'x':
-  **  - if 'val' is Str, then 'x' is substring.
-  **  - if 'val' is List, then 'x' is item to search.
-  **  - if 'val' is Range, then is 'x' inside the range inclusively
-  **  - if 'val' is DateSpan, then is 'x' a date in the span
+  ** Return if `val` contains `x`:
+  **  - if `val` is Str, then `x` is substring.
+  **  - if `val` is List, then `x` is item to search.
+  **  - if `val` is Range, then is `x` inside the range inclusively
+  **  - if `val` is DateSpan, then is `x` a date in the span
   @Api @Axon static Bool contains(Obj val, Obj? x)
   {
     if (val is Str)  return ((Str)val).contains(x)
@@ -225,9 +226,9 @@ const class AxonFuncs
   }
 
   ** Merge two Dicts together and return a new Dict.  Any tags
-  ** in 'b' are added to 'a'.  If 'b' defines a tag already
-  ** in 'a', then it is overwritten by 'b'.  If a tag in 'b' is
-  ** mapped to 'None.val', then that tag is removed from the
+  ** in `b` are added to `a`.  If `b` defines a tag already
+  ** in `a`, then it is overwritten by `b`.  If a tag in `b` is
+  ** mapped to `None.val`, then that tag is removed from the
   ** result.
   @Api @Axon static Obj? merge(Obj? a, Obj? b) { Etc.dictMerge(a, b) }
 
@@ -261,7 +262,7 @@ const class AxonFuncs
   **   - Grid: stream the rows
   **   - List: stream the items
   **   - Range: stream inclusive range of integers
-  ** See `docHaxall::Streams#stream`.
+  ** See [docHaxall::Streams#stream].
   @Api @Axon static Obj stream(Obj? val)
   {
     if (val is Grid) return GridStream(val)
@@ -271,28 +272,28 @@ const class AxonFuncs
   }
 
   ** Create a new stream for the cell values of the given column.
-  ** See `docHaxall::Streams#streamCol`.
+  ** See [docHaxall::Streams#streamcol].
   @Api @Axon static Obj streamCol(Grid grid, Obj col)
   {
     GridColStream(grid, col as Col ?: grid.col(col.toStr))
   }
 
   ** Collect stream into a in-memory list or grid.
-  ** See `docHaxall::Streams#collect`.
+  ** See [docHaxall::Streams#collect].
   @Api @Axon static Obj collect(Obj? stream, Fn? to := null)
   {
     CollectStream(stream, to).run
   }
 
   ** Truncate stream after given limit is reached.
-  ** See `docHaxall::Streams#limit`.
+  ** See [docHaxall::Streams#limit].
   @Api @Axon static Obj limit(Obj? stream, Number limit)
   {
     LimitStream(stream, limit.toInt)
   }
 
   ** Skip the given number of items in a stream.
-  ** See `docHaxall::Streams#skip`.
+  ** See [docHaxall::Streams#skip].
   @Api @Axon static Obj skip(Obj? stream, Number count)
   {
     c := count.toInt
@@ -304,7 +305,7 @@ const class AxonFuncs
   **
   ** If sorting a list, the sorter should be a function
   ** that takes two list items and returns -1, 0, or 1 (typicaly
-  ** done with the '<=>' operator.  If no sorter is passed, then
+  ** done with the `<=>` operator.  If no sorter is passed, then
   ** the list is sorted by its natural ordering.
   **
   ** If sorting a grid, the sorter can be a column name
@@ -312,28 +313,30 @@ const class AxonFuncs
   ** and return -1, 0, or 1.
   **
   ** Examples:
-  **   // sort string list
-  **   ["bear", "cat", "apple"].sort
   **
-  **   // sort string list by string size
-  **   ["bear", "cat", "apple"].sort((a,b) => a.size <=> b.size)
+  **     // sort string list
+  **     ["bear", "cat", "apple"].sort
   **
-  **   // sort sites by area
-  **   readAll(site).sort((a, b) => a->area <=> b->area)
+  **     // sort string list by string size
+  **     ["bear", "cat", "apple"].sort((a,b) => a.size <=> b.size)
+  **
+  **     // sort sites by area
+  **     readAll(site).sort((a, b) => a->area <=> b->area)
   @Api @Axon static Obj? sort(Obj val, Obj? sorter := null)
   {
     AxonFuncsUtil.sort(val, sorter, true)
   }
 
-  ** Sort a grid by row display name - see `haystack::Grid.sortDis`
+  ** Sort a grid by row display name - see [haystack::Grid.sortDis]
   **
   ** Examples:
-  **   // read all sites and sort by display name
-  **   readAll(site).sortDis
+  **
+  **     // read all sites and sort by display name
+  **     readAll(site).sortDis
   @Api @Axon static Obj? sortDis(Grid val) { val.sortDis }
 
   ** Reverse sort a list or grid.  This function works just
-  ** like `sort` except sorts in reverse.
+  ** like [sort] except sorts in reverse.
   @Api @Axon static Obj? sortr(Obj val, Obj? sorter := null)
   {
     AxonFuncsUtil.sort(val, sorter, false)
@@ -345,7 +348,7 @@ const class AxonFuncs
   **   - Dict: iterate the name/value pairs (value, name)
   **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
-  **   - Stream: iterate items as (val); see `docHaxall::Streams#each`
+  **   - Stream: iterate items as (val); see [docHaxall::Streams#each]
   @Api @Axon static Obj? each(Obj val, Fn fn)
   {
     if (val is MStream) return EachStream(val, fn).run
@@ -366,7 +369,7 @@ const class AxonFuncs
   **   - Dict: iterate the name/value pairs (val, name)
   **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
-  **   - Stream: iterate items as (val); see `docHaxall::Streams#eachWhile`
+  **   - Stream: iterate items as (val); see [docHaxall::Streams#eachwhile]
   @Api @Axon static Obj? eachWhile(Obj val, Fn fn)
   {
     if (val is MStream) return EachWhileStream(val, fn).run
@@ -381,38 +384,39 @@ const class AxonFuncs
   ** Map list, dict, or grid by applying the given mapping function.
   **
   ** If mapping a list, the mapping should be a function
-  ** that takes '(val)' or '(val, index)'.  It should return
+  ** that takes `(val)` or `(val, index)`.  It should return
   ** the new value for that index.
   **
   ** If mapping a dict, the mapping should be a function
-  ** that takes '(val)' or '(val, name)'.  It should return
+  ** that takes `(val)` or `(val, name)`.  It should return
   ** the new value for that name.
   **
-  ** If mapping a grid, the mapping function takes '(row)' or '(row,index)'
+  ** If mapping a grid, the mapping function takes `(row)` or `(row,index)`
   ** and returns a new dictionary to use for the row.  The resulting
   ** grid shares the original's grid level meta.  Columns
   ** left intact share the old meta-data, new columns have no
   ** meta-data.  If the mapping function returns null, then that row
   ** is removed from the resulting grid (not mapped).
   **
-  ** If mapping a range, then the mapping function takes '(integer)', and
+  ** If mapping a range, then the mapping function takes `(integer)`, and
   ** returns a list for each mapped integer inte the range.
   **
-  ** If mapping a stream, the mapping functions takes '(val)'.
-  ** See `docHaxall::Streams#map`.
+  ** If mapping a stream, the mapping functions takes `(val)`.
+  ** See [docHaxall::Streams#map].
   **
-  **  Examples:
-  **    // create list adding ten to each number
-  **    [1, 2, 3].map(v => v+10)   >>   [11, 12, 13]
+  ** Examples:
   **
-  **    // create new list that turns strings into uppercase
-  **    ["ape", "bee", "cat"].map(upper)    // ["APE, "BEE", "CAT"]
+  **      // create list adding ten to each number
+  **      [1, 2, 3].map(v => v+10)   >>   [11, 12, 13]
   **
-  **    // create dict adding ten to each value
-  **    {a:1, b:2, c:3}.map(v => v+10)   >>   {a:11, b:12, c:13}
+  **      // create new list that turns strings into uppercase
+  **      ["ape", "bee", "cat"].map(upper)    // ["APE, "BEE", "CAT"]
   **
-  **    // create grid with just dis, area column
-  **    readAll(site).map(s => {dis:s->dis, area:s->area})
+  **      // create dict adding ten to each value
+  **      {a:1, b:2, c:3}.map(v => v+10)   >>   {a:11, b:12, c:13}
+  **
+  **      // create grid with just dis, area column
+  **      readAll(site).map(s => {dis:s->dis, area:s->area})
   @Api @Axon static Obj? map(Obj val, Fn fn)
   {
     if (val is MStream) return MapStream(val, fn)
@@ -427,19 +431,20 @@ const class AxonFuncs
   ** as a flattened result.
   **
   ** If mapping a list, the mapping should be a function
-  ** that takes '(val)' or '(val, index)'.  It should return
+  ** that takes `(val)` or `(val, index)`.  It should return
   ** the a list of zero or more new values.
-  ** See `sys::List.flatMap`.
+  ** See [sys::List.flatMap].
   **
-  ** If mapping a grid, the mapping function takes '(row)' or '(row,index)'
+  ** If mapping a grid, the mapping function takes `(row)` or `(row,index)`
   ** and returns a list of zero or more new Dict rows.
-  ** See `haystack::Grid.flatMap`.
+  ** See [haystack::Grid.flatMap].
   **
-  ** If mapping a stream, the mapping functions takes '(val)'.
-  ** See `docHaxall::Streams#flatMap`.
+  ** If mapping a stream, the mapping functions takes `(val)`.
+  ** See [docHaxall::Streams#flatmap].
   **
   ** Examples:
-  **   [1, 2, 3].flatMap(v => [v, v+10])   >>  [1, 11, 2, 12, 3, 13]
+  **
+  **     [1, 2, 3].flatMap(v => [v, v+10])   >>  [1, 11, 2, 12, 3, 13]
   @Api @Axon static Obj? flatMap(Obj val, Fn fn)
   {
     if (val is MStream) return FlatMapStream(val, fn)
@@ -453,25 +458,26 @@ const class AxonFuncs
   ** is found return null.
   **
   ** If working with a list, the filter should be a function
-  ** that takes '(val)' or '(val, index)'.  It should return
+  ** that takes `(val)` or `(val, index)`.  It should return
   ** true to match and return the item.
   **
   ** If working with a dict, the filter should be a function
-  ** that takes '(val)' or '(val, name)'.  It should return
+  ** that takes `(val)` or `(val, name)`.  It should return
   ** true to match and return the item.
   **
-  ** If working with a grid, the filter function takes '(row)'
-  ** or '(row, index)' and returns true to match and return the row.
+  ** If working with a grid, the filter function takes `(row)`
+  ** or `(row, index)` and returns true to match and return the row.
   **
-  ** If working with a stream, the filter takes '(val)' and returns
-  ** true to match.  See `docHaxall::Streams#find`.
+  ** If working with a stream, the filter takes `(val)` and returns
+  ** true to match.  See [docHaxall::Streams#find].
   **
   ** Examples:
-  **   // find first string longer than 3 chars
-  **   ["ape", "bat", "charlie", "dingo"].find(x => x.size > 3)
   **
-  **   // find first odd number
-  **   [10, 4, 3, 7].find(isOdd)
+  **     // find first string longer than 3 chars
+  **     ["ape", "bat", "charlie", "dingo"].find(x => x.size > 3)
+  **
+  **     // find first odd number
+  **     [10, 4, 3, 7].find(isOdd)
   @Api @Axon static Obj? find(Obj val, Fn fn)
   {
     if (val is MStream) return FindStream(val, fn).run
@@ -482,32 +488,33 @@ const class AxonFuncs
   }
 
   ** Find all the items in a list, dict, or grid by applying
-  ** the given filter function.  Also see `find`.
+  ** the given filter function.  Also see [find].
   **
   ** If working with a list, the filter should be a function
-  ** that takes '(val)' or '(val, index)'.  It should return
+  ** that takes `(val)` or `(val, index)`.  It should return
   ** true to keep the item.
   **
   ** If working with a dict, the filter should be a function
-  ** that takes '(val)' or '(val, name)'.  It should return
+  ** that takes `(val)` or `(val, name)`.  It should return
   ** the true to keep the name/value pair.
   **
-  ** If working with a grid, the filter function takes '(row)'
-  ** or '(row, index)' and returns true to keep the row.  The
+  ** If working with a grid, the filter function takes `(row)`
+  ** or `(row, index)` and returns true to keep the row.  The
   ** resulting grid shares the original's grid meta and columns.
   **
-  ** If working with a stream, the filter takes '(val)' and returns
-  ** true to match.  See `docHaxall::Streams#findAll`.
+  ** If working with a stream, the filter takes `(val)` and returns
+  ** true to match.  See [docHaxall::Streams#findall].
   **
   ** Examples:
-  **   // find all the strings longer than 3 chars
-  **   ["ape", "bat", "charlie", "dingo"].findAll(x => x.size > 3)
   **
-  **   // find even numbers
-  **   [0, 1, 2, 3, 4].findAll(isEven)
+  **     // find all the strings longer than 3 chars
+  **     ["ape", "bat", "charlie", "dingo"].findAll(x => x.size > 3)
   **
-  **   // find all the sites greater than 10,000ft from grid
-  **   readAll(site).findAll(s => s->area > 10_000ft²)
+  **     // find even numbers
+  **     [0, 1, 2, 3, 4].findAll(isEven)
+  **
+  **     // find all the sites greater than 10,000ft from grid
+  **     readAll(site).findAll(s => s->area > 10_000ft²)
   @Api @Axon static Obj? findAll(Obj val, Fn fn)
   {
     if (val is MStream) return FindAllStream(val, fn)
@@ -517,33 +524,34 @@ const class AxonFuncs
     throw argErr("findAll", val)
   }
 
-  ** Apply a [filter]`docHaystack::Filters` expression to a collection
+  ** Apply a [filter](docHaystack::Filters) expression to a collection
   ** of dicts.  The collection value may be any of the following:
   **  - Grid: returns new grid with filtered rows
   **  - Dict[]: returns list of filtered dicts (nulls are filtered out)
   **  - Col[]: returns list of columns filtered by their meta
-  **  - Stream: filters stream of Dicts - see `docHaxall::Streams#filter`
+  **  - Stream: filters stream of Dicts - see [docHaxall::Streams#filter]
   **
   ** The filter parameter may one fo the following:
   **   - Axon expression which maps to a filter
-  **   - Filter from `parseFilter()`
-  **   - Filter from `parseSearch()`
+  **   - Filter from [parseFilter()]
+  **   - Filter from [parseSearch()]
   **
   ** Examples:
-  **   // apply to a list of dicts
-  **   [{v:1}, {v:2}, {v:3}, {v:4}].filter(v >= 3)
   **
-  **   // apply to a grid and return new grid with matching rows
-  **   readAll(equip).filter(meter)
+  **     // apply to a list of dicts
+  **     [{v:1}, {v:2}, {v:3}, {v:4}].filter(v >= 3)
   **
-  **   // apply to a list of columns
-  **   read(ahu).toPoints.hisRead(yesterday).cols.filter(kind=="Bool")
+  **     // apply to a grid and return new grid with matching rows
+  **     readAll(equip).filter(meter)
   **
-  **   // apply to a stream of dicts
-  **   readAllStream(equip).filter(siteMeter and elec and meter).collect
+  **     // apply to a list of columns
+  **     read(ahu).toPoints.hisRead(yesterday).cols.filter(kind=="Bool")
   **
-  **   // apply search filter
-  **   readAll(equip).filter(parseSearch("RTU-1"))
+  **     // apply to a stream of dicts
+  **     readAllStream(equip).filter(siteMeter and elec and meter).collect
+  **
+  **     // apply search filter
+  **     readAll(equip).filter(parseSearch("RTU-1"))
   @Api @Axon static Obj filter(Expr val, Expr filterExpr)
   {
     cx := AxonContext.curAxon
@@ -568,24 +576,25 @@ const class AxonFuncs
   ** given test function.  If the collection is empty, then return
   ** true.
   **
-  ** If working with a list, the function takes '(val)'
-  ** or '(val, index)' and returns true or false.
+  ** If working with a list, the function takes `(val)`
+  ** or `(val, index)` and returns true or false.
   **
-  ** If working with a dict, the function takes '(val)'
-  ** or '(val, name)' and returns true or false.
+  ** If working with a dict, the function takes `(val)`
+  ** or `(val, name)` and returns true or false.
   **
-  ** If working with a grid, the function takes '(row)'
-  ** or '(row, index)' and returns true or false.
+  ** If working with a grid, the function takes `(row)`
+  ** or `(row, index)` and returns true or false.
   **
-  ** If working with a string, the function takes '(char)'
-  ** or '(char, index)' and returns true or false.
+  ** If working with a string, the function takes `(char)`
+  ** or `(char, index)` and returns true or false.
   **
-  ** If working with a stream, then function takes '(val)'
-  ** and returns true or false.  See `docHaxall::Streams#all`.
+  ** If working with a stream, then function takes `(val)`
+  ** and returns true or false.  See [docHaxall::Streams#all].
   **
   ** Examples:
-  **   [1, 3, 5].all v => v.isOdd  >>  true
-  **   [1, 3, 6].all(isOdd)        >>  false
+  **
+  **     [1, 3, 5].all v => v.isOdd  >>  true
+  **     [1, 3, 6].all(isOdd)        >>  false
   @Api @Axon static Obj? all(Obj val, Fn fn)
   {
     if (val is MStream) return AllStream(val, fn).run
@@ -600,24 +609,25 @@ const class AxonFuncs
   ** given test function.  If the collection is empty, then return
   ** false.
   **
-  ** If working with a list, the function takes '(val)'
-  ** or '(val, index)' and returns true or false.
+  ** If working with a list, the function takes `(val)`
+  ** or `(val, index)` and returns true or false.
   **
-  ** If working with a dict, the function takes '(val)'
-  ** or '(val, name)' and returns true or false.
+  ** If working with a dict, the function takes `(val)`
+  ** or `(val, name)` and returns true or false.
   **
-  ** If working with a grid, the function takes '(row)'
-  ** or '(row, index)' and returns true or false.
+  ** If working with a grid, the function takes `(row)`
+  ** or `(row, index)` and returns true or false.
   **
-  ** If working with a string, the function takes '(char)'
-  ** or '(char, index)' and returns true or false.
+  ** If working with a string, the function takes `(char)`
+  ** or `(char, index)` and returns true or false.
   **
-  ** If working with a stream, then function takes '(val)'
-  ** and returns true or false.  See `docHaxall::Streams#any`.
+  ** If working with a stream, then function takes `(val)`
+  ** and returns true or false.  See [docHaxall::Streams#any].
   **
   ** Examples:
-  **   [1, 3, 5].any v => v.isOdd  >>  true
-  **   [2, 4, 6].any(isOdd)        >>  false
+  **
+  **     [1, 3, 5].any v => v.isOdd  >>  true
+  **     [2, 4, 6].any(isOdd)        >>  false
   @Api @Axon static Obj? any(Obj val, Fn fn)
   {
     if (val is MStream) return AnyStream(val, fn).run
@@ -631,23 +641,24 @@ const class AxonFuncs
   ** Reduce a collection to a single value with the given reducer
   ** function.  The given function is called with each item in the
   ** collection along with a current *accumulation* value.  The accumation
-  ** value is initialized to 'init' for the first item, and for every
+  ** value is initialized to `init` for the first item, and for every
   ** subsequent item it is the result of the previous item.  Return
-  ** the final accumulation value.  Also see `fold` which is preferred
+  ** the final accumulation value.  Also see [fold] which is preferred
   ** if doing standard rollup such as sum or average.
   **
-  ** If working with a list, the function takes '(acc, val, index)'
+  ** If working with a list, the function takes `(acc, val, index)`
   ** and returns accumulation value
   **
-  ** If working with a grid, the function takes '(acc, row, index)'
+  ** If working with a grid, the function takes `(acc, row, index)`
   ** and returns accumulation value
   **
-  ** If working with a stream, then function takes '(acc, val)'
-  ** and returns accumulation value  See `docHaxall::Streams#reduce`.
+  ** If working with a stream, then function takes `(acc, val)`
+  ** and returns accumulation value  See [docHaxall::Streams#reduce].
   **
   ** Examples:
-  **   [2, 5, 3].reduce(0, (acc, val)=>acc+val)  >> 10
-  **   [2, 5, 3].reduce(1, (acc, val)=>acc*val)  >> 30
+  **
+  **     [2, 5, 3].reduce(0, (acc, val)=>acc+val)  >> 10
+  **     [2, 5, 3].reduce(1, (acc, val)=>acc*val)  >> 30
   @Api @Axon
   static Obj? reduce(Obj val, Obj? init, Fn fn)
   {
@@ -664,22 +675,24 @@ const class AxonFuncs
   ** not found then this is a no op.  Return new list.
   **
   ** Examples:
-  **   [10, 11, 12].moveTo(11, 0)  >>  [11, 10, 12]
-  **   [10, 11, 12].moveTo(11, -1) >>  [10, 12, 11]
+  **
+  **     [10, 11, 12].moveTo(11, 0)  >>  [11, 10, 12]
+  **     [10, 11, 12].moveTo(11, -1) >>  [10, 12, 11]
   @Api @Axon static Obj[] moveTo(Obj[] list, Obj? item, Number toIndex)
   {
     list.dup.moveTo(item, toIndex.toInt)
   }
 
   ** Return the unique items in a collection.  If val is a List
-  ** then return `sys::List.unique`.  If val is a Grid then
-  ** return `haystack::Grid.unique` where key must be a column
+  ** then return [sys::List.unique].  If val is a Grid then
+  ** return [haystack::Grid.unique] where key must be a column
   ** name or list of column names.
   **
   ** Examples:
-  **   [1, 1, 2, 2].unique                 >> [1, 2]
-  **   grid.unique("geoState")             >> unique states
-  **   grid.unique(["geoCity", geoState"]) >> city,state combos
+  **
+  **     [1, 1, 2, 2].unique                 >> [1, 2]
+  **     grid.unique("geoState")             >> unique states
+  **     grid.unique(["geoCity", geoState"]) >> city,state combos
   @Api @Axon static Obj? unique(Obj val, Obj? key := null)
   {
     if (val is List) return ((List)val).unique
@@ -689,14 +702,15 @@ const class AxonFuncs
 
   ** Flatten a list to a single level.  If given a list of
   ** grids, then flatten rows to a single grid.  Also see
-  ** `sys::List.flatten` and `haystack::Etc.gridFlatten`.
+  ** [sys::List.flatten] and [haystack::Etc.gridFlatten].
   **
   ** Examples:
-  **   // flatten a list of numbers
-  **   [1, [2, 3], [4, [5, 6]]].flatten  >>  [1, 2, 3, 4, 5, 6]
   **
-  **   // flatten a list of grids
-  **   ["Carytown", "Gaithersburg"].map(n=>readAll(siteRef->dis==n)).flatten
+  **     // flatten a list of numbers
+  **     [1, [2, 3], [4, [5, 6]]].flatten  >>  [1, 2, 3, 4, 5, 6]
+  **
+  **     // flatten a list of grids
+  **     ["Carytown", "Gaithersburg"].map(n=>readAll(siteRef->dis==n)).flatten
   @Api @Axon static Obj flatten(List list)
   {
     if (list.isEmpty) return list
@@ -708,11 +722,12 @@ const class AxonFuncs
 
   ** Convert grid rows into a dict of name/val pairs.  The name/value
   ** pairs are derived from each row using the given functions.  The
-  ** functions take '(row, index)'
+  ** functions take `(row, index)`
   **
   ** Example:
-  **   // create dict of sites with dis:area pairs
-  **   readAll(site).gridRowsToDict(s=>s.dis.toTagName, s=>s->area)
+  **
+  **     // create dict of sites with dis:area pairs
+  **     readAll(site).gridRowsToDict(s=>s.dis.toTagName, s=>s->area)
   @Api @Axon static Dict gridRowsToDict(Grid grid, Fn rowToKey, Fn rowToVal)
   {
     cx := AxonContext.curAxon
@@ -730,11 +745,12 @@ const class AxonFuncs
 
   ** Convert grid columns into a dict of name/val pairs.  The name/val
   ** paris are derived from each column using the given functions.  The
-  ** functions take '(col, index)'
+  ** functions take `(col, index)`
   **
   ** Example:
-  **   // create dict of column name to column dis
-  **   read(temp).hisRead(today).gridColsToDict(c=>c.name, c=>c.meta.dis)
+  **
+  **     // create dict of column name to column dis
+  **     read(temp).hisRead(today).gridColsToDict(c=>c.name, c=>c.meta.dis)
   @Api @Axon static Dict gridColsToDict(Grid grid, Fn colToKey, Fn colToVal)
   {
     cx := AxonContext.curAxon
@@ -752,13 +768,14 @@ const class AxonFuncs
 
   ** Given a grid return the types used in each column as a grid
   ** with the following:
-  **   - 'name': string name of the column
-  **   - 'kind': all the different value kinds in the column separated by "|"
-  **   - 'count': total number of rows with column with a non-null value
-  ** Also see `readAllTagNames`.
+  **   - `name`: string name of the column
+  **   - `kind`: all the different value kinds in the column separated by "|"
+  **   - `count`: total number of rows with column with a non-null value
+  ** Also see [readAllTagNames].
   **
   ** Example:
-  **   readAll(site).gridColKinds
+  **
+  **     readAll(site).gridColKinds
   @Api @Axon static Grid gridColKinds(Grid grid) { AxonFuncsUtil.gridColKinds(grid) }
 
   private static Func toGridIterator(Fn fn)
@@ -816,46 +833,49 @@ const class AxonFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Fold a list or stream into a single value using given folding function.
-  ** The folding function signature must be '(val, acc)' where val is the items
+  ** The folding function signature must be `(val, acc)` where val is the items
   ** being folded, and acc is an accumulator used to maintain
   ** state between iterations.  Lifecycle of a fold:
-  **   1. Call 'fn(foldStart, null)', return initial accumulator state
-  **   2. Call 'fn(item, acc)' for every item, return new accumulator state
-  **   3. Call 'fn(foldEnd, acc)' return final result
+  **   1. Call `fn(foldStart, null)`, return initial accumulator state
+  **   2. Call `fn(item, acc)` for every item, return new accumulator state
+  **   3. Call `fn(foldEnd, acc)` return final result
   **
-  ** See `docHaxall::Streams#fold` for streaming details.
+  ** See [docHaxall::Streams#fold] for streaming details.
   **
   ** The fold will short-circuit and halt immediately if the folding
-  ** function returns `na()` for the accumulator state. The result of
-  ** the fold is `na()` in this case.  A folding function should document
-  ** its behavior when a collection contains `na()`.
+  ** function returns [na()] for the accumulator state. The result of
+  ** the fold is [na()] in this case.  A folding function should document
+  ** its behavior when a collection contains [na()].
   **
   ** Built-in folding functions include:
-  **   - `count()`
-  **   - `sum()`
-  **   - `avg()`
-  **   - `min()`
-  **   - `max()`
-  **   - `mean()`
-  **   - `median()`
-  **   - `rootMeanSquareErr()`
-  **   - `meanBiasErr()`
-  **   - `standardDeviation()`
+  **   - [count()]
+  **   - [sum()]
+  **   - [avg()]
+  **   - [min()]
+  **   - [max()]
+  **   - [mean()]
+  **   - [median()]
+  **   - [rootMeanSquareErr()]
+  **   - [meanBiasErr()]
+  **   - [standardDeviation()]
   **
   ** Examples:
-  **   [1, 2, 3, 4].fold(max)  // fold list into its max value
-  **   [1, 2, 3, 4].fold(avg)  // fold list into its average value
-  **   [1, 2, na(), 3].fold(sum) // => na()
+  **
+  **     [1, 2, 3, 4].fold(max)  // fold list into its max value
+  **     [1, 2, 3, 4].fold(avg)  // fold list into its average value
+  **     [1, 2, na(), 3].fold(sum) // => na()
   **
   ** Example of writing your own custom fold function that
   ** used start/end values and has support for na():
-  **    average: (val, acc) => do
-  **      if (val == foldStart()) return {sum:0, count:0}
-  **      if (val == foldEnd()) return acc->sum / acc->count
-  **      if (val == na()) return na()
-  **      return {sum: acc->sum + val, count: acc->count + 1}
-  **    end
-  ** Also see `reduce()` which is easier to use if doing your
+  **
+  **      average: (val, acc) => do
+  **        if (val == foldStart()) return {sum:0, count:0}
+  **        if (val == foldEnd()) return acc->sum / acc->count
+  **        if (val == na()) return na()
+  **        return {sum: acc->sum + val, count: acc->count + 1}
+  **      end
+  **
+  ** Also see [reduce()] which is easier to use if doing your
   ** own simple rollup computation.
   @Api @Axon static Obj? fold(Obj? val, Fn fn)
   {
@@ -876,10 +896,11 @@ const class AxonFuncs
   }
 
   ** Fold the values of the given column into a single value.
-  ** The folding function uses the same semantics as `fold`.
+  ** The folding function uses the same semantics as [fold].
   **
   ** Example:
-  **   readAll(site).foldCol("area", sum)
+  **
+  **     readAll(site).foldCol("area", sum)
   @Api @Axon static Obj? foldCol(Grid grid, Str colName, Fn fn)
   {
     col := grid.col(colName)
@@ -898,31 +919,32 @@ const class AxonFuncs
 
   ** Fold a set of columns in each row into a new folded column
   ** and return a new grid.  The columns to fold are selected by the
-  ** 'colSelector' function and removed from the result.  The selector
+  ** `colSelector` function and removed from the result.  The selector
   ** may be a list of string names or a function which takes a Col
   ** and returns true to select it.  The folding function uses same
-  ** semantics as `fold`.
+  ** semantics as [fold].
   **
   **
   ** Example:
-  **   // consider grid 'g' with the following structure:
-  **   a    b    c
-  **   ---  ---  ---
-  **   1    10   100
-  **   2    20   200
   **
-  **   // foldCols, add b and c together to create new bc column
-  **   g.foldCols(["b", "c"], "bc", sum)
+  **     // consider grid 'g' with the following structure:
+  **     a    b    c
+  **     ---  ---  ---
+  **     1    10   100
+  **     2    20   200
   **
-  **   // yields this grid:
-  **   a    bc
-  **   ---  ---
-  **   1    110
-  **   2    220
+  **     // foldCols, add b and c together to create new bc column
+  **     g.foldCols(["b", "c"], "bc", sum)
   **
-  **   // we could also replace list of col names with a function
-  **   colSel: col => col.name == "b" or col.name == "c"
-  **   g.foldCols(colSel, "bc", sum)
+  **     // yields this grid:
+  **     a    bc
+  **     ---  ---
+  **     1    110
+  **     2    220
+  **
+  **     // we could also replace list of col names with a function
+  **     colSel: col => col.name == "b" or col.name == "c"
+  **     g.foldCols(colSel, "bc", sum)
   @Api @Axon static Grid foldCols(Grid grid, Obj colSelector, Str newColName, Fn fn)
   {
     cx := AxonContext.curAxon
@@ -989,13 +1011,14 @@ const class AxonFuncs
   }
 
   ** Compare two numbers and return the smaller one.  This function
-  ** may also be used with `fold` to return the smallest number (or
+  ** may also be used with [fold] to return the smallest number (or
   ** null if no values).  Note number units are **not** checked nor
   ** considered for this comparison.
   **
   ** Examples:
-  **   min(7, 4)            >>  4
-  **   [7, 2, 4].fold(min)  >>  2
+  **
+  **     min(7, 4)            >>  4
+  **     [7, 2, 4].fold(min)  >>  2
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? min(Obj? val, Obj? acc)
   {
@@ -1017,13 +1040,14 @@ const class AxonFuncs
   }
 
   ** Compare two numbers and return the larger one.  This function
-  ** may also be used with `fold` to return the largest number (or
+  ** may also be used with [fold] to return the largest number (or
   ** null if no values).  Note number units are **not** checked nor
   ** considered for the comparison.
   **
   ** Examples:
-  **   max(7, 4)            >>  7
-  **   [7, 2, 4].fold(max)  >>  7
+  **
+  **     max(7, 4)            >>  7
+  **     [7, 2, 4].fold(max)  >>  7
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? max(Obj? val, Obj? acc)
   {
@@ -1045,11 +1069,12 @@ const class AxonFuncs
   }
 
   ** Fold multiple values into their standard average or arithmetic
-  ** mean.  This function is the same as [math::mean]`mean`.  Null
+  ** mean.  This function is the same as [math::mean](mean).  Null
   ** values are ignored.  Return null if no values.
   **
   ** Example:
-  **   [7, 2, 3].fold(avg)  >>  4
+  **
+  **     [7, 2, 3].fold(avg)  >>  4
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? avg(Obj? val, Obj? acc)
   {
@@ -1064,7 +1089,8 @@ const class AxonFuncs
   ** the max and min value. Return null if no values.
   **
   ** Example:
-  **   [7, 2, 3].fold(spread)  >>  5
+  **
+  **     [7, 2, 3].fold(spread)  >>  5
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? spread(Obj? val, Obj? acc)
   {
@@ -1079,24 +1105,24 @@ const class AxonFuncs
 // Dict
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get the marker value singleton `xeto::Marker.val`
+  ** Get the marker value singleton [xeto::Marker.val]
   @Api @Axon static Marker marker() { Marker.val }
 
-  ** Get the none value singleton `xeto::None.val`
+  ** Get the none value singleton [xeto::None.val]
   @Api @Axon static None none() { None.val }
 
   ** Prefer none() now
   @Api @Axon static None removeMarker() { None.val }
 
-  ** Get NA not-available singleton `haystack::NA.val`
+  ** Get NA not-available singleton [haystack::NA.val]
   @Api @Axon static NA na() { NA.val }
 
   ** Return if the given string is legal tag name -
-  ** see `haystack::Etc.isTagName`
+  ** see [haystack::Etc.isTagName]
   @Api @Axon static Bool isTagName(Str n) { Etc.isTagName(n) }
 
   ** Given arbitrary string, convert to a safe tag name -
-  ** see `haystack::Etc.toTagName`
+  ** see [haystack::Etc.toTagName]
   @Api @Axon static Str toTagName(Str n) { Etc.toTagName(n) }
 
   ** Get the list of names used by a given dict
@@ -1105,15 +1131,16 @@ const class AxonFuncs
   ** Get the list of values used by a given dict
   @Api @Axon static Obj? vals(Dict dict) { Etc.dictVals(dict) }
 
-  ** Function for the '->' operator.  If the given value is a dict/comp,
+  ** Function for the `->` operator.  If the given value is a dict/comp,
   ** then get a value by name, or throw UnknownNameErr if name not mapped.
-  ** If the value is a Ref, then perform a checked 'readById', then perform
+  ** If the value is a Ref, then perform a checked `readById`, then perform
   ** the name lookup.
   **
-  ** The trap function maybe be accessed using the '->' shortcut operator:
-  **    dict->foo  >>>  dict.trap("foo")
+  ** The trap function maybe be accessed using the `->` shortcut operator:
   **
-  ** See `docHaxall::AxonLang#getAndTrap`.
+  **      dict->foo  >>>  dict.trap("foo")
+  **
+  ** See [docHaxall::AxonLang#get-and-trap-operators].
   @Api @Axon static Obj? _trap(Obj? val, Str name)
   {
     if (val is Dict)  return ((Dict)val).trap(name, null)
@@ -1128,8 +1155,9 @@ const class AxonFuncs
   ** Get the meta-data from a grid or col as a dict.
   **
   ** Examples:
-  **   read(temp).hisRead(today).meta             // grid meta
-  **   read(temp).hisRead(today).col("ts").meta   // column meta
+  **
+  **     read(temp).hisRead(today).meta             // grid meta
+  **     read(temp).hisRead(today).col("ts").meta   // column meta
   @Api @Axon static Dict meta(Obj? val)
   {
     if (val is Grid) return ((Grid)val).meta
@@ -1140,29 +1168,33 @@ const class AxonFuncs
   ** Get the columns from a grid as a list.
   **
   ** Example:
-  **   // get name of first column
-  **   readAll(site).cols.first.name
+  **
+  **     // get name of first column
+  **     readAll(site).cols.first.name
   @Api @Axon static Col[] cols(Grid grid) { grid.cols }
 
   ** Get a column by its name.  If not resolved then
   ** return null or throw UnknownNameErr based on checked flag.
   **
   ** Example:
-  **   // get meta data for given columm
-  **   read(temp).hisRead(today).col("ts").meta
+  **
+  **     // get meta data for given columm
+  **     read(temp).hisRead(today).col("ts").meta
   @Api @Axon static Col? col(Grid grid, Str name, Bool checked := true) { grid.col(name, checked) }
 
   ** Get the column names a list of strings.
   **
   ** Example:
-  **   readAll(site).colNames
+  **
+  **     readAll(site).colNames
   @Api @Axon static Str[] colNames(Grid grid) { grid.colNames}
 
   ** If val is a Col, get the column name.
   **
   ** Example:
-  **   // get name of first column
-  **   readAll(site).cols.first.name
+  **
+  **     // get name of first column
+  **     readAll(site).cols.first.name
   @Api @Axon static Str name(Obj? val)
   {
     if (val is Col)  return ((Col)val).name
@@ -1170,10 +1202,11 @@ const class AxonFuncs
   }
 
   ** Return new grid with grid level meta-data replaced by given
-  ** meta Dict.  Also see `addMeta` and `docHaxall::Streams#setMeta`.
+  ** meta Dict.  Also see [addMeta] and [docHaxall::Streams#setmeta].
   **
   ** Example:
-  **   read(temp).hisRead(today).setMeta({view:"table"})
+  **
+  **     read(temp).hisRead(today).setMeta({view:"table"})
   @Api @Axon static Obj setMeta(Obj grid, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).setMeta(meta)
@@ -1182,11 +1215,12 @@ const class AxonFuncs
   }
 
   ** Return new grid with additional grid level meta-data tags.
-  ** Tags are added using `merge` conventions.  Also see `setMeta`
-  ** and `docHaxall::Streams#addMeta`.
+  ** Tags are added using [merge] conventions.  Also see [setMeta]
+  ** and [docHaxall::Streams#addmeta].
   **
   ** Example:
-  **   read(temp).hisRead(today).addMeta({view:"table"})
+  **
+  **     read(temp).hisRead(today).addMeta({view:"table"})
   @Api @Axon static Obj addMeta(Obj grid, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).addMeta(meta)
@@ -1204,7 +1238,7 @@ const class AxonFuncs
     a.join(b, joinColName)
   }
 
-  ** Join a list of grids into a single grid.  See `join`.
+  ** Join a list of grids into a single grid.  See [join].
   @Api @Axon static Grid joinAll(Grid[] grids, Str joinColName)
   {
     if (grids.isEmpty) throw ArgErr("Grid.joinAll no grids specified")
@@ -1215,17 +1249,18 @@ const class AxonFuncs
   }
 
   ** Add a column to a grid by mapping each row to a new cell value.
-  ** The 'col' parameter may be a simple String name or may be a
+  ** The `col` parameter may be a simple String name or may be a
   ** dictionary which must have a "name" tag (any other
   ** tags become column meta-data).  The mapping function takes
-  ** '(row)' and returns the new cell values for the column.
+  ** `(row)` and returns the new cell values for the column.
   **
   ** Examples:
-  **   // add new column named areaMeter
-  **   readAll(site).addCol("areaMeters") s => s->area.to(1m²)
   **
-  **   // add new column named areaMeter with dis meta
-  **   readAll(site).addCol({name:"areaMeters", dis:"Area Meters"}) s => s->area.to(1m²)
+  **     // add new column named areaMeter
+  **     readAll(site).addCol("areaMeters") s => s->area.to(1m²)
+  **
+  **     // add new column named areaMeter with dis meta
+  **     readAll(site).addCol({name:"areaMeters", dis:"Area Meters"}) s => s->area.to(1m²)
   @Api @Axon static Grid addCol(Grid grid, Obj? col, Fn fn)
   {
     Str? name := col as Str
@@ -1244,8 +1279,9 @@ const class AxonFuncs
   ** cells are filled with null.
   **
   ** Examples:
-  **   [{a:0, b:2}, {a:1, b:3}].toGrid.addCols({c:4}.toGrid)
-  **   readAll(rtu).addCols(readAll(meter))
+  **
+  **     [{a:0, b:2}, {a:1, b:3}].toGrid.addCols({c:4}.toGrid)
+  **     readAll(rtu).addCols(readAll(meter))
   @Api @Axon static Grid addCols(Grid a, Grid b)
   {
     a.addCols(b)
@@ -1254,7 +1290,8 @@ const class AxonFuncs
   ** Return a new grid with the given column renamed.
   **
   ** Example:
-  **   readAll(site).renameCol("dis", "title")
+  **
+  **     readAll(site).renameCol("dis", "title")
   @Api @Axon static Grid renameCol(Grid grid, Str oldName, Str newName)
   {
     grid.renameCol(oldName, newName)
@@ -1265,7 +1302,8 @@ const class AxonFuncs
   ** not found are ignored.
   **
   ** Example:
-  **   readAll(site).renameCols({dis:"title", geoAddr:"subtitle"})
+  **
+  **     readAll(site).renameCols({dis:"title", geoAddr:"subtitle"})
   @Api @Axon static Grid renameCols(Grid grid, Dict mapping)
   {
     grid.renameCols((Str:Str)Etc.dictToMap(mapping))
@@ -1274,12 +1312,13 @@ const class AxonFuncs
   ** Return a new grid with the columns reordered.  The given list
   ** of names represents the new order and must contain the same current
   ** column names.  Any columns not specified are removed.  Also
-  ** see `colNames`, `moveTo`, and `docHaxall::Streams#reorderCols`.
+  ** see [colNames], [moveTo], and [docHaxall::Streams#reordercols].
   **
   ** Example:
-  **   // move name to first col, and foo to last col
-  **   cols: grid.colNames.moveTo("name", 0).moveTo("foo", -1)
-  **   return grid.reorderCols(cols)
+  **
+  **     // move name to first col, and foo to last col
+  **     cols: grid.colNames.moveTo("name", 0).moveTo("foo", -1)
+  **     return grid.reorderCols(cols)
   @Api @Axon static Obj reorderCols(Obj grid, Str[] colNames)
   {
     if (grid is Grid) return ((Grid)grid).reorderCols(colNames)
@@ -1289,7 +1328,7 @@ const class AxonFuncs
 
   ** Return a new grid with column meta-data replaced by given meta dict.
   ** If column not found, then return given grid.
-  ** Also see `addColMeta` and `docHaxall::Streams#setColMeta`.
+  ** Also see [addColMeta] and [docHaxall::Streams#setcolmeta].
   @Api @Axon static Obj setColMeta(Obj grid, Str name, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).setColMeta(name, meta)
@@ -1299,8 +1338,8 @@ const class AxonFuncs
 
   ** Return a new grid with additional column meta-data.
   ** If column not found, then return given grid.
-  ** Column meta is added using `merge` conventions.  Also
-  ** see `setColMeta` and `docHaxall::Streams#addColMeta`.
+  ** Column meta is added using [merge] conventions.  Also
+  ** see [setColMeta] and [docHaxall::Streams#addcolmeta].
   @Api @Axon static Obj addColMeta(Obj grid, Str name, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).addColMeta(name, meta)
@@ -1310,7 +1349,7 @@ const class AxonFuncs
 
   ** Return a new grid with the given column removed.
   ** If the column doesn't exist, then return given grid.
-  ** Also see `docHaxall::Streams#removeCol`.
+  ** Also see [docHaxall::Streams#removecol].
   @Api @Axon static Obj removeCol(Obj grid, Obj col)
   {
     if (grid is Grid) return ((Grid)grid).removeCol(col)
@@ -1320,7 +1359,7 @@ const class AxonFuncs
 
   ** Return a new grid with all the given columns removed.
   ** Columns can be Str names or Col instances.
-  ** Also see `docHaxall::Streams#removeCols`.
+  ** Also see [docHaxall::Streams#removecols].
   @Api @Axon static Obj removeCols(Obj grid, Obj[] cols)
   {
     if (grid is Grid) return ((Grid)grid).removeCols(cols)
@@ -1330,10 +1369,11 @@ const class AxonFuncs
 
   ** Return a new grid with keeps the given columns, but removes
   ** all the others.  Columns can be Str names or Col instances.
-  ** Also see `docHaxall::Streams#keepCols`.
+  ** Also see [docHaxall::Streams#keepcols].
   **
   ** Example:
-  **   readAll(site).keepCols(["id", "area"])
+  **
+  **     readAll(site).keepCols(["id", "area"])
   @Api @Axon static Obj keepCols(Obj grid, Obj[] cols)
   {
     if (grid is Grid) return ((Grid)grid).keepCols(cols)
@@ -1344,14 +1384,16 @@ const class AxonFuncs
   ** Add an additional Dict row to the end of a grid.
   **
   ** Example:
-  **   readAll(site).addRow({dis:"New Row"})
+  **
+  **     readAll(site).addRow({dis:"New Row"})
   @Api @Axon static Grid addRow(Grid grid, Dict newRow) { addRows(grid, [newRow]) }
 
   ** Add an list of rows to the end of a grid.
   ** The newRows may be expressed as list of Dict or a Grid.
   **
   ** Example:
-  **   readAll(site).addRows(readAll(equip))
+  **
+  **     readAll(site).addRows(readAll(equip))
   @Api @Axon static Grid addRows(Grid grid, Obj newRows)
   {
     // if no new rows return original grid
@@ -1393,20 +1435,22 @@ const class AxonFuncs
   }
 
   ** Get a grid row as a list of cells.  Sparse cells are included as null.
-  ** Also see `colToList()`.
+  ** Also see [colToList()].
   **
   ** Example:
-  **   readAll(equip).first.rowToList
+  **
+  **     readAll(equip).first.rowToList
   @Api @Axon static Obj?[] rowToList(Row row)
   {
     row.cells ?: row.grid.cols.map |c->Obj?| { row.val(c) }
   }
 
   ** Get a column as a list of the cell values ordered by row.
-  ** Also see `rowToList()`.
+  ** Also see [rowToList()].
   **
   ** Example:
-  **   readAll(site).colToList("dis")
+  **
+  **     readAll(site).colToList("dis")
   @Api @Axon static Obj?[] colToList(Grid grid, Obj col) { grid.colToList(col) }
 
   ** Perform a matrix transpose on the grid.  The cells of the
@@ -1414,11 +1458,12 @@ const class AxonFuncs
   ** Columns 1..n become the new rows.
   **
   ** Example:
-  **   readAll(site).transpose
+  **
+  **     readAll(site).transpose
   @Api @Axon static Grid transpose(Grid grid) { grid.transpose }
 
   ** Given a grid of records, assign new ids and swizzle all internal
-  ** ref tags.  Each row of the grid must have an 'id' tag.  A new id
+  ** ref tags.  Each row of the grid must have an `id` tag.  A new id
   ** is generated for each row, and any Ref tags which used one of
   ** the old ids is replaced with the new id.  This function is handy
   ** for copying graphs of recs such as site/equip/point trees.
@@ -1435,14 +1480,15 @@ const class AxonFuncs
     Etc.mapRefs(v) |x| { oldToNewIds.get(x, x) }
   }
 
-  ** Replace every grid cell with the given 'from' value with the 'to' value.
+  ** Replace every grid cell with the given `from` value with the `to` value.
   ** The resulting grid has the same grid and col meta.  Replacement comparison
-  ** is by via equality via '==' operator, so it will only replace
+  ** is by via equality via `==` operator, so it will only replace
   ** scalar values or null.
   **
   ** Example:
-  **   grid.gridReplace(null, 0)   // replace all null cells with zero
-  **   grid.gridReplace(na(), 0)   // replace all NA cells with zero
+  **
+  **     grid.gridReplace(null, 0)   // replace all null cells with zero
+  **     grid.gridReplace(na(), 0)   // replace all NA cells with zero
   @Api @Axon static Grid gridReplace(Grid grid, Obj? from, Obj? to) { grid.replace(from, to) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1468,7 +1514,7 @@ const class AxonFuncs
   ** Return absolute value of a number, if null return null
   @Api @Axon static Obj? abs(Number? val) { val?.abs }
 
-  ** Return if 'val' is the Number representation of not-a-number
+  ** Return if `val` is the Number representation of not-a-number
   @Api @Axon static Bool isNaN(Obj? val) { val is Number && ((Number)val).isNaN }
 
   ** Return the Number representation of not-a-number
@@ -1486,10 +1532,11 @@ const class AxonFuncs
   ** The result is always in the same unit as val.
   **
   ** Examples:
-  **   14.clamp(10, 20)     >>   14    // is between 10 and 20
-  **   3.clamp(10, 20)      >>   10    // clamps to min 10
-  **   73.clamp(10, 20)     >>   20    // clamps to max 20
-  **   45°F.clamp(60, 80)   >>   60°F  // min/max can be unitless
+  **
+  **     14.clamp(10, 20)     >>   14    // is between 10 and 20
+  **     3.clamp(10, 20)      >>   10    // clamps to min 10
+  **     73.clamp(10, 20)     >>   20    // clamps to max 20
+  **     45°F.clamp(60, 80)   >>   60°F  // min/max can be unitless
   @Api @Axon static Number clamp(Number val, Number min, Number max) { val.clamp(min, max) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1504,28 +1551,29 @@ const class AxonFuncs
 
   ** Return current DateTime according to context's time zone.
   ** This function will use a cached version which is only
-  ** accurate to within 250ms (see `sys::DateTime.now` for details).
-  ** Also see `nowTicks()` and `nowUtc()`.
+  ** accurate to within 250ms (see [sys::DateTime.now] for details).
+  ** Also see [nowTicks()] and [nowUtc()].
   @Api @Axon static DateTime now() { DateTime.now }
 
   ** Return current DateTime in UTC.  This function will use a  cached
-  ** version which is only accurate to within 250ms (see `sys::DateTime.nowUtc`
-  ** for details).  Also see `now()` and `nowTicks()`.
+  ** version which is only accurate to within 250ms (see [sys::DateTime.nowUtc]
+  ** for details).  Also see [now()] and [nowTicks()].
   @Api @Axon static DateTime nowUtc() { DateTime.nowUtc }
 
   ** Return current time as nanosecond ticks since 1 Jan 2000 UTC.
   ** Note that the 64-bit floating point representations of nanosecond
-  ** ticks will lose accuracy below the microsecond.  Also see `now()`.
+  ** ticks will lose accuracy below the microsecond.  Also see [now()].
   @Api @Axon static Number nowTicks() { Number(DateTime.nowTicks, Number.ns) }
 
   ** Return if a timestamp is contained within a Date range.
-  ** Range may be any value supported by `toDateSpan`.  Timestamp
-  ** may be either a Date or a DateTime.  Also see `contains`.
+  ** Range may be any value supported by [toDateSpan].  Timestamp
+  ** may be either a Date or a DateTime.  Also see [contains].
   **
   ** Examples:
-  **   ts.occurred(thisWeek)
-  **   ts.occurred(pastMonth())
-  **   ts.occurred(2010-01-01..2010-01-15)
+  **
+  **     ts.occurred(thisWeek)
+  **     ts.occurred(pastMonth())
+  **     ts.occurred(2010-01-01..2010-01-15)
   @Api @Axon static Obj? occurred(Obj? ts, Obj? range)
   {
     // ts as date
@@ -1558,75 +1606,78 @@ const class AxonFuncs
     throw argErr("end", val)
   }
 
-  ** DateSpan for this week as 'sun..sat' (uses locale start of week)
+  ** DateSpan for this week as `sun..sat` (uses locale start of week)
   @Api @Axon static DateSpan thisWeek() { DateSpan.thisWeek }
 
-  ** DateSpan for this month as '1st..28-31'
+  ** DateSpan for this month as `1st..28-31`
   @Api @Axon static DateSpan thisMonth() { DateSpan.thisMonth }
 
   ** DateSpan for this 3 month quarter
   @Api @Axon static DateSpan thisQuarter() { DateSpan.thisQuarter }
 
-  ** DateSpan for this year 'Jan-1..Dec-31'
+  ** DateSpan for this year `Jan-1..Dec-31`
   @Api @Axon static DateSpan thisYear() { DateSpan.thisYear }
 
-  ** DateSpan for last 7 days as 'today-7days..today'
+  ** DateSpan for last 7 days as `today-7days..today`
   @Api @Axon static DateSpan pastWeek() { DateSpan.pastWeek }
 
-  ** DateSpan for last 30days 'today-30days..today'
+  ** DateSpan for last 30days `today-30days..today`
   @Api @Axon static DateSpan pastMonth() { DateSpan.pastMonth }
 
-  ** DateSpan for this past 'today-365days..today'
+  ** DateSpan for this past `today-365days..today`
   @Api @Axon static DateSpan pastYear() { DateSpan.pastYear }
 
-  ** DateSpan for week previous to this week 'sun..sat' (uses locale start of week)
+  ** DateSpan for week previous to this week `sun..sat` (uses locale start of week)
   @Api @Axon static DateSpan lastWeek() { DateSpan.lastWeek }
 
-  ** DateSpan for month previous to this month '1..28-31'
+  ** DateSpan for month previous to this month `1..28-31`
   @Api @Axon static DateSpan lastMonth() { DateSpan.lastMonth }
 
   ** DateSpan for 3 month quarter previous to this quarter
   @Api @Axon static DateSpan lastQuarter() { DateSpan.lastQuarter }
 
-  ** DateSpan for year previous to this year 'Jan-1..Dec-31'
+  ** DateSpan for year previous to this year `Jan-1..Dec-31`
   @Api @Axon static DateSpan lastYear() { DateSpan.lastYear}
 
   ** Get the first day of given date's month.
-  ** Also see `lastOfMonth()`.
+  ** Also see [lastOfMonth()].
   **
   ** Example:
-  **   2009-10-28.firstOfMonth  >>  2009-10-01
+  **
+  **     2009-10-28.firstOfMonth  >>  2009-10-01
   **
   @Api @Axon static Date firstOfMonth(Date date) { date.firstOfMonth }
 
   ** Get the last day of the date's month.
-  ** Also see `firstOfMonth()`.
+  ** Also see [firstOfMonth()].
   **
   ** Example:
-  **   2009-10-28.lastOfMonth  >>  2009-10-31
+  **
+  **     2009-10-28.lastOfMonth  >>  2009-10-31
   **
   @Api @Axon static Date lastOfMonth(Date date) { date.lastOfMonth }
 
   **
-  ** Convert the following objects into a `haystack::DateSpan`:
-  **   - 'Func': function which evaluates to date range
-  **   - 'DateSpan': return itself
-  **   - 'Date': one day range
-  **   - 'Span': return `haystack::Span.toDateSpan`
-  **   - 'Str': evaluates to `haystack::DateSpan.fromStr`
-  **   - 'Date..Date': starting and ending date (inclusive)
-  **   - 'Date..Number': starting date and num of days (day unit required)
-  **   - 'DateTime..DateTime': use starting/ending dates; if end is midnight,
+  ** Convert the following objects into a [haystack::DateSpan]\:
+  **   - `Func`: function which evaluates to date range
+  **   - `DateSpan`: return itself
+  **   - `Date`: one day range
+  **   - `Span`: return [haystack::Span.toDateSpan]
+  **   - `Str`: evaluates to [haystack::DateSpan.fromStr]
+  **   - `Date..Date`: starting and ending date (inclusive)
+  **   - `Date..Number`: starting date and num of days (day unit required)
+  **   - `DateTime..DateTime`: use starting/ending dates; if end is midnight,
   **     then use previous date
-  **   - 'Number': convert as year
+  **   - `Number`: convert as year
   **   - null: use projMeta dateSpanDefault or default to today (deprecated)
   **
   ** Examples:
-  **   toDateSpan(2010-07-01..2010-07-03)  >>  01-Jul-2010..03-Jul-2010
-  **   toDateSpan(2010-07-01..60day)       >>  01-Jul-2010..29-Aug-2010
-  **   toDateSpan(2010-07)                 >>  01-Jul-2010..31-Jul-2010
-  **   toDateSpan(2010)                    >>  01-Jan-2010..31-Dec-2010
-  **   toDateSpan(pastWeek) // on 9 Aug    >>  02-Aug-2010..09-Aug-2010
+  **
+  **     toDateSpan(2010-07-01..2010-07-03)  >>  01-Jul-2010..03-Jul-2010
+  **     toDateSpan(2010-07-01..60day)       >>  01-Jul-2010..29-Aug-2010
+  **     toDateSpan(2010-07)                 >>  01-Jul-2010..31-Jul-2010
+  **     toDateSpan(2010)                    >>  01-Jan-2010..31-Dec-2010
+  **     toDateSpan(pastWeek) // on 9 Aug    >>  02-Aug-2010..09-Aug-2010
   **
   @Api @Axon static DateSpan toDateSpan(Obj? x)
   {
@@ -1635,17 +1686,17 @@ const class AxonFuncs
   }
 
   **
-  ** Convert the following objects into a `haystack::Span`:
-  **   - 'Span': return itself
-  **   - 'Span+tz': update timezone using same dates only if aligned to midnight
-  **   - 'Str': return `haystack::Span.fromStr` using current timezone
-  **   - 'Str+tz': return `haystack::Span.fromStr` using given timezone
-  **   - 'DateTime..DateTime': range of two DateTimes
-  **   - 'Date..DateTime': start day for date until the end timestamp
-  **   - 'DateTime..Date': start timestamp to end of day for end date
-  **   - 'DateTime': span of a single timestamp
-  **   - 'DateSpan': anything accepted by `toDateSpan` in current timezone
-  **   - 'DateSpan+tz': anything accepted by `toDateSpan` using given timezone
+  ** Convert the following objects into a [haystack::Span]\:
+  **   - `Span`: return itself
+  **   - `Span+tz`: update timezone using same dates only if aligned to midnight
+  **   - `Str`: return [haystack::Span.fromStr] using current timezone
+  **   - `Str+tz`: return [haystack::Span.fromStr] using given timezone
+  **   - `DateTime..DateTime`: range of two DateTimes
+  **   - `Date..DateTime`: start day for date until the end timestamp
+  **   - `DateTime..Date`: start timestamp to end of day for end date
+  **   - `DateTime`: span of a single timestamp
+  **   - `DateSpan`: anything accepted by [toDateSpan] in current timezone
+  **   - `DateSpan+tz`: anything accepted by [toDateSpan] using given timezone
   **
   @Api @Axon static Span toSpan(Obj? x, Str? tz := null)
   {
@@ -1653,7 +1704,7 @@ const class AxonFuncs
     return Etc.toSpan(x, tz != null ? TimeZone.fromStr(tz) : null)
   }
 
-  ** Use `toSpan`
+  ** Use [toSpan]
   @NoDoc @Deprecated { msg = "Use toSpan" }
   @Api @Axon static Span toDateTimeSpan(Obj? a, Obj? b := null) { toSpan(a, b) }
 
@@ -1664,15 +1715,16 @@ const class AxonFuncs
     Number(toSpan(span).numDays, Number.day)
   }
 
-  ** Iterate the days of a span.  The 'dates' argument may be any object
-  ** converted into a date range by `toDateSpan`.  The given function is
-  ** called with a 'Date' argument for each iterated day.
+  ** Iterate the days of a span.  The `dates` argument may be any object
+  ** converted into a date range by [toDateSpan].  The given function is
+  ** called with a `Date` argument for each iterated day.
   **
   ** Example:
-  **   f: day => echo(day)
-  **   eachDay(2010-07-01..2010-07-03, f) >> iterate Jul 1st, 2nd, 3rd
-  **   eachDay(2010-07, f)                >> iterate each day of July 2010
-  **   eachDay(pastWeek, f)               >> iterate last 7 days
+  **
+  **     f: day => echo(day)
+  **     eachDay(2010-07-01..2010-07-03, f) >> iterate Jul 1st, 2nd, 3rd
+  **     eachDay(2010-07, f)                >> iterate each day of July 2010
+  **     eachDay(pastWeek, f)               >> iterate last 7 days
   @Api @Axon static Obj? eachDay(Obj dates, Fn fn)
   {
     cx := AxonContext.curAxon
@@ -1681,16 +1733,17 @@ const class AxonFuncs
     return null
   }
 
-  ** Iterate the months of a span.  The 'dates' argument may be any object
-  ** converted into a date range by `toDateSpan`.  The given function is
-  ** called with a 'DateSpan' argument for each interated month.
+  ** Iterate the months of a span.  The `dates` argument may be any object
+  ** converted into a date range by [toDateSpan].  The given function is
+  ** called with a `DateSpan` argument for each interated month.
   **
   ** Examples:
-  **   // iterate each month in 2010, and echo data range
-  **   eachMonth(2010) d => echo(d)
   **
-  **   // call f once for current method
-  **   eachMonth(today(), f)
+  **     // iterate each month in 2010, and echo data range
+  **     eachMonth(2010) d => echo(d)
+  **
+  **     // call f once for current method
+  **     eachMonth(today(), f)
   @Api @Axon static Obj? eachMonth(Obj dates, Fn fn)
   {
     cx := AxonContext.curAxon
@@ -1776,8 +1829,9 @@ const class AxonFuncs
   ** If val is a Number: construct a date instance from year, month, day
   **
   ** Examples:
-  **   now().date         // same as today()
-  **   date(2010, 12, 1)  // same as 2010-12-01
+  **
+  **     now().date         // same as today()
+  **     date(2010, 12, 1)  // same as 2010-12-01
   @Api @Axon static Obj? date(Obj val, Number? month := null, Number? day := null)
   {
     if (val is DateTime) return ((DateTime)val).date
@@ -1790,8 +1844,9 @@ const class AxonFuncs
   ** secs (truncated to nearest second).
   **
   ** Examples:
-  **   now().time      // current time
-  **   time(20, 45)    // same as 20:45
+  **
+  **     now().time      // current time
+  **     time(20, 45)    // same as 20:45
   @Api @Axon static Obj? time(Obj val, Number? minutes := null, Number secs := Number.zero)
   {
     if (val is DateTime) return ((DateTime)val).time
@@ -1800,8 +1855,9 @@ const class AxonFuncs
   }
 
   ** Convert a DateTime or Span to another timezone:
-  **    now().toTimeZone("Chicago")
-  **    now().toTimeZone("UTC")
+  **
+  **      now().toTimeZone("Chicago")
+  **      now().toTimeZone("UTC")
   @Api @Axon static Obj? toTimeZone(Obj val, Str tz)
   {
     if (val is DateTime) return ((DateTime)val).toTimeZone(TimeZone.fromStr(tz))
@@ -1815,11 +1871,12 @@ const class AxonFuncs
   **   - null: returns day in current month
   **
   ** Examples:
-  **   numDaysInMonth()            >>>  days in current month
-  **   numDaysInMonth(1)           >>>  31day (days in January)
-  **   numDaysInMonth(6)           >>>  30day (days in June)
-  **   numDaysInMonth(2)           >>>  28day or 29day (days for Feb this year)
-  **   numDaysInMonth(2012-02-13)  >>>  29day (days in Feb for leap year)
+  **
+  **     numDaysInMonth()            >>>  days in current month
+  **     numDaysInMonth(1)           >>>  31day (days in January)
+  **     numDaysInMonth(6)           >>>  30day (days in June)
+  **     numDaysInMonth(2)           >>>  28day or 29day (days for Feb this year)
+  **     numDaysInMonth(2012-02-13)  >>>  29day (days in Feb for leap year)
   @Api @Axon static Number numDaysInMonth(Obj? month := null)
   {
     Date? d
@@ -1864,12 +1921,12 @@ const class AxonFuncs
   }
 
   ** Given a DateTime return Number of milliseconds since Unix epoch.
-  ** The epic is defined as 1-Jan-1970 UTC.  Also see `fromJavaMillis`.
+  ** The epic is defined as 1-Jan-1970 UTC.  Also see [fromJavaMillis].
   @Api @Axon static Number toJavaMillis(DateTime dt) { Number(dt.toJava, Number.ms) }
 
   ** Given Number of milliseconds since Unix epoch return a DateTime.
   ** The epic is defined as 1-Jan-1970 UTC.  If timezone is null, use system
-  ** default.  Also see `toJavaMillis`.
+  ** default.  Also see [toJavaMillis].
   @Api @Axon static DateTime fromJavaMillis(Number millis, Str? tz := null)
   {
     DateTime.fromJava(millis.toInt, tz == null ? TimeZone.cur : TimeZone(tz), false)
@@ -1882,18 +1939,19 @@ const class AxonFuncs
   ** Given an optional value return true if the SI metric system should be
   ** used.  Return false if the United States customary unit system should be
   ** used.  The following rules are used:
-  **   - if val is a dict with `geoCountry` return return false if "US"
-  **   - if number or rec with `unit` and unit is known to be a US
+  **   - if val is a dict with [geoCountry] return return false if "US"
+  **   - if number or rec with [unit] and unit is known to be a US
   **     customary unit return false (right now we only check
   **     for °F and Δ°F)
-  **   - fallback to locale of hosting server, see `sys::Locale`
+  **   - fallback to locale of hosting server, see [sys::Locale]
   **
   ** Examples:
-  **    isMetric({geoCountry:"US"})  >>  false
-  **    isMetric({geoCountry:"FR"})  >>  true
-  **    isMetric(75°F)               >>  false
-  **    isMetric({unit:"Δ°C"})       >>  true
-  **    isMetric()                   >>  fallback to server locale
+  **
+  **      isMetric({geoCountry:"US"})  >>  false
+  **      isMetric({geoCountry:"FR"})  >>  true
+  **      isMetric(75°F)               >>  false
+  **      isMetric({unit:"Δ°C"})       >>  true
+  **      isMetric()                   >>  fallback to server locale
   @Api @Axon static Bool isMetric(Obj? val := null)
   {
     if (val is Number)
@@ -1947,14 +2005,15 @@ const class AxonFuncs
   ** of the same dimension then an exception is raised.  The
   ** target unit can be a string or a Number.  If target unit
   ** is a Number, then the scalar value is ignored, but by
-  ** convention should be 1.  Also see `as()` function to set a
+  ** convention should be 1.  Also see [as()] function to set a
   ** unit without conversion.
   **
   ** Examples:
-  **    10kWh.to(1BTU)
-  **    10kWh.to("BTU")
-  **    75°F.to(1°C)
-  **    to(75°F, 1°C)
+  **
+  **      10kWh.to(1BTU)
+  **      10kWh.to("BTU")
+  **      75°F.to(1°C)
+  **      to(75°F, 1°C)
   @Api @Axon static Number? to(Number? val, Obj? unit)
   {
     if (val == null) return null
@@ -1966,14 +2025,15 @@ const class AxonFuncs
     return Number(val.unit.convertTo(val.toFloat, u), u)
   }
 
-  ** Set the unit of a number.  Unlike `to()` function, no conversion of
+  ** Set the unit of a number.  Unlike [to()] function, no conversion of
   ** the scalar of the number is performed.  The target unit can be a
   ** unit string or a number in which case the scalar value of the
   ** unit parameter is ignored (by convention should be 1).
   **
   ** Examples:
-  **   75°F.as(1°C)
-  **   75°F.as("°C")
+  **
+  **     75°F.as(1°C)
+  **     75°F.as("°C")
   @Api @Axon static Number? _as(Number? val, Obj? unit)
   {
     if (val == null) return null
@@ -1989,18 +2049,19 @@ const class AxonFuncs
 
   **
   ** Return if the given instance inherits from the spec via nominal
-  ** typing.  Also see `fits()` and `specFits()` to check via structural
+  ** typing.  Also see [fits()] and [specFits()] to check via structural
   ** typing.
   **
-  ** Note that dict values will only match the generic 'sys.Dict'
-  ** type.  Use `fits()` for structural type matching.
+  ** Note that dict values will only match the generic `sys.Dict`
+  ** type.  Use [fits()] for structural type matching.
   **
   ** Examples:
-  **   is("hi", Str)       >>  true
-  **   is("hi", Dict)      >>  false
-  **   is({}, Dict)        >>  true
-  **   is({equip}, Equip)  >>  false
-  **   is(Str, Spec)       >>  true
+  **
+  **     is("hi", Str)       >>  true
+  **     is("hi", Dict)      >>  false
+  **     is({}, Dict)        >>  true
+  **     is({equip}, Equip)  >>  false
+  **     is(Str, Spec)       >>  true
   **
   @Api @Axon static Bool _is(Obj? val, Spec spec)
   {
@@ -2118,8 +2179,9 @@ const class AxonFuncs
   ** Given a function name reflect its parameters as rows
   **
   ** Examples:
-  **   params(hisRead)
-  **   toRadix.params
+  **
+  **     params(hisRead)
+  **     toRadix.params
   @NoDoc @Api @Axon
   static Grid params(Fn fn)
   {
@@ -2130,8 +2192,9 @@ const class AxonFuncs
   ** If not found throw exception or return null based on checked flag.
   **
   ** Example:
-  **   func("readAll")
-  **   func(readAll)
+  **
+  **     func("readAll")
+  **     func(readAll)
   @Api @Axon
   static Dict? func(Obj name, Bool checked := true)
   {
@@ -2144,8 +2207,9 @@ const class AxonFuncs
   ** The function tags are returned.
   **
   ** Examples:
-  **   funcs()              // all functions
-  **   funcs(sparkRule)     // match filter
+  **
+  **     funcs()              // all functions
+  **     funcs(sparkRule)     // match filter
   @Api @Axon
   static Grid funcs(Expr filterExpr := Literal.nullVal)
   {
@@ -2187,7 +2251,7 @@ const class AxonFuncs
   ** Return if an object is a grid type
   @Api @Axon static Bool isGrid(Obj? val) { val is Grid }
 
-  ** Return if an object is a grid that conforms to the [history grid shape]`haystack::Grid.isHisGrid`
+  ** Return if an object is a grid that conforms to the [history grid shape](haystack::Grid.isHisGrid)
   @Api @Axon static Bool isHisGrid(Obj? val) { val is Grid && ((Grid)val).isHisGrid }
 
   ** Return if an object is a boolean type
@@ -2196,7 +2260,7 @@ const class AxonFuncs
   ** Return if an object is a number type
   @Api @Axon static Bool isNumber(Obj? val) { val is Number }
 
-  ** Return if an object is a number type with a [time unit]`haystack::Number.isDuration`
+  ** Return if an object is a number type with a [time unit](haystack::Number.isDuration)
   @Api @Axon static Bool isDuration(Obj? val) { val is Number && ((Number)val).isDuration }
 
   ** Return if an object is a ref type
@@ -2238,18 +2302,19 @@ const class AxonFuncs
   ** specified width.
   **
   ** Example:
-  **   6.toRadix(2) => "110"
-  **   255.toRadix(16, 4) => "00ff"
+  **
+  **     6.toRadix(2) => "110"
+  **     255.toRadix(16, 4) => "00ff"
   @Api @Axon static Obj? toRadix(Number val, Number radix, Number? width := null) { val.toInt.toRadix(radix.toInt, width?.toInt) }
 
   ** Convert an obj to its string representation
   @Api @Axon static Obj? _toStr(Obj? val) { val == null ? "null" : val.toStr }
 
-  ** If val is a list return it, otherwise return '[val]'.
+  ** If val is a list return it, otherwise return `[val]`.
   @Api @Axon static Obj?[] toList(Obj? val) { val as List ?: Obj?[val].toImmutable }
 
   ** Given an arbitrary object, translate it to a Grid via
-  ** `haystack::Etc.toGrid`:
+  ** [haystack::Etc.toGrid]\:
   **   - if grid just return it
   **   - if row in grid of size, return row.grid
   **   - if scalar return 1x1 grid
@@ -2258,10 +2323,11 @@ const class AxonFuncs
   **   - if list of non-dicts, return one col grid with rows for each item
   **
   ** Example:
-  **   // create simple grid with dis,age cols and 3 rows:
-  **   [{dis:"Bob", age:30},
-  **    {dis:"Ann", age:40},
-  **    {dis:"Dan", age:50}].toGrid
+  **
+  **     // create simple grid with dis,age cols and 3 rows:
+  **     [{dis:"Bob", age:30},
+  **      {dis:"Ann", age:40},
+  **      {dis:"Dan", age:50}].toGrid
   @Api @Axon static Grid toGrid(Obj? val, Dict? meta := null) { Etc.toGrid(val, meta) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2269,13 +2335,13 @@ const class AxonFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Localize column display names.  For each col which does not have
-  ** an explicit dislay name, add a 'dis' tag based on the column name.
-  ** Also see `haystack::Grid.colsToLocale` and `hx.doc.skyspark::Localization#tags`.
+  ** an explicit dislay name, add a `dis` tag based on the column name.
+  ** Also see [haystack::Grid.colsToLocale] and [hx.doc.skyspark::Localization#tags].
   @Api @Axon static Grid colsToLocale(Grid grid) { grid.colsToLocale }
 
   ** Get the localized string for the given tag name or qualified name.
-  ** If the key is formatted as "pod::name" then route to `sys::Env.locale`,
-  ** otherwise to `haystack::Etc.tagToLocale`.
+  ** If the key is formatted as "pod::name" then route to [sys::Env.locale],
+  ** otherwise to [haystack::Etc.tagToLocale].
   @Api @Axon static Str toLocale(Str key)
   {
     colons := key.index("::")
@@ -2290,11 +2356,12 @@ const class AxonFuncs
   ** the default for the current context.
   **
   ** Examples:
-  **   // format Date in German
-  **   localeUse("de", today().format)
   **
-  **   // parse Date in German
-  **   localeUse("de", parseDate("01 Mär 2021", "DD MMM YYYY"))
+  **     // format Date in German
+  **     localeUse("de", today().format)
+  **
+  **     // parse Date in German
+  **     localeUse("de", parseDate("01 Mär 2021", "DD MMM YYYY"))
   @Api @Axon static Obj? localeUse(Expr locale, Expr expr)
   {
     cx := AxonContext.curAxon
@@ -2309,9 +2376,9 @@ const class AxonFuncs
 
   ** Get display string for dict or the given tag:
   **  - if dict is null return "null"
-  **  - if 'name' is null then return `xeto::Dict.dis`
-  **  - if dict is a Row then return `haystack::Row.disOf` or def
-  **  - fallback `haystack::Etc.valToDis`
+  **  - if `name` is null then return [xeto::Dict.dis]
+  **  - if dict is a Row then return [haystack::Row.disOf] or def
+  **  - fallback [haystack::Etc.valToDis]
   @Api @Axon static Str dis(Dict? dict, Str? name := null, Str def := "")
   {
     if (dict == null) return "null"
@@ -2338,20 +2405,21 @@ const class AxonFuncs
 
   ** Format an object using the current locale and specified format
   ** pattern.  Formatting patterns follow Fantom toLocale conventions:
-  **   - `sys::Bool.toLocale`
-  **   - `haystack::Number.toLocale`
-  **   - `sys::Date.toLocale`
-  **   - `sys::Time.toLocale`
-  **   - `sys::DateTime.toLocale`
-  ** If 'toLocale' method is found, then return 'val.toStr'
+  **   - [sys::Bool.toLocale]
+  **   - [haystack::Number.toLocale]
+  **   - [sys::Date.toLocale]
+  **   - [sys::Time.toLocale]
+  **   - [sys::DateTime.toLocale]
+  ** If `toLocale` method is found, then return `val.toStr`
   **
   ** Examples:
-  **    123.456kW.format                 >>  123kW
-  **    123.456kW.format("#.0")          >>  123.5kW
-  **    today().format("D-MMM-YYYY")     >>  8-Feb-2023
-  **    today().format("DDD MMMM YYYY")  >>  8th February 2023
-  **    now().format("D-MMM hh:mm")      >>  08-Feb 14:50
-  **    now().format("DD/MM/YY k:mmaa")  >>  08/02/23 2:50pm
+  **
+  **      123.456kW.format                 >>  123kW
+  **      123.456kW.format("#.0")          >>  123.5kW
+  **      today().format("D-MMM-YYYY")     >>  8-Feb-2023
+  **      today().format("DDD MMMM YYYY")  >>  8th February 2023
+  **      now().format("D-MMM hh:mm")      >>  08-Feb 14:50
+  **      now().format("DD/MM/YY k:mmaa")  >>  08/02/23 2:50pm
   @Api @Axon static Str format(Obj? val, Str? pattern := null)
   {
     if (val == null) return "null"
@@ -2364,8 +2432,9 @@ const class AxonFuncs
   ** format and checked is false return null, otherwise throw ParseErr.
   **
   ** Examples:
-  **   parseBool("true")
-  **   parseBool("bad", false)
+  **
+  **     parseBool("true")
+  **     parseBool("bad", false)
   @Api @Axon static Bool? parseBool(Str val, Bool checked := true) { Bool.fromStr(val, checked) }
 
   ** Parse a Str into a integer number using the specified radix.
@@ -2374,9 +2443,10 @@ const class AxonFuncs
   ** parseNumber).
   **
   ** Examples:
-  **   parseInt("123")
-  **   parseInt("afe8", 16)
-  **   parseInt("10010", 2)
+  **
+  **     parseInt("123")
+  **     parseInt("afe8", 16)
+  **     parseInt("10010", 2)
   @Api @Axon static Number? parseInt(Str val, Number radix := Number.ten, Bool checked := true)
   {
     i := Int.fromStr(val, radix.toInt, checked)
@@ -2390,9 +2460,10 @@ const class AxonFuncs
   ** This string value *cannot* include a unit (see parseNumber).
   **
   ** Examples:
-  **   parseFloat("123.456").format("0.000")
-  **   parseFloat("NaN")
-  **   parseFloat("INF")
+  **
+  **     parseFloat("123.456").format("0.000")
+  **     parseFloat("NaN")
+  **     parseFloat("INF")
   @Api @Axon static Number? parseFloat(Str val, Bool checked := true)
   {
     f := Float.fromStr(val, checked)
@@ -2402,13 +2473,14 @@ const class AxonFuncs
 
   ** Parse a Str into a number with an option unit.  If invalid
   ** format and checked is false return null, otherwise throw ParseErr.
-  ** Also see `parseInt` and `parseFloat` to parse basic integers and
+  ** Also see [parseInt] and [parseFloat] to parse basic integers and
   ** floating point numbers without a unit.
   **
   ** Examples:
-  **    parseNumber("123")
-  **    parseNumber("123kW")
-  **    parseNumber("123.567").format("#.000")
+  **
+  **      parseNumber("123")
+  **      parseNumber("123kW")
+  **      parseNumber("123.567").format("#.000")
   @Api @Axon static Number? parseNumber(Str val, Bool checked := true)
   {
     ch := val.isEmpty ? 0 : val[0]
@@ -2425,12 +2497,13 @@ const class AxonFuncs
   ** Parse a string into a Uri instance.  If the string cannot be parsed
   ** into a valid Uri and checked is false then return null, otherwise
   ** throw ParseErr.  This function converts an URI from *standard form*.
-  ** Use `uriDecode` to convert a string from *escaped form*.  See `sys::Uri`
+  ** Use [uriDecode] to convert a string from *escaped form*.  See [sys::Uri]
   ** for a detailed discussion on standard and escaped forms.
   **
   ** Examples:
-  **   "foo bar".parseUri     >>  `foo bar`
-  **   "foo%20bar".uriDecode  >>  `foo bar`
+  **
+  **     "foo bar".parseUri     >>  `foo bar`
+  **     "foo%20bar".uriDecode  >>  `foo bar`
   @Api @Axon static Uri? parseUri(Str val, Bool checked := true)
   {
     Uri.fromStr(val, checked)
@@ -2438,13 +2511,14 @@ const class AxonFuncs
 
   ** Parse a Str into a Date.  If the string cannot be parsed into a valid
   ** Date and checked is false then return null, otherwise throw ParseErr.
-  ** See `sys::Date.toLocale` for pattern.
+  ** See [sys::Date.toLocale] for pattern.
   **
   ** Examples:
-  **   parseDate("7-Feb-23", "D-MMM-YY")
-  **   parseDate("07/02/23", "DD/MM/YY")
-  **   parseDate("7 february 2023", "D MMMM YYYY")
-  **   parseDate("230207", "YYMMDD")
+  **
+  **     parseDate("7-Feb-23", "D-MMM-YY")
+  **     parseDate("07/02/23", "DD/MM/YY")
+  **     parseDate("7 february 2023", "D MMMM YYYY")
+  **     parseDate("230207", "YYMMDD")
   @Api @Axon static Date? parseDate(Str val, Str pattern := "YYYY-MM-DD", Bool checked := true)
   {
     Date.fromLocale(val, pattern, checked)
@@ -2452,12 +2526,13 @@ const class AxonFuncs
 
   ** Parse a Str into a Time.  If the string cannot be parsed into a valid
   ** Time and checked is false then return null, otherwise throw ParseErr.
-  ** See `sys::Time.toLocale` for pattern.
+  ** See [sys::Time.toLocale] for pattern.
   **
   ** Examples:
-  **   parseTime("14:30", "h:mm")
-  **   parseTime("2:30pm", "k:mma")
-  **   parseTime("2:30:00pm", "k:mm:ssa")
+  **
+  **     parseTime("14:30", "h:mm")
+  **     parseTime("2:30pm", "k:mma")
+  **     parseTime("2:30:00pm", "k:mm:ssa")
   @Api @Axon static Time? parseTime(Str val, Str pattern := "hh:mm:SS", Bool checked := true)
   {
     Time.fromLocale(val, pattern, checked)
@@ -2465,48 +2540,49 @@ const class AxonFuncs
 
   ** Parse a Str into a DateTime.  If the string cannot be parsed into a valid
   ** DateTime and checked is false then return null, otherwise throw ParseErr.
-  ** See `sys::DateTime.toLocale` for pattern:
+  ** See [sys::DateTime.toLocale] for pattern:
   **
-  **   YY     Two digit year             07
-  **   YYYY   Four digit year            2007
-  **   M      One/two digit month        6, 11
-  **   MM     Two digit month            06, 11
-  **   MMM    Three letter abbr month    Jun, Nov
-  **   MMMM   Full month                 June, November
-  **   D      One/two digit day          5, 28
-  **   DD     Two digit day              05, 28
-  **   DDD    Day with suffix            1st, 2nd, 3rd, 24th
-  **   WWW    Three letter abbr weekday  Tue
-  **   WWWW   Full weekday               Tuesday
-  **   V      One/two digit week of year 1,52
-  **   VV     Two digit week of year     01,52
-  **   VVV    Week of year with suffix   1st,52nd
-  **   h      One digit 24 hour (0-23)   3, 22
-  **   hh     Two digit 24 hour (0-23)   03, 22
-  **   k      One digit 12 hour (1-12)   3, 11
-  **   kk     Two digit 12 hour (1-12)   03, 11
-  **   m      One digit minutes (0-59)   4, 45
-  **   mm     Two digit minutes (0-59)   04, 45
-  **   s      One digit seconds (0-59)   4, 45
-  **   ss     Two digit seconds (0-59)   04, 45
-  **   SS     Optional seconds (only if non-zero)
-  **   f*     Fractional secs trailing zeros
-  **   F*     Fractional secs no trailing zeros
-  **   a      Lower case a/p for am/pm   a, p
-  **   aa     Lower case am/pm           am, pm
-  **   A      Upper case A/P for am/pm   A, P
-  **   AA     Upper case AM/PM           AM, PM
-  **   z      Time zone offset           Z, +03:00 (ISO 8601, XML Schema)
-  **   zzz    Time zone abbr             EST, EDT
-  **   zzzz   Time zone name             New_York
-  **   'xyz'  Literal characters
-  **   ''     Single quote literal
+  **     YY     Two digit year             07
+  **     YYYY   Four digit year            2007
+  **     M      One/two digit month        6, 11
+  **     MM     Two digit month            06, 11
+  **     MMM    Three letter abbr month    Jun, Nov
+  **     MMMM   Full month                 June, November
+  **     D      One/two digit day          5, 28
+  **     DD     Two digit day              05, 28
+  **     DDD    Day with suffix            1st, 2nd, 3rd, 24th
+  **     WWW    Three letter abbr weekday  Tue
+  **     WWWW   Full weekday               Tuesday
+  **     V      One/two digit week of year 1,52
+  **     VV     Two digit week of year     01,52
+  **     VVV    Week of year with suffix   1st,52nd
+  **     h      One digit 24 hour (0-23)   3, 22
+  **     hh     Two digit 24 hour (0-23)   03, 22
+  **     k      One digit 12 hour (1-12)   3, 11
+  **     kk     Two digit 12 hour (1-12)   03, 11
+  **     m      One digit minutes (0-59)   4, 45
+  **     mm     Two digit minutes (0-59)   04, 45
+  **     s      One digit seconds (0-59)   4, 45
+  **     ss     Two digit seconds (0-59)   04, 45
+  **     SS     Optional seconds (only if non-zero)
+  **     f*     Fractional secs trailing zeros
+  **     F*     Fractional secs no trailing zeros
+  **     a      Lower case a/p for am/pm   a, p
+  **     aa     Lower case am/pm           am, pm
+  **     A      Upper case A/P for am/pm   A, P
+  **     AA     Upper case AM/PM           AM, PM
+  **     z      Time zone offset           Z, +03:00 (ISO 8601, XML Schema)
+  **     zzz    Time zone abbr             EST, EDT
+  **     zzzz   Time zone name             New_York
+  **     'xyz'  Literal characters
+  **     ''     Single quote literal
   **
   ** Examples:
-  **   parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm")
-  **   parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm", "Paris")
-  **   parseDateTime("7/2/23 2:30pm", "D/M/YY k:mma")
-  **   parseDateTime("2023-02-07T14:30:00", "YYYY-MM-DD'T'hh:mm:ss")
+  **
+  **     parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm")
+  **     parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm", "Paris")
+  **     parseDateTime("7/2/23 2:30pm", "D/M/YY k:mma")
+  **     parseDateTime("2023-02-07T14:30:00", "YYYY-MM-DD'T'hh:mm:ss")
   @Api @Axon static DateTime? parseDateTime(Str val, Str pattern := "YYYY-MM-DD'T'hh:mm:SS.FFFFFFFFFz zzzz", Str tz := TimeZone.cur.name, Bool checked := true)
   {
     DateTime.fromLocale(val, pattern, TimeZone.fromStr(tz), checked)
@@ -2517,8 +2593,9 @@ const class AxonFuncs
   ** string has a leading "@", then it is stripped off before parsing.
   **
   ** Examples:
-  **   parseRef("abc-123")
-  **   parseRef("@abc-123")
+  **
+  **     parseRef("abc-123")
+  **     parseRef("@abc-123")
   @Api @Axon static Ref? parseRef(Str val, Obj? dis := null, Bool checked := true)
   {
     if (dis is Bool) return Ref.fromStr(val, dis) // signature for 3.0.13 and earlier
@@ -2539,54 +2616,58 @@ const class AxonFuncs
   ** The string must *not* include a leading "^".
   **
   ** Examples:
-  **   parseSymbol("func:now")
+  **
+  **     parseSymbol("func:now")
   @Api @Axon static Symbol? parseSymbol(Str val, Bool checked := true)
   {
     Symbol.fromStr(val, checked)
   }
 
-  ** Parse a filter string into a [Filter]`haystack::Filter` instance.
-  ** The resulting filter can then be used with `read()`, `readAll()`,
-  ** `filter()`, or `filterToFunc()`.
+  ** Parse a filter string into a [Filter](haystack::Filter) instance.
+  ** The resulting filter can then be used with [read()], [readAll()],
+  ** [filter()], or [filterToFunc()].
   **
   ** Example:
-  **   str: "point and kw"
-  **   readAll(parseFilter(str))
+  **
+  **     str: "point and kw"
+  **     readAll(parseFilter(str))
   @Api @Axon static Obj? parseFilter(Str val, Bool checked := true)
   {
     Filter.fromStr(val, checked)
   }
 
-  ** Parse a search string into a [Filter]`haystack::Filter` instance.
-  ** The resulting filter can then be used with `read()`, `readAll()`,
-  ** `filter()`, or `filterToFunc()`.
+  ** Parse a search string into a [Filter](haystack::Filter) instance.
+  ** The resulting filter can then be used with [read()], [readAll()],
+  ** [filter()], or [filterToFunc()].
   **
   ** The search string is one of the following free patterns:
-  **  - '*<glob>*' case insensitive glob with ? and * wildcards (default)
-  **  - 're:<regex>' regular expression
-  **  - 'f:<filter>' haystack filter
+  **  - `*<glob>*` case insensitive glob with ? and * wildcards (default)
+  **  - `re:<regex>` regular expression
+  **  - `f:<filter>` haystack filter
   **
-  ** See `docFresco::Nav#searching` for additional details on search syntax.
+  ** See [docFresco::Nav#searching] for additional details on search syntax.
   **
   ** Examples:
-  **   readAll(parseSearch("RTU-1"))
-  **   readAll(point).filter(parseSearch("RTU* Fan"))
+  **
+  **     readAll(parseSearch("RTU-1"))
+  **     readAll(point).filter(parseSearch("RTU* Fan"))
   @Api @Axon static Filter parseSearch(Str val)
   {
     Filter.search(val)
   }
 
-  ** Convert a [filter]`docHaystack::Filters` expression to a function
-  ** which maybe used with `findAll` or `find`.  The returned function
+  ** Convert a [filter](docHaystack::Filters) expression to a function
+  ** which maybe used with [findAll] or [find].  The returned function
   ** accepts one Dict parameter and returns true/false if the
-  ** Dict is matched by the filter.  Also see `filter()` and `parseFilter()`.
+  ** Dict is matched by the filter.  Also see [filter()] and [parseFilter()].
   **
   ** Examples:
-  **   // filter for dicts with 'equip' tag
-  **   list.findAll(filterToFunc(equip))
   **
-  **   // filter rows with an 'area' tag over 10,000
-  **   grid.findAll(filterToFunc(area > 10_000))
+  **     // filter for dicts with 'equip' tag
+  **     list.findAll(filterToFunc(equip))
+  **
+  **     // filter rows with an 'area' tag over 10,000
+  **     grid.findAll(filterToFunc(area > 10_000))
   @Api @Axon static Fn filterToFunc(Expr filterExpr)
   {
     cx := AxonContext.curAxon
@@ -2599,14 +2680,15 @@ const class AxonFuncs
   ** or raise exception based on checked flag.
   **
   ** Examples:
-  **   parseUnit("%")
-  **   parseUnit("percent")
+  **
+  **     parseUnit("%")
+  **     parseUnit("percent")
   @Api @Axon static Str? parseUnit(Str val, Bool checked := true)
   {
     return Unit.fromStr(val, checked)?.symbol
   }
 
-  ** Construct decoded `haystack::XStr` instance
+  ** Construct decoded [haystack::XStr] instance
   @Api @Axon static Obj xstr(Str type, Str val) { XStr.decode(type, val) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2614,66 +2696,73 @@ const class AxonFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Convert a char number or str to ASCII upper case.
-  ** Also see `lower()` and `capitalize()`.
+  ** Also see [lower()] and [capitalize()].
   **
   ** Examples:
-  **   upper("cat")      >> "CAT"
-  **   upper("Cat")      >> "CAT"
-  **   upper(97).toChar  >> "A"
+  **
+  **     upper("cat")      >> "CAT"
+  **     upper("Cat")      >> "CAT"
+  **     upper(97).toChar  >> "A"
   **
   @Api @Axon static Obj? upper(Obj val) { val->upper }
 
   ** Convert a char number or str to ASCII lower case.
-  ** Also see `upper()` and `decapitalize()`.
+  ** Also see [upper()] and [decapitalize()].
   **
   ** Examples:
-  **   lower("CAT")      >>  "cat"
-  **   lower("Cat")      >>  "cat"
-  **   lower(65).toChar  >>  "a"
+  **
+  **     lower("CAT")      >>  "cat"
+  **     lower("Cat")      >>  "cat"
+  **     lower(65).toChar  >>  "a"
   @Api @Axon static Obj? lower(Obj val) { val->lower }
 
   ** Is number is whitespace char: space \t \n \r \f
   **
   ** Examples:
-  **   isSpace("x".get(0))   >>  false
-  **   isSpace(" ".get(0))   >>  true
-  **   isSpace("\n".get(0))  >>  true
+  **
+  **     isSpace("x".get(0))   >>  false
+  **     isSpace(" ".get(0))   >>  true
+  **     isSpace("\n".get(0))  >>  true
   @Api @Axon static Bool isSpace(Number num) { num.toInt.isSpace }
 
   ** Is number an ASCII alpha char: isUpper||isLower
   **
   ** Examples:
-  **   isAlpha("A".get(0))  >>  true
-  **   isAlpha("a".get(0))  >>  true
-  **   isAlpha("8".get(0))  >>  false
-  **   isAlpha(" ".get(0))  >>  false
-  **   isAlpha("Ã".get(0))  >>  false
+  **
+  **     isAlpha("A".get(0))  >>  true
+  **     isAlpha("a".get(0))  >>  true
+  **     isAlpha("8".get(0))  >>  false
+  **     isAlpha(" ".get(0))  >>  false
+  **     isAlpha("Ã".get(0))  >>  false
   @Api @Axon static Bool isAlpha(Number num) { num.toInt.isAlpha }
 
   ** Is number an ASCII alpha-numeric char: isAlpha||isDigit
   **
   ** Examples:
-  **   isAlphaNum("A".get(0))  >>  true
-  **   isAlphaNum("a".get(0))  >>  true
-  **   isAlphaNum("8".get(0))  >>  true
-  **   isAlphaNum(" ".get(0))  >>  false
-  **   isAlphaNum("Ã".get(0))  >>  false
+  **
+  **     isAlphaNum("A".get(0))  >>  true
+  **     isAlphaNum("a".get(0))  >>  true
+  **     isAlphaNum("8".get(0))  >>  true
+  **     isAlphaNum(" ".get(0))  >>  false
+  **     isAlphaNum("Ã".get(0))  >>  false
   @Api @Axon static Bool isAlphaNum(Number num) { num.toInt.isAlphaNum }
 
   ** Is number an ASCII uppercase alphabetic char: A-Z
   **
   ** Examples:
-  **   isUpper("A".get(0))  >>  true
-  **   isUpper("a".get(0))  >>  false
-  **   isUpper("5".get(0))  >>  false
+  **
+  **     isUpper("A".get(0))  >>  true
+  **     isUpper("a".get(0))  >>  false
+  **     isUpper("5".get(0))  >>  false
   @Api @Axon static Bool isUpper(Number num) { num.toInt.isUpper }
 
   ** Is number an ASCII lowercase alphabetic char: a-z
   **
   ** Examples:
-  **   isUpper("a".get(0))  >>  true
-  **   isUpper("A".get(0))  >>  false
-  **   isUpper("5".get(0))  >>  false
+  **
+  **     isUpper("a".get(0))  >>  true
+  **     isUpper("A".get(0))  >>  false
+  **     isUpper("5".get(0))  >>  false
   @Api @Axon static Bool isLower(Number num) { num.toInt.isLower }
 
   ** Is number a digit in the specified radix.  A decimal radix of
@@ -2681,15 +2770,17 @@ const class AxonFuncs
   ** for a-f and A-F.
   **
   ** Examples:
-  **   isDigit("5".get(0))      >>  true
-  **   isDigit("A".get(0))      >>  false
-  **   isDigit("A".get(0), 16)  >>  true
+  **
+  **     isDigit("5".get(0))      >>  true
+  **     isDigit("A".get(0))      >>  false
+  **     isDigit("A".get(0), 16)  >>  true
   @Api @Axon static Bool isDigit(Number num, Number radix := Number.ten) { num.toInt.isDigit(radix.toInt) }
 
   ** Convert a unicode char number into a single char string
   **
   ** Examples:
-  **   toChar(65)   >>  "A"
+  **
+  **     toChar(65)   >>  "A"
   @Api @Axon static Str toChar(Number num) { num.toInt.toChar }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2697,18 +2788,19 @@ const class AxonFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Split a string by the given separator and trim whitespace.
-  ** If 'sep' is null then split by any whitespace char; otherwise
-  ** it must be exactly one char long.  See `sys::Str.split` for detailed
+  ** If `sep` is null then split by any whitespace char; otherwise
+  ** it must be exactly one char long.  See [sys::Str.split] for detailed
   ** behavior.
   **
   ** Options:
   **   - noTrim: disable auto-trim of whitespace from start and end of tokens
   **
   ** Examples:
-  **   "a b c".split                   >>  ["a", "b", "c"]
-  **   "a,b,c".split(",")              >>  ["a", "b", "c"]
-  **   "a, b, c".split(",")            >>  ["a", "b", "c"]
-  **   "a, b, c".split(",", {noTrim})  >>  ["a", " b", " c"]
+  **
+  **     "a b c".split                   >>  ["a", "b", "c"]
+  **     "a,b,c".split(",")              >>  ["a", "b", "c"]
+  **     "a, b, c".split(",")            >>  ["a", "b", "c"]
+  **     "a, b, c".split(",", {noTrim})  >>  ["a", " b", " c"]
   @Api @Axon static Obj? split(Str val, Str? sep := null, Dict? opts := null)
   {
     if (sep == null) return val.split
@@ -2720,112 +2812,125 @@ const class AxonFuncs
 
   ** Return this string with the first character converted to
   ** uppercase.  The case conversion is for ASCII only.
-  ** Also see `decapitalize()` and `upper()`.
+  ** Also see [decapitalize()] and [upper()].
   **
   ** Examples:
-  **   capitalize("apple")  >>  "Apple"
+  **
+  **     capitalize("apple")  >>  "Apple"
   @Api @Axon static Str capitalize(Str val) { val.capitalize }
 
   ** Return this string with the first character converted to
   ** lowercase.  The case conversion is for ASCII only.
-  ** Also see `capitalize()` and `lower()`.
+  ** Also see [capitalize()] and [lower()].
   **
   ** Examples:
-  **   decapitalize("Apple") >> "apple"
+  **
+  **     decapitalize("Apple") >> "apple"
   @Api @Axon static Str decapitalize(Str val) { val.decapitalize }
 
   ** Trim whitespace from the beginning and end of the string.  For the purposes
   ** of this function, whitespace is defined as any character equal to or less
-  ** than the 0x20 space character (including ' ', '\r', '\n', and '\t').
+  ** than the 0x20 space character (including ` `, `\r`, `\n`, and `\t`).
   **
   ** Examples:
-  **   " abc ".trim   >>  "abc"
-  **   "abc".trim     >>  "abc"
+  **
+  **     " abc ".trim   >>  "abc"
+  **     "abc".trim     >>  "abc"
   @Api @Axon static Str trim(Str val) { val.trim }
 
   ** Trim whitespace only from the beginning of the string.
-  ** See `trim` for definition of whitespace.
+  ** See [trim] for definition of whitespace.
   **
   ** Examples:
-  **   " abc ".trimStart  >>  "abc "
-  **   "abc".trimStart    >>  "abc"
+  **
+  **     " abc ".trimStart  >>  "abc "
+  **     "abc".trimStart    >>  "abc"
   @Api @Axon static Str trimStart(Str val) { val.trimStart }
 
   ** Trim whitespace only from the end of the string.
-  ** See `trim` for definition of whitespace.
+  ** See [trim] for definition of whitespace.
   **
   ** Examples:
-  **   " abc ".trimEnd  >>  " abc"
-  **   "abc".trimEnd    >>  "abc"
+  **
+  **     " abc ".trimEnd  >>  " abc"
+  **     "abc".trimEnd    >>  "abc"
   @Api @Axon static Str trimEnd(Str val)  { val.trimEnd }
 
   ** Return if Str starts with the specified Str.
   **
   ** Examples:
-  **   "hi there".startsWith("hi")   >>  true
-  **   "hi there".startsWith("foo")  >>  false
+  **
+  **     "hi there".startsWith("hi")   >>  true
+  **     "hi there".startsWith("foo")  >>  false
   @Api @Axon static Bool startsWith(Str val, Str sub) { val.startsWith(sub) }
 
   ** Return if Str ends with the specified Str.
   **
   ** Examples:
-  **   "hi there".endsWith("there")   >>  true
-  **   "hi there".endsWith("hi")      >>  false
+  **
+  **     "hi there".endsWith("there")   >>  true
+  **     "hi there".endsWith("hi")      >>  false
   @Api @Axon static Bool endsWith(Str val, Str sub) { val.endsWith(sub) }
 
-  ** String replace of all occurrences of 'from' with 'to'.
+  ** String replace of all occurrences of `from` with `to`.
   ** All three parameters must be strings.
   **
   ** Examples:
-  **   "hello".replace("hell", "t")  >>  "to"
-  **   "aababa".replace("ab", "-")   >>  "a--a"
+  **
+  **     "hello".replace("hell", "t")  >>  "to"
+  **     "aababa".replace("ab", "-")   >>  "a--a"
   @Api @Axon static Str replace(Str val, Str from, Str to) { val.replace(from, to) }
 
   ** Pad string to the left.  If size is less than width, then
   ** add the given char to the left to achieve the specified width.
   **
   ** Examples:
-  **   "3".padl(3, "0")    >>  "003"
-  **   "123".padl(2, "0")  >>  "123"
+  **
+  **     "3".padl(3, "0")    >>  "003"
+  **     "123".padl(2, "0")  >>  "123"
   @Api @Axon static Str padl(Str val, Number width, Str char := " ") { val.padl(width.toInt, char[0]) }
 
   ** Pad string to the right.  If size is less than width, then add
   ** the given char to the left to acheive the specified with.
   **
   ** Examples:
-  **   "xyz".padr(2, ".")  >>  "xyz"
-  **   "xyz".padr(5, "-")  >>  "xyz--"
+  **
+  **     "xyz".padr(2, ".")  >>  "xyz"
+  **     "xyz".padr(5, "-")  >>  "xyz--"
   @Api @Axon static Str padr(Str val, Number width, Str char := " ") { val.padr(width.toInt, char[0]) }
 
   ** Concatenate a list of items into a string.
   **
   ** Examples:
-  **   [1, 2, 3].concat       >>  "123"
-  **   [1, 2, 3].concat(",")  >>  "1,2,3"
+  **
+  **     [1, 2, 3].concat       >>  "123"
+  **     [1, 2, 3].concat(",")  >>  "1,2,3"
   @Api @Axon static Str concat(List list, Str sep := "") { list.join(sep) }
 
 //////////////////////////////////////////////////////////////////////////
 // Regex
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return if regular expression matches entire region of 's'.
-  ** See [AxonUsage]`docHaxall::AxonUsage#regex`.
+  ** Return if regular expression matches entire region of `s`.
+  ** See [AxonUsage](docHaxall::AxonUsage#regex-examples).
   **
   ** Examples:
-  **   reMatches(r"\d+", "x123y")  >>  false
-  **   reMatches(r"\d+", "123")    >>  true
+  **
+  **     reMatches(r"\d+", "x123y")  >>  false
+  **     reMatches(r"\d+", "123")    >>  true
   @Api @Axon static Bool reMatches(Obj regex, Str s)
   {
     AxonContext.curAxon.toRegex(regex).matches(s)
   }
 
-  ** Find the first match of regular expression in 's'
+  ** Find the first match of regular expression in `s`
   ** or return null if no matches.
-  ** See [AxonUsage]`docHaxall::AxonUsage#regex`.
+  ** See [AxonUsage](docHaxall::AxonUsage#regex-examples).
   **
   ** Examples:
-  **   reFind(r"\d+", "x123y")  >>  "123"
-  **   reFind(r"\d+", "xyz")    >>  null
+  **
+  **     reFind(r"\d+", "x123y")  >>  "123"
+  **     reFind(r"\d+", "xyz")    >>  null
   @Api @Axon static Str? reFind(Obj regex, Str s)
   {
     m := AxonContext.curAxon.toRegex(regex).matcher(s)
@@ -2833,14 +2938,15 @@ const class AxonFuncs
     return m.group
   }
 
-  ** Find all matches of the regular expression in 's'.
+  ** Find all matches of the regular expression in `s`.
   ** Returns an empty list of there are no matches.
   **
   ** Examples:
-  **   reFindAll(r"-?\d+\.?\d*", "foo, 123, bar, 456.78, -9, baz")
-  **     >> ["123", "456.78", "-9"]
-  **   reFindAll(r"\d+", "foo, bar, baz")
-  **     >> [,]
+  **
+  **     reFindAll(r"-?\d+\.?\d*", "foo, 123, bar, 456.78, -9, baz")
+  **       >> ["123", "456.78", "-9"]
+  **     reFindAll(r"\d+", "foo, bar, baz")
+  **       >> [,]
   @Api @Axon static Str[] reFindAll(Obj regex, Str s)
   {
     m   := AxonContext.curAxon.toRegex(regex).matcher(s)
@@ -2850,15 +2956,16 @@ const class AxonFuncs
   }
 
   ** Return a list of the substrings captured by matching the given
-  ** regular operation against 's'.  Return null if no matches.  The
+  ** regular operation against `s`.  Return null if no matches.  The
   ** first item in the list is the entire match, and each additional
-  ** item is matched to '()' arguments in the regex pattern.
-  ** See [AxonUsage]`docHaxall::AxonUsage#regex`.
+  ** item is matched to `()` arguments in the regex pattern.
+  ** See [AxonUsage](docHaxall::AxonUsage#regex-examples).
   **
   ** Examples:
-  **   re: r"(RTU|AHU)-(\d+)"
-  **   reGroups(re, "AHU")    >> null
-  **   reGroups(re, "AHU-7")  >> ["AHU-7", "AHU", "7"]
+  **
+  **     re: r"(RTU|AHU)-(\d+)"
+  **     reGroups(re, "AHU")    >> null
+  **     reGroups(re, "AHU-7")  >> ["AHU-7", "AHU", "7"]
   @Api @Axon static Obj? reGroups(Obj regex, Str s)
   {
     m := AxonContext.curAxon.toRegex(regex).matcher(s)
@@ -2905,29 +3012,31 @@ const class AxonFuncs
   ** Return if the query portion of the a URI after question mark
   @Api @Axon static Str? uriQueryStr(Uri val) { val.queryStr }
 
-  ** Adding trailing slash to the URI.  See `sys::Uri.plusSlash`
+  ** Adding trailing slash to the URI.  See [sys::Uri.plusSlash]
   @Api @Axon static Uri uriPlusSlash(Uri val) { val.plusSlash }
 
   ** Return the percent encoded string for this Uri according to RFC 3986.
   ** Each section of the Uri is UTF-8 encoded into octects and then percent
   ** encoded according to its valid character set. Spaces in the query
-  ** section are encoded as '+'.
+  ** section are encoded as `+`.
   **
   ** Examples:
-  **   `foo bar`.uriEncode  >>  "foo%20bar"
+  **
+  **     `foo bar`.uriEncode  >>  "foo%20bar"
   @Api @Axon static Str uriEncode(Uri val) { val.encode }
 
   ** Parse an ASCII percent encoded string into a Uri according to RFC 3986.
   ** All %HH escape sequences are translated into octects, and then the octect
-  ** sequence is UTF-8 decoded into a Str. The '+' character in the query section
+  ** sequence is UTF-8 decoded into a Str. The `+` character in the query section
   ** is unescaped into a space. If checked if true then throw ParseErr if the
   ** string is a malformed URI or if not encoded correctly, otherwise return
-  ** null.  Use `parseUri` to parse from standard form.  See `sys::Uri` for
+  ** null.  Use [parseUri] to parse from standard form.  See [sys::Uri] for
   ** a detailed discussion on standard and encoded forms.
   **
   ** Examples:
-  **   "foo bar".parseUri     >>  `foo bar`
-  **   "foo%20bar".uriDecode  >>  `foo bar`
+  **
+  **     "foo bar".parseUri     >>  `foo bar`
+  **     "foo%20bar".uriDecode  >>  `foo bar`
   @Api @Axon static Uri uriDecode(Str val, Bool checked := true) { Uri.decode(val, checked) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2937,7 +3046,7 @@ const class AxonFuncs
   ** Generate a new unique Ref identifier
   @Api @Axon static Ref refGen() { Ref.gen }
 
-  ** Given a ref return `xeto::Ref.dis`
+  ** Given a ref return [xeto::Ref.dis]
   @Api @Axon static Str refDis(Ref ref) { ref.dis }
 
   ** Given an absolute ref, return its project name.  If the ref
@@ -2945,9 +3054,10 @@ const class AxonFuncs
   ** return null based on the checked flag:
   **
   ** Examples:
-  **    refProjName(@p:demo:r:xxx)   >>  "demo"
-  **    refProjName(@r:xxx)          >>  raises exception
-  **    refProjName(@r:xxx, false)   >>  null
+  **
+  **      refProjName(@p:demo:r:xxx)   >>  "demo"
+  **      refProjName(@r:xxx)          >>  raises exception
+  **      refProjName(@r:xxx, false)   >>  null
   @Api @Axon static Str? refProjName(Ref ref, Bool checked := true)
   {
     if (ref.isProjRec) return ref.segs[0].body
@@ -2980,11 +3090,11 @@ const class AxonFuncs
   @NoDoc @Api @Axon
   static Obj? noop() { "noop" }
 
-  ** Write the str represenation of 'x' to stdout and return 'x'.
+  ** Write the str represenation of `x` to stdout and return `x`.
   @Api @Axon { admin = true }
   static Obj? _echo(Obj? x) { s := x?.toStr ?: "null"; echo(s); return s }
 
-  ** Dump respresentation of 'x' standard out.  Return 'x' as result.
+  ** Dump respresentation of `x` standard out.  Return `x` as result.
   @NoDoc @Api @Axon { admin = true }
   static Obj? dump(Obj? x)
   {
@@ -2996,11 +3106,12 @@ const class AxonFuncs
 
   ** Evaluate an Axon string expression.  The evaluation happens in a new
   ** scope and does not have access to the current scope of local variables.
-  ** Also see `call()` and `toAxonCode()`.
+  ** Also see [call()] and [toAxonCode()].
   **
   ** Examples:
-  **   eval("2 + 2")
-  **   eval("now()")
+  **
+  **     eval("2 + 2")
+  **     eval("now()")
   @Api @Axon
   static Obj? eval(Str expr)
   {
@@ -3015,10 +3126,11 @@ const class AxonFuncs
   ** use it with a string from a non-trusted origin.
   **
   ** Examples:
-  **   evalToFunc("now").call
-  **   evalToFunc("(x, y)=>x+y").call([3, 4])
-  **   (evalToFunc("(x, y)=>x+y"))(3, 4)
-  **   evalToFunc("""replace(_, "x", "_")""").call(["xyz"])
+  **
+  **     evalToFunc("now").call
+  **     evalToFunc("(x, y)=>x+y").call([3, 4])
+  **     (evalToFunc("(x, y)=>x+y"))(3, 4)
+  **     evalToFunc("""replace(_, "x", "_")""").call(["xyz"])
   @Api @Axon
   static Fn evalToFunc(Str expr)
   {
@@ -3036,12 +3148,12 @@ const class AxonFuncs
   ** may be a Str name or an expression that evaluates to a function.
   ** Args is a positional list for each argument.  Examples:
   **
-  **   call("today")
-  **   call("replace", ["hi there", "hi", "hello"])
-  **   call("parseDate", ["2021-03-15"])
-  **   call("parseDate", ["15-Mar-21", "DD-MMM-YY"])
-  **   call(parseDate, ["15-Mar-21", "DD-MMM-YY"])
-  **   call(parseDate(_, "DD-MMM-YY"), ["15-Mar-21"])
+  **     call("today")
+  **     call("replace", ["hi there", "hi", "hello"])
+  **     call("parseDate", ["2021-03-15"])
+  **     call("parseDate", ["15-Mar-21", "DD-MMM-YY"])
+  **     call(parseDate, ["15-Mar-21", "DD-MMM-YY"])
+  **     call(parseDate(_, "DD-MMM-YY"), ["15-Mar-21"])
   @Api @Axon
   static Obj? call(Obj func, Obj?[]? args := null)
   {
@@ -3058,8 +3170,8 @@ const class AxonFuncs
   ** indicate an actual null argument or a fallback to a default value.
   ** So any arguments are null, the pass a value for argument. Examples:
   **
-  **   callByName("parseDate", {val:"01-02-03", pattern:"DD-MM-YY"})
-  **   callByName(parseDate, {val:"01-02-03", pattern:"DD-MM-YY"})
+  **     callByName("parseDate", {val:"01-02-03", pattern:"DD-MM-YY"})
+  **     callByName(parseDate, {val:"01-02-03", pattern:"DD-MM-YY"})
   **
   ** *Note that parameter names might change between releases.*
   @Api @Axon
@@ -3086,19 +3198,19 @@ const class AxonFuncs
   ** Convert a scalar, list, or dict value to its Axon code representation.
   ** Examples:
   **
-  **   toAxonCode(123)        =>   "123"
-  **   toAxonCode([1, 2, 3])  =>   "[1, 2, 3]"
-  **   toAxonCode({x:123})    =>   "{x:123}"
+  **     toAxonCode(123)        =>   "123"
+  **     toAxonCode([1, 2, 3])  =>   "[1, 2, 3]"
+  **     toAxonCode({x:123})    =>   "{x:123}"
   @Api @Axon static Obj? toAxonCode(Obj? val) { Etc.toAxon(val) }
 
   ** Parse Axon source code into an abstract syntax tree modeled as a
-  ** tree of dicts.  Each node has a 'type' tag which specified the node type.
+  ** tree of dicts.  Each node has a `type` tag which specified the node type.
   ** Common AST shapes:
   **
-  **    123    =>  {type:"literal", val:123}
-  **    a      =>  {type:"var", name:"a"}
-  **    not a  =>  {type:"not", operand:{type:"var", name:"a"}}
-  **    a + b  =>  {type:"add", lhs:{type:"var", name:"a"}, rhs:{type:"var", name:"b"}}
+  **      123    =>  {type:"literal", val:123}
+  **      a      =>  {type:"var", name:"a"}
+  **      not a  =>  {type:"not", operand:{type:"var", name:"a"}}
+  **      a + b  =>  {type:"add", lhs:{type:"var", name:"a"}, rhs:{type:"var", name:"b"}}
   **
   ** NOTE: the keys and structure of the AST is subject to change over time.
   @Api @Axon static Dict parseAst(Str src)
@@ -3107,7 +3219,7 @@ const class AxonFuncs
   }
 
   ** Dump current context stack to standard out.
-  ** Pass '{vars}' for options to include variables in scope.
+  ** Pass `{vars}` for options to include variables in scope.
   @NoDoc @Api @Axon { admin = true }
   static Obj? trace(Dict? opts := null)
   {

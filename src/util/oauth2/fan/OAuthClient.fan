@@ -30,7 +30,7 @@ const class OAuthClient
 
   ** Create an OAuthClient that supports token refresh.
   ** The tokenUri is the endpoint to use to refresh the token.
-  ** The params must at least include the 'client_id' parameter.
+  ** The params must at least include the `client_id` parameter.
   new makeRefreshable(AccessToken token, Uri tokenUri, Str:Str params)
   {
     this.tokenRef.val  = token
@@ -60,15 +60,15 @@ const class OAuthClient
   ** also pass additional headers to include with the request. This method will handle
   ** OAuth token refresh.
   **
-  ** If the 'req' parameter is non-null, it will be first be converted to a File
+  ** If the `req` parameter is non-null, it will be first be converted to a File
   ** as described below and then written as the request body (see WebClient.writeFile).
   **  - File: no conversion done, file is written as-is
   **  - Buf: converted to a File using Buf.toFile. The Content-Type will be
   **   'application/octet-stream'.
-  **  - Map: encoded to JSON and written as a File with '.json' ext.
+  **  - Map: encoded to JSON and written as a File with `.json` ext.
   **
-  ** Returns a WebClient in a state where `web::WebClient.readRes` has been called and
-  ** the `web::WebClient.resIn` is available for reading.
+  ** Returns a WebClient in a state where [web::WebClient.readRes] has been called and
+  ** the [web::WebClient.resIn] is available for reading.
   WebClient call(Str method, Uri uri, Obj? req := null, [Str:Str] headers := emptyHeaders)
   {
     WebClient? c := null

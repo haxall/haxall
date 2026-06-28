@@ -21,7 +21,7 @@ using haystack
 }
 
 **
-**JSON-LD Writer
+** JSON-LD Writer
 **
 @NoDoc @Js class JsonLdWriter : RdfWriter
 {

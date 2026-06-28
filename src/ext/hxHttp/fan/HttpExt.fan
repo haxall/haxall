@@ -33,7 +33,7 @@ const class HttpExt : ExtObj, IHttpExt
   const AtomicRef rootRef := AtomicRef(HttpRootMod(this))
 
   ** Public HTTP or HTTPS URI of this host.  This is always
-  ** an absolute URI such 'https://acme.com/'
+  ** an absolute URI such `https://acme.com/`
   override Uri siteUri()
   {
     settings := this.settings
@@ -132,7 +132,7 @@ const class HttpExt : ExtObj, IHttpExt
 
   ** Dispatch a well-known route. Return true if handled.
   **
-  ** '/.well-known/{registeredName}[/path]'
+  ** `/.well-known/{registeredName}[/path]`
   private Bool routeWellKnown(Str routeName, WebReq req, WebRes res)
   {
     if (routeName != ".well-known") return false

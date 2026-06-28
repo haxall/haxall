@@ -61,7 +61,7 @@ const class HxdUserUtil
     db.passwords.set(rec.id.id, secret)
   }
 
-  ** Convert parameters message to 'userAuth' Dict
+  ** Convert parameters message to `userAuth` Dict
   static Dict authMsgToDict(AuthMsg msg)
   {
     userAuth := Str:Obj["scheme": msg.scheme]
@@ -73,7 +73,7 @@ const class HxdUserUtil
     return Etc.makeDict(userAuth)
   }
 
-  ** Convert 'userAuth' Dict to parameters message
+  ** Convert `userAuth` Dict to parameters message
   static AuthMsg? dictToAuthMsg(Dict userAuth, Bool checked := true)
   {
     Str? scheme := null

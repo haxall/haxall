@@ -15,18 +15,18 @@ using haystack
 **
 ** GithubRepo is a RemoteRepo backed by a public GitHub repository.
 ** The configured URI is expected to be a GitHub repo URL in the form
-** `https://github.com/{owner}/{repo}`.
+** [https://github.com/{owner}/{repo}].
 **
 ** The repo index is built using the GitHub GraphQL API which requires
 ** authentication via a personal access token resolved from
-** `Env.cur.vars["GITHUB_TOKEN"]` (set in fan.props).
+** [Env.cur.vars["GITHUB_TOKEN"]] (set in fan.props).
 **
 ** Caching strategy uses two caches:
-**   - `manifestRef` (AtomicRef): `Str:Version[]` map of lib names to
+**   - [manifestRef] (AtomicRef): [Str:Version[]] map of lib names to
 **     all available versions sorted latest to oldest.  Built by scanning
 **     all release tags.
-**   - `libCache` (ConcurrentMap): individual `RemoteLibVersion` instances
-**     keyed by `"$name-$version"`.  Lazily loaded with full depends
+**   - [libCache] (ConcurrentMap): individual [RemoteLibVersion] instances
+**     keyed by ["$name-$version"].  Lazily loaded with full depends
 **     metadata when a specific version is requested.
 **
 const class GithubRepo : MRemoteRepo
@@ -369,7 +369,7 @@ const class GithubRepo : MRemoteRepo
   }
 
   ** List release tag names from GitHub, newest first.
-  ** Only includes tags matching the `vX.Y.Z` pattern.
+  ** Only includes tags matching the [vX.Y.Z] pattern.
   private Str[] listReleaseTags()
   {
     res := graphql(

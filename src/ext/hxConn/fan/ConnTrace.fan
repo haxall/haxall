@@ -95,7 +95,7 @@ const class ConnTrace : Actor
 
   ** Trace a protocol specific request message.
   ** The arg must be a Str or Buf.  If arg is a Buf then you must
-  ** call 'toImmutable' on it first to ensure backing array is not cleared.
+  ** call `toImmutable` on it first to ensure backing array is not cleared.
   Void req(Str msg, Obj arg)
   {
     write("req", msg, arg)
@@ -103,7 +103,7 @@ const class ConnTrace : Actor
 
   ** Trace a protocol specific response message.
   ** The arg must be a Str or Buf.  If arg is a Buf then you must
-  ** call 'toImmutable' on it first to ensure backing array is not cleared.
+  ** call `toImmutable` on it first to ensure backing array is not cleared.
   Void res(Str msg, Obj arg)
   {
     write("res", msg, arg)
@@ -111,7 +111,7 @@ const class ConnTrace : Actor
 
   ** Trace a protocol specific unsolicited event message.
   ** The arg must be a Str or Buf.  If arg is a Buf then you must
-  ** call 'toImmutable' on it first to ensure backing array is not cleared.
+  ** call `toImmutable` on it first to ensure backing array is not cleared.
   Void event(Str msg, Obj arg)
   {
     write("event", msg, arg)
@@ -126,9 +126,10 @@ const class ConnTrace : Actor
   **
   ** When logging as a request/response the 2nd line is used as summary
   ** with the expectation that log format is patterned as follows:
-  **    < message-id
-  **    Summary line
-  **    ... more details ...
+  **
+  **      < message-id
+  **      Summary line
+  **      ... more details ...
   Log asLog() { log }
   internal const Log log := ConnTraceLog(this)
 

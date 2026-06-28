@@ -223,7 +223,7 @@ const final class Number
 
   **
   ** Compare is based on val.
-  ** Throw `UnitErr` is this and b have incompatible units.
+  ** Throw [UnitErr] is this and b have incompatible units.
   **
   override Int compare(Obj that)
   {
@@ -240,7 +240,7 @@ const final class Number
   }
 
   **
-  ** Return if this number is approximately equal to that - see `sys::Float.approx`
+  ** Return if this number is approximately equal to that - see [sys::Float.approx]
   **
   Bool approx(Number that, Float? tolerance := null)
   {
@@ -287,7 +287,7 @@ const final class Number
   }
 
   **
-  ** Trio/zinc code representation, same as `toStr`
+  ** Trio/zinc code representation, same as [toStr]
   **
   Str toCode() { toStr }
 
@@ -296,23 +296,23 @@ const final class Number
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Negate this number.  Shortcut is -a.
+  ** Negate this number.  Shortcut is `-a`.
   **
   @Operator Number negate() { make(-float, unit) }
 
   **
-  ** Increment this number.  Shortcut is ++a.
+  ** Increment this number.  Shortcut is `++a`.
   **
   @Operator Number increment() { make(float+1f, unit) }
 
   **
-  ** Decrement this number.  Shortcut is --a.
+  ** Decrement this number.  Shortcut is `--a`.
   **
   @Operator Number decrement() { make(float-1f, unit) }
 
   **
-  ** Add this with b.  Shortcut is a+b.
-  ** Throw `UnitErr` is this and b have incompatible units.
+  ** Add this with b.  Shortcut is `a+b`.
+  ** Throw [UnitErr] is this and b have incompatible units.
   **
   @Operator Number plus(Number b) { make(float + b.float, plusUnit(unit, b.unit)) }
 
@@ -327,8 +327,8 @@ const final class Number
   }
 
   **
-  ** Subtract b from this.  Shortcut is a-b.
-  ** The b.unit must match this.unit.
+  ** Subtract b from this.  Shortcut is `a-b`.
+  ** The `b.unit` must match this.unit.
   **
   @Operator Number minus(Number b) { make(float - b.float, minusUnit(unit, b.unit)) }
 
@@ -345,9 +345,9 @@ const final class Number
   }
 
   **
-  ** Multiple this and b.  Shortcut is a*b.
+  ** Multiple this and b.  Shortcut is `a*b`.
   ** The resulting unit is derived from the product of this and b.
-  ** Throw `UnitErr` if a*b does not match a unit in the unit database.
+  ** Throw [UnitErr] if `a*b` does not match a unit in the unit database.
   **
   @Operator Number mult(Number b) { make(float * b.float, multUnit(unit, b.unit)) }
 
@@ -362,9 +362,9 @@ const final class Number
   }
 
   **
-  ** Divide this by b.  Shortcut is a/b.
+  ** Divide this by b.  Shortcut is `a/b`.
   ** The resulting unit is derived from the quotient of this and b.
-  ** Throw `UnitErr` if a/b does not match a unit in the unit database.
+  ** Throw [UnitErr] if `a/b` does not match a unit in the unit database.
   **
   @Operator Number div(Number b) { make(float / b.float, divUnit(unit, b.unit)) }
 
@@ -379,7 +379,7 @@ const final class Number
   }
 
   **
-  ** Return remainder of this divided by b.  Shortcut is a%b.
+  ** Return remainder of this divided by b.  Shortcut is `a%b`.
   ** The unit of b must be null.
   **
   @Operator Number mod(Number b)
@@ -510,38 +510,39 @@ const final class Number
 
   **
   ** Format the number using given pattern which is an superset
-  ** of `sys::Float.toLocale`:
+  ** of [sys::Float.toLocale]\:
   **
-  **   #        optional digit
-  **   0        required digit
-  **   .        decimal point
-  **   ,        grouping separator (only last one before decimal matters)
-  **   U        position of unit (default to suffix)
-  **   pos;neg  separate negative format (must specify U position)
+  **     #        optional digit
+  **     0        required digit
+  **     .        decimal point
+  **     ,        grouping separator (only last one before decimal matters)
+  **     U        position of unit (default to suffix)
+  **     pos;neg  separate negative format (must specify U position)
   **
-  ** When using the 'pos;neg' pattern, the "U" position must be specified in both
+  ** When using the `pos;neg` pattern, the "U" position must be specified in both
   ** pos and neg patterns, otherwise the unit is omitted. Note that the negative
   ** pattern always uses mimics the positive pattern for the actual digit
   ** formatting (#, 0, decimal, and grouping).
   **
-  ** The special "B" pattern is used to format bytes; see `sys::Int.toLocale`.
+  ** The special "B" pattern is used to format bytes; see [sys::Int.toLocale].
   **
   ** If pattern is null, the following rules are used:
-  **   1. If `isDuration` true, then return best fit unit is selected
+  **   1. If [isDuration] true, then return best fit unit is selected
   **   2. If unit is non-null attempt to lookup a unit specific default pattern
   **      with the locale key "haystack::number.{unit.name}".
-  **   3. If `isInt` true, then return `sys::Int.toLocale` using sys locale default
-  **   4. Return `sys::Float.toLocale` using sys locale default
+  **   3. If [isInt] true, then return [sys::Int.toLocale] using sys locale default
+  **   4. Return [sys::Float.toLocale] using sys locale default
   **
   ** Examples:
-  **   Number   Pattern        Result    Notes
-  **   ------   -------        -------   ------
-  **   12.34    "#.####"       12.34     Optional fractional digits
-  **   12.34    "#.0000"       12.3400   Required fractional digits
-  **   12.34$   null           $12.34    Haystack locale default
-  **   12$      "U 0.00"       $ 12.00   Explicit unit placement
-  **   -12$     "U0.##;(U#)"   ($12)     Alternative negative format
-  **   45%      "+0.0U;-0.0U"  +45%      Use leading positive sign
+  **
+  **     Number   Pattern        Result    Notes
+  **     ------   -------        -------   ------
+  **     12.34    "#.####"       12.34     Optional fractional digits
+  **     12.34    "#.0000"       12.3400   Required fractional digits
+  **     12.34$   null           $12.34    Haystack locale default
+  **     12$      "U 0.00"       $ 12.00   Explicit unit placement
+  **     -12$     "U0.##;(U#)"   ($12)     Alternative negative format
+  **     45%      "+0.0U;-0.0U"  +45%      Use leading positive sign
   **
   Str toLocale(Str? pattern := null)
   {

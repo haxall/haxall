@@ -111,7 +111,7 @@ const class FolioUtil
   }
 
   ** Strip any tags which cannot be persistently committed to Folio.
-  ** This includes special tags such as 'hisSize' and any transient
+  ** This includes special tags such as `hisSize` and any transient
   ** tags the record has defined.
   static Dict stripUncommittable(Folio folio, Dict d, Dict? opts := null)
   {
@@ -398,7 +398,7 @@ const class FolioUtil
 
   ** Apply a set of changes to history items and return the new updated
   ** items to persist.  Both lists must already be normalized and
-  ** sorted (all changes should already be verified by 'hisWriteCheck').
+  ** sorted (all changes should already be verified by `hisWriteCheck`).
   ** Changes are applied as follows:
   **   - new items are interleaved into temporal order
   **   - if dup ts, then changes overwrites cur

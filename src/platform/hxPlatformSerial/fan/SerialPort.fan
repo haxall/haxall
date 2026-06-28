@@ -17,7 +17,7 @@ using hx
 **
 const class SerialPort
 {
-  ** Constructor.  The meta must have a 'name' and 'device' tag.
+  ** Constructor.  The meta must have a `name` and `device` tag.
   new make(Dict meta)
   {
     this.meta   = meta
@@ -40,7 +40,7 @@ const class SerialPort
   ** Is this serial port current closed and unused
   Bool isClosed() { owner == null }
 
-   ** Oroject of the `owner` if port is open or null if closed
+   ** Oroject of the [owner] if port is open or null if closed
   Proj? proj() { projRef.val }
 
   ** Current record which opened and owns the port or null if closed.

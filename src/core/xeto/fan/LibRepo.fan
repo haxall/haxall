@@ -11,8 +11,8 @@ using concurrent
 **
 ** Library repository is a database of Xeto libs.  A repository might
 ** provide access to multiple versions per library. This is the base class
-** for `LocalRepo` and `RemoteRepo`.  Use `XetoEnv.repo` to get the VM's local
-** repo used to build namespaces.  Use `XetoEnv.remoteRepos` to query configured
+** for [LocalRepo] and [RemoteRepo].  Use [XetoEnv.repo] to get the VM's local
+** repo used to build namespaces.  Use [XetoEnv.remoteRepos] to query configured
 ** cloud based repositoriesthat can be used to install to the local repo.
 **
 @Js
@@ -42,8 +42,8 @@ const mixin LibRepo
 **
 ** LocalRepo models the set of Xeto libs installed on the local machine.
 ** It is the authoritative source for runtime lib resolution and is target
-** of install operations from one or more `RemoteRepo` instances.  A given
-** XetoEnv always has exactly one LocalRepo accessed by `XetoEnv.repo`.
+** of install operations from one or more [RemoteRepo] instances.  A given
+** XetoEnv always has exactly one LocalRepo accessed by [XetoEnv.repo].
 **
 @Js
 const mixin LocalRepo : LibRepo
@@ -73,7 +73,7 @@ const mixin LocalRepo : LibRepo
 **
 ** RemoteRepo is the abstract base class for network-accessible
 ** Xeto lib repositories. RemoteRepos are used to install/update to the
-** local repo.  Subclasses map to specific backends such as the 'xeto.dev'
+** local repo.  Subclasses map to specific backends such as the `xeto.dev`
 ** registry or the GitHub HTTP API.
 **
 @Js
@@ -166,7 +166,7 @@ const mixin RemoteRepoRegistry
 **************************************************************************
 
 **
-** RemoteRepoSearchReq encapsulates `RemoteRepo.search` request
+** RemoteRepoSearchReq encapsulates [RemoteRepo.search] request
 **
 @Js
 const class RemoteRepoSearchReq
@@ -200,7 +200,7 @@ const class RemoteRepoSearchReq
 **************************************************************************
 
 **
-** RemoteRepoSearchRes encapsulates `RemoteRepo.search` response
+** RemoteRepoSearchRes encapsulates [RemoteRepo.search] response
 **
 @Js
 const mixin RemoteRepoSearchRes

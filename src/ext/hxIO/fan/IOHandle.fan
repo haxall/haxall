@@ -120,7 +120,7 @@ abstract class IOHandle
 
   **
   ** Process the output stream and guarantee closed.
-  ** Returns 'null' or a sub-class specific result after the write is completed.
+  ** Returns `null` or a sub-class specific result after the write is completed.
   **
   abstract Obj? withOut(|OutStream out| f)
 
@@ -137,7 +137,7 @@ abstract class IOHandle
 **
 ** DirectIO allows for direct access to the input and output streams.
 **
-** The public API is still `withIn` and `withOut` but this class provides
+** The public API is still [withIn] and [withOut] but this class provides
 ** a convenient pattern for IOHandles that have this type of access to their
 ** I/O streams.
 **
@@ -168,7 +168,7 @@ internal abstract class DirectIO : IOHandle
   ** Get direct access to the output stream for this handle.
   abstract OutStream out()
 
-  ** Result from `withOut`. Defaults to null
+  ** Result from [withOut]. Defaults to null
   virtual Obj? withOutResult() { null }
 }
 

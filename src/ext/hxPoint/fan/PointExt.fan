@@ -85,7 +85,7 @@ const class PointExt : ExtObj, IPointExt
     if (writeMgr.isRunning) writeMgr.forceCheck
   }
 
-  ** Event when 'enumMeta' record is modified
+  ** Event when `enumMeta` record is modified
   internal Void onEnumMetaEvent(CommitObservation? e)
   {
     // null is sync message
@@ -96,7 +96,7 @@ const class PointExt : ExtObj, IPointExt
     enums.updateMeta(newRec, log)
   }
 
-  ** Event when 'point' record is modified
+  ** Event when `point` record is modified
   internal Void onPointEvent(CommitObservation? e)
   {
     // null is sync message

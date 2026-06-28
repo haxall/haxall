@@ -11,7 +11,7 @@
 using haystack
 
 **
-** SerialConfig defines the configuration to open a `SerialPort`.  This class
+** SerialConfig defines the configuration to open a [SerialPort].  This class
 ** encodes all the config into a string format which may be added to
 ** connectors to define how they bind to a serial port.
 **
@@ -37,7 +37,7 @@ const class SerialConfig
   ** Number of data bits to use (5..8).
   const Int data := 8
 
-  ** Partiy mode: `parityNone`, `parityOdd`, `parityEven`.
+  ** Partiy mode: [parityNone], [parityOdd], [parityEven].
   const Int parity := parityNone
 
   static const Int parityNone := 0
@@ -47,7 +47,7 @@ const class SerialConfig
   ** Number of stop bits to use (1..2).
   const Int stop := 1
 
-  ** Flow control mode: `flowNone`, `flowRtsCts`, `flowXonXoff`
+  ** Flow control mode: [flowNone], [flowRtsCts], [flowXonXoff]
   const Int flow := flowRtsCts
 
   static const Int flowNone    := 0
@@ -71,8 +71,9 @@ const class SerialConfig
   }
 
   ** Str representation:
-  **    {name}-{baud}-{data}{parity}{stop}-{flow}
-  **    foo-115200-8n1-rtscts
+  **
+  **      {name}-{baud}-{data}{parity}{stop}-{flow}
+  **      foo-115200-8n1-rtscts
   override Str toStr()
   {
     // baud

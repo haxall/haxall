@@ -112,7 +112,7 @@ enum class ConnPollMode
   ** Connector framework handles the polling logic using buckets strategy
   buckets
 
-  ** Return 'true' if the mode is not `disabled`.
+  ** Return `true` if the mode is not [disabled].
   Bool isEnabled() { this !== disabled }
 }
 

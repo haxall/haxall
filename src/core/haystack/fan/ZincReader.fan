@@ -10,7 +10,7 @@
 using xeto
 
 **
-** Read Haystack data in [Zinc]`ph.doc::Zinc` format.
+** Read Haystack data in [Zinc](ph.doc::Zinc) format.
 **
 @Js
 class ZincReader : GridReader
@@ -64,7 +64,7 @@ class ZincReader : GridReader
     }
   }
 
-  ** Convenience for `readVal` as Grid
+  ** Convenience for [readVal] as Grid
   override Grid readGrid() { readVal(true) }
 
   ** Read a list of grids separated by blank line from stream.
@@ -77,7 +77,7 @@ class ZincReader : GridReader
     return acc
   }
 
-  ** Read a set of tags as 'name:val' pairs separated by space or comma.
+  ** Read a set of tags as `name:val` pairs separated by space or comma.
   @NoDoc Dict readTags() { parseDict(true) }
 
 //////////////////////////////////////////////////////////////////////////

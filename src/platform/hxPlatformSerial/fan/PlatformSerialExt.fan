@@ -56,7 +56,7 @@ const class PlatformSerialExt : ExtObj
     ((Unsafe)spi.actor.send(HxMsg("open", rt, owner, config)).get(timeout)).val
   }
 
-  ** Implementation for `SerialSocket.close`
+  ** Implementation for [SerialSocket.close]
   internal Void close(SerialSocket socket)
   {
     spi.actor.send(HxMsg("close", Unsafe(socket))).get(timeout)

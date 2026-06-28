@@ -478,8 +478,9 @@ internal class StubCli : HxCli
   private once XetoEnv xetoEnv() { XetoEnv.cur }
 
   ** Prefix to use for axon funcs
-  **     funcPrefix = "acme.foo" => acmeFoo
-  **     funcPrefix = "hx.foo" => "foo"
+  **
+  **       funcPrefix = "acme.foo" => acmeFoo
+  **       funcPrefix = "hx.foo" => "foo"
   private Str funcPrefix()
   {
     if (haxall) return xetoLib["hx.".size..-1]
@@ -487,8 +488,9 @@ internal class StubCli : HxCli
   }
 
   ** Prefix to use for Fantom types
-  **     typePrefix = "acmeFoo" => "AcmeFoo"
-  **     typePrefix = "hxFoo" => "Foo"
+  **
+  **       typePrefix = "acmeFoo" => "AcmeFoo"
+  **       typePrefix = "hxFoo" => "Foo"
   private Str typePrefix()
   {
     if (haxall) return ext["hx".size..-1]

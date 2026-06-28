@@ -158,7 +158,7 @@ mixin DataCodec
     return StrPair(name, val)
   }
 
-  ** Write `Properties`
+  ** Write [Properties]
   static Void writeProps(Properties? props, Obj out)
   {
     // short-circuit if no props
@@ -190,7 +190,7 @@ mixin DataCodec
     toOut(out).writeBuf(buf.flip)
   }
 
-  ** Read `Properties`
+  ** Read [Properties]
   static Properties readProps(Obj in)
   {
     props := Properties()

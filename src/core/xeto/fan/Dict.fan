@@ -14,7 +14,7 @@
 @Js
 const mixin Dict
 {
-  ** Get the 'id' tag as a Ref or raise CastErr/UnknownNameErr
+  ** Get the `id` tag as a Ref or raise CastErr/UnknownNameErr
   virtual Ref id()
   {
     get("id") ?: throw UnknownNameErr("id")
@@ -23,7 +23,7 @@ const mixin Dict
   ** Return if the there are no name/value pairs
   abstract Bool isEmpty()
 
-  ** Get the value for the given name or 'null' if name not mapped
+  ** Get the value for the given name or `null` if name not mapped
   @Operator abstract Obj? get(Str name)
 
   ** Return true if this dictionary contains given name
@@ -56,7 +56,7 @@ const mixin Dict
   }
 
   ** Get display string for the dict.  The default routes
-  ** to `haystack::Etc.dictToDis` or fallback on `toStr`.
+  ** to [haystack::Etc.dictToDis] or fallback on [toStr].
   virtual Str dis()
   {
     XetoEnv.cur.dictDis(this)

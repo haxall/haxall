@@ -77,7 +77,7 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
     return list
   }
 
-  ** Default routes to versions with '{limit:1}'
+  ** Default routes to versions with `{limit:1}`
   override LibVersion? latest(Str name, Bool checked := true)
   {
     opts := Etc.dict1("limit", 1)
@@ -87,7 +87,7 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
     return null
   }
 
-  ** Default routes to versions with '{limit:1, versions:d.versions}'
+  ** Default routes to versions with `{limit:1, versions:d.versions}`
   override LibVersion? latestMatch(LibDepend d, Bool checked := true)
   {
     opts := Etc.dict2("limit", 1, "versions", d.versions)
@@ -97,7 +97,7 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
     return null
   }
 
-  ** Default routes to versions with '{limit:1, versions:version}'
+  ** Default routes to versions with `{limit:1, versions:version}`
   override LibVersion? version(Str name, Version version, Bool checked := true)
   {
     x := versions(name, Etc.dict1("versions", LibDependVersions(version))).first

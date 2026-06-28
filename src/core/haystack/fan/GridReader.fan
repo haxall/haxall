@@ -8,7 +8,7 @@
 
 **
 ** GridReader is the interface for reading an encoding of grid data
-** All implementations must have a constructor called 'make' that
+** All implementations must have a constructor called `make` that
 ** takes an InStream.  Constructors may also declare a second parameter
 ** for a Dict opts.
 **

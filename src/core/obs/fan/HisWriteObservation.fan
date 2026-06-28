@@ -10,7 +10,7 @@ using xeto
 using haystack
 
 **
-** HisWriteObservation is an observation event for an 'obsHisWrites' stream.
+** HisWriteObservation is an observation event for an `obsHisWrites` stream.
 **
 @NoDoc
 const class HisWriteObservation : Observation

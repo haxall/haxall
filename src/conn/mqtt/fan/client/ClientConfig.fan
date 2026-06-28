@@ -10,7 +10,7 @@ using concurrent
 using inet
 
 **
-** The configuration to use when creating an `MqttClient`.
+** The configuration to use when creating an [MqttClient].
 **
 const class ClientConfig
 {
@@ -40,11 +40,11 @@ const class ClientConfig
 
   ** The MQTT server uri to connect to.
   **
-  ** To connect via the TCP transport use either the 'mqtt' (plain socket)
-  ** or 'mqtts' (TLS socket) scheme.
+  ** To connect via the TCP transport use either the `mqtt` (plain socket)
+  ** or `mqtts` (TLS socket) scheme.
   **
-  ** To connect via a websocket use either the 'ws' (plain socket)
-  ** or 'wss' (TLS socket) scheme.
+  ** To connect via a websocket use either the `ws` (plain socket)
+  ** or `wss` (TLS socket) scheme.
   const Uri serverUri := `mqtt://localhost:1883`
 
   ** The socket configuration to use.

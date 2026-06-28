@@ -21,28 +21,28 @@ using hxConn
 **
 const class ObixFuncs
 {
-  ** Deprecated - use `connPing()`
+  ** Deprecated - use [connPing()]
   @Deprecated @Api @Axon { admin = true }
   static Future obixPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
-  ** Deprecated - use `connSyncCur()`
+  ** Deprecated - use [connSyncCur()]
   @Deprecated @Api @Axon { admin = true }
   static Future[] obixSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
   }
 
-  ** Deprecated - use `connSyncHis()`
+  ** Deprecated - use [connSyncHis()]
   @Deprecated @Api @Axon { admin = true }
   static Obj? obixSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }
 
-  ** Deprecated - use `connLearn()`
+  ** Deprecated - use [connLearn()]
   @NoDoc @Api @Axon { admin = true }
   static Grid obixLearn(Obj conn, Obj? arg := null)
   {
@@ -57,14 +57,15 @@ const class ObixFuncs
   **
   **  - href: meta.href is absolute uri of object, the href col
   **    is child's uri relative to meta.href
-  **  - name: obix 'name' attribute
-  **  - dis: obix 'displayName' attribute
-  **  - val: obix 'val' attribute unless 'null' attribute is true
+  **  - name: obix `name` attribute
+  **  - dis: obix `displayName` attribute
+  **  - val: obix `val` attribute unless `null` attribute is true
   **  - is: contract list
   **  - icon: uri relative to meta.href of icon
   **
   ** You can read the icon via the tunnel URI:
-  **    {api}/obix/icon/{id}/{uri}
+  **
+  **      {api}/obix/icon/{id}/{uri}
   **
   ** Side effects:
   **   - performs blocking network IO
@@ -75,8 +76,8 @@ const class ObixFuncs
     dispatch(curContext, conn, HxMsg("readObj", uri))
   }
 
-  ** Synchronously query a 'obix::History' for its timestamp/value pairs.
-  ** Range may be any valid object used with 'his' queries.
+  ** Synchronously query a `obix::History` for its timestamp/value pairs.
+  ** Range may be any valid object used with `his` queries.
   @Api @Axon { admin = true }
   static Grid obixReadHis(Obj conn, Uri uri, Obj? span)
   {
@@ -95,20 +96,20 @@ const class ObixFuncs
   ** Write an object as identified by given uri.  The following
   ** arg values are supported:
   **
-  **   arg         oBIX
-  **   ---         -----
-  **   null        <obj null='true'/>
-  **   "foo"       <str val='foo'/>
-  **   true        <bool val='true'/>
-  **   123         <real val='123.0'/>
-  **   123m        <real val='123.0' unit='obix:units/meter'/>
-  **   `foo.txt`   <uri val='foo.txt'/>
-  **   2012-03-06  <date val='2012-03-06'/>
-  **   23:15       <time val='23:15:00'/>
-  **   DateTime    <abstime val='...' tz='...'/>
-  **   XML Str     pass thru
+  **     arg         oBIX
+  **     ---         -----
+  **     null        <obj null='true'/>
+  **     "foo"       <str val='foo'/>
+  **     true        <bool val='true'/>
+  **     123         <real val='123.0'/>
+  **     123m        <real val='123.0' unit='obix:units/meter'/>
+  **     `foo.txt`   <uri val='foo.txt'/>
+  **     2012-03-06  <date val='2012-03-06'/>
+  **     23:15       <time val='23:15:00'/>
+  **     DateTime    <abstime val='...' tz='...'/>
+  **     XML Str     pass thru
   **
-  ** Result object is transformed using same rules as `obixReadObj`.
+  ** Result object is transformed using same rules as [obixReadObj].
   **
   @Api @Axon { admin = true }
   static Grid obixWriteObj(Obj conn, Obj uri, Obj? arg)
@@ -117,8 +118,8 @@ const class ObixFuncs
   }
 
   **
-  ** Invoke an 'obix:op' operation as identified by given uri.
-  ** See `obixWriteObj` for supported arg values and `obixReadObj`
+  ** Invoke an `obix:op` operation as identified by given uri.
+  ** See [obixWriteObj] for supported arg values and [obixReadObj]
   ** for result object.
   **
   @Api @Axon { admin = true }

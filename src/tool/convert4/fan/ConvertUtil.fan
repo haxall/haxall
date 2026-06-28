@@ -39,7 +39,7 @@ const class ConvertUtil
   }
 
   ** Try to deduce the xeto type for a param from a defcomp cell name and its meta. If we
-  ** can't figure it out return 'Obj?'
+  ** can't figure it out return `Obj?`
   static AType cellToType(Str cellName, Dict meta)
   {
     // handle various rule binds

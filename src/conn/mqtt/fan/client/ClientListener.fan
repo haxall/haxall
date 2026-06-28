@@ -18,15 +18,15 @@ using concurrent
 mixin ClientListener
 {
   ** Callback when the client has connected to the broker. This
-  ** means the broker has responded to a 'CONNECT' message with a
-  ** successful 'CONNACK' response.
+  ** means the broker has responded to a `CONNECT` message with a
+  ** successful `CONNACK` response.
   virtual Void onConnected() { }
 
   ** Callback when the client has been disconnected from the broker. This can
   ** happen for several reasons:
-  ** - client initiated 'DISCONNECT' packet is sent
-  ** - server initiated 'DISCONNECT' packet is received
-  ** - client 'CONNECT' times out (no 'CONNACK' received)
+  ** - client initiated `DISCONNECT` packet is sent
+  ** - server initiated `DISCONNECT` packet is received
+  ** - client `CONNECT` times out (no `CONNACK` received)
   ** - network disruption causes existing socket to be closed.
   virtual Void onDisconnected(Err? err) { }
 }

@@ -13,7 +13,7 @@ using util
 
 **
 ** MatrixGrid models a two dimensional grid of unitless Numbers.
-** It wraps a Fantom 'math::Matrix' instance.
+** It wraps a Fantom `math::Matrix` instance.
 **
 const class MatrixGrid : Grid
 {

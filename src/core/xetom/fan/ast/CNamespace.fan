@@ -15,7 +15,7 @@ using util
 @Js
 mixin CNamespace
 {
-  ** Iterate each type type that returns true for 'isa(type)'
+  ** Iterate each type type that returns true for `isa(type)`
   abstract Void eachTypeThatIs(Spec type, |Spec| f)
 }
 

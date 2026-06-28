@@ -21,7 +21,7 @@ const abstract class Expr
   ** Get type enum
   @NoDoc abstract ExprType type()
 
-  ** Location of this expression in source code or 'Loc.unknown'.
+  ** Location of this expression in source code or `Loc.unknown`.
   abstract FileLoc loc()
 
   ** Evaluate this expression.
@@ -39,7 +39,7 @@ const abstract class Expr
     return result
   }
 
-  ** Encode the AST into a tree of dicts.  See `parseAst()`.
+  ** Encode the AST into a tree of dicts.  See [parseAst()].
   Dict encode()
   {
     acc := Str:Obj?[:] { ordered = true }

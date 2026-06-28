@@ -74,7 +74,8 @@ internal const class Call : Expr
 
 **
 ** DotCall implements the dot operator:
-**   foo().bar() => bar(foo())
+**
+**     foo().bar() => bar(foo())
 **
 @Js
 internal const class DotCall : Call
@@ -137,7 +138,8 @@ internal const class DotCall : Call
 
 **
 ** StaticCall implements the dot operator on a spec name:
-**   Foo.bar
+**
+**     Foo.bar
 **
 @Js
 internal const class StaticCall : Call
@@ -182,7 +184,7 @@ internal const class StaticCall : Call
 **************************************************************************
 
 **
-** TrapCall is 'foo->bar' sugar for 'trap(foo, "bar")'
+** TrapCall is `foo->bar` sugar for `trap(foo, "bar")`
 **
 @Js
 internal const class TrapCall : DotCall

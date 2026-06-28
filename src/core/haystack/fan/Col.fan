@@ -25,7 +25,7 @@ abstract const class Col
   abstract Dict meta()
 
   **
-  ** Display name for columm which is 'meta.dis(null, name)'
+  ** Display name for columm which is `meta.dis(null, name)`
   **
   Str dis() { Etc.dictToDis(meta, name) }
 

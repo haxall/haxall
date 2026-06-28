@@ -40,16 +40,16 @@ class DefCompiler
   File? outDir
 
   ** Callback for each document file generated.  If left as
-  ** null it will output a file to the 'outDir' using the ".html"
+  ** null it will output a file to the `outDir` using the ".html"
   ** file extension.  If non-null then no file extension is applied
   ** and only the body content is generated
   |DocFile|? onDocFile
 
   ** Callback used to filter which defs are included in the docs.
   ** If a lib def itself returns false then all of its defs are excluded
-  ** too.  The default implementation only checks for the 'nodoc' marker.
+  ** too.  The default implementation only checks for the `nodoc` marker.
   ** If you override the default implmentation, then your custom
-  ** callback must check for 'nodoc' too.
+  ** callback must check for `nodoc` too.
   |CDef->Bool| includeInDocs := |CDef def->Bool| { !def.isNoDoc }
 
   ** Default input libraries

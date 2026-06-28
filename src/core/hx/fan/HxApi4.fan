@@ -12,7 +12,7 @@ using haystack
 
 **
 ** HxApi manages Haxall 4.x style HTTP requests.  APIs are declared
-** as Xeto globals that subtype 'sys.api::Api'.  They must be mapped
+** as Xeto globals that subtype `sys.api::Api`.  They must be mapped
 ** a static method annotated with this facet and registered with the
 ** runtime using the "xeto.api" indexed prop.
 **

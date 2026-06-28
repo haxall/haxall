@@ -15,14 +15,14 @@ using haystack
 **
 ** Watch is a subscription to a set of records in a project database.
 ** It provides an efficient mechanism to poll for changes.
-** Also see `hx.doc.haxall::Watches#fantom-apis`.
+** Also see [hx.doc.haxall::Watches#fantom-apis].
 **
 const abstract class Watch
 {
   ** Runtime associated with this watch
   abstract Runtime rt()
 
-  ** Debug display string used during 'watchOpen'
+  ** Debug display string used during `watchOpen`
   abstract Str dis()
 
   ** Identifier which uniquely identifies this watch in the project
@@ -35,10 +35,10 @@ const abstract class Watch
   ** Return if the list of recs currently subscribed is empty.
   abstract Bool isEmpty()
 
-  ** Ticks of the last call to `poll`
+  ** Ticks of the last call to [poll]
   @NoDoc abstract Duration lastPoll()
 
-  ** Ticks of the last call to `poll` or `renew`
+  ** Ticks of the last call to [poll] or [renew]
   @NoDoc abstract Duration lastRenew()
 
   ** The lease determines the max duration which may elapse without a
@@ -52,18 +52,18 @@ const abstract class Watch
   ** An empty list is returned if no changes have been made to the watched
   ** records since ticks.  There is no ordering to the resulting list.
   ** This method automatically renews the lease and keeps track of the
-  ** last poll ticks.  Also see `hx.doc.haxall::Watches#fantom-apis`.
+  ** last poll ticks.  Also see [hx.doc.haxall::Watches#fantom-apis].
   abstract Dict[] poll(Duration ticks := lastPoll)
 
-  ** Update `lastRenew` just to maintain the lease, but don't
-  ** update `lastPoll` or actually return any changes.
+  ** Update [lastRenew] just to maintain the lease, but don't
+  ** update [lastPoll] or actually return any changes.
   @NoDoc abstract Void renew()
 
-  ** Convenience for 'addAll([id])'
+  ** Convenience for `addAll([id])`
   Void add(Ref id) { addAll([id]) }
 
-  ** Convenience for 'addAll' for 'id' column of each row. If any
-  ** row is missing an 'id' tag then it is silently skipped.
+  ** Convenience for `addAll` for `id` column of each row. If any
+  ** row is missing an `id` tag then it is silently skipped.
   Void addGrid(Grid grid)
   {
     if (grid.isEmpty) return
@@ -84,7 +84,7 @@ const abstract class Watch
   ** closed.  This call renews the lease.
   abstract Void addAll(Ref[] ids)
 
-  ** Convenience for 'removeAll([id])'
+  ** Convenience for `removeAll([id])`
   Void remove(Ref id) { removeAll([id]) }
 
   ** Remove the given records from this watch.  Any ids not
@@ -93,11 +93,11 @@ const abstract class Watch
   abstract Void removeAll(Ref[] ids)
 
   ** Set this watch to the given list of ids.  This is convenience
-  ** for an `addAll` and `removeAll` between current ids and given ids.
+  ** for an [addAll] and [removeAll] between current ids and given ids.
   ** This call renews the lease.
   @NoDoc abstract Void set(Ref[] ids)
 
-  ** Convenience for 'removeAll' for 'id' column of each row
+  ** Convenience for `removeAll` for `id` column of each row
   Void removeGrid(Grid grid)
   {
     ids := Ref[,]

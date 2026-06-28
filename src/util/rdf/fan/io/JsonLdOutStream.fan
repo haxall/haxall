@@ -7,7 +7,7 @@
 //
 
 **
-** Writes RDF in [JSON-LD]`https://w3c.github.io/json-ld-syntax/` format
+** Writes RDF in [JSON-LD](https://w3c.github.io/json-ld-syntax/) format
 **
 @Js class JsonLdOutStream : RdfOutStream
 {

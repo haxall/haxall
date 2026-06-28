@@ -90,7 +90,7 @@ const mixin Status : Dict
   ** Configuration or hardware error state
   abstract Bool isFault()
 
-  **  Manual override state
+  ** Manual override state
   abstract Bool isOverridden()
 
   ** Data is not fresh
@@ -100,7 +100,8 @@ const mixin Status : Dict
   abstract Bool isUnacked()
 
   ** Return true if none of the following status flags are set:
-  **   disabled,down,fault,stale
+  **
+  **     disabled,down,fault,stale
   abstract Bool isValid()
 
 //////////////////////////////////////////////////////////////////////////
@@ -113,8 +114,8 @@ const mixin Status : Dict
   ** Clear this instance flags with the given instances flags
   Status clear(Status that) { MStatus.makeFlags(this.flags.and(that.flags.not)) }
 
-  ** Merge flags together for combination operations. If 'that' is null,
-  ** return 'this'
+  ** Merge flags together for combination operations. If `that` is null,
+  ** return `this`
   Status merge(Status? that) { MStatus.doMerge(this, that) }
 
   ** Get a new status where only the given flags are set

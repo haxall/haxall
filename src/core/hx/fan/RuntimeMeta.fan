@@ -11,11 +11,11 @@ using haystack
 
 **
 ** Runtime meta data stored in "rt:meta" record.  This dict
-** always include a synthetic 'name' tag with `Runtime.name`.
+** always include a synthetic `name` tag with [Runtime.name].
 **
 const mixin RuntimeMeta : Dict
 {
-  ** Record dict as stored in folio database with 'rt:meta' tag
+  ** Record dict as stored in folio database with `rt:meta` tag
   @NoDoc abstract Dict rec()
 
   ** Configured steady state delay or default

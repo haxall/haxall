@@ -11,7 +11,7 @@ using xeto
 using haystack
 
 **
-** RecSubscription is used for 'obsRecs' to handle filtering
+** RecSubscription is used for `obsRecs` to handle filtering
 **
 ** NOTE: this API is subject to change
 **
@@ -24,7 +24,7 @@ const class RecSubscription : Subscription
     this.filter = parseFilter(config["obsFilter"])
   }
 
-  ** Parse the 'obsFilter' tag
+  ** Parse the `obsFilter` tag
   private static Filter? parseFilter(Obj? val)
   {
     if (val == null) return null

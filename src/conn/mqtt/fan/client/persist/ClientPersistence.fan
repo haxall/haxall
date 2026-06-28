@@ -28,7 +28,7 @@ const mixin ClientPersistence
   ** it is a no-op.
   abstract Void remove(Str key)
 
-  ** Return 'true' if there is a packet stored with the given key; 'false' otherwise.
+  ** Return `true` if there is a packet stored with the given key; `false` otherwise.
   abstract Bool containsKey(Str key)
 
   ** Close the persistence store.

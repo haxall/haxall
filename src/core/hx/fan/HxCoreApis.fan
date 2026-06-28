@@ -16,13 +16,13 @@ using haystack
 @NoDoc
 class HxCoreApis
 {
-  ** Implementation of 'sys.api::ping'
+  ** Implementation of `sys.api::ping`
   @HxApi static Dict ping(HxApiReq req)
   {
     Etc.dict1("time", DateTime.now)
   }
 
-  ** Implementation of 'hx.api::eval'
+  ** Implementation of `hx.api::eval`
   @HxApi static Obj? eval(HxApiReq req)
   {
     req.context.eval(req.args->expr)

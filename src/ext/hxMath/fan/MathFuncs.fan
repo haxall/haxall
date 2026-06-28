@@ -31,20 +31,20 @@ const class MathFuncs
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return the remainder or modulo of division: 'a % b'.
-  ** Result has same unit as 'a'.
+  ** Return the remainder or modulo of division: `a % b`.
+  ** Result has same unit as `a`.
   @Api @Axon static Number remainder(Number a, Number b) { Number(a.toFloat % b.toFloat, a.unit) }
 
   ** Return the smallest whole number greater than or equal to val.
-  ** Result has same unit as 'val'.
+  ** Result has same unit as `val`.
   @Api @Axon static Number ceil(Number val) { Number(val.toFloat.ceil, val.unit) }
 
   ** Return the largest whole number less than or equal to val.
-  ** Result has same unit as 'val'.
+  ** Result has same unit as `val`.
   @Api @Axon static Number floor(Number val) { Number(val.toFloat.floor, val.unit) }
 
   ** Returns the nearest whole number to val.
-  ** Result has same unit as 'val'.
+  ** Result has same unit as `val`.
   @Api @Axon static Number round(Number val) { Number(val.toFloat.round, val.unit) }
 
   ** Return e raised to val.
@@ -67,8 +67,9 @@ const class MathFuncs
   ** integers is assumed.
   **
   ** Examples:
-  **    random()       // random num with no range
-  **    random(0..100) // random num between 0 and 100
+  **
+  **      random()       // random num with no range
+  **      random(0..100) // random num between 0 and 100
   @Api @Axon static Number random(Obj? range := null)
   {
     r := range == null ?
@@ -81,22 +82,22 @@ const class MathFuncs
 // Bitwise
 //////////////////////////////////////////////////////////////////////////
 
-  ** Bitwise not: '~a'
+  ** Bitwise not: `~a`
   @Api @Axon static Number bitNot(Number a) { Number.makeInt(a.toInt.not) }
 
-  ** Bitwise and: 'a & b'
+  ** Bitwise and: `a & b`
   @Api @Axon static Number bitAnd(Number a, Number b) { Number.makeInt(a.toInt.and(b.toInt)) }
 
-  ** Bitwise or: 'a | b'
+  ** Bitwise or: `a | b`
   @Api @Axon static Number bitOr(Number a, Number b) { Number.makeInt(a.toInt.or(b.toInt)) }
 
-  ** Bitwise xor: 'a ^ b'
+  ** Bitwise xor: `a ^ b`
   @Api @Axon static Number bitXor(Number a, Number b) { Number.makeInt(a.toInt.xor(b.toInt)) }
 
-  ** Bitwise right shift: 'a >> b'
+  ** Bitwise right shift: `a >> b`
   @Api @Axon static Number bitShiftr(Number a, Number b) { Number.makeInt(a.toInt.shiftr(b.toInt)) }
 
-  ** Bitwise left shift: 'a << b'
+  ** Bitwise left shift: `a << b`
   @Api @Axon static Number bitShiftl(Number a, Number b) { Number.makeInt(a.toInt.shiftl(b.toInt)) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -145,11 +146,12 @@ const class MathFuncs
 
   **
   ** Fold a sample of numbers into their standard average or arithmetic
-  ** mean.  This function is the same as [core::avg]`avg()`.  Nulls
+  ** mean.  This function is the same as [core::avg](avg()).  Nulls
   ** values are ignored.  Return null if no values.
   **
   ** Example:
-  **   [2, 4, 5, 3].fold(mean)
+  **
+  **     [2, 4, 5, 3].fold(mean)
   **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::mean"] }
   static Obj? mean(Obj? val, Obj? acc)
@@ -164,7 +166,8 @@ const class MathFuncs
   ** values are ignored.  Return null if no values.
   **
   ** Example:
-  **   [2, 4, 5, 3, 1].fold(median)
+  **
+  **     [2, 4, 5, 3, 1].fold(median)
   **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::median"] }
   static Obj? median(Obj? val, Obj? acc)
@@ -181,11 +184,12 @@ const class MathFuncs
   ** The RMSE function determines the RMSE between a sample set and
   ** its mean using the n-degrees of freedom RMSE:
   **
-  **   RMBE = sqrt( Σ(xᵢ - median)² ) / (n - nDegrees)
+  **     RMBE = sqrt( Σ(xᵢ - median)² ) / (n - nDegrees)
   **
   ** Examples:
-  **   samples.fold(rootMeanSquareErr)         // unbiased zero degrees of freedom
-  **   samples.fold(rootMeanSquareErr(_,_,1))  // 1 degree of freedom
+  **
+  **     samples.fold(rootMeanSquareErr)         // unbiased zero degrees of freedom
+  **     samples.fold(rootMeanSquareErr(_,_,1))  // 1 degree of freedom
   **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::rootMeanSquareErr"] }
   static Obj? rootMeanSquareErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
@@ -202,11 +206,12 @@ const class MathFuncs
   ** The MBE function determines the MBE between a sample set and
   ** its mean:
   **
-  **   MBE = Σ(xᵢ - median) / (n - nDegrees)
+  **     MBE = Σ(xᵢ - median) / (n - nDegrees)
   **
   ** Examples:
-  **   samples.fold(meanBiasErr)         // unbiased zero degrees of freedom
-  **   samples.fold(meanBiasErr(_,_,1))  // 1 degree of freedom
+  **
+  **     samples.fold(meanBiasErr)         // unbiased zero degrees of freedom
+  **     samples.fold(meanBiasErr(_,_,1))  // 1 degree of freedom
   **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::meanBiasErr"] }
   static Obj? meanBiasErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
@@ -221,10 +226,11 @@ const class MathFuncs
   **
   ** Fold a series of numbers into the standard deviation of a *sample*:
   **
-  **   s = sqrt(Σ (xᵢ - mean)² / (n-1))
+  **     s = sqrt(Σ (xᵢ - mean)² / (n-1))
   **
   ** Example:
-  **   [4, 2, 5, 8, 6].fold(standardDeviation)
+  **
+  **     [4, 2, 5, 8, 6].fold(standardDeviation)
   **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::standardDeviation"] }
   static Obj? standardDeviation(Obj? val, Obj? acc)
@@ -247,40 +253,43 @@ const class MathFuncs
   **  - **midpoint**: Averages two nearest values
   **
   ** Usage:
-  **   [1,2,3].fold(quantile(p, method))
+  **
+  **     [1,2,3].fold(quantile(p, method))
   **
   ** Examples:
-  **   [10,10,10,25,100].fold(quantile(0.7 )) => 22 //default to linear
-  **   [10,10,10,25,100].fold(quantile(0.7, "nearest")) => 25
-  **   [10,10,10,25,100].fold(quantile(0.7, "lower")) => 10
-  **   [10,10,10,25,100].fold(quantile(0.7, "higher")) => 25
-  **   [10,10,10,25,100].fold(quantile(0.7, "linear")) => 22 //same as no arg
-  **   [10,10,10,25,100].fold(quantile(0.7, "midpoint")) => 17.5
+  **
+  **     [10,10,10,25,100].fold(quantile(0.7 )) => 22 //default to linear
+  **     [10,10,10,25,100].fold(quantile(0.7, "nearest")) => 25
+  **     [10,10,10,25,100].fold(quantile(0.7, "lower")) => 10
+  **     [10,10,10,25,100].fold(quantile(0.7, "higher")) => 25
+  **     [10,10,10,25,100].fold(quantile(0.7, "linear")) => 22 //same as no arg
+  **     [10,10,10,25,100].fold(quantile(0.7, "midpoint")) => 17.5
   **
   ** Detailed Logic:
-  **    p: percentile (decimal 0-1)
-  **    n: list size
-  **    rank: p * (n-1) // this is the index of the percentile in your list
-  **    // if rank is an integer, return list[rank]
-  **    // if rank is not an integer, interpolate via one of the above methods (illustrated below in examples)
   **
-  **    [1,2,3,4,5].percentile(0.5) => 3 // rank=2 is an int so we can index[2] directly
+  **      p: percentile (decimal 0-1)
+  **      n: list size
+  **      rank: p * (n-1) // this is the index of the percentile in your list
+  **      // if rank is an integer, return list[rank]
+  **      // if rank is not an integer, interpolate via one of the above methods (illustrated below in examples)
   **
-  **    [10,10,10, 25, 100].percentile(0.7, method)
-  **      rank = (0.7 * 4) => 2.8
+  **      [1,2,3,4,5].percentile(0.5) => 3 // rank=2 is an int so we can index[2] directly
   **
-  **      //adjust rank based on method
-  **      nearest =  index[3]                // => 25
-  **      lower =    index[2]                // => 10
-  **      higher =   index[3]                // => 25
+  **      [10,10,10, 25, 100].percentile(0.7, method)
+  **        rank = (0.7 * 4) => 2.8
   **
-  **      //or interpolate for these methods
+  **        //adjust rank based on method
+  **        nearest =  index[3]                // => 25
+  **        lower =    index[2]                // => 10
+  **        higher =   index[3]                // => 25
   **
-  **      //takes the 2 closest indices and calculates midpoint
-  **      midpoint = (25-10)/2 + 10          // => 17.5
+  **        //or interpolate for these methods
   **
-  **      //takes the 2 closest indices and calculates weighted average
-  **      linear =   (0.2 * 10) + (0.8 * 25) // => 22
+  **        //takes the 2 closest indices and calculates midpoint
+  **        midpoint = (25-10)/2 + 10          // => 17.5
+  **
+  **        //takes the 2 closest indices and calculates weighted average
+  **        linear =   (0.2 * 10) + (0.8 * 25) // => 22
   **
   @Api @Axon
   static Obj? quantile(Number percent, Str method := "linear")
@@ -319,13 +328,14 @@ const class MathFuncs
   ** - nullVal (Number): replace null values in the grid with this value
   ** - naVal (Number): replace NA values in the grid with this value
   **
-  ** pre>
+  ** ```fantom
   **   toMatrix(grid, {nullVal: 0, naVal: 0})
-  ** <pre
+  ** ```
   **
   ** To create a sparse or initialized matrix you can pass a Dict with the
   ** the following tags (all required)
-  **   toMatrix({rows:10, cols: 1000, init: 0})
+  **
+  **     toMatrix({rows:10, cols: 1000, init: 0})
   **
   @Api @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.dict0)
   {
@@ -343,7 +353,7 @@ const class MathFuncs
   }
 
   **
-  ** Transpose the given matrix which is any value accepted by `toMatrix`.
+  ** Transpose the given matrix which is any value accepted by [toMatrix].
   **
   @Api @Axon static MatrixGrid matrixTranspose(Obj m)
   {
@@ -352,7 +362,7 @@ const class MathFuncs
 
   **
   ** Return the determinant as a unitless Number for the given matrix which
-  ** is any value accepted by `toMatrix`.  The matrix must be square.
+  ** is any value accepted by [toMatrix].  The matrix must be square.
   **
   @Api @Axon static Number matrixDeterminant(Obj m)
   {
@@ -360,7 +370,7 @@ const class MathFuncs
   }
 
   **
-  ** Return the inverse of the given matrix which is any value accepted by `toMatrix`.
+  ** Return the inverse of the given matrix which is any value accepted by [toMatrix].
   **
   @Api @Axon static MatrixGrid matrixInverse(Obj m)
   {
@@ -369,7 +379,7 @@ const class MathFuncs
 
   **
   ** Add two matrices together and return new matrix.  The parameters may
-  ** be any value supported `toMatrix`.  Matrices must have the same dimensions.
+  ** be any value supported [toMatrix].  Matrices must have the same dimensions.
   **
   @Api @Axon static MatrixGrid matrixAdd(Obj a, Obj b)
   {
@@ -378,7 +388,7 @@ const class MathFuncs
 
   **
   ** Subtract two matrices and return new matrix.  The parameters may
-  ** be any value supported `toMatrix`.  Matrices must have the same dimensions.
+  ** be any value supported [toMatrix].  Matrices must have the same dimensions.
   **
   @Api @Axon static MatrixGrid matrixSub(Obj a, Obj b)
   {
@@ -387,8 +397,8 @@ const class MathFuncs
 
   **
   ** Multiply two matrices and return new matrix.  The parameters may
-  ** be any value supported `toMatrix`.  Matrix 'a' column count must match
-  ** matrix 'b' row count.
+  ** be any value supported [toMatrix].  Matrix `a` column count must match
+  ** matrix `b` row count.
   **
   @Api @Axon static MatrixGrid matrixMult(Obj a, Obj b)
   {
@@ -398,20 +408,20 @@ const class MathFuncs
   **
   ** Given a matrix of y coordinates and a matrix of multiple x coordinates
   ** compute the best fit multiple linear regression equation using
-  ** the ordinary least squares method.  Both 'y' and 'x' may be any value
-  ** accepted by `toMatrix`.
+  ** the ordinary least squares method.  Both `y` and `x` may be any value
+  ** accepted by [toMatrix].
   **
   ** The resulting linear equation for r X coordinates is:
   **
-  **   yᵢ = bias + b₁xᵢ₁ + b₂xᵢ₂ +...+ bᵣxᵢᵣ
+  **     yᵢ = bias + b₁xᵢ₁ + b₂xᵢ₂ +...+ bᵣxᵢᵣ
   **
   ** The equation is returned as a grid.  The grid meta:
-  **   - 'bias': bias or zero coefficient which is independent of any of the x factors
-  **   - 'r2':  R² coefficient of determination as a number between 1.0 (perfect correlation) and 0.0 (no correlation)
-  **   - 'r': the square root of R², referred to as the correlation coefficient
-  **   - 'rowCount': the number of rows of data used in the correlation
+  **   - `bias`: bias or zero coefficient which is independent of any of the x factors
+  **   - `r2`:  R² coefficient of determination as a number between 1.0 (perfect correlation) and 0.0 (no correlation)
+  **   - `r`: the square root of R², referred to as the correlation coefficient
+  **   - `rowCount`: the number of rows of data used in the correlation
   ** For each X factor there is a row with the following tags:
-  **   - 'b': the correlation coefficient for the given X factor
+  **   - `b`: the correlation coefficient for the given X factor
   **
   @Api @Axon static Grid matrixFitLinearRegression(Obj y, Obj x)
   {
@@ -425,39 +435,40 @@ const class MathFuncs
   **
   ** Given a grid of x, y coordinates compute the best fit linear
   ** regression equation using the ordinary least squares method.
-  ** The first column of the grid is used for 'x' and the second
-  ** column is 'y'.  Any rows without a Number for both x and y
+  ** The first column of the grid is used for `x` and the second
+  ** column is `y`.  Any rows without a Number for both x and y
   ** are skipped.  Any special Numbers (infinity/NaN) are skipped.
   **
   ** Options:
-  **   - 'x': column name to use for x if not first column
-  **   - 'y': column name to use for y if not second column
+  **   - `x`: column name to use for x if not first column
+  **   - `y`: column name to use for y if not second column
   **
   ** The resulting linear equation is:
   **
-  **   yᵢ = mxᵢ + b
+  **     yᵢ = mxᵢ + b
   **
   ** The equation is returned as a dictionary with these keys:
-  **   - 'm': slope of the best fit regression line
-  **   - 'b': intercept of the best fit regression line
-  **   - 'r2':  R² coefficient of determination as a number between
+  **   - `m`: slope of the best fit regression line
+  **   - `b`: intercept of the best fit regression line
+  **   - `r2`:  R² coefficient of determination as a number between
   **     1.0 (perfect correlation) and 0.0 (no correlation)
-  **   - 'xmin': minimum value of x variable in sample data
-  **   - 'xmax': maximum value of x variable in sample data
-  **   - 'ymin': minimum value of y variable in sample data
-  **   - 'ymax': maximum value of y variable in sample data
+  **   - `xmin`: minimum value of x variable in sample data
+  **   - `xmax`: maximum value of x variable in sample data
+  **   - `ymin`: minimum value of y variable in sample data
+  **   - `ymax`: maximum value of y variable in sample data
   **
-  ** Also see `matrixFitLinearRegression` to compute a multiple linear
+  ** Also see [matrixFitLinearRegression] to compute a multiple linear
   ** regression.
   **
   ** Example:
-  **   data: [{x:1, y:2},
-  **          {x:2, y:4},
-  **          {x:4, y:4},
-  **          {x:6, y:5}].toGrid
-  **    fitLinearRegression(data)
   **
-  **    >>> {m:0.4915, b: 2.1525, r2: 0.7502}
+  **     data: [{x:1, y:2},
+  **            {x:2, y:4},
+  **            {x:4, y:4},
+  **            {x:6, y:5}].toGrid
+  **      fitLinearRegression(data)
+  **
+  **      >>> {m:0.4915, b: 2.1525, r2: 0.7502}
   **
   @Api @Axon
   static Dict fitLinearRegression(Grid grid, Dict? opts := null)

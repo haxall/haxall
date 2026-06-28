@@ -22,18 +22,18 @@ const class MqttFuncs
   ** of the message must be a Str.
   **
   ** The following configuration options are supported:
-  ** - 'mqttQos': The quality-of-service to use for publishing the message. If not
+  ** - `mqttQos`: The quality-of-service to use for publishing the message. If not
   ** specified, then QoS '0' is used. See `mqttQos`.
-  ** - 'mqttRetain': Should the message be retained on the broker ('true' | 'false').
+  ** - `mqttRetain`: Should the message be retained on the broker (`true` | `false`).
   ** If not specified, then 'false' is used. See `mqttRetain`.
-  ** - 'mqttExpiryInterval': Sets the expiry interval for the message as a Duration.
+  ** - `mqttExpiryInterval`: Sets the expiry interval for the message as a Duration.
   ** This is only supported in MQTT 5.
-  ** - 'mqttUserProps': A Dict of user properties to include in the message.
+  ** - `mqttUserProps`: A Dict of user properties to include in the message.
   ** This is only supported in MQTT 5.
   **
-  ** pre>
+  ** ```fantom
   ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min, mqttUserProps: {key: "value"}})
-  ** <pre
+  ** ```
   @Api @Axon { admin = true }
   static Obj? mqttPublish(Obj conn, Str topic, Obj payload, Dict cfg := Etc.dict0)
   {

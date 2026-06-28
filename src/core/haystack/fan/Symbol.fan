@@ -78,13 +78,13 @@ abstract const class Symbol
   @NoDoc abstract Int size()
 
   ** Parts based on type:
-  **   - tag: '[,]'
-  **   - conjunct: '[hot, water, plant]'
-  **   - compose: '[parent, child]'
-  **   - key: '[feature, name]'
+  **   - tag: `[,]`
+  **   - conjunct: `[hot, water, plant]`
+  **   - compose: `[parent, child]`
+  **   - key: `[feature, name]`
   @NoDoc abstract Str part(Int index)
 
-  ** Iterate the parts based on type - see `part`
+  ** Iterate the parts based on type - see [part]
   @NoDoc abstract Void eachPart(|Str| f)
 
   ** Return if this is a term which contains the given simple tag name

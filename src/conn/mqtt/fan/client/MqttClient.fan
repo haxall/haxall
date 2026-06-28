@@ -97,7 +97,7 @@ const class MqttClient : Actor, MqttConst
   private const AtomicInt lastPacketId := AtomicInt(maxPacketId)
 
   ** Find the next free packet identifier. It is not actually consumed
-  ** until `sendPacket()` is called. So that should all happen while
+  ** until [sendPacket()] is called. So that should all happen while
   ** processing the same actor message.
   internal Int nextPacketId()
   {
@@ -167,7 +167,7 @@ const class MqttClient : Actor, MqttConst
     })
   }
 
-  ** Add a `ClientListener` and return this
+  ** Add a [ClientListener] and return this
   This addListener(ClientListener listener)
   {
     listeners.addListener(listener)
@@ -177,7 +177,7 @@ const class MqttClient : Actor, MqttConst
   ** Open a connection to the server using the given configuration.
   **
   ** Returns a future that will be completed:
-  ** 1. when the 'CONNACK' is received
+  ** 1. when the `CONNACK` is received
   ** 2. with an error if the connect times out
   Future connect(ConnectConfig config := ConnectConfig())
   {
@@ -185,7 +185,7 @@ const class MqttClient : Actor, MqttConst
     send(ActorMsg("connect", config)).get
   }
 
-  ** Publish a message to the given topic. See `publishWith` to use a "fluent"
+  ** Publish a message to the given topic. See [publishWith] to use a "fluent"
   ** API for publishing.
   **
   ** Returns a future that will be completed when the message is confirmed
@@ -200,10 +200,10 @@ const class MqttClient : Actor, MqttConst
   PubSend publishWith() { PubSend(this) }
 
   ** Subscribe to the given topic filter. You are responsible for setting the
-  ** option flags correctly. See `subscribeWith` to use a "fluent" API for
+  ** option flags correctly. See [subscribeWith] to use a "fluent" API for
   ** subscribing.
   **
-  ** Return a future that will be completed when the 'SUBACK' is received.
+  ** Return a future that will be completed when the `SUBACK` is received.
   Future subscribe(Str filter, Int opts, SubscriptionListener listener)
   {
     sub := Subscribe([filter], [opts])
@@ -216,7 +216,7 @@ const class MqttClient : Actor, MqttConst
 
   ** Unsubscribe from the given topic filter.
   **
-  ** Returns a future that will be completed when the 'UNSUBACK' is received.
+  ** Returns a future that will be completed when the `UNSUBACK` is received.
   Future unsubscribe(Str topicFilter)
   {
     unsub := Unsubscribe([topicFilter])
@@ -226,7 +226,7 @@ const class MqttClient : Actor, MqttConst
 
   ** Disconnect from the server.
   **
-  ** Returns a future that will be completed after the 'DISCONNECT' message is actually
+  ** Returns a future that will be completed after the `DISCONNECT` message is actually
   ** sent to the server.
   Future disconnect()
   {

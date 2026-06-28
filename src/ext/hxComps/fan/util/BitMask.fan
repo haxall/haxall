@@ -38,7 +38,7 @@ abstract class BitMask : HxComp
 }
 
 **
-** Compute the bitwise 'and' value of the input and the mask
+** Compute the bitwise `and` value of the input and the mask
 **
 class BitAnd : BitMask
 {
@@ -50,7 +50,7 @@ class BitAnd : BitMask
 }
 
 **
-** Compute the bitwise 'or' value of the input and the mask
+** Compute the bitwise `or` value of the input and the mask
 **
 class BitOr : BitMask
 {
@@ -62,7 +62,7 @@ class BitOr : BitMask
 }
 
 **
-** Compute the bitwise 'xor' (exclusive or) of the input and the mask
+** Compute the bitwise `xor` (exclusive or) of the input and the mask
 **
 class BitXor : BitMask
 {

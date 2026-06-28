@@ -18,7 +18,7 @@ abstract class XetoLog
   **
   ** Log errors to the given output stream using the standard format:
   **
-  **   filepath(line): message
+  **     filepath(line): message
   **
   ** This logger is best used when running protoc as a stand alone
   ** command line program.
@@ -26,7 +26,7 @@ abstract class XetoLog
   static new makeOutStream(OutStream out := Env.cur.out) { XetoOutStreamLog(out) }
 
   **
-  ** Wrap the `sys::Log` object.  This logger is best used when
+  ** Wrap the [sys::Log] object.  This logger is best used when
   ** embedding the ProtoCompiler inside larger programs.
   **
   static new makeLog(Log log) { XetoWrapperLog(log) }

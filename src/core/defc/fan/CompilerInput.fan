@@ -25,7 +25,7 @@ abstract const class CompilerInput
     ].findNotNull
   }
 
-  ** Convenience for 'makePod(Pod.find(podName))'
+  ** Convenience for `makePod(Pod.find(podName))`
   static new makePodName(Str podName, Bool checked := true)
   {
     pod := Pod.find(podName, false)
@@ -130,7 +130,7 @@ abstract const class LibInput : CompilerInput
   ** Additional def inputs which are not in files or reflection
   virtual Dict[] scanExtra(DefCompiler c) { Dict#.emptyList }
 
-  ** Adapt a dict without a 'def' tag to its proper def declaration
+  ** Adapt a dict without a `def` tag to its proper def declaration
   virtual Dict? adapt(DefCompiler c, Dict dict, CLoc loc) { null }
 }
 

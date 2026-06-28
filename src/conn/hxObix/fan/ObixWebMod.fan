@@ -14,9 +14,10 @@ using hx
 
 **
 ** ObixWebMod:
-**   {base}                    // lobby
-**   {base}/xsl                // style sheet
-**   {base}/icon/{id}/{uri}    // icon tunnel
+**
+**     {base}                    // lobby
+**     {base}/xsl                // style sheet
+**     {base}/icon/{id}/{uri}    // icon tunnel
 **
 const class ObixWebMod : ObixMod
 {
@@ -99,7 +100,8 @@ const class ObixWebMod : ObixMod
 
   **
   ** Tunnel thru to get icon file:
-  **   {base}/icon/{connId}/{uri}
+  **
+  **     {base}/icon/{connId}/{uri}
   **
   private Void icon(Proj proj)
   {

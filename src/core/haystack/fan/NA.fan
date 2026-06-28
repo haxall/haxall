@@ -16,7 +16,7 @@ const final class NA
   ** Singleton value
   const static NA val := NA()
 
-  ** Always return `val`
+  ** Always return [val]
   static new fromStr(Str s) { val }
 
   private new make() {}

@@ -15,8 +15,8 @@ using web
 **
 const class AuthCodeGrant
 {
-  ** Configure the authorization code grant with an [Authorization Request]`AuthReq`
-  ** and a [Token Request]`AuthCodeTokenReq`.
+  ** Configure the authorization code grant with an [Authorization Request](AuthReq)
+  ** and a [Token Request](AuthCodeTokenReq).
   new make(AuthReq authReq, AuthCodeTokenReq tokenReq)
   {
     this.authReq  = authReq
@@ -30,7 +30,7 @@ const class AuthCodeGrant
   ** Run the Authorization Code grant flow to obtain an access token. PKCE is
   ** always applied to mitigate the authorization code interception attack.
   **
-  ** See [RFC 7636]`https://tools.ietf.org/html/rfc7636` for PKCE details.
+  ** See [RFC 7636](https://tools.ietf.org/html/rfc7636) for PKCE details.
   @NoDoc AccessToken run()
   {
     // 1. Do the authorization request

@@ -7,7 +7,7 @@
 //
 
 **
-** An `OutStream` for writing RDF statements.
+** An [OutStream] for writing RDF statements.
 **
 @Js abstract class RdfOutStream : OutStream
 {
@@ -34,16 +34,16 @@
   }
 
   ** Associate a prefix with a namespace. If the prefix is already mapped to a different
-  ** namespace, then throw `ArgErr`.
+  ** namespace, then throw [ArgErr].
   **
   ** If an RDF export format doesn't support namespace prefixes, this is a no-op. The
   ** behavior of the RDF out stream is undefined if you call this method of you have
-  ** called `writeStmt`, so you should set all your namespace prefixes prior to writing
+  ** called [writeStmt], so you should set all your namespace prefixes prior to writing
   ** statements.
   **
   ** Return this.
   **
-  **   out.setNs("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+  **     out.setNs("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
   This setNs(Str prefix, Str namespace)
   {
     cur := nsMap[prefix]
@@ -85,23 +85,23 @@
   ** Write the given RDF statement.
   **
   ** All writers should handle mapping the following Fantom types to well-defined
-  ** RDF data types without requiring a type for 'typeOrLocale' parameter.
-  **  - `Str` => 'xsd::string'
-  **  - `Uri` => 'xsd::anyURI'
-  **  - `Num` => 'xsd::integer' | 'xsd::decimal' | 'xsd::double'
-  **  - `Bool` => 'xsd::boolean'
-  **  - `Date` => 'xsd::date'
-  **  - `Time` => 'xsd::time'
-  **  - `DateTime` => 'xsd::dateTime'
-  **  - `Buf` => 'xsd::hexBinary'
+  ** RDF data types without requiring a type for `typeOrLocale` parameter.
+  **  - [Str] => `xsd::string`
+  **  - [Uri] => `xsd::anyURI`
+  **  - [Num] => `xsd::integer` | `xsd::decimal` | `xsd::double`
+  **  - [Bool] => `xsd::boolean`
+  **  - [Date] => `xsd::date`
+  **  - [Time] => `xsd::time`
+  **  - [DateTime] => `xsd::dateTime`
+  **  - [Buf] => `xsd::hexBinary`
   **
-  ** A non-null 'typeOrLocale' parameter is used as follows:
-  **  - An `Iri` indicates the data type of the 'object' parameter. In this
+  ** A non-null `typeOrLocale` parameter is used as follows:
+  **  - An [Iri] indicates the data type of the `object` parameter. In this
   **  case the 'object' will **always** be encoded as a string.
-  **  - A `Locale` indicates the language the 'object' is in. In this
+  **  - A [Locale] indicates the language the `object` is in. In this
   **  case the 'object' *should* be a string.
   **
-  ** Not all export formats can make use of the information in 'typeOrLocale'
+  ** Not all export formats can make use of the information in `typeOrLocale`
   ** parameter, but you should always provide it if available.
   **
   ** Return this.

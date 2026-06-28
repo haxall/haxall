@@ -53,7 +53,7 @@ internal class Tokenizer
   ** Tokenize and return slash-slash comments
   Bool keepComments := true
 
-  ** Read the next token, store result in `tok` and `val`
+  ** Read the next token, store result in [tok] and [val]
   Token next()
   {
     // reset

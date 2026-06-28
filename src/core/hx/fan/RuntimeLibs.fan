@@ -35,7 +35,7 @@ const mixin RuntimeLibs
   abstract Void addAll(Str[] names)
 
   ** Add all the depends on given name that are not enabled.
-  ** Add given name itself only if 'self' flag is true.
+  ** Add given name itself only if `self` flag is true.
   @NoDoc abstract Void addDepends(Str name, Bool self)
 
   ** Convenience to remove one library

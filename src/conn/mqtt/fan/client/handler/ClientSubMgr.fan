@@ -212,7 +212,7 @@ internal class ClientSubMgr : ClientHandler
 **
 mixin SubscriptionListener
 {
-  ** Callback when the subscription is acknowledged. The `ReasonCode` indicates
+  ** Callback when the subscription is acknowledged. The [ReasonCode] indicates
   ** if the subscription was a success or not.
   virtual Void onSubscribed(Str topic, ReasonCode reason, Properties props) { }
 

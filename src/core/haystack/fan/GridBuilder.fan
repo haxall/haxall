@@ -10,20 +10,20 @@ using concurrent
 using xeto
 
 **
-** GridBuilder is used to build up an immutable `Grid`.  To use first
-** define your cols via `addCol` and then add the rows via `addRow`:
+** GridBuilder is used to build up an immutable [Grid].  To use first
+** define your cols via [addCol] and then add the rows via [addRow]\:
 **
-**    gb := GridBuilder()
-**    gb.addCol("a").addCol("b")
-**    gb.addRow(["a-0", "b-0"])
-**    gb.addRow(["a-1", "b-1"])
-**    grid := gb.toGrid
+**      gb := GridBuilder()
+**      gb.addCol("a").addCol("b")
+**      gb.addRow(["a-0", "b-0"])
+**      gb.addRow(["a-1", "b-1"])
+**      grid := gb.toGrid
 **
 @Js
 class GridBuilder
 {
   ** Set the grid meta (overwrites any current meta)
-  ** The meta parameter can be any `Etc.makeDict` value.
+  ** The meta parameter can be any [Etc.makeDict] value.
   This setMeta(Obj? meta)
   {
     this.meta = Etc.makeDict(meta)
@@ -53,7 +53,7 @@ class GridBuilder
   }
 
   ** Add column to the grid.
-  ** The meta parameter can be any `Etc.makeDict` value.
+  ** The meta parameter can be any [Etc.makeDict] value.
   This addCol(Str name, Obj? meta := null)
   {
     if (colsByName != null) throw Err("Cannot add cols after adding rows")
@@ -115,7 +115,7 @@ class GridBuilder
     return this
   }
 
-  ** Convience for adding a list of `addDictRow`.
+  ** Convience for adding a list of [addDictRow].
   This addDictRows(Dict?[] rows)
   {
     rows.each |row| { addDictRow(row) }
@@ -166,7 +166,7 @@ class GridBuilder
     return this
   }
 
-  ** Construt a grid of one column called 'grid' and rows of
+  ** Construt a grid of one column called `grid` and rows of
   ** zinc encoded grids.  Null grids are skipped.
   @NoDoc This addGridsAsZincRows(Grid?[] grids)
   {
@@ -179,7 +179,7 @@ class GridBuilder
 
   ** Add history data as rows joined by timestamp.  The individual
   ** HisItem[] must be presorted by timetamps. The column definitions
-  ** must include a 'ts' column and value column for for 'items.size'.
+  ** must include a `ts` column and value column for for `items.size`.
   ** This method must only be called once with all the data to join.
   @NoDoc This addHisItemRows(HisItem[][] pts)
   {

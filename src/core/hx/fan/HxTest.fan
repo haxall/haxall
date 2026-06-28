@@ -15,26 +15,26 @@ using folio
 **
 ** HxTest is a base class for writing Haxall tests which provide
 ** access to a booted project instance.  Annotate test methods which
-** require a project with `HxTestProj`.  This class uses the 'hxd'
+** require a project with [HxTestProj].  This class uses the `hxd`
 ** implementation for its project.
 **
-**   @HxTestProj
-**   Void testBasics()
-**   {
-**     x := addRec(["dis":"It works!"])
-**     y := rt.db.readById(x.id)
-**     verifyEq(y.dis, "It works!")
-**   }
+**     @HxTestProj
+**     Void testBasics()
+**     {
+**       x := addRec(["dis":"It works!"])
+**       y := rt.db.readById(x.id)
+**       verifyEq(y.dis, "It works!")
+**     }
 **
 ** The following environment variables may be used to customize
 ** behavior the tests when running in a SkySpark environment:
 **
-**   - 'HX_TEST_HTTP_PORT': http port to use when booting a runtime;
+**   - `HX_TEST_HTTP_PORT`: http port to use when booting a runtime;
 **     the default is 8080 if not specified
 **
-**   - 'SKYSPARK_TEST_LIC_DIR': directory to look for license file(s)
+**   - `SKYSPARK_TEST_LIC_DIR`: directory to look for license file(s)
 **     which are installed for the test system.  The default is the
-**     '{Env.workDir}/var/lic/'.
+**     `{Env.workDir}/var/lic/`.
 **
 abstract class HxTest : HaystackTest
 {
@@ -43,13 +43,13 @@ abstract class HxTest : HaystackTest
 // Test Setup
 //////////////////////////////////////////////////////////////////////////
 
-  ** If '@HxTestProj' configured then open `proj`
+  ** If `@HxTestProj` configured then open [proj]
   override Void setup()
   {
     if (curTestMethod.hasFacet(HxTestProj#)) projStart
   }
 
-  ** If '@HxTestProj' configured then close down `proj`
+  ** If `@HxTestProj` configured then close down [proj]
   override Void teardown()
   {
     Actor.locals.remove(ActorContext.actorLocalsKey)
@@ -78,23 +78,23 @@ abstract class HxTest : HaystackTest
 // Proj (@HxTestProj)
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get system if '@HxTestProj' configured on test method
+  ** Get system if `@HxTestProj` configured on test method
   Sys? sys(Bool checked := true)
   {
     proj(checked)?.sys
   }
 
-  ** Test project if '@HxTestProj' configured on test method
+  ** Test project if `@HxTestProj` configured on test method
   Proj? proj(Bool checked := true)
   {
     if (projRef != null || !checked) return projRef
     throw Err("Proj not started (ensure $curTestMethod marked @HxTestProj)")
   }
 
-  ** Reference for `proj`
+  ** Reference for [proj]
   @NoDoc Proj? projRef
 
-  ** Start a test project which is accessible via `proj` method.
+  ** Start a test project which is accessible via [proj] method.
   @NoDoc virtual Void projStart()
   {
     if (projRef != null) throw Err("Proj already started!")
@@ -143,25 +143,25 @@ abstract class HxTest : HaystackTest
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for 'read' on `proj`
+  ** Convenience for `read` on [proj]
   Dict? read(Str filter, Bool checked := true)
   {
     proj.read(filter, checked)
   }
 
-  ** Convenience for 'readById' on `proj`
+  ** Convenience for `readById` on [proj]
   Dict? readById(Ref id, Bool checked := true)
   {
     proj.db.readById(id, checked)
   }
 
-  ** Convenience for commit to `proj`
+  ** Convenience for commit to [proj]
   Dict? commit(Dict rec, Obj? changes, Int flags := 0)
   {
     proj.commit(Diff.make(rec, changes, flags)).newRec
   }
 
-  ** Add a record to `proj` using the given map of tags.
+  ** Add a record to [proj] using the given map of tags.
   Dict addRec(Str:Obj? tags := Str:Obj?[:])
   {
     // strip out null
@@ -192,7 +192,7 @@ abstract class HxTest : HaystackTest
     spi.addExt(libName, tags)
   }
 
-  ** Convenience for 'proj.specs.addFunc'
+  ** Convenience for `proj.specs.addFunc`
   Spec addFunc(Str name, Str src, Obj? meta := null)
   {
     rec := proj.companion.parseAxon(name, src, Etc.makeDict(meta))
@@ -265,7 +265,7 @@ abstract class HxTest : HaystackTest
 **************************************************************************
 
 **
-** Annotates a `HxTest` method to setup a test project
+** Annotates a [HxTest] method to setup a test project
 **
 facet class HxTestProj
 {

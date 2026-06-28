@@ -24,7 +24,7 @@ class StopContainerCmd : DockerHttpCmd
 
   ** The ID of name of the container
   Str id { private set }
-  ** Set the `id` and return this
+  ** Set the [id] and return this
   This withId(Str id) { this.id = id; return this }
 
   ** Number of seconds to wait before killing the container

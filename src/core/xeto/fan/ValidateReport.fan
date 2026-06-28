@@ -77,10 +77,10 @@ enum class ValidateLevel
   ** Error level
   err
 
-  ** Is this the 'err' enum value
+  ** Is this the `err` enum value
   Bool isErr() { this === err }
 
-  ** Is this the 'warn' enum value
+  ** Is this the `warn` enum value
   Bool isWarn() { this === warn }
 
   ** Max level from items or null if items is empty

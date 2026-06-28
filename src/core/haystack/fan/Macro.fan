@@ -9,7 +9,7 @@
 using xeto
 
 **
-** Macro is used to process macro strings for `Etc.macro`.
+** Macro is used to process macro strings for [Etc.macro].
 **
 @NoDoc @Js
 class Macro

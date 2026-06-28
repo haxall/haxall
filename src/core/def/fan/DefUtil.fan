@@ -192,7 +192,7 @@ class DefUtil
 // Accumulate
 //////////////////////////////////////////////////////////////////////////
 
-  ** Implement standard 'accumulate' inheritance behavior
+  ** Implement standard `accumulate` inheritance behavior
   static Obj accumulate(Obj a, Obj b)
   {
     acc := DefAccItem[,]
@@ -262,7 +262,7 @@ class DefUtil
 
   ** The unique base types in the given def list.  Any defs which have
   ** one of their supertypes in the list are excluded. For example given
-  ** a list of 'equip,ahu,vav' return just 'equip'
+  ** a list of `equip,ahu,vav` return just `equip`
   static Def[] findBaseDefs(DefNamespace ns, Def[] defs)
   {
     bySymbol := Str:Def[:].setList(defs) { it.symbol.toStr }

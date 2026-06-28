@@ -47,10 +47,10 @@ const class DocDict : DocVal
   ** Return this
   override DocDict asDict() { this }
 
-  ** Convenience for 'dict.get'
+  ** Convenience for `dict.get`
   DocVal? get(Str name) { dict.get(name) }
 
-  ** Convenience for 'dict.get' as string
+  ** Convenience for `dict.get` as string
   Str? getStr(Str name) { dict.get(name)?.toVal as Str }
 
   ** Return if given tag is defined

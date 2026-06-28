@@ -69,7 +69,7 @@ class AuthClientContext : HaystackClientAuth
 //////////////////////////////////////////////////////////////////////////
 
   ** Open the authenticated session. On failure an exception will
-  ** be raised.  If successful then return this and then use `prepare`
+  ** be raised.  If successful then return this and then use [prepare]
   ** to use authenticated WebClients to the server
   private This doOpen()
   {
@@ -127,7 +127,7 @@ class AuthClientContext : HaystackClientAuth
   }
 
   ** If the web client has Set-Cookie header, then add those
-  ** cookies into the 'headers' field for future web requests
+  ** cookies into the `headers` field for future web requests
   private Void addCookiesToHeaders(WebClient c)
   {
     if (c.cookies.isEmpty || this.headers.containsKey("Cookie")) return

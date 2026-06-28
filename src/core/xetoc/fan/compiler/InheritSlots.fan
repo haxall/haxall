@@ -233,7 +233,7 @@ internal class InheritSlots : Step
     return flags.or(bit)
   }
 
-  ** Treat 'sys' itself special using names
+  ** Treat `sys` itself special using names
   private Int computeFlagsSys(ASpec x)
   {
     // maybe
@@ -275,7 +275,7 @@ internal class InheritSlots : Step
     return flags
   }
 
-  ** Handle flags in 'sys.comp'
+  ** Handle flags in `sys.comp`
   private Int computeFlagsSysComp(ASpec x)
   {
     if (x.name == "Comp") return MSpecFlags.comp
@@ -520,12 +520,12 @@ internal class InheritSlots : Step
 
   ** Union one query's constraints into the merged accumulator.  Constraints
   ** may be auto-named (re-numbered to stay unique) or explicitly named (which
-  ** cannot reuse a name already in the accumulator).  When 'own' is true the
+  ** cannot reuse a name already in the accumulator).  When `own` is true the
   ** constraints are the merge's own declared slots: they are processed now
   ** (their inherit pass won't recurse them since the merge's members are
   ** already finalized).  When false they are inherited from a supertype query,
   ** and any already parented to the merge are its own constraints (added last
-  ** via the 'own' pass) so we skip them here.
+  ** via the `own` pass) so we skip them here.
   private Int mergeQueryConstraints(ASpec merge, Str:Spec acc, Int autoCount, Spec[]? slots, Bool own)
   {
     slots?.each |slot|

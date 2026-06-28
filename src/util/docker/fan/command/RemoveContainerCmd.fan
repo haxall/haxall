@@ -24,22 +24,22 @@ class RemoveContainerCmd : DockerHttpCmd
 
   ** The ID or name of the container
   Str id { private set }
-  ** Set the `id` and return this
+  ** Set the [id] and return this
   This withId(Str id) { this.id = id; return this }
 
   ** Remove anonymous volumes associated with the container
   Bool removeAnonymousVolumes := false { private set }
-  ** Set `removeAnonVolumes` and return this
+  ** Set [removeAnonVolumes] and return this
   This withRemoveAnonymousVolumes(Bool v) { this.removeAnonymousVolumes = v; return this }
 
   ** If the container is running, kill it before removing it
   Bool force := false { private set }
-  ** Set `force` and return this
+  ** Set [force] and return this
   This withForce(Bool force) { this.force = force; return this}
 
   ** Remove the specified link associated with the container
   Bool link := false { private set }
-  ** Set `link` and return this
+  ** Set [link] and return this
   This withLink(Bool link) { this.link = link; return this }
 
 //////////////////////////////////////////////////////////////////////////

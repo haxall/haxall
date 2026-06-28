@@ -43,19 +43,20 @@ const mixin LibDepend : Dict
 **
 ** Xeto library dependency version constraints.  The format is:
 **
-**   <range>    :=  <ver> "-" <ver>
-**   <ver>      :=  <seg> "." <seg> "." <seg>
-**   <seg>      :=  <wildcard> | <number>
-**   <wildcard> :=  "x"
-**   <number>   :=  <digit>+
-**   <digit>    :=  "0" - "9"
+**     <range>    :=  <ver> "-" <ver>
+**     <ver>      :=  <seg> "." <seg> "." <seg>
+**     <seg>      :=  <wildcard> | <number>
+**     <wildcard> :=  "x"
+**     <number>   :=  <digit>+
+**     <digit>    :=  "0" - "9"
 **
 ** Examples:
-**   1.2.3         // version 1.2.3 exact
-**   1.2.x         // any version that starts with "1.2."
-**   3.x.x         // any version that starts with "3."
-**   1.0.0-2.0.0   // range from 1.0.0 to 2.0.0 inclusive
-**   1.2.0-1.3.x   // range from 1.2.0 to 1.3.* inclusive
+**
+**     1.2.3         // version 1.2.3 exact
+**     1.2.x         // any version that starts with "1.2."
+**     3.x.x         // any version that starts with "3."
+**     1.0.0-2.0.0   // range from 1.0.0 to 2.0.0 inclusive
+**     1.2.0-1.3.x   // range from 1.2.0 to 1.3.* inclusive
 **
 @Js
 const mixin LibDependVersions

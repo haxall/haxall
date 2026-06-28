@@ -79,7 +79,7 @@ const class DocSpec : AbstractDocSpec, DocPage
   ** Tags
   const override DocTag[] tags
 
-  ** Super type or null if this is 'sys::Obj'
+  ** Super type or null if this is `sys::Obj`
   const DocTypeRef? base
 
   ** Supertype inheritance graph

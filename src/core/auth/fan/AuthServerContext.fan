@@ -187,7 +187,7 @@ abstract class AuthServerContext
 
   ** Callback to add in security related headers.
   ** By default we set the following headers:
-  ** - Content-Security-Policy: 'self'
+  ** - Content-Security-Policy: `self`
   ** - X-Frame-Options: SAMEORIGIN
   ** - Cache-Control: no-cache, no-store, private
   virtual protected Void addSecResHeaders()

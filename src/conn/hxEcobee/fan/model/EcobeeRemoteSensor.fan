@@ -19,7 +19,7 @@ const class EcobeeRemoteSensor : EcobeeObj
   new make(|This| f) { f(this) }
 
   ** The unique sensor identifier. It is composed of deviceName + deviceId
-  ** separated by colons (e.g. 'rs:100')
+  ** separated by colons (e.g. `rs:100`)
   override const Str? id
 
   ** The user assigned sensor name

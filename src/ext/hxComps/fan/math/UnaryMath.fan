@@ -47,7 +47,7 @@ class AbsValue : UnaryMath
 }
 
 **
-** Computes out = e ^ inA where 'e' is Euler's number
+** Computes out = e ^ inA where `e` is Euler's number
 **
 class Exponential : UnaryMath
 {

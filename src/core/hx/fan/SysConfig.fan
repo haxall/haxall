@@ -31,10 +31,10 @@ final const class SysConfig
   Dict meta() { metaRef }
   private const Dict metaRef
 
-  ** Convenience for 'meta.has'
+  ** Convenience for `meta.has`
   Bool has(Str name) { meta.has(name) }
 
-  ** Convenience for 'meta.get'
+  ** Convenience for `meta.get`
   @Operator Obj? get(Str name) { meta.get(name) }
 
   ** Construct a platform service provider interface instance from given key

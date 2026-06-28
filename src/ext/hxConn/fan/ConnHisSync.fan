@@ -62,7 +62,7 @@ using folio
   abstract Void commitPending()
 
   ** Sync the point and return result dict.
-  ** The dict must have an 'err' tag if there was an error.
+  ** The dict must have an `err` tag if there was an error.
   abstract Dict sync(Obj point)
 
   ** Get span to use for given point

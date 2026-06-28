@@ -71,7 +71,7 @@ const mixin ProjCompanion
 
   ** Parse Xeto source representation into its rt rec AST representation.
   ** The optional meta parameter may be used to add additional tags
-  ** into the rt record (such as carrying through the 'id' tag).
+  ** into the rt record (such as carrying through the `id` tag).
   abstract Dict parse(Str xeto, Dict? meta := null)
 
   ** Parse Axon source representation into its rt rec AST representation.

@@ -94,10 +94,10 @@ const class AuthUtil
 
   ** Get the "real" remote address for a web request.
   **
-  ** 1. Check the request headers for 'X-Real-IP'. This is the convention
+  ** 1. Check the request headers for `X-Real-IP`. This is the convention
   ** that NGINX uses for passing through the remote address.
   ** 1. Then check for X-Forwarded-For
-  ** 1. Fallback to the 'req.remoteAddr'
+  ** 1. Fallback to the `req.remoteAddr`
   static Str realIp(WebReq req)
   {
      addr := req.headers["X-Real-IP"]

@@ -9,7 +9,7 @@
 **
 ** Serial port service provider interface. An implementation of this mixin
 ** provides access to the serial ports of the host platform. Concurrent access
-** to this SPI is managed by the `SerialLib`.
+** to this SPI is managed by the [SerialLib].
 **
 abstract const class PlatformSerialSpi
 {

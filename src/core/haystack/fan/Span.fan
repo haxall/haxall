@@ -14,10 +14,10 @@
 const final class Span
 {
   ** Decode from string format:
-  **   - relative `SpanMode` mode name
-  **   - absolute single date: 'YYYY-MM-DD'
-  **   - absolute date span: 'YYYY-MM-DD,YYYY-MM-DD'
-  **   - absolute date time span: 'YYYY-MM-DDThh:mm:ss.FFF zzzz,YYYY-MM-DDThh:mm:ss.FFF zzzz'
+  **   - relative [SpanMode] mode name
+  **   - absolute single date: `YYYY-MM-DD`
+  **   - absolute date span: `YYYY-MM-DD,YYYY-MM-DD`
+  **   - absolute date time span: `YYYY-MM-DDThh:mm:ss.FFF zzzz,YYYY-MM-DDThh:mm:ss.FFF zzzz`
   static new fromStr(Str str, TimeZone tz := TimeZone.cur, Bool checked := true)
   {
     try
@@ -52,7 +52,7 @@ const final class Span
   }
 
   ** Make an absolute span for two date times which must
-  ** be defined in the 'Rel' timezone
+  ** be defined in the `Rel` timezone
   static new makeAbs(DateTime start, DateTime end)
   {
     if (start.tz !== end.tz) throw ArgErr("Mismatched tz: $start.tz != $end.tz")
@@ -73,10 +73,10 @@ const final class Span
     doMakeRel(mode, DateTime.now.toTimeZone(tz))
   }
 
-  ** Convenience for 'Span(SpanMode.today)'
+  ** Convenience for `Span(SpanMode.today)`
   static Span today(TimeZone tz := TimeZone.cur) { Span(SpanMode.today, tz) }
 
-  ** Default value is `today` for current timezone
+  ** Default value is [today] for current timezone
   @NoDoc static Span defVal() { today(TimeZone.cur) }
 
   @NoDoc static new doMakeRel(SpanMode mode, DateTime now)
@@ -217,7 +217,7 @@ const final class Span
     return this.start == that.start && this.end == that.end
   }
 
-  ** Encode to string, see `fromStr`
+  ** Encode to string, see [fromStr]
   override Str toStr()
   {
     if (mode.isRel) return mode.name
@@ -229,7 +229,7 @@ const final class Span
     return "$start,$end"
   }
 
-  ** For 'format' handling using '->toLocale'
+  ** For `format` handling using `->toLocale`
   @NoDoc Str toLocale() { dis }
 
   ** Display string for current locale
@@ -255,7 +255,7 @@ const final class Span
     catch (Err e) return toStr
   }
 
-  ** Convert to timezone using `sys::DateTime.toTimeZone` on both start, end
+  ** Convert to timezone using [sys::DateTime.toTimeZone] on both start, end
   Span toTimeZone(TimeZone tz)
   {
     if (this.tz === tz) return this

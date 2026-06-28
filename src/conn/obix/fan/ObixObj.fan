@@ -7,7 +7,7 @@
 //
 
 **
-** ObixObj models an 'obix:obj' element.
+** ObixObj models an `obix:obj` element.
 **
 class ObixObj
 {
@@ -33,13 +33,13 @@ class ObixObj
   **
   ** URI of this object. The root object of a document must have
   ** an absolute URI, other objects may have a URI relative to
-  ** the document root.  See `normalizedHref` to get this href
+  ** the document root.  See [normalizedHref] to get this href
   ** normalized against the root object.
   **
   Uri? href
 
   **
-  ** Get this objects `href` normalized against the root object's
+  ** Get this objects [href] normalized against the root object's
   ** URI.  Return null no href defined.
   **
   Uri? normalizedHref()
@@ -54,8 +54,9 @@ class ObixObj
   ** The XML element name to use for this object.  If not
   ** one of the valid oBIX element names then throw ArgErr.
   ** Valid element names are:
-  **   obj, bool, int, real, str, enum, uri, abstime,
-  **   reltime, date, time, list, op, feed, ref, err
+  **
+  **     obj, bool, int, real, str, enum, uri, abstime,
+  **     reltime, date, time, list, op, feed, ref, err
   **
   Str elemName := "obj"
   {
@@ -86,22 +87,22 @@ class ObixObj
 
   **
   ** The list of contract URIs this object implemented
-  ** as specified by 'is' attribute.
+  ** as specified by `is` attribute.
   **
   Contract contract := Contract.empty
 
   **
-  ** The 'of' contract for lists and feeds.
+  ** The `of` contract for lists and feeds.
   **
   Contract? of
 
   **
-  ** The 'in' contract for operations and feeds.
+  ** The `in` contract for operations and feeds.
   **
   Contract? in
 
   **
-  ** The 'out' contract for operations.
+  ** The `out` contract for operations.
   **
   Contract? out
 
@@ -128,7 +129,7 @@ class ObixObj
   **   - obix:time    => sys::Time
   **
   ** If the value is not one of the types listed above, then ArgErr is
-  ** thrown.  If the value is set to non-null, then the `elemName` is
+  ** thrown.  If the value is set to non-null, then the [elemName] is
   ** automatically updated.
   **
   Obj? val
@@ -154,7 +155,7 @@ class ObixObj
 
   **
   ** Return this element type's Fantom value type or null if this
-  ** is a non-value type such as 'obj'.
+  ** is a non-value type such as `obj`.
   **
   Type? valType() {  ObixUtil.elemNameToValType[elemName] }
 
@@ -173,7 +174,7 @@ class ObixObj
 
   **
   ** Get the root ancestor of this object, or
-  ** return 'this' if no parent.
+  ** return `this` if no parent.
   **
   ObixObj root()
   {
@@ -220,7 +221,7 @@ class ObixObj
 
   **
   ** If the name maps to a child object, then return that
-  ** child's value.  Otherwise route to 'Obj.trap'.
+  ** child's value.  Otherwise route to `Obj.trap`.
   **
   override Obj? trap(Str name, Obj?[]? args := null)
   {
@@ -232,7 +233,7 @@ class ObixObj
   **
   ** Get a readonly list of the children objects or empty
   ** list if no children.  If iterating the children it is
-  ** more efficient to use `each`.
+  ** more efficient to use [each].
   **
   ObixObj[] list()
   {
@@ -243,12 +244,12 @@ class ObixObj
   }
 
   **
-  ** Get the first child returned by `list` or null.
+  ** Get the first child returned by [list] or null.
   **
   ObixObj? first() { kidsHead }
 
   **
-  ** Get the last child returned by `list` or null.
+  ** Get the last child returned by [list] or null.
   **
   ObixObj? last() { kidsTail }
 
@@ -380,7 +381,7 @@ class ObixObj
 
   **
   ** TimeZone facet assocaited with abstime, date, and time objects.
-  ** This field is automatically updated when `val` is assigned a
+  ** This field is automatically updated when [val] is assigned a
   ** DateTime unless its timezone is UTC or starts with "Etc/".  After
   ** decoding this field is set only if an explicit "tz" attribute was
   ** specified.
@@ -390,7 +391,7 @@ class ObixObj
   **
   ** Unit of measurement for int and real values.  We only support units
   ** which are predefind in the oBIX unit database and specified using the
-  ** URI "obix:units/".  These units are mapped to the `sys::Unit` API.
+  ** URI "obix:units/".  These units are mapped to the [sys::Unit] API.
   ** If an unknown unit URI is decoded, then it is silently ignored and
   ** this field will be null.
   **

@@ -26,6 +26,7 @@ const class NestRoom : NestResource
   override Str dis() { traitVal("RoomInfo", "customName") }
 
   ** Get the id of the structure this room is in
-  **   enterprises/<project-id>/structures/<structure-id>/rooms/<room-id>
+  **
+  **     enterprises/<project-id>/structures/<structure-id>/rooms/<room-id>
   Str structureId() { name.path[3] }
 }

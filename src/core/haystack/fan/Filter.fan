@@ -14,7 +14,7 @@ using xeto
 
 **
 ** Filter models a declarative predicate for selecting dicts.
-** See `ph.doc::Filters` for details.
+** See [ph.doc::Filters] for details.
 **
 @Js
 const abstract class Filter
@@ -112,7 +112,7 @@ const abstract class Filter
     return GlobSearchFilter(pattern)
   }
 
-  ** Create search filter from the standard 'search' option.
+  ** Create search filter from the standard `search` option.
   @NoDoc static Filter? searchFromOpts(Dict? opts)
   {
     pattern := (opts?.get("search") as Str ?: "").trim
@@ -124,7 +124,7 @@ const abstract class Filter
 // Parse
 //////////////////////////////////////////////////////////////////////////
 
-  ** Parse a query from string - see `ph.doc::Filters` for format.
+  ** Parse a query from string - see [ph.doc::Filters] for format.
   ** If the query cannot be parsed then return null or throw
   ** ParseErr with location of error.
   static new fromStr(Str s, Bool checked := true)
@@ -151,7 +151,7 @@ const abstract class Filter
 
   ** Return if the specified record matches this filter.
   ** Pass a context object to enable def aware features and to path
-  ** through refs via the '->' operator.
+  ** through refs via the `->` operator.
   Bool matches(Dict r, HaystackContext? cx := null)
   {
     doMatches(r, cx ?: HaystackContext.nil)
@@ -181,13 +181,13 @@ const abstract class Filter
   ** Get the filter type.
   @NoDoc abstract FilterType type()
 
-  ** Get the 'a' argument of the AST node type - see `FilterType`.
+  ** Get the `a` argument of the AST node type - see [FilterType].
   @NoDoc virtual Obj? argA() { return null }
 
-  ** Get the 'b' argument of the AST node type - see `FilterType`.
+  ** Get the `b` argument of the AST node type - see [FilterType].
   @NoDoc virtual Obj? argB() { return null }
 
-  ** Return if this is a compound query with a logical 'and' or 'or' parts.
+  ** Return if this is a compound query with a logical `and` or `or` parts.
   @NoDoc virtual Bool isCompound() { return false }
 
 //////////////////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ const abstract class Filter
   ** Equality is based on the normalized string.
   override Bool equals(Obj? that) { that is Filter && toStr == that.toStr }
 
-  ** Hash is based on 'toStr'.
+  ** Hash is based on `toStr`.
   override Int hash() { toStr.hash }
 
   ** Ordering is based on operator type, LHS, then RHS
@@ -224,21 +224,22 @@ const abstract class Filter
 ** forms such as SQL:
 **
 ** Filter Types:
-**    Enum     Syntax     Arguments
-**    ----     ------     ---------
-**    has      a          argA=FilterPath
-**    missing  not a      argA=FilterPath
-**    eq       a == b     argA=FilterPath, argB=Obj
-**    ne       a != b     argA=FilterPath, argB=Obj
-**    gt       a > b      argA=FilterPath, argB=Obj
-**    ge       a >= b     argA=FilterPath, argB=Obj
-**    lt       a < b      argA=FilterPath, argB=Obj
-**    le       a <= b     argA=FilterPath, argB=Obj
-**    and      a and b    argA=Filter, argB=Filter
-**    or       a or b     argA=Filter, argB=Filter
-**    isSpec   a          argA=Str
-**    isSymbol ^a         argA=Symbol
-**    search   special
+**
+**      Enum     Syntax     Arguments
+**      ----     ------     ---------
+**      has      a          argA=FilterPath
+**      missing  not a      argA=FilterPath
+**      eq       a == b     argA=FilterPath, argB=Obj
+**      ne       a != b     argA=FilterPath, argB=Obj
+**      gt       a > b      argA=FilterPath, argB=Obj
+**      ge       a >= b     argA=FilterPath, argB=Obj
+**      lt       a < b      argA=FilterPath, argB=Obj
+**      le       a <= b     argA=FilterPath, argB=Obj
+**      and      a and b    argA=Filter, argB=Filter
+**      or       a or b     argA=Filter, argB=Filter
+**      isSpec   a          argA=Str
+**      isSymbol ^a         argA=Symbol
+**      search   special
 **
 @Js @NoDoc
 enum class FilterType
@@ -666,7 +667,7 @@ mixin FilterInference
 
   ** Return if record implements the given definition symbol.  If
   ** inference is supported return if record implements any of the def's
-  ** subtypes. Or if inference is not supported return 'Symbol.hasTerm'.
+  ** subtypes. Or if inference is not supported return `Symbol.hasTerm`.
   @NoDoc abstract Bool isA(Dict rec, Symbol symbol)
 }
 

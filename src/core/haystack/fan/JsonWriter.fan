@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Write Haystack data in [JSON]`ph.doc::Json` format.
+** Write Haystack data in [JSON](ph.doc::Json) format.
 **
 @Js
 class JsonWriter : GridWriter
@@ -35,14 +35,16 @@ class JsonWriter : GridWriter
 //////////////////////////////////////////////////////////////////////////
 
   ** Wrap output stream. By default, the writer encodes JSON in the Haystack 4 (Hayson)
-  ** format. Use the 'v3' option to encode JSON in the Haystack 3 format.
+  ** format. Use the `v3` option to encode JSON in the Haystack 3 format.
   **
   ** The following opts are supported:
-  **  - 'v3' (Marker): write JSON in the Haystack 3 format
+  **  - `v3` (Marker): write JSON in the Haystack 3 format
   **
-  **   JsonWriter(out).writeVal(Etc.makeDict(["ts": DateTime.now])).close
+  ** ```fantom
+  ** JsonWriter(out).writeVal(Etc.makeDict(["ts": DateTime.now])).close
   **
-  **   JsonWriter(out, Etc.makeDict(["v3":Marker.val])).writeGrid(grid).close
+  ** JsonWriter(out, Etc.makeDict(["v3":Marker.val])).writeGrid(grid).close
+  ** ```
   new make(OutStream out, Dict? opts := null)
   {
     this.out  = JsonOutStream(out)

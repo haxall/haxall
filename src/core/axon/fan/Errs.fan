@@ -11,7 +11,7 @@ using xeto
 using haystack
 
 **
-** AxonErr is the base class of `SyntaxErr` and `EvalErr`.
+** AxonErr is the base class of [SyntaxErr] and [EvalErr].
 **
 @Js
 const abstract class AxonErr : XetoErr
@@ -60,7 +60,7 @@ const class EvalErr : AxonErr
 
 **
 ** EvalTimeoutErr is thrown when an expr exceeds a timeout
-** limit (configured by 'evalTimeout' on 'projMeta' of project).
+** limit (configured by `evalTimeout` on `projMeta` of project).
 **
 @Js @NoDoc
 const class EvalTimeoutErr : EvalErr
@@ -75,7 +75,7 @@ const class EvalTimeoutErr : EvalErr
 }
 
 **
-** ThrowErr is an exception explicitly thrown by Axon code using a 'throw' expression.
+** ThrowErr is an exception explicitly thrown by Axon code using a `throw` expression.
 **
 @Js @NoDoc
 const class ThrowErr : EvalErr

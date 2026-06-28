@@ -19,48 +19,48 @@ const final class DateSpan
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for 'make(start, DateSpan.week)'.
+  ** Convenience for `make(start, DateSpan.week)`.
   static DateSpan makeWeek(Date start) { make(start, week) }
 
-  ** Convenience for 'make(Date(year, month, 1), DateSpan.month)'.
+  ** Convenience for `make(Date(year, month, 1), DateSpan.month)`.
   static DateSpan makeMonth(Int year, Month month) { make(Date(year, month, 1), DateSpan.month) }
 
-  ** Convenience for 'make(Date(year, Month.jan, 1), DateSpan.year)'.
+  ** Convenience for `make(Date(year, Month.jan, 1), DateSpan.year)`.
   static DateSpan makeYear(Int year) { make(Date(year, Month.jan, 1), DateSpan.year) }
 
-  ** Convenience for 'make(Date.today)'.
+  ** Convenience for `make(Date.today)`.
   static DateSpan today() { make(Date.today, day) }
 
-  ** Convenience for 'make(Date.today-1day)'.
+  ** Convenience for `make(Date.today-1day)`.
   static DateSpan yesterday() { make(Date.today-1day, day) }
 
-  ** Construct for this week as 'sun..sat' (uses locale start of week)
+  ** Construct for this week as `sun..sat` (uses locale start of week)
   static DateSpan thisWeek() { make(Date.today, week) }
 
-  ** Construct for this month as '1..28-31'
+  ** Construct for this month as `1..28-31`
   static DateSpan thisMonth() { make(Date.today, month) }
 
   ** DateSpan for this 3 month quarter
   static DateSpan thisQuarter() { make(Date.today, quarter) }
 
-  ** Construct for this year 'Jan-1..Dec-31'
+  ** Construct for this year `Jan-1..Dec-31`
   static DateSpan thisYear() { make(Date.today, year) }
 
-  ** Construct for last 7 days as 'today-7days..today'
+  ** Construct for last 7 days as `today-7days..today`
   static DateSpan pastWeek()
   {
     today := Date.today
     return make(today - 7day, today)
   }
 
-  ** Construct for last 30days 'today-30days..today'
+  ** Construct for last 30days `today-30days..today`
   static DateSpan pastMonth()
   {
     today := Date.today
     return make(today-30day, today)
   }
 
-  ** Construct for this past 'today-365days..today'
+  ** Construct for this past `today-365days..today`
   static DateSpan pastYear()
   {
     today := Date.today
@@ -70,13 +70,13 @@ const final class DateSpan
     return make(Date(year, mon, day), today)
   }
 
-  ** Construct for week previous to this week 'sun..sat' (uses locale start of week)
+  ** Construct for week previous to this week `sun..sat` (uses locale start of week)
   static DateSpan lastWeek()
   {
     make(Date.today-7day, week)
   }
 
-  ** Construct for month previous to this month '1..28-31'
+  ** Construct for month previous to this month `1..28-31`
   static DateSpan lastMonth()
   {
     make(Date.today.firstOfMonth-1day, month)
@@ -91,7 +91,7 @@ const final class DateSpan
     return make(start, quarter)
   }
 
-  ** Construct for year previous to this year 'Jan-1..Dec-31'
+  ** Construct for year previous to this year `Jan-1..Dec-31`
   static DateSpan lastYear()
   {
     make(Date(Date.today.year-1, Month.jan, 1), year)
@@ -99,11 +99,11 @@ const final class DateSpan
 
   **
   ** Construct a new DateSpan using a start date and period, or an
-  ** explicit start date and end date. If a period of 'week', 'month',
-  ** 'quarter', or 'year' is used, then the start date will be adjusted,
+  ** explicit start date and end date. If a period of `week`, `month`,
+  ** `quarter`, or `year` is used, then the start date will be adjusted,
   ** if necessary, to the first of week, first of month, first of quarter,
   ** or first of year, respectively.  If a date is passed as end, then the
-  ** period is implicitly 'range'.
+  ** period is implicitly `range`.
   **
   new make(Date start := Date.today, Obj endOrPer := DateSpan.day)
   {
@@ -218,7 +218,7 @@ const final class DateSpan
   ** Inclusive end date for this span.
   const Date end
 
-  ** The period: `day`, `week`, `month`, `quarter`, `year`, or `range`.
+  ** The period: [day], [week], [month], [quarter], [year], or [range].
   const Str period
 
   ** Get number of days in this span.
@@ -391,11 +391,11 @@ const final class DateSpan
 // Serialization
 //////////////////////////////////////////////////////////////////////////
 
-  ** For 'format' handling using '->toLocale'
+  ** For `format` handling using `->toLocale`
   @NoDoc Str toLocale() { dis }
 
-  ** Return display name for this span.  If 'explicit' is true,
-  ** display actual dates, as opposed to 'Today' or 'Yesterday'.
+  ** Return display name for this span.  If `explicit` is true,
+  ** display actual dates, as opposed to `Today` or `Yesterday`.
   Str dis(Bool explicit := false)
   {
     switch (period)

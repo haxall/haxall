@@ -28,7 +28,7 @@ abstract const class Row : Dict
   **
   ** Get display string for the given column, if value is null then return null.
   ** If the column meta defines a "format"* pattern, then it is used to format
-  ** the value via the appropiate 'toLocale' method.
+  ** the value via the appropiate `toLocale` method.
   **
   Str? disOf(Col col)
   {
@@ -56,7 +56,7 @@ abstract const class Row : Dict
   override Bool isEmpty() { false }
 
   **
-  ** Get the column `val` by name or null
+  ** Get the column [val] by name or null
   **
   @Operator
   override Obj? get(Str name)
@@ -67,7 +67,7 @@ abstract const class Row : Dict
   }
 
   **
-  ** Get the column `val` by name.  If column name doesn't exist
+  ** Get the column [val] by name.  If column name doesn't exist
   ** or if the column value is null, then throw UnknownNameErr.
   **
   override Obj? trap(Str name, Obj?[]? args := null)
@@ -78,7 +78,7 @@ abstract const class Row : Dict
   }
 
   **
-  ** Return true if the given name is mapped to a non-null column `val`.
+  ** Return true if the given name is mapped to a non-null column [val].
   **
   override Bool has(Str name)
   {
@@ -86,7 +86,7 @@ abstract const class Row : Dict
   }
 
   **
-  ** Return true if the given name is not mapped to a non-null column `val`.
+  ** Return true if the given name is not mapped to a non-null column [val].
   **
   override Bool missing(Str name)
   {

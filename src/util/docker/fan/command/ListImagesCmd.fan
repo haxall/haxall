@@ -21,20 +21,20 @@ class ListImagesCmd : DockerJsonCmd
   ** are shown by default.
   @JsonIgnore
   Bool showAll := false { private set }
-  ** Set `showAll` and return this
+  ** Set [showAll] and return this
   This withShowAll(Bool showAll) { this.showAll = showAll; return this }
 
-  ** A JSON encoded value of the filters (a 'map[string][]string') to process
+  ** A JSON encoded value of the filters (a `map[string][]string`) to process
   ** on the image list.
   @JsonIgnore
   Str? filters { private set }
-  ** Set the `filters` and return this
+  ** Set the [filters] and return this
   This withFilters(Str? filters) { this.filters = filters; return this}
 
-  ** Show digest information in `Images.repoDigets` field on each `Image`
+  ** Show digest information in [Images.repoDigets] field on each [Image]
   @JsonIgnore
   Bool showDigests := false { private set }
-  ** Set the `showDigests` and return this
+  ** Set the [showDigests] and return this
   This withShowDigests(Bool showDigests) { this.showDigests = showDigests; return this }
 
 //////////////////////////////////////////////////////////////////////////

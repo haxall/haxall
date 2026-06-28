@@ -91,7 +91,7 @@ class JsonSchemaExporter : Exporter
   }
 
   ** Convert a func spec's parameters into a JSON Schema object.
-  ** The 'returns' slot is skipped. Referenced types are registered in 'defs'.
+  ** The `returns` slot is skipped. Referenced types are registered in `defs`.
   Str:Obj funcToParams(Spec funcSpec)
   {
     if (!funcSpec.isFunc) throw ArgErr("Not a func: $funcSpec.qname")

@@ -159,7 +159,7 @@ abstract class AxonContext : HaystackContext, CompContext
   Fn evalToFunc(Str src) { parse(src).evalToFunc(this) }
 
   ** Evaluate an Axon expression within this context.
-  ** Convenience for 'evalExpr(parse(src, loc))'
+  ** Convenience for `evalExpr(parse(src, loc))`
   Obj? eval(Str src, FileLoc loc := FileLoc.eval)
   {
     evalExpr(parse(src, loc))
@@ -201,13 +201,13 @@ abstract class AxonContext : HaystackContext, CompContext
 // HaystackContext
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convert to Dict for use by `context()` Axon function
+  ** Convert to Dict for use by [context()] Axon function
   @NoDoc override Dict toDict()
   {
     toDictExtra == null ? Etc.dict0 : Etc.makeDict(toDictExtra)
   }
 
-  ** Add/remove a tag to use for `toDict` and `context()` Axon function
+  ** Add/remove a tag to use for [toDict] and [context()] Axon function
   @NoDoc Void toDictSet(Str name, Obj? val)
   {
     if (toDictExtra == null) toDictExtra = Str:Obj[:]

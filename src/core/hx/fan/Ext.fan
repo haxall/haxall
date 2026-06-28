@@ -83,10 +83,10 @@ const mixin Ext
   ** Subscribe this library to an observable. The callback must be an
   ** Actor instance or Method literal on this class.  If callback is a
   ** method, then its called on the lib's dedicated background actor.
-  ** pool. This method should be called in the `onStart` callback.
+  ** pool. This method should be called in the [onStart] callback.
   ** The observation is automatically unsubscribed on stop.  You should
   ** **not** unsubscribe this subscription - it must be managed by the
-  ** extension itself.  See `hx.doc.haxall::Observables#fantom-observe`.
+  ** extension itself.  See [hx.doc.haxall::Observables#fantom-observe].
   Subscription observe(Str name, Dict config, Obj callback) { spi.observe(name, config, callback) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,8 +94,8 @@ const mixin Ext
 //////////////////////////////////////////////////////////////////////////
 
   ** Running flag.  On startup this flag transitions to true before
-  ** calling `onStart`.  On shutdown this flag transitions to false
-  ** before calling `onUnready` and `onStop`.  If the 'onStart' callback
+  ** calling [onStart].  On shutdown this flag transitions to false
+  ** before calling [onUnready] and [onStop].  If the `onStart` callback
   ** raises an exception then this flag transitions back to false.
   Bool isRunning() { spi.isRunning }
 
@@ -124,7 +124,7 @@ const mixin Ext
   virtual Void onSettings() {}
 
   ** Callback made periodically to perform background tasks.
-  ** Override `houseKeepingFreq` to enable the frequency of this callback.
+  ** Override [houseKeepingFreq] to enable the frequency of this callback.
   virtual Void onHouseKeeping() {}
 
   ** Override to return non-null for onHouseKeeping callback
@@ -146,7 +146,7 @@ const mixin Ext
 **************************************************************************
 
 **
-** Base class for all `Ext` implementations
+** Base class for all [Ext] implementations
 **
 abstract const class ExtObj : Ext
 {
@@ -162,7 +162,7 @@ abstract const class ExtObj : Ext
   ** Equality is based on reference equality
   override final Bool equals(Obj? that) { this === that }
 
-  ** Return 'name'
+  ** Return `name`
   override final Str toStr() { name }
 
   @NoDoc

@@ -177,7 +177,7 @@ class MCompSpaceSpi : CompSpaceSpi
   }
 
   ** Recursively unmount component into this space.
-  ** 'target' is the original (root) component that was unmounted.
+  ** `target` is the original (root) component that was unmounted.
   internal Void unmount(Comp c, Comp target := c)
   {
     // increment version

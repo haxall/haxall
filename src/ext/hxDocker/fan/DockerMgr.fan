@@ -44,10 +44,10 @@ final const class DockerMgr : Actor
 //////////////////////////////////////////////////////////////////////////
 
   ** Run a Docker iamge using the given container configuration. Returns
-  ** the `DockerContainer` that was created.
+  ** the [DockerContainer] that was created.
   DockerContainer run(Str image, Obj config) { runAsync(image, config).get }
 
-  ** Async version of `run`.  Returns a Future that is completed
+  ** Async version of [run].  Returns a Future that is completed
   ** with the container once it is started.
   Future runAsync(Str image, Obj config)
   {
@@ -133,7 +133,7 @@ final const class DockerMgr : Actor
   }
 
   ** Decodes json into CreateContainerCmd. It overwrites any volume binds
-  ** so that only the `io/` directory is bound.
+  ** so that only the [io/] directory is bound.
   private CreateContainerCmd createContainer(Obj config)
   {
     CreateContainerCmd cmd := decodeCmd(config, CreateContainerCmd#)

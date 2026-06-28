@@ -27,10 +27,10 @@ const class CSymbol
   SymbolType type() { val.type }
 
   ** Parts based on type:
-  **   - tag: '[,]'
-  **   - conjunct: '[foo, bar]'
-  **   - compose: '[parent, child]'
-  **   - key: '[feature, name]'
+  **   - tag: `[,]`
+  **   - conjunct: `[foo, bar]`
+  **   - compose: `[parent, child]`
+  **   - key: `[feature, name]`
   const CSymbol[] parts
 
   ** Simple name

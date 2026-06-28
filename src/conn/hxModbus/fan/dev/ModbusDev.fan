@@ -29,7 +29,7 @@ using hxConn
   ** Register map for this device.
   const ModbusRegMap regMap
 
-  ** If 'true' always use 0x10 write-multiple for writeHoldingRegs
+  ** If `true` always use 0x10 write-multiple for writeHoldingRegs
   const Bool forceWriteMultiple := false
 
   ** Timeout for block reads

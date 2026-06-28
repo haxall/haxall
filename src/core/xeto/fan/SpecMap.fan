@@ -9,7 +9,7 @@
 **
 ** SpecMap is a map of named Specs.
 **
-** NOTE: in most cases name keys match the 'Spec.name' of slot specs
+** NOTE: in most cases name keys match the `Spec.name` of slot specs
 ** themselves. However, in cases where the slot name is an auto-name
 ** of "_0", "_1", etc its possible that the slot name keys do **not** match
 ** their slot names.  This occurs when inheriting auto-named slots.  The
@@ -49,7 +49,7 @@ const mixin SpecMap
     return makeMap(acc)
   }
 
-  ** Factory to chain a and b; names in 'a' override names in 'b'
+  ** Factory to chain a and b; names in `a` override names in `b`
   @NoDoc static new makeChain(SpecMap a, SpecMap b)
   {
     if (a.isEmpty) return b
@@ -110,11 +110,11 @@ const mixin SpecMap
   ** exception based on the checked flag.
   abstract Spec? getQualified(Str qname, Bool checked := true)
 
-  ** List the specs; prefer 'each'
+  ** List the specs; prefer `each`
   ** NOTE: the names may not match slots names
   abstract Spec[] list()
 
-  ** Convenience to list the spec names in this map; prefer `each`.
+  ** Convenience to list the spec names in this map; prefer [each].
   ** NOTE: the names may not match slots names
   abstract Str[] names()
 

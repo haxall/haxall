@@ -176,7 +176,8 @@ class Parser
 
   **
   ** Name definition:
-  **   <def> :=  <id> ":" <expr>
+  **
+  **     <def> :=  <id> ":" <expr>
   **
   private DefineVar def()
   {
@@ -192,7 +193,8 @@ class Parser
 
   **
   ** If/then/else:
-  **   <if>  :=  "if" "(" <expr> ")" <expr> ["else" <expr>]
+  **
+  **     <if>  :=  "if" "(" <expr> ")" <expr> ["else" <expr>]
   **
   private Obj ifExpr()
   {
@@ -217,7 +219,8 @@ class Parser
 
   **
   ** Throw
-  **   <throw>  :=  "throw" <expr>
+  **
+  **     <throw>  :=  "throw" <expr>
   **
   private Obj returnExpr()
   {
@@ -232,7 +235,8 @@ class Parser
 
   **
   ** Return:
-  **   <return>  :=  "return" <expr>
+  **
+  **     <return>  :=  "return" <expr>
   **
   private Obj throwExpr()
   {
@@ -247,7 +251,8 @@ class Parser
 
   **
   ** Try/catch:
-  **   <tryCatch>  :=  "try" <expr> "catch" ["(" <id> ")"] <expr>
+  **
+  **     <tryCatch>  :=  "try" <expr> "catch" ["(" <id> ")"] <expr>
   **
   private Obj tryCatchExpr()
   {
@@ -271,8 +276,9 @@ class Parser
 
   **
   ** List
-  **   <list>      := "[" <listItems> "]"
-  **   <listItems> := [ <expr> ("," <expr>)* [","] ]
+  **
+  **     <list>      := "[" <listItems> "]"
+  **     <listItems> := [ <expr> ("," <expr>)* [","] ]
   **
   private Expr list()
   {
@@ -295,12 +301,13 @@ class Parser
 
   **
   ** Dict
-  **   <dict>          := "{" <dictItems> "}"
-  **   <dictItems>     := [ <dictItem> ("," <dictItem>)* [","] ]
-  **   <dictItem>      := <dictVal> | <dictMarker> | <dictRemove>
-  **   <dictVal>       := <id> ":" <expr>
-  **   <dictMarker>    := <id>
-  **   <dictRemove>    := "-" <id>
+  **
+  **     <dict>          := "{" <dictItems> "}"
+  **     <dictItems>     := [ <dictItem> ("," <dictItem>)* [","] ]
+  **     <dictItem>      := <dictVal> | <dictMarker> | <dictRemove>
+  **     <dictVal>       := <id> ":" <expr>
+  **     <dictMarker>    := <id>
+  **     <dictRemove>    := "-" <id>
   **
   private DictExpr dict()
   {
@@ -362,7 +369,8 @@ class Parser
 
   **
   ** Assignment expression:
-  **    <assignExpr> :=  <condOrExpr> ("=" <assignExpr>)
+  **
+  **      <assignExpr> :=  <condOrExpr> ("=" <assignExpr>)
   **
   private Expr assignExpr()
   {
@@ -375,7 +383,8 @@ class Parser
 
   **
   ** Conditional or expression:
-  **   <condOrExpr>   :=  <condAndExpr> ("or" <condAndExpr>)*
+  **
+  **     <condOrExpr>   :=  <condAndExpr> ("or" <condAndExpr>)*
   **
   private Expr condOrExpr()
   {
@@ -387,7 +396,8 @@ class Parser
 
   **
   ** Conditional and expression:
-  **   <condAndExpr>  :=  <compareExpr> ("and" <compareExpr>)*
+  **
+  **     <condAndExpr>  :=  <compareExpr> ("and" <compareExpr>)*
   **
   private Expr condAndExpr()
   {
@@ -399,7 +409,8 @@ class Parser
 
   **
   ** Comparison expression:
-  **   <compareExpr>  :=  <addExpr> (("==" | "!=" | "<" | "<=" | ">=" | ">") <addExpr>)*
+  **
+  **     <compareExpr>  :=  <addExpr> (("==" | "!=" | "<" | "<=" | ">=" | ">") <addExpr>)*
   **
   private Expr compareExpr()
   {
@@ -419,7 +430,8 @@ class Parser
 
   **
   ** Additive expression:
-  **   <rangeExpr>  :=  <addExpr> ".." <addExpr>
+  **
+  **     <rangeExpr>  :=  <addExpr> ".." <addExpr>
   **
   internal Expr rangeExpr()
   {
@@ -434,7 +446,8 @@ class Parser
 
   **
   ** Additive expression:
-  **   <addExpr>  :=  <multExpr> (("+" | "-") <multExpr>)*
+  **
+  **     <addExpr>  :=  <multExpr> (("+" | "-") <multExpr>)*
   **
   private Expr addExpr()
   {
@@ -450,7 +463,8 @@ class Parser
 
   **
   ** Multiplicative expression:
-  **   <multExpr>  :=  <unaryExpr> (("*" | "/") <unaryExpr>)*
+  **
+  **     <multExpr>  :=  <unaryExpr> (("*" | "/") <unaryExpr>)*
   **
   private Expr multExpr()
   {
@@ -466,7 +480,8 @@ class Parser
 
   **
   ** Unary expression:
-  **   <unaryExpr> :=  ("-" | "not") <termExpr>
+  **
+  **     <unaryExpr> :=  ("-" | "not") <termExpr>
   private Expr unaryExpr()
   {
     if (cur === Token.minus)      { consume; return Neg(termExpr).foldConst }
@@ -476,8 +491,9 @@ class Parser
 
   **
   ** Term expression:
-  **   <termExpr>   :=  <termBase> <termChain>*
-  **   <termChain>  :=  <call> | <methodCall> | <index> | <tag-get>
+  **
+  **     <termExpr>   :=  <termBase> <termChain>*
+  **     <termChain>  :=  <call> | <methodCall> | <index> | <tag-get>
   **
   internal Expr termExpr(Expr? start := null)
   {
@@ -496,7 +512,8 @@ class Parser
 
   **
   ** Term base expression:
-  **   <termBase> :=  <var> | <groupedExpr> | <literal>
+  **
+  **     <termBase> :=  <var> | <groupedExpr> | <literal>
   **
   private Expr termBase()
   {
@@ -542,9 +559,9 @@ class Parser
   ** with a root Var into a library qname. This method is called when cur
   ** is doubleColon.
   **
-  **  <qname>     :=  [<qnameLib> "::"] <qnameName>
-  **  <qnameLib>  :=  <id> ("." <id>)*
-  **  <qnameName> :=  <idOrKeyword> | <typename>
+  ** <qname>     :=  [<qnameLib> "::"] <qnameName>
+  ** <qnameLib>  :=  <id> ("." <id>)*
+  ** <qnameName> :=  <idOrKeyword> | <typename>
   **
   private Expr qname(Expr base, Str? lastLibName)
   {
@@ -589,9 +606,10 @@ class Parser
 
   **
   ** Function application:
-  **   <call>         :=  "(" [<callArg> ("," <callArg>)*] [<lambda>]
-  **   <callArg>      :=  <expr> | "_"
-  **   <dotCall>      :=  "." [<nl>] <qname> [<call> | <lambda-1>]
+  **
+  **     <call>         :=  "(" [<callArg> ("," <callArg>)*] [<lambda>]
+  **     <callArg>      :=  <expr> | "_"
+  **     <dotCall>      :=  "." [<nl>] <qname> [<call> | <lambda-1>]
   **
   private Expr call(Expr target, Bool isMethod)
   {
@@ -676,7 +694,9 @@ class Parser
 
   **
   ** Indexing operation:
-  **   <index>  := "[" <expr> "]"
+  **
+  **     <index>  := "[" <expr> "]"
+  **
   ** Convenience for "get" methodCall
   **
   private Expr index(Expr target)
@@ -689,7 +709,9 @@ class Parser
 
   **
   ** Indexing operation:
-  **   <trapCall> := "->" <id>
+  **
+  **     <trapCall> := "->" <id>
+  **
   ** Convenience for "trap" methodCall
   **
   private Expr dictGet(Expr target)
@@ -705,9 +727,10 @@ class Parser
 
   **
   ** Lamdba
-  **   <lambda>    :=  <lambda-1> | <lambda-n>
-  **   <lambda-1>  :=  <id> "=>" <expr>
-  **   <lambda-n>  :=  "(" <params> ")" "=>" <expr>
+  **
+  **     <lambda>    :=  <lambda-1> | <lambda-n>
+  **     <lambda-1>  :=  <id> "=>" <expr>
+  **     <lambda-n>  :=  "(" <params> ")" "=>" <expr>
   **
   private Fn lambda()
   {
@@ -723,7 +746,8 @@ class Parser
 
   **
   ** Single parameter lambda:
-  **   <lambda-1>  :=  <id> "=>" <expr>
+  **
+  **     <lambda-1>  :=  <id> "=>" <expr>
   **
   private Fn lambda1()
   {
@@ -735,8 +759,9 @@ class Parser
 
   **
   ** Expression grouped by parens which could be either:
-  **   <groupedExpr> :=  "(" <expr> ")"
-  **   <lambda-n>    :=  "(" <params> ")" "=>" <expr>
+  **
+  **     <groupedExpr> :=  "(" <expr> ")"
+  **     <lambda-n>    :=  "(" <params> ")" "=>" <expr>
   **
   private Expr parenExpr()
   {
@@ -775,7 +800,7 @@ class Parser
   }
 
   **
-  ** Parse lambda parameters, the lead '(' must already be consumed
+  ** Parse lambda parameters, the lead `(` must already be consumed
   **
   protected FnParam[] params()
   {
@@ -806,7 +831,7 @@ class Parser
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Handle a lambda body with current token right after '=>'.
+  ** Handle a lambda body with current token right after `=>`.
   ** This is a single point where we handle naming
   ** and lexically scoping all our functions.
   **

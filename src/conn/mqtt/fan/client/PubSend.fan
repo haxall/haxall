@@ -61,7 +61,7 @@ final class PubSend
   This qos2() { qos(QoS.two) }
 
   ** Publish this message with the given quality-of-service
-  ** 'qos' may be either `QoS` or an Int.
+  ** `qos` may be either [QoS] or an Int.
   This qos(Obj qos)
   {
     if (qos is Int) qos = QoS.vals[(Int)qos]

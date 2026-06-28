@@ -26,7 +26,7 @@ const class PlatformNetworkFuncs
   }
 
   ** Write the configure of an IP interface.  The config must
-  ** be a dict that defines the 'name' tag for an existing interface.
+  ** be a dict that defines the `name` tag for an existing interface.
   ** See SPI class docs for modeling details.
   @Api @Axon { su = true }
   static Obj? platformNetworkInterfaceSet(Dict config)

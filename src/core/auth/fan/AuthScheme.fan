@@ -55,15 +55,15 @@ abstract const class AuthScheme
   const Str name
 
   ** Handle a server authentation message from a client.  If its
-  ** the initial message, then 'msg.scheme' will be "hello".  There
+  ** the initial message, then `msg.scheme` will be "hello".  There
   ** are three outcomes:
   **   1. If the client should be challenged with a 401, then return
   **      the message to send in the WWW-Authenticate header
   **   2. If the client has been successfully authenticated then
-  **      return a message with the 'authToken' parameter in the
+  **      return a message with the `authToken` parameter in the
   **      Authentication-Info header.  The authToken should be
-  **      generated via `AuthServerContext.login`
-  **   3. If authentication fails, then raise `AuthErr`
+  **      generated via [AuthServerContext.login]
+  **   3. If authentication fails, then raise [AuthErr]
   abstract AuthMsg onServer(AuthServerContext cx, AuthMsg msg)
 
   ** Handle a standarized client authentation challenge message from
@@ -88,7 +88,7 @@ abstract const class AuthScheme
 **************************************************************************
 
 **
-** AuthSchemeRegistry loaded from 'auth.scheme' indexed prop
+** AuthSchemeRegistry loaded from `auth.scheme` indexed prop
 **
 internal const class AuthSchemeRegistry
 {

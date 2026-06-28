@@ -32,7 +32,7 @@ const mixin SysExt : Ext
 const mixin IHttpExt : SysExt
 {
   ** Public HTTP or HTTPS URI of this host.  This is always
-  ** an absolute URI such 'https://acme.com/'
+  ** an absolute URI such `https://acme.com/`
   abstract Uri siteUri()
 
   ** Get the HTTP port or null if using HTTPS
@@ -82,7 +82,7 @@ const mixin IUserExt : SysExt
   abstract Context? authenticate(WebReq req, WebRes res, Runtime rt, Dict? opts := null)
 
   ** Create a user instance.  The tags arg may be a dict or a map.
-  ** The user is given admin role if 'userRole' is not specified.
+  ** The user is given admin role if `userRole` is not specified.
   @NoDoc abstract User makeUser(Str username, Obj? tags := null)
 
   ** Dummy operator user to use for RuntimeObservables.newContext
@@ -107,7 +107,7 @@ const mixin IUserExt : SysExt
   ** add additional tags to the meta when creating the session.
   **
   ** The following meta must be supported by all implementations:
-  **   - 'fixedLease' (Marker): indicates that once the session is created it
+  **   - `fixedLease` (Marker): indicates that once the session is created it
   **   has a fixed lease lifetime (see `UserSession.lease`). Touching the session
   **   will not extend the lifetime of the session.
   **
@@ -348,7 +348,7 @@ const mixin IHisExt : Ext
   ** Before writing the timestamps are normalized to 1sec or 1ms precision;
   ** items with duplicate normalized timestamps are removed.  If there is
   ** existing history data with a given timestamp then the new data overwrites
-  ** the current value, or if the new item's value is `xeto::None.val`
+  ** the current value, or if the new item's value is [xeto::None.val]
   ** then that item is removed.
   **
   abstract Future write(Dict pt, HisItem[] items, Dict? opts := null)
@@ -375,7 +375,7 @@ const mixin IPointExt : Ext
 
   **
   ** Get current state of a writable points priority array.  The result
-  ** is a grid with 17 rows including a 'level' and 'val' column.
+  ** is a grid with 17 rows including a `level` and `val` column.
   **
   abstract Grid pointArray(Dict point)
 }
@@ -434,10 +434,10 @@ const mixin HxConnExt
   ** Icon logical name to use for this connector type library
   abstract Str icon()
 
-  ** Tag name for the connector records such as 'bacnetConn'
+  ** Tag name for the connector records such as `bacnetConn`
   abstract Str connTag()
 
-  ** Tag name for the connector records such as 'bacnetConnRef'
+  ** Tag name for the connector records such as `bacnetConnRef`
   abstract Str connRefTag()
 
   ** Number of configured connectors
@@ -461,7 +461,7 @@ const mixin HxConn
 
   ** Current version of the record.
   ** This dict only represents the current persistent tags.
-  ** It does not track transient changes such as 'connStatus'.
+  ** It does not track transient changes such as `connStatus`.
   abstract Dict rec()
 
   ** Ping the connector
@@ -494,7 +494,7 @@ const mixin HxConnPoint
 
   ** Current version of the record.
   ** This dict only represents the current persistent tags.
-  ** It does not track transient changes such as 'connStatus'.
+  ** It does not track transient changes such as `connStatus`.
   abstract Dict rec()
 
   ** Debug details

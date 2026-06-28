@@ -215,7 +215,8 @@ class FixLinks
   const Namespace ns
 
   ** Map of old anchors ids to new ids
-  **   docTools::Setup#windowsServices = fantom-programs-as-windows-services
+  **
+  **     docTools::Setup#windowsServices = fantom-programs-as-windows-services
   const FandocAnchorMap anchors
 
   ** Try to map oldLib name to new one

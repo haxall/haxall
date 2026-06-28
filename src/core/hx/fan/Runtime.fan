@@ -15,7 +15,7 @@ using folio
 
 **
 ** Runtime manages a database, library namespace, and extensions.
-** It is the base type for both `Sys` and `Proj`.  In the Haxall daemon
+** It is the base type for both [Sys] and [Proj].  In the Haxall daemon
 ** there is one runtime that is both the Sys and Proj.  But in
 ** SkySpark there is one host level Sys for the VM and zero more
 ** separate Proj runtimes.
@@ -55,11 +55,11 @@ const mixin Runtime
 
   ** Runtime file directory.  It the root directory of all runtime oriented
   ** operational files.  The folio database is stored under this directory
-  ** in a sub-directory named 'db/', and namespace support in 'ns/'
+  ** in a sub-directory named `db/`, and namespace support in `ns/`
   abstract File dir()
 
-  ** Runtime level meta data stored in the 'rt:meta' database record.
-  ** This dict always includes a synthetic 'name' tag
+  ** Runtime level meta data stored in the `rt:meta` database record.
+  ** This dict always includes a synthetic `name` tag
   abstract RuntimeMeta meta()
 
   ** Update metadata with Str:Obj, Dict, or Diff.
@@ -77,7 +77,7 @@ const mixin Runtime
   ** Namespace of definitions (deprecated)
   @NoDoc abstract DefNamespace defs()
 
-  ** Convenience for 'exts.get' to lookup extension by lib dotted name
+  ** Convenience for `exts.get` to lookup extension by lib dotted name
   abstract Ext? ext(Str name, Bool checked := true)
 
   ** Extension lookup and management
@@ -89,7 +89,7 @@ const mixin Runtime
   ** Has the runtime has reached steady state.  Steady state is reached
   ** after a configurable wait period elapses after the runtime is
   ** fully loaded.  This gives internal services time to spin up before
-  ** interacting with external systems.  See `hx.doc.haxall::Runtime#steady-state`.
+  ** interacting with external systems.  See [hx.doc.haxall::Runtime#steady-state].
   abstract Bool isSteadyState()
 
   ** Watch subscriptions
@@ -114,7 +114,7 @@ const mixin Runtime
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for `readByIds`
+  ** Convenience for [readByIds]
   abstract Dict? readById(Ref? id, Bool checked := true)
 
   ** Read a list of records by ids into a grid.  The rows in the
@@ -122,7 +122,7 @@ const mixin Runtime
   ** then every id must be found in the project or UnknownRecErr
   ** is thrown.  If checked is false, then an unknown record is
   ** returned as a row with every column set to null (including
-  ** the 'id' tag).
+  ** the `id` tag).
   abstract  Grid readByIds(Ref[] ids, Bool checked := true)
 
   ** Read a list of records by id.  The resulting list matches
@@ -134,19 +134,19 @@ const mixin Runtime
 
   ** Find the first record which matches the given filter string.
   ** Throw UnknownRecErr or return null based on checked flag.
-  ** See [Filter Chapter]`ph.doc::Filters` for filter format.
+  ** See [Filter Chapter](ph.doc::Filters) for filter format.
   abstract Dict? read(Str filter, Bool checked := true)
 
   ** Match all the records against a filter string and return as grid.
-  ** See [Filter Chapter]`ph.doc::Filters` for filter format.
+  ** See [Filter Chapter](ph.doc::Filters) for filter format.
   abstract Grid readAll(Str filter, Dict? opts := null)
 
   ** Match all the records against a filter string and return as
-  ** list.  See [Filter Chapter]`ph.doc::Filters` for filter
-  ** format.  See `readAll` to return results as a grid.
+  ** list.  See [Filter Chapter](ph.doc::Filters) for filter
+  ** format.  See [readAll] to return results as a grid.
   abstract Dict[] readAllList(Str filter, Dict? opts := null)
 
-  ** Convenience for `commitAll` to commit a single diff.
+  ** Convenience for [commitAll] to commit a single diff.
   abstract Diff commit(Diff diff)
 
   ** Apply a list of diffs to the database in batch.  Either all the
@@ -156,7 +156,7 @@ const mixin Runtime
   **
   ** If any of the records have been modified since they were read
   ** for the given change set then ConcurrentChangeErr is thrown
-  ** unless 'Diff.force' configured.
+  ** unless `Diff.force` configured.
   abstract Diff[] commitAll(Diff[] diffs)
 
 //////////////////////////////////////////////////////////////////////////

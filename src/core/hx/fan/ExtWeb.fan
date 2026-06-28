@@ -11,7 +11,7 @@ using web
 
 **
 ** Ext plugin to add web servicing capability.
-** See `hx.doc.haxall::Exts#web`.
+** See [hx.doc.haxall::Exts#web].
 **
 abstract const class ExtWeb : WebMod
 {
@@ -50,11 +50,11 @@ abstract const class ExtWeb : WebMod
 
   ** Get the list of .well-known/ names that this web service can handle.
   **
-  **   ["openid-configuration", "acme-challenge"]
+  **     ["openid-configuration", "acme-challenge"]
   **
   @NoDoc virtual Str[] wellKnownRoutes() { Str#.emptyList }
 
-  ** Handle a .well-known/ request. The WebReq.modBase will be '/.well-known/'. You can
+  ** Handle a .well-known/ request. The WebReq.modBase will be `/.well-known/`. You can
   ** use WebReq.modRel to get the well-known path being serviced. The default
   ** implementation sends a 404 error.
   @NoDoc virtual Void onWellKnown() { res.sendErr(404) }

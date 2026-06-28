@@ -17,14 +17,14 @@
 //////////////////////////////////////////////////////////////////////////
 
   ** Create an Iri for a blank node. You may provide a label, or one will be
-  ** automatically generated using `Uuid`. RDF writers *may* choose to omit
-  ** the label during serialization if it is parseable as a `Uuid`.
+  ** automatically generated using [Uuid]. RDF writers *may* choose to omit
+  ** the label during serialization if it is parseable as a [Uuid].
   **
   ** Two blank nodes with the same label are considered equal.
   **
   ** Note: Technically, an IRI is *not* a blank node; they are two distinct types
   ** of resources. But we put a restriction on our IRI implementation such that all
-  ** IRIs with ns '_:' are blank nodes.
+  ** IRIs with ns `_:` are blank nodes.
   static Iri bnode(Str label := Uuid().toStr)
   {
     Iri("_:${label}")
@@ -34,13 +34,13 @@
   {
   }
 
-  ** Make an `Iri` from a `Uri`. You should **never** use this constructor
-  ** if the 'uri' is intended to represent a prefixed IRI because a `Uri` will
+  ** Make an [Iri] from a [Uri]. You should **never** use this constructor
+  ** if the `uri` is intended to represent a prefixed IRI because a [Uri] will
   ** normalize its scheme. Becaues of this normalization, the following is true:
   **
-  **   // because `phIoT::elec`.toStr == "phiot:elec"
-  **   Iri(`phIoT:elec`) != Iri("phIoT:elec")
-  **   Iri(`phIoT:elec`) == Iri("phiot:elec")
+  **     // because `phIoT::elec`.toStr == "phiot:elec"
+  **     Iri(`phIoT:elec`) != Iri("phIoT:elec")
+  **     Iri(`phIoT:elec`) == Iri("phiot:elec")
   **
   ** You have been warned.
   **
@@ -71,7 +71,7 @@
 
   private const Str iri
 
-  ** The index in 'iri' where the local name starts
+  ** The index in `iri` where the local name starts
   private const Int nameIdx
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,14 +84,14 @@
   ** Get the IRI local name
   Str name() { iri[nameIdx..-1] }
 
-  ** Get the `Iri` as a `Uri`. Note, because of `Uri` normalization
-  ** it is possible that two *un-equal* `Iri`s will yield equivalent `Uri`s
+  ** Get the [Iri] as a [Uri]. Note, because of [Uri] normalization
+  ** it is possible that two *un-equal* [Iri]s will yield equivalent [Uri]s
   Uri uri() { iri.toUri }
 
   ** Is this a blank node?
   Bool isBlankNode() { ns == "_:" }
 
-  ** If the current `ns` contains a prefix in the given map, then return a new `Iri`
+  ** If the current [ns] contains a prefix in the given map, then return a new [Iri]
   ** that uses the prefix. Otherwise, return this.
   Iri prefixIri([Str:Str] prefixMap)
   {
@@ -104,7 +104,7 @@
     } ?: this
   }
 
-  ** If the current `ns` prefix is mapped in the given map, then return a new `Iri`
+  ** If the current [ns] prefix is mapped in the given map, then return a new [Iri]
   ** that is the expansion of the prefix. Otherwise, return this.
   Iri fullIri([Str:Str] prefixMap)
   {

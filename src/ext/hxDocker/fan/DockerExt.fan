@@ -44,9 +44,9 @@ const class DockerSettings : Settings
 
   ** Docker daemon URI to connect to. If unspecified, then the host default will be
   ** used.
-  ** - 'npipe:////./pipe/docker_engine' (Windows named pipe)
-  ** - 'unix:///var/run/docker.sock' (Unix domain socket)
-  ** - 'tcp://localhost:2375' (TCP/HTTP access)
+  ** - `npipe:////./pipe/docker_engine` (Windows named pipe)
+  ** - `unix:///var/run/docker.sock` (Unix domain socket)
+  ** - `tcp://localhost:2375` (TCP/HTTP access)
   @Setting { meta =
     Str<|placeholder: "<host default>"
         |>

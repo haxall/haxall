@@ -49,7 +49,7 @@
 // Normalize
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get a new statement where all IRIs that have a prefix in the 'prefixMap'
+  ** Get a new statement where all IRIs that have a prefix in the `prefixMap`
   ** are fully expanded.
   Stmt normalize([Str:Str] prefixMap)
   {
@@ -58,7 +58,7 @@
          (obj as Iri)?.fullIri(prefixMap) ?: obj)
   }
 
-  ** Get a new statement where all IRIs are prefixed based on the given 'prefixMap'
+  ** Get a new statement where all IRIs are prefixed based on the given `prefixMap`
   Stmt prefix([Str:Str] prefixMap)
   {
     Stmt(subj.prefixIri(prefixMap),

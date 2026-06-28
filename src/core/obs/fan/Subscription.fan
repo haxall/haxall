@@ -57,7 +57,7 @@ const class Subscription
   ** Return if this subscription has been cancelled
   Bool isUnsubscribed() { !activeRef.val }
 
-  ** Convenience for 'Observable.unsubscribe(this)'
+  ** Convenience for `Observable.unsubscribe(this)`
   Void unsubscribe() { observable.unsubscribe(this) }
 
   ** Send observation message to observer actor

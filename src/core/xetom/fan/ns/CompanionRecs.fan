@@ -13,15 +13,15 @@ using haystack
 
 **
 ** CompanionRecs is the set of records that compose the companion ("proj") lib.
-** Each rec carries a mutable per-rec status (see `CompanionRec`) so that partial
+** Each rec carries a mutable per-rec status (see [CompanionRec]) so that partial
 ** compilation can mark individual recs in error while the rest of the lib still
-** loads.  The lib-level rollup is the namespace's normal `LibStatus`; the count
+** loads.  The lib-level rollup is the namespace's normal [LibStatus]; the count
 ** of recs in error is computed by walking the recs.
 **
 @Js
 const class CompanionRecs
 {
-  ** Construct with list of recs and thunks to reuse.  Dicts without a 'name'
+  ** Construct with list of recs and thunks to reuse.  Dicts without a `name`
   ** tag are silently skipped: a nameless rec cannot compile to a valid spec,
   ** func, or instance, so it has no place in the companion lib.
   new make(Dict[] recs, Str:Thunk thunks)
@@ -93,7 +93,7 @@ const class CompanionRecs
 
 **
 ** CompanionRec wraps one companion record dict with a mutable status.  The
-** status starts `CompanionRecStatus.ok` and is set to error by the partial
+** status starts [CompanionRecStatus.ok] and is set to error by the partial
 ** compilation driver when the rec (or a rec it depends on) fails to compile.
 **
 @Js
@@ -118,7 +118,7 @@ const class CompanionRec
   const Str name
 
   ** File location used when this rec is parsed/compiled.  Errors are attributed
-  ** back to this rec via 'loc.file', so this is the single source of truth for
+  ** back to this rec via `loc.file`, so this is the single source of truth for
   ** the rec<->loc mapping (the id, which is unique even across recs that share
   ** a name).
   const FileLoc loc

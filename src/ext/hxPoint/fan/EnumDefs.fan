@@ -11,7 +11,7 @@ using concurrent
 using haystack
 
 **
-** EnumDefs handles the 'enumMeta' rec to define enumerated name/code mappings
+** EnumDefs handles the `enumMeta` rec to define enumerated name/code mappings
 **
 @NoDoc
 const class EnumDefs
@@ -31,7 +31,7 @@ const class EnumDefs
     return null
   }
 
-  ** Cached value of 'enumMeta' record
+  ** Cached value of `enumMeta` record
   Dict meta() { metaRef.val }
 
   ** Callback from house keeping

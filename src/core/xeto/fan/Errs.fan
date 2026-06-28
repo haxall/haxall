@@ -23,7 +23,7 @@ using util
   virtual FileLoc loc() { FileLoc.unknown }
 }
 
-** UnknownNameErr is thrown when `Dict.trap` or `Grid.col` fails
+** UnknownNameErr is thrown when [Dict.trap] or [Grid.col] fails
 ** to resolve a name.
 @Js @NoDoc const class UnknownNameErr : Err
 {
@@ -66,7 +66,7 @@ using util
     this.meta = meta ?: EmptyDict.val
   }
 
-  ** Metadata may contain 'unmet' grid of information of libs required
+  ** Metadata may contain `unmet` grid of information of libs required
   override const Dict meta
 }
 

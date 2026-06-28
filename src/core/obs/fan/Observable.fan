@@ -18,7 +18,7 @@ using haystack
 abstract const class Observable
 {
   ** Return the name of this observable.
-  ** This name must match up with the the 'observe' def subtype name
+  ** This name must match up with the the `observe` def subtype name
   abstract Str name()
 
   ** Does this observer have any active subscriptions

@@ -13,17 +13,17 @@ using web
 ** standard plumbing for adding oBIX server side support.
 ** Standardized URIs handled by the base class:
 **
-**   {modBase}/xsl           debug style sheet
-**   {modBase}/about         about object
-**   {modBase}/batch         batch operation
-**   {modBase}/watchService  watch service
-**   {modBase}/watch/{id}    watch
+**     {modBase}/xsl           debug style sheet
+**     {modBase}/about         about object
+**     {modBase}/batch         batch operation
+**     {modBase}/watchService  watch service
+**     {modBase}/watch/{id}    watch
 **
 ** All other URIs to the mod are automatically handled
 ** by the following callbacks:
-**  - GET: `onRead`
-**  - PUT: `onWrite`
-**  - POST: `onInvoke`
+**  - GET: [onRead]
+**  - PUT: [onWrite]
+**  - POST: [onInvoke]
 **
 const abstract class ObixMod : WebMod
 {
@@ -33,8 +33,8 @@ const abstract class ObixMod : WebMod
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Construct with the given map for 'obix:About' parameters:
-  **   - serverName: defaults to 'Env.cur.host'
+  ** Construct with the given map for `obix:About` parameters:
+  **   - serverName: defaults to `Env.cur.host`
   **   - vendorName: defaults to "Fantom"
   **   - vendorUrl: defaults to "https://fantom.org/"
   **   - productName: defaults to "Fantom"
@@ -375,7 +375,7 @@ const abstract class ObixMod : WebMod
   **
   ** Return the ObixObj representation of the given URI for
   ** the application.  The URI is relative to the ObixMod
-  ** base - see `web::WebReq.modRel`.  Throw UnresolvedErr
+  ** base - see [web::WebReq.modRel].  Throw UnresolvedErr
   ** if URI doesn't map to a valid object.  The resulting
   ** object must have its href set to the proper absolute
   ** URI according to 5.2 of the oBIX specification.
@@ -385,7 +385,7 @@ const abstract class ObixMod : WebMod
   **
   ** Write the value for the given URI and return the new
   ** representation.  The URI is relative to the ObixMod
-  ** base - see `web::WebReq.modRel`.  Throw UnresolvedErr if URI
+  ** base - see [web::WebReq.modRel].  Throw UnresolvedErr if URI
   ** doesn't map to a valid object.  Throw ReadonlyErr if
   ** URI doesn't map to a writable object.
   **
@@ -393,7 +393,7 @@ const abstract class ObixMod : WebMod
 
   **
   ** Invoke the operation for the given URI and return the result.
-  ** The URI is relative to the ObixMod base - see `web::WebReq.modRel`
+  ** The URI is relative to the ObixMod base - see [web::WebReq.modRel]
   ** Throw UnresolvedErr if URI doesn't map to a valid operation.
   **
   abstract ObixObj onInvoke(Uri uri, ObixObj arg)
@@ -420,7 +420,7 @@ const abstract class ObixMod : WebMod
 
   **
   ** Get represenation of the About object.  Subclasses should
-  ** override this to customize their about.  See `make` to
+  ** override this to customize their about.  See [make] to
   ** customize vendor and product fields.
   **
   virtual ObixObj about()

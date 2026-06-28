@@ -8,7 +8,7 @@
 
 **
 ** ScramScheme implements the salted challenge response authentication
-** mechanism as defined in [RFC 5802]`https://tools.ietf.org/html/rfc5802`.
+** mechanism as defined in [RFC 5802](https://tools.ietf.org/html/rfc5802).
 **
 const class ScramScheme : AuthScheme
 {
@@ -306,7 +306,7 @@ class ScramKey
   ** Number of iterations to run
   const Int c
 
-  ** Get an `AuthMsg` representing the configuration for this key.
+  ** Get an [AuthMsg] representing the configuration for this key.
   AuthMsg toAuthMsg()
   {
     AuthMsg("scram", [

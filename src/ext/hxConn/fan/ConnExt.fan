@@ -16,7 +16,7 @@ using hxPoint
 
 **
 ** Connector library base class.
-** See `hx.doc.haxall::CustomConns#connext`.
+** See [hx.doc.haxall::CustomConns#connext].
 **
 abstract const class ConnExt : ExtObj, HxConnExt
 {
@@ -174,7 +174,7 @@ abstract const class ConnExt : ExtObj, HxConnExt
 
   ** Library level callback to process a connector learn.  The default
   ** operation dispatches to the connector actor, performs an open,
-  ** and then callback to to `ConnDispatch.onLearn`.  However, some connectors
+  ** and then callback to to [ConnDispatch.onLearn].  However, some connectors
   ** can perform a learn operation without using an open connector (for
   ** example using configuration files).  In that case, use this hook to
   ** process the learn request without dispatching to the Conn actor.
@@ -183,13 +183,13 @@ abstract const class ConnExt : ExtObj, HxConnExt
   ** Return connector specific details to insert into debug report.
   ** Connectors should avoid requiring a message to the Conn actor
   ** so that debug can proceed even if the actor is blocked on I/O.
-  ** Utilize `Conn.data` to cache debug information.
+  ** Utilize [Conn.data] to cache debug information.
   virtual Str onConnDetails(Conn conn) { "" }
 
   ** Return connector specific details to insert into debug report.
   ** Connectors should avoid requiring a message to the Conn actor
   ** so that debug can proceed even if the actor is blocked on I/O.
-  ** Utilize `ConnPoint.data` to cache debug information.
+  ** Utilize [ConnPoint.data] to cache debug information.
   virtual Str onPointDetails(ConnPoint point) { "" }
 
 //////////////////////////////////////////////////////////////////////////

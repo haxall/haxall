@@ -17,17 +17,18 @@ using hx
 const class PointFuncs
 {
   **
-  ** Map a set of recs to to a grid of [sites]`site`.  The 'recs'
-  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** Map a set of recs to to a grid of [sites](site).  The `recs`
+  ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
-  **  - recs with 'site' tag are mapped as themselves
-  **  - recs with 'siteRef' tag are mapped to their parent site
+  **  - recs with `site` tag are mapped as themselves
+  **  - recs with `siteRef` tag are mapped to their parent site
   **
   ** Examples:
-  **   read(site).toSites     // return site itself
-  **   read(space).toSites    // return space's parent site
-  **   read(equip).toSites    // return equip's parent site
-  **   read(point).toSites    // return point's parent site
+  **
+  **     read(site).toSites     // return site itself
+  **     read(space).toSites    // return space's parent site
+  **     read(equip).toSites    // return equip's parent site
+  **     read(point).toSites    // return point's parent site
   **
   @Api @Axon
   static Grid toSites(Obj? recs)
@@ -36,18 +37,19 @@ const class PointFuncs
   }
 
   **
-  ** Map a set of recs to to a grid of [spaces]`space`.  The 'recs'
-  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** Map a set of recs to to a grid of [spaces](space).  The `recs`
+  ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
-  **  - recs with 'space' tag are mapped as themselves
-  **  - recs with 'spaceRef' tag are mapped to their parent space
-  **  - recs with 'site' are mapped to spaces with parent 'siteRef'
+  **  - recs with `space` tag are mapped as themselves
+  **  - recs with `spaceRef` tag are mapped to their parent space
+  **  - recs with `site` are mapped to spaces with parent `siteRef`
   **
   ** Examples:
-  **   read(site).toSpaces      // return children spaces within site
-  **   read(equip).toSpaces     // return equip's parent space
-  **   read(point).toSpaces     // return point's parent space
-  **   read(space).toSpaces     // return space itself
+  **
+  **     read(site).toSpaces      // return children spaces within site
+  **     read(equip).toSpaces     // return equip's parent space
+  **     read(point).toSpaces     // return point's parent space
+  **     read(space).toSpaces     // return space itself
   **
   @Api @Axon
   static Grid toSpaces(Obj? recs)
@@ -56,19 +58,20 @@ const class PointFuncs
   }
 
   **
-  ** Map a set of recs to to a grid of [equips]`equip`.  The 'recs'
-  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** Map a set of recs to to a grid of [equips](equip).  The `recs`
+  ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
-  **  - recs with 'equip' tag are mapped as themselves
-  **  - recs with 'equipRef' tag are mapped to their parent equip
-  **  - recs with 'site' are mapped to equip with parent 'siteRef'
-  **  - recs with 'space' are mapped to equip with parent 'spaceRef'
+  **  - recs with `equip` tag are mapped as themselves
+  **  - recs with `equipRef` tag are mapped to their parent equip
+  **  - recs with `site` are mapped to equip with parent `siteRef`
+  **  - recs with `space` are mapped to equip with parent `spaceRef`
   **
   ** Examples:
-  **   read(site).toEquips      // return children equip within site
-  **   read(space).toEquips     // return children equip within space
-  **   read(equip).toEquips     // return equip itself
-  **   read(point).toEquips     // return point's parent equip
+  **
+  **     read(site).toEquips      // return children equip within site
+  **     read(space).toEquips     // return children equip within space
+  **     read(equip).toEquips     // return equip itself
+  **     read(point).toEquips     // return point's parent equip
   **
   @Api @Axon
   static Grid toEquips(Obj? recs)
@@ -77,20 +80,21 @@ const class PointFuncs
   }
 
   **
-  ** Map a set of recs to to a grid of [devices]`device`.  The 'recs'
-  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** Map a set of recs to to a grid of [devices](device).  The `recs`
+  ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
-  **  - recs with 'device' tag are mapped as themselves
-  **  - recs with 'deviceRef' tag are mapped to their parent device
-  **  - recs with 'site' are mapped to devices with parent 'siteRef'
-  **  - recs with 'space' are mapped to devices with parent 'spaceRef'
-  **  - recs with 'equip' are mapped to devices with parent 'equipRef'
+  **  - recs with `device` tag are mapped as themselves
+  **  - recs with `deviceRef` tag are mapped to their parent device
+  **  - recs with `site` are mapped to devices with parent `siteRef`
+  **  - recs with `space` are mapped to devices with parent `spaceRef`
+  **  - recs with `equip` are mapped to devices with parent `equipRef`
   **
   ** Examples:
-  **   read(site).toDevices      // return children devices within site
-  **   read(space).toDevices     // return children devices within space
-  **   read(equip).toDevices     // return children devices within equip
-  **   read(point).toDevices     // return point's parent device
+  **
+  **     read(site).toDevices      // return children devices within site
+  **     read(space).toDevices     // return children devices within space
+  **     read(equip).toDevices     // return children devices within equip
+  **     read(point).toDevices     // return point's parent device
   **
   @Api @Axon
   static Grid toDevices(Obj? recs)
@@ -99,20 +103,21 @@ const class PointFuncs
   }
 
   **
-  ** Map a set of recs to to a grid of [points]`point`.  The 'recs'
-  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** Map a set of recs to to a grid of [points](point).  The `recs`
+  ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
-  **  - recs with 'point' tag are mapped as themselves
-  **  - recs with 'site' are mapped to points with parent 'siteRef'
-  **  - recs with 'space' are mapped to points with parent 'spaceRef'
-  **  - recs with 'equip' are mapped to points with parent 'equipRef'
-  **  - recs with 'device' are mapped to points with parent 'deviceRef'
+  **  - recs with `point` tag are mapped as themselves
+  **  - recs with `site` are mapped to points with parent `siteRef`
+  **  - recs with `space` are mapped to points with parent `spaceRef`
+  **  - recs with `equip` are mapped to points with parent `equipRef`
+  **  - recs with `device` are mapped to points with parent `deviceRef`
   **
   ** Examples:
-  **   read(site).toPoints      // return children points within site
-  **   read(space).toPoints     // return children points within space
-  **   read(equip).toPoints     // return children points within equip
-  **   read(device).toPoints    // return children points within device
+  **
+  **     read(site).toPoints      // return children points within site
+  **     read(space).toPoints     // return children points within space
+  **     read(equip).toPoints     // return children points within equip
+  **     read(device).toPoints    // return children points within device
   **
   @Api @Axon
   static Grid toPoints(Obj? recs)
@@ -121,11 +126,11 @@ const class PointFuncs
   }
 
   **
-  ** Given a `site`, `space`, `equip`, or `point` rec, get its `occupied`
+  ** Given a [site], [space], [equip], or [point] rec, get its [occupied]
   ** point.  The following algorithm is used to lookup the occupied point:
   **   1. Try to find in equip or parent of nested equip
   **   2. Try to find in space or parent of nested spaces
-  **   3. Try to find in site if site if tagged as `sitePoint`
+  **   3. Try to find in site if site if tagged as [sitePoint]
   **
   ** If there are no matches or multiple ambiguous matches, then return
   ** null or raise an exception based on checked flag.
@@ -137,7 +142,7 @@ const class PointFuncs
   }
 
   **
-  ** Given a 'equip' record Dict, return a grid of its points.
+  ** Given a `equip` record Dict, return a grid of its points.
   ** If this function is overridden you MUST NOT use an XQuery to
   ** resolve points; this function must return local only points.
   **
@@ -157,7 +162,7 @@ const class PointFuncs
 
   **
   ** User level-1 manual override of writable point.
-  ** See `pointWrite`.
+  ** See [pointWrite].
   **
   @Api @Axon { admin = true }
   static Obj? pointEmergencyOverride(Obj point, Obj? val)
@@ -167,7 +172,7 @@ const class PointFuncs
 
   **
   ** User level-1 manual auto (override release) of writable point.
-  ** See `pointWrite`.
+  ** See [pointWrite].
   **
   @Api @Axon { admin = true }
   static Obj? pointEmergencyAuto(Obj point)
@@ -180,7 +185,7 @@ const class PointFuncs
   ** If duration is specified it must be a number with unit of time
   ** that indicates how long to put the point into override.  After
   ** the duration expires, the point is set back to auto (null).
-  ** See `pointWrite`.
+  ** See [pointWrite].
   **
   @Api @Axon { admin = true }
   static Obj? pointOverride(Obj point, Obj? val, Number? duration := null)
@@ -192,7 +197,7 @@ const class PointFuncs
 
   **
   ** User level-8 manual auto (override release) of writable point.
-  ** See `pointWrite`.
+  ** See [pointWrite].
   **
   @Api @Axon { admin = true }
   static Obj? pointAuto(Obj point)
@@ -202,7 +207,7 @@ const class PointFuncs
 
   **
   ** Set the relinquish default value (level-17) of writable point.
-  ** See `pointWrite`.
+  ** See [pointWrite].
   **
   @Api @Axon { admin = true }
   static Obj? pointSetDef(Obj point, Obj? val)
@@ -212,7 +217,7 @@ const class PointFuncs
 
   **
   ** Set a writable point's priority array value at the given level.
-  ** The point may be any value accepted by `toRec`.  Level must
+  ** The point may be any value accepted by [toRec].  Level must
   ** be 1 to 17 (where 17 represents def value).  The who parameter
   ** is a string which represent debugging information about which
   ** user or application is writing to this priorirty array level.
@@ -255,7 +260,7 @@ const class PointFuncs
 
   **
   ** Return the current priority array state of a writable point.
-  ** The point may be any value accepted by `toRec`.  The result is
+  ** The point may be any value accepted by [toRec].  The result is
   ** returned grid with following columns:
   **   - level: number from 1 - 17 (17 is default)
   **   - levelDis: human description of level
@@ -273,14 +278,15 @@ const class PointFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Evaluate a [point conversion]`ext-point::doc#convert`. First
-  ** parameter is point to test (anything accepted by `toRec`) or null
+  ** Evaluate a [point conversion](ext-point::doc#convert). First
+  ** parameter is point to test (anything accepted by [toRec]) or null
   ** to use empty dict.
   **
   ** Examples:
-  **   pointConvert(null, "+ 2 * 10", 3)
-  **   pointConvert(null, "hexToNumber()", "ff")
-  **   pointConvert(null, "°C => °F", 20°C)
+  **
+  **     pointConvert(null, "+ 2 * 10", 3)
+  **     pointConvert(null, "hexToNumber()", "ff")
+  **     pointConvert(null, "°C => °F", 20°C)
   **
   @Api @Axon
   static Obj? pointConvert(Obj? pt, Str convert, Obj? val)
@@ -293,12 +299,13 @@ const class PointFuncs
 
   **
   ** Get debug string for point including writables and his collection.
-  ** The argument is anything acceptable by `toRec()`.
+  ** The argument is anything acceptable by [toRec()].
   ** The result is returned as a plain text string.
   **
   ** Examples:
-  **   read(dis=="My Point").pointDetails
-  **   pointDetails(@2b80f96a-820a4f1a)
+  **
+  **     read(dis=="My Point").pointDetails
+  **     pointDetails(@2b80f96a-820a4f1a)
   **
   @Api @Axon
   static Str pointDetails(Obj point)
@@ -308,14 +315,14 @@ const class PointFuncs
     return PointUtil.pointDetails(ext(cx), rec, true)
   }
 
-  ** Return grid of thermistor table names as grid with one 'name' column
+  ** Return grid of thermistor table names as grid with one `name` column
   @Api @Axon
   static Grid pointThermistorTables()
   {
     Etc.makeListGrid(null, "name", null, ThermistorConvert.listTables)
   }
 
-  ** Return grid of current enum defs defined by `enumMeta`.
+  ** Return grid of current enum defs defined by [enumMeta].
   ** This call forces a refresh of the definitions.
   @Api @Axon static Grid enumDefs()
   {
@@ -329,7 +336,7 @@ const class PointFuncs
     return gb.toGrid
   }
 
-  ** Return definition of given enum def defined by `enumMeta`
+  ** Return definition of given enum def defined by [enumMeta]
   ** This call forces a refresh of the definitions.
   @Api @Axon static Grid? enumDef(Str id, Bool checked := true)
   {
@@ -340,20 +347,21 @@ const class PointFuncs
 
   **
   ** Return if a point value matches a given critera:
-  **   - match any values which are equal via '==' operator
+  **   - match any values which are equal via `==` operator
   **   - zero matches false (0% ==> false)
   **   - non-zero matches true (not 0% ==> true)
   **   - numerics can be matches with range
   **   - match can be a function which takes the value
   **
   ** Examples:
-  **   matchPointVal(false, false)     >>  true
-  **   matchPointVal(0, false)         >>  true
-  **   matchPointVal(33, false)        >>  false
-  **   matchPointVal(33, true)         >>  true
-  **   matchPointVal(33, 0..40)        >>  true
-  **   matchPointVal(90, 0..40)        >>  false
-  **   matchPointVal(4) x => x.isEven  >>  true
+  **
+  **     matchPointVal(false, false)     >>  true
+  **     matchPointVal(0, false)         >>  true
+  **     matchPointVal(33, false)        >>  false
+  **     matchPointVal(33, true)         >>  true
+  **     matchPointVal(33, 0..40)        >>  true
+  **     matchPointVal(90, 0..40)        >>  false
+  **     matchPointVal(4) x => x.isEven  >>  true
   **
   @Api @Axon static Bool matchPointVal(Obj? val, Obj? match)
   {

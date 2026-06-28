@@ -26,14 +26,15 @@ const class XetoFuncs
 
   **
   ** Load or lookup a Xeto library by its string or ref name.  Return
-  ** the [dict]`xeto::Lib` representation.  If not found raise
+  ** the [dict](xeto::Lib) representation.  If not found raise
   ** exception or return null based on checked flag.
   **
   ** Examples:
-  **   specLib("ph.points")            // load by dotted name
-  **   specLib(@lib:ph.points)         // load by lib ref id
-  **   specLib("bad.lib.name")         // raises exception if not found
-  **   specLib("bad.lib.name", false)  // unchecked returns null
+  **
+  **     specLib("ph.points")            // load by dotted name
+  **     specLib(@lib:ph.points)         // load by lib ref id
+  **     specLib("bad.lib.name")         // raises exception if not found
+  **     specLib("bad.lib.name", false)  // unchecked returns null
   **
   @Api @Axon static Lib? specLib(Obj name, Bool checked := true)
   {
@@ -47,14 +48,15 @@ const class XetoFuncs
   }
 
   **
-  ** List Xeto libraries as a list of their [dict]`xeto::Lib` representation.
+  ** List Xeto libraries as a list of their [dict](xeto::Lib) representation.
   ** Is scope is null then return all installed libs (libs not yet loaded
   ** will not have their metadata).  Otherwise scope must be a filter
   ** expression used to filter the dict representation.
   **
   ** Examples:
-  **   specLibs()             // all installed libs
-  **   specLibs(loaded)       // only libs loaded into memory
+  **
+  **     specLibs()             // all installed libs
+  **     specLibs(loaded)       // only libs loaded into memory
   **
   @Api @Axon static Dict[] specLibs(Expr filterExpr := Literal.nullVal)
   {
@@ -73,19 +75,20 @@ const class XetoFuncs
 
   **
   ** Load or lookup a Xeto spec by its string or ref qname.  Return
-  ** the [dict]`xeto::Spec` representation.  If not found raise
+  ** the [dict](xeto::Spec) representation.  If not found raise
   ** exception or return null based on checked flag.
   **
-  ** NOTE: returns the same Spec instance as returned by `xeto::Namespace`.
+  ** NOTE: returns the same Spec instance as returned by [xeto::Namespace].
   ** The spec meta is modeled using full fidelity and *not* haystack fidelity.
-  ** Use `specMeta` to normalize to haystack fidelity for use inside Axon.
+  ** Use [specMeta] to normalize to haystack fidelity for use inside Axon.
   **
   ** Examples:
-  **   spec("ph::Meter")         // type string
-  **   spec(@ph::Meter)          // type id
-  **   spec("sys::Spec.of")      // slot
-  **   spec("foo::Bad")          // raises exception if not found
-  **   spec("foo::Bad", false)   // unchecked returns null
+  **
+  **     spec("ph::Meter")         // type string
+  **     spec(@ph::Meter)          // type id
+  **     spec("sys::Spec.of")      // slot
+  **     spec("foo::Bad")          // raises exception if not found
+  **     spec("foo::Bad", false)   // unchecked returns null
   **
   @Api @Axon static Spec? spec(Obj qname, Bool checked := true)
   {
@@ -93,7 +96,7 @@ const class XetoFuncs
   }
 
   **
-  ** List Xeto specs as a list of their [dict]`xeto::Spec` representation.
+  ** List Xeto specs as a list of their [dict](xeto::Spec) representation.
   ** Scope may one of the following:
   **  - null: return all the top-level specs currently in the using scope
   **  - lib: return all the top-level specs declared in given library
@@ -102,17 +105,18 @@ const class XetoFuncs
   ** A filter may be specified to filter the specs found in the scope.  The
   ** dict representation for filtering supports a "slots" tag on each spec
   ** with a Dict of the effective slots name.  This allows filtering slots
-  ** using the syntax 'slots->someName'.
+  ** using the syntax `slots->someName`.
   **
-  ** NOTE: returns the same Spec instances as returned by `xeto::Namespace`.
+  ** NOTE: returns the same Spec instances as returned by [xeto::Namespace].
   ** The spec meta is modeled using full fidelity and *not* haystack fidelity.
-  ** Use `specMeta` to normalize to haystack fidelity for use inside Axon.
+  ** Use [specMeta] to normalize to haystack fidelity for use inside Axon.
   **
   ** Examples:
-  **   specs()                  // specs in using scope
-  **   specLib("ph").specs      // specs in a given library
-  **   specs(null, abstract)    // filter specs with filter expression
-  **   specs(null, slots->ahu)  // filter specs have ahu tag
+  **
+  **     specs()                  // specs in using scope
+  **     specLib("ph").specs      // specs in a given library
+  **     specs(null, abstract)    // filter specs with filter expression
+  **     specs(null, slots->ahu)  // filter specs have ahu tag
   **
   @Api @Axon static Spec[] specs(Expr scope := Literal.nullVal, Expr filter := Literal.nullVal)
   {
@@ -185,10 +189,11 @@ const class XetoFuncs
   ** NOTE: this function returns the instance using Haystack level fidelity
   **
   ** Examples:
-  **   instance("icons::apple")             // qname string
-  **   instance(@icons::apple)              // qname Ref id
-  **   instance("icons::bad-name")          // raises exception if not found
-  **   instance("icons::bad-name", false)   // unchecked returns null
+  **
+  **     instance("icons::apple")             // qname string
+  **     instance(@icons::apple)              // qname Ref id
+  **     instance("icons::bad-name")          // raises exception if not found
+  **     instance("icons::bad-name", false)   // unchecked returns null
   **
   @Api @Axon static Dict? instance(Obj qname, Bool checked := true)
   {
@@ -208,9 +213,10 @@ const class XetoFuncs
   ** NOTE: this function returns the instances using Haystack level fidelity
   **
   ** Examples:
-  **   instances()                  // all instances in scope
-  **   specLib("icons").instances   // instances in a given library
-  **   instances(null, a and b)     // filter instances with filter expression
+  **
+  **     instances()                  // all instances in scope
+  **     specLib("icons").instances   // instances in a given library
+  **     instances(null, a and b)     // filter instances with filter expression
   **
   @Api @Axon static Dict[] instances(Expr scope := Literal.nullVal, Expr filter := Literal.nullVal)
   {
@@ -279,27 +285,28 @@ const class XetoFuncs
   **
   ** The default behavior for dict types is to return a single Dict.
   ** However, if the type has a constrainted query, then an entire graph
-  ** can be instantiated via the '{graph}' option in which case a Dict[] is
-  ** returned.  In graph mode an 'id' is generated for recs for cross-linking.
+  ** can be instantiated via the `{graph}` option in which case a Dict[] is
+  ** returned.  In graph mode an `id` is generated for recs for cross-linking.
   **
-  ** Also see `xeto::Namespace.instantiate`.
+  ** Also see [xeto::Namespace.instantiate].
   **
-  ** NOTE: this function forces the 'haystack' option to force all
+  ** NOTE: this function forces the `haystack` option to force all
   ** non-Haystack scalars to be simple strings.
   **
   ** Options:
-  **   - 'graph': marker tag to instantiate a graph of recs
-  **   - 'abstract': marker to supress error if spec is abstract
+  **   - `graph`: marker tag to instantiate a graph of recs
+  **   - `abstract`: marker to supress error if spec is abstract
   **
   ** Examples:
-  **   // evaluates to 2000-01-01
-  **   instantiate(Date)
   **
-  **   // evaluates to dict {equip, vav, hotWaterHeating, ...}
-  **   instantiate(G36ReheatVav)
+  **     // evaluates to 2000-01-01
+  **     instantiate(Date)
   **
-  **   // evaluates to dict[] of vav + points from constrained query
-  **   instantiate(G36ReheatVav, {graph})
+  **     // evaluates to dict {equip, vav, hotWaterHeating, ...}
+  **     instantiate(G36ReheatVav)
+  **
+  **     // evaluates to dict[] of vav + points from constrained query
+  **     instantiate(G36ReheatVav, {graph})
   **
   @Api @Axon static Obj? instantiate(Spec spec, Dict? opts := null)
   {
@@ -317,7 +324,8 @@ const class XetoFuncs
   ** result for your operation.
   **
   ** Examples:
-  **   specx(Site)
+  **
+  **     specx(Site)
   **
   @Api @Axon static Spec specx(Spec spec)
   {
@@ -329,7 +337,8 @@ const class XetoFuncs
   ** Returns null for top-level specs within their library.
   **
   ** Examples:
-  **   specParent(Str)  >>  sys
+  **
+  **     specParent(Str)  >>  sys
   **
   @Api @Axon static Spec? specParent(Spec spec) { spec.parent }
 
@@ -337,8 +346,9 @@ const class XetoFuncs
   ** Return simple name of spec.
   **
   ** Examples:
-  **   specName(Dict)  >>  "Dict"
-  **   specName(Site)  >>  "Site"
+  **
+  **     specName(Dict)  >>  "Dict"
+  **     specName(Site)  >>  "Site"
   **
   @Api @Axon static Str specName(Spec spec) { spec.name }
 
@@ -349,8 +359,9 @@ const class XetoFuncs
   **   - Derived specs will return "derived123::{name}"
   **
   ** Examples:
-  **   specQName(Dict)  >>  "sys::Dict"
-  **   specQName(Site)  >>  "ph::Site"
+  **
+  **     specQName(Dict)  >>  "sys::Dict"
+  **     specQName(Site)  >>  "ph::Site"
   **
   @Api @Axon static Str specQName(Spec spec) { spec.qname }
 
@@ -358,19 +369,21 @@ const class XetoFuncs
   ** Data type of the spec.  Returns the spec itself if given a top-level type.
   **
   ** Examples:
-  **   specType(Str)                      >>  sys:Str
-  **   spec("ph::Equip.equip").specType   >>  sys::Marker
+  **
+  **     specType(Str)                      >>  sys:Str
+  **     spec("ph::Equip.equip").specType   >>  sys::Marker
   **
   @Api @Axon static Spec specType(Spec spec) { spec.type }
 
   **
   ** Base spec from which the given spec directly inherits.
-  ** Returns null if spec is 'sys::Obj' itself.
+  ** Returns null if spec is `sys::Obj` itself.
   **
   ** Examples:
-  **   specBase(Str)    >>  sys::Scalar
-  **   specBase(Meter)  >>  ph::Equip
-  **   specType(Equip)  >>  ph::Entity
+  **
+  **     specBase(Str)    >>  sys::Scalar
+  **     specBase(Meter)  >>  ph::Equip
+  **     specType(Equip)  >>  ph::Entity
   **
   @Api @Axon static Spec? specBase(Spec spec) { spec.base }
 
@@ -380,7 +393,8 @@ const class XetoFuncs
   ** NOTE: this function returns the meta using haystack level fidelity
   **
   ** Examples:
-  **   specMeta(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
+  **
+  **     specMeta(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
   **
   @Api @Axon static Dict specMeta(Spec spec) { XetoUtil.toHaystack(spec.meta) }
 
@@ -390,7 +404,8 @@ const class XetoFuncs
   ** NOTE: this function returns the meta using haystack level fidelity
   **
   ** Examples:
-  **   specMetaOwn(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
+  **
+  **     specMetaOwn(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
   **
   @Api @Axon static Dict specMetaOwn(Spec spec) { XetoUtil.toHaystack(spec.metaOwn) }
 
@@ -401,55 +416,64 @@ const class XetoFuncs
   ** Get the spec's declared children slots and globals as dict of Specs.
   **
   ** Examples:
-  **   specMembersOwn(Ahu)
+  **
+  **     specMembersOwn(Ahu)
   @Api @Axon static Dict specMembersOwn(Spec spec) { spec.membersOwn.toDict }
 
   ** Get the effective children slots and globals as a dict of Specs.
   **
   ** Examples:
-  **   specMembers(Ahu)
+  **
+  **     specMembers(Ahu)
   @Api @Axon static Dict specMembers(Spec spec) { spec.members.toDict }
 
   ** Get the effective child slot or global member.
   **
   ** Examples:
-  **   specMember(Ahu, "equipRef")
+  **
+  **     specMember(Ahu, "equipRef")
   @Api @Axon static Dict? specMember(Spec spec, Str name, Bool checked := true) { spec.member(name, checked) }
 
   ** Get the spec's declared children slots as dict of Specs.
   **
   ** Examples:
-  **   specSlotsOwn(Ahu)
+  **
+  **     specSlotsOwn(Ahu)
   @Api @Axon static Dict specSlotsOwn(Spec spec) { spec.slotsOwn.toDict }
 
   ** Get the effective children slots as a dict of Specs.
   **
   ** Examples:
-  **   specSlots(Ahu)
+  **
+  **     specSlots(Ahu)
   @Api @Axon static Dict specSlots(Spec spec) { spec.slots.toDict }
 
   ** Get the effective child slot.
   **
   ** Examples:
-  **   specSlot(Ahu, "equipRef")
+  **
+  **     specSlot(Ahu, "equipRef")
   @Api @Axon static Dict? specSlot(Spec spec, Str name, Bool checked := true) { spec.slot(name, checked) }
 
   ** Get the spec's declared children globals as dict of Specs.
   **
   ** Examples:
-  **   specGlobalsOwn(Ahu)
+  **
+  **     specGlobalsOwn(Ahu)
   @Api @Axon static Dict specGlobalsOwn(Spec spec) { spec.globalsOwn.toDict }
 
   ** Get the effective children globals as a dict of Specs.
   **
   ** Examples:
-  **   specGlobals(Ahu)
+  **
+  **     specGlobals(Ahu)
   @Api @Axon static Dict specGlobals(Spec spec) { spec.globals.toDict }
 
   ** Get the effective global slot.
   **
   ** Examples:
-  **   specGlobal(Ahu, "equipRef")
+  **
+  **     specGlobal(Ahu, "equipRef")
   @Api @Axon static Dict? specGlobal(Spec spec, Str name, Bool checked := true) { spec.globals.get(name, checked) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -487,13 +511,14 @@ const class XetoFuncs
   **
   ** Return the Xeto spec of the given value.  Raise exception
   ** if value type is not mapped into the data type system.  Also
-  ** see `is()` and `fits()`.
+  ** see [is()] and [fits()].
   **
   ** Examples:
-  **    specOf("hi")                 >>  sys::Str
-  **    specOf(@id)                  >>  sys::Ref
-  **    specOf({})                   >>  sys::Dict
-  **    specOf({spec:@ph::Equip})    >>  ph::Dict
+  **
+  **      specOf("hi")                 >>  sys::Str
+  **      specOf(@id)                  >>  sys::Ref
+  **      specOf({})                   >>  sys::Dict
+  **      specOf({spec:@ph::Equip})    >>  ph::Dict
   **
   @Api @Axon static Spec? specOf(Obj? val, Bool checked := true)
   {
@@ -501,17 +526,18 @@ const class XetoFuncs
   }
 
   **
-  ** Return if spec 'a' inherits from spec 'b' based on nominal typing.
-  ** This method checks the explicit inheritance hierarchy via `specBase()`.
-  ** Use `is()` to check if an instance is of a given type.  Also see
-  ** `fits()` and `specFits()` to check using structural typing.
+  ** Return if spec `a` inherits from spec `b` based on nominal typing.
+  ** This method checks the explicit inheritance hierarchy via [specBase()].
+  ** Use [is()] to check if an instance is of a given type.  Also see
+  ** [fits()] and [specFits()] to check using structural typing.
   **
   ** Examples:
-  **   specIs(Str, Scalar)     >>  true
-  **   specIs(Scalar, Scalar)  >>  false
-  **   specIs(Equip, Dict)     >>  true
-  **   specIs(Meter, Equip)    >>  true
-  **   specIs(Meter, Point)    >>  false
+  **
+  **     specIs(Str, Scalar)     >>  true
+  **     specIs(Scalar, Scalar)  >>  false
+  **     specIs(Equip, Dict)     >>  true
+  **     specIs(Meter, Equip)    >>  true
+  **     specIs(Meter, Point)    >>  false
   **
   @Api @Axon static Bool specIs(Spec a, Spec b)
   {
@@ -519,13 +545,14 @@ const class XetoFuncs
   }
 
   **
-  ** Return if spec 'a' fits spec 'b' based on structural typing.
-  ** Use `fits()` to check if an instance fits a given type.  Also see
-  ** `is()` and `specIs()` to check using nominal typing.
+  ** Return if spec `a` fits spec `b` based on structural typing.
+  ** Use [fits()] to check if an instance fits a given type.  Also see
+  ** [is()] and [specIs()] to check using nominal typing.
   **
   ** Examples:
-  **   specFits(Meter, Equip)    >>  true
-  **   specFits(Meter, Point)    >>  false
+  **
+  **     specFits(Meter, Equip)    >>  true
+  **     specFits(Meter, Point)    >>  false
   **
   @Api @Axon static Bool specFits(Spec a, Spec b)
   {
@@ -537,11 +564,12 @@ const class XetoFuncs
   ** implemented by the instance.  If the instance implements zero or more
   ** than one subtype of the choice, then return null or raise an exception
   ** based on the checked flag.  The instance may be anything accepted
-  ** by the `toRec()` function.
+  ** by the [toRec()] function.
   **
   ** Example:
-  **   choiceOf({discharge, duct}, DuctSection)  >>  DischargeDuct
-  **   choiceOf({hot, water}, Fluid)             >>  HotWater
+  **
+  **     choiceOf({discharge, duct}, DuctSection)  >>  DischargeDuct
+  **     choiceOf({hot, water}, Fluid)             >>  HotWater
   **
   @Api @Axon static Spec? choiceOf(Obj instance, Spec choice, Bool checked := true)
   {
@@ -550,29 +578,30 @@ const class XetoFuncs
 
   **
   ** Return if the given instance fits the spec via structural typing.
-  ** Use `specFits()` to check structural typing between two types.
-  ** Also see `is()` and `specIs()` to check via nominal typing.  Use
-  ** `fitsExplain()` to explain why fits returns true or false.
+  ** Use [specFits()] to check structural typing between two types.
+  ** Also see [is()] and [specIs()] to check via nominal typing.  Use
+  ** [fitsExplain()] to explain why fits returns true or false.
   **
   ** If the val is a Dict, then the default behavior is to only check
   ** the dict's tags against the given spec.  In this mode all spec query
-  ** slots are ignored.  Pass the '{graph}' option to also check
+  ** slots are ignored.  Pass the `{graph}` option to also check
   ** queries to validate the graph of entities.  For example, the graph
   ** option can be used with equip specs to validate required points.
   **
   **
   ** Options:
-  **   - 'graph': marker to also check graph of references such as required points
-  **   - 'ignoreRefs': marker to not validate if refs exist or match target spec
+  **   - `graph`: marker to also check graph of references such as required points
+  **   - `ignoreRefs`: marker to not validate if refs exist or match target spec
   **
   ** Examples:
-  **    fits("foo", Str)               >>  true
-  **    fits(123, Str)                 >>  false
-  **    fits(equipRec, Equip)          >>  true
-  **    fits(equipRec, Site)           >>  false
-  **    fits(vav, MyVavSpec)           >>  validate tags only
-  **    fits(vav, MyVavSpec, {graph})  >>  validate tags and required points
-  **    fits(vav, null)                >>  vlaidate agaist vav's spec tag
+  **
+  **      fits("foo", Str)               >>  true
+  **      fits(123, Str)                 >>  false
+  **      fits(equipRec, Equip)          >>  true
+  **      fits(equipRec, Site)           >>  false
+  **      fits(vav, MyVavSpec)           >>  validate tags only
+  **      fits(vav, MyVavSpec, {graph})  >>  validate tags and required points
+  **      fits(vav, null)                >>  vlaidate agaist vav's spec tag
   **
   @Api @Axon static Bool fits(Obj? val, Spec? spec, Dict? opts := null)
   {
@@ -583,8 +612,8 @@ const class XetoFuncs
   }
 
   **
-  ** Return a grid explaining why spec 'a' does not fit 'b'.
-  ** If 'a' does fit 'b' then return an empty grid.
+  ** Return a grid explaining why spec `a` does not fit `b`.
+  ** If `a` does fit `b` then return an empty grid.
   **
   @Api @Axon
   static Grid specFitsExplain(Spec a, Spec b)
@@ -604,17 +633,18 @@ const class XetoFuncs
   ** returned for that record.
   **
   ** If you pass null for the spec, then each record is fit against
-  ** its declared 'spec' tag.  If a given rec is missing a 'spec' tag
+  ** its declared `spec` tag.  If a given rec is missing a `spec` tag
   ** then it is reported an error.
   **
-  ** See `fits()` for list of options.
+  ** See [fits()] for list of options.
   **
   ** Example:
-  **    // validate tags on records only
-  **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
   **
-  **    // validate tags and required points and other graph queries
-  **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav, {graph})
+  **      // validate tags on records only
+  **      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
+  **
+  **      // validate tags and required points and other graph queries
+  **      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav, {graph})
   **
   @Api @Axon
   static Grid fitsExplain(Obj? recs, Spec? spec, Dict? opts := null)
@@ -685,9 +715,9 @@ const class XetoFuncs
 
   **
   ** Match dict recs against specs to find all the specs that fit.  The recs
-  ** argument can be anything accepted by `toRecList()`.  Specs must be a
+  ** argument can be anything accepted by [toRecList()].  Specs must be a
   ** Spec or list of Specs.  If specs argument is omitted, then we match against
-  ** all the non-abstract [types]`specs()` currently in scope.  Only the most
+  ** all the non-abstract [types](specs()) currently in scope.  Only the most
   ** specific subtype is returned.
   **
   ** Result is a grid for each input rec with the following columns:
@@ -695,10 +725,11 @@ const class XetoFuncs
   **   - num: number of matches
   **   - specs: list of Spec for all matching specs
   **
-  ** See `fits()` for a list of supported fit options.
+  ** See [fits()] for a list of supported fit options.
   **
   ** Example:
-  **    readAll(equip).fitsMatchAll
+  **
+  **      readAll(equip).fitsMatchAll
   **
   @Api @Axon
   static Grid fitsMatchAll(Obj? recs, Obj? specs := null, Dict? opts := null)
@@ -746,10 +777,11 @@ const class XetoFuncs
   ** found throw UnknownRecErr or return null based on checked flag.
   ** If there are multiple matches it is indeterminate which one is
   ** returned.  Subject must be a record id or dict in the database.  Spec
-  ** must be a Spec typed as a 'sys::Query'.  Also see `queryAll`.
+  ** must be a Spec typed as a `sys::Query`.  Also see [queryAll].
   **
   ** Example:
-  **   read(point).query(spec("ph::Point.equips"))
+  **
+  **     read(point).query(spec("ph::Point.equips"))
   **
   @Api @Axon static Dict? query(Obj subject, Spec spec, Bool checked := true)
   {
@@ -764,13 +796,14 @@ const class XetoFuncs
   **
   ** Evaluate a relationship query and return grid of results.
   ** Subject must be a record id or dict in the database.  Spec
-  ** must be a Spec typed as a 'sys::Query'.  Also see `query`.
+  ** must be a Spec typed as a `sys::Query`.  Also see [query].
   **
   ** Options:
-  **   - 'limit': max number of recs to return
-  **   - 'sort': sort by display name
+  **   - `limit`: max number of recs to return
+  **   - `sort`: sort by display name
   ** Example:
-  **   read(ahu).queryAll(spec("ph::Equip.points"))
+  **
+  **     read(ahu).queryAll(spec("ph::Equip.points"))
   **
   @Api @Axon static Grid queryAll(Obj subject, Spec spec, Dict? opts := null)
   {
@@ -806,22 +839,23 @@ const class XetoFuncs
   ** and ambiguous matches return an indeterminate record.
   **
   ** Example:
-  **   // spec
-  **   MyAhu: Equip {
-  **     points: {
-  **       dat: DischargeAirTempSensor
-  **       rat: DischargeAirTempSensor
+  **
+  **     // spec
+  **     MyAhu: Equip {
+  **       points: {
+  **         dat: DischargeAirTempSensor
+  **         rat: DischargeAirTempSensor
+  **       }
   **     }
-  **   }
   **
-  **   // axon
-  **   myAhuPoints: read(ahu).queryNamed(spec("mylib::MyAhu.points"))
+  **     // axon
+  **     myAhuPoints: read(ahu).queryNamed(spec("mylib::MyAhu.points"))
   **
-  **   // result
-  **   {
-  **     dat: {dis:"DAT", discharge, air, temp, sensor, ...},
-  **     rat: {dis:"RAT", return, air, temp, sensor, ...}
-  **   }
+  **     // result
+  **     {
+  **       dat: {dis:"DAT", discharge, air, temp, sensor, ...},
+  **       rat: {dis:"RAT", return, air, temp, sensor, ...}
+  **     }
   **
   @Api @Axon static Dict queryNamed(Obj subject, Spec spec, Dict? opts := null)
   {

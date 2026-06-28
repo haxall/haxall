@@ -54,7 +54,7 @@ class ModbusMaster
 // Coils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for 'readCoils(slave, addr, 1)'.
+  ** Convenience for `readCoils(slave, addr, 1)`.
   Bool readCoil(Int slave, Int addr)
   {
     readCoils(slave, addr, 1).first
@@ -76,7 +76,7 @@ class ModbusMaster
 // Discrete Inputs
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for 'readDiscreteInputs(slave, addr, 1)'.
+  ** Convenience for `readDiscreteInputs(slave, addr, 1)`.
   Bool readDiscreteInput(Int slave, Int addr)
   {
     readDiscreteInputs(slave, addr, 1).first
@@ -92,7 +92,7 @@ class ModbusMaster
 // Input Registers
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenince for 'readInputRegs(slave, addr, 1)'.
+  ** Convenince for `readInputRegs(slave, addr, 1)`.
   Int readInputReg(Int slave, Int addr)
   {
     readInputRegs(slave, addr, 1).first
@@ -108,7 +108,7 @@ class ModbusMaster
 // Holding Registers
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenince for 'readHoldRegs(slave, addr, 1)'.
+  ** Convenince for `readHoldRegs(slave, addr, 1)`.
   Int readHoldingReg(Int slave, Int addr)
   {
     readHoldingRegs(slave, addr, 1).first
@@ -126,8 +126,8 @@ class ModbusMaster
     write16(slave, 0x06, addr, [val])
   }
 
-  ** Write multiple holding register values, where each 'val' is a
-  ** 16-bit value written consecutively starting at 'startAddr'.
+  ** Write multiple holding register values, where each `val` is a
+  ** 16-bit value written consecutively starting at `startAddr`.
   Void writeHoldingRegs(Int slave, Int start, Int[] vals)
   {
     if (vals.size == 1) writeHoldingReg(slave, start, vals.first)

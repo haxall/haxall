@@ -21,14 +21,14 @@ using hxConn
 **
 const class SqlFuncs
 {
-  ** Deprecated - use `connPing()`
+  ** Deprecated - use [connPing()]
   @Deprecated @Api @Axon { admin = true }
   static Future sqlPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
-  ** Deprecated - use `connSyncHis()`
+  ** Deprecated - use [connSyncHis()]
   @Deprecated @Api @Axon { admin = true }
   static Obj? sqlSyncHis(Obj points, Obj? span := null)
   {
@@ -44,11 +44,12 @@ const class SqlFuncs
 
   **
   ** Query the tables defined for the database.
-  ** Return a grid with the 'name' column.
+  ** Return a grid with the `name` column.
   **
   ** Examples:
-  **   read(sqlConn).sqlTables
-  **   sqlTables(sqlConnId)
+  **
+  **     read(sqlConn).sqlTables
+  **     sqlTables(sqlConnId)
   **
   @Api @Axon { admin = true }
   static Grid sqlTables(Obj conn)
@@ -67,8 +68,9 @@ const class SqlFuncs
   ** Blob columns under 10K are returned as base64.
   **
   ** Examples:
-  **   read(sqlConn).sqlQuery("select * from some_table")
-  **   sqlQuery(sqlConnId, "select * from some_table")
+  **
+  **     read(sqlConn).sqlQuery("select * from some_table")
+  **     sqlQuery(sqlConnId, "select * from some_table")
   **
   ** WARNING: any admin user will have full access to query the
   ** database based on the user account configured by the sqlConn.

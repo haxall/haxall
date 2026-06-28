@@ -11,7 +11,7 @@ using util
 
 **
 ** CompSpace manages a tree of components and their execution
-** environment - see [documentation]`hx.doc.haxall::Comps`.
+** environment - see [documentation](hx.doc.haxall::Comps).
 **
 @Js
 class CompSpace
@@ -25,7 +25,7 @@ class CompSpace
   ** be set before any Comp can be constructed against the namespace.
   @NoDoc static const Str actorKey := "xeto::cs"
 
-  ** Constructor - must call `install` before creating any components.
+  ** Constructor - must call [install] before creating any components.
   new make(Namespace ns)
   {
     this.spi = Type.find("xetom::MCompSpaceSpi").make([this, ns])
@@ -76,17 +76,17 @@ class CompSpace
   ** Has this space been started, but not stopped yet
   Bool isRunning() { spi.isRunning}
 
-  ** Start space to initialize and begin `execute` calls
+  ** Start space to initialize and begin [execute] calls
   This start() { spi.start; return this }
 
-  ** Stop space to cleanup and cease `execute` calls
+  ** Stop space to cleanup and cease [execute] calls
   This stop() { spi.stop; return this }
 
   ** This method should be called at periodically to execute components
   ** and check timers.  The frequency this method is called determines
   ** the smallest timer increment.  For example if its called every 100ms
   ** then timers will only fire as fast as 100ms. The current context
-  ** must be an instance of `CompContext`.  See `hx.doc.haxall::Comps#execution`.
+  ** must be an instance of [CompContext].  See [hx.doc.haxall::Comps#execution].
   Void execute() { spi.execute }
 
 //////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ class CompSpace
 **************************************************************************
 
 **
-** Context for `CompSpace.execute`
+** Context for [CompSpace.execute]
 **
 @Js
 mixin CompContext : ActorContext

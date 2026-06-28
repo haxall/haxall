@@ -13,7 +13,7 @@ using haystack
 using hx
 
 **
-** Mount folio rec files into the virtual filesystem as 'rec/{id}'
+** Mount folio rec files into the virtual filesystem as `rec/{id}`
 **
 const class RecMount : WrapMount
 {

@@ -35,8 +35,8 @@ const class ConnectConfig
   const Duration connectTimeout := 10sec
 
   ** The session expiry interval (in seconds).
-  ** If set to '0', the session ends when the network connection is closed.
-  ** If set to '0xFFFF_FFFF' the session does not expire.
+  ** If set to `0`, the session ends when the network connection is closed.
+  ** If set to `0xFFFF_FFFF` the session does not expire.
   **
   ** This setting only applies to clients with version >= 5
   const Duration sessionExpiryInterval := MqttConst.sessionExpiresOnClose
@@ -65,11 +65,11 @@ const class ConnectConfig
   ** This setting only applies to clients with version >= 5
   const Bool requestResponseInfo := false
 
-  ** If 'false', the server may return a reason string or user properties on
+  ** If `false`, the server may return a reason string or user properties on
   ** a CONNACK or DISCONNECT packet, but MUST NOT send a reason string or
   ** user properties on any packet other than PUBLISH, CONNACK, or DISCONNECT.
   **
-  ** If 'true', the server may return a reason string or user properties on any
+  ** If `true`, the server may return a reason string or user properties on any
   ** packet where it is allowed.
   **
   ** This setting only applies to clients with version >= 5

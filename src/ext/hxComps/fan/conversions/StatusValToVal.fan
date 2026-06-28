@@ -30,7 +30,7 @@ class StatusBoolToBool : StatusValToVal
 
   virtual Bool out() { get("out") }
 
-  ** When 'in' is null, set out to this value.
+  ** When `in` is null, set out to this value.
   virtual Bool whenNull { get {get("whenNull")} set {set("whenNull", it)} }
 
   /* ionc-end */
@@ -47,7 +47,7 @@ class StatusNumberToNumber : StatusValToVal
 
   virtual Number out() { get("out") }
 
-  ** When 'in' is null, set out to this value.
+  ** When `in` is null, set out to this value.
   virtual Number whenNull { get {get("whenNull")} set {set("whenNull", it)} }
 
   /* ionc-end */

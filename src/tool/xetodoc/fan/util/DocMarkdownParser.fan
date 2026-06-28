@@ -61,9 +61,9 @@ internal class DocMarkdownParser : LinkResolver
   **
   ** Parse index.md into its ordered summary, we expect specific format:
   **
-  **   # Section Title
-  **   - [Foo](Foo.md): foo summary
-  **   - [Bar](Bar.md): bar summary
+  **     # Section Title
+  **     - [Foo](Foo.md): foo summary
+  **     - [Bar](Bar.md): bar summary
   **
   DocSummary[] parseChapterIndex(DocSummary[] origs, Str? mdIndex)
   {

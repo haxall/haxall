@@ -10,7 +10,7 @@ using mqtt::PacketType as PT
 
 **
 ** MQTT reason codes. These codes are based off the version 5 spec but the code for reasons
-** that have a mapping to 3.1.1 codes can be obtained using 'v3()'.
+** that have a mapping to 3.1.1 codes can be obtained using `v3()`.
 **
 enum class ReasonCode
 {

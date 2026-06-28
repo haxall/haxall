@@ -88,7 +88,7 @@ abstract const class HxRuntime : Runtime
   ** Temp directory
   override const File tempDir
 
-  ** Runtime level meta data stored in the 'rt:meta' database record
+  ** Runtime level meta data stored in the `rt:meta` database record
   override final RuntimeMeta meta() { metaRef.val }
   internal const AtomicRef metaRef
 
@@ -106,7 +106,7 @@ abstract const class HxRuntime : Runtime
   ** Xeto lib namespace
   override Namespace ns() { libsRef.ns }
 
-  ** Convenience for 'exts.get' to lookup extension by lib dotted name
+  ** Convenience for `exts.get` to lookup extension by lib dotted name
   override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }
 
   ** Project extensions

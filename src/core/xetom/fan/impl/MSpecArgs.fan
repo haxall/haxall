@@ -36,7 +36,7 @@ const class MSpecArgs
 **************************************************************************
 
 **
-** Arguments for 'of' meta
+** Arguments for `of` meta
 **
 @Js
 const class MSpecArgsOf : MSpecArgs
@@ -51,7 +51,7 @@ const class MSpecArgsOf : MSpecArgs
 **************************************************************************
 
 **
-** Arguments for 'ofs' meta
+** Arguments for `ofs` meta
 **
 @Js
 const class MSpecArgsOfs : MSpecArgs

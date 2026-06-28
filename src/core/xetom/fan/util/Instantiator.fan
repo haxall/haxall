@@ -15,13 +15,13 @@ using haystack
 ** for templating, graph instantiate, and pluggable options
 **
 ** Public options:
-**   - 'genIds': generate ids for entity and comp dicts
-**   - 'graph': marker tag to return Dict[] and generate child queries
-**   - 'abstract': marker to supress error if spec is abstract
-**   - 'haystack': marker tag to use Haystack level data fidelity
+**   - `genIds`: generate ids for entity and comp dicts
+**   - `graph`: marker tag to return Dict[] and generate child queries
+**   - `abstract`: marker to supress error if spec is abstract
+**   - `haystack`: marker tag to use Haystack level data fidelity
 ** Extended private use options:
-**   - 'graphInclude': map of Str:Str of qnames to explicitly include in graph
-**   - 'conn': connector to bind, must be dict of '{id:@x, addrSpec:@FooAddr}'
+**   - `graphInclude`: map of Str:Str of qnames to explicitly include in graph
+**   - `conn`: connector to bind, must be dict of `{id:@x, addrSpec:@FooAddr}`
 **
 @Js
 class Instantiator

@@ -104,7 +104,7 @@ final const class Ref
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Identifier which does **not** include the leading '@'
+  ** Identifier which does **not** include the leading `@`
   Str id() { idRef }
   private const Str idRef
 
@@ -138,10 +138,10 @@ final const class Ref
     throw UnsupportedErr("Not handle Ref: $id")
   }
 
-  ** Hash `id`
+  ** Hash [id]
   override Int hash() { id.hash }
 
-  ** Equality is based on `id` only (not dis).
+  ** Equality is based on [id] only (not dis).
   override Bool equals(Obj? that)
   {
     x := that as Ref
@@ -149,11 +149,11 @@ final const class Ref
     return id == x.id
   }
 
-  ** Return display value of target if available, otherwise `id`
+  ** Return display value of target if available, otherwise [id]
   Str dis() { disVal ?: idRef }
 
-  ** String format is `id` which does **not** include
-  ** the leading '@'.  Use `toCode` to include leading '@'.
+  ** String format is [id] which does **not** include
+  ** the leading `@`.  Use [toCode] to include leading `@`.
   override Str toStr() { id }
 
   ** Return "@id"
@@ -225,11 +225,11 @@ final const class Ref
   ** Is this a ref that encodes a SNI via Sni.id
   @NoDoc Bool isSni() { id.startsWith("sni:") }
 
-  ** Is this a ref that encodes a URI via `makeUri`
+  ** Is this a ref that encodes a URI via [makeUri]
   Bool isUri() { id.startsWith("uri:") }
 
   ** If this is a URI encoded ref, decode back to the URI.  Raise
-  ** error or return null null if this ref was not created via `makeUri`.
+  ** error or return null null if this ref was not created via [makeUri].
   Uri? toUri(Bool checked := true)
   {
     if (!isUri)
@@ -311,7 +311,7 @@ final const class Ref
     return null
   }
 
-  ** Return if the string is a valid Ref identifier.  See `isIdChar`
+  ** Return if the string is a valid Ref identifier.  See [isIdChar]
   static Bool isId(Str n) { isIdErr(n) == null }
 
   ** Take an arbitrary string and convert into a safe Ref identifier.
@@ -329,10 +329,10 @@ final const class Ref
 
   **
   ** Is the given character a valid id char:
-  **  - 'A' - 'Z'
-  **  - 'a' - 'z'
-  **  - '0' - '9'
-  **  - '_ : - . ~'
+  **  - `A` - `Z`
+  **  - `a` - `z`
+  **  - `0` - `9`
+  **  - `_ : - . ~`
   **
   static Bool isIdChar(Int char)
   {
@@ -429,7 +429,7 @@ final const class Ref
   ** Null ref is "@null"
   const static Ref nullRef := Ref("null")
 
-  ** Default is `nullRef`
+  ** Default is [nullRef]
   const static Ref defVal := nullRef
 }
 

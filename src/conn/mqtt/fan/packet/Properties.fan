@@ -35,7 +35,7 @@ const class Properties
   ** The value for the property is checked to ensure it is the correct type and
   ** fits the accepted range of values for that property.
   **
-  ** If the val is 'null', all instances of the property are removed (including those
+  ** If the val is `null`, all instances of the property are removed (including those
   ** that allow duplicate entries).
   This add(Property prop, Obj? val)
   {
@@ -70,7 +70,7 @@ const class Properties
   ** Return if no properties are set.
   Bool isEmpty() { props.isEmpty }
 
-  ** Get the value for the specified property, or return 'def' if it is not set.
+  ** Get the value for the specified property, or return `def` if it is not set.
   @Operator
   Obj? get(Property prop, Obj? def := null) { props.get(prop) ?: def }
 

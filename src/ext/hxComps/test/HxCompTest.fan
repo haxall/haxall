@@ -54,7 +54,7 @@ abstract class HxCompTest : HxTest
     throw ArgErr("${obj} (${obj.typeof})")
   }
 
-  ** Create the comp using `createComp` and then add it under the root component.
+  ** Create the comp using [createComp] and then add it under the root component.
   ** Then immediately call CompSpace.execute and return the new comp
   Comp createAndExec(Obj obj, Str? name := null)
   {

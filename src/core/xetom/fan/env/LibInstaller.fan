@@ -319,7 +319,7 @@ class LibInstaller
 **************************************************************************
 
 **
-** LibInstallPlan describes a single lib change within a `LibInstaller`.
+** LibInstallPlan describes a single lib change within a [LibInstaller].
 **
 const class LibInstallPlan
 {

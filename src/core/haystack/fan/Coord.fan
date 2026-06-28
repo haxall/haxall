@@ -131,7 +131,8 @@ const final class Coord
 
   **
   ** Pack into a 64-bit integer which is encoded as:
-  **   lat+90 in micro-degrees << 32-bits | lng+180 in micro-degrees
+  **
+  **     lat+90 in micro-degrees << 32-bits | lng+180 in micro-degrees
   **
   @NoDoc Int pack()
   {
@@ -156,7 +157,7 @@ const final class Coord
     makeu(lat - 90_000_000, lng - 180_000_000)
   }
 
-  ** Unpack froma 64-bit integer - see `pack`
+  ** Unpack froma 64-bit integer - see [pack]
   @NoDoc static Coord unpack(Int bits)
   {
     makeu(bits.shiftr(32).and(0xfff_ffff) - 90_000_000,

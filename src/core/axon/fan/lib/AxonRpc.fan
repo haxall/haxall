@@ -35,7 +35,7 @@ class AxonRpc
   }
 
   ** Marshal the expression itself to a string with the rpc flag:
-  **  - 'this.foo => _this_foo'
+  **  - `this.foo => _this_foo`
   private static Str marshalExpr(Expr expr)
   {
     out := Printer()
@@ -108,7 +108,7 @@ class AxonRpc
 // Server Side
 //////////////////////////////////////////////////////////////////////////
 
-  ** Evaluate the given 'rpc' dict that was constructed from `marshal` method.
+  ** Evaluate the given `rpc` dict that was constructed from [marshal] method.
   static Obj? eval(AxonContext cx, Dict rpc)
   {
     Str? expr := null
