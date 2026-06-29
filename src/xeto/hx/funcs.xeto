@@ -306,7 +306,7 @@
   exts: Func { opts: Dict?, returns: Grid }
 
   // Report installed web routes as grid
-  extWebRoutes: <admin> Func <nodoc> { returns: Grid }
+  extWebRoutes: Func <admin, nodoc> { returns: Grid }
 
   // Return ext settings dict for given dotted lib name:
   //
