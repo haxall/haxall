@@ -306,12 +306,12 @@
   exts: Func { opts: Dict?, returns: Grid }
 
   // Report installed web routes as grid
-  extWebRoutes: Func <nodoc> { returns: Grid }
+  extWebRoutes: <admin> Func <nodoc> { returns: Grid }
 
   // Return ext settings dict for given dotted lib name:
   //
   //     extSettings("hx.task")
-  extSettings: Func { name: Str, checked: Bool, returns: Dict }
+  extSettings: Func <admin> { name: Str, checked: Bool, returns: Dict }
 
   // Update ext settings for given dotted lib name:
   //
