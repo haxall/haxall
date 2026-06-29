@@ -78,7 +78,7 @@ mixin Comp
   ** convenience for remove.
   @Operator This set(Str name, Obj? val)
   {
-    spi.set(name, val, true)
+    spi.set(name, val, 0)
     return this
   }
 
@@ -334,7 +334,7 @@ mixin CompSpi
   abstract Void each(|Obj val, Str name| f)
   abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
   abstract Links links()
-  abstract Void set(Str name, Obj? val, Bool checked)
+  abstract Void set(Str name, Obj? val, Int flags)
   abstract Void add(Obj val, Str? name)
   abstract Void remove(Str name)
   abstract Void reorder(Str[] names)
@@ -350,5 +350,11 @@ mixin CompSpi
   abstract Void execute()
   abstract Void onExecute()
   abstract Void dump(Console? con, Obj? opts)
+
+  static const Int flagUnchecked := 0x01 // suppress check removal of non-maybe slots
+  static const Int flagSilent    := 0x02 // suppress change callback
+
+  Void setUnchecked(Str name, Obj? val) { set(name, val, flagUnchecked) }
+  Void setSilent(Str name, Obj? val) { set(name, val, flagSilent) }
 }
 

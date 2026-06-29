@@ -175,6 +175,25 @@ class CompTest: AbstractXetoTest
     // cannot set/add with invalid slot name
     verifyNameErr { c.set("bad name", "boo") }
     verifyNameErr { c.add("boo", "bad name") }
+
+    // setSilent updates value but fires no change callback
+    c.reset
+    c.spi.setSilent("b", "quietly")
+    verifyEq(c.get("b"), "quietly")
+    verifyNotChanged(c)
+
+    // a normal set still fires
+    c.reset.set("b", "loudly")
+    verifyChanged(c, "b", "loudly")
+
+    // setSilent is still checked: cannot remove a non-maybe slot
+    verifyChangeErr { c.spi.setSilent("a", null) }
+
+    // setUnchecked removes a non-maybe slot but still fires the callback
+    c.reset
+    c.spi.setUnchecked("a", null)
+    verifyEq(c.get("a"), null)
+    verifyChanged(c, "a", null)
   }
 
   Void verifyChangeErr(|This| f) { verifyErr(InvalidChangeErr#, f) }
