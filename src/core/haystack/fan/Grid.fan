@@ -314,6 +314,14 @@ const mixin Grid
     findAll |row| { filter.matches(row, cx) }
   }
 
+  ** Filter the given grid using the standard `search` option.
+  @NoDoc Grid searchFromOpts(Dict? opts, HaystackContext cx)
+  {
+    search := Filter.searchFromOpts(opts)
+    if (search == null) return this
+    return filter(search, cx)
+  }
+
   **
   ** Return a new grid which is a slice of the rows in
   ** this grid.  Negative indexes may be used to access
