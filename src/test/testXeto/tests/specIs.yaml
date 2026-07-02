@@ -63,48 +63,48 @@ verifySpecIs:
   - {a: "sys::Int", b: "sys::Str",    expect: false}
   - {a: "sys::Int", b: "sys::Dict",   expect: false}
 ---
-name: "seq"
+name: "collection"
 verifySpecIs:
-  - {a: "sys::Seq", b: "sys::Obj",    expect: true}
-  - {a: "sys::Seq", b: "sys::Seq",    expect: true}
-  - {a: "sys::Seq", b: "sys::Scalar", expect: false}
-  - {a: "sys::Seq", b: "sys::Number", expect: false}
-  - {a: "sys::Seq", b: "sys::None",   expect: false}
-  - {a: "sys::Seq", b: "sys::List",   expect: false}
-  - {a: "sys::Seq", b: "sys::Dict",   expect: false}
+  - {a: "sys::Collection", b: "sys::Obj",        expect: true}
+  - {a: "sys::Collection", b: "sys::Collection", expect: true}
+  - {a: "sys::Collection", b: "sys::Scalar",     expect: false}
+  - {a: "sys::Collection", b: "sys::Number",     expect: false}
+  - {a: "sys::Collection", b: "sys::None",       expect: false}
+  - {a: "sys::Collection", b: "sys::List",       expect: false}
+  - {a: "sys::Collection", b: "sys::Dict",       expect: false}
 ---
 name: "list"
 verifySpecIs:
-  - {a: "sys::List", b: "sys::Obj",    expect: true}
-  - {a: "sys::List", b: "sys::Seq",    expect: true}
-  - {a: "sys::List", b: "sys::List",   expect: true}
-  - {a: "sys::List", b: "sys::None",   expect: false}
-  - {a: "sys::List", b: "sys::Scalar", expect: false}
-  - {a: "sys::List", b: "sys::Int",    expect: false}
-  - {a: "sys::List", b: "sys::Str",    expect: false}
-  - {a: "sys::List", b: "sys::Dict",   expect: false}
+  - {a: "sys::List", b: "sys::Obj",        expect: true}
+  - {a: "sys::List", b: "sys::Collection", expect: true}
+  - {a: "sys::List", b: "sys::List",       expect: true}
+  - {a: "sys::List", b: "sys::None",       expect: false}
+  - {a: "sys::List", b: "sys::Scalar",     expect: false}
+  - {a: "sys::List", b: "sys::Int",        expect: false}
+  - {a: "sys::List", b: "sys::Str",        expect: false}
+  - {a: "sys::List", b: "sys::Dict",       expect: false}
 ---
 name: "dict"
 verifySpecIs:
-  - {a: "sys::Dict", b: "sys::Obj",    expect: true}
-  - {a: "sys::Dict", b: "sys::Seq",    expect: true}
-  - {a: "sys::Dict", b: "sys::Dict",   expect: true}
-  - {a: "sys::Dict", b: "sys::None",   expect: false}
-  - {a: "sys::Dict", b: "sys::Scalar", expect: false}
-  - {a: "sys::Dict", b: "sys::Int",    expect: false}
-  - {a: "sys::Dict", b: "sys::Str",    expect: false}
-  - {a: "sys::Dict", b: "sys::List",   expect: false}
+  - {a: "sys::Dict", b: "sys::Obj",        expect: true}
+  - {a: "sys::Dict", b: "sys::Collection", expect: true}
+  - {a: "sys::Dict", b: "sys::Dict",       expect: true}
+  - {a: "sys::Dict", b: "sys::None",       expect: false}
+  - {a: "sys::Dict", b: "sys::Scalar",     expect: false}
+  - {a: "sys::Dict", b: "sys::Int",        expect: false}
+  - {a: "sys::Dict", b: "sys::Str",        expect: false}
+  - {a: "sys::Dict", b: "sys::List",       expect: false}
 ---
 name: "spec"
 verifySpecIs:
-  - {a: "sys::Spec", b: "sys::Obj",    expect: true}
-  - {a: "sys::Spec", b: "sys::Seq",    expect: true}
-  - {a: "sys::Spec", b: "sys::Dict",   expect: true}
-  - {a: "sys::Spec", b: "sys::Spec",   expect: true}
-  - {a: "sys::Spec", b: "sys::None",   expect: false}
-  - {a: "sys::Spec", b: "sys::Scalar", expect: false}
-  - {a: "sys::Spec", b: "sys::Str",    expect: false}
-  - {a: "sys::Spec", b: "sys::List",   expect: false}
+  - {a: "sys::Spec", b: "sys::Obj",        expect: true}
+  - {a: "sys::Spec", b: "sys::Collection", expect: true}
+  - {a: "sys::Spec", b: "sys::Dict",       expect: true}
+  - {a: "sys::Spec", b: "sys::Spec",       expect: true}
+  - {a: "sys::Spec", b: "sys::None",       expect: false}
+  - {a: "sys::Spec", b: "sys::Scalar",     expect: false}
+  - {a: "sys::Spec", b: "sys::Str",        expect: false}
+  - {a: "sys::Spec", b: "sys::List",       expect: false}
 ---
 
 ##########################################################################
@@ -116,24 +116,24 @@ name: "maybeScalar"
 compileLib: |
   Foo: Scalar?
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",    expect: true}
-  - {a: "test::Foo", b: "sys::Scalar", expect: true}
-  - {a: "test::Foo", b: "sys::Str",    expect: false}
-  - {a: "test::Foo", b: "sys::None",   expect: true}
-  - {a: "test::Foo", b: "sys::Number", expect: false}
-  - {a: "test::Foo", b: "sys::Seq",    expect: false}
+  - {a: "test::Foo", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo", b: "sys::Scalar",     expect: true}
+  - {a: "test::Foo", b: "sys::Str",        expect: false}
+  - {a: "test::Foo", b: "sys::None",       expect: true}
+  - {a: "test::Foo", b: "sys::Number",     expect: false}
+  - {a: "test::Foo", b: "sys::Collection", expect: false}
 ---
 name: "maybeDict"
 compileLib: |
   Foo: Dict? <of:Str>
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",    expect: true}
-  - {a: "test::Foo", b: "sys::Seq",    expect: true}
-  - {a: "test::Foo", b: "sys::List",   expect: false}
-  - {a: "test::Foo", b: "sys::None",   expect: true}
-  - {a: "test::Foo", b: "sys::Scalar", expect: false}
-  - {a: "test::Foo", b: "sys::Str",    expect: false}
-  - {a: "test::Foo", b: "sys::Dict",   expect: true}
+  - {a: "test::Foo", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo", b: "sys::Collection", expect: true}
+  - {a: "test::Foo", b: "sys::List",       expect: false}
+  - {a: "test::Foo", b: "sys::None",       expect: true}
+  - {a: "test::Foo", b: "sys::Scalar",     expect: false}
+  - {a: "test::Foo", b: "sys::Str",        expect: false}
+  - {a: "test::Foo", b: "sys::Dict",       expect: true}
 ---
 name: "maybeCustom"
 compileLib: |
@@ -179,17 +179,17 @@ compileLib: |
   Baz: Foo & Bar
   Qux: Foo
 verifySpecIs:
-  - {a: "test::Baz", b: "sys::Obj",    expect: true}
-  - {a: "test::Baz", b: "sys::Seq",    expect: true}
-  - {a: "test::Baz", b: "sys::Dict",   expect: true}
-  - {a: "test::Baz", b: "sys::And",    expect: true}
-  - {a: "test::Baz", b: "test::Foo",   expect: true}
-  - {a: "test::Baz", b: "test::Bar",   expect: true}
-  - {a: "test::Baz", b: "test::Baz",   expect: true}
-  - {a: "test::Baz", b: "sys::Scalar", expect: false}
-  - {a: "test::Baz", b: "sys::List",   expect: false}
-  - {a: "test::Baz", b: "sys::Or",     expect: false}
-  - {a: "test::Baz", b: "test::Qux",   expect: false}
+  - {a: "test::Baz", b: "sys::Obj",        expect: true}
+  - {a: "test::Baz", b: "sys::Collection", expect: true}
+  - {a: "test::Baz", b: "sys::Dict",       expect: true}
+  - {a: "test::Baz", b: "sys::And",        expect: true}
+  - {a: "test::Baz", b: "test::Foo",       expect: true}
+  - {a: "test::Baz", b: "test::Bar",       expect: true}
+  - {a: "test::Baz", b: "test::Baz",       expect: true}
+  - {a: "test::Baz", b: "sys::Scalar",     expect: false}
+  - {a: "test::Baz", b: "sys::List",       expect: false}
+  - {a: "test::Baz", b: "sys::Or",         expect: false}
+  - {a: "test::Baz", b: "test::Qux",       expect: false}
 ---
 name: "andFlip"
 compileLib: |
@@ -197,14 +197,14 @@ compileLib: |
   Bar: Dict
   Baz: Foo & Bar
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",    expect: true}
-  - {a: "test::Foo", b: "sys::Seq",    expect: true}
-  - {a: "test::Foo", b: "sys::Dict",   expect: true}
-  - {a: "test::Foo", b: "test::Foo",   expect: true}
-  - {a: "test::Foo", b: "sys::Scalar", expect: false}
-  - {a: "test::Foo", b: "sys::Str",    expect: false}
-  - {a: "test::Foo", b: "test::Bar",   expect: false}
-  - {a: "test::Foo", b: "test::Baz",   expect: false}
+  - {a: "test::Foo", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo", b: "sys::Collection", expect: true}
+  - {a: "test::Foo", b: "sys::Dict",       expect: true}
+  - {a: "test::Foo", b: "test::Foo",       expect: true}
+  - {a: "test::Foo", b: "sys::Scalar",     expect: false}
+  - {a: "test::Foo", b: "sys::Str",        expect: false}
+  - {a: "test::Foo", b: "test::Bar",       expect: false}
+  - {a: "test::Foo", b: "test::Baz",       expect: false}
 ---
 name: "andNest"
 compileLib: |
@@ -213,17 +213,17 @@ compileLib: |
   Baz: Foo & Bar
   Qux: Baz
 verifySpecIs:
-  - {a: "test::Qux", b: "sys::Obj",    expect: true}
-  - {a: "test::Qux", b: "sys::Seq",    expect: true}
-  - {a: "test::Qux", b: "sys::Dict",   expect: true}
-  - {a: "test::Qux", b: "sys::And",    expect: true}
-  - {a: "test::Qux", b: "test::Foo",   expect: true}
-  - {a: "test::Qux", b: "test::Bar",   expect: true}
-  - {a: "test::Qux", b: "test::Baz",   expect: true}
-  - {a: "test::Qux", b: "test::Qux",   expect: true}
-  - {a: "test::Qux", b: "sys::Scalar", expect: false}
-  - {a: "test::Qux", b: "sys::Str",    expect: false}
-  - {a: "test::Qux", b: "sys::Or",     expect: false}
+  - {a: "test::Qux", b: "sys::Obj",        expect: true}
+  - {a: "test::Qux", b: "sys::Collection", expect: true}
+  - {a: "test::Qux", b: "sys::Dict",       expect: true}
+  - {a: "test::Qux", b: "sys::And",        expect: true}
+  - {a: "test::Qux", b: "test::Foo",       expect: true}
+  - {a: "test::Qux", b: "test::Bar",       expect: true}
+  - {a: "test::Qux", b: "test::Baz",       expect: true}
+  - {a: "test::Qux", b: "test::Qux",       expect: true}
+  - {a: "test::Qux", b: "sys::Scalar",     expect: false}
+  - {a: "test::Qux", b: "sys::Str",        expect: false}
+  - {a: "test::Qux", b: "sys::Or",         expect: false}
 ---
 name: "andNestDeep"
 compileLib: |
@@ -239,23 +239,23 @@ compileLib: |
   X: AB & CD & AE2
   Y: AB & CD & AE2
 verifySpecIs:
-  - {a: "test::X", b: "sys::Obj",    expect: true}
-  - {a: "test::X", b: "sys::Seq",    expect: true}
-  - {a: "test::X", b: "sys::Dict",   expect: true}
-  - {a: "test::X", b: "sys::And",    expect: true}
-  - {a: "test::X", b: "test::A",     expect: true}
-  - {a: "test::X", b: "test::B",     expect: true}
-  - {a: "test::X", b: "test::C",     expect: true}
-  - {a: "test::X", b: "test::D",     expect: true}
-  - {a: "test::X", b: "test::E",     expect: true}
-  - {a: "test::X", b: "test::AB",    expect: true}
-  - {a: "test::X", b: "test::CD",    expect: true}
-  - {a: "test::X", b: "test::AE",    expect: true}
-  - {a: "test::X", b: "test::AE2",   expect: true}
-  - {a: "test::X", b: "test::X",     expect: true}
-  - {a: "test::X", b: "sys::Scalar", expect: false}
-  - {a: "test::X", b: "sys::Str",    expect: false}
-  - {a: "test::X", b: "test::Y",     expect: false}
+  - {a: "test::X", b: "sys::Obj",        expect: true}
+  - {a: "test::X", b: "sys::Collection", expect: true}
+  - {a: "test::X", b: "sys::Dict",       expect: true}
+  - {a: "test::X", b: "sys::And",        expect: true}
+  - {a: "test::X", b: "test::A",         expect: true}
+  - {a: "test::X", b: "test::B",         expect: true}
+  - {a: "test::X", b: "test::C",         expect: true}
+  - {a: "test::X", b: "test::D",         expect: true}
+  - {a: "test::X", b: "test::E",         expect: true}
+  - {a: "test::X", b: "test::AB",        expect: true}
+  - {a: "test::X", b: "test::CD",        expect: true}
+  - {a: "test::X", b: "test::AE",        expect: true}
+  - {a: "test::X", b: "test::AE2",       expect: true}
+  - {a: "test::X", b: "test::X",         expect: true}
+  - {a: "test::X", b: "sys::Scalar",     expect: false}
+  - {a: "test::X", b: "sys::Str",        expect: false}
+  - {a: "test::X", b: "test::Y",         expect: false}
 ---
 
 ##########################################################################
@@ -291,19 +291,19 @@ compileLib: |
   E:  CB
   Foo: D | E
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",    expect: true}
-  - {a: "test::Foo", b: "sys::Or",     expect: true}
-  - {a: "test::Foo", b: "sys::Seq",    expect: true} #common base
-  - {a: "test::Foo", b: "sys::Dict",   expect: true} #common base
-  - {a: "test::Foo", b: "test::C",     expect: true} #common base
-  - {a: "test::Foo", b: "test::Foo",   expect: true}
-  - {a: "test::Foo", b: "sys::Scalar", expect: false}
-  - {a: "test::Foo", b: "sys::Str",    expect: false}
-  - {a: "test::Foo", b: "sys::List",   expect: false}
-  - {a: "test::Foo", b: "test::A",     expect: false}
-  - {a: "test::Foo", b: "test::B",     expect: false}
-  - {a: "test::Foo", b: "test::D",     expect: false}
-  - {a: "test::Foo", b: "test::E",     expect: false}
+  - {a: "test::Foo", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo", b: "sys::Or",         expect: true}
+  - {a: "test::Foo", b: "sys::Collection", expect: true} #common base
+  - {a: "test::Foo", b: "sys::Dict",       expect: true} #common base
+  - {a: "test::Foo", b: "test::C",         expect: true} #common base
+  - {a: "test::Foo", b: "test::Foo",       expect: true}
+  - {a: "test::Foo", b: "sys::Scalar",     expect: false}
+  - {a: "test::Foo", b: "sys::Str",        expect: false}
+  - {a: "test::Foo", b: "sys::List",       expect: false}
+  - {a: "test::Foo", b: "test::A",         expect: false}
+  - {a: "test::Foo", b: "test::B",         expect: false}
+  - {a: "test::Foo", b: "test::D",         expect: false}
+  - {a: "test::Foo", b: "test::E",         expect: false}
 ---
 name: "orFlip"
 compileLib: |
@@ -311,14 +311,14 @@ compileLib: |
   Bar: Dict
   Baz: Foo | Bar
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",    expect: true}
-  - {a: "test::Foo", b: "sys::Seq",    expect: true}
-  - {a: "test::Foo", b: "sys::Dict",   expect: true}
-  - {a: "test::Foo", b: "test::Foo",   expect: true}
-  - {a: "test::Foo", b: "test::Baz",   expect: true}
-  - {a: "test::Foo", b: "sys::Scalar", expect: false}
-  - {a: "test::Foo", b: "sys::Str",    expect: false}
-  - {a: "test::Foo", b: "test::Bar",   expect: false}
+  - {a: "test::Foo", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo", b: "sys::Collection", expect: true}
+  - {a: "test::Foo", b: "sys::Dict",       expect: true}
+  - {a: "test::Foo", b: "test::Foo",       expect: true}
+  - {a: "test::Foo", b: "test::Baz",       expect: true}
+  - {a: "test::Foo", b: "sys::Scalar",     expect: false}
+  - {a: "test::Foo", b: "sys::Str",        expect: false}
+  - {a: "test::Foo", b: "test::Bar",       expect: false}
 ---
 name: "orFlipInherit"
 compileLib: |
@@ -327,15 +327,15 @@ compileLib: |
   Baz: Foo | Bar
   Qux: Foo
 verifySpecIs:
-  - {a: "test::Qux", b: "sys::Obj",   expect: true}
-  - {a: "test::Qux", b: "sys::Seq",  expect: true}
-  - {a: "test::Qux", b: "sys::Dict", expect: true}
-  - {a: "test::Qux", b: "test::Foo", expect: true}
-  - {a: "test::Qux", b: "test::Baz", expect: true}
-  - {a: "test::Qux", b: "test::Qux", expect: true}
-  - {a: "test::Qux", b: "sys::Str",  expect: false}
-  - {a: "test::Qux", b: "sys::List", expect: false}
-  - {a: "test::Qux", b: "test::Bar", expect: false}
+  - {a: "test::Qux", b: "sys::Obj",        expect: true}
+  - {a: "test::Qux", b: "sys::Collection", expect: true}
+  - {a: "test::Qux", b: "sys::Dict",       expect: true}
+  - {a: "test::Qux", b: "test::Foo",       expect: true}
+  - {a: "test::Qux", b: "test::Baz",       expect: true}
+  - {a: "test::Qux", b: "test::Qux",       expect: true}
+  - {a: "test::Qux", b: "sys::Str",        expect: false}
+  - {a: "test::Qux", b: "sys::List",       expect: false}
+  - {a: "test::Qux", b: "test::Bar",       expect: false}
 ---
 name: "orFlipBase"
 compileLib: |
@@ -344,13 +344,13 @@ compileLib: |
   Qux: Foo
   Baz: Qux | Bar
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",  expect: true}
-  - {a: "test::Foo", b: "sys::Seq",  expect: true}
-  - {a: "test::Foo", b: "sys::Dict", expect: true}
-  - {a: "test::Foo", b: "test::Foo", expect: true}
-  - {a: "test::Foo", b: "sys::Str",  expect: false}
-  - {a: "test::Foo", b: "sys::List", expect: false}
-  - {a: "test::Foo", b: "test::Baz", expect: false}
-  - {a: "test::Foo", b: "test::Qux", expect: false}
+  - {a: "test::Foo", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo", b: "sys::Collection", expect: true}
+  - {a: "test::Foo", b: "sys::Dict",       expect: true}
+  - {a: "test::Foo", b: "test::Foo",       expect: true}
+  - {a: "test::Foo", b: "sys::Str",        expect: false}
+  - {a: "test::Foo", b: "sys::List",       expect: false}
+  - {a: "test::Foo", b: "test::Baz",       expect: false}
+  - {a: "test::Foo", b: "test::Qux",       expect: false}
 ---
 

@@ -998,7 +998,7 @@ class UtilTest : AbstractXetoTest
     ns := createNamespace(["ph", "ph.points"])
 
     verifyCommonSuper(ns, ["sys::Date", "sys::Str"], "sys::Scalar")
-    verifyCommonSuper(ns, ["sys::Dict", "sys::List"], "sys::Seq")
+    verifyCommonSuper(ns, ["sys::Dict", "sys::List"], "sys::Collection")
     verifyCommonSuper(ns, ["sys::Unit", "ph::CurStatus"], "sys::Enum")
     verifyCommonSuper(ns, ["sys::Unit", "ph::Meter"], "sys::Obj")
 

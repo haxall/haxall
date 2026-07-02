@@ -144,7 +144,7 @@ class SpecTest : AbstractXetoTest
 
     and        := ns.spec("sys::And")
     obj        := ns.spec("sys::Obj")
-    seq        := ns.spec("sys::Seq")
+    coll       := ns.spec("sys::Collection")
     dict       := ns.spec("sys::Dict")
     entity     := ns.spec("sys::Entity")
     phe        := ns.spec("ph::PhEntity")
@@ -156,8 +156,8 @@ class SpecTest : AbstractXetoTest
     dat        := ns.spec("ph.points::DischargeAirTempSensor")
 
     verifyEq(obj.base, null)
-    verifySame(seq.base, obj)
-    verifySame(dict.base, seq)
+    verifySame(coll.base, obj)
+    verifySame(dict.base, coll)
     verifySame(entity.base, dict)
     verifySame(phe.base, entity)
     verifySame(point.base, phe)
@@ -169,16 +169,16 @@ class SpecTest : AbstractXetoTest
     verifySame(dat.base, tempSensor)
 
     verifyInheritance(obj,        [obj])
-    verifyInheritance(seq,        [obj, seq])
-    verifyInheritance(dict,       [obj, seq, dict])
-    verifyInheritance(entity,     [obj, seq, dict, entity])
-    verifyInheritance(phe,        [obj, seq, dict, entity, phe])
-    verifyInheritance(point,      [obj, seq, dict, entity, phe, point])
-    verifyInheritance(numPt,      [obj, seq, dict, entity, phe, point, numPt])
-    verifyInheritance(sensor,     [obj, seq, dict, entity, phe, point, sensor])
-    verifyInheritance(tempPt,     [obj, seq, dict, entity, phe, point, numPt, tempPt])
-    verifyInheritance(tempSensor, [sensor, obj, seq, dict, entity, phe, point, numPt, tempPt, tempSensor])
-    verifyInheritance(dat,        [sensor, obj, seq, dict, entity, phe, point, numPt, tempPt, tempSensor, dat])
+    verifyInheritance(coll,       [obj, coll])
+    verifyInheritance(dict,       [obj, coll, dict])
+    verifyInheritance(entity,     [obj, coll, dict, entity])
+    verifyInheritance(phe,        [obj, coll, dict, entity, phe])
+    verifyInheritance(point,      [obj, coll, dict, entity, phe, point])
+    verifyInheritance(numPt,      [obj, coll, dict, entity, phe, point, numPt])
+    verifyInheritance(sensor,     [obj, coll, dict, entity, phe, point, sensor])
+    verifyInheritance(tempPt,     [obj, coll, dict, entity, phe, point, numPt, tempPt])
+    verifyInheritance(tempSensor, [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor])
+    verifyInheritance(dat,        [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, dat])
   }
 
   Void verifyInheritance(Spec spec, Spec[] expect)
@@ -237,14 +237,14 @@ class SpecTest : AbstractXetoTest
     verifyIsa(ns, "sys::Int", "sys::Int",    true)
     verifyIsa(ns, "sys::Int", "sys::Duration",false)
 
-    verifyIsa(ns, "sys::Seq", "sys::Seq",  true)
-    verifyIsa(ns, "sys::Seq", "sys::Dict", false)
+    verifyIsa(ns, "sys::Collection", "sys::Collection", true)
+    verifyIsa(ns, "sys::Collection", "sys::Dict",       false)
 
-    verifyIsa(ns, "sys::Dict", "sys::Seq",  true)
+    verifyIsa(ns, "sys::Dict", "sys::Collection", true)
     verifyIsa(ns, "sys::Dict", "sys::Dict", true)
     verifyIsa(ns, "sys::Dict", "sys::List", false)
 
-    verifyIsa(ns, "sys::List", "sys::Seq",  true)
+    verifyIsa(ns, "sys::List", "sys::Collection", true)
     verifyIsa(ns, "sys::List", "sys::List", true)
     verifyIsa(ns, "sys::List", "sys::Dict", false)
 
