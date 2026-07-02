@@ -23,7 +23,7 @@ class EnergyStarClient
   {
     if (rec.missing("energyStarConn")) throw Err("Not energyStarConn: $rec.dis")
     pass := proj.db.passwords.get(rec->id.toStr) ?: ""
-    return make(rec, pass, proj.ext("energyStar").log)
+    return make(rec, pass, proj.ext("hx.energystar").log)
   }
 
   new makeNoAuth(Log log := Log.get("energyStar"))
