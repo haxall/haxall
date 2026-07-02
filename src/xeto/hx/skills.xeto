@@ -1,0 +1,28 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Jul 2026  Brian Frank  Creation
+//
+
+// Fundamentals of xeto data modeling language
+@skill-know-xeto : AiSkill {
+  keywords: {"xeto", "data", "spec"}
+}
+
+// Fundamentals of axon scripting language
+@skill-know-axon : AiSkill {
+  keywords: {"axon", "func", "function"}
+}
+
+// Project Haystack ontology for modeling built environment
+@skill-know-ph : AiSkill {
+  keywords: {"site", "space", "equip", "point", "haystack"}
+}
+
+// Folio database: recs, filters, reads, diffs, commits
+@skill-know-folio : AiSkill {
+  keywords: {"folio", "database", "rec", "read", "query", "filter", "diff", "commit", "trash"}
+  include: { @skill-know-axon }
+}
