@@ -133,6 +133,19 @@ The following types of queries are supported:
   - [read()]: query a single record which matches a filter
   - [readById()]: optimized lookup by id
 
+The [readAll()] function supports the following options:
+  - `limit`: max number of recs to return
+  - `sort`: marker to sort the results by display name
+  - `search`: search pattern to apply in addition to the filter
+  - `trash`: marker to include recs with the `trash` tag
+  - `gridMeta`: dict to use for the result's grid level meta
+
+The `search` option is one of the following string patterns (also
+see [parseSearch()]):
+  - `<glob>`: case insensitive glob with `?` and `*` wildcards
+  - `re:<regex>`: regular expression
+  - `f:<filter>`: haystack filter
+
 # Indexing
 All queries to a Folio project take the form of a predicate [ph.doc::Filters]
 which is used to match a set of records.  In the simplest case, each
@@ -221,6 +234,12 @@ In Axon diffs are committed using the [diff()] and [commit()] function:
 
     commit(diff(rec, {change:"new-val"}))
 
+The following flags may be passed to [diff()]:
+  - `add`: create a new record
+  - `remove`: remove the record (in general use the `trash` tag instead)
+  - `transient`: do not persist the changes (see [below](#transient-diffs))
+  - `force`: skip concurrency control checks (see [below](#concurrency-control))
+
 ## Transient Diffs
 In general when a diff is committed, it is written to the file system
 for durability.  However, if your application has rapidly changing real-time
@@ -248,8 +267,8 @@ commit fails with a `ConcurrentChangeErr`.
 
 Diffs support the ability to *force* a commit to by-pass concurrency
 control.  This is typically used when updating status tags under complete
-control of a given application.  Transient diffs to not update the [hx::Entity.mod]
-tag, however unless the the force flag is used they are still checked for
+control of a given application.  Transient diffs do not update the [hx::Entity.mod]
+tag, however unless the force flag is used they are still checked for
 concurrent change.
 
 # Passwords

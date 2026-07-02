@@ -72,13 +72,17 @@
   //     readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
   readByIds: Func { ids: List <of:Ref>, checked: Bool, returns: Grid }
 
-  // Reall all records from the database which match the [filter](ph.doc::Filters).
-  // The filter must an expression which matches the filter structure.
+  // Read all records from the database which match the [filter](ph.doc::Filters).
+  // The filter must be an expression which matches the filter structure.
   // String values may parsed into a filter using [parseFilter()] function.
   //
   // Options:
   //   - `limit`: max number of recs to return
   //   - `sort`: sort by display name
+  //   - `search`: search pattern to apply in addition to the
+  //     filter; see [parseSearch()]
+  //   - `trash`: include recs with the `trash` tag
+  //   - `gridMeta`: dict to use for the result's grid level meta
   //
   // Examples:
   //
@@ -93,7 +97,7 @@
   // See [hx.doc.haxall::Streams#readbyidsstream].
   readByIdsStream: Func { ids: List <of:Ref>, checked: Bool, returns: Obj }
 
-  // Reall all records which match filter as stream of Dict records.
+  // Read all records which match filter as stream of Dict records.
   // See [hx.doc.haxall::Streams#readallstream].
   readAllStream: Func { filter: Filter, returns: Obj }
 
