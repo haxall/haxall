@@ -325,6 +325,28 @@ abstract class HxSysBoot : HxBoot
 // Hooks
 //////////////////////////////////////////////////////////////////////////
 
+  ** Move pods staged in "{varDir}/lib/install/" into "{varDir}/lib/fan/".
+  ** This queue is used only for installed libs (such as StackHub packages)
+  ** whose pods cannot be hot loaded; it must drain before initEnvPath
+  ** makes varDir pods loadable and before exts load.  Ignore in test mode.
+  ** Patches to core pods such as sys and hxm are staged separately to
+  ** "{homeDir}/lib/install/" which the Fantom runtime itself drains at VM
+  ** bootstrap before any pod loads (see fanx.tools.Fan.checkInstall).
+  virtual Void initInstall()
+  {
+    if (isTest) return
+    installDir := varDir + `lib/install/`
+    if (installDir.isEmpty) return
+    libFanDir := varDir + `lib/fan/`
+    installDir.list.each |f|
+    {
+      if (f.ext != "pod") return
+      echo("Installing $f.name.toCode to $libFanDir.osPath")
+      f.copyInto(libFanDir, ["overwrite":true])
+      f.delete
+    }
+  }
+
   ** Add varDir to the front of the Fantom env path and reload XetoEnv
   ** so that varDir becomes the workDir of both the Fantom and xeto
   ** search paths.  Ignore in test mode or if not booted under a PathEnv.
@@ -333,6 +355,9 @@ abstract class HxSysBoot : HxBoot
     if (isTest) return
     if (Env.cur isnot PathEnv) { log.warn("Env.cur not a PathEnv"); return }
     XetoEnv.addToPath(varDir)
+
+    // force reload of pod list in case anything reflected before boot
+    typeof.pod->reloadList(LogLevel.silent)
   }
 
   ** Create SysInfo instance from sysInfo (sys boot only)
@@ -382,6 +407,9 @@ abstract class HxSysBoot : HxBoot
   ** Raise NotSetupErr to route to notSetup handling.
   virtual HxSys boot()
   {
+    // apply staged pod installs before varDir pods become loadable
+    initInstall
+
     // add varDir to env path and reload xeto env
     initEnvPath
 
