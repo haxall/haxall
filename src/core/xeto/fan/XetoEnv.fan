@@ -21,14 +21,29 @@ abstract const class XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Current environment for the VM
-  static XetoEnv cur() { curRef }
-  private const static XetoEnv? curRef
-  static
+  static XetoEnv cur()
   {
-    try
-      curRef = Slot.findMethod("xetom::MEnv.init").call
-    catch (Err e)
-      Console.cur.err("Cannot init XetoEnv", e)
+    env := curRef.val as XetoEnv
+    if (env == null) curRef.val = env = Slot.findMethod("xetom::MEnv.init").call
+    return env
+  }
+  private const static AtomicRef curRef := AtomicRef()
+
+  ** Add given directory to the front of the Fantom env path and
+  ** reinitialize the current environment to pick up the new path
+  @NoDoc static XetoEnv addToPath(File dir)
+  {
+    pathEnv := Env.cur as PathEnv ?: throw Err("Env.cur not a PathEnv")
+    pathEnv.addToPath(dir)
+    return reinit
+  }
+
+  ** Reinitialize the current environment after a modification to the
+  ** Fantom env path to re-resolve the path and rescan installed libs
+  @NoDoc static XetoEnv reinit()
+  {
+    curRef.val = null
+    return cur
   }
 
 //////////////////////////////////////////////////////////////////////////

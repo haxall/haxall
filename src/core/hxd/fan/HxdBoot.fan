@@ -30,18 +30,21 @@ class HxdBoot : HxSysBoot
   ** Make boot for testing
   static HxdBoot makeTest(File dir, Bool create, Dict projMeta := Etc.dict0)
   {
-    boot := HxdBoot("test", dir)
-    {
-      it.createMeta = Etc.dictToMap(projMeta)
-      it.bootLibs.remove("hx.http")
-      it.bootLibs.add("hx.platform.serial")
-      if (Pod.find("hxIon", false) != null) it.bootLibs.add("hx.ion")
-      it.sysConfig["test"] = Marker.val
-      it.sysConfig["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
-      it.log.level = LogLevel.warn
-    }
-    if (create) { dir.delete; boot.create }
-    return boot
+    HxdBoot("test", dir).initTest(create, projMeta)
+  }
+
+  ** Apply test configuration to this instance (allows subclasses)
+  @NoDoc This initTest(Bool create, Dict projMeta := Etc.dict0)
+  {
+    this.createMeta = Etc.dictToMap(projMeta)
+    this.bootLibs.remove("hx.http")
+    this.bootLibs.add("hx.platform.serial")
+    if (Pod.find("hxIon", false) != null) this.bootLibs.add("hx.ion")
+    this.sysConfig["test"] = Marker.val
+    this.sysConfig["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
+    this.log.level = LogLevel.warn
+    if (create) { this.dir.delete; this.create }
+    return this
   }
 
   ** Constructor

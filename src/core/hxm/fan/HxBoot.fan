@@ -66,8 +66,8 @@ abstract class HxBoot
   ** Logger to use for bootstrap/runtime
   Log log := Log.get("boot")
 
-  ** Xeto repo to use for building namespace
-  XetoEnv xetoEnv := XetoEnv.cur
+  ** Xeto env to use for building namespace
+  virtual XetoEnv xetoEnv() { XetoEnv.cur }
 
   ** Xeto lib names implicitly enabled as boot libs (sys only)
   Str[] bootLibs := [,]

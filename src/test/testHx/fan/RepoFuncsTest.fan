@@ -46,8 +46,7 @@ class RepoFuncsTest : RemoteReposTest
   ** Boot a test HxdSys using our custom temp ServerEnv, then wire context
   Void initRt()
   {
-    boot := HxdBoot.makeTest(tempDir + `rt/`, true)
-    boot.xetoEnv = this.env
+    boot := RepoTestBoot(tempDir + `rt/`, this.env).initTest(true)
     rt = boot.init.start
     Actor.locals[Context.actorLocalsKey] = rt.newContext(rt.sys.user.makeUser("test", ["userRole":"su"]))
   }
@@ -323,4 +322,16 @@ class RepoFuncsTest : RemoteReposTest
   {
     verifyEq(grid.cols.map |c->Str| { c.name }, expected)
   }
+}
+
+**************************************************************************
+** RepoTestBoot
+**************************************************************************
+
+** HxdBoot subclass to override xetoEnv with our custom temp ServerEnv
+internal class RepoTestBoot : HxdBoot
+{
+  new make(File dir, XetoEnv env) : super("test", dir) { this.env = env }
+  override XetoEnv xetoEnv() { env }
+  const XetoEnv env
 }
