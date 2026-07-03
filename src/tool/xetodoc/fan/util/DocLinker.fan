@@ -242,7 +242,7 @@ class CompilerDocLinker : DocLinker
     if (frag != null)
     {
       // we don't handle this right now
-      echo("WARN: do not handle link to extra doc chapter anchor [$orig]")
+      compiler.warn("Link to extra doc chapter anchor not supported [$orig]", loc(null))
       return null
     }
 
