@@ -7,9 +7,30 @@ figure out why a connection fails TLS. All crypto funcs require su.
 
 # Fixing TLS Errors
 
-When a connector or ioHttp call fails with a certificate error
-(unable to find valid certification path, handshake failure,
-self-signed certificate), the remote cert is not trusted. Fix:
+During a TLS handshake the client performs three checks. Understanding
+which one failed determines the fix.
+
+1. **Name check** — The URI/IP must match one of the certificates
+   Subject Alternative Names. A mismatch cannot be fixed by trusting so
+   the TLS client must be configured to use an address in the certificate.
+2. **Chain-to-root check** — The server's certificate chain must reach a root
+   CA in the keystore trust store. Fix by trusting the chain.
+3. **Date validity check** — Every certificate in the chain must be within its
+   `notBefore`/`notAfter` window. Ensure there are no expired certificates in
+   the TLS client trust store. An expired cert cannot be fixed by trusting so
+   contact the server operator to renew it.
+
+## Error messages and fixes
+
+| Error message | Cause | Fix |
+|---|---|---|
+| `unable to find valid certification path` | Chain doesn't reach a trusted root | Trust the chain (see below) |
+| `validity check failed` | A cert in the chain is expired | Server operator must renew; check `notAfter` via `cryptoCheckUri` |
+| `Received fatal alert: handshake_failure` | Name mismatch **or** protocol/cipher mismatch | Fix the connect address, or upgrade Java |
+| `Connection reset` | Protocol/cipher mismatch | Upgrade Java |
+| `Could not obtain server certificate chain` | Server is not doing TLS on that port | Verify the host and port |
+
+## Trusting an untrusted chain
 
 ```axon
 // 1. preview the remote certificate chain (imports nothing)
@@ -26,6 +47,59 @@ connPing(conn)
 Step 3 matters: new trust entries apply only to sockets opened
 afterward. Close/reopen the conn, or restart the runtime for
 non-conn clients.
+
+## Incomplete chain from the server
+
+If the server only sends its end-entity cert and omits intermediate
+certificate authorities (CAs), the chain check fails even though each
+cert is individually valid. Most browsers silently fetch missing
+intermediates, but Java does not. Two options:
+
+**Option A** — trust the intermediate CA explicitly via
+`cryptoTrustUri` or `cryptoAddCert`.
+
+**Option B** — enable Java's Authority Information Access (AIA) fetcher
+by adding this line to `{home}/etc/sys/config.props`:
+
+```
+java.options=-Dcom.sun.security.enableAIAcaIssuers=true
+```
+
+Restart the runtime after editing `config.props`.
+
+## Web proxy / TLS inspection
+
+When outbound HTTPS passes through an intercepting proxy, the proxy
+terminates TLS and re-issues certificates signed by its own CA. You
+must trust **the proxy's CA**, not the real server cert.
+
+`cryptoTrustUri` does **not** route through the configured
+web proxy and will time out. Use the CLI instead:
+
+```
+hx crypto trust -d /path/to/var -uri https://device.local
+```
+
+Also note: the proxy may substitute a generic error for the real TLS
+error, making diagnosis harder. If the error seems vague, check
+whether traffic goes through a web proxy.
+
+## Last-resort: Java TLS debug logging
+
+Add to `{home}/etc/sys/config.props` (restart required):
+
+```
+java.options=-Djavax.net.debug=ssl:handshake
+```
+
+For full detail: `-Djavax.net.debug=all`. Run the runtime manually and
+append the line below to redirect output to capture the trace:
+
+```
+> debug.txt 2>&1
+```
+
+Remove the option and restart once debugging is complete.
 
 # The Keystore
 
@@ -95,6 +169,20 @@ cryptoAddCert("https", ioReadStr(`io/server.pem`), true)
 
 If no valid `https` bundle exists, HTTPS is disabled at startup
 with a log error. When HTTPS is enabled, HTTP redirects to HTTPS.
+
+Not including the entire certificate chain in the bundle can cause
+problems for some HTTP clients that don't automatically fetch
+intermediate certificate authorities.
+
+# Certificate Bundle Order
+
+The order of bundles is important. It must start with the private
+key, then the entire certificate chain.
+
+The order of the certificate chain must start with the server
+certificate (which matches the private key), then each Intermediate
+Certificate Authority (if any), and end with the Root Certificate
+Authority.
 
 # Self-Signed Certificates
 
