@@ -87,3 +87,14 @@ ElecEquipAB : ElecEquipA & ElecEquipSubB
 // makes the global elec optional, so its slot has own meta (maybe)
 ElecEquipMaybeA : Equip { elec: Marker? }
 
+// query traversal of systemRef which is MultiRef; the via and
+// inverse queries must handle tag values of both Ref and Ref[]
+
+EquipWithSystems : Equip {
+  systems: Query<of:System, via:"systemRef+">  // Systems this equip is associated with
+}
+
+SystemWithEquips : System {
+  equips: Query<of:Equip, inverse:"hx.test.xeto::EquipWithSystems.systems">  // Equips associated with this system
+}
+

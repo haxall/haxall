@@ -63,26 +63,21 @@ internal class Query
     }
 
     acc := Dict[,]
-    cur := subject as Dict
-    while (true)
-    {
-      cur = traverseVia(cur, of, via)
-      if (cur == null) break
-      if (fits(cur, of)) acc.add(cur) // can traverse over refs that don't match type
-      if (!multiHop) break
-    }
+    traverseVia(subject, of, via, multiHop, Obj[,], acc)
     return acc
   }
 
-  private Dict? traverseVia(Dict subject, Spec of, Str via)
+  private Void traverseVia(Dict subject, Spec of, Str via, Bool multiHop, Obj[] visited, Dict[] acc)
   {
-    ref := subject.get(via)
-    if (ref == null) return null
-
-    rec := cx.xetoReadById(ref)
-    if (rec == null) return rec
-
-    return rec
+    toRefs(subject.get(via)).each |ref|
+    {
+      if (visited.contains(ref)) return // cyclic check
+      visited.add(ref)
+      rec := cx.xetoReadById(ref)
+      if (rec == null) return
+      if (fits(rec, of)) acc.add(rec) // can traverse over refs that don't match type
+      if (multiHop) traverseVia(rec, of, via, multiHop, visited, acc)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -118,18 +113,25 @@ internal class Query
 
   private Bool matchInverse(Obj subjectId, Dict rec, Str via, Bool multiHop)
   {
-    ref := rec[via]
-    if (ref == null) return false
+    toRefs(rec[via]).any |ref->Bool|
+    {
+      if (ref == subjectId) return true
 
-    if (ref == subjectId) return true
+      if (!multiHop) return false
 
-    if (!multiHop) return false
+      x := cx.xetoReadById(ref)
+      if (x == null) return false
 
-    x := cx.xetoReadById(ref)
-    if (x == null) return false
+      // TODO: need some cyclic checks
+      return matchInverse(subjectId, x, via, multiHop)
+    }
+  }
 
-    // TODO: need some cyclic checks
-    return matchInverse(subjectId, x, via, multiHop)
+  ** Via tag as list of refs; MultiRef values may be either Ref or Ref[]
+  private static Obj[] toRefs(Obj? val)
+  {
+    if (val == null) return Obj#.emptyList
+    return val as List ?: Obj[val]
   }
 
   private Bool fits(Obj? val, Spec spec)

@@ -608,6 +608,38 @@ class AxonTest : AbstractAxonTest
       ])
   }
 
+  @HxTestProj
+  Void testQueryMultiRef()
+  {
+    ns := initNamespace(["ph", "hx.test.xeto"])
+
+    site := addRec(["id":Ref("site"), "spec":Ref("ph::Site"), "site":m])
+
+    // systems; sysC refs both sysA and sysB via Ref[] list
+    sysA := addRec(["id":Ref("sysA"), "dis":"Sys-A", "spec":Ref("hx.test.xeto::SystemWithEquips"), "system":m, "siteRef":site.id])
+    sysB := addRec(["id":Ref("sysB"), "dis":"Sys-B", "spec":Ref("hx.test.xeto::SystemWithEquips"), "system":m, "siteRef":site.id])
+    sysC := addRec(["id":Ref("sysC"), "dis":"Sys-C", "spec":Ref("hx.test.xeto::SystemWithEquips"), "system":m, "siteRef":site.id, "systemRef":[sysA.id, sysB.id]])
+
+    // equips with systemRef as single Ref, list of one, list of two, and multi-hop thru sysC
+    eqA  := addRec(["id":Ref("eqA"),  "dis":"Eq-A",  "spec":Ref("hx.test.xeto::EquipWithSystems"), "equip":m, "siteRef":site.id, "systemRef":sysA.id])
+    eqB  := addRec(["id":Ref("eqB"),  "dis":"Eq-B",  "spec":Ref("hx.test.xeto::EquipWithSystems"), "equip":m, "siteRef":site.id, "systemRef":[sysB.id]])
+    eqAB := addRec(["id":Ref("eqAB"), "dis":"Eq-AB", "spec":Ref("hx.test.xeto::EquipWithSystems"), "equip":m, "siteRef":site.id, "systemRef":[sysA.id, sysB.id]])
+    eqC  := addRec(["id":Ref("eqC"),  "dis":"Eq-C",  "spec":Ref("hx.test.xeto::EquipWithSystems"), "equip":m, "siteRef":site.id, "systemRef":sysC.id])
+
+    // via query
+    via := "hx.test.xeto::EquipWithSystems.systems"
+    verifyQuery(eqA,  via, [sysA])
+    verifyQuery(eqB,  via, [sysB])
+    verifyQuery(eqAB, via, [sysA, sysB])
+    verifyQuery(eqC,  via, [sysC, sysA, sysB])
+
+    // inverse query
+    inverse := "hx.test.xeto::SystemWithEquips.equips"
+    verifyQuery(sysA, inverse, [eqA, eqAB, eqC])
+    verifyQuery(sysB, inverse, [eqB, eqAB, eqC])
+    verifyQuery(sysC, inverse, [eqC])
+  }
+
   Void verifyQuery(Dict rec, Str query, Dict[] expect)
   {
     // no options
