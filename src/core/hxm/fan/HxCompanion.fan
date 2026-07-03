@@ -85,14 +85,22 @@ const class HxCompanion : ProjCompanion
     return null
   }
 
-  override Dict add(Dict rec)
+  override Dict add(Dict rec, Dict? opts := null)
   {
     name := validate(rec)
     return doUpdate |->Dict?|
     {
       checkDupName(name)
-      return db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted))).newRec
+      return db.commit(addDiff(rec, opts)).newRec
     }
+  }
+
+  private static Diff addDiff(Dict rec, Dict? opts)
+  {
+    flags := Diff.add.or(Diff.bypassRestricted)
+    id := opts?.get("id") as Ref
+    if (id == null) return Diff(null, rec, flags)
+    return Diff.makex(id, DateTime.nowUtc, rec, flags.or(Diff.treeUpdate))
   }
 
   override Dict update(Dict newRec)

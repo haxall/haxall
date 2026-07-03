@@ -460,7 +460,17 @@ const class HxLibs : RuntimeLibs
 
   private Dict[] readCompanionRecs()
   {
-    rt.db.readAllList(Filter.has("rt")).findAll |rec| { HxCompanion.isCompanionRec(rec) }
+    recs := rt.db.readAllList(Filter.has("rt")).findAll |rec| { HxCompanion.isCompanionRec(rec) }
+    return recs.map |rec->Dict| { stripCloneTags(rec) }
+  }
+
+  ** Strip clone replication bookkeeping tags from cloned companion
+  ** recs so they do not compile into the spec meta; the clone framework
+  ** reserves the "clone" prefix for its tags
+  private static Dict stripCloneTags(Dict rec)
+  {
+    if (rec.missing("clone")) return rec
+    return Etc.dictFindAll(rec) |v, n| { !n.startsWith("clone") }
   }
 
   private Str:Thunk updateCompanionReuseThunks(Dict[] newRecs, HxNamespace? oldNs)

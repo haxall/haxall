@@ -56,7 +56,9 @@ const mixin ProjCompanion
   ** must match the AST respresentation as described in class header.
   ** Raise exception if a definition already exists for the defined name.
   ** Return new companion rt record.  The namespace is reloaded on next access.
-  abstract Dict add(Dict rec)
+  ** Options:
+  **   - id: Ref backdoor to explicitly set the new record id
+  abstract Dict add(Dict rec, Dict? opts := null)
 
   ** Replace an existing companion rt record by id. The given dict must match
   ** the AST respresentation as described in class header. Raise exception
