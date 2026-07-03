@@ -182,8 +182,10 @@ internal class Fitter
     // must have no fails
     if (matchFail) return false
 
-    // must have at least one success unless type is sys::Dict itself
-    return matchSucc > 0 || type === ns.sys.dict
+    // must have at least one success unless type is sys::Dict itself;
+    // compare via type.type since specx may wrap sys::Dict as XSpec
+    if (matchSucc > 0 || type.type === ns.sys.dict) return true
+    return explainNoDistinctiveMatch(type)
   }
 
   ** Identity/metadata tags every rec has (id, dis, mod) — matching these
@@ -450,6 +452,8 @@ internal class Fitter
 
   virtual Bool explainNoType(Obj? val) { false }
 
+  virtual Bool explainNoDistinctiveMatch(Spec type) { false }
+
   virtual Bool explainInvalidType(Spec spec, Spec valType) { false }
 
   virtual Bool explainMissingSlot(Spec slot) { false }
@@ -494,6 +498,11 @@ internal class ExplainFitter : Fitter
   override Bool explainNoType(Obj? val)
   {
     log("Value not mapped to data type [${val?.typeof}]")
+  }
+
+  override Bool explainNoDistinctiveMatch(Spec type)
+  {
+    log("No distinctive tags fit '$type.type'")
   }
 
   override Bool explainInvalidType(Spec spec, Spec valType)
