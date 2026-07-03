@@ -1,0 +1,14 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Jul 2026  Brian Frank  Creation
+//
+
+// Connector framework: conn recs, point binding, cur/write/his sync
+@skill-know-conn : AiSkill {
+  keywords: {"conn", "connector", "sync", "learn", "poll", "stale", "tuning", "bacnet", "modbus", "mqtt", "haystack", "sql"}
+  include: { @hx::skill-know-axon, @hx.point::skill-know-point }
+}
+

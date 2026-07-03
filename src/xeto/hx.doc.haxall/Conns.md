@@ -76,8 +76,8 @@ The following tags are typically used to configure a connector:
   - `disabled`: marker tag which disables the connector
 
 The following transient status tags are managed by the framework itself:
-  - [hx.conn::Conn.connStatus]: ok, down, fault or disabled
-  - [hx.conn::Conn.connState]: close, opening, open, or closing
+  - [hx.conn::Conn.connStatus]: unknown, ok, down, fault, or disabled
+  - [hx.conn::Conn.connState]: closed, opening, open, or closing
   - [hx.conn::Conn.connErr]: error message if connStatus indicates error condition
   - additional debugging details are available via the [details](ConnTuning#details)
 

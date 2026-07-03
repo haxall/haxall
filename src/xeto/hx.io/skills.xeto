@@ -1,0 +1,13 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Jul 2026  Brian Frank  Creation
+//
+
+// File IO: handles, CSV/JSON/Zinc/Trio, HTTP, zip, encoding
+@skill-know-io : AiSkill {
+  keywords: {"io", "file", "csv", "json", "zinc", "trio", "import", "export", "http", "zip", "upload"}
+  include: { @hx::skill-know-axon }
+}

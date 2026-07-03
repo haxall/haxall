@@ -31,7 +31,7 @@ the following:
     project's io directory
   - Uri with `fan://` scheme will read files bundled in pods
   - Uri with `http://` or `https://` scheme will read using HTTP GET request (readonly)
-  - Uri with `ftp://` or `ftps://` scheme will retreive using [FTP](hx.io::doc#ftp-handles)
+  - Uri with `ftp://` or `ftps://` scheme will retrieve using [FTP](hx.io::doc#ftp-handles)
   - any Dict can be used as an IOHandle. Data will be stored in Folio keyed off the
     'id' of the rec. The data will be removed when the rec is deleted from folio.
 

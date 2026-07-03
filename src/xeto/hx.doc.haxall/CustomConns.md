@@ -260,7 +260,7 @@ The standard behavior of writable points is defined by the [point library](hx.po
 which manages the 16-level priority array.  When it calculates a new effective
 level should be written, the framework issues the [onWrite](fan.hxConn::ConnDispatch.onWrite)
 callback.  Your callback should write the new value to the remote system, and
-then call [updateWriteOk](fan.hxConn::ConnPoint.updateWriteOk) or [updatWriteErr](fan.hxConn::ConnPoint.updateWriteErr).
+then call [updateWriteOk](fan.hxConn::ConnPoint.updateWriteOk) or [updateWriteErr](fan.hxConn::ConnPoint.updateWriteErr).
 
 # Point History Sync
 If the connector's protocol supports historical time-series synchronization,
@@ -295,7 +295,7 @@ The `val` tag determines the default frequency when not explicitly configured.
 Bucket polling is the standard, built-in strategy to achieve tunable, scalable
 polling for a large number of points. Bucket polling is described in detail in
 the [Tuning](ConnTuning#poll-buckets) chapter.  From an implementation
-perspective, all that you must do is override the [onPollBuckets](fan.hxConn::ConnDispatch.onPollBucket)
+perspective, all that you must do is override the [onPollBucket](fan.hxConn::ConnDispatch.onPollBucket)
 callback.  If you don't override this method, then it will automatically
 route to [onSyncCur](fan.hxConn::ConnDispatch.onSyncCur).
 

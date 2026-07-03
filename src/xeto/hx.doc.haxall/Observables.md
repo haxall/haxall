@@ -86,7 +86,7 @@ These are the time oriented config tags (use only one):
     This configures a frequency between event generation which is
     independent of the observer's execution time.  For example a frequency
     of 10sec which takes 3sec to process each event will run every 10sec,
-    not every 13sec.
+    not every 13sec.  The frequency must be 1sec or greater.
   - [hx.obs::Observable.obsScheduleTimes]: a list of one or more Time values to generate events
     at a time of the day based on the host's default timezone.
 
@@ -113,7 +113,7 @@ Example configurations:
 
     // run at 2am on weekdays only
     obsScheduleTimes: [02:00]
-    obsScheduleDaysOfWeekdays: "mon,tue,wed,thu,fri"
+    obsScheduleDaysOfWeek: "mon,tue,wed,thu,fri"
 
     // run at 2am on 1st and 15th of the month
     obsScheduleTimes: [02:00]
@@ -125,7 +125,7 @@ Example configurations:
 
     // run at 2am on first Monday of the month
     obsScheduleTimes: [02:00]
-    obsScheduleDaysOfWeekdays: "mon"
+    obsScheduleDaysOfWeek: "mon"
     obsScheduleDaysOfMonth: "1,2,3,4,5,6,7"
 
 Schedule observations are suppressed if the observer actor already has

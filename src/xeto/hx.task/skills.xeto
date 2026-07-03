@@ -1,0 +1,13 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Jul 2026  Brian Frank  Creation
+//
+
+// Task engine: async messaging, futures, observable subscriptions
+@skill-know-task : AiSkill {
+  keywords: {"task", "async", "future", "schedule", "observable", "background", "message", "timer"}
+  include: { @hx::skill-know-axon }
+}

@@ -1,0 +1,13 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Jul 2026  Brian Frank  Creation
+//
+
+// Point model: cur/his/writable facets, priority array, his collection
+@skill-know-point : AiSkill {
+  keywords: {"point", "cur", "curval", "writable", "pointwrite", "priority", "override", "hiscollect", "enum", "kind"}
+  include: { @hx::skill-know-axon }
+}

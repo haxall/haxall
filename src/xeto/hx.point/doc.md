@@ -128,7 +128,7 @@ Any point may be historized in one of two ways:
     locally using COV or interval sampling
 
 The following tags are used to model the current value and status:
-  - [ph::PhEntity.hisStatus]: ok, down, fault, disabled, pending, syncing, unknown
+  - [ph::PhEntity.hisStatus]: ok, down, fault, disabled, unknown
   - [ph::PhEntity.hisErr]: error message if hisStatus indicated error
   - additional details such as last ok/fail times, hisErr stack trace,
     etc are available in the connector app via the "Details" command

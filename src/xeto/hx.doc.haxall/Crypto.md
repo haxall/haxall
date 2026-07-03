@@ -33,7 +33,7 @@ server's private key and certificate chain to the crypto keystore, and you
 `crypto` tool for this:
 
 ```
-  // Get help on adding entries to the skyarc key store
+  // Get help on adding entries to the crypto keystore
   hx crypto add -help
 
   // Option 1) Import the private key and certificate from an existing key store
