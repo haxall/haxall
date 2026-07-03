@@ -1,0 +1,13 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Jul 2026  Brian Frank  Creation
+//
+
+// Haystack HTTP API: auth, ops, watches, integrating external clients
+@skill-know-api : AiSkill {
+  keywords: {"api", "http", "rest", "haystack", "scram", "auth", "watch", "integration", "client", "zinc"}
+  include: { @hx::skill-know-axon }
+}
