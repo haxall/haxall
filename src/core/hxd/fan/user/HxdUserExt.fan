@@ -95,8 +95,11 @@ const class HxdUserExt : ExtObj, IUserExt
     return HxUser(Etc.makeDict(tags))
   }
 
-  ** Obs include context user
-  override const User obsContextUser := HxUser(Etc.dict4("id",Ref("obs"), "username","obs", "userRole","op", "mod",DateTime.defVal))
+  ** Synthetic user for internal system processing
+  override User syntheticUser(Str username)
+  {
+    HxUser(Etc.makeDict(["id":Ref(username), "username":username, "userRole":"op", "synthetic":Marker.val, "mod":DateTime.defVal]))
+  }
 
   ** User database
   override const Folio db := sys.db

@@ -85,8 +85,9 @@ const mixin IUserExt : SysExt
   ** The user is given admin role if `userRole` is not specified.
   @NoDoc abstract User makeUser(Str username, Obj? tags := null)
 
-  ** Dummy operator user to use for RuntimeObservables.newContext
-  @NoDoc abstract User obsContextUser()
+  ** Lookup synthetic user to use for internal system processing
+  ** such as observable and clone filter evaluation
+  @NoDoc abstract User syntheticUser(Str username)
 
   ** Get the Folio database where user recs are stored
   @NoDoc abstract Folio db()

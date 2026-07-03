@@ -108,7 +108,7 @@ const class HxObservables : Actor, RuntimeObservables
 
   override Context newContext()
   {
-    rt.newContext(rt.sys.user.obsContextUser)
+    rt.newContext(rt.sys.user.syntheticUser("obs"))
   }
 
 //////////////////////////////////////////////////////////////////////////
