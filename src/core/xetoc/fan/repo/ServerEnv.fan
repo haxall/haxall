@@ -84,11 +84,12 @@ const class ServerEnv : MEnv
     return dir
   }
 
-  ** Constructor
+  ** Constructor; dirs explicitly added via XetoEnv.addToPath are
+  ** always included in front of path regardless of resolution mode
   new make(Str mode, File[] path)
   {
     this.mode = mode
-    this.path = path
+    this.path = XetoEnv.pathAdds.dup.addAll(path).unique
   }
 
 //////////////////////////////////////////////////////////////////////////

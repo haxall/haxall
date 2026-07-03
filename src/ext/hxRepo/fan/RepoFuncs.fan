@@ -23,6 +23,14 @@ const class RepoFuncs
 //////////////////////////////////////////////////////////////////////////
 
   @Api @Axon { su = true }
+  static Str xetoEnvDebug()
+  {
+    buf := StrBuf()
+    XetoEnv.cur.dump(buf.out)
+    return buf.toStr
+  }
+
+  @Api @Axon { su = true }
   static Grid libRepos()
   {
     gb := GridBuilder()

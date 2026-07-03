@@ -60,6 +60,11 @@ class RepoFuncsTest : RemoteReposTest
     initEnv
     initRt
 
+    // xetoEnvDebug - verify dump includes mode and path
+    debug := RepoFuncs.xetoEnvDebug
+    verify(debug.contains("xeto.mode:"))
+    verify(debug.contains("xeto.path:"))
+
     // libRepos - verify grid shape
     Grid grid := RepoFuncs.libRepos
     verifyGridCols(grid, ["name", "uri", "authToken"])

@@ -30,13 +30,22 @@ abstract const class XetoEnv
   private const static AtomicRef curRef := AtomicRef()
 
   ** Add given directory to the front of the Fantom env path and
-  ** reinitialize the current environment to pick up the new path
+  ** reinitialize the current environment to pick up the new path.
+  ** The directory is included in the xeto path resolution regardless
+  ** of mode (even when path is pinned by xeto.props).
   @NoDoc static XetoEnv addToPath(File dir)
   {
     pathEnv := Env.cur as PathEnv ?: throw Err("Env.cur not a PathEnv")
+    dir = dir.normalize
     pathEnv.addToPath(dir)
+    adds := pathAdds
+    if (!adds.contains(dir)) pathAddsRef.val = adds.dup.add(dir).toImmutable
     return reinit
   }
+
+  ** Directories explicitly added to the path via addToPath
+  @NoDoc static File[] pathAdds() { pathAddsRef.val ?: File#.emptyList }
+  private const static AtomicRef pathAddsRef := AtomicRef()
 
   ** Reinitialize the current environment after a modification to the
   ** Fantom env path to re-resolve the path and rescan installed libs

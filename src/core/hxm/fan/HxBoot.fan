@@ -51,8 +51,21 @@ abstract class HxBoot
   ** Project name
   const Str name
 
-  ** Runtime directory
+  ** Directory for the runtime state including it "db/" sub-directory.
+  ** Every runtime has its own dir:
+  **   - SkySpark sys: "{varDir}/sys/"
+  **   - SkySpark proj: "{varDir}/proj/{name}/"
+  **   - Haxall daemon and XetoStudio sys: same as varDir
   const File dir
+
+  ** Variable directory is the root directory for *all* variable runtime
+  ** data in the VM: the runtime dirs, licenses, logs, and installed libs
+  ** and pods.  There is exactly one varDir per VM shared by all of its
+  ** runtimes.  At boot it is pushed onto the front of both the Fantom and
+  ** Xeto env paths to become their workDir - see HxSysBoot.initEnvPath.
+  **   - SkySpark: the "var/" directory (parent of the sys runtime dir)
+  **   - Haxall daemon and XetoStudio: same as the sys runtime dir
+  virtual File varDir() { dir }
 
   ** Runtime db/ directory
   const File dbDir
@@ -202,6 +215,9 @@ abstract class HxProjBoot : HxBoot
   virtual Sys sys() { sysRef }
   const Sys sysRef
 
+  ** Variable directory delegates to parent sys
+  override File varDir() { sys.varDir }
+
   ** Lookup sys version
   override Version sysInfoVersion() { sys.info.version }
 
@@ -309,6 +325,16 @@ abstract class HxSysBoot : HxBoot
 // Hooks
 //////////////////////////////////////////////////////////////////////////
 
+  ** Add varDir to the front of the Fantom env path and reload XetoEnv
+  ** so that varDir becomes the workDir of both the Fantom and xeto
+  ** search paths.  Ignore in test mode or if not booted under a PathEnv.
+  virtual Void initEnvPath()
+  {
+    if (isTest) return
+    if (Env.cur isnot PathEnv) { log.warn("Env.cur not a PathEnv"); return }
+    XetoEnv.addToPath(varDir)
+  }
+
   ** Create SysInfo instance from sysInfo (sys boot only)
   virtual SysInfo initSysInfo()
   {
@@ -356,6 +382,9 @@ abstract class HxSysBoot : HxBoot
   ** Raise NotSetupErr to route to notSetup handling.
   virtual HxSys boot()
   {
+    // add varDir to env path and reload xeto env
+    initEnvPath
+
     // init system
     sys := init
 

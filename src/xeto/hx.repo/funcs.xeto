@@ -8,6 +8,10 @@
 
 +Funcs {
 
+  // Debug dump of the server side XetoEnv including its
+  // resolution mode, search path, and build vars
+  xetoEnvDebug: Func <su> { returns: Str }
+
   // List configured remote repos as a grid.  The result grid
   // includes the following columns:
   //   - `name`: programmatic name of the repo
