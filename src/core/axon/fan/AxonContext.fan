@@ -109,6 +109,11 @@ abstract class AxonContext : HaystackContext, CompContext
     }
   }
 
+  ** Clear namespace derived caches such as resolved top-level names.
+  ** Must be called when the namespace is modified while this context
+  ** is still in use.
+  @NoDoc Void nsCacheClear() { tops.clear; xetoIsSpecCache = null }
+
   private Spec? resolveUnqualifiedFunc(Str name, FileLoc loc, Bool checked)
   {
     // resolve func as list from namespace (cached in MNameespace)
