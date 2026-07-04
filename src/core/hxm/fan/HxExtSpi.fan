@@ -173,7 +173,7 @@ const class HxExtSpi : Actor, ExtSpi
     return null
   }
 
-  Void toFault(Str msg) { faultMsgRef.val = msg }
+  override Void toFault(Str msg) { faultMsgRef.val = msg }
 
   private const AtomicRef faultMsgRef := AtomicRef(null)
 

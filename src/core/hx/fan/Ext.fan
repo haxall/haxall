@@ -194,6 +194,7 @@ const mixin ExtSpi
   abstract Subscription[] subscriptions()
   abstract Subscription observe(Str name, Dict config, Obj callback)
   abstract Bool isFault()
+  abstract Void toFault(Str msg)
 }
 
 **************************************************************************
