@@ -248,6 +248,11 @@ geo::geoTz(val)
 "root toot".replace("oo", "a")  >>  "rat tat"
 ```
 
+There is no `Str()` constructor - use `toStr`. Triple-quote
+continuation lines must indent to the column past the opening `"""`,
+so prefer `\n` escapes or `lines.concat("\n")` to build multi-line
+strings in code.
+
 ## Lists
 
 ```axon

@@ -162,7 +162,13 @@ internal const class StaticCall : Call
   override Obj? eval(AxonContext cx)
   {
     // static calls route to FFI if installed
-    ffi := cx.ffi ?: throw UnsupportedErr("Static call: ${target}.$funcName")
+    ffi := cx.ffi
+    if (ffi == null)
+    {
+      // constructor call on type name such as Str(...)
+      if (funcName == "<init>") throw typeCallErr(cx, target.name)
+      throw UnsupportedErr("Static call: ${target}.$funcName")
+    }
     return ffi.callStatic(cx, target, funcName, args, cache)
   }
 

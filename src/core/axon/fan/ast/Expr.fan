@@ -111,6 +111,10 @@ const abstract class Expr
 
     if (fn == null)
     {
+      // calling a type name resolved to a spec
+      spec := t as Spec
+      if (spec != null) throw typeCallErr(cx, spec.name)
+
       var := this as Var
       if (var != null)
       {
@@ -201,6 +205,14 @@ const abstract class Expr
 
   ** Return EvalErr with this expression's location.
   @NoDoc EvalErr err(Str msg, AxonContext cx) { EvalErr(msg, cx, loc) }
+
+  ** Err for calling a type name as a func such as Str(...); suggest
+  ** the conversion func if one exists such as toStr()
+  @NoDoc EvalErr typeCallErr(AxonContext cx, Str name)
+  {
+    hint := cx.resolveTopFn("to$name", false) != null ? "; use to${name}() to convert" : ""
+    return err("Type $name is not a callable func$hint", cx)
+  }
 
   ** Perform constant folding if we can, otherwise return this
   @NoDoc virtual Expr foldConst() { this }

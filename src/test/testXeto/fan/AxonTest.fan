@@ -82,6 +82,17 @@ class AxonTest : AbstractAxonTest
     verifySpecRef(Str<|ph.points::AirTempSensor|>, "ph.points::AirTempSensor")
     verifySpecRef(Str<|hx.test.xeto::Alpha|>, "hx.test.xeto::Alpha")
     verifySpecRef(Str<|hx.test.xeto.deep::Beta|>, "hx.test.xeto.deep::Beta")
+
+    // calling a type is an error with conversion hint if to func exists
+    verifyTypeCallErr(Str<|Str(123)|>, "Type Str is not a callable func; use toStr() to convert")
+    verifyTypeCallErr(Str<|Point(123)|>, "Type Point is not a callable func")
+  }
+
+  Void verifyTypeCallErr(Str expr, Str msg)
+  {
+    cx := makeContext
+    try { cx.eval(expr); fail(expr) }
+    catch (EvalErr e) verifyEq(e.msg, msg)
   }
 
   Spec verifySpecRef(Str expr, Str qname)
