@@ -12,8 +12,11 @@
 Observable: Dict {
 
   // Filter string to define the record data set observed.  If omitted
-  // then all records in the database are observed.  Note that obsFilter
-  // may **not** use the `->` pathing operator.
+  // then all records in the database are observed.  Avoid the `->`
+  // pathing operator: the filter is evaluated only against the record
+  // being committed, so changes to a referenced record never fire
+  // events for the records which point to it, making path filters
+  // unreliable for tracking data set membership.
   obsFilter: Filter?
 
   // Subscribe to record commits in Folio - see [docs](hx.doc.haxall::Observables#commits)
