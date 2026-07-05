@@ -269,6 +269,10 @@
   // Update current project meta
   projMetaUpdate: Func <admin, nodoc> { newMeta: Dict, returns: Obj? }
 
+  // Block until all folio/project message queues are fully processed.
+  // Use to await background work before verifying its effects.
+  projSync: Func <admin> { timeout: Number?, returns: Obj? }
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////

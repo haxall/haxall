@@ -17,6 +17,11 @@ operate on the current project's Folio.
 The `id` and `mod` tags are managed by Folio and can never be
 committed directly.
 
+Funcs, specs, and instances managed in the project companion lib
+(written via write_xeto) are recs discriminated by the `rt` tag:
+filter with `rt=="func"`, `rt=="spec"`, or `rt=="instance"`. There
+is no bare `func` marker tag on 4.x managed recs.
+
 # Filters
 
 Filters are the query language used by `read`, `readAll`, and

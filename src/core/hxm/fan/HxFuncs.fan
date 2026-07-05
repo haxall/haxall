@@ -437,6 +437,14 @@ const class HxFuncs
   @Api @Axon
   static Dict projMeta() { Context.cur.proj.meta }
 
+  ** Block until all folio/project message queues are fully processed.
+  @Api @Axon { admin=true }
+  static Obj? projSync(Number? timeout := null)
+  {
+    Context.cur.rt.sync(timeout?.toDuration)
+    return "synced"
+  }
+
   ** Update system meta.
   @NoDoc @Api @Axon { su=true }
   static Dict? sysMetaUpdate(Obj changes)
