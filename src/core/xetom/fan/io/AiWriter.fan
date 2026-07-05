@@ -11,6 +11,9 @@ using haystack
 
 **
 ** AiWriter formats values into text optimized for AI/LLM consumption.
+** All value encoding flows through `val` which always clips large
+** data; the public write methods are low-level utils shared with
+** subclasses such as AiToolWriter.
 **
 @Js
 class AiWriter
@@ -33,7 +36,13 @@ class AiWriter
 // Values
 //////////////////////////////////////////////////////////////////////////
 
-  ** Format data value
+  ** Format a data value to its LLM text encoding.  Each type has one
+  ** consistent encoding which always clips large data so one value
+  ** cannot flood a conversation:
+  **  - scalar: toStr truncated to truncate chars
+  **  - dict: trio
+  **  - list: markdown bullets or trio dicts; first maxItems items
+  **  - grid: summary line + zinc; first maxRows rows
   This val(Obj? x)
   {
     if (x == null) return w("null")
@@ -43,59 +52,36 @@ class AiWriter
     return scalar(x)
   }
 
-  ** Scalar
-  This scalar(Obj x)
+  ** Format error with message and stack trace
+  This err(Err e)
+  {
+    w("ERROR: $e.toStr").nl
+    e.trace(out)
+    return this
+  }
+
+  ** Scalar as toStr truncated to truncate chars
+  private This scalar(Obj x)
   {
     wtruncated(x)
   }
 
-  ** Format grid as zinc
-  This grid(Grid x)
-  {
-    ZincWriter(out).writeGrid(x)
-    return this
-  }
-
-  ** Format grid summary as one-liner with col/row counts and col names
-  This gridSummary(Grid x)
-  {
-    w("Grid ").w(x.cols.size).w(" cols x ").w(x.size).w(" rows")
-    w(" cols(")
-    limit := x.cols.size.min(5)
-    for (i := 0; i < limit; ++i)
-    {
-      if (i > 0) w(", ")
-      w(x.cols[i].name)
-    }
-    more := x.cols.size - limit
-    if (more > 0) w(", ").w(more).w(" more")
-    w(")")
-    return this
-  }
-
-  ** Format grid preview with first N rows
-  This gridPreview(Grid x, Int maxRows := 5)
-  {
-    gridSummary(x).nl
-    if (x.size <= maxRows) return grid(x)
-    rows := x.toRows
-    grid(Etc.makeDictsGrid(x.meta, rows[0..<maxRows]))
-    w("... ").w(x.size - maxRows).w(" more rows").nl
-    return this
-  }
-
-  ** Format dict as trio
-  This dict(Dict x)
+  ** Dict as trio
+  private This dict(Dict x)
   {
     if (x.isEmpty) return w("{}").nl
     TrioWriter(out).writeDict(x)
     return this
   }
 
-  ** Format list based on value types as markdown list or trio
-  This list(Obj?[] x)
+  ** List as trio dicts or markdown bullets; over maxItems write
+  ** only the first items followed by count of those clipped
+  private This list(Obj?[] x)
   {
     if (x.isEmpty) return w("[]")
+
+    more := x.size - maxItems
+    if (more > 0) x = x[0..<maxItems]
 
     dicts := x.all { it is Dict || it == null }
     if (dicts)
@@ -107,23 +93,32 @@ class AiWriter
         else if (d.isEmpty) w("{}").nl
         else TrioWriter(out).writeDict(d)
       }
-      return this
+    }
+    else
+    {
+      x.each |v, i|
+      {
+        if (i > 0) tab
+        w("- ").indent.val(v).unindent.nl
+      }
     }
 
-    x.each |v, i|
-    {
-      if (i > 0) tab
-      w("- ").indent.val(v).unindent.nl
-    }
+    if (more > 0) w("... ").w(more).w(" more items").nl
     return this
   }
 
-  ** Error
-  This err(Err e)
+  ** Grid as summary line + zinc; over maxRows write only the first
+  ** rows followed by count of those clipped and paging hint
+  private This grid(Grid x)
   {
-    w("ERROR: $e.toStr").nl
-    e.trace(out)
-    return this
+    // summary line: Grid 3 cols x 150 rows
+    w("Grid ").w(x.cols.size).w(" cols x ").w(x.size).w(" rows").nl
+
+    // zinc rows: all if under maxRows, else first maxRows + paging hint
+    more := x.size - maxRows
+    if (more <= 0) { ZincWriter(out).writeGrid(x); return this }
+    ZincWriter(out).writeGrid(Etc.makeDictsGrid(x.meta, x.toRows[0..<maxRows]))
+    return w("... $more more rows; page with [${maxRows}..${maxRows*2-1}] or refine the query").nl
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -157,15 +152,21 @@ class AiWriter
   ** Flush underlying output stream
   This flush() { out.flush; return this }
 
-  ** Write truncated string default length of 64
+  ** Write truncated string default length of truncate const
   This wtruncated(Obj x, Int limit := truncate) { w(x.toStr.truncate(limit, "..")) }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  ** Default length to truncate data strings
-  static const Int truncate := 100
+  ** Max chars for a scalar string before truncation
+  static const Int truncate := 4096
+
+  ** Max grid rows written before clipping
+  static const Int maxRows := 100
+
+  ** Max list items written before clipping
+  static const Int maxItems := 100
 
   private StrBuf? buf
   protected OutStream out
