@@ -7,6 +7,8 @@
 //   13 Jul 2025  Brian Frank  Redesign from HxRuntimeLibs
 //
 
+using concurrent
+
 **
 ** System is the host level project in multi-tenant systems
 **
@@ -62,5 +64,17 @@ const mixin Sys : Runtime
 
   ** User session management (required)
   @NoDoc virtual ISessionExt session() { exts.getByType(ISessionExt#) }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Broadcast an HxMsg to all system extensions.  Ths `HxMsg.id` must
+  ** a enum name from `ExtMsgId` to avoid raising unknown message id.
+  @NoDoc Future[] broadcastToExts(HxMsg msg)
+  {
+    exts.list.map |ext->Future| { ext.spi.send(msg) }
+  }
+
 }
 

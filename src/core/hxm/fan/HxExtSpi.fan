@@ -196,26 +196,24 @@ const class HxExtSpi : Actor, ExtSpi
 // Background Processing
 //////////////////////////////////////////////////////////////////////////
 
-  Future start() { send(HxMsg("start"))  }
+  Future start() { send(HxMsg(ExtMsgId.start.name))  }
 
-  Future ready() { send(HxMsg("ready")) }
+  Future ready() { send(HxMsg(ExtMsgId.ready.name)) }
 
-  Future steadyState() { send(HxMsg("steadyState")) }
+  Future steadyState() { send(HxMsg(ExtMsgId.steadyState.name)) }
 
-  Future unready() { send(HxMsg("unready")) }
+  Future unready() { send(HxMsg(ExtMsgId.unready.name)) }
 
-  Future stop() { send(HxMsg("stop")) }
+  Future stop() { send(HxMsg(ExtMsgId.stop.name)) }
 
-  Future forceHouseKeeping() { send(HxMsg("hkForce")) }
+  Future forceHouseKeeping() { send(HxMsg(ExtMsgId.hkForce.name)) }
 
-  Future sysReload() { send(HxMsg("sysReload")) }
-
-  override Void sync(Duration? timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
+  override Void sync(Duration? timeout := 30sec) { send((HxMsg(ExtMsgId.sync.name))).get(timeout) }
 
   Void update(Dict settings)
   {
     settingsRef.val = typedRec(settings)
-    send(HxMsg("settings"))
+    send(HxMsg(ExtMsgId.settings.name))
   }
 
   Dict typedRec(Dict dict)
@@ -241,16 +239,16 @@ const class HxExtSpi : Actor, ExtSpi
     msg := msgObj as HxMsg ?: throw ArgErr("Invalid msg type: ${msgObj?.typeof}")
     try
     {
-      if (msg.id === "obs")         return onObs(msg)
-      if (msg.id === "sync")        return "synced"
-      if (msg.id === "settings")    return onSettings
-      if (msg.id === "start")       return onStart
-      if (msg.id === "ready")       return onReady
-      if (msg.id === "steadyState") return onSteadyState
-      if (msg.id === "unready")     return onUnready
-      if (msg.id === "stop")        return onStop
-      if (msg.id === "sysReload")   return onSysReload
-      if (msg.id === "hkForce")     return onHouseKeeping
+      if (msg.id === ExtMsgId.obs.name)         return onObs(msg)
+      if (msg.id === ExtMsgId.sync.name)        return "synced"
+      if (msg.id === ExtMsgId.settings.name)    return onSettings
+      if (msg.id === ExtMsgId.start.name)       return onStart
+      if (msg.id === ExtMsgId.ready.name)       return onReady
+      if (msg.id === ExtMsgId.steadyState.name) return onSteadyState
+      if (msg.id === ExtMsgId.unready.name)     return onUnready
+      if (msg.id === ExtMsgId.stop.name)        return onStop
+      if (msg.id === ExtMsgId.sysReload.name)   return onSysReload
+      if (msg.id === ExtMsgId.hkForce.name)     return onHouseKeeping
     }
     catch (Err e)
     {
@@ -348,7 +346,7 @@ const class HxExtSpi : Actor, ExtSpi
     if (freq != null) sendLater(freq, houseKeepingMsg)
   }
 
-  private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
+  private static const HxMsg houseKeepingMsg := HxMsg(ExtMsgId.houseKeeping.name)
 }
 
 **************************************************************************

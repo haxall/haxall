@@ -137,6 +137,10 @@ const mixin Ext
   ** Callback to handle a non-standard actor message to this library.
   @NoDoc virtual Obj? onReceive(HxMsg msg)
   {
+    // if its a predefined msg name not handled, then ignore it
+    if (ExtMsgId.fromStr(msg.id, false) != null) return "not handled"
+
+    // raise exception
     throw UnsupportedErr("Unknown msg: $msg")
   }
 }
@@ -167,6 +171,33 @@ abstract const class ExtObj : Ext
 
   @NoDoc
   const override ExtSpi spi
+}
+
+**************************************************************************
+** ExtMsgId
+**************************************************************************
+
+** List of predefined ids for Ext actor processing
+@NoDoc
+enum class ExtMsgId
+{
+  // built-in routing
+
+  houseKeeping,   // onHouseKeeping poll
+  sync,           // no-op to block until queue is drained
+  settings,       // routes to onSettings
+  start,          // routes to onStart
+  ready,          // routes to onReady
+  steadyState,    // routes to onSteadyState
+  unready,        // routes to onUnready
+  stop,           // routes to onStop
+  sysReload,      // routes to onSysReload
+  obs,            // routes to ExtMethodObserver
+  hkForce,        // routes to onHouseKeeping outside of normal poll time
+
+  // routes to onReceive
+
+  certModified      // crypto certificate modified: a=alias
 }
 
 **************************************************************************

@@ -72,7 +72,7 @@ const class PlatformSerialExt : ExtObj
     {
       case "open":  return doOpen(msg.a, msg.b, msg.c)
       case "close": return doClose(((Unsafe)msg.a).val)
-      default:      throw Err("Unknown msg type: $msg")
+      default:      return super.onReceive(msg)
     }
   }
 
