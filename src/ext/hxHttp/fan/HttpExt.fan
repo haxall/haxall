@@ -59,10 +59,9 @@ const class HttpExt : ExtObj, IHttpExt
     settings      := this.settings
     addr          := settings.addr?.trimToNull == null ? null : IpAddr(settings.addr)
     httpsEnabled  := settings.httpsEnabled
-    httpsKeyStore := sys.crypto.httpsKey(false)
-    socketConfig  := SocketConfig.cur.copy { it.keystore = httpsKeyStore }
+    socketConfig  := initSocketConfig
 
-    if (httpsEnabled && httpsKeyStore == null)
+    if (httpsEnabled && socketConfig.keystore == null)
     {
       httpsEnabled = false
       log.err("Failed to obtain entry with alias 'https' from the keystore. Disabling HTTPS")
@@ -89,10 +88,31 @@ const class HttpExt : ExtObj, IHttpExt
     wisp.waitUntilListening(30sec)
   }
 
+  private SocketConfig initSocketConfig()
+  {
+    httpsKeyStore := sys.crypto.httpsKey(false)
+    return SocketConfig.cur.copy { it.keystore = httpsKeyStore }
+  }
+
   ** Unready callback
   override Void onUnready()
   {
     wisp.stop
+  }
+
+  ** Receive callback
+  override Obj? onReceive(HxMsg msg)
+  {
+    if (msg.id == ExtMsgId.certModified.name) return onCertModified(msg.a)
+    return super.onReceive(msg)
+  }
+
+  private Obj? onCertModified(Str alias)
+  {
+    if (alias != "https") return null
+    log.info("HTTPS certificate rotated")
+    wisp.socketConfig = initSocketConfig
+    return "rotated"
   }
 
   ** Top-level hook to service all HTTP requests
