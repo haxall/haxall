@@ -77,6 +77,18 @@ const class CryptoExt : ExtObj, ICryptoExt
   override Void writeBuf(Buf buf) { keystore.writeBuf(buf) }
 
 //////////////////////////////////////////////////////////////////////////
+// Utility
+//////////////////////////////////////////////////////////////////////////
+
+  ** Convenience for setting a key and notifying the HTTP Ext to reload
+  ** the web server if necessary
+  Void setKey(Str alias, PrivKey priv, Cert[] chain, [Str:Str] attrs := [:])
+  {
+    keystore.setPrivKey(alias, priv, chain, attrs)
+    sys.broadcastToExts(HxMsg(ExtMsgId.certModified.name, alias))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
@@ -94,6 +106,14 @@ const class CryptoExt : ExtObj, ICryptoExt
     System.setProperty("javax.net.ssl.trustStoreType", "pkcs12")
     System.setProperty("javax.net.ssl.trustStore", keystore.file.osPath)
     System.setProperty("javax.net.ssl.trustStorePassword", "changeit")
+  }
+
+  override Duration? houseKeepingFreq() { 3hr }
+
+  override Void onHouseKeeping()
+  {
+    // TODO - Warning banner if https certificate is close to expiring
+    CryptoFuncs.checkForRenewals(this)
   }
 }
 

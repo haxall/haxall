@@ -44,4 +44,10 @@
   // Can also trust a single certificate if no priv key is supplied.
   cryptoAddCert: Func <nodoc, su> { alias: Str, pem: Str, force: Bool, returns: Obj? }
 
+  cryptoEstGetCaCerts: Func <nodoc, su> { server: Uri, returns: Grid }
+
+  cryptoEstEnroll: Func <nodoc, su> { dict: Obj, returns: Grid }
+
+  cryptoEstReenroll: Func <nodoc, su> { alias: Str, opts: Dict?, returns: Grid }
+
 }
