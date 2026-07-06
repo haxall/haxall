@@ -92,6 +92,7 @@ public final class BackupMonitor extends FanObj
     {
       // pipeline
       findAuxFiles();
+      findRecFiles();
       initProgressTotal();
       openFile();
       writeBackupMeta();
@@ -169,7 +170,8 @@ public final class BackupMonitor extends FanObj
   {
     // approx only
     this.progressTotal = store.index.map.size() +
-                         auxFiles.sz();
+                         auxFiles.sz() +
+                         recFiles.sz();
   }
 
   private void testDelay() throws Exception
@@ -324,31 +326,57 @@ public final class BackupMonitor extends FanObj
 // Rec Files
 //////////////////////////////////////////////////////////////////////////
 
-  // Backup the folio "files/" subdir which holds rec file contents. Unlike
-  // aux files this is a directory tree, so we walk it recursively and preserve
-  // the relative paths under a "files/" prefix within the backup.
-  private void writeRecFiles() throws Exception
+  // The folio "files/" subdir holds rec file contents. Unlike aux files this
+  // is a directory tree, so we walk it recursively and collect each leaf file.
+  // The zip path is computed at write time from the file's location relative
+  // to store.dir (which always begins with the "files/" prefix).
+  private void findRecFiles() throws Exception
   {
-    File filesDir = store.dir.plus(Uri.fromStr("files/"));
-    if (!filesDir.exists()) return;
-    writeTree(filesDir, "files");
+    List acc = List.makeObj(16);
+    try
+    {
+      File dir = store.dir.plus(Uri.fromStr("files/"));
+      if (dir.exists()) findRecFiles(dir, acc);
+    }
+    catch (Exception e) { e.printStackTrace(); }
+    this.recFiles = acc;
   }
 
-  private void writeTree(File f, String path) throws Exception
+  private void findRecFiles(File f, List acc)
   {
     if (f.isDir())
     {
       List kids = f.list();
       for (int i=0; i<kids.sz(); ++i)
-      {
-        File kid = (File)kids.get(i);
-        writeTree(kid, path + "/" + kid.name());
-      }
+        findRecFiles((File)kids.get(i), acc);
     }
     else
     {
-      writeFile(f, path);
+      acc.add(f);
     }
+  }
+
+  private void writeRecFiles() throws Exception
+  {
+    for (int i=0; i<recFiles.sz(); ++i)
+    {
+      File f = (File)recFiles.get(i);
+      writeFile(f, recPath(f));
+    }
+  }
+
+  // Path of a rec file within the backup, relative to store.dir (e.g. "files/b1/foo")
+  private String recPath(File f)
+  {
+    List dirPath = store.dir.uri().path();
+    List fPath   = f.uri().path();
+    StringBuilder s = new StringBuilder();
+    for (int i=dirPath.sz(); i<fPath.sz(); ++i)
+    {
+      if (s.length() > 0) s.append('/');
+      s.append((String)fPath.get(i));
+    }
+    return s.toString();
   }
 
   private void invokeOnComplete()
@@ -419,6 +447,7 @@ public final class BackupMonitor extends FanObj
   DateTime endTime;          // doRun
   Err err;                   // doRun
   List auxFiles;             // findAuxFiles
+  List recFiles;             // findRecFiles (rec file leaves)
   ZipOutputStream zip;       // openFile
   Blob[] blobs;              // snapshotIndex
   int curFileId = -1;        // writePageFiles

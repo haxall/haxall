@@ -120,6 +120,42 @@ class BackupTest : Test
     src.close
   }
 
+  ** Deterministic rec-files backup check: no concurrent mutation and we wait
+  ** on the backup future rather than polling gcFreezeCount, so it is immune to
+  ** the timing race in testBasics.
+  Void testRecFiles()
+  {
+    dir := tempDir + `recsrc/`
+    s   := Store.open(dir)
+    try
+    {
+      // non-empty store
+      s.create(Buf().print("m"), Buf().print("v"))
+
+      // write rec files in a nested files/ tree
+      (s.dir + `files/b1/alpha`).out.print("rec alpha").close
+      (s.dir + `files/b1/beta`).out.print("rec beta").close
+      (s.dir + `files/b42/nested/gamma`).out.print("rec gamma").close
+
+      // backup and wait for completion
+      zipFile := tempDir + `recbackup.zip`
+      b := s.backup(zipFile, ["pathPrefix":`bk/db`, "futureResult":"_done_"])
+      verifyEq(b.future.get(30sec), "_done_")
+      verify(b.isComplete)
+      verifyNull(b.err)
+
+      // unzip and verify rec files bundled with content
+      unzip := tempDir + `recunzip/`
+      unzip.delete
+      Zip.unzipInto(zipFile, unzip)
+      base := unzip + `bk/db/files/`
+      verifyEq((base + `b1/alpha`).readAllStr, "rec alpha")
+      verifyEq((base + `b1/beta`).readAllStr, "rec beta")
+      verifyEq((base + `b42/nested/gamma`).readAllStr, "rec gamma")
+    }
+    finally s.close
+  }
+
   Void addFile(Str name, Str content)
   {
     file := src.dir + `${name}`
