@@ -130,11 +130,27 @@ const class LocalFolioFile : MFolioFile
 {
   new make(Folio folio) : super(folio)
   {
-    this.dir = folio.dir.plus(`../files/`)
+    this.dir = folio.dir.plus(`files/`)
+    migrateLegacy
   }
 
   ** Root directory for storing files
   const File dir
+
+  ** Migrate rec files from the legacy sibling location (folio.dir/../files/)
+  ** into the folio db dir (folio.dir/files/) so they are captured by backups.
+  private Void migrateLegacy()
+  {
+    legacy := folio.dir.plus(`../files/`)
+    if (!legacy.exists) return
+    if (dir.exists)
+    {
+      folio.log.warn("Cannot migrate rec files; both ${legacy.osPath} and ${dir.osPath} exist")
+      return
+    }
+    folio.log.info("Migrating rec files ${legacy.osPath} => ${dir.osPath}")
+    legacy.moveTo(dir)
+  }
 
   protected override File toFile(Uri uri)
   {

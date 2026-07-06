@@ -16,6 +16,7 @@ class BackupTest : Test
   Store? src
   Int backupCount
   Str:Str files := [:]
+  Str:Str recFiles := [:]
 
   Void testBasics()
   {
@@ -52,6 +53,12 @@ class BackupTest : Test
     addFile("beta.txt", "Beta!")
     addFile("backup-info.txt", "nope!")
     addFile("folio-info.txt", "nope!")
+    verifyBackup
+
+    // add rec files in a nested files/ subdir tree (must be backed up too)
+    addRecFile("files/b1/alpha", "rec alpha")
+    addRecFile("files/b1/beta", "rec beta")
+    addRecFile("files/b42/nested/gamma", "rec gamma nested")
     verifyBackup
 
     // add bunch of recs in 16, 32, 64, 128 sizes; then make bunch of updates
@@ -120,6 +127,13 @@ class BackupTest : Test
     files[name] = content
   }
 
+  Void addRecFile(Str relPath, Str content)
+  {
+    file := src.dir + relPath.toUri
+    file.out.print(content).close
+    recFiles[relPath] = content
+  }
+
   Void verifyBackup()
   {
     zipFile := doBackup(null)
@@ -138,6 +152,12 @@ class BackupTest : Test
         verifyEq(file.exists, false)
       else
         verifyEq(file.readAllStr, expected)
+    }
+
+    // verify nested rec files bundled into backup
+    recFiles.each |expected, relPath|
+    {
+      verifyEq((dstDir + relPath.toUri).readAllStr, expected)
     }
   }
 

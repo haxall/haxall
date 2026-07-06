@@ -100,6 +100,7 @@ public final class BackupMonitor extends FanObj
       writePageFiles();
       writeIndex();
       writeAuxFiles();
+      writeRecFiles();
       closeFile();
     }
     catch (Throwable e)
@@ -316,6 +317,37 @@ public final class BackupMonitor extends FanObj
     {
       System.out.println("ERROR: Cannot backup file: " + f);
       e.printStackTrace();
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Rec Files
+//////////////////////////////////////////////////////////////////////////
+
+  // Backup the folio "files/" subdir which holds rec file contents. Unlike
+  // aux files this is a directory tree, so we walk it recursively and preserve
+  // the relative paths under a "files/" prefix within the backup.
+  private void writeRecFiles() throws Exception
+  {
+    File filesDir = store.dir.plus(Uri.fromStr("files/"));
+    if (!filesDir.exists()) return;
+    writeTree(filesDir, "files");
+  }
+
+  private void writeTree(File f, String path) throws Exception
+  {
+    if (f.isDir())
+    {
+      List kids = f.list();
+      for (int i=0; i<kids.sz(); ++i)
+      {
+        File kid = (File)kids.get(i);
+        writeTree(kid, path + "/" + kid.name());
+      }
+    }
+    else
+    {
+      writeFile(f, path);
     }
   }
 

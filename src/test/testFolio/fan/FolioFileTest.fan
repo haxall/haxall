@@ -46,6 +46,9 @@ class FolioFileTest : AbstractFolioTest
     verifyWrite(id, "this is a file!")
     verifyWrite(id, "modified!")
 
+    // rec files are stored inside the folio dir (so backups capture them)
+    verify(folio.dir.plus(`files/`).exists)
+
     // mimeType
     verifyEq(file.mimeType, MimeType.forExt("txt"))
 
@@ -86,7 +89,7 @@ class FolioFileTest : AbstractFolioTest
 
     folio := open
     // force files/ directory to be clean
-    folio.dir.plus(`../files/`).delete
+    folio.dir.plus(`files/`).delete
     folio.hooks = FileTestHooks(ns)
 
     id := Ref("conversation-1")
@@ -156,6 +159,25 @@ class FolioFileTest : AbstractFolioTest
     verifyFalse(file.exists)
     verifyFalse(a.exists)
     verifyNull(folio.file.get(id, false))
+  }
+
+  Void testMigrateLegacy() { runImpls }
+  Void doTestMigrateLegacy()
+  {
+    if (!impl.supportsFile) return
+
+    // use a nested db dir so the legacy sibling files/ lands inside tempDir
+    dbDir  := tempDir + `db/`
+    legacy := tempDir + `files/`
+
+    // seed a rec file in the legacy sibling location
+    (legacy + `b1/foo`).out.print("legacy content").close
+
+    // opening folio migrates legacy files into db/files/
+    folio := open(FolioConfig { it.dir = dbDir; it.log = Log.get("test") })
+    verifyFalse(legacy.exists)
+    verify((dbDir + `files/`).exists)
+    verifyEq((dbDir + `files/b1/foo`).readAllStr, "legacy content")
   }
 
   private File verifyWrite(Ref id, Str text)
