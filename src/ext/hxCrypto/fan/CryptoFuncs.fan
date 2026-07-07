@@ -9,6 +9,7 @@
 //
 
 using crypto
+using inet
 using xeto
 using haystack
 using axon
@@ -47,8 +48,7 @@ const class CryptoFuncs
       .basicConstraints
       .sign
 
-    // store in keystore
-    ks.setPrivKey(alias, keys.priv, [cert])
+    ext.setKey(alias, keys.priv, [cert])
 
     return alias
   }
@@ -56,6 +56,9 @@ const class CryptoFuncs
 //////////////////////////////////////////////////////////////////////////
 // Internal
 //////////////////////////////////////////////////////////////////////////
+
+  ** Convenience
+  private static CryptoExt ext() { (CryptoExt)Context.cur.sys.crypto }
 
   @NoDoc @Api @Axon { su = true }
   static Grid cryptoLocal(Str? type)
@@ -67,6 +70,7 @@ const class CryptoFuncs
     {
       case "cryptoTrust":     f = "trusted"
       case "cryptoPrivKey":   f = "bundle"
+      case "cryptoEstManaged":  f = "estManaged"
       case "all":
       default:                f = "cryptoEntry"
     }
@@ -161,7 +165,7 @@ const class CryptoFuncs
   private static Grid cryptoStdDisplay(Grid input)
   {
     cols := input.colNames
-    preferredOrder := ["id", "alias", "ca", "selfSigned", "notAfter", "keyAlg", "keySize", "subject", "subjectAltNames", "issuer"]
+    preferredOrder := ["id", "alias", "ca", "selfSigned", "notAfter", "keyAlg", "keySize", "subject", "subjectAltNames", "issuer", "estManaged"]
     sorted := preferredOrder.intersection(cols)
     sorted.each |c, i| { cols = cols.moveTo(c, i)}
 
@@ -294,7 +298,7 @@ const class CryptoFuncs
     {
       // add public/private key certificate chain
       if (chain.isEmpty) throw Err("No certificate chain in ${alias} PEM file")
-      ks.setPrivKey(alias, privKey, chain)
+      ext.setKey(alias, privKey, chain)
     }
     return alias
   }
@@ -314,6 +318,9 @@ const class CryptoFuncs
       keyEntry := (PrivKeyEntry)entry
       cert = keyEntry.certChain.first
       tags["bundle"] = Marker.val
+      attrs := keyEntry.attrs
+      if (attrs.containsKey("1.3.6.1.4.1.65564.1"))
+        tags["estManaged"] = (Dict)ZincReader(((Str)attrs["1.3.6.1.4.1.65564.1"]).in).readVal
     }
     else if (entry is TrustEntry)
     {
@@ -377,6 +384,159 @@ const class CryptoFuncs
   private static KeyStore ks()
   {
     Context.cur.sys.crypto.keystore
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// EST (Enrollment over Secure Transport) Utilities
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get an EST client
+  private static CryptoEstClient estClient(Uri server, Str? caLabel := null)
+  {
+    CryptoEstClient((CryptoExt)Context.cur.ext("hx.crypto"), server, caLabel)
+  }
+
+  private static Bool estManagedAlias(Str alias)
+  {
+    estAliasConfig(alias) != null
+  }
+
+  private static Dict? estAliasConfig(Str alias)
+  {
+    entry := ks.get(toAlias(alias))
+    return entryToRow(entry)["estManaged"]
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// EST (Enrollment over Secure Transport) Endpoints
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Get CA certificates from EST server
+  **
+  ** Parameters:
+  **  - server: Uri EST server host
+  **  - opts: Optional dict with:
+  **      - caLabel: Str CA Label for multiple-CA servers
+  **
+  ** Example:
+  **   cryptoEstGetCaCerts(`https://est.example.com`)
+  **
+  @NoDoc @Api @Axon { su = true }
+  static Grid cryptoEstGetCaCerts(Uri server, Dict opts := EmptyDict())
+  {
+    certs := estClient(server, opts["caLabel"]).getCaCerts
+    rows    := Dict[,]
+    certs.each |Cert c|
+    {
+      row   := entryToRow(c)
+      if (row != null) rows.add(row)
+    }
+
+    return cryptoStdDisplay(Etc.makeDictsGrid(null, rows))
+  }
+
+  **
+  ** Enroll for a new certificate
+  **
+  ** Parameters:
+  **  - server: Uri EST server host
+  **  - subjectName: Str Certificate subject DN (e.g., "CN=device.example.com")
+  **  - opts: Optional dict with:
+  **      - alias: Str Keystore alias (https if not specified)
+  **      - caLabel: Str CA Label for multiple-CA servers
+  **      - renewalFreq (optional): Duration frequency for renewing certificate (30day default)
+  **      - sanDns: Comma separated DNS name values
+  **      - sanIp: Comma separated IP address values
+  **      - sanUri: Comma separated Uri values
+  **      - keyAlgorithm: "RSA" or "EC" (default "RSA")
+  **      - username: Str HTTP auth username
+  **      - password: Str HTTP auth password
+  **
+  ** Example:
+  **   cryptoEstEnroll( {uri:`https://est.example.com`,
+  **                     subjectName: "CN=mydevice.example.com",
+  **                     keyAlgorithm:"EC"} )
+  **
+  @NoDoc @Api @Axon { su = true }
+  static Grid cryptoEstEnroll(Obj dict)
+  {
+    rec    := Etc.toRec(dict)
+    alias  := rec.has("alias") ? toAlias(rec->alias) : "https"
+    server := (Uri)rec->uri
+    subjectName := (Str)rec->subjectName
+    caLabel := rec.has("caLabel") ? (Str)rec["caLabel"] : ""
+
+    // build subject alternative names from comma-separated tag strings
+    sans := San[,]
+    if (rec.has("sanDns"))
+      ((Str)rec->sanDns).split(',').each |v| { if (v.trimToNull != null) sans.add(San.dnsName(v.trim)) }
+    if (rec.has("sanIp"))
+      ((Str)rec->sanIp).split(',').each |v| { if (v.trimToNull != null) sans.add(San.ipAddr(v.trim)) }
+    if (rec.has("sanUri"))
+      ((Str)rec->sanUri).split(',').each |v| { if (v.trimToNull != null) sans.add(San.uri(v.trim)) }
+
+    if (sans.isEmpty)
+      throw ArgErr("At least one Subject Alternative Name must be provided (sanDns, sanIp, or sanUri)")
+
+    opts := Etc.dictSet(rec, "subjectAltNames", sans)
+
+    certs := estClient(server, caLabel.trimToNull).simpleEnroll(subjectName, alias, opts)
+
+    msg := "---ENROLLMENT SUCCESSFUL---\n"
+    cert := certs.first
+    msg = msg + "Subject: " + cert.subject + "\n"
+    msg = msg + "Expiration: " + cert->notAfter + "\n\n"
+    msg = msg + cert.toStr
+
+    return Etc.makeDictGrid(Etc.dict1("view","fandoc"), Etc.dict1("val", msg))
+  }
+
+  **
+  ** Reenroll using existing certificate
+  **
+  ** Parameters:
+  **  - alias: Str Keystore alias
+  **
+  ** Example:
+  **   cryptoEstReenroll( "https" )
+  **
+  @NoDoc @Api @Axon { su = true }
+  static Grid cryptoEstReenroll(Str alias, Dict opts := EmptyDict())
+  {
+    config := estAliasConfig(alias)
+    if (config == null) throw Err("Alias ($alias) not managed by estClient")
+
+    certs   := estClient((Uri)config["server"], config["caLabel"] as Str).simpleReenroll(alias, opts)
+
+    rows    := Dict[,]
+    certs.each |Cert c|
+    {
+      row   := entryToRow(c)
+      if (row != null) rows.add(row)
+    }
+
+    return cryptoStdDisplay(Etc.makeDictsGrid(null, rows))
+  }
+
+  ** Check the keystore for estManaged keys and renew if required
+  static internal Void checkForRenewals(CryptoExt ext)
+  {
+    estManaged := cryptoReadAllKeys.findAll |k| { k.has("estManaged") }
+    estManaged.each |k|
+    {
+      today := DateTime.now.date
+      expiration := (Date)k["notAfter"]
+      config := (Dict)k["estManaged"]
+      renewalFreq := config.has("renewalFreq") ? (Duration)config["renewalFreq"] : 30day
+      if ((today - expiration) <= renewalFreq)
+      {
+        alias := (Str)k["alias"]
+        server := (Uri)config["server"]
+        ext.log.info("Renewing certificate ($alias) from EST server: ${server}")
+        cryptoEstReenroll(alias)
+      }
+    }
   }
 }
 
