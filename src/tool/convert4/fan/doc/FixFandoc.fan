@@ -232,7 +232,7 @@ class FixFandoc
       case DocNodeId.text:     buf.add(n.toText)
 
       case DocNodeId.emphasis: fixElem(n, buf, "*")
-      case DocNodeId.strong:   fixElem(n, buf, "**")
+      case DocNodeId.strong:   fixStrong(n, buf)
       case DocNodeId.code:     fixElem(n, buf, "`")
 
       case DocNodeId.link:     fixLink(n, buf)
@@ -252,6 +252,18 @@ class FixFandoc
     if (wrap != null) buf.add(wrap)
     n.children.each |kid| { fixNode(kid, buf) }
     if (wrap != null) buf.add(wrap)
+  }
+
+  private Void fixStrong(DocElem n, StrBuf buf)
+  {
+    // special handling for `** *text* **` (strong+emphasis). This needs to
+    // be converted as `***text***` to be valid equivalent markdown.  Match
+    // a single emphasis child surrounded only by whitespace text nodes.
+    emphasis := n.children.find |kid| { kid.id === DocNodeId.emphasis }
+    if (emphasis != null && n.children.all |kid| { kid === emphasis || (kid is DocText && kid.toText.trim.isEmpty) })
+      return fixElem(emphasis, buf, "***")
+
+    fixElem(n, buf, "**")
   }
 
   private Void fixLink(Link n, StrBuf buf)
