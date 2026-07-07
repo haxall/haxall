@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2026, SkyFoundry LLC
-// All Rights Reserved
+// Licensed under the Academic Free License version 3.0
 //
 // History:
 //   16 Mar 2026  Ross Schwalm  Creation
@@ -386,3 +386,4 @@ const class EstPendingErr : Err
 {
   new make(Str msg := "", Err? cause := null) : super(msg, cause) {}
 }
+
