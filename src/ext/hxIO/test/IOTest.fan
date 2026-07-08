@@ -24,19 +24,24 @@ class IOTest : HxTest
     {
       ext := proj.sys.file
 
+      // resolve always returns the absolute path through the virtual filesystem
       f := ext.resolve(`io/`)
-      verifyEq(f.uri, `io/`)
+      verifyEq(f.uri, `/io/`)
 
       f = ext.resolve(`io/foo.txt`)
-      verifyEq(f.uri, `io/foo.txt`)
+      verifyEq(f.uri, `/io/foo.txt`)
       verifyEq(f.exists, false)
       f.out.print("hi").close
 
       f = ext.resolve(`io/foo.txt`)
-      verifyEq(f.uri, `io/foo.txt`)
+      verifyEq(f.uri, `/io/foo.txt`)
       verifyEq(f.exists, true)
       verifyEq(f.readAllStr, "hi")
 
+      // a withIn callback that returns null should not cause an error
+      verifyEq(null, f.withIn |in->Obj?| { null })
+
+      // verify the backing local file was actually written
       f = proj.dir + `io/foo.txt`
       verifyEq(f.readAllStr, "hi")
       return null

@@ -93,7 +93,9 @@ const abstract class DynamicMount : Mount
 
   override Obj? withIn(Uri uri, [Str:Obj]? opts, |InStream->Obj?| f)
   {
-    resolveSubmount(uri)?.withIn(submountRelUri(uri), opts, f) ?: super.withIn(uri, opts, f)
+    submount := resolveSubmount(uri)
+    if (submount != null) return submount.withIn(submountRelUri(uri), opts, f)
+    return super.withIn(uri, opts, f)
   }
 
   override OutStream out(Uri uri, Bool append, Int? bufferSize)
