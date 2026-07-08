@@ -174,6 +174,8 @@ internal const class HxListFile : SyntheticFile
   override File[] list(Regex? pattern := null) { f.list(pattern) }
   override File plus(Uri path, Bool checkSlash := true) { f.plus(path, checkSlash) }
   override Void delete() { f.delete }
+  override InStream in(Int? bufferSize := 4096) { f.in(bufferSize) }
+  override OutStream out(Bool append := false, Int? bufferSize := 4096) { f.out(append, bufferSize) }
   override Obj? withIn(|InStream->Obj?| f) { this.f.withIn(f) }
   override Void withOut(|OutStream| f) { this.f.withOut(f) }
 }
