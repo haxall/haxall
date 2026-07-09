@@ -365,6 +365,10 @@ const class HxLibs : RuntimeLibs
       // find latest version and add with my basis
       ver := repo.lib(name)
 
+      // sys-only libs cannot be enabled directly on a proj
+      if (!rt.isSys && HxLib.isLibVersionSysOnly(ver))
+        throw ArgErr("Lib '$name' must be enabled from 'Sys Libs' view")
+
       acc[name] = HxLib(ver, myBasis)
     }
 
