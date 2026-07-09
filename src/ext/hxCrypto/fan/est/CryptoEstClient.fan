@@ -66,12 +66,6 @@ const class CryptoEstClient
   ** should be the current root CA certificate. Additional certificates
   ** help build a chain to the root EST CA.
   **
-  ** The response may include Root CA Key Update certificates:
-  **  - OldWithOld, OldWithNew, NewWithOld (RFC 4210 Section 4.4)
-  **
-  ** If bootstrapMode is enabled, this performs bootstrap distribution
-  ** as described in RFC 7030 Section 4.1.1
-  **
   Cert[] getCaCerts(Bool verify := true)
   {
     // Build URI for /cacerts operation
@@ -87,9 +81,8 @@ const class CryptoEstClient
       // Perform GET request
       client.writeReq.readRes
 
-      // Check response status
-      if (client.resCode != 200)
-        throw Err("CA certificates request failed: HTTP ${client.resCode} ${client.resPhrase}")
+      // Check response status - reads the body for diagnostics on failure
+      checkCaCertsResponse(client)
 
       // Verify content type
       contentType := client.resHeader("Content-Type", false)
@@ -122,21 +115,15 @@ const class CryptoEstClient
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Enroll for a new certificate
+  ** Enroll for a new certificate and return the full certificate chain
   ** RFC 7030 Section 4.2.1: POST /.well-known/est/simpleenroll
-  **
-  ** @param subjectName Certificate subject DN (e.g., "CN=device.example.com")
-  ** @param alias Keystore alias
-  ** @param username Optional HTTP Basic/Digest auth username
-  ** @param password Optional HTTP Basic/Digest auth password
-  ** @return The issued certificate
   **
   Cert[] simpleEnroll(Str subjectName, Str alias, Dict opts := EmptyDict())
   {
     uri := buildOperationUri("simpleenroll")
 
-    username := (opts["username"] as Str)?.trimToNull != null ? (Str)opts["username"] : null
-    password := opts["password"] is Dict ? (Str)((Dict)opts["password"])->secret : null
+    username := (opts["username"] as Str)?.trimToNull != null ? opts["username"] : null
+    password := opts["password"] is Dict ? ((Dict)opts["password"])->secret : null
 
     log.info("Enrolling certificate ($subjectName) using EST Server: $uri")
 
@@ -147,12 +134,15 @@ const class CryptoEstClient
 
     try
     {
-      pair    := Crypto.cur.genKeyPair("RSA", 2048)
-      alg     := "sha512WithRSAEncryption"
-      csr     := Crypto.cur.genCsr(pair, subjectName, ["algorithm": alg, "subjectAltNames": opts["subjectAltNames"]])
-
+      //Only RSA is supported for generating CSRs today
+      //alg     := opts["algorithm"] as Str ?: "RSA"
+      alg     := "RSA"
+      keySize := (opts["keySize"] as Number)?.toInt ?: 2048
+      pair    := Crypto.cur.genKeyPair(alg, keySize)
+      sigAlg  := opts["sigAlgorithm"] as Str ?: "sha256WithRSAEncryption"
+      csr     := Crypto.cur.genCsr(pair, subjectName, ["algorithm": sigAlg, "subjectAltNames": opts["subjectAltNames"]])
       chain   := enroll(client, csr)
-      installCert(alias, pair, chain)
+      installCert(alias, pair, chain, opts)
       return chain
     }
     catch (Err e)
@@ -171,24 +161,24 @@ const class CryptoEstClient
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Re-enroll (renew/rekey) an existing certificate
+  ** Re-enroll (renew/rekey) an existing certificate and return the full certificate chain
   ** RFC 7030 Section 4.2.2: POST /.well-known/est/simplereenroll
   **
-  ** The CSR Subject and SubjectAltName MUST match the current certificate
-  ** unless ChangeSubjectName attribute is used.
+  ** Parameters:
+  **  - alias: Keystore alias
   **
-  ** @param alias Keystore alias
-  ** @return The reissued certificate
-  **
-  Cert[] simpleReenroll(Str alias, Dict opts := EmptyDict())
+  Cert[] simpleReenroll(Str alias, Dict config)
   {
     uri := buildOperationUri("simplereenroll")
 
-    log.info("Re-enrolling certificate at: $uri")
+    log.info("Re-enrolling certificate (alias ${alias}) at: $uri")
 
     // Get a keystore containing the client certificate for this connection
     entry     := ks.get(alias) as PrivKeyEntry
     existing  := Crypto.cur.loadKeyStore.set("estClient", entry)
+    alg       := entry.priv.algorithm
+    keySize   := entry.priv.keySize
+    sigAlg    := config["sigAlgorithm"] as Str ?: "sha256WithRSAEncryption"
 
     socketConfig := SocketConfig.cur.copy {
       it.keystore = existing
@@ -198,18 +188,17 @@ const class CryptoEstClient
 
     try
     {
-      pair    := Crypto.cur.genKeyPair("RSA", 2048)
+      pair    := Crypto.cur.genKeyPair(alg, keySize)
       sans    := entry.cert.subjectAltNames
-      alg     := "sha512WithRSAEncryption"
-      csr     := Crypto.cur.genCsr(pair, entry.cert.subject, ["algorithm": alg, "subjectAltNames": sans])
+      csr     := Crypto.cur.genCsr(pair, entry.cert.subject, ["algorithm": sigAlg, "subjectAltNames": sans])
       chain   := enroll(client, csr)
 
-      installCert(alias, pair, chain)
+      installCert(alias, pair, chain, config)
       return chain
     }
     catch (Err e)
     {
-      log.err("Simple re-enrollment failed at $uri", e)
+      log.err("Simple re-enrollment (alias ${alias}) failed at $uri", e)
       throw e
     }
     finally
@@ -230,21 +219,90 @@ const class CryptoEstClient
     client.reqHeaders["Content-Transfer-Encoding"] = "base64"
     client.reqHeaders["Content-Length"] = csrBuf.size.toStr
 
+    debug("Enrolling CSR: uri=${client.reqUri}, Content-Length=${csrBuf.size}")
+    debug("CSR PEM (for inspection):\n${csr.toStr}")
+
     client.writeReq
     client.reqOut.writeBuf(csrBuf).close
     client.readRes
 
-    cert := handleEnrollResponse(client)
-    return getCaCerts.insert(0, cert)
+    cert   := handleEnrollResponse(client)
+    bundle := getCaCerts
+    return buildIssuanceChain(cert, bundle)
   }
 
-  private Void installCert(Str alias, KeyPair pair, Cert[] chain)
+  **
+  ** Build the issuance chain for the given end-entity certificate from the
+  ** cacerts bundle.  Walks subject/issuer links from the end-entity up to a
+  ** self-signed root, filtering out any rollover transition certificates
+  ** (OldWithNew / NewWithOld) that share the CA DN but are not part of the
+  ** actual issuance path.
+  **
+  ** When multiple self-signed roots share the same DN (CA key rollover in
+  ** progress) the newest root by notBefore date is preferred, since newly
+  ** issued certs will be signed by the new CA key.
+  **
+  ** Throws Err if the chain cannot be completed — e.g. the CA rolled its
+  ** key between the enrollment request and the /cacerts fetch, so the
+  ** issued cert's issuer is no longer represented.  Callers should retry.
+  **
+  private Cert[] buildIssuanceChain(Cert endEntity, Cert[] bundle)
   {
-    d := caLabel == null ? Etc.dict1("server", estServer) :
-                            Etc.dict2("server", estServer, "caLabel", caLabel)
+    chain   := Cert[endEntity]
+    current := endEntity
+    visited := Str[current.encoded.toBase64]
 
+    while (!current.isSelfSigned)
+    {
+      if (chain.size > 10)
+        throw Err("EST enrollment failed: certificate chain depth exceeded 10 levels")
+
+      issuerDn := current.issuer
+
+      // All bundle certs whose subject matches the current issuer DN,
+      // excluding certs already in the chain (cycle guard).
+      candidates := bundle.findAll |c|
+      {
+        c.subject == issuerDn && !visited.contains(c.encoded.toBase64)
+      }
+
+      if (candidates.isEmpty)
+        throw Err(
+          "EST enrollment failed: cannot build issuance chain from issued cert " +
+          "to a trust anchor — no cert found with subject DN '${issuerDn}' in " +
+          "the cacerts response.  The CA may be mid key-rollover; retry enrollment.")
+
+      // Prefer self-signed roots over intermediates and cross-signed certs.
+      // When two self-signed roots share the same DN (rollover), choose the
+      // newest (highest notBefore) since new certs are signed by the new key.
+      selfSignedRoots := candidates.findAll |c| { c.isSelfSigned && c.isCA }
+      Cert chosen := selfSignedRoots.isEmpty ?
+                      candidates.first :
+                      selfSignedRoots.max |a, b|
+                      {
+                        ((Date)a->notBefore).compare(b->notBefore)
+                      }
+
+      chain.add(chosen)
+      visited.add(chosen.encoded.toBase64)
+      current = chosen
+    }
+
+    return chain
+  }
+
+  private Dict parseConfig(Dict d)
+  {
+    Etc.dict4x("server", estServer,
+               "caLabel", caLabel,
+               "sigAlgorithm", d["sigAlgorithm"],
+               "renewalFreq", d["renewalFreq"])
+  }
+
+  private Void installCert(Str alias, KeyPair pair, Cert[] chain, Dict config)
+  {
     attrs := Str:Str[:]
-    attrs["1.3.6.1.4.1.65564.1"] = ZincWriter.valToStr(d)
+    attrs[CryptoEst.sfEstAttrOid] = ZincWriter.valToStr(parseConfig(config))
     crypto.setKey(alias, pair.priv, chain, attrs)
   }
 
@@ -311,8 +369,40 @@ const class CryptoEstClient
       throw EstPendingErr("Certificate request pending approval. Retry after: $retryAfter")
     }
 
-    // HTTP 4xx/5xx: Error
-    throw Err("Enrollment failed: HTTP ${client.resCode} ${client.resPhrase}")
+    // HTTP 4xx/5xx: Error - read the response body for the server's reason
+    errBody    := readErrBody(client)
+    contentType := client.resHeader("Content-Type", false)
+    wwwAuth    := client.resHeader("WWW-Authenticate", false)
+
+    // Build a detailed error message from all available context
+    msg := StrBuf()
+    msg.add("Enrollment failed: HTTP ${client.resCode} ${client.resPhrase}")
+    if (contentType != null) msg.add(" | Content-Type: $contentType")
+    if (wwwAuth    != null) msg.add(" | WWW-Authenticate: $wwwAuth")
+    if (errBody    != null) msg.add(" | Server response: $errBody")
+
+    log.err(msg.toStr)
+    throw Err(msg.toStr)
+  }
+
+  **
+  ** Safely read the response body for error reporting (max 2048 chars).
+  ** Returns null if the body is empty, unreadable, or binary.
+  **
+  private Str? readErrBody(WebClient client)
+  {
+    try
+    {
+      body := client.resIn.readAllStr
+      if (body.isEmpty) return null
+      // truncate to avoid flooding the log
+      return body.size > 2048 ? body[0..<2048] + "..." : body
+    }
+    catch (Err e)
+    {
+      // Body may already be consumed or be non-text — just ignore
+      return null
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -334,6 +424,18 @@ const class CryptoEstClient
       log.err("Failed to parse PKCS#7 certificates", e)
       throw Err("Invalid PKCS#7 certificate format", e)
     }
+  }
+
+  **
+  ** Check a non-200 response in getCaCerts and log the body
+  **
+  private Void checkCaCertsResponse(WebClient client)
+  {
+    if (client.resCode == 200) return
+    errBody := readErrBody(client)
+    msg := "CA certificates request failed: HTTP ${client.resCode} ${client.resPhrase}"
+    if (errBody != null) msg += " | Server response: $errBody"
+    throw Err(msg)
   }
 
 //////////////////////////////////////////////////////////////////////////

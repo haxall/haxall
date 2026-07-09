@@ -112,8 +112,7 @@ const class CryptoExt : ExtObj, ICryptoExt
 
   override Void onHouseKeeping()
   {
-    // TODO - Warning banner if https certificate is close to expiring
-    CryptoFuncs.checkForRenewals(this)
+    CryptoEst(this).checkForRenewals
   }
 }
 
