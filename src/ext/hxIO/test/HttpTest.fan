@@ -75,6 +75,11 @@ class HttpTest : HxTest
 
       // unsupported ref throws error
       verifyEvalErr("""ioHttp(`http://localhost:$port/echo`, "GET", {"X-Bad": @badRef}, null, (code, headers, body) => "ok")""", Err#)
+
+      // response header names are normalized to lower-case
+      Dict hRes := eval("""ioHttp(`http://localhost:$port/echo`, "GET", null, null, (code, headers, body) => headers)""")
+      verifyEq(hRes["x-echo-test"], "active")
+      verifyEq(hRes["X-Echo-Test"], null)
     }
     finally stopServer
   }
