@@ -35,16 +35,16 @@ const class FolioFuture : Future
   }
   private const AtomicRef timeoutRef := AtomicRef(30sec)
 
-  ** Get response value
-  @NoDoc override final Obj? get(Duration? timeout := null)
+  ** Get response value; timeout defaults to `timeout` field, pass null to block forever
+  @NoDoc override final Obj? get(Duration? timeout := this.timeout)
   {
     getRes(timeout).val
   }
 
-  ** Get FolioRes with given timeout or if null use default
-  @NoDoc FolioRes getRes(Duration? timeout := null)
+  ** Get FolioRes; timeout defaults to `timeout` field, pass null to block forever
+  @NoDoc FolioRes getRes(Duration? timeout := this.timeout)
   {
-    wraps.get(timeout ?: this.timeout)
+    wraps.get(timeout)
   }
 
   ** Get the result as one Dict.  If there is no results then
