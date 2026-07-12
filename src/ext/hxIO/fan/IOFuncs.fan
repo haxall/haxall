@@ -1002,7 +1002,7 @@ const class IOFuncs
   **
   ** The callback receives three arguments:
   **   - `code`: Number HTTP status code
-  **   - `headers`: Dict of response headers
+  **   - `headers`: Dict of response headers with names normalized to lower-case
   **   - `body`: response body I/O handle for streaming reads
   **
   ** Examples:
@@ -1055,7 +1055,9 @@ const class IOFuncs
       c.readRes
       resIn := c.resIn(false)
       Obj resBody := resIn != null ? resIn : Buf()
-      return fn.call(cx, Obj?[Number(c.resCode), Etc.makeDict(c.resHeaders), resBody])
+      resHeaders := Str:Str[:]
+      c.resHeaders.each |v, n| { resHeaders[n.lower] = v }
+      return fn.call(cx, Obj?[Number(c.resCode), Etc.makeDict(resHeaders), resBody])
     }
     finally c.close
   }

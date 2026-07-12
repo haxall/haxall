@@ -112,6 +112,12 @@ ioHttp(`https://api.acme.com/data`, "POST",
 A Ref header value resolves from the password store, keeping
 secrets out of code.
 
+Response `headers` names are normalized to lower-case (values are
+untouched), so lookups must use lower-case keys, e.g.
+`headers["content-type"]`. Dashes in header names still make them
+invalid tag names, so the headers Dict can't be used directly in
+a grid.
+
 # File Management and Zip
 
 ```axon
