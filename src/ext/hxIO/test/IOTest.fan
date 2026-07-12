@@ -346,13 +346,13 @@ class IOTest : HxTest
     eval("""ioWriteXeto([{n:"Brian", age:30yr}, {n:"Andy", bday:1980-01-31}], `io/foo.xeto`)""")
     verifyEq(projDir.plus(`io/foo.xeto`).readAllStr.trim,
       """Dict {
-           n: "Brian"
            age: Number 30yr
+           n: "Brian"
          }
 
          Dict {
-           n: "Andy"
            bday: Date 1980-01-31
+           n: "Andy"
          }""")
 
     // ioZipDir
