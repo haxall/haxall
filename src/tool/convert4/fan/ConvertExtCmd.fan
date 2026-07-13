@@ -98,7 +98,7 @@ internal class ConvertExtCmd : ConvertCmd
       case "doc":     return ext.meta["doc"] ?: "todo"
       case "depends": return resolveDepends(ext)
       case "libExt":  return ext.hasExt ? "libExt: $ext.specName" : ""
-      case "extSpec": return ext.hasExt ? "// $doc\n" + ext.specName + ": " + ext.specBase : ""
+      case "extSpec": return ext.hasExt ? resolveExtSpec(ext, doc) : ""
       default:        return null
     }
   }
@@ -109,9 +109,23 @@ internal class ConvertExtCmd : ConvertCmd
     addDepend(s, "sys")
     if (!ext.funcs.isEmpty)  addDepend(s, "axon", "hx")
     if (ext.libName != "hx") addDepend(s, "hx")
+    if (ext.isConn) addDepend(s, "hx.conn")
     if (ext.dependOnIon) addDepend(s, "ion")
     if (ext.dependOnRule) addDepend(s, "hx.rule", "skyspark")
     s.add("  }")
+    return s.toStr
+  }
+
+  private Str resolveExtSpec(AExt ext, Str doc)
+  {
+    s := StrBuf()
+    s.add("// $doc\n").add(ext.specName).add(": ").add(ext.specBase)
+    if (ext.isConn)
+    {
+      s.add(" <connFeatures: {")
+      encodeDictPairs(s, ext.connFeatures)
+      s.add("}>")
+    }
     return s.toStr
   }
 
