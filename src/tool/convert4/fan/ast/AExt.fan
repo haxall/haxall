@@ -89,9 +89,32 @@ class AExt
   const Dict meta
   const File xetoSrcDir
   const Str? specName
-  Str specBase() { type == AExtType.mod ? "SysExt" : "Ext" }
+  Str specBase() { type == AExtType.mod ? "SysExt" : (isConn ? "ConnExt" : "Ext") }
 
   Bool hasExt() { specName != null }
+
+  ** Return true if this ext depends on the conn framework (has ^lib:conn in depends)
+  Bool isConn()
+  {
+    depends := meta["depends"]
+    if (depends == null) return false
+    list := depends as Obj?[] ?: [depends]
+    return list.any |x| { x?.toStr == "lib:conn" }
+  }
+
+  ** Find the connFeatures dict from the def with is:^conn, or empty dict if not found
+  Dict connFeatures()
+  {
+    connDef := defs.find |d|
+    {
+      isTag := d["is"]
+      if (isTag == null) return false
+      list := isTag as Obj?[] ?: [isTag]
+      return list.any |x| { x?.toStr == "conn" }
+    }
+    if (connDef == null) return Etc.dict0
+    return connDef.get("connFeatures") as Dict ?: Etc.dict0
+  }
 
   Dict[] defs() { defsRef.ro }
   Bool[] used := Bool[,]
