@@ -174,6 +174,15 @@ Not including the entire certificate chain in the bundle can cause
 problems for some HTTP clients that don't automatically fetch
 intermediate certificate authorities.
 
+**Hot reload**: a restart is only required to *first enable* HTTPS
+(`httpsEnabled`/`httpsPort`). Once the HTTPS listener is running, any
+replacement of the `https` bundle — via `cryptoAddCert`, EST enroll,
+EST reenroll, or automatic EST renewal — hot-reloads the running web
+server immediately. The http ext logs "HTTPS certificate rotated" and
+rebuilds its socket config; no restart or connection disruption is
+needed. See [EST (Enrollment over Secure Transport)](#est) below for
+fully-automated, zero-downtime cert lifecycle management.
+
 # Certificate Bundle Order
 
 The order of bundles is important. It must start with the private
@@ -202,6 +211,89 @@ cryptoEntryRename({id:@alias-id, alias:"new-name"})
 cryptoEntryRename({id:@alias-id, alias:"copy", keep})
 ```
 
+# EST (Enrollment over Secure Transport) {#est}
+
+EST (RFC 7030) lets the runtime request and automatically renew
+certificates from a CA server over HTTPS. All EST funcs require su.
+
+## EST Functions
+
+**`cryptoEstGetCaCerts(server, opts)`** — fetch and inspect the CA
+certificate chain from the EST server without enrolling:
+
+```axon
+cryptoEstGetCaCerts(`https://est.example.com`)
+cryptoEstGetCaCerts(`https://est.example.com`, {caLabel:"myca"})
+```
+
+Returns a grid with a `certRole` column classifying each cert per
+RFC 4210: `root`, `intermediate`, `endEntity`; during a CA key
+rollover also `oldWithOld`, `newWithNew`, `newWithOld`, `oldWithNew`,
+or `rollover`.
+
+**`cryptoEstEnroll(dict)`** — enroll for a brand-new certificate:
+
+```axon
+// Enroll as the HTTPS server cert (alias defaults to "https")
+cryptoEstEnroll({
+  uri:         `https://est.example.com`,
+  subjectName: "CN=myhost.example.com",
+  sanDns:      "myhost.example.com,myhost",
+  renewalWindow: 30day
+})
+
+// Enroll with a custom alias and multiple SANs
+cryptoEstEnroll({
+  uri:         `https://est.example.com`,
+  subjectName: "CN=api.example.com",
+  alias:       "api-server",
+  sanDns:      "api.example.com",
+  sanIp:       "192.168.1.10",
+  username:    "enroll-user",
+  password:    cryptoAddCert("enroll-user", ...)
+})
+```
+
+Key parameters: `uri` (required), `subjectName` (required), at least
+one of `sanDns`/`sanIp`/`sanUri` (required), `alias` (default
+`https`), `caLabel`, `renewalWindow` (default 30d, clamped 1–180d),
+`sigAlgorithm` (default `sha256WithRSAEncryption`), `username`,
+`password`.
+
+**`cryptoEstReenroll(alias)`** — renew an existing EST-managed cert
+using mutual TLS (the current cert authenticates the request):
+
+```axon
+cryptoEstReenroll("https")
+cryptoEstReenroll("api-server")
+```
+
+## EST-Managed Entries
+
+After a successful enroll or reenroll the keystore entry carries an
+`estManaged` tag recording the EST config (server, caLabel,
+renewalWindow, sigAlgorithm). Find all managed entries:
+
+```axon
+cryptoReadAllKeys().filter(estManaged)
+```
+
+## Automatic Renewal
+
+The crypto ext runs housekeeping every 3 hours. Any `estManaged`
+entry whose expiration is within its `renewalWindow` is automatically
+reenrolled — the cert is renewed and installed without any manual
+action.
+
+## Hot Reload of HTTPS
+
+When EST enrolls or reenrolls the `https` alias (including via
+automatic renewal), the running HTTPS web server picks up the new
+certificate **immediately** — no restart required. The http ext logs
+"HTTPS certificate rotated" and rebuilds its TLS socket config in
+place. This makes EST the preferred approach for fully-automated,
+zero-downtime HTTPS certificate lifecycle management.
+
 # CLI Tool
 
 Before the runtime is running (bootstrap, offline installs), use
@@ -221,8 +313,9 @@ Import accepts p12/pfx/jks/fks keystores and PEM files.
 
 - Always cryptoCheckUri before cryptoTrustUri to see what you are
   about to trust
-- After trusting, re-open the affected conns; after changing the
-  `https` entry, restart the runtime
+- After trusting, re-open the affected conns; replacing the `https`
+  bundle hot-reloads the running web server — a restart is only needed
+  to *first enable* HTTPS (`httpsEnabled`/`httpsPort`)
 - Watch `notAfter` dates - expired certs produce the same errors as
   untrusted ones
 - The keystore password is fixed; file system permissions on
