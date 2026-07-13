@@ -37,6 +37,16 @@ const class FileExt : ExtObj, IFileExt
     }
     return MountFile(uri)
   }
+
+  ** Get a map of all the mount configurations keyed by mount uri. If creds
+  ** is true then also include the mount credentials in the result.
+  @NoDoc
+  virtual Uri:Dict mountConfigs(Bool creds := true)
+  {
+    acc := Uri:Dict[:]
+    root.mounts.each |m| { acc[m.mountPoint] = m.config }
+    return acc
+  }
 }
 
 **************************************************************************
