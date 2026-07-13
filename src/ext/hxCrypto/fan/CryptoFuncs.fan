@@ -247,6 +247,8 @@ const class CryptoFuncs
     alias := toAlias(rec->alias)
     from  := toAlias(rec.id)
     entry := ks.get(from, false) ?: throw Err("Entry with alias '$from' not found")
+    if (alias == "https" && entry isnot PrivKeyEntry)
+      throw Err("The 'https' alias requires an entry with a private key")
     if (ks.containsAlias(alias) && !rec["force"]) throw Err("Entry with alias $alias already exists. Use force option to overwrite.")
     ks.set(alias, entry)
     if (!rec["keep"]) ks.remove(from)
@@ -290,6 +292,10 @@ const class CryptoFuncs
 
     if (privKey == null)
     {
+      // https alias must be a usable server key with a private key
+      if (alias == "https")
+        throw Err("The 'https' alias requires a PEM that includes a private key")
+
       // trust a single cert
       if (chain.size != 1) throw Err("Must provide a single certificate to trust")
       ks.setTrust(alias, chain.first)
