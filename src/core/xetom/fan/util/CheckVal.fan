@@ -152,6 +152,10 @@ const class CheckVal
         onErr("Number $x must have unit of '$reqUnit'")
     }
 
+    // Int/Float require unitless value
+    if (meta.has("unitless") && unit != null)
+      onErr("Number $x must be unitless")
+
     quantity := meta["quantity"]
     if (quantity != null)
     {

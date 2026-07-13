@@ -137,6 +137,57 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Fidelity
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFidelity()
+  {
+    src :=
+    Str<|Foo: {
+           i: Int?
+           f: Float?
+           d: Duration?
+         }
+         |>
+    lib  := nsTest.compileTempLib(src)
+    spec := lib.spec("Foo")
+
+    // Haystack erases Int/Float/Duration to plain Number.  At full fidelity
+    // a bare Number does not fit these Number subtypes; at haystack fidelity
+    // it does.  A unit'd number still fails the Int/Float unitless constraint.
+    initContext(lib).asCur |cx|
+    {
+      // full fidelity: bare Number does not fit Int/Float
+      verifyFidelity(spec, ["i":n(1995)], null, [
+        "Slot 'i': Slot type is 'sys::Int', value type is 'sys::Number'"])
+      verifyFidelity(spec, ["f":n(72)], null, [
+        "Slot 'f': Slot type is 'sys::Float', value type is 'sys::Number'"])
+
+      // haystack fidelity: bare Number fits Int/Float/Duration
+      verifyFidelity(spec, ["i":n(1995)], "haystack", [,])
+      verifyFidelity(spec, ["f":n(72)], "haystack", [,])
+      verifyFidelity(spec, ["d":n(30, "min")], "haystack", [,])
+
+      // unitless still enforced even at haystack fidelity
+      verifyFidelity(spec, ["i":n(2020, "°C")], "haystack", [
+        "Slot 'i': Number 2020°C must be unitless"])
+      verifyFidelity(spec, ["f":n(72, "%")], "haystack", [
+        "Slot 'f': Number 72% must be unitless"])
+    }
+  }
+
+  Void verifyFidelity(Spec spec, Str:Obj tags, Str? opt, Str[] expect)
+  {
+    instance := toInstance(tags)
+    errs := XetoLogRec[,]
+    opts := logOpts("explain", errs)
+    if (opt != null) opts = Etc.dictSet(opts, opt, Marker.val)
+    fits := nsTest.fits(instance, spec, opts)
+    verifyErrs("Fidelity", instance, null, errs, expect)
+    verifyEq(fits, errs.isEmpty)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Strs
 //////////////////////////////////////////////////////////////////////////
 

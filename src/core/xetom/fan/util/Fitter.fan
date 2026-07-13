@@ -27,6 +27,7 @@ internal class Fitter
     this.opts = opts
     this.isGraph = opts.has("graph")
     this.ignoreRefs = opts.has("ignoreRefs")
+    this.fidelity = XetoUtil.optFidelity(opts)
     this.checkVal = CheckVal(opts)
     this.cx = cx
   }
@@ -115,6 +116,10 @@ internal class Fitter
 
     // if type is a non-sys scalar, then allow string
     if (type.isScalar && valType.qname == "sys::Str" && allowStrScalar(type)) return true
+
+    // Haystack fidelity erases Int/Float/Duration to plain Number, so a bare
+    // Number value fits any Number subtype slot; not allowed at full fidelity
+    if (fidelity.isHaystack && valType.qname == "sys::Number" && type.isa(valType)) return true
 
     // MultiRef may be either Ref or Ref[]
     if (type.isMultiRef)
@@ -476,6 +481,7 @@ internal class Fitter
   private const Dict opts
   private const Bool isGraph
   private const Bool ignoreRefs
+  private const XetoFidelity fidelity
   private const CheckVal checkVal
   private XetoContext cx
   private Str[] slotStack := [,]
