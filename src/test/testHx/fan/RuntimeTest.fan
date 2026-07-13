@@ -618,6 +618,39 @@ class RuntimeTest : HxTest
     return recs.list.find |r| { r.name == name } ?: throw Err("no rec: $name")
   }
 
+  ** A companion spec named "Funcs" collides with the synthetic +Funcs mixin
+  ** block used to hold companion funcs.  The duplicate spec is a whole-lib
+  ** failure whose error is not attributable to a single rec, so it must be
+  ** quarantined without bricking the rest of the companion lib.
+  @HxTestProj
+  Void testCompanionFuncsCollision()
+  {
+    addLib("ph")
+    specRef := Ref("sys::Spec")
+
+    // a good spec and a good func establish a working companion lib.  The
+    // func is significant: companion funcs are wrapped in a synthetic +Funcs
+    // mixin block, so once any func exists the lib contains a "Funcs" spec.
+    proj.companion.add(d(["rt":"spec", "name":"Good1", "base":Ref("sys::Dict"), "spec":specRef]))
+    proj.companion.add(d(["rt":"func", "name":"goodFunc", "base":Ref("sys::Func"), "spec":specRef]))
+    verifyRecOk("Good1")
+    verifyRecOk("goodFunc")
+
+    // now add a spec literally named "Funcs".  Left to the parser this would
+    // collide with the synthetic +Funcs mixin ("Duplicate spec 'Funcs'"), an
+    // order-dependent whole-lib failure that quarantines whichever colliding
+    // rec parsed first.  The compiler rejects the reserved name up front so the
+    // offending Funcs rec is deterministically quarantined and everything else
+    // still loads.
+    proj.companion.add(d(["rt":"spec", "name":"Funcs", "base":Ref("sys::Funcs"), "spec":specRef, "mixin":Marker.val]))
+
+    verifyRecErr("Funcs")
+    verifyRecOk("Good1")
+    verifyRecOk("goodFunc")
+    verifyNotNull(proj.companion.lib.funcs.get("goodFunc", false))
+    verifyEq(proj.companion.lib.spec("Good1", false)?.name, "Good1")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////

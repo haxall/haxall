@@ -42,6 +42,15 @@ internal class CompanionCompiler
     // every rec starts ok for this fresh compile
     recs.reset
 
+    // reject recs that use a reserved name before they reach the parser; e.g.
+    // a spec named "Funcs" would collide with the synthetic +Funcs mixin that
+    // holds companion funcs, an order-dependent whole-lib failure (see below)
+    recs.each |rec|
+    {
+      if (rec.name == "Funcs")
+        rec.setErr([CompanionRecErr("Reserved companion spec name 'Funcs'", rec.loc)])
+    }
+
     // loop until we have quarantined all bad recs
     while (true)
     {
