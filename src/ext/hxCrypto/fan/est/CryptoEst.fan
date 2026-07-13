@@ -35,6 +35,15 @@ const class CryptoEst
   ** Oid to store EST Config as PKCS12 Attribute 
   static const Str sfEstAttrOid := "1.3.6.1.4.1.65564.1.1"
 
+  ** Minimum renewalWindow
+  static const Number minRenewalWindow := Number(1f, Number.day)
+
+  ** Maximum renewalWindow
+  static const Number maxRenewalWindow := Number(180f, Number.day)
+
+  ** Default renewalWindow
+  static const Number defRenewalWindow := Number(30f, Number.day)
+
 //////////////////////////////////////////////////////////////////////////
 // CA Certificates
 //////////////////////////////////////////////////////////////////////////
@@ -229,7 +238,7 @@ const class CryptoEst
   **      - subjectName (required): Str Certificate subject DN (e.g., "CN=device.example.com")
   **      - alias: Str Keystore alias (https if not specified)
   **      - caLabel: Str CA Label for multiple-CA servers
-  **      - renewalFreq: Number of days to renew certificate (default 30)
+  **      - renewalWindow: Number of days before expiration to renew certificate (default 30)
   **      - sanDns: Comma separated Str of DNS subject alternative name values
   **      - sanIp: Comma separated Str of IP subject alternative name values
   **      - sanUri: Comma separated Str of Uri subject alternative name values
@@ -318,12 +327,11 @@ const class CryptoEst
     estManaged := rows.findAll |k| { k.has("estManaged") }
     estManaged.each |k|
     {
-      today       := DateTime.now.date
-      expiration  := (Date)k["notAfter"]
-      config      := (Dict)k["estManaged"]
-      numDays     := (config["renewalFreq"] as Number)?.toInt ?: 30
-      renewalFreq := 1day * numDays
-      if (expiration.minusDate(today) <= renewalFreq)
+      today         := DateTime.now.date
+      expiration    := (Date)k["notAfter"]
+      config        := (Dict)k["estManaged"]
+      renewalWindow := ((config["renewalWindow"] as Number) ?: defRenewalWindow).toDuration
+      if (expiration.minusDate(today) <= renewalWindow)
       {
         alias  := k["alias"]
         server := config["server"]

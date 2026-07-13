@@ -296,7 +296,14 @@ const class CryptoEstClient
     Etc.dict4x("server", estServer,
                "caLabel", caLabel,
                "sigAlgorithm", d["sigAlgorithm"],
-               "renewalFreq", d["renewalFreq"])
+               "renewalWindow", toRenewalWindow(d["renewalWindow"]))
+  }
+
+  ** Coerce incoming unitless Number of days into a clamped day-unit Number for storage
+  private static Number toRenewalWindow(Obj? val)
+  {
+    raw := (val as Number) ?: CryptoEst.defRenewalWindow
+    return Number(raw.toFloat, Number.day).clamp(CryptoEst.minRenewalWindow, CryptoEst.maxRenewalWindow)
   }
 
   private Void installCert(Str alias, KeyPair pair, Cert[] chain, Dict config)
