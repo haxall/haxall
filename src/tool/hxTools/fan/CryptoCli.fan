@@ -156,6 +156,9 @@ internal class CryptoCli : HxCli
       alias = cert.subject[3..<comma].replace(" ","").lower
     }
 
+    if (alias == "https")
+      exitErr("The 'https' alias requires a private key; use 'add' instead of 'trust'")
+
     ks := keystore
     certs.each |cert, i|
     {
@@ -282,6 +285,8 @@ internal class CryptoCli : HxCli
     if (ks.containsAlias(to) && !force) return info("Entry with alias '$to' already exists. Use -force option to rename")
 
     entry := ks.get(alias)
+    if (to == "https" && entry isnot PrivKeyEntry)
+      exitErr("The 'https' alias requires an entry with a private key")
     ks.set(to, entry)
     if (!keep) ks.remove(alias)
 
