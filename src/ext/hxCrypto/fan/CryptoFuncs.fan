@@ -171,7 +171,7 @@ const class CryptoFuncs
 
     hidden := Etc.dict1("hidden", Marker.val)
 
-    return input.reorderCols(cols).addColMeta("id", hidden).addColMeta("subjectAltNames", hidden)
+    return input.reorderCols(cols).addColMeta("id", hidden).addColMeta("subjectAltNames", hidden).addColMeta("estManaged", hidden)
   }
 
   ** Attempt to sort the certificate chain from Root to End Entity.
@@ -417,7 +417,7 @@ const class CryptoFuncs
   **      - subjectName (required): Str Certificate subject DN (e.g., "CN=device.example.com")
   **      - alias: Str Keystore alias (https if not specified)
   **      - caLabel: Str CA Label for multiple-CA servers
-  **      - renewalFreq: Number of days to renew certificate (default 30)
+  **      - renewalWindow: Number of days before expiration to renew certificate (default 30)
   **      - sanDns: Comma separated Str of DNS subject alternative name values
   **      - sanIp: Comma separated Str of IP subject alternative name values
   **      - sanUri: Comma separated Str of Uri subject alternative name values
