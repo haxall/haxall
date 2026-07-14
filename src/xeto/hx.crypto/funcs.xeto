@@ -48,6 +48,6 @@
 
   cryptoEstEnroll: Func <nodoc, su> { dict: Obj, returns: Grid }
 
-  cryptoEstReenroll: Func <nodoc, su> { alias: Str, opts: Dict?, returns: Grid }
+  cryptoEstReenroll: Func <nodoc, su> { alias: Str, returns: Grid }
 
 }
