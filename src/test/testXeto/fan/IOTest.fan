@@ -108,6 +108,15 @@ class IOTest : AbstractXetoTest
       ])
     g = g.addColMeta("dis", ["disMeta":m])
     verifyIO(g)
+
+    // grid nested as dict tag value (subject envelope pattern)
+    env := dict(["sni":"/db/ph::Equip", "spec":Ref("sys::Collection"), "data":g])
+    buf := Buf()
+    ns.io.writeBinary(buf.out, env)
+    Dict envx := ns.io.readBinary(buf.flip.in)
+    verifyEq(envx->sni, "/db/ph::Equip")
+    verifyEq(envx->spec, Ref("sys::Collection"))
+    verifyGridEq(envx->data, g)
   }
 
   Obj? verifyIO(Obj? val)
