@@ -316,6 +316,16 @@ g.addColMeta("c", {dis:"Col"})    // column-level meta
 g.unique("dis")                   // unique by column
 ```
 
+Column names must be valid tag names (start lowercase, alphanumerics
+only) - `toGrid` raises "Invalid col name" otherwise. When pivoting
+display strings into columns, sanitize the key with `toTagName` and
+attach the label as column meta:
+
+```axon
+key: site.dis.toTagName             // "Cary Town" -> "caryTown"
+g.addColMeta(key, {dis:site.dis})   // human label for the column
+```
+
 ## Dates and Times
 
 ```axon
