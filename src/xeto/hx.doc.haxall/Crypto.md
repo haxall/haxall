@@ -86,6 +86,27 @@ procedure:
   1. In the dialog specify the alias for the key/cert bundle (e.g. `https`)
   1. Then paste in the PEM encoding of your private key and certificate chain
 
+NOTE: The order of the PEM is important. It must start with the private key, then the server certificate,
+then each Intermediate CA (if any), and end with the Root CA.
+
+# Enrollment over Secure Transport
+Automated certificate lifecycle management via Enrollment over Secure Transport (EST) specified in RFC 7030, lets servers enroll
+for, and automatically renew, TLS certificates from an EST-capable Certificate Authority instead of manually importing PEMs.
+
+In SkySpark you can enroll and setup automatic renewal through the UI using this procedure:
+
+  1. Go to the `Host` app
+  1. Select the `Crypto` view
+  1. Click the `EST Enroll` button
+  1. In the dialog specify the properties of the EST-capable CA and certificate including the alias (e.g. `https`)
+  1. The certificate that gets issued by the CA will be displayed in the UI
+
+Moving forward, the server will automatically renew the certificate before it expires based on the renewalWindow specified
+during enrollment (default 30 days). All certificate properties (CN, SAN, etc.) are reused for each renewal.
+
+NOTE: Web browsers typically use the Subject Alternative Name (SAN) property of a certificate for name validation so include at least
+one SAN (sanDns, sanIp, or sanUri) when requesting the certificate.
+
 # Trusted Certificates
 Haxall maintains its own trust store for trusted certificates. By default,
 the trust store includes every trusted certificate in the Java environment. If
