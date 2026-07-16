@@ -270,6 +270,7 @@ notification as soon as a new spark is detected.
 Sparks observations include the following tags:
   - `type`: "obsSparks"
   - `ts`: DateTime when spark detected
+  - `silenced`: Marker if the spark is currently silenced
   - `spark`: Dict of spark
 
 These are the config tags:
