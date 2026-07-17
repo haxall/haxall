@@ -426,6 +426,8 @@ class DocHtmlWriter : WebOutStream
       if (first) first = false
       else w(", ")
       fantomSig(p).sp.esc(p.name)
+      def := p.meta.getStr("fanDef")
+      if (def != null) w(" := ").esc(def)
     }
     w(")")
   }
