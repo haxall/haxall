@@ -35,6 +35,9 @@ Lists:
 [4, "four", null]  // mixed types
 ```
 
+There is no keyed list literal - `[a:1, b:2]` is an error. Use a
+dict for keyed data, or `list.index()` to build a lookup.
+
 Dicts:
 
 ```axon
@@ -166,6 +169,7 @@ end
 
 ```axon
 // if/else (is an expression that returns a value)
+// there is no ternary operator - cond ? a : b is a syntax error
 if (x > 0) "pos" else "non-pos"
 
 // multi-line if/else
@@ -248,6 +252,9 @@ geo::geoTz(val)
 "root toot".replace("oo", "a")  >>  "rat tat"
 ```
 
+A dollar sign in a Str literal is reserved for interpolation (which
+is not supported) - escape it as `"\$"`.
+
 There is no `Str()` constructor - use `toStr`. Triple-quote
 continuation lines must indent to the column past the opening `"""`,
 so prefer `\n` escapes or `lines.concat("\n")` to build multi-line
@@ -278,6 +285,7 @@ list.find(x => x > 10)    // first match
 list.any(x => x > 0)      // any match?
 list.all(x => x > 0)      // all match?
 list.fold(sum)            // reduce
+list.fold(max)            // max/min are fold funcs, not list.max
 list.sort((a,b) => a.dis <=> b.dis)  // custom sort
 ```
 
@@ -315,6 +323,10 @@ g.addMeta({title:"Sites"})        // grid-level meta
 g.addColMeta("c", {dis:"Col"})    // column-level meta
 g.unique("dis")                   // unique by column
 ```
+
+`dis` is a computed display value, not a stored column - `r->dis` and
+`g.colToList("dis")` throw UnknownNameErr. Use the `dis()` function
+(`r.dis`), or `.toRecList` and read tags off the rec dicts.
 
 Column names must be valid tag names (start lowercase, alphanumerics
 only) - `toGrid` raises "Invalid col name" otherwise. When pivoting

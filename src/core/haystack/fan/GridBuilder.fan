@@ -57,7 +57,7 @@ class GridBuilder
   This addCol(Str name, Obj? meta := null)
   {
     if (colsByName != null) throw Err("Cannot add cols after adding rows")
-    if (!Etc.isTagName(name)) throw ArgErr("Invalid col name: $name")
+    if (!Etc.isTagName(name)) throw ArgErr("Invalid col name: $name (must be valid tag name, see Etc.toTagName)")
     cols.add(GbCol(cols.size, name, Etc.makeDict(meta)))
     return this
   }

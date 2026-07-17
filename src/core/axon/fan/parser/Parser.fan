@@ -40,7 +40,7 @@ class Parser
   Expr parse()
   {
     r := cur === Token.defcompKeyword ? defcomp("top", Etc.dict0) : expr
-    if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
+    verifyEof
     return r
   }
 
@@ -49,7 +49,7 @@ class Parser
   {
     curName = name
     fn := lambdaBody(curLoc, params, meta)
-    if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
+    verifyEof
     return fn
   }
 
@@ -74,7 +74,7 @@ class Parser
       fn = lambdaBody(loc, params, meta)
     }
 
-    if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
+    verifyEof
     return fn
   }
 
@@ -89,7 +89,7 @@ class Parser
       consume
       acc.add(expr)
     }
-    if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
+    verifyEof
     bindInnersToOuter(top)
     return acc
   }
@@ -157,6 +157,7 @@ class Parser
   {
     if (cur === Token.semicolon) { consume; return }
     if (nl) return
+    if (cur === Token.question) throw ternaryErr
     throw err("Expecting newline or semicolon, not $curToStr")
   }
 
@@ -289,6 +290,7 @@ class Parser
     while (true)
     {
       val := expr
+      if (val.type === ExprType.def || cur === Token.colon) throw err("List cannot contain ':' pairs (use dict {key:val})", val.loc)
       acc.add(val)
       if (!val.isConst) allValsConst = false
       if (cur !== Token.comma) break
@@ -920,8 +922,19 @@ class Parser
 
   protected Void verify(Token expected)
   {
-    if (cur != expected) throw err("Expected $expected, not $curToStr")
+    if (cur == expected) return
+    if (cur === Token.question) throw ternaryErr
+    throw err("Expected $expected, not $curToStr")
   }
+
+  private Void verifyEof()
+  {
+    if (cur === Token.eof) return
+    if (cur === Token.question) throw ternaryErr
+    throw err("Expecting end of file, not $cur ($curVal)")
+  }
+
+  private SyntaxErr ternaryErr() { err("Ternary '?:' operator not supported (use if/else)") }
 
   private Str curToStr()
   {

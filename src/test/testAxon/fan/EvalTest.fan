@@ -349,6 +349,11 @@ class EvalTest : AxonTest
     verifyEval("2 + (if (true) 3 else 5)", n(5))
     verifyEval("2 + (if (false) 3 else 5)", n(7))
 
+    // no ternary operator
+    verifySyntaxErr("true ? 4 : 5")
+    verifySyntaxErr("x: true ? 4 : 5")
+    verifySyntaxErr("f(true ? 4 : 5)")
+
     // with ends
     verifyBlock(
       """f: (i) => do
@@ -471,6 +476,9 @@ class EvalTest : AxonTest
     verifySyntaxErr("[")
     verifySyntaxErr("[3")
     verifySyntaxErr("[3,")
+    verifySyntaxErr("[a:1]")
+    verifySyntaxErr("[a:1, b:2]")
+    verifySyntaxErr(Str<|["a b":1]|>)
   }
 
   Void testDicts()

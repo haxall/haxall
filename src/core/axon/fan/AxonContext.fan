@@ -304,7 +304,7 @@ abstract class AxonContext : HaystackContext, CompContext
   internal Obj? def(Str name, Obj? val, FileLoc loc)
   {
     f := stack.last
-    if (f.has(name)) throw EvalErr("Symbol already bound '$name'", this, loc)
+    if (f.has(name)) throw EvalErr("Symbol already bound '$name' (use = to reassign)", this, loc)
     return f.set(name, val)
   }
 

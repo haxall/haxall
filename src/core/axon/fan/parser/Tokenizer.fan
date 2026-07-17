@@ -223,7 +223,7 @@ class Tokenizer
     {
       ch := cur
       if (ch == '"') { consume; break }
-      if (ch == '$') throw err("String interpolation not supported yet")
+      if (ch == '$') throw err("String interpolation not supported (use \\\$ to escape)")
       if (ch == 0 || ch == '\n') throw err("Unexpected end of str")
       if (ch == '\\') { s.addChar(escape); continue }
       consume
@@ -242,7 +242,7 @@ class Tokenizer
     while (true)
     {
       ch := cur
-      if (ch == '$') throw err("String interpolation not supported yet")
+      if (ch == '$') throw err("String interpolation not supported (use \\\$ to escape)")
       if (ch == 0) throw err("Unexpected end of str")
       if (ch == '\\') { s.addChar(escape); continue }
       if (ch == '"')
@@ -324,7 +324,7 @@ class Tokenizer
     {
       ch := cur
       if (ch == '`') { consume; break }
-      if (ch == '$') throw err("String interpolation not supported yet")
+      if (ch == '$') throw err("String interpolation not supported (use \\\$ to escape)")
       if (ch == 0 || ch == '\n') throw err("Unexpected end of uri")
       if (ch == '\\')
       {
