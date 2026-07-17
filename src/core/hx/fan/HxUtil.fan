@@ -203,7 +203,7 @@ const class HxUtil
 // Process & Threads
 //////////////////////////////////////////////////////////////////////////
 
-  ** Process id or null if cannot be determined
+  ** Process id of this VM process or null if cannot be determined
   static Int? pid() { HxThreadDump.pid }
 
   ** Current thread id

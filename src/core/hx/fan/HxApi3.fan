@@ -15,6 +15,7 @@ using folio
 **
 ** Base class for Haxall 3.x style HTTP API operation processing
 **
+@NoDoc
 abstract class HxApiOp
 {
   ** Subclasses must declare public no-arg constructor
@@ -768,3 +769,4 @@ internal class HxFileOp : HxApiOp
     }
   }
 }
+

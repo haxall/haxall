@@ -47,8 +47,8 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Xeto namespace
   abstract Namespace ns()
 
-  ** Definition namespace
-  abstract DefNamespace defs()
+  ** Definition namespace - deprecated
+  @NoDoc abstract DefNamespace defs()
 
   ** CompContext current time
   override once DateTime now() { DateTime.now(null) }
