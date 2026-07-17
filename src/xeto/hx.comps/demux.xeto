@@ -8,7 +8,7 @@
 
 // TODO:FIXIT - icons and groups for everything
 
-// A digital input demultiplexer
+// Digital input demultiplexer
 DigitalInputDemux: HxComp {
   // The input
   in: StatusNumber? <summary, transient>

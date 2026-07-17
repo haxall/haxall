@@ -6,6 +6,7 @@
 //   23 Jun 2025  Matthew Giannini  Creation
 //
 
+// The base spec for all constant components
 Const: HxComp <abstract>
 
 // Boolean constant

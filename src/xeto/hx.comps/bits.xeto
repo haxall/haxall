@@ -8,7 +8,7 @@
 
 // TODO:FIXIT - icons and groups for everything
 
-// A bit-wise masking operation
+// Bit-wise masking operation
 BitMask: HxComp <abstract> {
   // The input number
   in: StatusNumber? <summary, transient>

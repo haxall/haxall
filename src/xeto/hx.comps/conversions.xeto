@@ -8,6 +8,7 @@
 
 // TODO:FIXIT - icons and groups for everything
 
+// The base spec for all conversion components
 Conversion: HxComp <abstract>
 
 // Convert a Bool value to a StatusBool

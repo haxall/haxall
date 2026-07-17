@@ -28,6 +28,7 @@ SineWave: HxComp {
   freq: Duration <minVal:1sec> 1sec
 }
 
+// The output of this component generates a ramp waveform.
 Ramp: HxComp {
   // The computed ramp value
   out: StatusNumber <summary, transient, readonly, output>
@@ -48,13 +49,14 @@ Ramp: HxComp {
   waveform: RampWaveform "triangle"
 }
 
+// Waveforms available to the Ramp component.
 RampWaveform: Enum {
   triangle
   sawtooth
   invertedSawtooth
 }
 
-// A component that evaluates an Axon expression
+// Component that evaluates an Axon expression
 AxonComp : HxComp {
   axon: Str
 }

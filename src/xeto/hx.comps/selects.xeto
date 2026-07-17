@@ -8,6 +8,8 @@
 
 // TODO:FIXIT - icons and groups for everything
 
+// A select sets its output to one of its inputs based on the
+// current value of the `select` slot.
 ValSelect: HxComp <abstract> {
   // The index of the input to select. If the value is greater than `numInputs`
   // then the maximum active input will be selected.
@@ -55,7 +57,7 @@ ValSelect: HxComp <abstract> {
   numInputs: Int <minVal:3, maxVal:10> 3
 }
 
-// A Bool select
+// Bool select
 BoolSelect: ValSelect {
   // Input A
   inA: StatusStr? <summary>
@@ -88,7 +90,7 @@ BoolSelect: ValSelect {
   inJ: StatusStr?
 }
 
-// A Number select
+// Number select
 NumberSelect: ValSelect {
   // Input A
   inA: StatusNumber? <summary>
@@ -121,7 +123,7 @@ NumberSelect: ValSelect {
   inJ: StatusNumber?
 }
 
-// A Str select
+// Str select
 StrSelect: ValSelect {
   // Input A
   inA: StatusStr? <summary>

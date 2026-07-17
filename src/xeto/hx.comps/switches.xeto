@@ -8,7 +8,7 @@
 
 // TODO:FIXIT - icons and groups for everything
 
-// A switch selectes one of two inputs based on the current value of the `inSwitch` slot.
+// A switch selects one of two inputs based on the current value of the `inSwitch` slot.
 ValSwitch: HxComp <abstract> {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
@@ -24,7 +24,7 @@ ValSwitch: HxComp <abstract> {
   out: StatusVal? <summary, transient, readonly, output>
 }
 
-// A Bool switch
+// Bool switch
 BoolSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
@@ -40,7 +40,7 @@ BoolSwitch: ValSwitch {
   out: StatusBool? <summary, transient, readonly, output>
 }
 
-// A Number switch
+// Number switch
 NumberSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
@@ -56,7 +56,7 @@ NumberSwitch: ValSwitch {
   out: StatusNumber? <summary, transient, readonly, output>
 }
 
-// A Str switch
+// Str switch
 StrSwitch: ValSwitch {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`

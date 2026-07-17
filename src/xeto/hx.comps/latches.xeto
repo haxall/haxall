@@ -10,7 +10,7 @@
 // Does clock need to be nullable - is that a different semantic?
 
 
-// A "rising-edge" latch
+// "Rising-edge" latch
 Latch: HxComp <abstract> {
   // When the clock transitions from false to true it will cause
   // out to be set to current value of in.
@@ -24,19 +24,19 @@ Latch: HxComp <abstract> {
   out: StatusVal? <summary, transient, readonly, output>
 }
 
-// A Bool latch
+// Bool latch
 BoolLatch: Latch {
   in: StatusBool?
   out: StatusBool?
 }
 
-// A Number latch
+// Number latch
 NumberLatch: Latch {
   in: StatusNumber?
   out: StatusNumber?
 }
 
-// A Str latch
+// Str latch
 StrLatch: Latch {
   in: StatusStr?
   out: StatusStr?
