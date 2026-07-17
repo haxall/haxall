@@ -192,6 +192,7 @@ class AbstractFolioTest : HaystackTest
 **
 ** FolioTestImpl plugs a specific Folio implementation into AbstractFolioTest
 **
+@NoDoc
 abstract class FolioTestImpl
 {
   ** Dump implementations installed
