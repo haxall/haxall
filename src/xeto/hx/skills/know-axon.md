@@ -450,6 +450,11 @@ unitdb().findAll(r => r->quantity == "energy")  // units for a quantity
 tzdb()                                       // grid of all timezones: name, fullName
 ```
 
+Unit literals must use the symbol (not the name) from the unit database: `70°F`
+works but `70degF` throws "Invalid unit name.  Escape sequences only exist
+inside Str literals, so a degree sign written as a `\u00b0` escape fails
+too - use the actual `°` character.
+
 Unit arithmetic rules:
 - Same units: `12kg + 5kg` >> `17kg`
 - Null unit carries: `12kg + 5` >> `17kg`
