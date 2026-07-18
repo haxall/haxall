@@ -32,6 +32,19 @@ class ParseTest : Test
     verifyExprErr("x x")
   }
 
+  Void testLiteralTermBase()
+  {
+    // list/dict literals can appear as operand of unary and as base of term chain
+    verifyParse("not [1, 2, 3].contains(2)")
+    verifyParse("[1, 2, 3].size")
+    verifyParse("{a, b}.has(\"a\")")
+  }
+
+  Void verifyParse(Str s)
+  {
+    verifyNotNull(Parser(s.in).parse)
+  }
+
   Void verifyExpr(Str s)
   {
     e := Parser(s.in).parse

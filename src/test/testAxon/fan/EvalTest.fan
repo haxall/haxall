@@ -127,6 +127,13 @@ class EvalTest : AxonTest
     verifyAst("not x", Str<|{type:"not", operand:{type:"var", name:"x"}}|>)
     verifyAst("x and y", Str<|{type:"and", lhs:{type:"var", name:"x"}, rhs:{type:"var", name:"y"}}|>)
 
+    // list/dict literal as operand of unary not and base of term chain
+    verifyEval(Str<|not ["dog", "cat", "cow"].contains("dog")|>, false)
+    verifyEval(Str<|not ["dog", "cat", "cow"].contains("fish")|>, true)
+    verifyEval(Str<|not (["dog", "cat", "cow"]).contains("dog")|>, false)
+    verifyEval(Str<|not {a, b}.has("a")|>, false)
+    verifyEval(Str<|not {a, b}.has("c")|>, true)
+
     verifyErr(EvalErr#) { eval("true and \"foo\"") }
     verifyErr(EvalErr#) { eval("false or \"foo\"") }
     verifyErr(EvalErr#) { eval("true and 1") }

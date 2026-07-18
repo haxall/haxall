@@ -120,8 +120,6 @@ class Parser
     }
     if (cur === Token.doKeyword)     return doBlock
     if (cur === Token.ifKeyword)     return ifExpr
-    if (cur === Token.lbracket)      return termExpr(list)
-    if (cur === Token.lbrace)        return termExpr(dict)
     if (cur === Token.returnKeyword) return returnExpr
     if (cur === Token.throwKeyword)  return throwExpr
     if (cur === Token.tryKeyword)    return tryCatchExpr
@@ -519,9 +517,11 @@ class Parser
   **
   private Expr termBase()
   {
-    if (cur === Token.lparen) return parenExpr
-    if (cur === Token.val)    return Literal(consumeVal)
-    if (cur === Token.id)     return termId
+    if (cur === Token.lparen)   return parenExpr
+    if (cur === Token.lbracket) return list
+    if (cur === Token.lbrace)   return dict
+    if (cur === Token.val)      return Literal(consumeVal)
+    if (cur === Token.id)       return termId
     if (cur === Token.typename) return termTypename
     if (cur === Token.trueKeyword)  { consume; return Literal.trueVal }
     if (cur === Token.falseKeyword) { consume; return Literal.falseVal }
