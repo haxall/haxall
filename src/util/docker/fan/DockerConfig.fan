@@ -32,8 +32,12 @@ const class DockerConfig
   ** The docker daemon Uri
   const Str daemonHost := isWin ? defWinDaemonHost : defUnixDaemonHost
 
-  ** Version of the docker API to use
-  const Version apiVer := Version("1.41")
+  ** Version of the docker API to use.
+  **
+  ** Docker Engine 29 removed support for API versions below 1.44, and the
+  ** daemon rejects versions newer than it supports. 1.44 is in the supported
+  ** window of every engine from 25.0 up through 29.x.
+  const Version apiVer := Version("1.44")
 
   ** Registry username
   const Str? registryUsername

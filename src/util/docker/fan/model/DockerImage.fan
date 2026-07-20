@@ -29,9 +29,12 @@ const class DockerImage : DockerObj
 
   const Int size
 
-  const Int sharedSize
+  ** Only populated if the list images command requested it, otherwise -1
+  const Int sharedSize := -1
 
-  const Int virtualSize
+  ** Deprecated in API 1.43 and omitted by the daemon as of 1.44
+  @Deprecated
+  const Int? virtualSize
 
   const Str:Str labels
 

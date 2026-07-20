@@ -37,6 +37,12 @@ class ListImagesCmd : DockerJsonCmd
   ** Set the [showDigests] and return this
   This withShowDigests(Bool showDigests) { this.showDigests = showDigests; return this }
 
+  ** Compute and populate the [DockerImage.sharedSize] field on each image
+  @JsonIgnore
+  Bool sharedSize := false { private set }
+  ** Set the [sharedSize] and return this
+  This withSharedSize(Bool sharedSize) { this.sharedSize = sharedSize; return this }
+
 //////////////////////////////////////////////////////////////////////////
 // DockerJsonCmd
 //////////////////////////////////////////////////////////////////////////
@@ -46,7 +52,8 @@ class ListImagesCmd : DockerJsonCmd
     query := Str:Str[:]
     if (showAll) query["all"] = "true"
     if (filters != null) query["filters"] = filters
-    if (showDigests) query["showDigests"] = "true"
+    if (showDigests) query["digests"] = "true"
+    if (sharedSize) query["shared-size"] = "true"
     return `/images/json`.plusQuery(query)
   }
 
