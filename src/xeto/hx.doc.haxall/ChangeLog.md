@@ -6,7 +6,32 @@ copyright:  Copyright (c) 2021, SkyFoundry LLC
 license:    Licensed under the Academic Free License version 3.0
 -->
 
-*Build 4.0.6 (working)*
+*Build 4.0.6 (21 Jul 2026)*
+- Companion lib now supports partial compilation to quarantine err recs
+- Replace legacy JS compiler with new ES compiler
+- Fantom docs now fully converted to markdown
+- Cloning support for companion rt recs and spec filters, improved -> checks
+- Mixins can now be declared across multiple source files within a lib
+- XetoEnv now correctly uses var as workDir for pathing
+- Xeto local repo now supports only one version
+- Xeto remote repo configuration
+- Xeto remote install/update support
+- Spec validation takes into account mixins
+- New hx.repo for remote repo management and installation
+- Xeto spec rename `fixed` meta to `invariant`
+- Comp methods now use implicit this parameter
+- Rename Xeto base type Seq to Collection
+- New ph.elec lib groups all elec points
+- Replace axon::Loc with util::FileLoc
+- Removed `id` option from Namespace instantiate
+- New ioHttp func
+- Make -noAuth boot and cli flag only applicable for loopback address
+- New -console flag to enter interactive console on boot
+- Move projSync() to hx lib
+- New EST client (RFC 7030) for TLS certificate automation
+- The https alias can no longer be set without a private key
+- Update docker client to use minimum version required by docker desktop (1.44)
+- Fantom Client methods eval/call widened to use Obj instead of Grid
 
 *Build 4.0.5 (18 Feb 2026)*
 - New Xeto based documentation
