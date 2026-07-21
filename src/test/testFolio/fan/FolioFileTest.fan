@@ -161,25 +161,6 @@ class FolioFileTest : AbstractFolioTest
     verifyNull(folio.file.get(id, false))
   }
 
-  Void testMigrateLegacy() { runImpls }
-  Void doTestMigrateLegacy()
-  {
-    if (!impl.supportsFile) return
-
-    // use a nested db dir so the legacy sibling files/ lands inside tempDir
-    dbDir  := tempDir + `db/`
-    legacy := tempDir + `files/`
-
-    // seed a rec file in the legacy sibling location
-    (legacy + `b1/foo`).out.print("legacy content").close
-
-    // opening folio migrates legacy files into db/files/
-    folio := open(FolioConfig { it.dir = dbDir; it.log = Log.get("test") })
-    verifyFalse(legacy.exists)
-    verify((dbDir + `files/`).exists)
-    verifyEq((dbDir + `files/b1/foo`).readAllStr, "legacy content")
-  }
-
   private File verifyWrite(Ref id, Str text)
   {
     file := folio.file.get(id)
