@@ -112,6 +112,12 @@ class HaystackDispatch : ConnDispatch
     openClient.call(op, req, checked)
   }
 
+  ** Invoke client call and coerce the v4 response to a Grid
+  private Grid callGrid(Str op, Grid req, Bool checked := true)
+  {
+    openClient.call(op, req, checked)
+  }
+
   Client openClient()
   {
     open
@@ -167,9 +173,8 @@ class HaystackDispatch : ConnDispatch
       noLearnTagsRef.val = noLearnTags = Etc.makeDict(FolioUtil.tagsToNeverLearn)
     }
 
-    client := openClient
     req := arg == null ? Etc.makeEmptyGrid : Etc.makeListGrid(null, "navId", null, [arg])
-    res := client.call("nav", req)
+    res := callGrid("nav", req)
 
     learnRows := Str:Obj?[,]
     res.each |row|
@@ -542,7 +547,7 @@ class HaystackDispatch : ConnDispatch
   Grid onHisRead(Ref id, Str range)
   {
     req := GridBuilder().addCol("id").addCol("range").addRow2(id, range).toGrid
-    return openClient.call("hisRead", req)
+    return callGrid("hisRead", req)
   }
 
   override Obj? onSyncHis(ConnPoint point, Span span)
@@ -558,7 +563,7 @@ class HaystackDispatch : ConnDispatch
       req := GridBuilder().addCol("id").addCol("range").addRow2(hisId, range).toGrid
 
       // make REST call
-      res := openClient.call("hisRead", req)
+      res := callGrid("hisRead", req)
 
       // turn into his items
       items := HisItem[,]

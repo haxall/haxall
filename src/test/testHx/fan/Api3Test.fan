@@ -108,15 +108,15 @@ class Api3Test : ApiTest
     verifyErr(UnknownRecErr#) { c.readByIds([siteA.id, Ref.gen]) }
 
     // raw read by filter
-    g = c.call("read", Etc.makeMapGrid(null, ["filter":"area >= 20000"]))
+    g = c.callGrid("read", Etc.makeMapGrid(null, ["filter":"area >= 20000"]))
     verifyDictsEq(g.toRows, [siteA, siteB], false)
 
     // raw read by filter with limit
-    g = c.call("read", Etc.makeMapGrid(null, ["filter":"site", "limit":n(2)]))
+    g = c.callGrid("read", Etc.makeMapGrid(null, ["filter":"site", "limit":n(2)]))
     verifyEq(g.size, 2)
 
     // raw read by id
-    g = c.call("read", Etc.makeListGrid(null, "id", null, [Ref.gen, siteB.id, Ref.gen, siteC.id]))
+    g = c.callGrid("read", Etc.makeListGrid(null, "id", null, [Ref.gen, siteB.id, Ref.gen, siteC.id]))
     verifyDictEq(g[0], Etc.dict0)
     verifyDictEq(g[1], siteB)
     verifyDictEq(g[2], Etc.dict0)
@@ -139,29 +139,29 @@ class Api3Test : ApiTest
     // add
     db := proj.db
     verifyEq(db.readCount(Filter("foo")), 0)
-    Grid g := c.call("commit", Etc.makeMapGrid(["commit":"add"], ["dis":"Commit Test", "foo":m]))
+    g := c.callGrid("commit", Etc.makeMapGrid(["commit":"add"], ["dis":"Commit Test", "foo":m]))
     r := g.first as Dict
     verifyEq(db.readCount(Filter("foo")), 1)
     verifyDictEq(db.read(Filter("foo")), r)
 
     // update
-    g = c.call("commit", Etc.makeMapGrid(["commit":"update"], ["id":r.id, "mod":r->mod, "bar":"baz"]))
+    g = c.callGrid("commit", Etc.makeMapGrid(["commit":"update"], ["id":r.id, "mod":r->mod, "bar":"baz"]))
     r = readById(r.id)
     verifyEq(r["bar"], "baz")
     verifyDictEq(r, g.first)
 
     // update transient
-    g = c.call("commit", Etc.makeMapGrid(["commit":"update", "transient":m], ["id":r.id, "mod":r->mod, "curVal":n(123)]))
+    g = c.callGrid("commit", Etc.makeMapGrid(["commit":"update", "transient":m], ["id":r.id, "mod":r->mod, "curVal":n(123)]))
     r = readById(r.id)
     verifyEq(r["curVal"], n(123))
 
     // update force
-    g = c.call("commit", Etc.makeMapGrid(["commit":"update", "force":m], ["id":r.id, "mod":DateTime.nowUtc, "forceIt":"forced!"]))
+    g = c.callGrid("commit", Etc.makeMapGrid(["commit":"update", "force":m], ["id":r.id, "mod":DateTime.nowUtc, "forceIt":"forced!"]))
     r = readById(r.id)
     verifyEq(r["forceIt"], "forced!")
 
     // remove
-    g = c.call("commit", Etc.makeMapGrid(["commit":"remove"], ["id":r.id, "mod":r->mod]))
+    g = c.callGrid("commit", Etc.makeMapGrid(["commit":"remove"], ["id":r.id, "mod":r->mod]))
     verifyEq(db.readById(r.id, false), null)
   }
 
@@ -173,10 +173,10 @@ class Api3Test : ApiTest
   {
     // these ops are ok
     verifyEq(callAsGet("about").first->productName, sys.info.productName)
-    verifyEq(callAsGet("defs").size, c.call("defs").size)
-    verifyEq(callAsGet("libs").size, c.call("libs").size)
-    verifyEq(callAsGet("filetypes").size, c.call("filetypes").size)
-    verifyEq(callAsGet("ops").size, c.call("ops").size)
+    verifyEq(callAsGet("defs").size, c.callGrid("defs").size)
+    verifyEq(callAsGet("libs").size, c.callGrid("libs").size)
+    verifyEq(callAsGet("filetypes").size, c.callGrid("filetypes").size)
+    verifyEq(callAsGet("ops").size, c.callGrid("ops").size)
     verifyEq(callAsGet("read?filter=id").size, c.readAll("id").size)
 
     // these ops are not
@@ -207,17 +207,17 @@ class Api3Test : ApiTest
   {
     if (sys.info.type.isSkySpark) return
 
-    Grid g := c.call("nav", Etc.makeMapGrid(null, Str:Obj[:]))
+    g := c.callGrid("nav", Etc.makeMapGrid(null, Str:Obj[:]))
     verifyEq(g.size, 3)
     verifyEq(g[0].dis, "A")
     verifyEq(g[0].id, g[0]["navId"])
 
-    g = c.call("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
+    g = c.callGrid("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
     verifyEq(g.size, 1)
     verifyEq(g[0].dis, "A1")
     verifyEq(g[0].id, g[0]["navId"])
 
-    g = c.call("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
+    g = c.callGrid("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
     verifyEq(g.size, 2)
     verifyEq(g[0].dis, "A1X")
     verifyEq(g[0]["navId"], null)
@@ -233,7 +233,7 @@ class Api3Test : ApiTest
     w := proj.watch
     verifyEq(w.isWatched(siteA.id), false)
     verifyEq(w.isWatched(eqA1.id), false)
-    res := c.call("watchSub", Etc.makeListGrid(["watchDis":"test", "lease":n(17, "min")], "id", null, [siteA.id, eqA1.id]))
+    res := c.callGrid("watchSub", Etc.makeListGrid(["watchDis":"test", "lease":n(17, "min")], "id", null, [siteA.id, eqA1.id]))
     watchId := res.meta->watchId
     verifyEq(res.meta->lease, n(17, "min"))
     verifyEq(res.size, 2)
@@ -244,22 +244,22 @@ class Api3Test : ApiTest
     verifyEq(w.isWatched(eqA1.id), true)
     verifyEq(w.list.first.dis, "test")
     verifyEq(w.list.first.lease, 17min)
-    res = c.call("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
+    res = c.callGrid("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
 
     // haystack: watchPoll
     eqA1 = commit(eqA1, ["foo":n(123)])
-    res = c.call("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
+    res = c.callGrid("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
     verifyEq(res.size, 1)
     verifyEq(res[0].id, eqA1.id)
     verifyEq(res[0]->foo, n(123))
 
     // haystack: watchUnsub
-    res = c.call("watchUnsub", Etc.makeListGrid(["watchId": watchId], "id", null, [eqA1.id]))
+    res = c.callGrid("watchUnsub", Etc.makeListGrid(["watchId": watchId], "id", null, [eqA1.id]))
     verifyEq(w.isWatched(siteA.id), true)
     verifyEq(w.isWatched(eqA1.id), false)
 
     // haystack: watchUnsub
-    res = c.call("watchUnsub", Etc.makeEmptyGrid(["watchId": watchId, "close":true]))
+    res = c.callGrid("watchUnsub", Etc.makeEmptyGrid(["watchId": watchId, "close":true]))
     verifyEq(w.list.size, 0)
     verifyEq(w.isWatched(siteA.id), false)
     verifyEq(w.isWatched(eqA1.id), false)
@@ -286,7 +286,7 @@ class Api3Test : ApiTest
     items.add(HisItem(today + 2hr, n(20)))
     items.add(HisItem(today + 3hr, n(30)))
     req := Etc.makeDictsGrid(["id":ptA.id.noDis], items)
-    res := c.call("hisWrite", req)
+    res := c.callGrid("hisWrite", req)
 
     // batch hisWrite to ptA, ptB
     gb := GridBuilder()
@@ -296,7 +296,7 @@ class Api3Test : ApiTest
     gb.addRow([ts + 1hr, null,   n(201)])
     gb.addRow([ts + 2hr, n(102), null])
     gb.addRow([ts + 3hr, n(103), n(203)])
-    res = c.call("hisWrite", gb.toGrid)
+    res = c.callGrid("hisWrite", gb.toGrid)
 
     // verify ptA got written
     proj.sync
@@ -306,7 +306,7 @@ class Api3Test : ApiTest
     verifyEq(ptB["hisSize"], n(3))
 
     // hisRead from ptA (yesterday)
-    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"yesterday"]))
+    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"yesterday"]))
     verifyEq(res.size, 3)
     verifyEq(res.meta->hisStart, yesterday)
     verifyEq(res.meta->hisEnd, today)
@@ -315,14 +315,14 @@ class Api3Test : ApiTest
     verifyDictEq(res[2], items[2])
 
     // hisRead from ptA (today)
-    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"today"]))
+    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"today"]))
     verifyEq(res.size, 3)
     verifyDictEq(res[0], items[3])
     verifyDictEq(res[1], items[4])
     verifyDictEq(res[2], items[5])
 
     // hisRead from ptA (range)
-    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":items[4].ts.toStr]))
+    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":items[4].ts.toStr]))
     verifyEq(res.size, 2)
     verifyDictEq(res[0], items[-2])
     verifyDictEq(res[1], items[-1])
@@ -331,7 +331,7 @@ class Api3Test : ApiTest
     gb = GridBuilder().setMeta(["range":"2023-05-13"]).addCol("id")
     gb.addRow1(ptA.id.noDis)
     gb.addRow1(ptB.id.noDis)
-    res = c.call("hisRead", gb.toGrid)
+    res = c.callGrid("hisRead", gb.toGrid)
     verifyEq(res.size, 4)
     verifyEq(res.meta->hisStart, ts)
     verifyEq(res.meta->hisEnd, ts.plus(1day))
@@ -346,7 +346,7 @@ class Api3Test : ApiTest
     tsM1 := ts.date.midnight(TimeZone("Chicago"))
     gb.addRow1(ptA.id.noDis)
     gb.addRow1(ptB.id.noDis)
-    res = c.call("hisRead", gb.toGrid)
+    res = c.callGrid("hisRead", gb.toGrid)
     verifyEq(res.size, 3)
     verifyEq(res.meta->hisStart.toStr, tsM1.toStr)
     verifyEq(res.meta->hisEnd.toStr, tsM1.plus(1day).toStr)
@@ -356,7 +356,7 @@ class Api3Test : ApiTest
     verifyDictEq(res[2], ["ts":tsM1 + 2hr, "v0":n(103), "v1":n(203)])
 
     // hisRead with span using Chicago timezone, results in point's tz
-    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":tsM1.toStr + "," +  tsM1.plus(1day).toStr]))
+    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":tsM1.toStr + "," +  tsM1.plus(1day).toStr]))
     verifyEq(res.size, 2)
     verifyEq(res.meta->hisStart.toStr, tsM1.toTimeZone(tz).toStr)
     verifyEq(res.meta->hisEnd.toStr, tsM1.plus(1day).toTimeZone(tz).toStr)
@@ -373,9 +373,9 @@ class Api3Test : ApiTest
   {
     pt := addRec(["dis":"WritePoint", "point":m, "writable":m, "kind":"Number"])
 
-    res := c.call("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(16), "val":n(160)]))
-    res = c.call("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(8), "val":n(80), "duration":n(1, "hr")]))
-    res = c.call("pointWrite", Etc.makeMapGrid(null, ["id":pt.id]))
+    res := c.callGrid("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(16), "val":n(160)]))
+    res = c.callGrid("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(8), "val":n(80), "duration":n(1, "hr")]))
+    res = c.callGrid("pointWrite", Etc.makeMapGrid(null, ["id":pt.id]))
 
     verifyEq(res.size, 17)
     verifyEq(res[7]->level, n(8))

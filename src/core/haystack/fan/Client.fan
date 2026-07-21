@@ -87,7 +87,7 @@ class Client
   **
   Dict about()
   {
-    call("about", Etc.emptyGrid).first
+    callGrid("about", Etc.emptyGrid).first
   }
 
   **
@@ -99,7 +99,7 @@ class Client
   Dict? readById(Obj id, Bool checked := true)
   {
     req := Etc.makeListGrid(null, "id", null, [id])
-    res := call("read", req)
+    res := callGrid("read", req)
     if (!res.isEmpty && res.first.has("id")) return res.first
     if (checked) throw UnknownRecErr(id.toStr)
     return null
@@ -117,7 +117,7 @@ class Client
   Grid readByIds(Obj[] ids, Bool checked := true)
   {
     req := Etc.makeListGrid(null, "id", null, ids)
-    res := call("read", req)
+    res := callGrid("read", req)
     if (checked) res.each |r, i| { if (r.missing("id")) throw UnknownRecErr(ids[i].toStr) }
     return res
   }
@@ -132,7 +132,7 @@ class Client
   Dict? read(Str filter, Bool checked := true)
   {
     req := Etc.makeListsGrid(null, ["filter", "limit"], null, [[filter, Number.one]])
-    res := call("read", req)
+    res := callGrid("read", req)
     if (!res.isEmpty) return res.first
     if (checked) throw UnknownRecErr(filter)
     return null
@@ -146,17 +146,28 @@ class Client
   Grid readAll(Str filter)
   {
     req := Etc.makeListGrid(null, "filter", null, [filter])
-    return call("read", req)
+    return callGrid("read", req)
   }
 
   **
-  ** Evaluate an Axon expression and return results as Grid.
-  ** Raise [haystack::CallErr] if server returns error grid.
-  ** Also see [HTTP API](hx.doc.skyspark::Ops#eval).
+  ** Evaluate an Axon expression and return the result.  Through
+  ** the v4 REST API the result is always a Grid; the v5 API may
+  ** return other data types.  Raise [haystack::CallErr] if server
+  ** returns error grid.  Also see [HTTP API](hx.doc.skyspark::Ops#eval).
   **
-  Grid eval(Str expr)
+  Obj? eval(Str expr)
   {
     call("eval", Etc.makeListGrid(null, "expr", null, [expr]))
+  }
+
+  **
+  ** Convenience to invoke `eval` and coerce the response to a Grid.
+  ** Through the v4 REST API the response is always a Grid; use this
+  ** for grid-based evals instead of casting the [eval]'s Obj? result.
+  **
+  @NoDoc Grid evalGrid(Str expr)
+  {
+    eval(expr)
   }
 
   **
@@ -182,24 +193,38 @@ class Client
   Grid commit(Grid req)
   {
     if (req.meta.missing("commit")) throw ArgErr("Must specified grid.meta commit tag")
-    return call("commit", req)
+    return callGrid("commit", req)
   }
 
   **
-  ** Call the given REST operation with its request grid and
-  ** return the response grid.  If req is null, then an empty
-  ** grid used for request.  If the checked flag is true and server
-  ** returns an error grid, then raise [haystack::CallErr], otherwise return
-  ** the grid itself.
+  ** Call the given REST operation with its request and return the
+  ** response.  If req is null, then an empty grid used for request.
+  ** If the checked flag is true and server returns an error grid,
+  ** then raise [haystack::CallErr], otherwise return the result itself.
   **
-  Grid call(Str op, Grid? req := null, Bool checked := true)
+  ** Through the v4 REST API both the request and response are always
+  ** a Grid; the v5 API may use other data types.  The parameter and
+  ** return types are typed as Obj? to bind the future v5 signature at
+  ** the JVM level now, but currently a Grid must be passed for req.
+  **
+  Obj? call(Str op, Obj? req := null, Bool checked := true)
   {
-    if (req == null) req = Etc.makeEmptyGrid
-    Str reqStr := gridToStr(req)
+    Grid reqGrid := req == null ? Etc.makeEmptyGrid : req
+    Str reqStr := gridToStr(reqGrid)
     Str resStr := doCall(op, reqStr)
     Grid res   := ZincReader(resStr.in).readGrid
     if (checked && res.isErr) throw CallErr(res)
     return res
+  }
+
+  **
+  ** Convenience to invoke `call` and coerce the response to a Grid.
+  ** Through the v4 REST API the response is always a Grid; use this
+  ** for grid-based ops instead of casting the [call]'s Obj? result.
+  **
+  @NoDoc Grid callGrid(Str op, Obj? req := null, Bool checked := true)
+  {
+    call(op, req, checked)
   }
 
   private Str doCall(Str op, Str req)
