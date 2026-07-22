@@ -6,6 +6,8 @@ copyright:  Copyright (c) 2021, SkyFoundry LLC
 license:    Licensed under the Academic Free License version 3.0
 -->
 
+*Build 4.0.7 (working)*
+
 *Build 4.0.6 (21 Jul 2026)*
 - Companion lib now supports partial compilation to quarantine err recs
 - Replace legacy JS compiler with new ES compiler
