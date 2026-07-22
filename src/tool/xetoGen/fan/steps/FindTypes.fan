@@ -51,30 +51,11 @@ internal class FindTypes : Step
     catch (Err e) err("Cannot scan file", FileLoc(f.osPath), e)
   }
 
-  ** Resolve type to its spec
+  ** Resolve type to its spec by exact name in the pod's bound libs
   private Void resolve(AType t)
   {
-    // explicit spec qname from meta
-    explicit := t.gen.meta.get("spec")
-    if (explicit != null)
-    {
-      t.spec = ns.spec(explicit.toStr, false)
-      if (t.spec == null) err("Cannot resolve @Gen meta spec: $explicit", t.loc)
-      return
-    }
-
-    // map type name to spec in pod's libs; M prefix for impl classes
-    name := t.name
-    if (name.size > 2 && name[0] == 'M' && name[1].isUpper && typeToSpec(t, name) == null)
-      name = name[1..-1]
-    t.spec = typeToSpec(t, name)
+    t.spec = t.file.pod.libs.eachWhile |lib| { lib.type(t.name, false) }
     if (t.spec == null) err("Cannot resolve spec for @Gen type: $t.name", t.loc)
-  }
-
-  ** Lookup type name in each of the pod's bound libs
-  private Spec? typeToSpec(AType t, Str name)
-  {
-    t.file.pod.libs.eachWhile |lib| { lib.type(name, false) }
   }
 }
 

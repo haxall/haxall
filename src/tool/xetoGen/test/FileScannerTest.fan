@@ -223,7 +223,7 @@ class FileScannerTest : Test
   Void testMeta()
   {
     src := [
-      Str<|@Gen { meta = "spec:\"ph::Site\"" }|>,                            //  0
+      Str<|@Gen { meta = "foo:\"ph::Site\"" }|>,                             //  0
       "class Gamma",                                                         //  1
       "{",                                                                   //  2
       "}",                                                                   //  3
@@ -237,8 +237,8 @@ class FileScannerTest : Test
 
     file := scan(src)
     verifyEq(file.types.size, 2)
-    verifyEq(file.types[0].gen.raw, Str<|spec:"ph::Site"|>)
-    verifyEq(file.types[0].gen.meta->spec, "ph::Site")
+    verifyEq(file.types[0].gen.raw, Str<|foo:"ph::Site"|>)
+    verifyEq(file.types[0].gen.meta->foo, "ph::Site")
     verifyEq(file.types[1].gen.raw, Str<|skip:"a,b"|>)
     verifyEq(file.types[1].gen.meta->skip, "a,b")
     verifyEq(file.types[1].slots[0].gen.raw, "foo")
