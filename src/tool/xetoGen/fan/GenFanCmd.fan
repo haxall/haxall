@@ -26,13 +26,29 @@ class GenFanCmd : XetoCmd
   @Opt { help = "Report what would change without writing any files" }
   Bool preview
 
+  @Opt { help = "Dump the parsed AST to the console" }
+  Bool dump
+
   @Arg { help = "Lib names to generate; default is all matched pods in working dir" }
   Str[]? libs
 
   override Int run()
   {
-    // TODO: pipeline is InitNamespace -> FindTargets -> Harvest -> Emit -> Merge
-    return err("gen-fan not implemented yet")
+    c := GenCompiler
+    {
+      it.libNames = this.libs
+      it.preview  = this.preview
+    }
+    try
+    {
+      c.compile
+      if (dump) c.dump
+      return 0
+    }
+    catch (Err e)
+    {
+      return err("Compile failed [$c.errs.size errors]")
+    }
   }
 }
 

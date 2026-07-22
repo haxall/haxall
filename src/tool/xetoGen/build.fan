@@ -29,10 +29,11 @@ class Build : BuildPod
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
+               "compiler @{fan.depend}",
                "xeto @{hx.depend}",
                "xetom @{hx.depend}",
                "haystack @{hx.depend}"]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `fan/ast/`, `fan/steps/`, `test/`]
     index   = ["xeto.cmd": "xetoGen::GenFanCmd"]
   }
 }
