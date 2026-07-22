@@ -49,6 +49,8 @@ class GenCompiler
     run([
       FindPods(),
       FindTypes(),
+      GenEdits(),
+      WriteFiles(),
     ])
   }
 

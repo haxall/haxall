@@ -282,18 +282,26 @@ internal class FileScanner
   private Int pendingStart(Int declLine)
   {
     start := declLine
-    if (doc != null) start = start.min(doc.line - 1)
+    if (doc != null) start = start.min(docRange.start)
     facets.each |x| { start = start.min(x.line) }
     return start
   }
 
-  ** Pending doc comment zero based line range or null
+  ** Pending doc comment zero based line range or null.  The
+  ** tokenizer strips empty doc lines from the token value, so
+  ** expand thru contiguous ** lines in the source itself.
   private Range? docRange()
   {
     if (doc == null) return null
-    start := doc.line - 1
-    return start .. start + ((Str[])doc.val).size - 1
+    mid := doc.line - 1
+    start := mid
+    while (start > 0 && isDocLine(start-1)) start--
+    end := mid
+    while (end+1 < afile.lines.size && isDocLine(end+1)) end++
+    return start..end
   }
+
+  private Bool isDocLine(Int i) { afile.lines[i].trim.startsWith("**") }
 
   ** Clear pending doc and facets
   private Void clearPending()
