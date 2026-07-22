@@ -19,6 +19,7 @@ class Build : BuildGroup
       `hxTools/build.fan`,
       `xetodoc/build.fan`,
       `xetoTools/build.fan`,
+      `xetoGen/build.fan`,
       `convert4/build.fan`,
       `axonsh/build.fan`,
     ]
