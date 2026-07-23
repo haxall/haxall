@@ -37,7 +37,7 @@
   //
   // NOTE: returns the same Spec instance as returned by [fan.xeto::Namespace].
   // The spec meta is modeled using full fidelity and *not* haystack fidelity.
-  // Use [Funcs.specMeta] to normalize to haystack fidelity for use inside Axon.
+  // Use [specMeta()] to normalize to haystack fidelity for use inside Axon.
   //
   // Examples:
   //
@@ -61,7 +61,7 @@
   //
   // NOTE: returns the same Spec instances as returned by [fan.xeto::Namespace].
   // The spec meta is modeled using full fidelity and *not* haystack fidelity.
-  // Use [Funcs.specMeta] to normalize to haystack fidelity for use inside Axon.
+  // Use [specMeta()] to normalize to haystack fidelity for use inside Axon.
   //
   // Examples:
   //
@@ -387,7 +387,7 @@
   // found throw UnknownRecErr or return null based on checked flag.
   // If there are multiple matches it is indeterminate which one is
   // returned.  Subject must be a record id or dict in the database.  Spec
-  // must be a Spec typed as a `sys::Query`.  Also see [Funcs.queryAll].
+  // must be a Spec typed as a `sys::Query`.  Also see [queryAll()].
   //
   // Example:
   //
@@ -396,7 +396,7 @@
 
   // Evaluate a relationship query and return grid of results.
   // Subject must be a record id or dict in the database.  Spec
-  // must be a Spec typed as a `sys::Query`.  Also see [Funcs.query].
+  // must be a Spec typed as a `sys::Query`.  Also see [query()].
   //
   // Options:
   //   - `limit`: max number of recs to return

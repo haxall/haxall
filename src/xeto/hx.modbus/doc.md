@@ -134,7 +134,7 @@ register map name:
 
 # Writable Points
 Modbus proxy points are configured to write to remote system points via
-the [Funcs.modbusWrite] tag:
+the [modbusWrite()] tag:
 
     point
     writable

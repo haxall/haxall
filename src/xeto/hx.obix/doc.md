@@ -138,7 +138,7 @@ Obix connectors will use [Haystack authentication](ph.doc::Auth) to connect
 to the remote system.  You can force HTTP basic authentication by adding the
 marker tag `obixBasicAuth` to your connector record.
 
-After the first read operation with the connector (see [Funcs.obixPing])
+After the first read operation with the connector (see [obixPing()])
 the following tags are available on the connector:
   - vendorName: from about object
   - productName: from about object

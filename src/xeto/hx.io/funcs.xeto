@@ -170,11 +170,11 @@
   //   - noHeader: if present then don't treat first row as col names,
   //     instead use "v0", "v1", etc
   //
-  // Also see [Funcs.ioStreamCsv], [Funcs.ioEachCsv], [Funcs.ioWriteCsv], and [ph.doc::Csv].
+  // Also see [ioStreamCsv()], [ioEachCsv()], [ioWriteCsv()], and [ph.doc::Csv].
   ioReadCsv: Func <admin> { handle: Obj?, opts: Dict?, returns: Grid }
 
   // Read a stream of dicts from a comma separated value file.  This
-  // function uses the same options and semantics as [Funcs.ioReadCsv] except
+  // function uses the same options and semantics as [ioReadCsv()] except
   // it streams the rows as dicts instead of reading to an in-memory grid.
   // See [hx.doc.haxall::Streams#iostreamcsv].
   ioStreamCsv: Func <admin> { handle: Obj?, opts: Dict?, returns: Obj? }
@@ -186,7 +186,7 @@
   // The following options are supported:
   //   - delimiter: separator char as string, default is ","
   //
-  // Also [Funcs.ioReadCsv], [Funcs.ioWriteCsv], and [ph.doc::Csv].
+  // Also [ioReadCsv()], [ioWriteCsv()], and [ph.doc::Csv].
   ioEachCsv: Func <admin> { handle: Obj?, opts: Dict?, fn: Func, returns: Obj? }
 
   // Write a grid to a [CSV](ph.doc::Csv) (comma separated values) file.
@@ -204,7 +204,7 @@
   //     written as a header row.
   //   - stripUnits: write all numbers without a unit
   //
-  // Also [Funcs.ioReadCsv], [Funcs.ioEachCsv], and [ph.doc::Csv].
+  // Also [ioReadCsv()], [ioEachCsv()], and [ph.doc::Csv].
   ioWriteCsv: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Write an Excel XLS file, where `val` may be:
@@ -222,7 +222,7 @@
   // Read a JSON file into memory. This function can used to read any
   // arbitrary JSON nested object/array structure which can be accessed
   // as Axon dicts/lists.  The default decoding assumes Haystack 4 JSON
-  // format (Hayson).  Also see [Funcs.ioReadJsonGrid] if reading a Haystack
+  // format (Hayson).  Also see [ioReadJsonGrid()] if reading a Haystack
   // formatted grid.
   //
   // Object keys which are not valid tag names will decode correctly
@@ -237,7 +237,7 @@
   ioReadJson: Func <admin> { handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Read a JSON file formatted as a standardized Haystack grid
-  // into memory. See [Funcs.ioReadJson] to read arbitrary JSON structured data.
+  // into memory. See [ioReadJson()] to read arbitrary JSON structured data.
   ioReadJsonGrid: Func <admin> { handle: Obj?, opts: Dict?, returns: Grid }
 
   // Write an Axon data structure to JSON. By default,
@@ -272,7 +272,7 @@
   //   - `mod`:  modified timestamp or null if unknown
   //
   // The handle must reference a zip file in the file system.
-  // Use [Funcs.ioZipEntry] to perform a read operation on one of the
+  // Use [ioZipEntry()] to perform a read operation on one of the
   // entries in the zip file.
   //
   // Example:
@@ -284,7 +284,7 @@
   // entry within a zip file.  The `handle` parameter must be
   // an I/O handle which references a zip file in the file system.
   // The `path` parameter must be a Uri which identifies the
-  // path of the entry within the zip file.  See [Funcs.ioZipDir] to
+  // path of the entry within the zip file.  See [ioZipDir()] to
   // read the listing of paths within a zip.
   //
   // Example:
@@ -316,7 +316,7 @@
   // Encode an I/O handle into a base64 string.  The default behavior
   // is to encode using RFC 2045 (see [fan.sys::Buf.toBase64]).  Use the `{uri}`
   // option to encode a URI-safe URI via RFC 4648 (see [fan.sys::Buf.toBase64Uri]).
-  // Also see [Funcs.ioFromBase64].
+  // Also see [ioFromBase64()].
   //
   // Example:
   //

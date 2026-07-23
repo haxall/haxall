@@ -178,7 +178,7 @@
   //   - must be a point with historized consumption values
   //   - point's site must define [Site.energyStarSite] tag
   //
-  // If the range is null, then we perform a read using [Funcs.energyStarUsageRead]
+  // If the range is null, then we perform a read using [energyStarUsageRead()]
   // to find the last endDate written.  Then we assume a range of endDate+1day
   // to yesterday.  This guarantees that we are only pushing newer data to
   // portfolio manager.

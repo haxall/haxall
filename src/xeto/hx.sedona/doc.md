@@ -34,7 +34,7 @@ Points use the following tags:
   - [SedonaPoint.sedonaPoint]: required marker tag
   - [SedonaPoint.sedonaConnRef]: associated connector
   - [SedonaPoint.sedonaCur]: address to subscribe for curVal
-  - [Funcs.sedonaWrite]: address to write for a local writable point
+  - [sedonaWrite()]: address to write for a local writable point
 
 The address strings are formatted as "compId.slot".  An example address
 might be "4.out" where the compId is the component's integer identifier

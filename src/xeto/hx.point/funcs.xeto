@@ -103,26 +103,26 @@
   equipToPoints: Func <overridable> { equip: Obj, returns: Grid }
 
   // User level-1 manual override of writable point.
-  // See [Funcs.pointWrite].
+  // See [pointWrite()].
   pointEmergencyOverride: Func <admin> { point: Obj, val: Obj?, returns: Obj? }
 
   // User level-1 manual auto (override release) of writable point.
-  // See [Funcs.pointWrite].
+  // See [pointWrite()].
   pointEmergencyAuto: Func <admin> { point: Obj, returns: Obj? }
 
   // User level-8 manual override of writable point.
   // If duration is specified it must be a number with unit of time
   // that indicates how long to put the point into override.  After
   // the duration expires, the point is set back to auto (null).
-  // See [Funcs.pointWrite].
+  // See [pointWrite()].
   pointOverride: Func <admin> { point: Obj, val: Obj?, duration: Number?, returns: Obj? }
 
   // User level-8 manual auto (override release) of writable point.
-  // See [Funcs.pointWrite].
+  // See [pointWrite()].
   pointAuto: Func <admin> { point: Obj, returns: Obj? }
 
   // Set the relinquish default value (level-17) of writable point.
-  // See [Funcs.pointWrite].
+  // See [pointWrite()].
   pointSetDef: Func <admin> { point: Obj, val: Obj?, returns: Obj? }
 
   // Set a writable point's priority array value at the given level.

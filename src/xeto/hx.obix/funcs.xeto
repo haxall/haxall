@@ -61,11 +61,11 @@
   //     DateTime    <abstime val='...' tz='...'/>
   //     XML Str     pass thru
   //
-  // Result object is transformed using same rules as [Funcs.obixReadObj].
+  // Result object is transformed using same rules as [obixReadObj()].
   obixWriteObj: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
 
   // Invoke an `obix:op` operation as identified by given uri.
-  // See [Funcs.obixWriteObj] for supported arg values and [Funcs.obixReadObj]
+  // See [obixWriteObj()] for supported arg values and [obixReadObj()]
   // for result object.
   obixInvoke: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
 

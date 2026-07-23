@@ -228,33 +228,33 @@
   //     toMatrix({rows:10, cols: 1000, init: 0})
   toMatrix: Func { obj: Obj, opts: Dict, returns: Grid }
 
-  // Transpose the given matrix which is any value accepted by [Funcs.toMatrix].
+  // Transpose the given matrix which is any value accepted by [toMatrix()].
   matrixTranspose: Func { m: Obj, returns: Grid }
 
   // Return the determinant as a unitless Number for the given matrix which
-  // is any value accepted by [Funcs.toMatrix].  The matrix must be square.
+  // is any value accepted by [toMatrix()].  The matrix must be square.
   matrixDeterminant: Func { m: Obj, returns: Number }
 
-  // Return the inverse of the given matrix which is any value accepted by [Funcs.toMatrix].
+  // Return the inverse of the given matrix which is any value accepted by [toMatrix()].
   matrixInverse: Func { m: Obj, returns: Grid }
 
   // Add two matrices together and return new matrix.  The parameters may
-  // be any value supported [Funcs.toMatrix].  Matrices must have the same dimensions.
+  // be any value supported [toMatrix()].  Matrices must have the same dimensions.
   matrixAdd: Func { a: Obj, b: Obj, returns: Grid }
 
   // Subtract two matrices and return new matrix.  The parameters may
-  // be any value supported [Funcs.toMatrix].  Matrices must have the same dimensions.
+  // be any value supported [toMatrix()].  Matrices must have the same dimensions.
   matrixSub: Func { a: Obj, b: Obj, returns: Grid }
 
   // Multiply two matrices and return new matrix.  The parameters may
-  // be any value supported [Funcs.toMatrix].  Matrix `a` column count must match
+  // be any value supported [toMatrix()].  Matrix `a` column count must match
   // matrix `b` row count.
   matrixMult: Func { a: Obj, b: Obj, returns: Grid }
 
   // Given a matrix of y coordinates and a matrix of multiple x coordinates
   // compute the best fit multiple linear regression equation using
   // the ordinary least squares method.  Both `y` and `x` may be any value
-  // accepted by [Funcs.toMatrix].
+  // accepted by [toMatrix()].
   //
   // The resulting linear equation for r X coordinates is:
   //
@@ -293,7 +293,7 @@
   //   - `ymin`: minimum value of y variable in sample data
   //   - `ymax`: maximum value of y variable in sample data
   //
-  // Also see [Funcs.matrixFitLinearRegression] to compute a multiple linear
+  // Also see [matrixFitLinearRegression()] to compute a multiple linear
   // regression.
   //
   // Example:

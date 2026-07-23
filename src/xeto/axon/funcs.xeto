@@ -173,7 +173,7 @@
   sortDis: Func { val: Grid, returns: Obj? }
 
   // Reverse sort a list or grid.  This function works just
-  // like [Funcs.sort] except sorts in reverse.
+  // like [sort()] except sorts in reverse.
   sortr: Func { val: Obj, sorter: Obj?, returns: Obj? }
 
   // Iterate the items of a collection:
@@ -283,7 +283,7 @@
   find: Func { val: Obj, fn: Func, returns: Obj? }
 
   // Find all the items in a list, dict, or grid by applying
-  // the given filter function.  Also see [Funcs.find].
+  // the given filter function.  Also see [find()].
   //
   // If working with a list, the filter should be a function
   // that takes `(val)` or `(val, index)`.  It should return
@@ -397,7 +397,7 @@
   // collection along with a current *accumulation* value.  The accumation
   // value is initialized to `init` for the first item, and for every
   // subsequent item it is the result of the previous item.  Return
-  // the final accumulation value.  Also see [Funcs.fold] which is preferred
+  // the final accumulation value.  Also see [fold()] which is preferred
   // if doing standard rollup such as sum or average.
   //
   // If working with a list, the function takes `(acc, val, index)`
@@ -531,7 +531,7 @@
   fold: Func { val: Obj?, fn: Func, returns: Obj? }
 
   // Fold the values of the given column into a single value.
-  // The folding function uses the same semantics as [Funcs.fold].
+  // The folding function uses the same semantics as [fold()].
   //
   // Example:
   //
@@ -543,7 +543,7 @@
   // `colSelector` function and removed from the result.  The selector
   // may be a list of string names or a function which takes a Col
   // and returns true to select it.  The folding function uses same
-  // semantics as [Funcs.fold].
+  // semantics as [fold()].
   //
   //
   // Example:
@@ -583,7 +583,7 @@
   sum: Func <foldOn:"Number"> { val: Obj?, acc: Obj?, returns: Obj? }
 
   // Compare two numbers and return the smaller one.  This function
-  // may also be used with [Funcs.fold] to return the smallest number (or
+  // may also be used with [fold()] to return the smallest number (or
   // null if no values).  Note number units are **not** checked nor
   // considered for this comparison.
   //
@@ -594,7 +594,7 @@
   min: Func <foldOn:"Number"> { val: Obj?, acc: Obj?, returns: Obj? }
 
   // Compare two numbers and return the larger one.  This function
-  // may also be used with [Funcs.fold] to return the largest number (or
+  // may also be used with [fold()] to return the largest number (or
   // null if no values).  Note number units are **not** checked nor
   // considered for the comparison.
   //
@@ -700,7 +700,7 @@
   name: Func { val: Obj?, returns: Str }
 
   // Return new grid with grid level meta-data replaced by given
-  // meta Dict.  Also see [Funcs.addMeta] and [hx.doc.haxall::Streams#setmeta].
+  // meta Dict.  Also see [addMeta()] and [hx.doc.haxall::Streams#setmeta].
   //
   // Example:
   //
@@ -708,7 +708,7 @@
   setMeta: Func { grid: Obj, meta: Dict, returns: Obj }
 
   // Return new grid with additional grid level meta-data tags.
-  // Tags are added using [Funcs.merge] conventions.  Also see [Funcs.setMeta]
+  // Tags are added using [merge()] conventions.  Also see [setMeta()]
   // and [hx.doc.haxall::Streams#addmeta].
   //
   // Example:
@@ -723,7 +723,7 @@
   //  - join column meta is merged
   join: Func { a: Grid, b: Grid, joinColName: Str, returns: Grid }
 
-  // Join a list of grids into a single grid.  See [Funcs.join].
+  // Join a list of grids into a single grid.  See [join()].
   joinAll: Func { grids: List, joinColName: Str, returns: Grid }
 
   // Add a column to a grid by mapping each row to a new cell value.
@@ -771,7 +771,7 @@
   // Return a new grid with the columns reordered.  The given list
   // of names represents the new order and must contain the same current
   // column names.  Any columns not specified are removed.  Also
-  // see [Funcs.colNames], [Funcs.moveTo], and [hx.doc.haxall::Streams#reordercols].
+  // see [colNames()], [moveTo()], and [hx.doc.haxall::Streams#reordercols].
   //
   // Example:
   //
@@ -782,13 +782,13 @@
 
   // Return a new grid with column meta-data replaced by given meta dict.
   // If column not found, then return given grid.
-  // Also see [Funcs.addColMeta] and [hx.doc.haxall::Streams#setcolmeta].
+  // Also see [addColMeta()] and [hx.doc.haxall::Streams#setcolmeta].
   setColMeta: Func { grid: Obj, name: Str, meta: Dict, returns: Obj }
 
   // Return a new grid with additional column meta-data.
   // If column not found, then return given grid.
-  // Column meta is added using [Funcs.merge] conventions.  Also
-  // see [Funcs.setColMeta] and [hx.doc.haxall::Streams#addcolmeta].
+  // Column meta is added using [merge()] conventions.  Also
+  // see [setColMeta()] and [hx.doc.haxall::Streams#addcolmeta].
   addColMeta: Func { grid: Obj, name: Str, meta: Dict, returns: Obj }
 
   // Return a new grid with the given column removed.
@@ -1025,18 +1025,18 @@
   //   - `Date..DateTime`: start day for date until the end timestamp
   //   - `DateTime..Date`: start timestamp to end of day for end date
   //   - `DateTime`: span of a single timestamp
-  //   - `DateSpan`: anything accepted by [Funcs.toDateSpan] in current timezone
-  //   - `DateSpan+tz`: anything accepted by [Funcs.toDateSpan] using given timezone
+  //   - `DateSpan`: anything accepted by [toDateSpan()] in current timezone
+  //   - `DateSpan+tz`: anything accepted by [toDateSpan()] using given timezone
   toSpan: Func { x: Obj?, tz: Str?, returns: Span }
 
-  // Use [Funcs.toSpan]
+  // Use [toSpan()]
   toDateTimeSpan: Func <nodoc> { a: Obj?, b: Obj?, returns: Span }
 
   // Number of whole days in a span
   numDays: Func { span: Obj?, returns: Number }
 
   // Iterate the days of a span.  The `dates` argument may be any object
-  // converted into a date range by [Funcs.toDateSpan].  The given function is
+  // converted into a date range by [toDateSpan()].  The given function is
   // called with a `Date` argument for each iterated day.
   //
   // Example:
@@ -1048,7 +1048,7 @@
   eachDay: Func { dates: Obj, fn: Func, returns: Obj? }
 
   // Iterate the months of a span.  The `dates` argument may be any object
-  // converted into a date range by [Funcs.toDateSpan].  The given function is
+  // converted into a date range by [toDateSpan()].  The given function is
   // called with a `DateSpan` argument for each interated month.
   //
   // Examples:
@@ -1162,12 +1162,12 @@
   startOfWeek: Func { returns: Number }
 
   // Given a DateTime return Number of milliseconds since Unix epoch.
-  // The epic is defined as 1-Jan-1970 UTC.  Also see [Funcs.fromJavaMillis].
+  // The epic is defined as 1-Jan-1970 UTC.  Also see [fromJavaMillis()].
   toJavaMillis: Func { dt: DateTime, returns: Number }
 
   // Given Number of milliseconds since Unix epoch return a DateTime.
   // The epic is defined as 1-Jan-1970 UTC.  If timezone is null, use system
-  // default.  Also see [Funcs.toJavaMillis].
+  // default.  Also see [toJavaMillis()].
   fromJavaMillis: Func { millis: Number, tz: Str?, returns: DateTime }
 
   // Given an optional value return true if the SI metric system should be
@@ -1509,7 +1509,7 @@
 
   // Parse a Str into a number with an option unit.  If invalid
   // format and checked is false return null, otherwise throw ParseErr.
-  // Also see [Funcs.parseInt] and [Funcs.parseFloat] to parse basic integers and
+  // Also see [parseInt()] and [parseFloat()] to parse basic integers and
   // floating point numbers without a unit.
   //
   // Examples:
@@ -1522,7 +1522,7 @@
   // Parse a string into a Uri instance.  If the string cannot be parsed
   // into a valid Uri and checked is false then return null, otherwise
   // throw ParseErr.  This function converts an URI from *standard form*.
-  // Use [Funcs.uriDecode] to convert a string from *escaped form*.  See [fan.sys::Uri]
+  // Use [uriDecode()] to convert a string from *escaped form*.  See [fan.sys::Uri]
   // for a detailed discussion on standard and escaped forms.
   //
   // Examples:
@@ -1648,7 +1648,7 @@
   parseSearch: Func { val: Str, returns: Filter }
 
   // Convert a [filter](ph.doc::Filters) expression to a function
-  // which maybe used with [Funcs.findAll] or [Funcs.find].  The returned function
+  // which maybe used with [findAll()] or [find()].  The returned function
   // accepts one Dict parameter and returns true/false if the
   // Dict is matched by the filter.  Also see [filter()] and [parseFilter()].
   //
@@ -1806,7 +1806,7 @@
   trim: Func { val: Str, returns: Str }
 
   // Trim whitespace only from the beginning of the string.
-  // See [Funcs.trim] for definition of whitespace.
+  // See [trim()] for definition of whitespace.
   //
   // Examples:
   //
@@ -1815,7 +1815,7 @@
   trimStart: Func { val: Str, returns: Str }
 
   // Trim whitespace only from the end of the string.
-  // See [Funcs.trim] for definition of whitespace.
+  // See [trim()] for definition of whitespace.
   //
   // Examples:
   //
@@ -1968,7 +1968,7 @@
   // sequence is UTF-8 decoded into a Str. The `+` character in the query section
   // is unescaped into a space. If checked if true then throw ParseErr if the
   // string is a malformed URI or if not encoded correctly, otherwise return
-  // null.  Use [Funcs.parseUri] to parse from standard form.  See [fan.sys::Uri] for
+  // null.  Use [parseUri()] to parse from standard form.  See [fan.sys::Uri] for
   // a detailed discussion on standard and encoded forms.
   //
   // Examples:

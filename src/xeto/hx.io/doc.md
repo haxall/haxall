@@ -8,17 +8,17 @@ license:    Licensed under the Academic Free License version 3.0
 
 # Overview
 The ioExt is used to read/write data via a variety of formats:
-  - Text strings: [Funcs.ioReadStr], [Funcs.ioWriteStr]
-  - Text lines: [Funcs.ioReadLines], [Funcs.ioWriteLines]
-  - Zinc: [Funcs.ioReadZinc], [Funcs.ioWriteZinc]
-  - Trio: [Funcs.ioReadTrio], [Funcs.ioWriteTrio]
-  - CSV: [Funcs.ioReadCsv], [Funcs.ioWriteCsv], [Funcs.ioEachCsv], [Funcs.ioStreamCsv]
-  - JSON: [Funcs.ioReadJson], [Funcs.ioWriteJson]
-  - XML: [Funcs.ioWriteXml], [xmlRead()]
-  - PDF: [Funcs.ioWritePdf]
-  - SVG: [Funcs.ioWriteSvg]
-  - HTML: [Funcs.ioWriteHtml]
-  - RDF: [Funcs.ioWriteTurtle], [Funcs.ioWriteJsonLd]
+  - Text strings: [ioReadStr()], [ioWriteStr()]
+  - Text lines: [ioReadLines()], [ioWriteLines()]
+  - Zinc: [ioReadZinc()], [ioWriteZinc()]
+  - Trio: [ioReadTrio()], [ioWriteTrio()]
+  - CSV: [ioReadCsv()], [ioWriteCsv()], [ioEachCsv()], [ioStreamCsv()]
+  - JSON: [ioReadJson()], [ioWriteJson()]
+  - XML: [ioWriteXml()], [xmlRead()]
+  - PDF: [ioWritePdf()]
+  - SVG: [ioWriteSvg()]
+  - HTML: [ioWriteHtml()]
+  - RDF: [ioWriteTurtle()], [ioWriteJsonLd()]
 
 # IO Handles
 All the read/write functions take an *IO handle* which is one of
@@ -36,10 +36,10 @@ the following:
     'id' of the rec. The data will be removed when the rec is deleted from folio.
 
 The default charset used by all I/O handles is "UTF-8".  You can wrap any of the
-handles above with the [Funcs.ioCharset] function to specify an alternate charset.
+handles above with the [ioCharset()] function to specify an alternate charset.
 
 ## FTP Handles
-You may read and write files to a FTP server via a `ftp://` or `ftps://` Uri.  Using [Funcs.ioDir]
+You may read and write files to a FTP server via a `ftp://` or `ftps://` Uri.  Using [ioDir()]
 is supported if Uri ends with a slash, but returns name only (not dir, size, or mod).
 By default the "anonymous" user account is used.  But you can customize this by
 creating a key/value the [password manager](hx.doc.haxall::Folio#passwords) where

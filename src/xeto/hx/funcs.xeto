@@ -15,7 +15,7 @@
   // Read from database the first record which matches [filter](ph.doc::Filters).
   // If no matches found throw UnknownRecErr or null based on checked
   // flag.  If there are multiple matches it is indeterminate which one is
-  // returned.  See [Funcs.readAll] for how filter works.
+  // returned.  See [readAll()] for how filter works.
   //
   // Examples:
   //
@@ -40,11 +40,11 @@
   readById: Func { id: Ref?, checked: Bool, returns: Dict? }
 
   // Given record id, read only the persistent tags from Folio.
-  // Also see [Funcs.readByIdTransientTags] and [Funcs.readById].
+  // Also see [readByIdTransientTags()] and [readById()].
   readByIdPersistentTags: Func { id: Ref, checked: Bool, returns: Dict? }
 
   // Given record id, read only the transient tags from Folio.
-  // Also see [Funcs.readByIdPersistentTags] and [Funcs.readById].
+  // Also see [readByIdPersistentTags()] and [readById()].
   readByIdTransientTags: Func { id: Ref, checked: Bool, returns: Dict? }
 
   // Read a record Dict by its id for hyperlinking in a UI.  Unlike other
@@ -107,7 +107,7 @@
   //   - `name`: string name of the tag
   //   - `kind`: all the different value kinds separated by "|"
   //   - `count`: total number of recs with the tag
-  // Also see [Funcs.readAllTagVals] and [gridColKinds()].
+  // Also see [readAllTagVals()] and [gridColKinds()].
   //
   // Examples:
   //
@@ -119,7 +119,7 @@
   // tag name used by all the records matching the given filter.
   // This method is capped to 200 results.  The results are
   // returned as a grid with a single `val` column.
-  // Also see [Funcs.readAllTagNames].
+  // Also see [readAllTagNames()].
   //
   // Examples:
   //
@@ -138,7 +138,7 @@
 // Database Writes
 //////////////////////////////////////////////////////////////////////////
 
-  // Construct a modification "diff" used by [Funcs.commit].  The orig should
+  // Construct a modification "diff" used by [commit()].  The orig should
   // be the instance which was read from the database, or it may be null
   // only if the add flag is passed.  Any tags to add/set/remove should
   // be included in the changes dict.

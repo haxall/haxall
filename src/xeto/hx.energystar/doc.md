@@ -70,7 +70,7 @@ record to determine which properties are being used by the project.
 6. Once a site has all its meters mapped, then use the "Push Associations"
    command in Meters tab to setup the property and meters associations in
    ENERGY STAR
-7. Manually or via jobs push data to ENERGY STAR using the [Funcs.energyStarHisPush]
+7. Manually or via jobs push data to ENERGY STAR using the [energyStarHisPush()]
    func (or you can use the lower level `energyStarUsageWrite` func).
 
 # Connectors
@@ -157,7 +157,7 @@ the appropriate percentages:
 The EnergyStar model requires an extra step to create an association
 between properties and meters before the meter usage can be used for scoring.
 Once you have defined and mapped your sites and meter points, you
-may use the [Funcs.energyStarPropertyAssociationsPush] function to create
+may use the [energyStarPropertyAssociationsPush()] function to create
 a "Whole Site" association for all the meter points under a site.  This
 function can also be accessed in the Meters tab of the EnergyStarApp.
 
