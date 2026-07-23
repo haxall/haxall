@@ -177,11 +177,13 @@ internal class FileScanner
     Str? lastId := null         // last identifier before assign
     TokenVal? prev := null
 
+    hasBody := false
     while (cur != null)
     {
       // body block at paren depth zero ends the declaration
       if (curt === Token.lbrace && depth == 0)
       {
+        hasBody = true
         end = skipMatched(Token.lbrace, Token.rbrace)
         break
       }
@@ -219,7 +221,7 @@ internal class FileScanner
       it.isOverride = isOverride
       it.isStatic   = isStatic
     }
-    slots.add(ASlot(slotName, slotFlags, toGen(genFacet), docRange, start..end))
+    slots.add(ASlot(slotName, slotFlags, toGen(genFacet), docRange, start..end, hasBody))
     clearPending
   }
 

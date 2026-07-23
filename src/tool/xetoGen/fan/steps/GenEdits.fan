@@ -192,13 +192,28 @@ internal class GenEdits : Step
     return s.toStr
   }
 
-  ** Dict slots are abstract getters implemented by wrapper class
+  ** Dict slots are getters.  On a mixin the author picks the style
+  ** which we preserve: abstract implemented by the wrapper class, or
+  ** concrete backed by get.  A concrete class which is its own
+  ** wrapper always uses concrete getters.  New mixin slots default
+  ** to abstract.
   private Str dictSig(AType t, Spec x, ASlot? existing)
   {
     s := StrBuf()
-    s.add("@Gen abstract ")
-    if (isOverride(t, x, existing)) s.add("override ")
-    s.add(typeSig(x)).add(" ").add(toFanName(x.name)).add("()")
+    s.add("@Gen ")
+    concrete := !t.flags.isMixin || existing?.hasBody == true
+    if (!concrete)
+    {
+      s.add("abstract ")
+      if (isOverride(t, x, existing)) s.add("override ")
+      s.add(typeSig(x)).add(" ").add(toFanName(x.name)).add("()")
+    }
+    else
+    {
+      s.add(isOverride(t, x, existing) ? "override " : "virtual ")
+      s.add(typeSig(x)).add(" ").add(toFanName(x.name))
+      s.add("() { get(").add(x.name.toCode).add(") }")
+    }
     return s.toStr
   }
 
