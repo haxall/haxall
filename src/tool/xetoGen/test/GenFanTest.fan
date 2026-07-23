@@ -87,9 +87,11 @@ class GenFanTest : Test
     verifyGen(src, expect)
   }
 
-  ** Slots no longer declared by the spec are removed
+  ** Slots no longer declared by the spec are removed with
+  ** one adjacent blank line swallowed
   Void testDelete()
   {
+    // trailing slot removed with its preceding blank line
     src := [
       "**",
       "** Computes the logical negation of its input",
@@ -110,9 +112,67 @@ class GenFanTest : Test
       "class Not : Logic",
       "{",
       "  @Gen virtual StatusBool? in() { get(\"in\") }",
-      "",
       "}",
       ]
+    verifyGen(src, expect)
+
+    // first slot removed with its following blank line
+    src = [
+      "**",
+      "** Computes the logical negation of its input",
+      "**",
+      "@Gen",
+      "class Not : Logic",
+      "{",
+      "  @Gen virtual Str? bogus() { get(\"bogus\") }",
+      "",
+      "  @Gen virtual StatusBool? in() { get(\"in\") }",
+      "}",
+      ]
+    expect = [
+      "**",
+      "** Computes the logical negation of its input",
+      "**",
+      "@Gen",
+      "class Not : Logic",
+      "{",
+      "  @Gen virtual StatusBool? in() { get(\"in\") }",
+      "}",
+      ]
+    verifyGen(src, expect)
+  }
+
+  ** Middle slot removed leaves single blank between neighbors
+  Void testDeleteMiddle()
+  {
+    src := [
+      "**",
+      "** The output of this component generates a sine wave.",
+      "**",
+      "@Gen",
+      "class SineWave : HxComp",
+      "{",
+      "  ** The computed sine wave",
+      "  @Gen virtual StatusNumber out() { get(\"out\") }",
+      "",
+      "  ** bogus doc",
+      "  @Gen virtual Str? bogus() { get(\"bogus\") }",
+      "",
+      "  ** The amount of time it takes to output one complete cycle",
+      "  @Gen virtual Duration period { get {get(\"period\")} set {set(\"period\", it)} }",
+      "",
+      "  ** The height of the sine wave from its lowest to highest point",
+      "  @Gen virtual Float amplitude { get {get(\"amplitude\")} set {set(\"amplitude\", it)} }",
+      "",
+      "  ** The distance from zero that the sine wave's amplitude is shifted",
+      "  @Gen virtual Float offset { get {get(\"offset\")} set {set(\"offset\", it)} }",
+      "",
+      "  ** How frequently to compute the sine wave",
+      "  @Gen virtual Duration freq { get {get(\"freq\")} set {set(\"freq\", it)} }",
+      "}",
+      ]
+    expect := src.dup
+    expect.removeRange(8..10)
     verifyGen(src, expect)
   }
 

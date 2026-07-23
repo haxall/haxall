@@ -103,13 +103,20 @@ internal class GenEdits : Step
     edit(t, at, at, acc)
   }
 
-  ** Remove slots which are no longer declared by the spec
+  ** Remove slots which are no longer declared by the spec.
+  ** Swallow one adjacent blank line so surrounding slots are
+  ** left separated by a single blank line.
   private Void genDeletes(AType t)
   {
+    lines := t.file.lines
     t.slots.each |s|
     {
       if (t.spec.slotOwn(toXetoName(s.name), false) != null) return
-      edit(t, s.lines.start, s.lines.end+1, Str[,])
+      start := s.lines.start
+      endEx := s.lines.end + 1
+      if (start-1 > t.bodyOpen && lines[start-1].trim.isEmpty) start--
+      else if (endEx < t.lines.end && lines[endEx].trim.isEmpty) endEx++
+      edit(t, start, endEx, Str[,])
     }
   }
 
