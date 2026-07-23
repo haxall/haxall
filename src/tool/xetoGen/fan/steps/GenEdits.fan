@@ -42,7 +42,7 @@ internal class GenEdits : Step
     t.spec.slotsOwn.each |x|
     {
       if (isSkipped(t, x)) return
-      existing := t.slots.find |s| { s.name == x.name }
+      existing := findFunc(t, x.name)
       if (existing == null)
         return err("Missing @Api func for spec: $x.name", t.loc)
       genFuncDoc(t, x, existing)
@@ -52,9 +52,22 @@ internal class GenEdits : Step
     // extra @Api methods with no spec
     t.slots.each |s|
     {
-      if (t.spec.slotOwn(s.name, false) == null)
+      if (t.spec.slotOwn(toFuncSpecName(s.name), false) == null)
         err("No spec func for @Api method: $s.name", t.loc)
     }
+  }
+
+  ** Fantom method may be prefixed with underscore when the func
+  ** name collides with an Obj slot or keyword such as _equals
+  private ASlot? findFunc(AType t, Str name)
+  {
+    t.slots.find |s| { s.name == name || s.name == "_" + name }
+  }
+
+  ** Map underscore prefixed method name back to spec func name
+  private Str toFuncSpecName(Str n)
+  {
+    n.startsWith("_") ? n[1..-1] : n
   }
 
   ** Sync func doc from spec doc; the omitDocs meta tag strips
