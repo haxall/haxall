@@ -42,6 +42,7 @@ internal class GenEdits : Step
     t.spec.slotsOwn.each |x|
     {
       if (isSkipped(t, x)) return
+      if (x.meta.has("axon")) return  // implemented in axon source
       existing := findFunc(t, x.name)
       if (existing == null)
         return err("Missing @Api func for spec: $x.name", t.loc)
