@@ -6,56 +6,59 @@
 //   06 Aug 2025  Matthew Giannini  Creation
 //
 
+using xeto
+
+**
+** A select sets its output to one of its inputs based on the
+** current value of the `select` slot.
+**
+@Gen
 abstract class ValSelect : HxComp
 {
-  /* ionc-start */
-
   ** The index of the input to select. If the value is greater than `numInputs`
   ** then the maximum active input will be selected.
-  virtual StatusNumber? select { get {get("select")} set {set("select", it)} }
+  @Gen virtual StatusNumber? select { get {get("select")} set {set("select", it)} }
 
   ** Input A
-  virtual StatusVal? inA() { get("inA") }
+  @Gen virtual StatusVal? inA() { get("inA") }
 
   ** Input B
-  virtual StatusVal? inB() { get("inB") }
+  @Gen virtual StatusVal? inB() { get("inB") }
 
   ** Input C
-  virtual StatusVal? inC() { get("inC") }
+  @Gen virtual StatusVal? inC() { get("inC") }
 
   ** Input D
-  virtual StatusVal? inD() { get("inD") }
+  @Gen virtual StatusVal? inD() { get("inD") }
 
   ** Input E
-  virtual StatusVal? inE() { get("inE") }
+  @Gen virtual StatusVal? inE() { get("inE") }
 
   ** Input F
-  virtual StatusVal? inF() { get("inF") }
+  @Gen virtual StatusVal? inF() { get("inF") }
 
   ** Input G
-  virtual StatusVal? inG() { get("inG") }
+  @Gen virtual StatusVal? inG() { get("inG") }
 
   ** Input H
-  virtual StatusVal? inH() { get("inH") }
+  @Gen virtual StatusVal? inH() { get("inH") }
 
   ** Input I
-  virtual StatusVal? inI() { get("inI") }
+  @Gen virtual StatusVal? inI() { get("inI") }
 
   ** Input J
-  virtual StatusVal? inJ() { get("inJ") }
+  @Gen virtual StatusVal? inJ() { get("inJ") }
 
   ** The out slot is set to the selected input
-  virtual StatusVal? out() { get("out") }
+  @Gen virtual StatusVal? out() { get("out") }
 
   ** If true, then inputs are indexed by zero (0). If false,
   ** inputs are indexed by 1, and any select <= 1 will select the
   ** first input.
-  virtual Bool zeroBasedSelect { get {get("zeroBasedSelect")} set {set("zeroBasedSelect", it)} }
+  @Gen virtual Bool zeroBasedSelect { get {get("zeroBasedSelect")} set {set("zeroBasedSelect", it)} }
 
   ** The number of inputs that are active for selection.
-  virtual Int numInputs { get {get("numInputs")} set {set("numInputs", it)} }
-
-  /* ionc-end */
+  @Gen virtual Int numInputs { get {get("numInputs")} set {set("numInputs", it)} }
 
   override Void onExecute()
   {
@@ -92,122 +95,113 @@ abstract class ValSelect : HxComp
 }
 
 **
-** A Bool select
+** Bool select
 **
+@Gen
 class BoolSelect : ValSelect
 {
-  /* ionc-start */
-
   ** Input A
-  override StatusStr? inA() { get("inA") }
+  @Gen override StatusStr? inA() { get("inA") }
 
   ** Input B
-  override StatusStr? inB() { get("inB") }
+  @Gen override StatusStr? inB() { get("inB") }
 
   ** Input C
-  override StatusStr? inC() { get("inC") }
+  @Gen override StatusStr? inC() { get("inC") }
 
   ** Input D
-  override StatusStr? inD() { get("inD") }
+  @Gen override StatusStr? inD() { get("inD") }
 
   ** Input E
-  override StatusStr? inE() { get("inE") }
+  @Gen override StatusStr? inE() { get("inE") }
 
   ** Input F
-  override StatusStr? inF() { get("inF") }
+  @Gen override StatusStr? inF() { get("inF") }
 
   ** Input G
-  override StatusStr? inG() { get("inG") }
+  @Gen override StatusStr? inG() { get("inG") }
 
   ** Input H
-  override StatusStr? inH() { get("inH") }
+  @Gen override StatusStr? inH() { get("inH") }
 
   ** Input I
-  override StatusStr? inI() { get("inI") }
+  @Gen override StatusStr? inI() { get("inI") }
 
   ** Input J
-  override StatusStr? inJ() { get("inJ") }
-
-  /* ionc-end */
+  @Gen override StatusStr? inJ() { get("inJ") }
 }
 
 **
-** A Number select
+** Number select
 **
+@Gen
 class NumberSelect : ValSelect
 {
-  /* ionc-start */
-
   ** Input A
-  override StatusNumber? inA() { get("inA") }
+  @Gen override StatusNumber? inA() { get("inA") }
 
   ** Input B
-  override StatusNumber? inB() { get("inB") }
+  @Gen override StatusNumber? inB() { get("inB") }
 
   ** Input C
-  override StatusNumber? inC() { get("inC") }
+  @Gen override StatusNumber? inC() { get("inC") }
 
   ** Input D
-  override StatusNumber? inD() { get("inD") }
+  @Gen override StatusNumber? inD() { get("inD") }
 
   ** Input E
-  override StatusNumber? inE() { get("inE") }
+  @Gen override StatusNumber? inE() { get("inE") }
 
   ** Input F
-  override StatusNumber? inF() { get("inF") }
+  @Gen override StatusNumber? inF() { get("inF") }
 
   ** Input G
-  override StatusNumber? inG() { get("inG") }
+  @Gen override StatusNumber? inG() { get("inG") }
 
   ** Input H
-  override StatusNumber? inH() { get("inH") }
+  @Gen override StatusNumber? inH() { get("inH") }
 
   ** Input I
-  override StatusNumber? inI() { get("inI") }
+  @Gen override StatusNumber? inI() { get("inI") }
 
   ** Input J
-  override StatusNumber? inJ() { get("inJ") }
-
-  /* ionc-end */
+  @Gen override StatusNumber? inJ() { get("inJ") }
 }
 
 **
-** A Str select
+** Str select
 **
+@Gen
 class StrSelect : ValSelect
 {
-  /* ionc-start */
-
   ** Input A
-  override StatusStr? inA() { get("inA") }
+  @Gen override StatusStr? inA() { get("inA") }
 
   ** Input B
-  override StatusStr? inB() { get("inB") }
+  @Gen override StatusStr? inB() { get("inB") }
 
   ** Input C
-  override StatusStr? inC() { get("inC") }
+  @Gen override StatusStr? inC() { get("inC") }
 
   ** Input D
-  override StatusStr? inD() { get("inD") }
+  @Gen override StatusStr? inD() { get("inD") }
 
   ** Input E
-  override StatusStr? inE() { get("inE") }
+  @Gen override StatusStr? inE() { get("inE") }
 
   ** Input F
-  override StatusStr? inF() { get("inF") }
+  @Gen override StatusStr? inF() { get("inF") }
 
   ** Input G
-  override StatusStr? inG() { get("inG") }
+  @Gen override StatusStr? inG() { get("inG") }
 
   ** Input H
-  override StatusStr? inH() { get("inH") }
+  @Gen override StatusStr? inH() { get("inH") }
 
   ** Input I
-  override StatusStr? inI() { get("inI") }
+  @Gen override StatusStr? inI() { get("inI") }
 
   ** Input J
-  override StatusStr? inJ() { get("inJ") }
-
-  /* ionc-end */
+  @Gen override StatusStr? inJ() { get("inJ") }
 }
 

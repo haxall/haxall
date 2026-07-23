@@ -12,36 +12,27 @@ using haystack
 **
 ** Boolean constant
 **
+@Gen
 class BoolConst : HxComp
 {
-  /* ionc-start */
-
-  virtual StatusBool? out { get {get("out")} set {set("out", it)} }
-
-  /* ionc-end */
+  @Gen virtual StatusBool? out { get {get("out")} set {set("out", it)} }
 }
 
 **
 ** Number constant
 **
+@Gen
 class NumberConst : HxComp
 {
-  /* ionc-start */
-
-  virtual StatusNumber? out { get {get("out")} set {set("out", it)} }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? out { get {get("out")} set {set("out", it)} }
 }
 
 **
 ** Str constant
 **
+@Gen
 class StrConst : HxComp
 {
-  /* ionc-start */
-
-  virtual StatusStr? out { get {get("out")} set {set("out", it)} }
-
-  /* ionc-end */
+  @Gen virtual StatusStr? out { get {get("out")} set {set("out", it)} }
 }
 

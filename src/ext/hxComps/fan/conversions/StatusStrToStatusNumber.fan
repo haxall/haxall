@@ -13,15 +13,12 @@ using haystack
 ** Convert a StatusStr to a StatusNumber. The string may contain a unit, such as "100m".
 ** If the string cannot be parsed as a number, then out is set to NaN and fault.
 **
+@Gen
 class StatusStrToStatusNumber : HxComp
 {
-  /* ionc-start */
+  @Gen virtual StatusStr? in() { get("in") }
 
-  virtual StatusStr? in() { get("in") }
-
-  virtual StatusNumber? out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? out() { get("out") }
 
   override Void onExecute()
   {

@@ -12,17 +12,14 @@ using haystack
 **
 ** Current clock time
 **
+@Gen
 class CurTime : HxComp
 {
-  /* ionc-start */
-
   ** How frequently to update the current time
-  virtual Duration updateFreq { get {get("updateFreq")} set {set("updateFreq", it)} }
+  @Gen virtual Duration updateFreq { get {get("updateFreq")} set {set("updateFreq", it)} }
 
   ** The current time
-  virtual DateTime out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual DateTime out() { get("out") }
 
   new make()
   {

@@ -13,23 +13,20 @@ using haystack
 ** Generates a random number such that `out = random() * multiplier + offset`
 ** where `random()` generates a number between 0.0 (inclusive) and 1.0 (exclusive)
 **
+@Gen
 class Random : HxComp
 {
-  /* ionc-start */
-
   ** Then current random number
-  virtual StatusNumber out { get {get("out")} set {set("out", it)} }
+  @Gen virtual StatusNumber out() { get("out") }
 
   ** The multiplier
-  virtual Float multiplier { get {get("multiplier")} set {set("multiplier", it)} }
+  @Gen virtual Float multiplier { get {get("multiplier")} set {set("multiplier", it)} }
 
   ** The offset
-  virtual Float offset { get {get("offset")} set {set("offset", it)} }
+  @Gen virtual Float offset { get {get("offset")} set {set("offset", it)} }
 
   ** How frequently to update the output
-  virtual Duration freq { get {get("freq")} set {set("freq", it)} }
-
-  /* ionc-end */
+  @Gen virtual Duration freq { get {get("freq")} set {set("freq", it)} }
 
   new make()
   {

@@ -13,30 +13,27 @@ using haystack
 ** Contains a slot for each status flag
 **
 @NoDoc
+@Gen
 class StatusTestComp : HxComp
 {
 
-  /* ionc-start */
+  @Gen virtual StatusNumber ok() { get("ok") }
 
-  virtual StatusNumber ok() { get("ok") }
+  @Gen virtual StatusNumber alarm() { get("alarm") }
 
-  virtual StatusNumber alarm() { get("alarm") }
+  @Gen virtual StatusNumber disabled() { get("disabled") }
 
-  virtual StatusNumber disabled() { get("disabled") }
+  @Gen virtual StatusNumber down() { get("down") }
 
-  virtual StatusNumber down() { get("down") }
+  @Gen virtual StatusNumber fault() { get("fault") }
 
-  virtual StatusNumber fault() { get("fault") }
+  @Gen virtual StatusNumber nullVal() { get("nullVal") }
 
-  virtual StatusNumber nullVal() { get("nullVal") }
+  @Gen virtual StatusNumber overridden() { get("overridden") }
 
-  virtual StatusNumber overridden() { get("overridden") }
+  @Gen virtual StatusNumber stale() { get("stale") }
 
-  virtual StatusNumber stale() { get("stale") }
-
-  virtual StatusNumber unacked() { get("unacked") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber unacked() { get("unacked") }
 
 
   override Duration? onExecuteFreq()

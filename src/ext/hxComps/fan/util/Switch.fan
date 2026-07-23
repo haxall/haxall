@@ -6,26 +6,25 @@
 //   07 Aug 2025  Matthew Giannini  Creation
 //
 
+using xeto
+
 **
-** A switch selectes one of two inputs based on the current value of the `inSwitch` slot.
+** A switch selects one of two inputs based on the current value of the `inSwitch` slot.
 **
+@Gen
 abstract class ValSwitch : HxComp
 {
-  /* ionc-start */
-
   ** If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  virtual StatusBool? inSwitch() { get("inSwitch") }
+  @Gen virtual StatusBool? inSwitch() { get("inSwitch") }
 
   ** The output value when `inSwitch` is true
-  virtual StatusVal? inTrue() { get("inTrue") }
+  @Gen virtual StatusVal? inTrue() { get("inTrue") }
 
   ** The output value when `inSwitch` is false
-  virtual StatusVal? inFalse() { get("inFalse") }
+  @Gen virtual StatusVal? inFalse() { get("inFalse") }
 
   ** The output
-  virtual StatusVal? out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusVal? out() { get("out") }
 
   override Void onExecute()
   {
@@ -45,68 +44,59 @@ abstract class ValSwitch : HxComp
 }
 
 **
-** A Bool switch
+** Bool switch
 **
+@Gen
 class BoolSwitch : ValSwitch
 {
-  /* ionc-start */
-
   ** If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  override StatusBool? inSwitch() { get("inSwitch") }
+  @Gen override StatusBool? inSwitch() { get("inSwitch") }
 
   ** The output value when `inSwitch` is true
-  override StatusBool? inTrue() { get("inTrue") }
+  @Gen override StatusBool? inTrue() { get("inTrue") }
 
   ** The output value when `inSwitch` is false
-  override StatusBool? inFalse() { get("inFalse") }
+  @Gen override StatusBool? inFalse() { get("inFalse") }
 
   ** The output
-  override StatusBool? out() { get("out") }
-
-  /* ionc-end */
+  @Gen override StatusBool? out() { get("out") }
 }
 
 **
-** A Number switch
+** Number switch
 **
+@Gen
 class NumberSwitch : ValSwitch
 {
-  /* ionc-start */
-
   ** If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  override StatusBool? inSwitch() { get("inSwitch") }
+  @Gen override StatusBool? inSwitch() { get("inSwitch") }
 
   ** The output value when `inSwitch` is true
-  override StatusNumber? inTrue() { get("inTrue") }
+  @Gen override StatusNumber? inTrue() { get("inTrue") }
 
   ** The output value when `inSwitch` is false
-  override StatusNumber? inFalse() { get("inFalse") }
+  @Gen override StatusNumber? inFalse() { get("inFalse") }
 
   ** The output
-  override StatusNumber? out() { get("out") }
-
-  /* ionc-end */
+  @Gen override StatusNumber? out() { get("out") }
 }
 
 **
-** A Str switch
+** Str switch
 **
+@Gen
 class StrSwitch : ValSwitch
 {
-  /* ionc-start */
-
   ** If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
-  override StatusBool? inSwitch() { get("inSwitch") }
+  @Gen override StatusBool? inSwitch() { get("inSwitch") }
 
   ** The output value when `inSwitch` is true
-  override StatusStr? inTrue() { get("inTrue") }
+  @Gen override StatusStr? inTrue() { get("inTrue") }
 
   ** The output value when `inSwitch` is false
-  override StatusStr? inFalse() { get("inFalse") }
+  @Gen override StatusStr? inFalse() { get("inFalse") }
 
   ** The output
-  override StatusStr? out() { get("out") }
-
-  /* ionc-end */
+  @Gen override StatusStr? out() { get("out") }
 }
 

@@ -12,27 +12,24 @@ using haystack
 **
 ** The output of this component generates a sine wave.
 **
+@Gen
 class SineWave : HxComp
 {
 
-  /* ionc-start */
-
   ** The computed sine wave
-  virtual StatusNumber out() { get("out") }
+  @Gen virtual StatusNumber out() { get("out") }
 
   ** The amount of time it takes to output one complete cycle
-  virtual Duration period { get {get("period")} set {set("period", it)} }
+  @Gen virtual Duration period { get {get("period")} set {set("period", it)} }
 
   ** The height of the sine wave from its lowest to highest point
-  virtual Float amplitude { get {get("amplitude")} set {set("amplitude", it)} }
+  @Gen virtual Float amplitude { get {get("amplitude")} set {set("amplitude", it)} }
 
   ** The distance from zero that the sine wave's amplitude is shifted
-  virtual Float offset { get {get("offset")} set {set("offset", it)} }
+  @Gen virtual Float offset { get {get("offset")} set {set("offset", it)} }
 
   ** How frequently to compute the sine wave
-  virtual Duration freq { get {get("freq")} set {set("freq", it)} }
-
-  /* ionc-end */
+  @Gen virtual Duration freq { get {get("freq")} set {set("freq", it)} }
 
   new make()
   {

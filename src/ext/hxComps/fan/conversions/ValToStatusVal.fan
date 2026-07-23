@@ -12,15 +12,12 @@ using haystack
 **
 ** Convert a Bool value to a StatusBool
 **
+@Gen
 class BoolToStatusBool : HxComp
 {
-  /* ionc-start */
+  @Gen virtual Bool in() { get("in") }
 
-  virtual Bool in() { get("in") }
-
-  virtual StatusBool out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusBool out() { get("out") }
 
   override Void onExecute() { set("out", StatusBool(in)) }
 }
@@ -28,15 +25,12 @@ class BoolToStatusBool : HxComp
 **
 ** Convert a Number to a StatusNumber
 **
+@Gen
 class NumberToStatusNumber : HxComp
 {
-  /* ionc-start */
+  @Gen virtual Number in() { get("in") }
 
-  virtual Number in() { get("in") }
-
-  virtual StatusNumber out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber out() { get("out") }
 
   override Void onExecute() { set("out", StatusNumber(in)) }
 }
@@ -44,15 +38,13 @@ class NumberToStatusNumber : HxComp
 **
 ** Convert a Str to a StatusStr
 **
+@Gen
 class StrToStatusStr : HxComp
 {
-  /* ionc-start */
+  @Gen virtual Str in() { get("in") }
 
-  virtual Str in() { get("in") }
+  @Gen virtual StatusStr out() { get("out") }
 
-  virtual StatusStr out() { get("out") }
-
-  /* ionc-end */
   override Void onExecute() { set("out", StatusStr(in)) }
 }
 

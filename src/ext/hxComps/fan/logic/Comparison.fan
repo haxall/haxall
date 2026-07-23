@@ -12,17 +12,14 @@ using haystack
 **
 ** The base spec for all mathematical comparison operators
 **
+@Gen
 abstract class Comparison : Logic
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusNumber? inA() { get("inA") }
+  @Gen virtual StatusNumber? inA() { get("inA") }
 
   ** Input B
-  virtual StatusNumber? inB() { get("inB") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? inB() { get("inB") }
 
   final override Void onExecute()
   {
@@ -48,11 +45,9 @@ abstract class Comparison : Logic
 **
 ** Computes A > B
 **
+@Gen
 class GreaterThan : Comparison
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Bool calculate(Number a, Number b) { a > b }
 }
@@ -60,11 +55,9 @@ class GreaterThan : Comparison
 **
 ** Computes A >= B
 **
+@Gen
 class GreaterThanEqual : Comparison
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Bool calculate(Number a, Number b) { a >= b }
 }
@@ -72,11 +65,9 @@ class GreaterThanEqual : Comparison
 **
 ** Computes A < B
 **
+@Gen
 class LessThan : Comparison
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Bool calculate(Number a, Number b) { a < b }
 }
@@ -84,11 +75,9 @@ class LessThan : Comparison
 **
 ** Computes A <= B
 **
+@Gen
 class LessThanEqual : Comparison
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Bool calculate(Number a, Number b) { a <= b }
 }
@@ -96,11 +85,9 @@ class LessThanEqual : Comparison
 **
 ** Computes A == B
 **
+@Gen
 class Equal : Comparison
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Bool calculate(Number a, Number b) { a == b }
 }
@@ -108,11 +95,9 @@ class Equal : Comparison
 **
 ** Computes A != B
 **
+@Gen
 class NotEqual : Comparison
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Bool calculate(Number a, Number b) { a != b }
 }

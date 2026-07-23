@@ -12,17 +12,14 @@ using haystack
 **
 ** The base spec for all math components that operate on two inputs
 **
+@Gen
 abstract class BinaryMath : Math
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusNumber? inA() { get("inA") }
+  @Gen virtual StatusNumber? inA() { get("inA") }
 
   ** Input B
-  virtual StatusNumber? inB() { get("inB") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? inB() { get("inB") }
 
   override Void onExecute()
   {
@@ -48,11 +45,9 @@ abstract class BinaryMath : Math
 **
 ** Computes the difference of its inputs (A - B)
 **
+@Gen
 class Subtract : BinaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Number calculate(Number a, Number b) { a - b }
 }
@@ -60,11 +55,9 @@ class Subtract : BinaryMath
 **
 ** Computes the quotient of its inputs (A / B)
 **
+@Gen
 class Divide : BinaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Number calculate(Number a, Number b) { a / b }
 }
@@ -72,11 +65,9 @@ class Divide : BinaryMath
 **
 ** Computes the modulus of its inputs (A % B)
 **
+@Gen
 class Modulus : BinaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Number calculate(Number a, Number b) { a % b }
 }
@@ -84,11 +75,9 @@ class Modulus : BinaryMath
 **
 ** Computes a raised to the b power: out = inA ^ inB
 **
+@Gen
 class Power : BinaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   protected override Number calculate(Number a, Number b) { Number(a.toFloat.pow(b.toFloat)) }
 }

@@ -10,22 +10,19 @@ using xeto
 using haystack
 
 **
-** A bit-wise masking operation
+** Bit-wise masking operation
 **
+@Gen
 abstract class BitMask : HxComp
 {
-  /* ionc-start */
-
   ** The input number
-  virtual StatusNumber? in() { get("in") }
+  @Gen virtual StatusNumber? in() { get("in") }
 
   ** The mask to apply to when doing the bit operation
-  virtual StatusNumber? mask { get {get("mask")} set {set("mask", it)} }
+  @Gen virtual StatusNumber? mask { get {get("mask")} set {set("mask", it)} }
 
   ** The computed value
-  virtual StatusNumber? out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? out() { get("out") }
 
   override Void onExecute()
   {
@@ -40,36 +37,27 @@ abstract class BitMask : HxComp
 **
 ** Compute the bitwise `and` value of the input and the mask
 **
+@Gen
 class BitAnd : BitMask
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Int calculate(Int a, Int mask) { a.and(mask) }
 }
 
 **
 ** Compute the bitwise `or` value of the input and the mask
 **
+@Gen
 class BitOr : BitMask
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Int calculate(Int a, Int mask) { a.or(mask) }
 }
 
 **
 ** Compute the bitwise `xor` (exclusive or) of the input and the mask
 **
+@Gen
 class BitXor : BitMask
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Int calculate(Int a, Int mask) { a.xor(mask) }
 }
 

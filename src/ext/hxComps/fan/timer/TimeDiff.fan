@@ -13,20 +13,17 @@ using haystack
 ** Computes the difference in time between `in1` and `in2` by subtracting
 ** `in2` from `in1`.
 **
+@Gen
 class TimeDiff : HxComp
 {
-  /* ionc-start */
-
   ** The base time from which `in2` will be subtracted
-  virtual DateTime in1() { get("in1") }
+  @Gen virtual DateTime in1() { get("in1") }
 
   ** The time to subtract from `in1`
-  virtual DateTime in2() { get("in2") }
+  @Gen virtual DateTime in2() { get("in2") }
 
   ** The time difference between `in1` and `in2`
-  virtual Duration out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual Duration out() { get("out") }
 
   new make()
   {

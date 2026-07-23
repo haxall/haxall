@@ -12,23 +12,20 @@ using haystack
 **
 ** The base spec for all math components that operate on up to four inputs
 **
+@Gen
 abstract class QuadMath : Math
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusNumber? inA() { get("inA") }
+  @Gen virtual StatusNumber? inA() { get("inA") }
 
   ** Input B
-  virtual StatusNumber? inB() { get("inB") }
+  @Gen virtual StatusNumber? inB() { get("inB") }
 
   ** Input C
-  virtual StatusNumber? inC() { get("inC") }
+  @Gen virtual StatusNumber? inC() { get("inC") }
 
   ** Input D
-  virtual StatusNumber? inD() { get("inD") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? inD() { get("inD") }
 
   final override Void onExecute()
   {
@@ -68,12 +65,9 @@ abstract class QuadMath : Math
 **
 ** Computes the sum of its inputs
 **
+@Gen
 class Add : QuadMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   override protected const Int minInputs := 1
 
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
@@ -90,12 +84,9 @@ class Add : QuadMath
 **
 ** Computes the product of its inputs
 **
+@Gen
 class Multiply : QuadMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   override protected const Int minInputs := 1
 
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
@@ -112,12 +103,9 @@ class Multiply : QuadMath
 **
 ** Computes the average of its inputs
 **
+@Gen
 class Average : QuadMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   override protected const Int minInputs := 1
 
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
@@ -136,12 +124,9 @@ class Average : QuadMath
 ** Finds the maximum value of its valid inputs and sets that value to out.
 ** out = max(inA, inB, inC, inD)
 **
+@Gen
 class Maximum : QuadMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   override protected const Int minInputs := 1
 
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
@@ -158,12 +143,9 @@ class Maximum : QuadMath
 ** Finds the minimum value of its valid inputs and sets that value to out.
 ** out = min(inA, inB, inC, inD)
 **
+@Gen
 class Minimum : QuadMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   override protected const Int minInputs := 1
 
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)

@@ -10,36 +10,33 @@ using xeto
 using haystack
 
 **
-** A digital input demultiplexer
+** Digital input demultiplexer
 **
+@Gen
 class DigitalInputDemux : HxComp
 {
-  /* ionc-start */
-
   ** The input
-  virtual StatusNumber? in() { get("in") }
+  @Gen virtual StatusNumber? in() { get("in") }
 
-  virtual Float offset { get {get("offset")} set {set("offset", it)} }
+  @Gen virtual Float offset { get {get("offset")} set {set("offset", it)} }
 
-  virtual StatusBool? out1() { get("out1") }
+  @Gen virtual StatusBool? out1() { get("out1") }
 
-  virtual StatusBool? out2() { get("out2") }
+  @Gen virtual StatusBool? out2() { get("out2") }
 
-  virtual StatusBool? out3() { get("out3") }
+  @Gen virtual StatusBool? out3() { get("out3") }
 
-  virtual StatusBool? out4() { get("out4") }
+  @Gen virtual StatusBool? out4() { get("out4") }
 
-  virtual Float out1Value { get {get("out1Value")} set {set("out1Value", it)} }
+  @Gen virtual Float out1Value { get {get("out1Value")} set {set("out1Value", it)} }
 
-  virtual Float out2Value { get {get("out2Value")} set {set("out2Value", it)} }
+  @Gen virtual Float out2Value { get {get("out2Value")} set {set("out2Value", it)} }
 
-  virtual Float out3Value { get {get("out3Value")} set {set("out3Value", it)} }
+  @Gen virtual Float out3Value { get {get("out3Value")} set {set("out3Value", it)} }
 
-  virtual Float out4Value { get {get("out4Value")} set {set("out4Value", it)} }
+  @Gen virtual Float out4Value { get {get("out4Value")} set {set("out4Value", it)} }
 
-  virtual Float deadband { get {get("deadband")} set {set("deadband", it)} }
-
-  /* ionc-end */
+  @Gen virtual Float deadband { get {get("deadband")} set {set("deadband", it)} }
 
   override Void onExecute()
   {

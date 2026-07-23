@@ -9,19 +9,14 @@
 using xeto
 using haystack
 
+/* TODO
 class NumberPoint : HxComp
 {
-  /* ionc-start */
-
   virtual StatusNumber? out() { get("out") }
-
-  /* ionc-end */
 }
 
 class NumberWritable : NumberPoint
 {
-  /* ionc-start */
-
   virtual StatusNumber? in1() { get("in1") }
 
   virtual StatusNumber? in2() { get("in2") }
@@ -56,8 +51,6 @@ class NumberWritable : NumberPoint
 
   virtual StatusNumber? fallback { get {get("fallback")} set {set("fallback", it)} }
 
-  /* ionc-end */
-
   override Void onExecute()
   {
     prio := (1..16).eachWhile |i| { get("in${i}") }
@@ -66,4 +59,5 @@ class NumberWritable : NumberPoint
   }
 
 }
+*/
 

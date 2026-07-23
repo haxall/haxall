@@ -12,21 +12,18 @@ using haystack
 **
 ** Generates an oscillating binary pulse
 **
+@Gen
 class MultiVibrator : HxComp
 {
-  /* ionc-start */
-
   ** The current pulse value
-  virtual StatusBool out() { get("out") }
+  @Gen virtual StatusBool out() { get("out") }
 
   ** How long it takes to complete a single on-off cycle
-  virtual Duration period { get {get("period")} set {set("period", it)} }
+  @Gen virtual Duration period { get {get("period")} set {set("period", it)} }
 
   ** Configures the percentage of time during the period that the
   ** signal is active (true).
-  virtual Int dutyCycle { get {get("dutyCycle")} set {set("dutyCycle", it)} }
-
-  /* ionc-end */
+  @Gen virtual Int dutyCycle { get {get("dutyCycle")} set {set("dutyCycle", it)} }
 
   new make()
   {

@@ -15,15 +15,12 @@ using axon
 using xeto::Comp
 
 **
-** A component that evaluates an Axon expression
+** Component that evaluates an Axon expression
 **
+@Gen
 class AxonComp : HxComp
 {
-  /* ionc-start */
-
-  virtual Str axon { get {get("axon")} set {set("axon", it)} }
-
-  /* ionc-end */
+  @Gen virtual Str axon { get {get("axon")} set {set("axon", it)} }
 
   private static const FileLoc loc := FileLoc.make("AxonComp", 0)
 

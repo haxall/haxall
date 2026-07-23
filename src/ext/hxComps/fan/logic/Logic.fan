@@ -12,26 +12,20 @@ using haystack
 **
 ** The base spec for all logic components
 **
+@Gen
 abstract class Logic : HxComp
 {
-  /* ionc-start */
-
   ** The computed value
-  virtual StatusBool? out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusBool? out() { get("out") }
 }
 
 **
 ** Computes the logical negation of its input
 **
+@Gen
 class Not : Logic
 {
-  /* ionc-start */
-
-  virtual StatusBool? in() { get("in") }
-
-  /* ionc-end */
+  @Gen virtual StatusBool? in() { get("in") }
 
   override Void onExecute()
   {

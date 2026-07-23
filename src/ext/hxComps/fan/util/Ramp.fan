@@ -9,29 +9,29 @@
 using xeto
 using haystack
 
+**
+** The output of this component generates a ramp waveform.
+**
+@Gen
 class Ramp : HxComp
 {
-  /* ionc-start */
-
   ** The computed ramp value
-  virtual StatusNumber out() { get("out") }
+  @Gen virtual StatusNumber out() { get("out") }
 
   ** The amount of time it takes to output one complete cycle
-  virtual Duration period { get {get("period")} set {set("period", it)} }
+  @Gen virtual Duration period { get {get("period")} set {set("period", it)} }
 
   ** The height of the ramp from its lowest to highest point
-  virtual Float amplitude { get {get("amplitude")} set {set("amplitude", it)} }
+  @Gen virtual Float amplitude { get {get("amplitude")} set {set("amplitude", it)} }
 
   ** The distance from zero that the ramp's amplitude is shifted
-  virtual Float offset { get {get("offset")} set {set("offset", it)} }
+  @Gen virtual Float offset { get {get("offset")} set {set("offset", it)} }
 
   ** How frequently to compute the ramp
-  virtual Duration freq { get {get("freq")} set {set("freq", it)} }
+  @Gen virtual Duration freq { get {get("freq")} set {set("freq", it)} }
 
   ** The type of ramp waveform to produce
-  virtual RampWaveform waveform { get {get("waveform")} set {set("waveform", it)} }
-
-  /* ionc-end */
+  @Gen virtual RampWaveform waveform { get {get("waveform")} set {set("waveform", it)} }
 
   new make()
   {
@@ -81,16 +81,16 @@ class Ramp : HxComp
 }
 
 
+**
+** Waveforms available to the Ramp component.
+**
+@Gen
 enum class RampWaveform
 {
-  /* ionc-start */
-
   triangle,
 
   sawtooth,
 
   invertedSawtooth
-
-  /* ionc-end */
 }
 

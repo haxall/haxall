@@ -12,50 +12,47 @@ using haystack
 **
 ** Computes the min, max, and avg of up to 10 inputs.
 **
+@Gen
 class MinMaxAvg : HxComp
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusNumber? inA() { get("inA") }
+  @Gen virtual StatusNumber? inA() { get("inA") }
 
   ** Input B
-  virtual StatusNumber? inB() { get("inB") }
+  @Gen virtual StatusNumber? inB() { get("inB") }
 
   ** Input C
-  virtual StatusNumber? inC() { get("inC") }
+  @Gen virtual StatusNumber? inC() { get("inC") }
 
   ** Input D
-  virtual StatusNumber? inD() { get("inD") }
+  @Gen virtual StatusNumber? inD() { get("inD") }
 
   ** Input E
-  virtual StatusNumber? inE() { get("inE") }
+  @Gen virtual StatusNumber? inE() { get("inE") }
 
   ** Input F
-  virtual StatusNumber? inF() { get("inF") }
+  @Gen virtual StatusNumber? inF() { get("inF") }
 
   ** Input G
-  virtual StatusNumber? inG() { get("inG") }
+  @Gen virtual StatusNumber? inG() { get("inG") }
 
   ** Input H
-  virtual StatusNumber? inH() { get("inH") }
+  @Gen virtual StatusNumber? inH() { get("inH") }
 
   ** Input I
-  virtual StatusNumber? inI() { get("inI") }
+  @Gen virtual StatusNumber? inI() { get("inI") }
 
   ** Input J
-  virtual StatusNumber? inJ { get {get("inJ")} set {set("inJ", it)} }
+  @Gen virtual StatusNumber? inJ() { get("inJ") }
 
   ** The minimum value
-  virtual StatusNumber? min() { get("min") }
+  @Gen virtual StatusNumber? min() { get("min") }
 
   ** The maximum value
-  virtual StatusNumber? max() { get("max") }
+  @Gen virtual StatusNumber? max() { get("max") }
 
   ** Average of non-null inputs
-  virtual StatusNumber? avg() { get("avg") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? avg() { get("avg") }
 
   override Void onExecute()
   {

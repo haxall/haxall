@@ -12,28 +12,25 @@ using haystack
 **
 ** Bool delay
 **
+@Gen
 class BoolDelay : HxComp
 {
-  /* ionc-start */
-
   ** Input to the delay.
-  virtual StatusBool? in() { get("in") }
+  @Gen virtual StatusBool? in() { get("in") }
 
   ** How long to wait before setting the out slot to true when
   ** the in slot transitions to true.
-  virtual Duration onDelay { get {get("onDelay")} set {set("onDelay", it)} }
+  @Gen virtual Duration onDelay { get {get("onDelay")} set {set("onDelay", it)} }
 
   ** How long to wait before setting the out slot to false when
   ** the in slot transitions to false.
-  virtual Duration offDelay { get {get("offDelay")} set {set("offDelay", it)} }
+  @Gen virtual Duration offDelay { get {get("offDelay")} set {set("offDelay", it)} }
 
   ** The value of the in slot after any delays are accounted for.
-  virtual StatusBool? out() { get("out") }
+  @Gen virtual StatusBool? out() { get("out") }
 
   ** The inverse of the current out slot.
-  virtual StatusBool? outNot() { get("outNot") }
-
-  /* ionc-end */
+  @Gen virtual StatusBool? outNot() { get("outNot") }
 
   new make()
   {

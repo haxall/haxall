@@ -12,23 +12,20 @@ using haystack
 **
 ** The base spec for all logic components that operate on up to four inputs
 **
+@Gen
 abstract class QuadLogic : Logic
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusBool? inA() { get("inA") }
+  @Gen virtual StatusBool? inA() { get("inA") }
 
   ** Input B
-  virtual StatusBool? inB() { get("inB") }
+  @Gen virtual StatusBool? inB() { get("inB") }
 
   ** Input C
-  virtual StatusBool? inC() { get("inC") }
+  @Gen virtual StatusBool? inC() { get("inC") }
 
   ** Input D
-  virtual StatusBool? inD() { get("inD") }
-
-  /* ionc-end */
+  @Gen virtual StatusBool? inD() { get("inD") }
 
   final override Void onExecute()
   {
@@ -68,11 +65,9 @@ abstract class QuadLogic : Logic
 **
 ** Computes the logical "and" of its inputs
 **
+@Gen
 class And : QuadLogic
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   override protected const Int minInputs := 1
 
@@ -90,11 +85,9 @@ class And : QuadLogic
 **
 ** Computes the logical "or" of its inputs
 **
+@Gen
 class Or : QuadLogic
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   override protected const Int minInputs := 1
 
@@ -112,11 +105,9 @@ class Or : QuadLogic
 **
 ** Computes the exclusive-or of its inputs
 **
+@Gen
 class Xor : QuadLogic
 {
-  /* ionc-start */
-
-  /* ionc-end */
 
   override protected const Int minInputs := 2
 

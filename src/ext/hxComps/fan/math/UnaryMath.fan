@@ -12,14 +12,11 @@ using haystack
 **
 ** The base spec for all math components that operate on one input
 **
+@Gen
 abstract class UnaryMath : Math
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusNumber? inA() { get("inA") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? inA() { get("inA") }
 
   override Void onExecute()
   {
@@ -37,36 +34,27 @@ abstract class UnaryMath : Math
 **
 ** Computes the absolute value of its input
 **
+@Gen
 class AbsValue : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { a.abs }
 }
 
 **
 ** Computes out = e ^ inA where `e` is Euler's number
 **
+@Gen
 class Exponential : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.exp) }
 }
 
 **
 ** Computes out = inA!
 **
+@Gen
 class Factorial : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   override Void onExecute()
   {
     super.onExecute()
@@ -77,6 +65,7 @@ class Factorial : UnaryMath
       set("out", StatusNumber(out.val, out.status.set(Status.fault)))
     }
   }
+
   protected override Number calculate(Number a)
   {
     acc := 1f
@@ -93,120 +82,90 @@ class Factorial : UnaryMath
 **
 ** Computes the log base 10 of its input: out = log10(inA)
 **
+@Gen
 class LogBase10 : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.log10) }
 }
 
 **
 ** Computes the natural logarithm of its input: out = ln(inA)
 **
+@Gen
 class LogNatural : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.log) }
 }
 
 **
 ** Computes the negation of its input: out = -inA
 **
+@Gen
 class Negative : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { -a }
 }
 
 **
 ** Computes the square root of its input: out = sqrt(inA)
 **
+@Gen
 class SquareRoot : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.sqrt) }
 }
 
 **
 ** Computes the sine of its input: out = sin(inA)
 **
+@Gen
 class Sine : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.sin) }
 }
 
 **
 ** Computes the cosine of its input: out = cos(inA)
 **
+@Gen
 class Cosine : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.cos) }
 }
 
 **
 ** Computes the cosine of its input: out = tan(inA)
 **
+@Gen
 class Tangent : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.tan) }
 }
 
 **
 ** Computes the arcsine of its input: out = asin(inA)
 **
+@Gen
 class ArcSine : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.asin) }
 }
 
 **
 ** Computes the arccosine of its input: out = acos(inA)
 **
+@Gen
 class ArcCosine : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.acos) }
 }
 
 **
 ** Computes the arctangent of its input: out = atan(inA)
 **
+@Gen
 class ArcTangent : UnaryMath
 {
-  /* ionc-start */
-
-  /* ionc-end */
-
   protected override Number calculate(Number a) { Number(a.toFloat.atan) }
 }
 

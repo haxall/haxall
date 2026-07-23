@@ -9,22 +9,22 @@
 using haystack
 using xeto
 
+**
+** Variable bound to a point rec
+**
+@Gen
 abstract class PointVar : EntityVar
 {
-  /* ionc-start */
-
-  virtual Ref? bindSpec { get {get("bindSpec")} set {set("bindSpec", it)} }
-
-  /* ionc-end */
+  @Gen virtual Ref? bindSpec { get {get("bindSpec")} set {set("bindSpec", it)} }
 }
 
+**
+** The base spec for point inputs. Outputs the current value of the bound point.
+**
+@Gen
 abstract class PointInput : PointVar
 {
-  /* ionc-start */
-
-  virtual StatusVal? curVal() { get("curVal") }
-
-  /* ionc-end */
+  @Gen virtual StatusVal? curVal() { get("curVal") }
 
   override StatusVal? bindOut() { this.curVal }
 
@@ -53,43 +53,43 @@ abstract class PointInput : PointVar
   }
 }
 
+**
+** Number point input
+**
+@Gen
 class NumberPointInput : PointInput
 {
-  /* ionc-start */
-
-  override StatusNumber? curVal() { get("curVal") }
-
-  /* ionc-end */
+  @Gen override StatusNumber? curVal() { get("curVal") }
 }
 
+**
+** Bool point input
+**
+@Gen
 class BoolPointInput : PointInput
 {
-  /* ionc-start */
-
-  override StatusBool? curVal() { get("curVal") }
-
-  /* ionc-end */
+  @Gen override StatusBool? curVal() { get("curVal") }
 }
 
+**
+** Str point input
+**
+@Gen
 class StrPointInput : PointInput
 {
-  /* ionc-start */
-
-  override StatusStr? curVal() { get("curVal") }
-
-  /* ionc-end */
+  @Gen override StatusStr? curVal() { get("curVal") }
 }
 
+**
+** The base spec for point outputs. Writes its input value to the bound point.
+**
+@Gen
 abstract class PointOutput : PointVar
 {
-  /* ionc-start */
-
-  virtual StatusVal? in() { get("in") }
+  @Gen virtual StatusVal? in() { get("in") }
 
   ** bindToCurVal: Marker?
-  virtual Int? bindToWriteLevel { get {get("bindToWriteLevel")} set {set("bindToWriteLevel", it)} }
-
-  /* ionc-end */
+  @Gen virtual Int? bindToWriteLevel { get {get("bindToWriteLevel")} set {set("bindToWriteLevel", it)} }
 
   override StatusVal? bindOut() { this.in }
 }

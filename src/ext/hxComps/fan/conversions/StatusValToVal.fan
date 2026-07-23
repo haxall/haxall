@@ -22,34 +22,28 @@ abstract class StatusValToVal : HxComp
 **
 ** Convert a StatusBool to a Bool value
 **
+@Gen
 class StatusBoolToBool : StatusValToVal
 {
-  /* ionc-start */
+  @Gen virtual StatusBool? in() { get("in") }
 
-  virtual StatusBool? in() { get("in") }
-
-  virtual Bool out() { get("out") }
+  @Gen virtual Bool out() { get("out") }
 
   ** When `in` is null, set out to this value.
-  virtual Bool whenNull { get {get("whenNull")} set {set("whenNull", it)} }
-
-  /* ionc-end */
+  @Gen virtual Bool whenNull { get {get("whenNull")} set {set("whenNull", it)} }
 }
 
 **
 ** Convert a StatusNumber to a Number
 **
+@Gen
 class StatusNumberToNumber : StatusValToVal
 {
-  /* ionc-start */
+  @Gen virtual StatusNumber? in() { get("in") }
 
-  virtual StatusNumber? in() { get("in") }
-
-  virtual Number out() { get("out") }
+  @Gen virtual Number out() { get("out") }
 
   ** When `in` is null, set out to this value.
-  virtual Number whenNull { get {get("whenNull")} set {set("whenNull", it)} }
-
-  /* ionc-end */
+  @Gen virtual Number whenNull { get {get("whenNull")} set {set("whenNull", it)} }
 }
 

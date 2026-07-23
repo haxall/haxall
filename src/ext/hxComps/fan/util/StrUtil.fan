@@ -6,32 +6,30 @@
 //   06 Aug 2025  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 
 **
 ** Concatenates up to four strings. Null inputs are ignored
 ** and treated as empty strings.
 **
+@Gen
 class StrConcat : HxComp
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusStr? inA() { get("inA") }
+  @Gen virtual StatusStr? inA() { get("inA") }
 
   ** Input B
-  virtual StatusStr? inB() { get("inB") }
+  @Gen virtual StatusStr? inB() { get("inB") }
 
   ** Input C
-  virtual StatusStr? inC() { get("inC") }
+  @Gen virtual StatusStr? inC() { get("inC") }
 
   ** Input D
-  virtual StatusStr? inD() { get("inD") }
+  @Gen virtual StatusStr? inD() { get("inD") }
 
   ** The concatenation of (inA + inB + inC + inD)
-  virtual StatusStr out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusStr out() { get("out") }
 
   new make() { }
 
@@ -51,30 +49,27 @@ class StrConcat : HxComp
 **
 ** Checks if `inB` can be found within `inA`.
 **
+@Gen
 class StrContains : HxComp
 {
-  /* ionc-start */
-
   ** Defines the Str to check for `inB`
-  virtual StatusStr? inA() { get("inA") }
+  @Gen virtual StatusStr? inA() { get("inA") }
 
   ** The Str to look for in `inA`
-  virtual StatusStr? inB() { get("inB") }
+  @Gen virtual StatusStr? inB() { get("inB") }
 
   ** True if `inA` contains `inB`
-  virtual StatusBool out() { get("out") }
+  @Gen virtual StatusBool out() { get("out") }
 
   ** The zero-based index to start checking for `inB` in `inA`.
-  virtual Int fromIndex { get {get("fromIndex")} set {set("fromIndex", it)} }
+  @Gen virtual Int fromIndex { get {get("fromIndex")} set {set("fromIndex", it)} }
 
   ** The index where `inB` was found, or -1 if it wasn't found
-  virtual Int startIndex() { get("startIndex") }
+  @Gen virtual Int startIndex() { get("startIndex") }
 
   ** The index in `inA` immediately after where `inB` was found,
   ** or -1 if it wasn't found
-  virtual Int afterIndex() { get("afterIndex") }
-
-  /* ionc-end */
+  @Gen virtual Int afterIndex() { get("afterIndex") }
 
   override Void onExecute()
   {
@@ -93,17 +88,14 @@ class StrContains : HxComp
 **
 ** Computes the length of the input Str.
 **
+@Gen
 class StrLen : HxComp
 {
-  /* ionc-start */
-
   ** The input Str
-  virtual StatusStr? in() { get("in") }
+  @Gen virtual StatusStr? in() { get("in") }
 
   ** The length of `in`
-  virtual StatusNumber out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber out() { get("out") }
 
   override Void onExecute()
   {
@@ -114,24 +106,21 @@ class StrLen : HxComp
 **
 ** Extracts a sub-string of the input.
 **
+@Gen
 class StrSubstr : HxComp
 {
-  /* ionc-start */
-
   ** The input Str
-  virtual StatusStr? in() { get("in") }
+  @Gen virtual StatusStr? in() { get("in") }
 
   ** The computed sub-string
-  virtual StatusStr out() { get("out") }
+  @Gen virtual StatusStr out() { get("out") }
 
   ** The index to start extracting the sub-string
-  virtual Int startIndex { get {get("startIndex")} set {set("startIndex", it)} }
+  @Gen virtual Int startIndex { get {get("startIndex")} set {set("startIndex", it)} }
 
   ** The index to end extracting the sub-string. Use -1 to indicate
   ** the end of the string.
-  virtual Int endIndex { get {get("endIndex")} set {set("endIndex", it)} }
-
-  /* ionc-end */
+  @Gen virtual Int endIndex { get {get("endIndex")} set {set("endIndex", it)} }
 
   override Void onExecute()
   {
@@ -160,17 +149,14 @@ class StrSubstr : HxComp
 **
 ** Removes whitespace from the beginning and end of a Str
 **
+@Gen
 class StrTrim : HxComp
 {
-  /* ionc-start */
-
   ** The input Str
-  virtual StatusStr? in() { get("in") }
+  @Gen virtual StatusStr? in() { get("in") }
 
   ** The input Str with leading and trailing whitespace removed
-  virtual StatusStr out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusStr out() { get("out") }
 
   override Void onExecute()
   {
@@ -182,23 +168,20 @@ class StrTrim : HxComp
 ** Tests two strings based on the selected test type. All tests are computed
 ** in terms of `a <test> b`
 **
+@Gen
 class StrTest : HxComp
 {
-  /* ionc-start */
-
   ** Input A
-  virtual StatusStr? inA() { get("inA") }
+  @Gen virtual StatusStr? inA() { get("inA") }
 
   ** Input B
-  virtual StatusStr? inB() { get("inB") }
+  @Gen virtual StatusStr? inB() { get("inB") }
 
   ** Result of the test
-  virtual StatusBool out() { get("out") }
+  @Gen virtual StatusBool out() { get("out") }
 
   ** The test to perform on the inputs
-  virtual StrTestType test { get {get("test")} set {set("test", it)} }
-
-  /* ionc-end */
+  @Gen virtual StrTestType test { get {get("test")} set {set("test", it)} }
 
   override Void onExecute()
   {
@@ -223,10 +206,9 @@ class StrTest : HxComp
 **
 ** Tests available to the StrTest component.
 **
+@Gen
 enum class StrTestType
 {
-  /* ionc-start */
-
   eq,
 
   eqIgnoreCase,
@@ -236,7 +218,5 @@ enum class StrTestType
   endsWith,
 
   contains
-
-  /* ionc-end */
 }
 

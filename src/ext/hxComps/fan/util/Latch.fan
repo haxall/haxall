@@ -9,24 +9,21 @@
 using xeto
 
 **
-** A "rising-edge" latch
+** "Rising-edge" latch
 **
+@Gen
 abstract class Latch : HxComp
 {
-  /* ionc-start */
-
   ** When the clock transitions from false to true it will cause
   ** out to be set to current value of in.
-  virtual Bool clock { get {get("clock")} set {set("clock", it)} }
+  @Gen virtual Bool clock { get {get("clock")} set {set("clock", it)} }
 
   ** The input status value. The output will be set when the clock
   ** transitions from false to true.
-  virtual StatusVal? in() { get("in") }
+  @Gen virtual StatusVal? in() { get("in") }
 
   ** The latched output
-  virtual StatusVal? out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusVal? out() { get("out") }
 
   new make() { }
 
@@ -48,44 +45,35 @@ abstract class Latch : HxComp
 }
 
 **
-** A Bool latch
+** Bool latch
 **
+@Gen
 class BoolLatch : Latch
 {
-  /* ionc-start */
+  @Gen override StatusBool? in() { get("in") }
 
-  override StatusBool? in() { get("in") }
-
-  override StatusBool? out() { get("out") }
-
-  /* ionc-end */
+  @Gen override StatusBool? out() { get("out") }
 }
 
 **
-** A Number latch
+** Number latch
 **
+@Gen
 class NumberLatch : Latch
 {
-  /* ionc-start */
+  @Gen override StatusNumber? in() { get("in") }
 
-  override StatusNumber? in() { get("in") }
-
-  override StatusNumber? out() { get("out") }
-
-  /* ionc-end */
+  @Gen override StatusNumber? out() { get("out") }
 }
 
 **
-** A Str latch
+** Str latch
 **
+@Gen
 class StrLatch : Latch
 {
-  /* ionc-start */
+  @Gen override StatusStr? in() { get("in") }
 
-  override StatusStr? in() { get("in") }
-
-  override StatusStr? out() { get("out") }
-
-  /* ionc-end */
+  @Gen override StatusStr? out() { get("out") }
 }
 

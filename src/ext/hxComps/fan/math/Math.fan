@@ -12,13 +12,10 @@ using haystack
 **
 ** The base spec for all math components
 **
+@Gen
 abstract class Math : HxComp
 {
-  /* ionc-start */
-
   ** The computed value
-  virtual StatusNumber? out() { get("out") }
-
-  /* ionc-end */
+  @Gen virtual StatusNumber? out() { get("out") }
 }
 
