@@ -102,19 +102,7 @@ const class AxonThunkFactory : ThunkFactory
 
   private Str fantomBaseName(Lib lib)
   {
-    // resolve fantom type BaseFuncs where base is spec name
-    // of the libExt otherwise the last name of the dotted lib name
-    libExt := lib.meta["libExt"]?.toStr
-    if (libExt != null)
-    {
-       name := XetoUtil.qnameToName(libExt)
-       if (name.endsWith("Ext")) name = name[0..-4]
-       return name
-    }
-    else
-    {
-      return XetoUtil.lastDottedName(lib.name).capitalize
-    }
+    XetoUtil.fantomFuncsBaseName(lib)
   }
 
   private TopFn? loadFantomCompMethod(Spec spec, Dict meta, Pod? pod)

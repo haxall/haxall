@@ -26,6 +26,8 @@
   ** Pairs may be separated by commas or newlines.  Every tag
   ** supported by the generation tools is documented here:
   **   - 'skip': comma separated list of spec slot names (type level)
+  **   - 'omitDocs': do not sync spec docs into Fantom docs; the
+  **     docs are mastered in the xeto source only (funcs mode)
   const Str? meta
 }
 

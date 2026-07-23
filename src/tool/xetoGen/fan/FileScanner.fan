@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 using compiler
 
@@ -95,7 +96,11 @@ internal class FileScanner
     start    := pendingStart(headerLine)
     typeDoc  := docRange
     genFacet := facets.find |x| { x.name == "Gen" }
+    gen      := genFacet == null ? null : toGen(genFacet)
     clearPending
+
+    // classes named *Funcs are funcs mode tracking @Api slots
+    this.apiMode = gen != null && typeName.endsWith("Funcs")
 
     // scan body members thru matching close brace
     acc := ASlot[,]
@@ -104,14 +109,25 @@ internal class FileScanner
     bodyClose := body(acc, isEnum)
 
     // only keep types opted in with @Gen
-    if (genFacet == null) return
+    if (gen == null) return
 
     // resolve spec in pod's bound libs and map to generation shape
-    loc  := FileLoc(file.osPath, headerLine+1)
-    spec := pod.libs.eachWhile |lib| { lib.type(typeName, false) }
-    if (spec == null) { c.err("Cannot resolve spec for @Gen type: $typeName", loc); return }
-    kind := ATypeKind.fromSpec(c.ns, spec)
-    if (kind == null) { c.err("Spec not supported for generation: $spec", loc); return }
+    loc := FileLoc(file.osPath, headerLine+1)
+    Spec? spec
+    ATypeKind? kind
+    if (apiMode)
+    {
+      spec = funcsSpec(typeName)
+      kind = ATypeKind.funcs
+      if (spec == null) { c.err("Cannot resolve lib Funcs spec for @Gen type: $typeName", loc); return }
+    }
+    else
+    {
+      spec = pod.libs.eachWhile |lib| { lib.type(typeName, false) }
+      if (spec == null) { c.err("Cannot resolve spec for @Gen type: $typeName", loc); return }
+      kind = ATypeKind.fromSpec(c.ns, spec)
+      if (kind == null) { c.err("Spec not supported for generation: $spec", loc); return }
+    }
     if (isEnum != kind.isEnum) { c.err("Enum mismatch between type and spec: $spec", loc); return }
 
     typeFlags := AFlags
@@ -121,11 +137,23 @@ internal class FileScanner
       it.isMixin    = isMixin
       it.isEnum     = isEnum
     }
-    type := AType(afile, typeName, spec, kind, typeFlags, toGen(genFacet), typeDoc, start..bodyClose, open, this.items)
+    type := AType(afile, typeName, spec, kind, typeFlags, gen, typeDoc, start..bodyClose, open, this.items)
     type.slots = acc
     type.handSlots = this.handSlots
     acc.each |slot| { slot.parent = type }
     afile.types.add(type)
+  }
+
+  ** Resolve the lib Funcs spec for a funcs mode type using the
+  ** same naming convention as the axon thunk binding: the class
+  ** must be named "{base}Funcs" for its lib
+  private Spec? funcsSpec(Str typeName)
+  {
+    pod.libs.eachWhile |x|
+    {
+      if (XetoUtil.fantomFuncsBaseName(x) + "Funcs" != typeName) return null
+      return x.spec("Funcs", false)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -179,13 +207,15 @@ internal class FileScanner
     Str? lastId := null         // last identifier before assign
     TokenVal? prev := null
 
-    hasBody := false
+    Int? bodyStart := null
+    Int? paramCount := null
+    inParams := false
     while (cur != null)
     {
       // body block at paren depth zero ends the declaration
       if (curt === Token.lbrace && depth == 0)
       {
-        hasBody = true
+        bodyStart = line
         end = skipMatched(Token.lbrace, Token.rbrace)
         break
       }
@@ -205,18 +235,27 @@ internal class FileScanner
       if (curt === Token.defAssign || curt === Token.assign) sawAssign = true
       if (curt === Token.identifier && !sawAssign)
       {
-        if (methodName == null && depth == 0 && peekt === Token.lparen) methodName = cur.val
+        if (methodName == null && depth == 0 && peekt === Token.lparen)
+        {
+          methodName = cur.val
+          inParams   = true
+          paramCount = peekPastParen === Token.rparen ? 0 : 1
+        }
         lastId = cur.val
       }
+      if (inParams && depth == 1 && curt === Token.comma) paramCount = paramCount + 1
+      if (inParams && depth == 0 && curt === Token.rparen) inParams = false
       prev = cur
       advance
     }
 
-    // only keep slots tagged with @Gen; track untagged names
-    // so generation never inserts over a hand-written slot
+    // keep slots tagged with @Gen, or tagged with @Api in funcs
+    // mode; track untagged names so generation never inserts
+    // over a hand-written slot
     slotName := methodName ?: lastId
-    genFacet := facets.find |x| { x.name == "Gen" }
-    if (slotName == null || genFacet == null)
+    tagName  := apiMode ? "Api" : "Gen"
+    tag      := facets.find |x| { x.name == tagName }
+    if (slotName == null || tag == null)
     {
       if (slotName != null) handSlots.add(slotName)
       clearPending
@@ -229,9 +268,14 @@ internal class FileScanner
       it.isOverride = isOverride
       it.isStatic   = isStatic
     }
-    slots.add(ASlot(slotName, slotFlags, toGen(genFacet), docRange, start..end, hasBody))
+    slot := ASlot(slotName, slotFlags, toGen(tag), docRange, start..end, bodyStart)
+    slot.paramCount = paramCount
+    slots.add(slot)
     clearPending
   }
+
+  ** Peek token kind after the next open paren
+  private Token peekPastParen() { toks.getSafe(pos+2)?.kind ?: Token.eof }
 
   ** Does previous token indicate the statement continues on next line
   private Bool isContinuation(TokenVal prev)
@@ -376,7 +420,7 @@ internal class FileScanner
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private GenCompiler c           s// compiler
+  private GenCompiler c           // compiler
   private APod pod                // parent pod
   private const File file         // source file
   private const Str src           // source contents
@@ -387,6 +431,7 @@ internal class FileScanner
   private AFacet[] facets := [,]  // pending facets
   private Range? items            // enum item list lines of current type
   private Str[] handSlots := [,]  // untagged slot names of current type
+  private Bool apiMode            // current type is funcs mode tracking @Api
 }
 
 **************************************************************************

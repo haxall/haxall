@@ -418,6 +418,21 @@ const class XetoUtil
     return base.type !== x.type
   }
 
+  ** Map lib to base name used for its Fantom funcs class named
+  ** "{base}Funcs": the libExt spec name minus its Ext suffix,
+  ** otherwise the capitalized last dotted name of the lib.
+  static Str fantomFuncsBaseName(Lib lib)
+  {
+    libExt := lib.meta["libExt"]?.toStr
+    if (libExt != null)
+    {
+      name := qnameToName(libExt)
+      if (name.endsWith("Ext")) name = name[0..-4]
+      return name
+    }
+    return lastDottedName(lib.name).capitalize
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dirs
 //////////////////////////////////////////////////////////////////////////

@@ -13,13 +13,15 @@ using util
 **
 internal class ASlot : ANode
 {
-  new make(Str name, AFlags flags, AGen gen, Range? docLines, Range lines, Bool hasBody)
+  new make(Str name, AFlags flags, AGen gen, Range? docLines, Range lines, Int? bodyStart)
     : super(name, flags, gen, docLines, lines)
   {
-    this.hasBody = hasBody
+    this.bodyStart = bodyStart
   }
 
-  const Bool hasBody       // does declaration include a body block
+  const Int? bodyStart     // line where body block begins or null
+  Int? paramCount          // scanner: method parameter count or null
+  Bool hasBody() { bodyStart != null }
   AType? parent
 
   Void dump(Console con := Console.cur)

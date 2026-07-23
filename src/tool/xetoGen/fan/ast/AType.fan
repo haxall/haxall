@@ -61,10 +61,12 @@ internal enum class ATypeKind
 {
   comp,     // sys.comp::Comp subtype: get/set fields
   dict,     // Dict subtype: abstract getters
-  enum      // enum: item list
+  enum,     // enum: item list
+  funcs     // lib Funcs spec: align @Api static methods
 
   ** Map spec to its generation shape or null if unsupported.
   ** Comps must be checked before dicts since comps are dicts too.
+  ** The funcs kind is assigned explicitly via the funcs meta tag.
   static ATypeKind? fromSpec(Namespace ns, Spec spec)
   {
     if (spec.isEnum) return ATypeKind.enum
@@ -73,8 +75,9 @@ internal enum class ATypeKind
     return null
   }
 
-  Bool isComp() { this === comp }
-  Bool isDict() { this === dict }
-  Bool isEnum() { this === ATypeKind.enum }
+  Bool isComp()  { this === comp }
+  Bool isDict()  { this === dict }
+  Bool isEnum()  { this === ATypeKind.enum }
+  Bool isFuncs() { this === funcs }
 }
 

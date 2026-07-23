@@ -240,6 +240,112 @@ class GenFanTest : Test
     verifyEq(genTemp(xeto, src), expect)
   }
 
+  ** Funcs mode aligns @Api methods: docs synced, params verified
+  Void testFuncs()
+  {
+    xeto := [
+      "+Funcs {",
+      "  // Add two numbers together",
+      "  add: Func { a: Number, b: Number, returns: Number }",
+      "",
+      "  // Say hello to somebody",
+      "  hello: Func <admin> { name: Str?, returns: Str }",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "const class TempFuncs",
+      "{",
+      "  ** stale doc",
+      "  @Api @Axon",
+      "  static Number add(Number a, Number b)",
+      "  {",
+      "    a + b",
+      "  }",
+      "",
+      "  @Api @Axon { admin = true }",
+      "  static Str hello(Str? name := null)",
+      "  {",
+      "    \"hello \" + (name ?: \"world\")",
+      "  }",
+      "}",
+      ].join("\n")
+    expect := [
+      "@Gen",
+      "const class TempFuncs",
+      "{",
+      "  ** Add two numbers together",
+      "  @Api @Axon",
+      "  static Number add(Number a, Number b)",
+      "  {",
+      "    a + b",
+      "  }",
+      "",
+      "  ** Say hello to somebody",
+      "  @Api @Axon { admin = true }",
+      "  static Str hello(Str? name := null)",
+      "  {",
+      "    \"hello \" + (name ?: \"world\")",
+      "  }",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
+  ** Funcs mode with omitDocs strips Fantom docs
+  Void testFuncsOmitDocs()
+  {
+    xeto := [
+      "+Funcs {",
+      "  // Add two numbers together",
+      "  add: Func { a: Number, b: Number, returns: Number }",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen { meta = Str<|omitDocs|> }",
+      "const class TempFuncs",
+      "{",
+      "  ** stale doc",
+      "  @Api @Axon",
+      "  static Number add(Number a, Number b) { a + b }",
+      "}",
+      ].join("\n")
+    expect := [
+      "@Gen { meta = Str<|omitDocs|> }",
+      "const class TempFuncs",
+      "{",
+      "  @Api @Axon",
+      "  static Number add(Number a, Number b) { a + b }",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
+  ** Funcs mode errors on param count and missing/extra funcs
+  Void testFuncsErrs()
+  {
+    xeto := [
+      "+Funcs {",
+      "  add: Func { a: Number, b: Number, returns: Number }",
+      "  sub: Func { a: Number, b: Number, returns: Number }",
+      "}",
+      ].join("\n")
+
+    // param count mismatch and missing sub and extra mult
+    src := [
+      "@Gen",
+      "const class TempFuncs",
+      "{",
+      "  @Api @Axon",
+      "  static Number add(Number a) { a }",
+      "",
+      "  @Api @Axon",
+      "  static Number mult(Number a, Number b) { a * b }",
+      "}",
+      ].join("\n")
+    verifyErr(XetoCompilerErr#) { genTemp(xeto, src) }
+  }
+
   ** Enum items regenerate from spec preserving ctor args by name
   Void testEnumItems()
   {
@@ -337,10 +443,15 @@ class GenFanTest : Test
   }
 
   ** Run pipeline against a temp lib compiled from xeto source
+  ** Compile temp lib and gen; the "TempFuncs" placeholder class
+  ** name is mapped to the actual temp lib funcs class name
   private Str genTemp(Str xetoSrc, Str src)
   {
     c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
-    return genWith(c, c.ns.compileTempLib(xetoSrc), src)
+    lib := c.ns.compileTempLib(xetoSrc)
+    name := XetoUtil.fantomFuncsBaseName(lib) + "Funcs"
+    out := genWith(c, lib, src.replace("TempFuncs", name))
+    return out.replace(name, "TempFuncs")
   }
 
   private Str genWith(GenCompiler c, Lib lib, Str src)

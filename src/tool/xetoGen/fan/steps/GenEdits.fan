@@ -23,10 +23,57 @@ internal class GenEdits : Step
 
   private Void genType(AType t)
   {
+    if (t.kind.isFuncs) return genFuncs(t)
     genTypeDoc(t)
     if (t.kind.isEnum) return genEnumItems(t)
     genSlots(t)
     genDeletes(t)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Funcs
+//////////////////////////////////////////////////////////////////////////
+
+  ** Funcs mode aligns the @Api static methods with the lib's Funcs
+  ** specs: sync each method's doc from its spec and verify parameter
+  ** counts match.  Types are hand-maintained and never rewritten.
+  private Void genFuncs(AType t)
+  {
+    t.spec.slotsOwn.each |x|
+    {
+      if (isSkipped(t, x)) return
+      existing := t.slots.find |s| { s.name == x.name }
+      if (existing == null)
+        return err("Missing @Api func for spec: $x.name", t.loc)
+      genFuncDoc(t, x, existing)
+      checkFuncParams(t, x, existing)
+    }
+
+    // extra @Api methods with no spec
+    t.slots.each |s|
+    {
+      if (t.spec.slotOwn(s.name, false) == null)
+        err("No spec func for @Api method: $s.name", t.loc)
+    }
+  }
+
+  ** Sync func doc from spec doc; the omitDocs meta tag strips
+  ** Fantom docs so they are mastered in the xeto only
+  private Void genFuncDoc(AType t, Spec x, ASlot existing)
+  {
+    acc := t.gen.meta.has("omitDocs") ? Str[,] : specDoc(x, 2)
+    if (existing.docLines != null)
+      edit(t, existing.docLines.start, existing.docLines.end+1, acc)
+    else if (!acc.isEmpty)
+      edit(t, existing.lines.start, existing.lines.start, acc)
+  }
+
+  ** Verify Fantom parameter count matches the spec func arity
+  private Void checkFuncParams(AType t, Spec x, ASlot existing)
+  {
+    arity := x.func.arity
+    if (existing.paramCount != arity)
+      err("Param count mismatch for func '$x.name': fantom has ${existing.paramCount}, spec has $arity", t.loc)
   }
 
 //////////////////////////////////////////////////////////////////////////
