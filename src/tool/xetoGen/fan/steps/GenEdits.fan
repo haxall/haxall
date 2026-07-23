@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 
 **
 ** Generate Fantom source for each @Gen type as file line edits
@@ -23,34 +24,51 @@ internal class GenEdits : Step
   private Void genType(AType t)
   {
     genTypeDoc(t)
-    if (t.spec.isEnum) { genEnumItems(t); return }
-    if (!isComp(t)) { err("Spec not supported for generation: $t.spec", t.loc); return }
+    if (t.kind.isEnum) return genEnumItems(t)
     genSlots(t)
     genDeletes(t)
   }
-
-  private Bool isComp(AType t) { t.spec.isa(ns.spec("sys.comp::Comp")) }
 
 //////////////////////////////////////////////////////////////////////////
 // Enum Items
 //////////////////////////////////////////////////////////////////////////
 
-  ** Regenerate the enum item list.
-  ** TODO: preserve hand-written ctor args by item name
+  ** Regenerate the enum item list preserving hand-written
+  ** ctor args by item name
   private Void genEnumItems(AType t)
   {
+    args := enumItemArgs(t)
     acc := Str[,]
     keys := t.spec.enum.keys
     keys.each |key, i|
     {
       if (i > 0) acc.add("")
       acc.addAll(specDoc(t.spec.enum.spec(key), 2))
-      acc.add("  " + key + (i < keys.size-1 ? "," : ""))
+      acc.add("  " + key + (args[key] ?: "") + (i < keys.size-1 ? "," : ""))
     }
     if (t.items != null)
       edit(t, t.items.start, t.items.end+1, acc)
     else
       edit(t, t.bodyOpen+1, t.bodyOpen+1, acc)
+  }
+
+  ** Map existing enum item names to their "(args)" text
+  private Str:Str enumItemArgs(AType t)
+  {
+    acc := Str:Str[:]
+    if (t.items == null) return acc
+    for (i := t.items.start; i <= t.items.end; ++i)
+    {
+      line := t.file.lines[i].trim
+      if (line.startsWith("**")) continue
+      if (line.endsWith(",")) line = line[0..-2]
+      paren := line.index("(")
+      if (paren == null || paren == 0) continue
+      name := line[0..<paren]
+      if (!line.endsWith(")")) continue
+      acc[name] = line[paren..-1]
+    }
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -78,6 +96,7 @@ internal class GenEdits : Step
     inserts := Str[][,]
     t.spec.slotsOwn.each |x|
     {
+      if (isSkipped(t, x)) return
       existing := t.slots.find |s| { s.name == toFanName(x.name) }
       lines := genUnit(t, x, existing)
       if (existing != null)
@@ -86,6 +105,27 @@ internal class GenEdits : Step
         inserts.add(lines)
     }
     genInserts(t, inserts)
+  }
+
+  ** Skip slots in the @Gen meta skip list.  Also auto-skip comp
+  ** get/set field slots which covariantly narrow their base:
+  ** Fantom cannot covariantly override a field, so refinements
+  ** like Button's 'style: StyleButton?' are spec-side only.
+  ** Getter shapes emit legal covariant method overrides.
+  private Bool isSkipped(AType t, Spec x)
+  {
+    if (t.kind.isComp && !isGetterOnly(x) && XetoUtil.isCovariantOverride(x)) return true
+    skip := t.gen.meta["skip"] as Str
+    if (skip == null) return false
+    return skip.split(',').contains(x.name)
+  }
+
+  ** Does this slot override a slot inherited from the base.
+  ** An overriding slot's base is the inherited slot; a newly
+  ** declared slot's base is its type.
+  private Bool isBaseSlot(Spec x)
+  {
+    x.base != null && x.base.isSlot
   }
 
   ** Insert missing slots after the last slot or the body open brace
@@ -135,6 +175,12 @@ internal class GenEdits : Step
   ** Generate the slot signature line
   private Str sig(AType t, Spec x, ASlot? existing)
   {
+    t.kind.isComp ? compSig(t, x, existing) : dictSig(t, x, existing)
+  }
+
+  ** Comp slots are fields backed by the comp get/set methods
+  private Str compSig(AType t, Spec x, ASlot? existing)
+  {
     n := toFanName(x.name)
     s := StrBuf()
     s.add("@Gen ").add(isOverride(t, x, existing) ? "override" : "virtual")
@@ -143,6 +189,16 @@ internal class GenEdits : Step
       s.add("() { get(").add(x.name.toCode).add(") }")
     else
       s.add(" { get {get(").add(x.name.toCode).add(")} set {set(").add(x.name.toCode).add(", it)} }")
+    return s.toStr
+  }
+
+  ** Dict slots are abstract getters implemented by wrapper class
+  private Str dictSig(AType t, Spec x, ASlot? existing)
+  {
+    s := StrBuf()
+    s.add("@Gen abstract ")
+    if (isOverride(t, x, existing)) s.add("override ")
+    s.add(typeSig(x)).add(" ").add(toFanName(x.name)).add("()")
     return s.toStr
   }
 
@@ -162,13 +218,19 @@ internal class GenEdits : Step
   private Bool isOverride(AType t, Spec x, ASlot? existing)
   {
     if (existing != null && existing.flags.isOverride) return true
-    return t.spec.base.slot(x.name, false) != null
+    return isBaseSlot(x)
   }
 
   ** Fantom type signature via the spec binding
   private Str typeSig(Spec x)
   {
-    sig := x.type.fantomType.name
+    Str? sig
+    if (x.type.isList)
+    {
+      of := x.of(false)
+      sig = (of?.fantomType?.name ?: "Obj?") + "[]"
+    }
+    else sig = x.type.fantomType.name
     if (x.isMaybe) sig += "?"
     return sig
   }

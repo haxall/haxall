@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 
 **
 ** FileScannerTest verifies token scanning of in-memory source strings.
@@ -249,11 +250,21 @@ class FileScannerTest : Test
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Scan in-memory source string
+  ** Scan in-memory source string; the temp lib provides specs
+  ** for the fixture type names used across the test methods
   private AFile scan(Str src)
   {
-    pod := APod(Lib[,], "test", File(`test/`))
-    return FileScanner(GenCompiler(), pod, File(`test/Test.fan`), src).scan
+    c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
+    lib := c.ns.compileTempLib(
+      """Foo: Dict {}
+         Alpha: Dict {}
+         Beta: Dict {}
+         Gamma: Dict {}
+         Delta: Dict {}
+         Color: Enum { red, green, blue }
+         """)
+    pod := APod([lib], "test", File(`test/`))
+    return FileScanner(c, pod, File(`test/Test.fan`), src).scan
   }
 
   private Void verifyAType(AType t, Str name, Range lines, Str flags := "")

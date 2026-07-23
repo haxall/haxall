@@ -15,33 +15,65 @@ using haystack
 **
 internal class AType : ANode
 {
-  new make(AFile file, Str name, AFlags flags, AGen gen, Range? docLines, Range lines, Int bodyOpen, Range? items)
+  new make(AFile file, Str name, Spec spec, ATypeKind kind, AFlags flags, AGen gen, Range? docLines, Range lines, Int bodyOpen, Range? items)
     : super(name, flags, gen, docLines, lines)
   {
     this.file     = file
+    this.spec     = spec
+    this.kind     = kind
     this.bodyOpen = bodyOpen
     this.items    = items
   }
 
   AFile file               // parent file
+  const Spec spec          // resolved spec
+  const ATypeKind kind     // generation shape from spec
   const Int bodyOpen       // line of type's opening brace
   const Range? items       // enum item list lines or null
   ASlot[] slots := [,]     // @Gen tagged slot declarations
-  Spec? spec               // FindTypes: resolved spec
 
   FileLoc loc() { FileLoc(file.file.osPath, lines.start+1) }
 
   Void dump(Console con := Console.cur)
   {
     s := StrBuf()
-    s.add(name).add(": ").add(spec ?: "???")
+    s.add(name).add(": ").add(spec)
+    s.add(" (").add(kind).add(")")
     s.add(" [").add(lines.start+1).add("..").add(lines.end+1).add("]")
     if (!flags.toStr.isEmpty) s.add(" ").add(flags)
-    s.add(" ").add(Etc.dictToStr(gen.meta))
+    if (!gen.meta.isEmpty) s.add(" ").add(Etc.dictToStr(gen.meta))
     con.group(s.toStr)
     if (items != null) con.info("items [${items.start+1}..${items.end+1}]")
     slots.each |slot| { slot.dump(con) }
     con.groupEnd
   }
+}
+
+**************************************************************************
+** ATypeKind
+**************************************************************************
+
+**
+** ATypeKind models the code generation shape for an AType
+**
+internal enum class ATypeKind
+{
+  comp,     // sys.comp::Comp subtype: get/set fields
+  dict,     // Dict subtype: abstract getters
+  enum      // enum: item list
+
+  ** Map spec to its generation shape or null if unsupported.
+  ** Comps must be checked before dicts since comps are dicts too.
+  static ATypeKind? fromSpec(Namespace ns, Spec spec)
+  {
+    if (spec.isEnum) return ATypeKind.enum
+    if (spec.isa(ns.spec("sys.comp::Comp"))) return comp
+    if (spec.isa(ns.spec("sys::Dict"))) return dict
+    return null
+  }
+
+  Bool isComp() { this === comp }
+  Bool isDict() { this === dict }
+  Bool isEnum() { this === ATypeKind.enum }
 }
 

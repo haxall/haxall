@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Find @Gen tagged types in pod sources and resolve their specs
+** Find @Gen tagged types in pod sources
 **
 internal class FindTypes : Step
 {
@@ -45,17 +45,9 @@ internal class FindTypes : Step
     {
       afile := FileScanner(compiler, pod, f, src).scan
       if (afile.types.isEmpty) return
-      afile.types.each |t| { resolve(t) }
       pod.files.add(afile)
     }
     catch (Err e) err("Cannot scan file", FileLoc(f.osPath), e)
-  }
-
-  ** Resolve type to its spec by exact name in the pod's bound libs
-  private Void resolve(AType t)
-  {
-    t.spec = t.file.pod.libs.eachWhile |lib| { lib.type(t.name, false) }
-    if (t.spec == null) err("Cannot resolve spec for @Gen type: $t.name", t.loc)
   }
 }
 

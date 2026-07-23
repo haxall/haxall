@@ -105,6 +105,14 @@ internal class FileScanner
     // only keep types opted in with @Gen
     if (genFacet == null) return
 
+    // resolve spec in pod's bound libs and map to generation shape
+    loc  := FileLoc(file.osPath, headerLine+1)
+    spec := pod.libs.eachWhile |lib| { lib.type(typeName, false) }
+    if (spec == null) { c.err("Cannot resolve spec for @Gen type: $typeName", loc); return }
+    kind := ATypeKind.fromSpec(c.ns, spec)
+    if (kind == null) { c.err("Spec not supported for generation: $spec", loc); return }
+    if (isEnum != kind.isEnum) { c.err("Enum mismatch between type and spec: $spec", loc); return }
+
     typeFlags := AFlags
     {
       it.isConst    = isConst
@@ -112,7 +120,7 @@ internal class FileScanner
       it.isMixin    = isMixin
       it.isEnum     = isEnum
     }
-    type := AType(afile, typeName, typeFlags, toGen(genFacet), typeDoc, start..bodyClose, open, this.items)
+    type := AType(afile, typeName, spec, kind, typeFlags, toGen(genFacet), typeDoc, start..bodyClose, open, this.items)
     type.slots = acc
     acc.each |slot| { slot.parent = type }
     afile.types.add(type)

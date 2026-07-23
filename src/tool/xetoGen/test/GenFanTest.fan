@@ -176,6 +176,117 @@ class GenFanTest : Test
     verifyGen(src, expect)
   }
 
+  ** Dict specs generate abstract getters via temp lib
+  Void testDict()
+  {
+    xeto := [
+      "// Group config for testing",
+      "TestGroup: Dict {",
+      "  // Display name",
+      "  dis: Str",
+      "",
+      "  // Optional icon",
+      "  icon: Str?",
+      "",
+      "  // List of tags",
+      "  tags: List? <of: Str>",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "const mixin TestGroup : Dict",
+      "{",
+      "}",
+      ].join("\n")
+    expect := [
+      "**",
+      "** Group config for testing",
+      "**",
+      "@Gen",
+      "const mixin TestGroup : Dict",
+      "{",
+      "  ** Display name",
+      "  @Gen abstract Str dis()",
+      "",
+      "  ** Optional icon",
+      "  @Gen abstract Str? icon()",
+      "",
+      "  ** List of tags",
+      "  @Gen abstract Str[]? tags()",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
+  ** Enum items regenerate from spec preserving ctor args by name
+  Void testEnumItems()
+  {
+    src := [
+      "**",
+      "** Tests available to the StrTest component.",
+      "**",
+      "@Gen",
+      "enum class StrTestType",
+      "{",
+      "  eq(\"=\"),",
+      "",
+      "  bogus,",
+      "",
+      "  contains(null)",
+      "",
+      "  private new make(Str? op) { this.op = op }",
+      "",
+      "  const Str? op",
+      "}",
+      ]
+    expect := [
+      "**",
+      "** Tests available to the StrTest component.",
+      "**",
+      "@Gen",
+      "enum class StrTestType",
+      "{",
+      "  eq(\"=\"),",
+      "",
+      "  eqIgnoreCase,",
+      "",
+      "  startsWith,",
+      "",
+      "  endsWith,",
+      "",
+      "  contains(null)",
+      "",
+      "  private new make(Str? op) { this.op = op }",
+      "",
+      "  const Str? op",
+      "}",
+      ]
+    verifyGen(src, expect)
+  }
+
+  ** Slots in the @Gen meta skip list are not generated
+  Void testSkip()
+  {
+    src := [
+      "**",
+      "** The output of this component generates a sine wave.",
+      "**",
+      "@Gen { meta = Str<|skip:\"period,freq\"|> }",
+      "class SineWave : HxComp",
+      "{",
+      "  ** The computed sine wave",
+      "  @Gen virtual StatusNumber out() { get(\"out\") }",
+      "",
+      "  ** The height of the sine wave from its lowest to highest point",
+      "  @Gen virtual Float amplitude { get {get(\"amplitude\")} set {set(\"amplitude\", it)} }",
+      "",
+      "  ** The distance from zero that the sine wave's amplitude is shifted",
+      "  @Gen virtual Float offset { get {get(\"offset\")} set {set(\"offset\", it)} }",
+      "}",
+      ]
+    verifyGen(src, src)
+  }
+
   ** Generated output run thru the pipeline again is unchanged
   Void testIdempotent()
   {
@@ -200,10 +311,20 @@ class GenFanTest : Test
   private Str gen(Str src)
   {
     c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
-    lib := c.ns.lib("hx.comps")
-    pod := APod([lib], "hxComps", File(`test/`))
+    return genWith(c, c.ns.lib("hx.comps"), src)
+  }
+
+  ** Run pipeline against a temp lib compiled from xeto source
+  private Str genTemp(Str xetoSrc, Str src)
+  {
+    c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
+    return genWith(c, c.ns.compileTempLib(xetoSrc), src)
+  }
+
+  private Str genWith(GenCompiler c, Lib lib, Str src)
+  {
+    pod := APod([lib], "test", File(`test/`))
     f := FileScanner(c, pod, File(`test/Test.fan`), src).scan
-    f.types.each |t| { t.spec = lib.type(t.name) }
     pod.files.add(f)
     c.ast = Ast([pod])
     c.run([GenEdits()])

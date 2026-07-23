@@ -25,7 +25,7 @@
   ** string without the enclosing braces such as "skip:\"foo,bar\"".
   ** Pairs may be separated by commas or newlines.  Every tag
   ** supported by the generation tools is documented here:
-  **   - no tags defined yet; documented as features are added
+  **   - 'skip': comma separated list of spec slot names (type level)
   const Str? meta
 }
 

@@ -58,13 +58,25 @@ internal class FindPods : Step
   {
     if (!f.isDir) return false
 
-    if (!f.plus(`build.fan`).exists) return false
-
     libNames := podToLibs[f.name]
     if (libNames == null) return false
 
+    // build.fan must be a BuildPod; a BuildGroup dir may
+    // share its name with a pod (studio src/ion vs src/ion/ion)
+    if (!isBuildPod(f.plus(`build.fan`))) return false
+
     if (compiler.libNames == null) return true
     return libNames.any |n| { compiler.libNames.contains(n) }
+  }
+
+  ** Pattern to check for a BuildPod file
+  private static const Regex buildPattern := Regex<|Build\s+:\s+BuildPod\b|>
+
+  ** Is this build.fan file a BuildPod (instead of a BuildGroup)
+  private Bool isBuildPod(File f)
+  {
+    if (!f.exists) return false
+    return f.readAllLines.any { buildPattern.matcher(it).find }
   }
 
   private APod? initPod(File podDir)
