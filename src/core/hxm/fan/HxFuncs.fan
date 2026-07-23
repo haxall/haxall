@@ -16,6 +16,7 @@ using hx
 **
 ** Haxall core "hx" axon functions supported by all runtimes
 **
+@Gen
 const class HxFuncs
 {
 
@@ -23,11 +24,10 @@ const class HxFuncs
 // Database Reads
 //////////////////////////////////////////////////////////////////////////
 
-  **
-  ** Read from database the first record which matches [filter](docHaystack::Filters).
+  ** Read from database the first record which matches [filter](ph.doc::Filters).
   ** If no matches found throw UnknownRecErr or null based on checked
   ** flag.  If there are multiple matches it is indeterminate which one is
-  ** returned.  See [readAll] for how filter works.
+  ** returned.  See [readAll()] for how filter works.
   **
   ** Examples:
   **
@@ -35,7 +35,6 @@ const class HxFuncs
   **     read(site and dis=="HQ")   // read site rec with specific dis tag
   **     read(chiller)              // raise exception if no recs with chiller tag
   **     read(chiller, false)       // return null if no recs with chiller tag
-  **
   @Api @Axon
   static Dict? read(Expr filterExpr, Expr checked := Literal.trueVal)
   {
@@ -45,7 +44,6 @@ const class HxFuncs
     return cx.db.read(filter, check)
   }
 
-  **
   ** Read a record from database by `id`.  If not found
   ** throw UnknownRecErr or return null based on checked flag.
   ** In Haxall all refs are relative, but in SkySpark refs may
@@ -58,7 +56,6 @@ const class HxFuncs
   **      readById(@:demo:r:2b00f9dc-82690ed6)  // project absolute literal
   **      readById(id)                          // read using variable
   **      readById(equip->siteRef)              // read from ref tag
-  **
   @Api @Axon
   static Dict? readById(Ref? id, Bool checked := true)
   {
@@ -66,7 +63,7 @@ const class HxFuncs
   }
 
   ** Given record id, read only the persistent tags from Folio.
-  ** Also see [readByIdTransientTags] and [readById].
+  ** Also see [readByIdTransientTags()] and [readById()].
   @Api @Axon
   static Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
@@ -74,7 +71,7 @@ const class HxFuncs
   }
 
   ** Given record id, read only the transient tags from Folio.
-  ** Also see [readByIdPersistentTags] and [readById].
+  ** Also see [readByIdPersistentTags()] and [readById()].
   @Api @Axon
   static Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {
@@ -97,7 +94,6 @@ const class HxFuncs
     return gb.toGrid.first
   }
 
-  **
   ** Read a list of record ids into a grid.  The rows in the
   ** result correspond by index to the ids list.  If checked is true,
   ** then every id must be found in the database or UnknownRecErr
@@ -116,21 +112,23 @@ const class HxFuncs
   **
   **     // return null for a given id if it does not exist
   **     readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
-  **
   @Api @Axon
   static Grid readByIds(Ref[] ids, Bool checked := true)
   {
     curContext.db.readByIds(ids, checked)
   }
 
-  **
-  ** Reall all records from the database which match the [filter](docHaystack::Filters).
-  ** The filter must an expression which matches the filter structure.
-  ** String values may parsed into a filter using [parseFilter] function.
+  ** Read all records from the database which match the [filter](ph.doc::Filters).
+  ** The filter must be an expression which matches the filter structure.
+  ** String values may parsed into a filter using [parseFilter()] function.
   **
   ** Options:
   **   - `limit`: max number of recs to return
   **   - `sort`: sort by display name
+  **   - `search`: search pattern to apply in addition to the
+  **     filter; see [parseSearch()]
+  **   - `trash`: include recs with the `trash` tag
+  **   - `gridMeta`: dict to use for the result's grid level meta
   **
   ** Examples:
   **
@@ -138,7 +136,6 @@ const class HxFuncs
   **     readAll(equip and siteRef==@xyz)   // read all equip in a given site
   **     readAll(equip, {limit:10})         // read up to ten equips
   **     readAll(equip, {sort})             // read all equip sorted by dis
-  **
   @Api @Axon
   static Grid readAll(Expr filterExpr, Expr? optsExpr := null)
   {
@@ -150,15 +147,15 @@ const class HxFuncs
 
   ** Read a list of ids as a stream of Dict records.
   ** If checked if false, then records not found are skipped.
-  ** See [docHaxall::Streams#readbyidsstream].
+  ** See [hx.doc.haxall::Streams#readbyidsstream].
   @Api @Axon
   static Obj readByIdsStream(Ref[] ids, Bool checked := true)
   {
     ReadByIdsStream(ids, checked)
   }
 
-  ** Reall all records which match filter as stream of Dict records.
-  ** See [docHaxall::Streams#readallstream].
+  ** Read all records which match filter as stream of Dict records.
+  ** See [hx.doc.haxall::Streams#readallstream].
   @Api @Axon
   static Obj readAllStream(Expr filterExpr)
   {
@@ -167,20 +164,18 @@ const class HxFuncs
     return ReadAllStream(filter)
   }
 
-  **
   ** Return the intersection of all tag names used by all the records
   ** matching the given filter.  The results are returned as a grid
   ** with following columns:
   **   - `name`: string name of the tag
   **   - `kind`: all the different value kinds separated by "|"
   **   - `count`: total number of recs with the tag
-  ** Also see [readAllTagVals] and [gridColKinds].
+  ** Also see [readAllTagVals()] and [gridColKinds()].
   **
   ** Examples:
   **
   **     // read statistics on all tags used by equip recs
   **     readAllTagNames(equip)
-  **
   @Api @Axon
   static Grid readAllTagNames(Expr filterExpr)
   {
@@ -189,18 +184,16 @@ const class HxFuncs
     return HxUtil.readAllTagNames(cx.db, filter)
   }
 
-  **
   ** Return the range of all the values mapped to a given
   ** tag name used by all the records matching the given filter.
   ** This method is capped to 200 results.  The results are
   ** returned as a grid with a single `val` column.
-  ** Also see [readAllTagNames].
+  ** Also see [readAllTagNames()].
   **
   ** Examples:
   **
   **     // read grid of all unique point unit tags
   **     readAllTagVals(point, "unit")
-  **
   @Api @Axon
   static Grid readAllTagVals(Expr filterExpr, Expr tagName)
   {
@@ -211,13 +204,11 @@ const class HxFuncs
     return Etc.makeListGrid(null, "val", null, vals)
   }
 
-  **
   ** Return the number of records which match the given filter expression.
   **
   ** Examples:
   **
   **     readCount(point)    // return number of recs with point tag
-  **
   @Api @Axon
   static Number readCount(Expr filterExpr)
   {
@@ -230,8 +221,7 @@ const class HxFuncs
 // Database Writes
 //////////////////////////////////////////////////////////////////////////
 
-  **
-  ** Construct a modification "diff" used by [commit].  The orig should
+  ** Construct a modification "diff" used by [commit()].  The orig should
   ** be the instance which was read from the database, or it may be null
   ** only if the add flag is passed.  Any tags to add/set/remove should
   ** be included in the changes dict.
@@ -239,7 +229,7 @@ const class HxFuncs
   ** The following flags are supported:
   **   - `add`: indicates diff is adding new record
   **   - `remove`: indicates diff is removing record (in general you
-  **     should add [trash] tag instead of removing)
+  **     should add `trash` tag instead of removing)
   **   - `transient`: indicate that this diff should not be flushed
   **     to persistent storage (it may or may not be persisted).
   **   - `force`: indicating that changes should be applied regardless
@@ -259,7 +249,6 @@ const class HxFuncs
   **
   **      // set/add val tag transiently
   **      diff(orig, {val:123}, {transient})
-  **
   @Api @Axon
   static Diff diff(Dict? orig, Dict? changes, Dict? flags := null)
   {
@@ -290,12 +279,11 @@ const class HxFuncs
     return Diff(orig, changes, mask)
   }
 
-  **
   ** Commit one or more diffs to the folio database.
   ** The argument may be one of the following:
   **   - result of [diff()]
   **   - list of [diff()] to commit multiple diffs at once
-  **   - stream of [diff()]; see [docHaxall::Streams#commit].
+  **   - stream of [diff()]; see [hx.doc.haxall::Streams#commit].
   **
   ** If one diff is passed, return the new record.  If a list
   ** of diffs is passed return a list of new records.
@@ -310,7 +298,6 @@ const class HxFuncs
   **
   **     // add someTag to some group of records
   **     readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
-  **
   @Api @Axon { admin = true }
   static Obj? commit(Obj diffs)
   {
@@ -335,9 +322,9 @@ const class HxFuncs
   ** Store a password key/val pair into current project's password
   ** store.  The key is typically a Ref of the associated record.
   ** If the `val` is null, then the password will be removed.
-  ** See [docHaxall::Folio#passwords].
+  ** See [hx.doc.haxall::Folio#passwords].
   **
-  ** ```fantom
+  ** ```
   ** passwordSet(@abc-123, "password")
   ** passwordSet(@abc-123, null)
   ** ```
@@ -363,7 +350,7 @@ const class HxFuncs
   ** Strip any tags which cannot be persistently committed to Folio.
   ** This includes special tags such as `hisSize` and any transient tags
   ** the record has defined.  If `val` is Dict, then a single Dict is returned.
-  ** Otherwise `val` must be Dict[] or Grid and Dict[] is returned.
+  ** Otherwise `val` must be `Dict[]` or Grid and `Dict[]` is returned.
   ** The `mod` tag is stripped unless the `{mod}` option is specified.
   ** The `id` tag is not stripped for cases when adding records with
   ** swizzled ids; pass `{-id}` in options to strip the `id` tag also.
@@ -393,35 +380,35 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Coerce a value to a Ref identifier:
-  **   - Ref returns itself
-  **   - Row or Dict, return `id` tag
-  **   - Grid return first row id
+  **   - `Ref` returns itself
+  **   - `Row` or `Dict`, return `id` tag
+  **   - `Grid` return first row id
   @Api @Axon
   static Ref toRecId(Obj? val) { Etc.toId(val) }
 
   ** Coerce a value to a list of Ref identifiers:
-  **   - Ref returns itself as list of one
-  **   - Ref[] returns itself
-  **   - Dict return `id` tag
-  **   - Dict[] return `id` tags
-  **   - Grid return `id` column
+  **   - `Ref` returns itself as list of one
+  **   - `Ref[]` returns itself
+  **   - `Dict` return `id` tag
+  **   - `Dict[]` return `id` tags
+  **   - `Grid` return `id` column
   @Api @Axon
   static Ref[] toRecIdList(Obj? val) { Etc.toIds(val) }
 
   ** Coerce a value to a record Dict:
-  **   - Row or Dict returns itself
-  **   - Grid returns first row
-  **   - List returns first row (can be either Ref or Dict)
-  **   - Ref will make a call to read database
+  **   - `Row` or `Dict` returns itself
+  **   - `Grid` returns first row
+  **   - `List` returns first row (can be either Ref or Dict)
+  **   - `Ref` will make a call to read database
   @Api @Axon
   static Dict toRec(Obj? val) { Etc.toRec(val) }
 
   ** Coerce a value to a list of record Dicts:
-  **   - null return empty list
-  **   - Ref or Ref[] (will make a call to read database)
-  **   - Row or Row[] returns itself
-  **   - Dict or Dict[] returns itself
-  **   - Grid is mapped to list of rows
+  **   - `null` return empty list
+  **   - `Ref` or `Ref[]` (will make a call to read database)
+  **   - `Row` or `Row[]` returns itself
+  **   - `Dict` or `Dict[]` returns itself
+  **   - `Grid` is mapped to list of rows
   @Api @Axon
   static Dict[] toRecList(Obj? val) { Etc.toRecs(val) }
 
@@ -438,6 +425,7 @@ const class HxFuncs
   static Dict projMeta() { Context.cur.proj.meta }
 
   ** Block until all folio/project message queues are fully processed.
+  ** Use to await background work before verifying its effects.
   @Api @Axon { admin=true }
   static Obj? projSync(Number? timeout := null)
   {
@@ -445,7 +433,7 @@ const class HxFuncs
     return "synced"
   }
 
-  ** Update system meta.
+  ** Update system meta
   @NoDoc @Api @Axon { su=true }
   static Dict? sysMetaUpdate(Obj changes)
   {
@@ -454,7 +442,7 @@ const class HxFuncs
     return cx.sys.meta
   }
 
-  ** Update project meta.
+  ** Update current project meta
   @NoDoc @Api @Axon { admin=true }
   static Dict? projMetaUpdate(Obj changes)
   {
@@ -478,8 +466,8 @@ const class HxFuncs
     return isShell ? "_no_echo_" : "reloaded"
   }
 
-  ** Return grid of the runtimes xeto libs and their status:
-  **  - name: library name string
+  ** Return grid of runtime xeto libs and current status:
+  **  - name: library dotted name string
   **  - libBasis: basis enumeration string
   **  - libStatus: status enumeration string
   **  - other cols subject to change
@@ -542,9 +530,9 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Return grid of exts:
-  ** - name: library dotted name string
+  **  - name: library dotted name string
   **  - libBasis: basis enumeration string
-  **  - extStatus: basis enumeration string
+  **  - extStatus: status enumeration string
   **  - other cols subject to change
   @Api @Axon
   static Grid exts(Dict? opts := null)
@@ -587,7 +575,7 @@ const class HxFuncs
 // Companion Specs
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read a companion spec or instance by name - see [hx::ProjCompanion.readByName].
+  ** Read a companion spec or instance by name - see [fan.hx::ProjCompanion.readByName].
   ** Examples:
   **
   **     companionReadByName("MySpec")
@@ -598,7 +586,7 @@ const class HxFuncs
     curContext.proj.companion.readByName(name, checked)
   }
 
-  ** Add new spec or instance to companion lib - see [hx::ProjCompanion.add].
+  ** Add new spec or instance to companion lib - see [fan.hx::ProjCompanion.add].
   ** Examples:
   **
   **     companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
@@ -609,7 +597,7 @@ const class HxFuncs
     curContext.proj.companion.add(rec)
   }
 
-  ** Update existing spec or instance in companion lib - see [hx::ProjCompanion.update].
+  ** Update existing spec or instance in companion lib - see [fan.hx::ProjCompanion.update].
   ** Examples:
   **
   **     companionReadByName("MySpec").merge({base:@sys::Scalar}).companionUpdate
@@ -620,7 +608,7 @@ const class HxFuncs
     curContext.proj.companion.update(rec)
   }
 
-  ** Remove a spec or instance from companion lib - see [hx::ProjCompanion.remove].
+  ** Remove a spec or instance from companion lib - see [fan.hx::ProjCompanion.remove].
   ** The id argument can be any value accepted by [toRecId()].
   ** Examples:
   **
@@ -632,7 +620,7 @@ const class HxFuncs
     curContext.proj.companion.remove(Etc.toId(id))
   }
 
-  ** Parse xeto source to its companion lib AST representation - see [hx::ProjCompanion.parse].
+  ** Parse xeto source to its companion lib AST representation - see [fan.hx::ProjCompanion.parse].
   ** Pipe to [companionAdd()] or [companionUpdate()] to update from Xeto source.
   ** Examples:
   **
@@ -644,7 +632,7 @@ const class HxFuncs
     curContext.proj.companion.parse(xeto, meta)
   }
 
-  ** Create func companion lib AST representation - see [hx::ProjCompanion.parseAxon].
+  ** Create func companion lib AST representation - see [fan.hx::ProjCompanion.parseAxon].
   ** Pipe to [companionAdd()] or [companionUpdate()] to update from Xeto source.
   ** Examples:
   **
@@ -656,7 +644,7 @@ const class HxFuncs
     curContext.proj.companion.parseAxon(name, axon, meta ?: Etc.dict0)
   }
 
-  ** Print companion AST rec representation back a Xeto string - see [hx::ProjCompanion.print].
+  ** Print companion AST rec representation back a Xeto string - see [fan.hx::ProjCompanion.print].
   ** Examples:
   **
   **     companionRead("MySpec").companionPrint
@@ -666,12 +654,12 @@ const class HxFuncs
     curContext.proj.companion.print(rec)
   }
 
-  ** Return grid of the companion lib records and their per-rec compile status
-  **   - id: rec id
-  **   - name: spec/func/instance name
-  **   - rt: "spec", "func", or "instance"
-  **   - libStatus: "ok" or "err"
-  **   - err: compiler error messages if the rec is in error
+  ** Return grid of the companion lib records and their per-rec compile status:
+  **  - id: rec id
+  **  - name: spec/func/instance name
+  **  - rt: "spec", "func", or "instance"
+  **  - libStatus: "ok" or "err"
+  **  - err: compiler error messages if the rec is in error
   @Api @Axon { admin=true }
   static Grid companionStatus(Dict? opts := null)
   {
@@ -719,8 +707,8 @@ const class HxFuncs
 
   ** Open a new watch on a grid of records.  The `dis` parameter
   ** is used for the watch's debug display string.  Update and return
-  ** the grid with a meta `watchId` tag.  Also see [hx::RuntimeWatches.open]
-  ** and [docHaxall::Watches#axon-apis].
+  ** the grid with a meta `watchId` tag.  Also see [fan.hx::RuntimeWatches.open]
+  ** and [hx.doc.haxall::Watches#axon-apis].
   **
   ** Example:
   **
@@ -736,7 +724,7 @@ const class HxFuncs
 
   ** Poll an open watch and return all the records which have changed
   ** since the last poll.  Raise exception if watchId doesn't exist
-  ** or has expired.  Also see [hx::Watch.poll] and [docHaxall::Watches#axon-apis].
+  ** or has expired.  Also see [fan.hx::Watch.poll] and [hx.doc.haxall::Watches#axon-apis].
   @Api @Axon
   static Grid watchPoll(Obj watchId)
   {
@@ -777,8 +765,8 @@ const class HxFuncs
   }
 
   ** Close an open watch by id.  If the watch does not exist or
-  ** has expired then this is a no op.  Also see [hx::Watch.close]
-  ** and [docHaxall::Watches#axon-apis].
+  ** has expired then this is a no op.  Also see [fan.hx::Watch.close]
+  ** and [hx.doc.haxall::Watches#axon-apis].
   @Api @Axon
   static Obj? watchClose(Str watchId)
   {
@@ -826,18 +814,18 @@ const class HxFuncs
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return [hx::Runtime.isSteadyState]
+  ** Return [fan.hx::Runtime.isSteadyState]
   @Api @Axon
   static Bool isSteadyState()
   {
     curContext.rt.isSteadyState
   }
 
-  ** Return sys info dict
+  ** Return SysInfo debug
   @NoDoc @Api @Axon
   static Dict sysInfo() { curContext.sys.info.meta }
 
-  ** Return sys config dict
+  ** Return SysConfig debug
   @NoDoc @Api @Axon
   static Dict sysConfig() { curContext.sys.config.meta }
 

@@ -19,6 +19,7 @@ using hxConn
 **
 ** Obix connector Axon functions
 **
+@Gen
 const class ObixFuncs
 {
   ** Deprecated - use [connPing()]
@@ -49,7 +50,6 @@ const class ObixFuncs
     ConnFwFuncs.connLearn(conn, arg).get(1min)
   }
 
-  **
   ** Read one Uri from an obixConn.  The object is returned
   ** as a grid with the object's meta-data returned via grid.meta
   ** and each immediate child returned as a row in the grid.  The
@@ -69,7 +69,6 @@ const class ObixFuncs
   **
   ** Side effects:
   **   - performs blocking network IO
-  **
   @Api @Axon { admin = true }
   static Grid obixReadObj(Obj conn, Uri uri)
   {
@@ -92,7 +91,6 @@ const class ObixFuncs
     return dispatch(cx, rec, HxMsg("readHis", uri, s))
   }
 
-  **
   ** Write an object as identified by given uri.  The following
   ** arg values are supported:
   **
@@ -109,19 +107,16 @@ const class ObixFuncs
   **     DateTime    <abstime val='...' tz='...'/>
   **     XML Str     pass thru
   **
-  ** Result object is transformed using same rules as [obixReadObj].
-  **
+  ** Result object is transformed using same rules as [obixReadObj()].
   @Api @Axon { admin = true }
   static Grid obixWriteObj(Obj conn, Obj uri, Obj? arg)
   {
     dispatch(curContext, conn, HxMsg("writeObj", uri, arg))
   }
 
-  **
   ** Invoke an `obix:op` operation as identified by given uri.
-  ** See [obixWriteObj] for supported arg values and [obixReadObj]
+  ** See [obixWriteObj()] for supported arg values and [obixReadObj()]
   ** for result object.
-  **
   @Api @Axon { admin = true }
   static Grid obixInvoke(Obj conn, Obj uri, Obj? arg)
   {

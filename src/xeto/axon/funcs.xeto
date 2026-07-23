@@ -27,6 +27,7 @@
   //   - list(num): get item at given index (same semantics as Fantom)
   //   - list(range): get list slice at given index (same semantics as Fantom)
   //   - dict(key): get item with given key or return null
+  //   - comp(key): get slot with given key or return null
   //   - grid(num): get row at given index
   //   - grid(range): [fan.haystack::Grid.getRange]
   //
@@ -61,11 +62,11 @@
   last: Func { val: Obj?, returns: Obj? }
 
   // If val is a Grid return if it has the given column name.
-  // If val is a Dict return if the given name is mapped to a non-null value.
+  // If val is a Dict/Comp return if the given name is mapped to a non-null value.
   has: Func { val: Obj?, name: Str, returns: Obj? }
 
   // If val is a Grid return if it does not have given column name.
-  // If val is a Dict, return if the given name is not mapped to a non-null value.
+  // If val is a Dict/Comp, return if the given name is not mapped to a non-null value.
   missing: Func { val: Obj?, name: Str, returns: Obj? }
 
   // Return the first match of `x` in `val` searching forward, starting
@@ -97,7 +98,8 @@
 
   // Set a collection item and return a new collection.
   //  - List: set item by index key
-  //  - Dict: set item by key name
+  //  - Dict: set item by key name (if val is null, it is a remove)
+  //  - Comp: set slot by name (if val is null, it is a remove)
   set: Func { val: Obj?, key: Obj?, item: Obj?, returns: Obj? }
 
   // Merge two Dicts together and return a new Dict.  Any tags
@@ -647,7 +649,7 @@
   // Get the list of values used by a given dict
   vals: Func { dict: Dict, returns: Obj? }
 
-  // Function for the `->` operator.  If the given value is a dict,
+  // Function for the `->` operator.  If the given value is a dict/comp,
   // then get a value by name, or throw UnknownNameErr if name not mapped.
   // If the value is a Ref, then perform a checked `readById`, then perform
   // the name lookup.

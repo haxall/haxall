@@ -198,7 +198,7 @@
   // passwordSet(@abc-123, "password")
   // passwordSet(@abc-123, null)
   // ```
-  passwordSet: Func <admin> { key: Obj, val: Str?, returns: Obj? }
+  passwordSet: Func <admin> { key: Obj, val: Str?, opts: Dict?, returns: Obj? }
 
   // Strip any tags which cannot be persistently committed to Folio.
   // This includes special tags such as `hisSize` and any transient tags

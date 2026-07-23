@@ -66,5 +66,9 @@
   // Backdoor hook to refresh ref dis
   refreshDisAll: Func  <nodoc>{ returns: Obj? }
 
+  // Backdoor hook to load Axon functions from a resource pod.
+  // No checking is done for dependencies.
+  loadFuncs: Func <nodoc> { libName: Str, returns: Obj? }
+
 }
 

@@ -15,9 +15,10 @@ using hx
 **
 ** HTTP module functions
 **
+@Gen
 const class HttpFuncs
 {
-  ** Primary HTTP or HTTPS Uri
+  ** Primary HTTP or HTTPS Uri configured via `siteUri` in HTTP settings
   @Api @Axon
   static Uri httpSiteUri() { curContext.sys.http.siteUri }
 

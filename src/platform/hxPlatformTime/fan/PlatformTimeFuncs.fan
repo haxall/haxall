@@ -14,7 +14,7 @@ using hx
 **
 ** Axon library
 **
-@NoDoc
+@NoDoc @Gen
 const class PlatformTimeFuncs
 {
   ** Set the system clock time.  It is recommended to restart after.

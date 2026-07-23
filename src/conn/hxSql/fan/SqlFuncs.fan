@@ -19,6 +19,7 @@ using hxConn
 **
 ** SQL connector functions
 **
+@Gen
 const class SqlFuncs
 {
   ** Deprecated - use [connPing()]
@@ -42,7 +43,6 @@ const class SqlFuncs
     sql::SqlConnImpl.debugDrivers
   }
 
-  **
   ** Query the tables defined for the database.
   ** Return a grid with the `name` column.
   **
@@ -50,7 +50,6 @@ const class SqlFuncs
   **
   **     read(sqlConn).sqlTables
   **     sqlTables(sqlConnId)
-  **
   @Api @Axon { admin = true }
   static Grid sqlTables(Obj conn)
   {
@@ -63,7 +62,6 @@ const class SqlFuncs
     }
   }
 
-  **
   ** Execute a SQL query and return the result as a grid.
   ** Blob columns under 10K are returned as base64.
   **
@@ -74,7 +72,6 @@ const class SqlFuncs
   **
   ** WARNING: any admin user will have full access to query the
   ** database based on the user account configured by the sqlConn.
-  **
   @Api @Axon { admin = true }
   static Grid sqlQuery(Obj conn, Str sql)
   {
@@ -84,7 +81,6 @@ const class SqlFuncs
     }
   }
 
-  **
   ** Execute a SQL statement and if applicable return a result.
   ** If the statement produced auto-generated keys, then return
   ** an list of the keys generated, otherwise return number of
@@ -92,7 +88,6 @@ const class SqlFuncs
   **
   ** WARNING: any admin user will have full access to update the
   ** database based on the user account configured by the sqlConn.
-  **
   @Api @Axon { admin = true }
   static Obj? sqlExecute(Obj conn, Str sql)
   {
@@ -102,7 +97,6 @@ const class SqlFuncs
     }
   }
 
-  **
   ** Insert a record or grid of records into the given table.
   ** If data is a dict, thena single row is inserted.  If data
   ** is a grid or list of dicts, then each row is inserted.  The data's
@@ -111,7 +105,6 @@ const class SqlFuncs
   **
   ** WARNING: any admin user will have full access to update the
   ** database based on the user account configured by the sqlConn.
-  **
   @Api @Axon { admin = true }
   static Obj? sqlInsert(Obj? data, Obj conn, Str table)
   {

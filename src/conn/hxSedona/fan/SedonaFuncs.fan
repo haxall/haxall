@@ -18,6 +18,7 @@ using hxConn
 **
 ** Sedona library functions.
 **
+@Gen
 const class SedonaFuncs
 {
   ** Deprecated - use [connPing()]

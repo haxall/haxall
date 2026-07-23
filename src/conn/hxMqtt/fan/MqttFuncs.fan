@@ -16,6 +16,7 @@ using hxConn
 **
 ** MQTT connector functions
 **
+@Gen
 const class MqttFuncs
 {
   ** Publish an MQTT message to the given topic on the broker. Currently, the payload
@@ -31,7 +32,7 @@ const class MqttFuncs
   ** - `mqttUserProps`: A Dict of user properties to include in the message.
   ** This is only supported in MQTT 5.
   **
-  ** ```fantom
+  ** ```
   ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min, mqttUserProps: {key: "value"}})
   ** ```
   @Api @Axon { admin = true }

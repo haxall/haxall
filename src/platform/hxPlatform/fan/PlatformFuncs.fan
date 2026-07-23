@@ -14,7 +14,7 @@ using hx
 **
 ** Axon library
 **
-@NoDoc
+@NoDoc @Gen
 const class PlatformFuncs
 {
   ** Reboot the operating system and runtime process

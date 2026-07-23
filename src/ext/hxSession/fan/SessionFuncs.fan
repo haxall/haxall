@@ -11,7 +11,7 @@ using haystack
 using axon
 using hx
 
-@NoDoc
+@NoDoc @Gen
 const class SessionFuncs
 {
  private static SessionExt ext(Context cx := Context.cur) { cx.sys.ext("hx.session") }

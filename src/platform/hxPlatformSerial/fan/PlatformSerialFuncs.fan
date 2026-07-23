@@ -15,7 +15,7 @@ using hx
 **
 ** Axon library
 **
-@NoDoc
+@NoDoc @Gen
 const class PlatformSerialFuncs
 {
   ** List serial ports available and current status

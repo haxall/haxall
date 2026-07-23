@@ -14,6 +14,7 @@ using axon
 **
 ** Docker extension Axon functions
 **
+@Gen
 const class DockerFuncs
 {
 

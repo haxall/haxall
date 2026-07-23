@@ -15,6 +15,7 @@ using hx
 **
 ** Axon functions for xeto remote repo management and installation
 **
+@Gen
 const class RepoFuncs
 {
 
@@ -22,6 +23,8 @@ const class RepoFuncs
 // Repo Management
 //////////////////////////////////////////////////////////////////////////
 
+  ** Debug dump of the server side XetoEnv including its
+  ** resolution mode, search path, and build vars
   @Api @Axon { su = true }
   static Str xetoEnvDebug()
   {
@@ -30,6 +33,16 @@ const class RepoFuncs
     return buf.toStr
   }
 
+  ** List configured remote repos as a grid.  The result grid
+  ** includes the following columns:
+  **   - `name`: programmatic name of the repo
+  **   - `uri`: URI endpoint for the repo
+  **   - `authToken`: env var name if auth token is configured
+  **
+  ** Examples:
+  **   ```axon
+  **   libRepos()
+  **   ```
   @Api @Axon { su = true }
   static Grid libRepos()
   {
@@ -42,6 +55,13 @@ const class RepoFuncs
     return gb.toGrid
   }
 
+  ** Add a new remote repo configuration.  The name must be a valid
+  ** tag name and the uri must be a valid URI for the repo endpoint.
+  **
+  ** Examples:
+  **   ```axon
+  **   libRepoAdd("myrepo", `https://example.com/xeto`)
+  **   ```
   @Api @Axon { su = true }
   static Dict libRepoAdd(Str name, Uri uri)
   {
@@ -49,6 +69,12 @@ const class RepoFuncs
     return Etc.dict2("name", r.name, "uri", r.uri)
   }
 
+  ** Remove a remote repo configuration by name.
+  **
+  ** Examples:
+  **   ```axon
+  **   libRepoRemove("myrepo")
+  **   ```
   @Api @Axon { su = true }
   static Str libRepoRemove(Str name)
   {
@@ -56,12 +82,28 @@ const class RepoFuncs
     return "removed"
   }
 
+  ** Ping a remote repo and return metadata.  If repo is null
+  ** then the default repo is used.
+  **
+  ** Examples:
+  **   ```axon
+  **   libRepoPing(null)
+  **   libRepoPing("xetodev")
+  **   ```
   @Api @Axon { su = true }
   static Dict libRepoPing(Str? name := null)
   {
     return repo(name).ping
   }
 
+  ** Save an authentication token for a remote repo.  The token
+  ** is persisted to fan.props as an environment variable.  If repo
+  ** is null then the default repo is used.
+  **
+  ** Examples:
+  **   ```axon
+  **   libRepoLogin("xetodev", "my-secret-token")
+  **   ```
   @Api @Axon { su = true }
   static Str libRepoLogin(Str? name, Str token)
   {
@@ -69,6 +111,13 @@ const class RepoFuncs
     return repos.saveAuthToken(n, token)
   }
 
+  ** Remove the authentication token for a remote repo.  If repo
+  ** is null then the default repo is used.
+  **
+  ** Examples:
+  **   ```axon
+  **   libRepoLogout("xetodev")
+  **   ```
   @Api @Axon { su = true }
   static Str libRepoLogout(Str? name)
   {
@@ -80,6 +129,14 @@ const class RepoFuncs
 // Search and Versions
 //////////////////////////////////////////////////////////////////////////
 
+  ** Search a remote repo for libs matching the query string.
+  ** If repo is null then the default repo is used.
+  **
+  ** Examples:
+  **   ```axon
+  **   libSearch(null, "*")
+  **   libSearch("xetodev", "ph")
+  **   ```
   @Api @Axon { su = true }
   static Grid libSearch(Str? name, Str query)
   {
@@ -94,6 +151,16 @@ const class RepoFuncs
     return gb.toGrid
   }
 
+  ** List available versions for a lib from a remote repo.
+  ** If repo is null then the default repo is used.  Options
+  ** include `limit` and `versions` for version constraints.
+  **
+  ** Examples:
+  **   ```axon
+  **   libVersions(null, "ph")
+  **   libVersions("xetodev", "ph", {limit: 5})
+  **   libVersions(null, "ph", {versions: "4.x.x"})
+  **   ```
   @Api @Axon { su = true }
   static Grid libVersions(Str? name, Str lib, Dict? opts := null)
   {
@@ -113,6 +180,21 @@ const class RepoFuncs
 // Install, Update, Uninstall, Fetch
 //////////////////////////////////////////////////////////////////////////
 
+  ** Install one or more libs from a remote repo to disk.  The libs
+  ** argument accepts a single lib name or a list of lib names.  Use
+  ** the format "lib-version" to specify version constraints, for
+  ** example "ph-5.0.6" or "ph-5.x.x".  If no version constraint is
+  ** specified, the latest available version is used.  If repo is null
+  ** then the default repo is used.  Pass `{preview}` in opts to
+  ** return the plan without executing.
+  **
+  ** Examples:
+  **   ```axon
+  **   libInstall(null, "acme.widgets")
+  **   libInstall(null, "acme.widgets-1.x.x")
+  **   libInstall(null, ["acme.widgets", "acme.core"])
+  **   libInstall(null, "acme.widgets", {preview})
+  **   ```
   @Api @Axon { su = true }
   static Grid libInstall(Str? name, Obj libs, Dict? opts := null)
   {
@@ -125,6 +207,20 @@ const class RepoFuncs
     return planToGrid(inst.plan)
   }
 
+  ** Update one or more installed libs from their origin repo.
+  ** The libs argument accepts a single lib name or a list of
+  ** lib names.  Use the format "lib-version" to specify version
+  ** constraints, for example "ph-5.x.x".  If no version constraint
+  ** is specified, the latest available version is used.  Pass
+  ** `{preview}` in opts to return the plan without executing.
+  **
+  ** Examples:
+  **   ```axon
+  **   libUpdate("ph")
+  **   libUpdate("ph-5.x.x")
+  **   libUpdate(["ph", "ph.points"])
+  **   libUpdate("ph", {preview})
+  **   ```
   @Api @Axon { su = true }
   static Grid libUpdate(Obj libs, Dict? opts := null)
   {
@@ -136,6 +232,16 @@ const class RepoFuncs
     return planToGrid(inst.plan)
   }
 
+  ** Uninstall one or more libs from disk.  The libs argument
+  ** accepts a single lib name or a list of lib names.  Raises
+  ** an exception if any of the libs are currently enabled
+  ** in the runtime.
+  **
+  ** Examples:
+  **   ```axon
+  **   libUninstall("acme.widgets")
+  **   libUninstall(["acme.widgets", "acme.core"])
+  **   ```
   @Api @Axon { su = true }
   static Grid libUninstall(Obj libs)
   {
@@ -158,6 +264,16 @@ const class RepoFuncs
     return planToGrid(inst.plan)
   }
 
+  ** Fetch a xetolib zip for a specific lib and version from a remote
+  ** repo and write it to an I/O handle.  If repo is null then the
+  ** default repo is used.  The handle follows the same conventions
+  ** as `ioWriteStr`.  Returns a Dict with `lib`, `version`, `size`,
+  ** and `uri` of the written file.
+  **
+  ** Examples:
+  **   ```axon
+  **   libFetch(null, "ph", "4.0.5", `io/ph.xetolib`)
+  **   ```
   @Api @Axon { su = true }
   static Dict libFetch(Str? name, Str lib, Str version, Obj handle)
   {

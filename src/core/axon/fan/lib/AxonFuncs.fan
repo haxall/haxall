@@ -14,7 +14,7 @@ using haystack
 **
 ** Axon library functions
 **
-@NoDoc @Js
+@NoDoc @Js @Gen
 const class AxonFuncs
 {
 
@@ -52,15 +52,15 @@ const class AxonFuncs
   **   - list(num): get item at given index (same semantics as Fantom)
   **   - list(range): get list slice at given index (same semantics as Fantom)
   **   - dict(key): get item with given key or return null
-  **   - comp(key): get slot with given key name or return null
+  **   - comp(key): get slot with given key or return null
   **   - grid(num): get row at given index
-  **   - grid(range): [haystack::Grid.getRange]
+  **   - grid(range): [fan.haystack::Grid.getRange]
   **
   ** The get function maybe be accessed using the `[]` shortcut operator:
   **
   **      list[3]  >>  list.get(3)
   **
-  ** See [docHaxall::AxonLang#get-and-trap-operators].
+  ** See [hx.doc.haxall::AxonLang#get-and-trap-operators].
   @Api @Axon static Obj? get(Obj? val, Obj? key)
   {
     if (val is Dict) return ((Dict)val).get(key)
@@ -77,7 +77,7 @@ const class AxonFuncs
   **   - list(num): get item at given index or null is index invalid
   **   - list(range): get list slice with safe index
   **   - grid(num): get row at given index or null if index invalid
-  **   - grid(range): [haystack::Grid.getRange] with safe range
+  **   - grid(range): [fan.haystack::Grid.getRange] with safe range
   @Api @Axon static Obj? getSafe(Obj? val, Obj? key)
   {
     // key must be int or range
@@ -123,7 +123,7 @@ const class AxonFuncs
   ** if the collection is empty:
   **   - list: item at index 0
   **   - grid: first frow
-  **   - stream: first item; see [docHaxall::Streams#first]
+  **   - stream: first item; see [hx.doc.haxall::Streams#first]
   @Api @Axon static Obj? first(Obj? val)
   {
     if (val is MStream) return FirstStream(val).run
@@ -134,7 +134,7 @@ const class AxonFuncs
   ** if the collection is empty:
   **   - list: item at index -1
   **   - grid: item at index -1
-  **   - stream: last item; see [docHaxall::Streams#last]
+  **   - stream: last item; see [hx.doc.haxall::Streams#last]
   @Api @Axon static Obj? last(Obj? val)
   {
     if (val is MStream) return LastStream(val).run
@@ -216,7 +216,7 @@ const class AxonFuncs
   ** Set a collection item and return a new collection.
   **  - List: set item by index key
   **  - Dict: set item by key name (if val is null, it is a remove)
-  **  - Comp: set slot by key name (if val is null, it is a remove)
+  **  - Comp: set slot by name (if val is null, it is a remove)
   @Api @Axon static Obj? set(Obj? val, Obj? key, Obj? item)
   {
     if (val is List) return mutList(val).set(((Number)key).toInt, item)
@@ -262,7 +262,7 @@ const class AxonFuncs
   **   - Grid: stream the rows
   **   - List: stream the items
   **   - Range: stream inclusive range of integers
-  ** See [docHaxall::Streams#stream].
+  ** See [hx.doc.haxall::Streams#stream].
   @Api @Axon static Obj stream(Obj? val)
   {
     if (val is Grid) return GridStream(val)
@@ -272,28 +272,28 @@ const class AxonFuncs
   }
 
   ** Create a new stream for the cell values of the given column.
-  ** See [docHaxall::Streams#streamcol].
+  ** See [hx.doc.haxall::Streams#streamcol].
   @Api @Axon static Obj streamCol(Grid grid, Obj col)
   {
     GridColStream(grid, col as Col ?: grid.col(col.toStr))
   }
 
   ** Collect stream into a in-memory list or grid.
-  ** See [docHaxall::Streams#collect].
+  ** See [hx.doc.haxall::Streams#collect].
   @Api @Axon static Obj collect(Obj? stream, Fn? to := null)
   {
     CollectStream(stream, to).run
   }
 
   ** Truncate stream after given limit is reached.
-  ** See [docHaxall::Streams#limit].
+  ** See [hx.doc.haxall::Streams#limit].
   @Api @Axon static Obj limit(Obj? stream, Number limit)
   {
     LimitStream(stream, limit.toInt)
   }
 
   ** Skip the given number of items in a stream.
-  ** See [docHaxall::Streams#skip].
+  ** See [hx.doc.haxall::Streams#skip].
   @Api @Axon static Obj skip(Obj? stream, Number count)
   {
     c := count.toInt
@@ -327,7 +327,7 @@ const class AxonFuncs
     AxonFuncsUtil.sort(val, sorter, true)
   }
 
-  ** Sort a grid by row display name - see [haystack::Grid.sortDis]
+  ** Sort a grid by row display name - see [fan.haystack::Grid.sortDis]
   **
   ** Examples:
   **
@@ -336,7 +336,7 @@ const class AxonFuncs
   @Api @Axon static Obj? sortDis(Grid val) { val.sortDis }
 
   ** Reverse sort a list or grid.  This function works just
-  ** like [sort] except sorts in reverse.
+  ** like [sort()] except sorts in reverse.
   @Api @Axon static Obj? sortr(Obj val, Obj? sorter := null)
   {
     AxonFuncsUtil.sort(val, sorter, false)
@@ -348,7 +348,7 @@ const class AxonFuncs
   **   - Dict: iterate the name/value pairs (value, name)
   **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
-  **   - Stream: iterate items as (val); see [docHaxall::Streams#each]
+  **   - Stream: iterate items as (val); see [hx.doc.haxall::Streams#each]
   @Api @Axon static Obj? each(Obj val, Fn fn)
   {
     if (val is MStream) return EachStream(val, fn).run
@@ -369,7 +369,7 @@ const class AxonFuncs
   **   - Dict: iterate the name/value pairs (val, name)
   **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
-  **   - Stream: iterate items as (val); see [docHaxall::Streams#eachwhile]
+  **   - Stream: iterate items as (val); see [hx.doc.haxall::Streams#eachwhile]
   @Api @Axon static Obj? eachWhile(Obj val, Fn fn)
   {
     if (val is MStream) return EachWhileStream(val, fn).run
@@ -402,7 +402,7 @@ const class AxonFuncs
   ** returns a list for each mapped integer inte the range.
   **
   ** If mapping a stream, the mapping functions takes `(val)`.
-  ** See [docHaxall::Streams#map].
+  ** See [hx.doc.haxall::Streams#map].
   **
   ** Examples:
   **
@@ -433,14 +433,14 @@ const class AxonFuncs
   ** If mapping a list, the mapping should be a function
   ** that takes `(val)` or `(val, index)`.  It should return
   ** the a list of zero or more new values.
-  ** See [sys::List.flatMap].
+  ** See [fan.sys::List.flatMap].
   **
   ** If mapping a grid, the mapping function takes `(row)` or `(row,index)`
   ** and returns a list of zero or more new Dict rows.
-  ** See [haystack::Grid.flatMap].
+  ** See [fan.haystack::Grid.flatMap].
   **
   ** If mapping a stream, the mapping functions takes `(val)`.
-  ** See [docHaxall::Streams#flatmap].
+  ** See [hx.doc.haxall::Streams#flatmap].
   **
   ** Examples:
   **
@@ -469,7 +469,7 @@ const class AxonFuncs
   ** or `(row, index)` and returns true to match and return the row.
   **
   ** If working with a stream, the filter takes `(val)` and returns
-  ** true to match.  See [docHaxall::Streams#find].
+  ** true to match.  See [hx.doc.haxall::Streams#find].
   **
   ** Examples:
   **
@@ -488,7 +488,7 @@ const class AxonFuncs
   }
 
   ** Find all the items in a list, dict, or grid by applying
-  ** the given filter function.  Also see [find].
+  ** the given filter function.  Also see [find()].
   **
   ** If working with a list, the filter should be a function
   ** that takes `(val)` or `(val, index)`.  It should return
@@ -503,7 +503,7 @@ const class AxonFuncs
   ** resulting grid shares the original's grid meta and columns.
   **
   ** If working with a stream, the filter takes `(val)` and returns
-  ** true to match.  See [docHaxall::Streams#findall].
+  ** true to match.  See [hx.doc.haxall::Streams#findall].
   **
   ** Examples:
   **
@@ -524,12 +524,12 @@ const class AxonFuncs
     throw argErr("findAll", val)
   }
 
-  ** Apply a [filter](docHaystack::Filters) expression to a collection
+  ** Apply a [filter](ph.doc::Filters) expression to a collection
   ** of dicts.  The collection value may be any of the following:
-  **  - Grid: returns new grid with filtered rows
-  **  - Dict[]: returns list of filtered dicts (nulls are filtered out)
-  **  - Col[]: returns list of columns filtered by their meta
-  **  - Stream: filters stream of Dicts - see [docHaxall::Streams#filter]
+  **  - `Grid`: returns new grid with filtered rows
+  **  - `Dict[]`: returns list of filtered dicts (nulls are filtered out)
+  **  - `Col[]`: returns list of columns filtered by their meta
+  **  - `Stream`: filters stream of Dicts - see [hx.doc.haxall::Streams#filter]
   **
   ** The filter parameter may one fo the following:
   **   - Axon expression which maps to a filter
@@ -589,7 +589,7 @@ const class AxonFuncs
   ** or `(char, index)` and returns true or false.
   **
   ** If working with a stream, then function takes `(val)`
-  ** and returns true or false.  See [docHaxall::Streams#all].
+  ** and returns true or false.  See [hx.doc.haxall::Streams#all].
   **
   ** Examples:
   **
@@ -622,7 +622,7 @@ const class AxonFuncs
   ** or `(char, index)` and returns true or false.
   **
   ** If working with a stream, then function takes `(val)`
-  ** and returns true or false.  See [docHaxall::Streams#any].
+  ** and returns true or false.  See [hx.doc.haxall::Streams#any].
   **
   ** Examples:
   **
@@ -643,7 +643,7 @@ const class AxonFuncs
   ** collection along with a current *accumulation* value.  The accumation
   ** value is initialized to `init` for the first item, and for every
   ** subsequent item it is the result of the previous item.  Return
-  ** the final accumulation value.  Also see [fold] which is preferred
+  ** the final accumulation value.  Also see [fold()] which is preferred
   ** if doing standard rollup such as sum or average.
   **
   ** If working with a list, the function takes `(acc, val, index)`
@@ -653,7 +653,7 @@ const class AxonFuncs
   ** and returns accumulation value
   **
   ** If working with a stream, then function takes `(acc, val)`
-  ** and returns accumulation value  See [docHaxall::Streams#reduce].
+  ** and returns accumulation value  See [hx.doc.haxall::Streams#reduce].
   **
   ** Examples:
   **
@@ -684,8 +684,8 @@ const class AxonFuncs
   }
 
   ** Return the unique items in a collection.  If val is a List
-  ** then return [sys::List.unique].  If val is a Grid then
-  ** return [haystack::Grid.unique] where key must be a column
+  ** then return [fan.sys::List.unique].  If val is a Grid then
+  ** return [fan.haystack::Grid.unique] where key must be a column
   ** name or list of column names.
   **
   ** Examples:
@@ -702,7 +702,7 @@ const class AxonFuncs
 
   ** Flatten a list to a single level.  If given a list of
   ** grids, then flatten rows to a single grid.  Also see
-  ** [sys::List.flatten] and [haystack::Etc.gridFlatten].
+  ** [fan.sys::List.flatten] and [fan.haystack::Etc.gridFlatten].
   **
   ** Examples:
   **
@@ -771,7 +771,7 @@ const class AxonFuncs
   **   - `name`: string name of the column
   **   - `kind`: all the different value kinds in the column separated by "|"
   **   - `count`: total number of rows with column with a non-null value
-  ** Also see [readAllTagNames].
+  ** Also see [readAllTagNames()].
   **
   ** Example:
   **
@@ -840,7 +840,7 @@ const class AxonFuncs
   **   2. Call `fn(item, acc)` for every item, return new accumulator state
   **   3. Call `fn(foldEnd, acc)` return final result
   **
-  ** See [docHaxall::Streams#fold] for streaming details.
+  ** See [hx.doc.haxall::Streams#fold] for streaming details.
   **
   ** The fold will short-circuit and halt immediately if the folding
   ** function returns [na()] for the accumulator state. The result of
@@ -896,7 +896,7 @@ const class AxonFuncs
   }
 
   ** Fold the values of the given column into a single value.
-  ** The folding function uses the same semantics as [fold].
+  ** The folding function uses the same semantics as [fold()].
   **
   ** Example:
   **
@@ -922,7 +922,7 @@ const class AxonFuncs
   ** `colSelector` function and removed from the result.  The selector
   ** may be a list of string names or a function which takes a Col
   ** and returns true to select it.  The folding function uses same
-  ** semantics as [fold].
+  ** semantics as [fold()].
   **
   **
   ** Example:
@@ -1011,7 +1011,7 @@ const class AxonFuncs
   }
 
   ** Compare two numbers and return the smaller one.  This function
-  ** may also be used with [fold] to return the smallest number (or
+  ** may also be used with [fold()] to return the smallest number (or
   ** null if no values).  Note number units are **not** checked nor
   ** considered for this comparison.
   **
@@ -1040,7 +1040,7 @@ const class AxonFuncs
   }
 
   ** Compare two numbers and return the larger one.  This function
-  ** may also be used with [fold] to return the largest number (or
+  ** may also be used with [fold()] to return the largest number (or
   ** null if no values).  Note number units are **not** checked nor
   ** considered for the comparison.
   **
@@ -1069,7 +1069,7 @@ const class AxonFuncs
   }
 
   ** Fold multiple values into their standard average or arithmetic
-  ** mean.  This function is the same as [math::mean](mean).  Null
+  ** mean.  This function is the same as [math::mean](mean()).  Null
   ** values are ignored.  Return null if no values.
   **
   ** Example:
@@ -1105,24 +1105,24 @@ const class AxonFuncs
 // Dict
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get the marker value singleton [xeto::Marker.val]
+  ** Get the marker value singleton [fan.xeto::Marker.val]
   @Api @Axon static Marker marker() { Marker.val }
 
-  ** Get the none value singleton [xeto::None.val]
+  ** Get the none value singleton [fan.xeto::None.val]
   @Api @Axon static None none() { None.val }
 
-  ** Prefer none() now
+  ** This method is for backward compatibility only - use [none()].
   @Api @Axon static None removeMarker() { None.val }
 
-  ** Get NA not-available singleton [haystack::NA.val]
+  ** Get NA not-available singleton [fan.haystack::NA.val]
   @Api @Axon static NA na() { NA.val }
 
   ** Return if the given string is legal tag name -
-  ** see [haystack::Etc.isTagName]
+  ** see [fan.haystack::Etc.isTagName]
   @Api @Axon static Bool isTagName(Str n) { Etc.isTagName(n) }
 
   ** Given arbitrary string, convert to a safe tag name -
-  ** see [haystack::Etc.toTagName]
+  ** see [fan.haystack::Etc.toTagName]
   @Api @Axon static Str toTagName(Str n) { Etc.toTagName(n) }
 
   ** Get the list of names used by a given dict
@@ -1140,7 +1140,7 @@ const class AxonFuncs
   **
   **      dict->foo  >>>  dict.trap("foo")
   **
-  ** See [docHaxall::AxonLang#get-and-trap-operators].
+  ** See [hx.doc.haxall::AxonLang#get-and-trap-operators].
   @Api @Axon static Obj? _trap(Obj? val, Str name)
   {
     if (val is Dict)  return ((Dict)val).trap(name, null)
@@ -1202,7 +1202,7 @@ const class AxonFuncs
   }
 
   ** Return new grid with grid level meta-data replaced by given
-  ** meta Dict.  Also see [addMeta] and [docHaxall::Streams#setmeta].
+  ** meta Dict.  Also see [addMeta()] and [hx.doc.haxall::Streams#setmeta].
   **
   ** Example:
   **
@@ -1215,8 +1215,8 @@ const class AxonFuncs
   }
 
   ** Return new grid with additional grid level meta-data tags.
-  ** Tags are added using [merge] conventions.  Also see [setMeta]
-  ** and [docHaxall::Streams#addmeta].
+  ** Tags are added using [merge()] conventions.  Also see [setMeta()]
+  ** and [hx.doc.haxall::Streams#addmeta].
   **
   ** Example:
   **
@@ -1238,7 +1238,7 @@ const class AxonFuncs
     a.join(b, joinColName)
   }
 
-  ** Join a list of grids into a single grid.  See [join].
+  ** Join a list of grids into a single grid.  See [join()].
   @Api @Axon static Grid joinAll(Grid[] grids, Str joinColName)
   {
     if (grids.isEmpty) throw ArgErr("Grid.joinAll no grids specified")
@@ -1312,7 +1312,7 @@ const class AxonFuncs
   ** Return a new grid with the columns reordered.  The given list
   ** of names represents the new order and must contain the same current
   ** column names.  Any columns not specified are removed.  Also
-  ** see [colNames], [moveTo], and [docHaxall::Streams#reordercols].
+  ** see [colNames()], [moveTo()], and [hx.doc.haxall::Streams#reordercols].
   **
   ** Example:
   **
@@ -1328,7 +1328,7 @@ const class AxonFuncs
 
   ** Return a new grid with column meta-data replaced by given meta dict.
   ** If column not found, then return given grid.
-  ** Also see [addColMeta] and [docHaxall::Streams#setcolmeta].
+  ** Also see [addColMeta()] and [hx.doc.haxall::Streams#setcolmeta].
   @Api @Axon static Obj setColMeta(Obj grid, Str name, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).setColMeta(name, meta)
@@ -1338,8 +1338,8 @@ const class AxonFuncs
 
   ** Return a new grid with additional column meta-data.
   ** If column not found, then return given grid.
-  ** Column meta is added using [merge] conventions.  Also
-  ** see [setColMeta] and [docHaxall::Streams#addcolmeta].
+  ** Column meta is added using [merge()] conventions.  Also
+  ** see [setColMeta()] and [hx.doc.haxall::Streams#addcolmeta].
   @Api @Axon static Obj addColMeta(Obj grid, Str name, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).addColMeta(name, meta)
@@ -1349,7 +1349,7 @@ const class AxonFuncs
 
   ** Return a new grid with the given column removed.
   ** If the column doesn't exist, then return given grid.
-  ** Also see [docHaxall::Streams#removecol].
+  ** Also see [hx.doc.haxall::Streams#removecol].
   @Api @Axon static Obj removeCol(Obj grid, Obj col)
   {
     if (grid is Grid) return ((Grid)grid).removeCol(col)
@@ -1359,7 +1359,7 @@ const class AxonFuncs
 
   ** Return a new grid with all the given columns removed.
   ** Columns can be Str names or Col instances.
-  ** Also see [docHaxall::Streams#removecols].
+  ** Also see [hx.doc.haxall::Streams#removecols].
   @Api @Axon static Obj removeCols(Obj grid, Obj[] cols)
   {
     if (grid is Grid) return ((Grid)grid).removeCols(cols)
@@ -1369,7 +1369,7 @@ const class AxonFuncs
 
   ** Return a new grid with keeps the given columns, but removes
   ** all the others.  Columns can be Str names or Col instances.
-  ** Also see [docHaxall::Streams#keepcols].
+  ** Also see [hx.doc.haxall::Streams#keepcols].
   **
   ** Example:
   **
@@ -1551,12 +1551,12 @@ const class AxonFuncs
 
   ** Return current DateTime according to context's time zone.
   ** This function will use a cached version which is only
-  ** accurate to within 250ms (see [sys::DateTime.now] for details).
+  ** accurate to within 250ms (see [fan.sys::DateTime.now] for details).
   ** Also see [nowTicks()] and [nowUtc()].
   @Api @Axon static DateTime now() { DateTime.now }
 
   ** Return current DateTime in UTC.  This function will use a  cached
-  ** version which is only accurate to within 250ms (see [sys::DateTime.nowUtc]
+  ** version which is only accurate to within 250ms (see [fan.sys::DateTime.nowUtc]
   ** for details).  Also see [now()] and [nowTicks()].
   @Api @Axon static DateTime nowUtc() { DateTime.nowUtc }
 
@@ -1566,8 +1566,8 @@ const class AxonFuncs
   @Api @Axon static Number nowTicks() { Number(DateTime.nowTicks, Number.ns) }
 
   ** Return if a timestamp is contained within a Date range.
-  ** Range may be any value supported by [toDateSpan].  Timestamp
-  ** may be either a Date or a DateTime.  Also see [contains].
+  ** Range may be any value supported by [toDateSpan()].  Timestamp
+  ** may be either a Date or a DateTime.  Also see [contains()].
   **
   ** Examples:
   **
@@ -1645,7 +1645,6 @@ const class AxonFuncs
   ** Example:
   **
   **     2009-10-28.firstOfMonth  >>  2009-10-01
-  **
   @Api @Axon static Date firstOfMonth(Date date) { date.firstOfMonth }
 
   ** Get the last day of the date's month.
@@ -1654,16 +1653,14 @@ const class AxonFuncs
   ** Example:
   **
   **     2009-10-28.lastOfMonth  >>  2009-10-31
-  **
   @Api @Axon static Date lastOfMonth(Date date) { date.lastOfMonth }
 
-  **
-  ** Convert the following objects into a [haystack::DateSpan]\:
+  ** Convert the following objects into a [fan.haystack::DateSpan]:
   **   - `Func`: function which evaluates to date range
   **   - `DateSpan`: return itself
   **   - `Date`: one day range
-  **   - `Span`: return [haystack::Span.toDateSpan]
-  **   - `Str`: evaluates to [haystack::DateSpan.fromStr]
+  **   - `Span`: return [fan.haystack::Span.toDateSpan]
+  **   - `Str`: evaluates to [fan.haystack::DateSpan.fromStr]
   **   - `Date..Date`: starting and ending date (inclusive)
   **   - `Date..Number`: starting date and num of days (day unit required)
   **   - `DateTime..DateTime`: use starting/ending dates; if end is midnight,
@@ -1678,33 +1675,30 @@ const class AxonFuncs
   **     toDateSpan(2010-07)                 >>  01-Jul-2010..31-Jul-2010
   **     toDateSpan(2010)                    >>  01-Jan-2010..31-Dec-2010
   **     toDateSpan(pastWeek) // on 9 Aug    >>  02-Aug-2010..09-Aug-2010
-  **
   @Api @Axon static DateSpan toDateSpan(Obj? x)
   {
     if (x == null) return AxonContext.curAxon.toDateSpanDef
     return Etc.toDateSpan(x)
   }
 
-  **
-  ** Convert the following objects into a [haystack::Span]\:
+  ** Convert the following objects into a [fan.haystack::Span]:
   **   - `Span`: return itself
   **   - `Span+tz`: update timezone using same dates only if aligned to midnight
-  **   - `Str`: return [haystack::Span.fromStr] using current timezone
-  **   - `Str+tz`: return [haystack::Span.fromStr] using given timezone
+  **   - `Str`: return [fan.haystack::Span.fromStr] using current timezone
+  **   - `Str+tz`: return [fan.haystack::Span.fromStr] using given timezone
   **   - `DateTime..DateTime`: range of two DateTimes
   **   - `Date..DateTime`: start day for date until the end timestamp
   **   - `DateTime..Date`: start timestamp to end of day for end date
   **   - `DateTime`: span of a single timestamp
-  **   - `DateSpan`: anything accepted by [toDateSpan] in current timezone
-  **   - `DateSpan+tz`: anything accepted by [toDateSpan] using given timezone
-  **
+  **   - `DateSpan`: anything accepted by [toDateSpan()] in current timezone
+  **   - `DateSpan+tz`: anything accepted by [toDateSpan()] using given timezone
   @Api @Axon static Span toSpan(Obj? x, Str? tz := null)
   {
     if (x == null) x = AxonContext.curAxon.toDateSpanDef
     return Etc.toSpan(x, tz != null ? TimeZone.fromStr(tz) : null)
   }
 
-  ** Use [toSpan]
+  ** Use [toSpan()]
   @NoDoc @Deprecated { msg = "Use toSpan" }
   @Api @Axon static Span toDateTimeSpan(Obj? a, Obj? b := null) { toSpan(a, b) }
 
@@ -1716,7 +1710,7 @@ const class AxonFuncs
   }
 
   ** Iterate the days of a span.  The `dates` argument may be any object
-  ** converted into a date range by [toDateSpan].  The given function is
+  ** converted into a date range by [toDateSpan()].  The given function is
   ** called with a `Date` argument for each iterated day.
   **
   ** Example:
@@ -1734,7 +1728,7 @@ const class AxonFuncs
   }
 
   ** Iterate the months of a span.  The `dates` argument may be any object
-  ** converted into a date range by [toDateSpan].  The given function is
+  ** converted into a date range by [toDateSpan()].  The given function is
   ** called with a `DateSpan` argument for each interated month.
   **
   ** Examples:
@@ -1824,7 +1818,6 @@ const class AxonFuncs
     d.toDateTime(t, tz == null ? TimeZone.cur : TimeZone(tz))
   }
 
-  **
   ** If val is a DateTime: get date portion of the timestamp.
   ** If val is a Number: construct a date instance from year, month, day
   **
@@ -1921,12 +1914,12 @@ const class AxonFuncs
   }
 
   ** Given a DateTime return Number of milliseconds since Unix epoch.
-  ** The epic is defined as 1-Jan-1970 UTC.  Also see [fromJavaMillis].
+  ** The epic is defined as 1-Jan-1970 UTC.  Also see [fromJavaMillis()].
   @Api @Axon static Number toJavaMillis(DateTime dt) { Number(dt.toJava, Number.ms) }
 
   ** Given Number of milliseconds since Unix epoch return a DateTime.
   ** The epic is defined as 1-Jan-1970 UTC.  If timezone is null, use system
-  ** default.  Also see [toJavaMillis].
+  ** default.  Also see [toJavaMillis()].
   @Api @Axon static DateTime fromJavaMillis(Number millis, Str? tz := null)
   {
     DateTime.fromJava(millis.toInt, tz == null ? TimeZone.cur : TimeZone(tz), false)
@@ -1939,11 +1932,11 @@ const class AxonFuncs
   ** Given an optional value return true if the SI metric system should be
   ** used.  Return false if the United States customary unit system should be
   ** used.  The following rules are used:
-  **   - if val is a dict with [geoCountry] return return false if "US"
-  **   - if number or rec with [unit] and unit is known to be a US
+  **   - if val is a dict with [ph::PhEntity.geoCountry] return return false if "US"
+  **   - if number or rec with [ph::PhEntity.unit] and unit is known to be a US
   **     customary unit return false (right now we only check
   **     for °F and Δ°F)
-  **   - fallback to locale of hosting server, see [sys::Locale]
+  **   - fallback to locale of hosting server, see [fan.sys::Locale]
   **
   ** Examples:
   **
@@ -2047,10 +2040,9 @@ const class AxonFuncs
 // Defs
 //////////////////////////////////////////////////////////////////////////
 
-  **
   ** Return if the given instance inherits from the spec via nominal
-  ** typing.  Also see [fits()] and [specFits()] to check via structural
-  ** typing.
+  ** typing.  Use [specIs()] to check nominal typing between two types.
+  ** Also see [fits()] and [specFits()] to check via structural typing.
   **
   ** Note that dict values will only match the generic `sys.Dict`
   ** type.  Use [fits()] for structural type matching.
@@ -2062,7 +2054,6 @@ const class AxonFuncs
   **     is({}, Dict)        >>  true
   **     is({equip}, Equip)  >>  false
   **     is(Str, Spec)       >>  true
-  **
   @Api @Axon static Bool _is(Obj? val, Spec spec)
   {
     AxonContext.curAxon.ns.specOf(val).isa(spec)
@@ -2077,27 +2068,27 @@ const class AxonFuncs
     symbol as Def ?: AxonContext.curAxon.defs.def(symbol.toStr, checked)
   }
 
-  ** List all definitions in the context namespace as Def[].
+  ** List all definitions in the context namespace as `Def[]`.
   @Api @Axon static Def[] defs()
   {
     AxonContext.curAxon.defs.defs.sort
   }
 
-  ** List tag definitions in the context namespace as Def[].
+  ** List tag definitions in the context namespace as `Def[]`.
   @Api @Axon static Def[] tags()
   {
     defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTag }
     return defs.sort
   }
 
-  ** List term definitions (tags and conjuncts) in the context namespace as Def[].
+  ** List term definitions (tags and conjuncts) in the context namespace as `Def[]`.
   @Api @Axon static Def[] terms()
   {
     defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTerm }
     return defs.sort
   }
 
-  ** List conjunct definitions in the context namespace as Def[].
+  ** List conjunct definitions in the context namespace as `Def[]`.
   @Api @Axon static Def[] conjuncts()
   {
     defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isConjunct }
@@ -2146,7 +2137,7 @@ const class AxonFuncs
     AxonContext.curAxon.defs.implement(def(d))
   }
 
-  ** Reflect the given subject dict into the list of its implemented Def[]
+  ** Reflect the given subject dict into the list of its implemented `Def[]`
   @NoDoc @Api @Axon static Def[] reflect(Dict dict)
   {
     AxonContext.curAxon.defs.reflect(dict).defs
@@ -2251,7 +2242,7 @@ const class AxonFuncs
   ** Return if an object is a grid type
   @Api @Axon static Bool isGrid(Obj? val) { val is Grid }
 
-  ** Return if an object is a grid that conforms to the [history grid shape](haystack::Grid.isHisGrid)
+  ** Return if an object is a grid that conforms to the [history grid shape](fan.haystack::Grid.isHisGrid)
   @Api @Axon static Bool isHisGrid(Obj? val) { val is Grid && ((Grid)val).isHisGrid }
 
   ** Return if an object is a boolean type
@@ -2260,7 +2251,7 @@ const class AxonFuncs
   ** Return if an object is a number type
   @Api @Axon static Bool isNumber(Obj? val) { val is Number }
 
-  ** Return if an object is a number type with a [time unit](haystack::Number.isDuration)
+  ** Return if an object is a number type with a [time unit](fan.haystack::Number.isDuration)
   @Api @Axon static Bool isDuration(Obj? val) { val is Number && ((Number)val).isDuration }
 
   ** Return if an object is a ref type
@@ -2314,7 +2305,7 @@ const class AxonFuncs
   @Api @Axon static Obj?[] toList(Obj? val) { val as List ?: Obj?[val].toImmutable }
 
   ** Given an arbitrary object, translate it to a Grid via
-  ** [haystack::Etc.toGrid]\:
+  ** [fan.haystack::Etc.toGrid]:
   **   - if grid just return it
   **   - if row in grid of size, return row.grid
   **   - if scalar return 1x1 grid
@@ -2336,12 +2327,12 @@ const class AxonFuncs
 
   ** Localize column display names.  For each col which does not have
   ** an explicit dislay name, add a `dis` tag based on the column name.
-  ** Also see [haystack::Grid.colsToLocale] and [hx.doc.skyspark::Localization#tags].
+  ** Also see [fan.haystack::Grid.colsToLocale] and [hx.doc.skyspark::Localization#tags].
   @Api @Axon static Grid colsToLocale(Grid grid) { grid.colsToLocale }
 
   ** Get the localized string for the given tag name or qualified name.
-  ** If the key is formatted as "pod::name" then route to [sys::Env.locale],
-  ** otherwise to [haystack::Etc.tagToLocale].
+  ** If the key is formatted as "pod::name" then route to [fan.sys::Env.locale],
+  ** otherwise to [fan.haystack::Etc.tagToLocale].
   @Api @Axon static Str toLocale(Str key)
   {
     colons := key.index("::")
@@ -2376,9 +2367,9 @@ const class AxonFuncs
 
   ** Get display string for dict or the given tag:
   **  - if dict is null return "null"
-  **  - if `name` is null then return [xeto::Dict.dis]
-  **  - if dict is a Row then return [haystack::Row.disOf] or def
-  **  - fallback [haystack::Etc.valToDis]
+  **  - if `name` is null then return [fan.xeto::Dict.dis]
+  **  - if dict is a Row then return [fan.haystack::Row.disOf] or def
+  **  - fallback [fan.haystack::Etc.valToDis]
   @Api @Axon static Str dis(Dict? dict, Str? name := null, Str def := "")
   {
     if (dict == null) return "null"
@@ -2405,11 +2396,11 @@ const class AxonFuncs
 
   ** Format an object using the current locale and specified format
   ** pattern.  Formatting patterns follow Fantom toLocale conventions:
-  **   - [sys::Bool.toLocale]
-  **   - [haystack::Number.toLocale]
-  **   - [sys::Date.toLocale]
-  **   - [sys::Time.toLocale]
-  **   - [sys::DateTime.toLocale]
+  **   - [fan.sys::Bool.toLocale]
+  **   - [fan.haystack::Number.toLocale]
+  **   - [fan.sys::Date.toLocale]
+  **   - [fan.sys::Time.toLocale]
+  **   - [fan.sys::DateTime.toLocale]
   ** If `toLocale` method is found, then return `val.toStr`
   **
   ** Examples:
@@ -2473,7 +2464,7 @@ const class AxonFuncs
 
   ** Parse a Str into a number with an option unit.  If invalid
   ** format and checked is false return null, otherwise throw ParseErr.
-  ** Also see [parseInt] and [parseFloat] to parse basic integers and
+  ** Also see [parseInt()] and [parseFloat()] to parse basic integers and
   ** floating point numbers without a unit.
   **
   ** Examples:
@@ -2497,7 +2488,7 @@ const class AxonFuncs
   ** Parse a string into a Uri instance.  If the string cannot be parsed
   ** into a valid Uri and checked is false then return null, otherwise
   ** throw ParseErr.  This function converts an URI from *standard form*.
-  ** Use [uriDecode] to convert a string from *escaped form*.  See [sys::Uri]
+  ** Use [uriDecode()] to convert a string from *escaped form*.  See [fan.sys::Uri]
   ** for a detailed discussion on standard and escaped forms.
   **
   ** Examples:
@@ -2511,7 +2502,7 @@ const class AxonFuncs
 
   ** Parse a Str into a Date.  If the string cannot be parsed into a valid
   ** Date and checked is false then return null, otherwise throw ParseErr.
-  ** See [sys::Date.toLocale] for pattern.
+  ** See [fan.sys::Date.toLocale] for pattern.
   **
   ** Examples:
   **
@@ -2526,7 +2517,7 @@ const class AxonFuncs
 
   ** Parse a Str into a Time.  If the string cannot be parsed into a valid
   ** Time and checked is false then return null, otherwise throw ParseErr.
-  ** See [sys::Time.toLocale] for pattern.
+  ** See [fan.sys::Time.toLocale] for pattern.
   **
   ** Examples:
   **
@@ -2540,7 +2531,7 @@ const class AxonFuncs
 
   ** Parse a Str into a DateTime.  If the string cannot be parsed into a valid
   ** DateTime and checked is false then return null, otherwise throw ParseErr.
-  ** See [sys::DateTime.toLocale] for pattern:
+  ** See [fan.sys::DateTime.toLocale] for pattern:
   **
   **     YY     Two digit year             07
   **     YYYY   Four digit year            2007
@@ -2623,7 +2614,7 @@ const class AxonFuncs
     Symbol.fromStr(val, checked)
   }
 
-  ** Parse a filter string into a [Filter](haystack::Filter) instance.
+  ** Parse a filter string into a [Filter](fan.haystack::Filter) instance.
   ** The resulting filter can then be used with [read()], [readAll()],
   ** [filter()], or [filterToFunc()].
   **
@@ -2636,7 +2627,7 @@ const class AxonFuncs
     Filter.fromStr(val, checked)
   }
 
-  ** Parse a search string into a [Filter](haystack::Filter) instance.
+  ** Parse a search string into a [Filter](fan.haystack::Filter) instance.
   ** The resulting filter can then be used with [read()], [readAll()],
   ** [filter()], or [filterToFunc()].
   **
@@ -2645,7 +2636,7 @@ const class AxonFuncs
   **  - `re:<regex>` regular expression
   **  - `f:<filter>` haystack filter
   **
-  ** See [docFresco::Nav#searching] for additional details on search syntax.
+  ** See [hx.doc.fresco::Nav#searching] for additional details on search syntax.
   **
   ** Examples:
   **
@@ -2656,8 +2647,8 @@ const class AxonFuncs
     Filter.search(val)
   }
 
-  ** Convert a [filter](docHaystack::Filters) expression to a function
-  ** which maybe used with [findAll] or [find].  The returned function
+  ** Convert a [filter](ph.doc::Filters) expression to a function
+  ** which maybe used with [findAll()] or [find()].  The returned function
   ** accepts one Dict parameter and returns true/false if the
   ** Dict is matched by the filter.  Also see [filter()] and [parseFilter()].
   **
@@ -2688,7 +2679,7 @@ const class AxonFuncs
     return Unit.fromStr(val, checked)?.symbol
   }
 
-  ** Construct decoded [haystack::XStr] instance
+  ** Construct decoded [fan.haystack::XStr] instance
   @Api @Axon static Obj xstr(Str type, Str val) { XStr.decode(type, val) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2703,7 +2694,6 @@ const class AxonFuncs
   **     upper("cat")      >> "CAT"
   **     upper("Cat")      >> "CAT"
   **     upper(97).toChar  >> "A"
-  **
   @Api @Axon static Obj? upper(Obj val) { val->upper }
 
   ** Convert a char number or str to ASCII lower case.
@@ -2789,7 +2779,7 @@ const class AxonFuncs
 
   ** Split a string by the given separator and trim whitespace.
   ** If `sep` is null then split by any whitespace char; otherwise
-  ** it must be exactly one char long.  See [sys::Str.split] for detailed
+  ** it must be exactly one char long.  See [fan.sys::Str.split] for detailed
   ** behavior.
   **
   ** Options:
@@ -2839,7 +2829,7 @@ const class AxonFuncs
   @Api @Axon static Str trim(Str val) { val.trim }
 
   ** Trim whitespace only from the beginning of the string.
-  ** See [trim] for definition of whitespace.
+  ** See [trim()] for definition of whitespace.
   **
   ** Examples:
   **
@@ -2848,7 +2838,7 @@ const class AxonFuncs
   @Api @Axon static Str trimStart(Str val) { val.trimStart }
 
   ** Trim whitespace only from the end of the string.
-  ** See [trim] for definition of whitespace.
+  ** See [trim()] for definition of whitespace.
   **
   ** Examples:
   **
@@ -2912,7 +2902,7 @@ const class AxonFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Return if regular expression matches entire region of `s`.
-  ** See [AxonUsage](docHaxall::AxonUsage#regex-examples).
+  ** See [AxonUsage](hx.doc.haxall::AxonUsage#regex-examples).
   **
   ** Examples:
   **
@@ -2925,7 +2915,7 @@ const class AxonFuncs
 
   ** Find the first match of regular expression in `s`
   ** or return null if no matches.
-  ** See [AxonUsage](docHaxall::AxonUsage#regex-examples).
+  ** See [AxonUsage](hx.doc.haxall::AxonUsage#regex-examples).
   **
   ** Examples:
   **
@@ -2959,7 +2949,7 @@ const class AxonFuncs
   ** regular operation against `s`.  Return null if no matches.  The
   ** first item in the list is the entire match, and each additional
   ** item is matched to `()` arguments in the regex pattern.
-  ** See [AxonUsage](docHaxall::AxonUsage#regex-examples).
+  ** See [AxonUsage](hx.doc.haxall::AxonUsage#regex-examples).
   **
   ** Examples:
   **
@@ -3012,7 +3002,7 @@ const class AxonFuncs
   ** Return if the query portion of the a URI after question mark
   @Api @Axon static Str? uriQueryStr(Uri val) { val.queryStr }
 
-  ** Adding trailing slash to the URI.  See [sys::Uri.plusSlash]
+  ** Adding trailing slash to the URI.  See [fan.sys::Uri.plusSlash]
   @Api @Axon static Uri uriPlusSlash(Uri val) { val.plusSlash }
 
   ** Return the percent encoded string for this Uri according to RFC 3986.
@@ -3030,7 +3020,7 @@ const class AxonFuncs
   ** sequence is UTF-8 decoded into a Str. The `+` character in the query section
   ** is unescaped into a space. If checked if true then throw ParseErr if the
   ** string is a malformed URI or if not encoded correctly, otherwise return
-  ** null.  Use [parseUri] to parse from standard form.  See [sys::Uri] for
+  ** null.  Use [parseUri()] to parse from standard form.  See [fan.sys::Uri] for
   ** a detailed discussion on standard and encoded forms.
   **
   ** Examples:
@@ -3046,7 +3036,7 @@ const class AxonFuncs
   ** Generate a new unique Ref identifier
   @Api @Axon static Ref refGen() { Ref.gen }
 
-  ** Given a ref return [xeto::Ref.dis]
+  ** Given a ref return [fan.xeto::Ref.dis]
   @Api @Axon static Str refDis(Ref ref) { ref.dis }
 
   ** Given an absolute ref, return its project name.  If the ref
@@ -3168,7 +3158,7 @@ const class AxonFuncs
   ** may be a Str name or an expression that evaluates to a function.
   ** Args a dict with the arguments keyed by name.  Note that null might
   ** indicate an actual null argument or a fallback to a default value.
-  ** So any arguments are null, the pass a value for argument. Examples:
+  ** So any arguments are null, the pass a value for argument.  Examples:
   **
   **     callByName("parseDate", {val:"01-02-03", pattern:"DD-MM-YY"})
   **     callByName(parseDate, {val:"01-02-03", pattern:"DD-MM-YY"})

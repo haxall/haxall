@@ -15,6 +15,7 @@ using hx
 **
 ** Task module Axon functions
 **
+@Gen
 const class TaskFuncs
 {
 
@@ -110,7 +111,7 @@ const class TaskFuncs
   ** Run the given expression asynchronously in an ephemeral task.
   ** Return a future to track the asynchronous result.  Note the
   ** expr passed cannot use any variables from the current scope.
-  ** See [lib-task::doc#ephemeralTasks].
+  ** See [hx.task::doc#ephemeral-tasks].
   @Api @Axon { admin = true }
   static Future taskRun(Expr expr, Expr msg := Literal.nullVal)
   {
@@ -119,28 +120,25 @@ const class TaskFuncs
   }
 
   ** Restart a task.  This kills the tasks and discards any
-  ** pending messages in its queue.  See [lib-task::doc#lifecycle].
+  ** pending messages in its queue.  See [hx.task::doc#lifecycle].
   @Api @Axon { admin = true }
   static Task taskRestart(Obj task)
   {
     lib(curContext).restart(toTask(task))
   }
 
-  **
   ** Set cancel flag for the given task.  Cancelling a task sets an
   ** internal flag which is checked by the context's heartbeat on every
   ** Axon call.  On the next Axon call the current message context
-  ** will raise a [sys::CancelledErr] which will be raised by the respective
+  ** will raise a [fan.sys::CancelledErr] which will be raised by the respective
   ** future.  Cancelling a task does **not** interrupt any current operations,
   ** so any blocking future or I/O calls should always use a timeout.
-  **
   @Api @Axon { admin = true }
   static Void taskCancel(Obj task)
   {
     toTask(task).cancel
   }
 
-  **
   ** Update the current running task's progress data with given dict.
   ** This is a silent no-op if the current context is not running in a task.
   **
@@ -152,18 +150,15 @@ const class TaskFuncs
   **        processRec(rec)
   **      end)
   **      taskProgress({percent:100%})
-  **
   @Api @Axon { admin = true }
   static Obj? taskProgress(Obj? progress)
   {
     taskCur(false)?.progressUpdate(Etc.makeDict(progress))
   }
 
-  **
   ** Given a list of one or more tasks, return the next task to use
   ** to perform load balanced work.  The current algorithm returns
   ** the task with the lowest number of messages in its queue.
-  **
   @NoDoc @Api @Axon { admin = true }
   static Task taskBalance(Obj tasks)
   {
@@ -176,7 +171,7 @@ const class TaskFuncs
 
   ** Asynchronously send a message to the given task for processing.
   ** Return a future to track the asynchronous result.
-  ** See [lib-task::doc#messaging].
+  ** See [hx.task::doc#messaging].
   @Api @Axon { admin = true }
   static Future taskSend(Obj task, Obj? msg)
   {
@@ -186,7 +181,7 @@ const class TaskFuncs
   ** Schedule a message for delivery after the specified period of
   ** duration has elapsed.  Once the period has elapsed the message is
   ** appended to the end of the task's queue.  Return a future to
-  ** track the asynchronous result.  See [lib-task::doc#messaging].
+  ** track the asynchronous result.  See [hx.task::doc#messaging].
   @Api @Axon { admin = true }
   static Future taskSendLater(Obj task, Number dur, Obj? msg)
   {
@@ -196,7 +191,7 @@ const class TaskFuncs
   ** Schedule a message for delivery after the given future has completed.
   ** Completion may be due to the future returning a result, throwing an
   ** exception, or cancellation.  Return a future to track the asynchronous
-  ** result.  See [lib-task::doc#messaging].
+  ** result.  See [hx.task::doc#messaging].
   @Api @Axon { admin = true }
   static Future taskSendWhenComplete(Obj task, Future future, Obj? msg := future)
   {
@@ -208,7 +203,7 @@ const class TaskFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Get a task local variable by name or def if not defined.
-  ** Must be running in a task context.  See [lib-task::doc#locals].
+  ** Must be running in a task context.  See [hx.task::doc#locals].
   @Api @Axon { admin = true }
   static Obj? taskLocalGet(Str name, Obj? def := null)
   {
@@ -217,7 +212,7 @@ const class TaskFuncs
   }
 
   ** Set a task local variable. The name must be a valid tag name. Must
-  ** be running in a task context.  See [lib-task::doc#locals].
+  ** be running in a task context.  See [hx.task::doc#locals].
   @Api @Axon { admin = true }
   static Obj? taskLocalSet(Str name, Obj? val)
   {
@@ -228,7 +223,7 @@ const class TaskFuncs
   }
 
   ** Remove a task local variable by name. Must be running in a task
-  ** context.  See [lib-task::doc#locals].
+  ** context.  See [hx.task::doc#locals].
   @Api @Axon { admin = true }
   static Obj? taskLocalRemove(Str name)
   {
@@ -243,7 +238,7 @@ const class TaskFuncs
   ** Block current thread until a future's result is ready.  A null
   ** timeout will block forever.  If an exception was raised by the
   ** asynchronous computation, then it is raised to the caller.
-  ** See [lib-task::doc#futures].
+  ** See [hx.task::doc#futures].
   @Api @Axon { admin = true }
   static Obj? futureGet(Future future, Number? timeout := null)
   {
@@ -253,7 +248,7 @@ const class TaskFuncs
   ** Cancel a future.  If the message is still queued then its
   ** removed from the actor's queue and will not be processed.
   ** No guarantee is made that the message will not be processed.
-  ** See [lib-task::doc#futures].
+  ** See [hx.task::doc#futures].
   @Api @Axon { admin = true }
   static Obj? futureCancel(Future future)
   {
@@ -266,7 +261,7 @@ const class TaskFuncs
   **  - `ok`: completed with result value
   **  - `err`: completed with an exception
   **  - `cancelled`: future was cancelled before processing
-  ** See [lib-task::doc#futures].
+  ** See [hx.task::doc#futures].
   @Api @Axon { admin = true }
   static Str futureState(Future future)
   {
@@ -278,7 +273,7 @@ const class TaskFuncs
   **   - the task processes the message and returns a result
   **   - the task processes the message and raises an exception
   **   - the future is cancelled
-  ** See [lib-task::doc#futures].
+  ** See [hx.task::doc#futures].
   @Api @Axon { admin = true }
   static Bool futureIsComplete(Future future)
   {
@@ -288,7 +283,7 @@ const class TaskFuncs
   ** Block until a future transitions to a completed state (ok,
   ** err, or canceled).  If timeout is null then block forever,
   ** otherwise raise a TimeoutErr if timeout elapses.  Return future.
-  ** See [lib-task::doc#futures].
+  ** See [hx.task::doc#futures].
   @Api @Axon { admin = true }
   static Future futureWaitFor(Future future, Number? timeout := null)
   {
@@ -298,7 +293,7 @@ const class TaskFuncs
   ** Block on a list of futures until they all transition to a completed
   ** state.  If timeout is null block forever, otherwise raise TimeoutErr
   ** if any one of the futures does not complete before the timeout elapses.
-  ** See [lib-task::doc#futures].
+  ** See [hx.task::doc#futures].
   @Api @Axon { admin = true }
   static Future[] futureWaitForAll(Future[] futures, Number? timeout := null)
   {

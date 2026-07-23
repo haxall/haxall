@@ -15,7 +15,7 @@ using hx
 **
 ** Axon functions for py
 **
-@NoDoc
+@NoDoc @Gen
 const class PyFuncs
 {
 
@@ -25,7 +25,7 @@ const class PyFuncs
 // PySession
 //////////////////////////////////////////////////////////////////////////
 
-  ** Create a new [hxPy::PySession] instance. Options:
+  ** Create a new [fan.hxPy::PySession] instance. Options:
   **   - `image`: name of the Docker image to run. By default, the lib will
   **   try to run the following images in this order:
   **     1. `ghcr.io/haxall/hxpy:<ver>` (where ver = current library Haxall version)

@@ -14,10 +14,10 @@ using hx
 **
 ** Point module Axon functions
 **
+@Gen
 const class PointFuncs
 {
-  **
-  ** Map a set of recs to to a grid of [sites](site).  The `recs`
+  ** Map a set of recs to to a grid of [sites](ph::PhEntity.site).  The `recs`
   ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
   **  - recs with `site` tag are mapped as themselves
@@ -29,15 +29,13 @@ const class PointFuncs
   **     read(space).toSites    // return space's parent site
   **     read(equip).toSites    // return equip's parent site
   **     read(point).toSites    // return point's parent site
-  **
   @Api @Axon
   static Grid toSites(Obj? recs)
   {
     PointRecSet(recs).toSites
   }
 
-  **
-  ** Map a set of recs to to a grid of [spaces](space).  The `recs`
+  ** Map a set of recs to to a grid of [spaces](ph::PhEntity.space).  The `recs`
   ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
   **  - recs with `space` tag are mapped as themselves
@@ -50,15 +48,13 @@ const class PointFuncs
   **     read(equip).toSpaces     // return equip's parent space
   **     read(point).toSpaces     // return point's parent space
   **     read(space).toSpaces     // return space itself
-  **
   @Api @Axon
   static Grid toSpaces(Obj? recs)
   {
     PointRecSet(recs, curContext).toSpaces
   }
 
-  **
-  ** Map a set of recs to to a grid of [equips](equip).  The `recs`
+  ** Map a set of recs to to a grid of [equips](ph::PhEntity.equip).  The `recs`
   ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
   **  - recs with `equip` tag are mapped as themselves
@@ -72,15 +68,13 @@ const class PointFuncs
   **     read(space).toEquips     // return children equip within space
   **     read(equip).toEquips     // return equip itself
   **     read(point).toEquips     // return point's parent equip
-  **
   @Api @Axon
   static Grid toEquips(Obj? recs)
   {
     PointRecSet(recs, curContext).toEquips
   }
 
-  **
-  ** Map a set of recs to to a grid of [devices](device).  The `recs`
+  ** Map a set of recs to to a grid of [devices](ph::PhEntity.device).  The `recs`
   ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
   **  - recs with `device` tag are mapped as themselves
@@ -95,15 +89,13 @@ const class PointFuncs
   **     read(space).toDevices     // return children devices within space
   **     read(equip).toDevices     // return children devices within equip
   **     read(point).toDevices     // return point's parent device
-  **
   @Api @Axon
   static Grid toDevices(Obj? recs)
   {
     PointRecSet(recs, curContext).toDevices
   }
 
-  **
-  ** Map a set of recs to to a grid of [points](point).  The `recs`
+  ** Map a set of recs to to a grid of [points](ph::PhEntity.point).  The `recs`
   ** parameter may be any value accepted by [toRecList()].  Return empty
   ** grid if no mapping is found.  The following mappings are supported:
   **  - recs with `point` tag are mapped as themselves
@@ -118,34 +110,29 @@ const class PointFuncs
   **     read(space).toPoints     // return children points within space
   **     read(equip).toPoints     // return children points within equip
   **     read(device).toPoints    // return children points within device
-  **
   @Api @Axon
   static Grid toPoints(Obj? recs)
   {
     PointRecSet(recs, curContext).toPoints
   }
 
-  **
-  ** Given a [site], [space], [equip], or [point] rec, get its [occupied]
+  ** Given a [ph::PhEntity.site], [ph::PhEntity.space], [ph::PhEntity.equip], or [ph::PhEntity.point] rec, get its [ph::PhEntity.occupied]
   ** point.  The following algorithm is used to lookup the occupied point:
   **   1. Try to find in equip or parent of nested equip
   **   2. Try to find in space or parent of nested spaces
-  **   3. Try to find in site if site if tagged as [sitePoint]
+  **   3. Try to find in site if site if tagged as `sitePoint`
   **
   ** If there are no matches or multiple ambiguous matches, then return
   ** null or raise an exception based on checked flag.
-  **
   @Api @Axon
   static Dict? toOccupied(Obj? rec, Bool checked := true)
   {
     PointUtil.toOccupied(Etc.toRec(rec), checked, curContext)
   }
 
-  **
   ** Given a `equip` record Dict, return a grid of its points.
   ** If this function is overridden you MUST NOT use an XQuery to
   ** resolve points; this function must return local only points.
-  **
   @Api @Axon { meta = ["overridable":Marker("")] }
   static Grid equipToPoints(Obj equip)
   {
@@ -160,33 +147,27 @@ const class PointFuncs
 // Point Writes
 //////////////////////////////////////////////////////////////////////////
 
-  **
   ** User level-1 manual override of writable point.
-  ** See [pointWrite].
-  **
+  ** See [pointWrite()].
   @Api @Axon { admin = true }
   static Obj? pointEmergencyOverride(Obj point, Obj? val)
   {
     pointWrite(point, val, level1, null)
   }
 
-  **
   ** User level-1 manual auto (override release) of writable point.
-  ** See [pointWrite].
-  **
+  ** See [pointWrite()].
   @Api @Axon { admin = true }
   static Obj? pointEmergencyAuto(Obj point)
   {
     pointWrite(point, null, level1, null)
   }
 
-  **
   ** User level-8 manual override of writable point.
   ** If duration is specified it must be a number with unit of time
   ** that indicates how long to put the point into override.  After
   ** the duration expires, the point is set back to auto (null).
-  ** See [pointWrite].
-  **
+  ** See [pointWrite()].
   @Api @Axon { admin = true }
   static Obj? pointOverride(Obj point, Obj? val, Number? duration := null)
   {
@@ -195,34 +176,28 @@ const class PointFuncs
     return pointWrite(point, val, level8, null)
   }
 
-  **
   ** User level-8 manual auto (override release) of writable point.
-  ** See [pointWrite].
-  **
+  ** See [pointWrite()].
   @Api @Axon { admin = true }
   static Obj? pointAuto(Obj point)
   {
     pointWrite(point, null, level8, null)
   }
 
-  **
   ** Set the relinquish default value (level-17) of writable point.
-  ** See [pointWrite].
-  **
+  ** See [pointWrite()].
   @Api @Axon { admin = true }
   static Obj? pointSetDef(Obj point, Obj? val)
   {
     pointWrite(point, val, levelDef, null)
   }
 
-  **
   ** Set a writable point's priority array value at the given level.
-  ** The point may be any value accepted by [toRec].  Level must
+  ** The point may be any value accepted by [toRec()].  Level must
   ** be 1 to 17 (where 17 represents def value).  The who parameter
   ** is a string which represent debugging information about which
   ** user or application is writing to this priorirty array level.
   ** If who is omitted, then the current user's display string is used
-  **
   @Api @Axon { admin = true }
   static Obj? pointWrite(Obj point, Obj? val, Number? level, Obj? who := null, Dict? opts := null)
   {
@@ -233,10 +208,8 @@ const class PointFuncs
     return ext(cx).writeMgr.write(Etc.toRec(point), val, level.toInt, who, opts).get(timeout)
   }
 
-  **
   ** Issue a point override command based on current user's access
   ** control permissions
-  **
   @Api @Axon
   static Obj? pointOverrideCommand(Obj point, Obj? val, Number level, Number? duration := null)
   {
@@ -258,15 +231,13 @@ const class PointFuncs
     return ext.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.dict0).get(timeout)
   }
 
-  **
   ** Return the current priority array state of a writable point.
-  ** The point may be any value accepted by [toRec].  The result is
+  ** The point may be any value accepted by [toRec()].  The result is
   ** returned grid with following columns:
   **   - level: number from 1 - 17 (17 is default)
   **   - levelDis: human description of level
   **   - val: current value at level or null
   **   - who: who last controlled the value at this level
-  **
   @Api @Axon
   static Grid pointWriteArray(Obj point)
   {
@@ -277,9 +248,8 @@ const class PointFuncs
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  **
-  ** Evaluate a [point conversion](ext-point::doc#convert). First
-  ** parameter is point to test (anything accepted by [toRec]) or null
+  ** Evaluate a [point conversion](hx.point::doc#point-conversion). First
+  ** parameter is point to test (anything accepted by [toRec()]) or null
   ** to use empty dict.
   **
   ** Examples:
@@ -287,7 +257,6 @@ const class PointFuncs
   **     pointConvert(null, "+ 2 * 10", 3)
   **     pointConvert(null, "hexToNumber()", "ff")
   **     pointConvert(null, "°C => °F", 20°C)
-  **
   @Api @Axon
   static Obj? pointConvert(Obj? pt, Str convert, Obj? val)
   {
@@ -297,7 +266,6 @@ const class PointFuncs
     return PointConvert.fromStr(convert).convert(ext, rec, val)
   }
 
-  **
   ** Get debug string for point including writables and his collection.
   ** The argument is anything acceptable by [toRec()].
   ** The result is returned as a plain text string.
@@ -306,7 +274,6 @@ const class PointFuncs
   **
   **     read(dis=="My Point").pointDetails
   **     pointDetails(@2b80f96a-820a4f1a)
-  **
   @Api @Axon
   static Str pointDetails(Obj point)
   {
@@ -322,7 +289,7 @@ const class PointFuncs
     Etc.makeListGrid(null, "name", null, ThermistorConvert.listTables)
   }
 
-  ** Return grid of current enum defs defined by [enumMeta].
+  ** Return grid of current enum defs defined by [enumMeta](doc#enum-meta).
   ** This call forces a refresh of the definitions.
   @Api @Axon static Grid enumDefs()
   {
@@ -336,7 +303,7 @@ const class PointFuncs
     return gb.toGrid
   }
 
-  ** Return definition of given enum def defined by [enumMeta]
+  ** Return definition of given enum def defined by [enumMeta](doc#enum-meta).
   ** This call forces a refresh of the definitions.
   @Api @Axon static Grid? enumDef(Str id, Bool checked := true)
   {
@@ -345,7 +312,6 @@ const class PointFuncs
     return ext.enums.get(id, checked)?.grid
   }
 
-  **
   ** Return if a point value matches a given critera:
   **   - match any values which are equal via `==` operator
   **   - zero matches false (0% ==> false)
@@ -362,7 +328,6 @@ const class PointFuncs
   **     matchPointVal(33, 0..40)        >>  true
   **     matchPointVal(90, 0..40)        >>  false
   **     matchPointVal(4) x => x.isEven  >>  true
-  **
   @Api @Axon static Bool matchPointVal(Obj? val, Obj? match)
   {
     // exact match

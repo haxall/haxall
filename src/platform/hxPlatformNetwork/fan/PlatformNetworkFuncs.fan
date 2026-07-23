@@ -14,7 +14,7 @@ using hx
 **
 ** Axon library
 **
-@NoDoc
+@NoDoc @Gen
 const class PlatformNetworkFuncs
 {
   ** Get the status and configuration for a given IP interface by name.

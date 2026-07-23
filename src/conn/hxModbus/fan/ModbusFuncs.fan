@@ -18,6 +18,7 @@ using hxConn
 **
 ** Modbus connector functions
 **
+@Gen
 const class ModbusFuncs
 {
   ** Utility to get the current Context
@@ -44,12 +45,10 @@ const class ModbusFuncs
     ConnFwFuncs.connSyncCur(points)
   }
 
-  **
   ** Read a point value for given register name on connector instance.
   ** The `regs` argument may be a single `Str` name, or a `Str[]` for a
   ** block read. The grid returned will contain a row for each register
   ** requested and two columns: `name` and `val`.
-  **
   @Api @Axon { admin = true }
   static Grid modbusRead(Obj conn, Obj regs)
   {
@@ -57,9 +56,7 @@ const class ModbusFuncs
     return ModbusExt.cur.read(conn, list)
   }
 
-  **
   ** Write a value to given register name on connecter instance.
-  **
   @Api @Axon { admin = true }
   static Void modbusWrite(Obj conn, Str reg, Obj val)
   {

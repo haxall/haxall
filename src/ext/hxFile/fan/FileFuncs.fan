@@ -15,7 +15,7 @@ using hx
 using folio
 
 ** File module Axon functions
-@NoDoc
+@NoDoc @Gen
 const class FileFuncs
 {
   private static FileExt ext(Context cx := Context.cur) { cx.sys.ext("hx.file") }

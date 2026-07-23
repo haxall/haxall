@@ -16,6 +16,7 @@ using hx
 **
 ** Axon functions for math
 **
+@Gen
 const class MathFuncs
 {
 
@@ -23,7 +24,7 @@ const class MathFuncs
 // Constants
 //////////////////////////////////////////////////////////////////////////
 
-  *** Return constant for pi: 3.141592653589793
+  ** Return constant for pi: 3.141592653589793
   @Api @Axon static Number pi() { piVal }
   private static const Number piVal := Number(Float.pi)
 
@@ -144,7 +145,6 @@ const class MathFuncs
 // Folding Functions
 //////////////////////////////////////////////////////////////////////////
 
-  **
   ** Fold a sample of numbers into their standard average or arithmetic
   ** mean.  This function is the same as [core::avg](avg()).  Nulls
   ** values are ignored.  Return null if no values.
@@ -152,14 +152,12 @@ const class MathFuncs
   ** Example:
   **
   **     [2, 4, 5, 3].fold(mean)
-  **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::mean"] }
   static Obj? mean(Obj? val, Obj? acc)
   {
     AxonFuncs.avg(val, acc)
   }
 
-  **
   ** Fold a sample of numbers into their median value which is the
   ** middle value of the sorted samples.  If there are an even number
   ** of sample, then the median is the mean of the middle two.  Null
@@ -168,7 +166,6 @@ const class MathFuncs
   ** Example:
   **
   **     [2, 4, 5, 3, 1].fold(median)
-  **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::median"] }
   static Obj? median(Obj? val, Obj? acc)
   {
@@ -179,7 +176,6 @@ const class MathFuncs
     return fold
   }
 
-  **
   ** Fold a sample of numbers into their RMSE (root mean square error).
   ** The RMSE function determines the RMSE between a sample set and
   ** its mean using the n-degrees of freedom RMSE:
@@ -190,7 +186,6 @@ const class MathFuncs
   **
   **     samples.fold(rootMeanSquareErr)         // unbiased zero degrees of freedom
   **     samples.fold(rootMeanSquareErr(_,_,1))  // 1 degree of freedom
-  **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::rootMeanSquareErr"] }
   static Obj? rootMeanSquareErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
   {
@@ -201,7 +196,6 @@ const class MathFuncs
     return fold
   }
 
-  **
   ** Fold a sample of numbers into their MBE (mean bias error).
   ** The MBE function determines the MBE between a sample set and
   ** its mean:
@@ -212,7 +206,6 @@ const class MathFuncs
   **
   **     samples.fold(meanBiasErr)         // unbiased zero degrees of freedom
   **     samples.fold(meanBiasErr(_,_,1))  // 1 degree of freedom
-  **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::meanBiasErr"] }
   static Obj? meanBiasErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
   {
@@ -223,7 +216,6 @@ const class MathFuncs
     return fold
   }
 
-  **
   ** Fold a series of numbers into the standard deviation of a *sample*:
   **
   **     s = sqrt(Σ (xᵢ - mean)² / (n-1))
@@ -231,7 +223,6 @@ const class MathFuncs
   ** Example:
   **
   **     [4, 2, 5, 8, 6].fold(standardDeviation)
-  **
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::standardDeviation"] }
   static Obj? standardDeviation(Obj? val, Obj? acc)
   {
@@ -242,7 +233,6 @@ const class MathFuncs
     return fold
   }
 
-  **
   ** Computes the p*th* quantile of a list of numbers, according to the specified interpolation method.
   ** The value p must be a number between 0.0 to 1.0.
   **
@@ -290,7 +280,6 @@ const class MathFuncs
   **
   **        //takes the 2 closest indices and calculates weighted average
   **        linear =   (0.2 * 10) + (0.8 * 25) // => 22
-  **
   @Api @Axon
   static Obj? quantile(Number percent, Str method := "linear")
   {
@@ -318,7 +307,6 @@ const class MathFuncs
 // Matrix
 //////////////////////////////////////////////////////////////////////////
 
-  **
   ** Convert a general grid to an optimized matrix grid.  Matrixs are two
   ** dimensional grids of Numbers.  Columns are named "v0", "v1", "v2", etc.
   ** Grid meta is preserved, but not column meta.  Numbers in the resulting
@@ -328,7 +316,7 @@ const class MathFuncs
   ** - nullVal (Number): replace null values in the grid with this value
   ** - naVal (Number): replace NA values in the grid with this value
   **
-  ** ```fantom
+  ** ```
   **   toMatrix(grid, {nullVal: 0, naVal: 0})
   ** ```
   **
@@ -336,7 +324,6 @@ const class MathFuncs
   ** the following tags (all required)
   **
   **     toMatrix({rows:10, cols: 1000, init: 0})
-  **
   @Api @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.dict0)
   {
     if (obj is MatrixGrid) return obj
@@ -352,64 +339,51 @@ const class MathFuncs
     throw Err("Unsupported toMatrix type: $obj.typeof")
   }
 
-  **
-  ** Transpose the given matrix which is any value accepted by [toMatrix].
-  **
+  ** Transpose the given matrix which is any value accepted by [toMatrix()].
   @Api @Axon static MatrixGrid matrixTranspose(Obj m)
   {
     toMatrix(m).transpose
   }
 
-  **
   ** Return the determinant as a unitless Number for the given matrix which
-  ** is any value accepted by [toMatrix].  The matrix must be square.
-  **
+  ** is any value accepted by [toMatrix()].  The matrix must be square.
   @Api @Axon static Number matrixDeterminant(Obj m)
   {
     Number(toMatrix(m).determinant)
   }
 
-  **
-  ** Return the inverse of the given matrix which is any value accepted by [toMatrix].
-  **
+  ** Return the inverse of the given matrix which is any value accepted by [toMatrix()].
   @Api @Axon static MatrixGrid matrixInverse(Obj m)
   {
     toMatrix(m).inverse
   }
 
-  **
   ** Add two matrices together and return new matrix.  The parameters may
-  ** be any value supported [toMatrix].  Matrices must have the same dimensions.
-  **
+  ** be any value supported [toMatrix()].  Matrices must have the same dimensions.
   @Api @Axon static MatrixGrid matrixAdd(Obj a, Obj b)
   {
     toMatrix(a) + toMatrix(b)
   }
 
-  **
   ** Subtract two matrices and return new matrix.  The parameters may
-  ** be any value supported [toMatrix].  Matrices must have the same dimensions.
-  **
+  ** be any value supported [toMatrix()].  Matrices must have the same dimensions.
   @Api @Axon static MatrixGrid matrixSub(Obj a, Obj b)
   {
     toMatrix(a) - toMatrix(b)
   }
 
-  **
   ** Multiply two matrices and return new matrix.  The parameters may
-  ** be any value supported [toMatrix].  Matrix `a` column count must match
+  ** be any value supported [toMatrix()].  Matrix `a` column count must match
   ** matrix `b` row count.
-  **
   @Api @Axon static MatrixGrid matrixMult(Obj a, Obj b)
   {
     toMatrix(a) * toMatrix(b)
   }
 
-  **
   ** Given a matrix of y coordinates and a matrix of multiple x coordinates
   ** compute the best fit multiple linear regression equation using
   ** the ordinary least squares method.  Both `y` and `x` may be any value
-  ** accepted by [toMatrix].
+  ** accepted by [toMatrix()].
   **
   ** The resulting linear equation for r X coordinates is:
   **
@@ -422,7 +396,6 @@ const class MathFuncs
   **   - `rowCount`: the number of rows of data used in the correlation
   ** For each X factor there is a row with the following tags:
   **   - `b`: the correlation coefficient for the given X factor
-  **
   @Api @Axon static Grid matrixFitLinearRegression(Obj y, Obj x)
   {
     MatrixGrid.fitLinearRegression(toMatrix(y), toMatrix(x))
@@ -432,7 +405,6 @@ const class MathFuncs
 // Regression
 //////////////////////////////////////////////////////////////////////////
 
-  **
   ** Given a grid of x, y coordinates compute the best fit linear
   ** regression equation using the ordinary least squares method.
   ** The first column of the grid is used for `x` and the second
@@ -457,7 +429,7 @@ const class MathFuncs
   **   - `ymin`: minimum value of y variable in sample data
   **   - `ymax`: maximum value of y variable in sample data
   **
-  ** Also see [matrixFitLinearRegression] to compute a multiple linear
+  ** Also see [matrixFitLinearRegression()] to compute a multiple linear
   ** regression.
   **
   ** Example:
@@ -469,7 +441,6 @@ const class MathFuncs
   **      fitLinearRegression(data)
   **
   **      >>> {m:0.4915, b: 2.1525, r2: 0.7502}
-  **
   @Api @Axon
   static Dict fitLinearRegression(Grid grid, Dict? opts := null)
   {

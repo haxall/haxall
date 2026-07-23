@@ -17,6 +17,7 @@ using hxConn
 **
 ** Haystack connector functions
 **
+@Gen
 const class HaystackFuncs
 {
   ** Deprecated - use [connPing()]
@@ -48,10 +49,10 @@ const class HaystackFuncs
   }
 
   ** Perform Haystack HTTP API call to given Str op name and with
-  ** given request grid (can be anything acceptable [toGrid]).  If
+  ** given request grid (can be anything acceptable [toGrid()]).  If
   ** the checked flag is true and server returns an error grid, then
-  ** raise [haystack::CallErr], otherwise return the grid itself.
-  ** Result is returned as Grid.  Also see [haystack::Client.call].
+  ** raise [fan.haystack::CallErr], otherwise return the grid itself.
+  ** Result is returned as Grid.  Also see [fan.haystack::Client.call].
   @Api @Axon { admin = true }
   static Grid haystackCall(Obj conn, Str op, Obj? req := null, Bool checked := true)
   {
@@ -61,7 +62,7 @@ const class HaystackFuncs
   ** Perform Haystack HTTP API call to read a record by its unique
   ** identifier.  Return result as dict.  If the record is not found, then
   ** return null or raise UnknownRecErr based on checked flag.  Also
-  ** see [haystack::Client.readById].
+  ** see [fan.haystack::Client.readById].
   @Api @Axon { admin = true }
   static Dict? haystackReadById(Obj conn, Obj id, Bool checked := true)
   {
@@ -73,7 +74,7 @@ const class HaystackFuncs
   ** respective id list (indexes line up).  If checked is true and any one
   ** of the ids cannot be resolved then raise UnknownRecErr for first id not
   ** resolved.  If checked is false, then each id not found has a row
-  ** where every cell is null.  Also see [haystack::Client.readByIds].
+  ** where every cell is null.  Also see [fan.haystack::Client.readByIds].
   @Api @Axon { admin = true }
   static Grid haystackReadByIds(Obj conn, Obj[] ids, Bool checked := true)
   {
@@ -81,9 +82,9 @@ const class HaystackFuncs
   }
 
   ** Perform Haystack REST API call to read single entity with filter.
-  ** The filter is an expression like [readAll].  Return result as dict.
+  ** The filter is an expression like [readAll()].  Return result as dict.
   ** If the record is not found, then return null or raise UnknownRecErr
-  ** based on checked flag.  Also see [haystack::Client.read].
+  ** based on checked flag.  Also see [fan.haystack::Client.read].
   @Api @Axon { admin = true }
   static Dict? haystackRead(Expr conn, Expr filterExpr, Expr checked := Literal.trueVal)
   {
@@ -95,8 +96,8 @@ const class HaystackFuncs
   }
 
   ** Perform Haystack REST API call to read all entities with filter.
-  ** The filter is an expression like [readAll].  Return results
-  ** as grid.  Also see [haystack::Client.readAll].
+  ** The filter is an expression like [readAll()].  Return results
+  ** as grid.  Also see [fan.haystack::Client.readAll].
   @Api @Axon { admin = true }
   static Grid haystackReadAll(Expr conn, Expr filterExpr)
   {
@@ -109,7 +110,7 @@ const class HaystackFuncs
   ** Perform Haystack REST API "hisRead" call to read history
   ** data for the record identified by the id (must be Ref).
   ** The range is any string encoding supported by the REST API
-  ** or any value supported by [toDateSpan].  Return results
+  ** or any value supported by [toDateSpan()].  Return results
   ** as grid with "ts" and "val" column.
   @Api @Axon { admin = true }
   static Grid haystackHisRead(Obj conn, Obj id, Obj? range)
@@ -128,13 +129,12 @@ const class HaystackFuncs
     dispatch(curContext, conn, HxMsg("invokeAction", id, action, args ?: Etc.dict0))
   }
 
-  **
   ** Evaluate an Axon expression in a remote server over
   ** a haystack connector.  The remote server must be a SkySpark
   ** server which supports the "eval" REST op with an Axon
   ** expression.  This function blocks while the network request is
   ** made.  The result is always returned as a Grid using the same
-  ** rules as [haystack::Etc.toGrid].
+  ** rules as [fan.haystack::Etc.toGrid].
   **
   ** The expression to evaluate in the remote server may capture
   ** variables from the local scope.  If these variables are atomic types,
@@ -152,7 +152,6 @@ const class HaystackFuncs
   **     read(haystackConn).haystackEval(3 + 4)
   **     read(haystackConn).haystackEval(readAll(site))
   **     read(haystackConn).haystackEval(readAll(kw).hisRead(yesterday))
-  **
   @Api @Axon { admin = true }
   static Obj? haystackEval(Expr conn, Expr expr, Expr opts := Literal.nullVal)
   {

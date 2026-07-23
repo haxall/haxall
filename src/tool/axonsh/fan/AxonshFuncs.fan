@@ -17,6 +17,7 @@ using folio
 **
 ** Axon shell specific functions
 **
+@Gen
 const class AxonshFuncs
 {
   ** Exit the shell.
@@ -158,7 +159,6 @@ const class AxonshFuncs
 // Load
 //////////////////////////////////////////////////////////////////////////
 
-  **
   ** Load the in-memory database from an Uri.  The uri must be have http/https
   ** scheme or reference a file on the local file system (using forward slash).
   ** The filename must have one of the following file extensions: zinc, json,
@@ -178,16 +178,13 @@ const class AxonshFuncs
   **
   **     // load from a HTTP URI
   **     load(`https://project-haystack.org/example/download/bravo.zinc`)
-  **
   @Api static Obj? load(Uri uri, Dict? opts := null)
   {
     ShellLoader(cx, uri, opts ?: Etc.dict0).load
   }
 
-  **
   ** Unload all the data from the in-memory database.
   ** This is essentially a commit to remove all recs.
-  **
   @Api static Obj? unloadAll()
   {
     recs := cx.db.readAllList(Filter.has("id"))
