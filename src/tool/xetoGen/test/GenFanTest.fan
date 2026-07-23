@@ -321,17 +321,66 @@ class GenFanTest : Test
     verifyEq(genTemp(xeto, src), expect)
   }
 
-  ** Funcs mode errors on param count and missing/extra funcs
+  ** New spec funcs are stubbed out with doc, facets, sig, and body
+  Void testFuncsStub()
+  {
+    xeto := [
+      "+Funcs {",
+      "  // Add two numbers together",
+      "  add: Func { a: Number, b: Number, returns: Number }",
+      "",
+      "  // Say hello to somebody",
+      "  hello: Func <admin> { name: Str?, checked: Bool, returns: Str }",
+      "",
+      "  // Do something destructive",
+      "  nuke: Func <nodoc, su> { target: Ref, returns: None }",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "const class TempFuncs",
+      "{",
+      "  ** Add two numbers together",
+      "  @Api @Axon",
+      "  static Number add(Number a, Number b) { a + b }",
+      "}",
+      ].join("\n")
+    expect := [
+      "@Gen",
+      "const class TempFuncs",
+      "{",
+      "  ** Add two numbers together",
+      "  @Api @Axon",
+      "  static Number add(Number a, Number b) { a + b }",
+      "",
+      "  ** Say hello to somebody",
+      "  @Api @Axon { admin = true }",
+      "  static Str hello(Str? name := null, Bool checked := true)",
+      "  {",
+      "    throw Err(\"TODO\")",
+      "  }",
+      "",
+      "  ** Do something destructive",
+      "  @NoDoc @Api @Axon { su = true }",
+      "  static Void nuke(Ref target)",
+      "  {",
+      "    throw Err(\"TODO\")",
+      "  }",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
+  ** Funcs mode errors on param count mismatch and extra funcs
   Void testFuncsErrs()
   {
     xeto := [
       "+Funcs {",
       "  add: Func { a: Number, b: Number, returns: Number }",
-      "  sub: Func { a: Number, b: Number, returns: Number }",
       "}",
       ].join("\n")
 
-    // param count mismatch and missing sub and extra mult
+    // param count mismatch and extra mult
     src := [
       "@Gen",
       "const class TempFuncs",

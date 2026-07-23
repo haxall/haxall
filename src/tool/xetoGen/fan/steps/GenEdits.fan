@@ -35,20 +35,22 @@ internal class GenEdits : Step
 //////////////////////////////////////////////////////////////////////////
 
   ** Funcs mode aligns the @Api static methods with the lib's Funcs
-  ** specs: sync each method's doc from its spec and verify parameter
-  ** counts match.  Types are hand-maintained and never rewritten.
+  ** specs: sync each method's doc from its spec, verify parameter
+  ** counts match, and stub out new spec funcs.  Types of existing
+  ** methods are hand-maintained and never rewritten.
   private Void genFuncs(AType t)
   {
+    inserts := Str[][,]
     t.spec.slotsOwn.each |x|
     {
       if (isSkipped(t, x)) return
       if (x.meta.has("axon")) return  // implemented in axon source
       existing := findFunc(t, x.name)
-      if (existing == null)
-        return err("Missing @Api func for spec: $x.name", t.loc)
+      if (existing == null) { inserts.add(funcStub(t, x)); return }
       genFuncDoc(t, x, existing)
       checkFuncParams(t, x, existing)
     }
+    genInserts(t, inserts)
 
     // extra @Api methods with no spec
     t.slots.each |s|
@@ -56,6 +58,52 @@ internal class GenEdits : Step
       if (t.spec.slotOwn(toFuncSpecName(s.name), false) == null)
         err("No spec func for @Api method: $s.name", t.loc)
     }
+  }
+
+  ** Generate stub for a new spec func with no Fantom method yet
+  private Str[] funcStub(AType t, Spec x)
+  {
+    acc := t.gen.meta.has("omitDocs") ? Str[,] : specDoc(x, 2)
+    acc.add("  " + funcFacets(x))
+    acc.add("  " + funcSig(x))
+    acc.add("  {")
+    acc.add("    throw Err(\"TODO\")")
+    acc.add("  }")
+    return acc
+  }
+
+  ** Facets line for func stub with flags from spec meta
+  private Str funcFacets(Spec x)
+  {
+    s := StrBuf()
+    if (x.has("nodoc")) s.add("@NoDoc ")
+    s.add("@Api @Axon")
+    flags := Str[,]
+    if (x.meta.has("admin")) flags.add("admin = true")
+    if (x.meta.has("su"))    flags.add("su = true")
+    if (!flags.isEmpty) s.add(" { ").add(flags.join("; ")).add(" }")
+    return s.toStr
+  }
+
+  ** Signature line for func stub; trailing maybe params default
+  ** to null and checked defaults to true
+  private Str funcSig(Spec x)
+  {
+    f := x.func
+    s := StrBuf()
+    s.add("static ").add(typeSig(f.returns)).add(" ").add(x.name).add("(")
+    params := f.params
+    defStart := params.size
+    while (defStart > 0 && (params[defStart-1].isMaybe || params[defStart-1].name == "checked")) defStart--
+    params.each |p, i|
+    {
+      if (i > 0) s.add(", ")
+      s.add(typeSig(p)).add(" ").add(p.name)
+      if (p.name == "checked") s.add(" := true")
+      else if (i >= defStart) s.add(" := null")
+    }
+    s.add(")")
+    return s.toStr
   }
 
   ** Fantom method may be prefixed with underscore when the func
@@ -314,6 +362,7 @@ internal class GenEdits : Step
     }
     else sig = x.type.fantomType.name
     if (sig == "Scalar") sig = "Obj"
+    if (sig == "None") return "Void"
     if (x.isMaybe) sig += "?"
     return sig
   }
