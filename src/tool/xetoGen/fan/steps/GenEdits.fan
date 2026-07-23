@@ -101,8 +101,8 @@ internal class GenEdits : Step
       lines := genUnit(t, x, existing)
       if (existing != null)
         edit(t, existing.lines.start, existing.lines.end+1, lines)
-      else
-        inserts.add(lines)
+      else if (!t.handSlots.contains(toFanName(x.name)))
+        inserts.add(lines)  // never insert over a hand-written slot
     }
     genInserts(t, inserts)
   }
@@ -114,6 +114,8 @@ internal class GenEdits : Step
   ** Getter shapes emit legal covariant method overrides.
   private Bool isSkipped(AType t, Spec x)
   {
+    // func slots are behavior implemented by hand-written methods
+    if (t.kind.isComp && x.isFunc) return true
     if (t.kind.isComp && !isGetterOnly(x) && XetoUtil.isCovariantOverride(x)) return true
     skip := t.gen.meta["skip"] as Str
     if (skip == null) return false
@@ -183,6 +185,7 @@ internal class GenEdits : Step
   {
     n := toFanName(x.name)
     s := StrBuf()
+    if (x.has("nodoc")) s.add("@NoDoc ")
     s.add("@Gen ").add(isOverride(t, x, existing) ? "override" : "virtual")
     s.add(" ").add(typeSig(x)).add(" ").add(n)
     if (isGetterOnly(x))
@@ -200,6 +203,7 @@ internal class GenEdits : Step
   private Str dictSig(AType t, Spec x, ASlot? existing)
   {
     s := StrBuf()
+    if (x.has("nodoc")) s.add("@NoDoc ")
     s.add("@Gen ")
     concrete := !t.flags.isMixin || existing?.hasBody == true
     if (!concrete)
@@ -236,16 +240,19 @@ internal class GenEdits : Step
     return isBaseSlot(x)
   }
 
-  ** Fantom type signature via the spec binding
+  ** Fantom type signature via the spec binding.  Or types and
+  ** specs without a dedicated Fantom class map to Obj.
   private Str typeSig(Spec x)
   {
     Str? sig
-    if (x.type.isList)
+    if (x.isOr) sig = "Obj"
+    else if (x.type.isList)
     {
       of := x.of(false)
       sig = (of?.fantomType?.name ?: "Obj?") + "[]"
     }
     else sig = x.type.fantomType.name
+    if (sig == "Scalar") sig = "Obj"
     if (x.isMaybe) sig += "?"
     return sig
   }

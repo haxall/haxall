@@ -31,6 +31,7 @@ internal class AType : ANode
   const Int bodyOpen       // line of type's opening brace
   const Range? items       // enum item list lines or null
   ASlot[] slots := [,]     // @Gen tagged slot declarations
+  Str[] handSlots := [,]   // untagged hand-written slot names in body
 
   FileLoc loc() { FileLoc(file.file.osPath, lines.start+1) }
 

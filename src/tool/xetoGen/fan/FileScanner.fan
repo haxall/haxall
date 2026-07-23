@@ -100,6 +100,7 @@ internal class FileScanner
     // scan body members thru matching close brace
     acc := ASlot[,]
     this.items = null
+    this.handSlots = Str[,]
     bodyClose := body(acc, isEnum)
 
     // only keep types opted in with @Gen
@@ -122,6 +123,7 @@ internal class FileScanner
     }
     type := AType(afile, typeName, spec, kind, typeFlags, toGen(genFacet), typeDoc, start..bodyClose, open, this.items)
     type.slots = acc
+    type.handSlots = this.handSlots
     acc.each |slot| { slot.parent = type }
     afile.types.add(type)
   }
@@ -210,10 +212,16 @@ internal class FileScanner
       advance
     }
 
-    // only keep slots tagged with @Gen
+    // only keep slots tagged with @Gen; track untagged names
+    // so generation never inserts over a hand-written slot
     slotName := methodName ?: lastId
     genFacet := facets.find |x| { x.name == "Gen" }
-    if (slotName == null || genFacet == null) { clearPending; return }
+    if (slotName == null || genFacet == null)
+    {
+      if (slotName != null) handSlots.add(slotName)
+      clearPending
+      return
+    }
 
     slotFlags := AFlags
     {
@@ -368,16 +376,17 @@ internal class FileScanner
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private GenCompiler c        // compiler
-  private APod pod             // parent pod
-  private const File file      // source file
-  private const Str src        // source contents
-  private AFile? afile         // scan result
-  private TokenVal[]? toks     // tokenized source
-  private Int pos              // current token index
-  private TokenVal? doc        // pending doc comment token
+  private GenCompiler c           s// compiler
+  private APod pod                // parent pod
+  private const File file         // source file
+  private const Str src           // source contents
+  private AFile? afile            // scan result
+  private TokenVal[]? toks        // tokenized source
+  private Int pos                 // current token index
+  private TokenVal? doc           // pending doc comment token
   private AFacet[] facets := [,]  // pending facets
-  private Range? items         // enum item list lines of current type
+  private Range? items            // enum item list lines of current type
+  private Str[] handSlots := [,]  // untagged slot names of current type
 }
 
 **************************************************************************
