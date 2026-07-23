@@ -22,9 +22,10 @@
 @Js facet class Gen
 {
   ** Customization hooks for code generation encoded as a xeto dict
-  ** string without the enclosing braces such as "skip:\"foo,bar\", funcs".
-  ** Pairs may be separated by commas or newlines.  The tag vocabulary
-  ** is defined by the generation tool.
+  ** string without the enclosing braces such as "skip:\"foo,bar\"".
+  ** Pairs may be separated by commas or newlines.  Every tag
+  ** supported by the generation tools is documented here:
+  **   - no tags defined yet; documented as features are added
   const Str? meta
 }
 

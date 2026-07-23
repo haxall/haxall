@@ -22,13 +22,36 @@ internal class GenEdits : Step
 
   private Void genType(AType t)
   {
-    if (!isComp(t)) { err("Spec not supported for generation: $t.spec", t.loc); return }
     genTypeDoc(t)
+    if (t.spec.isEnum) { genEnumItems(t); return }
+    if (!isComp(t)) { err("Spec not supported for generation: $t.spec", t.loc); return }
     genSlots(t)
     genDeletes(t)
   }
 
   private Bool isComp(AType t) { t.spec.isa(ns.spec("sys.comp::Comp")) }
+
+//////////////////////////////////////////////////////////////////////////
+// Enum Items
+//////////////////////////////////////////////////////////////////////////
+
+  ** Regenerate the enum item list.
+  ** TODO: preserve hand-written ctor args by item name
+  private Void genEnumItems(AType t)
+  {
+    acc := Str[,]
+    keys := t.spec.enum.keys
+    keys.each |key, i|
+    {
+      if (i > 0) acc.add("")
+      acc.addAll(specDoc(t.spec.enum.spec(key), 2))
+      acc.add("  " + key + (i < keys.size-1 ? "," : ""))
+    }
+    if (t.items != null)
+      edit(t, t.items.start, t.items.end+1, acc)
+    else
+      edit(t, t.bodyOpen+1, t.bodyOpen+1, acc)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Type Doc
