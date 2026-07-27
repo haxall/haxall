@@ -8,6 +8,7 @@
 
 using concurrent
 using web
+using xeto
 using haystack
 using hx
 
@@ -23,6 +24,8 @@ const class ApiWeb : ExtWeb, WebOpUtil
   override ApiExt ext() { super.ext }
 
   override DefNamespace defs() { ext.rt.defs }
+
+  override Dict ioSettings() { ext.settings }
 
   override const Str[] wellKnownRoutes := ["health"]
 
@@ -96,7 +99,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       if (opDef == null) return res.sendErr(404)
 
       // instantiate subclass of HxApiOp
-      Actor.locals["hxApiOp.spi"] = HxApiOpSpiImpl(defs, opDef)
+      Actor.locals["hxApiOp.spi"] = HxApiOpSpiImpl(defs, opDef, ioSettings)
       typeName := opDef["typeName"] as Str ?: throw Err("Op missing typeName: $opName")
       op := (HxApiOp)Type.find(typeName).make
 
@@ -164,11 +167,12 @@ const class ApiWeb : ExtWeb, WebOpUtil
 
 internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
 {
-  new make(DefNamespace defs, Def def)
+  new make(DefNamespace defs, Def def, Dict ioSettings)
   {
-    this.defs = defs
-    this.name = def.name
-    this.def  = def
+    this.defs       = defs
+    this.name       = def.name
+    this.def        = def
+    this.ioSettings = ioSettings
   }
 
   override Grid? readReq(HxApiOp op, WebReq req, WebRes res)
@@ -191,6 +195,7 @@ internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
   }
 
   override const DefNamespace defs
+  override const Dict ioSettings
   override const Str name
   override const Def def
 }

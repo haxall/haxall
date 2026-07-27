@@ -23,6 +23,9 @@ using xeto
   ** Namespace to use for filetypes
   abstract DefNamespace defs()
 
+  ** Settings used to change global io defaults
+  virtual Dict ioSettings() { Etc.dict0 }
+
   ** Lookup filetype for the given mime type or null
   virtual Filetype? toFiletype(MimeType mime)
   {
@@ -32,7 +35,7 @@ using xeto
   ** Get reader/writer options
   virtual Dict ioOpts(Filetype filetype, MimeType mime)
   {
-    filetype.ioOpts(defs, mime, Etc.dict0, Etc.dict0)
+    filetype.ioOpts(defs, mime, Etc.dict0, ioSettings)
   }
 
 //////////////////////////////////////////////////////////////////////////
