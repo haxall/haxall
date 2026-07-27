@@ -38,10 +38,10 @@ const class MFeature : Feature
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Feature name such as "filetype"
+  ** Feature name such as "view"
   const override Str name
 
-  ** Symbol prefix such as "filetype:"
+  ** Symbol prefix such as "view:"
   const Str prefix
 
   ** Parent namespace
@@ -101,9 +101,6 @@ const class MFeature : Feature
 //////////////////////////////////////////////////////////////////////////
 // Hooks
 //////////////////////////////////////////////////////////////////////////
-
-  ** Is this the feature for Filetype
-  virtual Bool isFiletype() { false }
 
   ** Primary mixin type such as Filetype#
   virtual Type defType() { Def# }

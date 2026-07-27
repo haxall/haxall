@@ -4,6 +4,7 @@
 //
 // History:
 //   28 Feb 2017  Brian Frank  Creation
+//   27 Jul 2026  Brian Frank  Remove defs/Filetype dependency
 //
 
 using web
@@ -11,32 +12,16 @@ using xeto
 
 **
 ** WebOpUtil implements the standard logic for reading requests and
-** writing responses for Haystack ops using HTTP content negotiation.
+** writing responses for legacy Haystack ops using HTTP content negotiation.
+** It is used only for Haystack API when `Xeto-Version` is undefined or
+** less than "5".
+**
+** Only the four Haystack grid formats are supported: zinc, trio, json,
+** and csv.  Formats such as pdf/svg/excel are export-only and never
+** flow thru this API.
 **
 @NoDoc const mixin WebOpUtil
 {
-
-//////////////////////////////////////////////////////////////////////////
-// Overrides
-//////////////////////////////////////////////////////////////////////////
-
-  ** Namespace to use for filetypes
-  abstract DefNamespace defs()
-
-  ** Settings used to change global io defaults
-  virtual Dict ioSettings() { Etc.dict0 }
-
-  ** Lookup filetype for the given mime type or null
-  virtual Filetype? toFiletype(MimeType mime)
-  {
-    defs.filetype(mime.noParams.toStr, false)
-  }
-
-  ** Get reader/writer options
-  virtual Dict ioOpts(Filetype filetype, MimeType mime)
-  {
-    filetype.ioOpts(defs, mime, Etc.dict0, ioSettings)
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // Request
@@ -72,8 +57,9 @@ using xeto
     // find reader to use for MIME type
     mime := MimeType(req.headers["Content-Type"] ?: "", false)
     if (mime == null) { res.sendErr(415, "Content-Type not specified"); return null }
-    filetype := toFiletype(mime)
-    if (filetype == null) { res.sendErr(415, "Unsupported Content-Type: $mime"); return null }
+
+    filetype := Filetype.byMime(mime, false)
+    if (filetype == null || !filetype.hasReader) { res.sendErr(415, "Unsupported Content-Type: $mime"); return null }
 
     // read content is as string
     reqStr := req.in.readAllStr
@@ -82,7 +68,7 @@ using xeto
     Err? err := null
     try
     {
-      return filetype.reader(reqStr.in, ioOpts(filetype, mime)).readGrid
+      return filetype.reader(reqStr.in, ioOpts(mime)).readGrid
     }
     catch (Err e)
     {
@@ -106,8 +92,8 @@ using xeto
     if (mime == null) return res.sendErr(406, "Invalid Accept header")
 
     // find GridWriter to use for mime type
-    filetype := toFiletype(mime)
-    if (filetype == null) return res.sendErr(406, "Unsupported Accept type: $mime")
+    filetype := Filetype.byMime(mime, false)
+    if (filetype == null || !filetype.hasWriter) return res.sendErr(406, "Unsupported Accept type: $mime")
 
     // accept-encoding
     gzip := acceptGzip(req)
@@ -121,8 +107,7 @@ using xeto
     // write result
     OutStream out := res.out
     if (gzip) out = Zip.gzipOutStream(out)
-    writer := filetype.writer(out, ioOpts(filetype, mime))
-    writer.writeGrid(result)
+    filetype.writer(out, ioOpts(mime)).writeGrid(result)
     out.close
   }
 
@@ -136,7 +121,7 @@ using xeto
   {
     // check for filetype in query string for easy testing
     queryFiletype := req.uri.query["filetype"] ?: req.uri.query["format"]
-    if (queryFiletype != null) return defs.filetype(queryFiletype).mimeType
+    if (queryFiletype != null) return Filetype.byName(queryFiletype).mimeType
 
     // if not specified or anything accepted default to text/plain (Zinc)
     accept := req.headers["Accept"]
@@ -147,6 +132,16 @@ using xeto
     mime := MimeType.fromStr(toks.first, false)
     if (mime == null) return null
     return mime
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** JSON v3 is only reachable via an explicit ";version=3" mime param
+  private static Dict ioOpts(MimeType mime)
+  {
+    mime.params["version"] == "3" ? Etc.dict1("v3", Marker.val) : Etc.dict0
   }
 
   private static const MimeType mimeZinc := MimeType("text/zinc; charset=utf-8")

@@ -63,18 +63,7 @@ class DefBuilder
   private MDef toKey(BDef b)
   {
     feature := toFeature(b.symbol.part(0))
-    def := feature.createDef(b)
-    if (feature.isFiletype) addFiletype(def)
-    return def
-  }
-
-  private Void addFiletype(MFiletype def)
-  {
-    name := def.name
-    filetypes.add(def)
-    filetypesMap.add(name, def)
-    filetypesMap.add(def.mimeType.toStr, def)
-    filetypesMap.add("application/vnd.haystack+${name}", def)
+    return feature.createDef(b)
   }
 
   private MFeature toFeature(Str name)
@@ -127,8 +116,6 @@ class DefBuilder
     b.featuresMap = features
     b.libs = libsList
     b.libsMap = libsMap
-    b.filetypes = filetypes.sort
-    b.filetypesMap = filetypesMap
 
     // construct
     return factory.createNamespace(b)
@@ -141,8 +128,6 @@ class DefBuilder
   private Str:Def defs := [:]
   private Str:BLib libs := [:]
   private Str:MFeature features := [:]
-  private Filetype[] filetypes := [,]
-  private Str:Filetype filetypesMap := [:]
   private AtomicRef nsRef := AtomicRef()
 }
 
@@ -160,8 +145,6 @@ class BNamespace
   [Str:Feature]? featuresMap
   DefLib[]? libs
   [Str:DefLib]? libsMap
-  Filetype[]? filetypes
-  [Str:Filetype]? filetypesMap
 }
 
 **************************************************************************

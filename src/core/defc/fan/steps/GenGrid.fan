@@ -29,7 +29,7 @@ internal abstract class GenGrid : DefCompilerStep
     c := compiler
     grid := toGrid(c)
 
-    filetype := c.ns.filetype(format)
+    filetype := Filetype.byName(format)
 
     // check if we have a callback or we are writing to disk
     uri := `${baseName}.${filetype.fileExt}`
@@ -56,15 +56,12 @@ internal abstract class GenGrid : DefCompilerStep
 
   static Str[] formats()
   {
-     ["zinc", "trio", "json", "turtle", "jsonld", "csv"]
+     ["zinc", "trio", "json", "csv"]
   }
 
   private Void writeGrid(Grid grid, Filetype filetype, OutStream out)
   {
-    c := compiler
-    opts := filetype.ioOpts(c.ns, null, Etc.dict0, Etc.dict0)
-    writer := filetype.writer(out, opts)
-    writer.writeGrid(grid)
+    filetype.writer(out).writeGrid(grid)
     out.close
   }
 }

@@ -515,14 +515,10 @@ const class IOFuncs
     }
   }
 
+  ** Json opts: the explicit "v3" arg is the only way to select JSON v3
   private static Dict toJsonOpts(Dict? arg)
   {
-    cx := curContext
-    if (arg == null) arg = Etc.dict0
-    if (cx.sys.info.type.isAxonsh) return Etc.dict0
-    filetype := cx.defs.filetype("json")
-    settings := cx.ext("hx.io").settings
-    return filetype.ioOpts(cx.defs, null, arg, settings)
+    arg ?: Etc.dict0
   }
 
   ** Read a JSON file formatted as a standardized Haystack grid

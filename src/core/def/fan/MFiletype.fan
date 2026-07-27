@@ -10,36 +10,15 @@ using concurrent
 using haystack
 
 **
-** Filetype implementation
+** Filetype feature.  The filetype defs remain in the ontology as
+** ordinary defs accessible via the generic feature API; the
+** reader/writer registry lives in `haystack::Filetype`.
 **
-@Js
-internal const class MFiletype : MDef, Filetype
-{
-  new make(BDef b) : super(b)
-  {
-    this.mimeType = MimeType.fromStr(meta->mime)
-  }
-
-  override const MimeType mimeType
-}
-
-**************************************************************************
-** MFiletypeFeature
-**************************************************************************
-
 @Js
 internal const class MFiletypeFeature : MFeature
 {
   new make(BFeature b) : super(b) {}
 
-  override Bool isFiletype() { true }
-
-  override Type defType() { Filetype# }
-
-  override MDef createDef(BDef b) { MFiletype(b) }
-
   override Err createUnknownErr(Str name) { UnknownFiletypeErr(name) }
 }
-
-
 

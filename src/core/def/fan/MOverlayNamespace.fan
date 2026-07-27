@@ -152,16 +152,6 @@ const class MOverlayNamespace : MNamespace
     return null
   }
 
-  override Filetype[] filetypes()
-  {
-    base.filetypes
-  }
-
-  override Filetype? filetype(Str name, Bool checked := true)
-  {
-    base.filetype(name, checked)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////

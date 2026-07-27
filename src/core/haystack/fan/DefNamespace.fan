@@ -63,13 +63,6 @@ const mixin DefNamespace
   ** Resolve lib by simple name.
   @NoDoc abstract DefLib? lib(Str name, Bool checked := true)
 
-  ** List file types
-  @NoDoc abstract Filetype[] filetypes()
-
-  ** Lookup a file type by name key or MIME type name.
-  ** If using a mime type, then use `MimeType.noParams.toStr`.
-  @NoDoc abstract Filetype? filetype(Str name, Bool checked := true)
-
 //////////////////////////////////////////////////////////////////////////
 // Fits
 //////////////////////////////////////////////////////////////////////////

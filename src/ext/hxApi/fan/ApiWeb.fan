@@ -23,9 +23,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
 
   override ApiExt ext() { super.ext }
 
-  override DefNamespace defs() { ext.rt.defs }
-
-  override Dict ioSettings() { ext.settings }
+  virtual DefNamespace defs() { ext.rt.defs }
 
   override const Str[] wellKnownRoutes := ["health"]
 
@@ -99,7 +97,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       if (opDef == null) return res.sendErr(404)
 
       // instantiate subclass of HxApiOp
-      Actor.locals["hxApiOp.spi"] = HxApiOpSpiImpl(defs, opDef, ioSettings)
+      Actor.locals["hxApiOp.spi"] = HxApiOpSpiImpl(defs, opDef)
       typeName := opDef["typeName"] as Str ?: throw Err("Op missing typeName: $opName")
       op := (HxApiOp)Type.find(typeName).make
 
@@ -167,12 +165,11 @@ const class ApiWeb : ExtWeb, WebOpUtil
 
 internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
 {
-  new make(DefNamespace defs, Def def, Dict ioSettings)
+  new make(DefNamespace defs, Def def)
   {
-    this.defs       = defs
-    this.name       = def.name
-    this.def        = def
-    this.ioSettings = ioSettings
+    this.defs = defs
+    this.name = def.name
+    this.def  = def
   }
 
   override Grid? readReq(HxApiOp op, WebReq req, WebRes res)
@@ -194,8 +191,7 @@ internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
     doWriteRes(req, res, grid)
   }
 
-  override const DefNamespace defs
-  override const Dict ioSettings
+  const DefNamespace defs
   override const Str name
   override const Def def
 }

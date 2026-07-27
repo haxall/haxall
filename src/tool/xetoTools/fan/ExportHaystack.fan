@@ -36,12 +36,6 @@ internal abstract class ExportHaystack : ExportCmd
     t.toStr + ".${filetype.fileExt}"
   }
 
-  once DefNamespace defns()
-  {
-    // TODO: use defc until convert everything over to xeto
-    DefCompiler().compileNamespace
-  }
-
   abstract Filetype filetype()
 }
 
@@ -55,7 +49,7 @@ internal class ExportTrio :  ExportHaystack
 
   override Str summary() { "Export Xeto to Trio" }
 
-  override Filetype filetype() { defns.filetype("trio") }
+  override Filetype filetype() { Filetype.byName("trio") }
 }
 
 **************************************************************************
@@ -68,7 +62,7 @@ internal class ExportZinc :  ExportHaystack
 
   override Str summary() { "Export Xeto to Zinc" }
 
-  override Filetype filetype() { defns.filetype("zinc") }
+  override Filetype filetype() { Filetype.byName("zinc") }
 }
 
 **************************************************************************
@@ -81,6 +75,6 @@ internal class ExportHayson :  ExportHaystack
 
   override Str summary() { "Export Xeto to Haystack JSON" }
 
-  override Filetype filetype() { defns.filetype("json") }
+  override Filetype filetype() { Filetype.byName("json") }
 }
 

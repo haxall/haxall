@@ -27,6 +27,7 @@ class Api3Test : ApiTest
     doRead
     doCommit
     doGets
+    doFiletypes
     doNav
     doWatches
     doHis
@@ -197,6 +198,105 @@ class Api3Test : ApiTest
     wc.readRes
     verifyEq(wc.resCode, 405)
     verifyEq(wc.resPhrase.startsWith("GET not allowed for op"), true)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Filetypes
+//////////////////////////////////////////////////////////////////////////
+
+  Void doFiletypes()
+  {
+    req := Etc.makeMapGrid(null, ["expr": "today()", "ts": DateTime.now])
+    res := Etc.toGrid(Date.today)
+
+    // standard mime types
+    verifyGridEq(callMime("eval", req, "text/zinc", null), res)
+    verifyGridEq(callMime("eval", req, "text/zinc", "text/zinc"), res)
+    verifyGridEq(callMime("eval", req, "text/trio", "text/trio"), res)
+    verifyGridEq(callMime("eval", req, "text/csv",  "text/zinc"), res)
+    verifyGridEq(callMime("eval", req, "application/json", "application/json"), res)
+
+    // cross encodings
+    verifyGridEq(callMime("eval", req, "text/zinc", "application/json"), res)
+    verifyGridEq(callMime("eval", req, "application/json", "text/zinc"), res)
+    // csv is lossy: scalars come back as Str, so verify the encoded value
+    verifyEq(callMime("eval", req, "text/trio", "text/csv")->first->val, Date.today.toStr)
+
+    // charset params are ignored for lookup
+    verifyGridEq(callMime("eval", req, "text/zinc; charset=utf-8", "text/zinc; charset=utf-8"), res)
+
+    // hayson v3 via explicit version param
+    verifyGridEq(callMime("eval", req, "application/json;version=3", "application/json;version=3"), res)
+    verifyGridEq(callMime("eval", req, "application/json;version=4", "application/json;version=4"), res)
+    verifyGridEq(callMime("eval", req, "application/json;version=3", "application/json"), res)
+
+    // vnd.haystack+{filetype}
+    verifyGridEq(callMime("eval", req, "application/vnd.haystack+zinc", "application/vnd.haystack+zinc"), res)
+    verifyGridEq(callMime("eval", req, "application/vnd.haystack+trio", "application/vnd.haystack+trio"), res)
+    verifyGridEq(callMime("eval", req, "application/vnd.haystack+csv",  "application/vnd.haystack+zinc"), res)
+    verifyGridEq(callMime("eval", req, "application/vnd.haystack+json", "application/vnd.haystack+json"), res)
+    verifyGridEq(callMime("eval", req, "application/vnd.haystack+json;version=3", "application/vnd.haystack+json;version=3"), res)
+
+    // unsupported/missing content types
+    verifyEq(callMime("eval", req, null,         "text/zinc"), 415)
+    verifyEq(callMime("eval", req, "text/plain", "text/zinc"), 415)
+    verifyEq(callMime("eval", req, "text/foo",   "text/zinc"), 415)
+    verifyEq(callMime("eval", req, "text/zinc",  "text/plain"), 406)
+    verifyEq(callMime("eval", req, "text/zinc",  "text/foo"), 406)
+
+    // write-only filetypes cannot be used to post a request
+    verifyEq(callMime("eval", req, "text/html",  "text/zinc"), 415)
+
+    // ?filetype and ?format query params select the response encoding
+    verifyGridEq(callAsGetWith("read?filter=id&filetype=trio", "trio"), c.readAll("id"))
+    verifyGridEq(callAsGetWith("read?filter=id&format=trio",   "trio"), c.readAll("id"))
+    verifyGridEq(callAsGetWith("read?filter=id&filetype=json", "json"), c.readAll("id"))
+  }
+
+  ** Post reqGrid encoded per reqMime and decode the response per resMime.
+  ** Returns the response grid or the status code if not 200.
+  Obj callMime(Str op, Grid reqGrid, Str? reqMimeStr, Str? resMimeStr)
+  {
+    reqMime := MimeType(reqMimeStr ?: "", false)
+    resMime := MimeType(resMimeStr ?: "", false)
+
+    // encode request using the request mime type; fallback to zinc so we
+    // can still post a body when testing unsupported content types
+    reqType := (reqMime == null ? null : Filetype.byMime(reqMime, false)) ?: Filetype.byName("zinc")
+    if (!reqType.hasReader) reqType = Filetype.byName("zinc")
+    reqBuf := Buf()
+    reqType.writer(reqBuf.out, jsonVersionOpts(reqMime)).writeGrid(reqGrid)
+
+    wc := c.toWebClient(op.toUri)
+    wc.reqMethod = "POST"
+    if (reqMimeStr != null) wc.reqHeaders["Content-Type"] = reqMimeStr
+    if (resMimeStr != null) wc.reqHeaders["Accept"] = resMimeStr
+    wc.reqHeaders["Content-Length"] = reqBuf.size.toStr
+
+    wc.writeReq
+    wc.reqOut.writeBuf(reqBuf.seek(0)).close
+
+    wc.readRes
+    if (wc.resCode == 100) wc.readRes
+    if (wc.resCode != 200) { wc.close; return wc.resCode }
+    resBuf := wc.resIn.readAllBuf
+    wc.close
+
+    resType := (resMime == null ? null : Filetype.byMime(resMime, false)) ?: Filetype.byName("zinc")
+    return resType.reader(resBuf.seek(0).in, jsonVersionOpts(resMime)).readGrid
+  }
+
+  ** GET the given path and decode the response using given filetype name
+  Grid callAsGetWith(Str path, Str filetype)
+  {
+    str := c.toWebClient(path.toUri).getStr
+    return Filetype.byName(filetype).reader(str.in).readGrid
+  }
+
+  ** Hayson v3 is selected by an explicit ";version=3" mime param
+  static Dict jsonVersionOpts(MimeType? mime)
+  {
+    mime?.params?.get("version") == "3" ? Etc.dict1("v3", Marker.val) : Etc.dict0
   }
 
 //////////////////////////////////////////////////////////////////////////

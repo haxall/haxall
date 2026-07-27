@@ -30,8 +30,6 @@ const class MBuiltNamespace : MNamespace
     this.featuresMap  = b.featuresMap
     this.libsList     = b.libs
     this.libsMap      = b.libsMap
-    this.filetypes    = b.filetypes
-    this.filetypesMap = b.filetypesMap
     this.quick        = MQuick(this)
   }
 
@@ -88,16 +86,6 @@ const class MBuiltNamespace : MNamespace
     return null
   }
 
-  override const Filetype[] filetypes
-
-  override Filetype? filetype(Str name, Bool checked := true)
-  {
-    f := filetypesMap[name]
-    if (f != null) return f
-    if (checked) throw UnknownFiletypeErr(name)
-    return null
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
@@ -105,6 +93,5 @@ const class MBuiltNamespace : MNamespace
   internal const Str:Def defsMap
   internal const Str:Feature featuresMap
   internal const Str:DefLib libsMap
-  internal const Str:Filetype filetypesMap
 }
 

@@ -141,7 +141,7 @@ internal class HxDefsOp : HxApiOp
 
 internal class HxFiletypesOp : HxDefsOp
 {
-  override Void eachDef(Context cx, |Def| f) { cx.defs.filetypes.each(f) }
+  override Void eachDef(Context cx, |Def| f) { cx.defs.feature("filetype").eachDef(f) }
 }
 
 **************************************************************************
