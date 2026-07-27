@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using web
 using xeto
 using haystack
 using axon
@@ -419,7 +420,7 @@ class ExtTest : HxTest
 ** HxTestExt
 **************************************************************************
 
-const class HxTestExt : ExtObj
+const class HxTestExt : ExtObj, IIonExt
 {
   const AtomicRef traces := AtomicRef("")
 
@@ -427,11 +428,40 @@ const class HxTestExt : ExtObj
 
   override const Observable[] observables := [TestObservable()]
 
+  override const ExtWeb web := HxTestExtWeb(this)
+
+  // IIonExt stubs to test the virtual host hook without ion installed
+  override Void updateNavTree(Runtime rt) {}
+  override File? brandFile(Str name) { null }
+
+  override Bool onServiceVirtualHost(Str hostname, WebReq req, WebRes res)
+  {
+    if (hostname != settings["vhost"] as Str) return false
+    res.headers["Content-Type"] = "text/plain"
+    res.out.print("vhost $hostname $req.uri").close
+    return true
+  }
+
   override Void onStart() { trace("onStart[$isRunning]"); if (settings.has("forceStartErr")) throw Err("boo!") }
   override Void onReady() { trace("onReady[$isRunning]") }
   override Void onSteadyState() { trace("onSteadyState") }
   override Void onUnready() { trace("onUnready[$isRunning]") }
   override Void onStop() { trace("onStop[$isRunning]") }
   override Void onSettings() { trace("onSettings[$settings]") }
+}
+
+**************************************************************************
+** HxTestExtWeb
+**************************************************************************
+
+const class HxTestExtWeb : ExtWeb
+{
+  new make(HxTestExt ext) : super(ext) {}
+
+  override Void onService()
+  {
+    res.headers["Content-Type"] = "text/plain"
+    res.out.print("route $routeName $req.uri").close
+  }
 }
 

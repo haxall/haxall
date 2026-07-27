@@ -28,6 +28,7 @@ class Build : BuildPod
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
                "inet @{fan.depend}",
+               "web @{fan.depend}",
                "xeto @{hx.depend}",
                "xetom @{hx.depend}",
                "haystack @{hx.depend}",

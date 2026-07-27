@@ -123,6 +123,9 @@ const class HttpExt : ExtObj, IHttpExt
     if (routeExt(routeName, req, res)) return
     if (routeWellKnown(routeName, req, res)) return
 
+    // no system route matched; check if ion claims this hostname
+    if (routeVirtualHost(req, res)) return
+
     // if route name is empty then authenticate and perform index redirect
     if (routeName.isEmpty)
     {
@@ -148,6 +151,24 @@ const class HttpExt : ExtObj, IHttpExt
     req.modBase = req.modBase + `${routeName}/`
     mod.onService
     return true
+  }
+
+  ** Dispatch to the ion ext if it claims the request's hostname as
+  ** a website virtual host.  Return true if handled.  The claiming
+  ** ext owns the host's entire root path space, so modBase stays "/".
+  private Bool routeVirtualHost(WebReq req, WebRes res)
+  {
+    // get normalized virtual hostname without port from header
+    host := req.headers["Host"]
+    if (host == null) return false
+    colon := host.indexr(":")
+    if (colon != null) host = host[0..<colon]
+    host = host.lower
+
+    // route to IIonExt
+    ionExt := sys.ion(false)
+    if (ionExt == null) return false
+    return ionExt.onServiceVirtualHost(host, req, res)
   }
 
   ** Dispatch a well-known route. Return true if handled.

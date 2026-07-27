@@ -232,6 +232,15 @@ const mixin IIonExt : SysExt
 
   ** Brand asset file
   abstract File? brandFile(Str name)
+
+  ** Service a web request for a website virtual host.  This is called
+  ** when the URI's first path segment does not match any registered
+  ** web route.  The hostname is normalized lowercase without the port.
+  ** The implementation handles project resolution, authentication,
+  ** and web routing internally.  Return false if the hostname is not
+  ** claimed as a project website, in which case the request falls
+  ** through to a 404.
+  @NoDoc virtual Bool onServiceVirtualHost(Str hostname, WebReq req, WebRes res) { false }
 }
 
 **************************************************************************
