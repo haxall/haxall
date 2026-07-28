@@ -27,6 +27,7 @@ class Api3Test : ApiTest
     doRead
     doCommit
     doGets
+    doErrGrid
     doFiletypes
     doNav
     doWatches
@@ -169,6 +170,31 @@ class Api3Test : ApiTest
 //////////////////////////////////////////////////////////////////////////
 // Gets
 //////////////////////////////////////////////////////////////////////////
+
+  ** Verify the api ext is resolvable by name -- both ApiWeb.toErrGrid
+  ** and HxApiOp.toErrGrid look it up for the "disableErrTrace" setting.
+  ** Also verify an op error returns an err grid with the trace by default.
+  Void doErrGrid()
+  {
+    verifyNotNull(makeContext(null).ext("hx.api", false))
+
+    // eval an expression which throws; default settings keep the trace
+    wc := c.toWebClient(`eval`)
+    wc.reqMethod = "POST"
+    wc.reqHeaders["Content-Type"] = "text/zinc"
+    body := Buf().print(Str<|ver:"3.0"
+                             expr
+                             "thisFuncDoesNotExist()"
+                             |>).flip.readAllStr
+    wc.reqHeaders["Content-Length"] = body.size.toStr
+    wc.writeReq
+    wc.reqOut.print(body).close
+    wc.readRes
+    grid := ZincReader(wc.resStr.in).readGrid
+    verify(grid.meta.has("err"))
+    verify(grid.meta.has("errTrace"))
+    verifyEq(grid.meta->errTrace.toStr.contains("Trace disabled"), false)
+  }
 
   Void doGets()
   {

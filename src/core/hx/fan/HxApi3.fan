@@ -16,72 +16,86 @@ using folio
 ** Base class for Haxall 3.x style HTTP API operation processing
 **
 @NoDoc
-abstract class HxApiOp
+const abstract class HxApiOp : WebOpUtil
 {
-  ** Subclasses must declare public no-arg constructor
-  new make()
+  ** Lookup the singleton op instance for the given type qname
+  static HxApiOp find(Str typeName)
   {
-    this.spiRef = Actor.locals["hxApiOp.spi"] as HxApiOpSpi ?: throw Err("Invalid make context")
+    op := ((Str:HxApiOp)cache.val)[typeName]
+    if (op != null) return op
+    op = (HxApiOp)Type.find(typeName).make
+    cache.val = ((Str:HxApiOp)cache.val).dup.set(typeName, op).toImmutable
+    return op
   }
 
-  ** Programmatic name of the op
-  Str name() { spi.name }
+  private static const AtomicRef cache := AtomicRef(Str:HxApiOp[:].toImmutable)
 
-  ** Op definition
-  Def def() { spi.def }
+  ** Programmatic name of the op such as "read"
+  abstract Str name()
+
+  ** Return if this operation can be called with GET method
+  virtual Bool noSideEffects() { false }
 
   ** Process an HTTP service call to this op
   virtual Void onService(WebReq req, WebRes res, Context cx)
   {
     // parse request grid; if readReq returns null
     // then an error has already been returned
-    reqGrid := spi.readReq(this, req, res)
+    reqGrid := readReq(req, res)
     if (reqGrid == null) return
 
     // subclass hook
     resGrid := onRequest(reqGrid, cx)
 
     // respond with resulting grid
-    spi.writeRes(this, req, res, resGrid)
+    writeRes(req, res, resGrid)
   }
 
   ** Process parsed request.  Default implentation
   ** attempts to eval an Axon function of the same name.
   abstract Grid onRequest(Grid req, Context cx)
 
-  ** Return if this operation can be called with GET method.
-  @NoDoc virtual Bool isGetAllowed()
+  ** Read the request grid; GET is only allowed for ops with no side effects
+  Grid? readReq(WebReq req, WebRes res)
   {
-    def.has("noSideEffects")
+    if (req.isGet && !noSideEffects)
+    {
+      res.sendErr(405, "GET not allowed for op '$name'")
+      return null
+    }
+    return doReadReq(req, res)
   }
 
-  ** Service provider interface
-  @NoDoc virtual HxApiOpSpi spi() { spiRef }
-  @NoDoc const HxApiOpSpi spiRef
-}
+  ** Write the response grid using content negotiation
+  Void writeRes(WebReq req, WebRes res, Obj? result)
+  {
+    if (res.isCommitted) return
+    doWriteRes(req, res, Etc.toGrid(result))
+  }
 
-**************************************************************************
-** HxApiOpSpi
-**************************************************************************
-
-**
-** HxApiOp service provider interface
-**
-@NoDoc
-const mixin HxApiOpSpi
-{
-  abstract Str name()
-  abstract Def def()
-  abstract Grid? readReq(HxApiOp op, WebReq req, WebRes res)
-  abstract Void writeRes(HxApiOp op, WebReq req, WebRes res, Grid result)
+  ** Convert exception to error response grid.  The api ext may
+  ** disable the stack trace via its "disableErrTrace" setting.
+  Grid toErrGrid(Context cx, Err err, Obj? meta := null)
+  {
+    if (cx.ext("hx.api", false)?.settings?.has("disableErrTrace") == true)
+    {
+      meta = Etc.makeDict(meta)
+      meta = Etc.dictSet(meta, "errTrace", "${err}\n  Trace disabled")
+    }
+    return Etc.makeErrGrid(err, meta)
+  }
 }
 
 **************************************************************************
 ** HxAboutOp
 **************************************************************************
 
-internal class HxAboutOp : HxApiOp
+internal const class HxAboutOp : HxApiOp
 {
+  override Str name() { "about" }
+
+  override Bool noSideEffects() { true }
+
   /*
   override Void onService(WebReq req, WebRes res, Context cx)
   {
@@ -100,8 +114,10 @@ internal class HxAboutOp : HxApiOp
 ** HxCloseOp
 **************************************************************************
 
-internal class HxCloseOp : HxApiOp
+internal const class HxCloseOp : HxApiOp
 {
+  override Str name() { "close" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     cx.sys.session.close(cx.session)
@@ -113,8 +129,12 @@ internal class HxCloseOp : HxApiOp
 ** HxDefsOp
 **************************************************************************
 
-internal class HxDefsOp : HxApiOp
+internal const class HxDefsOp : HxApiOp
 {
+  override Str name() { "defs" }
+
+  override Bool noSideEffects() { true }
+
   override Grid onRequest(Grid req, Context cx)
   {
     opts := req.first as Dict ?: Etc.dict0
@@ -139,8 +159,12 @@ internal class HxDefsOp : HxApiOp
 ** HxFiletypesOp
 **************************************************************************
 
-internal class HxFiletypesOp : HxDefsOp
+internal const class HxFiletypesOp : HxDefsOp
 {
+  override Str name() { "filetypes" }
+
+  override Bool noSideEffects() { true }
+
   override Void eachDef(Context cx, |Def| f) { cx.defs.feature("filetype").eachDef(f) }
 }
 
@@ -148,8 +172,12 @@ internal class HxFiletypesOp : HxDefsOp
 ** HxLibsOp
 **************************************************************************
 
-internal class HxLibsOp : HxDefsOp
+internal const class HxLibsOp : HxDefsOp
 {
+  override Str name() { "libs" }
+
+  override Bool noSideEffects() { true }
+
   override Void eachDef(Context cx, |Def| f) { cx.defs.libsList.each(f) }
 }
 
@@ -157,8 +185,12 @@ internal class HxLibsOp : HxDefsOp
 ** HxOpsOp
 **************************************************************************
 
-internal class HxOpsOp : HxDefsOp
+internal const class HxOpsOp : HxDefsOp
 {
+  override Str name() { "ops" }
+
+  override Bool noSideEffects() { true }
+
   override Void eachDef(Context cx, |Def| f) { cx.defs.feature("op").eachDef(f) }
 }
 
@@ -166,8 +198,10 @@ internal class HxOpsOp : HxDefsOp
 ** HxExtOp
 **************************************************************************
 
-internal class HxExtOp : HxApiOp
+internal const class HxExtOp : HxApiOp
 {
+  override Str name() { "ext" }
+
   override Void onService(WebReq req, WebRes res, Context cx)
   {
     // TODO: rel paths not working great
@@ -192,8 +226,12 @@ internal class HxExtOp : HxApiOp
 ** HxReadOp
 **************************************************************************
 
-internal class HxReadOp : HxApiOp
+internal const class HxReadOp : HxApiOp
 {
+  override Str name() { "read" }
+
+  override Bool noSideEffects() { true }
+
   override Grid onRequest(Grid req, Context cx)
   {
     if (req.isEmpty) throw Err("Request grid is empty")
@@ -219,8 +257,10 @@ internal class HxReadOp : HxApiOp
 ** HxEvalOp
 **************************************************************************
 
-internal class HxEvalOp : HxApiOp
+internal const class HxEvalOp : HxApiOp
 {
+  override Str name() { "eval" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     if (req.isEmpty) throw Err("Request grid is empty")
@@ -233,8 +273,10 @@ internal class HxEvalOp : HxApiOp
 ** HxCommitOp
 **************************************************************************
 
-internal class HxCommitOp : HxApiOp
+internal const class HxCommitOp : HxApiOp
 {
+  override Str name() { "commit" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     if (!cx.user.isAdmin) throw PermissionErr("Missing 'admin' permission: commit")
@@ -304,8 +346,12 @@ internal class HxCommitOp : HxApiOp
 ** HxNavOp
 **************************************************************************
 
-internal class HxNavOp : HxApiOp
+internal const class HxNavOp : HxApiOp
 {
+  override Str name() { "nav" }
+
+  override Bool noSideEffects() { true }
+
   override Grid onRequest(Grid req, Context cx)
   {
     // check if we have nav function defined and if so use it
@@ -355,8 +401,10 @@ internal class HxNavOp : HxApiOp
 ** HxWatchSubOp
 **************************************************************************
 
-@NoDoc class HxWatchSubOp : HxApiOp
+@NoDoc const class HxWatchSubOp : HxApiOp
 {
+  override Str name() { "watchSub" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     // lookup or create watch
@@ -401,8 +449,10 @@ internal class HxNavOp : HxApiOp
 ** HxWatchUnsubOp
 **************************************************************************
 
-@NoDoc class HxWatchUnsubOp : HxApiOp
+@NoDoc const class HxWatchUnsubOp : HxApiOp
 {
+  override Str name() { "watchUnsub" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     // parse reqeust
@@ -426,8 +476,10 @@ internal class HxNavOp : HxApiOp
 ** HxWatchPollOp
 **************************************************************************
 
-internal class HxWatchPollOp : HxApiOp
+internal const class HxWatchPollOp : HxApiOp
 {
+  override Str name() { "watchPoll" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     // parse reqeust
@@ -459,8 +511,12 @@ internal class HxWatchPollOp : HxApiOp
 ** HxHisReadOp
 **************************************************************************
 
-internal class HxHisReadOp : HxApiOp
+internal const class HxHisReadOp : HxApiOp
 {
+  override Str name() { "hisRead" }
+
+  override Bool noSideEffects() { true }
+
   override Grid onRequest(Grid req, Context cx)
   {
     if (req.isEmpty) throw Err("Request grid is empty")
@@ -599,8 +655,10 @@ internal class HxHisReadOp : HxApiOp
 // HisWrite
 //////////////////////////////////////////////////////////////////////////
 
-internal class HxHisWriteOp : HxApiOp
+internal const class HxHisWriteOp : HxApiOp
 {
+  override Str name() { "hisWrite" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     // check security
@@ -659,8 +717,10 @@ internal class HxHisWriteOp : HxApiOp
 ** HxPointWriteOp
 **************************************************************************
 
-internal class HxPointWriteOp : HxApiOp
+internal const class HxPointWriteOp : HxApiOp
 {
+  override Str name() { "pointWrite" }
+
   override Grid onRequest(Grid req, Context cx)
   {
     // parse request
@@ -693,9 +753,11 @@ internal class HxPointWriteOp : HxApiOp
 ** HxFileOp
 **************************************************************************
 
-internal class HxFileOp : HxApiOp
+internal const class HxFileOp : HxApiOp
 {
-  override Bool isGetAllowed() { true }
+  override Str name() { "file" }
+
+  override Bool noSideEffects() { true }
 
   override Grid onRequest(Grid req, Context cx) { throw UnsupportedErr() }
 
@@ -759,7 +821,7 @@ internal class HxFileOp : HxApiOp
     {
       opts := Etc.dict1("path", path)
       ret  := cx.asCur { ext.uploadHandler(req, res, opts).upload }
-      spi.writeRes(this, req, res, Etc.toGrid(ret))
+      writeRes(req, res, ret)
     }
     catch (Err err)
     {
