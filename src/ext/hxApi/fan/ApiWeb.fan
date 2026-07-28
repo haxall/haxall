@@ -92,13 +92,16 @@ const class ApiWeb : ExtWeb, WebOpUtil
         //return
       }
 
-      // otherwise map to op def for Haxall 3.x legacy style
-      opDef := cx.defs.def("op:$opName", false)
-      if (opDef == null) return res.sendErr(404)
-
-      // lookup op singleton
-      typeName := opDef["typeName"] as Str ?: throw Err("Op missing typeName: $opName")
-      op := HxApiOp.find(typeName)
+      // otherwise Haxall 3.x legacy style: prefer func backed ops,
+      // then fall back to the op def registry
+      op := (HxApiOp?)HxFuncOp.findByOpName(opName, cx)
+      if (op == null)
+      {
+        opDef := cx.defs.def("op:$opName", false)
+        if (opDef == null) return res.sendErr(404)
+        typeName := opDef["typeName"] as Str ?: throw Err("Op missing typeName: $opName")
+        op = HxApiOp.find(typeName)
+      }
 
       // route to op for processing
       op.onService(req, res, cx)

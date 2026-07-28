@@ -87,6 +87,69 @@ const abstract class HxApiOp : WebOpUtil
 }
 
 **************************************************************************
+** HxFuncOp
+**************************************************************************
+
+**
+** Implements a legacy 3.x op by dispatching to a Xeto function.  This is
+** the bridge which lets the v4 HTTP API keep its wire contract while the
+** implementation lives in sys.api/ph.api as ordinary functions.
+**
+@NoDoc
+const class HxFuncOp : HxApiOp
+{
+  ** Map v4 op name to the v5 func which implements it, or null if the op
+  ** is not backed by a function or its func is not in the namespace.
+  ** Projects which have not enabled ph.api fall back to the legacy op.
+  static HxFuncOp? findByOpName(Str opName, Context cx)
+  {
+    funcName := v4ToV5[opName]
+    if (funcName == null) return null
+    func := cx.ns.funcs.get(funcName, false)
+    if (func == null) return null
+    return HxFuncOp(opName, func)
+  }
+
+  ** Map v4 op names to their v5 func names
+  static const Str:Str v4ToV5 :=
+  [
+    "read":       "phRead",
+    "nav":        "phNav",
+    "watchSub":   "phWatchSub",
+    "watchUnsub": "phWatchUnsub",
+    "watchPoll":  "phWatchPoll",
+    "hisRead":    "phHisRead",
+    "hisWrite":   "phHisWrite",
+    "pointWrite": "phPointWrite",
+  ]
+
+  ** Constructor
+  private new make(Str name, Spec func)
+  {
+    this.name = name
+    this.func = func
+  }
+
+  ** Legacy op name such as "hisRead"
+  override const Str name
+
+  ** Func spec which implements this op
+  const Spec func
+
+  ** GET is allowed if the func declares noSideEffects
+  override Bool noSideEffects() { func.meta.has("noSideEffects") }
+
+  override Grid onRequest(Grid req, Context cx)
+  {
+    // fill in extra params with null values
+    args := Obj?[req]
+    for (i := 1; i<func.func.params.size; ++i) args.add(null)
+
+    return Etc.toGrid(func.func.thunk.callList(args), req.meta)
+  }
+}
+
+**************************************************************************
 ** HxAboutOp
 **************************************************************************
 
