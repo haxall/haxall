@@ -146,12 +146,12 @@ internal class FileScanner
 
   ** Resolve the lib Funcs spec for a funcs mode type using the
   ** same naming convention as the axon thunk binding: the class
-  ** must be named "{base}Funcs" for its lib
+  ** must be one of the lib's candidate funcs type names
   private Spec? funcsSpec(Str typeName)
   {
     pod.libs.eachWhile |x|
     {
-      if (XetoUtil.fantomFuncsBaseName(x) + "Funcs" != typeName) return null
+      if (!XetoUtil.fantomFuncTypeNames(x).contains(typeName)) return null
       return x.spec("Funcs", false)
     }
   }

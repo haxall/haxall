@@ -75,13 +75,10 @@ const class AxonThunkFactory : ThunkFactory
     // check for component method
     if (spec.parent != null && spec.parent.isComp) return loadFantomCompMethod(spec, meta, pod)
 
-    // resolve fantom type BaseFuncs where base is spec name
-    // of the libExt otherwise the last name of the dotted lib name
+    // resolve fantom funcs type named for the libExt spec, otherwise
+    // the full dotted lib name or just its last name
     lib := spec.lib
-    base := fantomBaseName(lib)
-    typeName := base + "Funcs"
-    type := pod.type(typeName, false)
-    // echo("~~> $spec.lib base=$base -> $typeName -> $type")
+    type := (Type?)XetoUtil.fantomFuncTypeNames(lib).eachWhile |n| { pod.type(n, false) }
     if (type == null) return null
 
     // method name is same as func; special cases handled with _name
@@ -98,11 +95,6 @@ const class AxonThunkFactory : ThunkFactory
     // verify method has facet
     if (!method.hasFacet(Api#)) throw Err("Method missing @Api facet: $method.qname")
     return FantomFn.reflectMethod(method, spec.name, meta)
-  }
-
-  private Str fantomBaseName(Lib lib)
-  {
-    XetoUtil.fantomFuncsBaseName(lib)
   }
 
   private TopFn? loadFantomCompMethod(Spec spec, Dict meta, Pod? pod)

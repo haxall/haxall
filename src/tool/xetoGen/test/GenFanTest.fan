@@ -498,7 +498,7 @@ class GenFanTest : Test
   {
     c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
     lib := c.ns.compileTempLib(xetoSrc)
-    name := XetoUtil.fantomFuncsBaseName(lib) + "Funcs"
+    name := XetoUtil.fantomFuncTypeNames(lib).first
     out := genWith(c, lib, src.replace("TempFuncs", name))
     return out.replace(name, "TempFuncs")
   }

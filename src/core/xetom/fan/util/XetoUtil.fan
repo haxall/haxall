@@ -418,19 +418,25 @@ const class XetoUtil
     return base.type !== x.type
   }
 
-  ** Map lib to base name used for its Fantom funcs class named
-  ** "{base}Funcs": the libExt spec name minus its Ext suffix,
-  ** otherwise the capitalized last dotted name of the lib.
-  static Str fantomFuncsBaseName(Lib lib)
+  ** Map lib to the candidate type names for its Fantom funcs class
+  ** in priority order.  If the lib declares libExt then that spec name
+  ** minus its Ext suffix is the only candidate.  Otherwise try the full
+  ** dotted lib name camel cased, then just its last name; for example
+  ** "sys.api" maps to ["SysApiFuncs", "ApiFuncs"].
+  static Str[] fantomFuncTypeNames(Lib lib)
   {
     libExt := lib.meta["libExt"]?.toStr
     if (libExt != null)
     {
       name := qnameToName(libExt)
       if (name.endsWith("Ext")) name = name[0..-4]
-      return name
+      return [name + "Funcs"]
     }
-    return lastDottedName(lib.name).capitalize
+
+    names := lib.name.split('.')
+    tail  := names.last.capitalize + "Funcs"
+    if (names.size == 1) return [tail]
+    return [names.join("") |n| { n.capitalize } + "Funcs", tail]
   }
 
 //////////////////////////////////////////////////////////////////////////
