@@ -10,6 +10,7 @@
 using concurrent
 using sql::Col as SqlCol
 using sql::Row as SqlRow
+using sql::BatchExecutor
 using xeto
 using haystack
 using axon
@@ -137,9 +138,26 @@ const class SqlFuncs
       sqlStr := s1.add(s2).toStr
       stmt := db.sql(sqlStr).prepare
 
-      // now insert each input row
-      // TODO: this isn't very efficient, need to batch
-      results := Obj[,]
+      //// now insert each input row
+      //// TODO: this isn't very efficient, need to batch
+      //results := Obj[,]
+      //input.each |inputRow|
+      //{
+      //  params := Str:Obj?[:]
+      //  inputCols.each |inputCol|
+      //  {
+      //    name := inputCol.name
+      //    params[name] = toSqlVal(inputRow.trap(name, null), inputCol)
+      //  }
+
+      //  // execute with params and store result
+      //  r := stmt.execute(params)
+      //  if (r is List) r = ((List)r)[0]
+      //  results.add(fromSqlVal(r))
+      //}
+
+      //now insert each input row
+      batch := BatchExecutor(stmt)
       input.each |inputRow|
       {
         params := Str:Obj?[:]
@@ -148,16 +166,14 @@ const class SqlFuncs
           name := inputCol.name
           params[name] = toSqlVal(inputRow.trap(name, null), inputCol)
         }
-
-        // execute with params and store result
-        r := stmt.execute(params)
-        if (r is List) r = ((List)r)[0]
-        results.add(fromSqlVal(r))
+        batch.add(params)
       }
 
+      // finish batch, and map results from sql
+      results := batch.finish.map |r| { return fromSqlVal(r) }
+
       // return results
-      if (single) return fromSqlVal(results.first)
-      return results
+      return single ? results.first : results
     }
   }
 

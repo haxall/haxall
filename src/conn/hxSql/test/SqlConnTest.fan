@@ -31,14 +31,21 @@ class SqlConnTest : HxTest
 
     // configure one
     sqlPod := Pod.find("sql")
+
+    echo("sqlTestInit: uri "      + sqlPod.config("test.uri").toUri)
+    echo("sqlTestInit: username " + sqlPod.config("test.username"))
+    echo("sqlTestInit: password " + sqlPod.config("test.password"))
+
     conn := addRec([
             "dis":      "Test SQL Conn",
             "sqlConn":  Marker.val,
             "uri":      sqlPod.config("test.uri").toUri,
             "username": sqlPod.config("test.username"),
             "sqlSyncHisExpr": "testSyncHis"])
-
     proj.db.passwords.set(conn.id.toStr, sqlPod.config("test.password"))
+
+    echo("sqlTestInit: conn " + conn.id)
+    echo("sqlTestInit: read " + eval("read(sqlConn)")) // <-- axon::EvalErr: Unknown symbol 'read' [eval:1]
 
     grid := (Grid)eval("read(sqlConn).sqlTables()")
     verifyEq(grid.cols[0].name, "name")
