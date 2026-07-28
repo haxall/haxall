@@ -121,6 +121,8 @@ class HxdBoot : HxSysBoot
 
   ** Initial libs for create
   Str[] createLibs := [
+    "ph",
+    "ph.api",
     "hx.shell",
     "hx.io",
     "hx.task",
