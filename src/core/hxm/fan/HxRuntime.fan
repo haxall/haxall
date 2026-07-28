@@ -281,6 +281,9 @@ abstract const class HxRuntime : Runtime
     // update extensions
     extsRef.onNamespaceModified(ns)
 
+    // rebuild ion data
+    ionDataClear
+
     // if I am the sys, then all the proj ns need reload too
     if (isSys)
     {
@@ -293,10 +296,17 @@ abstract const class HxRuntime : Runtime
   }
 
   ** Cache for ion project cache
-  override once Obj ionData()
+  override Obj ionData()
   {
-    Type.find("hxIon::IonProjData").make([this])
+    x := ionDataRef.val
+    if (x == null) ionDataRef.val = x = Type.find("hxIon::IonProjData").make([this])
+    return x
   }
+
+  ** Clear ionData cache; called on namespace and meta modification
+  internal Void ionDataClear() { ionDataRef.val = null }
+
+  private const AtomicRef ionDataRef := AtomicRef()
 
 }
 

@@ -36,6 +36,7 @@ const class HxSettingsMgr
     diff := Diff(rt.meta, toUpdateChanges(changes), Diff.bypassRestricted)
     newMeta := db.commit(diff).newRec
     rt.metaRef.val = HxMeta(rt, newMeta)
+    rt.ionDataClear
     rt.onMetaModified(newMeta)
   }
 
