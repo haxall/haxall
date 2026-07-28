@@ -282,9 +282,9 @@ class ExtTest : HxTest
     // verify funcs thru Fantom APIs
     Actor.locals[ActorContext.actorLocalsKey] = cx
     rec := addRec(["dis":"Test"])
-    verifySame(HxFuncs.readById(rec.id), rec)
+    verifySame(SysApiFuncs.readById(rec.id), rec)
     HxFuncs.commit(Diff(rec, ["foo":m]))
-    verifyEq(HxFuncs.readById(rec.id)->foo, m)
+    verifyEq(SysApiFuncs.readById(rec.id)->foo, m)
   }
 
 //////////////////////////////////////////////////////////////////////////

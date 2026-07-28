@@ -20,13 +20,13 @@ class JsonSchemaTest : AbstractXetoTest
 
   Void testFuncToParams()
   {
-    ns := createNamespace(["sys", "hx", "hx.math"])
+    ns := createNamespace(["sys", "sys.api", "hx", "hx.math"])
     sysVer := ns.lib("sys").version.toStr.replace(".", "-")
     sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Number"]
     sysRefRef    := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Ref"]
 
     mathFuncs := ns.lib("hx.math").spec("Funcs")
-    hxFuncs   := ns.lib("hx").spec("Funcs")
+    apiFuncs  := ns.lib("sys.api").spec("Funcs")
 
     // pi: Func { returns: Number }
     ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
@@ -63,7 +63,7 @@ class JsonSchemaTest : AbstractXetoTest
 
     // readByIds: Func { ids: List <of:Ref>, checked: Bool, returns: Grid }
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
-    actual = ex.funcToParams(hxFuncs.slot("readByIds"))
+    actual = ex.funcToParams(apiFuncs.slot("readByIds"))
     verifyEq(actual, Str:Obj[
       "type": "object",
       "properties": Str:Obj[

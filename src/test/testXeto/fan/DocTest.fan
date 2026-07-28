@@ -522,7 +522,7 @@ class DocTest : AbstractXetoTest
     // absolute slot
     verifyLinker("sys::Spec.doc", "/sys/Spec#doc", "doc")
     verifyLinker("ph::PhEntity.temp", "/ph/PhEntity#temp", "temp")
-    verifyLinker("hx::Funcs.read", "/hx/Funcs#read", "read")
+    verifyLinker("hx::Funcs.readLink", "/hx/Funcs#readLink", "readLink")
     verifyLinker("hx.test.xeto::Index", "/hx.test.xeto/_Index", "Index")
     verifyLinker("ph::PhEntity.temp#bad", null)
     verifyLinker("ph::PhEntity.bad", null)
@@ -533,9 +533,9 @@ class DocTest : AbstractXetoTest
     verifyLinker("hx.test.xeto::coerce#bad", null)
 
     // functions
-    verifyLinker("readAll()", "/hx/Funcs#readAll", "readAll()")
-    verifyLinker("hx::readAll()", "/hx/Funcs#readAll", "readAll()")
-    verifyLinker("hx::Funcs.readAll()", null)
+    verifyLinker("readLink()", "/hx/Funcs#readLink", "readLink()")
+    verifyLinker("hx::readLink()", "/hx/Funcs#readLink", "readLink()")
+    verifyLinker("hx::Funcs.readLink()", null)
     verifyLinker("hx::badFunc()", null)
     verifyLinker("doc.xeto::badFunc()", null)
     verifyLinker("bad.lib::readAll()", null)
