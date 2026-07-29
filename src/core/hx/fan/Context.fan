@@ -249,6 +249,13 @@ class Context : AxonContext, FolioContext
   ** Return if context has write (update/delete) access to given record
   @NoDoc override Bool canWrite(Dict rec) { user.isAdmin && canRead(rec) }
 
+  ** Check security permissions to call given function
+  @NoDoc override Void checkCall(Fn fn)
+  {
+    if (fn.isSu) checkSu(fn.name)
+    else if (fn.isAdmin) checkAdmin(fn.name)
+  }
+
   ** Return an immutable thread safe object which will be passed thru
   ** the commit process and available via the FolioHooks callbacks.
   ** This is typically the User instance.  Context always returns user.
