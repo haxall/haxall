@@ -203,8 +203,7 @@ abstract const class Folio
   **   - gridMeta: Dict to use for grid meta
   Grid readAll(Filter filter, Dict? opts := null)
   {
-    Etc.makeDictsGrid(opts?.get("gridMeta"),
-      checkRead.doReadAll(filter, opts).dicts(false))
+    checkRead.doReadAll(filter, opts).gridWithOpts(opts, false)
   }
 
   ** Match all the records against a [filter](ph.doc::Filters) and return
@@ -219,8 +218,7 @@ abstract const class Folio
   ** every other read method excludes them.  Uses the same options as [readAll].
   @NoDoc Grid readTrash(Filter filter, Dict? opts := null)
   {
-    Etc.makeDictsGrid(opts?.get("gridMeta"),
-      checkRead.doReadTrash(filter, opts).dicts(false))
+    checkRead.doReadTrash(filter, opts).gridWithOpts(opts, false)
   }
 
   ** Read by id whether rec is in trash or not

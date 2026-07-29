@@ -77,6 +77,12 @@ const class FolioFuture : Future
     Etc.makeDictsGrid(null, dicts(checked))
   }
 
+  ** Return grid result for reads with standard read opts
+  @NoDoc Grid gridWithOpts(Dict? opts, Bool checked)
+  {
+    Etc.makeDictsGrid(opts?.get("gridMeta"), dicts(checked))
+  }
+
   ** Return the number of items in result.
   @NoDoc Int count()
   {
