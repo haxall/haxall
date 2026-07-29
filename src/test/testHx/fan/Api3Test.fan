@@ -33,7 +33,187 @@ class Api3Test : ApiTest
     doWatches
     doHis
     doPointWrite
+    doDefOps
+    doOpWebFuncs
     cleanup
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// opWeb Funcs
+//////////////////////////////////////////////////////////////////////////
+
+  ** The "ext" and "file" ops are serviced by `opWeb` marked funcs which
+  ** read the web request and write the response themselves.  These tests
+  ** must pass in both dialects: the v4 wire contract used here, and the
+  ** v5 contract selected by the Xeto-Version header.  Since an opWeb func
+  ** performs no request decoding or response encoding, its behavior is
+  ** identical in both - which is exactly why they migrate first.
+  Void doOpWebFuncs()
+  {
+    verifyOpWebSpecs
+    verifyFileOp
+    verifyExtOp
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Def Ops
+//////////////////////////////////////////////////////////////////////////
+
+  ** The defs/libs/ops/filetypes ops expose the legacy def namespace.  They
+  ** have no v5 equivalent since defs are being removed, so this pins down
+  ** the v4 contract before any rewrite.
+  Void doDefOps()
+  {
+    // defs: filter selects a single def
+    g := c.callGrid("defs", Etc.makeMapGrid(null, ["filter":"def==^ahu"]))
+    verifyEq(g.size, 1)
+    verifyEq(g.first->def, Symbol("ahu"))
+
+    // defs: filter matching nothing is an empty grid, not an error
+    g = c.callGrid("defs", Etc.makeMapGrid(null, ["filter":"def==^noSuchDefAnywhere"]))
+    verifyEq(g.size, 0)
+    verifyEq(g.meta.has("incomplete"), false)
+
+    // defs: limit truncates and flags the result via grid meta
+    g = c.callGrid("defs", Etc.makeMapGrid(null, ["filter":"tagOn", "limit":n(3)]))
+    verifyEq(g.size, 3)
+    verifyEq(g.meta.has("incomplete"), true)
+    verifyEq(g.meta->limit, n(3))
+
+    // defs: a limit larger than the result set does not flag incomplete
+    g = c.callGrid("defs", Etc.makeMapGrid(null, ["filter":"def==^ahu", "limit":n(100)]))
+    verifyEq(g.size, 1)
+    verifyEq(g.meta.has("incomplete"), false)
+
+    // libs: includes the core libs
+    g = c.callGrid("libs")
+    verifyDefIn(g, Symbol("lib:ph"))
+    verifyDefIn(g, Symbol("lib:hx"))
+
+    // filetypes: the four grid formats
+    g = c.callGrid("filetypes")
+    [Symbol("filetype:zinc"), Symbol("filetype:trio"),
+     Symbol("filetype:json"), Symbol("filetype:csv")].each |s| { verifyDefIn(g, s) }
+
+    // ops: reports the def declared ops
+    g = c.callGrid("ops")
+    [Symbol("op:about"), Symbol("op:read"),
+     Symbol("op:ops"), Symbol("op:filetypes")].each |s| { verifyDefIn(g, s) }
+
+    // all four are GET-able and agree with their POST result
+    ["defs", "libs", "ops", "filetypes"].each |op|
+    {
+      verifyEq(callAsGet(op).size, c.callGrid(op).size, op)
+    }
+  }
+
+  Void verifyDefIn(Grid g, Symbol sym)
+  {
+    verifyNotNull(g.find |r| { r->def == sym }, sym.toStr)
+  }
+
+  ** Both funcs resolve to hx.api, carry opWeb, and take no parameters
+  private Void verifyOpWebSpecs()
+  {
+    cx := makeContext(null)
+    ["ext", "file"].each |n|
+    {
+      f := cx.ns.funcs.getAll(n).find |x| { x.meta.has("opWeb") }
+      verifyNotNull(f, n)
+      verifyEq(f.qname, "hx.api::Funcs.${n}")
+      verifyEq(f.func.params.size, 0)
+      verifyEq(f.meta.has("op"), true)
+    }
+  }
+
+  ** GET downloads via FileWeblet; POST/PUT routes to the ext upload handler
+  private Void verifyFileOp()
+  {
+    Actor.locals[ActorContext.actorLocalsKey] = makeContext(null)
+    proj.sys.file.resolve(`/io/opweb.txt`).out.print("hello opWeb").close
+
+    // GET downloads the file
+    verifyEq(c.toWebClient(`file/io/opweb.txt`).getStr, "hello opWeb")
+
+    // GET sets the identity headers which FileWeblet provides
+    wc := c.toWebClient(`file/io/opweb.txt`)
+    wc.writeReq; wc.readRes
+    verifyEq(wc.resCode, 200)
+    verifyNotNull(wc.resHeaders["ETag"])
+    verifyNotNull(wc.resHeaders["Last-Modified"])
+    etag := wc.resHeaders["ETag"]
+    wc.resIn.readAllBuf; wc.close
+
+    // conditional GET returns 304 Not Modified
+    wc = c.toWebClient(`file/io/opweb.txt`)
+    wc.reqHeaders["If-None-Match"] = etag
+    wc.writeReq; wc.readRes
+    verifyEq(wc.resCode, 304)
+    wc.close
+
+    // unknown file is 404
+    verifyEq(webCode(`file/io/nope-not-here.txt`), 404)
+
+    // a directory path is 404 (download requires a file)
+    verifyEq(webCode(`file/io/`), 404)
+
+    // methods other than GET/POST/PUT are 404
+    verifyEq(webCode(`file/io/opweb.txt`, "DELETE"), 404)
+
+    // upload is unsupported by the haxall file ext: FileExt does not
+    // override uploadHandler so the base UploadHandler stub returns 404.
+    // SkySpark's XFileExt and xb's XbFileExt do support it.
+    verifyEq(webPut(`file/io/other.txt`, "x"), 404)
+  }
+
+  ** Re-dispatches to another ext's WebMod by rewriting req.mod/modBase
+  private Void verifyExtOp()
+  {
+    // routes to hxd::HxdUserWeb which serves login.css
+    wc := c.toWebClient(`ext/user/login.css`)
+    wc.writeReq; wc.readRes
+    verifyEq(wc.resCode, 200)
+    verifyEq(wc.resHeaders["Content-Type"].startsWith("text/css"), true)
+    verify(wc.resIn.readAllStr.size > 0)
+    wc.close
+
+    // the delegate sees its own modRel: HxdUserWeb 404s an unknown route
+    verifyEq(webCode(`ext/user/notARoute`), 404)
+
+    // unknown ext route is 404
+    verifyEq(webCode(`ext/notAnExtRoute/`), 404)
+
+    // empty route name is 404
+    verifyEq(webCode(`ext/`), 404)
+  }
+
+  ** PUT the body to the uri and return the response status code
+  Int webPut(Uri uri, Str body)
+  {
+    wc := c.toWebClient(uri)
+    wc.reqMethod = "PUT"
+    wc.reqHeaders["Content-Type"] = "text/plain"
+    wc.reqHeaders["Content-Length"] = body.size.toStr
+    wc.writeReq
+    wc.reqOut.print(body).close
+    wc.readRes
+    code := wc.resCode
+    try { wc.resIn.readAllBuf } catch (Err e) {}
+    wc.close
+    return code
+  }
+
+  ** Request the uri and return the response status code
+  Int webCode(Uri uri, Str method := "GET")
+  {
+    wc := c.toWebClient(uri)
+    wc.reqMethod = method
+    wc.writeReq
+    wc.readRes
+    code := wc.resCode
+    try { wc.resIn.readAllBuf } catch (Err e) {}
+    wc.close
+    return code
   }
 
 //////////////////////////////////////////////////////////////////////////

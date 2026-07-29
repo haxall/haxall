@@ -7,6 +7,7 @@
 //
 
 using xeto
+using web
 using haystack
 using axon
 using folio
@@ -19,6 +20,30 @@ using hx
 @Gen
 const class ApiFuncs
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Eval
+//////////////////////////////////////////////////////////////////////////
+
+  ** Evaluate an expression and return the result as a grid.  The request
+  ** grid has a single row with an `expr` column.  If the expression parses
+  ** as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
+  ** is read as a query, otherwise it is evaluated as an Axon expression.
+  **
+  ** Also see `axon::Funcs.eval` which evaluates an expression directly without
+  ** the filter convenience, and [hx.doc.skyspark::Ops#eval] for the HTTP
+  ** API details.
+  @Api @Axon
+  static Grid eval(Grid req)
+  {
+    if (req.isEmpty) throw Err("Request grid is empty")
+    expr := (Str)req.first->expr
+    return Etc.toGrid(curContext.evalOrReadAll(expr))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Commit
+//////////////////////////////////////////////////////////////////////////
 
   ** Add, update, or remove entities in the database.  The grid meta
   ** `commit` tag selects the mode:
@@ -102,20 +127,101 @@ const class ApiFuncs
     return Etc.makeEmptyGrid
   }
 
-  ** Evaluate an expression and return the result as a grid.  The request
-  ** grid has a single row with an `expr` column.  If the expression parses
-  ** as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
-  ** is read as a query, otherwise it is evaluated as an Axon expression.
-  **
-  ** Also see `axon::Funcs.eval` which evaluates an expression directly without
-  ** the filter convenience, and [hx.doc.skyspark::Ops#eval] for the HTTP
-  ** API details.
-  @Api @Axon
-  static Grid eval(Grid req)
+//////////////////////////////////////////////////////////////////////////
+// Ext
+//////////////////////////////////////////////////////////////////////////
+
+  ** Route an HTTP request to an extension; see `hx.api::Funcs.ext`
+  @Api
+  static Void ext()
   {
-    if (req.isEmpty) throw Err("Request grid is empty")
-    expr := (Str)req.first->expr
-    return Etc.toGrid(curContext.evalOrReadAll(expr))
+    cx  := curContext
+    req := cx.webReq
+    res := cx.webRes
+
+    // by the time the op is called the modBase is `/api/{proj}/ext/` which
+    // means the route name is the first element of modRel
+    routeName := req.modRel.path.getSafe(0) ?: ""
+    mod := cx.rt.exts.webRoutes.get(routeName)
+    if (mod == null) return res.sendErr(404)
+
+    // dispatch to web mod
+    req.mod = mod
+    req.modBase = `/api/${cx.rt.name}/ext/${routeName}/`
+    mod.onService
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// File
+//////////////////////////////////////////////////////////////////////////
+
+  ** Download or upload a file; see `hx.api::Funcs.file`
+  @Api
+  static Void file()
+  {
+    cx  := curContext
+    req := cx.webReq
+    res := cx.webRes
+
+    // {api file}/{path} => /{path}
+    path := `/` + req.modRel
+
+    // check for proj-relative path
+    subMount := path.path.first
+    if (!cx.sys.isProj && subMount != "proj")
+    {
+      try
+      {
+        if (cx.sys.file.resolve(`/proj/${cx.rt.name}/${subMount}/`).exists)
+          path = `/proj/${cx.rt.name}${path}`
+      }
+      catch (Err ignore) { }
+    }
+
+    switch (req.method)
+    {
+      case "GET":
+        fileDownload(cx, res, path)
+      case "POST":
+      case "PUT":
+        // fall-through
+        fileUpload(cx, req, res, path)
+      default:
+        res.sendErr(404)
+    }
+  }
+
+  ** Note that download is only supported for the file ext
+  private static Void fileDownload(Context cx, WebRes res, Uri path)
+  {
+    if (path.isDir) return res.sendErr(404)
+    FileWeblet(cx.sys.file.resolve(path)).onService
+  }
+
+  private static Void fileUpload(Context cx, WebReq req, WebRes res, Uri path)
+  {
+    Ext ext := cx.sys.file
+
+    // handle ext delegation /uploads/<xeto lib>/<path>
+    names := path.path
+    if (names.first == "uploads")
+    {
+      ext  = cx.proj.ext(names[1])
+      path = path.getRangeToPathAbs(2..-1)
+    }
+
+    try
+    {
+      opts := Etc.dict1("path", path)
+      ret  := cx.asCur { ext.uploadHandler(req, res, opts).upload }
+      if (!res.isCommitted) webOpUtil.doWriteRes(req, res, Etc.toGrid(ret))
+    }
+    catch (Err err)
+    {
+      err = Err("Upload failed by ${cx.user} for ${req.uri} (${path})", err)
+      ext.log.err(err.msg, err)
+      throw err
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,4 +230,15 @@ const class ApiFuncs
 
   ** Current context
   private static Context curContext() { Context.cur }
+
+  ** TODO Grid request/response content negotiation helpers
+  private static const ApiFuncsWebOpUtil webOpUtil := ApiFuncsWebOpUtil()
 }
+
+**************************************************************************
+** ApiFuncsWebOpUtil
+**************************************************************************
+
+** Adapter to reach the WebOpUtil mixin methods from static functions
+internal const class ApiFuncsWebOpUtil : WebOpUtil {}
+

@@ -87,6 +87,12 @@ const class ApiWeb : ExtWeb, WebOpUtil
       // qualified names are reserved for the future v5 API
       if (opName.contains(".")) return res.sendErr(406, "New API design not supported")
 
+      // TEMP: opWeb funcs service the request themselves.  This branch is
+      // scaffolding to exercise the new design end-to-end; the unified
+      // dispatch replaces all of the below.
+      webFunc := cx.ns.funcs.getAll(opName).find |x| { x.meta.has("opWeb") }
+      if (webFunc != null) return webFunc.func.thunk.callList(Obj?[,])
+
       // otherwise Haxall 3.x legacy style: a registered op class takes
       // precedence, else bind to the func of that name
       typeName := cx.defs.def("op:$opName", false)?.get("typeName") as Str

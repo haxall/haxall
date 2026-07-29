@@ -256,88 +256,6 @@ const class HxFuncs
     throw Err("Invalid diff arg: ${diffs.typeof}")
   }
 
-  ** Add, update, or remove entities in the database.  The grid meta
-  ** `commit` tag selects the mode:
-  **   - "add": each row is a new entity; the `id` column is optional and
-  **     is generated when omitted
-  **   - "update": each row must have `id` and `mod` columns, where `mod`
-  **     is the entity's current modified timestamp used for optimistic
-  **     concurrency.  Grid meta may specify the `force` marker to skip
-  **     the concurrency check, and `transient` to avoid persisting.
-  **   - "remove": each row must have `id` and `mod` columns; grid meta
-  **     may specify the `force` marker
-  **
-  ** Returns a grid of the resulting entities for add and update, or an
-  ** empty grid for remove.  Requires admin permission.
-  **
-  ** Also see `commit` which takes a list of diffs instead of a grid, and
-  ** [hx.doc.skyspark::Ops#commit] for the HTTP API details.
-  @Api @Axon { admin = true }
-  static Grid commitOp(Grid req)
-  {
-    cx := curContext
-    if (!cx.user.isAdmin) throw PermissionErr("Missing 'admin' permission: commit")
-    mode := req.meta->commit
-    switch (mode)
-    {
-      case "add":    return commitOpAdd(req, cx)
-      case "update": return commitOpUpdate(req, cx)
-      case "remove": return commitOpRemove(req, cx)
-      default:       throw ArgErr("Unknown commit mode: $mode")
-    }
-  }
-
-  private static Grid commitOpAdd(Grid req, Context cx)
-  {
-    diffs := Diff[,]
-    req.each |row|
-    {
-      changes := Str:Obj?[:]
-      Ref? id := null
-      row.each |v, n|
-      {
-        if (n == "id") { id = v; return }
-        changes.add(n, v)
-      }
-      diffs.add(Diff.makeAdd(changes, id ?: Ref.gen))
-    }
-    newRecs := cx.db.commitAll(diffs).map |d->Dict| { d.newRec }
-    return Etc.makeDictsGrid(null, newRecs)
-  }
-
-  private static Grid commitOpUpdate(Grid req, Context cx)
-  {
-    flags := 0
-    if (req.meta.has("force"))     flags = flags.or(Diff.force)
-    if (req.meta.has("transient")) flags = flags.or(Diff.transient)
-
-    diffs := Diff[,]
-    req.each |row|
-    {
-      old := Etc.makeDict(["id":row.id, "mod":row->mod])
-      changes := Str:Obj?[:]
-      row.each |v, n|
-      {
-        if (n == "id" || n == "mod") return
-        changes.add(n, v)
-      }
-      diffs.add(Diff(old, changes, flags))
-    }
-    newRecs := cx.db.commitAll(diffs).map |d->Dict| { d.newRec }
-    return Etc.makeDictsGrid(null, newRecs)
-  }
-
-  private static Grid commitOpRemove(Grid req, Context cx)
-  {
-    flags := Diff.remove
-    if (req.meta.has("force")) flags = flags.or(Diff.force)
-
-    diffs := Diff[,]
-    req.each |row| { diffs.add(Diff(row, null, flags)) }
-    cx.db.commitAll(diffs)
-    return Etc.makeEmptyGrid
-  }
-
   ** Store a password key/val pair into current project's password
   ** store.  The key is typically a Ref of the associated record.
   ** If the `val` is null, then the password will be removed.
@@ -832,22 +750,6 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 // Misc
 //////////////////////////////////////////////////////////////////////////
-
-  ** Evaluate an expression and return the result as a grid.  The request
-  ** grid has a single row with an `expr` column.  If the expression parses
-  ** as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
-  ** is read as a query, otherwise it is evaluated as an Axon expression.
-  **
-  ** Also see `eval` which evaluates an expression string directly without
-  ** the filter convenience, and [hx.doc.skyspark::Ops#eval] for the HTTP
-  ** API details.
-  @Api @Axon
-  static Grid evalOp(Grid req)
-  {
-    if (req.isEmpty) throw Err("Request grid is empty")
-    expr := (Str)req.first->expr
-    return Etc.toGrid(curContext.evalOrReadAll(expr))
-  }
 
   ** Return [fan.hx::Runtime.isSteadyState]
   @Api @Axon
