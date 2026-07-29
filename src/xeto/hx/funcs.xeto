@@ -67,6 +67,25 @@
   //     readCount(point)    // return number of recs with point tag
   readCount: Func { filter: Filter, returns: Number }
 
+  // Read all records in the trash which match the [filter](ph.doc::Filters).
+  // Records are moved to the trash by adding the `trash` marker tag, which
+  // excludes them from every other read function.  If the filter is omitted
+  // then every record in the trash is returned.
+  //
+  // Options:
+  //   - `limit`: max number of recs to return
+  //   - `sort`: sort by display name
+  //   - `search`: search pattern to apply in addition to the
+  //     filter; see [parseSearch()]
+  //   - `gridMeta`: dict to use for the result's grid level meta
+  //
+  // Examples:
+  //
+  //     readTrash()                   // read every rec in the trash
+  //     readTrash(equip)              // read trashed equip recs
+  //     readTrash(equip, {limit:10})  // read up to ten trashed equips
+  readTrash: Func { filter: Filter?, opts: Dict?, returns: Grid }
+
 //////////////////////////////////////////////////////////////////////////
 // Database Writes
 //////////////////////////////////////////////////////////////////////////

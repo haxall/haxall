@@ -63,8 +63,8 @@ readByIds(ids, false)             // missing ids yield all-null rows
 readAll(equip and siteRef==@xyz)  // grid of all matches
 readAll(equip, {limit:10})        // cap results
 readAll(equip, {sort})            // sort by display name
-readAll(equip, {trash})           // include recs in trash
 readAll(equip, {search:"RTU*"})   // apply search pattern
+readTrash(equip)                  // read recs in trash (only)
 readCount(point)                  // number of matches
 ```
 
@@ -164,8 +164,9 @@ delete, then permanently purge later:
 ```axon
 commit(diff(rec, {trash}))        // move to trash
 commit(diff(rec, {-trash}))       // restore from trash
-readAll(equip)                    // trash excluded by default
-readAll(equip, {trash})           // include trash recs
+readAll(equip)                    // trash always excluded
+readTrash()                       // read everything in the trash
+readTrash(equip)                  // read trashed equip recs (only)
 readById(trashedId, false)        // null; by-id reads exclude trash
 commit(diff(rec, null, {remove})) // permanently remove
 ```

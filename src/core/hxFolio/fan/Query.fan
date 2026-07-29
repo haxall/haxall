@@ -55,9 +55,13 @@ internal class Query : HaystackContext
     return acc.count
   }
 
+  ** Configure this query to match only records in the trash
+  This onlyTrash() { trashOnly = true; return this }
+
   QueryPlan makePlan()
   {
-    if (!opts.skipTrash) return FullScanPlan()
+    // trash recs are excluded from the tag indexes, so always full scan
+    if (trashOnly) return FullScanPlan()
     return doMakePlan(index, filter, false)
   }
 
@@ -136,6 +140,7 @@ internal class Query : HaystackContext
   const Filter filter
   const QueryOpts opts
   const Int startTicks
+  Bool trashOnly { private set }
   private [Str:Spec]? xetoIsSpecCache
 }
 
@@ -150,7 +155,6 @@ internal const class QueryOpts
     this.opts      = opts
     this.limit     = toLimit(opts)
     this.search    = toSearch(opts)
-    this.skipTrash = opts.missing("trash")
     this.sort      = opts.has("sort")
   }
 
@@ -181,7 +185,6 @@ internal const class QueryOpts
   const Dict opts
   const Int limit
   const Filter? search
-  const Bool skipTrash
   const Bool sort
 }
 
@@ -333,10 +336,12 @@ internal final class ByIdPlan : QueryPlan
 
   override Void query(Query q, QueryAcc acc)
   {
-    rec := q.index.dict(id, false)
-    if (rec == null) return
-    if (inCompound && !q.filter.matches(rec, q)) return
-    acc.add(rec)
+    // this plan is never used for trash queries, so always skip trash
+    rec := q.index.rec(id, false)
+    if (rec == null || rec.isTrash) return
+    dict := rec.dict
+    if (inCompound && !q.filter.matches(dict, q)) return
+    acc.add(dict)
   }
 }
 
@@ -357,7 +362,7 @@ internal final class FullScanPlan : QueryPlan
     {
       dict := rec.dict
       if (!q.filter.matches(dict, q)) return null
-      if (rec.isTrash && q.opts.skipTrash) return null
+      if (rec.isTrash != q.trashOnly) return null
       return acc.add(dict) ? null : "break"
     }
   }

@@ -113,6 +113,57 @@ class HxFuncsTest : HxTest
     verifyEval("allOld()", toGrid([c, d]))
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Trash
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testReadTrash()
+  {
+    a := addRec(["dis":"A", "num":n(1), "alpha":m])
+    b := addRec(["dis":"B", "num":n(2), "alpha":m])
+    x := addRec(["dis":"X", "num":n(3), "alpha":m, "trash":m])
+    y := addRec(["dis":"Y", "num":n(4), "beta":m,  "trash":m])
+
+    // normal reads never see the trash
+    verifyRows("readAll(alpha)", [a, b])
+    verifyEval("readCount(alpha)", n(2))
+    verifyEval("readById($x.id.toCode, false)", null)
+    verifyEval("read(alpha and num == 3, false)", null)
+
+    // readTrash sees only the trash
+    verifyRows("readTrash()", [x, y])
+    verifyRows("readTrash(alpha)", [x])
+    verifyRows("readTrash(beta)", [y])
+    verifyEval("readTrash(num >= 3).size", n(2))
+
+    // explicit null filter is the same as omitting it; unlike readAll
+    // which raises "not a filter", so opts can be passed without a filter
+    verifyRows("readTrash(null)", [x, y])
+    verifyErr(EvalErr#) { eval("readAll(null)") }
+
+    // opts still apply
+    verifyEval("readTrash(null, {limit:1}).size", n(1))
+    verifyEval("readTrash(num, {limit:1}).size", n(1))
+    verifyEval(Str<|readTrash(null, {gridMeta:{foo}}).meta.has("foo")|>, true)
+
+    // filter which matches only live recs returns nothing
+    verifyEval("readTrash(num <= 2).size", n(0))
+
+    // trash option is no longer supported; it is silently ignored
+    verifyRows("readAll(alpha, {trash})", [a, b])
+    verifyEval("readAll(num, {trash}).size", n(2))
+
+    // by-id reads exclude trash even when filtering explicitly on id
+    verifyEval("readAll(id == $x.id.toCode).size", n(0))
+    verifyEval("readTrash(id == $x.id.toCode).size", n(1))
+  }
+
+  Void verifyRows(Str expr, Dict[] expected)
+  {
+    verifyDictsEq(eval(expr)->toRows, expected, false)
+  }
+
   Dict makeRec(Str name, Int age, Str[] markers)
   {
     tags := Str:Obj?["dis":name, "age":n(age)]

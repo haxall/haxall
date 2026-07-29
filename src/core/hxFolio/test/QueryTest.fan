@@ -130,11 +130,26 @@ class QueryTest : WhiteboxTest
   Void verifyQuery(Str filterStr, Dict[] expected, Str plan, Bool trash := false)
   {
     folio.stats.clear
+    filter := Filter(filterStr)
+
+    // readTrash is the only read which sees the trash
+    if (trash)
+    {
+      verifyDictsEq(folio.readTrash(filter).toRows, expected, false)
+      verifyPlanStats(plan)
+
+      // the normal reads never return trash, even with a trash option
+      optsTrash := Etc.dict1("trash", m)
+      verifyEq(folio.readAllList(filter, optsTrash).size, 0)
+      verifyEq(folio.readCount(filter, optsTrash), 0)
+      folio.stats.readsByPlan.clear
+      return
+    }
+
     statsA := folio.stats.reads.count
 
     // readAllList
-    opts := trash ? Etc.dict1("trash", m) : null
-    filter := Filter(filterStr)
+    Dict? opts := null
     list := folio.readAllList(filter, opts)
     // echo(">> $filter $list.size ?= $expected.size")
     verifyDictsEq(list, expected, false)
@@ -167,9 +182,6 @@ class QueryTest : WhiteboxTest
     verifyEq(statsB, statsA + 2)
     verifyEq(statsC, statsB + 1)
     verifyEq(statsD, statsC + 1)
-
-    // skip rest of tests if trash
-    if (trash) return
 
     // read
     if (expected.isEmpty)

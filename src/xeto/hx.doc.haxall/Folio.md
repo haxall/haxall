@@ -137,7 +137,6 @@ The [readAll()] function supports the following options:
   - `limit`: max number of recs to return
   - `sort`: marker to sort the results by display name
   - `search`: search pattern to apply in addition to the filter
-  - `trash`: marker to include recs with the `trash` tag
   - `gridMeta`: dict to use for the result's grid level meta
 
 The `search` option is one of the following string patterns (also
@@ -252,9 +251,18 @@ update the [hx::Entity.mod] tag of the record.
 # Trash
 Records are moved into the *trash bin* by adding the `trash` marker
 tag.  Trash recs continue to operate in the database just like any other
-record except they are not included in any read operations unless an
-explicit `{trash}` option is used (note the currently only readAll allows
-options to read trash).
+record except they are never included in any read operation.  The one
+way to read them is [readTrash()], which matches only records in the
+trash.  It takes an optional filter and the same options as [readAll()]:
+
+    readTrash()                   // read every rec in the trash
+    readTrash(equip)              // read trashed equip recs
+    readTrash(equip, {limit:10})  // read up to ten trashed equips
+
+Use [commit()] with `diff()` to move recs into and out of the trash:
+
+    commit(diff(rec, {trash}))       // move to trash
+    commit(diff(rec, {-trash}))      // restore from trash
 
 # Concurrency Control
 All records support the required [hx::Entity.mod] tag indicating the timestamp of their

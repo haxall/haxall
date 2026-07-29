@@ -200,7 +200,6 @@ abstract const class Folio
   **   - limit: max number of recs to read
   **   - search: search string to apply in addition to filter
   **   - sort: marker tag to sort recs by dis string
-  **   - trash: marker tag to include recs with trash tag
   **   - gridMeta: Dict to use for grid meta
   Grid readAll(Filter filter, Dict? opts := null)
   {
@@ -215,6 +214,15 @@ abstract const class Folio
     checkRead.doReadAll(filter, opts).dicts
   }
 
+  ** Match all the records in the trash against a [filter](ph.doc::Filters)
+  ** and return as grid.  Only records with the `trash` tag are returned;
+  ** every other read method excludes them.  Uses the same options as [readAll].
+  @NoDoc Grid readTrash(Filter filter, Dict? opts := null)
+  {
+    Etc.makeDictsGrid(opts?.get("gridMeta"),
+      checkRead.doReadTrash(filter, opts).dicts(false))
+  }
+
   ** Read by id whether rec is in trash or not
   @NoDoc Dict? readByIdTrash(Ref? id, Bool checked := true)
   {
@@ -222,8 +230,8 @@ abstract const class Folio
     rec := readById(id, false)
     if (rec != null) return rec
 
-    // route to readAll with trash options
-    return doReadAll(Filter.eq("id", id), optsLimit1AndTrash).dict(checked)
+    // route to the trash read
+    return checkRead.doReadTrash(Filter.eq("id", id), optsLimit1).dict(checked)
   }
 
   ** Read all records matching filter.
@@ -244,6 +252,10 @@ abstract const class Folio
   ** Subclass implementation of readAll; return as sync future
   @NoDoc protected abstract FolioFuture doReadAll(Filter filter, Dict? opts)
 
+  ** Subclass implementation of readTrash; must match only recs
+  ** with the trash tag; return as sync future.
+  @NoDoc protected abstract FolioFuture doReadTrash(Filter filter, Dict? opts)
+
   ** Subclass implementation of readCount
   @NoDoc protected abstract Int doReadCount(Filter filter, Dict? opts)
 
@@ -252,9 +264,6 @@ abstract const class Folio
 
   ** Options constant for {limit:1}
   private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
-
-  ** Options constant for {limit:1, trash}
-  private const static Dict optsLimit1AndTrash := Etc.dict2("limit", Number(1), "trash", Marker.val)
 
   ** Read only persistent tags for given rec id
   @NoDoc virtual Dict? readByIdPersistentTags(Ref id, Bool checked := true) { throw UnsupportedErr() }
@@ -308,7 +317,7 @@ abstract const class Folio
   ** Remove all records with the trash tag
   @NoDoc FolioFuture commitRemoveTrashAsync()
   {
-    recs := readAllList(Filter.has("trash"), Etc.dict1("trash", Marker.val))
+    recs := checkRead.doReadTrash(Filter.has("trash"), null).dicts
     diffs := recs.map |rec->Diff| { Diff(rec, null, Diff.remove.or(Diff.force)) }
     return commitAllAsync(diffs)
   }

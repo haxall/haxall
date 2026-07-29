@@ -432,20 +432,21 @@ class BasicTest : AbstractFolioTest
 
     verifyReadOpts("num", ["sort":m], [a, b, c, d], true)
 
-    allTrash := verifyReadOpts("num", ["trash":m], [a, b, c, d, e, f])
-    verifyReadOpts("num >= 3", ["trash":m], [c, d, e, f])
+    allTrash := verifyReadOptsTrash("num", [:], [e, f])
+    verifyReadOptsTrash("num >= 5", [:], [e, f])
+    verifyReadOptsTrash("num >= 6", [:], [f])
 
     verifyReadOpts("num", ["limit":n(1)], all[0..0])
     verifyReadOpts("num", ["limit":n(2)], all[0..1])
     verifyReadOpts("num", ["limit":n(3)], all[0..2])
     verifyReadOpts("num", ["limit":n(4)], all[0..3])
 
-    verifyReadOpts("num", ["limit":n(1), "trash":m], allTrash[0..0])
-    verifyReadOpts("num", ["limit":n(2), "trash":m], allTrash[0..1])
-    verifyReadOpts("num", ["limit":n(3), "trash":m], allTrash[0..2])
-    verifyReadOpts("num", ["limit":n(4), "trash":m], allTrash[0..3])
-    verifyReadOpts("num", ["limit":n(5), "trash":m], allTrash[0..4])
-    verifyReadOpts("num", ["limit":n(6), "trash":m], allTrash[0..5])
+    verifyReadOptsTrash("num", ["limit":n(1)], allTrash[0..0])
+    verifyReadOptsTrash("num", ["limit":n(2)], allTrash[0..1])
+
+    // trash option is no longer supported; it is silently ignored
+    verifyReadOpts("num", ["trash":m], [a, b, c, d])
+    verifyReadOpts("num >= 3", ["trash":m], [c, d])
 
     close
   }
@@ -465,6 +466,13 @@ class BasicTest : AbstractFolioTest
     verifyEq(count, expected.size)
 
     return list
+  }
+
+  Dict[] verifyReadOptsTrash(Str filterStr, Str:Obj optsMap, Dict[] expected, Bool verifyOrder := false)
+  {
+    grid := folio.readTrash(Filter(filterStr), Etc.makeDict(optsMap))
+    verifyDictsEq(grid.toRows, expected, verifyOrder)
+    return grid.toRows
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -494,8 +502,11 @@ class BasicTest : AbstractFolioTest
     verifyReadById(cId, c)
     verifyReadById(dId, null)
 
-    // verify can use read
-    verifyDictEq(folio.readAllList(Filter.eq("id", d.id), Etc.dict1("trash", m)).first, d)
+    // trash rec is reachable via readTrash, but never via readAll -
+    // even when filtering explicitly on its id
+    verifyDictEq(folio.readTrash(Filter.eq("id", d.id)).first, d)
+    verifyEq(folio.readAllList(Filter.eq("id", d.id)).size, 0)
+    verifyEq(folio.readAll(Filter.eq("id", d.id)).size, 0)
 
     // verify readByIdTrash
     verifyDictEq(folio.readByIdTrash(aId), a)
@@ -518,15 +529,21 @@ class BasicTest : AbstractFolioTest
     verifyEq(proj.readAllTagVals("id", "num"), Obj[n(1), n(2), n(3)])
     */
 
-    // with trash option
+    // readTrash reads only the trash
+    set = folio.readTrash(Filter("num"))
+    verifyRecIds(set, [dId])
+    set = folio.readTrash(Filter("num and trash"))
+    verifyRecIds(set, [dId])
+    set = folio.readTrash(Filter("num >= 3"))
+    verifyRecIds(set, [dId])
+    set = folio.readTrash(Filter("num <= 3"))
+    verifyRecIds(set, [,])
+
+    // trash option is no longer supported; it is silently ignored
     optsTrash := Etc.makeDict(["trash":m])
     set = folio.readAll(Filter("num"), optsTrash)
-    verifyRecIds(set, [aId, bId, cId, dId])
-    set = folio.readAll(Filter("num and trash"), optsTrash)
-    verifyRecIds(set, [dId])
-    verifyEq(folio.readCount(Filter("num"), optsTrash), 4)
-    set = folio.readAll(Filter("num >= 3"), optsTrash)
-    verifyRecIds(set, [cId, dId])
+    verifyRecIds(set, [aId, bId, cId])
+    verifyEq(folio.readCount(Filter("num"), optsTrash), 3)
 
     // make b and c trash, and remove d from trash
     folio.commitAll([
@@ -552,7 +569,7 @@ class BasicTest : AbstractFolioTest
     verifyRecIds(set, [aId, dId])
     set = folio.readAll(Filter("num >= 3"))
     verifyRecIds(set, [dId])
-    set = folio.readAll(Filter("trash"), optsTrash)
+    set = folio.readTrash(Filter.has("trash"))
     verifyRecIds(set, [bId, cId])
 
     // get all tags/vals (trash should be filtered out)
@@ -566,14 +583,18 @@ class BasicTest : AbstractFolioTest
     verifyEq(proj.readAllTagVals("id", "num"), Obj[n(1), n(4)])
     */
 
-    // get everything
-    set = folio.readAll(Filter("num"), optsTrash).sortCol("num")
-    verifyRecIds(set, [aId, bId, cId, dId])
+    // live and trash partition the database
+    set = folio.readAll(Filter("num")).sortCol("num")
+    verifyRecIds(set, [aId, dId])
+    set = folio.readTrash(Filter("num")).sortCol("num")
+    verifyRecIds(set, [bId, cId])
 
     // empty trash
     verifyEq(folio.commitRemoveTrashAsync.count, 2)
-    set = folio.readAll(Filter("num"), optsTrash).sortCol("num")
+    set = folio.readAll(Filter("num")).sortCol("num")
     verifyRecIds(set, [aId, dId])
+    set = folio.readTrash(Filter("num"))
+    verifyRecIds(set, [,])
 
     close
   }

@@ -186,11 +186,14 @@ class CommitTest : WhiteboxTest
       verifyDictEq(folio.read(f, false), r)
     }
 
-    // with opts
+    // readTrash sees exactly the trash and nothing else
+    verifyEq(folio.readTrash(f).size, isTrash ? 1 : 0)
+    if (isTrash) verifyEq(folio.readTrash(f)[0]->id, r.id)
+
+    // trash option is no longer supported; it is silently ignored
     opts := Etc.makeDict(["trash":m])
-    verifyEq(folio.readAll(f, opts).size, 1)
-    verifyEq(folio.readAll(f, opts)[0]->id, r.id)
-    verifyEq(folio.readCount(f, opts), 1)
+    verifyEq(folio.readAll(f, opts).size, isTrash ? 0 : 1)
+    verifyEq(folio.readCount(f, opts), isTrash ? 0 : 1)
   }
 
 

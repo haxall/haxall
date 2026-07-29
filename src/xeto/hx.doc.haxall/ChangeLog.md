@@ -7,6 +7,7 @@ license:    Licensed under the Academic Free License version 3.0
 -->
 
 *Build 4.0.7 (working)*
+- New readTrash() func. All other folio reads ignore the trash.
 
 *Build 4.0.6 (21 Jul 2026)*
 - Companion lib now supports partial compilation to quarantine err recs

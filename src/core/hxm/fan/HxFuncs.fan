@@ -128,6 +128,32 @@ const class HxFuncs
     return Number(cx.db.readCount(filter))
   }
 
+  ** Read all records in the trash which match the [filter](ph.doc::Filters).
+  ** Records are moved to the trash by adding the `trash` marker tag, which
+  ** excludes them from every other read function.  If the filter is omitted
+  ** then every record in the trash is returned.
+  **
+  ** Options:
+  **   - `limit`: max number of recs to return
+  **   - `sort`: sort by display name
+  **   - `search`: search pattern to apply in addition to the
+  **     filter; see [parseSearch()]
+  **   - `gridMeta`: dict to use for the result's grid level meta
+  **
+  ** Examples:
+  **
+  **     readTrash()                   // read every rec in the trash
+  **     readTrash(equip)              // read trashed equip recs
+  **     readTrash(equip, {limit:10})  // read up to ten trashed equips
+  @Api @Axon
+  static Grid readTrash(Expr filterExpr := Literal.nullVal, Expr? optsExpr := null)
+  {
+    cx := curContext
+    filter := filterExpr.isNull ? Filter.has("trash") : filterExpr.evalToFilter(cx)
+    opts := optsExpr?.eval(cx) ?: Etc.dict0
+    return cx.db.readTrash(filter, opts)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Database Writes
 //////////////////////////////////////////////////////////////////////////

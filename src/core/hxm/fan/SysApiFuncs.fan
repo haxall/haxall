@@ -79,7 +79,8 @@ const class SysApiFuncs
   ** Options:
   **   - `limit`: max number of entities to return
   **   - `sort`: sort by display name
-  **   - `search`: platform specific search pattern
+  **   - `search`: search pattern to apply in addition to the
+  **     filter; see [parseSearch()]
   **   - `gridMeta`: dict to use for the result's grid level meta
   **
   ** Examples:

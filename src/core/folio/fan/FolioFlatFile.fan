@@ -121,11 +121,23 @@ const class FolioFlatFile : Folio
     return count
   }
 
+  @NoDoc override FolioFuture doReadTrash(Filter filter, Dict? opts)
+  {
+    acc := Dict[,]
+    eachWhileImpl(filter, opts, true) |rec| { acc.add(rec); return null }
+    if (opts != null && opts.has("sort")) acc = Etc.sortDictsByDis(acc)
+    return FolioFuture.makeSync(ReadFolioRes(filter.toStr, false, acc))
+  }
+
   @NoDoc override Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
+  {
+    eachWhileImpl(filter, opts, false, f)
+  }
+
+  private Obj? eachWhileImpl(Filter filter, Dict? opts, Bool trashOnly, |Dict->Obj?| f)
   {
     if (opts == null) opts = Etc.dict0
     limit := (opts["limit"] as Number)?.toInt ?: 10_000
-    skipTrash := opts.missing("trash")
 
     map := this.map
     cx := PatherContext(|Ref id->Dict?| { map.get(id) })
@@ -134,7 +146,7 @@ const class FolioFlatFile : Folio
     return eachWhile |rec|
     {
       if (!filter.matches(rec, cx)) return null
-      if (rec.has("trash") && skipTrash) return null
+      if (rec.has("trash") != trashOnly) return null
       count++
       x := f(rec)
       if (x != null) return x

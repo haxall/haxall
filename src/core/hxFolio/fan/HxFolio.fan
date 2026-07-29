@@ -194,6 +194,13 @@ const class HxFolio : Folio
     return FolioFuture(ReadFolioRes(filter, false, dicts))
   }
 
+  override protected FolioFuture doReadTrash(Filter filter, Dict? opts)
+  {
+    cx := FolioContext.curFolio(false)
+    dicts := Query(this, filter, opts ?: Etc.dict0).onlyTrash.collect(cx)
+    return FolioFuture(ReadFolioRes(filter, false, dicts))
+  }
+
   override protected Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
   {
     if (opts == null) opts = Etc.dict0
