@@ -306,6 +306,10 @@ internal const class HxLibInput : LibInput
 
   override ReflectInput[] scanReflects(DefCompiler c)
   {
+    // hx.api funcs define the v5 HTTP API surface; they intentionally
+    // reuse names from hx/axon and must not enter the legacy def namespace
+    if (name == "hxApi") return ReflectInput#.emptyList
+
     // check for FooLib -> FooFuncs class
     typeName := meta["typeName"] as Str
     if (typeName != null)
