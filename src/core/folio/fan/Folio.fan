@@ -296,6 +296,10 @@ abstract const class Folio
     rec := readById(id, false)
     if (rec != null) return rec
 
+    // the trash read matches the id tag itself, so unlike the by-id
+    // lookup above it cannot resolve a relative ref for us
+    if (id != null && id.isRel && idPrefix != null) id = id.toAbs(idPrefix)
+
     // route to the trash read
     return readAllSync(Filter.eq("id", id), optsLimit1, true).dict(checked)
   }
