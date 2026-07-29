@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using web
 using xeto
 using haystack
 using axon
@@ -133,6 +134,31 @@ class Context : AxonContext, FolioContext
     tags["hostModel"]       = sys.info.hostModel
     tags.addNotNull("hostId", sys.info.hostId)
     return Etc.makeDict(tags)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Web
+//////////////////////////////////////////////////////////////////////////
+
+  ** Web request being serviced by this thread.  This is available to API
+  ** functions which service the HTTP request themselves; see the `opWeb`
+  ** marker.  Raise ContextUnavailableErr or return null based on checked
+  ** flag if this thread is not servicing a web request.
+  @NoDoc WebReq? webReq(Bool checked := true)
+  {
+    req := Actor.locals["web.req"] as WebReq
+    if (req != null) return req
+    if (checked) throw ContextUnavailableErr("No web request available")
+    return null
+  }
+
+  ** Web response being serviced by this thread; see `webReq`.
+  @NoDoc WebRes? webRes(Bool checked := true)
+  {
+    res := Actor.locals["web.res"] as WebRes
+    if (res != null) return res
+    if (checked) throw ContextUnavailableErr("No web response available")
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -84,13 +84,8 @@ const class ApiWeb : ExtWeb, WebOpUtil
       opName := path[1]
       req.modBase = req.uri[0..2].plusSlash
 
-      // if opName has dot then its Haxall 4.x xeto style
-      if (opName.contains("."))
-      {
-        return res.sendErr(406, "New API design not supported")
-        //HxApiReq.service(req, res, opName, cx)
-        //return
-      }
+      // qualified names are reserved for the future v5 API
+      if (opName.contains(".")) return res.sendErr(406, "New API design not supported")
 
       // otherwise Haxall 3.x legacy style: a registered op class takes
       // precedence, else bind to the func of that name
