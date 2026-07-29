@@ -1,0 +1,3 @@
+test.uri=jdbc:mysql://localhost:3306/fantest
+test.username=fantest
+test.password=fantest

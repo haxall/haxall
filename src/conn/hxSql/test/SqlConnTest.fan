@@ -97,6 +97,10 @@ class SqlConnTest : HxTest
     addRec(["foo":Marker.val, "dis":"Gamma", "date":Date(2011, Month.jun, 7).toStr, "dur":n(5, "min")])
     Obj[] ids := eval("""readAll(foo).sort("date").sqlInsert($conn.id.toCode, "sqlext_test_basics")""")
     grid = eval("""read(sqlConn).sqlQuery("select * from sqlext_test_basics").sort("date")""")
+
+    echo("SqlConnTest.testBasics: $ids")
+    grid.dump
+
     verifyEq(grid.size, 3)
     verifyDictEq(grid[0], ["tid": aId,    "dis":"Alpha", "date":Date(2010, Month.apr, 20), "dur":"forever", "num":n(66)])
     verifyDictEq(grid[1], ["tid": ids[0], "dis":"Beta",  "date":Date(2010, Month.jun, 7),  "dur":"1min"])
