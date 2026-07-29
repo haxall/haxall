@@ -99,21 +99,23 @@ const abstract class HxApiOp : WebOpUtil
 @NoDoc
 const class HxFuncOp : HxApiOp
 {
-  ** Lookup the "{opName}Op" func which provides HTTP wire semantics that
-  ** differ from the same named Axon function; null if not defined.
+  ** Resolve an op name to the func which implements it, or null if no
+  ** func is found.  A name may be defined by more than one lib: the HTTP
+  ** API always binds to the func marked '<op>' which provides the wire
+  ** semantics, while Axon binds to the unmarked function.  This is how
+  ** 'sys.api::commit' and 'hx::commit' coexist under one name.
   static HxFuncOp? findByOpName(Str opName, Context cx)
   {
-    func := cx.ns.funcs.get(opName + "Op", false)
-    if (func == null) return null
-    return HxFuncOp(opName, func)
-  }
+    matches := cx.ns.funcs.getAll(opName)
+    if (matches.isEmpty) return null
 
-  ** Lookup a plain func to serve as an op; null if not defined.  This is
-  ** the fallback which makes any top level func callable over HTTP.
-  static HxFuncOp? findByFuncName(Str opName, Context cx)
-  {
-    func := cx.ns.funcs.get(opName, false)
-    if (func == null) return null
+    // prefer the op marked func, otherwise the sole definition
+    func := matches.find |x| { x.meta.has("op") }
+    if (func == null)
+    {
+      if (matches.size > 1) throw AmbiguousSpecErr(matches.toStr)
+      func = matches.first
+    }
     return HxFuncOp(opName, func)
   }
 
@@ -183,45 +185,6 @@ internal const class HxReadOp : HxApiOp
     }
 
     throw Err("Request grid missing id or filter col")
-  }
-}
-
-**************************************************************************
-** HxAboutOp
-**************************************************************************
-
-internal const class HxAboutOp : HxApiOp
-{
-  override Str name() { "about" }
-
-  override Bool noSideEffects() { true }
-
-  /*
-  override Void onService(WebReq req, WebRes res, Context cx)
-  {
-    cx.rt.log.info(">>> $req.modRel.toCode")
-    super.onService(req, res, cx)
-  }
-  */
-
-  override Grid onRequest(Grid req, Context cx)
-  {
-    Etc.makeDictGrid(null, cx.ns.funcs.get("about").func.thunk.callList)
-  }
-}
-
-**************************************************************************
-** HxCloseOp
-**************************************************************************
-
-internal const class HxCloseOp : HxApiOp
-{
-  override Str name() { "close" }
-
-  override Grid onRequest(Grid req, Context cx)
-  {
-    cx.sys.session.close(cx.session)
-    return Etc.emptyGrid
   }
 }
 

@@ -16,6 +16,7 @@ using obs
 using folio
 using hx
 using hxm
+using hxApi
 
 **
 ** ExtTest

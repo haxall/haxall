@@ -11,8 +11,9 @@ pragma: Lib <
   doc: "Haxall Haystack HTTP API extension"
   version: BuildVar "hx.version"
   depends: {
-    { lib: "sys", versions: BuildVar "ph.depend" }
-    { lib: "hx", versions: BuildVar "hx.depend" }
+    { lib: "sys",  versions: BuildVar "ph.depend" }
+    { lib: "axon", versions: BuildVar "hx.depend" }
+    { lib: "hx",   versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"

@@ -125,6 +125,11 @@ abstract class AxonContext : HaystackContext, CompContext
       return null
     }
 
+    // funcs marked '<op>' define the HTTP wire semantics for a name; they
+    // are never the Axon binding when a normal function shares the name
+    nonOps := list.findAll |x| { x.meta.missing("op") }
+    if (nonOps.size == 1) return nonOps.first
+
     // check if override from proj lib
     projIndex := -1
     allOverridable := true

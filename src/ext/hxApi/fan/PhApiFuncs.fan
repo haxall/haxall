@@ -7,7 +7,6 @@
 //
 
 using xeto
-using xetom
 using haystack
 using axon
 using folio
@@ -44,13 +43,14 @@ const class PhApiFuncs
   **
   ** See [ph.doc::Ops#nav].
   @Api @Axon
-  static Grid navOp(Grid req)
+  static Grid nav(Grid req)
   {
     cx := curContext
 
-    // check if we have nav function defined and if so use it
-    func := cx.resolveTopFn("nav", false)
-    if (func != null) return func.call(cx, [req])
+    // delegate to a project defined nav function if installed; must skip
+    // any func marked <op> which would resolve back to this one
+    func := cx.ns.funcs.getAll("nav").find |x| { x.meta.missing("op") }
+    if (func != null) return func.func.thunk.callList([req])
 
     // use simple site/equip/point navigation
     navId := req.first?.get("navId") as Ref
@@ -141,9 +141,9 @@ const class PhApiFuncs
   ** to the point's configured timezone before executing the query.  Results
   ** are always in the point's configured timezone.
   **
-  ** See [ph.doc::Ops#hisRead].
+  ** See [ph.doc::Ops#hisread].
   @Api @Axon
-  static Grid hisReadOp(Grid req)
+  static Grid hisRead(Grid req)
   {
     cx := curContext
     if (req.isEmpty) throw Err("Request grid is empty")
@@ -307,9 +307,9 @@ const class PhApiFuncs
   ** either be unitless or match the entity's configured unit; timezone,
   ** value kind, and unit conversion are explicitly disallowed.
   **
-  ** See [ph.doc::Ops#hisWrite].
+  ** See [ph.doc::Ops#hiswrite].
   @Api @Axon
-  static Grid hisWriteOp(Grid req)
+  static Grid hisWrite(Grid req)
   {
     cx := curContext
 
@@ -391,9 +391,9 @@ const class PhApiFuncs
   **
   ** Write response: empty grid
   **
-  ** See [ph.doc::Ops#pointWrite].
+  ** See [ph.doc::Ops#pointwrite].
   @Api @Axon
-  static Grid pointWriteOp(Grid req)
+  static Grid pointWrite(Grid req)
   {
     cx := curContext
 
@@ -459,9 +459,9 @@ const class PhApiFuncs
   ** If the response is an error grid then the client must assume the watch
   ** is no longer valid and open a new one.
   **
-  ** See [ph.doc::Ops#watchSub].
+  ** See [ph.doc::Ops#watchsub].
   @Api @Axon
-  static Grid watchSubOp(Grid req)
+  static Grid watchSub(Grid req)
   {
     cx := curContext
 
@@ -514,9 +514,9 @@ const class PhApiFuncs
   ** If the response is an error grid then the client must assume the watch
   ** is no longer valid and open a new one.
   **
-  ** See [ph.doc::Ops#watchUnsub].
+  ** See [ph.doc::Ops#watchunsub].
   @Api @Axon
-  static Grid watchUnsubOp(Grid req)
+  static Grid watchUnsub(Grid req)
   {
     cx := curContext
 
@@ -555,9 +555,9 @@ const class PhApiFuncs
   ** If the response is an error grid then the client must assume the watch
   ** is no longer valid and open a new one.
   **
-  ** See [ph.doc::Ops#watchPoll].
+  ** See [ph.doc::Ops#watchpoll].
   @Api @Axon
-  static Grid watchPollOp(Grid req)
+  static Grid watchPoll(Grid req)
   {
     cx := curContext
 
