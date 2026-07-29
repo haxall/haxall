@@ -138,6 +138,43 @@ abstract const class Folio
 // Reads
 //////////////////////////////////////////////////////////////////////////
 
+  ** Subclass implementation of [readRecById].
+  ** - _Never_ read recs in the trash
+  ** - _Never_ check permissions
+  @NoDoc protected abstract FolioRec? doReadRecById(Ref id)
+
+  ** Subclass implementation of [readByIds].
+  ** Default implementation maps to `doReadRecById`.
+  ** - _Never_ read recs in the trash
+  ** - _Never_ check permissions
+  @NoDoc protected virtual Dict?[] doReadByIds(Ref[] ids)
+  {
+    ids.map |id->Dict?| { doReadRecById(id)?.dict }
+  }
+
+  ** Subclass implementation to stream every rec matching filter
+  ** to the sink until [FolioReadSink.accept] returns non-null, in which
+  ** case return that value.
+  ** - _Never_ read recs in the trash
+  ** - _Never_ check permissions
+  @NoDoc protected abstract Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
+
+  ** Subclass implementation to stream every rec in the trash matching filter
+  ** - _Never_ check permissions
+  @NoDoc protected abstract Obj? doReadTrashEachWhile(Filter filter, FolioReadSink sink)
+
+  ** Subclass hook to count matching the filter. The base class only calls this
+  ** when no context is installed and no options need to be applied, so subclasses
+  ** are free to optimize.
+  ** - _Never_ count recs in the trash
+  ** - _Never_ check permissions
+  @NoDoc protected virtual Int doReadCount(Filter filter)
+  {
+    sink := FolioReadSink.makeCount
+    doReadAllEachWhile(filter, sink)
+    return sink.count
+  }
+
   ** Read underlying record used for additional rec based features like watches
   @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
@@ -151,9 +188,6 @@ abstract const class Folio
     if (checked) throw UnknownRecErr(id.toZinc)
     return null
   }
-
-  ** Read underlying record (return null for trash, do _not_ check permissions)
-  @NoDoc protected abstract FolioRec? doReadRecById(Ref id)
 
   ** Convenience for [readByIds] with single id.
   Dict? readById(Ref id, Bool checked := true)
@@ -169,28 +203,62 @@ abstract const class Folio
   ** the `id` tag).
   Grid readByIds(Ref[] ids, Bool checked := true)
   {
-    checkRead.doReadByIds(ids).grid(checked)
+    readByIdsSync(ids).grid(checked)
   }
 
   ** Read a list of records by id.  The resulting list matches
   ** the list of ids by index (null if record not found).
   Dict?[] readByIdsList(Ref[] ids, Bool checked := true)
   {
-    checkRead.doReadByIds(ids).dicts(checked)
+    readByIdsSync(ids).dicts(checked)
+  }
+
+  ** Apply permission checks to the raw by-id reads and build the error
+  ** message. A rec which is missing, in the trash, or which we do not
+  ** have permission to read is returned as null.
+  private FolioFuture readByIdsSync(Ref[] ids)
+  {
+    dicts := checkRead.doReadByIds(ids)
+    cx := FolioContext.curFolio(false)
+    errMsg := ""
+    ids.each |id, i|
+    {
+      dict := dicts[i]
+      if (dict == null)
+      {
+        // only the first missing rec is reported
+        if (errMsg.isEmpty) errMsg = id.toStr
+      }
+      else if (cx != null && !cx.canRead(dict))
+      {
+        // a permission error always wins over a missing rec
+        errMsg = "Cannot read: $id.toZinc"
+        dicts[i] = null
+      }
+    }
+    return FolioFuture.makeSync(ReadFolioRes(errMsg, !errMsg.isEmpty, dicts))
   }
 
   ** Return the number of records which match given [filter](ph.doc::Filters).
   ** This method supports the same options as [readAll].
   Int readCount(Filter filter, Dict? opts := null)
   {
-    checkRead.doReadCount(filter, opts)
+    checkRead
+    sink := FolioReadSink(FolioContext.curFolio(false), opts) |rec->Obj?| { return null }
+    if (sink.limit <= 0) return 0
+
+    // check if we can delegate to subtype for optimized count
+    if (sink.canFastCount) return doReadCount(filter)
+
+    stream(filter, false, sink)
+    return sink.count
   }
 
   ** Find the first record which matches the given [filter](ph.doc::Filters).
   ** Throw UnknownRecErr or return null based on checked flag.
   Dict? read(Filter filter, Bool checked := true)
   {
-    checkRead.doReadAll(filter, optsLimit1).dict(checked)
+    readAllSync(filter, optsLimit1, false).dict(checked)
   }
 
   ** Match all the records against a [filter](ph.doc::Filters) and
@@ -203,14 +271,14 @@ abstract const class Folio
   **   - gridMeta: Dict to use for grid meta
   Grid readAll(Filter filter, Dict? opts := null)
   {
-    checkRead.doReadAll(filter, opts).gridWithOpts(opts, false)
+    readAllSync(filter, opts, false).gridWithOpts(opts, false)
   }
 
   ** Match all the records against a [filter](ph.doc::Filters) and return
   ** as list.  This method uses same semantics and options as [readAll].
   Dict[] readAllList(Filter filter, Dict? opts := null)
   {
-    checkRead.doReadAll(filter, opts).dicts
+    readAllSync(filter, opts, false).dicts
   }
 
   ** Match all the records in the trash against a [filter](ph.doc::Filters)
@@ -218,7 +286,7 @@ abstract const class Folio
   ** every other read method excludes them.  Uses the same options as [readAll].
   @NoDoc Grid readTrash(Filter filter, Dict? opts := null)
   {
-    checkRead.doReadTrash(filter, opts).gridWithOpts(opts, false)
+    readAllSync(filter, opts, true).gridWithOpts(opts, false)
   }
 
   ** Read by id whether rec is in trash or not
@@ -229,36 +297,44 @@ abstract const class Folio
     if (rec != null) return rec
 
     // route to the trash read
-    return checkRead.doReadTrash(Filter.eq("id", id), optsLimit1).dict(checked)
+    return readAllSync(Filter.eq("id", id), optsLimit1, true).dict(checked)
   }
 
   ** Read all records matching filter.
   @NoDoc Obj? readAllEach(Filter filter, Dict? opts, |Dict| f)
   {
-    checkRead.doReadAllEachWhile(filter, opts) |x| { f(x); return null }
+    readAllEachWhile(filter, opts) |x| { f(x); return null }
   }
 
   ** Read all records matching filter until callback returns non-null.
   @NoDoc Obj? readAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
   {
-    checkRead.doReadAllEachWhile(filter, opts, f)
+    checkRead
+    sink := FolioReadSink(FolioContext.curFolio(false), opts, f)
+    if (sink.limit <= 0) return null
+    stream(filter, false, sink)
+    return sink.result
   }
 
-  ** Subclass implementation of readByIds (must check trash & permissions); return as sync future
-  @NoDoc protected abstract FolioFuture doReadByIds(Ref[] ids)
+  ** Stream recs matching filter to the sink from the live or trash domain.
+  ** The value returned by the hook is _not_ the result of the read - it may
+  ** be the sink's internal break sentinel - so callers use `FolioReadSink.result`.
+  private Void stream(Filter filter, Bool trash, FolioReadSink sink)
+  {
+    if (trash) doReadTrashEachWhile(filter, sink)
+    else doReadAllEachWhile(filter, sink)
+  }
 
-  ** Subclass implementation of readAll; return as sync future
-  @NoDoc protected abstract FolioFuture doReadAll(Filter filter, Dict? opts)
-
-  ** Subclass implementation of readTrash; must match only recs
-  ** with the trash tag; return as sync future.
-  @NoDoc protected abstract FolioFuture doReadTrash(Filter filter, Dict? opts)
-
-  ** Subclass implementation of readCount
-  @NoDoc protected abstract Int doReadCount(Filter filter, Dict? opts)
-
-  ** Subclass implementation of readAllEachWhile
-  @NoDoc protected abstract Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
+  ** Read all recs matching filter as a sync future
+  private FolioFuture readAllSync(Filter filter, Dict? opts, Bool trash)
+  {
+    checkRead
+    acc := Dict[,]
+    sink := FolioReadSink.makeAccumulate(FolioContext.curFolio(false), opts, acc)
+    if (sink.limit > 0) stream(filter, trash, sink)
+    if (sink.sort) acc = Etc.sortDictsByDis(acc)
+    return FolioFuture.makeSync(ReadFolioRes(filter, false, acc))
+  }
 
   ** Options constant for {limit:1}
   private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
@@ -315,7 +391,7 @@ abstract const class Folio
   ** Remove all records with the trash tag
   @NoDoc FolioFuture commitRemoveTrashAsync()
   {
-    recs := checkRead.doReadTrash(Filter.has("trash"), null).dicts
+    recs := readAllSync(Filter.has("trash"), null, true).dicts
     diffs := recs.map |rec->Diff| { Diff(rec, null, Diff.remove.or(Diff.force)) }
     return commitAllAsync(diffs)
   }

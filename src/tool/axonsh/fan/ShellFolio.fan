@@ -41,71 +41,35 @@ const class ShellFolio : Folio
     throw UnsupportedErr()
   }
 
-  override FolioFuture doReadByIds(Ref[] ids)
+  override protected Dict?[] doReadByIds(Ref[] ids)
   {
     map := this.map
-    acc := Dict?[,]
-    errMsg := ""
-    dicts := Dict?[,]
-    dicts.size = ids.size
-    ids.each |id, i|
+    return ids.map |id->Dict?|
     {
-      rec := map.get(id)
-      if (rec != null)
-        dicts[i] = rec
-      else if (errMsg.isEmpty)
-        errMsg = id.toStr
+      rec := map.get(id) as Dict
+      return rec == null || rec.has("trash") ? null : rec
     }
-    errs := !errMsg.isEmpty
-    return FolioFuture(ReadFolioRes(errMsg, errs, dicts))
   }
 
-  override FolioFuture doReadAll(Filter filter, Dict? opts)
+  override protected Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
   {
-    errMsg := filter.toStr
-    acc := Dict[,]
-    doReadAllEachWhile(filter, opts) |rec| { acc.add(rec); return null }
-    if (opts != null && opts.has("sort")) acc = Etc.sortDictsByDis(acc)
-    return FolioFuture(ReadFolioRes(errMsg, false, acc))
+    eachWhileImpl(filter, false, sink)
   }
 
-  override Int doReadCount(Filter filter, Dict? opts)
+  override protected Obj? doReadTrashEachWhile(Filter filter, FolioReadSink sink)
   {
-    count := 0
-    doReadAllEachWhile(filter, opts) |->| { count++ }
-    return count
+    eachWhileImpl(filter, true, sink)
   }
 
-  override FolioFuture doReadTrash(Filter filter, Dict? opts)
+  private Obj? eachWhileImpl(Filter filter, Bool trashOnly, FolioReadSink sink)
   {
-    acc := Dict[,]
-    eachWhileImpl(filter, opts, true) |rec| { acc.add(rec); return null }
-    if (opts != null && opts.has("sort")) acc = Etc.sortDictsByDis(acc)
-    return FolioFuture(ReadFolioRes(filter.toStr, false, acc))
-  }
-
-  override Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
-  {
-    eachWhileImpl(filter, opts, false, f)
-  }
-
-  private Obj? eachWhileImpl(Filter filter, Dict? opts, Bool trashOnly, |Dict->Obj?| f)
-  {
-    if (opts == null) opts = Etc.dict0
-    limit := (opts["limit"] as Number)?.toInt ?: 10_000
-
     map := this.map
     cx := PatherContext(|Ref id->Dict?| { map.get(id) })
-
-    count := 0
     return eachWhile |rec|
     {
       if (!filter.matches(rec, cx)) return null
       if (rec.has("trash") != trashOnly) return null
-      count++
-      x := f(rec)
-      if (x != null) return x
-      return count >= limit ? "break" : null
+      return sink.accept(rec)
     }
   }
 

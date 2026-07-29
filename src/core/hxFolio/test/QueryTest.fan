@@ -206,7 +206,35 @@ class QueryTest : WhiteboxTest
       verifyDictsEq(folio.readAll(filter, opts).toRows, limited, true)
       verifyEq(folio.readCount(filter, opts), limit)
       verifyPlanStats(plan)
+
+      // stopping at the limit must not leak the sink's break sentinel
+      limitedAcc := Dict[,]
+      limitedEw := folio.readAllEachWhile(filter, opts) |rec| { limitedAcc.add(rec); return null }
+      verifyEq(limitedEw, null)
+      verifyDictsEq(limitedAcc, limited, true)
+      verifyPlanStats(plan)
     }
+
+    // with search option: the count fast path must never bypass search.
+    // A tag index match plan knows its own size, but that size is only
+    // the answer when no per-rec filtering applies.
+    opts = Etc.makeDict(["search":"A"])
+    search := Filter.search("A")
+    searchExpected := expected.findAll |r->Bool| { search.matches(r, HaystackContext.nil) }
+    verifyEq(folio.readCount(filter, opts), searchExpected.size)
+    verifyPlanStats(plan)
+    verifyDictsEq(folio.readAllList(filter, opts), searchExpected, false)
+    verifyPlanStats(plan)
+
+    // limit:0 is short circuited by Folio, not by the sink, so the
+    // store is never streamed and no plan is ever run
+    opts = Etc.makeDict(["limit":n(0)])
+    verifyEq(folio.readAllList(filter, opts).size, 0)
+    verifyEq(folio.readCount(filter, opts), 0)
+    verifyEq(folio.readAllEachWhile(filter, opts) |rec->Obj?| { return "stop" }, null)
+    plans := 0
+    folio.stats.readsByPlan.each |v, p| { plans++ }
+    verifyEq(plans, 0)
   }
 
   Void verifyPlanStats(Str plan)
@@ -220,10 +248,10 @@ class QueryTest : WhiteboxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// QueryAcc
+// FolioReadSink
 //////////////////////////////////////////////////////////////////////////
 
-  Void testQueryAcc()
+  Void testReadSink()
   {
     a := Etc.makeDict(["dis":"A", "num":n(1), "a":m])
     b := Etc.makeDict(["dis":"B", "num":n(2), "b":m])
@@ -232,70 +260,62 @@ class QueryTest : WhiteboxTest
     x := [a, b, c, d]
 
     // null cx, different limits
-    verifyQueryAcc(null, 10, x, [a, b, c, d])
-    verifyQueryAcc(null,  4, x, [a, b, c, d])
-    verifyQueryAcc(null,  3, x, [a, b, c])
-    verifyQueryAcc(null,  2, x, [a, b])
-    verifyQueryAcc(null,  1, x, [a])
-    verifyQueryAcc(null,  0, x, [,])
+    verifyReadSink(null, 10, x, [a, b, c, d])
+    verifyReadSink(null,  4, x, [a, b, c, d])
+    verifyReadSink(null,  3, x, [a, b, c])
+    verifyReadSink(null,  2, x, [a, b])
+    verifyReadSink(null,  1, x, [a])
 
     // filtered cx, different limits
     cx := QueryTestContext(Filter("dis"))
-    verifyQueryAcc(cx, 10, x, [a, b, c, d])
-    verifyQueryAcc(cx,  4, x, [a, b, c, d])
-    verifyQueryAcc(cx,  3, x, [a, b, c])
-    verifyQueryAcc(cx,  2, x, [a, b])
-    verifyQueryAcc(cx,  1, x, [a])
-    verifyQueryAcc(cx,  0, x, [,])
+    verifyReadSink(cx, 10, x, [a, b, c, d])
+    verifyReadSink(cx,  4, x, [a, b, c, d])
+    verifyReadSink(cx,  3, x, [a, b, c])
+    verifyReadSink(cx,  2, x, [a, b])
+    verifyReadSink(cx,  1, x, [a])
 
     // filtered cx, different limits
     cx = QueryTestContext(Filter("num <= 2"))
-    verifyQueryAcc(cx, 10, x, [a, b])
-    verifyQueryAcc(cx,  4, x, [a, b])
-    verifyQueryAcc(cx,  3, x, [a, b])
-    verifyQueryAcc(cx,  2, x, [a, b])
-    verifyQueryAcc(cx,  1, x, [a])
-    verifyQueryAcc(cx,  0, x, [,])
+    verifyReadSink(cx, 10, x, [a, b])
+    verifyReadSink(cx,  4, x, [a, b])
+    verifyReadSink(cx,  3, x, [a, b])
+    verifyReadSink(cx,  2, x, [a, b])
+    verifyReadSink(cx,  1, x, [a])
 
     // filtered cx, different limits
     cx = QueryTestContext(Filter("num == 3"))
-    verifyQueryAcc(cx, 10, x, [c])
-    verifyQueryAcc(cx,  4, x, [c])
-    verifyQueryAcc(cx,  3, x, [c])
-    verifyQueryAcc(cx,  2, x, [c])
-    verifyQueryAcc(cx,  1, x, [c])
-    verifyQueryAcc(cx,  0, x, [,])
+    verifyReadSink(cx, 10, x, [c])
+    verifyReadSink(cx,  4, x, [c])
+    verifyReadSink(cx,  3, x, [c])
+    verifyReadSink(cx,  2, x, [c])
+    verifyReadSink(cx,  1, x, [c])
   }
 
-  Void verifyQueryAcc(FolioContext? cx, Int limit, Dict[] x, Dict[] expected)
+  Void verifyReadSink(FolioContext? cx, Int limit, Dict[] x, Dict[] expected)
   {
+    opts := Etc.makeDict(["limit":n(limit)])
+
     // collect
-    opts := QueryOpts(limit)
-    collect := QueryCollect(cx, opts)
-    x.each |r, i| { verifyEq(collect.add(r), collect.list.size < limit) }
-    verifyDictsEq(collect.list, expected)
+    cAcc := Dict[,]
+    collect := FolioReadSink(cx, opts) |rec->Obj?| { cAcc.add(rec); return null }
+    x.each |r, i| { verifyEq(collect.accept(r) == null, cAcc.size < limit) }
+    verifyDictsEq(cAcc, expected)
 
     // count
-    count := QueryCounter(cx, opts)
-    x.each |r, i| { verifyEq(count.add(r), count.count < limit) }
+    count := FolioReadSink(cx, opts) |rec->Obj?| { null }
+    x.each |r, i| { verifyEq(count.accept(r) == null, count.count < limit) }
     verifyEq(count.count, expected.size)
 
-    // each while
-    eAcc := Dict[,]
-    e := QueryEachWhile(cx, opts) |rec->Obj?| { eAcc.add(rec); return null }
-    x.each |r, i| { verifyEq(e.add(r), eAcc.size < limit) }
-    verifyDictsEq(eAcc, expected)
-
     // each while using early break instead of limit
-    eAcc = Dict[,]
+    eAcc := Dict[,]
     broke := false
-    e = QueryEachWhile(cx, QueryOpts(Int.maxVal)) |rec->Obj?|
+    e := FolioReadSink(cx, null) |rec->Obj?|
     {
       if (eAcc.size < limit) eAcc.add(rec)
       broke = eAcc.size >= limit
       return broke ? "break" : null
     }
-    x.each |r, i| { e.add(r) }
+    x.each |r, i| { e.accept(r) }
     verifyDictsEq(eAcc, expected)
     verifyEq(e.result, broke ? "break" : null)
   }

@@ -160,59 +160,14 @@ const class HxFolio : Folio
     return null
   }
 
-  override protected FolioFuture doReadByIds(Ref[] ids)
+  override protected Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
   {
-    cx := FolioContext.curFolio(false)
-    errMsg := ""
-    dicts := Dict?[,]
-    dicts.size = ids.size
-    ids.each |id, i|
-    {
-      rec := index.rec(id, false)
-      if (rec != null && !rec.isTrash)
-      {
-        dict := rec.dict
-        if (cx != null && !cx.canRead(dict))
-          errMsg = "Cannot read: $id.toZinc"
-        else
-          dicts[i] = dict
-      }
-      else if (errMsg.isEmpty)
-      {
-        errMsg = id.toStr
-      }
-    }
-    errs := !errMsg.isEmpty
-    return FolioFuture(ReadFolioRes(errMsg, errs, dicts))
+    Query(this, filter).eachWhile(sink)
   }
 
-  override protected FolioFuture doReadAll(Filter filter, Dict? opts)
+  override protected Obj? doReadTrashEachWhile(Filter filter, FolioReadSink sink)
   {
-    if (opts == null) opts = Etc.dict0
-    cx := FolioContext.curFolio(false)
-    dicts := Query(this, filter, opts).collect(cx)
-    return FolioFuture(ReadFolioRes(filter, false, dicts))
-  }
-
-  override protected FolioFuture doReadTrash(Filter filter, Dict? opts)
-  {
-    cx := FolioContext.curFolio(false)
-    dicts := Query(this, filter, opts ?: Etc.dict0).onlyTrash.collect(cx)
-    return FolioFuture(ReadFolioRes(filter, false, dicts))
-  }
-
-  override protected Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
-  {
-    if (opts == null) opts = Etc.dict0
-    cx := FolioContext.curFolio(false)
-    return Query(this, filter, opts).eachWhile(cx, f)
-  }
-
-  override protected Int doReadCount(Filter filter, Dict? opts)
-  {
-    if (opts == null) opts = Etc.dict0
-    cx := FolioContext.curFolio(false)
-    return Query(this, filter, opts).count(cx)
+    Query(this, filter).onlyTrash.eachWhile(sink)
   }
 
   override protected FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)

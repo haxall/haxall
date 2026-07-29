@@ -17,42 +17,21 @@ using folio
 **
 internal class Query : HaystackContext
 {
-  new make(HxFolio folio, Filter filter, Dict opts)
+  new make(HxFolio folio, Filter filter)
   {
     this.folio      = folio
     this.index      = folio.index
     this.filter     = filter
-    this.opts       = QueryOpts(opts)
     this.startTicks = Duration.nowTicks
   }
 
-  Dict[] collect(FolioContext? cx)
+  ** Stream matching recs to the sink; return the sink's stop value
+  Obj? eachWhile(FolioReadSink sink)
   {
     plan := makePlan
-    acc := QueryCollect(cx, opts)
-    plan.query(this, acc)
+    stop := plan.query(this, sink)
     updateStats(plan)
-    list := acc.list
-    if (opts.sort) list = Etc.sortDictsByDis(list)
-    return list
-  }
-
-  Obj? eachWhile(FolioContext? cx, |Dict->Obj?| cb)
-  {
-    plan := makePlan
-    acc := QueryEachWhile(cx, opts, cb)
-    plan.query(this, acc)
-    updateStats(plan)
-    return acc.result
-  }
-
-  Int count(FolioContext? cx)
-  {
-    plan := makePlan
-    acc := QueryCounter(cx, opts)
-    plan.query(this, acc)
-    updateStats(plan)
-    return acc.count
+    return stop
   }
 
   ** Configure this query to match only records in the trash
@@ -138,155 +117,9 @@ internal class Query : HaystackContext
   const HxFolio folio
   const IndexMgr index
   const Filter filter
-  const QueryOpts opts
   const Int startTicks
   Bool trashOnly { private set }
   private [Str:Spec]? xetoIsSpecCache
-}
-
-**************************************************************************
-** QueryOpts
-**************************************************************************
-
-internal const class QueryOpts
-{
-  new make(Dict opts)
-  {
-    this.opts      = opts
-    this.limit     = toLimit(opts)
-    this.search    = toSearch(opts)
-    this.sort      = opts.has("sort")
-  }
-
-  new makeLimit(Int limit)
-  {
-    this.opts  = Etc.dict0
-    this.limit = limit
-  }
-
-  private static Int toLimit(Dict opts)
-  {
-    optLimit := opts.get("limit")
-    if (optLimit is Number)
-      return ((Number)optLimit).toInt
-    else
-      return Int.maxVal
-  }
-
-  private static Filter? toSearch(Dict opts)
-  {
-    search := opts["search"] as Str
-    if (search == null) return null
-    search = search.trimToNull
-    if (search == null) return null
-    return Filter.search(search)
-  }
-
-  const Dict opts
-  const Int limit
-  const Filter? search
-  const Bool sort
-}
-
-**************************************************************************
-** QueryAcc
-**************************************************************************
-
-** QueryAcc is base class for accumulating query recs
-internal abstract class QueryAcc
-{
-  ** Constructor
-  new make(FolioContext? cx, QueryOpts opts)
-  {
-    this.cx     = cx
-    this.limit  = opts.limit
-    this.search = opts.search
-  }
-
-  ** Prepare internal capacity on accumulator list
-  virtual Void prepCapacity(Int addingSize) {}
-
-  ** Add record and return true to continue
-  Bool add(Dict rec)
-  {
-    if (count >= limit) return false
-    if (cx != null && !cx.canRead(rec)) return true
-    if (search != null && !search.matches(rec, HaystackContext.nil)) return true
-    count++
-    if (!onAdd(rec)) return false
-    return count < limit
-  }
-
-  ** Called when we have a record to accumulate; return true to continue
-  abstract Bool onAdd(Dict rec)
-
-  FolioContext? cx
-  const Int limit
-  Filter? search
-  Int count
-}
-
-**************************************************************************
-** QueryCollect
-**************************************************************************
-
-** QueryCollect accumulates to in-memory list
-internal class QueryCollect : QueryAcc
-{
-  ** Constructor
-  new make(FolioContext? cx, QueryOpts opts) : super(cx, opts) {}
-
-  ** Prepare internal capacity on accumulator list
-  override Void prepCapacity(Int addingSize)
-  {
-    total := list.size + addingSize
-    if (total > limit) total = limit
-    list.capacity = total
-  }
-
-  ** Called when we have a record to accumulate; return true to continue
-  override Bool onAdd(Dict rec)
-  {
-    list.add(rec)
-    return true
-  }
-
-  Dict[] list := Dict[,]
-}
-
-**************************************************************************
-** QueryEachWhile
-**************************************************************************
-
-** QueryEachWhile accumulates to callback function
-internal class QueryEachWhile : QueryAcc
-{
-  ** Constructor
-  new make(FolioContext? cx, QueryOpts opts, |Dict->Obj?| cb) : super(cx, opts)
-  {
-    this.cb = cb
-  }
-
-  ** Called when we have a record to accumulate; return true to continue
-  override Bool onAdd(Dict rec)
-  {
-    result = cb(rec)
-    return result == null
-  }
-
-  |Dict->Obj?| cb
-  Obj? result
-}
-
-**************************************************************************
-** QueryCounter
-**************************************************************************
-
-** QueryCounter just iterates to increment base class counter
-internal class QueryCounter : QueryAcc
-{
-  new make(FolioContext? cx, QueryOpts opts) : super(cx, opts) {}
-  override Bool onAdd(Dict rec) { true }
 }
 
 **************************************************************************
@@ -300,7 +133,8 @@ internal abstract class QueryPlan
 
   abstract Int cost()
 
-  abstract Void query(Query q, QueryAcc acc)
+  ** Stream matching recs to the sink; return the sink's stop value
+  abstract Obj? query(Query q, FolioReadSink sink)
 }
 
 **************************************************************************
@@ -314,7 +148,7 @@ internal final class EmptyPlan : QueryPlan
 
   override Int cost() { 0 }
 
-  override Void query(Query q, QueryAcc acc) {}
+  override Obj? query(Query q, FolioReadSink sink) { null }
 }
 
 **************************************************************************
@@ -334,14 +168,14 @@ internal final class ByIdPlan : QueryPlan
 
   override Int cost() { 1 }
 
-  override Void query(Query q, QueryAcc acc)
+  override Obj? query(Query q, FolioReadSink sink)
   {
     // this plan is never used for trash queries, so always skip trash
     rec := q.index.rec(id, false)
-    if (rec == null || rec.isTrash) return
+    if (rec == null || rec.isTrash) return null
     dict := rec.dict
-    if (inCompound && !q.filter.matches(dict, q)) return
-    acc.add(dict)
+    if (inCompound && !q.filter.matches(dict, q)) return null
+    return sink.accept(dict)
   }
 }
 
@@ -356,14 +190,14 @@ internal final class FullScanPlan : QueryPlan
 
   override Int cost() { Int.maxVal }
 
-  override Void query(Query q, QueryAcc acc)
+  override Obj? query(Query q, FolioReadSink sink)
   {
     q.index.byId.eachWhile |Rec rec->Obj?|
     {
       dict := rec.dict
       if (!q.filter.matches(dict, q)) return null
       if (rec.isTrash != q.trashOnly) return null
-      return acc.add(dict) ? null : "break"
+      return sink.accept(dict)
     }
   }
 }
