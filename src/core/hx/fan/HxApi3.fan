@@ -10,6 +10,7 @@ using concurrent
 using web
 using xeto
 using haystack
+using axon
 using folio
 
 **
@@ -98,30 +99,23 @@ const abstract class HxApiOp : WebOpUtil
 @NoDoc
 const class HxFuncOp : HxApiOp
 {
-  ** Map v4 op name to the v5 func which implements it, or null if the op
-  ** is not backed by a function or its func is not in the namespace.
-  ** Projects which have not enabled ph.api fall back to the legacy op.
+  ** Lookup the "{opName}Op" func which provides HTTP wire semantics that
+  ** differ from the same named Axon function; null if not defined.
   static HxFuncOp? findByOpName(Str opName, Context cx)
   {
-    funcName := v4ToV5[opName]
-    if (funcName == null) return null
-    func := cx.ns.funcs.get(funcName, false)
+    func := cx.ns.funcs.get(opName + "Op", false)
     if (func == null) return null
     return HxFuncOp(opName, func)
   }
 
-  ** Map v4 op names to their v5 func names
-  static const Str:Str v4ToV5 :=
-  [
-    "read":       "phRead",
-    "nav":        "phNav",
-    "watchSub":   "phWatchSub",
-    "watchUnsub": "phWatchUnsub",
-    "watchPoll":  "phWatchPoll",
-    "hisRead":    "phHisRead",
-    "hisWrite":   "phHisWrite",
-    "pointWrite": "phPointWrite",
-  ]
+  ** Lookup a plain func to serve as an op; null if not defined.  This is
+  ** the fallback which makes any top level func callable over HTTP.
+  static HxFuncOp? findByFuncName(Str opName, Context cx)
+  {
+    func := cx.ns.funcs.get(opName, false)
+    if (func == null) return null
+    return HxFuncOp(opName, func)
+  }
 
   ** Constructor
   private new make(Str name, Spec func)
@@ -141,11 +135,54 @@ const class HxFuncOp : HxApiOp
 
   override Grid onRequest(Grid req, Context cx)
   {
-    // fill in extra params with null values
+    // pass the request grid as the first arg and pad the rest with null,
+    // same convention as the legacy func shim
     args := Obj?[req]
     for (i := 1; i<func.func.params.size; ++i) args.add(null)
 
-    return Etc.toGrid(func.func.thunk.callList(args), req.meta)
+    // unwrap EvalErr so the client sees the original error, matching
+    // the legacy ops which called their implementation directly
+    try
+      return Etc.toGrid(func.func.thunk.callList(args), req.meta)
+    catch (EvalErr e)
+      throw e.cause ?: e
+  }
+}
+
+**************************************************************************
+** HxReadOp
+**************************************************************************
+
+**
+** The v4 "read" op takes a request grid of filter or ids.  It is not
+** modeled as a function because the v5 API provides the same capability
+** with better ergonomics via `sys.api::Funcs.read`, `readById`,
+** `readByIds`, and `readAll`.
+**
+internal const class HxReadOp : HxApiOp
+{
+  override Str name() { "read" }
+
+  override Bool noSideEffects() { true }
+
+  override Grid onRequest(Grid req, Context cx)
+  {
+    if (req.isEmpty) throw Err("Request grid is empty")
+
+    if (req.has("filter"))
+    {
+      reqRow := req.first
+      filter := Filter.fromStr(reqRow->filter)
+      opts   := reqRow
+      return cx.db.readAll(filter, opts)
+    }
+
+    if (req.has("id"))
+    {
+      return cx.db.readByIds(req.ids, false)
+    }
+
+    throw Err("Request grid missing id or filter col")
   }
 }
 
@@ -284,96 +321,6 @@ internal const class HxExtOp : HxApiOp
 
   override Grid onRequest(Grid req, Context cx) { throw UnsupportedErr() }
 }
-
-**************************************************************************
-** HxEvalOp
-**************************************************************************
-
-internal const class HxEvalOp : HxApiOp
-{
-  override Str name() { "eval" }
-
-  override Grid onRequest(Grid req, Context cx)
-  {
-    if (req.isEmpty) throw Err("Request grid is empty")
-    expr := (Str)req.first->expr
-    return Etc.toGrid(cx.evalOrReadAll(expr))
-  }
-}
-
-**************************************************************************
-** HxCommitOp
-**************************************************************************
-
-internal const class HxCommitOp : HxApiOp
-{
-  override Str name() { "commit" }
-
-  override Grid onRequest(Grid req, Context cx)
-  {
-    if (!cx.user.isAdmin) throw PermissionErr("Missing 'admin' permission: commit")
-    mode := req.meta->commit
-    switch (mode)
-    {
-      case "add":    return onAdd(req, cx)
-      case "update": return onUpdate(req, cx)
-      case "remove": return onRemove(req, cx)
-      default:       throw ArgErr("Unknown commit mode: $mode")
-    }
-  }
-
-  private Grid onAdd(Grid req, Context cx)
-  {
-    diffs := Diff[,]
-    req.each |row|
-    {
-      changes := Str:Obj?[:]
-      Ref? id := null
-      row.each |v, n|
-      {
-        if (n == "id") { id = v; return }
-        changes.add(n, v)
-      }
-      diffs.add(Diff.makeAdd(changes, id ?: Ref.gen))
-    }
-    newRecs := cx.db.commitAll(diffs).map |d->Dict| { d.newRec }
-    return Etc.makeDictsGrid(null, newRecs)
-  }
-
-  private Grid onUpdate(Grid req, Context cx)
-  {
-    flags := 0
-    if (req.meta.has("force"))     flags = flags.or(Diff.force)
-    if (req.meta.has("transient")) flags = flags.or(Diff.transient)
-
-    diffs := Diff[,]
-    req.each |row|
-    {
-      old := Etc.makeDict(["id":row.id, "mod":row->mod])
-      changes := Str:Obj?[:]
-      row.each |v, n|
-      {
-        if (n == "id" || n == "mod") return
-        changes.add(n, v)
-      }
-      diffs.add(Diff(old, changes, flags))
-    }
-    newRecs := cx.db.commitAll(diffs).map |d->Dict| { d.newRec }
-    return Etc.makeDictsGrid(null, newRecs)
-  }
-
-  private Grid onRemove(Grid req, Context cx)
-  {
-    flags := Diff.remove
-    if (req.meta.has("force")) flags = flags.or(Diff.force)
-
-    diffs := Diff[,]
-    req.each |row| { diffs.add(Diff(row, null, flags)) }
-    cx.db.commitAll(diffs)
-    return Etc.makeEmptyGrid
-  }
-}
-
 
 **************************************************************************
 ** HxFileOp

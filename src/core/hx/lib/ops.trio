@@ -29,6 +29,9 @@ typeName:"hx::HxLibsOp"
 defx: ^op:ops
 typeName:"hx::HxOpsOp"
 --------------------------------------------------------------------------
+defx: ^op:read
+typeName:"hx::HxReadOp"
+--------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
 // Haxall Ops
@@ -40,11 +43,9 @@ typeName:"hx::HxExtOp"
 doc: "Route to an extension"
 --------------------------------------------------------------------------
 def: ^op:commit
-typeName:"hx::HxCommitOp"
 doc: "Commit one or more diffs to the Folio database"
 --------------------------------------------------------------------------
 def: ^op:eval
-typeName:"hx::HxEvalOp"
 doc: "Evaluate an Axon expression"
 --------------------------------------------------------------------------
 def: ^op:file

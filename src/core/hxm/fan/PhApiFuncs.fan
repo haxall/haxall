@@ -22,39 +22,29 @@ const class PhApiFuncs
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Read
-//////////////////////////////////////////////////////////////////////////
-
-  ** Read entities by id or filter; see `ph.api::Funcs.phRead`
-  @Api @Axon
-  static Grid phRead(Grid req)
-  {
-    cx := curContext
-    if (req.isEmpty) throw Err("Request grid is empty")
-
-    if (req.has("filter"))
-    {
-      reqRow := req.first
-      filter := Filter.fromStr(reqRow->filter)
-      opts   := reqRow
-      return cx.db.readAll(filter, opts)
-    }
-
-    if (req.has("id"))
-    {
-      return cx.db.readByIds(req.ids, false)
-    }
-
-    throw Err("Request grid missing id or filter col")
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Nav
 //////////////////////////////////////////////////////////////////////////
 
-  ** Navigate the project tree; see `ph.api::Funcs.phNav`
+  ** Navigate a project for learning and discovery.  This operation allows
+  ** servers to expose the database in a human-friendly tree (or graph)
+  ** that can be explored.
+  **
+  ** Request: a grid with a single row and a `navId` column.  If the grid
+  ** is empty or navId is null, then the request is for the navigation root.
+  **
+  ** Response: a grid of navigation children for the navId specified by the
+  ** request.  There is always a `navId` column that indicates the opaque
+  ** identifier used to navigate to the next level of that row.  If the
+  ** navId of a row is null, then the row is a leaf item with no children.
+  **
+  ** Navigation rows do not necessarily correspond to entities in the
+  ** database.  However, if a navigation row has an `id` column, then it is
+  ** safe to assume the row maps to an entity.  Clients must treat the
+  ** navId as an opaque identifier.
+  **
+  ** See [ph.doc::Ops#nav].
   @Api @Axon
-  static Grid phNav(Grid req)
+  static Grid navOp(Grid req)
   {
     cx := curContext
 
@@ -104,9 +94,56 @@ const class PhApiFuncs
 // His Read
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read history data for one or more points; see `ph.api::Funcs.phHisRead`
+  ** Read time-series data from one or more historized points.  Both a
+  ** single point read and a batch read are supported; the mode is
+  ** determined by the presence of a `range` tag in the request grid meta.
+  **
+  ** Single request: a grid with exactly one row and following columns:
+  **   - `id`: Ref identifier of the historized point
+  **   - `range`: Str encoding of a date-time range
+  **
+  ** Single response: rows represent timestamp/value pairs with a DateTime
+  ** `ts` column and a `val` column.  Grid meta:
+  **   - `id`: Ref of the point read
+  **   - `hisStart`: DateTime for the inclusive range start in the point's tz
+  **   - `hisEnd`: DateTime for the exclusive range end in the point's tz
+  **
+  ** Batch request: a grid with one or more rows, each with an `id` column.
+  ** Grid meta:
+  **   - `range`: Str encoding of a date-time range
+  **   - `tz`: optional Str timezone name for the results
+  **
+  ** Batch response: rows represent timestamp/value pairs with a DateTime
+  ** `ts` column followed by value columns named "v0", "v1", "v2" and so on.
+  ** Each value column's meta must include the point `id` tag, and the
+  ** columns must be ordered according to the request grid.  Results are
+  ** joined on a shared `ts` column for each unique timestamp; if a point
+  ** has no sample for a row then its cell is null.  Batch read requires
+  ** that all queried points share a configured timezone unless `tz` is
+  ** given in the request meta.
+  **
+  ** The range Str is formatted as one of:
+  **   - "today"
+  **   - "yesterday"
+  **   - "{date}"
+  **   - "{date},{date}"
+  **   - "{dateTime},{dateTime}"
+  **   - "{dateTime}"  // anything after the given timestamp
+  **
+  ** Ranges are inclusive of the start timestamp and exclusive of the end
+  ** timestamp.  The date and dateTime options must be correctly Zinc
+  ** encoded.  Date based ranges are inferred to run from midnight of the
+  ** starting date to midnight of the day after the ending date, using the
+  ** timezone of the point being queried.
+  **
+  ** Clients should query using the configured timezone of the point.  If a
+  ** different timezone is specified in the range then servers must convert
+  ** to the point's configured timezone before executing the query.  Results
+  ** are always in the point's configured timezone.
+  **
+  ** See [ph.doc::Ops#hisRead].
   @Api @Axon
-  static Grid phHisRead(Grid req)
+  static Grid hisReadOp(Grid req)
   {
     cx := curContext
     if (req.isEmpty) throw Err("Request grid is empty")
@@ -245,9 +282,34 @@ const class PhApiFuncs
 // His Write
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write history data to one or more points; see `ph.api::Funcs.phHisWrite`
+  ** Post new time-series data to one or more historized points.  The points
+  ** must already be configured on the server and assigned a unique
+  ** identifier.  Both a single write and a batch write are supported; the
+  ** mode is determined by the presence of an `id` tag in the request grid
+  ** meta.
+  **
+  ** Single request: grid meta defines the `id` Ref of the point.  The rows
+  ** define new timestamp/value samples with following columns:
+  **   - `ts`: DateTime timestamp of the sample in the point's timezone
+  **   - `val`: value of each timestamp sample
+  **
+  ** Batch request: omit the grid meta `id` and instead add multiple value
+  ** columns where the id is specified in the column meta:
+  **   - `ts`: DateTime timestamp
+  **   - `v{i}`: value column for each point, column meta must define `id`
+  **
+  ** Response: empty grid
+  **
+  ** Clients should attempt to avoid writing duplicate data, but servers
+  ** must gracefully handle clients posting out-of-order or duplicate
+  ** history data.  The timestamp and value kind of posted data must match
+  ** the entity's configured timezone and kind.  Numeric data posted must
+  ** either be unitless or match the entity's configured unit; timezone,
+  ** value kind, and unit conversion are explicitly disallowed.
+  **
+  ** See [ph.doc::Ops#hisWrite].
   @Api @Axon
-  static Grid phHisWrite(Grid req)
+  static Grid hisWriteOp(Grid req)
   {
     cx := curContext
 
@@ -306,9 +368,32 @@ const class PhApiFuncs
 // Point Write
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read or write a writable point's priority array; see `ph.api::Funcs.phPointWrite`
+  ** Read the current status of a writable point's priority array, or write
+  ** to one of its levels.  The mode is determined by the presence of a
+  ** `level` column in the request.
+  **
+  ** Read request: a grid with a single row and an `id` column with the Ref
+  ** of the writable point.
+  **
+  ** Read response: a grid with the current priority array state:
+  **   - `level`: number from 1 - 17 (17 is default)
+  **   - `levelDis`: human description of the level
+  **   - `val`: current value at the level or null
+  **   - `who`: who last controlled the value at this level
+  **
+  ** Write request: a grid with a single row and following columns:
+  **   - `id`: Ref identifier of the writable point
+  **   - `level`: Number from 1-17 for the level to write
+  **   - `val`: value to write, or null to auto the level
+  **   - `who`: optional username/application name performing the write,
+  **     otherwise the authenticated user's display name is used
+  **   - `duration`: Number with duration unit if setting level 8
+  **
+  ** Write response: empty grid
+  **
+  ** See [ph.doc::Ops#pointWrite].
   @Api @Axon
-  static Grid phPointWrite(Grid req)
+  static Grid pointWriteOp(Grid req)
   {
     cx := curContext
 
@@ -341,9 +426,42 @@ const class PhApiFuncs
 // Watches
 //////////////////////////////////////////////////////////////////////////
 
-  ** Subscribe entities to a watch; see `ph.api::Funcs.phWatchSub`
+  ** Create a new watch or add entities to an existing watch.
+  **
+  ** If the entities subscribed are themselves proxies for external data
+  ** sources, then this operation should perform a downstream data refresh.
+  ** It is an implementation detail whether that refresh occurs
+  ** synchronously or asynchronously, so clients must expect that the
+  ** latest data might not be available until a subsequent poll.
+  **
+  ** Request: a row for each entity to subscribe with an `id` column of
+  ** Ref values.  Grid meta:
+  **   - `watchDis`: debug/display string required when creating a new watch
+  **   - `watchId`: Str watch identifier required to add entities to an
+  **     existing watch; if omitted the server must open a new watch
+  **   - `lease`: optional Number with duration unit for the desired lease
+  **     period (the server is free to ignore it)
+  **
+  ** Response: rows correspond to the current entity state of the requested
+  ** identifiers, each response row corresponding to the request grid and
+  ** its respective row ordering.  If an id from the request was not found,
+  ** the response includes a row of all null cells.  Grid meta:
+  **   - `watchId`: required Str identifier of the watch
+  **   - `lease`: required Number with duration unit for the server assigned
+  **     lease period
+  **
+  ** Clients may subscribe using an id which is not the server's canonical
+  ** id.  The canonical id is the one returned in the response, and servers
+  ** must use that same id when polling.  Clients must not assume the
+  ** request id equals the response id, but row ordering is guaranteed so
+  ** clients can map between them.
+  **
+  ** If the response is an error grid then the client must assume the watch
+  ** is no longer valid and open a new one.
+  **
+  ** See [ph.doc::Ops#watchSub].
   @Api @Axon
-  static Grid phWatchSub(Grid req)
+  static Grid watchSubOp(Grid req)
   {
     cx := curContext
 
@@ -384,9 +502,21 @@ const class PhApiFuncs
     return gb.toGrid
   }
 
-  ** Unsubscribe entities from a watch; see `ph.api::Funcs.phWatchUnsub`
+  ** Close a watch entirely or remove entities from it.
+  **
+  ** Request: a row with an `id` column of Ref values for each entity to
+  ** unsubscribe, if the watch is not being closed.  Grid meta:
+  **   - `watchId`: Str watch identifier
+  **   - `close`: Marker tag to close the entire watch
+  **
+  ** Response: empty grid
+  **
+  ** If the response is an error grid then the client must assume the watch
+  ** is no longer valid and open a new one.
+  **
+  ** See [ph.doc::Ops#watchUnsub].
   @Api @Axon
-  static Grid phWatchUnsub(Grid req)
+  static Grid watchUnsubOp(Grid req)
   {
     cx := curContext
 
@@ -406,9 +536,28 @@ const class PhApiFuncs
     return Etc.emptyGrid
   }
 
-  ** Poll a watch for changed entities; see `ph.api::Funcs.phWatchPoll`
+  ** Poll a watch for changes to the subscribed entities.
+  **
+  ** Request: grid meta:
+  **   - `watchId`: required Str identifier of the watch
+  **   - `refresh`: Marker tag to request a full refresh
+  **
+  ** Response: a grid where each row corresponds to a watched entity.  The
+  ** `id` tag of each row identifies the changed entity and correlates to
+  ** the id returned by the subscribe response.  Clients must assume no
+  ** explicit ordering of the rows.
+  **
+  ** If the poll was for changes only then just the entities changed since
+  ** the last poll are returned, and an empty grid means nothing changed.
+  ** If the poll is a full refresh then a row is returned for each entity in
+  ** the watch, excluding invalid identifiers.
+  **
+  ** If the response is an error grid then the client must assume the watch
+  ** is no longer valid and open a new one.
+  **
+  ** See [ph.doc::Ops#watchPoll].
   @Api @Axon
-  static Grid phWatchPoll(Grid req)
+  static Grid watchPollOp(Grid req)
   {
     cx := curContext
 

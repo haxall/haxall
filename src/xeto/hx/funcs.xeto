@@ -122,6 +122,34 @@
   //     readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
   commit: Func <admin> { diffs: Obj, returns: Obj? }
 
+  // Add, update, or remove entities in the database.  The grid meta
+  // `commit` tag selects the mode:
+  //   - "add": each row is a new entity; the `id` column is optional and
+  //     is generated when omitted
+  //   - "update": each row must have `id` and `mod` columns, where `mod`
+  //     is the entity's current modified timestamp used for optimistic
+  //     concurrency.  Grid meta may specify the `force` marker to skip
+  //     the concurrency check, and `transient` to avoid persisting.
+  //   - "remove": each row must have `id` and `mod` columns; grid meta
+  //     may specify the `force` marker
+  //
+  // Returns a grid of the resulting entities for add and update, or an
+  // empty grid for remove.  Requires admin permission.
+  //
+  // Also see `commit` which takes a list of diffs instead of a grid, and
+  // [hx.doc.skyspark::Ops#commit] for the HTTP API details.
+  commitOp: Func <op, admin> { req: Grid, returns: Grid }
+
+  // Evaluate an expression and return the result as a grid.  The request
+  // grid has a single row with an `expr` column.  If the expression parses
+  // as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
+  // is read as a query, otherwise it is evaluated as an Axon expression.
+  //
+  // Also see `eval` which evaluates an expression string directly without
+  // the filter convenience, and [hx.doc.skyspark::Ops#eval] for the HTTP
+  // API details.
+  evalOp: Func <op> { req: Grid, returns: Grid }
+
   // Store a password key/val pair into current project's password
   // store.  The key is typically a Ref of the associated record.
   // If the `val` is null, then the password will be removed.

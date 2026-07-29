@@ -25,17 +25,17 @@ const class SysApiFuncs
 // Database Reads
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read from database the first record which matches [filter](ph.doc::Filters).
-  ** If no matches found throw UnknownRecErr or null based on checked
+  ** Read the first entity which matches [filter](ph.doc::Filters).
+  ** If no matches found raise error or return null based on checked
   ** flag.  If there are multiple matches it is indeterminate which one is
-  ** returned.  See [readAll()] for how filter works.
+  ** returned.
   **
   ** Examples:
   **
-  **     read(site)                 // read any site rec
-  **     read(site and dis=="HQ")   // read site rec with specific dis tag
-  **     read(chiller)              // raise exception if no recs with chiller tag
-  **     read(chiller, false)       // return null if no recs with chiller tag
+  **     read(Site)                 // read any entity which subtypes Site
+  **     read(Site and dis=="HQ")   // read site with specific dis tag
+  **     read(Room)                 // raise error if no room entities
+  **     read(Room, false)          // return null if no room entities
   @Api @Axon
   static Dict? read(Expr filterExpr, Expr checked := Literal.trueVal)
   {
@@ -45,41 +45,28 @@ const class SysApiFuncs
     return cx.db.read(filter, check)
   }
 
-  ** Read a record from database by `id`.  If not found
-  ** throw UnknownRecErr or return null based on checked flag.
-  ** In Haxall all refs are relative, but in SkySpark refs may
-  ** be prefixed with something like "p:projName:r:".  This function
-  ** will accept both relative and absolute refs.
+  ** Read an entity by `id`.  If not found raise error or
+  ** return null based on checked flag.
   **
   ** Examples:
   **
-  **      readById(@2b00f9dc-82690ed6)          // relative ref literal
-  **      readById(@:demo:r:2b00f9dc-82690ed6)  // project absolute literal
-  **      readById(id)                          // read using variable
-  **      readById(equip->siteRef)              // read from ref tag
+  **      readById(@2b00f9dc-82690ed6)
+  **      readById(@2b00f9dc-82690ed6, false)
   @Api @Axon
   static Dict? readById(Ref? id, Bool checked := true)
   {
     curContext.db.readById(id ?: Ref.nullRef, checked)
   }
 
-  ** Read a list of record ids into a grid.  The rows in the
+  ** Read a list of entities by their ids into a grid.  The rows in the
   ** result correspond by index to the ids list.  If checked is true,
-  ** then every id must be found in the database or UnknownRecErr
-  ** is thrown.  If checked is false, then an unknown record is
-  ** returned as a row with every column set to null (including
-  ** the `id` tag).  Either relative or project absolute refs may
-  ** be used.
+  ** then every id must be found or an error is raised.  If checked
+  ** is false, then an unknown entity is returned as a row with every column
+  ** set to null (including the `id` tag).
   **
   ** Examples:
   **
-  **     // read two relative refs
   **     readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a])
-  **
-  **     // read two project absolute refs
-  **     readByIds([@p:demo:r:2af6f9ce-6ddc5075, @p:demo:r:2af6f9ce-2d56b43a])
-  **
-  **     // return null for a given id if it does not exist
   **     readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
   @Api @Axon
   static Grid readByIds(Ref[] ids, Bool checked := true)
@@ -87,24 +74,20 @@ const class SysApiFuncs
     curContext.db.readByIds(ids, checked)
   }
 
-  ** Read all records from the database which match the [filter](ph.doc::Filters).
-  ** The filter must be an expression which matches the filter structure.
-  ** String values may parsed into a filter using [parseFilter()] function.
+  ** Read all entities which match the [filter](ph.doc::Filters).
   **
   ** Options:
-  **   - `limit`: max number of recs to return
+  **   - `limit`: max number of entities to return
   **   - `sort`: sort by display name
-  **   - `search`: search pattern to apply in addition to the
-  **     filter; see [parseSearch()]
-  **   - `trash`: include recs with the `trash` tag
+  **   - `search`: platform specific search pattern
   **   - `gridMeta`: dict to use for the result's grid level meta
   **
   ** Examples:
   **
-  **     readAll(site)                      // read all site recs
-  **     readAll(equip and siteRef==@xyz)   // read all equip in a given site
-  **     readAll(equip, {limit:10})         // read up to ten equips
-  **     readAll(equip, {sort})             // read all equip sorted by dis
+  **     readAll(Site)                      // read all site entities
+  **     readAll(Equip and siteRef==@xyz)   // read all equip in a given site
+  **     readAll(Equip, {limit:10})         // read up to ten equips
+  **     readAll(Equip, {sort})             // read all equip sorted by dis
   @Api @Axon
   static Grid readAll(Expr filterExpr, Expr? optsExpr := null)
   {
