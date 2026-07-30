@@ -37,11 +37,6 @@ abstract class ApiTest : HxTest
   ** behave identically in both dialects are written against this hook.
   abstract Obj? callOp(Client c, Str op, Str:Obj args)
 
-  ** Resolve a logical op name to its name in this dialect.  Version 4
-  ** uses the bare name "eval" where version 5 uses the qualified
-  ** "hx.eval", so shared tests always route names through here.
-//  abstract Str opName(Str logical)
-
   ** Set the Xeto-Version header for this dialect.  Version 4 is the
   ** assumed default so it sends no header, which also keeps the legacy
   ** no-header path under test.

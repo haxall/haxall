@@ -127,13 +127,17 @@ class ApiPipeline
     return true
   }
 
-  ** Check and validate the Xeto-Version header; v4 assumed if undefined
+  ** Check and validate the requested version; v4 assumed if undefined.
+  ** The Xeto-Version header is the primary mechanism; the "xeto-version"
+  ** query param is a debugging affordance so a v5 request can be made
+  ** from a browser address bar or curl without setting headers, and it
+  ** takes precedence when both are given.  Clients should send the header.
   private Void resolveVersion()
   {
-    header := req.headers["Xeto-Version"]
-    if (header == null) { version = ApiVersion.def; return }
-    version = ApiVersion.fromToken(header, false)
-    if (version == null) throw ApiErr.unsupportedVersionErr(header)
+    token := req.uri.query["xeto-version"] ?: req.headers["Xeto-Version"]
+    if (token == null) { version = ApiVersion.def; return }
+    version = ApiVersion.fromToken(token, false)
+    if (version == null) throw ApiErr.unsupportedVersionErr(token)
   }
 
   ** Map opName to its op function
@@ -152,12 +156,23 @@ class ApiPipeline
   ** Lookup opName and check for ambiguous matches
   private Spec doResolveOpFunc(Str opName)
   {
+    // qname is axon style "sys.api::about" (without Funcs)
+    colon := opName.index("::")
+    if (colon != null)
+    {
+      lib := cx.ns.lib(opName[0..<colon], false)
+      spec := lib?.funcs?.get(opName[colon+2..-1], false)
+      if (spec == null) throw ApiErr.unknownFuncErr(opName)
+      return spec
+    }
+
+    // unqualified resolution
     funcs := cx.ns.funcs.getAll(opName)
     if (funcs.size == 1) return funcs.first
     if (funcs.size == 0) throw ApiErr.unknownFuncErr(opName)
     funcs = funcs.findAll |f| { f.meta.has("op") } // narrow down to <op> only
     if (funcs.size == 1) return funcs.first
-    throw ApiErr.ambiguousFuncErr(opName, funcs.map |f->Str| { f.qname })
+    throw ApiErr.ambiguousFuncErr(opName, funcs.map |f->Str| { f.func.qname })
   }
 
 //////////////////////////////////////////////////////////////////////////

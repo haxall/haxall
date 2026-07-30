@@ -60,7 +60,7 @@ abstract class ApiDispatch
   MimeType? acceptMimeType(WebReq req, MimeType defaultMime)
   {
     // check for filetype in query string for easy testing
-    queryFiletype := req.uri.query["filetype"] ?: req.uri.query["format"]
+    queryFiletype := req.uri.query["xeto-filetype"] ?: req.uri.query["filetype"]
     if (queryFiletype != null) return Filetype.byName(queryFiletype).mimeType
 
     // if not specified or anything accepted return return default
@@ -72,6 +72,14 @@ abstract class ApiDispatch
     mime := MimeType.fromStr(toks.first, false)
     if (mime == null) return null
     return mime
+  }
+
+  ** Query params that control the request itself rather than supply an op
+  ** argument.  These use an "xeto-" prefix which mirrors the request header.
+  Bool isControlParam(Str name)
+  {
+    if (name.startsWith("xeto-")) return true
+    return version === ApiVersion.v4 && name == "filetype"
   }
 
   ** Does the request accept gzip
@@ -97,6 +105,8 @@ abstract class ApiDispatch
   Str opName() { p.opName }
 
   Spec func() { p.func }
+
+  ApiVersion version() { p.version }
 
   private ApiPipeline p
 }

@@ -28,6 +28,7 @@ class ApiDispatchV4 : ApiDispatch
     tags := Str:Obj[:]
     req.uri.query.each |valStr, key|
     {
+      if (isControlParam(key)) return
       Obj? val := null
       try
         val = ZincReader(valStr.in).readVal
@@ -99,7 +100,9 @@ class ApiDispatchV4 : ApiDispatch
 
   override Void writeRes(Obj? result)
   {
-    grid := Etc.toGrid(result)
+    // a func with no result encodes as the empty grid v4 clients expect;
+    // Etc.toGrid would otherwise make a single row with a null val col
+    grid := result == null ? Etc.emptyGrid : Etc.toGrid(result)
 
     // parse Accept header to find requested mime type
     mime := acceptMimeType(req, mimeZinc)

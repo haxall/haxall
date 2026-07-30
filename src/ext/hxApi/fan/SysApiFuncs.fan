@@ -100,19 +100,13 @@ const class SysApiFuncs
 // Server
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return summary information about the server as a dict.  Servers
-  ** should report the following tags where applicable:
-  **   - `serverName`: name of the host machine
-  **   - `serverTime`: current time of the server's clock
-  **   - `serverBootTime`: time the server was booted
-  **   - `productName`: name of the server software
-  **   - `productVersion`: version of the server software
-  **   - `productUri`: uri to the product's website
-  **   - `tz`: default timezone name of the server
+  ** Return summary information about the server; see `sys.api::AboutInfo`
+  ** for the tags a server should report where applicable.  Vendors may
+  ** add their own tags.
   **
-  ** Additional vendor specific tags may be included.  This is typically
-  ** the first call a client makes to discover what it is talking to.
-  ** Use `libs` to discover the installed libs and their versions.
+  ** This is typically the first call a client makes to discover what it
+  ** is talking to.  Use `libs` to discover the installed libs and their
+  ** versions.
   **
   ** See [ph.doc::Ops#about].
   @Api @Axon
@@ -123,16 +117,55 @@ const class SysApiFuncs
   ** authentication token are rejected and the client must reauthenticate.
   **
   ** Servers which do not maintain per-session state may implement this
-  ** as a no-op.  Returns an empty grid.
+  ** as a no-op.  There is no result: v5 returns nothing and v4 encodes
+  ** it as the empty grid its clients expect.
   **
   ** See [ph.doc::Ops#close].
   @Api @Axon
-  static Grid close()
+  static Obj? close()
   {
     cx := curContext
     cx.sys.session.close(cx.session)
-    return Etc.emptyGrid
+    return null
   }
+
+  ** Report the operations this server supports, one row per op, matching
+  ** the `sys.api::OpInfo` spec.  This is the v5 format which describes
+  ** the live xeto namespace; v4 clients are served the legacy def format
+  ** instead by `hxApi::ApiDispatchV4Ops` before this function is reached.
+  **
+  ** See `sys.api::Funcs.ops`.
+  @Api @Axon
+  static Grid ops()
+  {
+    gb := GridBuilder()
+    gb.setMeta(Etc.dict1("of", opInfoRef))
+    gb.addCol("qname")
+      .addCol("doc")
+      .addCol("noSideEffects").addCol("signature")
+      .addCol("spec")
+
+    acc := Spec[,]
+    curContext.ns.libs.each |lib|
+    {
+      lib.funcs.list.each |f| { if (f.meta.has("op")) acc.add(f) }
+    }
+    acc.sort |a, b| { a.func.qname <=> b.func.qname }
+
+    acc.each |f|
+    {
+      gb.addRow([
+        f.func.qname,
+        Etc.firstSentence(f["doc"] as Str),
+        f.meta["noSideEffects"],
+        f.func.signature,
+        opInfoRef,
+      ])
+    }
+    return gb.toGrid
+  }
+
+  private static const Ref opInfoRef := Ref("sys.api::OpInfo")
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
