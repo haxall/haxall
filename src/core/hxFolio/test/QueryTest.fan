@@ -331,7 +331,7 @@ internal class QueryTestContext : FolioContext
   new make(Filter f) { readFilter = f }
   const Filter readFilter
   override Bool canRead(Dict rec) { readFilter.matches(rec, HaystackContext.nil) }
-  override  Bool canWrite(Dict rec) { true }
+  override  Bool canWrite(FolioWrite w) { true }
   override Obj? commitInfo() { null }
 }
 

@@ -153,11 +153,9 @@ const class HxFolio : Folio
     return f
   }
 
-  override protected FolioRec? doReadRecById(Ref id)
+  override protected FolioRec? doReadRecByIdRaw(Ref id)
   {
-    rec := index.rec(id, false)
-    if (rec != null && !rec.isTrash) return rec
-    return null
+    index.rec(id, false)
   }
 
   override protected Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
@@ -174,11 +172,6 @@ const class HxFolio : Folio
   {
     diffs = diffs.toImmutable
 
-    // check on caller's thread
-    FolioUtil.checkDiffs(diffs)
-    cx := FolioContext.curFolio(false)
-    if (cx != null) diffs.each |diff| { checkCanWrite(cx, diff) }
-
     // build set of normalized new ids we are adding
     [Ref:Ref]? newIds := null
     diffs.each |diff|
@@ -191,14 +184,6 @@ const class HxFolio : Folio
 
     // route to index actor thread
     return FolioFuture(index.send(Msg(MsgId.commit, diffs, newIds, cxInfo)))
-  }
-
-  private Void checkCanWrite(FolioContext cx, Diff diff)
-  {
-    id := diff.id
-    rec := index.dict(id, false)
-    if (rec == null) return
-    if (!cx.canWrite(rec)) throw PermissionErr("Cannot write: $id.toZinc")
   }
 
   override Dict? readByIdPersistentTags(Ref id, Bool checked := true)

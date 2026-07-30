@@ -36,19 +36,12 @@ const class ShellFolio : Folio
     FolioFuture(CountFolioRes(0))
   }
 
-  override protected FolioRec? doReadRecById(Ref id)
+  override protected FolioRec? doReadRecByIdRaw(Ref id)
   {
-    throw UnsupportedErr()
-  }
-
-  override protected Dict?[] doReadByIds(Ref[] ids)
-  {
-    map := this.map
-    return ids.map |id->Dict?|
-    {
-      rec := map.get(id) as Dict
-      return rec == null || rec.has("trash") ? null : rec
-    }
+    rec := map.get(id) as Dict
+    if (rec == null && id.isRel && idPrefix != null)
+      rec = map.get(id.toAbs(idPrefix))
+    return rec == null ? null : DictFolioRec(rec)
   }
 
   override protected Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
@@ -85,8 +78,7 @@ const class ShellFolio : Folio
 
   override FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)
   {
-    // check and normalize all the diffs - not thread-safe!!!
-    FolioUtil.checkDiffs(diffs)
+    // normalize all the diffs - not thread-safe!!!
     newMod := DateTime.nowUtc(null)
     internedIds := Ref:Ref[:]
     diffs =  diffs.map |diff| { commitApply(diff, internedIds, newMod) }

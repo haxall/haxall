@@ -39,7 +39,7 @@ class Build : BuildPod
                "folio @{hx.depend}",
                "hx @{hx.depend}",
                "hxm @{hx.depend}"]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `test/`]
     index   = ["xeto.bindings":"hx.axonsh"]
   }
 }

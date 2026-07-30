@@ -46,6 +46,17 @@ class PrefixTest : AbstractFolioTest
     verifyDictEq(folio.readById(b.id), b)
     verifyDictEq(folio.readById(Ref(bRel)), b)
 
+    // readByIdTrash must resolve rel refs too, for live and trashed recs
+    t := addRec(["id":Ref("t"), "dis":"Trashed", "trash":Marker.val])
+    verifyDictEq(folio.readByIdTrash(Ref("u:a")), a)
+    verifyDictEq(folio.readByIdTrash(Ref("a")), a)
+    verifyEq(folio.readById(Ref("t"), false), null)
+    verifyEq(folio.readById(Ref("u:t"), false), null)
+    verifyDictEq(folio.readByIdTrash(Ref("u:t")), t)
+    verifyDictEq(folio.readByIdTrash(Ref("t")), t)
+    verifyEq(folio.readByIdTrash(Ref("nope"), false), null)
+    verifyErr(UnknownRecErr#) { folio.readByIdTrash(Ref("nope")) }
+
     // make some commits with abs id
     diff := folio.commit(Diff(Etc.makeDict(["id":Ref("u:a"), "mod":a->mod]), ["foo":"one"]))
     a = folio.readById(a.id)

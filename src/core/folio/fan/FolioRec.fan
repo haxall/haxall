@@ -19,6 +19,9 @@ const mixin FolioRec
   ** Dict representation of rec
   abstract Dict dict()
 
+  ** Is this rec in the trash
+  virtual Bool isTrash() { dict.has("trash") }
+
   ** Ticks of last persistent or transient change for watching
   abstract Int ticks()
 

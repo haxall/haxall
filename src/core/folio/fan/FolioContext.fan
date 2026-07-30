@@ -28,8 +28,8 @@ mixin FolioContext : ActorContext
   ** Return if context has read access to given record
   abstract Bool canRead(Dict rec)
 
-  ** Return if context has write (update/delete) access to given record
-  abstract Bool canWrite(Dict rec)
+  ** Return if context has write access to perform the given write
+  abstract Bool canWrite(FolioWrite w)
 
   ** Return an immutable thread safe object which will be passed thru
   ** the commit process and available via the FolioHooks callbacks.

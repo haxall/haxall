@@ -246,8 +246,12 @@ class Context : AxonContext, FolioContext
   ** Return if context has read access to given record
   @NoDoc override Bool canRead(Dict rec) { true }
 
-  ** Return if context has write (update/delete) access to given record
-  @NoDoc override Bool canWrite(Dict rec) { user.isAdmin && canRead(rec) }
+  ** Return if context has access for the given write.
+  ** A null oldRec means an add, which is not authorized per-rec.
+  @NoDoc override Bool canWrite(FolioWrite w)
+  {
+    w.oldRec == null ? true : user.isAdmin && canRead(w.oldRec)
+  }
 
   ** Check security permissions to call given function
   @NoDoc override Void checkCall(Fn fn)

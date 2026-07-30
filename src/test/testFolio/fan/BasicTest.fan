@@ -714,6 +714,47 @@ class BasicTest : AbstractFolioTest
     Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Commit Permissions
+//////////////////////////////////////////////////////////////////////////
+
+  Void testCommitPerms() { runImpls }
+  Void doTestCommitPerms()
+  {
+    open
+
+    a := addRec(["dis":"A"])
+    b := addRec(["dis":"B"])
+    t := addRec(["dis":"T", "trash":Marker.val])
+
+    Actor.locals[ActorContext.actorLocalsKey] = TestDenyContext([a.id, t.id])
+    try
+    {
+      // denied update
+      verifyErr(PermissionErr#) { folio.commit(Diff(a, ["foo":"x"])) }
+
+      // allowed update
+      folio.commit(Diff(b, ["foo":"x"]))
+      verifyEq(folio.readById(b.id)["foo"], "x")
+
+      // adds have no old rec so they bypass the check entirely
+      verifyEq(folio.commit(Diff.makeAdd(["dis":"C"])).newRec->dis, "C")
+
+      // trash is authorized too, so untrashing a denied rec must fail;
+      // this is why the check reads with doReadByIdsRaw
+      verifyErr(PermissionErr#) { folio.commit(Diff(folio.readByIdTrash(t.id), ["trash":None.val])) }
+
+      // one denied diff rejects the whole batch and nothing is applied
+      verifyErr(PermissionErr#) { folio.commitAll([Diff(b, ["bar":"1"]), Diff(a, ["bar":"2"])]) }
+      verifyEq(folio.readById(b.id)["bar"], null)
+
+      // diff validation runs before authorization, so an invalid batch
+      // of denied diffs reports DiffErr rather than PermissionErr
+      verifyErr(DiffErr#) { folio.commitAll([Diff(a, ["x":"1"]), Diff(a, ["y":"2"])]) }
+    }
+    finally Actor.locals.remove(ActorContext.actorLocalsKey)
+  }
+
   internal Void verifyHooks(TestHooks t, FolioContext cx, Diff[] preExpected, Diff[] postExpected)
   {
     verifySame(t.cxInfoRef.val, cx.commitInfo)
@@ -739,9 +780,32 @@ internal class TestContext : FolioContext
 
   override Bool canRead(Dict r) { true }
 
-  override Bool canWrite(Dict r) { true }
+  override Bool canWrite(FolioWrite w) { true }
 
   override const Obj? commitInfo
+}
+
+**************************************************************************
+** TestDenyContext
+**************************************************************************
+
+** Context which denies writes to a fixed set of ids
+internal class TestDenyContext : FolioContext
+{
+  new make(Ref[] denies) { this.denies = denies }
+
+  const Ref[] denies
+
+  override Bool canRead(Dict r) { true }
+
+  override Bool canWrite(FolioWrite w)
+  {
+    // adds have no old rec and are not authorized per-rec
+    rec := w.oldRec
+    return rec == null || !denies.contains(rec.id)
+  }
+
+  override Obj? commitInfo() { "test-deny" }
 }
 
 **************************************************************************

@@ -72,15 +72,12 @@ const class FolioFlatFile : Folio
     FolioFuture.makeSync(CountFolioRes(0))
   }
 
-  @NoDoc override FolioRec? doReadRecById(Ref id)
+  @NoDoc override FolioRec? doReadRecByIdRaw(Ref id)
   {
     rec := map.get(id) as Dict
     if (rec == null && id.isRel && idPrefix != null)
       rec = map.get(id.toAbs(idPrefix))
-    if (rec != null && rec.missing("trash"))
-      return FolioFlatFileRec(rec)
-    else
-      return null
+    return rec == null ? null : DictFolioRec(rec)
   }
 
   @NoDoc override protected Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
@@ -107,9 +104,7 @@ const class FolioFlatFile : Folio
 
   @NoDoc override FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)
   {
-    // check diffs on caller's thread
     diffs = diffs.toImmutable
-    FolioUtil.checkDiffs(diffs)
 
     // send message to background actor
     return FolioFuture(actor.send(FolioFlatFileMsg("commit", diffs, cxInfo)))
@@ -407,20 +402,6 @@ internal class FolioFlatFileCommit
     if (id.disVal != null) id = Ref(id.id, null)
     return id
   }
-}
-
-**************************************************************************
-** FolioFlatRec
-**************************************************************************
-
-internal const class FolioFlatFileRec : FolioRec
-{
-  new make(Dict dict) { this.dict = dict }
-  const override Dict dict
-  override Int ticks() { throw UnsupportedErr() }
-  override Int watchCount() { throw UnsupportedErr() }
-  override Int watchIncrement() { throw UnsupportedErr() }
-  override Int watchDecrement() { throw UnsupportedErr() }
 }
 
 **************************************************************************

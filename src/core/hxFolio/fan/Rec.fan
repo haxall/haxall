@@ -60,7 +60,7 @@ const class Rec : FolioRec
   private const AtomicRef transientRef := AtomicRef(Etc.dict0)
 
   ** Is this record marked for trash
-  Bool isTrash() { isTrashRef.val }
+  override Bool isTrash() { isTrashRef.val }
   private const AtomicBool isTrashRef := AtomicBool()
 
   ** Ticks for last persistent or transient change [owned by IndexMgr]

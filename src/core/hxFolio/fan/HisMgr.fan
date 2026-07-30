@@ -94,7 +94,7 @@ const class HisMgr : HxFolioMgr, FolioHis
 
     // security check
     cx := FolioContext.curFolio(false)
-    if (cx != null && !cx.canWrite(rec.dict)) throw PermissionErr("Cannot write: $id.toCode")
+    if (cx != null && !cx.canWrite(FolioWrite.his(rec.dict))) throw PermissionErr("Cannot write: $id.toCode")
 
     // process on IndexMgr thread for thread safety
     return FolioFuture(folio.index.hisWrite(rec, items, opts, cx?.commitInfo))

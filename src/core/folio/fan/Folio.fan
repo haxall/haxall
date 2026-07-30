@@ -138,47 +138,21 @@ abstract const class Folio
 // Reads
 //////////////////////////////////////////////////////////////////////////
 
-  ** Subclass implementation of [readRecById].
-  ** - _Never_ read recs in the trash
-  ** - _Never_ check permissions
-  @NoDoc protected abstract FolioRec? doReadRecById(Ref id)
-
-  ** Subclass implementation of [readByIds].
-  ** Default implementation maps to `doReadRecById`.
-  ** - _Never_ read recs in the trash
-  ** - _Never_ check permissions
-  @NoDoc protected virtual Dict?[] doReadByIds(Ref[] ids)
-  {
-    ids.map |id->Dict?| { doReadRecById(id)?.dict }
-  }
-
-  ** Subclass implementation to stream every rec matching filter
-  ** to the sink until [FolioReadSink.accept] returns non-null, in which
-  ** case return that value.
-  ** - _Never_ read recs in the trash
-  ** - _Never_ check permissions
-  @NoDoc protected abstract Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
-
-  ** Subclass implementation to stream every rec in the trash matching filter
-  ** - _Never_ check permissions
-  @NoDoc protected abstract Obj? doReadTrashEachWhile(Filter filter, FolioReadSink sink)
-
-  ** Subclass hook to count matching the filter. The base class only calls this
-  ** when no context is installed and no options need to be applied, so subclasses
-  ** are free to optimize.
-  ** - _Never_ count recs in the trash
-  ** - _Never_ check permissions
-  @NoDoc protected virtual Int doReadCount(Filter filter)
-  {
-    sink := FolioReadSink.makeCount
-    doReadAllEachWhile(filter, sink)
-    return sink.count
-  }
-
   ** Read underlying record used for additional rec based features like watches
   @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
-    rec := checkRead.doReadRecById(id)
+    doReadRecById(id, checked, false)
+  }
+
+  ** Apply trash exclusion and permission checking to the raw by-id read.
+  ** If trash is true then recs in the trash are returned too.
+  private FolioRec? doReadRecById(Ref id, Bool checked, Bool trash)
+  {
+    rec := checkRead.doReadRecByIdRaw(id)
+
+    // trashed recs are invisible unless trash flag is set
+    if (rec != null && rec.isTrash && !trash) rec = null
+
     if (rec != null)
     {
       cx := FolioContext.curFolio(false)
@@ -218,12 +192,16 @@ abstract const class Folio
   ** have permission to read is returned as null.
   private FolioFuture readByIdsSync(Ref[] ids)
   {
-    dicts := checkRead.doReadByIds(ids)
+    dicts := checkRead.doReadByIdsRaw(ids)
     cx := FolioContext.curFolio(false)
     errMsg := ""
     ids.each |id, i|
     {
       dict := dicts[i]
+
+      // trash recs are invisible
+      if (dict != null && dict.has("trash")) dicts[i] = dict = null
+
       if (dict == null)
       {
         // only the first missing rec is reported
@@ -292,16 +270,12 @@ abstract const class Folio
   ** Read by id whether rec is in trash or not
   @NoDoc Dict? readByIdTrash(Ref? id, Bool checked := true)
   {
-    // optimize for common path
-    rec := readById(id, false)
-    if (rec != null) return rec
-
-    // the trash read matches the id tag itself, so unlike the by-id
-    // lookup above it cannot resolve a relative ref for us
-    if (id != null && id.isRel && idPrefix != null) id = id.toAbs(idPrefix)
-
-    // route to the trash read
-    return readAllSync(Filter.eq("id", id), optsLimit1, true).dict(checked)
+    if (id == null)
+    {
+      if (checked) throw UnknownRecErr("null")
+      return null
+    }
+    return doReadRecById(id, checked, true)?.dict
   }
 
   ** Read all records matching filter.
@@ -357,6 +331,43 @@ abstract const class Folio
     return id
   }
 
+  ** Read a live or trashed rec by id.
+  ** Must resolve relative refs against `idPrefix`.
+  ** - Never check permissions
+  @NoDoc protected abstract FolioRec? doReadRecByIdRaw(Ref id)
+
+  ** Read a list of live or trashed recs by id.
+  ** The default implementation maps [doReadRecByIdRaw].
+  ** Must resolve relative refs against `idPrefix`.
+  ** - Never check permissions
+  @NoDoc protected virtual Dict?[] doReadByIdsRaw(Ref[] ids)
+  {
+    ids.map |id->Dict?| { doReadRecByIdRaw(id)?.dict }
+  }
+
+  ** Subclass implementation to stream every rec matching filter
+  ** to the sink until [FolioReadSink.accept] returns non-null, in which
+  ** case return that value.
+  ** - Never read recs in the trash
+  ** - Never check permissions
+  @NoDoc protected abstract Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
+
+  ** Subclass implementation to stream every rec in the trash matching filter
+  ** - Never check permissions
+  @NoDoc protected abstract Obj? doReadTrashEachWhile(Filter filter, FolioReadSink sink)
+
+  ** Subclass hook to count matching the filter. The base class only calls this
+  ** when no context is installed and no options need to be applied, so subclasses
+  ** are free to optimize.
+  ** - Never count recs in the trash
+  ** - Never check permissions
+  @NoDoc protected virtual Int doReadCount(Filter filter)
+  {
+    sink := FolioReadSink.makeCount
+    doReadAllEachWhile(filter, sink)
+    return sink.count
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Commits
 //////////////////////////////////////////////////////////////////////////
@@ -364,7 +375,7 @@ abstract const class Folio
   ** Convenience for [commitAll] with a single diff.
   Diff commit(Diff diff)
   {
-    checkWrite.doCommitAllSync([diff], cxCommitInfo).diff
+    doCommitAllSync(checkCommits([diff]), cxCommitInfo).diff
   }
 
   ** Apply a list of diffs to the database in batch.  Either all the
@@ -377,19 +388,19 @@ abstract const class Folio
   ** unless `Diff.force` configured.
   Diff[] commitAll(Diff[] diffs)
   {
-    checkWrite.doCommitAllSync(diffs, cxCommitInfo).diffs
+    doCommitAllSync(checkCommits(diffs), cxCommitInfo).diffs
   }
 
   ** Convenience for [commitAllAsync] with a single diff.
   FolioFuture commitAsync(Diff diff)
   {
-    checkWrite.doCommitAllAsync([diff], cxCommitInfo)
+    doCommitAllAsync(checkCommits([diff]), cxCommitInfo)
   }
 
   ** Commit a list of diffs to the database asynchronously.
   FolioFuture commitAllAsync(Diff[] diffs)
   {
-    checkWrite.doCommitAllAsync(diffs, cxCommitInfo)
+    doCommitAllAsync(checkCommits(diffs), cxCommitInfo)
   }
 
   ** Remove all records with the trash tag
@@ -401,6 +412,7 @@ abstract const class Folio
   }
 
   ** Subclass implementation of commitAll (default routes to doCommitAllAsync)
+  ** Diffs must be checked using [checkCommits] before calling this.
   @NoDoc virtual protected FolioFuture doCommitAllSync(Diff[] diffs, Obj? cxInfo)
   {
     doCommitAllAsync(diffs, cxInfo)
@@ -412,5 +424,27 @@ abstract const class Folio
   ** Context commit info to pass back to FolioHooks
   private Obj? cxCommitInfo() { FolioContext.curFolio(false)?.commitInfo }
 
-}
+  ** Verify the database is writable, validate the diffs, and check write
+  ** permission for each one. Throws DiffErr if the diffs are invalid, or
+  ** PermissionErr on the first diff which fails its check. If no context
+  ** is installed then all diffs are allowed. Returns the diffs (unmodified)
+  ** for convenience.
+  private Diff[] checkCommits(Diff[] diffs)
+  {
+    checkWrite
+    FolioUtil.checkDiffs(diffs)
 
+    cx := FolioContext.curFolio(false)
+    if (cx == null) return diffs
+
+    // old rec is null for adds and for recs which do not exist; the raw
+    // read includes the trash since a commit may untrash a rec
+    oldRecs := doReadByIdsRaw(diffs.map |diff->Ref| { diff.id })
+    diffs.each |diff, i|
+    {
+      if (!cx.canWrite(FolioWrite.makeCommit(oldRecs[i], diff)))
+        throw PermissionErr("Cannot write: $diff.id.toZinc")
+    }
+    return diffs
+  }
+}
