@@ -8,6 +8,7 @@
 
 using concurrent
 using inet
+using util
 using xeto
 using haystack
 using auth
@@ -35,7 +36,64 @@ class Api3Test : ApiTest
     doPointWrite
     doDefOps
     doOpWebFuncs
+    doErrJson
     cleanup
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Err JSON Envelope
+//////////////////////////////////////////////////////////////////////////
+
+  ** Failures in the HTTP processing itself - as opposed to a failure raised
+  ** by the op function - return a real status code with a `sys.api::ApiErr`
+  ** subtype encoded as clean JSON in both dialects.  The spec tag is the
+  ** programmatic contract; the status code is advisory.
+  Void doErrJson()
+  {
+    // unknown proj
+    err := verifyErrJson(`/api/badProjName/about`, 404)
+    verifyEq(err["spec"], "sys.api::UnknownProjErr")
+    verifyEq(err["projName"], "badProjName")
+
+    // unknown op
+    err = verifyErrJson(`/api/$proj.name/badOpName`, 404)
+    verifyEq(err["spec"], "sys.api::UnknownFuncErr")
+    verifyEq(err["funcName"], "badOpName")
+
+    // GET on an op with side effects
+    err = verifyErrJson(`/api/$proj.name/eval?expr=now()`, 405)
+    verifyEq(err["spec"], "sys.api::MethodNotAllowedErr")
+    verifyEq(err["allow"], Obj?["POST"])
+
+    // bad Xeto-Version header; allowed versions are ApiVersion scalar
+    // tokens so the format stays open to non-integer versions later
+    err = verifyErrJson(`/api/$proj.name/about`, 400, "7")
+    verifyEq(err["spec"], "sys.api::UnsupportedVersionErr")
+    verifyEq(err["allow"], Obj?["4", "5"])
+
+    // non-numeric version header is rejected the same way
+    err = verifyErrJson(`/api/$proj.name/about`, 400, "bogus")
+    verifyEq(err["spec"], "sys.api::UnsupportedVersionErr")
+  }
+
+  ** Request uri and verify a JSON ApiErr body with the given status code
+  Str:Obj? verifyErrJson(Uri uri, Int code, Str? version := null)
+  {
+    wc := c.toWebClient(uri)
+    if (version != null) wc.reqHeaders["Xeto-Version"] = version
+    wc.writeReq
+    wc.readRes
+    verifyEq(wc.resCode, code)
+    verifyEq(wc.resHeaders["Content-Type"], "application/json")
+    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    wc.close
+
+    // every err carries the advisory status as a JSON integer plus a
+    // human readable dis matching the status phrase
+    verifyEq(json["status"], code)
+    verifyEq(json["dis"], wc.resPhrase)
+    verify((json["spec"] as Str).startsWith("sys.api::"))
+    return json
   }
 
 //////////////////////////////////////////////////////////////////////////

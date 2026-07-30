@@ -54,20 +54,20 @@ class ApiPipeline
     }
     catch (ApiErr e)
     {
-      writeErr(e.code, e.msg, e.cause)
+      writeErr(e)
     }
     catch (EvalErr e)
     {
       e = e.cause ?: e
-      writeErr(500, e.msg, e)
+      writeErr(ApiErr.internalErr(e.msg, e))
     }
     catch (PermissionErr e)
     {
-      writeErr(403, e.msg, e.cause)
+      writeErr(ApiErr.permissionErr(e.msg, e.cause))
     }
     catch (Err e)
     {
-      writeErr(500, "Internal error: $e.msg", e)
+      writeErr(ApiErr.internalErr("Internal error: $e.msg", e))
     }
     finally
     {
@@ -83,7 +83,7 @@ class ApiPipeline
   private Void resolveRuntime()
   {
     // if path too short
-    if (rtName == null) throw err(404, "Invalid path")
+    if (rtName == null) throw ApiErr.invalidPathErr
 
     // lookup project
     rt = sys.proj.get(rtName, false)
@@ -98,7 +98,7 @@ class ApiPipeline
     }
 
     // 404 no joy resolving runtime
-    throw err(404, "Proj not found")
+    throw ApiErr.unknownProjErr(rtName)
   }
 
   ** Check for websocket upgrade before authentication (not implemented yet)
@@ -109,7 +109,7 @@ class ApiPipeline
 
     // not implemented yet
     ext.log.warn("onWebSocket upgrade [$rt]")
-    throw err(400, "WebSocket upgrade not available")
+    throw ApiErr.notImplementedErrWebSocket
   }
 
   ** Authenticate the request against the runtime
@@ -126,16 +126,29 @@ class ApiPipeline
   private Void resolveVersion()
   {
     header := req.headers["Xeto-Version"]
-    version = header == null ? 4 : header.toInt(10, false)
-    if (version != 4 && version != 5)
-      throw err(400, "Unsupported Xeto-Version: $header (supported: 4, 5)")
+    if (header == null) { version = defVersion; return }
+    version = header.toInt(10, false)
+    if (version == null || !versions.contains(version))
+      throw ApiErr.unsupportedVersionErr(header)
   }
+
+  ** Protocol versions supported by this server
+  static const Int[] versions := [4, 5]
+
+  ** Supported versions as `sys.api::ApiVersion` tokens for the wire
+  static const Str[] versionTokens := versions.map |v->Str| { v.toStr }.toImmutable
+
+  ** Protocol version assumed when the Xeto-Version header is undefined
+  static const Int defVersion := 4
+
+  ** Latest protocol version; used for the response header
+  static const Int curVersion := 5
 
   ** Map opName to its op function
   private Void resolveOpFunc()
   {
     // if path too short
-    if (opName == null) throw err(404, "Invalid path")
+    if (opName == null) throw ApiErr.invalidPathErr
 
     // rebase to to the op path "/api/{projName}/{opName}/..."
     req.modBase = req.uri[0..2].plusSlash
@@ -149,10 +162,10 @@ class ApiPipeline
   {
     funcs := cx.ns.funcs.getAll(opName)
     if (funcs.size == 1) return funcs.first
-    if (funcs.size == 0) throw err(404, "Unknown op: $opName")
+    if (funcs.size == 0) throw ApiErr.unknownFuncErr(opName)
     funcs = funcs.findAll |f| { f.meta.has("op") } // narrow down to <op> only
     if (funcs.size == 1) return funcs.first
-    throw err(404, "Ambiguous ops: $funcs")
+    throw ApiErr.ambiguousFuncErr(opName, funcs)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,30 +216,26 @@ class ApiPipeline
 // Error Handling
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return ApiErr to throw and funnel back thru writeErr
-  ApiErr err(Int code, Str msg, Err? err := null)
-  {
-    ApiErr(code, msg, err)
-  }
-
   ** Choke point for all error handling
-  Void writeErr(Int code, Str msg, Err? err := null)
+  Void writeErr(ApiErr err)
   {
     // if already commited then no can do
     if (res.isCommitted) return
 
     // build json body
     body := Str:Obj[:] { ordered = true }
-    body["spec"] = "sys.api::Err"
-    body["dis"]  = msg
-    if (err != null && !ext.settings.disableErrTrace)
-      body["errTrace"] = err.traceToStr
+    body["spec"]   = err.spec
+    body["status"] = err.code
+    body["dis"]    = err.dis
+    err.more.each |v, n| { body[n] = v }
+    if (!ext.settings.disableErrTrace)
+      body["errTrace"] = (err.cause ?: err).traceToStr
 
     // send error response
-    res.statusCode = code
-    res.statusPhrase = msg
+    res.statusCode = err.code
+    res.statusPhrase = err.dis
     res.headers["Content-Type"] = "application/json"
-    res.headers["Xeto-Version"] = "5"
+    res.headers["Xeto-Version"] = curVersion.toStr
     JsonOutStream(res.out).writeJson(body)
   }
 
@@ -245,19 +254,5 @@ class ApiPipeline
   Context? cx         // authenticate
   Int? version        // resolveVersion
   Spec? func          // resolveOpFunc
-}
-
-**************************************************************************
-** ApiErr
-**************************************************************************
-
-const class ApiErr : Err
-{
-  new make(Int code, Str msg, Err? cause := null) : super(msg, cause)
-  {
-    this.code = code
-  }
-
-  const Int code
 }
 

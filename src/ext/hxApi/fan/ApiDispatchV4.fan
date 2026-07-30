@@ -43,10 +43,10 @@ class ApiDispatchV4 : ApiDispatch
   {
     // find reader to use for MIME type
     mime := MimeType(req.headers["Content-Type"] ?: "", false)
-    if (mime == null) throw err(415, "Content-Type not specified")
+    if (mime == null) throw ApiErr.unsupportedMediaTypeErrMissing
 
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || !filetype.hasReader) throw err(415, "Unsupported Content-Type: $mime")
+    if (filetype == null || !filetype.hasReader) throw ApiErr.unsupportedMediaTypeErrReader(mime)
 
     // read content is as string
     reqStr := req.in.readAllStr
@@ -59,7 +59,7 @@ class ApiDispatchV4 : ApiDispatch
     }
     catch (Err e)
     {
-      throw err(400, "Cannot parse $mime request", e)
+      throw ApiErr.invalidArgsErr(mime, e)
     }
   }
 
@@ -103,11 +103,11 @@ class ApiDispatchV4 : ApiDispatch
 
     // parse Accept header to find requested mime type
     mime := acceptMimeType(req, mimeZinc)
-    if (mime == null) throw err(406, "Invalid Accept header")
+    if (mime == null) throw ApiErr.notAcceptableErrHeader
 
     // find GridWriter to use for mime type
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || !filetype.hasWriter) throw err(406, "Unsupported Accept type: $mime")
+    if (filetype == null || !filetype.hasWriter) throw ApiErr.notAcceptableErrWriter(mime)
 
     // accept-encoding
     gzip := acceptGzip(req)

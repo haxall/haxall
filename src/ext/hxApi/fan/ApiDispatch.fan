@@ -29,7 +29,7 @@ abstract class ApiDispatch
     if (req.isGet)
     {
       if (func.meta.missing("noSideEffects"))
-        throw err(405, "GET not allowed for op '$func.name'")
+        throw ApiErr.methodNotAllowedErr(func.name)
       return readReqGet
     }
 
@@ -37,7 +37,7 @@ abstract class ApiDispatch
     {
       return readReqPost
     }
-    throw err(501, "Unsupported method: $req.method.upper")
+    throw ApiErr.notImplementedErrMethod(req.method)
   }
 
   ** Read the request to function args from path or query string
@@ -97,8 +97,6 @@ abstract class ApiDispatch
   Str opName() { p.opName }
 
   Spec func() { p.func }
-
-  ApiErr err(Int code, Str msg, Err? err := null) { p.err(code, msg, err) }
 
   private ApiPipeline p
 }
