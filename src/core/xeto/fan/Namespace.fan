@@ -24,6 +24,9 @@ const mixin Namespace
   ** Environment used to create this namespace
   abstract XetoEnv env()
 
+  ** Timestamp when this namespace was built
+  abstract DateTime ts()
+
   ** Base64 digest for this namespace based on its lib versions
   ** Note: this digest only changes when the libs and/or versions are
   ** modified.  It is **not** a digest of the lib contents.

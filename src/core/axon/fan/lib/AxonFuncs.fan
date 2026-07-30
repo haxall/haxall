@@ -2157,12 +2157,6 @@ const class AxonFuncs
     AxonContext.curAxon.defs.protos(parent)
   }
 
-  ** Return timestamp of the current namespace
-  @NoDoc @Api @Axon static DateTime nsTimestamp()
-  {
-    AxonContext.curAxon.defs.ts
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Func Reflection
 //////////////////////////////////////////////////////////////////////////
@@ -3075,6 +3069,12 @@ const class AxonFuncs
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  ** Return timestamp of the current namespace
+  @NoDoc @Api @Axon static DateTime nsTimestamp()
+  {
+    AxonContext.curAxon.ns.ts
+  }
 
   ** Do nothing no-op
   @NoDoc @Api @Axon

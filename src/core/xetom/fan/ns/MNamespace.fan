@@ -90,6 +90,8 @@ const class MNamespace : Namespace, CNamespace
 
   Bool isRemote() { env.isRemote }
 
+  override const DateTime ts := DateTime.now(null)
+
   override once Str digest()
   {
     buf := Buf()

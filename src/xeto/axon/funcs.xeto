@@ -1224,57 +1224,70 @@
   //     75°F.as("°C")
   as: Func { val: Number?, unit: Obj?, returns: Number? }
 
-  // Lookup a def by its symbol name (Str or Symbol).  If not
-  // found return null or raise UnknownDefErr based on checked flag.
-  // The result is returned as the definition's normalized dict
-  // representation.
+  // Lookup a def by its symbol name (Str or Symbol).  If not found
+  // return null or raise UnknownDefErr based on checked flag.  The
+  // result is returned as the definition's normalized dict representation.
+  // Deprecated: defs will be removed in a future version.
   def: Func { symbol: Obj, checked: Bool, returns: Obj? }
 
   // List all definitions in the context namespace as `Def[]`.
-  defs: Func { returns: List }
+  // Deprecated: defs will be removed in a future version.
+  defs: Func <noSideEffects> { returns: List }
 
   // List tag definitions in the context namespace as `Def[]`.
+  // Deprecated: defs will be removed in a future version.
   tags: Func { returns: List }
 
   // List term definitions (tags and conjuncts) in the context namespace as `Def[]`.
+  // Deprecated: defs will be removed in a future version.
   terms: Func { returns: List }
 
   // List conjunct definitions in the context namespace as `Def[]`.
+  // Deprecated: defs will be removed in a future version.
   conjuncts: Func { returns: List }
 
   // Return declared supertypes of the given def.  The result
   // is effectively the resolved defs of the "is" meta tag.
+  // Deprecated: defs will be removed in a future version.
   supertypes: Func <nodoc> { d: Obj, returns: List }
 
   // Return all declared subtypes of the given def.  This is
   // effectively all defs which have a declared supertype of def.
   // Feature keys are not included in results.
+  // Deprecated: defs will be removed in a future version.
   subtypes: Func <nodoc> { d: Obj, returns: List }
 
   // Return if the given def has subtypes.
+  // Deprecated: defs will be removed in a future version.
   hasSubtypes: Func <nodoc> { d: Obj, returns: Bool }
 
   // Return a flatten list of all supertypes of the given def.  This
   // list always includes the def itself.   The result represents the
   // complete set of all defs implemented by the given def.
+  // Deprecated: defs will be removed in a future version.
   inheritance: Func <nodoc> { d: Obj, returns: List }
 
   // Return list of defs for given association on the parent.
   // Association define ontological relationships between definitions.
+  // Deprecated: defs will be removed in a future version.
   associations: Func <nodoc> { parent: Obj, association: Obj, returns: List }
 
   // Return list of tags to apply to implement the given def
+  // Deprecated: defs will be removed in a future version.
   implement: Func <nodoc> { d: Obj, returns: List }
 
   // Reflect the given subject dict into the list of its implemented `Def[]`
+  // Deprecated: defs will be removed in a future version.
   reflect: Func <nodoc> { dict: Dict, returns: List }
 
   // Generate a child prototype for the given parent dict.  This call
   // will automatically apply childrenFlatten tags and parent refs.
+  // Deprecated: defs will be removed in a future version.
   proto: Func <nodoc> { parent: Dict, proto: Dict, returns: Dict }
 
   // Generate a list of children prototypes for the given parent
   // dict based on all its reflected defs.
+  // Deprecated: defs will be removed in a future version.
   protos: Func <nodoc> { parent: Dict, returns: List }
 
   // Return timestamp of the current namespace
