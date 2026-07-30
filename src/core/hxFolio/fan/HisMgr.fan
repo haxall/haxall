@@ -23,6 +23,8 @@ const class HisMgr : HxFolioMgr, FolioHis
   {
   }
 
+  override Folio db() { this.folio }
+
   override Void read(Ref id, Span? span, Dict? opts, |HisItem| f)
   {
     // read checks

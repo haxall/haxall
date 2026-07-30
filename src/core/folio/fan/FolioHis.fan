@@ -15,7 +15,7 @@ using haystack
 ** Applications should use the HxHisService API
 **
 @NoDoc
-const mixin FolioHis
+const mixin FolioHis : FolioMgr
 {
 
   **
