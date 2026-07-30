@@ -24,6 +24,9 @@ const mixin SpecFunc
   ** Return type
   abstract Spec returns()
 
+  ** Qualified name in the axon style "lib::name"
+  abstract Str qname()
+
   ** Get the thunk used to call this function
   @NoDoc abstract Thunk thunk()
 
@@ -32,6 +35,9 @@ const mixin SpecFunc
 
   ** Is this a template function
   @NoDoc abstract Bool isTemplate()
+
+  ** Format a human, non-normative signature such as "(id: Ref?) -> Dict"
+  @NoDoc abstract Str signature()
 }
 
 **************************************************************************

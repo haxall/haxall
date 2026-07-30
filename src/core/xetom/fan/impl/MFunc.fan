@@ -67,5 +67,25 @@ const class MFunc : SpecFunc
     setThunk(thunk)
     return thunk
   }
+
+  override Str qname()
+  {
+    XetoUtil.qname(spec.lib.name, spec.name)
+  }
+
+  override Str signature()
+  {
+    s := StrBuf().addChar('(')
+    params.each |p, i|
+    {
+      if (i > 0) s.add(", ")
+      s.add(p.name).add(": ").add(p.type.name)
+      if (p.metaOwn.has("maybe")) s.addChar('?')
+      def := p.metaOwn["val"]
+      if (def != null) s.add(" = ").add(def)
+    }
+    s.add(") -> ").add(returns.type.name)
+    return s.toStr
+  }
 }
 
