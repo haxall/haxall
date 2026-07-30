@@ -46,7 +46,7 @@ class ApiDispatchV4 : ApiDispatch
     if (mime == null) throw ApiErr.unsupportedMediaTypeErrMissing
 
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || !filetype.hasReader) throw ApiErr.unsupportedMediaTypeErrReader(mime)
+    if (filetype == null || !filetype.hasReader) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
 
     // read content is as string
     reqStr := req.in.readAllStr
@@ -59,7 +59,7 @@ class ApiDispatchV4 : ApiDispatch
     }
     catch (Err e)
     {
-      throw ApiErr.invalidArgsErr(mime, e)
+      throw ApiErr.invalidArgsErr(mime.toStr, e)
     }
   }
 
@@ -107,7 +107,7 @@ class ApiDispatchV4 : ApiDispatch
 
     // find GridWriter to use for mime type
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || !filetype.hasWriter) throw ApiErr.notAcceptableErrWriter(mime)
+    if (filetype == null || !filetype.hasWriter) throw ApiErr.notAcceptableErrWriter(mime.toStr)
 
     // accept-encoding
     gzip := acceptGzip(req)

@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using web
 
 **
@@ -82,7 +83,7 @@ abstract class AuthServerContext
       // check for Authorization header
       header := req.headers["Authorization"]
       if (isDebug) debug("Auth header: $header")
-      if (header == null) return sendRes(res, 400, "Missing Authorization header")
+      if (header == null) return sendErrRes(res, 400, "Missing Authorization header")
 
       // decode header according to RFC 7235 grammar
       reqMsg := AuthMsg.fromStr(header, false)
@@ -92,7 +93,7 @@ abstract class AuthServerContext
         errMsg := header.lower.startsWith("basic") ?
           "Basic authentication not supported" :
           "Cannot parse Authorization header"
-        return sendRes(res, 400, errMsg)
+        return sendErrRes(res, 400, errMsg)
       }
 
       schemeName := reqMsg.scheme
@@ -103,12 +104,12 @@ abstract class AuthServerContext
       // user is base64 encoded into username or handshakeToken param
       username64 := reqMsg.param("username", false) ?: reqMsg.param("handshakeToken", false)
       if (isDebug) debug("Username64: $username64")
-      if (username64 == null) return sendRes(res, 400, "Missing username or handshakeToken in Authorization header")
+      if (username64 == null) return sendErrRes(res, 400, "Missing username or handshakeToken in Authorization header")
 
       // attempt to decode the username from base64
       try { username = AuthUtil.fromBase64(username64) } catch (Err e) {}
       if (isDebug) debug("Username: $username")
-      if (username == null) return sendRes(res, 400, "Invalid base64 encoding of username param in Authorization header")
+      if (username == null) return sendErrRes(res, 400, "Invalid base64 encoding of username param in Authorization header")
 
       // resolve user from its username
       user := userByUsername(username)
@@ -121,14 +122,14 @@ abstract class AuthServerContext
       // verify the scheme matches the user's configured scheme
       if (schemeName == "hello") schemeName = user.scheme
       if (isDebug) debug("Scheme name: $schemeName")
-      if (schemeName != user.scheme) return sendRes(res, 400, "Invalid auth scheme for user: $schemeName != $user.scheme")
+      if (schemeName != user.scheme) return sendErrRes(res, 400, "Invalid auth scheme for user: $schemeName != $user.scheme")
 
       // initialize the server context
       this.user   = user
 
       // handle the scheme message
       resMsg := handleScheme(schemeName, reqMsg)
-      if (resMsg == null) return sendRes(res, 400, "Unsupported scheme for Authorization header")
+      if (resMsg == null) return sendErrRes(res, 400, "Unsupported scheme for Authorization header")
       if (isDebug) debug("Res msg: $resMsg")
       ok := resMsg.param("authToken", false) != null
 
@@ -152,7 +153,7 @@ abstract class AuthServerContext
       if (log.isDebug) log.debug(msg, e)
       else log.info(msg)
       onAuthErr(e)
-      return sendRes(res, e.resCode, "Auth failed: $e.resMsg")
+      return sendErrRes(res, e.resCode, "Auth failed: $e.resMsg", e)
     }
   }
 
@@ -166,7 +167,7 @@ abstract class AuthServerContext
       if (isDebug) debug("Bearer session: $session")
       if (session != null) return session
     }
-    return sendRes(res, 403, "Invalid or expired authToken")
+    return sendErrRes(res, 403, "Invalid or expired authToken")
   }
 
   ** Low-level callback to handle scheme messages. The default behavior is to
@@ -197,12 +198,26 @@ abstract class AuthServerContext
     res.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
   }
 
+  ** Send a bodyless response.  Used for the handshake messages - the
+  ** 200 success and the 401 challenge - which are protocol steps rather
+  ** than errors and whose bodies must stay empty.
   internal Obj? sendRes(WebRes res, Int code, Str msg)
   {
     res.headers["Content-Length"]  = "0"
     addSecResHeaders
     if (isDebug) debugRes(res, code, msg)
     res.sendErr(code, msg)
+    return null
+  }
+
+  ** Send a terminal authentication failure as a sys.api::AuthErr JSON
+  ** body, so that auth failures are reported in the same shape as every
+  ** other API error.  Never used for the handshake messages.
+  internal Obj? sendErrRes(WebRes res, Int code, Str msg, Err? cause := null)
+  {
+    addSecResHeaders
+    if (isDebug) debugRes(res, code, msg)
+    ApiErr.authErr(msg, code, cause).writeRes(res)
     return null
   }
 

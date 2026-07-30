@@ -18,10 +18,20 @@ const class ApiExt : ExtObj
   new make()
   {
     this.web = Type.find(sys.config.get("apiExtWeb") ?: ApiWeb#.qname).make([this])
+    syncErrTrace
   }
 
   ** Settings record
   override ApiSettings settings() { super.settings }
+
+  ** Push the disableErrTrace setting down to ApiErr which services
+  ** every API error response
+  override Void onSettings() { syncErrTrace }
+
+  private Void syncErrTrace()
+  {
+    ApiErr.disableErrTrace.val = settings.disableErrTrace
+  }
 
   ** Web servicing
   override const ApiWeb web

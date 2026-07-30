@@ -6,15 +6,18 @@
 //   30 Jul 2026  Brian Frank  Creation
 //
 
-using xeto
-using haystack
+using concurrent
+using util
 using web
 
 **
-** Constants for the standardized error status codes and specs.
-** Each factory is named for its `sys.api` err spec; where one spec
-** has multiple factories the name is suffixed with the specific case.
+** Standardized error for the Xeto HTTP API.  Each factory is named for
+** its `sys.api` err spec; where one spec has multiple factories the name
+** is suffixed with the specific case.  Use `writeRes` to service the
+** response - it is the single choke point for every API error body so
+** that all paths, including authentication, report errors identically.
 **
+@NoDoc
 const class ApiErr : Err
 {
 
@@ -23,17 +26,18 @@ const class ApiErr : Err
 //////////////////////////////////////////////////////////////////////////
 
   ** Construct with status code, unqualified sys.api err spec name, and message
-  new make(Int code, Str spec, Str dis, Err? cause := null, Dict? more := null,
-           [Str:Str]? headers := null)
+  new make(Int code, Str spec, Str dis, Err? cause := null,
+           [Str:Obj]? more := null, [Str:Str]? headers := null)
     : super(dis, cause)
   {
     this.code    = code
     this.spec    = spec.contains("::") ? spec : "sys.api::" + spec
     this.dis     = dis
-    this.more    = more ?: Etc.dict0
+    this.more    = more ?: noMore
     this.headers = headers ?: noHeaders
   }
 
+  private static const Str:Obj noMore := Str:Obj[:]
   private static const Str:Str noHeaders := Str:Str[:]
 
 //////////////////////////////////////////////////////////////////////////
@@ -50,26 +54,68 @@ const class ApiErr : Err
   const Str dis
 
   ** Additional spec specific tags for the error body
-  const Dict more
+  const Str:Obj more
 
   ** Response headers to set in addition to the standard ones
   const Str:Str headers
+
+//////////////////////////////////////////////////////////////////////////
+// Web
+//////////////////////////////////////////////////////////////////////////
+
+  ** Disable including the stack trace in error responses.  Deployments
+  ** which undergo security audits often turn traces off so that server
+  ** internals are never disclosed.  Controlled by the API extension on
+  ** startup and whenever its settings change.
+  @NoDoc static const AtomicBool disableErrTrace := AtomicBool(false)
+
+  ** Write this err as the HTTP response.  This is the single choke point
+  ** for every API error: it sets the status line, the standard headers,
+  ** any err specific headers, and the clean JSON body.  Does nothing if
+  ** the response is already committed.
+  Void writeRes(WebRes res)
+  {
+    if (res.isCommitted) return
+
+    res.statusCode = code
+    res.statusPhrase = dis
+    res.headers["Content-Type"] = "application/json"
+    res.headers["Xeto-Version"] = ApiVersion.cur.token
+    headers.each |v, n| { res.headers[n] = v }
+
+    JsonOutStream(res.out).writeJson(toJson).close
+  }
+
+  ** Encode to the clean JSON body map
+  private Str:Obj toJson()
+  {
+    json := Str:Obj[:] { ordered = true }
+    json["spec"]   = spec
+    json["status"] = code
+    json["dis"]    = dis
+    more.each |v, n| { json[n] = v }
+    if (!disableErrTrace.val)
+      json["errTrace"] = (cause ?: this).traceToStr
+    return json
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Factories
 //////////////////////////////////////////////////////////////////////////
 
   ** Op name resolves to multiple functions
-  static ApiErr ambiguousFuncErr(Str name, Spec[] candidates)
+  static ApiErr ambiguousFuncErr(Str name, Str[] candidates)
   {
     make(404, "AmbiguousFuncErr", "Ambiguous ops: $candidates", null,
-      Etc.dict2("funcName", name, "candidates", candidates.map |x->Str| { x.qname }))
+      ["funcName": name, "candidates": candidates])
   }
 
-  ** Credentials are missing, malformed, or expired
-  static ApiErr authErr(Str dis, Err? cause := null)
+  ** Credentials are missing, malformed, or expired.  The code defaults
+  ** to 401, but a malformed Authorization header is reported as 400 and
+  ** a rejected token as 403, so the caller may override it.
+  static ApiErr authErr(Str dis, Int code := 401, Err? cause := null)
   {
-    make(401, "AuthErr", dis, cause)
+    make(code, "AuthErr", dis, cause)
   }
 
   ** Func raised an err which is not otherwise mapped
@@ -79,7 +125,7 @@ const class ApiErr : Err
   }
 
   ** Request body cannot be parsed into function args
-  static ApiErr invalidArgsErr(MimeType mime, Err cause)
+  static ApiErr invalidArgsErr(Str mime, Err cause)
   {
     make(400, "InvalidArgsErr", "Cannot parse $mime request", cause)
   }
@@ -94,7 +140,7 @@ const class ApiErr : Err
   static ApiErr methodNotAllowedErr(Str funcName)
   {
     make(405, "MethodNotAllowedErr", "GET not allowed for op '$funcName'", null,
-      Etc.dict1("allow", ["POST"]))
+      ["allow": Str["POST"]])
   }
 
   ** Request Accept header cannot be parsed
@@ -104,7 +150,7 @@ const class ApiErr : Err
   }
 
   ** Request Accept type has no writer
-  static ApiErr notAcceptableErrWriter(MimeType mime)
+  static ApiErr notAcceptableErrWriter(Str mime)
   {
     make(406, "NotAcceptableErr", "Unsupported Accept type: $mime")
   }
@@ -129,15 +175,13 @@ const class ApiErr : Err
 
   ** Caller exceeded a rate limit or quota; retryAfter is omitted when
   ** the server cannot predict when the limit resets.  It is always
-  ** reported in seconds to match the HTTP Retry-After header and to
-  ** avoid a fractional value from automatic unit selection.
+  ** reported in seconds to match the HTTP Retry-After header.
   static ApiErr rateLimitErr(Str dis, Duration? retryAfter := null, Err? cause := null)
   {
     if (retryAfter == null) return make(429, "RateLimitErr", dis, cause)
     secs := retryAfter.toSec
     return make(429, "RateLimitErr", dis, cause,
-      Etc.dict1("retryAfter", Number.makeDuration(retryAfter, Number.sec)),
-      ["Retry-After": secs.toStr])
+      ["retryAfter": "${secs}sec"], ["Retry-After": secs.toStr])
   }
 
   ** Func exceeded the server evaluation time limit
@@ -149,21 +193,19 @@ const class ApiErr : Err
   ** Entity id does not resolve in the data store
   static ApiErr unknownEntityErr(Str dis, Err? cause := null, Str? id := null)
   {
-    make(404, "UnknownEntityErr", dis, cause, id == null ? null : Etc.dict1("id", id))
+    make(404, "UnknownEntityErr", dis, cause, id == null ? null : ["id": id])
   }
 
   ** Op name does not resolve to a func in the namespace
   static ApiErr unknownFuncErr(Str name)
   {
-    make(404, "UnknownFuncErr", "Unknown op: $name", null,
-      Etc.dict1("funcName", name))
+    make(404, "UnknownFuncErr", "Unknown op: $name", null, ["funcName": name])
   }
 
   ** URI project name does not map to a runtime
   static ApiErr unknownProjErr(Str name)
   {
-    make(404, "UnknownProjErr", "Proj not found: $name", null,
-      Etc.dict1("projName", name))
+    make(404, "UnknownProjErr", "Proj not found: $name", null, ["projName": name])
   }
 
   ** Request is missing a Content-Type header
@@ -173,7 +215,7 @@ const class ApiErr : Err
   }
 
   ** Request Content-Type has no reader
-  static ApiErr unsupportedMediaTypeErrReader(MimeType mime)
+  static ApiErr unsupportedMediaTypeErrReader(Str mime)
   {
     make(415, "UnsupportedMediaTypeErr", "Unsupported Content-Type: $mime")
   }
@@ -182,7 +224,7 @@ const class ApiErr : Err
   static ApiErr unsupportedVersionErr(Str? header)
   {
     make(400, "UnsupportedVersionErr", "Unsupported Xeto-Version: $header", null,
-      Etc.dict1("allow", ApiPipeline.versionTokens))
+      ["allow": ApiVersion.tokens])
   }
 
 }

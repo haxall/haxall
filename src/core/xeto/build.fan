@@ -29,7 +29,8 @@ class Build : BuildPod
                ]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
-               "util @{fan.depend}"]
+               "util @{fan.depend}",
+               "web @{fan.depend}"]
     srcDirs  = [`fan/`]
   }
 }

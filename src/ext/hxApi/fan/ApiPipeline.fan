@@ -131,23 +131,10 @@ class ApiPipeline
   private Void resolveVersion()
   {
     header := req.headers["Xeto-Version"]
-    if (header == null) { version = defVersion; return }
-    version = header.toInt(10, false)
-    if (version == null || !versions.contains(version))
-      throw ApiErr.unsupportedVersionErr(header)
+    if (header == null) { version = ApiVersion.def; return }
+    version = ApiVersion.fromToken(header, false)
+    if (version == null) throw ApiErr.unsupportedVersionErr(header)
   }
-
-  ** Protocol versions supported by this server
-  static const Int[] versions := [4, 5]
-
-  ** Supported versions as `sys.api::ApiVersion` tokens for the wire
-  static const Str[] versionTokens := versions.map |v->Str| { v.toStr }.toImmutable
-
-  ** Protocol version assumed when the Xeto-Version header is undefined
-  static const Int defVersion := 4
-
-  ** Latest protocol version; used for the response header
-  static const Int curVersion := 5
 
   ** Map opName to its op function
   private Void resolveOpFunc()
@@ -170,7 +157,7 @@ class ApiPipeline
     if (funcs.size == 0) throw ApiErr.unknownFuncErr(opName)
     funcs = funcs.findAll |f| { f.meta.has("op") } // narrow down to <op> only
     if (funcs.size == 1) return funcs.first
-    throw ApiErr.ambiguousFuncErr(opName, funcs)
+    throw ApiErr.ambiguousFuncErr(opName, funcs.map |f->Str| { f.qname })
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -213,7 +200,7 @@ class ApiPipeline
   private ApiDispatch resolveDispatch()
   {
     // version 5
-    if (version == 5) return ApiDispatchV5(this)
+    if (version === ApiVersion.v5) return ApiDispatchV5(this)
 
     // version 4 fallbacks
     type := ApiDispatchV4Op.specials[opName]
@@ -226,28 +213,7 @@ class ApiPipeline
 //////////////////////////////////////////////////////////////////////////
 
   ** Choke point for all error handling
-  Void writeErr(ApiErr err)
-  {
-    // if already commited then no can do
-    if (res.isCommitted) return
-
-    // build json body
-    body := Str:Obj[:] { ordered = true }
-    body["spec"]   = err.spec
-    body["status"] = err.code
-    body["dis"]    = err.dis
-    err.more.each |v, n| { body[n] = v }
-    if (!ext.settings.disableErrTrace)
-      body["errTrace"] = (err.cause ?: err).traceToStr
-
-    // send error response
-    res.statusCode = err.code
-    res.statusPhrase = err.dis
-    res.headers["Content-Type"] = "application/json"
-    res.headers["Xeto-Version"] = curVersion.toStr
-    err.headers.each |v, n| { res.headers[n] = v }
-    JsonOutStream(res.out).writeJson(body)
-  }
+  Void writeErr(ApiErr err) { err.writeRes(res) }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -262,7 +228,7 @@ class ApiPipeline
   WebRes res          // make
   Runtime? rt         // resolveRuntime
   Context? cx         // authenticate
-  Int? version        // resolveVersion
+  ApiVersion? version // resolveVersion
   Spec? func          // resolveOpFunc
 }
 
