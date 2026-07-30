@@ -9,6 +9,8 @@
 
 using concurrent
 using inet
+using util
+using web
 using xeto
 using haystack
 using folio
@@ -125,6 +127,10 @@ abstract class ApiTest : HxTest
 
     authFail("wrong", "wrong")
     authFail("alice", "wrong")
+
+    verifyAuthErrJson
+    verifyAuthBadHeaderJson
+    verifyAuthChallengeNotJson
   }
 
   private Client authOk(Str user, Str pass)
@@ -137,6 +143,71 @@ abstract class ApiTest : HxTest
   private Void authFail(Str user, Str pass)
   {
     verifyErr(AuthErr#) { auth(user, pass) }
+  }
+
+  ** A terminal auth failure must report a sys.api::AuthErr JSON body.
+  ** The status code must NOT be 401: AuthClientContext.openStd loops
+  ** while the server answers 401, so a 401 here would be read as another
+  ** handshake round and fail with "Loop count exceeded" instead of a
+  ** clean AuthErr.  The 403 is what terminates that loop.
+  Void verifyAuthErrJson()
+  {
+    // drive the scram handshake far enough to get the terminal rejection
+    wc := WebClient(uri + `about`)
+    wc.reqHeaders["Authorization"] = "bearer authToken=bogus-token-value"
+    wc.writeReq
+    wc.readRes
+
+    verifyEq(wc.resCode, 403)
+    verifyNotEq(wc.resCode, 401)
+    verifyEq(wc.resHeaders["Content-Type"], "application/json")
+
+    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    wc.close
+    verifyEq(json["spec"], "sys.api::AuthErr")
+    verifyEq(json["status"], 403)
+    verifyEq(json["dis"], "Invalid or expired authToken")
+
+    // the security headers still ride along with the JSON body
+    verifyEq(wc.resHeaders["Cache-Control"], "no-cache, no-store, private")
+    verifyEq(wc.resHeaders["X-Frame-Options"], "SAMEORIGIN")
+  }
+
+  ** A malformed Authorization header is a 400 AuthErr, distinct from the
+  ** 401 challenge which is a handshake step and carries no body
+  Void verifyAuthBadHeaderJson()
+  {
+    wc := WebClient(uri + `about`)
+    wc.reqHeaders["Authorization"] = "this-is-not-a-valid-auth-msg"
+    wc.writeReq
+    wc.readRes
+
+    verifyEq(wc.resCode, 400)
+    verifyEq(wc.resHeaders["Content-Type"], "application/json")
+
+    str := wc.resStr
+    json := (Str:Obj?)JsonInStream(str.in).readJson
+    wc.close
+    verifyEq(json["spec"], "sys.api::AuthErr")
+    verifyEq(json["status"], 400)
+    verifyEq(json["dis"], "Missing username or handshakeToken in Authorization header")
+  }
+
+  ** The 401 challenge is a handshake step, not an error: it must carry
+  ** the WWW-Authenticate header and an empty body so that
+  ** AuthClientContext.openStd can continue the scram exchange
+  Void verifyAuthChallengeNotJson()
+  {
+    wc := WebClient(uri + `about`)
+    wc.reqHeaders["Authorization"] = "hello username=" + "alice".toBuf.toBase64Uri
+    wc.writeReq
+    wc.readRes
+
+    verifyEq(wc.resCode, 401)
+    verifyNotNull(wc.resHeaders["WWW-Authenticate"])
+    verifyNotEq(wc.resHeaders["Content-Type"], "application/json")
+    verifyEq(wc.resStr, "")
+    wc.close
   }
 
   private Client auth(Str user, Str pass)

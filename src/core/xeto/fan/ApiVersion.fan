@@ -12,6 +12,7 @@
 ** token, which is currently the decimal number but is treated as an
 ** opaque string so the format stays open to future revisions.
 **
+@NoDoc
 enum class ApiVersion
 {
   ** Version 4 legacy pre-xeto protocol
