@@ -8,6 +8,7 @@
 
 using util
 using markdown
+using haystack
 
 **
 ** DocMarkdownParser is used to parse Xetodoc markdown, resolve
@@ -40,7 +41,7 @@ internal class DocMarkdownParser : LinkResolver
 
     // check if we should parse just first sentence as summary
     summary := null
-    sentence := DocUtil.parseFirstSentence(markdown)
+    sentence := Etc.firstSentence(markdown)
     if (sentence.size != markdown.size)
       summary = DocMarkdown(parseToHtml(sentence, false), null)
 
