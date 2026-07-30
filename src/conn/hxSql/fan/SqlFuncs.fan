@@ -84,7 +84,7 @@ const class SqlFuncs
 
   ** Execute a SQL statement and if applicable return a result.
   ** If the statement produced auto-generated keys, then return
-  ** an list of the keys generated, otherwise return number of
+  ** a list of the keys generated, otherwise return number of
   ** rows modified.
   **
   ** WARNING: any admin user will have full access to update the
@@ -99,10 +99,13 @@ const class SqlFuncs
   }
 
   ** Insert a record or grid of records into the given table.
-  ** If data is a dict, thena single row is inserted.  If data
+  ** If data is a dict, then a single row is inserted.  If data
   ** is a grid or list of dicts, then each row is inserted.  The data's
   ** column names must match the table's columns.  If the data has a
   ** tag/column not found in the table then it is ignored.
+  **
+  ** Return a list of the keys generated, or a single key if a single row
+  ** is inserted.
   **
   ** WARNING: any admin user will have full access to update the
   ** database based on the user account configured by the sqlConn.
@@ -138,24 +141,6 @@ const class SqlFuncs
       sqlStr := s1.add(s2).toStr
       stmt := db.sql(sqlStr).prepare
 
-      //// now insert each input row
-      //// TODO: this isn't very efficient, need to batch
-      //results := Obj[,]
-      //input.each |inputRow|
-      //{
-      //  params := Str:Obj?[:]
-      //  inputCols.each |inputCol|
-      //  {
-      //    name := inputCol.name
-      //    params[name] = toSqlVal(inputRow.trap(name, null), inputCol)
-      //  }
-
-      //  // execute with params and store result
-      //  r := stmt.execute(params)
-      //  if (r is List) r = ((List)r)[0]
-      //  results.add(fromSqlVal(r))
-      //}
-
       //now insert each input row
       batch := BatchExecutor(stmt)
       input.each |inputRow|
@@ -169,11 +154,12 @@ const class SqlFuncs
         batch.add(params)
       }
 
-      // finish batch, and map results from sql
-      results := batch.finish.map |r| { return fromSqlVal(r) }
+      // finish batch, and map keys from sql
+      batch.finish
+      keys := batch.keys.map |r| { return fromSqlVal(r) }
 
-      // return results
-      return single ? results.first : results
+      // return keys
+      return single ? keys.first : keys
     }
   }
 
