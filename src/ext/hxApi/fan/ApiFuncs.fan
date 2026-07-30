@@ -231,8 +231,9 @@ const class ApiFuncs
   ** Current context
   private static Context curContext() { Context.cur }
 
-  ** TODO Grid request/response content negotiation helpers
-  private static const ApiFuncsWebOpUtil webOpUtil := ApiFuncsWebOpUtil()
+** TODO Grid request/response content negotiation helpers
+internal static const ApiFuncsWebOpUtil webOpUtil := ApiFuncsWebOpUtil()
+
 }
 
 **************************************************************************

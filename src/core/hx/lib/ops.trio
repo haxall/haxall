@@ -48,7 +48,6 @@ nodoc
 doc: "Upload or download a file in virtual file system"
 --------------------------------------------------------------------------
 def: ^op:ion
-typeName:"hxIon::IonOp"
 nodoc
 doc: "Ion UI support"
 --------------------------------------------------------------------------
