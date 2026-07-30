@@ -56,14 +56,17 @@ class ApiPipeline
     {
       writeErr(e)
     }
-    catch (EvalErr e)
-    {
-      e = e.cause ?: e
-      writeErr(ApiErr.internalErr(e.msg, e))
-    }
     catch (PermissionErr e)
     {
       writeErr(ApiErr.permissionErr(e.msg, e.cause))
+    }
+    catch (UnknownRecErr e)
+    {
+      writeErr(ApiErr.unknownEntityErr(e.msg, e.cause))
+    }
+    catch (TimeoutErr e)
+    {
+      writeErr(ApiErr.timeoutErr(e.msg, e.cause))
     }
     catch (Err e)
     {
@@ -112,7 +115,9 @@ class ApiPipeline
     throw ApiErr.notImplementedErrWebSocket
   }
 
-  ** Authenticate the request against the runtime
+  ** Authenticate the request against the runtime.  A failure here is
+  ** reported by the auth layer which writes its own 401 challenge, so
+  ** no `sys.api::AuthErr` body is produced on this path.
   private Bool authenticate()
   {
     cx = sys.user.authenticate(req, res, rt)
@@ -191,7 +196,11 @@ class ApiPipeline
     if (!res.isCommitted) dispatch.writeRes(result)
   }
 
-  ** Call the op function (permission check is done here)
+  ** Call the op function (permission check is done here).  Axon wraps
+  ** everything a func raises in an EvalErr, so unwrap it here to expose
+  ** the underlying err type.  This is the only unwrap site: the catch
+  ** sequence in service matches on specific types like UnknownRecErr,
+  ** which would otherwise all be masked by the EvalErr wrapper.
   internal Obj? call(Str[]? args)
   {
     try
@@ -236,6 +245,7 @@ class ApiPipeline
     res.statusPhrase = err.dis
     res.headers["Content-Type"] = "application/json"
     res.headers["Xeto-Version"] = curVersion.toStr
+    err.headers.each |v, n| { res.headers[n] = v }
     JsonOutStream(res.out).writeJson(body)
   }
 

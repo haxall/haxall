@@ -23,14 +23,18 @@ const class ApiErr : Err
 //////////////////////////////////////////////////////////////////////////
 
   ** Construct with status code, unqualified sys.api err spec name, and message
-  new make(Int code, Str spec, Str dis, Err? cause := null, Dict? more := null)
+  new make(Int code, Str spec, Str dis, Err? cause := null, Dict? more := null,
+           [Str:Str]? headers := null)
     : super(dis, cause)
   {
-    this.code = code
-    this.spec = spec.contains("::") ? spec : "sys.api::" + spec
-    this.dis  = dis
-    this.more = more ?: Etc.dict0
+    this.code    = code
+    this.spec    = spec.contains("::") ? spec : "sys.api::" + spec
+    this.dis     = dis
+    this.more    = more ?: Etc.dict0
+    this.headers = headers ?: noHeaders
   }
+
+  private static const Str:Str noHeaders := Str:Str[:]
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -48,6 +52,9 @@ const class ApiErr : Err
   ** Additional spec specific tags for the error body
   const Dict more
 
+  ** Response headers to set in addition to the standard ones
+  const Str:Str headers
+
 //////////////////////////////////////////////////////////////////////////
 // Factories
 //////////////////////////////////////////////////////////////////////////
@@ -57,6 +64,12 @@ const class ApiErr : Err
   {
     make(404, "AmbiguousFuncErr", "Ambiguous ops: $candidates", null,
       Etc.dict2("funcName", name, "candidates", candidates.map |x->Str| { x.qname }))
+  }
+
+  ** Credentials are missing, malformed, or expired
+  static ApiErr authErr(Str dis, Err? cause := null)
+  {
+    make(401, "AuthErr", dis, cause)
   }
 
   ** Func raised an err which is not otherwise mapped
@@ -112,6 +125,31 @@ const class ApiErr : Err
   static ApiErr permissionErr(Str dis, Err? cause := null)
   {
     make(403, "PermissionErr", dis, cause)
+  }
+
+  ** Caller exceeded a rate limit or quota; retryAfter is omitted when
+  ** the server cannot predict when the limit resets.  It is always
+  ** reported in seconds to match the HTTP Retry-After header and to
+  ** avoid a fractional value from automatic unit selection.
+  static ApiErr rateLimitErr(Str dis, Duration? retryAfter := null, Err? cause := null)
+  {
+    if (retryAfter == null) return make(429, "RateLimitErr", dis, cause)
+    secs := retryAfter.toSec
+    return make(429, "RateLimitErr", dis, cause,
+      Etc.dict1("retryAfter", Number.makeDuration(retryAfter, Number.sec)),
+      ["Retry-After": secs.toStr])
+  }
+
+  ** Func exceeded the server evaluation time limit
+  static ApiErr timeoutErr(Str dis, Err? cause := null)
+  {
+    make(504, "TimeoutErr", dis, cause)
+  }
+
+  ** Entity id does not resolve in the data store
+  static ApiErr unknownEntityErr(Str dis, Err? cause := null, Str? id := null)
+  {
+    make(404, "UnknownEntityErr", dis, cause, id == null ? null : Etc.dict1("id", id))
   }
 
   ** Op name does not resolve to a func in the namespace
