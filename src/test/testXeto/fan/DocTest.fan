@@ -488,7 +488,7 @@ class DocTest : AbstractXetoTest
 
   Void testLinker()
   {
-    ns := createNamespace(["ph.points", "hx", "hx.test.xeto", "doc.xeto"])
+    ns := createNamespace(["ph.points", "hx", "hx.test.xeto", "doc.xeto", "sys.api"])
     docns = DocNamespace(ns, ns.libs)
 
     // DocNamespace chapter heading parsing
@@ -545,6 +545,14 @@ class DocTest : AbstractXetoTest
     verifyLinker("readAll()#bad", null)
     verifyLinker("hx::readAll()#bad", null)
     verifyLinker("hx::readAll().bad#bad", null)
+
+    // ambiguous functions - prefer own lib, then func without op tag
+    lib = ns.lib("sys.api")
+    verifyLinker("about()", "/sys.api/Funcs#about", "about()")
+    lib = ns.lib("hx")
+    verifyLinker("about()", "/hx/Funcs#about", "about()")
+    lib = null
+    verifyLinker("about()", "/hx/Funcs#about", "about()")
 
     // absolute chapter
     verifyLinker("doc.xeto::Xetodoc", "/doc.xeto/Xetodoc", "Xetodoc")

@@ -77,7 +77,7 @@ class DocLinker
       }
       else
       {
-        func = ns.func(name)
+        func = ns.func(name, lib)
       }
       if (func == null) return null
       return DocLinkUri(DocUtil.specToUri(func), func.name + "()")

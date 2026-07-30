@@ -38,15 +38,27 @@ const class DocNamespace
   ** Convenience
   Lib? lib(Str name, Bool checked) { libsByName.getChecked(name, checked) }
 
-  ** Lookup unqualified function - match only if there exatly one in documented libs
-  Spec? func(Str name)
+  ** Lookup unqualified function in documented libs.  If ambiguous then
+  ** prefer match in cur lib itself, and then prefer func without op tag
+  Spec? func(Str name, Lib? cur := null)
   {
     matches := Spec[,]
     libs.each |lib|
     {
       matches.addNotNull(lib.funcs.get(name, false))
     }
-    if (matches.size == 1) return matches.first
+    if (matches.size <= 1) return matches.first
+
+    // ambiguous - prefer func in cur lib itself
+    if (cur != null)
+    {
+      inCur := matches.find |x| { x.lib === cur }
+      if (inCur != null) return inCur
+    }
+
+    // ambiguous - prefer func without op tag
+    nonOps := matches.findAll |x| { x.meta.missing("op") }
+    if (nonOps.size == 1) return nonOps.first
     return null
   }
 
