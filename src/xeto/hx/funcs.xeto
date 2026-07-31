@@ -234,7 +234,7 @@
   //  - libBasis: basis enumeration string
   //  - libStatus: status enumeration string
   //  - other cols subject to change
-  libs: Func { opts: Dict?, returns: Grid }
+  libs: Func <noSideEffects> { opts: Dict?, returns: Grid }
 
   // Reload all the xeto libraries in project
   libReload: Func <su> { returns: Obj? }

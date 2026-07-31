@@ -89,6 +89,9 @@ class ApiPipeline
     // if path too short
     if (rtName == null) throw ApiErr.invalidPathErr
 
+    // "sys" is the reserved name for the system runtime itself
+    if (rtName == "sys") { rt = sys; return }
+
     // lookup project
     rt = sys.proj.get(rtName, false)
     if (rt != null) return
