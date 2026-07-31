@@ -56,11 +56,20 @@ abstract class ApiDispatch
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  ** Query params that control the request itself rather than supply an op
+  ** argument.  These use an "xeto-" prefix which mirrors the request header.
+  ** The prefix is reserved: a xeto identifier cannot contain a dash, so a
+  ** control param can never collide with an op's parameter name.
+  static Bool isControlParam(Str name)
+  {
+    name.startsWith("xeto-")
+  }
+
   ** Return the accept mime type or
   MimeType? acceptMimeType(WebReq req, MimeType defaultMime)
   {
     // check for filetype in query string for easy testing
-    queryFiletype := req.uri.query["xeto-filetype"] ?: req.uri.query["filetype"]
+    queryFiletype := req.uri.query["xeto-filetype"]
     if (queryFiletype != null) return Filetype.byName(queryFiletype).mimeType
 
     // if not specified or anything accepted return return default
@@ -72,14 +81,6 @@ abstract class ApiDispatch
     mime := MimeType.fromStr(toks.first, false)
     if (mime == null) return null
     return mime
-  }
-
-  ** Query params that control the request itself rather than supply an op
-  ** argument.  These use an "xeto-" prefix which mirrors the request header.
-  Bool isControlParam(Str name)
-  {
-    if (name.startsWith("xeto-")) return true
-    return version === ApiVersion.v4 && name == "filetype"
   }
 
   ** Does the request accept gzip

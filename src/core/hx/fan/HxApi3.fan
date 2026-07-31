@@ -135,6 +135,19 @@ const class HxFuncOp : HxApiOp
   ** GET is allowed if the func declares noSideEffects
   override Bool noSideEffects() { func.meta.has("noSideEffects") }
 
+  ** An opWeb func reads the request and writes the response itself, so
+  ** it is called with no args and nothing is encoded around it.  A
+  ** permission failure is reported as a real status code: there is no
+  ** result grid to carry the legacy 200 err grid.
+  override Void onService(WebReq req, WebRes res, Context cx)
+  {
+    if (func.meta.missing("opWeb")) return super.onService(req, res, cx)
+    try
+      call(cx, Obj?[,])
+    catch (PermissionErr e)
+      if (!res.isCommitted) res.sendErr(403, "Forbidden")
+  }
+
   override Grid onRequest(Grid req, Context cx)
   {
     // pass the request grid as the first arg and pad the rest with null,
@@ -142,10 +155,21 @@ const class HxFuncOp : HxApiOp
     args := Obj?[req]
     for (i := 1; i<func.func.params.size; ++i) args.add(null)
 
+    return Etc.toGrid(call(cx, args), req.meta)
+  }
+
+  ** Invoke the func, checking its declared permissions first.  The
+  ** thunk is called directly rather than through the axon evaluator, so
+  ** the su/admin markers must be enforced here; see `Context.checkCall`.
+  private Obj? call(Context cx, Obj?[] args)
+  {
+    fn := func.func.thunk as Fn
+    if (fn != null) cx.checkCall(fn)
+
     // unwrap EvalErr so the client sees the original error, matching
     // the legacy ops which called their implementation directly
     try
-      return Etc.toGrid(func.func.thunk.callList(args), req.meta)
+      return func.func.thunk.callList(args)
     catch (EvalErr e)
       throw e.cause ?: e
   }

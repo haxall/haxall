@@ -313,11 +313,10 @@ class Api4Test : ApiTest
     // write-only filetypes cannot be used to post a request
     verifyEq(callMime("eval", req, "text/html",  "text/zinc"), 415)
 
-    // the response encoding is selected by ?xeto-filetype, with a bare
-    // ?filetype kept as the v4 alias.  A ?format alias has been dropped:
-    // it predated filetype and the two did the same thing.
+    // the response encoding is selected by ?xeto-filetype.  The bare
+    // ?filetype and ?format forms it replaced were undocumented debugging
+    // aids, so they are simply gone rather than kept as v4 aliases.
     verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=trio", "trio"), c.readAll("id"))
-    verifyGridEq(callAsGetWith("read?filter=id&filetype=trio", "trio"), c.readAll("id"))
     verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=json", "json"), c.readAll("id"))
   }
 
