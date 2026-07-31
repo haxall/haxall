@@ -41,10 +41,11 @@ class ApiPipeline
 //////////////////////////////////////////////////////////////////////////
 
   ** Run the entire pipeline for the operation
-  virtual Void service()
+  Void service()
   {
     try
     {
+      if (routeRemote) return
       resolveRuntime
       if (upgrade) return
       if (!authenticate) return
@@ -83,10 +84,17 @@ class ApiPipeline
 // Steps
 //////////////////////////////////////////////////////////////////////////
 
+  ** Check if the rtName routes this request to a remote node.  Return
+  ** true if  processed or false to continue the standard pipeline.
+  protected virtual Bool routeRemote() { false }
+
   ** Resolve /api/{rt name} to the runtime
   private Void resolveRuntime()
   {
-    // if path too short
+    // short circuit if rt already resolved
+    if (rt != null) return
+
+    // verify path as "/api/{rtName}"
     if (rtName == null) throw ApiErr.invalidPathErr
 
     // "sys" is the reserved name for the system runtime itself

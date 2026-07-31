@@ -167,7 +167,7 @@ const class ApiErr : Err
     make(400, "NotImplementedErr", "WebSocket upgrade not available")
   }
 
-  ** Caller lacks the su or admin permission for the func
+  ** Caller is authenticated but lacks permission to call the function
   static ApiErr permissionErr(Str dis, Err? cause := null)
   {
     make(403, "PermissionErr", dis, cause)
