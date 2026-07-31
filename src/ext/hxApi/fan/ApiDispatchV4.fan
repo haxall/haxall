@@ -81,12 +81,9 @@ class ApiDispatchV4 : ApiDispatch
     catch (ApiErr e)
       throw e
     catch (Err e)
-      writeErrGrid(e)
+      pipeline.writeErrGrid(e)
     return null
   }
-
-  ** Write an error grid as a 200 response; see `hxApi::ApiPipeline.writeErrGrid`
-  private Void writeErrGrid(Err err) { pipeline.writeErrGrid(err) }
 
 //////////////////////////////////////////////////////////////////////////
 // Write Response

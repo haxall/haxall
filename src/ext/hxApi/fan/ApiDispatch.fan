@@ -95,19 +95,13 @@ abstract class ApiDispatch
 // Pipeline Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  ApiExt ext() { p.ext }
-
   WebReq req() { p.req }
 
   WebRes res() { p.res }
 
   Context cx() { p.cx }
 
-  Str opName() { p.opName }
-
   Spec func() { p.func }
-
-  ApiVersion version() { p.version }
 
   ApiPipeline pipeline() { p }
 

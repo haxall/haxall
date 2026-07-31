@@ -161,12 +161,6 @@ const class ApiErr : Err
     make(501, "NotImplementedErr", "Unsupported method: $method.upper")
   }
 
-  ** WebSocket upgrade is not implemented yet
-  static ApiErr notImplementedErrWebSocket()
-  {
-    make(400, "NotImplementedErr", "WebSocket upgrade not available")
-  }
-
   ** Caller is authenticated but lacks permission to call the function
   static ApiErr permissionErr(Str dis, Err? cause := null)
   {

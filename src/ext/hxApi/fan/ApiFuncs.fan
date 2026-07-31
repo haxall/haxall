@@ -220,7 +220,7 @@ const class ApiFuncs
     {
       opts := Etc.dict1("path", path)
       ret  := cx.asCur { ext.uploadHandler(req, res, opts).upload }
-      if (!res.isCommitted) webOpUtil.doWriteRes(req, res, Etc.toGrid(ret))
+      if (!res.isCommitted) WebOpUtil.doWriteRes(req, res, Etc.toGrid(ret))
     }
     catch (Err err)
     {
@@ -237,15 +237,5 @@ const class ApiFuncs
   ** Current context
   private static Context curContext() { Context.cur }
 
-** TODO Grid request/response content negotiation helpers
-internal static const ApiFuncsWebOpUtil webOpUtil := ApiFuncsWebOpUtil()
-
 }
-
-**************************************************************************
-** ApiFuncsWebOpUtil
-**************************************************************************
-
-** Adapter to reach the WebOpUtil mixin methods from static functions
-internal const class ApiFuncsWebOpUtil : WebOpUtil {}
 

@@ -19,11 +19,7 @@ const class ApiWeb : ExtWeb
 {
   new make(ApiExt ext) : super(ext) {}
 
-  virtual Sys sys() { ext.sys }
-
   override ApiExt ext() { super.ext }
-
-  virtual DefNamespace defs() { ext.rt.defs }
 
   override const Str[] wellKnownRoutes := ["health"]
 

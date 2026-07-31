@@ -29,7 +29,7 @@ using xeto
 
   ** Read a Haystack request grid as GET query params or POST body.
   ** If there is any errors then send HTTP error code and return null
-  Grid? doReadReq(WebReq req, WebRes res)
+  static Grid? doReadReq(WebReq req, WebRes res)
   {
     if (req.isGet) return doReadReqGet(req, res)
     if (req.isPost) return doReadReqPost(req, res)
@@ -37,7 +37,7 @@ using xeto
     return null
   }
 
-  private Grid? doReadReqGet(WebReq req, WebRes res)
+  private static Grid? doReadReqGet(WebReq req, WebRes res)
   {
     tags := Str:Obj[:]
     req.uri.query.each |valStr, key|
@@ -52,7 +52,7 @@ using xeto
     return Etc.makeMapGrid(null, tags)
   }
 
-  private Grid? doReadReqPost(WebReq req, WebRes res)
+  private static Grid? doReadReqPost(WebReq req, WebRes res)
   {
     // find reader to use for MIME type
     mime := MimeType(req.headers["Content-Type"] ?: "", false)
@@ -85,7 +85,7 @@ using xeto
 //////////////////////////////////////////////////////////////////////////
 
   ** Write a Haystack response grid using content negotiation.
-  Void doWriteRes(WebReq req, WebRes res, Grid result)
+  static Void doWriteRes(WebReq req, WebRes res, Grid result)
   {
     // parse Accept header to find requested mime type
     mime := acceptMimeType(req)
@@ -117,7 +117,7 @@ using xeto
     (req.headers["Accept-Encoding"] ?: "").contains("gzip")
   }
 
-  private MimeType? acceptMimeType(WebReq req)
+  private static MimeType? acceptMimeType(WebReq req)
   {
     // check for filetype in query string for easy testing
     queryFiletype := req.uri.query["filetype"] ?: req.uri.query["format"]
