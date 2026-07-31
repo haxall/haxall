@@ -61,6 +61,11 @@ const mixin RuntimeExts
   ** Map of web route names to extension web modules
   @NoDoc abstract Str:ExtWeb webRoutes()
 
+  ** Map of Sec-WebSocket-Protocol names to the extension web module which
+  ** services that upgrade; see `ExtWeb.webSocketProtocols`.  These are not
+  ** uri paths, so they are indexed separately from `webRoutes`.
+  @NoDoc abstract Str:ExtWeb webSocketRoutes()
+
   ** Web route for the extension with highest indexPriority
   @NoDoc abstract ExtWeb webIndex()
 

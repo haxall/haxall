@@ -61,6 +61,8 @@ const class HxExts : RuntimeExts
 
   override Str:ExtWeb webRoutes() { registry.webRoutes }
 
+  override Str:ExtWeb webSocketRoutes() { registry.webSocketRoutes }
+
   override ExtWeb webIndex() { registry.webIndex }
 
   override Grid status(Dict? opts := null) { registry.status(opts) }
@@ -226,15 +228,30 @@ const class HxExtRegistry
 
     // map web routes
     webRoutes := Str:ExtWeb[:]
+    webSocketRoutes := Str:ExtWeb[:]
     webIndex := list.first.web
     list.each |ext|
     {
       web := ext.web
-      routeName := web.routeName
       if (web.isUnsupported) return
-      if (webRoutes[routeName] != null) rt.log.warn("Duplicte ext routes: $routeName")
-      webRoutes[routeName] = web
+
+      // the index redirect may land on a sys UI, so it considers every
+      // ext including those inherited from sys
       if (web.indexPriority > webIndex.indexPriority) webIndex = web
+
+      // routes are registered only for the exts this runtime owns: a sys
+      // ext is reachable at its own "/{routeName}" endpoint, never under
+      // "/api/{proj}/ext/" where it would be given a base uri it does not
+      // advertise; see ExtWeb.uri
+      if (ext.rt !== rt) return
+
+      // map web route unless this ext has no uri endpoint
+      routeName := web.routeName
+      if (web.isRouted)
+      {
+        if (webRoutes[routeName] != null) rt.log.warn("Duplicte ext routes: $routeName")
+        webRoutes[routeName] = web
+      }
 
       // map .well-known/ routes
       web.wellKnownRoutes.each |name|
@@ -244,6 +261,14 @@ const class HxExtRegistry
         if (webRoutes[wk] != null) rt.log.warn("Duplicate .well-known/ route: ${wk}")
         webRoutes[wk] = web
       }
+
+      // map websocket subprotocols; indexed separately from webRoutes
+      // since they are not uri paths
+      web.webSocketProtocols.each |name|
+      {
+        if (webSocketRoutes[name] != null) rt.log.warn("Duplicate websocket protocol: ${name}")
+        webSocketRoutes[name] = web
+      }
     }
 
     // save lookup tables
@@ -252,6 +277,7 @@ const class HxExtRegistry
     this.listOwn   = listOwn
     this.map       = map
     this.webRoutes = webRoutes
+    this.webSocketRoutes = webSocketRoutes
     this.webIndex  = webIndex
   }
 
@@ -264,6 +290,8 @@ const class HxExtRegistry
   const Str:Ext map
 
   const Str:ExtWeb webRoutes
+
+  const Str:ExtWeb webSocketRoutes
 
   const ExtWeb webIndex
 

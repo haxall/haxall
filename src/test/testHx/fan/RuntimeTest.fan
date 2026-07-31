@@ -812,18 +812,28 @@ class RuntimeTest : HxTest
     list := p.exts.list
     verifyEq(list.map |x->Str| { x.name }.sort.join(","), names.sort.join(","))
 
+    // routes register only for the exts this proj owns; a sys ext is
+    // reachable at its own endpoint, not under "/api/{proj}/ext/"
     webRoutes := Str:ExtWeb[:]
+    webSocketRoutes := Str:ExtWeb[:]
     list.each |x|
     {
       web := x.web
       if (web.isUnsupported) return
-      r := web.routeName
-      if (!r.isEmpty) webRoutes[r] = web
+      if (x.rt !== p) return
+      if (web.isRouted) webRoutes[web.routeName] = web
       web.wellKnownRoutes.each |name| { webRoutes[".well-known/${name}"] = web }
+      web.webSocketProtocols.each |name| { webSocketRoutes[name] = web }
     }
     verifyEq(p.exts.webRoutes, webRoutes)
     verifyEq(p.exts.webRoutes.isImmutable, true)
     verifySame(p.exts.webRoutes, p.exts.webRoutes)
+
+    // websocket subprotocols are indexed separately since they are
+    // not uri paths; see ExtWeb.webSocketProtocols
+    verifyEq(p.exts.webSocketRoutes, webSocketRoutes)
+    verifyEq(p.exts.webSocketRoutes.isImmutable, true)
+    verifySame(p.exts.webSocketRoutes, p.exts.webSocketRoutes)
   }
 
   Dict d(Obj x) { Etc.makeDict(x) }

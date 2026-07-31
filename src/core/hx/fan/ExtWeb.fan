@@ -28,7 +28,8 @@ abstract const class ExtWeb : WebMod
   ** service the "/" root index.
   virtual Str routeName() { ext.name.split('.').last }
 
-  ** Base uri for this library's endpoint such as "/myLib/"
+  ** Base uri for this library's endpoint.  System extensions will
+  ** return "/{routeName}/" and project extensions "/ext/{pro}/{routeName}".
   Uri uri()
   {
     ext.rt.isSys ? `/${routeName}/` : `/ext/${ext.rt.name}/${routeName}`
@@ -39,6 +40,12 @@ abstract const class ExtWeb : WebMod
 
   ** Return true if this is the UnsupportedExtWeb type
   @NoDoc Bool isUnsupported() { !isSupported }
+
+  ** Return false if this extension has no URL route and exists only to
+  ** declare other web capabilities such as `webSocketProtocols`.  A
+  ** websocket subprotocol is not a uri, so declaring one must not create
+  ** an HTTP endpoint under `routeName`.
+  @NoDoc virtual Bool isRouted() { true }
 
   ** Return priority number to use this route as the index redirect
   ** as the primary user UI.  Built in routes are less 99 or less,
@@ -58,6 +65,18 @@ abstract const class ExtWeb : WebMod
   ** use WebReq.modRel to get the well-known path being serviced. The default
   ** implementation sends a 404 error.
   @NoDoc virtual Void onWellKnown() { res.sendErr(404) }
+
+  ** Get the list of Sec-WebSocket-Protocol names this extension services
+  ** on the "/api/{proj}" endpoint, such as ["arcbeam"].  Each name is matched
+  ** exactly, so an extension which speaks several versions declares each one.
+  @NoDoc virtual Str[] webSocketProtocols() { Str#.emptyList }
+
+  ** Handle a websocket upgrade for one of `webSocketProtocols`.  The
+  ** WebReq.modBase is rebased to "/api/{proj}/".   The upgrade is
+  ** dispatched **before** authentication, so subclasses are responsible
+  ** for authenticating the request.The default implementation sends
+  ** a 404 error.
+  @NoDoc virtual Void onWebSocket() { res.sendErr(404) }
 }
 
 **************************************************************************

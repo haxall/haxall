@@ -46,7 +46,7 @@ class ApiPipeline
     try
     {
       resolveRuntime
-      upgrade
+      if (upgrade) return
       if (!authenticate) return
       resolveVersion
       resolveOpFunc
@@ -104,15 +104,28 @@ class ApiPipeline
     throw ApiErr.unknownProjErr(rtName)
   }
 
-  ** Check for websocket upgrade before authentication (not implemented yet)
-  private Void upgrade()
+  ** Check for a websocket upgrade before authentication.  An extension
+  ** declares the protocols it services via `hx::ExtWeb.webSocketProtocols`
+  ** and takes over the request entirely, including authenticating it.
+  ** Returns true if the request was serviced as an upgrade.
+  private Bool upgrade()
   {
-    // check for upgrade to websocket
-    if (req.headers["Upgrade"] != "websocket") return
+    // check for websocket protocol header
+    protocol := req.headers["Sec-WebSocket-Protocol"]
+    if (protocol == null) return false
 
-    // not implemented yet
-    ext.log.warn("onWebSocket upgrade [$rt]")
-    throw ApiErr.notImplementedErrWebSocket
+    // only a project can host a websocket endpoint
+    if (!rt.isProj) return false
+
+    // protocols are indexed at registry build time so this stays a hash
+    // lookup on the request hot path
+    web := rt.exts.webSocketRoutes[protocol]
+    if (web == null) return false
+
+    // dispatch; the ext services the whole request from here
+    req.modBase = req.uri[0..1].plusSlash
+    web.onWebSocket
+    return true
   }
 
   ** Authenticate the request against the runtime.  A failure here is
