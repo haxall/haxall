@@ -26,7 +26,6 @@ class CoreLibTest : HaystackTest
   {
     today := Date.today
     yesterday := today - 1day
-    pastMon := today.month.decrement
 
     DateTime now := eval("core::now()")
     verify(DateTime.now(null) - now < 300ms)
@@ -45,7 +44,9 @@ class CoreLibTest : HaystackTest
 
     verifyEval("pastWeek()", DateSpan.pastWeek)
     verifyEval("pastMonth()", DateSpan.pastMonth)
-    verifyEval("pastMonth().start.month", n(pastMon.ordinal + 1, "mo"))
+    // pastMonth is the last 30 days, not the previous calendar month; on the
+    // 31st the start is still this month, and on Mar 1-2 it is two months back
+    verifyEval("pastMonth().start.month", n((today - 30day).month.ordinal + 1, "mo"))
     verifyEval("pastMonth().end", today)
     verifyEval("pastYear()", DateSpan.pastYear)
 
