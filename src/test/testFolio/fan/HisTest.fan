@@ -211,6 +211,9 @@ class HisTest  : AbstractFolioTest
     verifyItems(actual, expected)
     if (span == null)
     {
+      // his tags may be updated on a different actor than the one the write
+      // future completes on, so sync before reading them back
+      folio.sync
       r = folio.readById(r.id)
       tz := TimeZone.fromStr(r->tz)
       verifyEq(r["hisSize"],  n(actual.size))
