@@ -32,10 +32,6 @@ class SqlConnTest : HxTest
     // configure one
     sqlPod := Pod.find("sql")
 
-    echo("sqlTestInit: uri "      + sqlPod.config("test.uri").toUri)
-    echo("sqlTestInit: username " + sqlPod.config("test.username"))
-    echo("sqlTestInit: password " + sqlPod.config("test.password"))
-
     conn := addRec([
             "dis":      "Test SQL Conn",
             "sqlConn":  Marker.val,
@@ -43,9 +39,6 @@ class SqlConnTest : HxTest
             "username": sqlPod.config("test.username"),
             "sqlSyncHisExpr": "testSyncHis"])
     proj.db.passwords.set(conn.id.toStr, sqlPod.config("test.password"))
-
-    echo("sqlTestInit: conn " + conn.id)
-    echo("sqlTestInit: read " + eval("read(sqlConn)")) // <-- axon::EvalErr: Unknown symbol 'read' [eval:1]
 
     grid := (Grid)eval("read(sqlConn).sqlTables()")
     verifyEq(grid.cols[0].name, "name")
@@ -97,9 +90,6 @@ class SqlConnTest : HxTest
     addRec(["foo":Marker.val, "dis":"Gamma", "date":Date(2011, Month.jun, 7).toStr, "dur":n(5, "min")])
     Obj[] ids := eval("""readAll(foo).sort("date").sqlInsert($conn.id.toCode, "sqlext_test_basics")""")
     grid = eval("""read(sqlConn).sqlQuery("select * from sqlext_test_basics").sort("date")""")
-
-    echo("SqlConnTest.testBasics: $ids")
-    grid.dump
 
     verifyEq(grid.size, 3)
     verifyDictEq(grid[0], ["tid": aId,    "dis":"Alpha", "date":Date(2010, Month.apr, 20), "dur":"forever", "num":n(66)])

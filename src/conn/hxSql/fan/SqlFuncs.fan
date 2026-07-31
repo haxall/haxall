@@ -155,8 +155,7 @@ const class SqlFuncs
       }
 
       // finish batch, and map keys from sql
-      batch.finish
-      keys := batch.keys.map |r| { return fromSqlVal(r) }
+      keys := batch.finish.keys.map |r| { return fromSqlVal(r) }
 
       // return keys
       return single ? keys.first : keys
