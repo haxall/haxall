@@ -131,7 +131,9 @@ const class ApiFuncs
 // Ext
 //////////////////////////////////////////////////////////////////////////
 
-  ** Route an HTTP request to an extension; see `hx.api::Funcs.ext`
+  ** Route an HTTP request to an extension's web handler.  The first name
+  ** of the URI path after the op selects the extension route, and the
+  ** remainder of the path is passed through to that extension.
   @Api
   static Void ext()
   {
@@ -155,7 +157,11 @@ const class ApiFuncs
 // File
 //////////////////////////////////////////////////////////////////////////
 
-  ** Download or upload a file; see `hx.api::Funcs.file`
+  ** Download or upload a file in the virtual file system.  The URI path
+  ** after the op is the file path.  A GET downloads the file with full
+  ** ETag, Last-Modified, and range request support.  A POST or PUT
+  ** uploads the request body to that path, where a path under
+  ** "/uploads/{lib}/" delegates to that extension's upload handler.
   @Api
   static Void file()
   {

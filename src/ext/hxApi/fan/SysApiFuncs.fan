@@ -100,13 +100,9 @@ const class SysApiFuncs
 // Server
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return summary information about the server; see `sys.api::AboutInfo`
-  ** for the tags a server should report where applicable.  Vendors may
-  ** add their own tags.
-  **
-  ** This is typically the first call a client makes to discover what it
-  ** is talking to.  Use `libs` to discover the installed libs and their
-  ** versions.
+  ** Return summary information about the server. See [AboutInfo] for
+  ** the tags a server should report where applicable.  Vendors may add
+  ** their own tags.
   **
   ** See [ph.doc::Ops#about].
   @Api @Axon
@@ -117,8 +113,7 @@ const class SysApiFuncs
   ** authentication token are rejected and the client must reauthenticate.
   **
   ** Servers which do not maintain per-session state may implement this
-  ** as a no-op.  There is no result: v5 returns nothing and v4 encodes
-  ** it as the empty grid its clients expect.
+  ** as a no-op.
   **
   ** See [ph.doc::Ops#close].
   @Api @Axon
@@ -129,12 +124,13 @@ const class SysApiFuncs
     return null
   }
 
-  ** Report the operations this server supports, one row per op, matching
-  ** the `sys.api::OpInfo` spec.  This is the v5 format which describes
-  ** the live xeto namespace; v4 clients are served the legacy def format
-  ** instead by `hxApi::ApiDispatchV4Ops` before this function is reached.
+  ** List the operations this server supports, one row per op; see
+  ** `OpInfo` for the columns.  This is a quick summary for debugging
+  ** and discovery - to inspect an op's full definition, or to generate
+  ** a client or an API schema, use the spec op instead.
   **
-  ** See `sys.api::Funcs.ops`.
+  ** Clients written against an older protocol version receive that
+  ** version's format instead; see [ph.doc::Ops#ops].
   @Api @Axon
   static Grid ops()
   {

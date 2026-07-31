@@ -2059,22 +2059,24 @@ const class AxonFuncs
     AxonContext.curAxon.ns.specOf(val).isa(spec)
   }
 
-  ** Lookup a def by its symbol name (Str or Symbol).  If not
-  ** found return null or raise UnknownDefErr based on checked flag.
-  ** The result is returned as the definition's normalized dict
-  ** representation.
+  ** Lookup a def by its symbol name (Str or Symbol).  If not found
+  ** return null or raise UnknownDefErr based on checked flag.  The
+  ** result is returned as the definition's normalized dict representation.
+  ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def? def(Obj symbol, Bool checked := true)
   {
     symbol as Def ?: AxonContext.curAxon.defs.def(symbol.toStr, checked)
   }
 
   ** List all definitions in the context namespace as `Def[]`.
+  ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] defs()
   {
     AxonContext.curAxon.defs.defs.sort
   }
 
   ** List tag definitions in the context namespace as `Def[]`.
+  ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] tags()
   {
     defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTag }
@@ -2082,6 +2084,7 @@ const class AxonFuncs
   }
 
   ** List term definitions (tags and conjuncts) in the context namespace as `Def[]`.
+  ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] terms()
   {
     defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTerm }
@@ -2089,6 +2092,7 @@ const class AxonFuncs
   }
 
   ** List conjunct definitions in the context namespace as `Def[]`.
+  ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] conjuncts()
   {
     defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isConjunct }
@@ -2097,6 +2101,7 @@ const class AxonFuncs
 
   ** Return declared supertypes of the given def.  The result
   ** is effectively the resolved defs of the "is" meta tag.
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] supertypes(Obj d)
   {
     AxonContext.curAxon.defs.supertypes(def(d))
@@ -2105,12 +2110,14 @@ const class AxonFuncs
   ** Return all declared subtypes of the given def.  This is
   ** effectively all defs which have a declared supertype of def.
   ** Feature keys are not included in results.
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] subtypes(Obj d)
   {
     AxonContext.curAxon.defs.subtypes(def(d))
   }
 
   ** Return if the given def has subtypes.
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Bool hasSubtypes(Obj d)
   {
     AxonContext.curAxon.defs.hasSubtypes(def(d))
@@ -2119,6 +2126,7 @@ const class AxonFuncs
   ** Return a flatten list of all supertypes of the given def.  This
   ** list always includes the def itself.   The result represents the
   ** complete set of all defs implemented by the given def.
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] inheritance(Obj d)
   {
     AxonContext.curAxon.defs.inheritance(def(d))
@@ -2126,18 +2134,21 @@ const class AxonFuncs
 
   ** Return list of defs for given association on the parent.
   ** Association define ontological relationships between definitions.
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] associations(Obj parent, Obj association)
   {
     AxonContext.curAxon.defs.associations(def(parent), def(association))
   }
 
   ** Return list of tags to apply to implement the given def
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] implement(Obj d)
   {
     AxonContext.curAxon.defs.implement(def(d))
   }
 
   ** Reflect the given subject dict into the list of its implemented `Def[]`
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] reflect(Dict dict)
   {
     AxonContext.curAxon.defs.reflect(dict).defs
@@ -2145,6 +2156,7 @@ const class AxonFuncs
 
   ** Generate a child prototype for the given parent dict.  This call
   ** will automatically apply childrenFlatten tags and parent refs.
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Dict proto(Dict parent, Dict proto)
   {
     AxonContext.curAxon.defs.proto(parent, proto)
@@ -2152,6 +2164,7 @@ const class AxonFuncs
 
   ** Generate a list of children prototypes for the given parent
   ** dict based on all its reflected defs.
+  ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Dict[] protos(Dict parent)
   {
     AxonContext.curAxon.defs.protos(parent)

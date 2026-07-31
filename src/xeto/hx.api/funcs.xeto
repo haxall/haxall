@@ -43,8 +43,6 @@
   // Route an HTTP request to an extension's web handler.  The first name
   // of the URI path after the op selects the extension route, and the
   // remainder of the path is passed through to that extension.
-  //
-  // This function services the HTTP request itself; see `opWeb`.
   ext: Func <op, opWeb> { returns: None }
 
   // Download or upload a file in the virtual file system.  The URI path
@@ -52,8 +50,6 @@
   // ETag, Last-Modified, and range request support.  A POST or PUT
   // uploads the request body to that path, where a path under
   // "/uploads/{lib}/" delegates to that extension's upload handler.
-  //
-  // This function services the HTTP request itself; see `opWeb`.
   file: Func <op, opWeb> { returns: None }
 
 }
