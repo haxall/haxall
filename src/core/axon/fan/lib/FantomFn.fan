@@ -113,19 +113,15 @@ const class FantomFn : TopFn
 
   override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
   {
+    // security check
+    cx.checkCall(this)
+
     oldCx := AxonContext.curAxon(false)
     setCx := cx !== oldCx
     if (setCx) Actor.locals.set(AxonContext.actorLocalsKey, cx)
 
-
     try
-    {
-      // security check
-      cx.checkCall(this)
       return cx.callInNewFrame(this, args, callLoc)
-    }
-    catch (PermissionErr e)
-      throw e
     catch (EvalErr e)
       throw e
     catch (Err e)
