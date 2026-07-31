@@ -117,8 +117,8 @@ class Api4Test : ApiTest
 // Gets
 //////////////////////////////////////////////////////////////////////////
 
-  ** Verify the api ext is resolvable by name -- both ApiWeb.toErrGrid
-  ** and HxApiOp.toErrGrid look it up for the "disableErrTrace" setting.
+  ** Verify the api ext is resolvable by name -- ApiPipeline.writeErrGrid
+  ** looks it up for the "disableErrTrace" setting.
   ** Also verify an op error returns an err grid with the trace by default.
   Void doErrGrid()
   {

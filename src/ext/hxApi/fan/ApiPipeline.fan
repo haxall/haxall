@@ -84,7 +84,7 @@ class ApiPipeline
 //////////////////////////////////////////////////////////////////////////
 
   ** Resolve /api/{rt name} to the runtime
-  protected virtual Void resolveRuntime()
+  private Void resolveRuntime()
   {
     // if path too short
     if (rtName == null) throw ApiErr.invalidPathErr
