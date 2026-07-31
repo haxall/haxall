@@ -117,15 +117,19 @@ const class FantomFn : TopFn
     setCx := cx !== oldCx
     if (setCx) Actor.locals.set(AxonContext.actorLocalsKey, cx)
 
-    // security check
-    cx.checkCall(this)
-
     try
-      return cx.callInNewFrame(this, args, callLoc)
-    catch (EvalErr e)
-      throw e
-    catch (Err e)
-      throw EvalErr("Func failed: $sig; args: ${argsToStr(args)}\n  $e", cx, callLoc, e)
+    {
+      // security check; keep outside the catch below so PermissionErr
+      // is raised to the caller instead of being wrapped as EvalErr
+      cx.checkCall(this)
+
+      try
+        return cx.callInNewFrame(this, args, callLoc)
+      catch (EvalErr e)
+        throw e
+      catch (Err e)
+        throw EvalErr("Func failed: $sig; args: ${argsToStr(args)}\n  $e", cx, callLoc, e)
+    }
     finally
       if (setCx)
       {
