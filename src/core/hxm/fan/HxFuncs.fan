@@ -477,14 +477,46 @@ const class HxFuncs
     curContext.rt.exts.status(opts)
   }
 
-  ** Report installed web routes as grid
+  ** Report installed web routes as grid.  Reports both the sys runtime and
+  ** the current project so the whole dispatch table is visible from either;
+  ** a project cannot service a sys route and vice versa.  The "type" column
+  ** distinguishes uri routes from websocket subprotocols, which are matched
+  ** on the Sec-WebSocket-Protocol header rather than the path.
   @NoDoc @Api @Axon
   static Grid extWebRoutes()
   {
-    routes := curContext.rt.exts.webRoutes
+    cx := curContext
     gb := GridBuilder()
-    gb.addCol("route").addCol("ext")
-    routes.keys.sort.each |name| { gb.addRow2(`/$name`, routes[name].ext.name) }
+    gb.addCol("rt").addCol("type").addCol("route").addCol("uri").addCol("ext")
+
+    addRoutes := |Runtime rt|
+    {
+      exts := rt.exts
+
+      // the uri is derived from the registry key, not from ExtWeb.uri which
+      // reports the ext's own endpoint: a ".well-known/{name}" route is keyed
+      // and dispatched verbatim, but is owned by an ext living elsewhere.
+      // Sys routes hang off the host root; proj routes off "/api/{proj}/ext"
+      base := rt.isSys ? `/` : `/api/${rt.name}/ext/`
+      exts.webRoutes.keys.sort.each |name|
+      {
+        web := exts.webRoutes[name]
+        gb.addRow([rt.name, "uri", name, base + name.toUri, web.ext.name])
+      }
+
+      // websockets upgrade on the runtime's api endpoint rather than a path
+      // of their own: the subprotocol is the routing key, and the ext may
+      // declare isRouted false so it owns no uri endpoint at all
+      apiUri := rt.isSys ? `/api/sys` : `/api/${rt.name}`
+      exts.webSocketRoutes.keys.sort.each |name|
+      {
+        web := exts.webSocketRoutes[name]
+        gb.addRow([rt.name, "websocket", name, apiUri, web.ext.name])
+      }
+    }
+
+    addRoutes(cx.sys)
+    if (cx.rt !== cx.sys) addRoutes(cx.rt)
     return gb.toGrid
   }
 
