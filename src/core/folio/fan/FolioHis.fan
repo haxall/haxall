@@ -30,7 +30,14 @@ const mixin FolioHis : FolioMgr
   **   - `forecast`: append forecast items
   **   - `forecastOnly`: read only forecast items
   **
-  abstract Void read(Ref id, Span? span, Dict? opts, |HisItem| f)
+  Void read(Ref id, Span? span, Dict? opts, |HisItem| f)
+  {
+    // folio will enforce security for reads
+    doRead(db.readRecById(id), span, opts, f)
+  }
+
+  ** Subclass hook to implement [read]. Security for the rec has already been checked.
+  protected abstract Void doRead(FolioRec rec, Span? span, Dict? opts, |HisItem| f)
 
   **
   ** Write history items to the given record id.  The items must have
@@ -53,7 +60,17 @@ const mixin FolioHis : FolioMgr
   **   - `noWarn`: marker to suppress warnings
   **   - `forecast`: replace forecast items
   **
-  abstract FolioFuture write(Ref id, HisItem[] items, Dict? opts := null)
+  FolioFuture write(Ref id, HisItem[] items, Dict? opts := null)
+  {
+    rec := db.checkWrite.readRecById(id)
+    cx := FolioContext.curFolio(false)
+    if (cx != null && !cx.canWrite(FolioWrite.his(rec.dict)))
+      throw PermissionErr("Cannot write: ${id.toZinc}")
+    return doWrite(rec, items, opts)
+  }
+
+  ** Subclass hook to implement [write]. Security for the rec has already been checked.
+  protected abstract FolioFuture doWrite(FolioRec rec, HisItem[] items, Dict? opts)
 
 }
 

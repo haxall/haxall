@@ -23,18 +23,10 @@ const class HisMgr : HxFolioMgr, FolioHis
   {
   }
 
-  override Folio db() { this.folio }
-
-  override Void read(Ref id, Span? span, Dict? opts, |HisItem| f)
+  protected override Void doRead(FolioRec folioRec, Span? span, Dict? opts, |HisItem| f)
   {
-    // read checks
-    folio.checkRead
+    rec := (Rec)folioRec
     if (opts == null) opts = Etc.dict0
-
-    // read current version of rec and do check security
-    rec := folio.index.rec(id)
-    cx := FolioContext.curFolio(false)
-    if (cx != null && !cx.canRead(rec.dict)) throw PermissionErr("Cannot read: $id.toCode")
 
     // config checks
     dict := rec.dict
@@ -79,10 +71,8 @@ const class HisMgr : HxFolioMgr, FolioHis
     }
   }
 
-  override FolioFuture write(Ref id, HisItem[] items, Dict? opts := null)
+  protected override FolioFuture doWrite(FolioRec rec, HisItem[] items, Dict? opts)
   {
-    folio.checkWrite
-
     // force unitSet opt to ensure we always store items with unit
     opts = Etc.dictSet(opts, "unitSet", Marker.val)
 
@@ -90,16 +80,11 @@ const class HisMgr : HxFolioMgr, FolioHis
     if (items.isEmpty) return FolioFuture(HisWriteFolioRes.empty)
 
     // read current version of rec and do pre-write checks/normalization
-    rec := folio.index.rec(id)
     dict := rec.dict
     items = FolioUtil.hisWriteCheck(dict, items, opts)
 
-    // security check
-    cx := FolioContext.curFolio(false)
-    if (cx != null && !cx.canWrite(FolioWrite.his(rec.dict))) throw PermissionErr("Cannot write: $id.toCode")
-
     // process on IndexMgr thread for thread safety
-    return FolioFuture(folio.index.hisWrite(rec, items, opts, cx?.commitInfo))
+    return FolioFuture(folio.index.hisWrite(rec, items, opts, folioCx?.commitInfo))
   }
 }
 

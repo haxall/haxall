@@ -157,7 +157,7 @@ abstract const class Folio
     {
       cx := FolioContext.curFolio(false)
       if (cx == null || cx.canRead(rec.dict)) return rec
-      if (checked) throw UnknownRecErr("Cannot read: $id.toZinc")
+      if (checked) throw PermissionErr("Cannot read: ${id.toZinc}")
     }
     if (checked) throw UnknownRecErr(id.toZinc)
     return null

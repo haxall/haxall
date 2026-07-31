@@ -13,4 +13,7 @@
 {
   ** Get the folio database
   abstract Folio db()
+
+  ** Get the current [FolioContext] if one is installed
+  FolioContext? folioCx() { FolioContext.curFolio(false) }
 }

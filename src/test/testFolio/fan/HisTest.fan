@@ -107,10 +107,11 @@ class HisTest  : AbstractFolioTest
     verifyRead(a, null, items)
 
     // add trash and verify neither reads not write work
+    // trashed recs are not readable by a his mgr, so expect UnknownRecErr
     a = commit(a, ["trash":m])
-    verifyErr(HisConfigErr#) { verifyRead(a, null, items) }
-    verifyErr(HisConfigErr#) { verifyRead(a, Span.today, items) }
-    verifyErr(HisConfigErr#) { folio.his.write(a.id, [item(DateTime.now.toTimeZone(tz), n(99))]) }
+    verifyErr(UnknownRecErr#) { verifyRead(a, null, items) }
+    verifyErr(UnknownRecErr#) { verifyRead(a, Span.today, items) }
+    verifyErr(UnknownRecErr#) { folio.his.write(a.id, [item(DateTime.now.toTimeZone(tz), n(99))]) }
 
     // remove trash
     a = commit(a, ["trash":None.val])
