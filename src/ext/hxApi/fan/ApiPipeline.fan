@@ -41,7 +41,7 @@ class ApiPipeline
 //////////////////////////////////////////////////////////////////////////
 
   ** Run the entire pipeline for the operation
-  Void service()
+  virtual Void service()
   {
     try
     {

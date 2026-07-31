@@ -17,7 +17,10 @@ const class ApiExt : ExtObj
   ** Constructor
   new make()
   {
-    this.web = Type.find(sys.config.get("apiExtWeb") ?: ApiWeb#.qname).make([this])
+    this.web = ApiWeb(this)
+    this.pipelineType = Type.find(sys.config.get("apiPipeline") ?: ApiPipeline#.qname)
+    if (!pipelineType.fits(ApiPipeline#))
+      throw ArgErr("apiPipeline is not an ApiPipeline: $pipelineType")
     syncErrTrace
   }
 
@@ -35,6 +38,10 @@ const class ApiExt : ExtObj
 
   ** Web servicing
   override const ApiWeb web
+
+  ** Pipeline class used to service each API request.  A vendor plugs in
+  ** its own dispatch by naming a subclass in the "apiPipeline" sysConfig.
+  @NoDoc const Type pipelineType
 }
 
 

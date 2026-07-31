@@ -42,7 +42,7 @@ const class ApiWeb : ExtWeb
 
   override Void onService()
   {
-    ApiPipeline(ext, req, res).service
+    ((ApiPipeline)ext.pipelineType.make([ext, req, res])).service
   }
 }
 

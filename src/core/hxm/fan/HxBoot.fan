@@ -298,7 +298,7 @@ abstract class HxSysBoot : HxBoot
   **   - safeMode: Marker to disable all project extensions
   **   - noAuth: Marker to disable auth for loopback and auto-login with superuser
   **   - console: Marker to run interactive console after boot
-  **   - apiExtWeb: qname for ApiExt ExtWeb class
+  **   - apiPipeline: qname for hxApi::ApiPipeline subclass to service API requests
   **   - platformSpi: qname for hxPlatform::PlatformSpi class
   **   - platformNetworkSpi: qname for hxPlatformNetwork::PlatformNetworkSpi class
   **   - platformSerialSpi: qname for hxPlatformSerial::PlatformSerialSpi class
