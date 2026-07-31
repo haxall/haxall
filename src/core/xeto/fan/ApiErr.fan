@@ -173,6 +173,12 @@ const class ApiErr : Err
     make(403, "PermissionErr", dis, cause)
   }
 
+  ** Caller is authenticated but lacks permission to access project
+  static ApiErr permissionErrProj(Str projName, Err? cause := null)
+  {
+    permissionErr("Cannot access proj: $projName", cause)
+  }
+
   ** Caller exceeded a rate limit or quota; retryAfter is omitted when
   ** the server cannot predict when the limit resets.  It is always
   ** reported in seconds to match the HTTP Retry-After header.
