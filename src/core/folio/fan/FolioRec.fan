@@ -19,6 +19,12 @@ const mixin FolioRec
   ** Dict representation of rec
   abstract Dict dict()
 
+  ** Persistent tags only. Default impl returns [dict] with transient tags removed
+  virtual Dict persistent() { Etc.dictRemoveAll(dict, Etc.dictNames(transient)) }
+
+  ** Transient tags only. Default impl returns empty dict.
+  virtual Dict transient() { Etc.dict0 }
+
   ** Is this rec in the trash
   virtual Bool isTrash() { dict.has("trash") }
 

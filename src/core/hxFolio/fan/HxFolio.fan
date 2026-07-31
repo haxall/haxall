@@ -186,16 +186,6 @@ const class HxFolio : Folio
     return FolioFuture(index.send(Msg(MsgId.commit, diffs, newIds, cxInfo)))
   }
 
-  override Dict? readByIdPersistentTags(Ref id, Bool checked := true)
-  {
-    rec(id, checked)?.persistent
-  }
-
-  override Dict? readByIdTransientTags(Ref id, Bool checked := true)
-  {
-    rec(id, checked)?.transient
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

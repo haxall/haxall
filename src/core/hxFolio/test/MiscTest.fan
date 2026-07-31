@@ -38,6 +38,48 @@ class MiscTest : WhiteboxTest
     close
   }
 
+  ** readByIdPersistentTags/readByIdTransientTags route through the Folio
+  ** base class now, so they exclude trash and check read permission like
+  ** every other by-id read.  Previously they read the index raw.
+  Void testTagReads()
+  {
+    open
+
+    a := addRec(["dis":"A", "foo":m])
+    folio.commit(Diff(a, ["curVal":n(7)], Diff.transient))
+    t := addRec(["dis":"T", "trash":m])
+
+    // basic split
+    verifyEq(folio.readByIdPersistentTags(a.id)->dis, "A")
+    verifyEq(folio.readByIdPersistentTags(a.id)["curVal"], null)
+    verifyEq(folio.readByIdTransientTags(a.id)->curVal, n(7))
+
+    // trash is invisible
+    verifyNull(folio.readByIdPersistentTags(t.id, false))
+    verifyNull(folio.readByIdTransientTags(t.id, false))
+    verifyErr(UnknownRecErr#) { folio.readByIdPersistentTags(t.id) }
+    verifyErr(UnknownRecErr#) { folio.readByIdTransientTags(t.id) }
+
+    // recs we cannot read are invisible too
+    Actor.locals[ActorContext.actorLocalsKey] = QueryTestContext(Filter("dis == \"B\""))
+    try
+    {
+      verifyNull(folio.readByIdPersistentTags(a.id, false))
+      verifyNull(folio.readByIdTransientTags(a.id, false))
+      verifyErr(UnknownRecErr#) { folio.readByIdPersistentTags(a.id) }
+      verifyErr(UnknownRecErr#) { folio.readByIdTransientTags(a.id) }
+    }
+    finally Actor.locals.remove(ActorContext.actorLocalsKey)
+
+    // and visible again once the filter matches
+    Actor.locals[ActorContext.actorLocalsKey] = QueryTestContext(Filter("dis == \"A\""))
+    try
+      verifyEq(folio.readByIdPersistentTags(a.id)->dis, "A")
+    finally Actor.locals.remove(ActorContext.actorLocalsKey)
+
+    close
+  }
+
   Void testSync()
   {
     open

@@ -318,10 +318,16 @@ abstract const class Folio
   private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
 
   ** Read only persistent tags for given rec id
-  @NoDoc virtual Dict? readByIdPersistentTags(Ref id, Bool checked := true) { throw UnsupportedErr() }
+  @NoDoc Dict? readByIdPersistentTags(Ref id, Bool checked := true)
+  {
+    doReadRecById(id, checked, false)?.persistent
+  }
 
   ** Read only transient only tags for given rec id
-  @NoDoc virtual Dict? readByIdTransientTags(Ref id, Bool checked := true) { throw UnsupportedErr() }
+  @NoDoc Dict? readByIdTransientTags(Ref id, Bool checked := true)
+  {
+    doReadRecById(id, checked, false)?.transient
+  }
 
   ** Intern the given ref to its canonical representation
   @NoDoc virtual Ref internRef(Ref id)

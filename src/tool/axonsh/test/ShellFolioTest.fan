@@ -76,6 +76,25 @@ class ShellFolioTest : HaystackTest
     verifyNotNull(folio.readById(b.id, false))
   }
 
+  ** ShellFolio has no persistent/transient split, so it takes FolioRec's
+  ** defaults.  These used to throw UnsupportedErr from the Folio base class,
+  ** which broke FolioUtil.stripUncommittable in the shell.
+  Void testTagReads()
+  {
+    a := folio.commit(Diff.makeAdd(["dis":"Alpha"])).newRec
+    b := folio.commit(Diff.makeAdd(["dis":"Beta", "trash":Marker.val])).newRec
+
+    verifyDictEq(folio.readByIdPersistentTags(a.id), a)
+    verifyEq(folio.readByIdTransientTags(a.id).isEmpty, true)
+    verifyDictEq(FolioUtil.stripUncommittable(folio, a), Etc.dictRemove(a, "mod"))
+
+    // trash and unknown recs are invisible like every other by-id read
+    verifyNull(folio.readByIdPersistentTags(b.id, false))
+    verifyNull(folio.readByIdTransientTags(Ref.gen, false))
+    verifyErr(UnknownRecErr#) { folio.readByIdPersistentTags(b.id) }
+    verifyErr(UnknownRecErr#) { folio.readByIdTransientTags(Ref.gen) }
+  }
+
   ** ShellFolio never authorized commits before the checks moved into the
   ** Folio base class; it inherits them now.
   Void testCommitPerms()

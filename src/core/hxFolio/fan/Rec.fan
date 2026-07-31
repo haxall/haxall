@@ -52,11 +52,11 @@ const class Rec : FolioRec
   private const AtomicRef dictRef := AtomicRef()
 
   ** Persistent tags [owned by IndexMgr]
-  Dict persistent() { persistentRef.val }
+  override Dict persistent() { persistentRef.val }
   private const AtomicRef persistentRef := AtomicRef()
 
   ** Transient tags [owned by IndexMgr]
-  Dict transient() { transientRef.val }
+  override Dict transient() { transientRef.val }
   private const AtomicRef transientRef := AtomicRef(Etc.dict0)
 
   ** Is this record marked for trash
