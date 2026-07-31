@@ -109,6 +109,8 @@ abstract class ApiDispatch
 
   ApiVersion version() { p.version }
 
+  ApiPipeline pipeline() { p }
+
   private ApiPipeline p
 }
 

@@ -49,6 +49,7 @@ class ApiPipeline
       if (upgrade) return
       if (!authenticate) return
       resolveVersion
+      if (onAuthenticated) return
       resolveOpFunc
       dispatch
     }
@@ -83,7 +84,7 @@ class ApiPipeline
 //////////////////////////////////////////////////////////////////////////
 
   ** Resolve /api/{rt name} to the runtime
-  private Void resolveRuntime()
+  protected virtual Void resolveRuntime()
   {
     // if path too short
     if (rtName == null) throw ApiErr.invalidPathErr
@@ -139,6 +140,18 @@ class ApiPipeline
     cx.timeout = rt.meta.evalTimeout
     return true
   }
+
+  ** Hook called once the request is authenticated and the context is
+  ** installed, but before the request body is read or any response is
+  ** written.  Return true if the hook fully serviced the request, in
+  ** which case the pipeline stops.
+  **
+  ** This is the seam for host level concerns which need the authenticated
+  ** `hx::Context` and its session: tunnelling the raw request to another
+  ** cluster node, or binding a UI session onto the context.  It must fire
+  ** before the body is read because a subclass may pipe the unread body
+  ** straight to another host.
+  protected virtual Bool onAuthenticated() { false }
 
   ** Check and validate the requested version; v4 assumed if undefined.
   ** The Xeto-Version header is the primary mechanism; the "xeto-version"
@@ -243,20 +256,33 @@ class ApiPipeline
   ** Choke point for all error handling
   Void writeErr(ApiErr err) { err.writeRes(res) }
 
+  ** Write an err as a version 4 style 200 response carrying an error grid.
+  ** This is the legacy wire contract: `haystack::Client` parses the grid to
+  ** raise CallErr, so a real status code would surface as IOErr instead.
+  ** The meta tags let the server hand recovery information back with the
+  ** error, such as a replacement session key.
+  @NoDoc Void writeErrGrid(Err err, [Str:Obj?]? meta := null)
+  {
+    acc := meta == null ? Str:Obj?[:] : meta.dup
+    if (ext.settings.disableErrTrace)
+      acc["errTrace"] = "${err}\n  Trace disabled"
+    ApiDispatchV4(this).writeRes(Etc.makeErrGrid(err, Etc.makeDict(acc)))
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const Sys sys       // make
-  const ApiExt ext    // make
-  const Str[] path    // make
-  const Str? rtName   // make
-  const Str? opName   // make
-  WebReq req          // make
-  WebRes res          // make
-  Runtime? rt         // resolveRuntime
-  Context? cx         // authenticate
-  ApiVersion? version // resolveVersion
-  Spec? func          // resolveOpFunc
+  const Sys sys                  // make
+  const ApiExt ext               // make
+  const Str[] path               // make
+  const Str? rtName              // make
+  const Str? opName              // make
+  WebReq req                     // make
+  WebRes res                     // make
+  protected Runtime? rt          // resolveRuntime
+  protected Context? cx          // authenticate
+  protected ApiVersion? version  // resolveVersion
+  protected Spec? func           // resolveOpFunc
 }
 

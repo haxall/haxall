@@ -85,14 +85,8 @@ class ApiDispatchV4 : ApiDispatch
     return null
   }
 
-  ** Write an error grid as a 200 response
-  private Void writeErrGrid(Err err)
-  {
-    meta := Str:Obj?[:]
-    if (ext.settings.disableErrTrace)
-      meta["errTrace"] = "${err}\n  Trace disabled"
-    writeRes(Etc.makeErrGrid(err, Etc.makeDict(meta)))
-  }
+  ** Write an error grid as a 200 response; see `hxApi::ApiPipeline.writeErrGrid`
+  private Void writeErrGrid(Err err) { pipeline.writeErrGrid(err) }
 
 //////////////////////////////////////////////////////////////////////////
 // Write Response

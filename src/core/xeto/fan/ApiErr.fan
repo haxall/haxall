@@ -190,6 +190,13 @@ const class ApiErr : Err
     make(504, "TimeoutErr", dis, cause)
   }
 
+  ** Runtime is known but cannot service the request right now, such as a
+  ** project whose host node is down
+  static ApiErr unavailableErr(Str dis, Err? cause := null)
+  {
+    make(503, "UnavailableErr", dis, cause)
+  }
+
   ** Entity id does not resolve in the data store
   static ApiErr unknownEntityErr(Str dis, Err? cause := null, Str? id := null)
   {
