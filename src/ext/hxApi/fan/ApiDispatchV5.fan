@@ -23,6 +23,6 @@ class ApiDispatchV5 : ApiDispatch
 
   override Obj?[] readReqPost() { throw Err("TODO") }
 
-  override Void writeRes(Obj? result) { throw Err("TODO") }
+  override Void writeResVal(Obj? result) { throw Err("TODO") }
 }
 

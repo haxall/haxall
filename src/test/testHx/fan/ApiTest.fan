@@ -262,7 +262,7 @@ abstract class ApiTest : HxTest
   ** Verify the GET/POST contract for an op.  An op marked <noSideEffects>
   ** must accept GET with its args as query params; every other op must
   ** reject GET with a 405 MethodNotAllowedErr and accept only POST.  This
-  ** is enforced by ApiDispatch.readReq so it holds in both dialects.
+  ** is enforced by ApiDispatch.checkMethod so it holds in both dialects.
   Void verifyOpMethods(Str op, Bool noSideEffects, Str query := "")
   {
     if (noSideEffects)

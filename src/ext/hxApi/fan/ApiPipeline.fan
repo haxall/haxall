@@ -188,6 +188,13 @@ class ApiPipeline
 
     // lookup all functions by name
     func = doResolveOpFunc(opName)
+
+    // determine if function handles it own request and/or responses
+    if (func.meta.has("opWeb"))
+    {
+      funcOwnsReq = func.func.params.isEmpty
+      funcOwnsRes = func.func.returns.type.isNone
+    }
   }
 
   ** Lookup opName and check for ambiguous matches
@@ -216,23 +223,44 @@ class ApiPipeline
 // Dispatch
 //////////////////////////////////////////////////////////////////////////
 
-  ** Dispatch to the op function
+  ** Dispatch to the op function.  An '<opWeb>' func services part or all of
+  ** the request itself, and its signature says which part: no params means it
+  ** decodes the request, and a 'None' return means it writes the response.
+  ** The signature is the single source of truth here because v5 reads the
+  ** same params/returns to build its JSON encoding and OpenAPI schema.
+  **
+  ** Note a func returning a file is not opWeb at all: it returns the file
+  ** and `ApiDispatch.writeResFile` serves it as a download.
   private Void dispatch()
   {
-    // if func is <opWeb> its a direct dispatch
-    if (func.meta.has("opWeb")) return call(Obj#.emptyList)
-
-    // build dispatcher for this version and op
+    // build dispatcher for this version and op; always, so that even a func
+    // servicing its own request is doing it for the negotiated version
     dispatch := resolveDispatch
 
+    // a func owning both halves owns method dispatch too; hx.api::file
+    // switches on GET/POST/PUT itself so a blanket check would reject uploads
+    if (!funcOwnsReq || !funcOwnsRes) dispatch.checkMethod
+
     // read the request to func args
-    args := dispatch.readReq
+    args := funcOwnsReq ? Obj#.emptyList : dispatch.readReq
 
     // invoke the function
     result := dispatch.call(args)
 
     // write the response; call may have already written an error response
-    if (!res.isCommitted) dispatch.writeRes(result)
+    if (!funcOwnsRes && !res.isCommitted) dispatch.writeRes(result)
+  }
+
+  ** Resolve base dispatch class
+  private ApiDispatch resolveDispatch()
+  {
+    // version 5
+    if (version === ApiVersion.v5) return ApiDispatchV5(this)
+
+    // version 4 fallbacks
+    type := ApiDispatchV4Op.specials[opName]
+    if (type != null) return type.make([this])
+    return ApiDispatchV4(this)
   }
 
   ** Call the op function (permission check is done here).  Axon wraps
@@ -246,18 +274,6 @@ class ApiPipeline
       return func.func.thunk.callList(args)
     catch (EvalErr e)
       throw e.cause ?: e
-  }
-
-  ** Resolve base dispatch class
-  private ApiDispatch resolveDispatch()
-  {
-    // version 5
-    if (version === ApiVersion.v5) return ApiDispatchV5(this)
-
-    // version 4 fallbacks
-    type := ApiDispatchV4Op.specials[opName]
-    if (type != null) return type.make([this])
-    return ApiDispatchV4(this)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -284,16 +300,18 @@ class ApiPipeline
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const Sys sys                  // make
-  const ApiExt ext               // make
-  const Str[] path               // make
-  const Str? rtName              // make
-  const Str? opName              // make
-  WebReq req                     // make
-  WebRes res                     // make
-  protected Runtime? rt          // resolveRuntime
-  protected Context? cx          // authenticate
-  protected ApiVersion? version  // resolveVersion
-  protected Spec? func           // resolveOpFunc
+  const Sys sys             // make
+  const ApiExt ext          // make
+  const Str[] path          // make
+  const Str? rtName         // make
+  const Str? opName         // make
+  WebReq req                // make
+  WebRes res                // make
+  Runtime? rt               // resolveRuntime
+  Context? cx               // authenticate
+  ApiVersion? version       // resolveVersion
+  Spec? func                // resolveOpFunc
+  Bool funcOwnsReq          // resolveOpFunc
+  Bool funcOwnsRes          // resolveOpFunc
 }
 

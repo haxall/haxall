@@ -23,21 +23,27 @@ abstract class ApiDispatch
 // Read/Write Hooks
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read the request to function args based on GET or POST
-  Obj?[] readReq()
+  ** Verify the request method is allowed for this op.  This is separate
+  ** from `readReq` because it applies to every op, including those which
+  ** decode the request themselves and so never call readReq.  The pipeline
+  ** is the single caller; see `hxApi::ApiPipeline.dispatch`.
+  Void checkMethod()
   {
     if (req.isGet)
     {
       if (func.meta.missing("noSideEffects"))
         throw ApiErr.methodNotAllowedErr(func.name)
-      return readReqGet
+      return
     }
-
-    if (req.isPost)
-    {
-      return readReqPost
-    }
+    if (req.isPost) return
     throw ApiErr.notImplementedErrMethod(req.method)
+  }
+
+  ** Read the request to function args based on GET or POST; the method has
+  ** already been validated by `checkMethod`
+  Obj?[] readReq()
+  {
+    req.isGet ? readReqGet : readReqPost
   }
 
   ** Read the request to function args from path or query string
@@ -49,8 +55,28 @@ abstract class ApiDispatch
   ** Invalid the operation function with given args and return result
   virtual Obj? call(Obj?[] args) { p.call(args) }
 
-  ** Write the request to the response body
-  abstract Void writeRes(Obj? result)
+  ** Write the result to the response body.  A file result is served as a
+  ** download regardless of protocol version; anything else is encoded by
+  ** the version specific `writeResVal`.
+  Void writeRes(Obj? result)
+  {
+    file := result as File
+    if (file != null) return writeResFile(file)
+    writeResVal(result)
+  }
+
+  ** Serve a file result as an attachment download.  FileWeblet handles the
+  ** mime type from the file extension plus ETag, Last-Modified, 304, and
+  ** gzip.  An in memory result can use `sys::Buf.toFile` to name itself.
+  virtual Void writeResFile(File file)
+  {
+    weblet := FileWeblet(file)
+    weblet.extraResHeaders = ["Content-Disposition": "attachment; filename=$file.name.toCode"]
+    weblet.onService
+  }
+
+  ** Encode a non-file result to the response body
+  abstract Void writeResVal(Obj? result)
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

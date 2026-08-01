@@ -74,6 +74,11 @@ class ApiDispatchV4 : ApiDispatch
   ** code here would surface as IOErr instead.  ApiErr is a failure in the
   ** HTTP processing which never reached the function, so it is rethrown to
   ** be reported by ApiPipeline.writeErr with its status code.
+  **
+  ** This applies only when we are the one writing the response body.  An op
+  ** which streams its own response, or returns a file for the dispatcher to
+  ** serve, has no grid to put the error in: the client would read the err
+  ** grid as the bytes it asked for, so the error is rethrown instead.
   override Obj? call(Obj?[] args)
   {
     try
@@ -81,15 +86,30 @@ class ApiDispatchV4 : ApiDispatch
     catch (ApiErr e)
       throw e
     catch (Err e)
+    {
+      if (!writesGrid) throw e
       pipeline.writeErrGrid(e)
+    }
     return null
   }
+
+  ** Will this op's response body be a grid we encode?  Note a func may
+  ** declare 'returns: None' and still get a grid: sys.api::close answers
+  ** the empty grid.  What matters is whether the func writes the response
+  ** itself, which is the pipeline's opWeb reading of the signature.
+  private Bool writesGrid()
+  {
+    !pipeline.funcOwnsRes && !func.func.returns.type.isa(fileSpec)
+  }
+
+  ** The 'sys::File' spec, resolved before the func has produced a result
+  private once Spec fileSpec() { cx.ns.spec("sys::File") }
 
 //////////////////////////////////////////////////////////////////////////
 // Write Response
 //////////////////////////////////////////////////////////////////////////
 
-  override Void writeRes(Obj? result)
+  override Void writeResVal(Obj? result)
   {
     // a func with no result encodes as the empty grid v4 clients expect;
     // Etc.toGrid would otherwise make a single row with a null val col
