@@ -123,11 +123,19 @@ Here is a very simple example:
     }
 
 Libs plug into the URI namespace as follows:
-  - Haxall: `/{extName}`
-  - SkySpark: `/api/{projName}/ext/{extName}`
+  - Haxall: `/{routeName}`
+  - SkySpark: `/api/{projName}/ext/{routeName}`
+
+The route name is the full dotted lib name such as "acme.foo".  Libs
+under the Haxall reserved "hx." prefix route using the last name
+in their dotted path; for example "hx.shell" routes as "shell".  Only
+sys extensions may override [fan.hx::ExtWeb.routeName]; overrides by
+project extensions are not registered.  This rule guarantees third party
+extensions will not collide with built-in extensions.
 
 # Stub
 The `hx stub` tool will generate all the boiler plate code and structure for
 a new library.  Run the following on the command line to see options:
 
     hx help stub
+

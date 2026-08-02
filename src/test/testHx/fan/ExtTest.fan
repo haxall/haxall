@@ -49,6 +49,23 @@ class ExtTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Route Names
+//////////////////////////////////////////////////////////////////////////
+
+  Void testRouteNames()
+  {
+    // hx. reserved prefix routes by last name
+    verifyEq(ExtWeb.toRouteName("hx.api"),      "api")
+    verifyEq(ExtWeb.toRouteName("hx.shell"),    "shell")
+    verifyEq(ExtWeb.toRouteName("hx.hxd.user"), "user")
+
+    // all other libs route by full dotted name
+    verifyEq(ExtWeb.toRouteName("axon"),        "axon")
+    verifyEq(ExtWeb.toRouteName("acme.foo"),    "acme.foo")
+    verifyEq(ExtWeb.toRouteName("foo.ai"),      "foo.ai")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Add/Remove
 //////////////////////////////////////////////////////////////////////////
 

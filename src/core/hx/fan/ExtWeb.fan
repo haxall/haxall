@@ -22,11 +22,19 @@ abstract const class ExtWeb : WebMod
   virtual Ext ext() { extRef }
   private const Ext extRef
 
-  ** Get the route name for this web extension. By default its
-  ** the last name in the dotted lib path.  This must be a valid
-  ** path name (must not contain slashes).  Return the empty string to
-  ** service the "/" root index.
-  virtual Str routeName() { ext.name.split('.').last }
+  ** Get the route name for this web extension.  The default is the
+  ** full dotted lib name, except libs under the Haxall reserved
+  ** "hx." prefix which route using the last name in the dotted path.
+  ** Only sys extensions may override the default; overrides by project
+  ** extensions are not registered.  This rule guarantees third party
+  ** extensions will not collide with built-in extensions.
+  virtual Str routeName() { toRouteName(ext.name) }
+
+  ** Compute the default route name for the given dotted lib name
+  @NoDoc static Str toRouteName(Str extName)
+  {
+    extName.startsWith("hx.") ? extName.split('.').last : extName
+  }
 
   ** Base uri for this library's endpoint.  System extensions will
   ** return "/{routeName}/" and project extensions "/ext/{pro}/{routeName}".
@@ -86,7 +94,7 @@ abstract const class ExtWeb : WebMod
 internal const class UnsupportedExtWeb : ExtWeb
 {
   new make(Ext ext) : super(ext) {}
-  override Str routeName() { "" }
+  override Bool isRouted() { false }
   override Bool isSupported() { false }
   override Void onService() { res.sendErr(404) }
 }

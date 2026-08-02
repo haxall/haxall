@@ -249,8 +249,13 @@ const class HxExtRegistry
       routeName := web.routeName
       if (web.isRouted)
       {
-        if (webRoutes[routeName] != null) rt.log.warn("Duplicte ext routes: $routeName")
-        webRoutes[routeName] = web
+        // only sys exts may override their default route name
+        if (!rt.isSys && routeName != ExtWeb.toRouteName(ext.name))
+          rt.log.err("Ext route override not allowed: $ext.name => $routeName")
+        else if (webRoutes[routeName] != null)
+          rt.log.err("Duplicate ext routes: $routeName")
+        else
+          webRoutes[routeName] = web
       }
 
       // map .well-known/ routes
