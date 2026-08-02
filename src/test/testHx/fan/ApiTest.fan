@@ -498,8 +498,8 @@ abstract class ApiTest : HxTest
     // a directory path is 404 (download requires a file)
     verifyEq(webCode(`file/io/`), 404)
 
-    // methods other than GET/POST/PUT are 404
-    verifyEq(webCode(`file/io/opweb.txt`, "DELETE"), 404)
+    // methods other than GET/POST/PUT are 501 not implemented
+    verifyEq(webCode(`file/io/opweb.txt`, "DELETE"), 501)
 
     // upload is unsupported by the haxall file ext: FileExt does not
     // override uploadHandler so the base UploadHandler stub returns 404.

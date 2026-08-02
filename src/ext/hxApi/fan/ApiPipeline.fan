@@ -237,9 +237,9 @@ class ApiPipeline
     // servicing its own request is doing it for the negotiated version
     dispatch := resolveDispatch
 
-    // a func owning both halves owns method dispatch too; hx.api::file
-    // switches on GET/POST/PUT itself so a blanket check would reject uploads
-    if (!funcOwnsReq || !funcOwnsRes) dispatch.checkMethod
+    // a func which decodes the request also interprets the method: hx.api::file
+    // downloads on GET and uploads on POST/PUT, which no single marker models
+    if (!funcOwnsReq) dispatch.checkMethod
 
     // read the request to func args
     args := funcOwnsReq ? Obj#.emptyList : dispatch.readReq

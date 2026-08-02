@@ -145,7 +145,7 @@ const class ApiFuncs
     // means the route name is the first element of modRel
     routeName := req.modRel.path.getSafe(0) ?: ""
     mod := cx.rt.exts.webRoutes.get(routeName)
-    if (mod == null) return res.sendErr(404)
+    if (mod == null) throw ApiErr.unknownEntityErr("Unknown ext route: $routeName")
 
     // dispatch to web mod
     req.mod = mod
@@ -163,8 +163,12 @@ const class ApiFuncs
   ** uploads the request body to that path, where a path under
   ** "/uploads/{lib}/" delegates to that extension's upload handler.
   @Api
-  static Void file()
+  static Obj? file()
   {
+    // this op interprets the method itself -- GET downloads and POST/PUT
+    // upload -- so it reads the request directly and takes no params.  Both
+    // branches return a value for the dispatcher to write: a file is served
+    // as a download, an upload result is encoded as a grid
     cx  := curContext
     req := cx.webReq
     res := cx.webRes
@@ -187,24 +191,24 @@ const class ApiFuncs
     switch (req.method)
     {
       case "GET":
-        fileDownload(cx, res, path)
+        return fileDownload(cx, path)
       case "POST":
       case "PUT":
         // fall-through
-        fileUpload(cx, req, res, path)
+        return fileUpload(cx, req, res, path)
       default:
-        res.sendErr(404)
+        throw ApiErr.notImplementedErrMethod(req.method)
     }
   }
 
   ** Note that download is only supported for the file ext
-  private static Void fileDownload(Context cx, WebRes res, Uri path)
+  private static File? fileDownload(Context cx, Uri path)
   {
-    if (path.isDir) return res.sendErr(404)
-    FileWeblet(cx.sys.file.resolve(path)).onService
+    if (path.isDir) throw ApiErr.unknownEntityErr("Not a file: $path")
+    return cx.sys.file.resolve(path)
   }
 
-  private static Void fileUpload(Context cx, WebReq req, WebRes res, Uri path)
+  private static Obj? fileUpload(Context cx, WebReq req, WebRes res, Uri path)
   {
     Ext ext := cx.sys.file
 
@@ -219,8 +223,7 @@ const class ApiFuncs
     try
     {
       opts := Etc.dict1("path", path)
-      ret  := cx.asCur { ext.uploadHandler(req, res, opts).upload }
-      if (!res.isCommitted) WebOpUtil.doWriteRes(req, res, Etc.toGrid(ret))
+      return cx.asCur { ext.uploadHandler(req, res, opts).upload }
     }
     catch (Err err)
     {
