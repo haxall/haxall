@@ -261,14 +261,33 @@ abstract class ApiTest : HxTest
 
   ** Verify the GET/POST contract for an op.  An op marked <noSideEffects>
   ** must accept GET with its args as query params; every other op must
-  ** reject GET with a 405 MethodNotAllowedErr and accept only POST.  This
-  ** is enforced by ApiDispatch.checkMethod so it holds in both dialects.
+  ** reject GET with a 405 MethodNotAllowedErr and accept only POST.  Any
+  ** method other than GET/POST is 501 for every op.  This is enforced by
+  ** ApiDispatch.checkMethod so it holds in both dialects.
   Void verifyOpMethods(Str op, Bool noSideEffects, Str query := "")
   {
     if (noSideEffects)
       verifyGetAllowed(op, query)
     else
       verifyGetNotAllowed(op, query)
+    verifyMethodNotImplemented(op)
+  }
+
+  ** Neither GET nor POST is a 501 NotImplementedErr regardless of
+  ** whether the op declares <noSideEffects>
+  Void verifyMethodNotImplemented(Str op, Str method := "DELETE")
+  {
+    wc := c.toWebClient(op.toUri)
+    wc.reqMethod = method
+    setVersionHeader(wc)
+    wc.writeReq
+    wc.readRes
+    verifyEq(wc.resCode, 501)
+
+    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    wc.close
+    verifyEq(json["spec"], "sys.api::NotImplementedErr")
+    verifyEq(json["status"], 501)
   }
 
   ** An op with <noSideEffects> answers GET with its args as query params
