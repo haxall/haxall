@@ -106,7 +106,7 @@ abstract class ApiTest : HxTest
     if (sys.info.type.isSkySpark) addLib("hx.his")
     addLib("hx.point")
 
-    try { sys.libs.add("hx.http") } catch (Err e) {}
+    addHttpExt
     this.uri = sys.http.siteUri + `/api/${proj.name}/`
 
     // setup user accounts
@@ -138,7 +138,7 @@ abstract class ApiTest : HxTest
     ext := proj.ext("hx.http")
     rec := ext.settings
     host := IpAddr.local.hostname
-    port := rec.has("httpPort") ? ((Number)rec->httpPort).toInt : 8080
+    port := rec.has("httpPort") ? ((Number)rec->httpPort).toInt : httpPort
     defSiteUri := `http://${host}:${port}/`
 
     // default on initialization

@@ -27,10 +27,10 @@ using folio
 **     }
 **
 ** The following environment variables may be used to customize
-** behavior the tests when running in a SkySpark environment:
+** behavior of tests running in a Haxall or SkySpark environment:
 **
 **   - `HX_TEST_HTTP_PORT`: http port to use when booting a runtime;
-**     the default is 8080 if not specified
+**     the default is 8099 if not specified.
 **
 **   - `SKYSPARK_TEST_LIC_DIR`: directory to look for license file(s)
 **     which are installed for the test system.  The default is the
@@ -72,6 +72,26 @@ abstract class HxTest : HaystackTest
     if (def is File) return File.os(val)
     if (def is Int) return Int.fromStr(val)
     return key
+  }
+
+  ** HTTP port for tests which boot a real web server, from the
+  ** `HX_TEST_HTTP_PORT` env var. All tests must use this configured
+  ** port to lets developers control conflicts
+  @NoDoc static Int httpPort() { envVar("HX_TEST_HTTP_PORT", 8099) }
+
+  ** Settings to bind the "hx.http" ext to `httpPort`.  Use this whenever
+  ** enabling http for a test, whether at boot or after startup.
+  @NoDoc static Dict httpSettings() { Etc.dict1("httpPort", Number.makeInt(httpPort)) }
+
+  ** Enable the "hx.http" ext on the sys runtime bound to `httpPort`.
+  ** Safe to call more than once.
+  @NoDoc Void addHttpExt()
+  {
+    ext := sys.exts.get("hx.http", false)
+    if (ext == null)
+      sys.exts.add("hx.http", httpSettings)
+    else
+      ext.settingsUpdate(httpSettings)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -27,7 +27,7 @@ class HttpTest : HxTest
   @HxTestProj
   Void testVirtualHost()
   {
-    try { sys.libs.add("hx.http") } catch (Err e) {}
+    addHttpExt
     this.siteUri = sys.http.siteUri
 
     // no IIonExt installed -> virtual host falls through to 404
