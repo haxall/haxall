@@ -130,6 +130,18 @@ const class ApiErr : Err
     make(400, "InvalidArgsErr", "Cannot parse $mime request", cause)
   }
 
+  ** Required func param has no arg in the request
+  static ApiErr invalidArgsErrMissing(Str funcName, Str param)
+  {
+    make(400, "InvalidArgsErr", "Missing required arg '$param' for op '$funcName'")
+  }
+
+  ** Arg in the request cannot be decoded to its declared param type
+  static ApiErr invalidArgsErrParam(Str param, Err cause)
+  {
+    make(400, "InvalidArgsErr", "Cannot decode arg '$param': $cause.msg", cause)
+  }
+
   ** URI cannot be parsed as "/api/{proj}/{op}"
   static ApiErr invalidPathErr()
   {
