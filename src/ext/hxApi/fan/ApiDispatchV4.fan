@@ -36,8 +36,7 @@ class ApiDispatchV4 : ApiDispatch
         val = valStr
       tags[key] = val
     }
-    grid := Etc.makeMapGrid(null, tags)
-    return Obj?[grid]
+    return toArgs(Etc.makeMapGrid(null, tags))
   }
 
   override Obj?[] readReqPost()
@@ -53,15 +52,30 @@ class ApiDispatchV4 : ApiDispatch
     reqStr := req.in.readAllStr
 
     // try to parse
+    Grid? grid := null
     try
     {
-      grid := filetype.reader(reqStr.in, ioOpts(mime)).readGrid
-      return [grid]
+      grid = filetype.reader(reqStr.in, ioOpts(mime)).readGrid
     }
     catch (Err e)
     {
       throw ApiErr.invalidArgsErr(mime.toStr, e)
     }
+    return toArgs(grid)
+  }
+
+  ** Map the version 4 request grid onto the function args.  An op which
+  ** still declares a single 'req: Grid' param takes the grid whole; any
+  ** other signature has its args read from the first row's cells by name.
+  **
+  ** A cell which matches no param is ignored rather than rejected: a v4
+  ** client may send extra columns, and callers do (Api4Test posts a 'ts'
+  ** column to eval).  A param with no cell falls back to its default.
+  private Obj?[] toArgs(Grid grid)
+  {
+    if (funcTakesReqGrid) return Obj?[grid]
+    row := grid.first
+    return mapArgs |p->Obj?| { row?.get(p.name) }
   }
 
 //////////////////////////////////////////////////////////////////////////

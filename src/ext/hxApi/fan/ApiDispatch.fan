@@ -52,6 +52,39 @@ abstract class ApiDispatch
   ** Read the request to function args from post body
   abstract Obj?[] readReqPost()
 
+  ** Map named args onto the positional list the thunk expects.  The given
+  ** function decodes one arg by param, or returns null if the request had
+  ** no value for it, in which case the param's default applies.
+  **
+  ** The default comes from 'metaOwn' so that meta inherited from the param's
+  ** type is not mistaken for one: sys::Ref declares 'val:"x"' as an example
+  ** which must never be injected as a caller's missing id.  This is the same
+  ** distinction `xetom::MFunc.signature` makes when it reports defaults.
+  Obj?[] mapArgs(|Spec->Obj?| f)
+  {
+    func.func.params.map |p->Obj?|
+    {
+      val := f(p)
+      if (val != null) return val
+      def := p.metaOwn["val"]
+      if (def != null) return def
+      if (p.type.isMaybe) return null
+      throw ApiErr.invalidArgsErrMissing(func.name, p.name)
+    }
+  }
+
+  ** Does this func take the whole request as a single opaque envelope?
+  ** By convention such a param is named "req": it is a version 4 shaped op
+  ** which has not been modeled with real params yet, so the request grid is
+  ** passed through rather than mapped onto params.  The name is the contract
+  ** rather than the type because these declare 'Grid', 'Obj', and 'Dict'
+  ** interchangeably; a func with real params never calls one "req".
+  virtual Bool funcTakesReqGrid()
+  {
+    params := func.func.params
+    return params.size == 1 && params.first.name == "req"
+  }
+
   ** Invalid the operation function with given args and return result
   virtual Obj? call(Obj?[] args) { p.call(args) }
 

@@ -33,7 +33,7 @@ class ApiDispatchV5 : ApiDispatch
     {
       if (!isControlParam(name)) args[name] = toJson(val)
     }
-    return mapArgs(args)
+    return mapJsonArgs(args)
   }
 
   ** A query param is a bare value rather than JSON text so that URLs stay
@@ -58,7 +58,7 @@ class ApiDispatchV5 : ApiDispatch
     // an op whose params all default may be posted with no body at all
     body := req.in.readAllStr
     args := body.isSpace ? Str:Str[:] : splitBody(body)
-    return mapArgs(args)
+    return mapJsonArgs(args)
   }
 
   ** Split the post body into the raw JSON text of each named arg so that
@@ -79,21 +79,13 @@ class ApiDispatchV5 : ApiDispatch
     return acc
   }
 
-  ** Map named args onto the positional list the thunk expects, applying
-  ** each param's default when the caller supplied no value.  The default
-  ** comes from 'metaOwn' so that meta inherited from the param's type is
-  ** not mistaken for one: sys::Ref declares 'val:"x"' as an example which
-  ** must never be injected as a caller's missing id.
-  private Obj?[] mapArgs(Str:Str args)
+  ** Decode each named arg against its own param spec
+  private Obj?[] mapJsonArgs(Str:Str args)
   {
-    func.func.params.map |p->Obj?|
+    mapArgs |p->Obj?|
     {
       json := args[p.name]
-      if (json != null) return decodeArg(p, json)
-      def := p.metaOwn["val"]
-      if (def != null) return def
-      if (p.type.isMaybe) return null
-      throw ApiErr.invalidArgsErrMissing(func.name, p.name)
+      return json == null ? null : decodeArg(p, json)
     }
   }
 

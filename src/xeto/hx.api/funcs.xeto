@@ -26,15 +26,14 @@
   // [hx.doc.skyspark::Ops#commit] for the HTTP API details.
   commit: Func <op, admin> { req: Grid, returns: Grid }
 
-  // Evaluate an expression and return the result as a grid.  The request
-  // grid has a single row with an `expr` column.  If the expression parses
+  // Evaluate an expression and return its result.  If the expression parses
   // as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
   // is read as a query, otherwise it is evaluated as an Axon expression.
   //
   // Also see `axon::Funcs.eval` which evaluates an expression directly without
   // the filter convenience, and [hx.doc.skyspark::Ops#eval] for the HTTP
   // API details.
-  eval: Func <op> { req: Grid, returns: Grid }
+  eval: Func <op> { expr: Str, returns: Obj? }
 
 //////////////////////////////////////////////////////////////////////////
 // Web

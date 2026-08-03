@@ -24,6 +24,11 @@ abstract class ApiDispatchV4Op : ApiDispatchV4
 
   new make(ApiPipeline p) : super(p) {}
 
+  ** These adapters service the legacy op themselves rather than calling the
+  ** func, so they always take the request grid whole no matter what params
+  ** the func declares
+  override Bool funcTakesReqGrid() { true }
+
   override Obj? call(Obj?[] args) { doCall(args[0]) }
 
   abstract Grid doCall(Grid req)

@@ -25,18 +25,15 @@ class Api5Test : ApiTest
   @HxTestProj
   Void test()
   {
-    // the v5 HTTP dispatch is not implemented yet, but the op funcs
-    // themselves are, so exercise what can run today
     doOpsFunc
 
     init
     doWriteRes
+    doEval
     cleanup
 
-    /* TODO: enable once readReqGet/readReqPost are implemented
-    doCommon
-    doEval
-    */
+    // TODO: doCommon needs a v5 shape for the ops which still take a v4
+    // style "req: Grid" arg; eval is the first one modeled with real params
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -215,9 +212,18 @@ class Api5Test : ApiTest
     verifyEval(c)
   }
 
+  ** eval declares 'returns: Obj?', so the result carries no spec the client
+  ** could decode against and a date arrives as its plain string form.  This
+  ** is the no-sniffing rule: a decoder never infers a type from what a
+  ** string looks like.  Version 4 wrapped this same value in a grid.
   private Void verifyEval(Client c)
   {
-    verifyCall(c, "eval", ["expr":"today()"], Date.today)
+    verifyCall(c, "eval", ["expr":"today()"], Date.today.toStr)
+    verifyCall(c, "eval", ["expr":"true"], true)
+
+    // TODO: a bare JSON number should decode as Number per the clean JSON
+    // read rules; today the untyped position gives back an Int
+    verifyCall(c, "eval", ["expr":"2 + 3"], 5)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -230,17 +236,24 @@ class Api5Test : ApiTest
     verifyEq(actual, expect)
   }
 
+  ** POST the args as a JSON object and decode the JSON result.  Both ends
+  ** use the xeto codec, which is the one the dispatch itself uses, so the
+  ** args are encoded exactly as a real v5 client would send them.
   Obj? call(Client c, Str op, Obj args)
   {
-    // TODO: just temp solution
-    x := c.toWebClient(op.toUri)
-    req := StrBuf()
-    JsonWriter(req.out).writeVal(Etc.makeDict(args))
-    if (debug) { echo(">>>>"); echo(req) }
-    x.postStr(req.toStr)
-    res := x.resIn.readAllStr
-    if (debug) { echo("<<<<"); echo(res) }
-    return JsonReader(res.in).readVal
+    ns := proj.ns
+    req := ns.io.writeJsonToStr(Etc.makeDict(args))
+    if (debug) { echo(">>>> $op"); echo(req) }
+
+    wc := c.toWebClient(op.toUri)
+    setVersionHeader(wc)
+    wc.postStr(req)
+    res := wc.resStr
+    wc.close
+    if (debug) { echo("<<<< $wc.resCode"); echo(res) }
+
+    if (wc.resCode != 200) throw IOErr("Bad HTTP response $wc.resCode $wc.resPhrase")
+    return ns.io.readJson(res.in)
   }
 
   const Bool debug := false

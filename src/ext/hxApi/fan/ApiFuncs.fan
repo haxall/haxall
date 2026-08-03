@@ -25,8 +25,7 @@ const class ApiFuncs
 // Eval
 //////////////////////////////////////////////////////////////////////////
 
-  ** Evaluate an expression and return the result as a grid.  The request
-  ** grid has a single row with an `expr` column.  If the expression parses
+  ** Evaluate an expression and return its result.  If the expression parses
   ** as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
   ** is read as a query, otherwise it is evaluated as an Axon expression.
   **
@@ -34,11 +33,11 @@ const class ApiFuncs
   ** the filter convenience, and [hx.doc.skyspark::Ops#eval] for the HTTP
   ** API details.
   @Api @Axon
-  static Grid eval(Grid req)
+  static Obj? eval(Str expr)
   {
-    if (req.isEmpty) throw Err("Request grid is empty")
-    expr := (Str)req.first->expr
-    return Etc.toGrid(curContext.evalOrReadAll(expr))
+    // the result is returned natural; version 4 wraps it in a grid via
+    // Etc.toGrid in ApiDispatchV4.writeResVal like every other op
+    curContext.evalOrReadAll(expr)
   }
 
 //////////////////////////////////////////////////////////////////////////
