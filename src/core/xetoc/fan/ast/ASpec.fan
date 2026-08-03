@@ -111,6 +111,9 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   ** We refine type and base in InheritSlots step
   override Spec? base() { ast.base as Spec }
 
+  ** Direct supertypes as ofs for compounds, otherwise base
+  override Spec[] bases() { XetoUtil.bases(this) }
+
   ** Default value of spec
   AData? val() { ast.val }
 

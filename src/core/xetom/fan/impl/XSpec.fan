@@ -165,6 +165,8 @@ const class WrapSpec : Spec
 
   override Spec? base() { m.base }
 
+  override final Spec[] bases() { m.bases }
+
   override Dict metaOwn() { m.metaOwn }
 
   override Dict meta() { m.meta }

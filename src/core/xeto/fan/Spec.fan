@@ -49,6 +49,12 @@ const mixin Spec : Dict
   ** Returns null if this is `sys::Obj` itself.
   abstract Spec? base()
 
+  ** Base specs from which this spec directly inherits.  If this spec
+  ** is an And/Or compound type then return its `ofs`, otherwise return
+  ** `base` as a single item list.  Returns empty list if this is
+  ** `sys::Obj` itself.
+  abstract Spec[] bases()
+
   ** Get my own declared meta-data
   abstract Dict metaOwn()
 

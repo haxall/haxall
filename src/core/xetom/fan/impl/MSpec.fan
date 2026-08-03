@@ -170,6 +170,8 @@ const class XetoSpec : Spec, CNode
 
   override final Spec? base() { m.base }
 
+  override final Spec[] bases() { XetoUtil.bases(this) }
+
   override final Dict metaOwn() { m.metaOwn }
 
   override final Dict meta() { m.meta }

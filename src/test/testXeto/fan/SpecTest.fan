@@ -168,6 +168,12 @@ class SpecTest : AbstractXetoTest
     verifyEq(tempSensor.ofs, Spec[tempPt, sensor])
     verifySame(dat.base, tempSensor)
 
+    verifyEq(obj.bases, Spec[,])
+    verifyEq(coll.bases, Spec[obj])
+    verifyEq(tempPt.bases, Spec[numPt])
+    verifyEq(tempSensor.bases, Spec[tempPt, sensor])
+    verifyEq(dat.bases, Spec[tempSensor])
+
     verifyInheritance(obj,        [obj])
     verifyInheritance(coll,       [obj, coll])
     verifyInheritance(dict,       [obj, coll, dict])
@@ -360,11 +366,13 @@ class SpecTest : AbstractXetoTest
       Str<|Foo: Dict
            Bar: Dict
            FooBar : Foo & Bar
+           FooOrBar : Foo | Bar
            |>)
 
      //env.print(lib)
 
      and := ns.type("sys::And")
+     or  := ns.type("sys::Or")
      foo := lib.type("Foo")
      bar := lib.type("Bar")
 
@@ -372,7 +380,14 @@ class SpecTest : AbstractXetoTest
      verifySame(fooBar.type.base, and)
      verifyEq(fooBar.isa(and), true)
      verifyEq(fooBar.ofs, Spec[foo,bar])
+     verifyEq(fooBar.bases, Spec[foo,bar])
      verifyEq(fooBar["ofs"], [foo.id, bar.id])
+
+     fooOrBar := lib.type("FooOrBar")
+     verifySame(fooOrBar.type.base, or)
+     verifyEq(fooOrBar.isa(or), true)
+     verifyEq(fooOrBar.ofs, Spec[foo,bar])
+     verifyEq(fooOrBar.bases, Spec[foo,bar])
    }
 
 //////////////////////////////////////////////////////////////////////////

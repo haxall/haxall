@@ -606,6 +606,13 @@ const class XetoUtil
 // Inheritance
 //////////////////////////////////////////////////////////////////////////
 
+  static Spec[] bases(Spec x)
+  {
+    if (x.isCompound) return x.ofs
+    if (x.base == null) return Spec#.emptyList
+    return Spec[x.base].ro
+  }
+
   static Void eachInherited(Spec x, |Spec| f)
   {
     f(x)
@@ -644,11 +651,7 @@ const class XetoUtil
   static Bool isDirectSubtype(Spec a, Spec b)
   {
     if (a.base === b) return true
-    if (a.isAnd)
-    {
-      ofs := a.ofs(false)
-      return ofs != null && ofs.any |x| { x === b }
-    }
+    if (a.isAnd) return a.bases.any |x| { x === b }
     return false
   }
 
@@ -731,9 +734,7 @@ const class XetoUtil
     if (b.isa(a)) return a
     if (a.base == null) return a
     if (b.base == null) return b
-    abase := a.isCompound ? a.ofs.first : a.base
-    bbase := b.isCompound ? b.ofs.first : b.base
-    return commonSupertypeBetween(abase, bbase)
+    return commonSupertypeBetween(a.bases.first, b.bases.first)
   }
 
 //////////////////////////////////////////////////////////////////////////
