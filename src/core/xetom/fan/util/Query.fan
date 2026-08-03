@@ -104,26 +104,26 @@ internal class Query
     acc := Dict[,]
     cx.xetoReadAllEachWhile(via) |rec|
     {
-       match := matchInverse(subjectId, rec, via, multiHop) && fits(rec, of)
+       match := matchInverse(subjectId, rec, via, multiHop, Obj[,]) && fits(rec, of)
        if (match) acc.add(rec)
        return null
     }
     return acc
   }
 
-  private Bool matchInverse(Obj subjectId, Dict rec, Str via, Bool multiHop)
+  private Bool matchInverse(Obj subjectId, Dict rec, Str via, Bool multiHop, Obj[] visited)
   {
     toRefs(rec[via]).any |ref->Bool|
     {
       if (ref == subjectId) return true
 
-      if (!multiHop) return false
+      if (!multiHop || visited.contains(ref)) return false // cyclic check
 
+      visited.add(ref)
       x := cx.xetoReadById(ref)
       if (x == null) return false
 
-      // TODO: need some cyclic checks
-      return matchInverse(subjectId, x, via, multiHop)
+      return matchInverse(subjectId, x, via, multiHop, visited)
     }
   }
 

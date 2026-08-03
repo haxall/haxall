@@ -649,6 +649,20 @@ class AxonTest : AbstractAxonTest
     verifyQuery(sysA, inverse, [eqA, eqAB, eqC])
     verifyQuery(sysB, inverse, [eqB, eqAB, eqC])
     verifyQuery(sysC, inverse, [eqC])
+
+    // add cyclic back edge sysA -> sysC (sysC already refs sysA)
+    commit(sysA, ["systemRef":[sysC.id]])
+
+    // via query with cycle
+    verifyQuery(eqA,  via, [sysA, sysC, sysB])
+    verifyQuery(eqB,  via, [sysB])
+    verifyQuery(eqAB, via, [sysA, sysB, sysC])
+    verifyQuery(eqC,  via, [sysC, sysA, sysB])
+
+    // inverse query with cycle
+    verifyQuery(sysA, inverse, [eqA, eqAB, eqC])
+    verifyQuery(sysB, inverse, [eqA, eqB, eqAB, eqC])
+    verifyQuery(sysC, inverse, [eqA, eqAB, eqC])
   }
 
   Void verifyQuery(Dict rec, Str query, Dict[] expect)
