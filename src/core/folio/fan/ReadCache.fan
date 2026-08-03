@@ -31,8 +31,10 @@ using haystack
       byId[id] = r
     }
     if (r !== notFound) return r
-    if (checked) throw UnknownRecErr(id.toStr)
-    return null
+    if (!checked) return null
+
+    // re-read checked so folio reports why: PermissionErr vs UnknownRecErr
+    return folio.readById(id, true)
   }
 
   Dict?[] readByIdsList(Ref[] ids, Bool checked := true)
