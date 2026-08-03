@@ -740,8 +740,7 @@ class BasicTest : AbstractFolioTest
       // adds have no old rec so they bypass the check entirely
       verifyEq(folio.commit(Diff.makeAdd(["dis":"C"])).newRec->dis, "C")
 
-      // trash is authorized too, so untrashing a denied rec must fail;
-      // this is why the check reads with doReadByIdsRaw
+      // trash is authorized too, so untrashing a denied rec must fail
       verifyErr(PermissionErr#) { folio.commit(Diff(folio.readByIdTrash(t.id), ["trash":None.val])) }
 
       // one denied diff rejects the whole batch and nothing is applied

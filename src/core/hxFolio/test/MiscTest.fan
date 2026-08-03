@@ -60,14 +60,15 @@ class MiscTest : WhiteboxTest
     verifyErr(UnknownRecErr#) { folio.readByIdPersistentTags(t.id) }
     verifyErr(UnknownRecErr#) { folio.readByIdTransientTags(t.id) }
 
-    // recs we cannot read are invisible too
+    // recs we cannot read are invisible too, but a denied read reports
+    // PermissionErr rather than the UnknownRecErr used for missing/trash
     Actor.locals[ActorContext.actorLocalsKey] = QueryTestContext(Filter("dis == \"B\""))
     try
     {
       verifyNull(folio.readByIdPersistentTags(a.id, false))
       verifyNull(folio.readByIdTransientTags(a.id, false))
-      verifyErr(UnknownRecErr#) { folio.readByIdPersistentTags(a.id) }
-      verifyErr(UnknownRecErr#) { folio.readByIdTransientTags(a.id) }
+      verifyErr(PermissionErr#) { folio.readByIdPersistentTags(a.id) }
+      verifyErr(PermissionErr#) { folio.readByIdTransientTags(a.id) }
     }
     finally Actor.locals.remove(ActorContext.actorLocalsKey)
 

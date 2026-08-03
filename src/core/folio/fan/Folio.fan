@@ -141,26 +141,58 @@ abstract const class Folio
   ** Read underlying record used for additional rec based features like watches
   @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
-    doReadRecById(id, checked, false)
-  }
-
-  ** Apply trash exclusion and permission checking to the raw by-id read.
-  ** If trash is true then recs in the trash are returned too.
-  private FolioRec? doReadRecById(Ref id, Bool checked, Bool trash)
-  {
+    // NOTE: do not route through readRecsById to keep this path fast!
     rec := checkRead.doReadRecByIdRaw(id)
 
-    // trashed recs are invisible unless trash flag is set
-    if (rec != null && rec.isTrash && !trash) rec = null
-
-    if (rec != null)
+    // do not return trashed recs
+    if (rec != null && rec.isTrash) rec = null
+    if (rec == null)
     {
-      cx := FolioContext.curFolio(false)
-      if (cx == null || cx.canRead(rec.dict)) return rec
-      if (checked) throw PermissionErr("Cannot read: ${id.toZinc}")
+      if (checked) throw UnknownRecErr(id.toZinc)
+      return null
     }
-    if (checked) throw UnknownRecErr(id.toZinc)
-    return null
+
+    cx := FolioContext.curFolio(false)
+    if (cx != null && !cx.canRead(rec.dict))
+    {
+      if (checked) throw PermissionErr("Cannot read: ${id.toZinc}")
+      return null
+    }
+    return rec
+  }
+
+  @NoDoc FolioRec?[] readRecsById(Ref[] ids, Bool checked := true)
+  {
+    doReadRecsById(ids, false).recs(checked)
+  }
+
+  private FolioFuture doReadRecsById(Ref[] ids, Bool trash)
+  {
+    recs     := checkRead.doReadRecsByIdRaw(ids)
+    cx       := FolioContext.curFolio(false)
+    denied   := false
+    Err? err := null
+    ids.each |id, i|
+    {
+      rec := recs[i]
+
+      // do not return trash recs
+      if (rec != null && rec.isTrash && !trash) recs[i] = rec = null
+
+      if (rec == null)
+      {
+        // only the first missing rec is reported, but permission errs get priority
+        if (err == null) err = UnknownRecErr(id.toZinc)
+      }
+      else if (cx != null && !cx.canRead(rec.dict))
+      {
+        recs[i] = null
+
+        // a permission error always wins over a missing rec
+        if (!denied) { denied = true; err = PermissionErr("Cannot read: ${id.toZinc}") }
+      }
+    }
+    return FolioFuture.makeSync(ReadFolioRecsRes(err, recs))
   }
 
   ** Convenience for [readByIds] with single id.
@@ -177,44 +209,14 @@ abstract const class Folio
   ** the `id` tag).
   Grid readByIds(Ref[] ids, Bool checked := true)
   {
-    readByIdsSync(ids).grid(checked)
+    doReadRecsById(ids, false).grid(checked)
   }
 
   ** Read a list of records by id.  The resulting list matches
   ** the list of ids by index (null if record not found).
   Dict?[] readByIdsList(Ref[] ids, Bool checked := true)
   {
-    readByIdsSync(ids).dicts(checked)
-  }
-
-  ** Apply permission checks to the raw by-id reads and build the error
-  ** message. A rec which is missing, in the trash, or which we do not
-  ** have permission to read is returned as null.
-  private FolioFuture readByIdsSync(Ref[] ids)
-  {
-    dicts := checkRead.doReadByIdsRaw(ids)
-    cx := FolioContext.curFolio(false)
-    errMsg := ""
-    ids.each |id, i|
-    {
-      dict := dicts[i]
-
-      // trash recs are invisible
-      if (dict != null && dict.has("trash")) dicts[i] = dict = null
-
-      if (dict == null)
-      {
-        // only the first missing rec is reported
-        if (errMsg.isEmpty) errMsg = id.toStr
-      }
-      else if (cx != null && !cx.canRead(dict))
-      {
-        // a permission error always wins over a missing rec
-        errMsg = "Cannot read: $id.toZinc"
-        dicts[i] = null
-      }
-    }
-    return FolioFuture.makeSync(ReadFolioRes(errMsg, !errMsg.isEmpty, dicts))
+    doReadRecsById(ids, false).dicts(checked)
   }
 
   ** Return the number of records which match given [filter](ph.doc::Filters).
@@ -275,7 +277,7 @@ abstract const class Folio
       if (checked) throw UnknownRecErr("null")
       return null
     }
-    return doReadRecById(id, checked, true)?.dict
+    return doReadRecsById([id], true).dict(checked)
   }
 
   ** Read all records matching filter.
@@ -320,13 +322,13 @@ abstract const class Folio
   ** Read only persistent tags for given rec id
   @NoDoc Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
-    doReadRecById(id, checked, false)?.persistent
+    doReadRecsById([id], false).rec(checked)?.persistent
   }
 
   ** Read only transient only tags for given rec id
   @NoDoc Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {
-    doReadRecById(id, checked, false)?.transient
+    doReadRecsById([id], false).rec(checked)?.transient
   }
 
   ** Intern the given ref to its canonical representation
@@ -346,9 +348,9 @@ abstract const class Folio
   ** The default implementation maps [doReadRecByIdRaw].
   ** Must resolve relative refs against `idPrefix`.
   ** - Never check permissions
-  @NoDoc protected virtual Dict?[] doReadByIdsRaw(Ref[] ids)
+  @NoDoc protected virtual FolioRec?[] doReadRecsByIdRaw(Ref[] ids)
   {
-    ids.map |id->Dict?| { doReadRecByIdRaw(id)?.dict }
+    ids.map |id->FolioRec?| { doReadRecByIdRaw(id) }
   }
 
   ** Subclass implementation to stream every rec matching filter
@@ -445,10 +447,10 @@ abstract const class Folio
 
     // old rec is null for adds and for recs which do not exist; the raw
     // read includes the trash since a commit may untrash a rec
-    oldRecs := doReadByIdsRaw(diffs.map |diff->Ref| { diff.id })
+    oldRecs := doReadRecsByIdRaw(diffs.map |diff->Ref| { diff.id })
     diffs.each |diff, i|
     {
-      if (!cx.canWrite(FolioWrite.makeCommit(oldRecs[i], diff)))
+      if (!cx.canWrite(FolioWrite.makeCommit(oldRecs[i]?.dict, diff)))
         throw PermissionErr("Cannot write: $diff.id.toZinc")
     }
     return diffs

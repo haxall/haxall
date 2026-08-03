@@ -47,6 +47,23 @@ const class FolioFuture : Future
     wraps.get(timeout)
   }
 
+  @NoDoc FolioRec?[] recs(Bool checked := true)
+  {
+    rd := getRes
+    if (!checked) return rd.recs
+    if (rd.errs) throw rd.toErr
+    return rd.recs
+  }
+
+  @NoDoc FolioRec? rec(Bool checked := true)
+  {
+    rd  := getRes
+    rec := rd.recs.getSafe(0)
+    if (rec != null) return rec
+    if (checked) throw rd.toErr
+    return null
+  }
+
   ** Get the result as one Dict.  If there is no results then
   ** raise UnknownRecErr or return null based on checked flag.  If
   ** there are more than one result then return just one.
@@ -55,7 +72,7 @@ const class FolioFuture : Future
     rd := getRes
     dict := rd.dicts.getSafe(0)
     if (dict != null) return dict
-    if (checked) throw UnknownRecErr(rd.errMsg)
+    if (checked) throw rd.toErr
     return null
   }
 
@@ -65,7 +82,7 @@ const class FolioFuture : Future
   {
     rd := getRes
     if (!checked) return rd.dicts
-    if (rd.errs) throw UnknownRecErr(rd.errMsg)
+    if (rd.errs) throw rd.toErr
     return rd.dicts
   }
 
@@ -113,9 +130,29 @@ abstract const class FolioRes
   abstract Obj? val()
   virtual Bool errs() { false }
   virtual Str errMsg() { "" }
+  virtual Err toErr() { UnknownRecErr(errMsg) }
   abstract Int count()
+  virtual FolioRec?[] recs() { throw UnsupportedErr("FolioRecs not available") }
   virtual Dict?[] dicts() { throw UnsupportedErr("Dicts not available") }
   virtual Diff[] diffs() { throw UnsupportedErr("Diffs not available") }
+}
+
+@NoDoc
+const final class ReadFolioRecsRes : FolioRes
+{
+  new make(Err? err, FolioRec?[] recs)
+  {
+    this.err  = err
+    this.recs = recs
+  }
+  const Err? err
+  override const FolioRec?[] recs
+  override Obj? val() { recs }
+  override Bool errs() { err != null }
+  override Str errMsg() { err?.msg ?: "" }
+  override Err toErr() { err ?: super.toErr }
+  override once Dict?[] dicts() { recs.map |rec->Dict?| { rec?.dict } }
+  override Int count() { recs.size }
 }
 
 @NoDoc
