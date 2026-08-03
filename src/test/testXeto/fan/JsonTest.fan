@@ -59,6 +59,30 @@ class JsonTest : AbstractXetoTest
       ns.spec("hx.test.xeto::JsonNest"))
   }
 
+  ** A list spec is not required to declare 'of'.  Without it the items are
+  ** decoded untyped rather than raising "Missing 'of' meta".
+  Void testListWithoutOf()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    listSpec := ns.spec("sys::List")
+    verifyEq(XetoJsonReader(ns, "[\"a\", \"b\"]".in, listSpec).readVal,
+             Obj["a", "b"])
+
+    // a null item makes the list nullable; the codec does not enforce the
+    // 'of' nullability, which is left to Namespace.validate
+    verifyEq(XetoJsonReader(ns, "[\"a\", null]".in, listSpec).readVal,
+             Obj?["a", null])
+    verifyEq(XetoJsonReader(ns, "[]".in, listSpec).readVal, Obj[,])
+
+    // an 'of' slot still types its items
+    slot := ns.spec("hx.test.xeto::JsonNest").slot("dates")
+    verifyEq(XetoJsonReader(ns, "[\"2024-11-26\"]".in, slot).readVal,
+             Obj[Date("2024-11-26")])
+    verifyEq(XetoJsonReader(ns, "[\"2024-11-26\", null]".in, slot).readVal,
+             Obj?[Date("2024-11-26"), null])
+  }
+
   Void testPretty()
   {
     verifyEq(

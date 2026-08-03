@@ -109,7 +109,8 @@ class XetoJsonReader
 
   private Obj?[] convertList(MNamespace ns, Obj?[] from, Spec? spec)
   {
-    of := (spec == null) ? null : spec.of()
+    // a list spec need not declare 'of'; without it the items are untyped
+    of := (spec == null) ? null : spec.of(false)
 
     if (from.contains(null))
       return from.map |Obj? v->Obj?| { convert(ns, v, of) }

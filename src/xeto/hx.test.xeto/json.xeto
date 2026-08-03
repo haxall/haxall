@@ -32,7 +32,8 @@ JsonScalars: {
 
 JsonNest: {
   foo: JsonFoo
-  dates: List <of:Date> 
+  dates: List <of:Date>
+  untyped: List          // no 'of' meta, so items decode untyped
 }
 
 JsonFoo: {
@@ -43,5 +44,6 @@ JsonFoo: {
 @jsonNestA: JsonNest {
   foo: {a: 123, b: "xyz"}
   dates: {"2024-11-26", "2024-11-27"}
+  untyped: {"a", "b"}
 }
 
