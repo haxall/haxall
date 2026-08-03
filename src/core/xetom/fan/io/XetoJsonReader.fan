@@ -150,7 +150,7 @@ class XetoJsonReader
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private MNamespace ns
+  private const MNamespace ns
   private InStream in
   private Spec? rootSpec
   private XetoFidelity fidelity

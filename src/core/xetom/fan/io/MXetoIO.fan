@@ -63,7 +63,7 @@ const final class MXetoIO : XetoIO
 
   override OutStream writeJson(OutStream out, Obj? val, Dict? opts := null)
   {
-    XetoJsonWriter(out, opts ?: Etc.dict0).writeVal(val)
+    XetoJsonWriter(ns, out, opts ?: Etc.dict0).writeVal(val)
     return out
   }
 

@@ -20,16 +20,13 @@ class XetoJsonWriter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(OutStream out, Dict opts)
+  new make(MNamespace ns, OutStream out, Dict opts := Etc.dict0)
   {
+    this.ns         = ns
     this.out        = out
+    this.box        = XetoUtil.optBox(opts)
     this.pretty     = XetoUtil.optBool(opts, "pretty", false)
     this.escUnicode = XetoUtil.optBool(opts, "escapeUnicode", false)
-  }
-
-  internal new makeExport(OutStream out)
-  {
-    this.out = out
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -231,6 +228,8 @@ class XetoJsonWriter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private const MNamespace ns
+  private const JsonBoxMode box
   private const Bool escUnicode
   private const Bool pretty
   private OutStream out

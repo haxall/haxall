@@ -563,6 +563,15 @@ const class XetoUtil
     return XetoFidelity.full
   }
 
+  ** Standard option for JSON boxing mode
+  static JsonBoxMode optBox(Dict? opts)
+  {
+    x := opts["box"]
+    if (x is Str) x = JsonBoxMode.fromStr(x.toStr, false)
+    if (x is JsonBoxMode) return x
+    return JsonBoxMode.none
+  }
+
   ** Get the key "versions" as LibDependVersions
   static LibDependVersions? optVersionConstraints(Dict? opts)
   {
@@ -796,30 +805,5 @@ const class XetoUtil
     return list.all { it is Dict }
   }
 
-}
-
-**************************************************************************
-** XetoFidelity
-**************************************************************************
-
-** Data fidelity and type erasure level
-@Js
-enum class XetoFidelity
-{
-  full,
-  haystack,
-  json
-
-  Bool isFull() { this === full }
-
-  Bool isHaystack() { this === haystack }
-
-  ** Coerce value to the proper level of data fidelity
-  Obj? coerce(Obj? x)
-  {
-    if (this === haystack) return XetoUtil.toHaystack(x)
-    if (this === json) throw Err("JSON fidelity not supported yet")
-    return x
-  }
 }
 

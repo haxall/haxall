@@ -85,8 +85,10 @@ class JsonTest : AbstractXetoTest
 
   Void testPretty()
   {
+    ns := createNamespace(["hx.test.xeto"])
+
     verifyEq(
-      toJson(
+      toJson(ns,
         Etc.dict3(
           "a", 1,
           "b", ["a", 1, [Etc.dict2("f", 4, "g", 5), 3, ["b", 4]]],
@@ -127,7 +129,7 @@ class JsonTest : AbstractXetoTest
     grid := gb.toGrid
 
     verifyEq(
-      toJson(grid),
+      toJson(ns, grid),
       Str<|{
              "spec":"sys::Grid",
              "meta":{
@@ -187,7 +189,7 @@ class JsonTest : AbstractXetoTest
     Obj? expect,
     Spec? spec := null)
   {
-    str := toJson(orig)
+    str := toJson(ns, orig)
 
     read := XetoJsonReader(ns, str.in, spec, haystackOpts).readVal
     if (orig is Dict)
@@ -203,7 +205,7 @@ class JsonTest : AbstractXetoTest
     Dict? opts := null)
   {
     //echo("=============================================================")
-    str := toJson(a)
+    str := toJson(ns, a)
     b := XetoJsonReader(ns, str.in, spec, opts).readVal
 
     if (a is Dict)
@@ -214,10 +216,10 @@ class JsonTest : AbstractXetoTest
       verifyEq(a, b)
   }
 
-  private Str toJson(Obj? x)
+  private Str toJson(MNamespace ns, Obj? x)
   {
     buf := Buf()
-    XetoJsonWriter(buf.out, Etc.dict1("pretty", m)).writeVal(x)
+    XetoJsonWriter(ns, buf.out, Etc.dict1("pretty", m)).writeVal(x)
     str := buf.flip.readAllStr
     //echo("-----------------------------------------")
     //echo(str)
