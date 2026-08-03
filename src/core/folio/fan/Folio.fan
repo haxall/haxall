@@ -139,6 +139,8 @@ abstract const class Folio
 //////////////////////////////////////////////////////////////////////////
 
   ** Read underlying record used for additional rec based features like watches
+  ** If checked is true, throw [UnknownRecErr] if the rec isn't found, or
+  ** [PermissionErr] if there aren't permissions to read it.
   @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
     // NOTE: do not route through readRecsById to keep this path fast!

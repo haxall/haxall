@@ -13,17 +13,8 @@ using xeto
 **
 @NoDoc const class FolioWrite
 {
-  ** Convenience to create a his write
-  static FolioWrite his(Dict rec) { FolioWrite(rec, FolioWriteType.his) }
-
-  ** Convenience to create an event write
-  static FolioWrite event(Dict rec) { FolioWrite(rec, FolioWriteType.event) }
-
   ** Convenience to create a spark write
   static FolioWrite spark(Dict rec) { FolioWrite(rec, FolioWriteType.spark) }
-
-  ** Convenience to create a rider write
-  static FolioWrite rider(Dict rec) { FolioWrite(rec, FolioWriteType.rider) }
 
   ** Convenience to create a write "probe" asking generally is
   ** the rec writable.
@@ -62,9 +53,6 @@ using xeto
 @NoDoc enum class FolioWriteType
 {
   rec,
-  his,
-  event,
-  spark,
-  rider
+  spark
 }
 
