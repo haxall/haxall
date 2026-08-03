@@ -251,7 +251,7 @@ class Context : AxonContext, FolioContext
   ** A null oldRec means an add, which is not authorized per-rec.
   @NoDoc override Bool canWrite(FolioWrite w)
   {
-    w.oldRec == null ? true : user.isAdmin && canRead(w.oldRec)
+    w.oldRec == null ? true : user.isAdmin
   }
 
   ** Check security permissions to call given function

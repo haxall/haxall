@@ -29,6 +29,8 @@ mixin FolioContext : ActorContext
   abstract Bool canRead(Dict rec)
 
   ** Return if context has write access to perform the given write
+  ** Implementations should assume that [canRead] has already been
+  ** verified for targeted rec.
   abstract Bool canWrite(FolioWrite w)
 
   ** Return an immutable thread safe object which will be passed thru

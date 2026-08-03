@@ -452,7 +452,11 @@ abstract const class Folio
     oldRecs := doReadRecsByIdRaw(diffs.map |diff->Ref| { diff.id })
     diffs.each |diff, i|
     {
-      if (!cx.canWrite(FolioWrite.makeCommit(oldRecs[i]?.dict, diff)))
+      // canWrite assumes canRead already verified; the raw read above
+      // bypasses security so we must check read access here ourselves
+      old := oldRecs[i]?.dict
+      if (old != null && !cx.canRead(old)) throw PermissionErr("Cannot write: $diff.id.toZinc")
+      if (!cx.canWrite(FolioWrite.makeCommit(old, diff)))
         throw PermissionErr("Cannot write: $diff.id.toZinc")
     }
     return diffs
