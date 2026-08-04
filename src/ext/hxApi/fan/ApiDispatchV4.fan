@@ -65,17 +65,34 @@ class ApiDispatchV4 : ApiDispatch
   }
 
   ** Map the version 4 request grid onto the function args.  An op which
-  ** still declares a single 'req: Grid' param takes the grid whole; any
-  ** other signature has its args read from the first row's cells by name.
+  ** still takes the legacy envelope gets the grid whole; one which has
+  ** modeled its params has its args read from the first row's cells by name.
   **
   ** A cell which matches no param is ignored rather than rejected: a v4
   ** client may send extra columns, and callers do (Api4Test posts a 'ts'
   ** column to eval).  A param with no cell falls back to its default.
+  **
+  ** Note only the first row is read, so a multi-row grid posted to a modeled
+  ** op drops rows 2..n.  Every modeled op today is inherently single-row; an
+  ** op which needs the other rows must keep its 'req' param.
   private Obj?[] toArgs(Grid grid)
   {
-    if (funcTakesReqGrid) return Obj?[grid]
+    if (takesReqGrid) return Obj?[grid]
     row := grid.first
     return mapArgs |p->Obj?| { row?.get(p.name) }
+  }
+
+  ** Does this op still take the whole version 4 request grid as its single
+  ** argument?  Version 4 passed the grid to any func invoked as an op no
+  ** matter what it declared - `hxApi::ApiPipeline.doResolveOpFunc` resolves
+  ** any func in the namespace, not just those marked '<op>'.  So args are
+  ** only mapped by name for an '<op>' which has modeled its params, and by
+  ** convention an op which has not been modeled names its one param "req".
+  virtual Bool takesReqGrid()
+  {
+    if (func.meta.missing("op")) return true
+    params := func.func.params
+    return !params.isEmpty && params.first.name == "req"
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -73,18 +73,6 @@ abstract class ApiDispatch
     }
   }
 
-  ** Does this func take the whole request as a single opaque envelope?
-  ** By convention such a param is named "req": it is a version 4 shaped op
-  ** which has not been modeled with real params yet, so the request grid is
-  ** passed through rather than mapped onto params.  The name is the contract
-  ** rather than the type because these declare 'Grid', 'Obj', and 'Dict'
-  ** interchangeably; a func with real params never calls one "req".
-  virtual Bool funcTakesReqGrid()
-  {
-    params := func.func.params
-    return params.size == 1 && params.first.name == "req"
-  }
-
   ** Invalid the operation function with given args and return result
   virtual Obj? call(Obj?[] args) { p.call(args) }
 

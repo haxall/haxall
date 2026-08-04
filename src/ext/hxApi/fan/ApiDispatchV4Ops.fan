@@ -26,8 +26,9 @@ abstract class ApiDispatchV4Op : ApiDispatchV4
 
   ** These adapters service the legacy op themselves rather than calling the
   ** func, so they always take the request grid whole no matter what params
-  ** the func declares
-  override Bool funcTakesReqGrid() { true }
+  ** the func declares: sys.api::read models 'filter' and 'checked', but
+  ** ApiDispatchV4Read.doCall needs the grid
+  override Bool takesReqGrid() { true }
 
   override Obj? call(Obj?[] args) { doCall(args[0]) }
 
