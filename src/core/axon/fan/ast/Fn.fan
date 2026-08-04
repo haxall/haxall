@@ -91,8 +91,9 @@ const class Fn : Expr, HaystackFunc
     // call heartbeat to check for interruption
     cx.heartbeat(callLoc)
 
-    // check arity
-    if (arity != args.size)
+    // check arity, adding default args if needed; extra args are
+    // allowed and passed thru without copying the args list
+    if (args.size < params.size)
     {
       args = args.rw
       while (args.size < params.size)
