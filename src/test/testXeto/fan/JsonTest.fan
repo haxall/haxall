@@ -1163,7 +1163,8 @@ class JsonTest : AbstractXetoTest
   private Obj? read(MNamespace ns, Str json, Spec? spec := null,
                     Dict? opts := null)
   {
-    XetoJsonReader(ns, json.in, spec, opts).readVal
+    debug(json)
+    return XetoJsonReader(ns, json.in, spec, opts).readVal
   }
 
   ** Convenience for a read whose result is known to be a Dict
@@ -1270,6 +1271,7 @@ class JsonTest : AbstractXetoTest
     buf := Buf()
     XetoJsonWriter(ns, buf.out, spec, opts).writeVal(x)
     str := buf.flip.readAllStr
+    debug(str)
     JsonInStream(str.in).readJson
     return str
   }
@@ -1279,6 +1281,12 @@ class JsonTest : AbstractXetoTest
                          Spec? spec := null)
   {
     read(ns, toJson(ns, x, opts, spec), spec)
+  }
+
+  private static Void debug(Str json)
+  {
+    //echo("-----------------------------------------------------------------")
+    //echo(json)
   }
 
   private static const Dict haystackOpts := Etc.dict1("haystack", m)
