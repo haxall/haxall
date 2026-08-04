@@ -175,6 +175,41 @@ class RemoteReposTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Resolve
+//////////////////////////////////////////////////////////////////////////
+
+  Void testResolve()
+  {
+    // exact match on registered test repo uri
+    verifyResolve(`http://test-1/`, "testXeto::TestRemoteRepo")
+    verifyResolve(`http://test-1`,  "testXeto::TestRemoteRepo")
+
+    // prefix match maps github repo uris to GithubRepo
+    verifyResolve(`https://github.com/foo/bar`, "xetom::GithubRepo")
+
+    // trailing slash guards against sibling prefix confusion
+    verifyResolve(`http://test-10/`, "xetom::HttpRepo")
+
+    // any other http/https uri assumed to publish the sys.repo API
+    verifyResolve(`https://xeto.dev/`, "xetom::HttpRepo")
+    verifyResolve(`https://example.com/api/demo/`, "xetom::HttpRepo")
+
+    // non-http schemes are unsupported
+    verifyErrMsg(Err#, "Unsupported repo URI: ftp://example.com/")
+    {
+      env := XetoEnv.cur
+      MRemoteRepo.create(RemoteRepoInit(env, "test", `ftp://example.com/`, Etc.dict0, env.workDir))
+    }
+  }
+
+  Void verifyResolve(Uri uri, Str qname)
+  {
+    env := XetoEnv.cur
+    repo := MRemoteRepo.create(RemoteRepoInit(env, "test", uri, Etc.dict0, env.workDir))
+    verifyEq(repo.typeof.qname, qname, uri.toStr)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Network calls
 //////////////////////////////////////////////////////////////////////////
 
@@ -472,7 +507,7 @@ const class TestRemoteRepo : MRemoteRepo
     v := this.version(name, version)
     zip := Zip.write(buf.out)
     zip.writeNext(`/meta.props`)
-       .writeProps(XetoUtil.buildLibMetaProps(name, version, v.depends, Etc.dict0))
+       .writeProps(XetoZipUtil.buildLibMetaProps(name, version, v.depends, Etc.dict0))
        .close
     zip.close
     return buf.toImmutable

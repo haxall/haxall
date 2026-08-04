@@ -32,6 +32,6 @@ class Build : BuildPod
                "axon @{hx.depend}",
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]
-    index   = ["xeto.bindings":"hx.repo"]
+    index   = ["xeto.bindings":["hx.repo", "sys.repo"]]
   }
 }
