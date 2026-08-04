@@ -68,7 +68,7 @@ abstract class ApiDispatch
       if (val != null) return val
       def := p.metaOwn["val"]
       if (def != null) return def
-      if (p.type.isMaybe) return null
+      if (p.isMaybe) return null
       throw ApiErr.invalidArgsErrMissing(func.name, p.name)
     }
   }

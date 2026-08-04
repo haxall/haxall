@@ -61,8 +61,11 @@ class Api5Test : ApiTest
     // an omitted param falls back to its declared default
     verifyEq(postJson(`readById`, """{"id":"bad-id", "checked":false}"""), null)
 
+    // a maybe param may be omitted entirely and defaults to null
+    verifyEq(postJson(`readById`, """{"checked":false}"""), null)
+
     // a missing required arg is a 400, not a null passed to the func
-    verifyReqErr(`readById`, "{}", 400, "sys.api::InvalidArgsErr")
+    verifyReqErr(`read`, "{}", 400, "sys.api::InvalidArgsErr")
 
     // an op whose params all default may be posted with no body at all,
     // whitespace or otherwise; only a non-blank body is parsed as JSON
