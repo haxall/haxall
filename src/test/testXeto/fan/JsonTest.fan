@@ -223,7 +223,7 @@ class JsonTest : AbstractXetoTest
   private Str toJson(MNamespace ns, Obj? x)
   {
     buf := Buf()
-    XetoJsonWriter(ns, buf.out, Etc.dict1("pretty", m)).writeVal(x)
+    XetoJsonWriter(ns, buf.out, null, Etc.dict1("pretty", m)).writeVal(x)
     str := buf.flip.readAllStr
     //echo("-----------------------------------------")
     //echo(str)

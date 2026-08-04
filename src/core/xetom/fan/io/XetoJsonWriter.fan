@@ -20,10 +20,12 @@ class XetoJsonWriter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, OutStream out, Dict opts := Etc.dict0)
+  new make(MNamespace ns, OutStream out, Spec? rootSpec := null, Dict opts := Etc.dict0)
   {
     this.ns         = ns
     this.out        = out
+    this.rootSpec   = rootSpec
+    this.specs      = XetoJsonSpec(ns)
     this.box        = XetoUtil.optBox(opts)
     this.pretty     = XetoUtil.optBool(opts, "pretty", false)
     this.escUnicode = XetoUtil.optBool(opts, "escapeUnicode", false)
@@ -35,14 +37,20 @@ class XetoJsonWriter
 
   Void writeVal(Obj? val)
   {
-    if (val is Dict) return writeDict(val)
-    if (val is List) return writeList(val)
-    if (val is Grid) return writeGrid(val)
-    return writeScalar(val)
+    doVal(val, rootSpec)
   }
 
-  private Void writeDict(Dict dict)
+  private This doVal(Obj? val, Spec? spec)
   {
+    if (val is Dict) return writeDict(val, spec)
+    if (val is List) return writeList(val, spec)
+    if (val is Grid) return writeGrid(val)
+    return writeScalar(val, spec)
+  }
+
+  private This writeDict(Dict dict, Spec? context)
+  {
+    spec := specs.dictSpec(dict, context, false)
     wc('{').nl
     indentation++
     first := true
@@ -50,44 +58,51 @@ class XetoJsonWriter
     {
       if (first) first = false
       else wc(',').nl
-      indent.quoted(n).wc(':').writeVal(x)
+      indent.quoted(n).wc(':').doVal(x, specs.member(spec, n))
     }
     indentation--
     nl.indent.wc('}')
     return this
   }
 
-  private This writeList(Obj?[] list)
+  private This writeList(Obj?[] list, Spec? spec)
   {
+    of := specs.listOf(spec)
     wc('[').nl
     indentation++
     first := true
-    list.each |x, i|
+    list.each |x|
     {
       if (first) first = false
       else wc(',').nl
-      indent.writeVal(x)
+      indent.doVal(x, of)
     }
     indentation--
     nl.indent.wc(']')
     return this
   }
 
-  private Void writeGrid(Grid grid)
+  private This writeGrid(Grid grid)
   {
     wc('{').nl
     indentation++
 
     // spec
-    indent.quoted("spec").wc(':').quoted("sys::Grid")
+    specRef := XetoUtil.gridSpecRef(grid)
+    indent.quoted(XetoUtil.specTag).wc(':').quoted(specRef.id)
     wc(',').nl
 
-    // meta
-    if (!grid.meta.isEmpty)
+    // meta; the grid spec is emitted above, not repeated inside meta
+    meta := Etc.dictRemove(grid.meta, XetoUtil.specTag)
+    if (!meta.isEmpty)
     {
-      indent.quoted("meta").wc(':').writeVal(grid.meta)
+      indent.quoted("meta").wc(':').writeDict(meta, null)
       wc(',').nl
     }
+
+    // default row spec: the instance 'of' then the schema 'of'
+    rowSpec := specs.rowSpec(XetoUtil.gridOfSpecRef(grid),
+                             specs.resolve(specRef, false), false)
 
     // cols
     indent.quoted("cols").wc(':')
@@ -98,10 +113,7 @@ class XetoJsonWriter
     {
       if (first) first = false
       else wc(',').nl
-      if (c.meta.isEmpty)
-        indent.writeVal(Etc.dict1("name", c.name))
-      else
-        indent.writeVal(Etc.dict2("name", c.name, "meta", c.meta))
+      indent.writeDict(colToDict(c), null)
     }
     indentation--
     nl.indent.wc(']')
@@ -116,7 +128,7 @@ class XetoJsonWriter
     {
       if (first) first = false
       else wc(',').nl
-      indent.writeVal(row)
+      indent.doVal(row, rowSpec)
     }
     indentation--
     nl.indent.wc(']')
@@ -127,44 +139,69 @@ class XetoJsonWriter
     return this
   }
 
-  private Void writeScalar(Obj? val)
+  ** Wire form of a column: 'of' is structural and sits beside 'name' rather
+  ** than inside meta
+  private Dict colToDict(Col c)
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["name"] = c.name
+    of := XetoUtil.gridColSpecRef(c)
+    if (of != null) acc[XetoUtil.ofTag] = of
+    meta := Etc.dictRemove(c.meta, XetoUtil.ofTag)
+    if (!meta.isEmpty) acc["meta"] = meta
+    return Etc.dictFromMap(acc)
+  }
+
+  private This writeScalar(Obj? val, Spec? spec)
   {
     if (val == null)   return w("null")
     if (val is Bool)   return w(val.toStr)
     if (val is Int)    return writeInt(val)
     if (val is Number) return writeNumber(val)
     if (val is Float)  return writeFloat(val)
-    return quoted(val.toStr)
+    return quoted(encodeScalar(val))
   }
 
-  private Void writeInt(Int i)
+  ** Encode a scalar to its Xeto string form via the value's own binding, so
+  ** that a plain and a boxed encoding are identical text.
+  private Str encodeScalar(Obj val)
+  {
+    spec := ns.specOf(val, false)
+    if (spec == null) return val.toStr
+    binding := spec.binding
+    if (!binding.isScalar) return val.toStr
+    return binding.encodeScalar(val)
+  }
+
+  private This writeInt(Int i)
   {
     w(i.toStr)
   }
 
-  private Void writeFloat(Float f)
+  private This writeFloat(Float f)
   {
     // "special" float values are quoted: "-INF", "INF", "NaN"
     s := f.toStr
     if (s.size >= 3 && (s[0] == 'I' || s[0] == 'N' || s[1] == 'I'))
-      quoted(s)
+      return quoted(s)
     else
       return w(s)
   }
 
-  private Void writeNumber(Number n)
+  private This writeNumber(Number n)
   {
     // unitless might be float literal, but units must be quoted
     if (n.unit == null)
     {
       if (n.isInt)
-        writeInt(n.toInt)
+        return writeInt(n.toInt)
       else
-        writeFloat(n.toFloat)
+        return writeFloat(n.toFloat)
     }
     else
     {
-      quoted(n.toStr)
+      return quoted(n.toStr)
     }
   }
 
@@ -232,6 +269,8 @@ class XetoJsonWriter
   private const JsonBoxMode box
   private const Bool escUnicode
   private const Bool pretty
+  private Spec? rootSpec
+  private XetoJsonSpec specs
   private OutStream out
   private Int indentation
 }
