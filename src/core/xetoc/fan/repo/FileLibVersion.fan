@@ -140,6 +140,25 @@ const class FileLibVersion : LibVersion
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Digest
+//////////////////////////////////////////////////////////////////////////
+
+  override Str? digest()
+  {
+    if (isSrc || isNotFound || isCompanion) return null
+    if (digestRef == null) loadDigest
+    return digestRef
+  }
+  private const Str? digestRef
+
+  private Void loadDigest()
+  {
+    // use digest recorded in origin props at install, else compute once
+    d := origin(false)?.meta?.get("digest") as Str ?: XetoZipUtil.digest(file.readAllBuf)
+    #digestRef->setConst(this, d)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Origin
 //////////////////////////////////////////////////////////////////////////
 

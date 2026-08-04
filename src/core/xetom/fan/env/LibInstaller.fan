@@ -388,7 +388,7 @@ const class LibInstallPlan
       "repo":    repo.name,
       "uri":     repo.uri.toStr,
       "fetched": DateTime.now.toStr,
-      "digest":  "sha256:" + contents.toDigest("SHA-256").toBase64Uri,
+      "digest":  XetoZipUtil.digest(contents),
     ]
   }
 }

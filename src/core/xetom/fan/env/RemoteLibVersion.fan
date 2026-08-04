@@ -16,13 +16,14 @@ using xeto
 @Js
 const class RemoteLibVersion : LibVersion
 {
-  new make(Str name, Version version, Str doc := "", LibDepend[]? depends := null)
+  new make(Str name, Version version, Str doc := "", LibDepend[]? depends := null, Str? digest := null)
   {
     this.name       = name
     this.version    = version
     this.doc        = doc
     this.toStr      = "$name-$version"
     this.dependsRef = depends
+    this.digest     = digest
   }
 
   override const Str name
@@ -30,6 +31,8 @@ const class RemoteLibVersion : LibVersion
   override const Version version
 
   override const Str doc
+
+  override const Str? digest
 
   override LibOrigin? origin(Bool checked := true)
   {

@@ -29,6 +29,12 @@ const mixin LibVersion
   ** Origin metadata if this lib was installed from a remote repo
   abstract LibOrigin? origin(Bool checked := true)
 
+  ** Digest of the exact bytes of xetolib zip file.  The string is formatted
+  ** as "sha256:" followed by base64uri encoding of the SHA-256 hash.  A null
+  ** digest means there is no stable zip artifact, such as a source lib whose
+  ** zip is assembled on the fly with non-reproducible bytes.
+  virtual Str? digest() { null }
+
   ** Sort by name, then version
   override final Int compare(Obj that)
   {

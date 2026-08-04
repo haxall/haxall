@@ -427,6 +427,11 @@ class RemoteReposTest : AbstractXetoTest
     verifyEq(o.meta->fetched, o.fetched)
     verifySame(o.meta->uri, o.uri)
     verifySame(o.meta->repo, o.repoName)
+
+    // verify digest read from origin props, matches zip bytes, and interned
+    verifyEq(lib.digest, o.meta->digest)
+    verifyEq(lib.digest, XetoZipUtil.digest(xf.readAllBuf))
+    verifySame(lib.digest, lib.digest)
   }
 
   Void verifyPlanErr(Str msg, |Test->LibInstaller| f)

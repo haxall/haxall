@@ -91,6 +91,13 @@ const class XetoZipUtil
     acc[path.toUri] = file
   }
 
+  ** Choke point to format digest of xetolib zip contents as "sha256:"
+  ** followed by the base64uri encoding of the SHA-256 hash
+  static Str digest(Buf contents)
+  {
+    "sha256:" + contents.toDigest("SHA-256").toBase64Uri
+  }
+
   ** Choke point to generate a xetolib meta.props contents
   static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
   {

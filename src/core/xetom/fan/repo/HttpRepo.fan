@@ -82,7 +82,7 @@ const class HttpRepo : MRemoteRepo
     name    := json.getChecked("lib").toStr
     version := Version.fromStr(json.getChecked("version").toStr)
     doc     := json["doc"] as Str ?: ""
-    return RemoteLibVersion(name, version, doc, toDepends(json["depends"]))
+    return RemoteLibVersion(name, version, doc, toDepends(json["depends"]), json["digest"] as Str)
   }
 
   ** Map JSON list of LibDepend dicts or null if not reported
