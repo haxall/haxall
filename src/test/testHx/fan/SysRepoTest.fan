@@ -36,6 +36,32 @@ class SysRepoTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Pluggable RepoServer
+//////////////////////////////////////////////////////////////////////////
+
+  ** An enabled ext which implements the RepoServer mixin takes over
+  ** servicing the ops from the default NamespaceRepoServer
+  @HxTestProj
+  Void testPlug()
+  {
+    addLib("sys.repo")
+
+    // default resolution serves the namespace
+    Dict d := eval("repoPing()")
+    verifyEq(d["dis"], proj.dis)
+
+    // enable hx.test whose ext implements RepoServer
+    addExt("hx.test")
+    d = eval("repoPing()")
+    verifyEq(d["dis"], "hx.test")
+
+    // other ops delegate through the plugged server
+    Dict res := eval("""repoSearch("*")""")
+    verify(((List)res["libs"]).size > 0)
+    verifyEq(((List)eval("""repoVersions("sys")""")).size, 1)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Init
 //////////////////////////////////////////////////////////////////////////
 
@@ -195,11 +221,14 @@ class SysRepoTest : HxTest
 
   Void verifyFetchedZip(Buf buf, Uri tmpName, Version ver)
   {
+    expectDigest := XetoZipUtil.digest(buf)
     tmp := tempDir + tmpName
     tmp.out.writeBuf(buf).close
     v := FileLibVersion.loadZipFile(tmp)
     verifyEq(v.name, "sys")
     verifyEq(v.version, ver)
+    verifyEq(v.digest, expectDigest)
+    verifySame(v.digest, v.digest)  // lazily computed once, then interned
   }
 
   Void verifyFetchErr(Str axon, Str spec)

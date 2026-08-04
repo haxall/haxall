@@ -14,8 +14,8 @@ using hx
 
 **
 ** Core "sys.repo" axon functions which define the network API to serve
-** a runtime's own libs as a remote repo.  The ops are published by
-** enabling the sys.repo lib in a project's namespace.
+** a runtime as a remote repo.  By default the local namespace is used,
+** but an extension can plugin an alternative ServerRepo.
 **
 @Gen
 const class SysRepoFuncs
@@ -30,7 +30,7 @@ const class SysRepoFuncs
   @Api @Axon
   static Dict repoPing()
   {
-    Etc.dict2("dis", curContext.rt.dis, "spec", Ref("sys.repo::RepoPing"))
+    server.ping
   }
 
   ** Search the repo for libs matching the query string.  The query "*"
@@ -40,18 +40,7 @@ const class SysRepoFuncs
   @Api @Axon
   static Dict repoSearch(Str query, Obj? limit := null, Obj? offset := null)
   {
-    cx := curContext
-    max := (toIntArg(limit) ?: 100).max(0)
-    off := (toIntArg(offset) ?: 0).max(0)
-    matches := libs(cx).findAll |v| { query == "*" || v.name.contains(query) }
-    page := off >= matches.size ? LibVersion[,] : matches[off ..< (off+max).min(matches.size)]
-    return Etc.dictFromMap([
-      "libs":   page.map |v->Dict| { toRepoLib(v) },
-      "total":  matches.size,
-      "limit":  max,
-      "offset": off,
-      "spec":   Ref("sys.repo::RepoSearch"),
-    ])
+    server.search(query, (toIntArg(limit) ?: 100).max(0), (toIntArg(offset) ?: 0).max(0))
   }
 
   ** List the versions available for the given lib sorted from latest
@@ -59,13 +48,7 @@ const class SysRepoFuncs
   @Api @Axon
   static Dict[] repoVersions(Str lib, Obj? versions := null, Obj? limit := null)
   {
-    cx := curContext
-    v := localLib(cx, lib)
-    if (v == null) return Dict#.emptyList
-    opts := Str:Obj[:]
-    opts.addNotNull("versions", versions)
-    opts.addNotNull("limit", toIntArg(limit))
-    return MRemoteRepo.findAllVersionsWithOpts([v], Etc.dictFromMap(opts)).map |x->Dict| { toRepoLib(x) }
+    server.versions(lib, toVersionsArg(versions), toIntArg(limit))
   }
 
   ** Download the xetolib zip file for the given lib name and version.
@@ -74,51 +57,20 @@ const class SysRepoFuncs
   @Api @Axon
   static File repoFetch(Str lib, Obj version)
   {
-    cx := curContext
-    ver := version as Version ?: Version.fromStr(version.toStr)
-    v := localLib(cx, lib)
-    if (v == null) throw ApiErr(404, "sys.repo::UnknownLibErr", "Unknown lib: $lib", null, ["lib":lib])
-    if (v.version != ver) throw ApiErr(404, "sys.repo::UnknownLibVersionErr", "Unknown lib version: $lib-$ver", null, ["lib":lib, "version":ver.toStr])
-    if (!v.isSrc) return v.file
-    return XetoZipUtil.srcLibZip(v).toFile(`${lib}.xetolib`)
+    server.fetch(lib, version as Version ?: Version.fromStr(version.toStr))
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Local repo versions for the libs in this project's namespace
-  private static LibVersion[] libs(Context cx)
+  ** Choke point to resolve the repo server for the current context:
+  ** first ext which implements the RepoServer mixin including those
+  ** inherited from sys, else serve the project's own namespace
+  private static RepoServer server()
   {
-    acc := LibVersion[,]
-    cx.ns.libs.each |lib| { acc.addNotNull(cx.rt.ns.env.repo.lib(lib.name, false)) }
-    return acc.sort
-  }
-
-  ** Map lib name to its local repo version if in this project's namespace
-  private static LibVersion? localLib(Context cx, Str name)
-  {
-    cx.ns.lib(name, false) == null ? null : cx.rt.ns.env.repo.lib(name, false)
-  }
-
-  ** Map LibVersion to a RepoLib dict
-  private static Dict toRepoLib(LibVersion v)
-  {
-    acc := Str:Obj[:]
-    acc.ordered = true
-    acc["lib"] = v.name
-    acc["version"] = v.version
-    acc.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
-    acc.addNotNull("depends", v.depends(false))
-    if (!v.isSrc) acc["digest"] = digest(v.file)
-    acc["spec"] = Ref("sys.repo::RepoLib")
-    return Etc.dictFromMap(acc)
-  }
-
-  ** Digest file contents in the RepoLib.digest format
-  private static Str digest(File file)
-  {
-    "sha256:" + file.readAllBuf.toDigest("SHA-256").toBase64Uri
+    cx := Context.cur
+    return (RepoServer?)cx.rt.exts.getByType(RepoServer#, false) ?: NamespaceRepoServer(cx.ns, cx.rt.dis)
   }
 
   ** Coerce Axon Number or Int arg to Int
@@ -127,6 +79,11 @@ const class SysRepoFuncs
     v is Number ? ((Number)v).toInt : v
   }
 
-  ** Current context
-  private static Context curContext() { Context.cur }
+  ** Coerce Str or LibDependVersions arg to LibDependVersions
+  private static LibDependVersions? toVersionsArg(Obj? v)
+  {
+    if (v == null) return null
+    return v as LibDependVersions ?: LibDependVersions.fromStr(v.toStr)
+  }
 }
+

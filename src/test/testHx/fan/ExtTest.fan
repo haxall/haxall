@@ -10,6 +10,7 @@
 using concurrent
 using web
 using xeto
+using xetom
 using haystack
 using axon
 using obs
@@ -437,11 +438,19 @@ class ExtTest : HxTest
 ** HxTestExt
 **************************************************************************
 
-const class HxTestExt : ExtObj, IIonExt
+const class HxTestExt : ExtObj, IIonExt, RepoServer
 {
   const AtomicRef traces := AtomicRef("")
 
   Void trace(Str msg) { traces.val = traces.val.toStr + "$msg\n" }
+
+  // RepoServer impl to test the sys.repo plug point; ping reports a
+  // distinctive dis to prove the plug, the rest delegate to the default
+  override Dict ping() { Etc.dict2("dis", "hx.test", "spec", Ref("sys.repo::RepoPing")) }
+  override Dict search(Str query, Int limit, Int offset) { def.search(query, limit, offset) }
+  override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit) { def.versions(lib, versions, limit) }
+  override File fetch(Str lib, Version version) { def.fetch(lib, version) }
+  private RepoServer def() { NamespaceRepoServer(Context.cur.ns, "hx.test") }
 
   override const Observable[] observables := [TestObservable()]
 
