@@ -119,16 +119,13 @@ class IOTest : AbstractXetoTest
     verifyGridEq(envx->data, g)
   }
 
-  ** Round trip through clean JSON at box=auto, the lossless box mode.  Two
-  ** things clean JSON cannot carry, so neither is asserted: a Ref dis, which
-  ** the binary format keeps via encodeRefDis; and a list's element type, since
-  ** a JSON array has nowhere to put it and the reader can only infer
-  ** nullability from an actual null.
+  ** Round trip through clean JSON at box=auto, the lossless box mode.  One
+  ** thing clean JSON cannot carry, so it is not asserted: a list's element
+  ** type, since a JSON array has nowhere to put it and the reader can only
+  ** infer nullability from an actual null.
   Void verifyJsonIO(Obj? val)
   {
     ns := server.ns
-
-    if ((val as Ref)?.disVal != null) return
 
     opts := Etc.dict2("box", "auto", "pretty", Marker.val)
     str  := ns.io.writeJsonToStr(val, opts)

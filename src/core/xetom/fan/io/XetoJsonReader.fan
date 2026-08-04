@@ -120,8 +120,16 @@ class XetoJsonReader
       throw IOErr("Boxed 'val' must be a Str [$spec.qname]")
     }
 
-    // a box names a full fidelity type, so coerce down when haystack
     x := decodeScalar(spec, str)
+
+    // a boxed Ref carries its display string, which has no other place to go
+    if (x is Ref)
+    {
+      dis := dict.get(XetoUtil.disTag) as Str
+      if (dis != null) x = Ref.makeWithDis(x, dis)
+    }
+
+    // a box names a full fidelity type, so coerce down when haystack
     if (fidelity === XetoFidelity.haystack) return XetoUtil.toHaystack(x)
     return x
   }

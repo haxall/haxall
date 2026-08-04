@@ -356,6 +356,71 @@ class JsonTest : AbstractXetoTest
     verifyDictEq(roundTrip(ns, typed, boxAuto, edge), typed)
   }
 
+  ** A Ref's display string has nowhere to travel in a plain encoding, so a
+  ** box carries it in a third member and box=auto boxes any Ref holding one
+  ** even where the position already names Ref.
+  Void testRefDis()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    specs := XetoJsonSpec(ns)
+    refSpec := ns.spec("sys::Ref")
+
+    withDis := Ref("xyz-123", "Carytown")
+    noDis   := Ref("xyz-123")
+
+    // decode
+    Ref x := read(ns, Str<|{"val":"xyz-123","spec":"sys::Ref","dis":"Carytown"}|>)
+    verifyEq(x.id, "xyz-123")
+    verifyEq(x.disVal, "Carytown")
+
+    // the dis member is optional
+    x = read(ns, Str<|{"val":"xyz-123","spec":"sys::Ref"}|>)
+    verifyEq(x.id, "xyz-123")
+    verifyEq(x.disVal, null)
+
+    // encode: dis comes after val and spec, and only when there is one
+    verifyEq(toJson(ns, withDis, boxAll),
+      Str<|{
+             "val":"xyz-123",
+             "spec":"sys::Ref",
+             "dis":"Carytown"
+           }|>)
+    verifyEq(toJson(ns, noDis, boxAll),
+      Str<|{
+             "val":"xyz-123",
+             "spec":"sys::Ref"
+           }|>)
+
+    // the predicate reports that a plain Ref cannot hold a dis, even in a
+    // Ref position, which is what makes auto box it
+    verifyEq(specs.plainRoundTrips(withDis, refSpec), false)
+    verifyEq(specs.plainRoundTrips(withDis, null), false)
+    verifyEq(specs.plainRoundTrips(noDis, refSpec), true)
+
+    // so auto round trips the dis where none drops it
+    verifyRefDis(roundTrip(ns, withDis, boxAuto, refSpec), "Carytown")
+    verifyRefDis(roundTrip(ns, withDis, boxAll, refSpec), "Carytown")
+    verifyRefDis(roundTrip(ns, withDis, boxNone, refSpec), null)
+
+    // and inside a dict, typed or not
+    verifyRefDis(((Dict)roundTrip(ns, Etc.dict1("a", withDis), boxAuto))->a,
+                 "Carytown")
+    verifyRefDis(((Dict)roundTrip(ns, Etc.dict1("id", withDis), boxAuto,
+                                  ns.spec("hx.test.xeto::JsonRow")))->id,
+                 "Carytown")
+
+    // a dict's own 'dis' tag is ordinary data, reserved only inside a box
+    verifyDictEq(roundTrip(ns, Etc.dict2("dis", "HQ", "n", 1), boxAll),
+                 Etc.dict2("dis", "HQ", "n", 1))
+  }
+
+  private Void verifyRefDis(Obj? val, Str? dis)
+  {
+    ref := (Ref)val
+    verifyEq(ref.id, "xyz-123")
+    verifyEq(ref.disVal, dis)
+  }
+
   ** The 'plainRoundTrips' predicate drives box=auto, so it must never claim a
   ** plain form survives when it does not.  It is allowed to be conservative
   ** in the other direction.

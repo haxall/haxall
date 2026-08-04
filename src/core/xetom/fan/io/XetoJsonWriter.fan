@@ -197,8 +197,8 @@ class XetoJsonWriter
     return ns.specOf(val, false)
   }
 
-  ** Rule 1 wire form.  The 'val' and 'spec' members are structural and are
-  ** written directly, so a box never nests inside a box.
+  ** Rule 1 wire form.  The members are structural and are written directly,
+  ** so a box never nests inside a box.
   private This writeBox(Obj val, Spec spec)
   {
     wc('{').nl
@@ -206,6 +206,15 @@ class XetoJsonWriter
     indent.quoted(XetoUtil.valTag).wc(':').quoted(encodeScalar(val))
     wc(',').nl
     indent.quoted(XetoUtil.specTag).wc(':').quoted(spec.qname)
+
+    // a box is the only place a Ref's display string can travel
+    dis := (val as Ref)?.disVal
+    if (dis != null)
+    {
+      wc(',').nl
+      indent.quoted(XetoUtil.disTag).wc(':').quoted(dis)
+    }
+
     indentation--
     nl.indent.wc('}')
     return this

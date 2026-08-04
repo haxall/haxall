@@ -105,6 +105,10 @@ using haystack
   {
     if (val == null) return true
 
+    // a plain Ref cannot carry a display string, whatever the position says;
+    // only the box has a place for it
+    if ((val as Ref)?.disVal != null) return false
+
     et := expected?.type
 
     // a JSON bool always decodes as Bool

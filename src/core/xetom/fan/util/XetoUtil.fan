@@ -336,6 +336,10 @@ const class XetoUtil
   ** Reserved tag for the string value of a boxed scalar
   const static Str valTag := "val"
 
+  ** Reserved tag for a boxed Ref's display string.  Reserved only inside a
+  ** box; elsewhere 'dis' is an ordinary tag.
+  const static Str disTag := "dis"
+
 //////////////////////////////////////////////////////////////////////////
 // Spec Dict Representation
 //////////////////////////////////////////////////////////////////////////
