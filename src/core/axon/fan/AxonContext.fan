@@ -291,6 +291,27 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Check security permissions to call given function
   @NoDoc virtual Void checkCall(Fn func) {}
 
+  ** Capture the stack frames visible to the given closure so it can be
+  ** stored away and lazily evaluated via callInScope after its lexical
+  ** scope frames have popped.  Frames are captured by reference so that
+  ** variable reassignments in the closure write-thru to the defining scope.
+  @NoDoc Obj scopeCapture(Fn fn)
+  {
+    stack.findAll |f| { f.isVisibleTo(fn) }
+  }
+
+  ** Call function using the frames captured by scopeCapture as the call
+  ** stack.  Route thru Fn.callx to check heartbeat and default args.
+  @NoDoc Obj? callInScope(Fn func, Obj?[] args, FileLoc callLoc, Obj scope)
+  {
+    base := this.stack
+    this.stack = (CallFrame[])scope
+    try
+      return func.callx(this, args, callLoc)
+    finally
+      this.stack = base
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Variables
 //////////////////////////////////////////////////////////////////////////
