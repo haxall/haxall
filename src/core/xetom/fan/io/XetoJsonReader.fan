@@ -26,6 +26,7 @@ class XetoJsonReader
     this.ns = ns
     this.in = in
     this.rootSpec = rootSpec
+    this.specs = XetoJsonSpec(ns)
     this.fidelity = XetoUtil.optFidelity(opts)
     this.lenient  = XetoUtil.optBool(opts, "lenient", false)
   }
@@ -37,17 +38,17 @@ class XetoJsonReader
   Obj? readVal()
   {
     x := XetoJsonInStream(in).readJson
-    return convert(ns, x, rootSpec)
+    return convert(x, rootSpec)
   }
 
-  private Obj? convert(MNamespace ns, Obj? x, Spec? spec)
+  private Obj? convert(Obj? x, Spec? spec)
   {
-    if (x is Dict) return convertDict(ns, x, spec)
-    if (x is List) return convertList(ns, x, spec)
-    return convertScalar(ns, x, spec)
+    if (x is Dict) return convertDict(x, spec)
+    if (x is List) return convertList(x, spec)
+    return convertScalar(x, spec)
   }
 
-  private Obj convertDict(MNamespace ns, Dict dict, Spec? spec)
+  private Obj convertDict(Dict dict, Spec? spec)
   {
     // if the spec is null, try to look it up
     if (spec == null)
@@ -59,20 +60,20 @@ class XetoJsonReader
 
     // check for Grid special case
     if (spec != null && spec.isGrid)
-      return convertGrid(ns, dict)
-
-    members := (spec == null) ? null : spec.members
+      return convertGrid(dict)
 
     // map dict pairs
-    dict = dict.map |v, k|
+    acc := Str:Obj[:]
+    if (dict.isOrdered) acc.ordered = true
+    dict.each |v, k|
     {
       // id and spec are Refs (and they do not have member entries)
-      if (k == "id" || k == "spec") return Ref.fromStr(v)
-
-      // handle normally
-      mspec := (members == null) ? null : members.get(k, false)
-      return convert(ns, v, mspec)
+      if (k == "id" || k == "spec")
+        acc[k] = Ref.fromStr(v)
+      else
+        acc[k] = convert(v, specs.member(spec, k))
     }
+    dict = Etc.dictFromMap(acc)
 
     // apply spec binding, if we are not haystack
     if ((spec != null) && (fidelity !== XetoFidelity.haystack))
@@ -80,14 +81,14 @@ class XetoJsonReader
     return dict
   }
 
-  private Grid convertGrid(MNamespace ns, Dict dict)
+  private Grid convertGrid(Dict dict)
   {
     gb := GridBuilder()
 
     // meta
     meta := dict["meta"]
     if (meta != null)
-      gb.setMeta(convert(ns, meta, null))
+      gb.setMeta(convert(meta, null))
 
     // cols
     cols := dict["cols"] as Obj?[] ?: throw Err("Grid missing 'cols' list")
@@ -97,51 +98,47 @@ class XetoJsonReader
       if (meta == null)
         gb.addCol(col->name)
       else
-        gb.addCol(col->name, convert(ns, meta, null))
+        gb.addCol(col->name, convert(meta, null))
     }
 
     // rows
     rows := dict["rows"] as Obj?[] ?: throw Err("Grid missing 'rows' list")
-    rows.each |r| { gb.addDictRow(convert(ns, r, null)) }
+    rows.each |r| { gb.addDictRow(convert(r, null)) }
 
     // done
     return gb.toGrid
   }
 
-  private Obj?[] convertList(MNamespace ns, Obj?[] from, Spec? spec)
+  private Obj?[] convertList(Obj?[] from, Spec? spec)
   {
     // a list spec need not declare 'of'; without it the items are untyped
-    of := (spec == null) ? null : spec.of(false)
+    of := specs.listOf(spec)
 
     if (from.contains(null))
-      return from.map |Obj? v->Obj?| { convert(ns, v, of) }
+      return from.map |Obj? v->Obj?| { convert(v, of) }
     else
-      return from.map |Obj v->Obj| { convert(ns, v, of) }
+      return from.map |Obj v->Obj| { convert(v, of) }
   }
 
-  private Obj? convertScalar(MNamespace ns, Obj? x, Spec? spec)
+  private Obj? convertScalar(Obj? x, Spec? spec)
   {
+    if (x is Str)
+    {
+      if ((spec == null) && (x == "✓")) return Marker.val
+
+      // haystack fidelity only decodes against a haystack type
+      if ((spec != null) &&
+          ((fidelity !== XetoFidelity.haystack) || spec.type.isHaystack))
+        return spec.binding.decodeScalar(x)
+
+      return x
+    }
+
+    // haystack fidelity has no Int or Float, only Number
     if (fidelity === XetoFidelity.haystack)
     {
-      if (x is Str)
-      {
-        if ((spec == null) && (x == "✓"))
-          return Marker.val
-        if ((spec != null) && spec.type.isHaystack)
-          return spec.binding.decodeScalar(x)
-      }
       if (x is Int) return Number.makeInt(x)
       if (x is Float) return Number.make(x)
-    }
-    else
-    {
-      if (x is Str)
-      {
-        if ((spec == null) && (x == "✓"))
-          return Marker.val
-        if (spec != null)
-          return spec.binding.decodeScalar(x)
-      }
     }
 
     return x
@@ -154,6 +151,7 @@ class XetoJsonReader
   private const MNamespace ns
   private InStream in
   private Spec? rootSpec
+  private XetoJsonSpec specs
   private XetoFidelity fidelity
 
   ** Degrade a position to untyped instead of raising when its value cannot
