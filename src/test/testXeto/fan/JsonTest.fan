@@ -513,6 +513,118 @@ class JsonTest : AbstractXetoTest
       over.join("\n  "))
   }
 
+  ** write - read - write must be stable.  A value comparison can pass while
+  ** the text drifts, so this asserts the text directly, over every scalar in
+  ** the namespace at every box mode and both pretty modes.
+  Void testIdempotence()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    errs := Str[,]
+    samplePairs(ns).each |pair|
+    {
+      val := pair[0]
+      Spec spec := pair[1]
+      [boxNone, boxAuto, boxAll].each |opts|
+      {
+        mode := opts->box
+        Spec?[null, spec].each |position|
+        {
+          [true, false].each |pretty|
+          {
+            try
+            {
+              one := pretty ? toJson(ns, val, opts, position)
+                            : toJsonCompact(ns, val, opts, position)
+              x   := read(ns, one, position)
+              two := pretty ? toJson(ns, x, opts, position)
+                            : toJsonCompact(ns, x, opts, position)
+              if (one == two) return
+              errs.add("$spec.qname box=$mode pretty=$pretty " +
+                       "at ${position?.qname}\n     1: $one\n     2: $two")
+            }
+            catch (Err e)
+              errs.add("$spec.qname box=$mode: $e.toStr")
+          }
+        }
+      }
+    }
+
+    if (!errs.isEmpty)
+      fail("second pass differed:\n  " + errs.join("\n  "))
+  }
+
+  ** Compact output is what the server emits, and nothing else exercises it
+  Void testCompact()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    verifyEq(toJsonCompact(ns, "abc"), Str<|"abc"|>)
+    verifyEq(toJsonCompact(ns, 123), "123")
+    verifyEq(toJsonCompact(ns, null), "null")
+
+    verifyEq(toJsonCompact(ns, Etc.dict2("a", 1, "b", "x")),
+             Str<|{"a":1,"b":"x"}|>)
+
+    verifyEq(toJsonCompact(ns, Obj?["a", 1, null]), Str<|["a",1,null]|>)
+
+    verifyEq(toJsonCompact(ns, Etc.dict1("a", Etc.dict1("b", 2))),
+             Str<|{"a":{"b":2}}|>)
+
+    // a box, compact
+    verifyEq(toJsonCompact(ns, m, boxAll),
+             Str<|{"val":"✓","spec":"sys::Marker"}|>)
+
+    // an empty dict and an empty list
+    verifyEq(toJsonCompact(ns, Etc.dict0), "{}")
+    verifyEq(toJsonCompact(ns, Obj[,]), "[]")
+
+    gb := GridBuilder()
+    gb.addCol("a")
+    gb.addDictRow(Etc.dict1("a", "x"))
+    verifyEq(toJsonCompact(ns, gb.toGrid),
+      Str<|{"spec":"sys::Grid","cols":[{"name":"a"}],"rows":[{"a":"x"}]}|>)
+  }
+
+  ** escapeUnicode escapes every char above 0x7f, so the output is pure
+  ** ASCII and still decodes to the original.  Asserted as the contract rather
+  ** than as one hardcoded \\u form.
+  Void testEscapeUnicode()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    esc := Etc.dict1("escapeUnicode", m)
+
+    // the sentinels, a non-ASCII unit symbol, and plain ASCII
+    ["✓", "∅", "72°F", "abc"].each |s|
+    {
+      json := toJsonCompact(ns, s, esc)
+      verifyAscii(json)
+      verifyEq(read(ns, json), s)
+    }
+
+    // off by default, so the char passes through raw
+    verifyEq(toJsonCompact(ns, "✓"), "\"✓\"")
+
+    // applies inside a box
+    json := toJsonCompact(ns, m, Etc.dictSet(esc, "box", "all"))
+    verifyAscii(json)
+    verifyValEq(read(ns, json), m)
+
+    // and to a unit symbol carried by a Number
+    json = toJsonCompact(ns, n(90, "°F"), esc)
+    verifyAscii(json)
+    verifyValEq(read(ns, json, ns.spec("sys::Number")), n(90, "°F"))
+
+    // pretty mode escapes the same way
+    verifyAscii(toJson(ns, Etc.dict1("a", "✓"), esc))
+  }
+
+  ** Verify no char above 0x7f survived the encoding
+  private Void verifyAscii(Str s)
+  {
+    verify(s.all |c| { c <= 0x7f }, "non-ASCII in $s")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Scalar Sample Enumeration
 //////////////////////////////////////////////////////////////////////////
@@ -1000,7 +1112,8 @@ class JsonTest : AbstractXetoTest
     Spec? spec := null,
     Dict? opts := null)
   {
-    b := roundTrip(ns, a, opts, spec)
+    str := toJson(ns, a, opts, spec)
+    b := read(ns, str, spec)
 
     if (a is Dict)
       verifyDictEq(a, b)
@@ -1008,14 +1121,33 @@ class JsonTest : AbstractXetoTest
       verifyGridEq(a, b)
     else
       verifyEq(a, b)
+
+    // a second pass must emit identical text
+    verifyEq(toJson(ns, b, opts, spec), str)
   }
 
   private Str toJson(MNamespace ns, Obj? x, Dict? opts := null,
                      Spec? spec := null)
   {
+    write(ns, x, Etc.dictSet(opts, "pretty", m), spec)
+  }
+
+  ** Compact encoding, which is the mode the server actually emits
+  private Str toJsonCompact(MNamespace ns, Obj? x, Dict? opts := null,
+                            Spec? spec := null)
+  {
+    write(ns, x, opts ?: Etc.dict0, spec)
+  }
+
+  ** Encode, and assert the result is well formed JSON independently of
+  ** whatever the caller goes on to compare it against
+  private Str write(MNamespace ns, Obj? x, Dict opts, Spec? spec)
+  {
     buf := Buf()
-    XetoJsonWriter(ns, buf.out, spec, Etc.dictSet(opts, "pretty", m)).writeVal(x)
-    return buf.flip.readAllStr
+    XetoJsonWriter(ns, buf.out, spec, opts).writeVal(x)
+    str := buf.flip.readAllStr
+    JsonInStream(str.in).readJson
+    return str
   }
 
   ** Write then read back through the same position spec

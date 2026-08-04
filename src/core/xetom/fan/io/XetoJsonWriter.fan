@@ -99,7 +99,7 @@ class XetoJsonWriter
     wc(',').nl
 
     // meta; the grid spec is emitted above, not repeated inside meta
-    meta := Etc.dictRemove(grid.meta, XetoUtil.specTag)
+    meta := dictExclude(grid.meta, XetoUtil.specTag)
     if (!meta.isEmpty)
     {
       indent.quoted("meta").wc(':').writeDict(meta, null)
@@ -161,7 +161,7 @@ class XetoJsonWriter
       indent.quoted(XetoUtil.ofTag).wc(':').quoted(of.id)
     }
 
-    meta := Etc.dictRemove(c.meta, XetoUtil.ofTag)
+    meta := dictExclude(c.meta, XetoUtil.ofTag)
     if (!meta.isEmpty)
     {
       wc(',').nl
@@ -171,6 +171,17 @@ class XetoJsonWriter
     indentation--
     nl.indent.wc('}')
     return this
+  }
+
+  ** Dict minus one tag, preserving tag order.  'Etc.dictRemove' rebuilds
+  ** through an unordered map, which would make the output non-idempotent.
+  private Dict dictExclude(Dict d, Str name)
+  {
+    if (d.missing(name)) return d
+    acc := Str:Obj[:]
+    acc.ordered = true
+    d.each |v, n| { if (n != name) acc[n] = v }
+    return Etc.dictFromMap(acc)
   }
 
 //////////////////////////////////////////////////////////////////////////
