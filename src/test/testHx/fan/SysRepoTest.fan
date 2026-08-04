@@ -251,6 +251,7 @@ class SysRepoTest : HxTest
     verifyNotNull(d, lib)
     verifyEq(d["lib"], lib)
     verifyEq(d["version"], proj.ns.lib(lib).version)
+    verifyEq(d["pubStatus"], "stable")
     verifyEq(d["spec"], Ref("sys.repo::RepoLib"))
   }
 
@@ -259,5 +260,6 @@ class SysRepoTest : HxTest
     verifyNotNull(v, lib)
     verifyEq(v.name, lib)
     verifyEq(v.version, proj.ns.lib(lib).version)
+    verifyEq(v.pubStatus, LibPubStatus.stable)
   }
 }

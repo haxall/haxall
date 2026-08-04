@@ -41,11 +41,20 @@ const mixin RepoServer
     acc.ordered = true
     acc["lib"] = v.name
     acc["version"] = v.version
+    acc["pubStatus"] = toRepoPubStatus(v.pubStatus).name
+    acc.addNotNull("pubStatusMsg", v.pubStatusMsg)
     acc.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     acc.addNotNull("depends", v.depends(false))
     acc.addNotNull("digest", v.digest)
     acc["spec"] = Ref("sys.repo::RepoLib")
     return Etc.dictFromMap(acc)
+  }
+
+  ** Map model status to the wire RepoPubStatus vocabulary: the wire
+  ** requires the repo to make a claim, so unknown is asserted as stable
+  static LibPubStatus toRepoPubStatus(LibPubStatus status)
+  {
+    status === LibPubStatus.unknown ? LibPubStatus.stable : status
   }
 
   ** Error for fetch of unknown lib name

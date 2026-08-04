@@ -35,6 +35,16 @@ const mixin LibVersion
   ** zip is assembled on the fly with non-reproducible bytes.
   virtual Str? digest() { null }
 
+  ** Publication lifecycle status as reported by the repo which produced
+  ** this version.  This is mutable repo catalog state, not metadata of
+  ** the lib artifact itself - a version may be yanked after publication
+  ** without its zip ever changing.  Versions not backed by a repo report
+  ** the default of unknown.
+  virtual LibPubStatus pubStatus() { LibPubStatus.unknown }
+
+  ** Additional message associated with publication lifecycle status
+  @NoDoc virtual Str? pubStatusMsg() { null }
+
   ** Sort by name, then version
   override final Int compare(Obj that)
   {
@@ -171,6 +181,35 @@ const mixin LibVersion
 
   static const Int flagHxSysOnly := 0x01
 
+}
+
+**************************************************************************
+** LibPubStatus
+**************************************************************************
+
+**
+** Publication lifecycle status for a lib version in a repo.  This is
+** the model side superset of the sys.repo::RepoPubStatus wire enum: a
+** repo always reports one of the four wire keys, while unknown models
+** a version with no repo making a claim such as a local lib.
+**
+@Js
+enum class LibPubStatus
+{
+  ** Status is not known such as a local lib not backed by a repo
+  unknown,
+
+  ** Early experimental prerelease
+  alpha,
+
+  ** Feature complete prerelease
+  beta,
+
+  ** Stable production release - used to determine latest and matching
+  stable,
+
+  ** Withdrawn from new resolution
+  yanked
 }
 
 **************************************************************************
