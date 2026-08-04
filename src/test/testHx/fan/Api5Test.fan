@@ -224,8 +224,8 @@ class Api5Test : ApiTest
     verifyCall(c, "eval", ["expr":"today()"], Date.today.toStr)
     verifyCall(c, "eval", ["expr":"true"], true)
 
-    // TODO: a bare JSON number should decode as Number per the clean JSON
-    // read rules; today the untyped position gives back an Int
+    // an untyped bare JSON number decodes by its lexical form, so this is an
+    // Int; Number requires the position to name it, or a box
     verifyCall(c, "eval", ["expr":"2 + 3"], 5)
   }
 

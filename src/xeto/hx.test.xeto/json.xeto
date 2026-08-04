@@ -6,7 +6,9 @@
 //   12 Jan 2026  Mike Jarmy  Creation
 //
 
-JsonScalars: {
+// Entity supplies the 'id' and 'spec' members that a named instance carries;
+// without them 'id' has no member to resolve against and decodes as a Str
+JsonScalars: Entity {
   marker: Marker
   bool: Bool "true"
   int: Int 123
@@ -30,7 +32,7 @@ JsonScalars: {
 @jsonScalarsA: JsonScalars {
 }
 
-JsonNest: {
+JsonNest: Entity {
   foo: JsonFoo
   dates: List <of:Date>
   untyped: List          // no 'of' meta, so items decode untyped

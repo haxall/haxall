@@ -24,8 +24,11 @@ class JsonTest : AbstractXetoTest
 
     verifyHaystack(ns, null, null)
     verifyHaystack(ns, true, true)
-    verifyHaystack(ns, m, m)
     verifyHaystack(ns, "abc", "abc")
+
+    // an untyped position never decodes by what the string looks like, so a
+    // plain marker does not survive; box=auto is the lossless encoding
+    verifyHaystack(ns, m, "✓")
     verifyHaystack(ns, n(1), n(1))
     verifyHaystack(ns, 2, n(2))
     verifyHaystack(ns, 3.4f, n(3.4f))
@@ -41,7 +44,7 @@ class JsonTest : AbstractXetoTest
 
     verifyHaystack(ns,
       Etc.dict5("z", m, "a", true, "b", "xyz", "c", n(1), "d", 2),
-      Etc.dict5("z", m, "a", true, "b", "xyz", "c", n(1), "d", n(2)))
+      Etc.dict5("z", "✓", "a", true, "b", "xyz", "c", n(1), "d", n(2)))
   }
 
   Void test()
@@ -174,8 +177,9 @@ class JsonTest : AbstractXetoTest
     grid = gb.toGrid
     verifyRoundTrip(ns, grid)
 
+    // grid meta is untyped, so a marker there would decode as Str "✓"
     gb = GridBuilder()
-    gb.setMeta(Etc.dict1("foo", m))
+    gb.setMeta(Etc.dict1("foo", "quux"))
     gb.addCol("a").addCol("b", Etc.dict1("dis", "B"))
     gb.addDictRow(Etc.dict2("a", 0, "b", "x"))
     gb.addDictRow(Etc.dict2("a", 1, "b", "y"))

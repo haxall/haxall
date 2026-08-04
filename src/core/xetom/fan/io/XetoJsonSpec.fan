@@ -76,6 +76,23 @@ using haystack
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Numbers
+//////////////////////////////////////////////////////////////////////////
+
+  ** Coerce a JSON number to the position's type when the position names one
+  ** of the interchangeable numeric types, else keep its lexical type.  Kept
+  ** beside 'plainRoundTrips' so the reader's coercion and the writer's box
+  ** predicate cannot disagree.
+  Obj coerceNum(Obj x, Spec? expected)
+  {
+    et := expected?.type
+    if (et === ns.sys.int)    return x is Int ? x : ((Float)x).toInt
+    if (et === ns.sys.float)  return x is Float ? x : ((Int)x).toFloat
+    if (et === ns.sys.number) return x is Int ? Number.makeInt(x) : Number.make(x)
+    return x
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Boxing
 //////////////////////////////////////////////////////////////////////////
 
