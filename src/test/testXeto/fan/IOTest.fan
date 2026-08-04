@@ -131,12 +131,12 @@ class IOTest : AbstractXetoTest
     // echo("  > $binary | ${binary?.typeof}")
     verifyValEq(val, binary)
 
-    // JSON format
-    /*
-    jsonStr := ns.io.writeJsonToStr(val, Etc.dict1("prettyx", Marker.val))
-    json := ns.io.readJson(jsonStr.in, ns.specOf(val))
-    verifyValEq(val, binary)
-    */
+    // JSON format; box=auto is the lossless mode - box=none cannot express a
+    // marker, a Ref, or a unitless Number in an untyped position
+    jsonOpts := Etc.dict2("box", "auto", "pretty", Marker.val)
+    jsonStr := ns.io.writeJsonToStr(val, jsonOpts)
+    json := ns.io.readJson(jsonStr.in, ns.specOf(val, false))
+    verifyValEq(val, json)
 
     // Xeto format does not support null
     if (val == null) return binary

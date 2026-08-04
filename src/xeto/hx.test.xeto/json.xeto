@@ -49,3 +49,26 @@ JsonFoo: {
   untyped: {"a", "b"}
 }
 
+// Members whose plain JSON form only survives when the position names the
+// type.  'looksNum' is declared Str even though its value reads as a Number.
+JsonEdge: {
+  na: NA
+  int: Int
+  float: Float
+  unitless: Number
+  looksNum: Str
+}
+
+// Entity row spec for grid tests, plus a subtype for heterogeneous rows
+JsonRow: Entity {
+  ts: DateTime
+  v0: Number
+}
+
+JsonRowB: JsonRow {
+  extra: Str
+}
+
+// A Grid subtype supplies its default row spec from the schema
+JsonHisGrid: Grid <of:JsonRow>
+

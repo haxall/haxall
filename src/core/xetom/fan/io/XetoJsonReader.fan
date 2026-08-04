@@ -116,7 +116,11 @@ class XetoJsonReader
       if (lenient) return null
       throw IOErr("Boxed 'val' must be a Str [$spec.qname]")
     }
-    return decodeScalar(spec, str)
+
+    // a box names a full fidelity type, so coerce down when haystack
+    x := decodeScalar(spec, str)
+    if (fidelity === XetoFidelity.haystack) return XetoUtil.toHaystack(x)
+    return x
   }
 
   private Grid convertGrid(Dict dict, Spec gridSpec)
