@@ -327,6 +327,15 @@ const class XetoUtil
     return false
   }
 
+  ** Reserved structural tag for a value's spec
+  const static Str specTag := "spec"
+
+  ** Reserved structural tag for a collection's item type
+  const static Str ofTag := "of"
+
+  ** Reserved tag for the string value of a boxed scalar
+  const static Str valTag := "val"
+
 //////////////////////////////////////////////////////////////////////////
 // Spec Dict Representation
 //////////////////////////////////////////////////////////////////////////
@@ -601,13 +610,19 @@ const class XetoUtil
   ** Choke point to map grid to its spec ref
   static Ref gridSpecRef(Grid grid)
   {
-    grid.meta["spec"] as Ref ?: Ref("sys::Grid")
+    grid.meta[specTag] as Ref ?: Ref("sys::Grid")
   }
 
   ** Choke point to map grid column to its spec ref
   static Ref? gridColSpecRef(Col col)
   {
-    col.meta["of"] as Ref
+    col.meta[ofTag] as Ref
+  }
+
+  ** Choke point to map grid to its default row spec ref
+  static Ref? gridOfSpecRef(Grid grid)
+  {
+    grid.meta[ofTag] as Ref
   }
 
 //////////////////////////////////////////////////////////////////////////

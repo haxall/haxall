@@ -37,6 +37,7 @@ const class MSys
     this.uri        = x.get("Uri")
     this.number     = x.get("Number")
     this.int        = x.get("Int")
+    this.float      = x.get("Float")
     this.duration   = x.get("Duration")
     this.date       = x.get("Date")
     this.time       = x.get("Time")
@@ -67,6 +68,7 @@ const class MSys
   const XetoSpec uri
   const XetoSpec number
   const XetoSpec int
+  const XetoSpec float
   const XetoSpec duration
   const XetoSpec date
   const XetoSpec time

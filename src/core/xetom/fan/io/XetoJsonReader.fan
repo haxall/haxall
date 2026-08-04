@@ -27,6 +27,7 @@ class XetoJsonReader
     this.in = in
     this.rootSpec = rootSpec
     this.fidelity = XetoUtil.optFidelity(opts)
+    this.lenient  = XetoUtil.optBool(opts, "lenient", false)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,6 +155,12 @@ class XetoJsonReader
   private InStream in
   private Spec? rootSpec
   private XetoFidelity fidelity
+
+  ** Degrade a position to untyped instead of raising when its value cannot
+  ** be decoded: unparseable text, unresolvable spec ref, malformed box.
+  ** Does not gate self-description: a box or a JSON native form overriding
+  ** the context spec is always legal and never an error.
+  private Bool lenient
 }
 
 **************************************************************************
