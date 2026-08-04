@@ -305,6 +305,82 @@ class JsonTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Malformed and Adversarial Payloads
+//////////////////////////////////////////////////////////////////////////
+
+  ** A structural error in the grid envelope always raises.  Everything else
+  ** either degrades under lenient or is legal by invariant 2.
+  Void testMalformed()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    // cols is not a list
+    verifyStructuralErr(ns, Str<|{"spec":"sys::Grid","cols":{},"rows":[]}|>)
+
+    // rows absent
+    verifyStructuralErr(ns, Str<|{"spec":"sys::Grid","cols":[]}|>)
+
+    // a row that is not a dict
+    verifyStructuralErr(ns,
+      Str<|{"spec":"sys::Grid","cols":[{"name":"a"}],"rows":["x"]}|>)
+
+    // a spec tag that is not a qname: raises strict, degrades lenient
+    json := Str<|{"spec":5,"a":1}|>
+    verifyErr(null) { read(ns, json) }
+    verifyDictEq(read(ns, json, null, lenientOpts), Etc.dict2("spec", 5, "a", 1))
+
+    // a box whose spec cannot be resolved
+    json = Str<|{"val":"5","spec":"hx.test.xeto::NoSuchSpec"}|>
+    verifyErr(null) { read(ns, json) }
+    verifyDictEq(read(ns, json, null, lenientOpts),
+                 Etc.dict2("val", "5", "spec", Ref("hx.test.xeto::NoSuchSpec")))
+
+    // a box carrying tags beyond val, spec and dis: the box still wins and
+    // the extras are dropped
+    verifyDecode(ns, Str<|{"val":"5","spec":"sys::Int","extra":"x"}|>, 5)
+
+    // duplicate keys resolve last-wins in the JSON parser itself
+    verifyDictEq(read(ns, Str<|{"a":1,"a":2}|>), Etc.dict1("a", 2))
+
+    // a col 'of' naming a non-scalar supplies no grammar, so the cell stays
+    // a Str rather than raising
+    Grid g := read(ns, Str<|{
+                              "spec":"sys::Grid",
+                              "cols":[{"name":"a","of":"sys::Dict"}],
+                              "rows":[{"a":"x"}]
+                            }|>)
+    verifyValEq(g.first->a, "x")
+
+    // an unresolvable col 'of' raises strict and leaves the cell untyped
+    // under lenient
+    json = Str<|{
+                 "spec":"sys::Grid",
+                 "cols":[{"name":"a","of":"hx.test.xeto::NoSuchSpec"}],
+                 "rows":[{"a":"x"}]
+                }|>
+    verifyErr(null) { read(ns, json) }
+    g = read(ns, json, null, lenientOpts)
+    verifyValEq(g.first->a, "x")
+
+    // a grid where a scalar is expected: self-description beats the position
+    json = Str<|{"spec":"sys::Grid","cols":[{"name":"a"}],"rows":[{"a":"x"}]}|>
+    g = read(ns, json, ns.spec("sys::Date"))
+    verifyValEq(g.first->a, "x")
+
+    // a dict where a scalar is expected, and a scalar where a dict is
+    verifyDictEq(read(ns, Str<|{"a":1}|>, ns.spec("sys::Date")),
+                 Etc.dict1("a", 1))
+    verifyDecode(ns, Str<|"abc"|>, "abc", ns.spec("sys::Dict"))
+  }
+
+  ** A structural envelope error raises whether or not lenient is set
+  private Void verifyStructuralErr(MNamespace ns, Str json)
+  {
+    verifyErr(null) { read(ns, json) }
+    verifyErr(null) { read(ns, json, null, lenientOpts) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Box Modes
 //////////////////////////////////////////////////////////////////////////
 
@@ -623,6 +699,54 @@ class JsonTest : AbstractXetoTest
   private Void verifyAscii(Str s)
   {
     verify(s.all |c| { c <= 0x7f }, "non-ASCII in $s")
+  }
+
+  ** Haystack fidelity is full fidelity then coerced, so a lossless box mode
+  ** must land on exactly XetoUtil.toHaystack of the original, at both a typed
+  ** and an untyped position.
+  **
+  ** Buf is excluded: toHaystack has no haystack kind for it and falls back to
+  ** Buf.toStr, which reports pos and size rather than content.
+  Void testHaystackBoxMatrix()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    vals := Obj[
+      0, 72.0f, n(90), n(90, "kW"), Number.nan,
+      m, NA.val, None.val, "abc",
+      Ref("xyz-123"), Ref("xyz-123", "Carytown"),
+      `file.txt`,
+      Date.fromStr("2024-11-26"), Time.fromStr("14:30:00"),
+      DateTime.fromStr("2024-11-25T10:24:35-05:00 New_York"),
+      Version.fromStr("4.0.9"), TimeZone.fromStr("Chicago"),
+    ]
+
+    errs := Str[,]
+    vals.each |val|
+    {
+      expect := XetoUtil.toHaystack(val)
+      spec := ns.specOf(val, false)
+      [boxAuto, boxAll].each |opts|
+      {
+        mode := opts->box
+        Spec?[null, spec].each |position|
+        {
+          try
+          {
+            // written at full fidelity, read back at haystack
+            x := read(ns, toJson(ns, val, opts, position), position, haystackOpts)
+            if (sameVal(expect, x)) return
+            errs.add("$val [$val.typeof] box=$mode at ${position?.qname}: " +
+                     "got $x [${x?.typeof}], want $expect [${expect?.typeof}]")
+          }
+          catch (Err e)
+            errs.add("$val box=$mode at ${position?.qname}: $e.toStr")
+        }
+      }
+    }
+
+    if (!errs.isEmpty)
+      fail("haystack fidelity mismatches:\n  " + errs.join("\n  "))
   }
 
 //////////////////////////////////////////////////////////////////////////

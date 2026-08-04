@@ -77,7 +77,7 @@ class XetoJsonReader
     {
       // spec is a reserved structural tag and is always a Ref
       if (k == XetoUtil.specTag)
-        acc[k] = Ref.fromStr(v)
+        acc[k] = toSpecRef(v)
       else
         acc[k] = convert(v, colOf?.get(k) ?: specs.member(spec, k))
     }
@@ -202,10 +202,20 @@ class XetoJsonReader
     wire.each |v, k|
     {
       if (k == XetoUtil.ofTag || k == XetoUtil.specTag)
-        acc[k] = Ref.fromStr(v)
+        acc[k] = toSpecRef(v)
       else
         acc[k] = convert(v, null)
     }
+  }
+
+  ** A structural spec ref is always a Ref.  A value that is neither a Ref nor
+  ** a Str is passed through rather than raising a cast error, which is what
+  ** lenient needs when a payload puts something else in a 'spec' or 'of' tag.
+  private Obj toSpecRef(Obj v)
+  {
+    if (v is Ref) return v
+    if (v is Str) return Ref.fromStr(v)
+    return v
   }
 
   private Obj?[] convertList(Obj?[] from, Spec? spec)

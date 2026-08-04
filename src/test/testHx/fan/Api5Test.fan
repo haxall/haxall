@@ -227,6 +227,13 @@ class Api5Test : ApiTest
     // an untyped bare JSON number decodes by its lexical form, so this is an
     // Int; Number requires the position to name it, or a box
     verifyCall(c, "eval", ["expr":"2 + 3"], 5)
+
+    // the dispatch emits box=none, so a value whose plain form needs a spec
+    // to recover arrives as that plain form.  Pinned here so that turning on
+    // box negotiation shows up as a test change rather than a silent one.
+    verifyCall(c, "eval", ["expr":"marker()"], "✓")
+    verifyCall(c, "eval", ["expr":"na()"], "NA")
+    verifyCall(c, "eval", ["expr":"1kW"], "1kW")
   }
 
 //////////////////////////////////////////////////////////////////////////
