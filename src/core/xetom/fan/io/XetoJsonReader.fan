@@ -83,8 +83,11 @@ class XetoJsonReader
     }
     Dict out := Etc.dictFromMap(acc)
 
-    // apply spec binding, if we are not haystack
-    if ((spec != null) && (fidelity !== XetoFidelity.haystack))
+    // apply spec binding, if we are not haystack.  The spec need not be a
+    // dict type: a scalar spec tag on a dict reaches here when a malformed
+    // box degrades, and only a dict binding implements decodeDict.
+    if ((spec != null) && spec.binding.isDict &&
+        (fidelity !== XetoFidelity.haystack))
       out = spec.binding.decodeDict(out)
     return out
   }

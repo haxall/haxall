@@ -119,6 +119,34 @@ class IOTest : AbstractXetoTest
     verifyGridEq(envx->data, g)
   }
 
+  ** Round trip through clean JSON at box=auto, the lossless box mode.  Two
+  ** things clean JSON cannot carry, so neither is asserted: a Ref dis, which
+  ** the binary format keeps via encodeRefDis; and a list's element type, since
+  ** a JSON array has nowhere to put it and the reader can only infer
+  ** nullability from an actual null.
+  Void verifyJsonIO(Obj? val)
+  {
+    ns := server.ns
+
+    if ((val as Ref)?.disVal != null) return
+
+    opts := Etc.dict2("box", "auto", "pretty", Marker.val)
+    str  := ns.io.writeJsonToStr(val, opts)
+    x    := ns.io.readJson(str.in, ns.specOf(val, false))
+
+    if (val is List)
+    {
+      List orig := val
+      List read := x
+      verifyEq(read.size, orig.size)
+      orig.each |v, i| { verifyValEq(v, read[i]) }
+    }
+    else
+    {
+      verifyValEq(val, x)
+    }
+  }
+
   Obj? verifyIO(Obj? val)
   {
     ns := server.ns
@@ -131,12 +159,8 @@ class IOTest : AbstractXetoTest
     // echo("  > $binary | ${binary?.typeof}")
     verifyValEq(val, binary)
 
-    // JSON format; box=auto is the lossless mode - box=none cannot express a
-    // marker, a Ref, or a unitless Number in an untyped position
-    jsonOpts := Etc.dict2("box", "auto", "pretty", Marker.val)
-    jsonStr := ns.io.writeJsonToStr(val, jsonOpts)
-    json := ns.io.readJson(jsonStr.in, ns.specOf(val, false))
-    verifyValEq(val, json)
+    // JSON format
+    verifyJsonIO(val)
 
     // Xeto format does not support null
     if (val == null) return binary

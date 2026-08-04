@@ -135,11 +135,12 @@ class JsonTest : AbstractXetoTest
     edge := ns.spec("hx.test.xeto::JsonEdge")
 
     // an explicit spec tag types the members
-    Dict d := read(ns, Str<|{
-                             "spec":"hx.test.xeto::JsonEdge",
-                             "int":"5",
-                             "unitless":"90"
-                           }|>)
+    json := Str<|{
+                   "spec":"hx.test.xeto::JsonEdge",
+                   "int":"5",
+                   "unitless":"90"
+                 }|>
+    Dict d := read(ns, json)
     verifyValEq(d->int, 5)
     verifyValEq(d->unitless, n(90))
     verifyValEq(d->spec, Ref("hx.test.xeto::JsonEdge"))
@@ -179,13 +180,14 @@ class JsonTest : AbstractXetoTest
     verifyDictEq(read(ns, Str<|{"customTag":"72°F"}|>),
                  Etc.dict1("customTag", "72°F"))
 
-    verifyDictEq(read(ns, Str<|{
-                                "d":"2024-11-26",
-                                "mark":"✓",
-                                "none":"∅",
-                                "na":"NA",
-                                "id":"abc"
-                              }|>),
+    json := Str<|{
+                   "d":"2024-11-26",
+                   "mark":"✓",
+                   "none":"∅",
+                   "na":"NA",
+                   "id":"abc"
+                 }|>
+    verifyDictEq(read(ns, json),
                  Etc.dict5("d", "2024-11-26", "mark", "✓", "none", "∅",
                            "na", "NA", "id", "abc"))
 
@@ -665,11 +667,12 @@ class JsonTest : AbstractXetoTest
                      null, haystackOpts), "4.0.9")
 
     // a typed grid column decodes the same at haystack fidelity
-    Grid g := read(ns, Str<|{
-                             "spec": "sys::Grid",
-                             "cols": [{"name":"v0","of":"sys::Number"}],
-                             "rows": [{"v0":"73kW"}, {"v0":73}]
-                           }|>, null, haystackOpts)
+    json := Str<|{
+                   "spec": "sys::Grid",
+                   "cols": [{"name":"v0","of":"sys::Number"}],
+                   "rows": [{"v0":"73kW"}, {"v0":73}]
+                 }|>
+    Grid g := read(ns, json, null, haystackOpts)
     verifyValEq(g[0]->v0, n(73, "kW"))
     verifyValEq(g[1]->v0, n(73))
   }
