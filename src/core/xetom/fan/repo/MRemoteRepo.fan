@@ -17,25 +17,31 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
 {
   static MRemoteRepo create(RemoteRepoInit init)
   {
-    // check indexed props to match a URI to a specific fantom type:
-    //    "xeto.repo": "uri qname"
-    //    "xeto.repo": "http://test-1/ testXeto::TestRemoteRepo"
-    typeName := findTypeForUri(init.uri.toStr)
-    if (typeName == null) typeName = findTypeForUri(init.uri.plus(`/`).toStr)
-    if (typeName == null) return TempRemoteRepo(init)
-    return Type.find(typeName).make([init])
+    // check indexed props to match a URI prefix to a specific fantom type:
+    //    "xeto.repo": "uriPrefix qname"
+    //    "xeto.repo": "https://github.com/ xetom::GithubRepo"
+    typeName := findTypeForUri(init.uri.plusSlash.toStr)
+    if (typeName != null) return Type.find(typeName).make([init])
+
+    // any other http/https uri is assumed to publish the sys.repo API
+    scheme := init.uri.scheme
+    if (scheme == "http" || scheme == "https") return HttpRepo(init)
+
+    throw Err("Unsupported repo URI: $init.uri")
   }
 
   private static Str? findTypeForUri(Str match)
   {
-    Env.cur.index("xeto.repo").eachWhile |str|
+    // longest matching prefix wins
+    best := null as Str; bestSize := 0
+    Env.cur.index("xeto.repo").each |str|
     {
       sp := str.index(" ")
-      if (sp == null) return  null
+      if (sp == null) return
       uri := str[0..<sp]
-      if (uri != match) return null
-      return str[sp+1..-1]
+      if (match.startsWith(uri) && uri.size > bestSize) { best = str[sp+1..-1]; bestSize = uri.size }
     }
+    return best
   }
 
   new make(RemoteRepoInit init) : super(init.env)
@@ -154,23 +160,6 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
   {
     key == null ? null : env.envVarGet(key)
   }
-}
-
-**************************************************************************
-** TempRemoteRepo
-**************************************************************************
-
-internal const class TempRemoteRepo : MRemoteRepo
-{
-  new make(RemoteRepoInit init) : super(init) {}
-
-  override Dict? ping(Bool checked := true) { throw Err("TODO") }
-
-  override RemoteRepoSearchRes search(RemoteRepoSearchReq req) { throw Err("TODO") }
-
-  override LibVersion[] versions(Str name, Dict? opts := null) { throw Err("TODO") }
-
-  override Buf fetch(Str name, Version version) { throw Err("TODO") }
 }
 
 **************************************************************************
