@@ -423,47 +423,224 @@ class JsonTest : AbstractXetoTest
 
   ** The 'plainRoundTrips' predicate drives box=auto, so it must never claim a
   ** plain form survives when it does not.  It is allowed to be conservative
-  ** in the other direction.
+  ** in the other direction, which testOverBoxing measures.
+  **
+  ** Crossed over every scalar spec in the namespace rather than a hand
+  ** written list, since a hand written list only covers what we thought of.
   Void testPlainRoundTrips()
   {
     ns := createNamespace(["hx.test.xeto"])
-    specs := XetoJsonSpec(ns)
+    jspec := XetoJsonSpec(ns)
 
-    vals := Obj[
-      true, 123, 72.0f, Float.nan, Float.posInf, Float.negInf,
-      n(90), n(3.4f), n(90, "kW"), Number.nan,
-      "abc", "✓", m, None.val, NA.val,
-      Ref("abc"), `file.txt`,
-      Date.fromStr("2024-11-26"), Time.fromStr("14:30:00"),
-      DateTime.fromStr("2024-11-25T10:24:35-05:00 New_York"),
-      Version.fromStr("4.0.9"), TimeZone.fromStr("Chicago"),
-    ]
+    // each sample against no spec, its own spec, and a spec it is not
+    wrong := ns.spec("sys::Date")
+    errs := Str[,]
 
-    expects := Spec?[
-      null,
-      ns.spec("sys::Bool"),
-      ns.spec("sys::Int"),
-      ns.spec("sys::Float"),
-      ns.spec("sys::Number"),
-      ns.spec("sys::Str"),
-      ns.spec("sys::Marker"),
-      ns.spec("sys::Ref"),
-      ns.spec("sys::Date"),
-      ns.spec("sys::Uri"),
-      ns.spec("sys::Duration"),
-      ns.spec("sys::Dict"),
-    ]
-
-    vals.each |val|
+    samplePairs(ns).each |pair|
     {
-      expects.each |expect|
+      val := pair[0]
+      Spec spec := pair[1]
+      Spec?[null, spec, wrong].each |expect|
       {
-        if (!specs.plainRoundTrips(val, expect)) return
-        verifyEq(plainSurvives(ns, val, expect), true,
-          "plainRoundTrips claimed $val [$val.typeof] survives at $expect")
+        if (!jspec.plainRoundTrips(val, expect)) return
+        if (plainSurvives(ns, val, expect)) return
+        errs.add("$spec.qname sample=$val [$val.typeof] at ${expect?.qname}")
+      }
+    }
+
+    if (!errs.isEmpty)
+      fail("plainRoundTrips claimed these survive plainly:\n  " + errs.join("\n  "))
+  }
+
+  ** auto and all must round trip every scalar spec in the namespace.  This is
+  ** the assertion that catches a binding whose encodeScalar and decodeScalar
+  ** disagree, without anyone having to notice the binding by hand.
+  Void testBoxModeSweep()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    errs := Str[,]
+    samplePairs(ns).each |pair|
+    {
+      val := pair[0]
+      Spec spec := pair[1]
+      [boxAuto, boxAll].each |opts|
+      {
+        mode := opts["box"]
+        Spec?[null, spec].each |position|
+        {
+          try
+          {
+            x := roundTrip(ns, val, opts, position)
+            if (sameVal(val, x)) return
+            errs.add("$spec.qname box=$mode at ${position?.qname}: got $x [${x?.typeof}]")
+          }
+          catch (Err e)
+            errs.add("$spec.qname box=$mode at ${position?.qname}: $e.toStr")
+        }
+      }
+    }
+
+    if (!errs.isEmpty)
+      fail("box modes lost these scalars:\n  " + errs.join("\n  "))
+  }
+
+  ** 'plainRoundTrips' is documented conservative: it may say a box is needed
+  ** where the plain form would in fact survive.  This measures how often, so
+  ** the predicate cannot quietly get more pessimistic, and names the cases
+  ** worth relaxing.
+  Void testOverBoxing()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    jspec := XetoJsonSpec(ns)
+
+    over := Str[,]
+    samplePairs(ns).each |pair|
+    {
+      val := pair[0]
+      Spec spec := pair[1]
+      Spec?[null, spec].each |expect|
+      {
+        if (jspec.plainRoundTrips(val, expect)) return
+        if (!plainSurvives(ns, val, expect)) return
+        over.add("$spec.qname at ${expect?.qname}")
+      }
+    }
+
+    // a ceiling, not a target: raise it only with a reason
+    verify(over.size <= maxOverBoxing,
+      "over-boxing rose to $over.size (ceiling $maxOverBoxing):\n  " +
+      over.join("\n  "))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Scalar Sample Enumeration
+//////////////////////////////////////////////////////////////////////////
+
+  ** (value, own spec) pairs driving the sweeps: one canonical sample per
+  ** scalar spec in the namespace, plus the pathological values that no
+  ** per-spec default covers.
+  private Obj[][] samplePairs(MNamespace ns)
+  {
+    acc := Obj[][,]
+    scalarSamples(ns).each |val, spec| { acc.add(Obj[val, spec]) }
+    return acc.addAll(edgeSamples(ns))
+  }
+
+  ** Values whose encoding is special even though their spec already has a
+  ** sample: the specials that have no JSON number form, the unitless Number
+  ** that reads back as Int or Float, a Str that looks like a marker, and a
+  ** Ref whose dis only a box can carry.
+  private Obj[][] edgeSamples(MNamespace ns)
+  {
+    num   := ns.spec("sys::Number")
+    float := ns.spec("sys::Float")
+    return [
+      [Float.nan,    float],
+      [Float.posInf, float],
+      [Float.negInf, float],
+      [Number.nan,   num],
+      [n(90),        num],
+      [n(3.4f),      num],
+      [n(90, "kW"),  num],
+      ["✓",          ns.spec("sys::Str")],
+      [Ref("xyz-123", "Carytown"), ns.spec("sys::Ref")],
+    ]
+  }
+
+  ** Every non-abstract scalar spec in the namespace paired with a sample
+  ** value of that spec's own type.  The declared default from 'instantiate'
+  ** is used where it is well typed, otherwise an explicit sample from
+  ** scalarSupplements.  A spec with neither is excluded, and must say so in
+  ** scalarSkips so that a coverage gap is visible rather than silent.
+  private Spec:Obj scalarSamples(MNamespace ns)
+  {
+    acc := Spec:Obj[:]
+    unusable := Str[,]
+
+    eachScalarSpec(ns) |spec|
+    {
+      qname := spec.qname
+
+      // supplement text is decoded by the spec's own binding
+      str := scalarSupplements[qname]
+      sample := str != null
+                ? spec.binding.decodeScalar(str, false)
+                : defaultSample(ns, spec)
+
+      if (sample != null && ns.specOf(sample, false) === spec)
+        acc[spec] = sample
+      else if (scalarSkips[qname] == null)
+        unusable.add("$qname (default=$sample [${sample?.typeof}])")
+    }
+
+    if (!unusable.isEmpty)
+      fail("scalar specs with no usable sample; add to scalarSupplements or " +
+           "scalarSkips with a reason:\n  " + unusable.join("\n  "))
+
+    // guard against the sweep quietly emptying out
+    verify(acc.size >= 15, "only $acc.size scalar samples found")
+    return acc
+  }
+
+  ** Iterate every non-abstract scalar type in every loaded lib
+  private Void eachScalarSpec(MNamespace ns, |Spec| f)
+  {
+    ns.libs.each |lib|
+    {
+      lib.types.each |spec|
+      {
+        if (!spec.isScalar) return
+        if (spec.meta.has("abstract")) return
+        f(spec)
       }
     }
   }
+
+  ** The spec's declared default, or null if instantiate cannot produce one.
+  ** A spec with no Fantom binding of its own falls back to the generic
+  ** scalar binding, whose values are Scalar wrappers accepting any string, so
+  ** a sample can be synthesized rather than hand written.
+  private Obj? defaultSample(MNamespace ns, Spec spec)
+  {
+    if (spec.binding.type === Scalar#) return Scalar(spec.qname, "sample")
+
+    try
+      return ns.instantiate(spec)
+    catch
+      return null
+  }
+
+  ** Sample text for scalar specs whose declared default is absent or is not
+  ** of the spec's own type.  Instantiator reads the 'val' meta verbatim and
+  ** never decodes it, so a spec declaring no default yields a bare Str.  The
+  ** text here is decoded by the spec's own binding, which keeps this map free
+  ** of pod imports and constructor signatures.
+  private static const Str:Str scalarSupplements := [
+    // Instantiator short circuits isNone before the scalar path
+    "sys::None":              "∅",
+
+    // real bindings whose specs declare no default
+    "sys::Span":              "2024-11-25",
+    "sys::Buf":               "Zm9vYmFy",
+    "sys::Filter":            "a and b",
+    "sys::LibDependVersions": "4.5.x",
+    "sys::TimeZone":          "Chicago",
+    "sys::Unit":              "kW",
+    "sys::UnitQuantity":      "volume",
+    "sys::SpanMode":          "lastMonth",
+    "sys.comp::CompLayout":   "1,2,8",
+    "axon::AxonExpr":         "today()",
+  ]
+
+  ** Scalar specs deliberately outside the sweep, each with its reason
+  private static const Str:Str scalarSkips := [
+    "sys::Enum":     "base of every enum; carries no value of its own",
+    "sys::BuildVar": "build time macro, never a runtime value",
+  ]
+
+  ** Ceiling for testOverBoxing
+  private static const Int maxOverBoxing := 12
 
 //////////////////////////////////////////////////////////////////////////
 // Grids
@@ -770,17 +947,36 @@ class JsonTest : AbstractXetoTest
   }
 
   ** Does the plain encoding of val actually decode back to val in a position
-  ** whose expected spec is 'spec'?  Compares type and string form so that
-  ** NaN, which is never equal to itself, still compares.
-  private Bool plainSurvives(MNamespace ns, Obj val, Spec? spec)
+  ** whose expected spec is 'spec'?
+  private Bool plainSurvives(MNamespace ns, Obj? val, Spec? spec)
   {
     try
-    {
-      x := roundTrip(ns, val, boxNone, spec)
-      return x != null && x.typeof === val.typeof && x.toStr == val.toStr
-    }
+      return sameVal(val, roundTrip(ns, val, boxNone, spec))
     catch
       return false
+  }
+
+  ** Value comparison for the sweeps.
+  private Bool sameVal(Obj? a, Obj? b)
+  {
+    if (a == null || b == null) return a == null && b == null
+    if (a.typeof !== b.typeof) return false
+
+    // NaN is not equal to itself
+    if (a is Float) return ((Float)a).isNaN ? ((Float)b).isNaN : a == b
+
+    // verifyValEq knows Buf by content, Ref by id plus dis, and collections
+    if (a is Buf || a is Ref || a is List || a is Dict || a is Grid)
+    {
+      try
+        { verifyValEq(a, b); return true }
+      catch
+        return false
+    }
+
+    // some scalar types define no value equality, so compare the canonical
+    // string form - which is exactly the text encodeScalar writes
+    return a == b || a.toStr == b.toStr
   }
 
   private Void verifyHaystack(
