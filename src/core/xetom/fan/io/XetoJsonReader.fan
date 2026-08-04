@@ -101,7 +101,7 @@ class XetoJsonReader
     ref := dict.get(XetoUtil.specTag)
     if (ref == null) return null
     spec := specs.resolve(ref, !lenient)
-    if (spec == null || !spec.isScalar) return null
+    if (spec == null || !spec.type.isScalar) return null
     return spec
   }
 
@@ -210,8 +210,9 @@ class XetoJsonReader
     // position it is a Str verbatim
     if (x is Str)
     {
-      // haystack fidelity only decodes against a haystack type
-      if ((spec != null) &&
+      // a non-scalar position supplies no grammar to parse with; haystack
+      // fidelity additionally only decodes against a haystack type
+      if ((spec != null) && spec.type.isScalar &&
           ((fidelity !== XetoFidelity.haystack) || spec.type.isHaystack))
         return decodeScalar(spec, x)
 

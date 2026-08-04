@@ -187,6 +187,106 @@ class JsonTest : AbstractXetoTest
     verifyRoundTrip(ns, grid)
   }
 
+  ** box=none is lossy exactly where the plain form cannot be recovered;
+  ** auto and all recover it.  The default mode is none.
+  Void testBoxModes()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    verifyEq(XetoUtil.optBox(Etc.dict0), JsonBoxMode.none)
+
+    // an untyped dict whose values have no recoverable plain form
+    dict := Etc.dict4(
+      "mark", m,
+      "ref",  Ref("abc"),
+      "num",  n(90),
+      "date", Date.fromStr("2024-11-26"))
+
+    verifyDictEq(roundTrip(ns, dict, boxNone), Etc.dict4(
+      "mark", "✓",
+      "ref",  "abc",
+      "num",  90,
+      "date", "2024-11-26"))
+
+    verifyDictEq(roundTrip(ns, dict, boxAuto), dict)
+    verifyDictEq(roundTrip(ns, dict, boxAll),  dict)
+
+    // a Bool needs no box even under auto, but all boxes it anyway
+    verifyEq(toJson(ns, true, boxAuto), "true")
+    verifyEq(toJson(ns, true, boxAll),
+      Str<|{
+             "val":"true",
+             "spec":"sys::Bool"
+           }|>)
+
+    // the box wire form: val first, then spec, both plain strings
+    verifyEq(toJson(ns, Etc.dict1("a", m), boxAll),
+      Str<|{
+             "a":{
+               "val":"✓",
+               "spec":"sys::Marker"
+             }
+           }|>)
+  }
+
+  ** The 'plainRoundTrips' predicate drives box=auto, so it must never claim a
+  ** plain form survives when it does not.  It is allowed to be conservative
+  ** in the other direction.
+  Void testPlainRoundTrips()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    specs := XetoJsonSpec(ns)
+
+    vals := Obj[
+      true, 123, 72.0f, Float.nan, Float.posInf, Float.negInf,
+      n(90), n(3.4f), n(90, "kW"), Number.nan,
+      "abc", "✓", m, None.val, NA.val,
+      Ref("abc"), `file.txt`,
+      Date.fromStr("2024-11-26"), Time.fromStr("14:30:00"),
+      DateTime.fromStr("2024-11-25T10:24:35-05:00 New_York"),
+      Version.fromStr("4.0.9"), TimeZone.fromStr("Chicago"),
+    ]
+
+    expects := Spec?[
+      null,
+      ns.spec("sys::Bool"),
+      ns.spec("sys::Int"),
+      ns.spec("sys::Float"),
+      ns.spec("sys::Number"),
+      ns.spec("sys::Str"),
+      ns.spec("sys::Marker"),
+      ns.spec("sys::Ref"),
+      ns.spec("sys::Date"),
+      ns.spec("sys::Uri"),
+      ns.spec("sys::Duration"),
+      ns.spec("sys::Dict"),
+    ]
+
+    vals.each |val|
+    {
+      expects.each |expect|
+      {
+        if (!specs.plainRoundTrips(val, expect)) return
+        verifyEq(plainSurvives(ns, val, expect), true,
+          "plainRoundTrips claimed $val [$val.typeof] survives at $expect")
+      }
+    }
+  }
+
+  ** Does the plain encoding of val actually decode back to val in a position
+  ** whose expected spec is 'spec'?  Compares type and string form so that
+  ** NaN, which is never equal to itself, still compares.
+  private Bool plainSurvives(MNamespace ns, Obj val, Spec? spec)
+  {
+    try
+    {
+      x := roundTrip(ns, val, boxNone, spec)
+      return x != null && x.typeof === val.typeof && x.toStr == val.toStr
+    }
+    catch
+      return false
+  }
+
   private Void verifyHaystack(
     MNamespace ns,
     Obj? orig,
@@ -220,16 +320,25 @@ class JsonTest : AbstractXetoTest
       verifyEq(a, b)
   }
 
-  private Str toJson(MNamespace ns, Obj? x)
+  private Str toJson(MNamespace ns, Obj? x, Dict? opts := null, Spec? spec := null)
   {
     buf := Buf()
-    XetoJsonWriter(ns, buf.out, null, Etc.dict1("pretty", m)).writeVal(x)
+    XetoJsonWriter(ns, buf.out, spec, Etc.dictSet(opts, "pretty", m)).writeVal(x)
     str := buf.flip.readAllStr
     //echo("-----------------------------------------")
     //echo(str)
     return str
   }
 
+  ** Write then read back through the same position spec
+  private Obj? roundTrip(MNamespace ns, Obj? x, Dict? opts := null, Spec? spec := null)
+  {
+    XetoJsonReader(ns, toJson(ns, x, opts, spec).in, spec).readVal
+  }
+
   private static const Dict haystackOpts := Etc.dict1("haystack", m)
+  private static const Dict boxNone := Etc.dict1("box", "none")
+  private static const Dict boxAuto := Etc.dict1("box", "auto")
+  private static const Dict boxAll  := Etc.dict1("box", "all")
 }
 

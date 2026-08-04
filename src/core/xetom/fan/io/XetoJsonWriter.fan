@@ -58,7 +58,13 @@ class XetoJsonWriter
     {
       if (first) first = false
       else wc(',').nl
-      indent.quoted(n).wc(':').doVal(x, specs.member(spec, n))
+      indent.quoted(n).wc(':')
+
+      // spec and of are structural refs; they are never boxed
+      if (isStructuralTag(n) && (x is Ref || x is Str))
+        quoted(encodeScalar(x))
+      else
+        doVal(x, specs.member(spec, n))
     }
     indentation--
     nl.indent.wc('}')
@@ -113,7 +119,7 @@ class XetoJsonWriter
     {
       if (first) first = false
       else wc(',').nl
-      indent.writeDict(colToDict(c), null)
+      indent.writeCol(c)
     }
     indentation--
     nl.indent.wc(']')
@@ -140,27 +146,84 @@ class XetoJsonWriter
   }
 
   ** Wire form of a column: 'of' is structural and sits beside 'name' rather
-  ** than inside meta
-  private Dict colToDict(Col c)
+  ** than inside meta.  Written directly because 'name' and 'of' describe the
+  ** envelope and must stay plain strings at every box mode.
+  private This writeCol(Col c)
   {
-    acc := Str:Obj[:]
-    acc.ordered = true
-    acc["name"] = c.name
+    wc('{').nl
+    indentation++
+    indent.quoted("name").wc(':').quoted(c.name)
+
     of := XetoUtil.gridColSpecRef(c)
-    if (of != null) acc[XetoUtil.ofTag] = of
+    if (of != null)
+    {
+      wc(',').nl
+      indent.quoted(XetoUtil.ofTag).wc(':').quoted(of.id)
+    }
+
     meta := Etc.dictRemove(c.meta, XetoUtil.ofTag)
-    if (!meta.isEmpty) acc["meta"] = meta
-    return Etc.dictFromMap(acc)
+    if (!meta.isEmpty)
+    {
+      wc(',').nl
+      indent.quoted("meta").wc(':').writeDict(meta, null)
+    }
+
+    indentation--
+    nl.indent.wc('}')
+    return this
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Scalars
+//////////////////////////////////////////////////////////////////////////
 
   private This writeScalar(Obj? val, Spec? spec)
   {
-    if (val == null)   return w("null")
+    if (val == null) return w("null")
+
+    bspec := boxSpec(val, spec)
+    if (bspec != null) return writeBox(val, bspec)
+
+    return writePlain(val)
+  }
+
+  ** The spec to box this value with, or null to write it plainly.  Under
+  ** 'auto' a value is boxed only when its plain form would not survive the
+  ** reader's ladder in this position.
+  private Spec? boxSpec(Obj val, Spec? expected)
+  {
+    if (box.isNone) return null
+    if (box.isAuto && specs.plainRoundTrips(val, expected)) return null
+    return ns.specOf(val, false)
+  }
+
+  ** Rule 1 wire form.  The 'val' and 'spec' members are structural and are
+  ** written directly, so a box never nests inside a box.
+  private This writeBox(Obj val, Spec spec)
+  {
+    wc('{').nl
+    indentation++
+    indent.quoted(XetoUtil.valTag).wc(':').quoted(encodeScalar(val))
+    wc(',').nl
+    indent.quoted(XetoUtil.specTag).wc(':').quoted(spec.qname)
+    indentation--
+    nl.indent.wc('}')
+    return this
+  }
+
+  private This writePlain(Obj val)
+  {
     if (val is Bool)   return w(val.toStr)
     if (val is Int)    return writeInt(val)
     if (val is Number) return writeNumber(val)
     if (val is Float)  return writeFloat(val)
     return quoted(encodeScalar(val))
+  }
+
+  ** Is the tag name one of the reserved structural tags
+  private Bool isStructuralTag(Str n)
+  {
+    n == XetoUtil.specTag || n == XetoUtil.ofTag
   }
 
   ** Encode a scalar to its Xeto string form via the value's own binding, so
