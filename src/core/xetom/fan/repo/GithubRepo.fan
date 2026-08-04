@@ -128,37 +128,10 @@ const class GithubRepo : MRemoteRepo
     files := fetchLibFiles(name, ref)
     if (files.isEmpty) throw Err("No source files found for $name at $ref in $owner/$repo")
 
-    // zip into a Buf matching OutputZip order: meta.props, build.props, then source
-    buf := Buf()
-    zip := Zip.write(buf.out)
-    try
-    {
-      // meta.props — required for FileLibVersion.loadZipFile
-      writeMetaProps(zip, ver)
-
-      // build.props — must be before xeto files (compiler reads it first)
-      if (!buildProps.isEmpty)
-        zip.writeNext(`/build.props`).writeProps(buildProps).close
-
-      // source files — written raw, BuildVars resolved by compiler at load time
-      files.each |content, fileName|
-      {
-        out := zip.writeNext(fileName.toUri)
-        out.print(content)
-        out.close
-      }
-    }
-    finally zip.close
-    buf.seek(0)
-    return buf.toImmutable
-  }
-
-  ** Write meta.props into zip via XetoUtil choke point.
-  private Void writeMetaProps(Zip zip, LibVersion ver)
-  {
-    meta := Etc.dict1x("doc", ver.doc)
-    props := XetoUtil.buildLibMetaProps(ver.name, ver.version, ver.depends, meta)
-    zip.writeNext(`/meta.props`).writeProps(props).close
+    // zip into a Buf in the standard xetolib format
+    entries := Uri:Obj[:] { ordered = true }
+    files.each |content, fileName| { entries[fileName.toUri] = content }
+    return XetoZipUtil.buildLibZip(ver.name, ver.version, ver.depends, Etc.dict1x("doc", ver.doc), buildProps, entries)
   }
 
   ** Resolve BuildVar tokens in xeto source content using build.props values.

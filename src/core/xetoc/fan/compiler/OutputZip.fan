@@ -24,14 +24,10 @@ internal class OutputZip : Step
     zipFile := compiler.build
 
     zipFile.parent.create
-    zip := Zip.write(zipFile.out)
     try
-    {
-      writeMeta(zip, "/meta.props")
-      writeBuildVars(zip, "/build.props") // must be before xeto files
-      writeToZip(zip, "", srcDir)
-    }
-    finally zip.close
+      XetoZipUtil.writeLibZip(zipFile.out, lib.name, lib.version, depends.list, lib.meta, compiler.usedBuildVars, XetoZipUtil.dirFiles(srcDir))
+    catch (Err e)
+      throw err("Cannot write xetolib zip '$zipFile': $e", FileLoc(srcDir), e)
   }
 
   private Bool needToRun()
@@ -41,49 +37,4 @@ internal class OutputZip : Step
 
     return true
   }
-
-  private Void writeMeta(Zip zip, Str path)
-  {
-    props := XetoUtil.buildLibMetaProps(lib.name, lib.version, depends.list, lib.meta)
-    zip.writeNext(path.toUri).writeProps(props).close
-  }
-
-  private Void writeBuildVars(Zip zip, Str path)
-  {
-    vars := compiler.usedBuildVars
-    if (vars.isEmpty) return
-    zip.writeNext(path.toUri).writeProps(vars).close
-  }
-
-  private Void writeToZip(Zip zip, Str path, File file)
-  {
-    // skip hidden files, etc
-    if (!includeInZip(file)) return
-
-    // if directory recurse
-    if (file.isDir)
-    {
-      dirList(file).each |kid| { writeToZip(zip, path + "/" + kid.name, kid) }
-      return
-    }
-
-    // write file contents
-    try
-    {
-      out := zip.writeNext(path.toUri, file.modified)
-      file.in.pipe(out)
-      out.close
-    }
-    catch (Err e)
-    {
-     throw err("Cannot write file into zip '$path': $e", FileLoc(file), e)
-    }
-  }
-
-  private Bool includeInZip(File file)
-  {
-    if (file.name.startsWith(".")) return false
-    return true
-  }
 }
-

@@ -1,0 +1,107 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Aug 2026  Brian Frank  Creation
+//
+
+using xeto
+using haystack
+
+**
+** XetoZipUtil is the choke point for building xetolib zip files; it is
+** used by the compiler build pipeline, remote repo clients which
+** assemble a zip from fetched source, and repo servers which zip a
+** local source lib on the fly.
+**
+@Js
+const class XetoZipUtil
+{
+  ** Write a xetolib zip to the given output stream and close it.
+  ** Entries are written in the required order: meta.props, build.props
+  ** if non-empty, then the given files keyed by zip path.  File values
+  ** may be Str content or File instances; they are written raw so the
+  ** compiler resolves BuildVar tokens at load time.
+  static Void writeLibZip(OutStream out, Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, Uri:Obj files)
+  {
+    zip := Zip.write(out)
+    try
+    {
+      // meta.props - required for FileLibVersion.loadZipFile
+      zip.writeNext(`/meta.props`).writeProps(buildLibMetaProps(name, version, depends, meta)).close
+
+      // build.props - must be before xeto files (compiler reads it first)
+      if (!buildProps.isEmpty) zip.writeNext(`/build.props`).writeProps(buildProps).close
+
+      // source files; preserve modified times for file content
+      files.each |content, path|
+      {
+        file := content as File
+        entryOut := file == null ? zip.writeNext(path) : zip.writeNext(path, file.modified)
+        if (file != null) file.in.pipe(entryOut)
+        else entryOut.print(content)
+        entryOut.close
+      }
+    }
+    finally zip.close
+  }
+
+  ** Build a xetolib zip into an in-memory buf; see `writeLibZip`
+  static Buf buildLibZip(Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, Uri:Obj files)
+  {
+    buf := Buf()
+    writeLibZip(buf.out, name, version, depends, meta, buildProps, files)
+    return buf.toImmutable
+  }
+
+  ** Build a xetolib zip for a local source lib.  The src directory
+  ** files are zipped raw along with the adjacent "build.props" if
+  ** present so the compiler resolves BuildVar tokens at load time.
+  static Buf srcLibZip(LibVersion v)
+  {
+    dir := v.file
+    propsFile := dir.parent + `build.props`
+    buildProps := propsFile.exists ? propsFile.readProps : Str:Str[:]
+
+    meta := Str:Obj[:]
+    meta.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
+    if (v.isHxSysOnly) meta["hxSysOnly"] = Marker.val
+    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), buildProps, dirFiles(dir))
+  }
+
+  ** Map a source directory to zip path entries recursively, skipping
+  ** hidden files and sorting by name for consistent zip ordering
+  static Uri:Obj dirFiles(File dir)
+  {
+    acc := Uri:Obj[:] { ordered = true }
+    addDir(acc, "", dir)
+    return acc
+  }
+
+  private static Void addDir(Uri:Obj acc, Str path, File file)
+  {
+    if (file.name.startsWith(".")) return
+    if (file.isDir)
+    {
+      kids := file.list.sort |a, b| { a.name <=> b.name }
+      kids.each |kid| { addDir(acc, path + "/" + kid.name, kid) }
+      return
+    }
+    acc[path.toUri] = file
+  }
+
+  ** Choke point to generate a xetolib meta.props contents
+  static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
+  {
+    props := Str:Str[:]
+    props.ordered = true
+    props["name"]    = name
+    props["version"] = version.toStr
+    props["depends"] = depends.join(";")
+    props["doc"]     = meta["doc"] as Str ?: ""
+    props.addNotNull("hxSysOnly", meta.has("hxSysOnly") ? "true" : null)
+    return props
+  }
+}
+
