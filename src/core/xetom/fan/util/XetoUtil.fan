@@ -598,6 +598,18 @@ const class XetoUtil
     }
   }
 
+  ** Choke point to map grid to its spec ref
+  static Ref gridSpecRef(Grid grid)
+  {
+    grid.meta["spec"] as Ref ?: Ref("sys::Grid")
+  }
+
+  ** Choke point to map grid column to its spec ref
+  static Ref? gridColSpecRef(Col col)
+  {
+    col.meta["of"] as Ref
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Inheritance
 //////////////////////////////////////////////////////////////////////////
