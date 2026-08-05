@@ -62,10 +62,7 @@ const mixin FolioHis : FolioMgr
   **
   FolioFuture write(Ref id, HisItem[] items, Dict? opts := null)
   {
-    rec := db.checkWrite.readRecById(id)
-    cx := folioCx
-    if (cx != null && !cx.canWrite(FolioWrite.probe(rec.dict)))
-      throw PermissionErr("Cannot write: ${id.toZinc}")
+    rec := checkCanWrite(db.readRecById(id))
     return doWrite(rec, items, opts)
   }
 
