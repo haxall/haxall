@@ -70,26 +70,8 @@ const class XetoZipUtil
     return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), buildProps, dirFiles(dir))
   }
 
-  ** Map a source directory to zip path entries recursively, skipping
-  ** hidden files and sorting by name for consistent zip ordering
-  static Uri:Obj dirFiles(File dir)
-  {
-    acc := Uri:Obj[:] { ordered = true }
-    addDir(acc, "", dir)
-    return acc
-  }
-
-  private static Void addDir(Uri:Obj acc, Str path, File file)
-  {
-    if (file.name.startsWith(".")) return
-    if (file.isDir)
-    {
-      kids := file.list.sort |a, b| { a.name <=> b.name }
-      kids.each |kid| { addDir(acc, path + "/" + kid.name, kid) }
-      return
-    }
-    acc[path.toUri] = file
-  }
+  ** Map a source directory to zip path entries; see `LibSrcFiles`
+  static Uri:File dirFiles(File dir) { LibSrcFiles.makeDir(dir).map }
 
   ** Choke point to format digest of xetolib zip contents as "sha256:"
   ** followed by the base64uri encoding of the SHA-256 hash

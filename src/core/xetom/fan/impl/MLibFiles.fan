@@ -18,6 +18,9 @@ abstract const class MLibFiles : LibFiles
 {
   override Bool isSupported() { true }
 
+  ** Resource files are all the lib files except the ".xeto" sources.
+  ** Source dirs exclude hidden files in `LibSrcFiles`, but zips may
+  ** contain entries built by other tools so we check here too.
   static Bool include(File f)
   {
     if (f.isDir) return false
@@ -66,33 +69,18 @@ const class EmptyLibFiles : MLibFiles
 @Js
 const class DirLibFiles : MLibFiles
 {
-  new make(File dir) { this.dir = dir }
+  new make(LibSrcFiles src) { this.src = src }
 
-  const File dir
+  const LibSrcFiles src
 
-  override once Uri[] list()
-  {
-    map.keys.sort.toImmutable
-  }
+  override Uri[] list() { src.resourceUris }
 
   override File? get(Uri uri, Bool checked := true)
   {
-    f := map.get(uri)
-    if (f != null) return f
+    f := src.map.get(uri)
+    if (f != null && include(f)) return f
     if (checked) throw UnresolvedErr(uri.toStr)
     return null
-  }
-
-  private once Uri:File map()
-  {
-    acc := Uri:File[:]
-    dir.walk |f|
-    {
-      if (!include(f)) return
-      rel := f.uri.toStr[dir.toStr.size-1..-1].toUri
-      acc.add(rel, f)
-    }
-    return acc.toImmutable
   }
 
 }

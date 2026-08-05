@@ -139,6 +139,7 @@ internal class Parse : Step
         zip.readEach |f|
         {
           if (f.isDir) return
+          f.uri.path.each |n| { checkFileName(n, FileLoc(input)) }
           if (f.ext == "xeto") parseFile(f, lib, buildVars)
           else if (f.name == "build.props") buildVars = f.readProps
           else if (f.name != "meta.props") list.add(f.uri)
@@ -146,16 +147,16 @@ internal class Parse : Step
         }
       }
       finally zip.close
+      bombIfErr
       files = ZipLibFiles(input, list)
     }
     else if (input.isDir)
     {
-      dirList(input).each |sub|
-      {
-        if (sub.ext == "xeto") parseFile(sub, lib, compiler.srcBuildVars)
-        if (sub.ext == "md") hasMarkdown = true
-      }
-      files = DirLibFiles(input)
+      src := LibSrcFiles.makeDir(input)
+      checkFileNames(src)
+      src.eachSrc |f| { parseFile(f, lib, compiler.srcBuildVars) }
+      hasMarkdown = src.hasMarkdown
+      files = DirLibFiles(src)
     }
     else
     {
@@ -165,6 +166,36 @@ internal class Parse : Step
 
     lib.ast.files = files
     if (hasMarkdown) lib.ast.flags = lib.flags.or(MLibFlags.hasMarkdown)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// File Name Checks
+//////////////////////////////////////////////////////////////////////////
+
+  ** Check every file and directory name in the lib source dir; we log
+  ** each bad name so all of them are reported in a single compile
+  private Void checkFileNames(LibSrcFiles src)
+  {
+    // dirs are reported once even though many files may share them
+    seen := Str:Str[:]
+    src.each |f, uri|
+    {
+      uri.path.each |name|
+      {
+        if (seen[name] != null) return
+        seen[name] = name
+        checkFileName(name, FileLoc(f))
+      }
+    }
+    bombIfErr
+  }
+
+  ** Check that the given file or dir name maps directly to a URI
+  ** path section without any escaping
+  private Void checkFileName(Str name, FileLoc loc)
+  {
+    msg := XetoUtil.fileNameErr(name)
+    if (msg != null) err("Invalid file name '$name': $msg", loc)
   }
 
   private Void parseFile(File input, ADoc doc, Str:Str buildVars)

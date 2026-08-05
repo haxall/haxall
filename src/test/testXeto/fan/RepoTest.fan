@@ -482,6 +482,104 @@ class RepoTest : AbstractXetoTest
     toks := s.split
     return LibDepend(toks[0], LibDependVersions(toks[1]))
   }
+
+//////////////////////////////////////////////////////////////////////////
+// File Names
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFileNames()
+  {
+    // valid names compile cleanly
+    verifyFileNames(["Readme.md", "res/a.txt", "res/sub-dir/b_2.txt"], Str[,])
+
+    // invalid resource file name
+    verifyFileNames(["a b.txt"], ["Invalid file name 'a b.txt': File name cannot contain spaces"])
+
+    // invalid xeto source file name
+    verifyFileNames(["foo~bar.xeto"], ["Invalid file name 'foo~bar.xeto': File name cannot contain reserved char '~'"])
+
+    // invalid nested resource file name
+    verifyFileNames(["res/a%b.txt"], ["Invalid file name 'a%b.txt': Invalid file name char '%' 0x25"])
+
+    // invalid directory name
+    verifyFileNames(["sub~dir/a.txt"], ["Invalid file name 'sub~dir': File name cannot contain reserved char '~'"])
+
+    // hidden files are skipped since they are excluded from the lib
+    verifyFileNames([".hidden~file"], Str[,])
+
+    // every bad name is reported, not just the first
+    verifyFileNames(["a b.txt", "c d.txt"], [
+      "Invalid file name 'a b.txt': File name cannot contain spaces",
+      "Invalid file name 'c d.txt': File name cannot contain spaces",
+      ])
+
+    // a bad dir is reported once even though it contains multiple files
+    verifyFileNames(["sub~dir/a.txt", "sub~dir/b.txt"],
+      ["Invalid file name 'sub~dir': File name cannot contain reserved char '~'"])
+  }
+
+  Void testNestedSrcFiles()
+  {
+    // nested ".xeto" source files are parsed at any depth
+    dir := tempDir + `nestedsrc/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } } >
+         |>).close
+    (dir + `specs/nested.xeto`).out.print("Foo: Dict\n").close
+    (dir + `res/a.txt`).out.print("alpha\n").close
+
+    lib := XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.nestedsrc"
+      c.input   = dir
+    }.compileLib
+
+    // spec from the nested source file resolved
+    verifyEq(lib.spec("Foo").qname, "test.nestedsrc::Foo")
+
+    // nested source is not exposed as a resource, but the resource is
+    verifyEq(lib.files.list, [`/res/a.txt`])
+  }
+
+  ** Compile a temp lib containing the given files and verify the exact
+  ** list of error messages reported
+  Void verifyFileNames(Str[] files, Str[] expect)
+  {
+    // write lib source dir from scratch
+    dir := tempDir + `filenames/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } } >
+         |>).close
+    // build up path section by section so chars like '#' are not
+    // parsed as uri fragments (we want them literal in the file name)
+    files.each |path|
+    {
+      uri := dir.uri
+      sections := path.split('/')
+      sections.each |sec, i| { uri = uri.plusName(sec, i < sections.size-1) }
+      File(uri).out.print("// test\n").close
+    }
+
+    ns := createNamespace(["sys"])
+    c := XetoCompiler.init |c|
+    {
+      c.ns      = ns
+      c.libName = "test.filenames"
+      c.input   = dir
+      c.log     = XetoCallbackLog.make(|XetoLogRec rec| {})
+    }
+
+    // compileLib throws on the first err via bombIfErr, but every err
+    // reported by the failing step is accumulated in compiler.errs
+    try
+      c.compileLib
+    catch (XetoCompilerErr e) {}
+
+    verifyEq(c.errs.map |e->Str| { e.msg }, expect)
+  }
 }
 
 **************************************************************************
