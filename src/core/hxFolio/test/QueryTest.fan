@@ -293,23 +293,33 @@ class QueryTest : WhiteboxTest
 
   Void verifyReadSink(FolioContext? cx, Int limit, Dict[] x, Dict[] expected)
   {
+    // readers resolve the current context at construction
+    if (cx != null) Actor.locals[ActorContext.actorLocalsKey] = cx
+    try
+      doVerifyReadSink(limit, x, expected)
+    finally
+      Actor.locals.remove(ActorContext.actorLocalsKey)
+  }
+
+  Void doVerifyReadSink(Int limit, Dict[] x, Dict[] expected)
+  {
     opts := Etc.makeDict(["limit":n(limit)])
 
     // collect
     cAcc := Dict[,]
-    collect := FolioReader(cx, opts) |rec->Obj?| { cAcc.add(rec); return null }
+    collect := FolioEachReader(Filter("id"), opts) |rec->Obj?| { cAcc.add(rec); return null }
     x.each |r, i| { verifyEq(collect.accept(r) == null, cAcc.size < limit) }
     verifyDictsEq(cAcc, expected)
 
     // count
-    count := FolioReader(cx, opts) |rec->Obj?| { null }
+    count := FolioCountReader(Filter("id"), opts)
     x.each |r, i| { verifyEq(count.accept(r) == null, count.count < limit) }
     verifyEq(count.count, expected.size)
 
     // each while using early break instead of limit
     eAcc := Dict[,]
     broke := false
-    e := FolioReader(cx, null) |rec->Obj?|
+    e := FolioEachReader(Filter("id"), null) |rec->Obj?|
     {
       if (eAcc.size < limit) eAcc.add(rec)
       broke = eAcc.size >= limit

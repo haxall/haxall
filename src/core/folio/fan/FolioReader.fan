@@ -11,121 +11,70 @@ using concurrent
 using xeto
 using haystack
 
+**************************************************************************
+** FolioReader
+**************************************************************************
+
 **
-** FolioReader manages one read operation against the database.  It owns
-** all read option handling, trash exclusion, permission checking, error
-** priority, and result materialization.
+** FolioReader is the base class for one read operation against the
+** database.  Subclasses determine how the results are produced and
+** checked; the base class defines the API to return the results in
+** different shapes.  A reader is single use; it carries the state of
+** one read operation.
 **
-** For filter reads the subclass streams every raw rec matching its
-** filter into `accept` and lets the reader decide what survives;
-** `accept` and `prepCapacity` are the only members a subclass may use.
-**
-** For by-id reads the base class feeds the raw recs to `checkRecs`.
-**
-** A reader is single use; it carries the state of one read operation.
-**
-** A reader with a limit of zero must never be streamed into - `accept`
-** would yield one rec before it could stop.  Folio short circuits that
-** case so it never reaches a store, which keeps the check out of the
-** per-rec path.
-**
-@NoDoc final class FolioReader
+@NoDoc abstract class FolioReader
 {
+  ** Current context for permission checking resolved at construction
+  protected FolioContext? cx := FolioContext.curFolio(false)
 
-//////////////////////////////////////////////////////////////////////////
-// Construction
-//////////////////////////////////////////////////////////////////////////
+  ** Offer one raw rec to the reader; only filter readers accept streams.
+  ** Return non-null if the store should stop streaming, in which case
+  ** the store must return that value from its eachWhile hook.
+  abstract Obj? accept(Dict rec)
 
-  ** Reader which routes accepted recs to the given callback
-  new make(FolioContext? cx, Dict? opts, |Dict->Obj?| f)
+  ** Hint that addingSize more recs are about to be offered so the
+  ** accumulator can be pre-sized; no-op except FolioAccReader
+  virtual Void prepCapacity(Int addingSize) {}
+
+  ** Number of recs which passed every check
+  virtual Int count() { throw UnsupportedErr("Count not available") }
+
+  ** Get first result as rec wrapper
+  virtual FolioRec? rec(Bool checked := true) { throw UnsupportedErr("FolioRecs not available") }
+
+  ** Get results as rec wrappers
+  virtual FolioRec?[] recs(Bool checked := true) { throw UnsupportedErr("FolioRecs not available") }
+
+  ** Get first result as a Dict
+  virtual Dict? dict(Bool checked := true) { throw UnsupportedErr("Dicts not available") }
+
+  ** Get results as dicts
+  virtual Dict?[] dicts(Bool checked := true) { throw UnsupportedErr("Dicts not available") }
+
+  ** Get results as grid with support for standard read opts
+  virtual Grid grid(Dict? opts, Bool checked)
   {
-    o := opts ?: Etc.dict0
-    this.cx     = cx
-    this.limit  = (o.get("limit") as Number)?.toInt ?: Int.maxVal
-    this.search = Filter.searchFromOpts(o)
-    this.sort   = o.has("sort")
-    this.f      = f
+    Etc.makeDictsGrid(opts?.get("gridMeta"), dicts(checked))
   }
+}
 
-  ** Reader which accumulates accepted recs; errMsgObj is used for
-  ** the error message when a checked result is empty
-  static FolioReader makeAccumulate(FolioContext? cx, Dict? opts, Obj errMsgObj)
-  {
-    acc := Dict[,]
-    r := FolioReader(cx, opts) |Dict rec->Obj?| { acc.add(rec); return null }
-    r.list = acc
-    r.errMsgObj = errMsgObj
-    return r
-  }
+**************************************************************************
+** FolioIdsReader
+**************************************************************************
 
-  ** Reader for by-id reads; feed the raw recs via `checkRecs`
-  new makeByIds(Ref[] ids, Bool includeTrash, FolioContext? cx)
-  {
-    this.ids          = ids
-    this.includeTrash = includeTrash
-    this.limit        = Int.maxVal
-    this.f            = noopFunc
-    this.cx           = cx
-  }
-
-  ** Reader which only counts recs; backs the default doReadCount.  Applies
-  ** no options and no permission checks - the base class only counts this
-  ** way when neither is required.
-  new makeCount()
-  {
-    this.limit = Int.maxVal
-    this.f     = noopFunc
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Scan
-//////////////////////////////////////////////////////////////////////////
-
-  ** Hint that addingSize more recs are about to be offered so that
-  ** the accumulator list can be pre-sized
-  Void prepCapacity(Int addingSize)
-  {
-    list := this.list
-    if (list == null) return
-    total := list.size + addingSize
-    if (total > limit) total = limit
-    list.capacity = total
-  }
-
-  ** Number of recs which passed every check.
-  Int count { private set }
-
-  ** Non-null result returned by the callback; see `count` on visibility
-  Obj? result { private set }
-
-  ** Offer one raw rec to the reader. Return non-null if the store should
-  ** stop streaming, in which case the store must return that value from
-  ** its eachWhile hook.
-  Obj? accept(Dict rec)
-  {
-    // stay stopped even if the store ignored a previous stop
-    if (stop != null) return stop
-
-    // skip recs we cannot read or which fail the search filter
-    if (cx != null && !cx.canRead(rec)) return null
-    if (search != null && !search.matches(rec, HaystackContext.nil)) return null
-
-    // rec passed every check, so it counts against the limit
-    ++count
-    r := f(rec)
-    if (r != null) { result = r; stop = r; return r }
-    if (count >= limit) { stop = breakVal; return breakVal }
-    return null
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// By Id
-//////////////////////////////////////////////////////////////////////////
-
+**
+** FolioIdsReader checks and packages raw recs read by a list of ids.
+** The constructor applies trash exclusion, permission checks, and error
+** priority; the results match the ids by index with null for recs not
+** found or not readable.
+**
+@NoDoc final class FolioIdsReader : FolioReader
+{
   ** Apply trash exclusion and permission checks to one raw rec read by
   ** id.  This is the fast path for readRecById which allocates no reader.
-  static FolioRec? check(Ref id, FolioRec? rec, Bool checked, FolioContext? cx)
+  static FolioRec? checkRec(Ref id, FolioRec? rec, Bool checked)
   {
+    cx := FolioContext.curFolio(false)
     // do not return trash recs
     if (rec != null && rec.isTrash) rec = null
     if (rec == null)
@@ -141,9 +90,8 @@ using haystack
     return rec
   }
 
-  ** Apply trash exclusion, permission checks, and error priority to the
-  ** raw recs read for `makeByIds`; the recs match the ids by index
-  This checkRecs(FolioRec?[] recs)
+  ** Check the raw recs read for the given ids; recs match ids by index
+  new make(Ref[] ids, FolioRec?[] recs, Bool includeTrash)
   {
     denied := false
     ids.each |id, i|
@@ -166,96 +114,194 @@ using haystack
         if (!denied) { denied = true; err = PermissionErr("Cannot read: ${id.toZinc}") }
       }
     }
-    this.byIdRecs = recs
-    return this
+    this.checkedRecs = recs
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Results
-//////////////////////////////////////////////////////////////////////////
+  override Obj? accept(Dict rec) { throw UnsupportedErr("Not a filter reader") }
 
-  ** Get by-id results as rec wrappers; matches the ids by index with
-  ** null for recs not found or not readable
-  FolioRec?[] recs(Bool checked := true)
+  override FolioRec? rec(Bool checked := true)
   {
-    if (checked && err != null) throw err
-    return byIdRecs
-  }
-
-  ** Get first by-id result as rec wrapper
-  FolioRec? rec(Bool checked := true)
-  {
-    rec := byIdRecs.getSafe(0)
+    rec := checkedRecs.getSafe(0)
     if (rec != null) return rec
-    if (checked) throw toErr
+    if (checked) throw err ?: UnknownRecErr("")
     return null
   }
 
-  ** Get results as dicts; by-id results match the ids by index with
-  ** null for recs not found or not readable
-  Dict?[] dicts(Bool checked := true)
+  override FolioRec?[] recs(Bool checked := true)
   {
     if (checked && err != null) throw err
-    recs := byIdRecs
-    if (recs != null) return recs.map |rec->Dict?| { rec?.dict }
-    return scanResults
+    return checkedRecs
   }
 
-  ** Get the first result as a Dict.  If there are no results then
-  ** raise an exception or return null based on checked flag.
-  Dict? dict(Bool checked := true)
+  override Dict? dict(Bool checked := true)
   {
-    dict := dicts(false).getSafe(0)
+    dict := checkedRecs.getSafe(0)?.dict
     if (dict != null) return dict
-    if (checked) throw toErr
+    if (checked) throw err ?: UnknownRecErr("")
     return null
   }
 
-  ** Get results as grid with support for standard read opts
-  Grid grid(Dict? opts, Bool checked)
+  override Dict?[] dicts(Bool checked := true)
   {
-    Etc.makeDictsGrid(opts?.get("gridMeta"), dicts(checked))
+    if (checked && err != null) throw err
+    return checkedRecs.map |rec->Dict?| { rec?.dict }
   }
 
-  ** Error to raise for a checked read which found nothing
-  private Err toErr() { err ?: UnknownRecErr(errMsgObj?.toStr ?: "") }
+  private FolioRec?[] checkedRecs
+  private Err? err
+}
 
-  ** Accumulated scan results with the sort option applied
-  private Dict[] scanResults()
+**************************************************************************
+** FolioFilterReader
+**************************************************************************
+
+**
+** FolioFilterReader is the base class for filter based reads.  It owns
+** the per-rec checks shared by every filter read: permissions, search
+** option, and limit option.  The store streams every raw rec matching
+** the filter into `accept` and the `hit` hook determines what the
+** subclass does with recs which pass every check.
+**
+** A reader with a limit of zero must never be streamed into - `accept`
+** would yield one rec before it could stop.  Folio short circuits that
+** case so it never reaches a store, which keeps the check out of the
+** per-rec path.
+**
+@NoDoc abstract class FolioFilterReader : FolioReader
+{
+  new make(Filter filter, Dict? opts)
   {
-    list := this.list ?: throw Err("Reader is not accumulate mode")
-    if (sort && !sorted) { list = Etc.sortDictsByDis(list); this.list = list; sorted = true }
-    return list
+    o := opts ?: Etc.dict0
+    this.filter = filter
+    this.limit  = (o.get("limit") as Number)?.toInt ?: Int.maxVal
+    this.search = Filter.searchFromOpts(o)
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Internal API
-//////////////////////////////////////////////////////////////////////////
+  ** Filter for this read operation
+  const Filter filter
+
+  ** Max number of recs to read or Int.maxVal for unlimited
+  const Int limit
+
+  ** Search option
+  const Filter? search
+
+  ** Number of recs which passed every check
+  override Int count { private set }
+
+  ** Offer one raw rec to the reader. Return non-null if the store should
+  ** stop streaming, in which case the store must return that value from
+  ** its eachWhile hook.
+  override Obj? accept(Dict rec)
+  {
+    // stay stopped even if the store ignored a previous stop
+    if (stop != null) return stop
+
+    // skip recs we cannot read or which fail the search filter
+    if (cx != null && !cx.canRead(rec)) return null
+    if (search != null && !search.matches(rec, HaystackContext.nil)) return null
+
+    // rec passed every check, so it counts against the limit
+    ++count
+    r := hit(rec)
+    if (r != null) { stop = r; return r }
+    if (count >= limit) { stop = breakVal; return breakVal }
+    return null
+  }
+
+  ** Hook to process a rec which passed checks; return non-null to break
+  protected abstract Obj? hit(Dict rec)
+
+  private static const Str breakVal := "break"
+  private Obj? stop
+}
+
+**************************************************************************
+** FolioCountReader
+**************************************************************************
+
+**
+** FolioCountReader counts the recs matching a filter
+**
+@NoDoc final class FolioCountReader : FolioFilterReader
+{
+  new make(Filter filter, Dict? opts) : super(filter, opts) {}
 
   ** Return if the store can count without any per-rec inspection
   internal Bool canFastCount() { cx == null && search == null && limit == Int.maxVal }
 
-  ** Max number of recs to read or Int.maxVal for unlimited
-  internal Int limit { private set }
+  protected override Obj? hit(Dict rec) { null }
+}
 
-//////////////////////////////////////////////////////////////////////////
-// Fields
-//////////////////////////////////////////////////////////////////////////
+**************************************************************************
+** FolioAccReader
+**************************************************************************
 
-  private static const Str breakVal := "break"
-  private static const |Dict->Obj?| noopFunc := |Dict rec->Obj?| { null }
+**
+** FolioAccReader accumulates the recs matching a filter
+**
+@NoDoc final class FolioAccReader : FolioFilterReader
+{
+  new make(Filter filter, Dict? opts) : super(filter, opts)
+  {
+    this.sort = opts != null && opts.has("sort")
+  }
 
-  private FolioContext? cx
-  private Filter? search
-  private Bool sort
-  private Bool sorted
+  override Void prepCapacity(Int addingSize)
+  {
+    total := acc.size + addingSize
+    if (total > limit) total = limit
+    acc.capacity = total
+  }
+
+  protected override Obj? hit(Dict rec)
+  {
+    acc.add(rec)
+    return null
+  }
+
+  override Dict?[] dicts(Bool checked := true)
+  {
+    if (sort) return Etc.sortDictsByDis(acc)
+    return acc
+  }
+
+  override Dict? dict(Bool checked := true)
+  {
+    dict := acc.getSafe(0)
+    if (dict != null) return dict
+    if (checked) throw UnknownRecErr(filter.toStr)
+    return null
+  }
+
+  private const Bool sort
+  private Dict[] acc := [,]
+}
+
+**************************************************************************
+** FolioEachReader
+**************************************************************************
+
+**
+** FolioEachReader streams the recs matching a filter to a callback
+**
+@NoDoc final class FolioEachReader : FolioFilterReader
+{
+  new make(Filter filter, Dict? opts, |Dict->Obj?| f) : super(filter, opts)
+  {
+    this.f = f
+  }
+
+  ** Non-null result returned by the callback which stopped the stream
+  Obj? result { private set }
+
+  protected override Obj? hit(Dict rec)
+  {
+    r := f(rec)
+    if (r != null) result = r
+    return r
+  }
+
   private |Dict->Obj?| f
-  private Dict[]? list
-  private Obj? stop
-  private Obj? errMsgObj
-  private Ref[]? ids
-  private Bool includeTrash
-  private FolioRec?[]? byIdRecs
-  private Err? err
 }
 

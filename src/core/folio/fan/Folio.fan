@@ -135,7 +135,7 @@ abstract const class Folio
   @NoDoc protected abstract FolioFuture doCloseAsync()
 
 //////////////////////////////////////////////////////////////////////////
-// Reads
+// Read APIs
 //////////////////////////////////////////////////////////////////////////
 
   ** Read record by id.  If checked is true, throw [haystack::UnknownRecErr]
@@ -153,7 +153,7 @@ abstract const class Folio
   @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
     // NOTE: do not route through readRecsById to keep this path fast!
-    FolioReader.check(id, checkRead.doReadRecById(id), checked, FolioContext.curFolio(false))
+    FolioIdsReader.checkRec(id, checkRead.doReadRecById(id), checked)
   }
 
   ** Read a list of records by id.  The resulting list matches the list of
@@ -197,11 +197,9 @@ abstract const class Folio
   }
 
   ** Read raw recs by id with all security checks and error priority applied
-  private FolioReader readerByIds(Ref[] ids, Bool includeTrash)
+  private FolioIdsReader readerByIds(Ref[] ids, Bool includeTrash)
   {
-    checkRead
-    return FolioReader.makeByIds(ids, includeTrash, FolioContext.curFolio(false))
-      .checkRecs(doReadRecsById(ids))
+    FolioIdsReader(ids, checkRead.doReadRecsById(ids), includeTrash)
   }
 
   ** Return the number of records which match given [filter](ph.doc::Filters).
@@ -209,13 +207,13 @@ abstract const class Folio
   Int readCount(Filter filter, Dict? opts := null)
   {
     checkRead
-    reader := FolioReader(FolioContext.curFolio(false), opts) |rec->Obj?| { return null }
+    reader := FolioCountReader(filter, opts)
     if (reader.limit <= 0) return 0
 
     // check if we can delegate to subtype for optimized count
     if (reader.canFastCount) return doReadCount(filter)
 
-    stream(filter, false, reader)
+    doReadAllEachWhile(filter, reader)
     return reader.count
   }
 
@@ -228,6 +226,9 @@ abstract const class Folio
   {
     scan(filter, optsLimit1, false).dict(checked)
   }
+
+  ** Options constant for {limit:1}
+  private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
 
   ** Match all the records against a [filter](ph.doc::Filters) and return
   ** as list.  This method uses same options and security semantics
@@ -272,32 +273,27 @@ abstract const class Folio
   @NoDoc Obj? readAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
   {
     checkRead
-    reader := FolioReader(FolioContext.curFolio(false), opts, f)
+    reader := FolioEachReader(filter, opts, f)
     if (reader.limit <= 0) return null
-    stream(filter, false, reader)
+    doReadAllEachWhile(filter, reader)
     return reader.result
   }
 
-  ** Stream recs matching filter to the reader from the live or trash domain.
-  ** The value returned by the hook is _not_ the result of the read - it may
-  ** be the reader's internal break sentinel - so callers use `FolioReader.result`.
-  private Void stream(Filter filter, Bool trash, FolioReader reader)
-  {
-    if (trash) doReadTrashEachWhile(filter, reader)
-    else doReadAllEachWhile(filter, reader)
-  }
-
-  ** Read all recs matching filter with all options and security applied
-  private FolioReader scan(Filter filter, Dict? opts, Bool trash)
+  ** Read all recs matching filter with all options and security applied.
+  ** The value returned by the eachWhile hooks is _not_ the result of the
+  ** read - it may be the reader's internal break sentinel - so callers
+  ** use the reader for results.
+  private FolioAccReader scan(Filter filter, Dict? opts, Bool trash)
   {
     checkRead
-    reader := FolioReader.makeAccumulate(FolioContext.curFolio(false), opts, filter)
-    if (reader.limit > 0) stream(filter, trash, reader)
+    reader := FolioAccReader(filter, opts)
+    if (reader.limit > 0)
+    {
+      if (trash) doReadTrashEachWhile(filter, reader)
+      else doReadAllEachWhile(filter, reader)
+    }
     return reader
   }
-
-  ** Options constant for {limit:1}
-  private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
 
   ** Read only persistent tags for given rec id.  If checked is true,
   ** throw [UnknownRecErr] if not found, or throw [PermissionErr] if missing
@@ -324,6 +320,10 @@ abstract const class Folio
     if (rec != null) return rec.id
     return id
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Read Implementations
+//////////////////////////////////////////////////////////////////////////
 
   ** Read a live or trashed rec by id.
   ** Must resolve relative refs against `idPrefix`.
@@ -357,7 +357,7 @@ abstract const class Folio
   ** - Never check permissions
   @NoDoc protected virtual Int doReadCount(Filter filter)
   {
-    reader := FolioReader.makeCount
+    reader := FolioCountReader(filter, null)
     doReadAllEachWhile(filter, reader)
     return reader.count
   }

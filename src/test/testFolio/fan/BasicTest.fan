@@ -300,23 +300,11 @@ class BasicTest : AbstractFolioTest
     verifyErr(UnknownRecErr#) { r.dict }
 
     // by-id: trash included
-    r = byIds([Ref("t")], FolioRec?[DictFolioRec(t)], null, true)
+    r = byIds([Ref("t")], FolioRec?[DictFolioRec(t)], true)
     verifyDictEq(r.dict, t)
 
-    // by-id: read denied
-    cx := TestDenyReadContext()
-    r = byIds([Ref("bad")], FolioRec?[DictFolioRec(bad)], cx)
-    verifyEq(r.rec(false), null)
-    verifyErr(PermissionErr#) { r.rec }
-    verifyErr(PermissionErr#) { r.dicts }
-
-    // by-id: permission err wins over missing rec
-    r = byIds([Ref("x"), Ref("bad")], FolioRec?[null, DictFolioRec(bad)], cx)
-    verifyErr(PermissionErr#) { r.recs }
-    verifyEq(r.dicts(false), Dict?[null, null])
-
     // scan: accumulate
-    r = scanReader(null, null)
+    r = scanReader(null)
     verifyEq(r.accept(b), null)
     verifyEq(r.accept(c), null)
     verifyEq(r.count, 2)
@@ -327,7 +315,7 @@ class BasicTest : AbstractFolioTest
     verifyEq(r.grid(null, false).size, 2)
 
     // scan: empty result
-    r = scanReader(null, null)
+    r = scanReader(null)
     verifyEq(r.count, 0)
     verifyEq(r.dict(false), null)
     verifyErr(UnknownRecErr#) { r.dict }
@@ -335,24 +323,60 @@ class BasicTest : AbstractFolioTest
     verifyEq(r.grid(null, true).size, 0)
 
     // scan: limit stops the stream
-    r = scanReader(null, Etc.dict1("limit", n(1)))
+    r = scanReader(Etc.dict1("limit", n(1)))
     verifyNotNull(r.accept(b))
     verifyEq(r.count, 1)
     verifyEq(r.dicts.size, 1)
 
     // scan: sort by dis
-    r = scanReader(null, Etc.dict1("sort", m))
+    r = scanReader(Etc.dict1("sort", m))
     r.accept(c)
     r.accept(b)
     verifyEq(r.dicts.first->dis, "B")
     verifyEq(r.dicts.last->dis, "C")
 
-    // scan: denied recs silently skipped
-    r = scanReader(cx, null)
+    // readers resolve current FolioContext at construction
+    Actor.locals[ActorContext.actorLocalsKey] = TestDenyReadContext()
+    try
+    {
+      // by-id: read denied
+      r = byIds([Ref("bad")], FolioRec?[DictFolioRec(bad)])
+      verifyEq(r.rec(false), null)
+      verifyErr(PermissionErr#) { r.rec }
+      verifyErr(PermissionErr#) { r.dicts }
+
+      // by-id: permission err wins over missing rec
+      r = byIds([Ref("x"), Ref("bad")], FolioRec?[null, DictFolioRec(bad)])
+      verifyErr(PermissionErr#) { r.recs }
+      verifyEq(r.dicts(false), Dict?[null, null])
+
+      // scan: denied recs silently skipped
+      r = scanReader(null)
+      verifyEq(r.accept(a), null)
+      verifyEq(r.accept(bad), null)
+      verifyEq(r.count, 1)
+      verifyDictsEq(r.dicts, [a])
+    }
+    finally Actor.locals.remove(ActorContext.actorLocalsKey)
+
+    // ids reader does not accept streams
+    verifyErr(UnsupportedErr#) { byIds([Ref("a")], FolioRec?[DictFolioRec(a)]).accept(a) }
+
+    // count reader
+    r = FolioCountReader(Filter("test"), null)
     verifyEq(r.accept(a), null)
-    verifyEq(r.accept(bad), null)
-    verifyEq(r.count, 1)
-    verifyDictsEq(r.dicts, [a])
+    verifyEq(r.accept(b), null)
+    verifyEq(r.count, 2)
+    verifyErr(UnsupportedErr#) { r.dicts }
+
+    // each reader: callback result stops the stream
+    eAcc := Dict[,]
+    er := FolioEachReader(Filter("test"), null) |Dict rec->Obj?| { eAcc.add(rec); return eAcc.size >= 2 ? "done" : null }
+    verifyEq(er.accept(a), null)
+    verifyEq(er.accept(b), "done")
+    verifyEq(er.accept(c), "done")  // stays stopped
+    verifyEq(er.result, "done")
+    verifyEq(eAcc.size, 2)
 
     // future: commit/close results only
     f := FolioFuture(CountFolioRes(2))
@@ -360,14 +384,14 @@ class BasicTest : AbstractFolioTest
     verifyErr(UnsupportedErr#) { f.diffs }
   }
 
-  private FolioReader byIds(Ref[] ids, FolioRec?[] recs, FolioContext? cx := null, Bool trash := false)
+  private FolioReader byIds(Ref[] ids, FolioRec?[] recs, Bool trash := false)
   {
-    FolioReader.makeByIds(ids, trash, cx).checkRecs(recs)
+    FolioIdsReader(ids, recs, trash)
   }
 
-  private FolioReader scanReader(FolioContext? cx, Dict? opts)
+  private FolioReader scanReader(Dict? opts)
   {
-    FolioReader.makeAccumulate(cx, opts, "test")
+    FolioAccReader(Filter("test"), opts)
   }
 
 //////////////////////////////////////////////////////////////////////////
