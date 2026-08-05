@@ -138,55 +138,74 @@ abstract const class Folio
 // Reads
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for [readByIds] with single id.
+  ** Read record by id.  If checked is true, throw [haystack::UnknownRecErr]
+  ** if not found, or throw [haystack::PermissionErr] if missing read permission
+  ** in current context.  Or if checked is false return null in those cases.
   Dict? readById(Ref id, Bool checked := true)
   {
     readRecById(id, checked)?.dict
   }
 
-  ** Read underlying record used for additional rec based features like watches
-  ** If checked is true, throw [UnknownRecErr] if the rec isn't found, or
-  ** throw [PermissionErr] if there aren't permissions to read it.
+  ** Read underlying record wrapper by id.  If checked is true, throw
+  ** [haystack::UnknownRecErr] if not found, or throw [haystack::PermissionErr]
+  ** if missing read permission in current context.  Or if checked is false
+  ** return null in those cases.
   @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
     // NOTE: do not route through readRecsById to keep this path fast!
-    FolioReader.checkRec(FolioContext.curFolio(false), checkRead.doReadRecById(id), id, checked)
+    FolioReader.check(id, checkRead.doReadRecById(id), checked, FolioContext.curFolio(false))
   }
 
-  ** Read a list of records by ids into a grid.  The rows in the
-  ** result correspond by index to the ids list.  If checked is true,
-  ** then every id must be found in the project or UnknownRecErr
-  ** is thrown.  If checked is false, then an unknown record is
-  ** returned as a row with every column set to null (including
-  ** the `id` tag).
-  Grid readByIds(Ref[] ids, Bool checked := true)
-  {
-    readerByIds(ids).grid(null, checked)
-  }
-
-  ** Read a list of records by id.  The resulting list matches
-  ** the list of ids by index (null if record not found).
+  ** Read a list of records by id.  The resulting list matches the list of
+  ** ids by index.  If checked is true, throw [haystack::UnknownRecErr] if
+  ** any id is not found, or throw [haystack::PermissionErr] if missing read
+  ** permission in current context.  Or if checked is false return null for
+  ** those items.
   Dict?[] readByIdsList(Ref[] ids, Bool checked := true)
   {
-    readerByIds(ids).dicts(checked)
+    readerByIds(ids, false).dicts(checked)
   }
 
-  ** Read list of underlying record.
+  ** Read a list of records by ids into a grid.  The rows in the result
+  ** correspond by index to the ids list.  If checked is true, throw
+  ** [haystack::UnknownRecErr] if any id is not found, or throw [haystack::PermissionErr]
+  ** if missing read permission in current context.  Or if checked is false
+  ** return a row with every column set to null (including the `id` tag)
+  ** in those cases.
+  Grid readByIds(Ref[] ids, Bool checked := true)
+  {
+    readerByIds(ids, false).grid(null, checked)
+  }
+
+  ** Read a list of underlying record wrappers by id.  The resulting list matches
+  ** the list of ids by index.  If checked is true, throw [haystack::UnknownRecErr]
+  ** if any id is not found, or throw [haystack::PermissionErr] if missing read
+  ** permission in current context.  Or if checked is false return null for
+  ** those items.
   @NoDoc FolioRec?[] readRecsById(Ref[] ids, Bool checked := true)
   {
-    readerByIds(ids).recs(checked)
+    readerByIds(ids, false).recs(checked)
+  }
+
+  ** Read record by id whether rec is in trash or not.  If checked is true,
+  ** throw [haystack::UnknownRecErr] if not found, or throw [haystack::PermissionErr]
+  ** if missing read permission in current context.  Or if checked is false
+  ** return null in those cases.
+  @NoDoc Dict? readByIdTrash(Ref id, Bool checked := true)
+  {
+    readerByIds([id], true).dict(checked)
   }
 
   ** Read raw recs by id with all security checks and error priority applied
-  private FolioReader readerByIds(Ref[] ids, Bool includeTrash := false)
+  private FolioReader readerByIds(Ref[] ids, Bool includeTrash)
   {
     checkRead
-    return FolioReader.makeByIds(FolioContext.curFolio(false), ids, includeTrash)
+    return FolioReader.makeByIds(ids, includeTrash, FolioContext.curFolio(false))
       .checkRecs(doReadRecsById(ids))
   }
 
   ** Return the number of records which match given [filter](ph.doc::Filters).
-  ** This method supports the same options as [readAll].
+  ** This method supports the same options and security semantics as [readAll].
   Int readCount(Filter filter, Dict? opts := null)
   {
     checkRead
@@ -201,14 +220,26 @@ abstract const class Folio
   }
 
   ** Find the first record which matches the given [filter](ph.doc::Filters).
-  ** Throw UnknownRecErr or return null based on checked flag.
+  ** If checked is true, throw [haystack::UnknownRecErr] if none found.  Or if
+  ** checked is false return null.  Recs missing read permission in current context
+  ** are silently excluded from the match; a [haystack::PermissionErr] is never
+  ** thrown.
   Dict? read(Filter filter, Bool checked := true)
   {
     scan(filter, optsLimit1, false).dict(checked)
   }
 
+  ** Match all the records against a [filter](ph.doc::Filters) and return
+  ** as list.  This method uses same options and security semantics
+  ** as [readAll].
+  Dict[] readAllList(Filter filter, Dict? opts := null)
+  {
+    scan(filter, opts, false).dicts
+  }
+
   ** Match all the records against a [filter](ph.doc::Filters) and
-  ** return as grid.
+  ** return as grid.  Recs missing read permission in current context
+  ** are silently excluded; a [haystack::PermissionErr] is never thrown.
   **
   ** Options:
   **   - limit: max number of recs to read
@@ -220,39 +251,24 @@ abstract const class Folio
     scan(filter, opts, false).grid(opts, false)
   }
 
-  ** Match all the records against a [filter](ph.doc::Filters) and return
-  ** as list.  This method uses same semantics and options as [readAll].
-  Dict[] readAllList(Filter filter, Dict? opts := null)
-  {
-    scan(filter, opts, false).dicts
-  }
-
   ** Match all the records in the trash against a [filter](ph.doc::Filters)
   ** and return as grid.  Only records with the `trash` tag are returned;
-  ** every other read method excludes them.  Uses the same options as [readAll].
+  ** every other read method excludes them.  Uses the same options and
+  ** security semantics as [readAll].
   @NoDoc Grid readTrash(Filter filter, Dict? opts := null)
   {
     scan(filter, opts, true).grid(opts, false)
   }
 
-  ** Read by id whether rec is in trash or not
-  @NoDoc Dict? readByIdTrash(Ref? id, Bool checked := true)
-  {
-    if (id == null)
-    {
-      if (checked) throw UnknownRecErr("null")
-      return null
-    }
-    return readerByIds([id], true).dict(checked)
-  }
-
-  ** Read all records matching filter.
+  ** Read all records matching filter.  Recs missing read permission
+  ** in current context are silently excluded.
   @NoDoc Obj? readAllEach(Filter filter, Dict? opts, |Dict| f)
   {
     readAllEachWhile(filter, opts) |x| { f(x); return null }
   }
 
   ** Read all records matching filter until callback returns non-null.
+  ** Recs missing read permission in current context are silently excluded.
   @NoDoc Obj? readAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
   {
     checkRead
@@ -283,13 +299,19 @@ abstract const class Folio
   ** Options constant for {limit:1}
   private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
 
-  ** Read only persistent tags for given rec id
+  ** Read only persistent tags for given rec id.  If checked is true,
+  ** throw [UnknownRecErr] if not found, or throw [PermissionErr] if missing
+  ** read permission in current context.  Or if checked is false return null
+  ** in those cases.
   @NoDoc Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
     readRecById(id, checked)?.persistent
   }
 
-  ** Read only transient only tags for given rec id
+  ** Read only transient tags for given rec id.  If checked is true,
+  ** throw [UnknownRecErr] if not found, or throw [PermissionErr] if missing
+  ** read permission in current context.  Or if checked is false return null
+  ** in those cases.
   @NoDoc Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {
     readRecById(id, checked)?.transient

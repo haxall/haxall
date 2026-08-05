@@ -114,36 +114,50 @@ const mixin Runtime
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for [readByIds]
+  ** Read record by id.  If checked is true, throw [haystack::UnknownRecErr]
+  ** if not found, or throw [haystack::PermissionErr] if missing read permission
+  ** in current context.  Or if checked is false return null in those cases.
   abstract Dict? readById(Ref? id, Bool checked := true)
 
-  ** Read a list of records by ids into a grid.  The rows in the
-  ** result correspond by index to the ids list.  If checked is true,
-  ** then every id must be found in the project or UnknownRecErr
-  ** is thrown.  If checked is false, then an unknown record is
-  ** returned as a row with every column set to null (including
-  ** the `id` tag).
-  abstract  Grid readByIds(Ref[] ids, Bool checked := true)
+  ** Read a list of records by ids into a grid.  The rows in the result
+  ** correspond by index to the ids list.  If checked is true, throw
+  ** [haystack::UnknownRecErr] if any id is not found, or throw
+  ** [haystack::PermissionErr] if missing read permission in current context.
+  ** Or if checked is false return a row with every column set to null
+  ** (including the `id` tag) in those cases.
+  abstract Grid readByIds(Ref[] ids, Bool checked := true)
 
-  ** Read a list of records by id.  The resulting list matches
-  ** the list of ids by index (null if record not found).
+  ** Read a list of records by id.  The resulting list matches the list of
+  ** ids by index.  If checked is true, throw [haystack::UnknownRecErr] if
+  ** any id is not found, or throw [haystack::PermissionErr] if missing read
+  ** permission in current context.  Or if checked is false return null for
+  ** those items.
   abstract Dict?[] readByIdsList(Ref[] ids, Bool checked := true)
 
   ** Return the number of records which match the given filter string.
+  ** Recs missing read permission in current context are silently
+  ** excluded; a [haystack::PermissionErr] is never thrown.  See
+  ** [Filter Chapter](ph.doc::Filters) for filter format.
   abstract Int readCount(Str filter)
 
   ** Find the first record which matches the given filter string.
-  ** Throw UnknownRecErr or return null based on checked flag.
-  ** See [Filter Chapter](ph.doc::Filters) for filter format.
+  ** If checked is true, throw [haystack::UnknownRecErr] if none found.
+  ** Or if checked is false return null.  Recs missing read permission in
+  ** current context are silently excluded from the match; a
+  ** [haystack::PermissionErr] is never thrown.  See
+  ** [Filter Chapter](ph.doc::Filters) for filter format.
   abstract Dict? read(Str filter, Bool checked := true)
 
   ** Match all the records against a filter string and return as grid.
-  ** See [Filter Chapter](ph.doc::Filters) for filter format.
+  ** Recs missing read permission in current context are silently
+  ** excluded; a [haystack::PermissionErr] is never thrown.  See
+  ** [Filter Chapter](ph.doc::Filters) for filter format.
   abstract Grid readAll(Str filter, Dict? opts := null)
 
-  ** Match all the records against a filter string and return as
-  ** list.  See [Filter Chapter](ph.doc::Filters) for filter
-  ** format.  See [readAll] to return results as a grid.
+  ** Match all the records against a filter string and return as list.
+  ** This method uses the same security semantics as [readAll].  See
+  ** [Filter Chapter](ph.doc::Filters) for filter format and [readAll]
+  ** to return results as a grid.
   abstract Dict[] readAllList(Str filter, Dict? opts := null)
 
   ** Convenience for [commitAll] to commit a single diff.

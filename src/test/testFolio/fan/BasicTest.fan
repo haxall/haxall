@@ -362,7 +362,7 @@ class BasicTest : AbstractFolioTest
 
   private FolioReader byIds(Ref[] ids, FolioRec?[] recs, FolioContext? cx := null, Bool trash := false)
   {
-    FolioReader.makeByIds(cx, ids, trash).checkRecs(recs)
+    FolioReader.makeByIds(ids, trash, cx).checkRecs(recs)
   }
 
   private FolioReader scanReader(FolioContext? cx, Dict? opts)

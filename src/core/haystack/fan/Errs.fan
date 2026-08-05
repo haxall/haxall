@@ -150,10 +150,10 @@ const class DisabledErr : Err
 }
 
 **
-** PermissionErr is thrown when a function is called the
+** PermissionErr is thrown when an operation is called the
 ** user doesn't have permission to access.
 **
-@NoDoc const class PermissionErr : Err
+const class PermissionErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }

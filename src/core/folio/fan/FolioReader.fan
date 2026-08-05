@@ -59,13 +59,13 @@ using haystack
   }
 
   ** Reader for by-id reads; feed the raw recs via `checkRecs`
-  new makeByIds(FolioContext? cx, Ref[] ids, Bool includeTrash := false)
+  new makeByIds(Ref[] ids, Bool includeTrash, FolioContext? cx)
   {
-    this.cx           = cx
     this.ids          = ids
     this.includeTrash = includeTrash
     this.limit        = Int.maxVal
     this.f            = noopFunc
+    this.cx           = cx
   }
 
   ** Reader which only counts recs; backs the default doReadCount.  Applies
@@ -124,7 +124,7 @@ using haystack
 
   ** Apply trash exclusion and permission checks to one raw rec read by
   ** id.  This is the fast path for readRecById which allocates no reader.
-  static FolioRec? checkRec(FolioContext? cx, FolioRec? rec, Ref id, Bool checked)
+  static FolioRec? check(Ref id, FolioRec? rec, Bool checked, FolioContext? cx)
   {
     // do not return trash recs
     if (rec != null && rec.isTrash) rec = null
@@ -258,3 +258,4 @@ using haystack
   private FolioRec?[]? byIdRecs
   private Err? err
 }
+
