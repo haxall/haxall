@@ -11,7 +11,10 @@ using xeto
 using haystack
 
 **
-** FolioRec is used to manage watches on a per record basis.
+** FolioRec wraps the dict representation of a rec along with folio
+** level state: persistent/transient tag views, trash status, and
+** watch counts.  Implementations back this mixin with their internal
+** rec type.
 **
 @NoDoc
 const mixin FolioRec

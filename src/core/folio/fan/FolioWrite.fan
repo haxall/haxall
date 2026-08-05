@@ -30,9 +30,7 @@ using xeto
   }
 
   ** Pending write against an existing rec which is not expressed as a Diff.
-  ** The type tells us more about who is attempting the write.
-  ** Diff. The type  - a his, event, spark, or rider write; or a probe asking whether
-  ** the rec is writable at all.
+  ** The type tells us more about what kind of write is being attempted.
   private new make(Dict oldRec, FolioWriteType type)
   {
     this.oldRec = oldRec

@@ -47,6 +47,7 @@ const class FolioFuture : Future
     wraps.get(timeout)
   }
 
+  ** Get result as record wrappers
   @NoDoc FolioRec?[] recs(Bool checked := true)
   {
     rd := getRes
@@ -55,6 +56,7 @@ const class FolioFuture : Future
     return rd.recs
   }
 
+  ** Get result as record wrapper
   @NoDoc FolioRec? rec(Bool checked := true)
   {
     rd  := getRes

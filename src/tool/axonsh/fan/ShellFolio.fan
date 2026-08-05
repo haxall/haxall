@@ -36,7 +36,7 @@ const class ShellFolio : Folio
     FolioFuture(CountFolioRes(0))
   }
 
-  override protected FolioRec? doReadRecByIdRaw(Ref id)
+  override protected FolioRec? doReadRecById(Ref id)
   {
     rec := map.get(id) as Dict
     if (rec == null && id.isRel && idPrefix != null)

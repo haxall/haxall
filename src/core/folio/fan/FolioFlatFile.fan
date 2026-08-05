@@ -72,7 +72,7 @@ const class FolioFlatFile : Folio
     FolioFuture.makeSync(CountFolioRes(0))
   }
 
-  @NoDoc override FolioRec? doReadRecByIdRaw(Ref id)
+  @NoDoc override FolioRec? doReadRecById(Ref id)
   {
     rec := map.get(id) as Dict
     if (rec == null && id.isRel && idPrefix != null)

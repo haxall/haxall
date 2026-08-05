@@ -106,10 +106,10 @@ const class HxFolio : Folio
 //////////////////////////////////////////////////////////////////////////
 
   ** Lookup the Rec which wraps the Dict for a given id
-  Rec? rec(Ref id, Bool checked := true) { index.rec(id, checked) }
+  internal Rec? rec(Ref id, Bool checked := true) { index.rec(id, checked) }
 
   ** If database has namespace, ensure given ref is absolute
-  Ref toAbsRef(Ref ref)
+  internal Ref toAbsRef(Ref ref)
   {
     if (ref.isRel && idPrefix != null) return ref.toAbs(idPrefix)
     return ref
@@ -153,7 +153,7 @@ const class HxFolio : Folio
     return f
   }
 
-  override protected FolioRec? doReadRecByIdRaw(Ref id)
+  override protected FolioRec? doReadRecById(Ref id)
   {
     index.rec(id, false)
   }

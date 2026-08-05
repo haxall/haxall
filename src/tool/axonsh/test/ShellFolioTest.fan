@@ -35,7 +35,7 @@ class ShellFolioTest : HaystackTest
     folio = null
   }
 
-  ** ShellFolio previously threw UnsupportedErr from doReadRecByIdRaw, which
+  ** ShellFolio previously threw UnsupportedErr from doReadRecById, which
   ** made every readById/readRecById route unusable in the shell.
   Void testReadById()
   {

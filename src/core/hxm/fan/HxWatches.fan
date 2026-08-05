@@ -179,7 +179,6 @@ const class HxWatch : Watch
   override Void addAll(Ref[] ids)
   {
     renew
-    cx := FolioContext.curFolio(false)
     Dict[]? firstRecs
     ids.each |id|
     {

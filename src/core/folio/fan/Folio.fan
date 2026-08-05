@@ -140,11 +140,11 @@ abstract const class Folio
 
   ** Read underlying record used for additional rec based features like watches
   ** If checked is true, throw [UnknownRecErr] if the rec isn't found, or
-  ** [PermissionErr] if there aren't permissions to read it.
+  ** throw [PermissionErr] if there aren't permissions to read it.
   @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
     // NOTE: do not route through readRecsById to keep this path fast!
-    rec := checkRead.doReadRecByIdRaw(id)
+    rec := checkRead.doReadRecById(id)
 
     // do not return trashed recs
     if (rec != null && rec.isTrash) rec = null
@@ -165,12 +165,12 @@ abstract const class Folio
 
   @NoDoc FolioRec?[] readRecsById(Ref[] ids, Bool checked := true)
   {
-    doReadRecsById(ids, false).recs(checked)
+    readRecsByIdImpl(ids, false).recs(checked)
   }
 
-  private FolioFuture doReadRecsById(Ref[] ids, Bool trash)
+  private FolioFuture readRecsByIdImpl(Ref[] ids, Bool trash)
   {
-    recs     := checkRead.doReadRecsByIdRaw(ids)
+    recs     := checkRead.doReadRecsById(ids)
     cx       := FolioContext.curFolio(false)
     denied   := false
     Err? err := null
@@ -211,14 +211,14 @@ abstract const class Folio
   ** the `id` tag).
   Grid readByIds(Ref[] ids, Bool checked := true)
   {
-    doReadRecsById(ids, false).grid(checked)
+    readRecsByIdImpl(ids, false).grid(checked)
   }
 
   ** Read a list of records by id.  The resulting list matches
   ** the list of ids by index (null if record not found).
   Dict?[] readByIdsList(Ref[] ids, Bool checked := true)
   {
-    doReadRecsById(ids, false).dicts(checked)
+    readRecsByIdImpl(ids, false).dicts(checked)
   }
 
   ** Return the number of records which match given [filter](ph.doc::Filters).
@@ -279,7 +279,7 @@ abstract const class Folio
       if (checked) throw UnknownRecErr("null")
       return null
     }
-    return doReadRecsById([id], true).dict(checked)
+    return readRecsByIdImpl([id], true).dict(checked)
   }
 
   ** Read all records matching filter.
@@ -324,13 +324,13 @@ abstract const class Folio
   ** Read only persistent tags for given rec id
   @NoDoc Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
-    doReadRecsById([id], false).rec(checked)?.persistent
+    readRecsByIdImpl([id], false).rec(checked)?.persistent
   }
 
   ** Read only transient only tags for given rec id
   @NoDoc Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {
-    doReadRecsById([id], false).rec(checked)?.transient
+    readRecsByIdImpl([id], false).rec(checked)?.transient
   }
 
   ** Intern the given ref to its canonical representation
@@ -344,15 +344,15 @@ abstract const class Folio
   ** Read a live or trashed rec by id.
   ** Must resolve relative refs against `idPrefix`.
   ** - Never check permissions
-  @NoDoc protected abstract FolioRec? doReadRecByIdRaw(Ref id)
+  @NoDoc protected abstract FolioRec? doReadRecById(Ref id)
 
   ** Read a list of live or trashed recs by id.
-  ** The default implementation maps [doReadRecByIdRaw].
+  ** The default implementation maps [doReadRecById].
   ** Must resolve relative refs against `idPrefix`.
   ** - Never check permissions
-  @NoDoc protected virtual FolioRec?[] doReadRecsByIdRaw(Ref[] ids)
+  @NoDoc protected virtual FolioRec?[] doReadRecsById(Ref[] ids)
   {
-    ids.map |id->FolioRec?| { doReadRecByIdRaw(id) }
+    ids.map |id->FolioRec?| { doReadRecById(id) }
   }
 
   ** Subclass implementation to stream every rec matching filter
@@ -449,7 +449,7 @@ abstract const class Folio
 
     // old rec is null for adds and for recs which do not exist; the raw
     // read includes the trash since a commit may untrash a rec
-    oldRecs := doReadRecsByIdRaw(diffs.map |diff->Ref| { diff.id })
+    oldRecs := doReadRecsById(diffs.map |diff->Ref| { diff.id })
     diffs.each |diff, i|
     {
       // canWrite assumes canRead already verified; the raw read above
