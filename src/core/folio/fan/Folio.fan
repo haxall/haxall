@@ -111,10 +111,10 @@ abstract const class Folio
   }
 
   ** Return if we can read
-  @NoDoc Bool canRead() { !isClosed }
+  @NoDoc Bool isReadable() { !isClosed }
 
   ** Return if we can write
-  @NoDoc Bool canWrite() { !isClosed && !config.isReplica }
+  @NoDoc Bool isWritable() { !isClosed && !config.isReplica }
 
   ** Verify database is in a valid read mode
   @NoDoc This checkRead()
