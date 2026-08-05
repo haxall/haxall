@@ -18,7 +18,8 @@ const class FolioFuture : Future
   ** Make asynchronous response
   @NoDoc static FolioFuture makeAsync(Future wrap) { make(wrap) }
 
-  ** Make synchronous response
+  ** Make completed response for an operation which is normally
+  ** asynchronous, but short circuited to a known synchronous result
   @NoDoc static new makeSync(FolioRes res) { make(Future.makeCompletable.complete(res)) }
 
   ** Constructor always wraps future
@@ -45,61 +46,6 @@ const class FolioFuture : Future
   @NoDoc FolioRes getRes(Duration? timeout := this.timeout)
   {
     wraps.get(timeout)
-  }
-
-  ** Get result as record wrappers
-  @NoDoc FolioRec?[] recs(Bool checked := true)
-  {
-    rd := getRes
-    if (!checked) return rd.recs
-    if (rd.errs) throw rd.toErr
-    return rd.recs
-  }
-
-  ** Get result as record wrapper
-  @NoDoc FolioRec? rec(Bool checked := true)
-  {
-    rd  := getRes
-    rec := rd.recs.getSafe(0)
-    if (rec != null) return rec
-    if (checked) throw rd.toErr
-    return null
-  }
-
-  ** Get the result as one Dict.  If there is no results then
-  ** raise UnknownRecErr or return null based on checked flag.  If
-  ** there are more than one result then return just one.
-  @NoDoc Dict? dict(Bool checked := true)
-  {
-    rd := getRes
-    dict := rd.dicts.getSafe(0)
-    if (dict != null) return dict
-    if (checked) throw rd.toErr
-    return null
-  }
-
-  ** Get the result as a list of Dicts.  If any of the resulting Dicts
-  ** is null then raise UnknownRecErr if the checked flag is true.
-  @NoDoc virtual Dict?[] dicts(Bool checked := true)
-  {
-    rd := getRes
-    if (!checked) return rd.dicts
-    if (rd.errs) throw rd.toErr
-    return rd.dicts
-  }
-
-  ** Return the result of [dicts] as a grid.  If checked is false,
-  ** then an unknown records are returned as a row with every column
-  ** set to null (including the `id` tag).
-  @NoDoc Grid grid(Bool checked := true)
-  {
-    Etc.makeDictsGrid(null, dicts(checked))
-  }
-
-  ** Return grid result for reads with standard read opts
-  @NoDoc Grid gridWithOpts(Dict? opts, Bool checked)
-  {
-    Etc.makeDictsGrid(opts?.get("gridMeta"), dicts(checked))
   }
 
   ** Return the number of items in result.
@@ -130,49 +76,9 @@ const class FolioFuture : Future
 abstract const class FolioRes
 {
   abstract Obj? val()
-  virtual Bool errs() { false }
-  virtual Str errMsg() { "" }
-  virtual Err toErr() { UnknownRecErr(errMsg) }
   abstract Int count()
-  virtual FolioRec?[] recs() { throw UnsupportedErr("FolioRecs not available") }
   virtual Dict?[] dicts() { throw UnsupportedErr("Dicts not available") }
   virtual Diff[] diffs() { throw UnsupportedErr("Diffs not available") }
-}
-
-@NoDoc
-const final class ReadFolioRecsRes : FolioRes
-{
-  new make(Err? err, FolioRec?[] recs)
-  {
-    this.err  = err
-    this.recs = recs
-  }
-  const Err? err
-  override const FolioRec?[] recs
-  override Obj? val() { recs }
-  override Bool errs() { err != null }
-  override Str errMsg() { err?.msg ?: "" }
-  override Err toErr() { err ?: super.toErr }
-  override once Dict?[] dicts() { recs.map |rec->Dict?| { rec?.dict } }
-  override Int count() { recs.size }
-}
-
-@NoDoc
-const final class ReadFolioRes : FolioRes
-{
-  new make(Obj errMsgObj, Bool errs, Dict?[] dicts)
-  {
-    this.errMsgObj = errMsgObj
-    this.errs = errs
-    this.dicts = dicts
-  }
-
-  override Obj? val()  { dicts }
-  override Str errMsg() { errMsgObj.toStr }
-  const Obj errMsgObj
-  const override Bool errs
-  const override Dict?[] dicts
-  override Int count() { dicts.size }
 }
 
 @NoDoc

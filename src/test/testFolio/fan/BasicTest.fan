@@ -187,14 +187,14 @@ class BasicTest : AbstractFolioTest
     // modify a to generate new mod, then verify concurrent checks
     oldA := a
     oldB := b
-    newA := f.commitAsync(Diff(oldA, ["change":"a-2"])).dict
-    newB := f.commitAsync(Diff(oldB, ["change":"b-1"])).dict
+    newA := f.commitAsync(Diff(oldA, ["change":"a-2"])).diff.newRec
+    newB := f.commitAsync(Diff(oldB, ["change":"b-1"])).diff.newRec
     ver = verifyCurVerChange(ver)
     verify(newA->mod > oldA->mod)
     verify(newB->mod > oldB->mod)
-    verifyErr(ConcurrentChangeErr#) { f.commitAllAsync([Diff(oldA, ["change":"X!"]), Diff(newB, ["change":"X!"])]).dicts }
-    verifyErr(ConcurrentChangeErr#) { f.commitAllAsync([Diff(newA, ["change":"X!"]), Diff(oldB, ["change":"X!"])]).dicts }
-    verifyErr(ConcurrentChangeErr#) { f.commitAllAsync([Diff(oldA, ["change":"X!"]), Diff(oldB, ["change":"X!"], Diff.force)]).dicts }
+    verifyErr(ConcurrentChangeErr#) { f.commitAllAsync([Diff(oldA, ["change":"X!"]), Diff(newB, ["change":"X!"])]).diffs }
+    verifyErr(ConcurrentChangeErr#) { f.commitAllAsync([Diff(newA, ["change":"X!"]), Diff(oldB, ["change":"X!"])]).diffs }
+    verifyErr(ConcurrentChangeErr#) { f.commitAllAsync([Diff(oldA, ["change":"X!"]), Diff(oldB, ["change":"X!"], Diff.force)]).diffs }
     verifyEq(f.readById(a.id)["change"], "a-2")
     verifyEq(f.readById(b.id)["change"], "b-1")
 
@@ -244,103 +244,130 @@ class BasicTest : AbstractFolioTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// FolioFuture
+// FolioReader
 //////////////////////////////////////////////////////////////////////////
 
-  Void testFolioFuture()
+  Void testFolioReader()
   {
-    // add a, b, c
-    a := Etc.makeDict(["dis":"A", "size":n(10)])
-    b := Etc.makeDict(["dis":"B", "size":n(20)])
-    c := Etc.makeDict(["dis":"C", "size":n(30)])
+    a := Etc.makeDict(["id":Ref("a"), "dis":"A", "size":n(10)])
+    b := Etc.makeDict(["id":Ref("b"), "dis":"B", "size":n(20)])
+    c := Etc.makeDict(["id":Ref("c"), "dis":"C", "size":n(30)])
+    t := Etc.makeDict(["id":Ref("t"), "dis":"T", "trash":m])
+    bad := Etc.makeDict(["id":Ref("bad"), "dis":"Bad", "deny":m])
 
-    FolioFuture? r
-
-    r = FolioFuture.makeSync(ReadFolioRes("xx", true, Dict?[null]))
-    verifyEq(r.count, 1)
+    // by-id: missing rec
+    r := byIds([Ref("x")], FolioRec?[null])
+    verifyEq(r.rec(false), null)
+    verifyErr(UnknownRecErr#) { r.rec }
+    verifyEq(r.recs(false), FolioRec?[null])
+    verifyErr(UnknownRecErr#) { r.recs }
     verifyEq(r.dict(false), null)
     verifyErr(UnknownRecErr#) { r.dict }
     verifyEq(r.dicts(false), Dict?[null])
     verifyErr(UnknownRecErr#) { r.dicts }
-    verifyEq(r.grid(false).size, 0)
-    verifyErr(UnknownRecErr#) { r.grid }
+    verifyEq(r.grid(null, false).size, 0)
+    verifyErr(UnknownRecErr#) { r.grid(null, true) }
 
-    // readById b
-    r = FolioFuture.makeSync(ReadFolioRes("xx", false, Dict?[c]))
-    verifyEq(r.count, 1)
+    // by-id: found
+    r = byIds([Ref("c")], FolioRec?[DictFolioRec(c)])
+    verifySame(r.rec.dict, c)
     verifyDictEq(r.dict, c)
-    verifyDictEq(r.dict(false), c)
+    verifySame(r.dict(false), c)
     verifyDictsEq(r.dicts, [c])
     verifyDictsEq(r.dicts(false), [c])
-    verifyEq(r.grid.size, 1)
-    verifyDictEq(r.grid[0], c)
+    verifyEq(r.grid(null, true).size, 1)
+    verifyDictEq(r.grid(null, true)[0], c)
 
-    // readByIds
-    r = FolioFuture.makeSync(ReadFolioRes("xx", true, Dict?[a, null, b]))
-    verifyEq(r.count, 3)
+    // by-id: multiple with one missing
+    r = byIds([Ref("a"), Ref("x"), Ref("b")], FolioRec?[DictFolioRec(a), null, DictFolioRec(b)])
     verifyDictEq(r.dict, a)
     verifyDictEq(r.dict(false), a)
     verifyEq(r.dicts(false).size, 3)
     verifySame(r.dicts(false)[0], a)
     verifySame(r.dicts(false)[1], null)
     verifySame(r.dicts(false)[2], b)
+    verifyErr(UnknownRecErr#) { r.recs }
     verifyErr(UnknownRecErr#) { r.dicts }
-    verifyErr(UnknownRecErr#) { r.dicts(true) }
-    verifyErr(UnknownRecErr#) { r.grid }
-    verifyEq(r.grid(false).size, 3)
-    verifyDictEq(r.grid(false)[0], a)
-    verifyDictEq(r.grid(false)[1], Etc.dict0)
-    verifyDictEq(r.grid(false)[2], b)
+    verifyErr(UnknownRecErr#) { r.grid(null, true) }
+    verifyEq(r.grid(null, false).size, 3)
+    verifyDictEq(r.grid(null, false)[0], a)
+    verifyDictEq(r.grid(null, false)[1], Etc.dict0)
+    verifyDictEq(r.grid(null, false)[2], b)
 
-    // read bad
-    r = FolioFuture.makeSync(ReadFolioRes("xx", false, Dict[,]))
+    // by-id: trash excluded by default
+    r = byIds([Ref("t")], FolioRec?[DictFolioRec(t)])
+    verifyEq(r.rec(false), null)
+    verifyErr(UnknownRecErr#) { r.dict }
+
+    // by-id: trash included
+    r = byIds([Ref("t")], FolioRec?[DictFolioRec(t)], null, true)
+    verifyDictEq(r.dict, t)
+
+    // by-id: read denied
+    cx := TestDenyReadContext()
+    r = byIds([Ref("bad")], FolioRec?[DictFolioRec(bad)], cx)
+    verifyEq(r.rec(false), null)
+    verifyErr(PermissionErr#) { r.rec }
+    verifyErr(PermissionErr#) { r.dicts }
+
+    // by-id: permission err wins over missing rec
+    r = byIds([Ref("x"), Ref("bad")], FolioRec?[null, DictFolioRec(bad)], cx)
+    verifyErr(PermissionErr#) { r.recs }
+    verifyEq(r.dicts(false), Dict?[null, null])
+
+    // scan: accumulate
+    r = scanReader(null, null)
+    verifyEq(r.accept(b), null)
+    verifyEq(r.accept(c), null)
+    verifyEq(r.count, 2)
+    verifyEq(r.dicts.size, 2)
+    verifySame(r.dicts[0], b)
+    verifySame(r.dicts[1], c)
+    verifySame(r.dict, b)
+    verifyEq(r.grid(null, false).size, 2)
+
+    // scan: empty result
+    r = scanReader(null, null)
     verifyEq(r.count, 0)
     verifyEq(r.dict(false), null)
     verifyErr(UnknownRecErr#) { r.dict }
-    verifyEq(r.dicts, Dict[,])
-    verifyEq(r.dicts(false), Dict[,])
-    verifyEq(r.dicts(true), Dict[,])
-    verifyEq(r.grid(false).size, 0)
-    verifyEq(r.grid(true).size, 0)
+    verifyEq(r.dicts.size, 0)
+    verifyEq(r.grid(null, true).size, 0)
 
-    // read
-    r = FolioFuture.makeSync(ReadFolioRes("xx", false, Dict[b]))
+    // scan: limit stops the stream
+    r = scanReader(null, Etc.dict1("limit", n(1)))
+    verifyNotNull(r.accept(b))
     verifyEq(r.count, 1)
-    verifyDictEq(r.dict, b)
-    verifySame(r.dict(false), b)
-    verifyEq(r.dicts, Dict[b])
-    verifyEq(r.grid.size, 1)
-    verifyDictEq(r.grid[0], b)
-    verifyErr(UnsupportedErr#) { r.diffs }
+    verifyEq(r.dicts.size, 1)
 
-    // readAll
-    r = FolioFuture.makeSync(ReadFolioRes("xx", false, Dict[b, c]))
-    verifyEq(r.count, 2)
-    verifyEq(r.dicts.size, 2)
-    verifyEq(r.grid.size, 2)
-    if (r.dicts[0] === b)
-    {
-      verifySame(r.dict, b)
-      verifySame(r.dicts[0], b)
-      verifySame(r.dicts[1], c)
-      verifyDictEq(r.grid[0], b)
-      verifyDictEq(r.grid[1], c)
-    }
-    else
-    {
-      verifySame(r.dict, c)
-      verifySame(r.dicts[0], c)
-      verifySame(r.dicts[1], b)
-      verifyDictEq(r.grid[0], c)
-      verifyDictEq(r.grid[1], b)
-    }
+    // scan: sort by dis
+    r = scanReader(null, Etc.dict1("sort", m))
+    r.accept(c)
+    r.accept(b)
+    verifyEq(r.dicts.first->dis, "B")
+    verifyEq(r.dicts.last->dis, "C")
 
-    r = FolioFuture.makeSync(CountFolioRes(2))
-    verifyEq(r.count, 2)
-    verifyErr(UnsupportedErr#) { r.dict }
-    verifyErr(UnsupportedErr#) { r.dicts }
-    verifyErr(UnsupportedErr#) { r.grid }
-    verifyErr(UnsupportedErr#) { r.diffs }
+    // scan: denied recs silently skipped
+    r = scanReader(cx, null)
+    verifyEq(r.accept(a), null)
+    verifyEq(r.accept(bad), null)
+    verifyEq(r.count, 1)
+    verifyDictsEq(r.dicts, [a])
+
+    // future: commit/close results only
+    f := FolioFuture(CountFolioRes(2))
+    verifyEq(f.count, 2)
+    verifyErr(UnsupportedErr#) { f.diffs }
+  }
+
+  private FolioReader byIds(Ref[] ids, FolioRec?[] recs, FolioContext? cx := null, Bool trash := false)
+  {
+    FolioReader.makeByIds(cx, ids, trash).checkRecs(recs)
+  }
+
+  private FolioReader scanReader(FolioContext? cx, Dict? opts)
+  {
+    FolioReader.makeAccumulate(cx, opts, "test")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -782,6 +809,18 @@ internal class TestContext : FolioContext
   override Bool canWrite(FolioWrite w) { true }
 
   override const Obj? commitInfo
+}
+
+**************************************************************************
+** TestDenyContext
+**************************************************************************
+
+** Context which denies reads of recs with the deny tag
+internal class TestDenyReadContext : FolioContext
+{
+  override Bool canRead(Dict r) { r.missing("deny") }
+  override Bool canWrite(FolioWrite w) { true }
+  override Obj? commitInfo() { null }
 }
 
 **************************************************************************

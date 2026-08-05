@@ -26,7 +26,7 @@ internal class Query : HaystackContext
   }
 
   ** Stream matching recs to the sink; return the sink's stop value
-  Obj? eachWhile(FolioReadSink sink)
+  Obj? eachWhile(FolioReader sink)
   {
     plan := makePlan
     stop := plan.query(this, sink)
@@ -134,7 +134,7 @@ internal abstract class QueryPlan
   abstract Int cost()
 
   ** Stream matching recs to the sink; return the sink's stop value
-  abstract Obj? query(Query q, FolioReadSink sink)
+  abstract Obj? query(Query q, FolioReader sink)
 }
 
 **************************************************************************
@@ -148,7 +148,7 @@ internal final class EmptyPlan : QueryPlan
 
   override Int cost() { 0 }
 
-  override Obj? query(Query q, FolioReadSink sink) { null }
+  override Obj? query(Query q, FolioReader sink) { null }
 }
 
 **************************************************************************
@@ -168,7 +168,7 @@ internal final class ByIdPlan : QueryPlan
 
   override Int cost() { 1 }
 
-  override Obj? query(Query q, FolioReadSink sink)
+  override Obj? query(Query q, FolioReader sink)
   {
     // this plan is never used for trash queries, so always skip trash
     rec := q.index.rec(id, false)
@@ -190,7 +190,7 @@ internal final class FullScanPlan : QueryPlan
 
   override Int cost() { Int.maxVal }
 
-  override Obj? query(Query q, FolioReadSink sink)
+  override Obj? query(Query q, FolioReader sink)
   {
     q.index.byId.eachWhile |Rec rec->Obj?|
     {

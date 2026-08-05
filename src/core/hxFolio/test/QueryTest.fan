@@ -248,7 +248,7 @@ class QueryTest : WhiteboxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// FolioReadSink
+// FolioReader
 //////////////////////////////////////////////////////////////////////////
 
   Void testReadSink()
@@ -297,19 +297,19 @@ class QueryTest : WhiteboxTest
 
     // collect
     cAcc := Dict[,]
-    collect := FolioReadSink(cx, opts) |rec->Obj?| { cAcc.add(rec); return null }
+    collect := FolioReader(cx, opts) |rec->Obj?| { cAcc.add(rec); return null }
     x.each |r, i| { verifyEq(collect.accept(r) == null, cAcc.size < limit) }
     verifyDictsEq(cAcc, expected)
 
     // count
-    count := FolioReadSink(cx, opts) |rec->Obj?| { null }
+    count := FolioReader(cx, opts) |rec->Obj?| { null }
     x.each |r, i| { verifyEq(count.accept(r) == null, count.count < limit) }
     verifyEq(count.count, expected.size)
 
     // each while using early break instead of limit
     eAcc := Dict[,]
     broke := false
-    e := FolioReadSink(cx, null) |rec->Obj?|
+    e := FolioReader(cx, null) |rec->Obj?|
     {
       if (eAcc.size < limit) eAcc.add(rec)
       broke = eAcc.size >= limit

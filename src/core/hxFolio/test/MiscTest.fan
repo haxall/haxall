@@ -131,7 +131,7 @@ class MiscTest : WhiteboxTest
     verifyNotEq(crc1, crc2)
 
     // check add rec
-    dict := f1.dict
+    dict := f1.diff.newRec
     verifyEq(dict->test, test)
   }
 

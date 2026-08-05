@@ -158,12 +158,12 @@ const class HxFolio : Folio
     index.rec(id, false)
   }
 
-  override protected Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
+  override protected Obj? doReadAllEachWhile(Filter filter, FolioReader sink)
   {
     Query(this, filter).eachWhile(sink)
   }
 
-  override protected Obj? doReadTrashEachWhile(Filter filter, FolioReadSink sink)
+  override protected Obj? doReadTrashEachWhile(Filter filter, FolioReader sink)
   {
     Query(this, filter).onlyTrash.eachWhile(sink)
   }

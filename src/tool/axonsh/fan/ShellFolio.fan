@@ -44,17 +44,17 @@ const class ShellFolio : Folio
     return rec == null ? null : DictFolioRec(rec)
   }
 
-  override protected Obj? doReadAllEachWhile(Filter filter, FolioReadSink sink)
+  override protected Obj? doReadAllEachWhile(Filter filter, FolioReader sink)
   {
     eachWhileImpl(filter, false, sink)
   }
 
-  override protected Obj? doReadTrashEachWhile(Filter filter, FolioReadSink sink)
+  override protected Obj? doReadTrashEachWhile(Filter filter, FolioReader sink)
   {
     eachWhileImpl(filter, true, sink)
   }
 
-  private Obj? eachWhileImpl(Filter filter, Bool trashOnly, FolioReadSink sink)
+  private Obj? eachWhileImpl(Filter filter, Bool trashOnly, FolioReader sink)
   {
     map := this.map
     cx := PatherContext(|Ref id->Dict?| { map.get(id) })

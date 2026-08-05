@@ -247,7 +247,7 @@ internal final class ConnMgr
     }
 
     if (!changes.isEmpty)
-      result = commit(Diff(rec, changes, Diff.force)).waitFor(timeout).dict
+      result = commit(Diff(rec, changes, Diff.force)).waitFor(timeout).diff.newRec
 
     return result
   }
