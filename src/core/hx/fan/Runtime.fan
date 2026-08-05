@@ -114,9 +114,10 @@ const mixin Runtime
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read record by id.  If checked is true, throw [haystack::UnknownRecErr]
-  ** if not found, or throw [haystack::PermissionErr] if missing read permission
-  ** in current context.  Or if checked is false return null in those cases.
+  ** Read record by id.  A null id is treated the same as an unknown record.
+  ** If checked is true, throw [haystack::UnknownRecErr] if not found, or throw
+  ** [haystack::PermissionErr] if missing read permission in current context.
+  ** Or if checked is false return null in those cases.
   abstract Dict? readById(Ref? id, Bool checked := true)
 
   ** Read a list of records by ids into a grid.  The rows in the result

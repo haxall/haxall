@@ -171,7 +171,7 @@ abstract const class HxRuntime : Runtime
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  override Dict? readById(Ref? id, Bool checked := true) { db.readById(id, checked) }
+  override Dict? readById(Ref? id, Bool checked := true) { db.readById(id ?: Ref.nullRef, checked) }
 
   override Grid readByIds(Ref[] ids, Bool checked := true) { db.readByIds(ids, checked) }
 

@@ -171,6 +171,53 @@ class RuntimeTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Folio Convenience Reads
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testReads()
+  {
+    a := addRec(["dis":"A"])
+    b := addRec(["dis":"B"])
+
+    // readById found
+    verifyDictEq(proj.readById(a.id), a)
+
+    // readById unknown rec
+    verifyEq(proj.readById(Ref.gen, false), null)
+    verifyErr(UnknownRecErr#) { proj.readById(Ref.gen) }
+    verifyErr(UnknownRecErr#) { proj.readById(Ref.gen, true) }
+
+    // readById null id is treated the same as an unknown rec
+    verifyEq(proj.readById(null, false), null)
+    verifyErr(UnknownRecErr#) { proj.readById(null) }
+    verifyErr(UnknownRecErr#) { proj.readById(null, true) }
+
+    // but the folio layer is strict: null id is a NullErr, not an unknown rec
+    Ref? nullId := null
+    verifyErr(NullErr#) { proj.db.readById(nullId, false) }
+    verifyErr(NullErr#) { proj.db.readById(nullId) }
+
+    // Ref.nullRef is how the Runtime layer maps null onto the strict folio API
+    verifyEq(proj.db.readById(Ref.nullRef, false), null)
+    verifyErr(UnknownRecErr#) { proj.db.readById(Ref.nullRef) }
+
+    // readByIdsList matches ids by index
+    verifyDictsEq(proj.readByIdsList([a.id, b.id]), [a, b])
+    list := proj.readByIdsList([a.id, Ref.gen, b.id], false)
+    verifyDictEq(list[0], a)
+    verifyEq(list[1], null)
+    verifyDictEq(list[2], b)
+    verifyErr(UnknownRecErr#) { proj.readByIdsList([a.id, Ref.gen]) }
+
+    // readByIds returns unknown recs as all-null row when unchecked
+    grid := proj.readByIds([a.id, Ref.gen], false)
+    verifyDictEq(grid[0], a)
+    verifyDictEq(grid[1], Etc.dict0)
+    verifyErr(UnknownRecErr#) { proj.readByIds([a.id, Ref.gen]) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////
 
