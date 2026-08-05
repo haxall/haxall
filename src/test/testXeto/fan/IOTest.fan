@@ -119,6 +119,31 @@ class IOTest : AbstractXetoTest
     verifyGridEq(envx->data, g)
   }
 
+  ** Round trip through clean JSON at box=auto, the lossless box mode.  One
+  ** thing clean JSON cannot carry, so it is not asserted: a list's element
+  ** type, since a JSON array has nowhere to put it and the reader can only
+  ** infer nullability from an actual null.
+  Void verifyJsonIO(Obj? val)
+  {
+    ns := server.ns
+
+    opts := Etc.dict2("box", "auto", "pretty", Marker.val)
+    str  := ns.io.writeJsonToStr(val, opts)
+    x    := ns.io.readJson(str.in, ns.specOf(val, false))
+
+    if (val is List)
+    {
+      List orig := val
+      List read := x
+      verifyEq(read.size, orig.size)
+      orig.each |v, i| { verifyValEq(v, read[i]) }
+    }
+    else
+    {
+      verifyValEq(val, x)
+    }
+  }
+
   Obj? verifyIO(Obj? val)
   {
     ns := server.ns
@@ -132,11 +157,7 @@ class IOTest : AbstractXetoTest
     verifyValEq(val, binary)
 
     // JSON format
-    /*
-    jsonStr := ns.io.writeJsonToStr(val, Etc.dict1("prettyx", Marker.val))
-    json := ns.io.readJson(jsonStr.in, ns.specOf(val))
-    verifyValEq(val, binary)
-    */
+    verifyJsonIO(val)
 
     // Xeto format does not support null
     if (val == null) return binary

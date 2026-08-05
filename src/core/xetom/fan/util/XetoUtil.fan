@@ -638,6 +638,12 @@ const class XetoUtil
     col.meta["of"] as Ref
   }
 
+  ** Choke point to map grid to its default row spec ref
+  static Ref? gridOfSpecRef(Grid grid)
+  {
+    grid.meta["of"] as Ref
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Inheritance
 //////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,9 @@
 //   12 Jan 2026  Mike Jarmy  Creation
 //
 
-JsonScalars: {
+// Entity supplies the 'id' and 'spec' members that a named instance carries;
+// without them 'id' has no member to resolve against and decodes as a Str
+JsonScalars: Entity {
   marker: Marker
   bool: Bool "true"
   int: Int 123
@@ -30,7 +32,7 @@ JsonScalars: {
 @jsonScalarsA: JsonScalars {
 }
 
-JsonNest: {
+JsonNest: Entity {
   foo: JsonFoo
   dates: List <of:Date>
   untyped: List          // no 'of' meta, so items decode untyped
@@ -46,4 +48,27 @@ JsonFoo: {
   dates: {"2024-11-26", "2024-11-27"}
   untyped: {"a", "b"}
 }
+
+// Members whose plain JSON form only survives when the position names the
+// type.  'looksNum' is declared Str even though its value reads as a Number.
+JsonEdge: {
+  na: NA
+  int: Int
+  float: Float
+  unitless: Number
+  looksNum: Str
+}
+
+// Entity row spec for grid tests, plus a subtype for heterogeneous rows
+JsonRow: Entity {
+  ts: DateTime
+  v0: Number
+}
+
+JsonRowB: JsonRow {
+  extra: Str
+}
+
+// A Grid subtype supplies its default row spec from the schema
+JsonHisGrid: Grid <of:JsonRow>
 
