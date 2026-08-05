@@ -95,11 +95,11 @@ class XetoJsonWriter
 
     // spec
     specRef := XetoUtil.gridSpecRef(grid)
-    indent.quoted(XetoUtil.specTag).wc(':').quoted(specRef.id)
+    indent.quoted("spec").wc(':').quoted(specRef.id)
     wc(',').nl
 
     // meta; the grid spec is emitted above, not repeated inside meta
-    meta := dictExclude(grid.meta, XetoUtil.specTag)
+    meta := dictExclude(grid.meta, "spec")
     if (!meta.isEmpty)
     {
       indent.quoted("meta").wc(':').writeDict(meta, null)
@@ -158,10 +158,10 @@ class XetoJsonWriter
     if (of != null)
     {
       wc(',').nl
-      indent.quoted(XetoUtil.ofTag).wc(':').quoted(of.id)
+      indent.quoted("of").wc(':').quoted(of.id)
     }
 
-    meta := dictExclude(c.meta, XetoUtil.ofTag)
+    meta := dictExclude(c.meta, "of")
     if (!meta.isEmpty)
     {
       wc(',').nl
@@ -214,16 +214,16 @@ class XetoJsonWriter
   {
     wc('{').nl
     indentation++
-    indent.quoted(XetoUtil.valTag).wc(':').quoted(encodeScalar(val))
+    indent.quoted("val").wc(':').quoted(encodeScalar(val))
     wc(',').nl
-    indent.quoted(XetoUtil.specTag).wc(':').quoted(spec.qname)
+    indent.quoted("spec").wc(':').quoted(spec.qname)
 
     // a box is the only place a Ref's display string can travel
     dis := (val as Ref)?.disVal
     if (dis != null)
     {
       wc(',').nl
-      indent.quoted(XetoUtil.disTag).wc(':').quoted(dis)
+      indent.quoted("dis").wc(':').quoted(dis)
     }
 
     indentation--
@@ -243,7 +243,7 @@ class XetoJsonWriter
   ** Is the tag name one of the reserved structural tags
   private Bool isStructuralTag(Str n)
   {
-    n == XetoUtil.specTag || n == XetoUtil.ofTag
+    n == "spec" || n == "of"
   }
 
   ** Encode a scalar to its Xeto string form via the value's own binding, so

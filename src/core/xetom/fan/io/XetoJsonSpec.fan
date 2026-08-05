@@ -45,7 +45,7 @@ using haystack
   ** Spec for a dict position: its own 'spec' tag wins over the context spec.
   Spec? dictSpec(Dict dict, Spec? context, Bool checked := true)
   {
-    resolve(dict.get(XetoUtil.specTag), checked) ?: context
+    resolve(dict.get("spec"), checked) ?: context
   }
 
   ** Spec for a tag within a dict of the given spec.

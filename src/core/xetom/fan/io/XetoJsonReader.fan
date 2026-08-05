@@ -76,7 +76,7 @@ class XetoJsonReader
     dict.each |v, k|
     {
       // spec is a reserved structural tag and is always a Ref
-      if (k == XetoUtil.specTag)
+      if (k == "spec")
         acc[k] = toSpecRef(v)
       else
         acc[k] = convert(v, colOf?.get(k) ?: specs.member(spec, k))
@@ -100,8 +100,8 @@ class XetoJsonReader
   ** boxed scalar.  Returns the box type, or null if this is an ordinary dict.
   private Spec? boxSpec(Dict dict)
   {
-    if (dict.get(XetoUtil.valTag) == null) return null
-    ref := dict.get(XetoUtil.specTag)
+    if (dict.get("val") == null) return null
+    ref := dict.get("spec")
     if (ref == null) return null
     spec := specs.resolve(ref, !lenient)
     if (spec == null || !spec.type.isScalar) return null
@@ -113,7 +113,7 @@ class XetoJsonReader
   private Obj? convertBox(Dict dict, Spec spec)
   {
     // val is always a JSON string, even for types with native JSON forms
-    str := dict.get(XetoUtil.valTag) as Str
+    str := dict.get("val") as Str
     if (str == null)
     {
       if (lenient) return null
@@ -125,7 +125,7 @@ class XetoJsonReader
     // a boxed Ref carries its display string, which has no other place to go
     if (x is Ref)
     {
-      dis := dict.get(XetoUtil.disTag) as Str
+      dis := dict.get("dis") as Str
       if (dis != null) x = Ref.makeWithDis(x, dis)
     }
 
@@ -140,7 +140,7 @@ class XetoJsonReader
     wireMeta := dict["meta"] as Dict
 
     // Rule 3: the default row spec is the instance 'of' then the schema 'of'
-    rowSpec := specs.rowSpec(wireMeta?.get(XetoUtil.ofTag), gridSpec, !lenient)
+    rowSpec := specs.rowSpec(wireMeta?.get("of"), gridSpec, !lenient)
 
     // meta
     meta := convertGridMeta(wireMeta, gridSpec)
@@ -152,7 +152,7 @@ class XetoJsonReader
     cols.each |Dict col|
     {
       name  := (Str)col->name
-      ofRef := col.get(XetoUtil.ofTag)
+      ofRef := col.get("of")
       of    := specs.resolve(ofRef, !lenient)
       if (of != null) colOf[name] = of
       gb.addCol(name, convertColMeta(col, ofRef))
@@ -177,7 +177,7 @@ class XetoJsonReader
     acc := Str:Obj[:]
     acc.ordered = true
     gt := gridSpec.type
-    if (gt !== ns.sys.grid) acc[XetoUtil.specTag] = gt.id
+    if (gt !== ns.sys.grid) acc["spec"] = gt.id
     if (wire != null) eachMetaTag(wire, acc)
     return Etc.dictFromMap(acc)
   }
@@ -191,7 +191,7 @@ class XetoJsonReader
 
     acc := Str:Obj[:]
     acc.ordered = true
-    if (ofRef != null) acc[XetoUtil.ofTag] = Ref.fromStr(ofRef)
+    if (ofRef != null) acc["of"] = Ref.fromStr(ofRef)
     if (wire != null) eachMetaTag(wire, acc)
     return Etc.dictFromMap(acc)
   }
@@ -201,7 +201,7 @@ class XetoJsonReader
   {
     wire.each |v, k|
     {
-      if (k == XetoUtil.ofTag || k == XetoUtil.specTag)
+      if (k == "of" || k == "spec")
         acc[k] = toSpecRef(v)
       else
         acc[k] = convert(v, null)
