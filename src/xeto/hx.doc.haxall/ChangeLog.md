@@ -7,10 +7,7 @@ license:    Licensed under the Academic Free License version 3.0
 -->
 
 *Build 4.0.7 (working)*
-- New readTrash() func. All other folio reads ignore the trash.
-- All folio read/commit security checks now enforced in Folio base class
-- All FolioMgrs (e.g. FolioHis) also enforce read/commit security at mixin layer
-  instead of implementation layer.
+
 
 *Build 4.0.6 (21 Jul 2026)*
 - Companion lib now supports partial compilation to quarantine err recs
