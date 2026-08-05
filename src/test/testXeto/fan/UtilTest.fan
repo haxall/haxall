@@ -353,6 +353,46 @@ class UtilTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// IsFileName
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFileName()
+  {
+    verifyIsFileName("a", null)
+    verifyIsFileName("Readme.md", null)
+    verifyIsFileName("ChapterA.md", null)
+    verifyIsFileName("res", null)
+    verifyIsFileName("a.txt", null)
+    verifyIsFileName("foo-bar.txt", null)
+    verifyIsFileName("foo_bar.txt", null)
+    verifyIsFileName("Foo123.txt", null)
+    verifyIsFileName("foo.bar.baz.txt", null)
+    verifyIsFileName("-", null)
+    verifyIsFileName("_", null)
+    verifyIsFileName(".", null)
+
+    verifyIsFileName("", "File name cannot be the empty string")
+    verifyIsFileName("a b.txt", "File name cannot contain spaces")
+    verifyIsFileName(" ", "File name cannot contain spaces")
+    verifyIsFileName("a~b.txt", "File name cannot contain reserved char '~'")
+    verifyIsFileName("~", "File name cannot contain reserved char '~'")
+    verifyIsFileName("café.txt", "File name cannot contain non-ASCII char 'é' 0xe9")
+    verifyIsFileName("é", "File name cannot contain non-ASCII char 'é' 0xe9")
+    verifyIsFileName("a#b.txt", "Invalid file name char '#' 0x23")
+    verifyIsFileName("a?b.txt", "Invalid file name char '?' 0x3f")
+    verifyIsFileName("a%b.txt", "Invalid file name char '%' 0x25")
+    verifyIsFileName("a+b.txt", "Invalid file name char '+' 0x2b")
+    verifyIsFileName("a:b.txt", "Invalid file name char ':' 0x3a")
+    verifyIsFileName("a/b.txt", "Invalid file name char '/' 0x2f")
+  }
+
+  Void verifyIsFileName(Str n, Str? expect)
+  {
+    verifyEq(XetoUtil.isFileName(n), expect == null)
+    verifyEq(XetoUtil.fileNameErr(n), expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // NameUtils
 //////////////////////////////////////////////////////////////////////////
 

@@ -53,6 +53,34 @@ const class XetoUtil
     return null
   }
 
+  ** Return if valid lib file name; this applies to both resource file
+  ** names and the directory names which contain them
+  static Bool isFileName(Str n)
+  {
+    fileNameErr(n) == null
+  }
+
+  ** If the given lib file name is not valid return an error message,
+  ** otherwise if its valid return null.  File names must map directly
+  ** to a URI path section without any escaping, so we restrict them to
+  ** ASCII alphanumerics plus "-", "_", and "." (the "~" char is
+  ** unreserved in URIs, but we reserve it for infrastructure use).
+  static Str? fileNameErr(Str n)
+  {
+    if (n.isEmpty) return "File name cannot be the empty string"
+    for (i := 0; i<n.size; ++i)
+    {
+      ch := n[i]
+      if (ch.isAlphaNum && ch < 128) continue
+      if (ch == '-' || ch == '_' || ch == '.') continue
+      if (ch == ' ') return "File name cannot contain spaces"
+      if (ch == '~') return "File name cannot contain reserved char '~'"
+      if (ch >= 128) return "File name cannot contain non-ASCII char '$ch.toChar' 0x$ch.toHex"
+      return "Invalid file name char '$ch.toChar' 0x$ch.toHex"
+    }
+    return null
+  }
+
   ** Return if valid top-level type (or mixin) name
   static Bool isTypeName(Str n)
   {
