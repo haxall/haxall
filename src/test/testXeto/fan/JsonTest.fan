@@ -438,7 +438,7 @@ class JsonTest : AbstractXetoTest
   Void testRefDis()
   {
     ns := createNamespace(["hx.test.xeto"])
-    specs := XetoJsonSpec(ns)
+    xutil := XetoJsonUtil(ns)
     refSpec := ns.spec("sys::Ref")
 
     withDis := Ref("xyz-123", "Carytown")
@@ -469,9 +469,9 @@ class JsonTest : AbstractXetoTest
 
     // the predicate reports that a plain Ref cannot hold a dis, even in a
     // Ref position, which is what makes auto box it
-    verifyEq(specs.plainRoundTrips(withDis, refSpec), false)
-    verifyEq(specs.plainRoundTrips(withDis, null), false)
-    verifyEq(specs.plainRoundTrips(noDis, refSpec), true)
+    verifyEq(xutil.plainRoundTrips(withDis, refSpec), false)
+    verifyEq(xutil.plainRoundTrips(withDis, null), false)
+    verifyEq(xutil.plainRoundTrips(noDis, refSpec), true)
 
     // so auto round trips the dis where none drops it
     verifyRefDis(roundTrip(ns, withDis, boxAuto, refSpec), "Carytown")
@@ -506,7 +506,7 @@ class JsonTest : AbstractXetoTest
   Void testPlainRoundTrips()
   {
     ns := createNamespace(["hx.test.xeto"])
-    jspec := XetoJsonSpec(ns)
+    jspec := XetoJsonUtil(ns)
 
     // each sample against no spec, its own spec, and a spec it is not
     wrong := ns.spec("sys::Date")
@@ -568,7 +568,7 @@ class JsonTest : AbstractXetoTest
   Void testOverBoxing()
   {
     ns := createNamespace(["hx.test.xeto"])
-    jspec := XetoJsonSpec(ns)
+    xutil := XetoJsonUtil(ns)
 
     over := Str[,]
     samplePairs(ns).each |pair|
@@ -577,7 +577,7 @@ class JsonTest : AbstractXetoTest
       Spec spec := pair[1]
       Spec?[null, spec].each |expect|
       {
-        if (jspec.plainRoundTrips(val, expect)) return
+        if (xutil.plainRoundTrips(val, expect)) return
         if (!plainSurvives(ns, val, expect)) return
         over.add("$spec.qname at ${expect?.qname}")
       }

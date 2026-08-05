@@ -19,7 +19,7 @@ using haystack
 ** declares - boxing covers everything else.
 **
 @Js
-@NoDoc class XetoJsonSpec
+@NoDoc class XetoJsonUtil
 {
 
 //////////////////////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@ class XetoJsonReader
     this.ns = ns
     this.in = in
     this.rootSpec = rootSpec
-    this.specs = XetoJsonSpec(ns)
+    this.xutil = XetoJsonUtil(ns)
     this.fidelity = XetoUtil.optFidelity(opts)
     this.lenient  = XetoUtil.optBool(opts, "lenient", false)
   }
@@ -63,7 +63,7 @@ class XetoJsonReader
     }
 
     // Rule 3: an explicit 'spec' tag beats the containing context
-    spec := specs.dictSpec(dict, context, !lenient)
+    spec := xutil.dictSpec(dict, context, !lenient)
 
     // check for Grid special case
     if (spec != null && spec.isGrid)
@@ -79,7 +79,7 @@ class XetoJsonReader
       if (k == "spec")
         acc[k] = toSpecRef(v)
       else
-        acc[k] = convert(v, colOf?.get(k) ?: specs.member(spec, k))
+        acc[k] = convert(v, colOf?.get(k) ?: xutil.member(spec, k))
     }
     Dict out := Etc.dictFromMap(acc)
 
@@ -103,7 +103,7 @@ class XetoJsonReader
     if (dict.get("val") == null) return null
     ref := dict.get("spec")
     if (ref == null) return null
-    spec := specs.resolve(ref, !lenient)
+    spec := xutil.resolve(ref, !lenient)
     if (spec == null || !spec.type.isScalar) return null
     return spec
   }
@@ -140,7 +140,7 @@ class XetoJsonReader
     wireMeta := dict["meta"] as Dict
 
     // Rule 3: the default row spec is the instance 'of' then the schema 'of'
-    rowSpec := specs.rowSpec(wireMeta?.get("of"), gridSpec, !lenient)
+    rowSpec := xutil.rowSpec(wireMeta?.get("of"), gridSpec, !lenient)
 
     // meta
     meta := convertGridMeta(wireMeta, gridSpec)
@@ -153,7 +153,7 @@ class XetoJsonReader
     {
       name  := (Str)col->name
       ofRef := col.get("of")
-      of    := specs.resolve(ofRef, !lenient)
+      of    := xutil.resolve(ofRef, !lenient)
       if (of != null) colOf[name] = of
       gb.addCol(name, convertColMeta(col, ofRef))
     }
@@ -221,7 +221,7 @@ class XetoJsonReader
   private Obj?[] convertList(Obj?[] from, Spec? spec)
   {
     // a list spec need not declare 'of'; without it the items are untyped
-    of := specs.listOf(spec)
+    of := xutil.listOf(spec)
 
     if (from.contains(null))
       return from.map |Obj? v->Obj?| { convert(v, of) }
@@ -250,7 +250,7 @@ class XetoJsonReader
     {
       if (fidelity === XetoFidelity.haystack)
         return x is Int ? Number.makeInt(x) : Number.make(x)
-      return specs.coerceNum(x, spec)
+      return xutil.coerceNum(x, spec)
     }
 
     return x
@@ -274,7 +274,7 @@ class XetoJsonReader
   private const MNamespace ns
   private InStream in
   private Spec? rootSpec
-  private XetoJsonSpec specs
+  private XetoJsonUtil xutil
   private XetoFidelity fidelity
 
   ** Degrade a position to untyped instead of raising when its value cannot

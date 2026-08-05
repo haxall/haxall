@@ -25,7 +25,7 @@ class XetoJsonWriter
     this.ns         = ns
     this.out        = out
     this.rootSpec   = rootSpec
-    this.specs      = XetoJsonSpec(ns)
+    this.xutil      = XetoJsonUtil(ns)
     this.box        = XetoUtil.optBox(opts)
     this.pretty     = XetoUtil.optBool(opts, "pretty", false)
     this.escUnicode = XetoUtil.optBool(opts, "escapeUnicode", false)
@@ -50,7 +50,7 @@ class XetoJsonWriter
 
   private This writeDict(Dict dict, Spec? context)
   {
-    spec := specs.dictSpec(dict, context, false)
+    spec := xutil.dictSpec(dict, context, false)
     wc('{').nl
     indentation++
     first := true
@@ -64,7 +64,7 @@ class XetoJsonWriter
       if (isStructuralTag(n) && (x is Ref || x is Str))
         quoted(encodeScalar(x))
       else
-        doVal(x, specs.member(spec, n))
+        doVal(x, xutil.member(spec, n))
     }
     indentation--
     nl.indent.wc('}')
@@ -73,7 +73,7 @@ class XetoJsonWriter
 
   private This writeList(Obj?[] list, Spec? spec)
   {
-    of := specs.listOf(spec)
+    of := xutil.listOf(spec)
     wc('[').nl
     indentation++
     first := true
@@ -107,8 +107,8 @@ class XetoJsonWriter
     }
 
     // default row spec: the instance 'of' then the schema 'of'
-    rowSpec := specs.rowSpec(XetoUtil.gridOfSpecRef(grid),
-                             specs.resolve(specRef, false), false)
+    rowSpec := xutil.rowSpec(XetoUtil.gridOfSpecRef(grid),
+                             xutil.resolve(specRef, false), false)
 
     // cols
     indent.quoted("cols").wc(':')
@@ -204,7 +204,7 @@ class XetoJsonWriter
   private Spec? boxSpec(Obj val, Spec? expected)
   {
     if (box.isNone) return null
-    if (box.isAuto && specs.plainRoundTrips(val, expected)) return null
+    if (box.isAuto && xutil.plainRoundTrips(val, expected)) return null
     return ns.specOf(val, false)
   }
 
@@ -353,7 +353,7 @@ class XetoJsonWriter
   private const Bool escUnicode
   private const Bool pretty
   private Spec? rootSpec
-  private XetoJsonSpec specs
+  private XetoJsonUtil xutil
   private OutStream out
   private Int indentation
 }
