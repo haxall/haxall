@@ -14,63 +14,11 @@ using folio
 **
 ** ShellFolio is a single-threaded in-memory implementation of Folio
 **
-const class ShellFolio : Folio
+const class ShellFolio : MemFolio
 {
   new make(FolioConfig config) : super(config) {}
 
   override PasswordStore passwords() { throw UnsupportedErr() }
-
-  override Int curVer() { curVerRef.val }
-  private const AtomicInt curVerRef := AtomicInt(1)
-
-  override Str flushMode
-  {
-    get { "fsync" }
-    set { throw UnsupportedErr() }
-  }
-
-  override Void flush() {}
-
-  override FolioFuture doCloseAsync()
-  {
-    FolioFuture(CountFolioRes(0))
-  }
-
-  override protected FolioRec? doReadRecById(Ref id)
-  {
-    rec := map.get(id) as Dict
-    if (rec == null && id.isRel && idPrefix != null)
-      rec = map.get(id.toAbs(idPrefix))
-    return rec == null ? null : DictFolioRec(rec)
-  }
-
-  override protected Obj? doReadAllEachWhile(Filter filter, FolioReader sink)
-  {
-    eachWhileImpl(filter, false, sink)
-  }
-
-  override protected Obj? doReadTrashEachWhile(Filter filter, FolioReader sink)
-  {
-    eachWhileImpl(filter, true, sink)
-  }
-
-  private Obj? eachWhileImpl(Filter filter, Bool trashOnly, FolioReader sink)
-  {
-    map := this.map
-    cx := PatherContext(|Ref id->Dict?| { map.get(id) })
-    return eachWhile |rec|
-    {
-      if (!filter.matches(rec, cx)) return null
-      if (rec.has("trash") != trashOnly) return null
-      return sink.accept(rec)
-    }
-  }
-
-  override FolioHis his() { throw UnsupportedErr() }
-
-  override FolioBackup backup() { throw UnsupportedErr() }
-
-  override FolioFile file() { throw UnsupportedErr() }
 
 //////////////////////////////////////////////////////////////////////////
 // Commit
@@ -183,16 +131,6 @@ const class ShellFolio : Folio
     if (rec == null) return id.id
     return refreshDis(rec)
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Rec Map
-//////////////////////////////////////////////////////////////////////////
-
-  private Obj? eachWhile(|Dict->Obj?| f) { map.eachWhile(f) }
-
-  private Void each(|Dict| f) { map.each(f) }
-
-  private const ConcurrentMap map := ConcurrentMap()
 
 }
 

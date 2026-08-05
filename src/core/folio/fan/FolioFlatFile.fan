@@ -14,7 +14,7 @@ using haystack
 ** FolioFlatFile is a simple [Folio] implementation backed by
 ** a [Trio](ph.doc::Trio) flat file.
 **
-const class FolioFlatFile : Folio
+const class FolioFlatFile : MemFolio
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,10 +36,9 @@ const class FolioFlatFile : Folio
   }
 
   private new make(FolioConfig config, File file, ConcurrentMap map)
-    : super(config)
+    : super(config, map)
   {
     this.flatFile = file
-    this.map = map
     this.passwords = PasswordStore.open(dir+`passwords.props`, config)
     this.actor = Actor(config.pool) |msg| { onReceive(msg) }
   }
@@ -52,55 +51,9 @@ const class FolioFlatFile : Folio
   @NoDoc const override PasswordStore passwords
   private const Actor actor
 
-  @NoDoc override Int curVer() { curVerRef.val }
-  private const AtomicInt curVerRef := AtomicInt(1)
-
 //////////////////////////////////////////////////////////////////////////
-// Folio
+// Commits
 //////////////////////////////////////////////////////////////////////////
-
-  @NoDoc override Str flushMode
-  {
-    get { "fsync" }
-    set { throw UnsupportedErr("flushMode") }
-  }
-
-  @NoDoc override Void flush() {}
-
-  @NoDoc override FolioFuture doCloseAsync()
-  {
-    FolioFuture(CountFolioRes(0))
-  }
-
-  @NoDoc override FolioRec? doReadRecById(Ref id)
-  {
-    rec := map.get(id) as Dict
-    if (rec == null && id.isRel && idPrefix != null)
-      rec = map.get(id.toAbs(idPrefix))
-    return rec == null ? null : DictFolioRec(rec)
-  }
-
-  @NoDoc override protected Obj? doReadAllEachWhile(Filter filter, FolioReader sink)
-  {
-    eachWhileImpl(filter, false, sink)
-  }
-
-  @NoDoc override protected Obj? doReadTrashEachWhile(Filter filter, FolioReader sink)
-  {
-    eachWhileImpl(filter, true, sink)
-  }
-
-  private Obj? eachWhileImpl(Filter filter, Bool trashOnly, FolioReader sink)
-  {
-    map := this.map
-    cx := PatherContext(|Ref id->Dict?| { map.get(id) })
-    return eachWhile |rec|
-    {
-      if (!filter.matches(rec, cx)) return null
-      if (rec.has("trash") != trashOnly) return null
-      return sink.accept(rec)
-    }
-  }
 
   @NoDoc override FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)
   {
@@ -109,22 +62,6 @@ const class FolioFlatFile : Folio
     // send message to background actor
     return FolioFuture(actor.send(FolioFlatFileMsg("commit", diffs, cxInfo)))
   }
-
-  @NoDoc override FolioHis his() { throw UnsupportedErr() }
-
-  @NoDoc override FolioBackup backup() { throw UnsupportedErr() }
-
-  @NoDoc override FolioFile file() { throw UnsupportedErr() }
-
-//////////////////////////////////////////////////////////////////////////
-// ConcurrentHashMap
-//////////////////////////////////////////////////////////////////////////
-
-  internal const ConcurrentMap map
-
-  private Obj? eachWhile(|Dict->Obj?| f) { map.eachWhile(f) }
-
-  private Void each(|Dict| f) { map.each(f) }
 
 //////////////////////////////////////////////////////////////////////////
 // Actor Processing
