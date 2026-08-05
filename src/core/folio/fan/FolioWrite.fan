@@ -13,9 +13,10 @@ using xeto
 **
 @NoDoc const class FolioWrite
 {
-  ** Convenience to create a write "probe" asking generally is
-  ** the rec writable.
-  static FolioWrite probe(Dict rec) { make(rec) }
+  ** Create a write "probe" asking generally is the rec writable.
+  ** Used only by the FolioMgr write checks; the rec is always the
+  ** current version resolved from a permission checked read.
+  internal static FolioWrite probe(FolioRec rec) { make(rec.dict) }
 
   ** Pending commit of the given diff. The oldRec is the current version
   ** of the rec, or null when the diff is an add.
@@ -37,3 +38,4 @@ using xeto
   ** Diff being committed, or null for writes which are not a folio rec commit
   const Diff? diff
 }
+

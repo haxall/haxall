@@ -26,7 +26,7 @@ mixin FolioMgr
   {
     db.checkWrite
     cx := folioCx
-    if (cx != null && !cx.canWrite(FolioWrite.probe(rec.dict)))
+    if (cx != null && !cx.canWrite(FolioWrite.probe(rec)))
       throw PermissionErr("Cannot write: ${rec.dict.id.toZinc}")
     return rec
   }
@@ -40,7 +40,7 @@ mixin FolioMgr
     if (cx == null) return recs
     recs.each |rec|
     {
-      if (!cx.canWrite(FolioWrite.probe(rec.dict)))
+      if (!cx.canWrite(FolioWrite.probe(rec)))
         throw PermissionErr("Cannot write: ${rec.dict.id.toZinc}")
     }
     return recs
