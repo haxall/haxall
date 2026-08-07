@@ -313,6 +313,42 @@ class JsonSchemaExporter : Exporter
     return res
   }
 
+  ** Widen a schema to also admit JSON null.
+  **
+  ** Only for positions that have no key to omit -- a func return body, or
+  ** list items.  A maybe dict slot is NOT nullable: Xeto "Foo?" means the
+  ** slot may be absent, and null is unrepresentable in a Dict, so omitting
+  ** it from "required" already says everything there is to say.
+  Obj:Obj nullable(Obj:Obj schema)
+  {
+    // an unconstrained schema already admits null.  description alone
+    // constrains nothing, and "returns: Obj?" is far and away the common
+    // case, so this keeps anyOf noise out of most of the surface.
+    if (schema.keys.all |k| { k == "description" }) return schema
+
+    // a lone type widens in place
+    type := schema["type"]
+    if (type is Str)
+    {
+      schema = schema.rw
+      schema["type"] = Obj[(Str)type, "null"]
+      return schema
+    }
+
+    // otherwise wrap -- $ref-shaped and multi-branch schemas.  hoist any
+    // description so it stays on the node consumers render.
+    desc := schema["description"]
+    if (desc != null)
+    {
+      schema = schema.rw
+      schema.remove("description")
+    }
+    res := Obj:Obj[:] { ordered = true }
+    res["anyOf"] = Obj[schema, Obj:Obj["type": "null"]]
+    if (desc != null) res["description"] = desc
+    return res
+  }
+
   private Obj:Obj propSchema(Spec slot)
   {
     // primitives
@@ -337,7 +373,12 @@ class JsonSchemaExporter : Exporter
       res := Obj:Obj["type": "array"]
       of := slot.of(false)
       if (of != null)
-        res["items"] = ensureRef(of)
+      {
+        // List<of:Foo?> legitimately holds nulls -- Fitter.fitsList only
+        // rejects them when the of type is not maybe
+        items := ensureRef(of)
+        res["items"] = of.isMaybe ? nullable(items) : items
+      }
       return res
     }
 

@@ -164,6 +164,39 @@ class JsonSchemaTest : AbstractXetoTest
     verifyAllRefsResolved(personDef, ex.defs)
   }
 
+  Void testNullable()
+  {
+    ns := createNamespace(["sys"])
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    nullType := Obj:Obj["type": "null"]
+
+    // unconstrained already admits null; description alone constrains
+    // nothing, so both are left alone
+    verifyEq(ex.nullable(Obj:Obj[:]), Obj:Obj[:])
+    verifyEq(ex.nullable(Obj:Obj["description": "d"]),
+             Obj:Obj["description": "d"])
+
+    // a lone type widens in place
+    verifyEq(ex.nullable(Obj:Obj["type": "string"]),
+             Obj:Obj["type": Obj["string", "null"]])
+    verifyEq(ex.nullable(Obj:Obj["type": "array", "items": nullType]),
+             Obj:Obj["type": Obj["array", "null"], "items": nullType])
+
+    // $ref has no type, so it wraps -- and description is hoisted back
+    // out so it stays on the node consumers render
+    ref := Obj:Obj["\$ref": "#/\$defs/sys.Number"]
+    verifyEq(ex.nullable(ref.dup),
+             Obj:Obj["anyOf": Obj[ref, nullType]])
+    verifyEq(ex.nullable(ref.dup.set("description", "d")),
+             Obj:Obj["anyOf": Obj[ref, nullType], "description": "d"])
+
+    // F8: the primitives table is shared and immutable
+    strPrim := (Obj:Obj)JsonSchemaExporter.primitives.getChecked("sys::Str")
+    verifyEq(ex.nullable(strPrim), Obj:Obj["type": Obj["string", "null"]])
+    verifyEq(JsonSchemaExporter.primitives.getChecked("sys::Str"),
+             Obj:Obj["type": "string"])
+  }
+
   **
   ** Serialize before asserting.  The in-memory tests above cannot see
   ** escaping defects: doSpecScalar hand-escapes the pattern and the JSON

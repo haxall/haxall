@@ -160,12 +160,10 @@ class OpenApiExporter : Exporter
     if (returns != null)
     {
       response = schemaExporter.prop(returns)
-      // .rw: prop may hand back a shared immutable map from primitives
+      // the response body has no key to omit, so a maybe return really can
+      // answer JSON null -- ApiDispatchV5 writes it literally
       if (returns.isMaybe)
-      {
-        response = response.rw
-        response["nullable"] = true
-      }
+        response = schemaExporter.nullable(response)
     }
 
     // responses
