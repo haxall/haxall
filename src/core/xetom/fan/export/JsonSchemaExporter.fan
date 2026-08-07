@@ -305,12 +305,16 @@ class JsonSchemaExporter : Exporter
     // ordinary keyword whose siblings apply, so every shape takes the
     // same path.
     doc := slot.metaOwn["doc"] as Str
-    if (doc == null) return res
+    if (doc != null)
+    {
+      // .rw: propSchema may hand back a shared immutable map from primitives
+      res = res.rw
+      res["description"] = doc
+    }
 
-    // .rw: propSchema may hand back a shared immutable map from primitives
-    res = res.rw
-    res["description"] = doc
-    return res
+    // no "spec" here -- a $ref already names the type, and an inline type
+    // is fully expressed by its own keywords
+    return xeto(res, slot, false)
   }
 
   ** Widen a schema to also admit JSON null.
@@ -347,6 +351,83 @@ class JsonSchemaExporter : Exporter
     res["anyOf"] = Obj[schema, Obj:Obj["type": "null"]]
     if (desc != null) res["description"] = desc
     return res
+  }
+
+  ** Stamp x-xeto annotations from the spec's own meta.  Returns schema for
+  ** chaining; no-op when there is nothing to add.
+  **
+  ** Carries the Xeto type information JSON Schema cannot express, alongside
+  ** the lossy approximation of the same node.  Meta with a faithful keyword
+  ** equivalent goes to that keyword and never appears here, so there is no
+  ** ambiguity about which copy is authoritative.  This is a documentation
+  ** projection, not a round-trippable encoding -- consumers needing full
+  ** fidelity resolve "spec" against the server.
+  private Obj:Obj xeto(Obj:Obj schema, Spec spec, Bool withSpec := true)
+  {
+    meta := spec.metaOwn
+
+    acc := Str:Obj[:]
+    xetoMeta.each |name|
+    {
+      v := meta[name]
+      if (v == null) return
+
+      // never duplicate what a standard keyword already carries
+      if (name == "of" && schema.containsKey("items")) return
+
+      acc[name] = jsonVal(v)
+    }
+
+    // minVal/maxVal are the one conditional entry: a unitless bound is a
+    // JSON number and maps to minimum/maximum, but a united bound is not a
+    // JSON number and has to spill into x-xeto instead.
+    keywords := Str:Obj[:] { ordered = true }
+    boundKeywords.each |keyword, name|
+    {
+      v := meta[name]
+      if (v == null) return
+      num := v as Number
+      if (num != null && num.unit == null)
+        keywords[keyword] = numVal(num)
+      else
+        acc[name] = jsonVal(v)
+    }
+
+    if (acc.isEmpty && keywords.isEmpty && !withSpec) return schema
+
+    schema = schema.rw
+    keywords.each |v, k| { schema[k] = v }
+
+    // spec first, then meta alphabetically
+    if (withSpec || !acc.isEmpty)
+    {
+      x := Str:Obj[:] { ordered = true }
+      if (withSpec) x["spec"] = spec.qname
+      acc.keys.sort.each |k| { x[k] = acc.getChecked(k) }
+      schema["x-xeto"] = x
+    }
+    return schema
+  }
+
+  ** Clean JSON projection of a meta value: markers are true, spec
+  ** references are bare qname strings, lists stay lists.
+  **
+  ** "of" and "ofs" are declared Ref<of:Spec> rather than Spec, and Ref.toStr
+  ** is the bare qname, so they land on the trailing toStr.
+  private static Obj jsonVal(Obj v)
+  {
+    if (v is Marker) return true
+    if (v is Spec)   return ((Spec)v).qname
+    if (v is List)   return ((List)v).map |x->Obj| { jsonVal(x) }
+    if (v is Str || v is Bool || v is Int || v is Float) return v
+    return v.toStr
+  }
+
+  ** Integral numbers emit as JSON integers, matching XetoJsonWriter
+  private static Obj numVal(Number n)
+  {
+    f := n.toFloat
+    return f.toInt.toFloat == f ? (Obj)f.toInt : (Obj)f
   }
 
   private Obj:Obj propSchema(Spec slot)
@@ -395,6 +476,10 @@ class JsonSchemaExporter : Exporter
       schema["description"] = doc
     }
 
+    // synthetic nodes are not a spec, so they carry no annotation
+    if (syntheticName == null)
+      schema = xeto(schema, spec)
+
     specName := syntheticName ?: spec.name
     defs[defName(spec.lib, specName)] = schema
   }
@@ -428,6 +513,24 @@ class JsonSchemaExporter : Exporter
   ** JSON Schema dialect emitted as $schema, and advertised by
   ** OpenApiExporter as the document's jsonSchemaDialect.
   static const Str dialect := "https://json-schema.org/draft/2020-12/schema"
+
+  ** Xeto meta projected into x-xeto.  Tags with a faithful JSON Schema
+  ** equivalent map to that keyword instead and are absent here.
+  **
+  ** Allowlist, not denylist: otherwise every new sys meta tag silently
+  ** leaks compiler internals (loc, class, sealed, mixin, noInherit) into a
+  ** published API surface.  Cost is an exporter edit per new tag, which is
+  ** the right trade for a public surface.  Keep alphabetical.
+  static const Str[] xetoMeta := [
+    "abstract", "async", "inverse", "multiChoice", "of", "ofs",
+    "quantity", "transient", "unit", "unitless", "via",
+  ]
+
+  ** Conditional entries -- see xeto()
+  private static const Str:Str boundKeywords := [
+    "minVal": "minimum",
+    "maxVal": "maximum",
+  ]
 
   static const Str:[Obj:Obj] primitives := [
     "sys::Str":   Obj:Obj["type": "string"],

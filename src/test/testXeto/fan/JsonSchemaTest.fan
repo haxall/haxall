@@ -164,6 +164,34 @@ class JsonSchemaTest : AbstractXetoTest
     verifyAllRefsResolved(personDef, ex.defs)
   }
 
+  Void testXetoAnnotations()
+  {
+    ns := createNamespace(["sys", "ph"])
+
+    // def level carries "spec"; quantity is not expressible in JSON Schema
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ex.spec(ns.spec("sys::Duration"))
+    durDef := (Obj:Obj)ex.defs.getChecked("sys.Duration")
+    verifyEq(durDef["x-xeto"], Str:Obj["spec": "sys::Duration", "quantity": "time"])
+
+    // slot level: own meta only, and no "spec" -- the $ref names the type.
+    // "of" on a Ref is not expressible; on a List it duplicates "items".
+    src :=
+      Str<|Foo: {
+             siteRef: sys::Ref <of:ph::Site>,
+             tags: List <of:sys::Str>,
+             plain: sys::Str
+           }|>
+    lib := ns.compileTempLib(src)
+    ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ex.spec(lib.type("Foo"))
+    props := (Obj:Obj)((Obj:Obj)ex.defs.getChecked("${lib.name}.Foo"))["properties"]
+
+    verifyEq(((Obj:Obj)props["siteRef"])["x-xeto"], Str:Obj["of": "ph::Site"])
+    verifyEq(((Obj:Obj)props["tags"])["x-xeto"], null)      // items carries it
+    verifyEq(((Obj:Obj)props["plain"])["x-xeto"], null)     // nothing to add
+  }
+
   Void testNullable()
   {
     ns := createNamespace(["sys"])
