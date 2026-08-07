@@ -164,15 +164,64 @@ class JsonSchemaTest : AbstractXetoTest
     verifyAllRefsResolved(personDef, ex.defs)
   }
 
+  Void testScalarMappings()
+  {
+    ns := createNamespace(["sys"])
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ["Number", "Float", "Marker", "NA", "None", "Date", "Uri"].each |n|
+    {
+      ex.spec(ns.spec("sys::$n"))
+    }
+
+    // F7: Float must admit the quoted specials writeFloat emits
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Float"))["anyOf"], Obj[
+      Obj:Obj["type": "number"],
+      Obj:Obj["enum": Obj["NaN", "INF", "-INF"]],
+    ])
+
+    // D3: three branches, disjoint by type, mirroring writeNumber
+    branches := (Obj[])((Obj:Obj)ex.defs.getChecked("sys.Number"))["anyOf"]
+    verifyEq(branches.size, 3)
+    verifyEq(((Obj:Obj)branches[0])["type"], "number")
+    verifyEq(((Obj:Obj)branches[1])["enum"], Obj["NaN", "INF", "-INF"])
+
+    // the unit branch must be portable and must not swallow a bare number,
+    // or the branches stop being disjoint
+    unitPattern := (Str)((Obj:Obj)branches[2])["pattern"]
+    verify(!unitPattern.contains("\\P{ASCII}"), "not portable: $unitPattern")
+    verify(Regex.fromStr(unitPattern).matches("75kW"))
+    verifyFalse(Regex.fromStr(unitPattern).matches("75"))
+
+    // single-valued scalars are const, not pattern
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Marker"))["const"], "✓")
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.NA"))["const"], "na")
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.None"))["const"], "∅")
+
+    // format annotates alongside the pattern, never replaces it -- format
+    // is not an assertion by default, so swapping would drop validation
+    date := (Obj:Obj)ex.defs.getChecked("sys.Date")
+    verifyEq(date["format"], "date")
+    verifyNotNull(date["pattern"])
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Uri"))["format"], "uri-reference")
+  }
+
   Void testXetoAnnotations()
   {
     ns := createNamespace(["sys", "ph"])
 
-    // def level carries "spec"; quantity is not expressible in JSON Schema
+    // Duration is a Number on the wire, so it refs one.  the $ref already
+    // names the type, so x-xeto carries only the quantity.
     ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     ex.spec(ns.spec("sys::Duration"))
     durDef := (Obj:Obj)ex.defs.getChecked("sys.Duration")
-    verifyEq(durDef["x-xeto"], Str:Obj["spec": "sys::Duration", "quantity": "time"])
+    verifyEq(durDef["\$ref"], "#/\$defs/sys.Number")
+    verifyEq(durDef["x-xeto"], Str:Obj["quantity": "time"])
+
+    // a def that is not $ref-shaped does carry "spec"
+    ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ex.spec(ns.spec("sys::Version"))
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Version"))["x-xeto"],
+             Str:Obj["spec": "sys::Version"])
 
     // slot level: own meta only, and no "spec" -- the $ref names the type.
     // "of" on a Ref is not expressible; on a List it duplicates "items".
@@ -218,10 +267,10 @@ class JsonSchemaTest : AbstractXetoTest
     verifyEq(ex.nullable(ref.dup.set("description", "d")),
              Obj:Obj["anyOf": Obj[ref, nullType], "description": "d"])
 
-    // F8: the primitives table is shared and immutable
-    strPrim := (Obj:Obj)JsonSchemaExporter.primitives.getChecked("sys::Str")
+    // F8: the scalar table is shared and immutable
+    strPrim := (Obj:Obj)JsonSchemaExporter.scalarMappings.getChecked("sys::Str")
     verifyEq(ex.nullable(strPrim), Obj:Obj["type": Obj["string", "null"]])
-    verifyEq(JsonSchemaExporter.primitives.getChecked("sys::Str"),
+    verifyEq(JsonSchemaExporter.scalarMappings.getChecked("sys::Str"),
              Obj:Obj["type": "string"])
   }
 

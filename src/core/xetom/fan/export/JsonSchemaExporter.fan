@@ -156,27 +156,48 @@ class JsonSchemaExporter : Exporter
         "type": "string",
         "enum": spec.enum.keys
       ])
+      return
     }
-    else
-    {
-      // primitives are inlined at the use site, never given a def
-      if (primitives.containsKey(spec.qname)) return
 
-      pattern := spec.meta["pattern"]
-      if (pattern == null)
-      {
-        addDef(spec, doc, [
-          "type": "string",
-        ])
-      }
-      else
-      {
-        addDef(spec, doc, [
-          "type": "string",
-          "pattern": anchor((Str)pattern),
-        ])
-      }
+    // inlined at the use site, never given a def
+    if (inlineScalars.contains(spec.qname)) return
+
+    // explicit whole-schema override
+    mapping := scalarMappings.getChecked(spec.qname, false)
+    if (mapping != null)
+    {
+      addDef(spec, doc, (Obj:Obj)mapping)
+      return
     }
+
+    // a scalar refining a mapped scalar is that type on the wire
+    // (Duration : Number), so ref the base rather than re-deriving it
+    base := mappedBase(spec)
+    if (base != null)
+    {
+      addDef(spec, doc, ref(base.lib, base.name))
+      return
+    }
+
+    schema := Obj:Obj[:] { ordered = true }
+    schema["type"] = "string"
+    format := scalarFormats.getChecked(spec.qname, false)
+    if (format != null) schema["format"] = (Str)format
+    pattern := spec.meta["pattern"]
+    if (pattern != null) schema["pattern"] = anchor((Str)pattern)
+    addDef(spec, doc, schema)
+  }
+
+  ** Nearest base carrying its own $defs entry, or null.  Inline scalars stop
+  ** the walk -- they have no def to reference.
+  private static Spec? mappedBase(Spec spec)
+  {
+    for (b := spec.base; b != null; b = b.base)
+    {
+      if (inlineScalars.contains(b.qname)) return null
+      if (scalarMappings.containsKey(b.qname)) return b
+    }
+    return null
   }
 
   ** JSON Schema patterns are not implicitly anchored (2020-12 §6.3.3) but
@@ -366,6 +387,9 @@ class JsonSchemaExporter : Exporter
   {
     meta := spec.metaOwn
 
+    // a $ref already names the type
+    if (schema.containsKey("\$ref")) withSpec = false
+
     acc := Str:Obj[:]
     xetoMeta.each |name|
     {
@@ -432,9 +456,9 @@ class JsonSchemaExporter : Exporter
 
   private Obj:Obj propSchema(Spec slot)
   {
-    // primitives
-    prim := primitives.getChecked(slot.type.qname, false)
-    if (prim != null) return prim
+    // inline scalars are stamped directly rather than referenced
+    if (inlineScalars.contains(slot.type.qname))
+      return (Obj:Obj)scalarMappings.getChecked(slot.type.qname)
 
     // base obj -- "any" type
     if (slot.type.qname == "sys::Obj")
@@ -532,11 +556,59 @@ class JsonSchemaExporter : Exporter
     "maxVal": "maximum",
   ]
 
-  static const Str:[Obj:Obj] primitives := [
+  ** Scalars stamped inline at the use site rather than given a $defs entry.
+  **
+  ** Int is declared a Number subtype in Xeto but its wire form is a bare
+  ** JSON integer, not Number's union -- this table deliberately overrides
+  ** the inheritance walk for it.
+  static const Str[] inlineScalars := ["sys::Str", "sys::Bool", "sys::Int"]
+
+  ** Whole-schema overrides for scalars JSON Schema cannot reach by the
+  ** generic "string + pattern" route.  Anything not listed here keeps its
+  ** Xeto pattern as the authority, so patterns are never duplicated into
+  ** Fantom source.  Patterns written here must be anchored -- they bypass
+  ** anchor(), which only wraps patterns read from spec meta.
+  static const Str:[Obj:Obj] scalarMappings := [
     "sys::Str":   Obj:Obj["type": "string"],
     "sys::Bool":  Obj:Obj["type": "boolean"],
     "sys::Int":   Obj:Obj["type": "integer"],
-    "sys::Float": Obj:Obj["type": "number"],
+
+    // F7: writeFloat quotes NaN/INF/-INF, so "number" alone rejects the
+    // encoding sys::Float itself produces
+    "sys::Float": Obj:Obj["anyOf": Obj[
+      Obj:Obj["type": "number"],
+      Obj:Obj["enum": Obj["NaN", "INF", "-INF"]],
+    ]],
+
+    // D3: three wire forms, mirroring writeNumber exactly -- bare number
+    // when unitless, quoted NaN/INF, quoted string when it carries a unit.
+    // anyOf not oneOf: the branches are disjoint by type.  [^\x00-\x7F]
+    // rather than \P{ASCII}, which needs the u flag in ECMA-262 and which
+    // Python's re rejects outright.
+    "sys::Number": Obj:Obj["anyOf": Obj[
+      Obj:Obj["type": "number"],
+      Obj:Obj["enum": Obj["NaN", "INF", "-INF"]],
+      Obj:Obj["type": "string",
+        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?(?:[a-zA-Z%_/\$]|[^\\x00-\\x7F])+\$"],
+    ]],
+
+    // const beats pattern for a single-valued scalar
+    "sys::Marker": Obj:Obj["const": "✓"],
+    "sys::None":   Obj:Obj["const": "∅"],
+    "sys::NA":     Obj:Obj["const": "na"],
+  ]
+
+  ** Standard "format" annotations, added alongside the Xeto pattern rather
+  ** than replacing it -- format is an annotation by default in 2020-12, so
+  ** swapping a pattern for a format would drop the assertion entirely.
+  **
+  ** Time and DateTime are deliberately absent: RFC 3339 "full-time" requires
+  ** an offset that Xeto Time does not carry, and Xeto DateTime appends a
+  ** timezone name ("...Z UTC") that "date-time" does not admit.  Claiming
+  ** either format would make a validator reject valid Xeto data.
+  private static const Str:Str scalarFormats := [
+    "sys::Date": "date",
+    "sys::Uri":  "uri-reference",
   ]
 
   // qnames that have already been defined

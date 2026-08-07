@@ -168,15 +168,17 @@ class OpenApiExporter : Exporter
 
     // responses
     responses := Obj:Obj[:] { ordered = true }
-    responses["'200'"] = [
+    responses["200"] = [
       "description": "Success",
       "content": jsonSchema(response)
     ]
-
-    responses["'400'"] = [
-      "description": "Bad Request",
-      "content": jsonSchema(errRef)
-    ]
+    errResponses.each |desc, code|
+    {
+      responses[code] = [
+        "description": desc,
+        "content": jsonSchema(errRef)
+      ]
+    }
 
     // path
     path := Obj:Obj[:] { ordered = true }
@@ -224,6 +226,19 @@ class OpenApiExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
+
+  ** Stamped on every operation, all carrying the sys::Err dict.  Keys are
+  ** plain "400", not the old "'400'" -- the quotes were a workaround for
+  ** YAML coercing a bare numeric key to an int, but they landed as literal
+  ** apostrophes in both writers.  JSON is now correct; a YAML consumer still
+  ** sees an int key until YamlWriter learns to quote numeric strings.
+  private static const Str:Str errResponses := Str:Str[
+    "400": "Bad Request",
+    "401": "Unauthorized",
+    "403": "Forbidden",
+    "404": "Not Found",
+    "500": "Internal Server Error",
+  ] { ordered = true }
 
   private JsonSchemaExporter schemaExporter
   private Obj:Obj errRef
