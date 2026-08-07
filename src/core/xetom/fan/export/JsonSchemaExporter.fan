@@ -72,7 +72,8 @@ class JsonSchemaExporter : Exporter
 
   override This lib(Lib lib)
   {
-    map["\$id"] = libNameVer(lib)
+    // the one place a version still belongs
+    map["\$id"] = "${lib.name}-${lib.version}"
 
     if (lib.meta.has("doc"))
       map["title"] = lib.meta->doc
@@ -353,9 +354,8 @@ class JsonSchemaExporter : Exporter
       schema["description"] = doc
     }
 
-    libName := libNameVer(spec.lib)
     specName := syntheticName ?: spec.name
-    defs["$libName-$specName"] = schema
+    defs[defName(spec.lib, specName)] = schema
   }
 
   Obj:Obj ensureRef(Spec type)
@@ -368,13 +368,16 @@ class JsonSchemaExporter : Exporter
 
   private Obj:Obj ref(Lib lib, Str specName)
   {
-    libName := libNameVer(lib)
-    return Obj:Obj["\$ref": "#/$refPath/$libName-$specName"]
+    return Obj:Obj["\$ref": "#/$refPath/${defName(lib, specName)}"]
   }
 
-  private static Str libNameVer(Lib lib)
+  ** Flat qname key -- "sys.Ref", "ph.Site".  No version stamp: one document
+  ** is one namespace and cannot hold two versions of a lib, so versions are
+  ** carried once in info/x-xeto-libs.  "." is legal both in an OpenAPI 3.1
+  ** component key and in a JSON pointer segment, so it needs no escaping.
+  private static Str defName(Lib lib, Str specName)
   {
-     return "${lib.name}-${lib.version}".replace(".", "-")
+    return "${lib.name}.${specName}"
   }
 
 //////////////////////////////////////////////////////////////////////////

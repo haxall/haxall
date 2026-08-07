@@ -30,9 +30,16 @@ class OpenApiExporter : Exporter
 
     map["openapi"] = "3.1.0"
     map["jsonSchemaDialect"] = JsonSchemaExporter.dialect
+    sysVer := ns.sysLib.version
+
+    // TODO: title and version want a project handle, which the exporter
+    // does not have until the /openapi.json endpoint passes one in.
     map["info"] = [
-      "title": "Xeto OpenApi definition",
-      "version": "0.0.1"
+      "title": "Xeto API",
+      "version": sysVer.toStr,
+      "x-xeto-libs": ns.versions.map |v->Obj| {
+        Obj:Obj["name": v.name, "version": v.version.toStr]
+      },
     ]
     map["paths"] = paths
     map["components"] = [
@@ -41,9 +48,17 @@ class OpenApiExporter : Exporter
         "projName": [
           "name": "projName",
           "in": "path",
-          "required": "true",
+          "required": true,
           "schema": [
             "type": "string",
+          ]
+        ],
+        "xetoVersion": [
+          "name": "Xeto-Version",
+          "in": "header",
+          "required": true,
+          "schema": [
+            "const": sysVer.major.toStr,
           ]
         ]
       ]
@@ -175,18 +190,28 @@ class OpenApiExporter : Exporter
     if (props.isEmpty && spec.meta.has("noSideEffects"))
       path["get"] =  [
         "responses": responses,
-        "parameters": [["\$ref": "#/components/parameters/projName"]],
+        "parameters": opParams,
       ]
     // POST
     else
       path["post"] =  [
         "requestBody": requestBody,
         "responses": responses,
-        "parameters": [["\$ref": "#/components/parameters/projName"]],
+        "parameters": opParams,
       ]
 
     // done
     paths[uri] = path
+  }
+
+  ** Params every operation carries.  Returns a fresh list each call so
+  ** nothing downstream mutates a shared map.
+  private static Obj[] opParams()
+  {
+    return [
+      Obj:Obj["\$ref": "#/components/parameters/projName"],
+      Obj:Obj["\$ref": "#/components/parameters/xetoVersion"],
+    ]
   }
 
   private static Obj:Obj jsonSchema(Obj:Obj schema)

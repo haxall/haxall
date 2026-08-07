@@ -21,9 +21,8 @@ class JsonSchemaTest : AbstractXetoTest
   Void testFuncToParams()
   {
     ns := createNamespace(["sys", "sys.api", "hx", "hx.math"])
-    sysVer := ns.lib("sys").version.toStr.replace(".", "-")
-    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Number"]
-    sysRefRef    := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Ref"]
+    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys.Number"]
+    sysRefRef    := Obj:Obj["\$ref": "#/\$defs/sys.Ref"]
 
     mathFuncs := ns.lib("hx.math").spec("Funcs")
     apiFuncs  := ns.lib("sys.api").spec("Funcs")
@@ -82,8 +81,7 @@ class JsonSchemaTest : AbstractXetoTest
   Void testSlotDescriptions()
   {
     ns := createNamespace(["sys"])
-    sysVer := ns.lib("sys").version.toStr.replace(".", "-")
-    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Number"]
+    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys.Number"]
 
     // a temp lib with a Func whose params carry slot-level <doc:"..."> meta,
     // plus an object spec whose own slots carry <doc:"...">.  exercises both
@@ -141,7 +139,7 @@ class JsonSchemaTest : AbstractXetoTest
         "sample":  Obj:Obj["description": "opaque sample value"],
         "ids":     Obj:Obj[
           "type": "array",
-          "items": Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Ref"],
+          "items": Obj:Obj["\$ref": "#/\$defs/sys.Ref"],
           "description": "list of refs to mix in",
         ],
       ],
@@ -157,8 +155,7 @@ class JsonSchemaTest : AbstractXetoTest
     //
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     ex.spec(lib.type("Person"))
-    libVer := lib.version.toStr.replace(".", "-")
-    personDef := (Obj:Obj)ex.defs["${lib.name}-${libVer}-Person"]
+    personDef := (Obj:Obj)ex.defs["${lib.name}.Person"]
     personProps := (Obj:Obj)personDef["properties"]
     verifyEq(personProps["name"],
       Obj:Obj["type": "string", "description": "full name"])
@@ -176,8 +173,7 @@ class JsonSchemaTest : AbstractXetoTest
   Void testPatternRoundTrip()
   {
     ns := createNamespace(["sys"])
-    sysVer := ns.lib("sys").version.toStr.replace(".", "-")
-    defKey := |Str n->Str| { "sys-${sysVer}-$n" }
+    defKey := |Str n->Str| { "sys.$n" }
 
     // scalars whose patterns are portable across the Java and JS regex
     // engines.  Number and Duration are excluded on purpose: they carry
