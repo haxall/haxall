@@ -169,6 +169,59 @@ class JsonSchemaTest : AbstractXetoTest
     verifyAllRefsResolved(personDef, ex.defs)
   }
 
+  **
+  ** Serialize before asserting.  The in-memory tests above cannot see
+  ** escaping defects: doSpecScalar hand-escapes the pattern and the JSON
+  ** writer escapes it again, so the corruption exists only in the
+  ** serialized form.
+  **
+  ** Expected to fail until F3/F4 land -- today's output decodes to doubled
+  ** backslashes and carries no anchors.
+  **
+  Void testPatternRoundTrip()
+  {
+    ns := createNamespace(["sys"])
+    sysVer := ns.lib("sys").version.toStr.replace(".", "-")
+    defKey := |Str n->Str| { "sys-${sysVer}-$n" }
+
+    // scalars whose patterns are portable across the Java and JS regex
+    // engines.  Number and Duration are excluded on purpose: they carry
+    // \P{ASCII}, which needs the u flag in JS and which A7 replaces.
+    names := ["Ref", "Date", "Time", "DateTime", "Version"]
+
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    names.each |n| { ex.spec(ns.spec("sys::$n")) }
+    defs := roundTrip(ex.defs)
+
+    // F3 + F4: what we emit must decode back to the declared pattern,
+    // anchored.  They land together -- anchoring alone would turn the
+    // escaping bug into rejection of valid data.
+    names.each |n|
+    {
+      def := (Str:Obj?)defs.getChecked(defKey(n))
+      verifyEq(def.getChecked("pattern"),
+               anchor(ns.spec("sys::$n").meta->pattern),
+               "pattern corrupted: sys::$n")
+    }
+
+    // the payoff: today the Ref class decodes to a literal backslash
+    // plus 'd', so it matches no digit at all
+    refPattern := (Str)((Str:Obj?)defs.getChecked(defKey("Ref"))).getChecked("pattern")
+    verify(Regex.fromStr(refPattern).matches("abc123"),
+      "Ref pattern rejects a ref containing digits: $refPattern")
+  }
+
+  ** The anchored form doSpecScalar must emit; JSON Schema pattern is not
+  ** implicitly anchored, but Xeto patterns are whole-value matches.
+  private static Str anchor(Obj pattern) { "^(?:" + pattern + ")\$" }
+
+  private Str:Obj? roundTrip(Obj:Obj map)
+  {
+    buf := Buf()
+    JsonOutStream(buf.out).writeJson(map)
+    return (Str:Obj?)JsonInStream(buf.flip.in).readJson
+  }
+
   private Void verifyAllRefsResolved(Obj? val, Str:Obj defs)
   {
     if (val is Map)
