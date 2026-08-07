@@ -300,14 +300,13 @@ class JsonSchemaExporter : Exporter
   {
     res := propSchema(slot)
 
-    // attach the slot's own doc as description.  for $ref-shaped
-    // results we wrap in allOf because draft-07 ignores any sibling
-    // keys to $ref; for non-$ref results description is a direct
-    // sibling key.
+    // attach the slot's own doc as description.  in 2020-12 $ref is an
+    // ordinary keyword whose siblings apply, so every shape takes the
+    // same path.
     doc := slot.metaOwn["doc"] as Str
     if (doc == null) return res
-    if (res.containsKey("\$ref"))
-      return Obj:Obj["allOf": Obj[res], "description": doc]
+
+    // .rw: propSchema may hand back a shared immutable map from primitives
     res = res.rw
     res["description"] = doc
     return res

@@ -110,26 +110,26 @@ class JsonSchemaTest : AbstractXetoTest
 
     lib := ns.compileTempLib(src)
 
+    // description rides as a plain sibling on every shape, $ref included
+    withDoc := |Obj:Obj schema, Str doc->Obj:Obj| { schema.dup.set("description", doc) }
+
     //
-    // funcToParams: every documented slot picks up "description"; refs
-    // get wrapped in allOf so description survives draft-07 sibling
-    // ignore rules; primitives carry description as a direct sibling.
+    // funcToParams: every documented slot picks up "description".
     //
     ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     actual := ex.funcToParams(lib.type("Divide"))
     verifyEq(actual, Str:Obj[
       "type": "object",
       "properties": Str:Obj[
-        "a": Obj:Obj["allOf": Obj[sysNumberRef], "description": "the dividend"],
-        "b": Obj:Obj["allOf": Obj[sysNumberRef], "description": "the divisor"],
+        "a": withDoc(sysNumberRef, "the dividend"),
+        "b": withDoc(sysNumberRef, "the divisor"),
       ],
       "required": Obj["a", "b"],
     ])
     verifyAllRefsResolved(actual, ex.defs)
 
-    // mixed: primitives get direct description; ref + list each get the
-    // appropriate shape; sample (sys::Obj?) gets description on an empty
-    // schema; count has no doc and stays bare.
+    // mixed: sample (sys::Obj?) gets description on an empty schema;
+    // count has no doc and stays bare.
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     actual = ex.funcToParams(lib.type("Mix"))
     verifyEq(actual, Str:Obj[
@@ -153,7 +153,7 @@ class JsonSchemaTest : AbstractXetoTest
     // doSpecObj: same prop() path as funcToParams, so slot docs surface
     // as descriptions in the generated def.  spot-check the def for
     // Person -- "name", "age" land as documented props; "pet" is a
-    // documented ref-shaped slot wrapped in allOf.
+    // documented ref-shaped slot.
     //
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     ex.spec(lib.type("Person"))
@@ -162,10 +162,8 @@ class JsonSchemaTest : AbstractXetoTest
     personProps := (Obj:Obj)personDef["properties"]
     verifyEq(personProps["name"],
       Obj:Obj["type": "string", "description": "full name"])
-    verifyEq(personProps["age"],
-      Obj:Obj["allOf": Obj[sysNumberRef], "description": "age in years"])
-    verifyEq(personProps["pet"],
-      Obj:Obj["allOf": Obj[sysNumberRef], "description": "pet's age in years"])
+    verifyEq(personProps["age"],   withDoc(sysNumberRef, "age in years"))
+    verifyEq(personProps["pet"],   withDoc(sysNumberRef, "pet's age in years"))
     verifyAllRefsResolved(personDef, ex.defs)
   }
 
