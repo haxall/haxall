@@ -98,8 +98,17 @@ class XetoJsonWriter
     indent.quoted("spec").wc(':').quoted(specRef.id)
     wc(',').nl
 
-    // meta; the grid spec is emitted above, not repeated inside meta
-    meta := dictExclude(grid.meta, "spec")
+    // 'of' is structural and sits beside 'spec', not inside meta -- same
+    // treatment a column gives its own 'of'
+    ofRef := XetoUtil.gridOfSpecRef(grid)
+    if (ofRef != null)
+    {
+      indent.quoted("of").wc(':').quoted(ofRef.id)
+      wc(',').nl
+    }
+
+    // meta; the structural tags are emitted above, not repeated inside meta
+    meta := dictExclude(grid.meta, ["spec", "of"])
     if (!meta.isEmpty)
     {
       indent.quoted("meta").wc(':').writeDict(meta, null)
@@ -107,8 +116,7 @@ class XetoJsonWriter
     }
 
     // default row spec: the instance 'of' then the schema 'of'
-    rowSpec := xutil.rowSpec(XetoUtil.gridOfSpecRef(grid),
-                             xutil.resolve(specRef, false), false)
+    rowSpec := xutil.rowSpec(ofRef, xutil.resolve(specRef, false), false)
 
     // cols
     indent.quoted("cols").wc(':')
@@ -161,7 +169,7 @@ class XetoJsonWriter
       indent.quoted("of").wc(':').quoted(of.id)
     }
 
-    meta := dictExclude(c.meta, "of")
+    meta := dictExclude(c.meta, ["of"])
     if (!meta.isEmpty)
     {
       wc(',').nl
@@ -173,14 +181,15 @@ class XetoJsonWriter
     return this
   }
 
-  ** Dict minus one tag, preserving tag order.  'Etc.dictRemove' rebuilds
-  ** through an unordered map, which would make the output non-idempotent.
-  private Dict dictExclude(Dict d, Str name)
+  ** Dict minus the given tags, preserving tag order.  'Etc.dictRemove'
+  ** rebuilds through an unordered map, which would make the output
+  ** non-idempotent.
+  private Dict dictExclude(Dict d, Str[] names)
   {
-    if (d.missing(name)) return d
+    if (names.all |n| { d.missing(n) }) return d
     acc := Str:Obj[:]
     acc.ordered = true
-    d.each |v, n| { if (n != name) acc[n] = v }
+    d.each |v, n| { if (!names.contains(n)) acc[n] = v }
     return Etc.dictFromMap(acc)
   }
 

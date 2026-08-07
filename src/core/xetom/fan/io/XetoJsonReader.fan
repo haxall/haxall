@@ -139,11 +139,13 @@ class XetoJsonReader
     gb := GridBuilder()
     wireMeta := dict["meta"] as Dict
 
-    // Rule 3: the default row spec is the instance 'of' then the schema 'of'
-    rowSpec := xutil.rowSpec(wireMeta?.get("of"), gridSpec, !lenient)
+    // Rule 3: the default row spec is the instance 'of' then the schema 'of'.
+    // 'of' is structural and sits beside 'spec', not inside meta
+    gridOf := dict.get("of")
+    rowSpec := xutil.rowSpec(gridOf, gridSpec, !lenient)
 
     // meta
-    meta := convertGridMeta(wireMeta, gridSpec)
+    meta := convertGridMeta(wireMeta, gridSpec, gridOf)
     if (!meta.isEmpty) gb.setMeta(meta)
 
     // cols; 'of' is structural and sits beside 'name', not inside meta
@@ -169,15 +171,16 @@ class XetoJsonReader
     return gb.toGrid
   }
 
-  ** Grid meta carries the grid spec so that 'XetoUtil.gridSpecRef' can
-  ** recover it.  The sys::Grid default is left out so a plain grid does not
-  ** gain a meta tag it did not have.
-  private Dict convertGridMeta(Dict? wire, Spec gridSpec)
+  ** Grid meta carries the grid spec and 'of' so that 'XetoUtil.gridSpecRef'
+  ** and 'XetoUtil.gridOfSpecRef' can recover them.  The sys::Grid default is
+  ** left out so a plain grid does not gain a meta tag it did not have.
+  private Dict convertGridMeta(Dict? wire, Spec gridSpec, Obj? ofRef)
   {
     acc := Str:Obj[:]
     acc.ordered = true
     gt := gridSpec.type
     if (gt !== ns.sys.grid) acc["spec"] = gt.id
+    if (ofRef != null) acc["of"] = Ref.fromStr(ofRef)
     if (wire != null) eachMetaTag(wire, acc)
     return Etc.dictFromMap(acc)
   }
