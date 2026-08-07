@@ -24,11 +24,12 @@ class OpenApiExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
-    schemaExporter = JsonSchemaExporter(ns, out, opts, "components/schemas")
+    schemaExporter = JsonSchemaExporter(ns, out, opts, "components/schemas", false)
 
     errRef = schemaExporter.ensureRef(ns.spec("sys::Err"))
 
-    map["openapi"] = "3.0.0"
+    map["openapi"] = "3.1.0"
+    map["jsonSchemaDialect"] = JsonSchemaExporter.dialect
     map["info"] = [
       "title": "Xeto OpenApi definition",
       "version": "0.0.1"
@@ -63,13 +64,13 @@ class OpenApiExporter : Exporter
     format := opts["format"] ?: "yaml"
     if (format == "json")
     {
-      js := JsonOutStream(Env.cur.out)
+      js := JsonOutStream(out)
       js.prettyPrint = true
       js.writeJson(map)
     }
     else if (format == "yaml")
     {
-      ym := YamlWriter(Env.cur.out)
+      ym := YamlWriter(out)
       ym.writeYaml(map)
     }
     else

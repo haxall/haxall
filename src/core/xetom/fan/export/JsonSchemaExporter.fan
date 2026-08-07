@@ -24,11 +24,17 @@ class JsonSchemaExporter : Exporter
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, OutStream out, Dict opts := Etc.dict0, Str refPath := "\$defs") : super(ns, out, opts)
+  new make(MNamespace ns, OutStream out, Dict opts := Etc.dict0,
+           Str refPath := "\$defs", Bool standalone := true) : super(ns, out, opts)
   {
-    this.refPath = refPath
+    this.refPath    = refPath
+    this.standalone = standalone
 
-    map["\$schema"] = "http://json-schema.org/draft-07/schema#"
+    // $schema is a document-level keyword.  embedded in an OpenAPI doc the
+    // root declares jsonSchemaDialect once and the component schemas must
+    // not carry their own.
+    if (standalone)
+      map["\$schema"] = dialect
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -47,13 +53,13 @@ class JsonSchemaExporter : Exporter
     format := opts["format"] ?: "yaml"
     if (format == "json")
     {
-      js := JsonOutStream(Env.cur.out)
+      js := JsonOutStream(out)
       js.prettyPrint = true
       js.writeJson(map)
     }
     else if (format == "yaml")
     {
-      ym := YamlWriter(Env.cur.out)
+      ym := YamlWriter(out)
       ym.writeYaml(map)
     }
     else
@@ -369,6 +375,10 @@ class JsonSchemaExporter : Exporter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  ** JSON Schema dialect emitted as $schema, and advertised by
+  ** OpenApiExporter as the document's jsonSchemaDialect.
+  static const Str dialect := "https://json-schema.org/draft/2020-12/schema"
+
   static const Str:[Obj:Obj] primitives := [
     "sys::Str":   Obj:Obj["type": "string"],
     "sys::Bool":  Obj:Obj["type": "boolean"],
@@ -380,6 +390,9 @@ class JsonSchemaExporter : Exporter
   private Str:Marker defined := Str:Marker[:]
 
   private const Str refPath
+
+  // standalone document vs embedded in an OpenAPI doc
+  private const Bool standalone
 
   private Obj:Obj map := [:] { ordered = true }
 
