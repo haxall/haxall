@@ -136,9 +136,8 @@ class OpenApiExporter : Exporter
 
   private Void doFunc(Spec spec)
   {
-    //-------------------------------------------------
-    //if (!["hx::Funcs.read"].contains(spec.qname)) return
-    //-------------------------------------------------
+    if (!isOp(spec)) return
+    checkCollision(spec)
 
     uri := spec.qname
     n := uri.index("::Funcs.")
@@ -172,10 +171,10 @@ class OpenApiExporter : Exporter
       "description": "Success",
       "content": jsonSchema(response)
     ]
-    errResponses.each |desc, code|
+    errResponses.each |pair|
     {
-      responses[code] = [
-        "description": desc,
+      responses[pair[0]] = [
+        "description": pair[1],
         "content": jsonSchema(errRef)
       ]
     }
@@ -202,6 +201,33 @@ class OpenApiExporter : Exporter
 
     // done
     paths[uri] = path
+  }
+
+  ** Is this func part of the published surface?
+  **
+  ** <op> is an audience marker -- func-as-operation vs func-as-vocabulary --
+  ** and never a security boundary.  Every func remains callable over HTTP
+  ** whether or not it is documented here; permissions are a separate axis.
+  ** Without the filter a real project's doc is mostly Axon vocabulary.
+  **
+  ** Lib-level <op> is additive sugar marking every func in the lib.  nodoc
+  ** excludes unconditionally, independent of <op>.
+  private static Bool isOp(Spec spec)
+  {
+    if (spec.meta.has("nodoc")) return false
+    if (spec.meta.has("op")) return true
+    return spec.lib.meta.has("op")
+  }
+
+  ** The published surface is addressed by unqualified name in Axon, so two
+  ** libs contributing the same <op> name is a generator error rather than a
+  ** silent last-wins.
+  private Void checkCollision(Spec spec)
+  {
+    dup := opNames[spec.name]
+    if (dup != null)
+      throw Err("Duplicate <op> name '$spec.name': $dup.qname and $spec.qname -- alias or exclude one")
+    opNames[spec.name] = spec
   }
 
   ** Params every operation carries.  Returns a fresh list each call so
@@ -232,17 +258,22 @@ class OpenApiExporter : Exporter
   ** YAML coercing a bare numeric key to an int, but they landed as literal
   ** apostrophes in both writers.  JSON is now correct; a YAML consumer still
   ** sees an int key until YamlWriter learns to quote numeric strings.
-  private static const Str:Str errResponses := Str:Str[
-    "400": "Bad Request",
-    "401": "Unauthorized",
-    "403": "Forbidden",
-    "404": "Not Found",
-    "500": "Internal Server Error",
-  ] { ordered = true }
+  ** List of pairs, not a map: Map.ordered can only be set while the map is
+  ** empty, and output order here must be stable.
+  private static const Str[][] errResponses := [
+    ["400", "Bad Request"],
+    ["401", "Unauthorized"],
+    ["403", "Forbidden"],
+    ["404", "Not Found"],
+    ["500", "Internal Server Error"],
+  ]
 
   private JsonSchemaExporter schemaExporter
   private Obj:Obj errRef
 
   private Obj:Obj map := [:] { ordered = true }
-  private Obj:Obj paths := [:] { ordered = true }
+  Obj:Obj paths := [:] { ordered = true }
+
+  // published <op> simple names, for collision detection
+  private Str:Spec opNames := Str:Spec[:]
 }
