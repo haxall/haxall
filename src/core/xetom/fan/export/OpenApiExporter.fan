@@ -145,7 +145,12 @@ class OpenApiExporter : Exporter
     if (returns != null)
     {
       response = schemaExporter.prop(returns)
-      if (returns.isMaybe) response["nullable"] = true
+      // .rw: prop may hand back a shared immutable map from primitives
+      if (returns.isMaybe)
+      {
+        response = response.rw
+        response["nullable"] = true
+      }
     }
 
     // responses

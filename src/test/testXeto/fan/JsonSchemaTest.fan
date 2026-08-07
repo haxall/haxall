@@ -175,9 +175,6 @@ class JsonSchemaTest : AbstractXetoTest
   ** writer escapes it again, so the corruption exists only in the
   ** serialized form.
   **
-  ** Expected to fail until F3/F4 land -- today's output decodes to doubled
-  ** backslashes and carries no anchors.
-  **
   Void testPatternRoundTrip()
   {
     ns := createNamespace(["sys"])
@@ -200,7 +197,7 @@ class JsonSchemaTest : AbstractXetoTest
     {
       def := (Str:Obj?)defs.getChecked(defKey(n))
       verifyEq(def.getChecked("pattern"),
-               anchor(ns.spec("sys::$n").meta->pattern),
+               anchor((Str)ns.spec("sys::$n").meta->pattern),
                "pattern corrupted: sys::$n")
     }
 
@@ -213,7 +210,7 @@ class JsonSchemaTest : AbstractXetoTest
 
   ** The anchored form doSpecScalar must emit; JSON Schema pattern is not
   ** implicitly anchored, but Xeto patterns are whole-value matches.
-  private static Str anchor(Obj pattern) { "^(?:" + pattern + ")\$" }
+  private static Str anchor(Str pattern) { "^(?:" + pattern + ")\$" }
 
   private Str:Obj? roundTrip(Obj:Obj map)
   {

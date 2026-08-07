@@ -158,27 +158,30 @@ class JsonSchemaExporter : Exporter
     }
     else
     {
-      prim := primitives.getChecked(spec.qname, false)
-      if (prim != null) return prim
+      // primitives are inlined at the use site, never given a def
+      if (primitives.containsKey(spec.qname)) return
 
       pattern := spec.meta["pattern"]
       if (pattern == null)
       {
-        addDef(spec, doc, prim ?: [
+        addDef(spec, doc, [
           "type": "string",
         ])
       }
       else
       {
-        addDef(spec, doc, prim ?: [
+        addDef(spec, doc, [
           "type": "string",
-          "pattern": ((Str)pattern)
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
+          "pattern": anchor((Str)pattern),
         ])
       }
     }
   }
+
+  ** JSON Schema patterns are not implicitly anchored (2020-12 §6.3.3) but
+  ** Xeto patterns are whole-value matches, so anchor centrally.  The pattern
+  ** is otherwise passed through verbatim -- both writers escape on their own.
+  private static Str anchor(Str pattern) { "^(?:" + pattern + ")\$" }
 
   private Void doSpecObj(Spec spec, Str? doc)
   {
@@ -344,8 +347,12 @@ class JsonSchemaExporter : Exporter
 
   private Void addDef(Spec spec, Str? doc, Obj:Obj schema, Str? syntheticName := null)
   {
+    // .rw: schema may be a shared immutable map from primitives
     if (doc != null)
+    {
+      schema = schema.rw
       schema["description"] = doc
+    }
 
     libName := libNameVer(spec.lib)
     specName := syntheticName ?: spec.name
