@@ -153,7 +153,7 @@ const class HttpExt : ExtObj, IHttpExt
     return true
   }
 
-  ** Dispatch to the ion ext if it claims the request's hostname as
+  ** Dispatch to the www ext if it claims the request's hostname as
   ** a website virtual host.  Return true if handled.  The claiming
   ** ext owns the host's entire root path space, so modBase stays "/".
   private Bool routeVirtualHost(WebReq req, WebRes res)
@@ -165,10 +165,10 @@ const class HttpExt : ExtObj, IHttpExt
     if (colon != null) host = host[0..<colon]
     host = host.lower
 
-    // route to IIonExt
-    ionExt := sys.ion(false)
-    if (ionExt == null) return false
-    return ionExt.onServiceVirtualHost(host, req, res)
+    // route to IWwwExt
+    wwwExt := sys.www(false)
+    if (wwwExt == null) return false
+    return wwwExt.onServiceVirtualHost(host, req, res)
   }
 
   ** Dispatch a well-known route. Return true if handled.

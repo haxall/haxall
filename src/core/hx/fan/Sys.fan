@@ -65,6 +65,9 @@ const mixin Sys : Runtime
   ** User session management (required)
   @NoDoc virtual ISessionExt session() { exts.getByType(ISessionExt#) }
 
+  ** Website framework system extension (optional)
+  @NoDoc virtual IWwwExt? www(Bool checked := true) { exts.getByType(IWwwExt#, checked) }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

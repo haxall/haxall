@@ -438,7 +438,7 @@ class ExtTest : HxTest
 ** HxTestExt
 **************************************************************************
 
-const class HxTestExt : ExtObj, IIonExt, RepoServer
+const class HxTestExt : ExtObj, IWwwExt, RepoServer
 {
   const AtomicRef traces := AtomicRef("")
 
@@ -456,10 +456,7 @@ const class HxTestExt : ExtObj, IIonExt, RepoServer
 
   override const ExtWeb web := HxTestExtWeb(this)
 
-  // IIonExt stubs to test the virtual host hook without ion installed
-  override Void updateNavTree(Runtime rt) {}
-  override File? brandFile(Str name) { null }
-
+  // IWwwExt impl to test the virtual host hook without hx.www installed
   override Bool onServiceVirtualHost(Str hostname, WebReq req, WebRes res)
   {
     if (hostname != settings["vhost"] as Str) return false
