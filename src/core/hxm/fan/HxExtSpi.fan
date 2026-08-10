@@ -208,6 +208,8 @@ const class HxExtSpi : Actor, ExtSpi
 
   Future forceHouseKeeping() { send(HxMsg(ExtMsgId.hkForce.name)) }
 
+  Future namespaceModified() { send(HxMsg(ExtMsgId.nsModified.name)) }
+
   override Void sync(Duration? timeout := 30sec) { send((HxMsg(ExtMsgId.sync.name))).get(timeout) }
 
   Void update(Dict settings)
@@ -248,6 +250,7 @@ const class HxExtSpi : Actor, ExtSpi
       if (msg.id === ExtMsgId.unready.name)     return onUnready
       if (msg.id === ExtMsgId.stop.name)        return onStop
       if (msg.id === ExtMsgId.sysReload.name)   return onSysReload
+      if (msg.id === ExtMsgId.nsModified.name)  return onNamespaceModified
       if (msg.id === ExtMsgId.hkForce.name)     return onHouseKeeping
     }
     catch (Err e)
@@ -322,19 +325,30 @@ const class HxExtSpi : Actor, ExtSpi
 
   private Obj? onSettings()
   {
+    if (!isRunning) return null
     ext.onSettings
     return null
   }
 
   private Obj? onSysReload()
   {
+    if (!isRunning) return null
     ext.onSysReload
+    return null
+  }
+
+  private Obj? onNamespaceModified()
+  {
+    if (!isRunning) return null
+    ext.onNamespaceModified
     return null
   }
 
   private Obj? onObs(HxMsg msg)
   {
+    if (!isRunning) return null
     ((ExtMethodObserver)msg.a).call(msg.b)
+    return null
   }
 
   override Bool isRunning() { isRunningRef.val }

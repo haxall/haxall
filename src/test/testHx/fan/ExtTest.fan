@@ -87,6 +87,12 @@ class ExtTest : HxTest
     verifyEq(t.traces.val, "onStart[true]\nonReady[true]\nonSteadyState\n")
     verifyEq(t.isRunning, true)
 
+    // namespace modified callback when another lib added while running
+    t.traces.val = ""
+    addLib("ph.points")
+    t.spi.sync
+    verifyEq(t.traces.val, "onNamespaceModified\n")
+
     // now remove hx.txt
     t.traces.val = ""
     proj.libs.remove("hx.test")
@@ -464,6 +470,8 @@ const class HxTestExt : ExtObj, IWwwExt, RepoServer
     res.out.print("vhost $hostname $req.uri").close
     return true
   }
+
+  override Void onNamespaceModified() { trace("onNamespaceModified") }
 
   override Void onStart() { trace("onStart[$isRunning]"); if (settings.has("forceStartErr")) throw Err("boo!") }
   override Void onReady() { trace("onReady[$isRunning]") }

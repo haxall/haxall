@@ -141,6 +141,13 @@ const class HxExts : RuntimeExts
         spi.ready
         if (rt.isSteadyState) spi.steadyState
       }
+
+      // notify previously running exts of the namespace change
+      newMap.each |ext|
+      {
+        if (toStart.contains(ext)) return
+        ((HxExtSpi)ext.spi).namespaceModified
+      }
     }
   }
 

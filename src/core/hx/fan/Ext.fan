@@ -134,6 +134,11 @@ const mixin Ext
   ** This is called on dedicated background actor.
   @NoDoc virtual Void onSysReload() {}
 
+  ** Callback when the runtime namespace is modified by adding,
+  ** removing, or upgrading libs.  Not called for the extension's own
+  ** startup namespace.  This is called on dedicated background actor.
+  @NoDoc virtual Void onNamespaceModified() {}
+
   ** Callback to handle a non-standard actor message to this library.
   @NoDoc virtual Obj? onReceive(HxMsg msg)
   {
@@ -192,6 +197,7 @@ enum class ExtMsgId
   unready,        // routes to onUnready
   stop,           // routes to onStop
   sysReload,      // routes to onSysReload
+  nsModified,     // routes to onNamespaceModified
   obs,            // routes to ExtMethodObserver
   hkForce,        // routes to onHouseKeeping outside of normal poll time
 
