@@ -86,7 +86,11 @@ const mixin IUserExt : SysExt
   @NoDoc abstract User makeUser(Str username, Obj? tags := null)
 
   ** Lookup synthetic user to use for internal system processing
-  ** such as observable and clone filter evaluation
+  ** such as observable and clone filter evaluation.  Synthetic users
+  ** are not stored in the user database and default to the "op" role;
+  ** SkySpark resolves predefined internal users by name which may
+  ** carry other roles.  Do not use for public request processing
+  ** where least privilege is required.
   @NoDoc abstract User syntheticUser(Str username)
 
   ** Get the Folio database where user recs are stored
