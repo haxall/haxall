@@ -16,7 +16,6 @@ using haystack
 ** assemble a zip from fetched source, and repo servers which zip a
 ** local source lib on the fly.
 **
-@Js
 const class XetoZipUtil
 {
   ** Write a xetolib zip to the given output stream and close it.
