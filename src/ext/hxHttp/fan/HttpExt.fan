@@ -154,12 +154,17 @@ const class HttpExt : ExtObj, IHttpExt
   }
 
   ** Dispatch to the www ext if it claims the request's hostname as
-  ** a website virtual host.  Return true if handled.  The claiming
-  ** ext owns the host's entire root path space, so modBase stays "/".
+  ** a website virtual host.  Return true if handled.  This is only
+  ** called after the registered system routes such as "/api" and
+  ** "/ux" have had first shot; a website serves the URI space its
+  ** domain claims minus the system routes.  The modBase stays "/"
+  ** for claimed requests.
   private Bool routeVirtualHost(WebReq req, WebRes res)
   {
-    // get normalized virtual hostname without port from header
-    host := req.headers["Host"]
+    // get normalized virtual hostname without port from the header;
+    // the sysConfig "vhost" (daemon -vhost option) forces the
+    // hostname for local browser testing against localhost
+    host := sys.config.get("vhost") as Str ?: req.headers["Host"]
     if (host == null) return false
     colon := host.indexr(":")
     if (colon != null) host = host[0..<colon]

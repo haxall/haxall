@@ -39,7 +39,7 @@ class HttpTest : HxTest
     ext.settingsUpdate(Etc.dict1("vhost", "test.acme.com"))
     proj.sync
 
-    // virtual host services the host's entire root path space
+    // virtual host services the host's path space minus system routes
     verifyGet("test.acme.com", `/`,         200, "vhost test.acme.com /")
     verifyGet("test.acme.com", `/about`,    200, "vhost test.acme.com /about")
     verifyGet("test.acme.com", `/doc/xeto`, 200, "vhost test.acme.com /doc/xeto")
