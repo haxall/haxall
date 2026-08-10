@@ -28,6 +28,7 @@ internal abstract class WriteStep : Step
 
   Void copyImages(Lib lib)
   {
+    if (compiler.outDir == null) return  // in-memory compile has nowhere to copy to
     lib.files.list.each |uri|
     {
       if (uri.path.size == 1 && uri.mimeType.mediaType == "image")
@@ -103,6 +104,8 @@ internal class WriteJson : WriteStep
 {
   override Void writePage(DocPage page)
   {
+    // if no outDir then pages are left in-memory for the caller to encode
+    if (compiler.outDir == null) return
     obj := page.encode
     json := JsonOutStream.prettyPrintToStr(obj)
     writeToFile(page, json)
