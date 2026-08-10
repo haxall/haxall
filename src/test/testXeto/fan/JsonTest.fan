@@ -156,10 +156,10 @@ class JsonTest : AbstractXetoTest
              ns.spec("sys::Dict"))
     verifyValEq(d->int, 5)
 
-    // the grid meta 'of' supplies the default row spec
+    // the grid 'of' supplies the default row spec
     Grid g := read(ns, Str<|{
                               "spec": "sys::Grid",
-                              "meta": {"of": "hx.test.xeto::JsonRow"},
+                              "of": "hx.test.xeto::JsonRow",
                               "cols": [{"name":"v0"}],
                               "rows": [{"v0":"73"}]
                             }|>)
@@ -228,7 +228,7 @@ class JsonTest : AbstractXetoTest
     // 2 beats 3: the column 'of' outranks the row spec's member
     Grid g := read(ns, Str<|{
                               "spec": "sys::Grid",
-                              "meta": {"of": "hx.test.xeto::JsonRow"},
+                              "of": "hx.test.xeto::JsonRow",
                               "cols": [{"name":"v0","of":"sys::Str"}],
                               "rows": [{"v0":"73"}]
                             }|>)
@@ -250,10 +250,10 @@ class JsonTest : AbstractXetoTest
                       }|>)
     verifyValEq(g.first->b, 73)
 
-    // a row spec tag beats the grid meta 'of', so rows may differ in type
+    // a row spec tag beats the grid 'of', so rows may differ in type
     g = read(ns, Str<|{
                         "spec": "sys::Grid",
-                        "meta": {"of": "hx.test.xeto::JsonRow"},
+                        "of": "hx.test.xeto::JsonRow",
                         "cols": [{"name":"spec"},{"name":"extra"},{"name":"v0"}],
                         "rows": [
                           {"v0":"73"},
@@ -1026,15 +1026,17 @@ class JsonTest : AbstractXetoTest
            }|>)
   }
 
-  ** The writer hoists a column 'of' out of col meta to sit beside 'name',
-  ** and the grid spec to the top level rather than repeating it in meta.
+  ** Structural tags sit beside the thing they describe, never inside its
+  ** meta: the grid's 'spec' and 'of' at the grid level, a column's 'of'
+  ** beside its 'name'.  Meta carries only domain tags.
   Void testWriteStructural()
   {
     ns := createNamespace(["hx.test.xeto"])
 
     gb := GridBuilder()
-    gb.setMeta(Etc.dict2("spec", Ref("hx.test.xeto::JsonHisGrid"),
-                         "of",   Ref("hx.test.xeto::JsonRow")))
+    gb.setMeta(Etc.dict3("spec", Ref("hx.test.xeto::JsonHisGrid"),
+                         "of",   Ref("hx.test.xeto::JsonRow"),
+                         "foo",  "quux"))
     gb.addCol("ts", Etc.dict1("of", Ref("sys::DateTime")))
     gb.addDictRow(Etc.dict1("ts",
       DateTime.fromStr("2024-11-25T10:24:35-05:00 New_York")))
@@ -1043,8 +1045,9 @@ class JsonTest : AbstractXetoTest
       toJson(ns, gb.toGrid),
       Str<|{
              "spec":"hx.test.xeto::JsonHisGrid",
+             "of":"hx.test.xeto::JsonRow",
              "meta":{
-               "of":"hx.test.xeto::JsonRow"
+               "foo":"quux"
              },
              "cols":[
                {
@@ -1058,6 +1061,40 @@ class JsonTest : AbstractXetoTest
                }
              ]
            }|>)
+  }
+
+  ** A grid whose only meta was structural emits no 'meta' entry at all,
+  ** matching how a column with only 'of' already behaves.
+  Void testWriteStructuralOnly()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    gb := GridBuilder()
+    gb.setMeta(Etc.dict1("of", Ref("hx.test.xeto::JsonRow")))
+    gb.addCol("v0")
+    gb.addDictRow(Etc.dict1("v0", n(73)))
+
+    verifyEq(
+      toJson(ns, gb.toGrid),
+      Str<|{
+             "spec":"sys::Grid",
+             "of":"hx.test.xeto::JsonRow",
+             "cols":[
+               {
+                 "name":"v0"
+               }
+             ],
+             "rows":[
+               {
+                 "v0":73
+               }
+             ]
+           }|>)
+
+    // and 'of' lands back in grid meta, where gridOfSpecRef looks for it
+    Grid g := roundTrip(ns, gb.toGrid)
+    verifyEq(XetoUtil.gridOfSpecRef(g), Ref("hx.test.xeto::JsonRow"))
+    verifyEq(g.meta.has("spec"), false)
   }
 
 //////////////////////////////////////////////////////////////////////////

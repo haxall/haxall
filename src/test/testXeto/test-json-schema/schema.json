@@ -1,106 +1,7132 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "hx.test.xeto.schema-4.0.4",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hx.test.xeto-4.0.6",
   "title": "Haxall test library",
   "$defs": {
-    "sys-5.0.0": {
-      "Entity": {
-        "additionalProperties": true,
-        "type": "object",
-        "properties": {
-          "id": {
-            "$ref": "#/$defs/sys-5.0.0/Ref"
+    "hx.test.xeto.A": {
+      "description": "A",
+      "x-xeto": {
+        "spec": "hx.test.xeto::A"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "string",
+          "description": "x slot"
+        }
+      },
+      "required": [
+        "x"
+      ]
+    },
+    "hx.test.xeto.B": {
+      "description": "B",
+      "x-xeto": {
+        "spec": "hx.test.xeto::B",
+        "abstract": true
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "y": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "y"
+      ]
+    },
+    "hx.test.xeto.AB": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "string",
+              "description": "x slot"
+            },
+            "y": {
+              "type": "string"
+            },
+            "z": {
+              "type": "string"
+            }
           },
-          "spec": {
-            "$ref": "#/$defs/sys-5.0.0/Ref"
-          }
+          "required": [
+            "x",
+            "y",
+            "z"
+          ]
         },
-        "required": [
-          "id"
+        {
+          "$ref": "#/$defs/hx.test.xeto.A"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.B"
+        }
+      ],
+      "description": "AB",
+      "x-xeto": {
+        "spec": "hx.test.xeto::AB",
+        "ofs": [
+          "hx.test.xeto::A",
+          "hx.test.xeto::B"
         ]
-      },
-      "Ref": {
-        "pattern": "[a-zA-Z\\d\\._~]*",
-        "type": "string"
-      },
-      "Marker": {
-        "pattern": "\u2713",
-        "type": "string"
-      },
-      "DateTime": {
-        "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)*[Z+-][\\d:]*[ ]*[-+a-zA-Z_\\d]*",
-        "type": "string"
       }
     },
-    "hx.test.xeto.schema-4.0.4": {
-      "Order": {
-        "allOf": [
-          {
-            "$ref": "#/$defs/sys-5.0.0/Entity"
+    "hx.test.xeto.Alpha": {
+      "description": "Test spec",
+      "x-xeto": {
+        "spec": "hx.test.xeto::Alpha"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "sys.Marker": {
+      "const": "\u2713",
+      "description": "Marker labels a dict with typing information",
+      "x-xeto": {
+        "spec": "sys::Marker"
+      }
+    },
+    "sys.Choice": {
+      "description": "Open enumerated taxonomy of marker tags",
+      "x-xeto": {
+        "spec": "sys::Choice"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "hx.test.xeto.Color": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Choice"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Color"
+      }
+    },
+    "hx.test.xeto.Blue": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.Color"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "blue": {
+              "$ref": "#/$defs/sys.Marker"
+            }
           },
-          {
-            "additionalProperties": true,
-            "type": "object",
-            "properties": {
-              "orderType": {
-                "$ref": "#/$defs/hx.test.xeto.schema-4.0.4/OrderType"
-              },
-              "orderDate": {
-                "$ref": "#/$defs/sys-5.0.0/DateTime"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/hx.test.xeto.schema-4.0.4/Product"
-                }
-              },
-              "customerName": {
-                "type": "string"
-              },
-              "order": {
-                "$ref": "#/$defs/sys-5.0.0/Marker"
-              }
+          "required": [
+            "blue"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Blue"
+      }
+    },
+    "hx.test.xeto.C": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.A"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "string",
+              "description": "x slot"
             },
-            "required": [
-              "order",
-              "customerName",
-              "orderDate",
-              "orderType",
-              "items"
+            "z": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::C"
+      }
+    },
+    "hx.test.xeto.CarA": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::CarA"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/hx.test.xeto.Color"
+        }
+      },
+      "required": [
+        "color"
+      ]
+    },
+    "hx.test.xeto.CarB": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::CarB"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/hx.test.xeto.Color"
+        }
+      }
+    },
+    "hx.test.xeto.CarC": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::CarC"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "color": {
+          "x-xeto": {
+            "multiChoice": true
+          },
+          "$ref": "#/$defs/hx.test.xeto.Color"
+        }
+      },
+      "required": [
+        "color"
+      ]
+    },
+    "hx.test.xeto.CarD": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::CarD"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "color": {
+          "x-xeto": {
+            "multiChoice": true
+          },
+          "$ref": "#/$defs/hx.test.xeto.Color"
+        }
+      }
+    },
+    "hx.test.xeto.CarE": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.CarD"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "color": {
+              "description": "inherits from CarD.color",
+              "$ref": "#/$defs/hx.test.xeto.Color"
+            }
+          },
+          "required": [
+            "color"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::CarE"
+      }
+    },
+    "hx.test.xeto.CurStatus": {
+      "type": "string",
+      "x-xeto": {
+        "spec": "hx.test.xeto::CurStatus"
+      }
+    },
+    "hx.test.xeto.D": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.B"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "y": {
+              "type": "string"
+            },
+            "z": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "y",
+            "z"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::D"
+      }
+    },
+    "hx.test.xeto.DarkBlue": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.Blue"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "blue": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "dark": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "blue",
+            "dark"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::DarkBlue"
+      }
+    },
+    "hx.test.xeto.Red": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.Color"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "red": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "red"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Red"
+      }
+    },
+    "hx.test.xeto.DarkRed": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.Red"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "red": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "dark": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "red",
+            "dark"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::DarkRed"
+      }
+    },
+    "sys.Ref": {
+      "type": "string",
+      "pattern": "^(?:[a-zA-Z\\d\\._~]*)$",
+      "description": "Reference to another dict.  The `of` meta defines target type",
+      "x-xeto": {
+        "spec": "sys::Ref"
+      }
+    },
+    "sys.MultiRef": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Obj"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "Reference or list of references.  The `of` meta defines target type.\nThe value may be either a single ref or a list of refs.",
+      "x-xeto": {
+        "spec": "sys::MultiRef"
+      }
+    },
+    "sys.Query": {
+      "description": "Query defines a named data set",
+      "x-xeto": {
+        "spec": "sys::Query"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "sys.Entity": {
+      "description": "Top-level dicts with a unique identifier.",
+      "x-xeto": {
+        "spec": "sys::Entity",
+        "abstract": true
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique identifier for entity in its project",
+          "$ref": "#/$defs/sys.Ref"
+        },
+        "spec": {
+          "description": "Type of this entity",
+          "x-xeto": {
+            "of": "sys::Spec"
+          },
+          "$ref": "#/$defs/sys.Ref"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "ph.PhEntity": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Entity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      ],
+      "description": "Project Haystack entity.  This is base class for all entities\nin the Haystack ontology.  It defines every tag as a global slot\nto ensure consistent usage of terminology.",
+      "x-xeto": {
+        "spec": "ph::PhEntity",
+        "abstract": true
+      }
+    },
+    "ph.Equip": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.PhEntity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "description": "Equipment asset.\nSee [ph.doc::Equips] chapter.",
+      "x-xeto": {
+        "spec": "ph::Equip",
+        "abstract": true
+      }
+    },
+    "hx.test.xeto.ElecEquipA": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "elec": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "elec"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::ElecEquipA"
+      }
+    },
+    "hx.test.xeto.ElecEquipB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "elec": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "elec"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::ElecEquipB"
+      }
+    },
+    "hx.test.xeto.ElecEquipSubB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.ElecEquipB"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "elec": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "elec"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::ElecEquipSubB"
+      }
+    },
+    "hx.test.xeto.ElecEquipAB": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "elec": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "elec"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.ElecEquipA"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.ElecEquipSubB"
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::ElecEquipAB",
+        "ofs": [
+          "hx.test.xeto::ElecEquipA",
+          "hx.test.xeto::ElecEquipSubB"
+        ]
+      }
+    },
+    "hx.test.xeto.ElecEquipMaybeA": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "elec": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "description": "makes the global elec optional, so its slot has own meta (maybe)",
+      "x-xeto": {
+        "spec": "hx.test.xeto::ElecEquipMaybeA"
+      }
+    },
+    "hx.test.xeto.EqA": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "description": "Equip with *points*",
+      "x-xeto": {
+        "spec": "hx.test.xeto::EqA"
+      }
+    },
+    "hx.test.xeto.EqAX": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.EqA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EqAX"
+      }
+    },
+    "hx.test.xeto.EqB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EqB"
+      }
+    },
+    "hx.test.xeto.EquipWithPointsX": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipWithPointsX"
+      }
+    },
+    "hx.test.xeto.EquipWithPointsY": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipWithPointsY"
+      }
+    },
+    "hx.test.xeto.EquipWithPointsZ": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "description": "three-way merge of points query (merged pairwise), with and without an own\npoints; own constraints order after all the supertype constraints",
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipWithPointsZ"
+      }
+    },
+    "hx.test.xeto.Equip3": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsX"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsY"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsZ"
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Equip3",
+        "ofs": [
+          "hx.test.xeto::EquipWithPointsX",
+          "hx.test.xeto::EquipWithPointsY",
+          "hx.test.xeto::EquipWithPointsZ"
+        ]
+      }
+    },
+    "hx.test.xeto.Equip3Own": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsX"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsY"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsZ"
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Equip3Own",
+        "ofs": [
+          "hx.test.xeto::EquipWithPointsX",
+          "hx.test.xeto::EquipWithPointsY",
+          "hx.test.xeto::EquipWithPointsZ"
+        ]
+      }
+    },
+    "ph.AhuZoneDelivery": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Choice"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "AHU delivery method of conditioned air to the zone",
+      "x-xeto": {
+        "spec": "ph::AhuZoneDelivery"
+      }
+    },
+    "ph.AirVolumeAdjustability": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Choice"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "Ability of air handling equip to adjust volume of air flow",
+      "x-xeto": {
+        "spec": "ph::AirVolumeAdjustability"
+      }
+    },
+    "ph.CoolingProcess": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Choice"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "Processed used to cool a substance",
+      "x-xeto": {
+        "spec": "ph::CoolingProcess"
+      }
+    },
+    "ph.DuctConfig": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Choice"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "Ductwork configuration",
+      "x-xeto": {
+        "spec": "ph::DuctConfig"
+      }
+    },
+    "ph.DuctDeck": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Choice"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "Cold, hot, or neutral deck. Can be applied to `ahu` equip if the AHU\nis part of a `dualDuct` or `tripleDuct` system but only serves a single\ndeck type.",
+      "x-xeto": {
+        "spec": "ph::DuctDeck"
+      }
+    },
+    "ph.HeatingProcess": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Choice"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "Processed used to heat a substance",
+      "x-xeto": {
+        "spec": "ph::HeatingProcess"
+      }
+    },
+    "ph.AirHandlingEquip": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "ductConfig": {
+              "$ref": "#/$defs/ph.DuctConfig"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "coolingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.CoolingProcess"
+            },
+            "ductDeck": {
+              "$ref": "#/$defs/ph.DuctDeck"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "airVolumeAdjustability": {
+              "$ref": "#/$defs/ph.AirVolumeAdjustability"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "ahuZoneDelivery": {
+              "$ref": "#/$defs/ph.AhuZoneDelivery"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "heatingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.HeatingProcess"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "description": "HVAC equipment that conditions and delivers air via one or more fans.\nConditioning of air includes heating, cooling, humidification,\ndehumidification, and ventilation. See [ph.doc::AHUs] chapter.",
+      "x-xeto": {
+        "spec": "ph::AirHandlingEquip",
+        "abstract": true
+      }
+    },
+    "ph.Ahu": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.AirHandlingEquip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "ductConfig": {
+              "$ref": "#/$defs/ph.DuctConfig"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "coolingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.CoolingProcess"
+            },
+            "ductDeck": {
+              "$ref": "#/$defs/ph.DuctDeck"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "airVolumeAdjustability": {
+              "$ref": "#/$defs/ph.AirVolumeAdjustability"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "ahu": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "ahuZoneDelivery": {
+              "$ref": "#/$defs/ph.AhuZoneDelivery"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "heatingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.HeatingProcess"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "ahu"
+          ]
+        }
+      ],
+      "description": "Air Handling Unit: An enclosure with a fan that delivers air to a space\nvia ductwork and performs one or more of the functions of cleaning,\nheating, cooling, humidifying, dehumidifying, ventilating or circulating\nthe air.  See [ph.doc::AHUs] chapter.",
+      "x-xeto": {
+        "spec": "ph::Ahu"
+      }
+    },
+    "hx.test.xeto.EquipA": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Ahu"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "ductConfig": {
+              "$ref": "#/$defs/ph.DuctConfig"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "coolingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.CoolingProcess"
+            },
+            "ductDeck": {
+              "$ref": "#/$defs/ph.DuctDeck"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "airVolumeAdjustability": {
+              "$ref": "#/$defs/ph.AirVolumeAdjustability"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            },
+            "ahu": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "attrs": {
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "ahuZoneDelivery": {
+              "$ref": "#/$defs/ph.AhuZoneDelivery"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "heatingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.HeatingProcess"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "ahu",
+            "attrs"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipA"
+      }
+    },
+    "hx.test.xeto.EquipB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "ductConfig": {
+              "$ref": "#/$defs/ph.DuctConfig"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "coolingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.CoolingProcess"
+            },
+            "ductDeck": {
+              "$ref": "#/$defs/ph.DuctDeck"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "airVolumeAdjustability": {
+              "$ref": "#/$defs/ph.AirVolumeAdjustability"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            },
+            "ahu": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "attrs": {
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "ahuZoneDelivery": {
+              "$ref": "#/$defs/ph.AhuZoneDelivery"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "heatingProcess": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.HeatingProcess"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "ahu",
+            "attrs"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipB"
+      }
+    },
+    "hx.test.xeto.EquipWithSystems": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systems": {
+              "description": "Systems this equip is associated with",
+              "x-xeto": {
+                "of": "ph::System",
+                "via": "systemRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "description": "Child Points contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Point.equips",
+                "of": "ph::Point"
+              },
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points",
+            "systems"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipWithSystems"
+      }
+    },
+    "hx.test.xeto.EquipXY": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsX"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsY"
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipXY",
+        "ofs": [
+          "hx.test.xeto::EquipWithPointsX",
+          "hx.test.xeto::EquipWithPointsY"
+        ]
+      }
+    },
+    "hx.test.xeto.EquipXYOwn": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "description": "Child Equips contained by this Equip",
+              "x-xeto": {
+                "inverse": "ph::Equip.parentEquips",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsX"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.EquipWithPointsY"
+        }
+      ],
+      "description": "multiple inheritance of points query where the spec also declares its own\npoints: should union all three (X's, Y's, and own).  uses auto-named\nconstraints since those exercise the remote loader's key/name divergence",
+      "x-xeto": {
+        "spec": "hx.test.xeto::EquipXYOwn",
+        "ofs": [
+          "hx.test.xeto::EquipWithPointsX",
+          "hx.test.xeto::EquipWithPointsY"
+        ]
+      }
+    },
+    "sys.Float": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "enum": [
+            "NaN",
+            "INF",
+            "-INF"
+          ]
+        }
+      ],
+      "description": "Unitless floating point number",
+      "x-xeto": {
+        "spec": "sys::Float",
+        "unitless": true
+      }
+    },
+    "sys.Number": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "enum": [
+            "NaN",
+            "INF",
+            "-INF"
+          ]
+        },
+        {
+          "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?(?:[a-zA-Z%_/$]|[^\\x00-\\x7F])+$",
+          "type": "string"
+        }
+      ],
+      "description": "Integer or floating point numbers annotated with an optional unit",
+      "x-xeto": {
+        "spec": "sys::Number"
+      }
+    },
+    "sys.Uri": {
+      "type": "string",
+      "format": "uri-reference",
+      "description": "Universal resource identifier",
+      "x-xeto": {
+        "spec": "sys::Uri"
+      }
+    },
+    "sys.Date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^(?:\\d{4}-\\d{2}-\\d{2})$",
+      "description": "ISO 8601 date as year, month, day: `2011-06-07`",
+      "x-xeto": {
+        "spec": "sys::Date"
+      }
+    },
+    "sys.Time": {
+      "type": "string",
+      "pattern": "^(?:\\d{2}:\\d{2}:\\d{2}(\\.\\d+)*)$",
+      "description": "ISO 8601 time as hour, minute, seconds: `09:51:27.354`",
+      "x-xeto": {
+        "spec": "sys::Time"
+      }
+    },
+    "sys.DateTime": {
+      "type": "string",
+      "pattern": "^(?:\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)*[Z+-][\\d:]*[ ]*[-+a-zA-Z_\\d]*)$",
+      "description": "ISO 8601 timestamp followed by timezone identifier",
+      "x-xeto": {
+        "spec": "sys::DateTime"
+      }
+    },
+    "sys.Span": {
+      "type": "string",
+      "description": "Span models a time range between two DateTimes.\nIt supports the following string encoding:\n  - relative `SpanMode` name such as \"yesterday\"\n  - absolute single date: `YYYY-MM-DD`\n  - absolute date span: `YYYY-MM-DD,YYYY-MM-DD`\n  - absolute date time span: `YYYY-MM-DDThh:mm:ss.FFF zzzz,YYYY-MM-DDThh:mm:ss.FFF zzzz`\nIn the case of two DateTime, the timezones must match.  In the other\ncases the timezone to use is context sensitive based on the application.",
+      "x-xeto": {
+        "spec": "sys::Span"
+      }
+    },
+    "sys.TimeZone": {
+      "description": "TimeZone names for standardized database",
+      "x-xeto": {
+        "spec": "sys::TimeZone"
+      },
+      "type": "string",
+      "enum": [
+        "UTC",
+        "Abidjan",
+        "Adak",
+        "Adelaide",
+        "Algiers",
+        "Almaty",
+        "Amman",
+        "Anadyr",
+        "Anchorage",
+        "Andorra",
+        "Apia",
+        "Aqtau",
+        "Aqtobe",
+        "Araguaina",
+        "Ashgabat",
+        "Astrakhan",
+        "Asuncion",
+        "Athens",
+        "Atyrau",
+        "Auckland",
+        "Azores",
+        "Baghdad",
+        "Bahia",
+        "Bahia_Banderas",
+        "Baku",
+        "Bangkok",
+        "Barbados",
+        "Barnaul",
+        "Beirut",
+        "Belem",
+        "Belgrade",
+        "Belize",
+        "Berlin",
+        "Bermuda",
+        "Beulah",
+        "Bishkek",
+        "Bissau",
+        "Boa_Vista",
+        "Bogota",
+        "Boise",
+        "Bougainville",
+        "Brisbane",
+        "Broken_Hill",
+        "Brussels",
+        "Bucharest",
+        "Budapest",
+        "Buenos_Aires",
+        "Cairo",
+        "Cambridge_Bay",
+        "Campo_Grande",
+        "Canary",
+        "Cancun",
+        "Cape_Verde",
+        "Caracas",
+        "Casablanca",
+        "Casey",
+        "Catamarca",
+        "Cayenne",
+        "Center",
+        "Ceuta",
+        "Chagos",
+        "Chatham",
+        "Chicago",
+        "Chihuahua",
+        "Chisinau",
+        "Chita",
+        "Ciudad_Juarez",
+        "Colombo",
+        "Cordoba",
+        "Costa_Rica",
+        "Coyhaique",
+        "Cuiaba",
+        "Damascus",
+        "Danmarkshavn",
+        "Darwin",
+        "Davis",
+        "Dawson",
+        "Dawson_Creek",
+        "Denver",
+        "Detroit",
+        "Dhaka",
+        "Dili",
+        "Dubai",
+        "Dublin",
+        "Dushanbe",
+        "Easter",
+        "Edmonton",
+        "Efate",
+        "Eirunepe",
+        "El_Aaiun",
+        "El_Salvador",
+        "Eucla",
+        "Fakaofo",
+        "Famagusta",
+        "Faroe",
+        "Fiji",
+        "Fort_Nelson",
+        "Fortaleza",
+        "GMT",
+        "GMT+1",
+        "GMT+10",
+        "GMT+11",
+        "GMT+12",
+        "GMT+2",
+        "GMT+3",
+        "GMT+4",
+        "GMT+5",
+        "GMT+6",
+        "GMT+7",
+        "GMT+8",
+        "GMT+9",
+        "GMT-1",
+        "GMT-10",
+        "GMT-11",
+        "GMT-12",
+        "GMT-13",
+        "GMT-14",
+        "GMT-2",
+        "GMT-3",
+        "GMT-4",
+        "GMT-5",
+        "GMT-6",
+        "GMT-7",
+        "GMT-8",
+        "GMT-9",
+        "Galapagos",
+        "Gambier",
+        "Gaza",
+        "Gibraltar",
+        "Glace_Bay",
+        "Goose_Bay",
+        "Grand_Turk",
+        "Guadalcanal",
+        "Guam",
+        "Guatemala",
+        "Guayaquil",
+        "Guyana",
+        "Halifax",
+        "Havana",
+        "Hebron",
+        "Helsinki",
+        "Hermosillo",
+        "Ho_Chi_Minh",
+        "Hobart",
+        "Hong_Kong",
+        "Honolulu",
+        "Hovd",
+        "Indianapolis",
+        "Inuvik",
+        "Iqaluit",
+        "Irkutsk",
+        "Istanbul",
+        "Jakarta",
+        "Jamaica",
+        "Jayapura",
+        "Jerusalem",
+        "Johannesburg",
+        "Juba",
+        "Jujuy",
+        "Juneau",
+        "Kabul",
+        "Kaliningrad",
+        "Kamchatka",
+        "Kanton",
+        "Karachi",
+        "Kathmandu",
+        "Khandyga",
+        "Khartoum",
+        "Kiritimati",
+        "Kirov",
+        "Knox",
+        "Kolkata",
+        "Kosrae",
+        "Krasnoyarsk",
+        "Kuching",
+        "Kwajalein",
+        "Kyiv",
+        "La_Paz",
+        "La_Rioja",
+        "Lagos",
+        "Lima",
+        "Lindeman",
+        "Lisbon",
+        "London",
+        "Lord_Howe",
+        "Los_Angeles",
+        "Louisville",
+        "Macau",
+        "Maceio",
+        "Macquarie",
+        "Madeira",
+        "Madrid",
+        "Magadan",
+        "Makassar",
+        "Maldives",
+        "Malta",
+        "Managua",
+        "Manaus",
+        "Manila",
+        "Maputo",
+        "Marengo",
+        "Marquesas",
+        "Martinique",
+        "Matamoros",
+        "Mauritius",
+        "Mawson",
+        "Mazatlan",
+        "Melbourne",
+        "Mendoza",
+        "Menominee",
+        "Merida",
+        "Metlakatla",
+        "Mexico_City",
+        "Minsk",
+        "Miquelon",
+        "Moncton",
+        "Monrovia",
+        "Monterrey",
+        "Montevideo",
+        "Monticello",
+        "Moscow",
+        "Nairobi",
+        "Nauru",
+        "Ndjamena",
+        "New_Salem",
+        "New_York",
+        "Nicosia",
+        "Niue",
+        "Nome",
+        "Norfolk",
+        "Noronha",
+        "Noumea",
+        "Novokuznetsk",
+        "Novosibirsk",
+        "Nuuk",
+        "Ojinaga",
+        "Omsk",
+        "Oral",
+        "Pago_Pago",
+        "Palau",
+        "Palmer",
+        "Panama",
+        "Paramaribo",
+        "Paris",
+        "Perth",
+        "Petersburg",
+        "Phoenix",
+        "Pitcairn",
+        "Pontianak",
+        "Port-au-Prince",
+        "Port_Moresby",
+        "Porto_Velho",
+        "Prague",
+        "Puerto_Rico",
+        "Punta_Arenas",
+        "Pyongyang",
+        "Qatar",
+        "Qostanay",
+        "Qyzylorda",
+        "Rankin_Inlet",
+        "Rarotonga",
+        "Recife",
+        "Regina",
+        "Rel",
+        "Resolute",
+        "Riga",
+        "Rio_Branco",
+        "Rio_Gallegos",
+        "Riyadh",
+        "Rome",
+        "Rothera",
+        "Sakhalin",
+        "Salta",
+        "Samara",
+        "Samarkand",
+        "San_Juan",
+        "San_Luis",
+        "Santarem",
+        "Santiago",
+        "Santo_Domingo",
+        "Sao_Paulo",
+        "Sao_Tome",
+        "Saratov",
+        "Scoresbysund",
+        "Seoul",
+        "Shanghai",
+        "Simferopol",
+        "Singapore",
+        "Sitka",
+        "Sofia",
+        "South_Georgia",
+        "Srednekolymsk",
+        "St_Johns",
+        "Stanley",
+        "Swift_Current",
+        "Sydney",
+        "Tahiti",
+        "Taipei",
+        "Tallinn",
+        "Tarawa",
+        "Tashkent",
+        "Tbilisi",
+        "Tegucigalpa",
+        "Tehran",
+        "Tell_City",
+        "Thimphu",
+        "Thule",
+        "Tijuana",
+        "Tirane",
+        "Tokyo",
+        "Tomsk",
+        "Tongatapu",
+        "Toronto",
+        "Tripoli",
+        "Troll",
+        "Tucuman",
+        "Tunis",
+        "Ulaanbaatar",
+        "Ulyanovsk",
+        "Urumqi",
+        "Ushuaia",
+        "Ust-Nera",
+        "Vancouver",
+        "Vevay",
+        "Vienna",
+        "Vilnius",
+        "Vincennes",
+        "Vladivostok",
+        "Volgograd",
+        "Vostok",
+        "Warsaw",
+        "Whitehorse",
+        "Winamac",
+        "Windhoek",
+        "Winnipeg",
+        "Yakutat",
+        "Yakutsk",
+        "Yangon",
+        "Yekaterinburg",
+        "Yerevan",
+        "Zurich"
+      ]
+    },
+    "sys.Unit": {
+      "description": "Unit symbols for standardized database",
+      "x-xeto": {
+        "spec": "sys::Unit"
+      },
+      "type": "string",
+      "enum": [
+        "%",
+        "%RH",
+        "px",
+        "db",
+        "pf",
+        "pH",
+        "gH\u2082O/kgAir",
+        "V/K",
+        "\u00b0daysC",
+        "\u00b0daysF",
+        "%obsc/ft",
+        "%obsc/m",
+        "psi/\u00b0F",
+        "m\u00b2/N",
+        "W/m\u00b2K",
+        "dBmV",
+        "dB\u00b5V",
+        "ppu",
+        "ppm",
+        "ppb",
+        "g/kg",
+        "rad",
+        "deg",
+        "degPh",
+        "sr",
+        "ntu",
+        "fnu",
+        "PUE",
+        "DCIE",
+        "Af",
+        "DZD",
+        "ARS",
+        "\u0534",
+        "\u0192",
+        "AUD",
+        "\u043c\u0430\u043d",
+        "BSD",
+        "BHD",
+        "\u0e3f",
+        "PAB",
+        "BBD",
+        "Br",
+        "BZD",
+        "BMD",
+        "VEF",
+        "BOB",
+        "R$",
+        "BND",
+        "\u043b\u0432",
+        "BIF",
+        "CAD",
+        "CVE",
+        "KYD",
+        "\u20b5",
+        "XAF",
+        "XPF",
+        "CLP",
+        "\u5143",
+        "CDF",
+        "C$",
+        "\u20a1",
+        "Kn",
+        "CUP",
+        "K\u010d",
+        "GMD",
+        "kr",
+        "\u0434\u0435\u043d",
+        "DJF",
+        "Db",
+        "DOP",
+        "\u20ab",
+        "XCD",
+        "EGP",
+        "ETB",
+        "\u20ac",
+        "FKP",
+        "FJD",
+        "HUF",
+        "GIP",
+        "HTG",
+        "\u20b2",
+        "GNF",
+        "GYD",
+        "HKD",
+        "\u20b4",
+        "Kr",
+        "\u20b9",
+        "IRR",
+        "IQD",
+        "JMD",
+        "JOD",
+        "Sh",
+        "PGK",
+        "\u20ad",
+        "\u041a\u041c",
+        "KWD",
+        "MK",
+        "Kz",
+        "MMK",
+        "\u10da",
+        "LBP",
+        "ALL",
+        "HNL",
+        "Le",
+        "RON",
+        "LRD",
+        "LYD",
+        "SZL",
+        "LSL",
+        "MGA",
+        "RM",
+        "TMT",
+        "MUR",
+        "MTn",
+        "MXN",
+        "MDL",
+        "MAD",
+        "\u20a6",
+        "Nfk",
+        "NAD",
+        "NPR",
+        "\u20aa",
+        "NZD",
+        "BTN",
+        "KPW",
+        "NOK",
+        "PEN",
+        "UM",
+        "\u20a8",
+        "MOP",
+        "UYU",
+        "\u20b1",
+        "\u00a3",
+        "BWP",
+        "z\u0142",
+        "QAR",
+        "GTQ",
+        "ZAR",
+        "OMR",
+        "KHR",
+        "MVR",
+        "Rp",
+        "RUB",
+        "RWF",
+        "SHP",
+        "SAR",
+        "din",
+        "SCR",
+        "SGD",
+        "SBD",
+        "KGS",
+        "SOS",
+        "\u0405\u041c",
+        "\u20a9",
+        "Rs",
+        "SDG",
+        "SRD",
+        "SEK",
+        "SFr",
+        "SYP",
+        "TWD",
+        "\u09f3",
+        "WST",
+        "TZS",
+        "\u3012",
+        "TTD",
+        "\u20ae",
+        "TND",
+        "\u20a4",
+        "AED",
+        "UGX",
+        "$",
+        "UZS",
+        "Vt",
+        "YER",
+        "\u00a5",
+        "ZK",
+        "ZWL",
+        "m/s\u00b2",
+        "rad/s\u00b2",
+        "Js",
+        "rad/s",
+        "rpm",
+        "m\u00b2",
+        "mm\u00b2",
+        "cm\u00b2",
+        "km\u00b2",
+        "in\u00b2",
+        "ft\u00b2",
+        "yd\u00b2",
+        "mile\u00b2",
+        "acre",
+        "F",
+        "COP",
+        "EER",
+        "kW/ton",
+        "kg/m\u00b3",
+        "g/m\u00b3",
+        "mg/m\u00b3",
+        "\u00b5g/m\u00b3",
+        "kg/L",
+        "mg/L",
+        "C",
+        "Ah",
+        "S",
+        "A",
+        "mA",
+        "Am\u00b2",
+        "A/m\u00b2",
+        "V/m",
+        "V",
+        "mV",
+        "kV",
+        "MV",
+        "\u2126",
+        "k\u2126",
+        "M\u2126",
+        "m\u2126",
+        "S/m",
+        "\u2126m",
+        "J",
+        "kJ",
+        "Wh",
+        "kWh",
+        "MWh",
+        "GWh",
+        "BTU",
+        "kBTU",
+        "MMBTU",
+        "hph",
+        "cal",
+        "therm",
+        "tonrefh",
+        "MJ",
+        "GJ",
+        "Nm",
+        "m\u00b3_gas",
+        "ft\u00b3_gas",
+        "Hcf_natural_gas",
+        "Ccf_natural_gas",
+        "Mcf_natural_gas",
+        "MMcf_natural_gas",
+        "VAh",
+        "kVAh",
+        "MVAh",
+        "VARh",
+        "kVARh",
+        "MVARh",
+        "J/m\u00b2",
+        "Wh/m\u00b2",
+        "Wh/ft\u00b2",
+        "kWh/m\u00b2",
+        "kWh/ft\u00b2",
+        "MWh/m\u00b2",
+        "MWh/ft\u00b2",
+        "MJ/m\u00b2",
+        "MJ/ft\u00b2",
+        "BTU/ft\u00b2",
+        "kBTU/ft\u00b2",
+        "MBTU/ft\u00b2",
+        "J/m\u00b3",
+        "GJ/m\u00b3",
+        "kWh/m\u00b3",
+        "J/g",
+        "J/kg",
+        "J/kg_dry",
+        "BTU/lb",
+        "btu/lb_dry",
+        "kJ/kg",
+        "kJ/kg_dry",
+        "MJ/kg_dry",
+        "cal/g",
+        "J/\u00b0K",
+        "kJ/\u00b0K",
+        "MJ/\u00b0K",
+        "N",
+        "lbf",
+        "Hz",
+        "kHz",
+        "cph",
+        "cpm",
+        "MHz",
+        "/min",
+        "/s",
+        "/h",
+        "%/s",
+        "ACH",
+        "kg/m\u00b2",
+        "g/m\u00b2",
+        "K/s",
+        "\u00b0C/h",
+        "\u00b0C/min",
+        "\u00b0F/h",
+        "\u00b0F/min",
+        "K/h",
+        "K/min",
+        "lx",
+        "fc",
+        "phot",
+        "H",
+        "W/m\u00b2_irr",
+        "W/ft\u00b2_irr",
+        "m",
+        "\u00b5m",
+        "mm",
+        "cm",
+        "km",
+        "in",
+        "ft",
+        "yd",
+        "mile",
+        "cd/m\u00b2",
+        "cd/ft\u00b2",
+        "lm",
+        "cd",
+        "A/m",
+        "Wb",
+        "T",
+        "kg",
+        "mg",
+        "g",
+        "oz",
+        "lb",
+        "klb",
+        "ton",
+        "t",
+        "kg/s",
+        "kg/min",
+        "kg/h",
+        "lb/min",
+        "lb/h",
+        "lb/s",
+        "klb/h",
+        "g/s",
+        "g/min",
+        "ton/h",
+        "Ns",
+        "W",
+        "mW",
+        "kW",
+        "MW",
+        "GW",
+        "BTU/h",
+        "therm/h",
+        "hp",
+        "ftlbs/sec",
+        "tonref",
+        "kBTU/h",
+        "MMBTU/h",
+        "J/h",
+        "kJ/h",
+        "MJ/h",
+        "GJ/h",
+        "W/m\u00b2",
+        "W/ft\u00b2",
+        "kW/m\u00b2",
+        "kW/ft\u00b2",
+        "kBTU/h/ft\u00b2",
+        "W/m\u00b3/s",
+        "W/cfm",
+        "kW/kcfm",
+        "kW/gal/min",
+        "VA",
+        "kVA",
+        "mVA",
+        "VAR",
+        "kVAR",
+        "MVAR",
+        "Pa",
+        "kPa",
+        "bar",
+        "atm",
+        "psi",
+        "cmH\u2082O",
+        "inH\u2082O",
+        "mmHg",
+        "cmHg",
+        "inHg",
+        "hPa",
+        "mbar",
+        "J/kg\u00b0K",
+        "N/m",
+        "\u00b0F",
+        "\u00b0C",
+        "K",
+        "\u0394\u00b0F",
+        "\u0394\u00b0C",
+        "\u0394K",
+        "W/m\u00b0K",
+        "ns",
+        "\u00b5s",
+        "ms",
+        "cs",
+        "ds",
+        "sec",
+        "min",
+        "hr",
+        "day",
+        "wk",
+        "mo",
+        "yr",
+        "m/s",
+        "km/s",
+        "km/h",
+        "mph",
+        "ft/s",
+        "ft/min",
+        "in/h",
+        "mm/s",
+        "mm/min",
+        "mm/h",
+        "m/min",
+        "m/h",
+        "knot",
+        "cfm/ft\u00b2",
+        "m\u00b3",
+        "mm\u00b3",
+        "cm\u00b3",
+        "mL",
+        "hL",
+        "L",
+        "kL",
+        "in\u00b3",
+        "ft\u00b3",
+        "yd\u00b3",
+        "gal",
+        "kgal",
+        "qt",
+        "pt",
+        "fl_oz",
+        "galUK",
+        "hft\u00b3",
+        "Hcf",
+        "Ccf",
+        "Mcf",
+        "MMcf",
+        "m\u00b3/s",
+        "mL/s",
+        "hL/s",
+        "L/s",
+        "cfs",
+        "cfm",
+        "cfh",
+        "kcfm",
+        "galUK/min",
+        "L/min",
+        "gal/min",
+        "gph",
+        "L/h",
+        "m\u00b3/min",
+        "m\u00b3/h",
+        "byte",
+        "kB",
+        "MB",
+        "GB",
+        "TB",
+        "PB"
+      ]
+    },
+    "sys.UnitQuantity": {
+      "description": "Unit quantity types for standardized database",
+      "x-xeto": {
+        "spec": "sys::UnitQuantity"
+      },
+      "type": "string",
+      "enum": [
+        "currency",
+        "acceleration",
+        "angularAcceleration",
+        "angularMomentum",
+        "angularVelocity",
+        "area",
+        "capacitance",
+        "coolingEfficiency",
+        "density",
+        "electricCharge",
+        "electricConductance",
+        "electricCurrent",
+        "electromagneticMoment",
+        "electricCurrentDensity",
+        "electricFieldStrength",
+        "electricPotential",
+        "electricResistance",
+        "electricalConductivity",
+        "electricalResistivity",
+        "energy",
+        "apparentEnergy",
+        "reactiveEnergy",
+        "energyByArea",
+        "energyByVolume",
+        "enthalpy",
+        "entropy",
+        "force",
+        "frequency",
+        "grammage",
+        "heatingRate",
+        "illuminance",
+        "inductance",
+        "irradiance",
+        "length",
+        "luminance",
+        "luminousFlux",
+        "luminousIntensity",
+        "magneticFieldStrength",
+        "magneticFlux",
+        "magneticFluxDensity",
+        "mass",
+        "massFlow",
+        "momentum",
+        "power",
+        "powerByArea",
+        "powerByVolumetricFlow",
+        "apparentPower",
+        "reactivePower",
+        "pressure",
+        "specificEntropy",
+        "surfaceTension",
+        "temperature",
+        "temperatureDifferential",
+        "thermalConductivity",
+        "time",
+        "velocity",
+        "volume",
+        "volumetricFlow",
+        "bytes"
+      ]
+    },
+    "sys.SpanMode": {
+      "description": "Relative span to current date",
+      "x-xeto": {
+        "spec": "sys::SpanMode"
+      },
+      "type": "string",
+      "enum": [
+        "today",
+        "yesterday",
+        "thisWeek",
+        "lastWeek",
+        "pastWeek",
+        "thisMonth",
+        "lastMonth",
+        "pastMonth",
+        "thisQuarter",
+        "lastQuarter",
+        "pastQuarter",
+        "thisYear",
+        "lastYear",
+        "pastYear"
+      ]
+    },
+    "sys.Version": {
+      "type": "string",
+      "pattern": "^(?:\\d+(\\.\\d+)*)$",
+      "description": "Version string formatted as decimal digits separated by a dot",
+      "x-xeto": {
+        "spec": "sys::Version"
+      }
+    },
+    "hx.test.xeto.ScalarA": {
+      "type": "string",
+      "x-xeto": {
+        "spec": "hx.test.xeto::ScalarA"
+      }
+    },
+    "hx.test.xeto.ScalarB": {
+      "type": "string",
+      "x-xeto": {
+        "spec": "hx.test.xeto::ScalarB"
+      }
+    },
+    "hx.test.xeto.Fidelity": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::Fidelity"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "dateTime": {
+          "$ref": "#/$defs/sys.DateTime"
+        },
+        "bool": {
+          "type": "boolean"
+        },
+        "tz": {
+          "$ref": "#/$defs/sys.TimeZone"
+        },
+        "numbers": {
+          "type": "array"
+        },
+        "float": {
+          "$ref": "#/$defs/sys.Float"
+        },
+        "uri": {
+          "$ref": "#/$defs/sys.Uri"
+        },
+        "version": {
+          "$ref": "#/$defs/sys.Version"
+        },
+        "int": {
+          "type": "integer"
+        },
+        "str": {
+          "type": "string"
+        },
+        "scalarA": {
+          "$ref": "#/$defs/hx.test.xeto.ScalarA"
+        },
+        "number": {
+          "$ref": "#/$defs/sys.Number"
+        },
+        "ref": {
+          "$ref": "#/$defs/sys.Ref"
+        },
+        "unit": {
+          "$ref": "#/$defs/sys.Unit"
+        },
+        "scalarB": {
+          "$ref": "#/$defs/hx.test.xeto.ScalarB"
+        },
+        "spanMode": {
+          "$ref": "#/$defs/sys.SpanMode"
+        },
+        "unitQuantity": {
+          "$ref": "#/$defs/sys.UnitQuantity"
+        },
+        "time": {
+          "$ref": "#/$defs/sys.Time"
+        },
+        "span": {
+          "$ref": "#/$defs/sys.Span"
+        }
+      },
+      "required": [
+        "bool",
+        "int",
+        "float",
+        "number",
+        "str",
+        "ref",
+        "uri",
+        "date",
+        "time",
+        "dateTime",
+        "span",
+        "tz",
+        "unit",
+        "unitQuantity",
+        "spanMode",
+        "version",
+        "scalarA",
+        "scalarB",
+        "numbers"
+      ]
+    },
+    "hx.test.xeto.FitsExplain1": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::FitsExplain1"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "a"
+      ]
+    },
+    "hx.test.xeto.FixDocs": {
+      "description": "Test fix docs **bold**, *em*, `inline` and\nthis is link to [ph::PhEntity.site] tag.\n\nList of links:\n  - [sys::Entity.id]\n  - [ph::PhEntity.dis]\n  - [hx::User.userRole]\n  - [ph::PhEntity.temp]\n  - [ph::PhEntity.sensor]\n  - [now func](now())\n  - [hx.doc.haxall::Axon]\n  - [ph::SimScenario]\n  - [ph::No2Concentration]\n  - [ph::SyntheticPoint]\n  - [fan.haystack::Grid]\n  - [fan.haystack::Grid.getRange]\n  - [hx.task::index]\n  - [hx.task::doc]\n  - [hx.doc.haxall::Conns#included-connectors]\n  - [hx.task::doc#record-tasks]\n\nOrdered\n  1. foo `inline`\n  2. bar `inline`\n  second line of bar\n\n# H1 Title here\n\n# H2 Title here\n\n## H3 Title here\n\n### H4 Title here",
+      "x-xeto": {
+        "spec": "hx.test.xeto::FixDocs"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string",
+          "description": "Slot header\n\n    code here\n    here"
+        },
+        "b": {
+          "type": "string",
+          "description": "after line `inline`"
+        }
+      },
+      "required": [
+        "a",
+        "b"
+      ]
+    },
+    "sys.Func": {
+      "description": "Function represents the signature of a computation with\nzero or more parameter types and one return type.  The `returns`\nslot specifies the return type, and all other slots specify\nthe parameters.",
+      "x-xeto": {
+        "spec": "sys::Func"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "returns": {
+          "description": "Return type of the function"
+        }
+      }
+    },
+    "sys.template.Template": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Func"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "returns": {
+              "description": "Return type of the function"
+            }
+          }
+        }
+      ],
+      "description": "Templates are a transformation function that uses their input\nparameters to generate instance data",
+      "x-xeto": {
+        "spec": "sys.template::Template"
+      }
+    },
+    "sys.Interface": {
+      "description": "Interface is an object oriented API defined as set of named\nfield and method slots.",
+      "x-xeto": {
+        "spec": "sys::Interface"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "hx.test.xeto.Funcs": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Interface"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "testTemplateBindD": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateBindC": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateBindB": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateBindA": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "ping1": {
+              "description": "ping API",
+              "$ref": "#/$defs/sys.Func"
+            },
+            "testTemplateSwitchC": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateSwitchB": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateSwitchA": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateForeachA": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateForeachD": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateForeachB": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateForeachC": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateIfD": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateIfC": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateIfB": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "testTemplateIfA": {
+              "$ref": "#/$defs/sys.template.Template"
+            },
+            "funcFrom2ndMixin": {
+              "description": "ping API",
+              "$ref": "#/$defs/sys.Func"
+            },
+            "ping2": {
+              "description": "ping API (not bound with facet)",
+              "$ref": "#/$defs/sys.Func"
+            },
+            "add2": {
+              "description": "add in Fantom",
+              "$ref": "#/$defs/sys.Func"
+            },
+            "add1": {
+              "description": "add in Axon",
+              "$ref": "#/$defs/sys.Func"
+            },
+            "add4": {
+              "description": "add in comp blocks",
+              "$ref": "#/$defs/sys.Func"
+            },
+            "add3": {
+              "description": "add in Fantom, but not allowed",
+              "$ref": "#/$defs/sys.Func"
+            }
+          },
+          "required": [
+            "ping1",
+            "ping2",
+            "add1",
+            "add2",
+            "add3",
+            "add4",
+            "testTemplateBindA",
+            "testTemplateBindB",
+            "testTemplateBindC",
+            "testTemplateBindD",
+            "testTemplateIfA",
+            "testTemplateIfB",
+            "testTemplateIfC",
+            "testTemplateIfD",
+            "testTemplateSwitchA",
+            "testTemplateSwitchB",
+            "testTemplateSwitchC",
+            "testTemplateForeachA",
+            "testTemplateForeachB",
+            "testTemplateForeachC",
+            "testTemplateForeachD",
+            "funcFrom2ndMixin"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Funcs"
+      }
+    },
+    "hx.test.xeto.Index": {
+      "description": "Create a spec named Index to ensure we handle it correctly\nwith the library index",
+      "x-xeto": {
+        "spec": "hx.test.xeto::Index"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "hx.test.xeto._0": {
+      "type": "string",
+      "pattern": "^(?:[a-zA-Z\\d\\._~]*)$",
+      "x-xeto": {
+        "spec": "hx.test.xeto::_0"
+      }
+    },
+    "hx.test.xeto.InstantiateA": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::InstantiateA"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "c": {
+          "type": "string"
+        },
+        "listRefNullable": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/hx.test.xeto._0"
+              },
+              {
+                "type": "null"
+              }
             ]
           }
-        ]
+        },
+        "d": {
+          "type": "string"
+        },
+        "multiRef2": {
+          "$ref": "#/$defs/sys.MultiRef"
+        },
+        "icon": {
+          "$ref": "#/$defs/sys.Ref"
+        },
+        "multiRef1": {
+          "$ref": "#/$defs/sys.MultiRef"
+        },
+        "listRef": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sys.Ref"
+          }
+        }
       },
-      "OrderType": {
-        "type": "string",
-        "enum": [
-          "kitchen",
-          "bathRoom",
-          "livingRoom",
-          "secretLab"
-        ]
+      "required": [
+        "listRef",
+        "listRefNullable",
+        "a"
+      ]
+    },
+    "hx.test.xeto.InstantiateB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.InstantiateA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "a": {
+              "type": "string"
+            },
+            "b": {
+              "type": "string"
+            },
+            "c": {
+              "type": "string"
+            },
+            "listRefNullable": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hx.test.xeto._0"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "d": {
+              "type": "string"
+            },
+            "multiRef2": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "icon": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "multiRef1": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "listRef": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sys.Ref"
+              }
+            }
+          },
+          "required": [
+            "listRef",
+            "listRefNullable",
+            "a"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::InstantiateB"
+      }
+    },
+    "hx.test.xeto.InstantiateC": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.InstantiateB"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "a": {
+              "type": "string"
+            },
+            "b": {
+              "type": "string"
+            },
+            "c": {
+              "type": "string"
+            },
+            "listRefNullable": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/hx.test.xeto._0"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "d": {
+              "type": "string"
+            },
+            "multiRef2": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "icon": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "multiRef1": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "listRef": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sys.Ref"
+              }
+            }
+          },
+          "required": [
+            "listRef",
+            "listRefNullable",
+            "a"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::InstantiateC"
+      }
+    },
+    "hx.test.xeto.InstantiateD": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::InstantiateD"
       },
-      "Product": {
-        "additionalProperties": true,
-        "type": "object",
-        "properties": {
-          "product": {
-            "$ref": "#/$defs/sys-5.0.0/Marker"
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "numA": {
+          "$ref": "#/$defs/sys.Number"
+        },
+        "numB": {
+          "$ref": "#/$defs/sys.Number"
+        }
+      },
+      "required": [
+        "numA",
+        "numB"
+      ]
+    },
+    "hx.test.xeto.InterfaceA": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Interface"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "i9": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "m1": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "s9": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "i1": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "i2": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "m9": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "s1": {
+              "$ref": "#/$defs/sys.Func"
+            }
           },
-          "price": {
-            "type": "number"
+          "required": [
+            "m1",
+            "m9",
+            "s1",
+            "s9",
+            "i1",
+            "i2",
+            "i9"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::InterfaceA"
+      }
+    },
+    "hx.test.xeto.InterfaceB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.InterfaceA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "i9": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "m1": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "s9": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "i1": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "i2": {
+              "type": "string"
+            },
+            "s1": {
+              "$ref": "#/$defs/sys.Func"
+            }
           },
-          "name": {
-            "type": "string"
+          "required": [
+            "s1",
+            "s9",
+            "i1",
+            "i2",
+            "i9",
+            "m1"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::InterfaceB"
+      }
+    },
+    "sys.NA": {
+      "const": "na",
+      "description": "Not available indicates invalid or missing data",
+      "x-xeto": {
+        "spec": "sys::NA"
+      }
+    },
+    "hx.test.xeto.JsonEdge": {
+      "description": "Members whose plain JSON form only survives when the position names the\ntype.  'looksNum' is declared Str even though its value reads as a Number.",
+      "x-xeto": {
+        "spec": "hx.test.xeto::JsonEdge"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "na": {
+          "$ref": "#/$defs/sys.NA"
+        },
+        "unitless": {
+          "$ref": "#/$defs/sys.Number"
+        },
+        "looksNum": {
+          "type": "string"
+        },
+        "float": {
+          "$ref": "#/$defs/sys.Float"
+        },
+        "int": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "na",
+        "int",
+        "float",
+        "unitless",
+        "looksNum"
+      ]
+    },
+    "hx.test.xeto.JsonFoo": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::JsonFoo"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "integer"
+        },
+        "b": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "a",
+        "b"
+      ]
+    },
+    "hx.test.xeto.JsonHisGrid": {
+      "description": "A Grid subtype supplies its default row spec from the schema",
+      "x-xeto": {
+        "spec": "hx.test.xeto::JsonHisGrid",
+        "of": "hx.test.xeto::JsonRow"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "meta": {
+          "type": "object"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object"
           }
         },
-        "required": [
-          "product",
-          "name",
-          "price"
+        "cols": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hx.test.xeto.GridCol"
+          }
+        }
+      },
+      "required": [
+        "cols",
+        "rows"
+      ]
+    },
+    "hx.test.xeto.GridCol": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "hx.test.xeto.JsonNest": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Entity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "foo": {
+              "$ref": "#/$defs/hx.test.xeto.JsonFoo"
+            },
+            "untyped": {
+              "description": "no 'of' meta, so items decode untyped",
+              "type": "array"
+            },
+            "dates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sys.Date"
+              }
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "id",
+            "foo",
+            "dates",
+            "untyped"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::JsonNest"
+      }
+    },
+    "hx.test.xeto.JsonRow": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Entity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "v0": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "ts": {
+              "$ref": "#/$defs/sys.DateTime"
+            }
+          },
+          "required": [
+            "id",
+            "ts",
+            "v0"
+          ]
+        }
+      ],
+      "description": "Entity row spec for grid tests, plus a subtype for heterogeneous rows",
+      "x-xeto": {
+        "spec": "hx.test.xeto::JsonRow"
+      }
+    },
+    "hx.test.xeto.JsonRowB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.JsonRow"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "extra": {
+              "type": "string"
+            },
+            "v0": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "ts": {
+              "$ref": "#/$defs/sys.DateTime"
+            }
+          },
+          "required": [
+            "id",
+            "ts",
+            "v0",
+            "extra"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::JsonRowB"
+      }
+    },
+    "hx.test.xeto.JsonScalars": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Entity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "date": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "dateTime": {
+              "$ref": "#/$defs/sys.DateTime"
+            },
+            "bool": {
+              "type": "boolean"
+            },
+            "tz": {
+              "$ref": "#/$defs/sys.TimeZone"
+            },
+            "float": {
+              "$ref": "#/$defs/sys.Float"
+            },
+            "uri": {
+              "$ref": "#/$defs/sys.Uri"
+            },
+            "version": {
+              "$ref": "#/$defs/sys.Version"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "int": {
+              "type": "integer"
+            },
+            "str": {
+              "type": "string"
+            },
+            "number": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "ref": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "unit": {
+              "$ref": "#/$defs/sys.Unit"
+            },
+            "spanMode": {
+              "$ref": "#/$defs/sys.SpanMode"
+            },
+            "marker": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "unitQuantity": {
+              "$ref": "#/$defs/sys.UnitQuantity"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "time": {
+              "$ref": "#/$defs/sys.Time"
+            },
+            "span": {
+              "$ref": "#/$defs/sys.Span"
+            }
+          },
+          "required": [
+            "id",
+            "marker",
+            "bool",
+            "int",
+            "float",
+            "number",
+            "str",
+            "ref",
+            "uri",
+            "date",
+            "time",
+            "dateTime",
+            "span",
+            "tz",
+            "unit",
+            "unitQuantity",
+            "spanMode",
+            "version"
+          ]
+        }
+      ],
+      "description": "Entity supplies the 'id' and 'spec' members that a named instance carries;\nwithout them 'id' has no member to resolve against and decodes as a Str",
+      "x-xeto": {
+        "spec": "hx.test.xeto::JsonScalars"
+      }
+    },
+    "hx.test.xeto.LightBlue": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.Blue"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "blue": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "light": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "blue",
+            "light"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::LightBlue"
+      }
+    },
+    "hx.test.xeto.LightRed": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.Red"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "red": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "light": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "red",
+            "light"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::LightRed"
+      }
+    },
+    "hx.test.xeto.ListOfTest": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::ListOfTest"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sys.Date"
+          }
+        }
+      }
+    },
+    "hx.test.xeto.MetaInheritA": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::MetaInheritA"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "string",
+          "x-xeto": {
+            "transient": true
+          }
+        },
+        "y": {
+          "type": "string",
+          "x-xeto": {
+            "transient": true
+          }
+        },
+        "z": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    "hx.test.xeto.MetaInheritAltA": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::MetaInheritAltA"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "hx.test.xeto.MetaInheritAltB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.MetaInheritAltA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::MetaInheritAltB"
+      }
+    },
+    "hx.test.xeto.MetaInheritB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.MetaInheritA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "string",
+              "x-xeto": {
+                "transient": true
+              }
+            },
+            "y": {
+              "type": "string"
+            },
+            "z": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "z"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::MetaInheritB"
+      }
+    },
+    "hx.test.xeto.NestedEq": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Equip"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "equip": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "spaceRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "parentEquips": {
+              "description": "Parent Equips that contain this Equip",
+              "x-xeto": {
+                "of": "ph::Equip",
+                "via": "equipRef+"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "equipRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "childEquips": {
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "points": {
+              "$ref": "#/$defs/sys.Query"
+            }
+          },
+          "required": [
+            "id",
+            "equip",
+            "siteRef",
+            "parentEquips",
+            "childEquips",
+            "points"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::NestedEq"
+      }
+    },
+    "hx.test.xeto.OrderType": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::OrderType"
+      },
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "bathRoom",
+        "livingRoom",
+        "secretLab"
+      ]
+    },
+    "hx.test.xeto.Product": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::Product"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "price": {
+          "$ref": "#/$defs/sys.Float"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "product",
+        "name",
+        "price"
+      ]
+    },
+    "hx.test.xeto.Order": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Entity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "orderType": {
+              "$ref": "#/$defs/hx.test.xeto.OrderType"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "orderDate": {
+              "$ref": "#/$defs/sys.DateTime"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/hx.test.xeto.Product"
+              }
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "customerName": {
+              "type": "string"
+            },
+            "order": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "id",
+            "order",
+            "customerName",
+            "orderDate",
+            "orderType",
+            "items"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Order"
+      }
+    },
+    "hx.test.xeto.Phase": {
+      "type": "string",
+      "x-xeto": {
+        "spec": "hx.test.xeto::Phase"
+      }
+    },
+    "hx.test.xeto.PlusDict": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::PlusDict"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "plusDict": {
+          "$ref": "#/$defs/sys.Marker"
+        }
+      },
+      "required": [
+        "plusDict"
+      ]
+    },
+    "hx.test.xeto.RedPlus": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "plusDict": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "red": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "plusDict",
+            "red"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.PlusDict"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.Red"
+        }
+      ],
+      "description": "not color choice",
+      "x-xeto": {
+        "spec": "hx.test.xeto::RedPlus",
+        "ofs": [
+          "hx.test.xeto::PlusDict",
+          "hx.test.xeto::Red"
         ]
+      }
+    },
+    "sys.Or": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Obj"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "Or type is a choice between one of multiple types.\nIt is a union of the set of types.",
+      "x-xeto": {
+        "spec": "sys::Or"
+      }
+    },
+    "sys.And": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Obj"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "description": "And type is a combination of multiple types.\nIt is an intersection of the set of types.",
+      "x-xeto": {
+        "spec": "sys::And"
+      }
+    },
+    "hx.test.xeto._1": {
+      "type": "string",
+      "pattern": "^(?:[a-zA-Z\\d\\._~]*)$",
+      "x-xeto": {
+        "spec": "hx.test.xeto::_1",
+        "of": "hx.test.xeto::A"
+      }
+    },
+    "hx.test.xeto.Sigs": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::Sigs"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "c": {
+          "x-xeto": {
+            "ofs": [
+              "hx.test.xeto::A",
+              "hx.test.xeto::B"
+            ]
+          },
+          "$ref": "#/$defs/sys.Or"
+        },
+        "d": {
+          "x-xeto": {
+            "ofs": [
+              "hx.test.xeto::A",
+              "hx.test.xeto::B"
+            ]
+          },
+          "$ref": "#/$defs/sys.And"
+        },
+        "e": {
+          "x-xeto": {
+            "ofs": [
+              "hx.test.xeto::A",
+              "hx.test.xeto::B"
+            ]
+          },
+          "$ref": "#/$defs/sys.Or"
+        },
+        "f": {
+          "x-xeto": {
+            "ofs": [
+              "hx.test.xeto::A",
+              "hx.test.xeto::B"
+            ]
+          },
+          "$ref": "#/$defs/sys.And"
+        },
+        "g": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sys.Str"
+          }
+        },
+        "h": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hx.test.xeto._1"
+          }
+        }
+      },
+      "required": [
+        "a",
+        "c",
+        "d",
+        "g",
+        "h"
+      ]
+    },
+    "ph.Coord": {
+      "type": "string",
+      "description": "Geographic coordinate in latitude/longitude in decimal degrees.",
+      "x-xeto": {
+        "spec": "ph::Coord"
+      }
+    },
+    "ph.GeoCountry": {
+      "description": "Geographic country as [ISO 3166-1](http://en.wikipedia.org/wiki/ISO_3166-1)\ntwo letter code",
+      "x-xeto": {
+        "spec": "ph::GeoCountry"
+      },
+      "type": "string",
+      "enum": [
+        "AF",
+        "AX",
+        "AL",
+        "DZ",
+        "AS",
+        "AD",
+        "AO",
+        "AI",
+        "AQ",
+        "AG",
+        "AR",
+        "AM",
+        "AW",
+        "AU",
+        "AT",
+        "AZ",
+        "BS",
+        "BH",
+        "BD",
+        "BB",
+        "BY",
+        "BE",
+        "BZ",
+        "BJ",
+        "BM",
+        "BT",
+        "BO",
+        "BA",
+        "BW",
+        "BV",
+        "BR",
+        "IO",
+        "BN",
+        "BG",
+        "BF",
+        "BI",
+        "KH",
+        "CM",
+        "CA",
+        "CV",
+        "KY",
+        "CF",
+        "TD",
+        "CL",
+        "CN",
+        "CX",
+        "CC",
+        "CO",
+        "KM",
+        "CG",
+        "CD",
+        "CK",
+        "CR",
+        "CI",
+        "HR",
+        "CU",
+        "CY",
+        "CZ",
+        "DK",
+        "DJ",
+        "DM",
+        "DO",
+        "EC",
+        "EG",
+        "SV",
+        "GQ",
+        "ER",
+        "EE",
+        "ET",
+        "FK",
+        "FO",
+        "FJ",
+        "FI",
+        "FR",
+        "GF",
+        "PF",
+        "TF",
+        "GA",
+        "GM",
+        "GE",
+        "DE",
+        "GH",
+        "GI",
+        "GR",
+        "GL",
+        "GD",
+        "GP",
+        "GU",
+        "GT",
+        "GG",
+        "GN",
+        "GW",
+        "GY",
+        "HT",
+        "HM",
+        "VA",
+        "HN",
+        "HK",
+        "HU",
+        "IS",
+        "IN",
+        "ID",
+        "IR",
+        "IQ",
+        "IE",
+        "IM",
+        "IL",
+        "IT",
+        "JM",
+        "JP",
+        "JE",
+        "JO",
+        "KZ",
+        "KE",
+        "KI",
+        "KP",
+        "KR",
+        "KW",
+        "KG",
+        "LA",
+        "LV",
+        "LB",
+        "LS",
+        "LR",
+        "LY",
+        "LI",
+        "LT",
+        "LU",
+        "MO",
+        "MK",
+        "MG",
+        "MW",
+        "MY",
+        "MV",
+        "ML",
+        "MT",
+        "MH",
+        "MQ",
+        "MR",
+        "MU",
+        "YT",
+        "MX",
+        "FM",
+        "MD",
+        "MC",
+        "MN",
+        "ME",
+        "MS",
+        "MA",
+        "MZ",
+        "MM",
+        "NA",
+        "NR",
+        "NP",
+        "NL",
+        "AN",
+        "NC",
+        "NZ",
+        "NI",
+        "NE",
+        "NG",
+        "NU",
+        "NF",
+        "MP",
+        "NO",
+        "OM",
+        "PK",
+        "PW",
+        "PS",
+        "PA",
+        "PG",
+        "PY",
+        "PE",
+        "PH",
+        "PN",
+        "PL",
+        "PT",
+        "PR",
+        "QA",
+        "RE",
+        "RO",
+        "RU",
+        "RW",
+        "BL",
+        "SH",
+        "KN",
+        "LC",
+        "MF",
+        "PM",
+        "VC",
+        "WS",
+        "SM",
+        "ST",
+        "SA",
+        "SN",
+        "RS",
+        "SC",
+        "SL",
+        "SG",
+        "SK",
+        "SI",
+        "SB",
+        "SO",
+        "ZA",
+        "GS",
+        "ES",
+        "LK",
+        "SD",
+        "SR",
+        "SJ",
+        "SZ",
+        "SE",
+        "CH",
+        "SY",
+        "TW",
+        "TJ",
+        "TZ",
+        "TH",
+        "TL",
+        "TG",
+        "TK",
+        "TO",
+        "TT",
+        "TN",
+        "TR",
+        "TM",
+        "TC",
+        "TV",
+        "UG",
+        "UA",
+        "AE",
+        "GB",
+        "US",
+        "UM",
+        "UY",
+        "UZ",
+        "VU",
+        "VE",
+        "VN",
+        "VG",
+        "VI",
+        "WF",
+        "EH",
+        "YE",
+        "ZM",
+        "ZW"
+      ]
+    },
+    "ph.GeoState": {
+      "description": "State or province name; for US this is two letter state code. May be\nused in other countries to model administrative area between the geoCity\nand geoCountry level.",
+      "x-xeto": {
+        "spec": "ph::GeoState"
+      },
+      "type": "string",
+      "enum": [
+        "AL",
+        "AK",
+        "AS",
+        "AZ",
+        "AR",
+        "CA",
+        "CO",
+        "CT",
+        "DE",
+        "DC",
+        "FM",
+        "FL",
+        "GA",
+        "GU",
+        "HI",
+        "ID",
+        "IL",
+        "IN",
+        "IA",
+        "KS",
+        "KY",
+        "LA",
+        "ME",
+        "MH",
+        "MD",
+        "MA",
+        "MI",
+        "MN",
+        "MS",
+        "MO",
+        "MT",
+        "NE",
+        "NV",
+        "NH",
+        "NJ",
+        "NM",
+        "NY",
+        "NC",
+        "ND",
+        "MP",
+        "OH",
+        "OK",
+        "OR",
+        "PW",
+        "PA",
+        "PR",
+        "RI",
+        "SC",
+        "SD",
+        "TN",
+        "TX",
+        "UT",
+        "VA",
+        "VI",
+        "VT",
+        "WA",
+        "WV",
+        "WI",
+        "WY"
+      ]
+    },
+    "ph.GeoPlace": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.PhEntity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "geoState": {
+              "$ref": "#/$defs/ph.GeoState"
+            },
+            "geoCounty": {
+              "type": "string"
+            },
+            "geoPostalCode": {
+              "type": "string"
+            },
+            "geoAddr": {
+              "type": "string"
+            },
+            "geoElevation": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "geoCoord": {
+              "$ref": "#/$defs/ph.Coord"
+            },
+            "geoStreet": {
+              "type": "string"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "geoCity": {
+              "type": "string"
+            },
+            "geoCountry": {
+              "$ref": "#/$defs/ph.GeoCountry"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      ],
+      "description": "Geographic place",
+      "x-xeto": {
+        "spec": "ph::GeoPlace",
+        "abstract": true
+      }
+    },
+    "hx.test.xeto.Site": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.GeoPlace"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "area": {
+              "description": "no taek",
+              "$ref": "#/$defs/sys.Number"
+            },
+            "newSlot": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "area",
+            "newSlot"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::Site"
+      }
+    },
+    "hx.test.xeto.Spec": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::Spec"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "q": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "metaNum": {
+          "$ref": "#/$defs/sys.Number"
+        },
+        "r": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "bar": {
+          "type": "string"
+        },
+        "metaR": {
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "s": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "metaQ": {
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "qux": {
+          "type": "string"
+        },
+        "foo": {
+          "type": "string"
+        },
+        "metaStr": {
+          "type": "string"
+        }
+      }
+    },
+    "ph.System": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.PhEntity"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "system": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "id",
+            "system",
+            "siteRef"
+          ]
+        }
+      ],
+      "description": "Grouping of related equipment dedicated to a single application.\nSee [ph.doc::Systems] chapter.",
+      "x-xeto": {
+        "spec": "ph::System"
+      }
+    },
+    "hx.test.xeto.SystemWithEquips": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.System"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "system": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "siteRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "systemRef": {
+              "$ref": "#/$defs/sys.MultiRef"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "equips": {
+              "description": "Equips associated with this system",
+              "x-xeto": {
+                "inverse": "hx.test.xeto::EquipWithSystems.systems",
+                "of": "ph::Equip"
+              },
+              "$ref": "#/$defs/sys.Query"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "id",
+            "system",
+            "siteRef",
+            "equips"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::SystemWithEquips"
+      }
+    },
+    "hx.test.xeto.TemplateDictC": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::TemplateDictC"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "c": {
+          "type": "string"
+        },
+        "e": {
+          "type": "string"
+        },
+        "f": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    "sys.comp.CompLayout": {
+      "type": "string",
+      "description": "Component layout stored as \"x, y, w\" in a logical coordinate system.\nSee [documentation](doc.xeto::Comps#complayout)",
+      "x-xeto": {
+        "spec": "sys.comp::CompLayout"
+      }
+    },
+    "sys.comp.Links": {
+      "description": "Incoming links on a component as dict keyed by toSlot name.\nThe values for each slot name may be a Link or a list of Link.\nSee [documentation](doc.xeto::Comps#links)",
+      "x-xeto": {
+        "spec": "sys.comp::Links",
+        "of": "sys.comp::_0"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "hx.test.xeto.TestVal": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestVal"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "val": {
+          "$ref": "#/$defs/sys.Number"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "val",
+        "status"
+      ]
+    },
+    "sys.comp.Comp": {
+      "description": "Component or function block - see [documentation](doc.xeto::Comps)",
+      "x-xeto": {
+        "spec": "sys.comp::Comp"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "compLayout": {
+          "description": "Layout in a visual coordinate system",
+          "$ref": "#/$defs/sys.comp.CompLayout"
+        },
+        "links": {
+          "description": "List of links to this component",
+          "$ref": "#/$defs/sys.comp.Links"
+        },
+        "compName": {
+          "type": "string",
+          "description": "Component name in parent"
+        },
+        "parentRef": {
+          "description": "Component tree parent",
+          "x-xeto": {
+            "of": "sys.comp::Comp"
+          },
+          "$ref": "#/$defs/sys.Ref"
+        }
+      }
+    },
+    "hx.test.xeto.TestAdd": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "in2": {
+              "$ref": "#/$defs/hx.test.xeto.TestVal"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "in1": {
+              "$ref": "#/$defs/hx.test.xeto.TestVal"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "x-xeto": {
+                "transient": true
+              },
+              "$ref": "#/$defs/hx.test.xeto.TestVal"
+            }
+          },
+          "required": [
+            "in1",
+            "in2",
+            "out"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestAdd"
+      }
+    },
+    "hx.test.xeto.TestIncrement": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "in": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "onExecute": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "$ref": "#/$defs/sys.Number"
+            }
+          },
+          "required": [
+            "in",
+            "out",
+            "onExecute"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestIncrement"
+      }
+    },
+    "hx.test.xeto.TestMixinComp": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          }
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestMixinComp"
+      }
+    },
+    "hx.test.xeto.TestAndComp": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "in": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "onExecute": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "$ref": "#/$defs/sys.Number"
+            }
+          },
+          "required": [
+            "in",
+            "out",
+            "onExecute"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestIncrement"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestMixinComp"
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestAndComp",
+        "ofs": [
+          "hx.test.xeto::TestIncrement",
+          "hx.test.xeto::TestMixinComp"
+        ]
+      }
+    },
+    "hx.test.xeto.TestPoint": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestPoint"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "x": {
+          "$ref": "#/$defs/sys.Number"
+        },
+        "y": {
+          "$ref": "#/$defs/sys.Number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ]
+    },
+    "hx.test.xeto.TestAxonSquare": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "in": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "onExecute": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "$ref": "#/$defs/sys.Number"
+            }
+          },
+          "required": [
+            "in",
+            "out",
+            "onExecute"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestAxonSquare"
+      }
+    },
+    "hx.test.xeto.TestAxonComposite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "str": {
+              "type": "string"
+            },
+            "a": {
+              "$ref": "#/$defs/hx.test.xeto.TestAxonSquare"
+            },
+            "b": {
+              "$ref": "#/$defs/hx.test.xeto.TestAxonSquare"
+            },
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "in": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "point": {
+              "$ref": "#/$defs/hx.test.xeto.TestPoint"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "description": "this.out -> b.out",
+              "$ref": "#/$defs/sys.Number"
+            }
+          },
+          "required": [
+            "in",
+            "out",
+            "str",
+            "point",
+            "a",
+            "b"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestAxonComposite"
+      }
+    },
+    "sys.Duration": {
+      "description": "Number with a unit of time",
+      "x-xeto": {
+        "quantity": "time"
+      },
+      "$ref": "#/$defs/sys.Number"
+    },
+    "hx.test.xeto.TestFolder": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          }
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestFolder"
+      }
+    },
+    "hx.test.xeto.TestComposite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "dur": {
+              "$ref": "#/$defs/sys.Duration"
+            },
+            "descr": {
+              "type": "string"
+            },
+            "a": {
+              "$ref": "#/$defs/hx.test.xeto.TestAdd"
+            },
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "nest": {
+              "$ref": "#/$defs/hx.test.xeto.TestFolder"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "descr",
+            "dur",
+            "a",
+            "nest"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestComposite"
+      }
+    },
+    "hx.test.xeto.TestCounter": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "$ref": "#/$defs/hx.test.xeto.TestVal"
+            }
+          },
+          "required": [
+            "out"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestCounter"
+      }
+    },
+    "hx.test.xeto.TestDeep1Composite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "bar": {
+              "$ref": "#/$defs/sys.comp.Comp"
+            },
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "in": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "in",
+            "bar"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestDeep1Composite"
+      }
+    },
+    "hx.test.xeto.TestDeep2Composite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "folder": {
+              "$ref": "#/$defs/sys.comp.Comp"
+            },
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "sub1": {
+              "$ref": "#/$defs/hx.test.xeto.TestAxonComposite"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "topOut": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "topIn": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "topIn",
+            "sub1",
+            "topOut",
+            "folder"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestDeep2Composite"
+      }
+    },
+    "hx.test.xeto.TestDocA": {
+      "description": "Test documentation",
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestDocA",
+        "abstract": true
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "date": {
+          "description": "this is date field summary",
+          "$ref": "#/$defs/sys.Date"
+        },
+        "marker2": {
+          "description": "this marker summary",
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "span": {
+          "description": "list of spans",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sys.Span"
+          }
+        }
+      },
+      "required": [
+        "marker2"
+      ]
+    },
+    "hx.test.xeto.TestEdgeBox": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "center": {
+              "$ref": "#/$defs/sys.comp.Comp"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "center"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestEdgeBox"
+      }
+    },
+    "hx.test.xeto.TestEdgeBoxComposite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "body": {
+              "$ref": "#/$defs/hx.test.xeto.TestEdgeBox"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "body"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestEdgeBoxComposite"
+      }
+    },
+    "hx.test.xeto.TestFoo": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "a": {
+              "type": "string"
+            },
+            "b": {
+              "type": "string"
+            },
+            "c": {
+              "type": "string"
+            },
+            "methodEcho": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "methodSquare": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "methodBad4": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "methodBad3": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "methodBad2": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "methodUpper": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "methodBad1": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "methodThis": {
+              "$ref": "#/$defs/sys.Func"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            }
+          },
+          "required": [
+            "a",
+            "b",
+            "methodEcho",
+            "methodSquare",
+            "methodBad1",
+            "methodBad2",
+            "methodBad3",
+            "methodBad4",
+            "methodUpper",
+            "methodThis"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestFoo"
+      }
+    },
+    "hx.test.xeto.TestGlobalsA": {
+      "description": "Test A",
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestGlobalsA"
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "hx.test.xeto.TestGlobalsB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestGlobalsA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "globA": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "globA"
+          ]
+        }
+      ],
+      "description": "Test B",
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestGlobalsB"
+      }
+    },
+    "hx.test.xeto.TestGlobalsC": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestGlobalsA"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "globB": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "globB"
+          ]
+        }
+      ],
+      "description": "Test C",
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestGlobalsC"
+      }
+    },
+    "hx.test.xeto.TestGlobalsD": {
+      "allOf": [
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "globB": {
+              "type": "string"
+            },
+            "globC": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "globA": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "globI": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "globA",
+            "globB",
+            "globC",
+            "globI"
+          ]
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestGlobalsB"
+        },
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestGlobalsC"
+        }
+      ],
+      "description": "Test D",
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestGlobalsD",
+        "ofs": [
+          "hx.test.xeto::TestGlobalsB",
+          "hx.test.xeto::TestGlobalsC"
+        ]
+      }
+    },
+    "hx.test.xeto.TestGrid": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestGrid"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "meta": {
+          "type": "object"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "cols": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hx.test.xeto.GridCol"
+          }
+        }
+      },
+      "required": [
+        "cols",
+        "rows"
+      ]
+    },
+    "hx.test.xeto.TestLabel": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "num": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "text": {
+              "type": "string"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestLabel"
+      }
+    },
+    "hx.test.xeto.TestNest": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestNest"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "nest": {
+          "$ref": "#/$defs/hx.test.xeto.TestNest"
+        }
+      }
+    },
+    "hx.test.xeto.TestNestedComp": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.Func"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "returns": {
+              "description": "Return type of the function"
+            },
+            "do": {
+              "$ref": "#/$defs/hx.test.xeto.TestFolder"
+            }
+          },
+          "required": [
+            "do"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestNestedComp"
+      }
+    },
+    "hx.test.xeto.TestNumberAdd": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "in2": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "in1": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "x-xeto": {
+                "transient": true
+              },
+              "$ref": "#/$defs/sys.Number"
+            }
+          },
+          "required": [
+            "in1",
+            "in2",
+            "out"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestNumberAdd"
+      }
+    },
+    "sys.Scalar": {
+      "type": "string",
+      "description": "Scalar is an atomic value kind",
+      "x-xeto": {
+        "spec": "sys::Scalar",
+        "abstract": true
+      }
+    },
+    "hx.comps.Status": {
+      "description": "Standard status flags",
+      "x-xeto": {
+        "spec": "hx.comps::Status"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "stale": {
+          "description": "Data is not fresh",
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "alarm": {
+          "description": "In an alarm state",
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "fault": {
+          "description": "Configuration or hardware error state",
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "disabled": {
+          "description": "Disabled state",
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "overridden": {
+          "description": "Manual override state",
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "unacked": {
+          "description": "Alarm has not been acknowledged",
+          "$ref": "#/$defs/sys.Marker"
+        },
+        "down": {
+          "description": "Network or communication error state",
+          "$ref": "#/$defs/sys.Marker"
+        }
+      }
+    },
+    "hx.comps.StatusVal": {
+      "description": "StatusVal pairs status flags with a scalar value",
+      "x-xeto": {
+        "spec": "hx.comps::StatusVal"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "val": {
+          "description": "Scalar value",
+          "$ref": "#/$defs/sys.Scalar"
+        },
+        "status": {
+          "description": "Status flags",
+          "$ref": "#/$defs/hx.comps.Status"
+        }
+      },
+      "required": [
+        "val",
+        "status"
+      ]
+    },
+    "hx.comps.StatusNumber": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.comps.StatusVal"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "val": {
+              "description": "Numeric scalar value",
+              "$ref": "#/$defs/sys.Number"
+            },
+            "status": {
+              "description": "Status flags",
+              "$ref": "#/$defs/hx.comps.Status"
+            }
+          },
+          "required": [
+            "val",
+            "status"
+          ]
+        }
+      ],
+      "description": "StatusNumber pairs a number with status flags",
+      "x-xeto": {
+        "spec": "hx.comps::StatusNumber"
+      }
+    },
+    "hx.comps.StatusBool": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.comps.StatusVal"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "val": {
+              "type": "boolean",
+              "description": "Boolean scalar value"
+            },
+            "status": {
+              "description": "Status flags",
+              "$ref": "#/$defs/hx.comps.Status"
+            }
+          },
+          "required": [
+            "val",
+            "status"
+          ]
+        }
+      ],
+      "description": "StatusBool pairs a boolean with status flags",
+      "x-xeto": {
+        "spec": "hx.comps::StatusBool"
+      }
+    },
+    "hx.test.xeto.TestPrint": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestPrint"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "s3": {
+          "type": "string"
+        },
+        "s4": {
+          "type": "string"
+        },
+        "s5": {
+          "type": "string"
+        },
+        "sb1": {
+          "$ref": "#/$defs/hx.comps.StatusBool"
+        },
+        "date7": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "date6": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "date5": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "date4": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "date3": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "date2": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "date1": {
+          "$ref": "#/$defs/sys.Date"
+        },
+        "sv2": {
+          "$ref": "#/$defs/hx.comps.StatusVal"
+        },
+        "sv1": {
+          "$ref": "#/$defs/hx.comps.StatusVal"
+        },
+        "sn1": {
+          "$ref": "#/$defs/hx.comps.StatusNumber"
+        },
+        "s1": {
+          "type": "string"
+        },
+        "s2": {
+          "type": "string"
+        }
+      }
+    },
+    "hx.test.xeto.TestPrintA": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestPrint"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "s3": {
+              "type": "string"
+            },
+            "s4": {
+              "type": "string"
+            },
+            "s5": {
+              "type": "string"
+            },
+            "sb1": {
+              "$ref": "#/$defs/hx.comps.StatusBool"
+            },
+            "date7": {
+              "description": "comment",
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date6": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date5": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date4": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date3": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date2": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date1": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "sv2": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sv1": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sn1": {
+              "$ref": "#/$defs/hx.comps.StatusNumber"
+            },
+            "s1": {
+              "type": "string"
+            },
+            "s2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "date2",
+            "date7"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestPrintA"
+      }
+    },
+    "hx.test.xeto.TestPrintB": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestPrint"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "s3": {
+              "type": "string"
+            },
+            "s4": {
+              "type": "string"
+            },
+            "meta3": {
+              "type": "object"
+            },
+            "s5": {
+              "type": "string"
+            },
+            "meta2": {
+              "type": "object"
+            },
+            "sb1": {
+              "$ref": "#/$defs/hx.comps.StatusBool"
+            },
+            "meta1": {
+              "type": "object"
+            },
+            "date7": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date6": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date5": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date4": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date3": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date2": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date1": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "sv2": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sv1": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sn1": {
+              "$ref": "#/$defs/hx.comps.StatusNumber"
+            },
+            "s1": {
+              "type": "string"
+            },
+            "s2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "meta1",
+            "meta2",
+            "meta3"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestPrintB"
+      }
+    },
+    "hx.test.xeto.TestPrintC": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestPrint"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "s3": {
+              "type": "string"
+            },
+            "s4": {
+              "type": "string"
+            },
+            "s5": {
+              "type": "string"
+            },
+            "sb1": {
+              "$ref": "#/$defs/hx.comps.StatusBool"
+            },
+            "date7": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date6": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date5": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date4": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date3": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date2": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date1": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "sv2": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sv1": {
+              "$ref": "#/$defs/hx.comps.StatusNumber"
+            },
+            "sn1": {
+              "$ref": "#/$defs/hx.comps.StatusNumber"
+            },
+            "s1": {
+              "type": "string"
+            },
+            "s2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sv1"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestPrintC"
+      }
+    },
+    "hx.test.xeto.TestPrintD": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestPrint"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "s3": {
+              "type": "string"
+            },
+            "s4": {
+              "type": "string"
+            },
+            "s5": {
+              "type": "string"
+            },
+            "sb1": {
+              "$ref": "#/$defs/hx.comps.StatusBool"
+            },
+            "date7": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date6": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date5": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date4": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date3": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date2": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date1": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "sv2": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sv1": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "marker1": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "sn1": {
+              "$ref": "#/$defs/hx.comps.StatusNumber"
+            },
+            "marker3": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "marker2": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "s1": {
+              "type": "string"
+            },
+            "marker5": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "s2": {
+              "type": "string"
+            },
+            "marker4": {
+              "$ref": "#/$defs/sys.Marker"
+            }
+          },
+          "required": [
+            "marker1",
+            "marker2"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestPrintD"
+      }
+    },
+    "hx.test.xeto.TestPrintE": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/hx.test.xeto.TestPrint"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "s3": {
+              "type": "string"
+            },
+            "s4": {
+              "type": "string"
+            },
+            "s5": {
+              "type": "string"
+            },
+            "sb1": {
+              "$ref": "#/$defs/hx.comps.StatusBool"
+            },
+            "date7": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date6": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date5": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date4": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date3": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date2": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "date1": {
+              "$ref": "#/$defs/sys.Date"
+            },
+            "sv2": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sv1": {
+              "$ref": "#/$defs/hx.comps.StatusVal"
+            },
+            "sn1": {
+              "$ref": "#/$defs/hx.comps.StatusNumber"
+            },
+            "s1": {
+              "type": "string"
+            },
+            "s2": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestPrintE"
+      }
+    },
+    "hx.test.xeto.TestRamp": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sys.comp.Comp"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "amplitude": {
+              "$ref": "#/$defs/sys.Float"
+            },
+            "compLayout": {
+              "description": "Layout in a visual coordinate system",
+              "$ref": "#/$defs/sys.comp.CompLayout"
+            },
+            "links": {
+              "description": "List of links to this component",
+              "$ref": "#/$defs/sys.comp.Links"
+            },
+            "compName": {
+              "type": "string",
+              "description": "Component name in parent"
+            },
+            "parentRef": {
+              "description": "Component tree parent",
+              "x-xeto": {
+                "of": "sys.comp::Comp"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "out": {
+              "x-xeto": {
+                "transient": true
+              },
+              "$ref": "#/$defs/hx.test.xeto.TestVal"
+            }
+          },
+          "required": [
+            "out",
+            "amplitude"
+          ]
+        }
+      ],
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestRamp"
+      }
+    },
+    "hx.test.xeto.TestRefs": {
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestRefs"
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "properties": {
+        "specRef": {
+          "x-xeto": {
+            "of": "sys::Spec"
+          },
+          "$ref": "#/$defs/sys.Ref"
+        },
+        "instRef": {
+          "$ref": "#/$defs/sys.Ref"
+        },
+        "foo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "specRef",
+        "instRef"
+      ]
+    },
+    "ph.PrimaryFunction": {
+      "description": "Primary function of building as US Energy Star key",
+      "x-xeto": {
+        "spec": "ph::PrimaryFunction"
+      },
+      "type": "string",
+      "enum": [
+        "Adult Education",
+        "Ambulatory Surgical Center",
+        "Aquarium",
+        "Automobile Dealership",
+        "Bank Branch",
+        "Bar/Nightclub",
+        "Barracks",
+        "Bowling Alley",
+        "Casino",
+        "College/University",
+        "Convenience Store with Gas Station",
+        "Convenience Store without Gas Station",
+        "Convention Center",
+        "Courthouse",
+        "Data Center",
+        "Distribution Center",
+        "Drinking Water Treatment & Distribution",
+        "Enclosed Mall",
+        "Energy/Power Station",
+        "Fast Food Restaurant",
+        "Financial Office",
+        "Fire Station",
+        "Fitness Center/Health Club/Gym",
+        "Food Sales",
+        "Food Service",
+        "Hospital (General Medical & Surgical)",
+        "Hotel",
+        "Ice/Curling Rink",
+        "Indoor Arena",
+        "K-12 School",
+        "Laboratory",
+        "Library",
+        "Lifestyle Center",
+        "Mailing Center/Post Office",
+        "Manufacturing/Industrial Plant",
+        "Medical Office",
+        "Mixed Use Property",
+        "Movie Theater",
+        "Multifamily Housing",
+        "Museum",
+        "Non-Refrigerated Warehouse",
+        "Office",
+        "Other - Education",
+        "Other - Entertainment/Public Assembly",
+        "Other - Lodging/Residential",
+        "Other - Mall",
+        "Other - Public Services",
+        "Other - Recreation",
+        "Other - Restaurant/Bar",
+        "Other - Services",
+        "Other - Stadium",
+        "Other - Technology/Science",
+        "Other - Utility",
+        "Other",
+        "Other/Specialty Hospital",
+        "Outpatient Rehabilitation/Physical Therapy",
+        "Parking",
+        "Performing Arts",
+        "Personal Services (Health/Beauty, Dry Cleaning, etc)",
+        "Police Station",
+        "Pre-school/Daycare",
+        "Prison/Incarceration",
+        "Race Track",
+        "Refrigerated Warehouse",
+        "Repair Services (Vehicle, Shoe, Locksmith, etc)",
+        "Residence Hall/Dormitory",
+        "Restaurant",
+        "Retail Store",
+        "Roller Rink",
+        "Self-Storage Facility",
+        "Senior Care Community",
+        "Single Family Home",
+        "Social/Meeting Hall",
+        "Stadium (Closed)",
+        "Stadium (Open)",
+        "Strip Mall",
+        "Supermarket/Grocery Store",
+        "Swimming Pool",
+        "Transportation Terminal/Station",
+        "Urgent Care/Clinic/Other Outpatient",
+        "Veterinary Office",
+        "Vocational School",
+        "Wastewater Treatment Plant",
+        "Wholesale Club/Supercenter",
+        "Worship Facility",
+        "Zoo"
+      ]
+    },
+    "ph.Site": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.GeoPlace"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "geoState": {
+              "$ref": "#/$defs/ph.GeoState"
+            },
+            "area": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "geoCounty": {
+              "type": "string"
+            },
+            "geoPostalCode": {
+              "type": "string"
+            },
+            "tz": {
+              "$ref": "#/$defs/sys.TimeZone"
+            },
+            "geoCity": {
+              "type": "string"
+            },
+            "yearBuilt": {
+              "type": "integer"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "site": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "weatherStationRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "geoAddr": {
+              "type": "string"
+            },
+            "geoElevation": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "geoCoord": {
+              "$ref": "#/$defs/ph.Coord"
+            },
+            "geoStreet": {
+              "type": "string"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "geoCountry": {
+              "$ref": "#/$defs/ph.GeoCountry"
+            },
+            "primaryFunction": {
+              "$ref": "#/$defs/ph.PrimaryFunction"
+            }
+          },
+          "required": [
+            "id",
+            "site"
+          ]
+        }
+      ],
+      "description": "Site is a geographic location of the built environment.\nTypically site maps to one building with its own unique\nstreet address.  See [ph.doc::Sites] chapter.",
+      "x-xeto": {
+        "spec": "ph::Site"
+      }
+    },
+    "hx.test.xeto.TestSite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ph.Site"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object",
+          "properties": {
+            "geoState": {
+              "$ref": "#/$defs/ph.GeoState"
+            },
+            "area": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "geoCounty": {
+              "type": "string"
+            },
+            "geoPostalCode": {
+              "type": "string"
+            },
+            "color": {
+              "$ref": "#/$defs/hx.test.xeto.Color"
+            },
+            "tz": {
+              "$ref": "#/$defs/sys.TimeZone"
+            },
+            "geoCity": {
+              "type": "string"
+            },
+            "yearBuilt": {
+              "type": "integer"
+            },
+            "spec": {
+              "description": "Type of this entity",
+              "x-xeto": {
+                "of": "sys::Spec"
+              },
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "site": {
+              "$ref": "#/$defs/sys.Marker"
+            },
+            "weatherStationRef": {
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "geoAddr": {
+              "type": "string"
+            },
+            "metro": {
+              "type": "string"
+            },
+            "geoElevation": {
+              "$ref": "#/$defs/sys.Number"
+            },
+            "geoCoord": {
+              "$ref": "#/$defs/ph.Coord"
+            },
+            "heatProc": {
+              "x-xeto": {
+                "multiChoice": true
+              },
+              "$ref": "#/$defs/ph.HeatingProcess"
+            },
+            "geoStreet": {
+              "type": "string"
+            },
+            "id": {
+              "description": "Unique identifier for entity in its project",
+              "$ref": "#/$defs/sys.Ref"
+            },
+            "geoCountry": {
+              "$ref": "#/$defs/ph.GeoCountry"
+            },
+            "primaryFunction": {
+              "$ref": "#/$defs/ph.PrimaryFunction"
+            }
+          },
+          "required": [
+            "id",
+            "site"
+          ]
+        }
+      ],
+      "description": "Extend site for testing data",
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestSite"
+      }
+    },
+    "hx.test.xeto.TestSsn": {
+      "type": "string",
+      "pattern": "^(?:\\d{3}-\\d{2}-\\d{4})$",
+      "x-xeto": {
+        "spec": "hx.test.xeto::TestSsn"
       }
     }
   }
 }
-

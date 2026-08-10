@@ -21,9 +21,8 @@ class JsonSchemaTest : AbstractXetoTest
   Void testFuncToParams()
   {
     ns := createNamespace(["sys", "sys.api", "hx", "hx.math"])
-    sysVer := ns.lib("sys").version.toStr.replace(".", "-")
-    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Number"]
-    sysRefRef    := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Ref"]
+    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys.Number"]
+    sysRefRef    := Obj:Obj["\$ref": "#/\$defs/sys.Ref"]
 
     mathFuncs := ns.lib("hx.math").spec("Funcs")
     apiFuncs  := ns.lib("sys.api").spec("Funcs")
@@ -82,8 +81,7 @@ class JsonSchemaTest : AbstractXetoTest
   Void testSlotDescriptions()
   {
     ns := createNamespace(["sys"])
-    sysVer := ns.lib("sys").version.toStr.replace(".", "-")
-    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Number"]
+    sysNumberRef := Obj:Obj["\$ref": "#/\$defs/sys.Number"]
 
     // a temp lib with a Func whose params carry slot-level <doc:"..."> meta,
     // plus an object spec whose own slots carry <doc:"...">.  exercises both
@@ -110,26 +108,26 @@ class JsonSchemaTest : AbstractXetoTest
 
     lib := ns.compileTempLib(src)
 
+    // description rides as a plain sibling on every shape, $ref included
+    withDoc := |Obj:Obj schema, Str doc->Obj:Obj| { schema.dup.set("description", doc) }
+
     //
-    // funcToParams: every documented slot picks up "description"; refs
-    // get wrapped in allOf so description survives draft-07 sibling
-    // ignore rules; primitives carry description as a direct sibling.
+    // funcToParams: every documented slot picks up "description".
     //
     ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     actual := ex.funcToParams(lib.type("Divide"))
     verifyEq(actual, Str:Obj[
       "type": "object",
       "properties": Str:Obj[
-        "a": Obj:Obj["allOf": Obj[sysNumberRef], "description": "the dividend"],
-        "b": Obj:Obj["allOf": Obj[sysNumberRef], "description": "the divisor"],
+        "a": withDoc(sysNumberRef, "the dividend"),
+        "b": withDoc(sysNumberRef, "the divisor"),
       ],
       "required": Obj["a", "b"],
     ])
     verifyAllRefsResolved(actual, ex.defs)
 
-    // mixed: primitives get direct description; ref + list each get the
-    // appropriate shape; sample (sys::Obj?) gets description on an empty
-    // schema; count has no doc and stays bare.
+    // mixed: sample (sys::Obj?) gets description on an empty schema;
+    // count has no doc and stays bare.
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     actual = ex.funcToParams(lib.type("Mix"))
     verifyEq(actual, Str:Obj[
@@ -141,7 +139,7 @@ class JsonSchemaTest : AbstractXetoTest
         "sample":  Obj:Obj["description": "opaque sample value"],
         "ids":     Obj:Obj[
           "type": "array",
-          "items": Obj:Obj["\$ref": "#/\$defs/sys-${sysVer}-Ref"],
+          "items": Obj:Obj["\$ref": "#/\$defs/sys.Ref"],
           "description": "list of refs to mix in",
         ],
       ],
@@ -153,20 +151,176 @@ class JsonSchemaTest : AbstractXetoTest
     // doSpecObj: same prop() path as funcToParams, so slot docs surface
     // as descriptions in the generated def.  spot-check the def for
     // Person -- "name", "age" land as documented props; "pet" is a
-    // documented ref-shaped slot wrapped in allOf.
+    // documented ref-shaped slot.
     //
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     ex.spec(lib.type("Person"))
-    libVer := lib.version.toStr.replace(".", "-")
-    personDef := (Obj:Obj)ex.defs["${lib.name}-${libVer}-Person"]
+    personDef := (Obj:Obj)ex.defs["${lib.name}.Person"]
     personProps := (Obj:Obj)personDef["properties"]
     verifyEq(personProps["name"],
       Obj:Obj["type": "string", "description": "full name"])
-    verifyEq(personProps["age"],
-      Obj:Obj["allOf": Obj[sysNumberRef], "description": "age in years"])
-    verifyEq(personProps["pet"],
-      Obj:Obj["allOf": Obj[sysNumberRef], "description": "pet's age in years"])
+    verifyEq(personProps["age"],   withDoc(sysNumberRef, "age in years"))
+    verifyEq(personProps["pet"],   withDoc(sysNumberRef, "pet's age in years"))
     verifyAllRefsResolved(personDef, ex.defs)
+  }
+
+  Void testScalarMappings()
+  {
+    ns := createNamespace(["sys"])
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ["Number", "Float", "Marker", "NA", "None", "Date", "Uri"].each |n|
+    {
+      ex.spec(ns.spec("sys::$n"))
+    }
+
+    // F7: Float must admit the quoted specials writeFloat emits
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Float"))["anyOf"], Obj[
+      Obj:Obj["type": "number"],
+      Obj:Obj["enum": Obj["NaN", "INF", "-INF"]],
+    ])
+
+    // D3: three branches, disjoint by type, mirroring writeNumber
+    branches := (Obj[])((Obj:Obj)ex.defs.getChecked("sys.Number"))["anyOf"]
+    verifyEq(branches.size, 3)
+    verifyEq(((Obj:Obj)branches[0])["type"], "number")
+    verifyEq(((Obj:Obj)branches[1])["enum"], Obj["NaN", "INF", "-INF"])
+
+    // the unit branch must be portable and must not swallow a bare number,
+    // or the branches stop being disjoint
+    unitPattern := (Str)((Obj:Obj)branches[2])["pattern"]
+    verify(!unitPattern.contains("\\P{ASCII}"), "not portable: $unitPattern")
+    verify(Regex.fromStr(unitPattern).matches("75kW"))
+    verifyFalse(Regex.fromStr(unitPattern).matches("75"))
+
+    // single-valued scalars are const, not pattern
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Marker"))["const"], "✓")
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.NA"))["const"], "na")
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.None"))["const"], "∅")
+
+    // format annotates alongside the pattern, never replaces it -- format
+    // is not an assertion by default, so swapping would drop validation
+    date := (Obj:Obj)ex.defs.getChecked("sys.Date")
+    verifyEq(date["format"], "date")
+    verifyNotNull(date["pattern"])
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Uri"))["format"], "uri-reference")
+  }
+
+  Void testXetoAnnotations()
+  {
+    ns := createNamespace(["sys", "ph"])
+
+    // Duration is a Number on the wire, so it refs one.  the $ref already
+    // names the type, so x-xeto carries only the quantity.
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ex.spec(ns.spec("sys::Duration"))
+    durDef := (Obj:Obj)ex.defs.getChecked("sys.Duration")
+    verifyEq(durDef["\$ref"], "#/\$defs/sys.Number")
+    verifyEq(durDef["x-xeto"], Str:Obj["quantity": "time"])
+
+    // a def that is not $ref-shaped does carry "spec"
+    ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ex.spec(ns.spec("sys::Version"))
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Version"))["x-xeto"],
+             Str:Obj["spec": "sys::Version"])
+
+    // slot level: own meta only, and no "spec" -- the $ref names the type.
+    // "of" on a Ref is not expressible; on a List it duplicates "items".
+    src :=
+      Str<|Foo: {
+             siteRef: sys::Ref <of:ph::Site>,
+             tags: List <of:sys::Str>,
+             plain: sys::Str
+           }|>
+    lib := ns.compileTempLib(src)
+    ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ex.spec(lib.type("Foo"))
+    props := (Obj:Obj)((Obj:Obj)ex.defs.getChecked("${lib.name}.Foo"))["properties"]
+
+    verifyEq(((Obj:Obj)props["siteRef"])["x-xeto"], Str:Obj["of": "ph::Site"])
+    verifyEq(((Obj:Obj)props["tags"])["x-xeto"], null)      // items carries it
+    verifyEq(((Obj:Obj)props["plain"])["x-xeto"], null)     // nothing to add
+  }
+
+  Void testNullable()
+  {
+    ns := createNamespace(["sys"])
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    nullType := Obj:Obj["type": "null"]
+
+    // unconstrained already admits null; description alone constrains
+    // nothing, so both are left alone
+    verifyEq(ex.nullable(Obj:Obj[:]), Obj:Obj[:])
+    verifyEq(ex.nullable(Obj:Obj["description": "d"]),
+             Obj:Obj["description": "d"])
+
+    // a lone type widens in place
+    verifyEq(ex.nullable(Obj:Obj["type": "string"]),
+             Obj:Obj["type": Obj["string", "null"]])
+    verifyEq(ex.nullable(Obj:Obj["type": "array", "items": nullType]),
+             Obj:Obj["type": Obj["array", "null"], "items": nullType])
+
+    // $ref has no type, so it wraps -- and description is hoisted back
+    // out so it stays on the node consumers render
+    ref := Obj:Obj["\$ref": "#/\$defs/sys.Number"]
+    verifyEq(ex.nullable(ref.dup),
+             Obj:Obj["anyOf": Obj[ref, nullType]])
+    verifyEq(ex.nullable(ref.dup.set("description", "d")),
+             Obj:Obj["anyOf": Obj[ref, nullType], "description": "d"])
+
+    // F8: the scalar table is shared and immutable
+    strPrim := (Obj:Obj)JsonSchemaExporter.scalarMappings.getChecked("sys::Str")
+    verifyEq(ex.nullable(strPrim), Obj:Obj["type": Obj["string", "null"]])
+    verifyEq(JsonSchemaExporter.scalarMappings.getChecked("sys::Str"),
+             Obj:Obj["type": "string"])
+  }
+
+  **
+  ** Serialize before asserting.  The in-memory tests above cannot see
+  ** escaping defects: doSpecScalar hand-escapes the pattern and the JSON
+  ** writer escapes it again, so the corruption exists only in the
+  ** serialized form.
+  **
+  Void testPatternRoundTrip()
+  {
+    ns := createNamespace(["sys"])
+    defKey := |Str n->Str| { "sys.$n" }
+
+    // scalars whose patterns are portable across the Java and JS regex
+    // engines.  Number and Duration are excluded on purpose: they carry
+    // \P{ASCII}, which needs the u flag in JS and which A7 replaces.
+    names := ["Ref", "Date", "Time", "DateTime", "Version"]
+
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    names.each |n| { ex.spec(ns.spec("sys::$n")) }
+    defs := roundTrip(ex.defs)
+
+    // F3 + F4: what we emit must decode back to the declared pattern,
+    // anchored.  They land together -- anchoring alone would turn the
+    // escaping bug into rejection of valid data.
+    names.each |n|
+    {
+      def := (Str:Obj?)defs.getChecked(defKey(n))
+      verifyEq(def.getChecked("pattern"),
+               anchor((Str)ns.spec("sys::$n").meta->pattern),
+               "pattern corrupted: sys::$n")
+    }
+
+    // the payoff: today the Ref class decodes to a literal backslash
+    // plus 'd', so it matches no digit at all
+    refPattern := (Str)((Str:Obj?)defs.getChecked(defKey("Ref"))).getChecked("pattern")
+    verify(Regex.fromStr(refPattern).matches("abc123"),
+      "Ref pattern rejects a ref containing digits: $refPattern")
+  }
+
+  ** The anchored form doSpecScalar must emit; JSON Schema pattern is not
+  ** implicitly anchored, but Xeto patterns are whole-value matches.
+  private static Str anchor(Str pattern) { "^(?:" + pattern + ")\$" }
+
+  private Str:Obj? roundTrip(Obj:Obj map)
+  {
+    buf := Buf()
+    JsonOutStream(buf.out).writeJson(map)
+    return (Str:Obj?)JsonInStream(buf.flip.in).readJson
   }
 
   private Void verifyAllRefsResolved(Obj? val, Str:Obj defs)
