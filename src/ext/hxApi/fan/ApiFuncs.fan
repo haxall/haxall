@@ -171,48 +171,14 @@ const class ApiFuncs
     // this op writes its own response, so it also checks its own method
     if (!req.isGet) throw ApiErr.methodNotAllowedErr("openapi")
 
-    // the <op> surface is stable between lib changes, so the namespace's
-    // version set is both the cache key and the ETag
-    etag := openapiEtag(cx.ns)
-    if (req.headers["If-None-Match"] == etag)
-    {
-      res.statusCode = 304
-      res.headers["ETag"] = etag
-      return res.done
-    }
-
-    json := openapiDoc(cx, etag)
     res.statusCode = 200
     res.headers["Content-Type"] = "application/json; charset=utf-8"
-    res.headers["ETag"] = etag
-    res.out.print(json).close
-  }
-
-  ** ETag over the namespace's lib version set
-  private static Str openapiEtag(Namespace ns)
-  {
-    s := StrBuf()
-    ns.versions.each |v| { s.add(v.name).addChar('-').add(v.version).addChar(';') }
-    return "\"" + s.toStr.hash.toHex + "\""
-  }
-
-  ** Generate the document, or reuse the cached copy while the lib set is
-  ** unchanged.  One entry per runtime; generation walks the whole namespace
-  ** and is far too expensive to repeat per request.
-  private static Str openapiDoc(Context cx, Str etag)
-  {
-    cached := openapiCache.get(cx.rt.name) as Str[]
-    if (cached != null && cached[0] == etag) return cached[1]
-
-    buf := StrBuf()
-    ex := OpenApiExporter(cx.ns, buf.out, Etc.dict1("format", "json"))
+    out := res.out
+    ex := OpenApiExporter(cx.ns, out, Etc.dict1("format", "json"))
     ex.start
     cx.ns.libs.each |lib| { ex.lib(lib) }
     ex.end
-    json := buf.toStr
-
-    openapiCache.set(cx.rt.name, Str[etag, json].toImmutable)
-    return json
+    out.close
   }
 
 //////////////////////////////////////////////////////////////////////////
