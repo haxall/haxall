@@ -595,7 +595,7 @@ class JsonSchemaExporter : Exporter
     // const beats pattern for a single-valued scalar
     "sys::Marker": Obj:Obj["const": "✓"],
     "sys::None":   Obj:Obj["const": "∅"],
-    "sys::NA":     Obj:Obj["const": "na"],
+    "sys::NA":     Obj:Obj["const": "NA"],
   ]
 
   ** Standard "format" annotations, added alongside the Xeto pattern rather

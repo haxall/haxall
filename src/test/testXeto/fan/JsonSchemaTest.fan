@@ -192,10 +192,17 @@ class JsonSchemaTest : AbstractXetoTest
     verify(Regex.fromStr(unitPattern).matches("75kW"))
     verifyFalse(Regex.fromStr(unitPattern).matches("75"))
 
-    // single-valued scalars are const, not pattern
+    // single-valued scalars are const, not pattern.  The const must be what
+    // the codec actually encodes, or the schema rejects our own output: NA
+    // decodes "na" as well, but only ever writes "NA".
     verifyEq(((Obj:Obj)ex.defs.getChecked("sys.Marker"))["const"], "✓")
-    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.NA"))["const"], "na")
+    verifyEq(((Obj:Obj)ex.defs.getChecked("sys.NA"))["const"], "NA")
     verifyEq(((Obj:Obj)ex.defs.getChecked("sys.None"))["const"], "∅")
+    ["sys.Marker": Marker.val, "sys.NA": NA.val, "sys.None": None.val].each |val, def|
+    {
+      verifyEq(((Obj:Obj)ex.defs.getChecked(def))["const"],
+               ns.specOf(val).binding.encodeScalar(val))
+    }
 
     // format annotates alongside the pattern, never replaces it -- format
     // is not an assertion by default, so swapping would drop validation
