@@ -129,13 +129,23 @@ class FactoryTest : AbstractXetoTest
 
   Void testHxTest()
   {
-    ns := createNamespace(["hx.test.xeto"])
+    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestHxTest(ns) }
+  }
 
+  private Void doTestHxTest(Namespace ns)
+  {
     spec := ns.spec("hx.test.xeto::ScalarA")
     binding := (GenericScalarBinding)spec.binding
     verifyEq(binding.type, Scalar#)
     verifyEq(binding.isScalar, true)
     verifyEq(binding.spec, "hx.test.xeto::ScalarA")
+
+    // enum without a Fantom binding falls back to generic scalar,
+    // not an inherited non-inheritable binding such as sys::Obj's
+    enum := ns.spec("hx.test.xeto::OrderType")
+    enumBinding := (GenericScalarBinding)enum.binding
+    verifyEq(enumBinding.spec, "hx.test.xeto::OrderType")
+    verifyEq(enumBinding.decodeScalar("kitchen"), Scalar("hx.test.xeto::OrderType", "kitchen"))
 
     dict := ns.instance("hx.test.xeto::scalars")
     // dict.each |v, n|{ echo("$n = $v [$v.typeof]") }

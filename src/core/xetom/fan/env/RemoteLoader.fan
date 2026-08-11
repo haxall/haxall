@@ -94,9 +94,9 @@ internal class RemoteLoader
       if (b != null) return b
     }
 
-    // try use base type's binding
+    // try use base type's binding if inheritable
     b = x.base?.binding
-    if (b != null) return b
+    if (b != null && b.isInheritable) return b
 
     // last case fallback to dict/scalar factory
     isScalar := MSpecFlags.scalar.and(x.flags) != 0
