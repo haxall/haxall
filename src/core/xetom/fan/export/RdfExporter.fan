@@ -13,7 +13,6 @@ using haystack
 ** RDF Turtle Exporter
 **
 ** TODO
-**   - mapping all scalars to xsd:string
 **   - list and dict slots not supported
 **   - query constraints not implemented
 **
@@ -142,16 +141,27 @@ class RdfExporter : Exporter
 
   private This cls(Spec x)
   {
+    // Vocabulary is declared from slotsOwn below, but validation uses the
+    // effective slot view so subclasses receive inherited constraints.
+    props   := Spec[,]
+    markers := Spec[,]
+    x.slots.each |s|
+    {
+      if (s.isMarker) markers.add(s)
+      else props.add(s)
+    }
+    hasShape := !props.isEmpty || markers.any |s| { !s.isMaybe }
+
     qname(x.qname).nl
 
     // classes
     w("  a sys:Class ;").nl
     w("  a rdfs:Class ;").nl
 
-    // choices (and enums) are instances of themselves;
-    // everything is also a SHACL shape
+    // Choice members are instances of themselves. Other classes are SHACL
+    // shapes only when they have effective constraints to validate.
     if (isThisInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
-    else w("  a sh:NodeShape ;").nl
+    else if (hasShape) w("  a sh:NodeShape ;").nl
 
     // supertype
     if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
@@ -168,17 +178,14 @@ class RdfExporter : Exporter
       return this
     }
 
-    // slots are either hasMarker, or property shapes
-    props := Spec[,]
-    x.slotsOwn.each |s|
-    {
-      if (s.isMarker) hasMarker(s)
-      else props.add(s)
-    }
-    if (!props.isEmpty)
+    // Marker ownership includes optional and inherited markers. Only required
+    // markers add a SHACL hasValue constraint.
+    markers.each |s| { hasMarker(s) }
+    if (hasShape)
     {
       w("  sh:targetClass ").qname(x.qname).w(" ;").nl
       props.each |s| { propShape(s) }
+      markers.each |s| { if (!s.isMaybe) markerShape(s) }
     }
 
     w(".").nl
@@ -205,9 +212,17 @@ class RdfExporter : Exporter
 
   private Void hasMarker(Spec slot)
   {
-    if (slot.isMaybe) return // what to do here?
     prop := isSys ? ":hasMarker" : "sys:hasMarker"
     w("  ").w(prop).w(" ").qname(slot.qname).w(" ;").nl
+  }
+
+  private Void markerShape(Spec slot)
+  {
+    prop := isSys ? ":hasMarker" : "sys:hasMarker"
+    w("  sh:property [").nl
+    w("    sh:path ").w(prop).w(" ;").nl
+    w("    sh:hasValue ").qname(slot.qname).w(" ;").nl
+    w("  ] ;").nl
   }
 
   private Void propShape(Spec slot)
@@ -220,7 +235,13 @@ class RdfExporter : Exporter
 
     // value type
     type := slot.type
-    if (type.isRef || type.isMultiRef)
+    isLiteral := (type.isScalar && !type.isRef) || type.qname == "sys::TimeZone"
+    datatype := isLiteral ? scalarDatatype(type) : null
+    if (isLiteral)
+    {
+      sh["datatype"] = datatype
+    }
+    else if (type.isRef || type.isMultiRef)
     {
       of := slot.of(false)?.qname ?: "sys::Entity"
       sh["class"] = qnameToUri(of)
@@ -237,7 +258,7 @@ class RdfExporter : Exporter
     }
     else
     {
-      // all scalars map to string for now
+      // Preserve the existing fallback for constructs handled by later slices.
       sh["datatype"] = "xsd:string"
     }
 
@@ -249,7 +270,112 @@ class RdfExporter : Exporter
     w("  sh:property [").nl
     w("    sh:path ").qname(slot.qname).w(" ;").nl
     sh.each |v, n| { w("    sh:").w(n).w(" ").w(v).w(" ;").nl }
+    if (datatype != null) scalarConstraints(slot, datatype)
     w("  ] ;").nl
+  }
+
+  private Void scalarConstraints(Spec slot, Str datatype)
+  {
+    meta := slot.meta
+
+    minVal := numericMeta(meta["minVal"])
+    if (minVal != null) w("    sh:minInclusive ").w(minVal).w(" ;").nl
+
+    maxVal := numericMeta(meta["maxVal"])
+    if (maxVal != null) w("    sh:maxInclusive ").w(maxVal).w(" ;").nl
+
+    minSize := intMeta(meta["minSize"])
+    if (minSize != null) w("    sh:minLength ").w(minSize).w(" ;").nl
+
+    maxSize := intMeta(meta["maxSize"])
+    if (maxSize != null) w("    sh:maxLength ").w(maxSize).w(" ;").nl
+
+    pattern := scalarPattern(slot)
+    if (pattern != null)
+      w("    sh:pattern ").literal(pattern).w(" ;").nl
+
+    if (meta.has("nonEmpty"))
+      w("    sh:pattern ").literal("\\S").w(" ;").nl
+
+    if (meta.has("invariant"))
+    {
+      val := meta["val"]
+      if (val != null)
+      {
+        w("    sh:hasValue ")
+        typedLiteral(val, datatype)
+        w(" ;").nl
+      }
+    }
+  }
+
+  private Str scalarDatatype(Spec type)
+  {
+    switch (type.qname)
+    {
+      case "sys::Str":      return "xsd:string"
+      case "sys::Number":   return "xsd:decimal"
+      case "sys::Int":      return "xsd:integer"
+      case "sys::Bool":     return "xsd:boolean"
+      case "sys::Date":     return "xsd:date"
+      case "sys::Time":     return "xsd:time"
+      case "sys::DateTime": return "xsd:dateTime"
+      case "sys::Uri":      return "xsd:anyURI"
+      case "sys::TimeZone": return "xsd:string"
+    }
+
+    // User-defined Scalar subtypes have string lexical values unless this
+    // profile assigns their qname a more specific datatype above.
+    if (type.isScalar && type.lib.name != "sys") return "xsd:string"
+    throw UnsupportedErr("RDF scalar datatype not supported: ${type.qname}")
+  }
+
+  private Str? scalarPattern(Spec slot)
+  {
+    pattern := slot.meta["pattern"] as Str
+    if (pattern == null) return null
+
+    // Built-in scalar patterns describe Xeto's source encoding; they are not
+    // additional value constraints. Keep a slot override or a custom scalar's
+    // effective pattern.
+    type := slot.type
+    if (isBuiltInScalar(type.qname))
+    {
+      typePattern := type.meta["pattern"] as Str
+      if (pattern == typePattern) return null
+    }
+    return pattern
+  }
+
+  private Bool isBuiltInScalar(Str qname)
+  {
+    qname == "sys::Str"     || qname == "sys::Number" ||
+    qname == "sys::Int"     || qname == "sys::Bool"   ||
+    qname == "sys::Date"    || qname == "sys::Time"   ||
+    qname == "sys::DateTime"|| qname == "sys::Uri"    ||
+    qname == "sys::TimeZone"
+  }
+
+  private Str? numericMeta(Obj? val)
+  {
+    if (val is Int) return val.toStr
+    if (val is Float) return val.toStr
+    num := val as Number
+    if (num == null || num.unit != null) return null
+    return num.toStr
+  }
+
+  private Int? intMeta(Obj? val)
+  {
+    if (val is Int) return val
+    num := val as Number
+    if (num == null || num.unit != null || !num.isInt) return null
+    return num.toInt
+  }
+
+  private This typedLiteral(Obj val, Str datatype)
+  {
+    literal(val.toStr).w("^^").w(datatype)
   }
 
   private This enum(Spec x)
@@ -476,4 +602,3 @@ class RdfExporter : Exporter
 
   private Bool isSys
 }
-
