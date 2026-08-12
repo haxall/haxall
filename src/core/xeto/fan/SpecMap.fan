@@ -128,6 +128,13 @@ const mixin SpecMap
   ** NOTE: the name parameter may not match slots names
   abstract Obj? eachWhile(|Spec, Str->Obj?| f)
 
+  ** Iterate the specs grouped by name; names with collisions pass the
+  ** full list of specs mapped to that name.  The list passed to the
+  ** callback is reused across iterations, so callers must not retain
+  ** a reference to it.
+  ** NOTE: the name parameter may not match slots names
+  @NoDoc abstract Void eachList(|Spec[], Str| f)
+
   ** Return size if available, raise exception for chained maps
   @NoDoc abstract Int size()
 
@@ -187,6 +194,8 @@ internal const class EmptySpecMap : SpecMap
 
   override Obj? eachWhile(|Spec,Str->Obj?| f) { null }
 
+  override Void eachList(|Spec[],Str| f) {}
+
   override Str toStr() { "{}" }
 
   override Dict toDict() { SpecMapDict(this) }
@@ -233,6 +242,19 @@ internal abstract const class AbstractSpecMap : SpecMap
     acc := Str[,]
     each |v, n| { acc.add(n) }
     return acc
+  }
+
+  override Void eachList(|Spec[],Str| f)
+  {
+    // these maps never have collisions, so reuse a list of one; keep it
+    // non-nullable so it compares equal to a caller's Spec[]
+    buf := Spec[,]
+    buf.capacity = 1
+    each |spec, name|
+    {
+      if (buf.isEmpty) buf.add(spec); else buf.set(0, spec)
+      f(buf, name)
+    }
   }
 
   override final Dict toDict() { SpecMapDict(this) }
@@ -408,6 +430,23 @@ internal final const class CollisionsSpecMap : SpecMap
         return f(v, n)
       else
         return ((List)v).eachWhile |x| { f(x, n) }
+    }
+  }
+
+  override Void eachList(|Spec[],Str| f)
+  {
+    // reuse a list of one for the names without collisions; keep it
+    // non-nullable so it compares equal to a caller's Spec[]
+    buf := Spec[,]
+    buf.capacity = 1
+    map.each |v, n|
+    {
+      if (v is Spec)
+      {
+        if (buf.isEmpty) buf.add(v); else buf.set(0, v)
+        f(buf, n)
+      }
+      else f(v, n)
     }
   }
 

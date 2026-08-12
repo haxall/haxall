@@ -152,6 +152,16 @@ class UtilTest : AbstractXetoTest
     // list
     verifyEq(x.list, list)
 
+    // eachList - these maps never have collisions, so always list of one
+    listOfList := Spec[,]
+    x.eachList |specs, n|
+    {
+      verifyEq(specs.size, 1)
+      verifySame(specs.first, expect[n])
+      listOfList.add(specs.first)
+    }
+    verifyEq(listOfList, list)
+
     // toStr, names (tests order)
     verifyEq(x.toStr, str)
     names := x.names
@@ -250,6 +260,22 @@ class UtilTest : AbstractXetoTest
     }
     verifyEq(names, ["Str", "Date", "Date", "Bar", "Bar"])
     verifyEq(vals,  Spec[a, b, c, d, e])
+
+    // eachList - one callback per name with all its collisions
+    names.clear
+    acc := Spec[][,]
+    x.eachList |specs, n| { names.add(n); acc.add(specs.dup) }
+    verifyEq(names, ["Str", "Date", "Bar", "Foo"])
+    verifyEq(acc, [Spec[a], Spec[b, c], Spec[d, e, f], Spec[g]])
+
+    // eachList reuses the single item list, so callers must dup to retain
+    Spec[]? prevSingle := null
+    x.eachList |specs, n|
+    {
+      if (specs.size > 1) return
+      if (prevSingle != null) verifySame(specs, prevSingle)
+      prevSingle = specs
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
