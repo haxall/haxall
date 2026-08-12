@@ -122,7 +122,7 @@ class ModbusDispatch : ConnDispatch
     Number? v := rec[tag] as Number
     if (v == null) v = conn.tuning.rec[tag] as Number
     if (v == null) v = def
-    return def
+    return v
   }
 
   private ModbusReg[] mapToRegs(ConnPoint[] points)
