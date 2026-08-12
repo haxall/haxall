@@ -8,12 +8,13 @@
 
 // Modbus connector
 ModbusConn: Conn {
-  // Applied to `modbusConn` to allow for gaps in block reads. See
-  // [hx.modbus::doc#block-reads] for more information.
+  // Applied to `modbusConn` or its [hx.conn::ConnTuning] rec to allow for gaps
+  // in block reads. See [hx.modbus::doc#block-reads] for more information.
   modbusBlockGap: Int?
 
-  // Applied to `modbusConn` to limit the maximum number of registers to read in a
-  // block read. See [hx.modbus::doc#block-reads] for more information.
+  // Applied to `modbusConn` or its [hx.conn::ConnTuning] rec to limit the maximum
+  // number of registers to read in a block read. See [hx.modbus::doc#block-reads]
+  // for more information.
   modbusBlockMax: Int?
 
   // Marker tag for ModbusConn type
@@ -54,5 +55,19 @@ ModbusPoint: ConnPoint {
   // remote system used to write [ph::PhEntity.writeVal].  See [hx.modbus::doc#writable-points]
   // for format.
   modbusWrite: Str?
+}
+
+// ConnTuning mixin
++ConnTuning {
+  // Applied to a `connTuning` rec to allow for gaps in block reads for every
+  // [ModbusConn.modbusConn] which references it.  A value on the conn rec takes
+  // precedence.  See [hx.modbus::doc#block-reads] for more information.
+  modbusBlockGap: Int?
+
+  // Applied to a `connTuning` rec to limit the maximum number of registers to
+  // read in a block read for every [ModbusConn.modbusConn] which references it.
+  // A value on the conn rec takes precedence.  See [hx.modbus::doc#block-reads]
+  // for more information.
+  modbusBlockMax: Int?
 }
 

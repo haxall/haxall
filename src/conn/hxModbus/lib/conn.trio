@@ -26,17 +26,19 @@ tagOn: ^modbusConn
 --------------------------------------------------------------------------
 def: ^modbusBlockGap
 is: ^int
-tagOn: ^modbusConn
+tagOn: [^modbusConn, ^connTuning]
 doc:
-  Applied to 'modbusConn' to allow for gaps in block reads. See
+  Applied to 'modbusConn' or its 'connTuning' rec to allow for gaps in block
+  reads. A value on the conn rec takes precedence. See
   `ext-modbus::doc#blockReads` for more information.
 --------------------------------------------------------------------------
 def: ^modbusBlockMax
 is: ^int
-tagOn: ^modbusConn
+tagOn: [^modbusConn, ^connTuning]
 doc:
-  Applied to 'modbusConn' to limit the maximum number of registers to read in a
-  block read. See `ext-modbus::doc#blockReads` for more information.
+  Applied to 'modbusConn' or its 'connTuning' rec to limit the maximum number of
+  registers to read in a block read. A value on the conn rec takes precedence.
+  See `ext-modbus::doc#blockReads` for more information.
 --------------------------------------------------------------------------
 def: ^modbusRegMapUri
 is: ^uri

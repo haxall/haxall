@@ -6,6 +6,7 @@
 //   10 Feb 2017  Andy Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -129,6 +130,41 @@ internal class ModbusBlockTest : Test
     verifyEq(blocks.size, 2)
     verifyEq(blocks[0].start, 7)
     verifyEq(blocks[0].size,  4)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// testBlockConfig
+//////////////////////////////////////////////////////////////////////////
+
+  Void testBlockConfig()
+  {
+    tag  := "modbusBlockMax"
+    def  := Number.makeInt(100)
+    one  := Number.one
+    two  := Number.makeInt(2)
+
+    // neither conn rec nor tuning rec configured
+    verifyEq(resolve(Etc.dict0, Etc.dict0, tag, def), def)
+
+    // configured on conn rec
+    verifyEq(resolve(Etc.dict1(tag, one), Etc.dict0, tag, def), one)
+
+    // configured on conn tuning rec
+    verifyEq(resolve(Etc.dict0, Etc.dict1(tag, one), tag, def), one)
+
+    // conn rec takes precedence over conn tuning rec
+    verifyEq(resolve(Etc.dict1(tag, one), Etc.dict1(tag, two), tag, def), one)
+
+    // non-Number on conn rec falls thru to tuning rec
+    verifyEq(resolve(Etc.dict1(tag, "bad"), Etc.dict1(tag, two), tag, def), two)
+
+    // non-Number on both falls thru to default
+    verifyEq(resolve(Etc.dict1(tag, "bad"), Etc.dict1(tag, "bad"), tag, def), def)
+  }
+
+  private Number resolve(Dict rec, Dict tuning, Str tag, Number def)
+  {
+    ModbusDispatch.resolveConfigNum(rec, tuning, tag, def)
   }
 
 //////////////////////////////////////////////////////////////////////////
