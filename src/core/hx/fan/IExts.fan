@@ -93,6 +93,12 @@ const mixin IUserExt : SysExt
   ** where least privilege is required.
   @NoDoc abstract User syntheticUser(Str username)
 
+  ** User account for anonymous public request processing such as
+  ** website serving.  Implementations should return their stored
+  ** least privilege account; the default falls back to a synthetic
+  ** "guest" with the op role.
+  @NoDoc virtual User guest() { syntheticUser("guest") }
+
   ** Get the Folio database where user recs are stored
   @NoDoc abstract Folio db()
 
