@@ -448,8 +448,18 @@
   //
   // The callback receives three arguments:
   //   - code: Number - HTTP status code
-  //   - headers: Dict - response headers with names normalized to lower-case
+  //   - headers: Dict - response headers with names normalized to lower-case.
+  //     If the response set one or more cookies via `Set-Cookie`, they are
+  //     collapsed and reformatted as a "set-cookie" entry using valid
+  //     `Cookie` request header syntax ("name=value; name2=value2") so it
+  //     can be passed directly back into a subsequent `ioHttp` call's
+  //     `headers` under the "Cookie" key without any parsing.
   //   - body: response body I/O handle for streaming reads
+  //
+  // External API responses often use JSON keys that aren't valid Haystack
+  // tag names (e.g. containing spaces, dashes, or leading digits) — use the
+  // `{safeNames}` option on [ioReadJson()] to convert them automatically
+  // rather than risk a decode error.
   //
   // Examples:
   //
@@ -469,7 +479,14 @@
   //     ioHttp(`https://acme.com/api`, "POST",
   //       {"Secret-Header": @password, "Content-Type": "application/json; charset=utf-8"},
   //       body,
-  //       (code, headers, body) => {code: code, body: ioReadJson(body)})
+  //       (code, headers, body) => {code: code, body: ioReadJson(body, {safeNames})})
+  //
+  //     // Carry a session cookie from one request to the next
+  //     r1: ioHttp(`https://acme.com/login`, "POST", null, credsBody,
+  //       (code, headers, body) => {code: code, cookie: headers["set-cookie"]})
+  //
+  //     ioHttp(`https://acme.com/data`, "GET", {"Cookie": r1->cookie}, null,
+  //       (code, headers, body) => ioReadJson(body, {safeNames}))
   ioHttp: Func <admin> { uri: Uri, method: Str, headers: Dict?, body: Obj?, fn: Func, returns: Obj? }
 
 }
