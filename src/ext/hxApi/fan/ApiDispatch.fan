@@ -89,11 +89,17 @@ abstract class ApiDispatch
   ** Serve a file result as an attachment download.  FileWeblet handles the
   ** mime type from the file extension plus ETag, Last-Modified, 304, and
   ** gzip.  An in memory result can use `sys::Buf.toFile` to name itself.
+  **
+  ** Calls onGet rather than onService because the method has already been
+  ** validated by `checkMethod`: an op which returns a file is a download
+  ** whether it was reached by GET or POST, and onService would answer a
+  ** POST with the 501 from Weblet's own onPost.  onGet reads no method
+  ** itself - it is the file serving routine, not a method handler.
   virtual Void writeResFile(File file)
   {
     weblet := FileWeblet(file)
     weblet.extraResHeaders = ["Content-Disposition": "attachment; filename=$file.name.toCode"]
-    weblet.onService
+    weblet.onGet
   }
 
   ** Encode a non-file result to the response body
