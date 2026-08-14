@@ -1000,6 +1000,24 @@ class NamespaceTest : AbstractXetoTest
     verifyFileSpec(ns, "jpeg", "sys.files::JpegImage")
     verifyFileSpec(ns, "svg", "sys.files::SvgFile")
 
+    // "json" resolves to the general JsonFile even though several dialects
+    // subtype it and inherit its extension.  Only a declared fileExts puts
+    // a spec in the lookup, so a subtype which does not name one of its own
+    // does not compete; otherwise the winner would be whichever spec the
+    // scan happened to visit last
+    jsonFile := ns.spec("sys.files::JsonFile")
+    ["HaysonFile", "HaysonV3File", "JetoFile"].each |n|
+    {
+      sub := ns.spec("sys.files::$n")
+      verifyEq(sub.isa(jsonFile), true, n)
+      verifyEq(sub.meta["fileExts"], "json", n)      // inherited
+      verifyEq(sub.metaOwn["fileExts"], null, n)     // but not declared
+    }
+    verifyFileSpec(ns, "json", "sys.files::JsonFile")
+
+    // a subtype which does declare its own extension keeps it
+    verifyFileSpec(ns, "jsonld", "sys.files::JsonLdFile")
+
     // unknown ext type falls back to sys::File
     verifyFileSpec(ns, "foobar", "sys::File")
 

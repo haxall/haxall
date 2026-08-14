@@ -343,7 +343,12 @@ const class MNamespace : Namespace, CNamespace
       eachType |spec|
       {
         if (!spec.isa(fileType)) return
-        s := spec.meta["fileExts"] as Str
+
+        // declared, not inherited: a subtype which does not name an
+        // extension of its own does not claim its base's.  Otherwise every
+        // JsonFile subtype would compete for "json" and the winner would
+        // be whichever this loop happened to visit last
+        s := spec.metaOwn["fileExts"] as Str
         if (s == null) return
         if (s.contains(" "))
         {
