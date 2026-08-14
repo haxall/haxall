@@ -80,6 +80,16 @@ class HttpTest : HxTest
       Dict hRes := eval("""ioHttp(`http://localhost:$port/echo`, "GET", null, null, (code, headers, body) => headers)""")
       verifyEq(hRes["x-echo-test"], "active")
       verifyEq(hRes["X-Echo-Test"], null)
+
+      // multiple Set-Cookie response headers are parsed and reformatted
+      // into a single reusable "Cookie:" request header string
+      Dict cRes := eval("""ioHttp(`http://localhost:$port/echo`, "GET", null, null, (code, headers, body) => headers)""")
+      verifyEq(cRes["set-cookie"], "session=abc123; csrf=xyz789")
+
+      // round-trip: pass the reformatted cookie value back in as a request header
+      Dict rtRes := eval("""ioHttp(`http://localhost:$port/echo`, "GET", {"Cookie": "session=abc123; csrf=xyz789"}, null, (code, headers, body) => {code: code, body: ioReadStr(body)})""")
+      verifyEq(rtRes["code"], n(200))
+      verify(rtRes["body"].toStr.contains("cookie=session=abc123; csrf=xyz789"))
     }
     finally stopServer
   }
@@ -208,14 +218,18 @@ internal const class EchoMod : WebMod
     }
 
     xs := req.headers["X-Secret"]
+    ck := req.headers["Cookie"]
 
     res.headers["Content-Type"] = "text/plain"
     res.headers["X-Echo-Test"] = "active"
+    res.cookies.add(Cookie("session", "abc123"))
+    res.cookies.add(Cookie("csrf", "xyz789"))
     out := res.out
     out.print("method=$req.method\n")
     if (ct != null) out.print("content-type=$ct\n")
     if (cl != null) out.print("content-length=$cl\n")
     if (xs != null) out.print("x-secret=$xs\n")
+    if (ck != null) out.print("cookie=$ck\n")
     if (body.size > 0) out.print("body=$body\n")
     out.close
   }
