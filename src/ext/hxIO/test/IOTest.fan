@@ -446,6 +446,94 @@ class IOTest : HxTest
       text = eval("""ioBin(readById($f.id.toCode), "foo").ioReadStr()""")
       verifyEq(text, "bin test foo!")
     }
+
+    doHayson(proj.dir)
+    doJeto(proj.dir)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Hayson
+//////////////////////////////////////////////////////////////////////////
+
+  ** ioReadHayson/ioWriteHayson name one encoding: the version 4 form which
+  ** ioReadJson/ioWriteJson also default to, without the legacy v3 option
+  private Void doHayson(File projDir)
+  {
+    // round trip the types which only survive with a _kind tag
+    eval("""ioWriteHayson({d:1980-01-31, n:30yr, m:marker(), r:@abc}, `io/hayson.txt`)""")
+    str := projDir.plus(`io/hayson.txt`).readAllStr
+    verify(str.contains(Str<|"_kind":"date"|>), str)
+    verify(str.contains(Str<|"_kind":"marker"|>), str)
+
+    Dict h := eval("""ioReadHayson(`io/hayson.txt`)""")
+    verifyEq(h->d, Date("1980-01-31"))
+    verifyEq(h->n, n(30, "yr"))
+    verifyEq(h->m, Marker.val)
+    verifyEq(h->r, Ref("abc"))
+
+    // arbitrary JSON with no _kind reads as plain dicts and lists, the
+    // same as ioReadJson
+    projDir.plus(`io/hayson.txt`).out.print(
+      Str<|{"name":"Brian", "list":[1,2], "nest":{"x":true}}|>).close
+    h = eval("""ioReadHayson(`io/hayson.txt`)""")
+    verifyEq(h->name, "Brian")
+    verifyEq(h->nest->x, true)
+
+    // the v3 opt is not this function's encoding, so it is ignored rather
+    // than silently selecting a format the name does not claim
+    projDir.plus(`io/hayson.txt`).out.print(Str<|{"a":"d:2018-07-18"}|>).close
+    h = eval("""ioReadHayson(`io/hayson.txt`, {v3})""")
+    verifyEq(h->a, "d:2018-07-18")
+
+    // escaping matches ioWriteJson: on by default, off with the opt
+    verifyEq(eval(Str<|ioWriteHayson("75°F", "")|>), Str<|"75\u00b0F"|>)
+    verifyEq(eval(Str<|ioWriteHayson("75°F", "", {noEscapeUnicode})|>), Str<|"75°F"|>)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Jeto
+//////////////////////////////////////////////////////////////////////////
+
+  ** ioReadJeto/ioWriteJeto encode xeto-typed JSON, where the spec supplies
+  ** the types instead of each value declaring its own kind
+  private Void doJeto(File projDir)
+  {
+    // box=auto is the lossless mode: a value whose plain form would decode
+    // as something else carries its own spec
+    eval("""ioWriteJeto({d:1980-01-31, n:30yr}, `io/jeto.txt`, {box:"auto"})""")
+    str := projDir.plus(`io/jeto.txt`).readAllStr
+    verify(str.contains(Str<|"spec":"sys::Date"|>), str)
+
+    Dict j := eval("""ioReadJeto(`io/jeto.txt`)""")
+    verifyEq(j->d, Date("1980-01-31"))
+    verifyEq(j->n, n(30, "yr"))
+
+    // box=none is terse and lossy where no spec covers the value: the date
+    // has nowhere to say what it is, so it reads back as a Str
+    eval("""ioWriteJeto({d:1980-01-31}, `io/jeto.txt`, {box:"none"})""")
+    verifyEq(projDir.plus(`io/jeto.txt`).readAllStr, Str<|{"d":"1980-01-31"}|>)
+    j = eval("""ioReadJeto(`io/jeto.txt`)""")
+    verifyEq(j->d, "1980-01-31")
+
+    // haystack fidelity: Axon has no Int or Float of its own, so a bare
+    // JSON number decodes as Number rather than by its lexical form
+    projDir.plus(`io/jeto.txt`).out.print(Str<|{"i":123, "f":1.5}|>).close
+    j = eval("""ioReadJeto(`io/jeto.txt`)""")
+    verifyEq(j->i, n(123))
+    verifyEq(j->f, n(1.5f))
+
+    // the spec opt takes a spec literal or its string qname
+    projDir.plus(`io/jeto.txt`).out.print(Str<|{"dis":"Site A"}|>).close
+    Dict byLiteral := eval("""ioReadJeto(`io/jeto.txt`, {spec:Site})""")
+    Dict byQname   := eval("""ioReadJeto(`io/jeto.txt`, {spec:"ph::Site"})""")
+    verifyEq(byLiteral->dis, "Site A")
+    verifyDictEq(byLiteral, byQname)
+
+    // the spec types the members beneath it: Site declares area as a
+    // Number, which a bare string would not otherwise recover
+    projDir.plus(`io/jeto.txt`).out.print(Str<|{"area":"5000ft²"}|>).close
+    j = eval("""ioReadJeto(`io/jeto.txt`, {spec:Site})""")
+    verifyEq(j->area, n(5000, "ft²"))
   }
 
   Void verifyEvalErrMsg(Str axon, Str msg)

@@ -219,37 +219,91 @@
   //     readAll(site).ioWriteExcel(`io/sites.xls`)
   ioWriteExcel: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
 
-  // Read a JSON file into memory. This function can used to read any
-  // arbitrary JSON nested object/array structure which can be accessed
-  // as Axon dicts/lists.  The default decoding assumes Haystack 4 JSON
-  // format (Hayson).  Also see [ioReadJsonGrid()] if reading a Haystack
-  // formatted grid.
+  // Read a JSON file into memory.  Any JSON file decodes to Axon dicts,
+  // lists, strings, numbers, and bools - so this can be used to read any
+  // arbitrary JSON.  Where a value carries a [Hayson](ph.doc::Hayson) `_kind`
+  // tag it decodes to that Haystack type, so `{"_kind":"date", "val":"2024-11-26"}`
+  // becomes a Date while a plain string stays a string.
+  //
+  // Prefer [ioReadHayson()] if decoding Hayson and not generic JSON.
+  // Also see [ioReadJsonGrid()] if reading a Haystack formatted grid.
+  // Use [ioReadJeto()] for xeto-typed JSON.
   //
   // Object keys which are not valid tag names will decode correctly
   // and can be used in-process.  But they will not serialize correctly
-  // over the HTTP API.  You can use the `safeNames` option to force object
-  // keys to be safe tag names (but you will lose the original key names).
+  // to grids/zinc.  Use the `safeNames` option to force object keys
+  // to be safe tag names (but you will lose the original key names).
   //
   // The following options are supported:
-  //   - v3: decode the JSON as Haystack 3
-  //   - v4: explicitly request Haystack 4 decoding (default)
   //   - safeNames: convert object keys to safe tag names
+  //   - v3: decode the JSON as Haystack 3 (deprecated, will be removed in the future)
+  //   - v4: explicitly request the default Haystack 4 decoding
   ioReadJson: Func <admin> { handle: Obj?, opts: Dict?, returns: Obj? }
 
-  // Read a JSON file formatted as a standardized Haystack grid
+  // Read a JSON file formatted as a standardized [Hayson](ph.doc::Hayson) grid
   // into memory. See [ioReadJson()] to read arbitrary JSON structured data.
   ioReadJsonGrid: Func <admin> { handle: Obj?, opts: Dict?, returns: Grid }
 
-  // Write an Axon data structure to JSON. By default,
-  // Haystack 4 (Hayson) encoding is used. The `val` may be:
-  //   - One of the SkySpark types that can be mapped to JSON.
-  //     See `docHaystack::Json` for type mapping.
+  // Write an Axon data structure to JSON using the [Hayson](ph.doc::Hayson)
+  // encoding, where each typed scalar is an object naming its own kind.
+  // If not serializing generic objects and strings, then prefer [ioWriteHayson()].
+  // Use [ioWriteJeto()] for xeto-typed JSON.
   //
   // The following options are supported:
   //   - noEscapeUnicode: do not escape characters over 0x7F
-  //   - v3: Encode JSON using Haystack 3 encoding
-  //   - v4: Explicitly encode with Haystack 4 encoding (default)
+  //   - v3: Encode JSON using Haystack 3 encoding (deprecated, will be removed in the future)
+  //   - v4: Explicitly request the default Haystack 4 encoding
   ioWriteJson: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+
+  // Read a [Hayson](ph.doc::Hayson) file into memory, the Haystack 4 JSON
+  // encoding where each typed scalar carries a `_kind` discriminator.  A
+  // value with no `_kind` decodes as a plain dict, list, string, number
+  // or bool.
+  //
+  // This is the same as [ioReadJson()] but restricted to Hayson.  It
+  // does not accept the legacy Haystack 3 option.  See [ioReadJeto()] for
+  // xeto-typed JSON.
+  //
+  // The following options are supported:
+  //   - safeNames: convert object keys to safe tag names
+  ioReadHayson: Func <admin> { handle: Obj?, opts: Dict?, returns: Obj? }
+
+  // Write an Axon data structure to [Hayson](ph.doc::Hayson), the Haystack 4
+  // JSON encoding where each typed scalar carries a `_kind` discriminator.
+  //
+  // This is the same as [ioWriteJson()] but restricted to Hayson.  It does
+  // not accept the legacy Haystack 3 option.  See [ioWriteJeto()] for
+  // xeto-typed JSON.
+  //
+  // The following options are supported:
+  //   - noEscapeUnicode: do not escape characters over 0x7F
+  ioWriteHayson: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+
+  // Read a [Jeto](doc.xeto::Jeto) file into memory.  Jeto is xeto-typed
+  // JSON: the spec supplies the types, so the values don't have to declare
+  // them.  A string decodes as the type its spec gives it, and as a Str
+  // where no spec covers it.
+  //
+  // The optional `spec` names the type expected at the root, which types the
+  // values beneath it.  Without it only what the payload declares for itself
+  // is recovered.  It may be a spec literal or its string qname:
+  //
+  //     ioReadJeto(`io/site.json`, {spec:Site})
+  //     ioReadJeto(`io/site.json`, {spec:"ph::Site"})
+  //
+  // The following options are supported:
+  //   - spec: the spec expected at the root as a Spec or string qname
+  ioReadJeto: Func <admin> { handle: Obj?, opts: Dict?, returns: Obj? }
+
+  // Write an Axon data structure to [Jeto](doc.xeto::Jeto).  Jeto is xeto-typed
+  // JSON: the spec supplies the types, so the values don't have to declare
+  // them.  A scalar which no spec covers is boxed as an object naming its
+  // own spec.
+  //
+  // The following options are supported:
+  //   - box: "none", "auto", or "all" boxing mode
+  //   - pretty: add indentation to pretty print
+  ioWriteJeto: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Write an Axon data structure to HTML. The `val` must be an
   // Axon type that can be converted to a Grid.

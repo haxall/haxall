@@ -11,9 +11,9 @@ using haystack
 using util
 
 **
-** JetoReader decodes Jeto, the JSON encoding of Xeto data.  A JSON string
-** carries no type of its own, so a value's type comes from its position:
-** see the type resolution rules in [Jeto](doc.xeto::Jeto).
+** JetoReader decodes Jeto, xeto-typed JSON: the spec supplies the types, so
+** the values don't have to declare them.  See the type resolution rules in
+** [Jeto](doc.xeto::Jeto).
 **
 @Js
 class JetoReader

@@ -23,8 +23,8 @@ class HaysonReader : GridReader
   ** g := HaysonReader(in).readGrid
   ** ```
   **
-  ** The legacy Haystack 3 encoding is still read via the 'v3' option, which
-  ** is retained for existing clients and is not part of the documented API.
+  ** The legacy Haystack 3 encoding is still read via the 'v3' option, but
+  ** is deprecated and will be removed in a future version.
   new make(InStream in, Dict? opts := null)
   {
     this.in = JsonInStream(in)

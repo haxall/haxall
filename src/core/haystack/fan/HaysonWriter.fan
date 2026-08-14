@@ -42,8 +42,7 @@ class HaysonWriter : GridWriter
   ** ```
   **
   ** The legacy Haystack 3 encoding is still written via the 'v3' option,
-  ** which is retained for existing clients and is not part of the
-  ** documented API.
+  ** but is deprecated and will be removed in a future version.
   new make(OutStream out, Dict? opts := null)
   {
     this.out  = JsonOutStream(out)
