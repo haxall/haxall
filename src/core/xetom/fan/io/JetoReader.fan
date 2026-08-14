@@ -13,7 +13,7 @@ using util
 **
 ** JetoReader decodes Jeto, the JSON encoding of Xeto data.  A JSON string
 ** carries no type of its own, so a value's type comes from its position:
-** see the type resolution rules in the JSON chapter of the Xeto docs.
+** see the type resolution rules in [Jeto](doc.xeto::Jeto).
 **
 @Js
 class JetoReader

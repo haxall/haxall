@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Write Haystack data in [Hayson](ph.doc::Json) format, the JSON encoding
+** Write Haystack data in [Hayson](ph.doc::Hayson) format, the JSON encoding
 ** where a typed scalar is an object naming its own kind.
 **
 @Js

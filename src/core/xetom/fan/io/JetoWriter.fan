@@ -12,7 +12,8 @@ using haystack
 **
 ** JetoWriter encodes Jeto, the JSON encoding of Xeto data.  A scalar whose
 ** plain form would not decode back is boxed as an object naming its own
-** spec; the 'box' option controls how aggressively that happens.
+** spec; the 'box' option controls how aggressively that happens.  See
+** [Jeto](doc.xeto::Jeto) for the encoding and its boxing modes.
 **
 @Js
 class JetoWriter
