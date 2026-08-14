@@ -11,10 +11,12 @@ using haystack
 using util
 
 **
-** XetoJsonReader
+** JetoReader decodes Jeto, the JSON encoding of Xeto data.  A JSON string
+** carries no type of its own, so a value's type comes from its position:
+** see the type resolution rules in the JSON chapter of the Xeto docs.
 **
 @Js
-class XetoJsonReader
+class JetoReader
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,7 +28,7 @@ class XetoJsonReader
     this.ns = ns
     this.in = in
     this.rootSpec = rootSpec
-    this.xutil = XetoJsonUtil(ns)
+    this.xutil = JetoUtil(ns)
     this.fidelity = XetoUtil.optFidelity(opts)
     this.lenient  = XetoUtil.optBool(opts, "lenient", false)
   }
@@ -37,7 +39,7 @@ class XetoJsonReader
 
   Obj? readVal()
   {
-    x := XetoJsonInStream(in).readJson
+    x := JetoInStream(in).readJson
     return convert(x, rootSpec)
   }
 
@@ -277,7 +279,7 @@ class XetoJsonReader
   private const MNamespace ns
   private InStream in
   private Spec? rootSpec
-  private XetoJsonUtil xutil
+  private JetoUtil xutil
   private XetoFidelity fidelity
 
   ** Degrade a position to untyped instead of raising when its value cannot
@@ -288,11 +290,11 @@ class XetoJsonReader
 }
 
 **************************************************************************
-** XetoJsonInStream
+** JetoInStream
 **************************************************************************
 
 @Js
-internal class XetoJsonInStream : JsonInStream
+internal class JetoInStream : JsonInStream
 {
   internal new make(InStream in) : super(in) {}
 

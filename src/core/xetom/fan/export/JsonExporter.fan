@@ -166,7 +166,7 @@ class JsonExporter : Exporter
 
   private This scalar(Obj x)
   {
-    XetoJsonWriter(ns, out).writeVal(x)
+    JetoWriter(ns, out).writeVal(x)
     return this
   }
 

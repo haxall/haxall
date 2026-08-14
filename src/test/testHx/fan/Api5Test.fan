@@ -252,7 +252,7 @@ class Api5Test : ApiTest
   Obj? call(Client c, Str op, Obj args)
   {
     ns := proj.ns
-    req := ns.io.writeJsonToStr(Etc.makeDict(args))
+    req := ns.io.writeJetoToStr(Etc.makeDict(args))
     if (debug) { echo(">>>> $op"); echo(req) }
 
     wc := c.toWebClient(op.toUri)
@@ -263,7 +263,7 @@ class Api5Test : ApiTest
     if (debug) { echo("<<<< $wc.resCode"); echo(res) }
 
     if (wc.resCode != 200) throw IOErr("Bad HTTP response $wc.resCode $wc.resPhrase")
-    return ns.io.readJson(res.in)
+    return ns.io.readJeto(res.in)
   }
 
   const Bool debug := false

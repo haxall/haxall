@@ -52,30 +52,30 @@ const mixin XetoIO
   abstract Str writeXetoToStr(Obj? val, Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////
-// JSON
+// Jeto
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Read xeto instance data from JSON.  The given spec is used
-  ** to infer the JSON object if no `spec` tag is defined.
-  ** The stream guaranteed to be closed upon return.
+  ** Read xeto instance data from Jeto, the JSON encoding of Xeto data.
+  ** The given spec is used to infer the JSON object if no `spec` tag is
+  ** defined.  The stream guaranteed to be closed upon return.
   **
-  abstract Obj? readJson(InStream in, Spec? spec := null, Dict? opts := null)
+  abstract Obj? readJeto(InStream in, Spec? spec := null, Dict? opts := null)
 
   **
-  ** Write xeto instance data as JSON
+  ** Write xeto instance data as Jeto, the JSON encoding of Xeto data.
   ** The stream is left open and returned.
   **
   ** Options:
   **   - pretty: add indentation to pretty print
   **   - escUnicode: use escape sequences for values greater than 0x7f
   **
-  abstract OutStream writeJson(OutStream out, Obj? val, Dict? opts := null)
+  abstract OutStream writeJeto(OutStream out, Obj? val, Dict? opts := null)
 
   **
-  ** Convenience for writeJson to an in-memory string
+  ** Convenience for writeJeto to an in-memory string
   **
-  abstract Str writeJsonToStr(Obj? val, Dict? opts := null)
+  abstract Str writeJetoToStr(Obj? val, Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////
 // AST

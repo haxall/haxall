@@ -10,10 +10,12 @@ using xeto
 using haystack
 
 **
-** XetoJsonWriter
+** JetoWriter encodes Jeto, the JSON encoding of Xeto data.  A scalar whose
+** plain form would not decode back is boxed as an object naming its own
+** spec; the 'box' option controls how aggressively that happens.
 **
 @Js
-class XetoJsonWriter
+class JetoWriter
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -25,7 +27,7 @@ class XetoJsonWriter
     this.ns         = ns
     this.out        = out
     this.rootSpec   = rootSpec
-    this.xutil      = XetoJsonUtil(ns)
+    this.xutil      = JetoUtil(ns)
     this.box        = XetoUtil.optBox(opts)
     this.pretty     = XetoUtil.optBool(opts, "pretty", false)
     this.escUnicode = XetoUtil.optBool(opts, "escapeUnicode", false)
@@ -362,7 +364,7 @@ class XetoJsonWriter
   private const Bool escUnicode
   private const Bool pretty
   private Spec? rootSpec
-  private XetoJsonUtil xutil
+  private JetoUtil xutil
   private OutStream out
   private Int indentation
 }

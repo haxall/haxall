@@ -10,7 +10,7 @@ using xeto
 using haystack
 
 **
-** Position resolution shared by XetoJsonReader and XetoJsonWriter.  Both
+** Position resolution shared by JetoReader and JetoWriter.  Both
 ** codecs must agree on which spec applies at a given position; if they
 ** disagree then 'box=auto' emits values the reader cannot recover.
 **
@@ -19,7 +19,7 @@ using haystack
 ** declares - boxing covers everything else.
 **
 @Js
-@NoDoc class XetoJsonUtil
+@NoDoc class JetoUtil
 {
 
 //////////////////////////////////////////////////////////////////////////

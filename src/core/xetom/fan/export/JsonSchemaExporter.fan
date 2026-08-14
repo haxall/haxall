@@ -447,7 +447,7 @@ class JsonSchemaExporter : Exporter
     return v.toStr
   }
 
-  ** Integral numbers emit as JSON integers, matching XetoJsonWriter
+  ** Integral numbers emit as JSON integers, matching JetoWriter
   private static Obj numVal(Number n)
   {
     f := n.toFloat

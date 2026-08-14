@@ -438,7 +438,7 @@ class JsonTest : AbstractXetoTest
   Void testRefDis()
   {
     ns := createNamespace(["hx.test.xeto"])
-    xutil := XetoJsonUtil(ns)
+    xutil := JetoUtil(ns)
     refSpec := ns.spec("sys::Ref")
 
     withDis := Ref("xyz-123", "Carytown")
@@ -506,7 +506,7 @@ class JsonTest : AbstractXetoTest
   Void testPlainRoundTrips()
   {
     ns := createNamespace(["hx.test.xeto"])
-    jspec := XetoJsonUtil(ns)
+    jspec := JetoUtil(ns)
 
     // each sample against no spec, its own spec, and a spec it is not
     wrong := ns.spec("sys::Date")
@@ -568,7 +568,7 @@ class JsonTest : AbstractXetoTest
   Void testOverBoxing()
   {
     ns := createNamespace(["hx.test.xeto"])
-    xutil := XetoJsonUtil(ns)
+    xutil := JetoUtil(ns)
 
     over := Str[,]
     samplePairs(ns).each |pair|
@@ -1201,7 +1201,7 @@ class JsonTest : AbstractXetoTest
                     Dict? opts := null)
   {
     debug(json)
-    return XetoJsonReader(ns, json.in, spec, opts).readVal
+    return JetoReader(ns, json.in, spec, opts).readVal
   }
 
   ** Convenience for a read whose result is known to be a Dict
@@ -1306,7 +1306,7 @@ class JsonTest : AbstractXetoTest
   private Str write(MNamespace ns, Obj? x, Dict opts, Spec? spec)
   {
     buf := Buf()
-    XetoJsonWriter(ns, buf.out, spec, opts).writeVal(x)
+    JetoWriter(ns, buf.out, spec, opts).writeVal(x)
     str := buf.flip.readAllStr
     debug(str)
     JsonInStream(str.in).readJson

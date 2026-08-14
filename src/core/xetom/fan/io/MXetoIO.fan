@@ -50,27 +50,27 @@ const final class MXetoIO : XetoIO
   }
 
 //////////////////////////////////////////////////////////////////////////
-// JSON
+// Jeto
 //////////////////////////////////////////////////////////////////////////
 
-  override Obj? readJson(InStream in, Spec? spec := null, Dict? opts := null)
+  override Obj? readJeto(InStream in, Spec? spec := null, Dict? opts := null)
   {
     try
-      return XetoJsonReader(ns, in, spec, opts ?: Etc.dict0).readVal
+      return JetoReader(ns, in, spec, opts ?: Etc.dict0).readVal
     finally
       in.close
   }
 
-  override OutStream writeJson(OutStream out, Obj? val, Dict? opts := null)
+  override OutStream writeJeto(OutStream out, Obj? val, Dict? opts := null)
   {
-    XetoJsonWriter(ns, out, null, opts ?: Etc.dict0).writeVal(val)
+    JetoWriter(ns, out, null, opts ?: Etc.dict0).writeVal(val)
     return out
   }
 
-  override Str writeJsonToStr(Obj? val, Dict? opts := null)
+  override Str writeJetoToStr(Obj? val, Dict? opts := null)
   {
     buf := StrBuf(256)
-    writeJson(buf.out, val, opts)
+    writeJeto(buf.out, val, opts)
     return buf.toStr
   }
 

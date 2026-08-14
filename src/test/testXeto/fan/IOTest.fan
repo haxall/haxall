@@ -128,8 +128,8 @@ class IOTest : AbstractXetoTest
     ns := server.ns
 
     opts := Etc.dict2("box", "auto", "pretty", Marker.val)
-    str  := ns.io.writeJsonToStr(val, opts)
-    x    := ns.io.readJson(str.in, ns.specOf(val, false))
+    str  := ns.io.writeJetoToStr(val, opts)
+    x    := ns.io.readJeto(str.in, ns.specOf(val, false))
 
     if (val is List)
     {

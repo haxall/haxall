@@ -93,7 +93,7 @@ class ApiDispatchV5 : ApiDispatch
   private Obj? decodeArg(Spec p, Str json)
   {
     try
-      return cx.ns.io.readJson(json.in, p)
+      return cx.ns.io.readJeto(json.in, p)
     catch (Err e)
       throw ApiErr.invalidArgsErrParam(p.name, e)
   }
@@ -118,7 +118,7 @@ class ApiDispatchV5 : ApiDispatch
 
     OutStream out := res.out
     if (gzip) out = Zip.gzipOutStream(out)
-    cx.ns.io.writeJson(out, result)
+    cx.ns.io.writeJeto(out, result)
     out.close
   }
 }
