@@ -62,7 +62,7 @@ internal class ShellLoader
     switch (uri.ext)
     {
       case "zinc": return ZincReader(s.in).readGrid
-      case "json": return JsonReader(s.in).readGrid
+      case "json": return HaysonReader(s.in).readGrid
       case "trio": return TrioReader(s.in).readGrid
       case "csv":  return CsvReader(s.in).readGrid
       default:     throw ArgErr("ERROR: unknown file type [$uri.name]")

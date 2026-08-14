@@ -33,7 +33,7 @@ internal class ShellView : Box
       case ShellViewType.table: updateTable
       case ShellViewType.text:  updateText
       case ShellViewType.csv:   updateGridWriter(CsvWriter#)
-      case ShellViewType.json:  updateGridWriter(JsonWriter#)
+      case ShellViewType.json:  updateGridWriter(HaysonWriter#)
       case ShellViewType.trio:  updateGridWriter(TrioWriter#)
       case ShellViewType.zinc:  updateGridWriter(ZincWriter#)
       default: add(Label { it.text = "Unsupported: $cur.viewType" })

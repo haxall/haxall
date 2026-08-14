@@ -10,23 +10,21 @@ using util
 using xeto
 
 **
-** Read Haystack data in [JSON](ph.doc::Json) format.
+** Read Haystack data in [Hayson](ph.doc::Json) format, the JSON encoding
+** where a typed scalar is an object naming its own kind.
 **
 @Js
-class JsonReader : GridReader
+class HaysonReader : GridReader
 {
 
-  ** Wrap input stream. By default, the reader decodes JSON in the Haystack 4 (Hayson)
-  ** format. Use the `v3` option to decode JSON in the Haystack 3 format.
-  **
-  ** The following opts are supported:
-  **  - `v3` (Marker): read JSON encoded in the Haystack 3 format
+  ** Wrap input stream.
   **
   ** ```fantom
-  ** g := JsonReader(in).readGrid
-  **
-  ** val := JsonReader(in, Etc.makeDict(["v3":Marker.val])).readVal
+  ** g := HaysonReader(in).readGrid
   ** ```
+  **
+  ** The legacy Haystack 3 encoding is still read via the 'v3' option, which
+  ** is retained for existing clients and is not part of the documented API.
   new make(InStream in, Dict? opts := null)
   {
     this.in = JsonInStream(in)
@@ -38,8 +36,8 @@ class JsonReader : GridReader
   {
     try
     {
-      if (JsonParser.isV3(opts)) return JsonV3Parser(opts).parseVal(in.readJson)
-      return HaysonParser(opts).parseVal(in.readJson)
+      if (HaysonParserBase.isV3(opts)) return HaysonV3Parser(opts).parseVal(in.readJson)
+      return HaysonV4Parser(opts).parseVal(in.readJson)
     }
     finally
     {
@@ -55,11 +53,11 @@ class JsonReader : GridReader
 }
 
 **************************************************************************
-** JsonParser
+** HaysonParserBase
 **************************************************************************
 
 @NoDoc @Js
-abstract class JsonParser
+abstract class HaysonParserBase
 {
   static Bool isV3(Dict opts) { opts.has("v3") }
 
@@ -72,12 +70,12 @@ abstract class JsonParser
   Bool safeVals() { opts.has("safeVals") }
 }
 **************************************************************************
-** HaysonParser
+** HaysonV4Parser
 **************************************************************************
 
-** HaysonParser normalizes JSON values to Haystack values
+** HaysonV4Parser normalizes JSON values to Haystack values
 @NoDoc @Js
-class HaysonParser : JsonParser
+class HaysonV4Parser : HaysonParserBase
 {
   new make(Dict opts) : super(opts) { }
 
@@ -212,18 +210,18 @@ class HaysonParser : JsonParser
 
   private DateTime parseDateTime(Str:Obj? json)
   {
-    tz := HaysonWriter.gmt
+    tz := HaysonV4Writer.gmt
     if (json.containsKey("tz")) tz = TimeZone.fromStr(json["tz"])
     return DateTime.fromIso(json["val"]).toTimeZone(tz)
   }
 }
 **************************************************************************
-** JsonV3Parser
+** HaysonV3Parser
 **************************************************************************
 
-** JsonV3Parser normalizes JSON values to Haystack values
+** HaysonV3Parser normalizes JSON values to Haystack values
 @NoDoc @Js
-class JsonV3Parser : JsonParser
+class HaysonV3Parser : HaysonParserBase
 {
   new make(Dict opts) : super(opts) { }
 

@@ -430,15 +430,15 @@ class IOTest : HaystackTest
     // read from source
     if (json != null)
     {
-      actual := JsonReader(json.in, opts).readVal
+      actual := HaysonReader(json.in, opts).readVal
       verifyValEq(actual, val)
     }
 
     // round trip value
     s := StrBuf()
-    writer := JsonWriter(s.out, opts)
+    writer := HaysonWriter(s.out, opts)
     writer.writeVal(val)
-    actual := JsonReader(s.toStr.in, opts).readVal
+    actual := HaysonReader(s.toStr.in, opts).readVal
     verifyValEq(actual, val)
   }
 
@@ -447,15 +447,15 @@ class IOTest : HaystackTest
     // read from source
     if (hson != null)
     {
-      actual := JsonReader(hson.in).readVal
+      actual := HaysonReader(hson.in).readVal
       verifyValEq(actual, val)
     }
 
     // round trip value
     s := StrBuf()
-    writer := JsonWriter(s.out)
+    writer := HaysonWriter(s.out)
     writer.writeVal(val)
-    actual := JsonReader(s.toStr.in).readVal
+    actual := HaysonReader(s.toStr.in).readVal
     verifyValEq(actual, val)
   }
 

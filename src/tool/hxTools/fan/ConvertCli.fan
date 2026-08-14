@@ -61,7 +61,7 @@ internal class ConvertCli : HxCli
     switch (file.ext)
     {
       case "zinc": return ZincReader(file.in).readGrid
-      case "json": return JsonReader(file.in).readGrid
+      case "json": return HaysonReader(file.in).readGrid
       case "trio": return TrioReader(file.in).readGrid
       case "csv":  return CsvReader(file.in).readGrid
       default:     throw Err("Unknown input file type: $file")
@@ -73,7 +73,7 @@ internal class ConvertCli : HxCli
     switch (format)
     {
       case "zinc":   return ZincWriter(out).writeGrid(grid)
-      case "json":   return JsonWriter(out).writeGrid(grid)
+      case "json":   return HaysonWriter(out).writeGrid(grid)
       case "trio":   return TrioWriter(out).writeGrid(grid)
       case "csv":    return CsvWriter(out).writeGrid(grid)
       case "jsonld": return JsonLdWriter(out, nsOpts).writeGrid(grid)

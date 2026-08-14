@@ -511,7 +511,7 @@ const class IOFuncs
   {
     toHandle(handle).withIn |in|
     {
-      return JsonReader(in, toJsonOpts(opts)).readVal
+      return HaysonReader(in, toJsonOpts(opts)).readVal
     }
   }
 
@@ -528,7 +528,7 @@ const class IOFuncs
   {
     toHandle(handle).withIn |in|
     {
-      JsonReader(in, toJsonOpts(opts)).readGrid
+      HaysonReader(in, toJsonOpts(opts)).readGrid
     }
   }
 
@@ -547,7 +547,7 @@ const class IOFuncs
     toHandle(handle).withOut |out|
     {
       opts = toJsonOpts(opts)
-      json := JsonWriter(out, toJsonOpts(opts))
+      json := HaysonWriter(out, toJsonOpts(opts))
       if (opts.has("noEscapeUnicode")) json.out.escapeUnicode = false
       json.writeVal(val)
     }

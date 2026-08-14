@@ -28,8 +28,8 @@ reader: "haystack::CsvReader"
 --------------------------------------------------------------------------
 defx:   ^filetype:json
 icon:   "page"
-writer: "haystack::JsonWriter"
-reader: "haystack::JsonReader"
+writer: "haystack::HaysonWriter"
+reader: "haystack::HaysonReader"
 --------------------------------------------------------------------------
 defx:   ^filetype:jsonld
 icon:   "rdf"

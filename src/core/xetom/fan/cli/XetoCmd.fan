@@ -95,7 +95,7 @@ abstract class XetoCmd : AbstractMain
     {
       case "trio": return TrioReader(file.in).readAllDicts
       case "zinc": return Etc.toRecs(ZincReader(file.in).readVal)
-      case "json": return Etc.toRecs(JsonReader(file.in).readVal)
+      case "json": return Etc.toRecs(HaysonReader(file.in).readVal)
       default: throw Err("Unsupported input file extension: $file")
     }
   }
@@ -109,7 +109,7 @@ abstract class XetoCmd : AbstractMain
     {
       case "trio": TrioWriter(out).writeGrid(grid).close
       case "zinc": ZincWriter(out).writeGrid(grid).close
-      case "json": JsonWriter(out).writeGrid(grid).close
+      case "json": HaysonWriter(out).writeGrid(grid).close
       default: throw Err("Unsupported input file extension: $file")
     }
     str := buf.toStr

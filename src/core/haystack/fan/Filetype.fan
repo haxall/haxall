@@ -64,7 +64,7 @@ const class Filetype
 
     add("zinc",  "Zinc",  "text/zinc; charset=utf-8",        "zinc", "page",  "haystack::ZincReader", "haystack::ZincWriter", null)
     add("trio",  "Trio",  "text/trio; charset=utf-8",        "trio", "page",  "haystack::TrioReader", "haystack::TrioWriter", null)
-    add("json",  "JSON",  "application/json; charset=utf-8", "json", "page",  "haystack::JsonReader", "haystack::JsonWriter", null)
+    add("json",  "JSON",  "application/json; charset=utf-8", "json", "page",  "haystack::HaysonReader", "haystack::HaysonWriter", null)
     add("csv",   "CSV",   "text/csv; charset=utf-8",         "csv",  "table", "haystack::CsvReader",  "haystack::CsvWriter", "csvOpts")
     add("excel", "Excel", "application/vnd.ms-excel",        "xls",  "table", null, "hxUtil::ExcelWriter", null)
     add("xml",   "XML",   "text/xml; charset=utf-8",         "xml",  "page",  null, "hxUtil::XmlWriter", null)

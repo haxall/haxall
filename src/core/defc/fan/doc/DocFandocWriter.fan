@@ -48,7 +48,7 @@ internal class DocFandocWriter : HtmlDocWriter
 
     grid := ZincReader(zinc.in).readGrid
 
-    json := JsonWriter.valToStr(grid)
+    json := HaysonWriter.valToStr(grid)
              .splitLines
              .map(|x| { x.startsWith("{") && x.size > 2 ? "  $x" : x })
              .join("\n")

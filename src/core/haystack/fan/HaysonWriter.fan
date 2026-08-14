@@ -10,10 +10,11 @@ using util
 using xeto
 
 **
-** Write Haystack data in [JSON](ph.doc::Json) format.
+** Write Haystack data in [Hayson](ph.doc::Json) format, the JSON encoding
+** where a typed scalar is an object naming its own kind.
 **
 @Js
-class JsonWriter : GridWriter
+class HaysonWriter : GridWriter
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,12 +22,12 @@ class JsonWriter : GridWriter
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Get a value as a JSON string.
+  ** Get a value as a Hayson string.
   **
   static Str valToStr(Obj? val)
   {
     buf := StrBuf()
-    JsonWriter(buf.out).writeVal(val)
+    HaysonWriter(buf.out).writeVal(val)
     return buf.toStr
   }
 
@@ -34,17 +35,15 @@ class JsonWriter : GridWriter
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  ** Wrap output stream. By default, the writer encodes JSON in the Haystack 4 (Hayson)
-  ** format. Use the `v3` option to encode JSON in the Haystack 3 format.
-  **
-  ** The following opts are supported:
-  **  - `v3` (Marker): write JSON in the Haystack 3 format
+  ** Wrap output stream.
   **
   ** ```fantom
-  ** JsonWriter(out).writeVal(Etc.makeDict(["ts": DateTime.now])).close
-  **
-  ** JsonWriter(out, Etc.makeDict(["v3":Marker.val])).writeGrid(grid).close
+  ** HaysonWriter(out).writeVal(Etc.makeDict(["ts": DateTime.now])).close
   ** ```
+  **
+  ** The legacy Haystack 3 encoding is still written via the 'v3' option,
+  ** which is retained for existing clients and is not part of the
+  ** documented API.
   new make(OutStream out, Dict? opts := null)
   {
     this.out  = JsonOutStream(out)
@@ -68,10 +67,10 @@ class JsonWriter : GridWriter
   ** Write any haystack value
   This writeVal(Obj? val)
   {
-    if (JsonParser.isV3(opts))
-      JsonV3Writer(out).writeVal(val)
+    if (HaysonParserBase.isV3(opts))
+      HaysonV3Writer(out).writeVal(val)
     else
-      HaysonWriter(out).writeVal(val)
+      HaysonV4Writer(out).writeVal(val)
     return this
   }
 
@@ -80,10 +79,10 @@ class JsonWriter : GridWriter
 }
 
 **************************************************************************
-** HaysonWriter
+** HaysonV4Writer
 **************************************************************************
 
-@Js internal class HaysonWriter : GridWriter
+@Js internal class HaysonV4Writer : GridWriter
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,7 +97,7 @@ class JsonWriter : GridWriter
   internal static const TimeZone gmt := TimeZone("GMT")
 
 //////////////////////////////////////////////////////////////////////////
-// HaysonWriter
+// HaysonV4Writer
 //////////////////////////////////////////////////////////////////////////
 
   ** Write any Haystack value
@@ -290,10 +289,10 @@ class JsonWriter : GridWriter
 }
 
 **************************************************************************
-** JsonV3Writer
+** HaysonV3Writer
 **************************************************************************
 
-@Js internal class JsonV3Writer : GridWriter
+@Js internal class HaysonV3Writer : GridWriter
 {
   new make(JsonOutStream out) { this.out = out }
 
