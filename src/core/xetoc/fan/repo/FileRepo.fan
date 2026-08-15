@@ -51,29 +51,5 @@ const class FileRepo : MLocalRepo
     DependSolver(this, libs).solve
   }
 
-  Namespace createNamespace(LibVersion[] libs)
-  {
-    makeNamespace(libs)
-  }
-
-  Namespace resolveNamespace(Str[] names)
-  {
-    if (names.isEmpty) names = ["sys"]
-    depends := names.map |n->LibDepend| { LibDepend(n) }
-    vers    := resolveDepends(depends)
-    return createNamespace(vers)
-  }
-
-  Namespace deriveNamespace(Dict[] recs)
-  {
-    libNames := XetoUtil.dataToLibs(recs)
-    return resolveNamespace(libNames)
-  }
-
-  private Namespace makeNamespace(LibVersion[] versions)
-  {
-    MNamespace(env, versions)
-  }
-
 }
 

@@ -30,18 +30,13 @@ const class RemoteEnv : MEnv
 
   override File[] path() { throw unavailErr() }
 
-  override Str:Str buildVars() { Str:Str[:] }
-
-  override Namespace createNamespace(LibVersion[] libs)
-  {
-    MNamespace(this, libs)
-  }
-
   override Namespace createInstalledNamespace() { throw unavailErr() }
 
   override Namespace resolveNamespace(Str[] names) { throw unavailErr() }
 
   override Namespace deriveNamespace(Dict[] recs) { throw unavailErr() }
+
+  override Int computeInheritanceDigest(Spec t) { throw unavailErr() }
 
   override Void clearLibCache() {}
 

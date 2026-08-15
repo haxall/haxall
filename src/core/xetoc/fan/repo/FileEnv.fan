@@ -7,7 +7,6 @@
 //
 
 using concurrent
-using crypto
 using util
 using xeto
 using xetom
@@ -17,7 +16,7 @@ using haystack
 ** Environment backed by the file system: libs are discovered by
 ** scanning the path directories via FileRepo
 **
-const class FileEnv : MEnv
+const class FileEnv : LocalEnv
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,8 +96,6 @@ const class FileEnv : MEnv
 // XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
-  override Bool isRemote() { false }
-
   override File homeDir() { path.last }
 
   override File workDir() { path.first }
@@ -131,52 +128,6 @@ const class FileEnv : MEnv
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Inheritance Digest
-//////////////////////////////////////////////////////////////////////////
-
-  override Int computeInheritanceDigest(Spec t)
-  {
-    d := Crypto.cur.digest("SHA-1")
-    updateInheritanceDigest(d, t)
-    return d.digest.readS8
-  }
-
-  private static Void updateInheritanceDigest(Digest d, Spec t)
-  {
-    d.updateAscii(t.qname)
-    if (t.base == null) return
-    updateInheritanceDigest(d, t.base)
-    if (t.isCompound)
-    {
-      t.ofs.each |of| { updateInheritanceDigest(d, of) }
-    }
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Namespace
-//////////////////////////////////////////////////////////////////////////
-
-  override Namespace createNamespace(LibVersion[] libs)
-  {
-    repo.createNamespace(libs)
-  }
-
-  override Namespace createInstalledNamespace()
-  {
-    createNamespace(repo.libs)
-  }
-
-  override Namespace resolveNamespace(Str[] names)
-  {
-    repo.resolveNamespace(names)
-  }
-
-  override Namespace deriveNamespace(Dict[] recs)
-  {
-    repo.deriveNamespace(recs)
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Debug
 //////////////////////////////////////////////////////////////////////////
 
@@ -194,11 +145,6 @@ const class FileEnv : MEnv
     acc["xeto.path"] = path.map |f->Str| { f.osPath }
     acc["xeto.buildVars"] = buildVars
     return acc
-  }
-
-  override Void dump(OutStream out := Env.cur.out)
-  {
-    AbstractMain.printProps(debugProps, ["out":out])
   }
 }
 

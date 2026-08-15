@@ -12,8 +12,8 @@ using xeto
 using haystack
 
 **
-** MEnv is the base for XetoEnv implementations such as
-** FileEnv, RepoServerEnv, and RemoteEnv.
+** MEnv is the base for XetoEnv implementations.  Server side
+** environments extend LocalEnv; the browser uses RemoteEnv.
 **
 @Js
 abstract const class MEnv : XetoEnv
@@ -53,9 +53,20 @@ abstract const class MEnv : XetoEnv
     return Etc.dictFromMap(acc)
   }
 
-  virtual Int computeInheritanceDigest(Spec t)
+  override Str:Str buildVars() { emptyBuildVars }
+  private static const Str:Str emptyBuildVars := [:]
+
+  ** Digest used to version a spec's inheritance chain; local envs
+  ** compute SHA-1, the browser cannot
+  abstract Int computeInheritanceDigest(Spec t)
+
+//////////////////////////////////////////////////////////////////////////
+// Namespace
+//////////////////////////////////////////////////////////////////////////
+
+  override Namespace createNamespace(LibVersion[] libs)
   {
-    throw UnsupportedErr("Not availble in JS")
+    MNamespace(this, libs)
   }
 
 //////////////////////////////////////////////////////////////////////////
