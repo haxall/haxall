@@ -28,6 +28,42 @@ const class RemoteLibVersion : LibVersion
     this.pubStatusMsg = pubStatusMsg
   }
 
+  ** Construct from a RepoLib dict as defined by `RepoServer.toRepoLib`.
+  ** Values may carry their in-process or wire types: version as Version
+  ** or Str; each depend as a LibDepend, a dict or map with lib/versions
+  ** keys, or a "name versions" string.
+  new makeDict(Dict dict)
+  {
+    this.name         = dict->lib.toStr
+    this.version      = Version.fromStr(dict->version.toStr)
+    this.doc          = dict["doc"] as Str ?: ""
+    this.toStr        = "$name-$version"
+    this.dependsRef   = parseDepends(dict["depends"])
+    this.digest       = dict["digest"] as Str
+    this.pubStatus    = LibPubStatus.fromStr(dict["pubStatus"]?.toStr ?: "", false) ?: LibPubStatus.unknown
+    this.pubStatusMsg = dict["pubStatusMsg"] as Str
+  }
+
+  ** Parse depends list flavors; null if not reported
+  private static LibDepend[]? parseDepends(Obj? val)
+  {
+    list := val as List
+    if (list == null) return null
+    return list.map |x->LibDepend| { parseDepend(x) }
+  }
+
+  private static LibDepend parseDepend(Obj x)
+  {
+    if (x is LibDepend) return x
+    d := x as Dict
+    if (d != null) return LibDepend(d->lib.toStr, LibDependVersions.fromStr(d->versions.toStr))
+    m := x as Map
+    if (m != null) return LibDepend(m.getChecked("lib").toStr, LibDependVersions.fromStr(m.getChecked("versions").toStr))
+    s := x.toStr
+    sp := s.index(" ") ?: throw ParseErr("Invalid depend: $s")
+    return LibDepend(s[0..<sp].trim, LibDependVersions.fromStr(s[sp+1..-1].trim))
+  }
+
   override const Str name
 
   override const Version version

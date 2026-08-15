@@ -79,23 +79,7 @@ const class HttpRepo : MRemoteRepo
   ** Map JSON RepoLib dict to LibVersion
   private LibVersion toLibVersion(Str:Obj? json)
   {
-    name      := json.getChecked("lib").toStr
-    version   := Version.fromStr(json.getChecked("version").toStr)
-    doc       := json["doc"] as Str ?: ""
-    pubStatus := LibPubStatus.fromStr(json["pubStatus"]?.toStr ?: "", false) ?: LibPubStatus.unknown
-    return RemoteLibVersion(name, version, doc, toDepends(json["depends"]), json["digest"] as Str, pubStatus, json["pubStatusMsg"] as Str)
-  }
-
-  ** Map JSON list of LibDepend dicts or null if not reported
-  private LibDepend[]? toDepends(Obj? json)
-  {
-    list := json as List
-    if (list == null) return null
-    return list.map |x->LibDepend|
-    {
-      m := (Str:Obj?)x
-      return LibDepend(m.getChecked("lib").toStr, LibDependVersions.fromStr(m.getChecked("versions").toStr))
-    }
+    RemoteLibVersion.makeDict(Etc.dictFromMap(json))
   }
 
   ** Coerce JSON number to Int
