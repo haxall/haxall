@@ -10,6 +10,7 @@ using util
 using concurrent
 using markdown
 using xeto
+using xetom
 
 **
 ** DocNamespace wraps a standard namespace with additional cached
@@ -78,7 +79,7 @@ const class DocNamespace
     acc := Str:DocNamespaceChapter[:]
     lib.files.list.each |f|
     {
-      if (f.path.size == 1 && f.ext == "md")
+      if (XetoUtil.isChapter(f))
         acc[f.basename] = DocNamespaceChapter(lib, f.basename)
     }
     if (acc.isEmpty) return noChapters

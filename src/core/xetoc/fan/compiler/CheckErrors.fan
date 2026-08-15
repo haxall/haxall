@@ -78,10 +78,10 @@ internal class CheckErrors : Step
 
     x.files.list.each |uri|
     {
-      topName := uri.basename.lower
-      dup := tops[topName]
-      if (uri.ext == "md" && dup != null)
-        err("Markdown file '$uri.name' conflicts with $dup of the same case-insensitive name", x.loc)
+      if (!XetoUtil.isChapter(uri)) return
+      dup := tops[uri.basename.lower]
+      if (dup != null)
+        err("Markdown chapter '$uri.name' conflicts with $dup of the same case-insensitive name", x.loc)
     }
   }
 

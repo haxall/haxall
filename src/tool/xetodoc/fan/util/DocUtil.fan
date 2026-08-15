@@ -250,8 +250,7 @@ const class DocUtil
     if (!lib.hasMarkdown) return
     lib.files.list.each |uri|
     {
-      if (uri.ext != "md") return
-      if (uri.toStr.startsWith("/skills/")) return // skip ai skills
+      if (!XetoUtil.isChapter(uri)) return
       n := uri.name.lower
       if (n == "index.md") return f(uri, "index")
       if (n == "readme.md") return f(uri, "readme")

@@ -316,6 +316,16 @@ const class XetoUtil
   ** Zip entry uri of `xetoBuildPropsName`
   const static Uri xetoBuildPropsUri := `/xeto-build.props`
 
+  ** Is the given lib file uri a documentation chapter.  Chapters are the
+  ** markdown files at the lib root: they take a name in the lib's doc
+  ** name space alongside the specs and instances, so they are the only
+  ** files which can collide with them.  Markdown nested under a
+  ** subdirectory is an ordinary resource file.
+  static Bool isChapter(Uri uri)
+  {
+    uri.path.size == 1 && uri.ext == "md"
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Literals
 //////////////////////////////////////////////////////////////////////////
