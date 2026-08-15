@@ -45,11 +45,25 @@ const class BuildVars
   ** Read build vars inherited across an environment path.  Each path dir
   ** may define "src/xeto/build.props" and entries earlier in the path
   ** override those later in the path.
+  **
+  ** Exception: `srcExcludeVar` accumulates instead of overriding.  Each
+  ** project states which of its own source dirs are not packaged, and a
+  ** single build compiles libs from every dir on the path, so all of
+  ** those statements must hold at once.
   static BuildVars load(File[] path)
   {
     acc := Str:Str[:]
     acc.ordered = true
-    path.eachr |dir| { acc.setAll(read(dir + propsFileName).props) }
+    path.eachr |dir|
+    {
+      props := read(dir + propsFileName).props
+      prevExclude := acc[srcExcludeVar]
+      acc.setAll(props)
+
+      // append rather than override; parseSrcExclude splits the result
+      curExclude := props[srcExcludeVar]
+      if (prevExclude != null && curExclude != null) acc[srcExcludeVar] = "$prevExclude;$curExclude"
+    }
     return make(acc)
   }
 
@@ -128,7 +142,7 @@ const class BuildVars
       if (!entry.endsWith("/")) return srcExcludeErr(entry, "must end with '/'")
       name := entry[0..-2]
       if (name.isEmpty || name.contains("/")) return srcExcludeErr(entry, "must be a lib root dir name")
-      acc.add(name)
+      if (!acc.contains(name)) acc.add(name)
     }
     return acc.toImmutable
   }

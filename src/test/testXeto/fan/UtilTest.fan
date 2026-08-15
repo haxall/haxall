@@ -513,6 +513,31 @@ class UtilTest : AbstractXetoTest
     verifyEq(BuildVars.load([tempDir + `none/`, a]).get("x.version"), "1.0.0")
   }
 
+  ** srcExclude accumulates across the path instead of overriding; each
+  ** project excludes its own dirs and one build compiles libs from all
+  ** of them (studio's path includes haxall, and both define excludes)
+  Void testBuildVarsLoadSrcExclude()
+  {
+    a := writeBuildProps(`xa`, "x.v=1\nxeto.srcExclude=aura/\n")
+    b := writeBuildProps(`xb`, "x.v=2\nxeto.srcExclude=test-exclude/\n")
+    n := writeBuildProps(`xn`, "x.v=3\n")
+
+    // both entries survive regardless of path order
+    verifyEq(BuildVars.load([a, b]).srcExclude, ["test-exclude", "aura"])
+    verifyEq(BuildVars.load([b, a]).srcExclude, ["aura", "test-exclude"])
+
+    // other vars still override; only srcExclude accumulates
+    verifyEq(BuildVars.load([a, b]).get("x.v"), "1")
+
+    // dirs with no exclude do not disturb the accumulation
+    verifyEq(BuildVars.load([n, a]).srcExclude, ["aura"])
+    verifyEq(BuildVars.load([a, n]).srcExclude, ["aura"])
+
+    // duplicates across the path collapse
+    c := writeBuildProps(`xc`, "xeto.srcExclude=aura/\n")
+    verifyEq(BuildVars.load([a, c]).srcExclude, ["aura"])
+  }
+
   ** Write build.props under dir and return the env dir which contains it
   File writeBuildProps(Uri dir, Str content)
   {
