@@ -543,6 +543,43 @@ class RepoTest : AbstractXetoTest
     verifyEq(lib.files.list, [`/res/a.txt`])
   }
 
+  ** srcLibZip reads build.props itself, so it needs its own coverage of
+  ** the exclude; the compiler path does not exercise this branch
+  Void testSrcLibZipExclude()
+  {
+    // build.props sits beside the lib dir in a source env
+    srcDir := tempDir + `srczip/`
+    (srcDir + `build.props`).out.print("x.version=1.0.0\nxeto.srcExclude=nope/\n").close
+
+    dir := srcDir + `test.srczip/`
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } } >
+         |>).close
+    (dir + `res/a.txt`).out.print("alpha\n").close
+    (dir + `nope/skipme.txt`).out.print("nope\n").close
+
+    v := FileLibVersion("test.srczip", Version("0.0.1"), dir, "", 0, LibDepend#.emptyList)
+    entries := Str[,]
+    props := Str:Str[:]
+    zip := Zip.read(XetoZipUtil.srcLibZip(v).toFile(`x.zip`).in)
+    try
+      zip.readEach |f|
+      {
+        if (f.name == "build.props") props = f.readProps
+        else entries.add(f.uri.toStr)
+      }
+    finally zip.close
+
+    // excluded dir is absent, everything else ships
+    verifyEq(entries.contains("/nope/skipme.txt"), false)
+    verifyEq(entries.contains("/res/a.txt"), true)
+    verifyEq(entries.contains("/lib.xeto"), true)
+
+    // user vars packaged, reserved names are not
+    verifyEq(props["x.version"], "1.0.0")
+    verifyEq(props[BuildVars.srcExcludeVar], null)
+  }
+
   ** Compile a temp lib containing the given files and verify the exact
   ** list of error messages reported
   Void verifyFileNames(Str[] files, Str[] expect)

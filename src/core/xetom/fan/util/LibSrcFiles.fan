@@ -13,20 +13,44 @@ using xeto
 ** directory to its source and resource files.  It is the choke point
 ** used by the compiler to parse the source files, by XetoZipUtil to
 ** build the xetolib zip, and by DirLibFiles to expose the lib's
-** resource files.  Hidden files which start with "." are excluded.
+** resource files.
+**
+** Files are excluded here so that every consumer sees the same set:
+** hidden files which start with ".", and the lib root directories named
+** by `BuildVars.srcExclude`.  Excluded files are never parsed, never
+** packaged, and never exposed as lib files - they do not map to a URI,
+** so they are also exempt from the lib file name restrictions.
 **
 @Js
 const class LibSrcFiles
 {
-  ** Walk the given lib source directory
-  static LibSrcFiles makeDir(File dir)
+  ** Walk the given lib source directory using the build vars of the
+  ** source environment to determine which directories to exclude
+  static LibSrcFiles makeDir(File dir, BuildVars vars := BuildVars.empty)
   {
+    // srcExclude applies to lib root dirs only, so filter the root
+    // listing rather than testing at every level of the walk
     acc := Uri:File[:]
-    walk(acc, "", dir)
+    exclude := vars.srcExclude
+    dir.list.each |kid|
+    {
+      if (kid.isDir && exclude.contains(kid.name)) return
+      walk(acc, "/" + kid.name, kid)
+    }
 
     // flat sort so listing order is consistent regardless of nesting
     map := Uri:File[:] { ordered = true }
     acc.keys.sort.each |uri| { map[uri] = acc[uri] }
+    return make(map)
+  }
+
+  ** Construct from an explicit map of lib relative uris to files, such
+  ** as source assembled in memory from a fetch.  Entries are flat
+  ** sorted to match the directory walk ordering.
+  static LibSrcFiles makeMap(Uri:File files)
+  {
+    map := Uri:File[:] { ordered = true }
+    files.keys.sort.each |uri| { map[uri] = files[uri] }
     return make(map)
   }
 

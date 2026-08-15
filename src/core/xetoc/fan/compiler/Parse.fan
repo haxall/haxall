@@ -152,7 +152,9 @@ internal class Parse : Step
     }
     else if (input.isDir)
     {
-      src := LibSrcFiles.makeDir(input)
+      // OutputZip packages this same walk, so the zip cannot disagree
+      // with what we parsed
+      src := compiler.srcFiles = LibSrcFiles.makeDir(input, compiler.srcBuildVars)
       checkFileNames(src)
       src.eachSrc |f| { parseFile(f, lib, compiler.srcBuildVars) }
       hasMarkdown = src.hasMarkdown

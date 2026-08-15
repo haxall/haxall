@@ -20,10 +20,9 @@ const class XetoZipUtil
 {
   ** Write a xetolib zip to the given output stream and close it.
   ** Entries are written in the required order: meta.props, build.props
-  ** if non-empty, then the given files keyed by zip path.  File values
-  ** may be Str content or File instances; they are written raw so the
-  ** compiler resolves BuildVar tokens at load time.
-  static Void writeLibZip(OutStream out, Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, Uri:Obj files)
+  ** if non-empty, then the lib source files.  Files are written raw so
+  ** the compiler resolves BuildVar tokens at load time.
+  static Void writeLibZip(OutStream out, Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, LibSrcFiles files)
   {
     zip := Zip.write(out)
     try
@@ -34,13 +33,11 @@ const class XetoZipUtil
       // build.props - must be before xeto files (compiler reads it first)
       if (!buildProps.isEmpty) zip.writeNext(`/build.props`).writeProps(buildProps).close
 
-      // source files; preserve modified times for file content
-      files.each |content, path|
+      // source files; preserve modified times when the file has one
+      files.each |file, path|
       {
-        file := content as File
-        entryOut := file == null ? zip.writeNext(path) : zip.writeNext(path, file.modified)
-        if (file != null) file.in.pipe(entryOut)
-        else entryOut.print(content)
+        entryOut := zip.writeNext(path, file.modified ?: DateTime.now)
+        file.in.pipe(entryOut)
         entryOut.close
       }
     }
@@ -48,7 +45,7 @@ const class XetoZipUtil
   }
 
   ** Build a xetolib zip into an in-memory buf; see `writeLibZip`
-  static Buf buildLibZip(Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, Uri:Obj files)
+  static Buf buildLibZip(Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, LibSrcFiles files)
   {
     buf := Buf()
     writeLibZip(buf.out, name, version, depends, meta, buildProps, files)
@@ -64,16 +61,13 @@ const class XetoZipUtil
 
     // only user vars are packaged; reserved names configure a source
     // tree we are not shipping
-    buildProps := BuildVars.read(dir.parent + `build.props`).vars
+    vars := BuildVars.read(dir.parent + `build.props`)
 
     meta := Str:Obj[:]
     meta.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     if (v.isHxSysOnly) meta["hxSysOnly"] = Marker.val
-    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), buildProps, dirFiles(dir))
+    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), vars.vars, LibSrcFiles.makeDir(dir, vars))
   }
-
-  ** Map a source directory to zip path entries; see `LibSrcFiles`
-  static Uri:File dirFiles(File dir) { LibSrcFiles.makeDir(dir).map }
 
   ** Choke point to format digest of xetolib zip contents as "sha256:"
   ** followed by the base64uri encoding of the SHA-256 hash

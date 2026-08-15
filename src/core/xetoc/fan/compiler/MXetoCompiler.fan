@@ -243,6 +243,7 @@ internal class MXetoCompiler : XetoCompiler
   internal ADataDoc? data              // Parse (compileData only)
   internal ADict? pragma               // Parse
   internal Str:Str usedBuildVars       // Parse (build vars used by lib)
+  internal LibSrcFiles? srcFiles       // Parse (source dir input only)
   internal SpecMap? metas              // MixinMeta
   internal SpecMap? libMetas           // MixinMeta
   internal Dict? astDict               // AstToDict output
