@@ -419,6 +419,110 @@ class UtilTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// BuildVars
+//////////////////////////////////////////////////////////////////////////
+
+  Void testBuildVars()
+  {
+    // empty
+    verifyBuildVarsEmpty(BuildVars.empty)
+    verifyBuildVarsEmpty(BuildVars(Str:Str[:]))
+    verifyBuildVarsEmpty(BuildVars.read(tempDir + `nope.props`))
+    verifyBuildVarsEmpty(BuildVars.load(File[,]))
+
+    // get sees reserved names, vars does not
+    v := BuildVars(["ph.version":"5.0.0", "xeto.srcExclude":"a/", "sys.foo":"bar"])
+    verifyEq(v.isEmpty, false)
+    verifyEq(v.props.size, 3)
+    verifyEq(v.get("ph.version"), "5.0.0")
+    verifyEq(v.get("xeto.srcExclude"), "a/")
+    verifyEq(v.get("bad"), null)
+    verifyEq(v.vars, ["ph.version":"5.0.0"])
+  }
+
+  Void verifyBuildVarsEmpty(BuildVars v)
+  {
+    verifyEq(v.isEmpty, true)
+    verifyEq(v.props, Str:Str[:])
+    verifyEq(v.vars, Str:Str[:])
+    verifyEq(v.srcExclude, Str[,])
+    verifyEq(v.get("foo"), null)
+  }
+
+  Void testBuildVarsReserved()
+  {
+    verifyBuildVarReserved("xeto.srcExclude", true)
+    verifyBuildVarReserved("xeto.foo", true)
+    verifyBuildVarReserved("sys.foo", true)
+
+    verifyBuildVarReserved("ph.version", false)
+    verifyBuildVarReserved("xetobase.version", false)
+    verifyBuildVarReserved("system.foo", false)
+    verifyBuildVarReserved("myxeto.foo", false)
+    verifyBuildVarReserved("xeto", false)
+    verifyBuildVarReserved("sys", false)
+    verifyBuildVarReserved("Xeto.foo", false)
+    verifyBuildVarReserved("SYS.foo", false)
+  }
+
+  Void verifyBuildVarReserved(Str n, Bool expect)
+  {
+    verifyEq(BuildVars.isReserved(n), expect, n)
+  }
+
+  Void testSrcExclude()
+  {
+    verifySrcExclude(null, Str[,])
+    verifySrcExclude("", Str[,])
+    verifySrcExclude("   ", Str[,])
+    verifySrcExclude("aura/", ["aura"])
+    verifySrcExclude("  aura/  ", ["aura"])
+    verifySrcExclude("aura/;src-js/", ["aura", "src-js"])
+    verifySrcExclude("aura/;", ["aura"])
+    verifySrcExclude("aura/;;src-js/", ["aura", "src-js"])
+
+    // bad entries are skipped, good entries still take effect
+    verifySrcExclude("aura", Str[,])
+    verifySrcExclude("aura;src-js/", ["src-js"])
+    verifySrcExclude("/", Str[,])
+    verifySrcExclude("a/b/", Str[,])
+    verifySrcExclude("a/b/;ok/", ["ok"])
+  }
+
+  Void verifySrcExclude(Str? val, Str[] expect)
+  {
+    props := Str:Str[:]
+    if (val != null) props[BuildVars.srcExcludeVar] = val
+    verifyEq(BuildVars(props).srcExclude, expect, val ?: "null")
+  }
+
+  ** Path entries earlier in the list override those later
+  Void testBuildVarsLoad()
+  {
+    a := writeBuildProps(`a`, "x.version=1.0.0\nx.a=a\n")
+    b := writeBuildProps(`b`, "x.version=2.0.0\nx.b=b\n")
+
+    v := BuildVars.load([b, a])
+    verifyEq(v.get("x.version"), "2.0.0")
+    verifyEq(v.get("x.a"), "a")
+    verifyEq(v.get("x.b"), "b")
+
+    verifyEq(BuildVars.load([a, b]).get("x.version"), "1.0.0")
+
+    // dirs without a build.props are skipped
+    verifyEq(BuildVars.load([tempDir + `none/`, a]).get("x.version"), "1.0.0")
+  }
+
+  ** Write build.props under dir and return the env dir which contains it
+  File writeBuildProps(Uri dir, Str content)
+  {
+    envDir := tempDir + dir.plusSlash
+    f := envDir + BuildVars.propsFileName
+    f.out.print(content).close
+    return envDir
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // NameUtils
 //////////////////////////////////////////////////////////////////////////
 
