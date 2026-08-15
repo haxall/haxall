@@ -591,13 +591,16 @@ const class XetoUtil
     return XetoFidelity.full
   }
 
-  ** Standard option for JSON boxing mode
+  ** Standard option for JSON boxing mode.  Defaults to auto so that an
+  ** encoding is lossless unless the caller opts out: at none a Date reads
+  ** back as Str and a bare JSON number as Int.  A producer which writes
+  ** for a schema must pin none explicitly - see `JsonExporter`.
   static JsonBoxMode optBox(Dict? opts)
   {
-    x := opts["box"]
+    x := opts?.get("box")
     if (x is Str) x = JsonBoxMode.fromStr(x.toStr, false)
     if (x is JsonBoxMode) return x
-    return JsonBoxMode.none
+    return JsonBoxMode.auto
   }
 
   ** Get the key "versions" as LibDependVersions

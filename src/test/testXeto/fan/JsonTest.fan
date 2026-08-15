@@ -385,12 +385,14 @@ class JsonTest : AbstractXetoTest
 //////////////////////////////////////////////////////////////////////////
 
   ** box=none is lossy exactly where the plain form cannot be recovered;
-  ** auto and all recover it.  The default mode is none.
+  ** auto and all recover it.  The default mode is auto, so an encoding is
+  ** lossless unless the caller opts out.
   Void testBoxModes()
   {
     ns := createNamespace(["hx.test.xeto"])
 
-    verifyEq(XetoUtil.optBox(Etc.dict0), JsonBoxMode.none)
+    verifyEq(XetoUtil.optBox(Etc.dict0), JsonBoxMode.auto)
+    verifyEq(XetoUtil.optBox(null), JsonBoxMode.auto)
 
     // an untyped dict whose values have no recoverable plain form
     dict := Etc.dict4(
@@ -1253,13 +1255,16 @@ class JsonTest : AbstractXetoTest
     return a == b || a.toStr == b.toStr
   }
 
+  ** Encoding is pinned to box=none because these cases document what the
+  ** unboxed form loses at haystack fidelity.  The default is auto, which
+  ** recovers most of it - that is what makes auto the lossless mode.
   private Void verifyHaystack(
     MNamespace ns,
     Obj? orig,
     Obj? expect,
     Spec? spec := null)
   {
-    str := toJson(ns, orig)
+    str := toJson(ns, orig, boxNone)
 
     x := read(ns, str, spec, haystackOpts)
     if (orig is Dict)

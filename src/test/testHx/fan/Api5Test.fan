@@ -216,24 +216,24 @@ class Api5Test : ApiTest
   }
 
   ** eval declares 'returns: Obj?', so the result carries no spec the client
-  ** could decode against and a date arrives as its plain string form.  This
-  ** is the no-sniffing rule: a decoder never infers a type from what a
-  ** string looks like.  Version 4 wrapped this same value in a grid.
+  ** could decode against.  The codec boxes at auto, so a value whose plain
+  ** form could not be recovered names its own spec and survives the trip:
+  ** the box is what stands in for the type the position does not supply.
+  ** Version 4 wrapped this same value in a grid.
   private Void verifyEval(Client c)
   {
-    verifyCall(c, "eval", ["expr":"today()"], Date.today.toStr)
+    verifyCall(c, "eval", ["expr":"today()"], Date.today)
     verifyCall(c, "eval", ["expr":"true"], true)
 
-    // an untyped bare JSON number decodes by its lexical form, so this is an
-    // Int; Number requires the position to name it, or a box
-    verifyCall(c, "eval", ["expr":"2 + 3"], 5)
+    // Axon arithmetic yields a Number, which an untyped position cannot
+    // recover from a bare JSON number - that would decode as Int - so auto
+    // boxes it too
+    verifyCall(c, "eval", ["expr":"2 + 3"], n(5))
 
-    // the dispatch emits box=none, so a value whose plain form needs a spec
-    // to recover arrives as that plain form.  Pinned here so that turning on
-    // box negotiation shows up as a test change rather than a silent one.
-    verifyCall(c, "eval", ["expr":"marker()"], "✓")
-    verifyCall(c, "eval", ["expr":"na()"], "NA")
-    verifyCall(c, "eval", ["expr":"1kW"], "1kW")
+    // these need a spec to recover their plain form, so auto boxes them
+    verifyCall(c, "eval", ["expr":"marker()"], Marker.val)
+    verifyCall(c, "eval", ["expr":"na()"], NA.val)
+    verifyCall(c, "eval", ["expr":"1kW"], n(1, "kW"))
   }
 
 //////////////////////////////////////////////////////////////////////////

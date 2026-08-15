@@ -41,7 +41,7 @@ const mixin RepoServer
     acc.ordered = true
     acc["lib"] = v.name
     acc["version"] = v.version
-    acc["pubStatus"] = toRepoPubStatus(v.pubStatus).name
+    acc["pubStatus"] = Scalar("sys.repo::RepoPubStatus", toRepoPubStatus(v.pubStatus).name)
     acc.addNotNull("pubStatusMsg", v.pubStatusMsg)
     acc.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     acc.addNotNull("depends", v.depends(false))

@@ -164,11 +164,17 @@ class JsonExporter : Exporter
     return this
   }
 
+  ** Boxing is pinned off: the schema types every scalar as a string with a
+  ** pattern, so a boxed scalar - an object - would not validate against the
+  ** schema this exporter itself generates.  Do not let this inherit the
+  ** codec default, which is auto.
   private This scalar(Obj x)
   {
-    JetoWriter(ns, out).writeVal(x)
+    JetoWriter(ns, out, null, boxNone).writeVal(x)
     return this
   }
+
+  private static const Dict boxNone := Etc.dict1("box", "none")
 
 //////////////////////////////////////////////////////////////////////////
 // JSON Constructors

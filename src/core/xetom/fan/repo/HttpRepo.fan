@@ -82,7 +82,7 @@ const class HttpRepo : MRemoteRepo
     name      := json.getChecked("lib").toStr
     version   := Version.fromStr(json.getChecked("version").toStr)
     doc       := json["doc"] as Str ?: ""
-    pubStatus := LibPubStatus.fromStr(json["pubStatus"] as Str ?: "", false) ?: LibPubStatus.unknown
+    pubStatus := LibPubStatus.fromStr(json["pubStatus"]?.toStr ?: "", false) ?: LibPubStatus.unknown
     return RemoteLibVersion(name, version, doc, toDepends(json["depends"]), json["digest"] as Str, pubStatus, json["pubStatusMsg"] as Str)
   }
 
