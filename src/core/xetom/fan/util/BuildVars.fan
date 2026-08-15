@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** BuildVars models the "build.props" build variables of a source
+** BuildVars models the "xeto-build.props" build variables of a source
 ** environment.  It is the choke point for reading that file and for
 ** the rules which apply to it: user variables are prefixed by lib name
 ** and substituted into source via `sys::BuildVar`, while names prefixed
@@ -31,8 +31,8 @@ const class BuildVars
   ** Empty build vars
   static const BuildVars empty := make(Str:Str[:])
 
-  ** Read build vars from a "build.props" file; returns `empty` if the
-  ** file does not exist or cannot be parsed
+  ** Read build vars from a "xeto-build.props" file; returns `empty` if
+  ** the file does not exist or cannot be parsed
   static BuildVars read(File file)
   {
     if (!file.exists) return empty
@@ -43,8 +43,8 @@ const class BuildVars
   }
 
   ** Read build vars inherited across an environment path.  Each path dir
-  ** may define "src/xeto/build.props" and entries earlier in the path
-  ** override those later in the path.
+  ** may define "src/xeto/xeto-build.props" and entries earlier in the
+  ** path override those later in the path.
   **
   ** Exception: `srcExcludeVar` accumulates instead of overriding.  Each
   ** project states which of its own source dirs are not packaged, and a
@@ -75,7 +75,7 @@ const class BuildVars
   }
 
   ** Path of the build vars file relative to an environment dir
-  const static Uri propsFileName := `src/xeto/build.props`
+  const static Uri propsFileName := ("src/xeto/" + XetoUtil.xetoBuildPropsName).toUri
 
 //////////////////////////////////////////////////////////////////////////
 // Access

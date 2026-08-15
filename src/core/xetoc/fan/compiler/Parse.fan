@@ -139,10 +139,18 @@ internal class Parse : Step
         zip.readEach |f|
         {
           if (f.isDir) return
+
+          // system files sit in the zip root; consume the ones we know
+          // and ignore the rest which may come from a newer build
+          if (f.uri.path.size == 1 && XetoUtil.isXetoSystemFile(f.name))
+          {
+            if (f.name == XetoUtil.xetoBuildPropsName) buildVars = BuildVars(f.readProps)
+            return
+          }
+
           f.uri.path.each |n| { checkFileName(n, FileLoc(input)) }
           if (f.ext == "xeto") parseFile(f, lib, buildVars)
-          else if (f.name == "build.props") buildVars = BuildVars(f.readProps)
-          else if (f.name != "meta.props") list.add(f.uri)
+          else list.add(f.uri)
           if (f.ext == "md") hasMarkdown = true
         }
       }

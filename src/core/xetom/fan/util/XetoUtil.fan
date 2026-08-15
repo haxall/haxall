@@ -53,34 +53,6 @@ const class XetoUtil
     return null
   }
 
-  ** Return if valid lib file name; this applies to both resource file
-  ** names and the directory names which contain them
-  static Bool isFileName(Str n)
-  {
-    fileNameErr(n) == null
-  }
-
-  ** If the given lib file name is not valid return an error message,
-  ** otherwise if its valid return null.  File names must map directly
-  ** to a URI path section without any escaping, so we restrict them to
-  ** ASCII alphanumerics plus "-", "_", and "." (the "~" char is
-  ** unreserved in URIs, but we reserve it for infrastructure use).
-  static Str? fileNameErr(Str n)
-  {
-    if (n.isEmpty) return "File name cannot be the empty string"
-    for (i := 0; i<n.size; ++i)
-    {
-      ch := n[i]
-      if (ch.isAlphaNum && ch < 128) continue
-      if (ch == '-' || ch == '_' || ch == '.') continue
-      if (ch == ' ') return "File name cannot contain spaces"
-      if (ch == '~') return "File name cannot contain reserved char '~'"
-      if (ch >= 128) return "File name cannot contain non-ASCII char '$ch.toChar' 0x$ch.toHex"
-      return "Invalid file name char '$ch.toChar' 0x$ch.toHex"
-    }
-    return null
-  }
-
   ** Return if valid top-level type (or mixin) name
   static Bool isTypeName(Str n)
   {
@@ -286,6 +258,63 @@ const class XetoUtil
 
   ** Project companion lib name
   static const Str companionLibName := "proj"
+
+//////////////////////////////////////////////////////////////////////////
+// Reserved File Names
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return if valid file name in a lib; this applies to source files,
+  ** resource file names, and the directory names
+  static Bool isFileName(Str n)
+  {
+    fileNameErr(n) == null
+  }
+
+  ** If the given lib file name is not valid return an error message,
+  ** otherwise if its valid return null.  File names must map directly
+  ** to a URI path section without any escaping, so we restrict them to
+  ** ASCII alphanumerics plus "-", "_", and "." (the "~" char is
+  ** unreserved in URIs, but we reserve it for infrastructure use).
+  ** The `xetoFilePrefix` is reserved for system level files.
+  static Str? fileNameErr(Str n)
+  {
+    if (n.isEmpty) return "File name cannot be the empty string"
+    for (i := 0; i<n.size; ++i)
+    {
+      ch := n[i]
+      if (ch.isAlphaNum && ch < 128) continue
+      if (ch == '-' || ch == '_' || ch == '.') continue
+      if (ch == ' ') return "File name cannot contain spaces"
+      if (ch == '~') return "File name cannot contain reserved char '~'"
+      if (ch >= 128) return "File name cannot contain non-ASCII char '$ch.toChar' 0x$ch.toHex"
+      return "Invalid file name char '$ch.toChar' 0x$ch.toHex"
+    }
+    if (isXetoSystemFile(n)) return "File name cannot use reserved prefix '$xetoFilePrefix'"
+    return null
+  }
+
+  ** Is the given file name reserved by `xetoFilePrefix`.  We match the
+  ** prefix rather than a fixed list so that a lib packaged by a newer
+  ** build may carry system files this build does not know about.
+  static Bool isXetoSystemFile(Str n) { n.startsWith(xetoFilePrefix) }
+
+  ** Prefix reserved for the system files the build packages into a
+  ** xetolib zip root.  These are never lib files: they are written by the
+  ** packager and read back by the system, so they are never parsed nor
+  ** exposed via `xeto::LibFiles`
+  const static Str xetoFilePrefix := "xeto-"
+
+  ** Lib meta file
+  const static Str xetoMetaPropsName := "xeto-meta.props"
+
+  ** Build vars file; also the source file name under `BuildVars.propsFileName`
+  const static Str xetoBuildPropsName := "xeto-build.props"
+
+  ** Zip entry uri of `xetoMetaPropsName`
+  const static Uri xetoMetaPropsUri := `/xeto-meta.props`
+
+  ** Zip entry uri of `xetoBuildPropsName`
+  const static Uri xetoBuildPropsUri := `/xeto-build.props`
 
 //////////////////////////////////////////////////////////////////////////
 // Literals

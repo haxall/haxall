@@ -110,7 +110,7 @@ const class GithubRepo : MRemoteRepo
   }
 
   ** Download the source files for a lib as a zip Buf.
-  ** Source files are written raw; build.props is included in the zip
+  ** Source files are written raw; xeto-build.props is included in the zip
   ** so the compiler resolves BuildVar tokens at load time (matches
   ** the OutputZip strategy in xetoc).
   override Buf fetch(Str name, Version version)
@@ -121,7 +121,7 @@ const class GithubRepo : MRemoteRepo
     // resolve the git ref for this version
     ref := "v$version"
 
-    // fetch build.props for inclusion in zip
+    // fetch xeto-build.props for inclusion in zip
     buildProps := fetchBuildProps(ref)
 
     // query all files in the lib directory at that ref
@@ -134,9 +134,9 @@ const class GithubRepo : MRemoteRepo
     return XetoZipUtil.buildLibZip(ver.name, ver.version, ver.depends, Etc.dict1x("doc", ver.doc), buildProps, LibSrcFiles.makeMap(entries))
   }
 
-  ** Resolve BuildVar tokens in xeto source content using build.props values.
+  ** Resolve BuildVar tokens in xeto source content using xeto-build.props values.
   ** Used only by parseLibMeta which operates on a single file without
-  ** build.props context.
+  ** xeto-build.props context.
   private Str resolveBuildVars(Str content, Str:Str buildProps)
   {
     if (buildProps.isEmpty) return content
@@ -145,13 +145,13 @@ const class GithubRepo : MRemoteRepo
     return resolved
   }
 
-  ** Fetch build.props for a given git ref via GraphQL.
+  ** Fetch xeto-build.props for a given git ref via GraphQL.
   private Str:Str fetchBuildProps(Str ref)
   {
     res := graphql(
       "query {
          repository(owner: \"$owner\", name: \"$repo\") {
-           object(expression: \"$ref:src/xeto/build.props\") { ... on Blob { text } }
+           object(expression: \"$ref:$BuildVars.propsFileName\") { ... on Blob { text } }
          }
        }")
     blob := repoData(res).get("object") as Str:Obj?
@@ -209,7 +209,7 @@ const class GithubRepo : MRemoteRepo
     if (libNames.isEmpty) return Str:Version[][:]
 
     contents := fetchLibXetoFiles(libNames, "HEAD")
-    buildProps := parseBuildProps(contents["build.props"])
+    buildProps := parseBuildProps(contents[XetoUtil.xetoBuildPropsName])
 
     acc := Str:Version[][:]
     libNames.each |name|
@@ -239,13 +239,13 @@ const class GithubRepo : MRemoteRepo
     return result
   }
 
-  ** Fetch lib.xeto + build.props at a specific ref and parse into RemoteLibVersion.
+  ** Fetch lib.xeto + xeto-build.props at a specific ref and parse into RemoteLibVersion.
   private RemoteLibVersion fetchAndParseLibVersion(Str name, Version ver, Str ref)
   {
-    // batch-fetch lib.xeto + build.props in one query
+    // batch-fetch lib.xeto + xeto-build.props in one query
     buf := StrBuf()
     buf.add("query { repository(owner: \"$owner\", name: \"$repo\") {\n")
-    buf.add("  props: object(expression: \"$ref:src/xeto/build.props\") { ... on Blob { text } }\n")
+    buf.add("  props: object(expression: \"$ref:$BuildVars.propsFileName\") { ... on Blob { text } }\n")
     buf.add("  lib: object(expression: \"$ref:src/xeto/$name/lib.xeto\") { ... on Blob { text } }\n")
     buf.add("}}")
 
@@ -294,12 +294,12 @@ const class GithubRepo : MRemoteRepo
     return acc
   }
 
-  ** Batch-fetch build.props + all lib.xeto files at a given ref.
+  ** Batch-fetch xeto-build.props + all lib.xeto files at a given ref.
   private Str:Str? fetchLibXetoFiles(Str[] libNames, Str ref)
   {
     buf := StrBuf()
     buf.add("query { repository(owner: \"$owner\", name: \"$repo\") {\n")
-    buf.add("  buildProps: object(expression: \"$ref:src/xeto/build.props\") { ... on Blob { text } }\n")
+    buf.add("  buildProps: object(expression: \"$ref:$BuildVars.propsFileName\") { ... on Blob { text } }\n")
     libNames.each |name|
     {
       buf.add("  ${toAlias(name)}: object(expression: \"$ref:src/xeto/$name/lib.xeto\") { ... on Blob { text } }\n")
@@ -308,7 +308,7 @@ const class GithubRepo : MRemoteRepo
 
     r := repoData(graphql(buf.toStr))
     acc := Str:Str?[:]
-    acc["build.props"] = (r["buildProps"] as Str:Obj?)?.get("text") as Str
+    acc[XetoUtil.xetoBuildPropsName] = (r["buildProps"] as Str:Obj?)?.get("text") as Str
     libNames.each |name| { acc[name] = (r[toAlias(name)] as Str:Obj?)?.get("text") as Str }
     return acc
   }
@@ -368,7 +368,7 @@ const class GithubRepo : MRemoteRepo
     return acc
   }
 
-  ** Parse build.props content into the user vars; reserved names configure
+  ** Parse xeto-build.props content into the user vars; reserved names configure
   ** the source tree they were fetched from, not the lib we are assembling.
   private Str:Str parseBuildProps(Str? content)
   {

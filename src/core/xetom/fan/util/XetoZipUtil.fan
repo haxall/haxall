@@ -19,23 +19,30 @@ using haystack
 const class XetoZipUtil
 {
   ** Write a xetolib zip to the given output stream and close it.
-  ** Entries are written in the required order: meta.props, build.props
-  ** if non-empty, then the lib source files.  Files are written raw so
-  ** the compiler resolves BuildVar tokens at load time.
+  ** Entries are written in the required order: xeto-meta.props,
+  ** xeto-build.props if non-empty, then the lib source files.  Files are
+  ** written raw so the compiler resolves BuildVar tokens at load time.
   static Void writeLibZip(OutStream out, Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, LibSrcFiles files)
   {
     zip := Zip.write(out)
     try
     {
-      // meta.props - required for FileLibVersion.loadZipFile
-      zip.writeNext(`/meta.props`).writeProps(buildLibMetaProps(name, version, depends, meta)).close
+      // xeto-meta.props - required for FileLibVersion.loadZipFile
+      zip.writeNext(XetoUtil.xetoMetaPropsUri).writeProps(buildLibMetaProps(name, version, depends, meta)).close
 
-      // build.props - must be before xeto files (compiler reads it first)
-      if (!buildProps.isEmpty) zip.writeNext(`/build.props`).writeProps(buildProps).close
+      // xeto-build.props - must be before xeto files (compiler reads it first)
+      if (!buildProps.isEmpty) zip.writeNext(XetoUtil.xetoBuildPropsUri).writeProps(buildProps).close
 
-      // source files; preserve modified times when the file has one
+      // source files; preserve modified times when the file has one.
+      // srcLibZip and GithubRepo package without compiling, so the names
+      // are checked here rather than only by the compiler
       files.each |file, path|
       {
+        path.path.each |n|
+        {
+          err := XetoUtil.fileNameErr(n)
+          if (err != null) throw Err("Invalid lib file '$path': $err")
+        }
         entryOut := zip.writeNext(path, file.modified ?: DateTime.now)
         file.in.pipe(entryOut)
         entryOut.close
@@ -53,7 +60,7 @@ const class XetoZipUtil
   }
 
   ** Build a xetolib zip for a local source lib.  The src directory
-  ** files are zipped raw along with the adjacent "build.props" if
+  ** files are zipped raw along with the adjacent "xeto-build.props" if
   ** present so the compiler resolves BuildVar tokens at load time.
   static Buf srcLibZip(LibVersion v)
   {
@@ -61,7 +68,7 @@ const class XetoZipUtil
 
     // only user vars are packaged; reserved names configure a source
     // tree we are not shipping
-    vars := BuildVars.read(dir.parent + `build.props`)
+    vars := BuildVars.read(dir.parent + XetoUtil.xetoBuildPropsName.toUri)
 
     meta := Str:Obj[:]
     meta.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
@@ -102,7 +109,7 @@ const class XetoZipUtil
   ** Chunk size used to stream content through a digest
   internal static const Int chunkSize := 64 * 1024
 
-  ** Choke point to generate a xetolib meta.props contents
+  ** Choke point to generate the xetolib meta props contents
   static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
   {
     props := Str:Str[:]

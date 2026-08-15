@@ -516,6 +516,51 @@ class RepoTest : AbstractXetoTest
     // a bad dir is reported once even though it contains multiple files
     verifyFileNames(["sub~dir/a.txt", "sub~dir/b.txt"],
       ["Invalid file name 'sub~dir': File name cannot contain reserved char '~'"])
+
+    // reserved prefix, including a system file's own name
+    verifyFileNames(["xeto-foo.props"],
+      ["Invalid file name 'xeto-foo.props': File name cannot use reserved prefix 'xeto-'"])
+    verifyFileNames(["xeto-dir/a.txt"],
+      ["Invalid file name 'xeto-dir': File name cannot use reserved prefix 'xeto-'"])
+    verifyFileNames([XetoUtil.xetoMetaPropsName],
+      ["Invalid file name 'xeto-meta.props': File name cannot use reserved prefix 'xeto-'"])
+  }
+
+  ** A packaged lib may carry system files written by a newer build than
+  ** the one reading it; we consume the names we know and ignore the rest
+  Void testUnknownSystemFiles()
+  {
+    dir := tempDir + `sysfiles/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } } >
+         |>).close
+    (dir + `res/a.txt`).out.print("alpha\n").close
+
+    // package normally, then append a system file this build knows nothing about
+    v := FileLibVersion("test.sysfiles", Version("0.0.1"), dir, "", 0, LibDepend#.emptyList)
+    entries := Uri:Buf[:] { ordered = true }
+    orig := Zip.read(XetoZipUtil.srcLibZip(v).toFile(`x.zip`).in)
+    try
+      orig.readEach |f| { if (!f.isDir) entries[f.uri] = f.readAllBuf }
+    finally orig.close
+
+    zipFile := tempDir + `test.sysfiles.xetolib`
+    zip := Zip.write(zipFile.out)
+    entries.each |content, uri| { zip.writeNext(uri).writeBuf(content.seek(0)).close }
+    zip.writeNext(`/xeto-future.props`).printLine("some=thing").close
+    zip.close
+
+    lib := XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.sysfiles"
+      c.input   = zipFile
+    }.compileLib
+
+    // it compiled rather than erroring, and the system file is not a lib file
+    verifyEq(lib.name, "test.sysfiles")
+    verifyEq(lib.files.list, [`/res/a.txt`])
   }
 
   Void testNestedSrcFiles()
@@ -543,13 +588,13 @@ class RepoTest : AbstractXetoTest
     verifyEq(lib.files.list, [`/res/a.txt`])
   }
 
-  ** srcLibZip reads build.props itself, so it needs its own coverage of
+  ** srcLibZip reads xeto-build.props itself, so it needs its own coverage of
   ** the exclude; the compiler path does not exercise this branch
   Void testSrcLibZipExclude()
   {
-    // build.props sits beside the lib dir in a source env
+    // xeto-build.props sits beside the lib dir in a source env
     srcDir := tempDir + `srczip/`
-    (srcDir + `build.props`).out.print("x.version=1.0.0\nxeto.srcExclude=nope/\n").close
+    (srcDir + XetoUtil.xetoBuildPropsName.toUri).out.print("x.version=1.0.0\nxeto.srcExclude=nope/\n").close
 
     dir := srcDir + `test.srczip/`
     (dir + `lib.xeto`).out.print(
@@ -565,7 +610,7 @@ class RepoTest : AbstractXetoTest
     try
       zip.readEach |f|
       {
-        if (f.name == "build.props") props = f.readProps
+        if (f.name == XetoUtil.xetoBuildPropsName) props = f.readProps
         else entries.add(f.uri.toStr)
       }
     finally zip.close

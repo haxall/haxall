@@ -102,12 +102,12 @@ const class FileLibVersion : LibVersion
     err := XetoUtil.libNameErr(name)
     if (err != null) throw Err("Invalid lib name $name.toCode [$file.osPath]")
 
-    // try to parse meta.props
+    // try to parse xeto-meta.props
     [Str:Str]? props
     zip := Zip.open(file)
     try
     {
-      propsFile := zip.contents.get(`/meta.props`) ?: throw Err("Missing 'meta.props' in zip")
+      propsFile := zip.contents.get(XetoUtil.xetoMetaPropsUri) ?: throw Err("Missing '$XetoUtil.xetoMetaPropsName' in zip")
       props = propsFile.readProps
     }
     finally zip.close

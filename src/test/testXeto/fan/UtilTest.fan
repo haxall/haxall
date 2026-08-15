@@ -410,6 +410,16 @@ class UtilTest : AbstractXetoTest
     verifyIsFileName("a+b.txt", "Invalid file name char '+' 0x2b")
     verifyIsFileName("a:b.txt", "Invalid file name char ':' 0x3a")
     verifyIsFileName("a/b.txt", "Invalid file name char '/' 0x2f")
+
+    // no lib file may use the reserved prefix; the system files are not
+    // lib files, so even their exact names are invalid here
+    verifyIsFileName("xetodoc.md", null)  // prefix requires the dash
+    reservedErr := "File name cannot use reserved prefix 'xeto-'"
+    verifyIsFileName(XetoUtil.xetoMetaPropsName, reservedErr)
+    verifyIsFileName(XetoUtil.xetoBuildPropsName, reservedErr)
+    verifyIsFileName("xeto-foo.txt", reservedErr)
+    verifyIsFileName("xeto-", reservedErr)
+    verifyIsFileName("xeto-lib", reservedErr)  // applies to dir names too
   }
 
   Void verifyIsFileName(Str n, Str? expect)
@@ -509,7 +519,7 @@ class UtilTest : AbstractXetoTest
 
     verifyEq(BuildVars.load([a, b]).get("x.version"), "1.0.0")
 
-    // dirs without a build.props are skipped
+    // dirs without a xeto-build.props are skipped
     verifyEq(BuildVars.load([tempDir + `none/`, a]).get("x.version"), "1.0.0")
   }
 
@@ -538,7 +548,7 @@ class UtilTest : AbstractXetoTest
     verifyEq(BuildVars.load([a, c]).srcExclude, ["aura"])
   }
 
-  ** Write build.props under dir and return the env dir which contains it
+  ** Write xeto-build.props under dir and return the env dir which contains it
   File writeBuildProps(Uri dir, Str content)
   {
     envDir := tempDir + dir.plusSlash

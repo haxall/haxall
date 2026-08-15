@@ -511,7 +511,7 @@ const class TestRemoteRepo : MRemoteRepo
     buf := Buf()
     v := this.version(name, version)
     zip := Zip.write(buf.out)
-    zip.writeNext(`/meta.props`)
+    zip.writeNext(XetoUtil.xetoMetaPropsUri)
        .writeProps(XetoZipUtil.buildLibMetaProps(name, version, v.depends, Etc.dict0))
        .close
     zip.close
