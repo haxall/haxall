@@ -1,0 +1,2 @@
+This file must never be packaged into the xetolib; see xeto.srcExclude
+in src/xeto/build.props.

@@ -355,6 +355,10 @@ class NamespaceTest : AbstractXetoTest
       verifyEq(files.get(`/lib.xeto`, false), null)
       verifyErr(UnresolvedErr#) { files.get(`/lib.xeto`) }
 
+      // test-exclude dir is stripped by xeto.srcExclude build var
+      verifyEq(files.get(`/test-exclude/excluded.txt`, false), null)
+      verifyErr(UnresolvedErr#) { files.get(`/test-exclude/excluded.txt`) }
+
       res := files.get(`/res/a.txt`).readAllStr.trim
       verifyEq(res, "alpha")
 

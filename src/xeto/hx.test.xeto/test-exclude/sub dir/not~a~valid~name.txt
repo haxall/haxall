@@ -1,0 +1,2 @@
+Names in an excluded dir never reach a URI, so they are not validated by
+XetoUtil.fileNameErr; this file would fail that check if it were walked.

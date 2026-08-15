@@ -9,3 +9,7 @@ hx.org.uri=https://haxall.io/
 hx.vcs.type=git
 hx.vcs.uri=https://github.com/haxall/haxall
 
+// source dirs never packaged into the xetolib; test-exclude is the
+// hx.test.xeto fixture which verifies the mechanism
+xeto.srcExclude=test-exclude/
+
