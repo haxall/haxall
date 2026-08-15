@@ -53,8 +53,8 @@ abstract const class MEnv : XetoEnv
     return Etc.dictFromMap(acc)
   }
 
-  override Str:Str buildVars() { emptyBuildVars }
-  private static const Str:Str emptyBuildVars := [:]
+  ** Build variables of this environment
+  virtual BuildVars buildVars() { BuildVars.empty }
 
   ** Digest used to version a spec's inheritance chain; local envs
   ** compute SHA-1, the browser cannot

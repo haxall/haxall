@@ -368,11 +368,12 @@ const class GithubRepo : MRemoteRepo
     return acc
   }
 
-  ** Parse build.props content into a key-value map.
+  ** Parse build.props content into the user vars; reserved names configure
+  ** the source tree they were fetched from, not the lib we are assembling.
   private Str:Str parseBuildProps(Str? content)
   {
     if (content == null) return Str:Str[:]
-    return content.in.readProps
+    return BuildVars(content.in.readProps).vars
   }
 
   ** Parse lib.xeto content into a RemoteLibVersion via XetoCompiler.

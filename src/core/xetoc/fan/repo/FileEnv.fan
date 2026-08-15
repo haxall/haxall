@@ -104,22 +104,7 @@ const class FileEnv : LocalEnv
 
   override const File[] path
 
-  override once Str:Str buildVars()
-  {
-    acc := Str:Str[:]
-    acc.ordered = true
-    path.eachr |path|
-    {
-      f := path + `src/xeto/build.props`
-      if (!f.exists) return
-      try
-      {
-        acc.setAll(f.readProps)
-      }
-      catch (Err e) Console.cur.err("ERROR: cannot parse $f", e)
-    }
-    return acc.toImmutable
-  }
+  override once BuildVars buildVars() { BuildVars.load(path) }
 
   override once FileRepo repo()
   {
@@ -143,7 +128,7 @@ const class FileEnv : LocalEnv
     acc["xeto.homeDir"] = homeDir.osPath
     acc["xeto.installDir"] = installDir.osPath
     acc["xeto.path"] = path.map |f->Str| { f.osPath }
-    acc["xeto.buildVars"] = buildVars
+    acc["xeto.buildVars"] = buildVars.props
     return acc
   }
 }

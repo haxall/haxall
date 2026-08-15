@@ -61,8 +61,10 @@ const class XetoZipUtil
   static Buf srcLibZip(LibVersion v)
   {
     dir := v.file
-    propsFile := dir.parent + `build.props`
-    buildProps := propsFile.exists ? propsFile.readProps : Str:Str[:]
+
+    // only user vars are packaged; reserved names configure a source
+    // tree we are not shipping
+    buildProps := BuildVars.read(dir.parent + `build.props`).vars
 
     meta := Str:Obj[:]
     meta.addNotNull("doc", v.doc.isEmpty ? null : v.doc)

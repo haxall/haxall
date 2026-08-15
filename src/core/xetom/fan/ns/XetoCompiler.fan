@@ -29,7 +29,7 @@ abstract class XetoCompiler
   MNamespace? ns
 
   ** Environment
-  XetoEnv env := XetoEnv.cur
+  MEnv env := XetoEnv.cur
 
   ** Logging
   XetoLog log := XetoLog.makeOutStream
@@ -50,7 +50,7 @@ abstract class XetoCompiler
   Bool isBuild() { build != null }
 
   ** Build vars from source environment
-  Str:Str srcBuildVars() { env.buildVars }
+  BuildVars srcBuildVars() { env.buildVars }
 
   ** Apply options
   abstract Void applyOpts(Dict? opts)

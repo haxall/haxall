@@ -75,7 +75,7 @@ internal class Parse : Step
   private Void parseToDoc(ADoc doc, File input)
   {
     // parse into root
-    parseFile(input, doc, Str:Str[:])
+    parseFile(input, doc, BuildVars.empty)
     bombIfErr
 
     // data does not support a pragma (at least not yet); so
@@ -133,7 +133,7 @@ internal class Parse : Step
     {
       zip := Zip.read(input.in)
       list := Uri[,]
-      buildVars := Str:Str[:]
+      buildVars := BuildVars.empty
       try
       {
         zip.readEach |f|
@@ -141,7 +141,7 @@ internal class Parse : Step
           if (f.isDir) return
           f.uri.path.each |n| { checkFileName(n, FileLoc(input)) }
           if (f.ext == "xeto") parseFile(f, lib, buildVars)
-          else if (f.name == "build.props") buildVars = f.readProps
+          else if (f.name == "build.props") buildVars = BuildVars(f.readProps)
           else if (f.name != "meta.props") list.add(f.uri)
           if (f.ext == "md") hasMarkdown = true
         }
@@ -198,16 +198,17 @@ internal class Parse : Step
     if (msg != null) err("Invalid file name '$name': $msg", loc)
   }
 
-  private Void parseFile(File input, ADoc doc, Str:Str buildVars)
+  private Void parseFile(File input, ADoc doc, BuildVars buildVars)
   {
     parse(FileLoc(input), input.readAllStr, doc, buildVars)
   }
 
-  private Void parse(FileLoc loc, Str fileStr, ADoc doc, Str:Str buildVars)
+  private Void parse(FileLoc loc, Str fileStr, ADoc doc, BuildVars buildVars)
   {
     try
     {
-      Parser(this, loc, fileStr, doc, buildVars).parse
+      // only user vars are substitutable; reserved names configure the build
+      Parser(this, loc, fileStr, doc, buildVars.vars).parse
     }
     catch (FileLocErr e)
     {
