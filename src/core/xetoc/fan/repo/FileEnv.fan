@@ -14,9 +14,10 @@ using xetom
 using haystack
 
 **
-** Server side environment with a file system based repo
+** Environment backed by the file system: libs are discovered by
+** scanning the path directories via FileRepo
 **
-const class ServerEnv : MEnv
+const class FileEnv : MEnv
 {
 
 //////////////////////////////////////////////////////////////////////////

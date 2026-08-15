@@ -43,7 +43,7 @@ class RepoFuncsTest : RemoteReposTest
     super.teardown
   }
 
-  ** Boot a test HxdSys using our custom temp ServerEnv, then wire context
+  ** Boot a test HxdSys using our custom temp FileEnv, then wire context
   Void initRt()
   {
     boot := RepoTestBoot(tempDir + `rt/`, this.env).initTest(true)
@@ -333,7 +333,7 @@ class RepoFuncsTest : RemoteReposTest
 ** RepoTestBoot
 **************************************************************************
 
-** HxdBoot subclass to override xetoEnv with our custom temp ServerEnv
+** HxdBoot subclass to override xetoEnv with our custom temp FileEnv
 internal class RepoTestBoot : HxdBoot
 {
   new make(File dir, XetoEnv env) : super("test", dir) { this.env = env }

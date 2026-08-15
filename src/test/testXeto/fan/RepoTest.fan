@@ -234,7 +234,7 @@ class RepoTest : AbstractXetoTest
   Void testNamespace()
   {
     // need fresh ns
-    env := ServerEnv.initPath
+    env := FileEnv.initPath
     repo := env.repo
 
     //
@@ -307,7 +307,7 @@ class RepoTest : AbstractXetoTest
 /*
     tempDir := this.tempDir.normalize
     path := Env.cur.path.dup.insert(0, tempDir)
-    env := ServerEnv("test", path)
+    env := FileEnv("test", path)
     verifyEq(env.workDir, tempDir)
     verifyEq(env.installDir, tempDir)
 

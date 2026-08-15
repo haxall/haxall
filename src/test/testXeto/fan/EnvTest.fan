@@ -26,7 +26,7 @@ class EnvTest : AbstractXetoTest
 
   Void testCache()
   {
-    env1 := ServerEnv.initPath
+    env1 := FileEnv.initPath
     a1 := env1.resolveNamespace(["ph.points", "ph.attrs"])
     b1 := env1.resolveNamespace(["ph.points", "ph.equips"])
     c1 := env1.resolveNamespace(["ph.points", "ph.attrs", "ph.equips"])
@@ -34,7 +34,7 @@ class EnvTest : AbstractXetoTest
     verifyLibsSame(env1, a1, c1)
     verifyLibsSame(env1, b1, c1)
 
-    env2 := ServerEnv.initPath
+    env2 := FileEnv.initPath
     a2 := env2.resolveNamespace(["ph.points", "ph.attrs"])
     b2 := env2.resolveNamespace(["ph.points", "ph.equips"])
     c2 := env2.resolveNamespace(["ph.points", "ph.attrs", "ph.equips"])
@@ -76,7 +76,7 @@ class EnvTest : AbstractXetoTest
 
   Void testSerialization()
   {
-    senv := ServerEnv.initPath
+    senv := FileEnv.initPath
     benv := RemoteEnv()
 
     // serialize all libs

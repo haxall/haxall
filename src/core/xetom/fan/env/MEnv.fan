@@ -12,8 +12,8 @@ using xeto
 using haystack
 
 **
-** MEnv is the base for XetoEnv implementations.  We
-** have a ServerEnv and ClientEnv.
+** MEnv is the base for XetoEnv implementations such as
+** FileEnv, RepoServerEnv, and RemoteEnv.
 **
 @Js
 abstract const class MEnv : XetoEnv
@@ -23,7 +23,7 @@ abstract const class MEnv : XetoEnv
     if (Env.cur.isBrowser)
       return RemoteEnv()
     else
-      return Slot.findMethod("xetoc::ServerEnv.initPath").call
+      return Slot.findMethod("xetoc::FileEnv.initPath").call
   }
 
 //////////////////////////////////////////////////////////////////////////

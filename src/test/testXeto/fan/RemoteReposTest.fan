@@ -24,7 +24,7 @@ class RemoteReposTest : AbstractXetoTest
   {
     tempDir := this.tempDir.normalize
     path := Env.cur.path.dup.insert(0, tempDir)
-    this.env = ServerEnv("test", path)
+    this.env = FileEnv("test", path)
     this.reg = env.remoteRepos
     verifyEq(env.workDir, tempDir)
     verifyEq(env.installDir, tempDir)
