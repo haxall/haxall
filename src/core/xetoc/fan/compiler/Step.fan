@@ -21,6 +21,8 @@ abstract internal class Step
 
   abstract Void run()
 
+  File input() { compiler.input ?: throw Err("Missing input") }
+
   MNamespace? ns() { compiler.ns }
 
   ANamespace cns() { compiler.cns }

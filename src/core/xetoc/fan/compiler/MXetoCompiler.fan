@@ -56,7 +56,7 @@ internal class MXetoCompiler : XetoCompiler
   {
     run([
       InitLib(),
-      Parse(),
+      ParseLib(),
       ProcessPragma(),
       Resolve(),
       InheritSlots(),
@@ -81,7 +81,7 @@ internal class MXetoCompiler : XetoCompiler
   {
     run([
       InitData(),
-      Parse(),
+      ParseData(),
       ProcessPragma(),
       Resolve(),
       InferInstances(),
@@ -100,7 +100,7 @@ internal class MXetoCompiler : XetoCompiler
   {
     run([
       InitAst(),
-      Parse(),
+      ParseLib(),
       ProcessPragma(),
       Resolve(),
       MixinMeta(),
@@ -116,7 +116,7 @@ internal class MXetoCompiler : XetoCompiler
   {
     run([
       InitParseLibMeta(),
-      Parse(),
+      ParseLib(),
       ProcessPragma(),
     ])
 
@@ -135,7 +135,7 @@ internal class MXetoCompiler : XetoCompiler
   {
     run([
       InitParseSymbols(),
-      Parse(),
+      ParseLib(),
     ])
 
     return ast.symbols

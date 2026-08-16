@@ -12,35 +12,74 @@ using xetom
 using haystack
 
 **
-** Parse all source files into AST nodes
+** Base class for parsing steps
 **
 @Js
-internal class Parse : Step
+internal abstract class ParseStep : Step
+{
+  ** Convenience to parse file
+  Void parseFile(File input, ADoc doc, BuildVars buildVars)
+  {
+    parse(FileLoc(input), input.readAllStr, doc, buildVars)
+  }
+
+  ** Choke point for parsing all compilation units
+  Void parse(FileLoc loc, Str fileStr, ADoc doc, BuildVars buildVars)
+  {
+    try
+    {
+      Parser(this, loc, fileStr, doc, buildVars.vars).parse
+    }
+    catch (FileLocErr e)
+    {
+      err(e.msg, e.loc)
+    }
+    catch (Err e)
+    {
+      err(e.toStr, loc, e)
+    }
+  }
+}
+
+**************************************************************************
+** ParseData
+**************************************************************************
+
+@Js
+internal class ParseData : ParseStep
 {
   override Void run()
   {
-    // get input dir/file
-    input := compiler.input
-    if (input == null) throw err("Compiler input not configured", FileLoc.inputs)
-    if (!input.exists) throw err("Input file not found: $input", FileLoc.inputs)
+    // create ADataDoc for our root AST
+    doc := ADataDoc(compiler, FileLoc(input))
 
-    // parse lib of types or data value
-    if (mode.isLibPragma)
-      parseLib(input)
-    else if (mode.isAst)
-      parseAst(input)
-    else
-      parseData(input)
+    // parse input into doc
+    parseFile(input, doc, BuildVars.empty)
+    bombIfErr
+
+    // update compiler state
+    compiler.ast    = doc
+    compiler.lib    = null
+    compiler.data   = doc
+    compiler.pragma = ADict(ast.loc, sys.lib) // we use ns for depends
   }
+}
 
-  private Void parseLib(File input)
+**************************************************************************
+** ParseAst
+**************************************************************************
+
+@Js
+internal class ParseLib : ParseStep
+{
+  override Void run()
   {
-    // create ALib as our root object
+    // create ALib as our root AST
     lib := ALib(compiler, FileLoc(input), compiler.libName)
 
     // parse different lib modes
     files := MLibFiles.empty
-    if (isCompanion)
+    if (isCompanion && mode.isLib)
     {
       parseCompanionLib(lib)
     }
@@ -62,54 +101,21 @@ internal class Parse : Step
     pragma := validateLibPragma(lib)
     bombIfErr
 
+    // update compiler state.  ProcessPragma re-assigns meta for the lib
+    // modes, but ast mode never runs that branch and the tree walks
+    // require meta to be non-null
     compiler.ast    = lib
     compiler.lib    = lib
     compiler.pragma = pragma
-    lib.ast.files = files
+    lib.ast.files   = files
     if (files.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
-  }
-
-  private Void parseAst(File input)
-  {
-    // stub lib doc
-    lib := ALib(compiler, FileLoc.synthetic, compiler.libName)
-
-    // use same logic as parseDicts
-    parseToDoc(lib, input)
-  }
-
-  private Void parseData(File input)
-  {
-    // create ADataDoc as our root object
-    doc := ADataDoc(compiler, FileLoc(input))
-
-    // use same logic as parseDicts
-    parseToDoc(doc, input)
-  }
-
-  private Void parseToDoc(ADoc doc, File input)
-  {
-    // parse into root
-    parseFile(input, doc, BuildVars.empty)
-    bombIfErr
-
-    // data does not support a pragma (at least not yet); so
-    // set pragma to empty dict and use ns as depends
-    pragma := ADict(doc.loc, sys.lib)
-
-    compiler.ast    = doc
-    compiler.lib    = doc as ALib
-    compiler.data   = doc as ADataDoc
-    compiler.pragma = pragma
-    if (compiler.lib != null)
-    {
-      compiler.lib.ast.meta = pragma
-      compiler.lib.ast.version = Version.defVal
-    }
   }
 
   private ADict? validateLibPragma(ALib lib)
   {
+    // use ns for depends
+    if (mode.isAst) return lib.ast.meta = ADict(lib.loc, sys.lib)
+
     // remove object named "pragma" from root
     pragma := lib.tops.remove("pragma")
 
@@ -140,10 +146,6 @@ internal class Parse : Step
 //////////////////////////////////////////////////////////////////////////
 
 
-//    else if (input.ext == "xetolib") files = parseZip(input, lib)
-//    else if (input.isDir) files = parseDir(input, lib)
-//    else parseFile(input, lib, compiler.srcBuildVars)
-
   private MLibFiles parseZip(File input, ALib lib)
   {
     scanner := ZipLibFilesScanner(input)
@@ -168,6 +170,7 @@ include := ProcessPragma.toFilePatterns(pragma, "include")
 publish := ProcessPragma.toFilePatterns(pragma, "publish")
 
     scanner := DirLibFilesScanner(input, include, publish)
+    if (mode.isAst) scanner.isSrcOnly = true
     files := scanner.scan |msg, f| { err(msg, FileLoc(f)) }
 
      parseLibFiles(files, lib, buildVars, true)
@@ -181,28 +184,6 @@ publish := ProcessPragma.toFilePatterns(pragma, "publish")
       if (f.uri.ext != "xeto") return
       if (f.uri == `/lib.xeto` && skipLibMeta) return
       parse(f.loc, f.readAllStr, lib, buildVars)
-    }
-  }
-
-  private Void parseFile(File input, ADoc doc, BuildVars buildVars)
-  {
-    parse(FileLoc(input), input.readAllStr, doc, buildVars)
-  }
-
-  private Void parse(FileLoc loc, Str fileStr, ADoc doc, BuildVars buildVars)
-  {
-    try
-    {
-      // only user vars are substitutable; reserved names configure the build
-      Parser(this, loc, fileStr, doc, buildVars.vars).parse
-    }
-    catch (FileLocErr e)
-    {
-      err(e.msg, e.loc)
-    }
-    catch (Err e)
-    {
-      err(e.toStr, loc, e)
     }
   }
 

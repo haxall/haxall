@@ -165,6 +165,8 @@ class DirLibFilesScanner
     this.publish = publish
   }
 
+  Bool isSrcOnly
+
   MLibFiles scan(|Str msg, File f| onErr)
   {
     this.onErr = onErr
@@ -201,6 +203,7 @@ class DirLibFilesScanner
   private Void add(Uri uri, File f, Bool isPublished)
   {
     if (isPublished) checkPublishPath(uri, f)
+    if (isSrcOnly && f.ext != "xeto") return
     acc.add(uri, MLibFile(uri, f, isPublished))
   }
 
