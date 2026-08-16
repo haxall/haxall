@@ -13,6 +13,7 @@ pragma: Lib <
   depends: {
     { lib: "sys" }
   }
+  publish: {"/*.svg"}
   categories: {"haxall", "doc"}
   license: BuildVar "hx.license"
   org: {

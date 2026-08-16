@@ -13,6 +13,7 @@ pragma: Lib <
     { lib: "sys",  versions: BuildVar "ph.depend" }
     { lib: "axon", versions: BuildVar "hx.depend" }
   }
+  publish: {"/skills"}
   categories: {"haxall"}
   license: BuildVar "hx.license"
   org: {

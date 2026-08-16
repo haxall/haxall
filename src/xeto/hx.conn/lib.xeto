@@ -15,6 +15,7 @@ pragma: Lib <
     { lib: "hx",       versions: BuildVar "hx.depend" }
     { lib: "hx.point", versions: BuildVar "hx.depend" }
   }
+  publish: {"/skills"}
   categories: {"haxall"}
   license: BuildVar "hx.license"
   org: {
