@@ -261,23 +261,29 @@ const class XetoUtil
   static const Str companionLibName := "proj"
 
 //////////////////////////////////////////////////////////////////////////
-// Reserved File Names
+// Lib File Names
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return if valid file name in a lib; this applies to source files,
-  ** resource file names, and the directory names
-  static Bool isFileName(Str n)
+  ** Return if valid published file name in a lib; this applies to
+  ** source files, resource file names, and the directory names
+  static Bool isPublishFileName(Str n)
   {
-    fileNameErr(n) == null
+    publishFileNameErr(n) == null
   }
 
-  ** If the given lib file name is not valid return an error message,
-  ** otherwise if its valid return null.  File names must map directly
-  ** to a URI path section without any escaping, so we restrict them to
-  ** ASCII alphanumerics plus "-", "_", and "." (the "~" char is
-  ** unreserved in URIs, but we reserve it for infrastructure use).
-  ** The `xetoFilePrefix` is reserved for system level files.
-  static Str? fileNameErr(Str n)
+  ** Return if valid published file path in a lib; this applies to
+  ** source files, resource file names, and the directory names
+  static Bool isPublishFilePath(Uri uri)
+  {
+    uri.path.all |n| { isPublishFileName(n) }
+  }
+
+  ** If the given lib file name is not valid published file return an error
+  ** message, otherwise if its valid return null.  File names must map directly
+  ** to a URI path section without any escaping, so we restrict them to ASCII
+  ** alphanumerics plus "-", "_", and "." (the "~" char is unreserved in URIs,
+  ** but we reserve it for infrastructure use).
+  static Str? publishFileNameErr(Str n)
   {
     if (n.isEmpty) return "File name cannot be the empty string"
     for (i := 0; i<n.size; ++i)
@@ -290,9 +296,10 @@ const class XetoUtil
       if (ch >= 128) return "File name cannot contain non-ASCII char '$ch.toChar' 0x$ch.toHex"
       return "Invalid file name char '$ch.toChar' 0x$ch.toHex"
     }
-//    if (isXetoSystemFile(n)) return "File name cannot use reserved prefix '$xetoFilePrefix'"
+    if (isXetoSystemFile(n)) return "File name cannot use reserved prefix '$xetoSystemFilePrefix'"
     return null
   }
+
   ** Is the given file name reserved by `xetoFilePrefix`.  We match the
   ** prefix rather than a fixed list so that a lib packaged by a newer
   ** build may carry system files this build does not know about.

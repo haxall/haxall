@@ -44,6 +44,15 @@ const class MLibFiles : LibFiles
     return null
   }
 
+  Void dump(Console con := Console.cur)
+  {
+    list.each |f|
+    {
+      suffix := f.isPublished ? "(pub)" : ""
+      con.info("$f.uri $suffix")
+    }
+  }
+
   override Void close() {}
 }
 
@@ -116,7 +125,7 @@ class ZipLibFilesScanner
         if (XetoUtil.isXetoSystemFile(uri.name)) return
 
         // decide if published (we if not valid name, then silently unpublish)
-        isPublished := publish.any { it.matches(uri) } // TODO&& XetoUtil.isFileName(uri)
+        isPublished := publish.any { it.matches(uri) } && XetoUtil.isPublishFilePath(uri)
 
         // accumulate
         acc.add(uri, MLibFile(uri, entry, isPublished))
@@ -154,22 +163,23 @@ class DirLibFilesScanner
 
   MLibFiles scan(|Str msg, File f| onErr)
   {
-    walk("", root, onErr)
+    this.onErr = onErr
+    walk("", root)
     return MLibFiles(acc)
   }
 
-  private Void walk(Str path, File f, |Str,File| onErr)
+  private Void walk(Str path, File f)
   {
     // recurse a directory
     if (f.isDir)
     {
-      f.list.each |sub| { walk(path + "/" + sub.name, sub, onErr) }
+      f.list.each |sub| { walk(path + "/" + sub.name, sub) }
       return
     }
 
     // no file can start with "xeto-"
     uri := path.toUri
-    if (XetoUtil.isXetoSystemFile(uri.name)) return onErr("File name cannot use reserved prefix", f)
+    if (XetoUtil.isXetoSystemFile(uri.name)) return err("File name cannot use reserved prefix '$XetoUtil.xetoSystemFilePrefix'", f)
 
     // always accumulate xeto and chapters as published
     if (f.ext == "xeto" || XetoUtil.isChapter(uri)) return add(uri, f, true)
@@ -183,29 +193,31 @@ class DirLibFilesScanner
 
   private Void add(Uri uri, File f, Bool isPublished)
   {
-// TODO    if (isPublished) checkName(uri.name)
+    if (isPublished) checkPublishPath(uri, f)
     acc.add(uri, MLibFile(uri, f, isPublished))
   }
 
-  static Str? fileNameErr(Str n)
+  private Void checkPublishPath(Uri uri, File f)
   {
-    if (n.isEmpty) return "File name cannot be the empty string"
-    for (i := 0; i<n.size; ++i)
+    uri.path.eachWhile |n|
     {
-      ch := n[i]
-      if (ch.isAlphaNum && ch < 128) continue
-      if (ch == '-' || ch == '_' || ch == '.') continue
-      if (ch == ' ') return "File name cannot contain spaces"
-      if (ch == '~') return "File name cannot contain reserved char '~'"
-      if (ch >= 128) return "File name cannot contain non-ASCII char '$ch.toChar' 0x$ch.toHex"
-      return "Invalid file name char '$ch.toChar' 0x$ch.toHex"
+      e := XetoUtil.publishFileNameErr(n)
+      if (e == null) return null
+      err(e, f)
+      return "break"
     }
-    return null
+  }
+
+  private Void err(Str msg, File f)
+  {
+    if (onErr == null) return
+    onErr(msg, f)
   }
 
   private const File root
   private const LibFilePattern[] include
   private const LibFilePattern[] publish
   private Uri:LibFile acc := [:]
+  private |Str,File|? onErr
 }
 

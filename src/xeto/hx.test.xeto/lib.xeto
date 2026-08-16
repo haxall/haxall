@@ -23,7 +23,7 @@ pragma: Lib <
     { lib: "hx.comps",     versions: BuildVar "hx.depend" }
   }
   include: {"/data"}
-  publish: {"/res1", "/pub-root.txt"}
+  publish: {"/res", "/pub-root.txt"}
   categories: {"haxall"}
   license: BuildVar "hx.license"
   org: {
