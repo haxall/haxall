@@ -20,9 +20,11 @@
 ** the lib with a leading slash, so "/res/logo.svg" is both the pattern
 ** and the uri it selects.  The "*" wildcard may appear only as the whole
 ** final section in the form "*.ext".  A pattern has no trailing slash,
-** no "..", and no backslashes.  Whether a plain pattern names a directory
-** or file is resolved against the actual source tree when the pattern is
-** applied; a pattern that matches nothing is an error.
+** no "..", no backslashes, and no semicolons - the semicolon separates
+** the patterns when a list of them is written to a props file.  Whether
+** a plain pattern names a directory or file is resolved against the
+** actual source tree when the pattern is applied; a pattern that matches
+** nothing is an error.
 **
 @Js @NoDoc
 const class LibFilePattern
@@ -45,6 +47,10 @@ const class LibFilePattern
     if (s.size == 1) return "pattern cannot be just '/'"
     if (s.endsWith("/")) return "pattern cannot end with '/'"
     if (s.contains("\\")) return "pattern cannot contain '\\'"
+
+    // semicolon separates the patterns when a list is written to a props
+    // file, so it can never appear inside one
+    if (s.contains(";")) return "pattern cannot contain ';'"
 
     // the leading slash roots the pattern, so the first split is empty
     segs := s[1..-1].split('/')

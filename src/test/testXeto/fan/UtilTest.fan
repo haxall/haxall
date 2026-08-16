@@ -568,6 +568,13 @@ class UtilTest : AbstractXetoTest
     verifyPatternErr("/", "pattern cannot be just '/'")
     verifyPatternErr("/doc/", "pattern cannot end with '/'")
     verifyPatternErr("/doc\\a", "pattern cannot contain '\\'")
+
+    // semicolon is the list separator in a props file, so it can never
+    // appear in a pattern at any position
+    verifyPatternErr("/a;b.txt", "pattern cannot contain ';'")
+    verifyPatternErr("/dir;x/a.txt", "pattern cannot contain ';'")
+    verifyPatternErr("/*.tx;t", "pattern cannot contain ';'")
+    verifyPatternErr("/doc;", "pattern cannot contain ';'")
     verifyPatternErr("/doc//a", "pattern cannot contain an empty path section")
     verifyPatternErr("/../doc", "pattern cannot contain '..'")
     verifyPatternErr("/doc/../a", "pattern cannot contain '..'")
