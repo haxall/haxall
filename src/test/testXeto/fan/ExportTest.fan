@@ -29,7 +29,7 @@ class ExportTest : AbstractXetoTest
       "doc":lib->doc, "depends": depends, "spec":Ref("sys::Lib"),
       "categories":Obj?["haxall"],
       "include":Obj?["/data"],
-      "publish":Obj?["/res"],
+      "publish":Obj?["/res", "/pub-root.txt"],
       "license":"AFL-3.0",
       "nodoc":m,
       "org":Etc.dict3("dis", "Haxall", "uri", `https://haxall.io/`, "spec", Ref("sys::LibOrg")),

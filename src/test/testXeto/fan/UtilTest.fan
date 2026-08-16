@@ -424,8 +424,8 @@ class UtilTest : AbstractXetoTest
 
   Void verifyIsFileName(Str n, Str? expect)
   {
-    verifyEq(XetoUtil.isFileName(n), expect == null)
-    verifyEq(XetoUtil.fileNameErr(n), expect)
+    verifyEq(XetoUtil.isPublishFileName(n), expect == null)
+    verifyEq(XetoUtil.publishFileNameErr(n), expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -441,11 +441,11 @@ class UtilTest : AbstractXetoTest
     verifyBuildVarsEmpty(BuildVars.load(File[,]))
 
     // get sees reserved names, vars does not
-    v := BuildVars(["ph.version":"5.0.0", "xeto.srcExclude":"a/", "sys.foo":"bar"])
+    v := BuildVars(["ph.version":"5.0.0", "xeto.other":"a", "sys.foo":"bar"])
     verifyEq(v.isEmpty, false)
     verifyEq(v.props.size, 3)
     verifyEq(v.get("ph.version"), "5.0.0")
-    verifyEq(v.get("xeto.srcExclude"), "a/")
+    verifyEq(v.get("xeto.other"), "a")
     verifyEq(v.get("bad"), null)
     verifyEq(v.vars, ["ph.version":"5.0.0"])
   }
@@ -455,13 +455,13 @@ class UtilTest : AbstractXetoTest
     verifyEq(v.isEmpty, true)
     verifyEq(v.props, Str:Str[:])
     verifyEq(v.vars, Str:Str[:])
-    verifyEq(v.srcExclude, Str[,])
+    
     verifyEq(v.get("foo"), null)
   }
 
   Void testBuildVarsReserved()
   {
-    verifyBuildVarReserved("xeto.srcExclude", true)
+    verifyBuildVarReserved("xeto.other", true)
     verifyBuildVarReserved("xeto.foo", true)
     verifyBuildVarReserved("sys.foo", true)
 
@@ -478,32 +478,6 @@ class UtilTest : AbstractXetoTest
   Void verifyBuildVarReserved(Str n, Bool expect)
   {
     verifyEq(BuildVars.isReserved(n), expect, n)
-  }
-
-  Void testSrcExclude()
-  {
-    verifySrcExclude(null, Str[,])
-    verifySrcExclude("", Str[,])
-    verifySrcExclude("   ", Str[,])
-    verifySrcExclude("aura/", ["aura"])
-    verifySrcExclude("  aura/  ", ["aura"])
-    verifySrcExclude("aura/;src-js/", ["aura", "src-js"])
-    verifySrcExclude("aura/;", ["aura"])
-    verifySrcExclude("aura/;;src-js/", ["aura", "src-js"])
-
-    // bad entries are skipped, good entries still take effect
-    verifySrcExclude("aura", Str[,])
-    verifySrcExclude("aura;src-js/", ["src-js"])
-    verifySrcExclude("/", Str[,])
-    verifySrcExclude("a/b/", Str[,])
-    verifySrcExclude("a/b/;ok/", ["ok"])
-  }
-
-  Void verifySrcExclude(Str? val, Str[] expect)
-  {
-    props := Str:Str[:]
-    if (val != null) props[BuildVars.srcExcludeVar] = val
-    verifyEq(BuildVars(props).srcExclude, expect, val ?: "null")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -594,6 +568,31 @@ class UtilTest : AbstractXetoTest
     verifyErr(ParseErr#) { x := LibFilePattern("doc", true) }
   }
 
+  ** A lib may publish a list of patterns, which crosses the xeto-meta.props
+  ** boundary as a single semicolon separated string
+  Void testLibFilePatternStrList()
+  {
+    // empty and null both yield no patterns, which is the common case
+    // since most libs publish nothing at all
+    verifyEq(LibFilePattern.parseFromStrList(null), LibFilePattern[,])
+    verifyEq(LibFilePattern.parseFromStrList(""), LibFilePattern[,])
+
+    // single pattern
+    verifyEq(LibFilePattern.parseFromStrList("/res").join(";"), "/res")
+
+    // every pattern in the list selects independently
+    list := LibFilePattern.parseFromStrList("/res;/pub-root.txt;/img/*.svg")
+    verifyEq(list.join(";"), "/res;/pub-root.txt;/img/*.svg")
+    verifyEq(list.any { it.matches(`/res/a.txt`) }, true)
+    verifyEq(list.any { it.matches(`/res/subdir/b.txt`) }, true)
+    verifyEq(list.any { it.matches(`/pub-root.txt`) }, true)
+    verifyEq(list.any { it.matches(`/img/logo.svg`) }, true)
+    verifyEq(list.any { it.matches(`/other.txt`) }, false)
+
+    // round trip the form written into xeto-meta.props
+    verifyEq(LibFilePattern.parseFromStrList(list.join(";")).join(";"), list.join(";"))
+  }
+
   Void verifyPattern(Str pattern, Uri[] hits, Uri[] misses)
   {
     verifyEq(LibFilePattern.isPattern(pattern), true, pattern)
@@ -624,31 +623,6 @@ class UtilTest : AbstractXetoTest
 
     // dirs without a xeto-build.props are skipped
     verifyEq(BuildVars.load([tempDir + `none/`, a]).get("x.version"), "1.0.0")
-  }
-
-  ** srcExclude accumulates across the path instead of overriding; each
-  ** project excludes its own dirs and one build compiles libs from all
-  ** of them (studio's path includes haxall, and both define excludes)
-  Void testBuildVarsLoadSrcExclude()
-  {
-    a := writeBuildProps(`xa`, "x.v=1\nxeto.srcExclude=aura/\n")
-    b := writeBuildProps(`xb`, "x.v=2\nxeto.srcExclude=test-exclude/\n")
-    n := writeBuildProps(`xn`, "x.v=3\n")
-
-    // both entries survive regardless of path order
-    verifyEq(BuildVars.load([a, b]).srcExclude, ["test-exclude", "aura"])
-    verifyEq(BuildVars.load([b, a]).srcExclude, ["aura", "test-exclude"])
-
-    // other vars still override; only srcExclude accumulates
-    verifyEq(BuildVars.load([a, b]).get("x.v"), "1")
-
-    // dirs with no exclude do not disturb the accumulation
-    verifyEq(BuildVars.load([n, a]).srcExclude, ["aura"])
-    verifyEq(BuildVars.load([a, n]).srcExclude, ["aura"])
-
-    // duplicates across the path collapse
-    c := writeBuildProps(`xc`, "xeto.srcExclude=aura/\n")
-    verifyEq(BuildVars.load([a, c]).srcExclude, ["aura"])
   }
 
   ** Write xeto-build.props under dir and return the env dir which contains it

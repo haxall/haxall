@@ -54,7 +54,7 @@ internal const class ALib : Lib, ADoc
   const override XetoLib asm
 
   ** Files support (set in Parse)
-  override LibFiles files() { ast.files ?: throw NotReadyErr() }
+  override MLibFiles files() { ast.files ?: throw NotReadyErr() }
 
   ** From pragma (set in ProcessPragma)
   override Dict meta() { ast.meta.asm }
@@ -213,7 +213,7 @@ internal class ALibState : ADocAst
   }
 
   MXetoCompiler compiler
-  LibFiles? files
+  MLibFiles? files
   ADict? meta
   Int flags
   Version? version

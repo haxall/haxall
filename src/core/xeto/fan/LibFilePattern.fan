@@ -88,7 +88,7 @@ const class LibFilePattern
   ** Parse from semicolon separated list
   static LibFilePattern[] parseFromStrList(Str? s)
   {
-    if (s == null || s.isEmpty) LibFilePattern#.emptyList
+    if (s == null || s.isEmpty) return LibFilePattern#.emptyList
     return s.split(';').map |tok->LibFilePattern| { fromStr(tok) }
   }
 

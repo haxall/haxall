@@ -73,7 +73,7 @@ const class LibMount : Mount
     path := toPath(uri)
 
     children := [Uri:LibFile][:]
-    lib.files.list.each |f|
+    lib.files.published.each |f|
     {
       fileUri := f.uri
       if (fileUri != path && fileUri.toStr.startsWith(path.toStr))
@@ -97,7 +97,7 @@ const class LibMount : Mount
   private Bool isLibDirEmpty(Lib lib, Uri dir)
   {
     // lib files are always files, never directory entries
-    child := lib.files.list.eachWhile |f| {
+    child := lib.files.published.eachWhile |f| {
       fileUri := f.uri
       if (fileUri == dir) return null
       if (!fileUri.toStr.startsWith(dir.toStr)) return null
@@ -151,13 +151,13 @@ const class LibMount : Mount
     {
       // if it is just the lib dir then it always exists
       if (path == `/`) return uri
-      return lib.files.list.eachWhile |f|
+      return lib.files.published.eachWhile |f|
       {
         f.uri.toStr.startsWith(path.toStr) ? f.uri : null
       }
     }
 
-    libFile := lib.files.get(path, false)
+    libFile := toPublished(lib, path)
     if (libFile == null) return null
 
     return libFile.uri
@@ -191,7 +191,15 @@ const class LibMount : Mount
 
     if (!canAccess(path)) return null
 
-    return lib.files.get(path, false)
+    return toPublished(lib, path)
+  }
+
+  ** The mount only exposes what the lib publishes, so a file which is
+  ** merely packaged is not reachable even by its exact path
+  private LibFile? toPublished(Lib lib, Uri path)
+  {
+    f := lib.files.get(path, false)
+    return f != null && f.isPublished ? f : null
   }
 }
 

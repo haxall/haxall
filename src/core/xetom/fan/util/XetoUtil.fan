@@ -300,10 +300,19 @@ const class XetoUtil
     return null
   }
 
+  ** Is given file auto-publish - xeto source files and chapters
+  static Bool isPublishIntrinsic(Uri uri)
+  {
+    uri.ext == "xeto" || isChapter(uri)
+  }
+
   ** Is the given file name reserved by `xetoFilePrefix`.  We match the
   ** prefix rather than a fixed list so that a lib packaged by a newer
   ** build may carry system files this build does not know about.
   static Bool isXetoSystemFile(Str n) { n.startsWith(xetoSystemFilePrefix) }
+
+  ** Does given filename start with "."
+  static Bool isHiddenFile(Str n) { n.startsWith(".") }
 
   ** Prefix reserved for the system files the build packages into a
   ** xetolib zip root.  These are never lib files: they are written by the

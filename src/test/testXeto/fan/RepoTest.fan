@@ -560,7 +560,8 @@ class RepoTest : AbstractXetoTest
 
     // it compiled rather than erroring, and the system file is not a lib file
     verifyEq(lib.name, "test.sysfiles")
-    verifyEq(lib.files.list.map |f->Uri| { f.uri }, [`/res/a.txt`])
+    verifyEq(lib.files.get(`/xeto-future.props`, false), null)
+    verifyEq(lib.files.list.map |f->Uri| { f.uri }.sort, [`/lib.xeto`])
   }
 
   Void testNestedSrcFiles()
@@ -584,21 +585,24 @@ class RepoTest : AbstractXetoTest
     // spec from the nested source file resolved
     verifyEq(lib.spec("Foo").qname, "test.nestedsrc::Foo")
 
-    // nested source is not exposed as a resource, but the resource is
-    verifyEq(lib.files.list.map |f->Uri| { f.uri }, [`/res/a.txt`])
+    // sources are packaged and published at any depth; res/a.txt is not
+    // packaged at all, since the lib declares neither include nor publish
+    verifyEq(lib.files.list.map |f->Uri| { f.uri }.sort, [`/lib.xeto`, `/specs/nested.xeto`])
+    verifyEq(lib.files.published.map |f->Uri| { f.uri }.sort, [`/lib.xeto`, `/specs/nested.xeto`])
+    verifyEq(lib.files.get(`/res/a.txt`, false), null)
   }
 
-  ** srcLibZip reads xeto-build.props itself, so it needs its own coverage of
-  ** the exclude; the compiler path does not exercise this branch
-  Void testSrcLibZipExclude()
+  ** srcLibZip packages a source dir without compiling it, so it needs its
+  ** own coverage that packaging is opt-in on that path too
+  Void testSrcLibZipPackaging()
   {
     // xeto-build.props sits beside the lib dir in a source env
     srcDir := tempDir + `srczip/`
-    (srcDir + XetoUtil.xetoBuildPropsName.toUri).out.print("x.version=1.0.0\nxeto.srcExclude=nope/\n").close
+    (srcDir + XetoUtil.xetoBuildPropsName.toUri).out.print("x.version=1.0.0\n").close
 
     dir := srcDir + `test.srczip/`
     (dir + `lib.xeto`).out.print(
-      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } } >
+      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } }, publish: {"/res"} >
          |>).close
     (dir + `res/a.txt`).out.print("alpha\n").close
     (dir + `nope/skipme.txt`).out.print("nope\n").close
@@ -615,14 +619,13 @@ class RepoTest : AbstractXetoTest
       }
     finally zip.close
 
-    // excluded dir is absent, everything else ships
+    // a file no pattern selected is not packaged; source always is
     verifyEq(entries.contains("/nope/skipme.txt"), false)
     verifyEq(entries.contains("/res/a.txt"), true)
     verifyEq(entries.contains("/lib.xeto"), true)
 
     // user vars packaged, reserved names are not
     verifyEq(props["x.version"], "1.0.0")
-    verifyEq(props[BuildVars.srcExcludeVar], null)
   }
 
   ** Compile a temp lib containing the given files and verify the exact
@@ -632,9 +635,12 @@ class RepoTest : AbstractXetoTest
     // write lib source dir from scratch
     dir := tempDir + `filenames/`
     dir.delete
+    // name validation only applies to published files, so publish each
+    // fixture path to put its name under the check
+    publish := files.map |path->Str| { "\"/" + path.split('/').first + "\"" }.unique.join(", ")
     (dir + `lib.xeto`).out.print(
-      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } } >
-         |>).close
+      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } }, publish: {|> +
+      publish + "} >\n").close
     // build up path section by section so chars like '#' are not
     // parsed as uri fragments (we want them literal in the file name)
     files.each |path|
@@ -660,7 +666,8 @@ class RepoTest : AbstractXetoTest
       c.compileLib
     catch (XetoCompilerErr e) {}
 
-    verifyEq(c.errs.map |e->Str| { e.msg }, expect)
+    // directory walk order is not guaranteed, so compare as a set
+    verifyEq(c.errs.map |e->Str| { e.msg }.sort, expect.dup.sort)
   }
 }
 

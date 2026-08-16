@@ -121,11 +121,15 @@ class ZipLibFilesScanner
       {
         uri := entry.uri
 
-        // skip system files
+        // skip hidden and system files
         if (XetoUtil.isXetoSystemFile(uri.name)) return
+        if (XetoUtil.isHiddenFile(uri.name)) return
 
-        // decide if published (we if not valid name, then silently unpublish)
-        isPublished := publish.any { it.matches(uri) } && XetoUtil.isPublishFilePath(uri)
+        // sources and chapters are intrinsically published, otherwise check pattern
+        isPublished :=  XetoUtil.isPublishIntrinsic(uri) || publish.any { it.matches(uri) }
+
+        // safe guard to silently demote a published file with invalid path
+        if (isPublished && !XetoUtil.isPublishFilePath(uri)) isPublished = false
 
         // accumulate
         acc.add(uri, MLibFile(uri, entry, isPublished))
@@ -170,6 +174,13 @@ class DirLibFilesScanner
 
   private Void walk(Str path, File f)
   {
+    // always skip hidden files
+    uri := path.toUri
+    if (XetoUtil.isHiddenFile(uri.name)) return
+
+    // no file can start with "xeto-"
+    if (XetoUtil.isXetoSystemFile(uri.name)) return err("Invalid file name '$uri.name': File name cannot use reserved prefix '$XetoUtil.xetoSystemFilePrefix'", f)
+
     // recurse a directory
     if (f.isDir)
     {
@@ -177,12 +188,8 @@ class DirLibFilesScanner
       return
     }
 
-    // no file can start with "xeto-"
-    uri := path.toUri
-    if (XetoUtil.isXetoSystemFile(uri.name)) return err("File name cannot use reserved prefix '$XetoUtil.xetoSystemFilePrefix'", f)
-
-    // always accumulate xeto and chapters as published
-    if (f.ext == "xeto" || XetoUtil.isChapter(uri)) return add(uri, f, true)
+    // sources and chapters are intrinsically published
+    if (XetoUtil.isPublishIntrinsic(uri)) return add(uri, f, true)
 
     // skip any other file not published nor included
     isPublished := publish.any { it.matches(uri) }
@@ -197,13 +204,15 @@ class DirLibFilesScanner
     acc.add(uri, MLibFile(uri, f, isPublished))
   }
 
+  ** Report the first invalid section of a published path.  A directory is
+  ** walked once per file beneath it, so report each bad name only once.
   private Void checkPublishPath(Uri uri, File f)
   {
     uri.path.eachWhile |n|
     {
       e := XetoUtil.publishFileNameErr(n)
       if (e == null) return null
-      err(e, f)
+      if (badNames[n] == null) { badNames[n] = n; err("Invalid file name '$n': $e", f) }
       return "break"
     }
   }
@@ -218,6 +227,7 @@ class DirLibFilesScanner
   private const LibFilePattern[] include
   private const LibFilePattern[] publish
   private Uri:LibFile acc := [:]
+  private Str:Str badNames := [:]
   private |Str,File|? onErr
 }
 

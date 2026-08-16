@@ -20,8 +20,11 @@ class NamespaceTest : AbstractXetoTest
 
   Version phVersion() { Version("5.0.0") }
 
-  ** Uris of the lib's files, which is what these tests assert against
-  Uri[] fileUris(LibFiles files) { files.list.map |f->Uri| { f.uri } }
+  ** Uris of every packaged file, source included
+  Uri[] fileUris(LibFiles files) { files.list.map |f->Uri| { f.uri }.sort }
+
+  ** Uris of the files the lib publishes with a uri of their own
+  Uri[] publishedUris(LibFiles files) { files.published.map |f->Uri| { f.uri }.sort }
   Version hxVersion() { typeof.pod.version }
 
 //////////////////////////////////////////////////////////////////////////
@@ -158,7 +161,10 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sys.files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(fileUris(sys.files), Uri[,])
+      // sys is all source, and source is intrinsically published
+      verifyEq(fileUris(sys.files), [`/lib.xeto`, `/libmeta.xeto`, `/spec.xeto`, `/timezones.xeto`, `/types.xeto`, `/units.xeto`])
+      verifyEq(publishedUris(sys.files), fileUris(sys.files))
+      verifyEq(sys.files.get(`/lib.xeto`).isPublished, true)
       verifyEq(sys.files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { sys.files.get(`bad`) }
       verifyErr(UnresolvedErr#) { sys.files.get(`bad`, true) }
@@ -242,7 +248,11 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ph.files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(fileUris(ph.files), Uri[,])
+      // ph is all source, and source is intrinsically published
+      verifyEq(fileUris(ph.files), [`/attr.xeto`, `/choices.xeto`, `/device.xeto`, `/entity.xeto`,
+        `/enums.xeto`, `/equip.xeto`, `/kinds.xeto`, `/lib.xeto`, `/ops.xeto`, `/phenomenon.xeto`,
+        `/point.xeto`, `/quantity.xeto`, `/site.xeto`, `/space.xeto`, `/system.xeto`, `/weather.xeto`])
+      verifyEq(publishedUris(ph.files), fileUris(ph.files))
       verifyEq(ph.files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { ph.files.get(`bad`) }
       verifyErr(UnresolvedErr#) { ph.files.get(`bad`, true) }
@@ -349,16 +359,36 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(fileUris(files), [`/ChapterA.md`, `/Readme.md`, `/res/a.txt`, `/res/subdir/b.txt`])
+      // list is everything packaged: sources, chapters, include, and publish
+      verifyEq(fileUris(files), [`/ChapterA.md`, `/Readme.md`, `/choices.xeto`, `/comps.xeto`,
+        `/data/c.txt`, `/doc.xeto`, `/equips.xeto`, `/fidelity.xeto`, `/funcs.xeto`, `/funcs2.xeto`,
+        `/globals.xeto`, `/instances.xeto`, `/instantiate.xeto`, `/json.xeto`, `/lib.xeto`,
+        `/meta.xeto`, `/mixins.xeto`, `/printer.xeto`, `/pub-root.txt`, `/res/a.txt`,
+        `/res/subdir/b.txt`, `/scalars.xeto`, `/schema.xeto`, `/test.xeto`])
+
+      // published is everything except the include-only /data, since
+      // sources and chapters are intrinsically published
+      verifyEq(publishedUris(files), fileUris(files).findAll { it != `/data/c.txt` })
+
+      // the lib publishes a list of two patterns, so verify each one
+      // selects independently: "/res" as a directory subtree, and
+      // "/pub-root.txt" as a single root file
+      verifyEq(files.get(`/res/a.txt`).isPublished, true)
+      verifyEq(files.get(`/res/subdir/b.txt`).isPublished, true)
+      verifyEq(files.get(`/pub-root.txt`).isPublished, true)
+
+      // include packages the file, but it gets no uri of its own
+      verifyEq(files.get(`/data/c.txt`).isPublished, false)
+
+      // sources and chapters are intrinsically published
+      verifyEq(files.get(`/lib.xeto`).isPublished, true)
+      verifyEq(files.get(`/ChapterA.md`).isPublished, true)
 
       verifyEq(files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { files.get(`bad`) }
       verifyErr(UnresolvedErr#) { files.get(`bad`, true) }
 
-      verifyEq(files.get(`/lib.xeto`, false), null)
-      verifyErr(UnresolvedErr#) { files.get(`/lib.xeto`) }
-
-      // test-exclude dir is stripped by xeto.srcExclude build var
+      // a file matched by neither include nor publish is not packaged at all
       verifyEq(files.get(`/test-exclude/excluded.txt`, false), null)
       verifyErr(UnresolvedErr#) { files.get(`/test-exclude/excluded.txt`) }
 
