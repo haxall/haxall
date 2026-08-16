@@ -100,6 +100,7 @@ const class SpecBindings
     add(CompLayoutBinding         (xeto.type("CompLayout")))
     add(LibDependBinding          (xeto.type("LibDepend")))
     add(LibDependVersionsBinding  (xeto.type("LibDependVersions")))
+    add(LibFilePatternBinding     (xeto.type("LibFilePattern")))
     add(LinkBinding               (xeto.type("Link")))
     add(LinksBinding              (xeto.type("Links")))
     add(MarkerBinding             (xeto.type("Marker")))
@@ -520,6 +521,13 @@ internal const class LibDependVersionsBinding : ScalarBinding
 {
   new make(Type type) : super("sys::LibDependVersions", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { LibDependVersions.fromStr(str, checked) }
+}
+
+@Js
+internal const class LibFilePatternBinding : ScalarBinding
+{
+  new make(Type type) : super("sys::LibFilePattern", type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { LibFilePattern.fromStr(str, checked) }
 }
 
 @Js

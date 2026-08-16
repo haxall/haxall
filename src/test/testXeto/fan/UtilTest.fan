@@ -506,6 +506,107 @@ class UtilTest : AbstractXetoTest
     verifyEq(BuildVars(props).srcExclude, expect, val ?: "null")
   }
 
+//////////////////////////////////////////////////////////////////////////
+// LibFilePattern
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLibFilePatternForms()
+  {
+    // directory: every file in the subtree.  A plain pattern is a dir or
+    // a file depending on the tree, so the bare path matches as the file
+    // form - it is the source tree which decides, not the pattern.
+    verifyPattern("/doc",
+      [`/doc/a.md`, `/doc/sub/b.md`, `/doc/sub/deep/c.txt`, `/doc`],
+      [`/a.md`, `/docs/a.md`, `/docx`])
+
+    // nested directory
+    verifyPattern("/res/icons",
+      [`/res/icons/a.svg`, `/res/icons/sub/b.svg`],
+      [`/res/a.svg`, `/res/iconsx/a.svg`])
+
+    // file: exactly one file
+    verifyPattern("/logo.svg", [`/logo.svg`],
+      [`/img/logo.svg`, `/logo.svgx`, `/Logo.svg`])
+
+    // nested file
+    verifyPattern("/doc/index.md", [`/doc/index.md`],
+      [`/index.md`, `/doc/sub/index.md`])
+
+    // extension at the lib root: non-recursive
+    verifyPattern("/*.svg", [`/a.svg`, `/b.svg`],
+      [`/img/a.svg`, `/a.png`, `/a.svg.txt`])
+
+    // extension in a named directory: non-recursive
+    verifyPattern("/doc/*.svg", [`/doc/a.svg`],
+      [`/a.svg`, `/doc/sub/a.svg`, `/doc/a.png`])
+
+    // packaging is opt-in, so a dot-prefixed name is a deliberate choice
+    // rather than something which could be swept in by accident
+    verifyPattern("/.well-known", [`/.well-known/x.json`], [`/well-known/x.json`])
+    verifyPattern("/.npmrc", [`/.npmrc`], [`/npmrc`])
+
+    // the uri is addressed the same way the pattern is written, so an
+    // unrooted uri is a caller bug
+    verifyErr(ArgErr#) { LibFilePattern("/doc").matches(`doc/a.md`) }
+    verifyErr(ArgErr#) { LibFilePattern("/*.svg").matches(`a.svg`) }
+
+    // accessors
+    verifyEq(LibFilePattern("/doc").isExt, false)
+    verifyEq(LibFilePattern("/doc").toStr, "/doc")
+    p := LibFilePattern("/doc/*.svg")
+    verifyEq(p.isExt, true)
+    verifyEq(p.ext, "svg")
+    verifyEq(p.dir, "/doc")
+    verifyEq(LibFilePattern("/*.svg").dir, "")
+
+    // equality is by pattern string
+    verifyEq(LibFilePattern("/doc"), LibFilePattern("/doc"))
+    verifyNotEq(LibFilePattern("/doc"), LibFilePattern("/res"))
+    verifyEq(LibFilePattern("/doc").hash, LibFilePattern("/doc").hash)
+  }
+
+  Void testLibFilePatternErrs()
+  {
+    verifyPatternErr("", "pattern cannot be the empty string")
+    verifyPatternErr("doc", "pattern must start with '/'")
+    verifyPatternErr("*.svg", "pattern must start with '/'")
+    verifyPatternErr("/", "pattern cannot be just '/'")
+    verifyPatternErr("/doc/", "pattern cannot end with '/'")
+    verifyPatternErr("/doc\\a", "pattern cannot contain '\\'")
+    verifyPatternErr("/doc//a", "pattern cannot contain an empty path section")
+    verifyPatternErr("/../doc", "pattern cannot contain '..'")
+    verifyPatternErr("/doc/../a", "pattern cannot contain '..'")
+
+    // wildcard is only allowed as the whole final section
+    verifyPatternErr("/*/a.svg", "wildcard is only allowed in the final path section")
+    verifyPatternErr("/*.svg/a", "wildcard is only allowed in the final path section")
+    verifyPatternErr("/a*.svg", "wildcard must be the whole final section as '*.ext'")
+    verifyPatternErr("/*", "wildcard must be the whole final section as '*.ext'")
+    verifyPatternErr("/*.", "wildcard must be the whole final section as '*.ext'")
+    verifyPatternErr("/*a.svg", "wildcard must be the whole final section as '*.ext'")
+    verifyPatternErr("/*.sv*g", "pattern cannot contain more than one wildcard")
+
+    // checked flag
+    verifyNull(LibFilePattern("doc", false))
+    verifyErr(ParseErr#) { x := LibFilePattern("doc") }
+    verifyErr(ParseErr#) { x := LibFilePattern("doc", true) }
+  }
+
+  Void verifyPattern(Str pattern, Uri[] hits, Uri[] misses)
+  {
+    verifyEq(LibFilePattern.isPattern(pattern), true, pattern)
+    p := LibFilePattern(pattern)
+    verifyEq(p.pattern, pattern)
+    hits.each |uri| { verifyEq(p.matches(uri), true, "$pattern => $uri") }
+    misses.each |uri| { verifyEq(p.matches(uri), false, "$pattern => $uri") }
+  }
+
+  Void verifyPatternErr(Str pattern, Str expect)
+  {
+    verifyEq(LibFilePattern.patternErr(pattern), expect, pattern)
+    verifyEq(LibFilePattern.isPattern(pattern), false, pattern)
+  }
+
   ** Path entries earlier in the list override those later
   Void testBuildVarsLoad()
   {

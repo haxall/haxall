@@ -863,6 +863,7 @@ class JsonTest : AbstractXetoTest
     "sys::Buf":               "Zm9vYmFy",
     "sys::Filter":            "a and b",
     "sys::LibDependVersions": "4.5.x",
+    "sys::LibFilePattern":    "/doc/*.md",
     "sys::TimeZone":          "Chicago",
     "sys::Unit":              "kW",
     "sys::UnitQuantity":      "volume",
