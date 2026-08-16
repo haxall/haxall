@@ -18,6 +18,8 @@ abstract const class MLibFiles : LibFiles
 {
   override Bool isSupported() { true }
 
+  override Uri[] published() { throw Err("TODO") }
+
   ** Resource files are all the lib files except the ".xeto" sources.
   ** Source dirs exclude hidden files in `LibSrcFiles`, but zips may
   ** contain entries built by other tools so we check here too.

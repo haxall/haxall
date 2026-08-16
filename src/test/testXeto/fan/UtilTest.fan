@@ -550,14 +550,9 @@ class UtilTest : AbstractXetoTest
     verifyErr(ArgErr#) { LibFilePattern("/doc").matches(`doc/a.md`) }
     verifyErr(ArgErr#) { LibFilePattern("/*.svg").matches(`a.svg`) }
 
-    // accessors
-    verifyEq(LibFilePattern("/doc").isExt, false)
-    verifyEq(LibFilePattern("/doc").toStr, "/doc")
-    p := LibFilePattern("/doc/*.svg")
-    verifyEq(p.isExt, true)
-    verifyEq(p.ext, "svg")
-    verifyEq(p.dir, "/doc")
-    verifyEq(LibFilePattern("/*.svg").dir, "")
+    // the pattern is kept as authored
+    verifyEq(LibFilePattern("/doc").pattern, "/doc")
+    verifyEq(LibFilePattern("/doc/*.svg").toStr, "/doc/*.svg")
 
     // equality is by pattern string
     verifyEq(LibFilePattern("/doc"), LibFilePattern("/doc"))

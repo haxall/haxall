@@ -24,7 +24,7 @@
 ** or file is resolved against the actual source tree when the pattern is
 ** applied; a pattern that matches nothing is an error.
 **
-@Js
+@Js @NoDoc
 const class LibFilePattern
 {
   ** Parse from string, or raise ParseErr/return null if malformed
@@ -69,57 +69,65 @@ const class LibFilePattern
   ** Return if the given string is a valid pattern
   static Bool isPattern(Str s) { patternErr(s) == null }
 
+  ** Decode the given lib meta tag into its patterns, empty if undefined.
+  ** The scalar binding has already decoded each item, so this is just a
+  ** typed view of the meta list.
+  static LibFilePattern[] listFromMeta(Dict meta, Str tag)
+  {
+    list := meta.get(tag) as List
+    if (list == null) return LibFilePattern#.emptyList
+    return LibFilePattern[,].addAll(list)
+  }
+
   private new makePattern(Str s)
   {
     this.pattern = s
     star := s.index("*")
-    if (star != null)
+    if (star == null)
     {
-      this.ext = s[star+2..-1]
-      this.dir = star == 1 ? "" : s[0..star-2]  // "" is the lib root
+      this.subtree = s + "/"
+    }
+    else
+    {
+      this.dotExt = s[star+1..-1]
+      this.dir    = dirOf(s)
     }
   }
 
   ** The pattern as authored
   const Str pattern
 
-  ** Extension for the wildcard form, otherwise null
-  @NoDoc const Str? ext
+  ** Suffix which matches the subtree of a directory pattern, else null
+  private const Str? subtree
 
-  ** Directory prefix for the wildcard form, "" for the lib root
-  @NoDoc const Str? dir
+  ** ".ext" of the wildcard form matched against the path tail, else null
+  private const Str? dotExt
 
-  ** Is this the "*.ext" wildcard form
-  @NoDoc Bool isExt() { ext != null }
+  ** Directory the wildcard form selects within, else null
+  private const Str? dir
 
   ** Does this pattern select the given lib relative uri.  The uri must be
   ** lib relative with a leading slash such as `/doc/index.md`, which is
   ** the form produced by `LibSrcFiles` and exposed by `Lib.files`.
-  ** Non-wildcard patterns match either the file of that exact path, or
-  ** every file in that directory's subtree - which of the two is decided
-  ** by the source tree, so both are accepted here.
+  ** A pattern without a wildcard matches either the file of that exact
+  ** path or every file under it, since which one it names is decided by
+  ** the source tree rather than by the pattern.
   Bool matches(Uri uri)
   {
     path := uri.toStr
     if (!path.startsWith("/")) throw ArgErr("Uri must be lib relative with leading slash: $uri")
 
-    // "/*.ext" and "/dir/*.ext" match by extension in exactly one directory
-    if (isExt) return parentOf(path) == dir && path.endsWith("." + ext)
+    // "/*.ext" and "/dir/*.ext" select by extension within exactly one
+    // directory, so the path must sit directly in that directory
+    if (dotExt != null) return path.endsWith(dotExt) && dirOf(path) == dir
 
-    // file form: the exact path
-    if (path == pattern) return true
-
-    // directory form: anything in the subtree
-    return path.startsWith(pattern + "/")
+    // without a wildcard the pattern is either the file itself or the
+    // directory holding it
+    return path == pattern || path.startsWith(subtree)
   }
 
-  ** Directory portion of a lib relative path, "" if at the lib root.
-  ** The path is rooted, so the slash at index zero is the root itself.
-  private static Str parentOf(Str path)
-  {
-    slash := path.indexr("/") ?: 0
-    return slash == 0 ? "" : path[0..<slash]
-  }
+  ** Everything through the last slash of a rooted path
+  private static Str dirOf(Str path) { path[0..path.indexr("/")] }
 
   ** The pattern as authored
   override Str toStr() { pattern }
