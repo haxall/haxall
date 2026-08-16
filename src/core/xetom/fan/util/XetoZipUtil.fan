@@ -22,7 +22,7 @@ const class XetoZipUtil
   ** Entries are written in the required order: xeto-meta.props,
   ** xeto-build.props if non-empty, then the lib source files.  Files are
   ** written raw so the compiler resolves BuildVar tokens at load time.
-  static Void writeLibZip(OutStream out, Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, LibSrcFiles files)
+  static Void writeLibZip(OutStream out, Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, MLibFiles files)
   {
     zip := Zip.write(out)
     try
@@ -36,15 +36,10 @@ const class XetoZipUtil
       // source files; preserve modified times when the file has one.
       // srcLibZip and GithubRepo package without compiling, so the names
       // are checked here rather than only by the compiler
-      files.each |file, path|
+      files.list.each |file|
       {
-        path.path.each |n|
-        {
-          err := XetoUtil.fileNameErr(n)
-          if (err != null) throw Err("Invalid lib file '$path': $err")
-        }
-        entryOut := zip.writeNext(path, file.modified ?: DateTime.now)
-        file.in.pipe(entryOut)
+        entryOut := zip.writeNext(file.uri, file.modified ?: DateTime.now)
+        file.read |in| { in.pipe(entryOut) }
         entryOut.close
       }
     }
@@ -52,7 +47,7 @@ const class XetoZipUtil
   }
 
   ** Build a xetolib zip into an in-memory buf; see `writeLibZip`
-  static Buf buildLibZip(Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, LibSrcFiles files)
+  static Buf buildLibZip(Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, MLibFiles files)
   {
     buf := Buf()
     writeLibZip(buf.out, name, version, depends, meta, buildProps, files)
@@ -73,8 +68,29 @@ const class XetoZipUtil
     meta := Str:Obj[:]
     meta.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     if (v.isHxSysOnly) meta["hxSysOnly"] = Marker.val
-    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), vars.vars, LibSrcFiles.makeDir(dir, vars))
+// TODO
+files := DirLibFilesScanner(dir, LibFilePattern[,],  LibFilePattern[,]).scan |msg| { echo(msg) }
+    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), vars.vars, files)
   }
+
+
+  ** Choke point to generate the xetolib meta props contents
+  static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
+  {
+    props := Str:Str[:]
+    props.ordered = true
+    props["name"]    = name
+    props["version"] = version.toStr
+    props["depends"] = depends.join(";")
+    props["doc"]     = meta["doc"] as Str ?: ""
+    props.addNotNull("publish", (meta["publish"] as List)?.join(";")?.trimToNull)
+    props.addNotNull("hxSysOnly", meta.has("hxSysOnly") ? "true" : null)
+    return props
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Digest
+//////////////////////////////////////////////////////////////////////////
 
   ** Choke point to format digest of xetolib zip contents as "sha256:"
   ** followed by the base64uri encoding of the SHA-256 hash
@@ -91,6 +107,7 @@ const class XetoZipUtil
   static Str digestStream(InStream in, Bool close := true)
   {
     d := Crypto.cur.digest("SHA-256")
+    chunkSize := 64*1024
     buf := Buf(chunkSize)
     try
       while (in.readBuf(buf.clear, chunkSize) != null) d.update(buf.flip)
@@ -104,22 +121,6 @@ const class XetoZipUtil
   static Str digestFrom(Digest d)
   {
     "sha256:" + d.digest.toBase64Uri
-  }
-
-  ** Chunk size used to stream content through a digest
-  internal static const Int chunkSize := 64 * 1024
-
-  ** Choke point to generate the xetolib meta props contents
-  static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
-  {
-    props := Str:Str[:]
-    props.ordered = true
-    props["name"]    = name
-    props["version"] = version.toStr
-    props["depends"] = depends.join(";")
-    props["doc"]     = meta["doc"] as Str ?: ""
-    props.addNotNull("hxSysOnly", meta.has("hxSysOnly") ? "true" : null)
-    return props
   }
 }
 

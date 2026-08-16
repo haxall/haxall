@@ -29,21 +29,25 @@ internal abstract class WriteStep : Step
   Void copyImages(Lib lib)
   {
     if (compiler.outDir == null) return  // in-memory compile has nowhere to copy to
-    lib.files.list.each |uri|
+    lib.files.published.each |f|
     {
-      if (uri.path.size == 1 && uri.mimeType.mediaType == "image")
-        copyImage(lib, uri)
+      if (f.uri.path.size == 1 && f.uri.mimeType.mediaType == "image")
+        copyImage(lib, f)
     }
   }
 
-  Void copyImage(Lib lib, Uri uri)
+  Void copyImage(Lib lib, LibFile f)
   {
     try
     {
-      dst := compiler.outDir + `${lib.name}/$uri.name`
-      lib.files.get(uri).copyTo(dst, ["overwrite":true])
+      dst := compiler.outDir + `${lib.name}/$f.uri.name`
+      out := dst.out
+      try
+        f.read |in| { in.pipe(out) }
+      finally
+        out.close
     }
-    catch (Err e) err("Cannot copy image $lib.name::$uri.name", FileLoc(lib.name), e)
+    catch (Err e) err("Cannot copy image $lib.name::$f.uri.name", FileLoc(lib.name), e)
   }
 }
 

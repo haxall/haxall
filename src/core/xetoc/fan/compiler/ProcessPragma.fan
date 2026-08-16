@@ -116,7 +116,6 @@ internal class ProcessPragma : Step
     acc.ordered = true
     alist.each |obj| { toDepend(acc, obj) }
 
-
     // make this list the assembled value
     depends := acc.vals.toImmutable
     alist.asmRef = depends
@@ -150,6 +149,42 @@ internal class ProcessPragma : Step
     // register the library into our names table and our depends map
     if (acc[libName] != null) return err("Duplicate depend '$libName'", loc)
     acc[libName] = MLibDepend(libName, versions, loc)
+  }
+
+  static LibFilePattern[] toFilePatterns(ADict pragma, Str name)
+  {
+    val := pragma.get(name)
+    if (val == null) return LibFilePattern[,]
+
+    // list must be respresented in AST as ADict
+    alist := val as ADict
+    if (alist == null)
+    {
+      // TODO err("Lib pragma $name must be a list", val.loc)
+      return LibFilePattern[,]
+    }
+
+    // map list
+    acc := LibFilePattern[,]
+    alist.each  |obj|
+    {
+      scalar := obj as AScalar
+      if (scalar == null)
+      {
+        // TODO err("LibFilePattern must be scalar", obj.loc)
+        return
+      }
+
+      x := LibFilePattern.fromStr(scalar.str, false)
+      if (x == null)
+      {
+        // TODO err("LibFilePattern must be scalar", obj.loc)
+        return
+      }
+
+      acc.add(x)
+    }
+    return acc
   }
 }
 

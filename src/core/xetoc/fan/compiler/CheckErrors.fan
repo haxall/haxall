@@ -76,8 +76,9 @@ internal class CheckErrors : Step
         tops[topName] = "instance"
     }
 
-    x.files.list.each |uri|
+    x.files.published.each |f|
     {
+      uri := f.uri
       if (!XetoUtil.isChapter(uri)) return
       dup := tops[uri.basename.lower]
       if (dup != null)

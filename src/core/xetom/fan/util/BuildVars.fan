@@ -57,12 +57,7 @@ const class BuildVars
     path.eachr |dir|
     {
       props := read(dir + propsFileName).props
-      prevExclude := acc[srcExcludeVar]
       acc.setAll(props)
-
-      // append rather than override; parseSrcExclude splits the result
-      curExclude := props[srcExcludeVar]
-      if (prevExclude != null && curExclude != null) acc[srcExcludeVar] = "$prevExclude;$curExclude"
     }
     return make(acc)
   }
@@ -71,7 +66,6 @@ const class BuildVars
   new make(Str:Str props)
   {
     this.props = props.toImmutable
-    this.srcExclude = parseSrcExclude(props)
   }
 
   ** Path of the build vars file relative to an environment dir
@@ -111,45 +105,6 @@ const class BuildVars
   static Bool isReserved(Str name)
   {
     name.startsWith("xeto.") || name.startsWith("sys.")
-  }
-
-  ** Build var which excludes source directories from the packaged lib
-  const static Str srcExcludeVar := "xeto.srcExclude"
-
-//////////////////////////////////////////////////////////////////////////
-// srcExclude
-//////////////////////////////////////////////////////////////////////////
-
-  ** Lib root directory names to exclude from the lib source walk; see
-  ** `LibSrcFiles`.  Empty if `srcExcludeVar` is undefined.
-  const Str[] srcExclude
-
-  ** Parse `srcExcludeVar` into lib root dir names.  Value is a semicolon
-  ** separated list where every entry must end with "/".  Bad entries are
-  ** logged and skipped rather than raised: this is parsed while booting
-  ** sys from source, where a compiler error yields a confusing NullErr
-  ** instead of our message.  The exclude simply does not happen, so the
-  ** build still fails loudly downstream if the dir cannot be packaged.
-  private static Str[] parseSrcExclude(Str:Str props)
-  {
-    s := props[srcExcludeVar]?.trim
-    if (s == null || s.isEmpty) return Str#.emptyList
-
-    acc := Str[,]
-    s.split(';').each |entry|
-    {
-      if (entry.isEmpty) return
-      if (!entry.endsWith("/")) return srcExcludeErr(entry, "must end with '/'")
-      name := entry[0..-2]
-      if (name.isEmpty || name.contains("/")) return srcExcludeErr(entry, "must be a lib root dir name")
-      if (!acc.contains(name)) acc.add(name)
-    }
-    return acc.toImmutable
-  }
-
-  private static Void srcExcludeErr(Str entry, Str msg)
-  {
-    Console.cur.err("ERROR: invalid $srcExcludeVar entry '$entry': $msg")
   }
 
 }

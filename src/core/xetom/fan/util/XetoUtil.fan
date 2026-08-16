@@ -10,6 +10,7 @@ using concurrent
 using util
 using xeto
 using haystack
+using crypto
 
 **
 ** Utility functions
@@ -289,20 +290,19 @@ const class XetoUtil
       if (ch >= 128) return "File name cannot contain non-ASCII char '$ch.toChar' 0x$ch.toHex"
       return "Invalid file name char '$ch.toChar' 0x$ch.toHex"
     }
-    if (isXetoSystemFile(n)) return "File name cannot use reserved prefix '$xetoFilePrefix'"
+//    if (isXetoSystemFile(n)) return "File name cannot use reserved prefix '$xetoFilePrefix'"
     return null
   }
-
   ** Is the given file name reserved by `xetoFilePrefix`.  We match the
   ** prefix rather than a fixed list so that a lib packaged by a newer
   ** build may carry system files this build does not know about.
-  static Bool isXetoSystemFile(Str n) { n.startsWith(xetoFilePrefix) }
+  static Bool isXetoSystemFile(Str n) { n.startsWith(xetoSystemFilePrefix) }
 
   ** Prefix reserved for the system files the build packages into a
   ** xetolib zip root.  These are never lib files: they are written by the
   ** packager and read back by the system, so they are never parsed nor
   ** exposed via `xeto::LibFiles`
-  const static Str xetoFilePrefix := "xeto-"
+  const static Str xetoSystemFilePrefix := "xeto-"
 
   ** Lib meta file
   const static Str xetoMetaPropsName := "xeto-meta.props"

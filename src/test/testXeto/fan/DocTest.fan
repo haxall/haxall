@@ -44,7 +44,7 @@ class DocTest : AbstractXetoTest
     verifyHxLib(lib, roundtrip(page))
 
     // lib - doc.xeto
-    verifyEq(docXeto.hasMarkdown, true)
+    verifyEq(docXeto.hasChapters, true)
     page = toPage(compiler, `/$docXeto.name/index`)
     verifyDocLib(docXeto, page)
     verifyDocLib(docXeto, roundtrip(page))

@@ -77,10 +77,10 @@ const class DocNamespace
   private Str:DocNamespaceChapter loadChapters(Lib lib)
   {
     acc := Str:DocNamespaceChapter[:]
-    lib.files.list.each |f|
+    lib.files.published.each |f|
     {
-      if (XetoUtil.isChapter(f))
-        acc[f.basename] = DocNamespaceChapter(lib, f.basename)
+      if (XetoUtil.isChapter(f.uri))
+        acc[f.uri.basename] = DocNamespaceChapter(lib, f.uri.basename)
     }
     if (acc.isEmpty) return noChapters
     else return acc.toImmutable

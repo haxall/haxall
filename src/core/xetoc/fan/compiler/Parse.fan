@@ -38,11 +38,24 @@ internal class Parse : Step
     // create ALib as our root object
     lib := ALib(compiler, FileLoc(input), compiler.libName)
 
-    // parse directory into lib
+    // parse different lib modes
+    files := MLibFiles.empty
     if (isCompanion)
+    {
       parseCompanionLib(lib)
+    }
+    else if (input.ext == "xetolib")
+    {
+      files = parseZip(input, lib)
+    }
+    else if (input.isDir)
+    {
+      files = parseDir(input, lib)
+    }
     else
-      parseDir(input, lib)
+    {
+      parseFile(input, lib, compiler.srcBuildVars)
+    }
     bombIfErr
 
     // remove pragma object from lib slots
@@ -52,6 +65,8 @@ internal class Parse : Step
     compiler.ast    = lib
     compiler.lib    = lib
     compiler.pragma = pragma
+    lib.ast.files = files
+    if (files.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
   }
 
   private Void parseAst(File input)
@@ -124,88 +139,49 @@ internal class Parse : Step
 // File Parsing
 //////////////////////////////////////////////////////////////////////////
 
-  private Void parseDir(File input, ALib lib)
+
+//    else if (input.ext == "xetolib") files = parseZip(input, lib)
+//    else if (input.isDir) files = parseDir(input, lib)
+//    else parseFile(input, lib, compiler.srcBuildVars)
+
+  private MLibFiles parseZip(File input, ALib lib)
   {
-    hasMarkdown := false
-    MLibFiles? files := null
-
-    if (input.ext == "xetolib")
-    {
-      zip := Zip.read(input.in)
-      list := Uri[,]
-      buildVars := BuildVars.empty
-      try
-      {
-        zip.readEach |f|
-        {
-          if (f.isDir) return
-
-          // system files sit in the zip root; consume the ones we know
-          // and ignore the rest which may come from a newer build
-          if (f.uri.path.size == 1 && XetoUtil.isXetoSystemFile(f.name))
-          {
-            if (f.name == XetoUtil.xetoBuildPropsName) buildVars = BuildVars(f.readProps)
-            return
-          }
-
-          f.uri.path.each |n| { checkFileName(n, FileLoc(input)) }
-          if (f.ext == "xeto") parseFile(f, lib, buildVars)
-          else list.add(f.uri)
-          if (f.ext == "md") hasMarkdown = true
-        }
-      }
-      finally zip.close
-      bombIfErr
-      files = ZipLibFiles(input, list)
-    }
-    else if (input.isDir)
-    {
-      // OutputZip packages this same walk, so the zip cannot disagree
-      // with what we parsed
-      src := compiler.srcFiles = LibSrcFiles.makeDir(input, compiler.srcBuildVars)
-      checkFileNames(src)
-      src.eachSrc |f| { parseFile(f, lib, compiler.srcBuildVars) }
-      hasMarkdown = src.hasMarkdown
-      files = DirLibFiles(src)
-    }
-    else
-    {
-      parseFile(input, lib, compiler.srcBuildVars)
-      files = EmptyLibFiles.val
-    }
-
-    lib.ast.files = files
-    if (hasMarkdown) lib.ast.flags = lib.flags.or(MLibFlags.hasMarkdown)
+    scanner := ZipLibFilesScanner(input)
+    files := scanner.scan
+    buildVars := BuildVars.empty
+// TODO: check the xeto-meta.props matches lib pragma?
+    parseLibFiles(files, lib, buildVars, false)
+    return files
   }
 
-//////////////////////////////////////////////////////////////////////////
-// File Name Checks
-//////////////////////////////////////////////////////////////////////////
-
-  ** Check every file and directory name in the lib source dir; we log
-  ** each bad name so all of them are reported in a single compile
-  private Void checkFileNames(LibSrcFiles src)
+  private MLibFiles parseDir(File input, ALib lib)
   {
-    // dirs are reported once even though many files may share them
-    seen := Str:Str[:]
-    src.each |f, uri|
-    {
-      uri.path.each |name|
-      {
-        if (seen[name] != null) return
-        seen[name] = name
-        checkFileName(name, FileLoc(f))
-      }
-    }
-    bombIfErr
+    // first parse lib.xeto so we can get build pragma
+    metaFile := input.plus(`lib.xeto`)
+    if (!metaFile.exists) throw err("Missing 'lib.xeto' file", FileLoc(input))
+    buildVars := compiler.srcBuildVars
+    parseFile(metaFile, lib, buildVars)
+
+// TODO do some pre-pragma processing (need to reorder this)
+pragma := (ADict)lib.tops.get("pragma").ast.meta
+include := ProcessPragma.toFilePatterns(pragma, "include")
+publish := ProcessPragma.toFilePatterns(pragma, "publish")
+
+    scanner := DirLibFilesScanner(input, include, publish)
+    files := scanner.scan |msg, f| { err(msg, FileLoc(f)) }
+
+     parseLibFiles(files, lib, buildVars, true)
+    return files
   }
 
-  ** Check that the given file or dir name maps directly to a URI
-  ** path section without any escaping
-  private Void checkFileName(Str name, FileLoc loc)
+  private Void parseLibFiles(MLibFiles files, ALib lib, BuildVars buildVars, Bool skipLibMeta)
   {
-    msg := XetoUtil.fileNameErr(name)
-    if (msg != null) err("Invalid file name '$name': $msg", loc)
+    files.published.each |f|
+    {
+      if (f.uri.ext != "xeto") return
+      if (f.uri == `/lib.xeto` && skipLibMeta) return
+      parse(f.loc, f.readAllStr, lib, buildVars)
+    }
   }
 
   private Void parseFile(File input, ADoc doc, BuildVars buildVars)
@@ -238,9 +214,6 @@ internal class Parse : Step
   {
     // syntheize the pragma
     lib.tops["pragma"] = synthetizeCompanionLibPragma(lib)
-
-    // no resource files
-    lib.ast.files = EmptyLibFiles.val
 
     // parse each record as its own compilation unit under the rec id so a
     // parse error in one rec is attributed to that rec and quarantined

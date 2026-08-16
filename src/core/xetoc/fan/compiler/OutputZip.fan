@@ -23,12 +23,9 @@ internal class OutputZip : Step
     srcDir  := compiler.input
     zipFile := compiler.build
 
-    // package exactly what Parse walked; we only build from source libs
-    srcFiles := compiler.srcFiles ?: throw err("Cannot build zip from non-source input", FileLoc(srcDir))
-
     zipFile.parent.create
     try
-      XetoZipUtil.writeLibZip(zipFile.out, lib.name, lib.version, depends.list, lib.meta, compiler.usedBuildVars, srcFiles)
+      XetoZipUtil.writeLibZip(zipFile.out, lib.name, lib.version, depends.list, lib.meta, compiler.usedBuildVars, lib.files)
     catch (Err e)
       throw err("Cannot write xetolib zip '$zipFile': $e", FileLoc(srcDir), e)
   }
@@ -41,3 +38,4 @@ internal class OutputZip : Step
     return true
   }
 }
+

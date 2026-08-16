@@ -129,9 +129,11 @@ const class GithubRepo : MRemoteRepo
     if (files.isEmpty) throw Err("No source files found for $name at $ref in $owner/$repo")
 
     // zip into a Buf in the standard xetolib format
-    entries := Uri:File[:]
-    files.each |content, fileName| { uri := fileName.toUri; entries[uri] = content.toBuf.toFile(uri) }
-    return XetoZipUtil.buildLibZip(ver.name, ver.version, ver.depends, Etc.dict1x("doc", ver.doc), buildProps, LibSrcFiles.makeMap(entries))
+    entries := Uri:LibFile[:]
+    files.each |content, fileName| { uri := fileName.toUri; entries[uri] = MLibFile(uri, content.toBuf.toFile(uri), false) }
+// TODO
+libFiles := MLibFiles(entries)
+    return XetoZipUtil.buildLibZip(ver.name, ver.version, ver.depends, Etc.dict1x("doc", ver.doc), buildProps, libFiles)
   }
 
   ** Resolve BuildVar tokens in xeto source content using xeto-build.props values.

@@ -72,8 +72,8 @@ const mixin Lib : Dict
   ** Is this the `proj` companion library
   @NoDoc abstract Bool isCompanion()
 
-  ** Does this library contain markdown resource files
-  @NoDoc abstract Bool hasMarkdown()
+  ** Does this library contain markdown chapters files
+  @NoDoc abstract Bool hasChapters()
 
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()

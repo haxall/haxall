@@ -19,6 +19,9 @@ class NamespaceTest : AbstractXetoTest
 {
 
   Version phVersion() { Version("5.0.0") }
+
+  ** Uris of the lib's files, which is what these tests assert against
+  Uri[] fileUris(LibFiles files) { files.list.map |f->Uri| { f.uri } }
   Version hxVersion() { typeof.pod.version }
 
 //////////////////////////////////////////////////////////////////////////
@@ -155,7 +158,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sys.files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(sys.files.list, Uri[,])
+      verifyEq(fileUris(sys.files), Uri[,])
       verifyEq(sys.files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { sys.files.get(`bad`) }
       verifyErr(UnresolvedErr#) { sys.files.get(`bad`, true) }
@@ -239,7 +242,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ph.files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(ph.files.list, Uri[,])
+      verifyEq(fileUris(ph.files), Uri[,])
       verifyEq(ph.files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { ph.files.get(`bad`) }
       verifyErr(UnresolvedErr#) { ph.files.get(`bad`, true) }
@@ -346,7 +349,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(files.isSupported, !ns.env.isRemote)
     if (!ns.env.isRemote)
     {
-      verifyEq(files.list, [`/ChapterA.md`, `/Readme.md`, `/res/a.txt`, `/res/subdir/b.txt`])
+      verifyEq(fileUris(files), [`/ChapterA.md`, `/Readme.md`, `/res/a.txt`, `/res/subdir/b.txt`])
 
       verifyEq(files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { files.get(`bad`) }
@@ -840,7 +843,7 @@ class NamespaceTest : AbstractXetoTest
     else
       verifySame(lib.meta->depends, lib.depends)
 
-    verifyEq(lib.hasMarkdown, hasMarkdown)
+    verifyEq(lib.hasChapters, hasMarkdown)
 
     verifyEq(lib.id, Ref("lib:$name"))
     verifySame(lib->id, lib.id)

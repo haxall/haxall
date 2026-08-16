@@ -45,17 +45,13 @@ const class LibMount : Mount
   {
     acc := super.attrs(uri)
     f := toLibFile(uri)
-    if (f != null)
-    {
-      acc["modified"] = f.modified
-      acc["size"] = f.size
-    }
+    if (f != null) acc.addNotNull("modified", f.modified)
     return acc
   }
 
   override Bool isEmpty(Uri uri)
   {
-    uri.isDir ? list(uri).isEmpty : (size(uri) ?: 0) == 0
+    uri.isDir ? list(uri).isEmpty : toLibFile(uri) == null
   }
 
   override DateTime? modified(Uri uri)
@@ -76,14 +72,14 @@ const class LibMount : Mount
 
     path := toPath(uri)
 
-    children := [Uri:File][:]
-    lib.files.list.each |fileUri|
+    children := [Uri:LibFile][:]
+    lib.files.list.each |f|
     {
-      // fileUri := file.uri.pathOnly
+      fileUri := f.uri
       if (fileUri != path && fileUri.toStr.startsWith(path.toStr))
       {
         rel := fileUri.relTo(path)
-        children[rel[0..<1]] = lib.files.get(fileUri)
+        children[rel[0..<1]] = f
       }
     }
     children.each |file, rel|
@@ -100,9 +96,10 @@ const class LibMount : Mount
 
   private Bool isLibDirEmpty(Lib lib, Uri dir)
   {
-    child := lib.files.list.eachWhile |fileUri| {
-      // fileUri := file.uri.pathOnly
-      if (fileUri == dir || fileUri.isDir) return null
+    // lib files are always files, never directory entries
+    child := lib.files.list.eachWhile |f| {
+      fileUri := f.uri
+      if (fileUri == dir) return null
       if (!fileUri.toStr.startsWith(dir.toStr)) return null
       if (!canAccess(fileUri)) return null
       return fileUri
@@ -117,7 +114,7 @@ const class LibMount : Mount
 
   override Obj? withIn(Uri uri, [Str:Obj]? opts, |InStream->Obj?| f)
   {
-    toLibFile(uri)?.withIn(f) ?: throw IOErr("${uri}")
+    toLibFile(uri)?.read(f) ?: throw IOErr("${uri}")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,9 +151,9 @@ const class LibMount : Mount
     {
       // if it is just the lib dir then it always exists
       if (path == `/`) return uri
-      return lib.files.list.eachWhile |libUri|
+      return lib.files.list.eachWhile |f|
       {
-        libUri.pathOnly.toStr.startsWith(path.toStr) ? libUri : null
+        f.uri.toStr.startsWith(path.toStr) ? f.uri : null
       }
     }
 
@@ -183,7 +180,7 @@ const class LibMount : Mount
     return uri.getRangeToPathAbs(1..-1)
   }
 
-  File? toLibFile(Uri uri)
+  LibFile? toLibFile(Uri uri)
   {
     if (isRoot(uri) || uri.isDir) return null
 
@@ -197,3 +194,4 @@ const class LibMount : Mount
     return lib.files.get(path, false)
   }
 }
+

@@ -16,7 +16,7 @@ using haystack
 @Js
 const final class MLib
 {
-  new make(FileLoc loc, Str name, Dict meta, Int flags, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap, MLibFiles files)
+  new make(FileLoc loc, Str name, Dict meta, Int flags, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap, LibFiles files)
   {
     this.loc          = loc
     this.name         = name
@@ -50,7 +50,7 @@ const final class MLib
 
   const LibDepend[] depends
 
-  const MLibFiles files
+  const LibFiles files
 
   const SpecMap specs
 
@@ -166,7 +166,7 @@ const final class MLib
 @Js
 const class MLibFlags
 {
-  static const Int hasMarkdown := 0x0001
+  static const Int hasChapters := 0x0001
 
   static Str flagsToStr(Int flags)
   {
@@ -229,7 +229,7 @@ const final class XetoLib : Lib, Dict
 
   override Bool isCompanion() { m.isCompanion }
 
-  override Bool hasMarkdown() { m.hasFlag(MLibFlags.hasMarkdown )}
+  override Bool hasChapters() { m.hasFlag(MLibFlags.hasChapters )}
 
   override LibFiles files() { m.files }
 

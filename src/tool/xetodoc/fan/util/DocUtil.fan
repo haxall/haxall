@@ -247,9 +247,10 @@ const class DocUtil
 
   static Void libEachMarkdownFile(Lib lib, |Uri uri, Str? special| f)
   {
-    if (!lib.hasMarkdown) return
-    lib.files.list.each |uri|
+    if (!lib.hasChapters) return
+    lib.files.published.each |file|
     {
+      uri := file.uri
       if (!XetoUtil.isChapter(uri)) return
       n := uri.name.lower
       if (n == "index.md") return f(uri, "index")

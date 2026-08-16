@@ -85,6 +85,13 @@ const class LibFilePattern
     return LibFilePattern[,].addAll(list)
   }
 
+  ** Parse from semicolon separated list
+  static LibFilePattern[] parseFromStrList(Str? s)
+  {
+    if (s == null || s.isEmpty) LibFilePattern#.emptyList
+    return s.split(';').map |tok->LibFilePattern| { fromStr(tok) }
+  }
+
   private new makePattern(Str s)
   {
     this.pattern = s

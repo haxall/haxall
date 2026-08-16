@@ -197,7 +197,7 @@ internal const class ALib : Lib, ADoc
 
   override SpecMap funcs() { throw UnsupportedErr() }
 
-  override Bool hasMarkdown() { throw UnsupportedErr() }
+  override Bool hasChapters() { throw UnsupportedErr() }
 }
 
 **************************************************************************

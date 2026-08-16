@@ -560,7 +560,7 @@ class RepoTest : AbstractXetoTest
 
     // it compiled rather than erroring, and the system file is not a lib file
     verifyEq(lib.name, "test.sysfiles")
-    verifyEq(lib.files.list, [`/res/a.txt`])
+    verifyEq(lib.files.list.map |f->Uri| { f.uri }, [`/res/a.txt`])
   }
 
   Void testNestedSrcFiles()
@@ -585,7 +585,7 @@ class RepoTest : AbstractXetoTest
     verifyEq(lib.spec("Foo").qname, "test.nestedsrc::Foo")
 
     // nested source is not exposed as a resource, but the resource is
-    verifyEq(lib.files.list, [`/res/a.txt`])
+    verifyEq(lib.files.list.map |f->Uri| { f.uri }, [`/res/a.txt`])
   }
 
   ** srcLibZip reads xeto-build.props itself, so it needs its own coverage of
