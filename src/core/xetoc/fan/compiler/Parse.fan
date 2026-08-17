@@ -78,7 +78,7 @@ internal class ParseLib : ParseStep
     if (isCompanion && mode.isLib) return parseCompanionLib
 
     // initialize the scanner
-    scanner := LibFileScanner.create(input)
+    scanner := Scanner.create(this)
     try
     {
       // run with the scanner
@@ -91,7 +91,7 @@ internal class ParseLib : ParseStep
     }
   }
 
-  private Void doRun(LibFileScanner scanner)
+  private Void doRun(Scanner scanner)
   {
     // create ALib as our root AST
     lib := ALib(compiler, FileLoc(input), compiler.libName)
@@ -129,7 +129,7 @@ internal class ParseLib : ParseStep
     if (files.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
   }
 
-  private Void parseLibMeta(LibFileScanner scanner, ALib lib, BuildVars buildVars)
+  private Void parseLibMeta(Scanner scanner, ALib lib, BuildVars buildVars)
   {
     // parse lib.xeto
     libXeto := scanner.libMeta
@@ -167,15 +167,14 @@ internal class ParseLib : ParseStep
     return pragma.ast.meta
   }
 
-  private MLibFiles scanFiles( LibFileScanner scanner, ADict pragma)
+  private MLibFiles scanFiles(Scanner scanner, ADict pragma)
   {
     if (mode.isParseLibMeta) return MLibFiles.empty
 
     include := ProcessPragma.toFilePatterns(this, pragma, "include")
     publish := ProcessPragma.toFilePatterns(this, pragma, "publish")
 
-    scanner.scanPrep(include, publish) |msg, loc| { err(msg, loc) }
-    return scanner.scan
+    return scanner.scan(include, publish)
   }
 
 //////////////////////////////////////////////////////////////////////////

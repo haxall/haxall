@@ -11,19 +11,23 @@ using xeto
 using xetom
 
 **
-** LibFileScanner is abstracts scanning LibFiles across xetolib
+** Scanner is abstracts scanning LibFiles across xetolib
 ** zip files, source directories, and single file compiles.
 **
 @Js
-abstract class LibFileScanner
+internal abstract class Scanner
 {
   ** Create for the given file
-  static LibFileScanner create(File input)
+  static Scanner create(ParseStep step)
   {
-    if (input.ext == "xetolib") return ZipScanner(Zip.open(input))
-    if (input.isDir) return DirScanner(input)
-    return FileScanner(input)
+    input := step.input
+    if (input.ext == "xetolib") return ZipScanner(step, Zip.open(input))
+    if (input.isDir) return DirScanner(step, input)
+    return FileScanner(step, input)
   }
+
+  ** Constructor
+  new make(ParseStep step) { this.step = step }
 
   ** Is this a xetolib zip file scanner
   virtual Bool isZip() { false }
@@ -35,19 +39,11 @@ abstract class LibFileScanner
   ** Get libMeta or return null/non-nonexistent file if missing
   abstract File? libMeta()
 
-  ** Scan prep with filters and error handler
-  This scanPrep(LibFilePattern[] include, LibFilePattern[] publish, |Str,FileLoc| onErr)
+  ** Perform scan - must have called scanPrep
+  MLibFiles scan(LibFilePattern[] include, LibFilePattern[] publish)
   {
     this.include = include
     this.publish = publish
-    this.onErr   = onErr
-    return this
-  }
-
-  ** Perform scan - must have called scanPrep
-  MLibFiles scan()
-  {
-    if (onErr == null) throw Err("Must call scanPrep first")
     acc := Uri:LibFile[:]
     doScan |uri, f|
     {
@@ -118,11 +114,10 @@ abstract class LibFileScanner
   ** Invoke the onErr callback
   private Void err(Str msg, FileLoc loc)
   {
-    if (onErr == null) return
-    onErr(msg, loc)
+    step.err(msg, loc)
   }
 
-  private |Str,FileLoc|? onErr
+  private ParseStep step
   private LibFilePattern[]? include
   private LibFilePattern[]? publish
   private Str:Str badPaths := [:]
@@ -133,9 +128,9 @@ abstract class LibFileScanner
 **************************************************************************
 
 @Js
-internal class ZipScanner : LibFileScanner
+internal class ZipScanner : Scanner
 {
-  new make(Zip zip) { this.zip = zip }
+  new make(ParseStep step, Zip zip) : super(step) { this.zip = zip }
 
   override Bool isZip() { true }
 
@@ -167,9 +162,9 @@ internal class ZipScanner : LibFileScanner
 **************************************************************************
 
 @Js
-internal class DirScanner : LibFileScanner
+internal class DirScanner : Scanner
 {
-  new make(File root) { this.root = root }
+  new make(ParseStep step, File root) : super(step) { this.root = root }
 
   override File? libMeta() { root.plus(`lib.xeto`) }
 
@@ -189,9 +184,9 @@ internal class DirScanner : LibFileScanner
 **************************************************************************
 
 @Js
-internal class FileScanner : LibFileScanner
+internal class FileScanner : Scanner
 {
-  new make(File file) { this.file = file }
+  new make(ParseStep step, File file) : super(step)  { this.file = file }
 
   override File? libMeta() { file }
 
