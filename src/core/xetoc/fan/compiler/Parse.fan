@@ -174,7 +174,7 @@ internal class ParseLib : ParseStep
     include := ProcessPragma.toFilePatterns(this, pragma, "include")
     publish := ProcessPragma.toFilePatterns(this, pragma, "publish")
 
-    scanner.scanPrep(include, publish) |msg, f| { err(msg, FileLoc(f)) }
+    scanner.scanPrep(include, publish) |msg, loc| { err(msg, loc) }
     return scanner.scan
   }
 

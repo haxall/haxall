@@ -6,6 +6,7 @@
 //   16 Aug 2026  Brian Frank  Creation
 //
 
+using util
 using xeto
 
 **
@@ -34,7 +35,7 @@ abstract class LibFileScanner
   abstract File? libMeta()
 
   ** Scan prep with filters and error handler
-  This scanPrep(LibFilePattern[] include, LibFilePattern[] publish, |Str,File| onErr)
+  This scanPrep(LibFilePattern[] include, LibFilePattern[] publish, |Str,FileLoc| onErr)
   {
     this.include = include
     this.publish = publish
@@ -66,7 +67,7 @@ abstract class LibFileScanner
       if (isZip) return null
 
       // report error
-      err("Invalid file name '$uri.name': File name cannot use reserved prefix '$XetoUtil.xetoSystemFilePrefix'", f)
+      err("Invalid file name '$uri.name': File name cannot use reserved prefix '$XetoUtil.xetoSystemFilePrefix'", FileLoc(f))
       return null
     }
 
@@ -88,11 +89,22 @@ abstract class LibFileScanner
   ** walked once per file beneath it, so report each bad name only once.
   private Void checkPublishPath(Uri uri, File f)
   {
-    uri.path.eachWhile |n|
+    // check file name itself
+    e := XetoUtil.publishFileNameErr(uri.name)
+    if (e != null) return err("Invalid file name '$uri.name': $e", FileLoc(f))
+
+    // check directory path names (report once)
+    uri.path[0..-2].eachWhile |n, i|
     {
-      e := XetoUtil.publishFileNameErr(n)
+      e = XetoUtil.publishFileNameErr(n)
       if (e == null) return null
-      err("Invalid file name '$n': $e", f)
+
+      badPath := "/" + uri.path[0..i].join("/") + "/"
+      if (badPaths[badPath] == null)
+      {
+        badPaths[badPath] = badPath
+        err("Invalid file path name '$n': $e", FileLoc(f))
+      }
       return "break"
     }
   }
@@ -103,15 +115,16 @@ abstract class LibFileScanner
   virtual Void close() {}
 
   ** Invoke the onErr callback
-  private Void err(Str msg, File f)
+  private Void err(Str msg, FileLoc loc)
   {
     if (onErr == null) return
-    onErr(msg, f)
+    onErr(msg, loc)
   }
 
-  private |Str,File|? onErr
+  private |Str,FileLoc|? onErr
   private LibFilePattern[]? include
   private LibFilePattern[]? publish
+  private Str:Str badPaths := [:]
 }
 
 **************************************************************************
