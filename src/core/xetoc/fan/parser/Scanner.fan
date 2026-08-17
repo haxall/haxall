@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 
 **
 ** LibFileScanner is abstracts scanning LibFiles across xetolib

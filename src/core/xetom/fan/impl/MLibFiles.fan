@@ -18,7 +18,7 @@ const class MLibFiles : LibFiles
 {
   static const MLibFiles empty := make(Uri:LibFile[:])
 
-  internal new make(Uri:LibFile map)
+  new make(Uri:LibFile map)
   {
     // sort by name but put lib.xeto first
     list := map.vals.sort
