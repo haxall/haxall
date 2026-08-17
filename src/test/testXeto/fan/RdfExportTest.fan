@@ -141,6 +141,117 @@ class RdfExportTest : AbstractXetoTest
     }
   }
 
+  Void testStructuredValueShapes()
+  {
+    rdf := export(
+      Str<|Suit : Enum {
+               clubs    <key:"Clubs">
+               diamonds <key:"Diamonds">
+             }
+
+             Site : Dict
+             Related : Dict
+             Address : Dict { city: Str }
+
+             Equip : Dict {
+               suit: Suit
+               siteRef: Ref<of:Site>
+               related: MultiRef?<of:Related>
+               address: Address
+             }|>)
+
+    suit := propertyShape(rdf, "Equip.suit")
+    verify(suit.contains("sh:datatype xsd:string ;"), suit)
+    verify(suit.contains("sh:in (\"Clubs\"^^xsd:string \"Diamonds\"^^xsd:string) ;"), suit)
+    verifyFalse(rdf.contains("temp:Suit.clubs"), rdf)
+    suitClass := resourceBlock(rdf, "temp:Suit")
+    verifyFalse(suitClass.contains("a sh:NodeShape"), suitClass)
+
+    siteRef := propertyShape(rdf, "Equip.siteRef")
+    verify(siteRef.contains("sh:nodeKind sh:IRI ;"), siteRef)
+    verify(siteRef.contains("sh:class temp:Site ;"), siteRef)
+    verify(siteRef.contains("sh:minCount 1 ;"), siteRef)
+    verify(siteRef.contains("sh:maxCount 1 ;"), siteRef)
+
+    related := propertyShape(rdf, "Equip.related")
+    verify(related.contains("sh:nodeKind sh:IRI ;"), related)
+    verify(related.contains("sh:class temp:Related ;"), related)
+    verifyFalse(related.contains("sh:minCount"), related)
+    verifyFalse(related.contains("sh:maxCount"), related)
+
+    address := propertyShape(rdf, "Equip.address")
+    verify(address.contains("sh:node temp:Address ;"), address)
+    verify(address.contains("sh:minCount 1 ;"), address)
+    verify(address.contains("sh:maxCount 1 ;"), address)
+  }
+
+  Void testStructuredInstances()
+  {
+    rdf := export(
+      Str<|Suit : Enum { clubs <key:"Clubs"> }
+
+             Site : Dict
+             Related : Dict
+             Address : Dict { city: Str }
+
+             Equip : Dict {
+               dis: Str
+               count: Int
+               enabled: Bool
+               commissioned: Date
+               suit: Suit
+               siteRef: Ref<of:Site>
+               related: MultiRef?<of:Related>
+               address: Address
+               equip
+             }
+
+             Person : Dict { address: Address }
+
+             @site1: Site {}
+             @related1: Related {}
+             @related2: Related {}
+
+             @equip1: Equip {
+               dis: "AHU-1"
+               count: 7
+               enabled: "true"
+               commissioned: 2026-08-11
+               suit: "Clubs"
+               siteRef: @site1
+               related: MultiRef { @related1, @related2 }
+               address: Address { city: "Richmond" }
+               nickname: "Air handler"
+               imported
+             }
+
+             @person1: Person {
+               address @address1: Address { city: "Norfolk" }
+             }|>)
+
+    equip := instanceBlock(rdf, "equip1")
+    verify(equip.contains("a sys:Entity, temp:Equip ;"), equip)
+    verify(equip.contains("temp:Equip.dis \"AHU-1\"^^xsd:string ;"), equip)
+    verify(equip.contains("temp:Equip.count \"7\"^^xsd:integer ;"), equip)
+    verify(equip.contains("temp:Equip.enabled \"true\"^^xsd:boolean ;"), equip)
+    verify(equip.contains("temp:Equip.commissioned \"2026-08-11\"^^xsd:date ;"), equip)
+    verify(equip.contains("temp:Equip.suit \"Clubs\"^^xsd:string ;"), equip)
+    verify(equip.contains("temp:Equip.siteRef temp:site1 ;"), equip)
+    verifyEq(countMatches(equip, "temp:Equip.related "), 2)
+    verify(equip.contains("sys:hasMarker temp:Equip.equip ;"), equip)
+    verify(equip.contains("temp:Equip.address [\n    a temp:Address ;"), equip)
+    verify(equip.contains("temp:Address.city \"Richmond\"^^xsd:string ;"), equip)
+    verify(equip.contains("temp:Equip.nickname \"Air handler\"^^xsd:string ;"), equip)
+    verify(equip.contains("sys:hasMarker temp:Equip.imported ;"), equip)
+    verifyFalse(equip.contains("rdfs:label"), equip)
+
+    person := instanceBlock(rdf, "person1")
+    verify(person.contains("temp:Person.address temp:address1 ;"), person)
+    address := instanceBlock(rdf, "address1")
+    verify(address.contains("a sys:Entity, temp:Address ;"), address)
+    verify(address.contains("temp:Address.city \"Norfolk\"^^xsd:string ;"), address)
+  }
+
   private Str export(Str src)
   {
     ns  := createNamespace(["sys"])
@@ -159,6 +270,24 @@ class RdfExportTest : AbstractXetoTest
     end := rdf.index(close, start)
     if (end == null) throw Err("Unterminated property shape for ${property}")
     return rdf[start..<(end + close.size)]
+  }
+
+  private Str instanceBlock(Str rdf, Str id)
+  {
+    start := rdf.index("temp:${id}\n")
+    if (start == null) throw Err("Missing instance ${id}")
+    end := rdf.index("\n.\n", start)
+    if (end == null) throw Err("Unterminated instance ${id}")
+    return rdf[start..<(end + 3)]
+  }
+
+  private Str resourceBlock(Str rdf, Str resource)
+  {
+    start := rdf.index("${resource}\n")
+    if (start == null) throw Err("Missing resource ${resource}")
+    end := rdf.index("\n.\n", start)
+    if (end == null) throw Err("Unterminated resource ${resource}")
+    return rdf[start..<(end + 3)]
   }
 
   private Int countMatches(Str source, Str match)

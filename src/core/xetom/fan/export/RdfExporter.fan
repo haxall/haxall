@@ -13,7 +13,7 @@ using haystack
 ** RDF Turtle Exporter
 **
 ** TODO
-**   - list and dict slots not supported
+**   - list slots not supported
 **   - query constraints not implemented
 **
 @Js
@@ -44,6 +44,7 @@ class RdfExporter : Exporter
 
   override This lib(Lib lib)
   {
+    this.curLib = lib
     this.isSys = lib.name == "sys"
     types := lib.types.list
 
@@ -150,7 +151,7 @@ class RdfExporter : Exporter
       if (s.isMarker) markers.add(s)
       else props.add(s)
     }
-    hasShape := !props.isEmpty || markers.any |s| { !s.isMaybe }
+    hasShape := !x.isEnum && (!props.isEmpty || markers.any |s| { !s.isMaybe })
 
     qname(x.qname).nl
 
@@ -170,11 +171,11 @@ class RdfExporter : Exporter
     // label and comment properties
     labelAndDoc(x)
 
-    // expand enum items as self-referential class/instances
+    // Enum values are RDF string literals constrained by sh:in; they are not
+    // vocabulary individuals of their own.
     if (x.isEnum)
     {
       w(".").nl
-      enum(x)
       return this
     }
 
@@ -244,22 +245,31 @@ class RdfExporter : Exporter
     else if (type.isRef || type.isMultiRef)
     {
       of := slot.of(false)?.qname ?: "sys::Entity"
+      sh["nodeKind"] = "sh:IRI"
       sh["class"] = qnameToUri(of)
       if (type.isMultiRef) hasMaxCount = false
     }
     else if (type.isEnum)
     {
-      sh["class"] = qnameToUri(type.qname)
+      if (type.qname == "sys::Unit" || type.qname == "sys::UnitQuantity")
+        throw UnsupportedErr("RDF mapping not implemented for ${type.qname}")
+      sh["datatype"] = "xsd:string"
     }
     else if (type.isChoice)
     {
-      sh["class"] = qnameToUri(type.qname)
-      if (slot.meta.has("multiChoice")) hasMaxCount = false
+      throw UnsupportedErr("RDF mapping not implemented for choice slot ${slot.qname}")
+    }
+    else if (type.isDict)
+    {
+      sh["node"] = qnameToUri(type.qname)
+    }
+    else if (type.qname == "sys::Obj")
+    {
+      // Obj deliberately constrains only cardinality.
     }
     else
     {
-      // Preserve the existing fallback for constructs handled by later slices.
-      sh["datatype"] = "xsd:string"
+      throw UnsupportedErr("RDF mapping not implemented for slot ${slot.qname} of ${type.qname}")
     }
 
     // cardinality minCount/maxCount
@@ -270,8 +280,20 @@ class RdfExporter : Exporter
     w("  sh:property [").nl
     w("    sh:path ").qname(slot.qname).w(" ;").nl
     sh.each |v, n| { w("    sh:").w(n).w(" ").w(v).w(" ;").nl }
+    if (type.isEnum) enumConstraint(type)
     if (datatype != null) scalarConstraints(slot, datatype)
     w("  ] ;").nl
+  }
+
+  private Void enumConstraint(Spec type)
+  {
+    w("    sh:in (")
+    type.enum.keys.each |key, i|
+    {
+      if (i > 0) w(" ")
+      literal(key).w("^^xsd:string")
+    }
+    w(") ;").nl
   }
 
   private Void scalarConstraints(Spec slot, Str datatype)
@@ -378,26 +400,6 @@ class RdfExporter : Exporter
     literal(val.toStr).w("^^").w(datatype)
   }
 
-  private This enum(Spec x)
-  {
-    x.enum.each |item, key|
-    {
-      uri := enumItemUri(item)
-      w(uri).nl
-      w("  a sys:Class ;").nl
-      w("  a ").w(uri).w(" ;").nl
-      w("  rdfs:label ").literal(key).w("; ").nl
-      w("  rdfs:subClassOf ").qname(x.qname).w("; ").nl
-      w(".").nl
-    }
-    return this
-  }
-
-  private Str enumItemUri(Spec item)
-  {
-    qnameToUri(item.qname)
-  }
-
   private This global(Spec x)
   {
     // don't generate globals, just class properties
@@ -470,68 +472,142 @@ class RdfExporter : Exporter
     if (id.toStr.startsWith("ph::op:")) return this
     if (id.toStr.startsWith("ph::filetype:")) return this
 
-    spec := ns.specOf(instance)
-    dis := instance.dis.trim
-    members := spec.members
-
-    markers := Str:Spec[:]
-    refs    := Str:Spec[:]
-    enums   := Str:Spec[:]
-    vals    := Str:Spec[:]
-    instance.each |v, n|
-    {
-      if (n == "id") return
-      if (n == "dis" || n == "disMacro") return
-
-      slot := members.get(n, false)
-      if (slot == null) return
-      if (slot.isChoice) return // handled below
-
-      type := slot.type
-      if (v == Marker.val)  markers[n] = slot
-      else if (v is Ref)    refs[n] = slot
-      else if (type.isEnum) enums[n] = slot
-      else vals[n] = slot
-    }
-
+    spec := instanceSpec(instance)
     this.id(id).nl
-    w("  rdf:type ").qname(spec.qname).w(" ;").nl
-    w("  rdfs:label ").literal(dis).w(" ;").nl
-    markers.keys.sort.each |n| { instanceMarker(instance, n, markers[n]) }
-    refs.keys.sort.each  |n| { instanceRef(instance, n, refs[n]) }
-    enums.keys.sort.each |n| { instanceEnum(instance, n, enums[n]) }
-    vals.keys.sort.each  |n| { instanceVal(instance, n, vals[n]) }
+    w("  a ").w(isSys ? ":Entity" : "sys:Entity").w(", ").qname(spec.qname).w(" ;").nl
+    instanceMembers(instance, spec, "  ")
     spec.slots.each |s| { if (s.isChoice) instanceChoice(instance, s) }
     w(".").nl
     return this
   }
 
-  private Void instanceMarker(Dict instance, Str name, Spec slot)
+  private Void instanceMembers(Dict instance, Spec spec, Str indent)
   {
-    w("  sys:hasMarker ").qname(slot.qname).w(" ;").nl
+    members := ns.reflect(instance, spec).members.dup
+    members.sort |a, b| { instanceProperty(spec, a) <=> instanceProperty(spec, b) }
+    members.each |member|
+    {
+      if (member.name == "id" || member.name == "spec" || member.isChoice) return
+
+      val := member.val
+      slot := member.spec
+      if (val == null && slot.isSlot && slot.metaOwn.has("val")) val = slot.metaOwn["val"]
+      if (val == null) return
+
+      property := instanceProperty(spec, member)
+      type := slot.isSlot ? slot.type : slot
+      instanceMember(property, type, val, indent)
+    }
   }
 
-  private Void instanceRef(Dict instance, Str name, Spec slot)
+  private Str instanceProperty(Spec parent, ReflectMember member)
   {
-    ref := instance[name]
-    if (ref == null) return
-    w("  ").qname(slot.qname).w(" ").id(ref).w(" ;").nl
+    spec := member.spec
+    return spec.isSlot ? spec.qname : "${parent.qname}.${member.name}"
   }
 
-  private Void instanceEnum(Dict instance, Str name, Spec slot)
+  private Void instanceMember(Str property, Spec type, Obj val, Str indent)
   {
-    key := instance[name]?.toStr
-    if (key == null) return
-    item := slot.type.enum.spec(key, false)
-    if (item == null) return
-    w("  ").qname(slot.qname).w(" ").w(enumItemUri(item)).w(" ;").nl
+    if (val == Marker.val)
+    {
+      w(indent).w(isSys ? ":hasMarker" : "sys:hasMarker").w(" ").qname(property).w(" ;").nl
+      return
+    }
+
+    if (type.isRef)
+    {
+      ref := val as Ref ?: throw UnsupportedErr("Expected Ref for ${property}, not ${val.typeof}")
+      w(indent).qname(property).w(" ").id(ref).w(" ;").nl
+      return
+    }
+
+    if (type.isMultiRef)
+    {
+      instanceMultiRef(property, val, indent)
+      return
+    }
+
+    if (type.isEnum)
+    {
+      if (type.qname == "sys::Unit" || type.qname == "sys::UnitQuantity")
+        throw UnsupportedErr("RDF mapping not implemented for ${type.qname}")
+      key := val.toStr
+      if (type.enum.spec(key, false) == null)
+        throw UnsupportedErr("Invalid ${type.qname} value: ${key}")
+      w(indent).qname(property).w(" ").literal(key).w("^^xsd:string ;").nl
+      return
+    }
+
+    if (type.isDict)
+    {
+      nested := val as Dict ?: throw UnsupportedErr("Expected Dict for ${property}, not ${val.typeof}")
+      instanceNested(property, nested, indent)
+      return
+    }
+
+    if (type.isScalar && !type.isRef)
+    {
+      num := val as Number
+      if (num != null && num.unit != null)
+        throw UnsupportedErr("RDF quantity value mapping not implemented for ${property}")
+      w(indent).qname(property).w(" ")
+      typedLiteral(val, scalarDatatype(type))
+      w(" ;").nl
+      return
+    }
+
+    throw UnsupportedErr("RDF instance mapping not implemented for ${property} of ${type.qname}")
   }
 
-  private Void instanceVal(Dict instance, Str name, Spec slot)
+  private Void instanceMultiRef(Str property, Obj val, Str indent)
   {
-    val := instance[name]
-    if (val == null) return
-    w("  ").qname(slot.qname).w(" ").literal(val.toStr).w(" ;").nl
+    if (val is Ref)
+    {
+      instanceRefValue(property, val, indent)
+      return
+    }
+
+    refs := val as List
+    if (refs != null)
+    {
+      refs.each |item|
+      {
+        ref := item as Ref ?: throw UnsupportedErr("Expected Ref item for ${property}, not ${item.typeof}")
+        instanceRefValue(property, ref, indent)
+      }
+      return
+    }
+
+    // Source-declared MultiRef blocks remain Dicts in Lib.instances; their
+    // generated slots carry the same refs returned by instantiated Ref[].
+    dict := val as Dict ?: throw UnsupportedErr("Expected Ref, Ref[], or MultiRef Dict for ${property}, not ${val.typeof}")
+    dict.each |item, name|
+    {
+      if (name == "id" || name == "spec") return
+      ref := item as Ref ?: throw UnsupportedErr("Expected Ref item for ${property}.${name}, not ${item.typeof}")
+      instanceRefValue(property, ref, indent)
+    }
+  }
+
+  private Void instanceRefValue(Str property, Ref ref, Str indent)
+  {
+    w(indent).qname(property).w(" ").id(ref).w(" ;").nl
+  }
+
+  private Void instanceNested(Str property, Dict nested, Str indent)
+  {
+    nestedId := nested["id"] as Ref
+    if (nestedId != null)
+    {
+      w(indent).qname(property).w(" ").id(nestedId).w(" ;").nl
+      return
+    }
+
+    nestedSpec := instanceSpec(nested)
+    w(indent).qname(property).w(" [").nl
+    w(indent).w("  a ").qname(nestedSpec.qname).w(" ;").nl
+    instanceMembers(nested, nestedSpec, indent + "  ")
+    w(indent).w("] ;").nl
   }
 
   private Void instanceChoice(Dict instance, Spec slot)
@@ -543,9 +619,25 @@ class RdfExporter : Exporter
     }
   }
 
+  private Spec instanceSpec(Dict instance)
+  {
+    spec := ns.specOf(instance, false)
+    if (spec != null) return spec
+
+    specRef := instance["spec"] as Ref
+    qname := specRef?.toStr
+    lib := curLib
+    if (qname != null && lib != null && qname.startsWith("${lib.name}::"))
+      return lib.spec(qname[qname.index("::") + 2..-1])
+
+    throw UnknownSpecErr(qname ?: instance.typeof.qname)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  private Lib? curLib
 
   ** Convert library to its RDF URI
   private Str libUri(Lib lib)
