@@ -154,7 +154,7 @@ internal class ParseLib : ParseStep
   {
     if (mode.isParseLibMeta) return MLibFiles.empty
 
-    return scanner.scan(lib.pragma.include, lib.pragma.publish)
+    return scanner.scan(lib.pragma)
   }
 
   ** Parse every source file in the lib except lib.xeto which is already done

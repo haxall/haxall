@@ -489,14 +489,20 @@ class RepoTest : AbstractXetoTest
 
   Void testFileNames()
   {
-    // valid names compile cleanly
-    verifyFileNames(["Readme.md", "res/a.txt", "res/sub-dir/b_2.txt"], Str[,])
+    // valid names compile cleanly.  note these fixtures are all resources:
+    // the helper publishes each path, and naming a chapter or xeto source
+    // would be an unmatched pattern since those publish intrinsically
+    verifyFileNames(["res/a.txt", "res/sub-dir/b_2.txt"], Str[,])
 
     // invalid resource file name
     verifyFileNames(["a b.txt"], ["Invalid file name 'a b.txt': File name cannot contain spaces"])
 
-    // invalid xeto source file name
-    verifyFileNames(["foo~bar.xeto"], ["Invalid file name 'foo~bar.xeto': File name cannot contain reserved char '~'"])
+    // invalid xeto source file name.  source publishes intrinsically, so
+    // the pattern the helper adds for it also selects nothing
+    verifyFileNames(["foo~bar.xeto"], [
+      "Invalid file name 'foo~bar.xeto': File name cannot contain reserved char '~'",
+      "No matching files for publish pattern: /foo~bar.xeto",
+      ])
 
     // invalid nested resource file name
     verifyFileNames(["res/a%b.txt"], ["Invalid file name 'a%b.txt': Invalid file name char '%' 0x25"])
@@ -504,8 +510,10 @@ class RepoTest : AbstractXetoTest
     // invalid directory name
     verifyFileNames(["sub~dir/a.txt"], ["Invalid file path name 'sub~dir': File name cannot contain reserved char '~'"])
 
-    // hidden files are skipped since they are excluded from the lib
-    verifyFileNames([".hidden~file"], Str[,])
+    // hidden files are skipped, so its name is never validated - but the
+    // pattern which named it then selects nothing, which is its own error
+    verifyFileNames([".hidden~file"],
+      ["No matching files for publish pattern: /.hidden~file"])
 
     // every bad name is reported, not just the first
     verifyFileNames(["a b.txt", "c d.txt"], [
@@ -533,13 +541,21 @@ class RepoTest : AbstractXetoTest
       "Invalid file name 'a b.txt': File name cannot contain spaces",
       ])
 
-    // reserved prefix, including a system file's own name
-    verifyFileNames(["xeto-foo.props"],
-      ["Invalid file name 'xeto-foo.props': File name cannot use reserved prefix 'xeto-'"])
+    // reserved prefix, including a system file's own name.  the file is
+    // rejected before it can be selected, so the pattern which named it
+    // also reports selecting nothing
+    verifyFileNames(["xeto-foo.props"], [
+      "Invalid file name 'xeto-foo.props': File name cannot use reserved prefix 'xeto-'",
+      "No matching files for publish pattern: /xeto-foo.props",
+      ])
+    // the dir pattern does match "/xeto-dir/a.txt" before the name check
+    // rejects it, so only the name error is reported here
     verifyFileNames(["xeto-dir/a.txt"],
       ["Invalid file path name 'xeto-dir': File name cannot use reserved prefix 'xeto-'"])
-    verifyFileNames([XetoUtil.xetoMetaPropsName],
-      ["Invalid file name 'xeto-meta.props': File name cannot use reserved prefix 'xeto-'"])
+    verifyFileNames([XetoUtil.xetoMetaPropsName], [
+      "Invalid file name 'xeto-meta.props': File name cannot use reserved prefix 'xeto-'",
+      "No matching files for publish pattern: /xeto-meta.props",
+      ])
   }
 
   ** A packaged lib may carry system files written by a newer build than
@@ -653,6 +669,119 @@ class RepoTest : AbstractXetoTest
 
     // the compiler writes its own meta props into the zip root
     verifyEq(entries.contains("/${XetoUtil.xetoMetaPropsName}"), true)
+  }
+
+  ** Declaring include or publish and then selecting nothing at all is an
+  ** author mistake - either a typo or a file which has since been removed.
+  ** Packaging nothing silently is how a lib ships without the resources it
+  ** expects at runtime.
+  Void testPatternMatchesNothing()
+  {
+    // every form of pattern is checked: directory, file, and extension
+    verifyPatterns("include: {\"/gone\"}", ["/res/a.txt"],
+      ["No matching files for include pattern: /gone"])
+
+    verifyPatterns("publish: {\"/nope.txt\"}", ["/res/a.txt"],
+      ["No matching files for publish pattern: /nope.txt"])
+
+    verifyPatterns("publish: {\"/*.svg\"}", ["/res/a.txt"],
+      ["No matching files for publish pattern: /*.svg"])
+
+    // both tags are reported independently
+    verifyPatterns("include: {\"/gone\"}, publish: {\"/nope.txt\"}", ["/res/a.txt"], [
+      "No matching files for include pattern: /gone",
+      "No matching files for publish pattern: /nope.txt",
+      ])
+
+    // the check is per pattern, so a good one does not cover a bad one
+    verifyPatterns("include: {\"/data\", \"/gone\"}", ["/data/c.txt"],
+      ["No matching files for include pattern: /gone"])
+
+    // patterns which do match are silent
+    verifyPatterns("include: {\"/data\"}, publish: {\"/res\"}",
+      ["/data/c.txt", "/res/a.txt"], Str[,])
+
+    // a duplicate pattern selects nothing the first one did not already
+    // take, so it is reported rather than silently tolerated
+    verifyPatterns("publish: {\"/res\", \"/res/a.txt\"}", ["/res/a.txt"],
+      ["No matching files for publish pattern: /res/a.txt"])
+
+    // publish implies include, so naming the same path in both means the
+    // include never selects anything
+    verifyPatterns("include: {\"/res\"}, publish: {\"/res\"}", ["/res/a.txt"],
+      ["No matching files for include pattern: /res"])
+
+    // sources and chapters publish intrinsically, so naming them is always
+    // wrong - this is the mistake the check exists to catch
+    verifyPatterns("publish: {\"/Readme.md\"}", ["/Readme.md"],
+      ["No matching files for publish pattern: /Readme.md"])
+    verifyPatterns("include: {\"/*.xeto\"}", ["/res/a.txt"],
+      ["No matching files for include pattern: /*.xeto"])
+  }
+
+  ** The error points at the include/publish declaration in lib.xeto rather
+  ** than at the lib itself, so a build log entry is clickable
+  Void testPatternErrLoc()
+  {
+    dir := tempDir + `patternloc/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib <
+             version: "0.0.1"
+             depends: { { lib: "sys" } }
+             include: {"/gone"}
+             publish: {"/nope.txt", "/*.svg"}
+           >
+         |>).close
+    (dir + `res/a.txt`).out.print("x\n").close
+
+    c := XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.patternloc"
+      c.input   = dir
+      c.log     = XetoCallbackLog.make(|XetoLogRec rec| {})
+    }
+    try
+      c.compileLib
+    catch (XetoCompilerErr e) {}
+
+    // every error is attributed to lib.xeto, not the lib dir
+    c.errs.each |err| { verifyEq(err.loc.file, (dir + `lib.xeto`).osPath) }
+
+    // and to the line which declares that tag
+    locs := c.errs.map |err->Str| { "$err.loc.line:$err.msg" }.sort
+    verifyEq(locs, [
+      "4:No matching files for include pattern: /gone",
+      "5:No matching files for publish pattern: /*.svg",
+      "5:No matching files for publish pattern: /nope.txt",
+      ])
+  }
+
+  ** Compile a temp lib with the given pragma tags and files, and verify
+  ** the exact list of error messages reported
+  private Void verifyPatterns(Str tags, Str[] files, Str[] expect)
+  {
+    dir := tempDir + `patterns/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "0.0.1", depends: { { lib: "sys" } }, |> +
+      tags + " >\n").close
+    files.each |path| { (dir + path[1..-1].toUri).out.print("x\n").close }
+
+    c := XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.patterns"
+      c.input   = dir
+      c.log     = XetoCallbackLog.make(|XetoLogRec rec| {})
+    }
+
+    try
+      c.compileLib
+    catch (XetoCompilerErr e) {}
+
+    verifyEq(c.errs.map |e->Str| { e.msg }.sort, expect.dup.sort)
   }
 
   ** Compile a temp lib containing the given files and verify the exact

@@ -104,10 +104,10 @@ internal class APragma
   const MLibDepend[] depends
 
   ** Files packaged into the lib without a uri of their own
-  const LibFilePattern[] include
+  ScannerPatternList include
 
   ** Files packaged into the lib and given a uri of their own
-  const LibFilePattern[] publish
+  ScannerPatternList publish
 
   // just used for constructor for error reporting
   private Step? step
@@ -223,20 +223,21 @@ internal class APragma
   }
 
   ** Patterns for the given pragma tag, or empty if not declared
-  private LibFilePattern[] parseFilePatterns(Str name)
+  private ScannerPatternList parseFilePatterns(Str name)
   {
+    acc := LibFilePattern[,]
+
     val := dict.get(name)
-    if (val == null) return LibFilePattern[,]
+    if (val == null) return ScannerPatternList(name, acc, dict.loc)
 
     // list must be respresented in AST as ADict
     alist := val as ADict
     if (alist == null)
     {
       err("Lib pragma $name must be a list", val.loc)
-      return LibFilePattern[,]
+      return ScannerPatternList(name, acc, val.loc)
     }
 
-    acc := LibFilePattern[,]
     alist.each |obj|
     {
       scalar := obj as AScalar
@@ -247,7 +248,7 @@ internal class APragma
 
       acc.add(x)
     }
-    return acc
+    return ScannerPatternList(name, acc, val.loc)
   }
 
   private Void err(Str msg, FileLoc loc) { step.err(msg, loc) }

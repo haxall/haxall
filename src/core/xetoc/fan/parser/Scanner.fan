@@ -47,12 +47,17 @@ internal abstract class Scanner
   Bool hasChapters
 
   ** Perform scan - must have called scanPrep
-  MLibFiles scan(LibFilePattern[] include, LibFilePattern[] publish)
+  MLibFiles scan(APragma pragma)
   {
-    this.include = include
-    this.publish = publish
+    this.include = pragma.include.reset
+    this.publish = pragma.publish.reset
+
     acc := Uri:LibFile[:]
     doScan |uri, f| { scanFile(acc, uri, f) }
+
+    this.include.check(this)
+    this.publish.check(this)
+
     return MLibFiles(acc)
   }
 
@@ -73,10 +78,10 @@ internal abstract class Scanner
     }
 
     // sources and chapters are intrinsically published or in 'publish' patterns
-    isPublished := XetoUtil.isPublishIntrinsic(uri) || publish.any { it.matches(uri) }
+    isPublished := XetoUtil.isPublishIntrinsic(uri) || publish.matches(uri)
 
     // includes is anything published or in 'include' patterns
-    isIncluded := isPublished || include.any { it.matches(uri) }
+    isIncluded := isPublished || include.matches(uri)
     if (!isIncluded) return
 
     // if published verify its a valid publish file name
@@ -125,15 +130,65 @@ internal abstract class Scanner
   virtual Void close() {}
 
   ** Invoke the onErr callback
-  private Void err(Str msg, FileLoc loc)
+  Void err(Str msg, FileLoc loc)
   {
     step.err(msg, loc)
   }
 
   private ParseStep step
-  private LibFilePattern[]? include
-  private LibFilePattern[]? publish
+  private ScannerPatternList? include
+  private ScannerPatternList? publish
   private Str:Str badPaths := [:]
+}
+
+**************************************************************************
+** ScannerPattern
+**************************************************************************
+
+@Js
+internal class ScannerPatternList
+{
+  new make(Str name, LibFilePattern[] patterns, FileLoc loc)
+  {
+    this.name = name
+    this.patterns = patterns
+    this.loc = loc
+  }
+
+  ** Must call resest for scanning - just to make sure re-entry
+  This reset()
+  {
+    this.hits = Bool[,].fill(false, patterns.size); return this
+  }
+
+  ** Stop at the first hit: a pattern only counts as matched when it is
+  ** the one which actually selected the file.  A second pattern matching
+  ** the same file is a duplicate, and a pattern naming a file already
+  ** selected intrinsically is redundant - both are author mistakes we
+  ** want reported, not tolerated.
+  Bool matches(Uri uri)
+  {
+    for (i := 0; i<patterns.size; ++i)
+    {
+      match := patterns[i].matches(uri)
+      if (match) { hits[i] = true; return true }
+    }
+    return false
+  }
+
+  Void check(Scanner s)
+  {
+    patterns.each |p, i|
+    {
+      if (!hits[i])
+       s.err("No matching files for $name pattern: $p", loc)
+    }
+  }
+
+  const Str name
+  const LibFilePattern[] patterns
+  const FileLoc loc
+  private Bool[]? hits
 }
 
 **************************************************************************
