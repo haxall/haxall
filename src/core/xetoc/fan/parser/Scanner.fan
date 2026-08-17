@@ -36,6 +36,10 @@ internal abstract class Scanner
   ** their own vars in "/xeto-build.props".
   virtual BuildVars readBuildVars(BuildVars src) { src }
 
+  ** Precompiled lib meta packaged in a xetolib zip, else null when the
+  ** input is source and there is nothing to cross check against
+  virtual [Str:Str]? readMetaProps() { null }
+
   ** Get libMeta or return null/non-nonexistent file if missing
   abstract File? libMeta()
 
@@ -155,6 +159,11 @@ internal class ZipScanner : Scanner
   override File? libMeta()
   {
     zip.contents[`/lib.xeto`]
+  }
+
+  override [Str:Str]? readMetaProps()
+  {
+    zip.contents[XetoUtil.xetoMetaPropsUri]?.readProps
   }
 
   override Void doScan(|Uri,File| cb)

@@ -105,6 +105,10 @@ internal class ParseLib : ParseStep
     APragma.extract(this, lib)
     bombIfErr
 
+    // a xetolib carries precompiled meta which must agree with the source
+    checkMetaProps(scanner, lib)
+    bombIfErr
+
     // now that include/publish are known we can scan and classify the files
     lib.ast.files = scanFiles(scanner, lib)
     if (scanner.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
@@ -120,6 +124,29 @@ internal class ParseLib : ParseStep
     libXeto := scanner.libMeta
     if (libXeto == null || !libXeto.exists) throw err("Missing 'lib.xeto'", FileLoc(input))
     parseFile(libXeto, lib, buildVars)
+  }
+
+  ** A xetolib packages "xeto-meta.props" so its name, version, and depends
+  ** can be read without compiling it.  That makes it a second source of
+  ** truth for facts which lib.xeto also declares, so a zip whose props
+  ** disagree would resolve as one lib and compile as another.  Reject it.
+  private Void checkMetaProps(Scanner scanner, ALib lib)
+  {
+    props := scanner.readMetaProps
+    if (props == null) return
+
+    pragma := lib.pragma
+    checkMetaProp(props, "name", lib.name)
+    checkMetaProp(props, "version", pragma.version.toStr)
+    checkMetaProp(props, "depends", pragma.depends.join(";"))
+  }
+
+  private Void checkMetaProp(Str:Str props, Str name, Str expect)
+  {
+    actual := props[name]
+    if (actual == null) return err("Missing '$name' in $XetoUtil.xetoMetaPropsName", FileLoc(input))
+    if (actual == expect) return
+    err("Mismatched '$name' in $XetoUtil.xetoMetaPropsName: $actual.toCode != $expect.toCode", FileLoc(input))
   }
 
   ** Scan source and resource files

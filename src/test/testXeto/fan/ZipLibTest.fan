@@ -152,6 +152,94 @@ class ZipLibTest : AbstractXetoTest
     verify(lib.files.get(`/lib.xeto`).readAllStr.contains("BuildVar"))
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Meta Props
+//////////////////////////////////////////////////////////////////////////
+
+  ** A xetolib carries precompiled meta so its name, version, and depends
+  ** can be read without compiling it.  That is a second source of truth for
+  ** what lib.xeto declares, so a zip whose props disagree would resolve as
+  ** one lib and compile as another.  Verify we reject that instead.
+  Void testMetaPropsMustAgree()
+  {
+    verifyMetaSkew("version", "7.7.7")
+    verifyMetaSkew("depends", "sys 5.0.0;ph 5.0.0")
+    verifyMetaSkew("name", "some.other.lib")
+  }
+
+  ** A zip missing the props entirely is also rejected
+  Void testMetaPropsRequired()
+  {
+    verifyMetaSkew("version", null)
+  }
+
+  ** Build a lib zip, rewrite one meta prop, and verify the compile fails
+  private Void verifyMetaSkew(Str tag, Str? val)
+  {
+    zip := buildLibZip
+    tamper(zip, tag, val)
+
+    Str? msg := null
+    try
+      compileZip(zip)
+    catch (Err e)
+      msg = e.msg
+    if (msg == null) return fail("expected err for skewed '$tag'")
+
+    verify(msg.contains(XetoUtil.xetoMetaPropsName), msg)
+    verify(msg.contains("'$tag'"), msg)
+  }
+
+  ** Compile a minimal lib to its own zip
+  private File buildLibZip()
+  {
+    dir := tempDir + `metaskew/test.skew/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "1.0.0", depends: { { lib: "sys" } } >
+         |>).close
+
+    zip := tempDir + `metaskew/test.skew.xetolib`
+    XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.skew"
+      c.input   = dir
+      c.build   = zip
+    }.compileLib
+    return zip
+  }
+
+  ** Rewrite one key of the zip's meta props, or remove it if val is null
+  private Void tamper(File zip, Str tag, Str? val)
+  {
+    entries := Uri:Buf[:] { ordered = true }
+    z := Zip.read(zip.in)
+    try
+      z.readEach |f| { if (!f.isDir) entries[f.uri] = f.readAllBuf }
+    finally z.close
+
+    props := entries[XetoUtil.xetoMetaPropsUri].seek(0).readProps
+    if (val == null) props.remove(tag); else props[tag] = val
+    buf := Buf(); buf.writeProps(props)
+    entries[XetoUtil.xetoMetaPropsUri] = buf
+
+    out := Zip.write(zip.out)
+    entries.each |content, uri| { out.writeNext(uri).writeBuf(content.seek(0)).close }
+    out.close
+  }
+
+  private Lib compileZip(File zip)
+  {
+    XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.skew"
+      c.input   = zip
+      c.log     = XetoCallbackLog.make(|XetoLogRec rec| {})
+    }.compileLib
+  }
+
   ** Read the "xeto-build.props" packaged inside the lib's own zip
   private Str:Str buildProps(Lib lib)
   {
