@@ -21,7 +21,7 @@ internal abstract class Scanner
   static Scanner create(ParseStep step)
   {
     input := step.input
-    if (input.ext == "xetolib") return ZipScanner(step, Zip.open(input))
+    if (input.ext == "xetolib") return ZipScanner(step, input)
     if (input.isDir) return DirScanner(step, input)
     return FileScanner(step, input)
   }
@@ -79,10 +79,10 @@ internal abstract class Scanner
     if (isPublished) checkPublishPath(uri, f)
 
     // we have a valid publish file
-    scanAdd(acc, MLibFile(uri, f, isPublished))
+    scanAdd(acc, reify(uri, f, isPublished))
   }
 
-  private Void scanAdd(Uri:LibFile acc, MLibFile f)
+  private Void scanAdd(Uri:LibFile acc, LibFile f)
   {
     if (XetoUtil.isChapter(f.uri)) hasChapters = true
     acc.add(f.uri, f)
@@ -114,6 +114,9 @@ internal abstract class Scanner
   ** Scan every file using the normalized lib URI "/foo.ext"
   protected abstract Void doScan(|Uri,File| cb)
 
+  ** Turn scan uri + file into the proper LibFile instance
+  protected abstract LibFile reify(Uri uri, File file, Bool isPublished)
+
   ** Close the scanner if holding resources
   virtual Void close() {}
 
@@ -136,7 +139,11 @@ internal abstract class Scanner
 @Js
 internal class ZipScanner : Scanner
 {
-  new make(ParseStep step, Zip zip) : super(step) { this.zip = zip }
+  new make(ParseStep step, File zipFile) : super(step)
+  {
+    this.zipFile = zipFile
+    this.zip = Zip.open(zipFile)
+  }
 
   override Bool isZip() { true }
 
@@ -155,12 +162,18 @@ internal class ZipScanner : Scanner
     zip.contents.each |f,u| { cb(u,f) }
   }
 
+  override LibFile reify(Uri uri, File file, Bool isPublished)
+  {
+    ZipLibFile(zipFile, uri, file, isPublished)
+  }
+
   override Void close()
   {
     try { zip.close } catch {}
   }
 
-  Zip zip
+  private File zipFile
+  private Zip zip
 }
 
 **************************************************************************
@@ -182,6 +195,11 @@ internal class DirScanner : Scanner
     else cb(path.toUri, f)
   }
 
+  override LibFile reify(Uri uri, File file, Bool isPublished)
+  {
+    LocalLibFile(uri, file, isPublished)
+  }
+
   const File root
 }
 
@@ -197,6 +215,11 @@ internal class FileScanner : Scanner
   override File? libMeta() { file }
 
   override Void doScan(|Uri,File| cb) {}
+
+  override LibFile reify(Uri uri, File file, Bool isPublished)
+  {
+    LocalLibFile(uri, file, isPublished)
+  }
 
   const File file
 }

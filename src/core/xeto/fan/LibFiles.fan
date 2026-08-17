@@ -27,9 +27,6 @@ const mixin LibFiles
 
   ** Get a file in this library
   abstract LibFile? get(Uri uri, Bool checked := true)
-
-  ** Close the files and release resources (especially xetolib zips)
-  @NoDoc abstract Void close()
 }
 
 **************************************************************************

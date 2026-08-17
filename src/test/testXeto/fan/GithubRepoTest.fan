@@ -93,11 +93,10 @@ class GithubRepoTest : AbstractXetoTest
     verifyEq(lib.files.get(`/inc.txt`).isPublished, false)
     verifyEq(lib.files.get(`/pub.txt`).isPublished, true)
 
-    // TODO: reading content back out of a zip backed lib throws "zip file
-    // closed" - ParseLib closes the scanner when the compile finishes, so
-    // the LibFile outlives the Zip it reads from.  Waiting on the lazy
-    // reopen design; the packaging assertions above are the point here.
-    // verifyEq(lib.files.get(`/pub.txt`).readAllStr.trim, "published")
+    // content reads outlive the compile: a zip backed LibFile reopens the
+    // zip per read rather than holding the one the scanner used
+    verifyEq(lib.files.get(`/pub.txt`).readAllStr.trim, "published")
+    verifyEq(lib.files.get(`/inc.txt`).readAllStr.trim, "included")
   }
 
 //////////////////////////////////////////////////////////////////////////

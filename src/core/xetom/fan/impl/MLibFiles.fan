@@ -53,16 +53,14 @@ const class MLibFiles : LibFiles
       con.info("$f.uri $suffix")
     }
   }
-
-  override Void close() {}
 }
 
 **************************************************************************
-** MLibFile
+** LocalLibFile
 **************************************************************************
 
 @Js
-const class MLibFile : LibFile
+const class LocalLibFile : LibFile
 {
   new make(Uri uri, File file, Bool isPublished)
   {
@@ -71,14 +69,52 @@ const class MLibFile : LibFile
     this.isPublished = isPublished
   }
 
-  const override Uri uri
   const File file
+  const override Uri uri
   const override Bool isPublished
-  override Obj? read(|InStream->Obj?| f) { file.withIn(f) }
-  override Str readAllStr() { file.readAllStr }
   override Int? size() { file.size }
   override DateTime? modified() { file.modified }
   override FileLoc loc() { FileLoc(file) }
+  override Obj? read(|InStream->Obj?| f) { file.withIn(f) }
+  override Str readAllStr() { file.readAllStr }
+}
+
+**************************************************************************
+** ZipLibFile
+**************************************************************************
+
+@Js
+const class ZipLibFile : LibFile
+{
+  new make(File zipFile, Uri uri, File entry, Bool isPublished)
+  {
+    this.zipFile     = zipFile
+    this.uri         = entry.uri
+    this.size        = entry.size
+    this.modified    = entry.modified
+    this.isPublished = isPublished
+  }
+
+  const File zipFile
+  const override Uri uri
+  const override Bool isPublished
+  const override Int? size
+  const override DateTime? modified
+  override FileLoc loc() { FileLoc("$zipFile.uri!$uri" ) }
+
+  override Str readAllStr()
+  {
+    read |in| { in.readAllStr }
+  }
+
+  override Obj? read(|InStream->Obj?| f)
+  {
+    zip := Zip.open(zipFile)
+    try
+      return f(zip.contents.getChecked(uri).in)
+    finally
+      zip.close
+  }
 }
 
 **************************************************************************
@@ -95,6 +131,5 @@ const class UnsupportedLibFiles : LibFiles
   override LibFile[] list() { throw UnsupportedErr() }
   override LibFile[] published() { throw UnsupportedErr() }
   override LibFile? get(Uri uri, Bool checked := true) { throw UnsupportedErr()  }
-  override Void close() {}
 }
 

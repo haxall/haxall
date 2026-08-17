@@ -83,7 +83,7 @@ internal class ParseLib : ParseStep
     finally
     {
       // close scanner
-      scanner.close // TODO: how to pin for XetoEnv lib
+      scanner.close
     }
   }
 
