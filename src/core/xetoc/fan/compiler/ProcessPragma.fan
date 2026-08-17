@@ -151,7 +151,7 @@ internal class ProcessPragma : Step
     acc[libName] = MLibDepend(libName, versions, loc)
   }
 
-  static LibFilePattern[] toFilePatterns(ADict pragma, Str name)
+  static LibFilePattern[] toFilePatterns(Step step, ADict pragma, Str name)
   {
     val := pragma.get(name)
     if (val == null) return LibFilePattern[,]
@@ -160,7 +160,7 @@ internal class ProcessPragma : Step
     alist := val as ADict
     if (alist == null)
     {
-      // TODO err("Lib pragma $name must be a list", val.loc)
+      step.err("Lib pragma $name must be a list", val.loc)
       return LibFilePattern[,]
     }
 
@@ -171,14 +171,14 @@ internal class ProcessPragma : Step
       scalar := obj as AScalar
       if (scalar == null)
       {
-        // TODO err("LibFilePattern must be scalar", obj.loc)
+        step.err("LibFilePattern must be scalar", obj.loc)
         return
       }
 
       x := LibFilePattern.fromStr(scalar.str, false)
       if (x == null)
       {
-        // TODO err("LibFilePattern must be scalar", obj.loc)
+        step.err("LibFilePattern must be scalar", obj.loc)
         return
       }
 

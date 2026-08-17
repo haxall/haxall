@@ -74,31 +74,49 @@ internal class ParseLib : ParseStep
 {
   override Void run()
   {
+    // special handling for companion
+    if (isCompanion && mode.isLib) return parseCompanionLib
+
+    // initialize the scanner
+    scanner := LibFileScanner.create(input)
+    try
+    {
+      // run with the scanner
+      doRun(scanner)
+    }
+    finally
+    {
+      // close scanner
+      scanner.close // TODO: how to pin for XetoEnv lib
+    }
+  }
+
+  private Void doRun(LibFileScanner scanner)
+  {
     // create ALib as our root AST
     lib := ALib(compiler, FileLoc(input), compiler.libName)
 
-    // parse different lib modes
-    files := MLibFiles.empty
-    if (isCompanion && mode.isLib)
-    {
-      parseCompanionLib(lib)
-    }
-    else if (input.ext == "xetolib")
-    {
-      files = parseZip(input, lib)
-    }
-    else if (input.isDir)
-    {
-      files = parseDir(input, lib)
-    }
-    else
-    {
-      parseFile(input, lib, compiler.srcBuildVars)
-    }
+    // give zip scanner chance to use its own build vars
+    buildVars := scanner.readBuildVars(compiler.srcBuildVars)
+
+    // parse lib.xeto
+    parseLibMeta(scanner, lib, buildVars)
     bombIfErr
 
-    // remove pragma object from lib slots
+    // remove and validate pragma object from lib slots
     pragma := validateLibPragma(lib)
+    bombIfErr
+
+    // scan files to build and check the LibFiles
+    files := scanFiles(scanner, pragma)
+
+    // parse rest of the source files besides lib.xeto
+    files.published.each |f|
+    {
+      if (f.uri.ext != "xeto") return
+      if (f.uri == `/lib.xeto`) return
+      parse(f.loc, f.readAllStr, lib, buildVars)
+    }
     bombIfErr
 
     // update compiler state.  ProcessPragma re-assigns meta for the lib
@@ -109,6 +127,14 @@ internal class ParseLib : ParseStep
     compiler.pragma = pragma
     lib.ast.files   = files
     if (files.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
+  }
+
+  private Void parseLibMeta(LibFileScanner scanner, ALib lib, BuildVars buildVars)
+  {
+    // parse lib.xeto
+    libXeto := scanner.libMeta
+    if (libXeto == null || !libXeto.exists) throw err("Missing 'lib.xeto'", FileLoc(input))
+    parseFile(libXeto, lib, buildVars)
   }
 
   private ADict? validateLibPragma(ALib lib)
@@ -141,59 +167,25 @@ internal class ParseLib : ParseStep
     return pragma.ast.meta
   }
 
-//////////////////////////////////////////////////////////////////////////
-// File Parsing
-//////////////////////////////////////////////////////////////////////////
-
-
-  private MLibFiles parseZip(File input, ALib lib)
+  private MLibFiles scanFiles( LibFileScanner scanner, ADict pragma)
   {
-    scanner := ZipLibFilesScanner(input)
-    files := scanner.scan
-    buildVars := BuildVars.empty
-// TODO: check the xeto-meta.props matches lib pragma?
-    parseLibFiles(files, lib, buildVars, false)
-    return files
-  }
+    if (mode.isParseLibMeta) return MLibFiles.empty
 
-  private MLibFiles parseDir(File input, ALib lib)
-  {
-    // first parse lib.xeto so we can get build pragma
-    metaFile := input.plus(`lib.xeto`)
-    if (!metaFile.exists) throw err("Missing 'lib.xeto' file", FileLoc(input))
-    buildVars := compiler.srcBuildVars
-    parseFile(metaFile, lib, buildVars)
+    include := ProcessPragma.toFilePatterns(this, pragma, "include")
+    publish := ProcessPragma.toFilePatterns(this, pragma, "publish")
 
-// TODO do some pre-pragma processing (need to reorder this)
-pragma := (ADict)lib.tops.get("pragma").ast.meta
-include := ProcessPragma.toFilePatterns(pragma, "include")
-publish := ProcessPragma.toFilePatterns(pragma, "publish")
-
-    scanner := DirLibFilesScanner(input, include, publish)
-    if (mode.isAst) scanner.isSrcOnly = true
-    files := scanner.scan |msg, f| { err(msg, FileLoc(f)) }
-
-     parseLibFiles(files, lib, buildVars, true)
-    return files
-  }
-
-  private Void parseLibFiles(MLibFiles files, ALib lib, BuildVars buildVars, Bool skipLibMeta)
-  {
-    files.published.each |f|
-    {
-      if (f.uri.ext != "xeto") return
-      if (f.uri == `/lib.xeto` && skipLibMeta) return
-      parse(f.loc, f.readAllStr, lib, buildVars)
-    }
+    scanner.scanPrep(include, publish) |msg, f| { err(msg, FileLoc(f)) }
+    return scanner.scan
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Companion
 //////////////////////////////////////////////////////////////////////////
 
-  private Void parseCompanionLib(ALib lib)
+  private Void parseCompanionLib()
   {
     // syntheize the pragma
+    lib := ALib(compiler, FileLoc(input), compiler.libName)
     lib.tops["pragma"] = synthetizeCompanionLibPragma(lib)
 
     // parse each record as its own compilation unit under the rec id so a
@@ -208,6 +200,14 @@ publish := ProcessPragma.toFilePatterns(pragma, "publish")
       if (rec.status.isErr) return
       parseCompanionRec(lib, rec)
     }
+
+    // update compiler state.  ProcessPragma re-assigns meta for the lib
+    // modes, but ast mode never runs that branch and the tree walks
+    // require meta to be non-null
+    compiler.ast    = lib
+    compiler.lib    = lib
+    compiler.pragma = validateLibPragma(lib)
+    lib.ast.files   = MLibFiles.empty
   }
 
   private Void parseCompanionRec(ALib lib, CompanionRec rec)
@@ -243,5 +243,6 @@ publish := ProcessPragma.toFilePatterns(pragma, "publish")
   {
     Etc.dict2("noInferMeta", Marker.val, "qnameForce", Marker.val)
   }
+
 }
 

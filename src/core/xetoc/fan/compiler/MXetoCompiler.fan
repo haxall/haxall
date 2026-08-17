@@ -269,6 +269,8 @@ enum class CompileMode
 
   Bool isAst() { this === ast }
 
+  Bool isParseLibMeta() { this === parseLibMeta }
+
   Bool isLibPragma() { this === lib || this === parseLibMeta || this === parseSymbols }
 }
 

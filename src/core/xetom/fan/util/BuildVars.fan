@@ -33,9 +33,9 @@ const class BuildVars
 
   ** Read build vars from a "xeto-build.props" file; returns `empty` if
   ** the file does not exist or cannot be parsed
-  static BuildVars read(File file)
+  static BuildVars read(File? file)
   {
-    if (!file.exists) return empty
+    if (file == null || !file.exists) return empty
     try
       return make(file.readProps)
     catch (Err e)

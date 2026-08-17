@@ -69,8 +69,9 @@ const class XetoZipUtil
     meta.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     if (v.isHxSysOnly) meta["hxSysOnly"] = Marker.val
 // TODO
-files := DirLibFilesScanner(dir, LibFilePattern[,],  LibFilePattern[,]).scan |msg| { echo(msg) }
-    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), vars.vars, files)
+//files := DirLibFilesScanner(dir, LibFilePattern[,],  LibFilePattern[,]).scan |msg| { echo(msg) }
+//    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), vars.vars, files)
+throw Err("TODO")
   }
 
 
