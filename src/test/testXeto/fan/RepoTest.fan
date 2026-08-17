@@ -502,7 +502,7 @@ class RepoTest : AbstractXetoTest
     verifyFileNames(["res/a%b.txt"], ["Invalid file name 'a%b.txt': Invalid file name char '%' 0x25"])
 
     // invalid directory name
-    verifyFileNames(["sub~dir/a.txt"], ["Invalid file name 'sub~dir': File name cannot contain reserved char '~'"])
+    verifyFileNames(["sub~dir/a.txt"], ["Invalid file path name 'sub~dir': File name cannot contain reserved char '~'"])
 
     // hidden files are skipped since they are excluded from the lib
     verifyFileNames([".hidden~file"], Str[,])
@@ -515,13 +515,29 @@ class RepoTest : AbstractXetoTest
 
     // a bad dir is reported once even though it contains multiple files
     verifyFileNames(["sub~dir/a.txt", "sub~dir/b.txt"],
-      ["Invalid file name 'sub~dir': File name cannot contain reserved char '~'"])
+      ["Invalid file path name 'sub~dir': File name cannot contain reserved char '~'"])
+
+    // dedup is keyed by path, not name, so the same bad name in two
+    // different directories is reported once for each
+    verifyFileNames(["x/sub~dir/a.txt", "y/sub~dir/b.txt"], [
+      "Invalid file path name 'sub~dir': File name cannot contain reserved char '~'",
+      "Invalid file path name 'sub~dir': File name cannot contain reserved char '~'",
+      ])
+
+    // only the first bad section of a path is reported
+    verifyFileNames(["a~1/b~2/c.txt"],
+      ["Invalid file path name 'a~1': File name cannot contain reserved char '~'"])
+
+    // a bad dir and a bad file name are each reported
+    verifyFileNames(["sub~dir/a b.txt"], [
+      "Invalid file name 'a b.txt': File name cannot contain spaces",
+      ])
 
     // reserved prefix, including a system file's own name
     verifyFileNames(["xeto-foo.props"],
       ["Invalid file name 'xeto-foo.props': File name cannot use reserved prefix 'xeto-'"])
     verifyFileNames(["xeto-dir/a.txt"],
-      ["Invalid file name 'xeto-dir': File name cannot use reserved prefix 'xeto-'"])
+      ["Invalid file path name 'xeto-dir': File name cannot use reserved prefix 'xeto-'"])
     verifyFileNames([XetoUtil.xetoMetaPropsName],
       ["Invalid file name 'xeto-meta.props': File name cannot use reserved prefix 'xeto-'"])
   }
@@ -538,9 +554,17 @@ class RepoTest : AbstractXetoTest
     (dir + `res/a.txt`).out.print("alpha\n").close
 
     // package normally, then append a system file this build knows nothing about
-    v := FileLibVersion("test.sysfiles", Version("0.0.1"), dir, "", 0, LibDepend#.emptyList)
+    origFile := tempDir + `orig.xetolib`
+    XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.sysfiles"
+      c.input   = dir
+      c.build   = origFile
+    }.compileLib
+
     entries := Uri:Buf[:] { ordered = true }
-    orig := Zip.read(XetoZipUtil.srcLibZip(v).toFile(`x.zip`).in)
+    orig := Zip.read(origFile.in)
     try
       orig.readEach |f| { if (!f.isDir) entries[f.uri] = f.readAllBuf }
     finally orig.close
@@ -592,8 +616,8 @@ class RepoTest : AbstractXetoTest
     verifyEq(lib.files.get(`/res/a.txt`, false), null)
   }
 
-  ** srcLibZip packages a source dir without compiling it, so it needs its
-  ** own coverage that packaging is opt-in on that path too
+  ** Packaging is opt-in and driven by the lib.xeto pragma, so the zip a
+  ** build writes carries only intrinsic content plus include/publish matches
   Void testSrcLibZipPackaging()
   {
     // xeto-build.props sits beside the lib dir in a source env
@@ -607,16 +631,19 @@ class RepoTest : AbstractXetoTest
     (dir + `res/a.txt`).out.print("alpha\n").close
     (dir + `nope/skipme.txt`).out.print("nope\n").close
 
-    v := FileLibVersion("test.srczip", Version("0.0.1"), dir, "", 0, LibDepend#.emptyList)
+    zipFile := tempDir + `test.srczip.xetolib`
+    XetoCompiler.init |c|
+    {
+      c.ns      = createNamespace(["sys"])
+      c.libName = "test.srczip"
+      c.input   = dir
+      c.build   = zipFile
+    }.compileLib
+
     entries := Str[,]
-    props := Str:Str[:]
-    zip := Zip.read(XetoZipUtil.srcLibZip(v).toFile(`x.zip`).in)
+    zip := Zip.read(zipFile.in)
     try
-      zip.readEach |f|
-      {
-        if (f.name == XetoUtil.xetoBuildPropsName) props = f.readProps
-        else entries.add(f.uri.toStr)
-      }
+      zip.readEach |f| { entries.add(f.uri.toStr) }
     finally zip.close
 
     // a file no pattern selected is not packaged; source always is
@@ -624,8 +651,8 @@ class RepoTest : AbstractXetoTest
     verifyEq(entries.contains("/res/a.txt"), true)
     verifyEq(entries.contains("/lib.xeto"), true)
 
-    // user vars packaged, reserved names are not
-    verifyEq(props["x.version"], "1.0.0")
+    // the compiler writes its own meta props into the zip root
+    verifyEq(entries.contains("/${XetoUtil.xetoMetaPropsName}"), true)
   }
 
   ** Compile a temp lib containing the given files and verify the exact

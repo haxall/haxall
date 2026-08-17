@@ -122,7 +122,22 @@ const class NamespaceRepoServer : RepoServer
     if (v == null) throw RepoServer.unknownLibErr(lib)
     if (v.version != version) throw RepoServer.unknownLibVersionErr(lib, version)
     if (!v.isSrc) return v.file
-    return XetoZipUtil.srcLibZip(v).toFile(`${lib}.xetolib`)
+    return compileSrcLib(v)
+  }
+
+  ** Always serve the standard "lib/xeto" zip.  If a source lib has not
+  ** been built yet, build it to that standard location and serve it.
+  ** Packaging requires the include/publish patterns from the lib.xeto
+  ** pragma, so building is the only correct way to zip a source dir.
+  private File compileSrcLib(LibVersion v)
+  {
+    zipFile := XetoUtil.srcToLibZip(v)
+    if (zipFile.exists) return zipFile
+
+    ((MEnv)ns.env).build([v])
+
+    if (!zipFile.exists) throw Err("Build did not produce zip: $v.name [$zipFile.osPath]")
+    return zipFile
   }
 
   ** Lib versions served from this namespace
