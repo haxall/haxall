@@ -430,7 +430,7 @@ class RemoteReposTest : AbstractXetoTest
 
     // verify digest read from origin props, matches zip bytes, and interned
     verifyEq(lib.digest, o.meta->digest)
-    verifyEq(lib.digest, XetoZipUtil.digest(xf.readAllBuf))
+    verifyEq(lib.digest, XetoCrypto.digest(xf.readAllBuf))
     verifySame(lib.digest, lib.digest)
   }
 

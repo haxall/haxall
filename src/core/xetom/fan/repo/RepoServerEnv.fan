@@ -159,7 +159,7 @@ internal const class RepoServerRepo : MLocalRepo
     // means corruption or tampering between catalog and storage
     if (v.digest != null)
     {
-      actual := XetoZipUtil.digestStream(temp.in)
+      actual := XetoCrypto.digestStream(temp.in)
       if (actual != v.digest)
       {
         temp.delete

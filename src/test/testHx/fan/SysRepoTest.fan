@@ -221,7 +221,7 @@ class SysRepoTest : HxTest
 
   Void verifyFetchedZip(Buf buf, Uri tmpName, Version ver)
   {
-    expectDigest := XetoZipUtil.digest(buf)
+    expectDigest := XetoCrypto.digest(buf)
     tmp := tempDir + tmpName
     tmp.out.writeBuf(buf).close
     v := FileLibVersion.loadZipFile(tmp)

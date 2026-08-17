@@ -11,12 +11,12 @@ using xeto
 using haystack
 
 **
-** XetoZipUtil is the choke point for building xetolib zip files; it is
-** used by the compiler build pipeline, remote repo clients which
-** assemble a zip from fetched source, and repo servers which zip a
-** local source lib on the fly.
+** XetoCrypto is the choke point for xeto's cryptographic operations:
+** today the content digests used to verify xetolib integrity, and where
+** signing would live.  It is kept separate from `XetoUtil` because crypto
+** pulls a JS dependency which XetoUtil must not carry.
 **
-const class XetoZipUtil
+const class XetoCrypto
 {
 
   ** Choke point to format digest of xetolib zip contents as "sha256:"
