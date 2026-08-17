@@ -44,7 +44,7 @@ internal class Resolve : Step
     // sys has no dependencies
     if (isSys) return
 
-    // process each depends from ProcessPragma step
+    // resolve each lib we depend on
     depends.list.each |depend|
     {
       resolveDepend(depend)

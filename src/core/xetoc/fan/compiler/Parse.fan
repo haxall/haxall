@@ -52,16 +52,12 @@ internal class ParseData : ParseStep
   {
     // create ADataDoc for our root AST
     doc := ADataDoc(compiler, FileLoc(input))
+    compiler.ast  = doc
+    compiler.data = doc
 
     // parse input into doc
     parseFile(input, doc, BuildVars.empty)
     bombIfErr
-
-    // update compiler state
-    compiler.ast    = doc
-    compiler.lib    = null
-    compiler.data   = doc
-    compiler.pragma = ADict(ast.loc, sys.lib) // we use ns for depends
   }
 }
 
@@ -95,87 +91,56 @@ internal class ParseLib : ParseStep
   {
     // create ALib as our root AST
     lib := ALib(compiler, FileLoc(input), compiler.libName)
+    compiler.ast = lib
+    compiler.lib = lib
 
-    // give zip scanner chance to use its own build vars
+    // give xetolib zip scanner chance to use its own build vars
     buildVars := scanner.readBuildVars(compiler.srcBuildVars)
 
-    // parse lib.xeto
-    parseLibMeta(scanner, lib, buildVars)
+    // parse "lib.xeto" first - its pragma decides what the scan may package
+    parseLibXeto(scanner, lib, buildVars)
     bombIfErr
 
-    // remove and validate pragma object from lib slots
-    pragma := validateLibPragma(lib)
+    // everything the pragma declares is parsed and checked here
+    APragma.extract(this, lib)
     bombIfErr
 
-    // scan files to build and check the LibFiles
-    files := scanFiles(scanner, pragma)
+    // now that include/publish are known we can scan and classify the files
+    lib.ast.files = scanFiles(scanner, lib)
+    if (lib.files.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
 
-    // parse rest of the source files besides lib.xeto
-    files.published.each |f|
-    {
-      if (f.uri.ext != "xeto") return
-      if (f.uri == `/lib.xeto`) return
-      parse(f.loc, f.readAllStr, lib, buildVars)
-    }
+    // parse source files from the scan
+    parseSrcFiles(lib, buildVars)
     bombIfErr
-
-    // update compiler state.  ProcessPragma re-assigns meta for the lib
-    // modes, but ast mode never runs that branch and the tree walks
-    // require meta to be non-null
-    compiler.ast    = lib
-    compiler.lib    = lib
-    compiler.pragma = pragma
-    lib.ast.files   = files
-    if (files.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
   }
 
-  private Void parseLibMeta(Scanner scanner, ALib lib, BuildVars buildVars)
+  ** Parse the lib.xeto file which declares the pragma
+  private Void parseLibXeto(Scanner scanner, ALib lib, BuildVars buildVars)
   {
-    // parse lib.xeto
     libXeto := scanner.libMeta
     if (libXeto == null || !libXeto.exists) throw err("Missing 'lib.xeto'", FileLoc(input))
     parseFile(libXeto, lib, buildVars)
   }
 
-  private ADict? validateLibPragma(ALib lib)
-  {
-    // use ns for depends
-    if (mode.isAst) return lib.ast.meta = ADict(lib.loc, sys.lib)
-
-    // remove object named "pragma" from root
-    pragma := lib.tops.remove("pragma")
-
-    // if not found
-    if (pragma == null)
-    {
-      // libs must have pragma
-      err("Lib '$compiler.libName' missing pragma", lib.loc)
-      return null
-    }
-
-    // libs must type their pragma as Lib
-    if (mode.isLibPragma)
-    {
-      if (pragma.typeRef == null || pragma.typeRef.name.name != "Lib") err("Pragma must have 'Lib' type", pragma.loc)
-    }
-
-    // must have meta, and no slots
-    if (pragma.ast.meta == null) err("Pragma missing meta data", pragma.loc)
-    if (pragma.declared != null) err("Pragma cannot have slots", pragma.loc)
-    if (pragma.val != null) err("Pragma cannot scalar value", pragma.loc)
-
-    return pragma.ast.meta
-  }
-
-  private MLibFiles scanFiles(Scanner scanner, ADict pragma)
+  ** Scan source and resource files
+  private MLibFiles scanFiles(Scanner scanner, ALib lib)
   {
     if (mode.isParseLibMeta) return MLibFiles.empty
 
-    include := ProcessPragma.toFilePatterns(this, pragma, "include")
-    publish := ProcessPragma.toFilePatterns(this, pragma, "publish")
-
-    return scanner.scan(include, publish)
+    return scanner.scan(lib.pragma.include, lib.pragma.publish)
   }
+
+  ** Parse every source file in the lib except lib.xeto which is already done
+  private Void parseSrcFiles(ALib lib, BuildVars buildVars)
+  {
+    lib.files.published.each |f|
+    {
+      if (f.uri.ext != "xeto") return
+      if (f.uri == `/lib.xeto`) return
+      parse(f.loc, f.readAllStr, lib, buildVars)
+    }
+  }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Companion
@@ -200,13 +165,11 @@ internal class ParseLib : ParseStep
       parseCompanionRec(lib, rec)
     }
 
-    // update compiler state.  ProcessPragma re-assigns meta for the lib
-    // modes, but ast mode never runs that branch and the tree walks
-    // require meta to be non-null
-    compiler.ast    = lib
-    compiler.lib    = lib
-    compiler.pragma = validateLibPragma(lib)
-    lib.ast.files   = MLibFiles.empty
+    // update compiler state
+    compiler.ast  = lib
+    compiler.lib  = lib
+    lib.ast.files = MLibFiles.empty
+    APragma.extract(this, lib)
   }
 
   private Void parseCompanionRec(ALib lib, CompanionRec rec)

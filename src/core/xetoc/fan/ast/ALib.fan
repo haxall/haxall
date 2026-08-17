@@ -56,14 +56,17 @@ internal const class ALib : Lib, ADoc
   ** Files support (set in Parse)
   override MLibFiles files() { ast.files ?: throw NotReadyErr() }
 
-  ** From pragma (set in ProcessPragma)
+  ** Assembled meta; the ADict node comes from the pragma (set in ParseLib)
   override Dict meta() { ast.meta.asm }
 
   ** Flags
   Int flags() { ast.flags }
 
-  ** Version parsed from pragma (set in ProcessPragma)
-  override Version version() { ast.version ?: throw NotReadyErr() }
+  ** Parsed pragma (set in ParseLib)
+  APragma pragma() { ast.pragma ?: throw NotReadyErr() }
+
+  ** Version declared by the pragma
+  override Version version() { pragma.version }
 
   ** Top level specs
   Str:ASpec tops() { ast.tops }
@@ -214,9 +217,9 @@ internal class ALibState : ADocAst
 
   MXetoCompiler compiler
   MLibFiles? files
+  APragma? pragma
   ADict? meta
   Int flags
-  Version? version
   Str:ASpec tops := [:] { ordered = true }
   ASpec[]? types
   Int autoNameCount

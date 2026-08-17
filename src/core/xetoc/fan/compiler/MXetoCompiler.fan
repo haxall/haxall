@@ -57,7 +57,6 @@ internal class MXetoCompiler : XetoCompiler
     run([
       InitLib(),
       ParseLib(),
-      ProcessPragma(),
       Resolve(),
       InheritSlots(),
       LoadBindings(),
@@ -82,7 +81,6 @@ internal class MXetoCompiler : XetoCompiler
     run([
       InitData(),
       ParseData(),
-      ProcessPragma(),
       Resolve(),
       InferInstances(),
       ReifyInstances(),
@@ -101,7 +99,6 @@ internal class MXetoCompiler : XetoCompiler
     run([
       InitAst(),
       ParseLib(),
-      ProcessPragma(),
       Resolve(),
       MixinMeta(),
       InferMeta(),
@@ -117,17 +114,15 @@ internal class MXetoCompiler : XetoCompiler
     run([
       InitParseLibMeta(),
       ParseLib(),
-      ProcessPragma(),
     ])
 
-    meta := lib.ast.meta
-    doc  := meta.getStr("doc") ?: ""
-    dir  := input.parent
+    dir := input.parent
+    pragma := lib.pragma
 
     flags := 0
-    if (meta.has("hxSysOnly")) flags = flags.or(LibVersion.flagHxSysOnly)
+    if (pragma.hxSysOnly) flags = flags.or(LibVersion.flagHxSysOnly)
 
-    return FileLibVersion(libName, lib.version, dir, doc, flags, depends.list)
+    return FileLibVersion(libName, lib.version, dir, pragma.doc, flags, depends.list)
   }
 
   ** Parse top-level symbols in lib directory
@@ -174,6 +169,15 @@ internal class MXetoCompiler : XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  ** Does this compile resolve names against the entire namespace rather
+  ** than a declared depends list?  Data has no pragma, and the companion
+  ** and temp libs have nothing meaningful declared in theirs.
+  Bool useNsDepends()
+  {
+    if (!mode.isLibPragma) return true
+    return libName == XetoUtil.companionLibName || tempLib
+  }
 
   ** Log info message
   Void info(Str msg)
@@ -241,7 +245,6 @@ internal class MXetoCompiler : XetoCompiler
   internal ADoc? ast                   // Parse (lib or data)
   internal ALib? lib                   // Parse (compileLib only)
   internal ADataDoc? data              // Parse (compileData only)
-  internal ADict? pragma               // Parse
   internal Str:Str usedBuildVars       // Parse (build vars used by lib)
   internal SpecMap? metas              // MixinMeta
   internal SpecMap? libMetas           // MixinMeta

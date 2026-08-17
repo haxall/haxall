@@ -51,7 +51,7 @@ abstract internal class Step
 
   ALib lib() { compiler.lib }
 
-  ADict? pragma() { compiler.pragma }
+  APragma pragma() { compiler.lib.pragma }
 
   SpecMap metas() { compiler.metas }
 
