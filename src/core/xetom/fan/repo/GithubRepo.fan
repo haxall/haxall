@@ -233,7 +233,7 @@ const class GithubRepo : MRemoteRepo
     if (libNames.isEmpty) return Str:Version[][:]
 
     contents := fetchLibXetoFiles(libNames, "HEAD")
-    buildProps := parseBuildProps(contents[XetoUtil.xetoBuildPropsName])
+    buildProps := parseBuildProps(contents[XetoUtil.xetoBuildPropsUri.name])
 
     acc := Str:Version[][:]
     libNames.each |name|
@@ -332,7 +332,7 @@ const class GithubRepo : MRemoteRepo
 
     r := repoData(graphql(buf.toStr))
     acc := Str:Str?[:]
-    acc[XetoUtil.xetoBuildPropsName] = (r["buildProps"] as Str:Obj?)?.get("text") as Str
+    acc[XetoUtil.xetoBuildPropsUri.name] = (r["buildProps"] as Str:Obj?)?.get("text") as Str
     libNames.each |name| { acc[name] = (r[toAlias(name)] as Str:Obj?)?.get("text") as Str }
     return acc
   }

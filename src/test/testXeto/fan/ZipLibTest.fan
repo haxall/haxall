@@ -186,7 +186,7 @@ class ZipLibTest : AbstractXetoTest
       msg = e.msg
     if (msg == null) return fail("expected err for skewed '$tag'")
 
-    verify(msg.contains(XetoUtil.xetoMetaPropsName), msg)
+    verify(msg.contains(XetoUtil.xetoMetaPropsUri.name), msg)
     verify(msg.contains("'$tag'"), msg)
   }
 

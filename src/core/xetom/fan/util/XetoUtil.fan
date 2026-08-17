@@ -301,10 +301,14 @@ const class XetoUtil
   }
 
   ** Is given file auto-publish - xeto source files and chapters
-  static Bool isPublishIntrinsic(Uri uri)
-  {
-    uri.ext == "xeto" || isChapter(uri)
-  }
+  static Bool isPublishIntrinsic(Uri uri) { uri.ext == "xeto" || isChapter(uri) }
+
+  ** Is the given lib file uri a documentation chapter.  Chapters are the
+  ** markdown files at the lib root: they take a name in the lib's doc
+  ** name space alongside the specs and instances, so they are the only
+  ** files which can collide with them.  Markdown nested under a
+  ** subdirectory is an ordinary resource file.
+  static Bool isChapter(Uri uri) { uri.path.size == 1 && uri.ext == "md" }
 
   ** Is the given file name reserved by `xetoFilePrefix`.  We match the
   ** prefix rather than a fixed list so that a lib packaged by a newer
@@ -320,27 +324,11 @@ const class XetoUtil
   ** exposed via `xeto::LibFiles`
   const static Str xetoSystemFilePrefix := "xeto-"
 
-  ** Lib meta file
-  const static Str xetoMetaPropsName := "xeto-meta.props"
-
-  ** Build vars file; also the source file name under `BuildVars.propsFileName`
-  const static Str xetoBuildPropsName := "xeto-build.props"
-
   ** Zip entry uri of `xetoMetaPropsName`
   const static Uri xetoMetaPropsUri := `/xeto-meta.props`
 
   ** Zip entry uri of `xetoBuildPropsName`
   const static Uri xetoBuildPropsUri := `/xeto-build.props`
-
-  ** Is the given lib file uri a documentation chapter.  Chapters are the
-  ** markdown files at the lib root: they take a name in the lib's doc
-  ** name space alongside the specs and instances, so they are the only
-  ** files which can collide with them.  Markdown nested under a
-  ** subdirectory is an ordinary resource file.
-  static Bool isChapter(Uri uri)
-  {
-    uri.path.size == 1 && uri.ext == "md"
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // Literals

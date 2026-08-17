@@ -144,9 +144,9 @@ internal class ParseLib : ParseStep
   private Void checkMetaProp(Str:Str props, Str name, Str expect)
   {
     actual := props[name]
-    if (actual == null) return err("Missing '$name' in $XetoUtil.xetoMetaPropsName", FileLoc(input))
+    if (actual == null) return err("Missing '$name' in $XetoUtil.xetoMetaPropsUri", FileLoc(input))
     if (actual == expect) return
-    err("Mismatched '$name' in $XetoUtil.xetoMetaPropsName: $actual.toCode != $expect.toCode", FileLoc(input))
+    err("Mismatched '$name' in $XetoUtil.xetoMetaPropsUri: $actual.toCode != $expect.toCode", FileLoc(input))
   }
 
   ** Scan source and resource files

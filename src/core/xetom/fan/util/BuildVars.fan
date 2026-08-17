@@ -69,7 +69,7 @@ const class BuildVars
   }
 
   ** Path of the build vars file relative to an environment dir
-  const static Uri propsFileName := ("src/xeto/" + XetoUtil.xetoBuildPropsName).toUri
+  const static Uri propsFileName := ("src/xeto/xeto-build.props").toUri
 
 //////////////////////////////////////////////////////////////////////////
 // Access

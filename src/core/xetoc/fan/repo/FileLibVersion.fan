@@ -107,7 +107,7 @@ const class FileLibVersion : LibVersion
     zip := Zip.open(file)
     try
     {
-      propsFile := zip.contents.get(XetoUtil.xetoMetaPropsUri) ?: throw Err("Missing '$XetoUtil.xetoMetaPropsName' in zip")
+      propsFile := zip.contents.get(XetoUtil.xetoMetaPropsUri) ?: throw Err("Missing '$XetoUtil.xetoMetaPropsUri' in zip")
       props = propsFile.readProps
     }
     finally zip.close

@@ -415,8 +415,8 @@ class UtilTest : AbstractXetoTest
     // lib files, so even their exact names are invalid here
     verifyIsFileName("xetodoc.md", null)  // prefix requires the dash
     reservedErr := "File name cannot use reserved prefix 'xeto-'"
-    verifyIsFileName(XetoUtil.xetoMetaPropsName, reservedErr)
-    verifyIsFileName(XetoUtil.xetoBuildPropsName, reservedErr)
+    verifyIsFileName(XetoUtil.xetoMetaPropsUri.name, reservedErr)
+    verifyIsFileName(XetoUtil.xetoBuildPropsUri.name, reservedErr)
     verifyIsFileName("xeto-foo.txt", reservedErr)
     verifyIsFileName("xeto-", reservedErr)
     verifyIsFileName("xeto-lib", reservedErr)  // applies to dir names too
@@ -455,7 +455,7 @@ class UtilTest : AbstractXetoTest
     verifyEq(v.isEmpty, true)
     verifyEq(v.props, Str:Str[:])
     verifyEq(v.vars, Str:Str[:])
-    
+
     verifyEq(v.get("foo"), null)
   }
 

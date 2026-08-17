@@ -552,7 +552,7 @@ class RepoTest : AbstractXetoTest
     // rejects it, so only the name error is reported here
     verifyFileNames(["xeto-dir/a.txt"],
       ["Invalid file path name 'xeto-dir': File name cannot use reserved prefix 'xeto-'"])
-    verifyFileNames([XetoUtil.xetoMetaPropsName], [
+    verifyFileNames([XetoUtil.xetoMetaPropsUri.name], [
       "Invalid file name 'xeto-meta.props': File name cannot use reserved prefix 'xeto-'",
       "No matching files for publish pattern: /xeto-meta.props",
       ])
@@ -638,7 +638,7 @@ class RepoTest : AbstractXetoTest
   {
     // xeto-build.props sits beside the lib dir in a source env
     srcDir := tempDir + `srczip/`
-    (srcDir + XetoUtil.xetoBuildPropsName.toUri).out.print("x.version=1.0.0\n").close
+    (srcDir + XetoUtil.xetoBuildPropsUri).out.print("x.version=1.0.0\n").close
 
     dir := srcDir + `test.srczip/`
     (dir + `lib.xeto`).out.print(
@@ -668,7 +668,7 @@ class RepoTest : AbstractXetoTest
     verifyEq(entries.contains("/lib.xeto"), true)
 
     // the compiler writes its own meta props into the zip root
-    verifyEq(entries.contains("/${XetoUtil.xetoMetaPropsName}"), true)
+    verifyEq(entries.contains("/${XetoUtil.xetoMetaPropsUri.name}"), true)
   }
 
   ** Declaring include or publish and then selecting nothing at all is an
