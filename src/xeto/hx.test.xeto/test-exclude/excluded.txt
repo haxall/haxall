@@ -1,2 +1,5 @@
-This file must never be packaged into the xetolib; see xeto.srcExclude
-in src/xeto/xeto-build.props.
+This file must never be packaged into the xetolib.
+
+Packaging is opt-in: the lib.xeto pragma selects files via its include and
+publish patterns, and nothing selects this dir.  NamespaceTest and ZipLibTest
+both verify it is absent from the lib files.

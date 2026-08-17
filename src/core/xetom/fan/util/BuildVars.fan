@@ -45,11 +45,6 @@ const class BuildVars
   ** Read build vars inherited across an environment path.  Each path dir
   ** may define "src/xeto/xeto-build.props" and entries earlier in the
   ** path override those later in the path.
-  **
-  ** Exception: `srcExcludeVar` accumulates instead of overriding.  Each
-  ** project states which of its own source dirs are not packaged, and a
-  ** single build compiles libs from every dir on the path, so all of
-  ** those statements must hold at once.
   static BuildVars load(File[] path)
   {
     acc := Str:Str[:]

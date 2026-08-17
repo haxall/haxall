@@ -604,6 +604,47 @@ class RepoTest : AbstractXetoTest
     verifyEq(lib.files.list.map |f->Uri| { f.uri }.sort, [`/lib.xeto`])
   }
 
+  ** parseLibMeta reads the pragma for the repo scan, which happens for every
+  ** lib on the path at startup.  It must parse lib.xeto and nothing else:
+  ** parsing the whole lib would make scanning cost a full compile, and any
+  ** unrelated source error would take out the lib's metadata.
+  Void testParseLibMetaOnlyReadsLibXeto()
+  {
+    dir := tempDir + `parselibmeta/test.plm/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib <
+             version: "3.2.1"
+             doc: "Only lib.xeto is read"
+             depends: { { lib: "sys" } }
+           >
+         |>).close
+
+    // a sibling source file which cannot possibly parse
+    (dir + `broken.xeto`).out.print("this is not valid xeto @@@ !!!\n").close
+
+    // the repo scanner points at the lib.xeto file itself
+    verifyParseLibMeta(dir + `lib.xeto`)
+
+    // and pointing at the lib dir must not start walking it either: the
+    // mode skips the file scan, so broken.xeto is never reached
+    verifyParseLibMeta(dir)
+  }
+
+  private Void verifyParseLibMeta(File input)
+  {
+    v := XetoCompiler.init |c|
+    {
+      c.libName = "test.plm"
+      c.input   = input
+    }.parseLibMeta
+
+    verifyEq(v.name, "test.plm")
+    verifyEq(v.version, Version("3.2.1"))
+    verifyEq(v.doc, "Only lib.xeto is read")
+    verifyEq(v.depends.join(",") { it.name }, "sys")
+  }
+
   Void testNestedSrcFiles()
   {
     // nested ".xeto" source files are parsed at any depth
