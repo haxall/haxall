@@ -506,14 +506,22 @@ const class TestRemoteRepo : MRemoteRepo
     ]
   }
 
+  ** The installer only copies the fetched buf to disk without loading it,
+  ** so a zip with just the meta props is enough to exercise install plans
   override Buf fetch(Str name, Version version)
   {
-    buf := Buf()
     v := this.version(name, version)
+
+    props := Str:Str[:]
+    props.ordered = true
+    props["name"]    = name
+    props["version"] = version.toStr
+    props["depends"] = v.depends.join(";")
+    props["doc"]     = ""
+
+    buf := Buf()
     zip := Zip.write(buf.out)
-    zip.writeNext(XetoUtil.xetoMetaPropsUri)
-       .writeProps(XetoZipUtil.buildLibMetaProps(name, version, v.depends, Etc.dict0))
-       .close
+    zip.writeNext(XetoUtil.xetoMetaPropsUri).writeProps(props).close
     zip.close
     return buf.toImmutable
   }

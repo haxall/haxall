@@ -20,8 +20,12 @@ const class MLibFiles : LibFiles
 
   internal new make(Uri:LibFile map)
   {
+    // sort by name but put lib.xeto first
+    list := map.vals.sort
+    list.moveTo(list.find { it.uri == `/lib.xeto` }, 0)
+
     this.map         = map
-    this.list        = map.vals.sort
+    this.list        = list
     this.published   = list.findAll { it.isPublished }
     this.hasChapters = published.any { XetoUtil.isChapter(it.uri) }
   }

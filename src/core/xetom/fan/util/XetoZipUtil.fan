@@ -18,59 +18,6 @@ using haystack
 **
 const class XetoZipUtil
 {
-  ** Write a xetolib zip to the given output stream and close it.
-  ** Entries are written in the required order: xeto-meta.props,
-  ** xeto-build.props if non-empty, then the lib source files.  Files are
-  ** written raw so the compiler resolves BuildVar tokens at load time.
-  static Void writeLibZip(OutStream out, Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, MLibFiles files)
-  {
-    zip := Zip.write(out)
-    try
-    {
-      // xeto-meta.props - required for FileLibVersion.loadZipFile
-      zip.writeNext(XetoUtil.xetoMetaPropsUri).writeProps(buildLibMetaProps(name, version, depends, meta)).close
-
-      // xeto-build.props - must be before xeto files (compiler reads it first)
-      if (!buildProps.isEmpty) zip.writeNext(XetoUtil.xetoBuildPropsUri).writeProps(buildProps).close
-
-      // source files; preserve modified times when the file has one.
-      // srcLibZip and GithubRepo package without compiling, so the names
-      // are checked here rather than only by the compiler
-      files.list.each |file|
-      {
-        entryOut := zip.writeNext(file.uri, file.modified ?: DateTime.now)
-        file.read |in| { in.pipe(entryOut) }
-        entryOut.close
-      }
-    }
-    finally zip.close
-  }
-
-  ** Build a xetolib zip into an in-memory buf; see `writeLibZip`
-  static Buf buildLibZip(Str name, Version version, LibDepend[] depends, Dict meta, Str:Str buildProps, MLibFiles files)
-  {
-    buf := Buf()
-    writeLibZip(buf.out, name, version, depends, meta, buildProps, files)
-    return buf.toImmutable
-  }
-
-  ** Choke point to generate the xetolib meta props contents
-  static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
-  {
-    props := Str:Str[:]
-    props.ordered = true
-    props["name"]    = name
-    props["version"] = version.toStr
-    props["depends"] = depends.join(";")
-    props["doc"]     = meta["doc"] as Str ?: ""
-    props.addNotNull("publish", (meta["publish"] as List)?.join(";")?.trimToNull)
-    props.addNotNull("hxSysOnly", meta.has("hxSysOnly") ? "true" : null)
-    return props
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Digest
-//////////////////////////////////////////////////////////////////////////
 
   ** Choke point to format digest of xetolib zip contents as "sha256:"
   ** followed by the base64uri encoding of the SHA-256 hash
