@@ -109,10 +109,11 @@ const class GithubRepo : MRemoteRepo
     return findAllVersionsWithOpts(list, opts)
   }
 
-  ** Download the source files for a lib as a zip Buf.
-  ** Source files are written raw; xeto-build.props is included in the zip
-  ** so the compiler resolves BuildVar tokens at load time (matches
-  ** the OutputZip strategy in xetoc).
+  ** Download the source files for a lib and compile them into a xetolib
+  ** zip Buf.  We write the sources to a temp source tree and run the normal
+  ** compiler rather than packaging the zip ourselves: packaging requires the
+  ** include/publish patterns from the lib.xeto pragma, so the compiler is the
+  ** only place that can decide what belongs in the zip.
   override Buf fetch(Str name, Version version)
   {
     // verify the lib+version exists and get enriched metadata
@@ -121,30 +122,51 @@ const class GithubRepo : MRemoteRepo
     // resolve the git ref for this version
     ref := "v$version"
 
-    // fetch xeto-build.props for inclusion in zip
+    // fetch xeto-build.props so the compiler resolves BuildVar tokens
     buildProps := fetchBuildProps(ref)
 
     // query all files in the lib directory at that ref
     files := fetchLibFiles(name, ref)
     if (files.isEmpty) throw Err("No source files found for $name at $ref in $owner/$repo")
 
-    // zip into a Buf in the standard xetolib format
-    entries := Uri:LibFile[:]
-    files.each |content, fileName| { uri := fileName.toUri; entries[uri] = MLibFile(uri, content.toBuf.toFile(uri), false) }
-// TODO
-libFiles := MLibFiles(entries)
-    return XetoZipUtil.buildLibZip(ver.name, ver.version, ver.depends, Etc.dict1x("doc", ver.doc), buildProps, libFiles)
+    return compileLibZip(ver, files, buildProps)
   }
 
-  ** Resolve BuildVar tokens in xeto source content using xeto-build.props values.
-  ** Used only by parseLibMeta which operates on a single file without
-  ** xeto-build.props context.
-  private Str resolveBuildVars(Str content, Str:Str buildProps)
+  ** Write the fetched sources to a temp source tree laid out the way the
+  ** compiler expects and build the xetolib zip from it.  Not private so
+  ** tests can exercise the compile without going through the GitHub API.
+  @NoDoc Buf compileLibZip(RemoteLibVersion ver, Str:Str files, Str:Str buildProps)
   {
-    if (buildProps.isEmpty) return content
-    resolved := content
-    buildProps.each |val, key| { resolved = resolved.replace("BuildVar \"$key\"", "\"$val\"") }
-    return resolved
+    workDir := Env.cur.tempDir + `github-${owner}-${repo}-${DateTime.nowTicks}/`
+    try
+    {
+      // "{work}/src/xeto/{name}/" is the standard src layout
+      srcDir := workDir + `src/xeto/${ver.name}/`
+      srcDir.create
+      files.each |content, fileName| { (srcDir + fileName.toUri).out.print(content).close }
+
+      // compile against a namespace holding this lib's depends.  The build
+      // vars came from the remote repo, not from this env, so pass them in
+      zipFile := workDir + `lib/xeto/${ver.name}.xetolib`
+      XetoCompiler.init
+      {
+        it.ns           = dependsNamespace(ver)
+        it.libName      = ver.name
+        it.input        = srcDir
+        it.build        = zipFile
+        it.srcBuildVars = BuildVars(buildProps)
+      }.compileLib
+
+      return zipFile.readAllBuf
+    }
+    finally { try workDir.delete; catch {} }
+  }
+
+  ** Namespace of the lib's depends needed to compile it
+  private Namespace dependsNamespace(RemoteLibVersion ver)
+  {
+    depends := ver.depends(false) ?: LibDepend#.emptyList
+    return env.createNamespace(env.repo.resolveDepends(depends))
   }
 
   ** Fetch xeto-build.props for a given git ref via GraphQL.
@@ -379,17 +401,22 @@ libFiles := MLibFiles(entries)
   }
 
   ** Parse lib.xeto content into a RemoteLibVersion via XetoCompiler.
-  ** BuildVar tokens are resolved before parsing so the compiler sees plain values.
+  ** The build props come from the remote repo, so they are handed to the
+  ** compiler which resolves the BuildVar tokens as it parses.
   private RemoteLibVersion? parseLibMeta(Str libName, Str content, Str:Str buildProps)
   {
-    resolved := resolveBuildVars(content, buildProps)
     tempDir := Env.cur.tempDir.plus(`github-${owner}-${repo}-${DateTime.nowTicks}/${libName}/`)
     try
     {
       tempDir.create
-      tempDir.plus(`lib.xeto`).out.print(resolved).close
+      tempDir.plus(`lib.xeto`).out.print(content).close
 
-      c := XetoCompiler.init { it.libName = libName; it.input = tempDir.plus(`lib.xeto`) }
+      c := XetoCompiler.init
+      {
+        it.libName      = libName
+        it.input        = tempDir.plus(`lib.xeto`)
+        it.srcBuildVars = BuildVars(buildProps)
+      }
       parsed := c.parseLibMeta
       return RemoteLibVersion(parsed.name, parsed.version, parsed.doc, parsed.depends(false))
     }

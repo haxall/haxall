@@ -27,6 +27,9 @@ internal abstract class Init : Step
     // check namespace
     if (compiler.ns == null && nsRequired) throw err("Compiler ns not configured", FileLoc.inputs)
 
+    // init srcBuildVars if left null
+    if (compiler.srcBuildVars == null) compiler.srcBuildVars = compiler.env.buildVars
+
     // check input exists
     input := compiler.input
     if (input == null) throw err("Compiler input not configured", FileLoc.inputs)

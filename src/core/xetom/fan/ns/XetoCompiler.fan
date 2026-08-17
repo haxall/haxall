@@ -49,8 +49,10 @@ abstract class XetoCompiler
   ** Are we building a xetolib zip
   Bool isBuild() { build != null }
 
-  ** Build vars from source environment
-  BuildVars srcBuildVars() { env.buildVars }
+  ** Build vars from source environment.  Defaults to the env's own vars,
+  ** but a caller compiling a source tree outside the env (such as a remote
+  ** repo fetch) sets the vars which came with that source.
+  BuildVars? srcBuildVars
 
   ** Apply options
   abstract Void applyOpts(Dict? opts)

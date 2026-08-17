@@ -54,27 +54,6 @@ const class XetoZipUtil
     return buf.toImmutable
   }
 
-  ** Build a xetolib zip for a local source lib.  The src directory
-  ** files are zipped raw along with the adjacent "xeto-build.props" if
-  ** present so the compiler resolves BuildVar tokens at load time.
-  static Buf srcLibZip(LibVersion v)
-  {
-    dir := v.file
-
-    // only user vars are packaged; reserved names configure a source
-    // tree we are not shipping
-    vars := BuildVars.read(dir.parent + XetoUtil.xetoBuildPropsName.toUri)
-
-    meta := Str:Obj[:]
-    meta.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
-    if (v.isHxSysOnly) meta["hxSysOnly"] = Marker.val
-// TODO
-//files := DirLibFilesScanner(dir, LibFilePattern[,],  LibFilePattern[,]).scan |msg| { echo(msg) }
-//    return buildLibZip(v.name, v.version, v.depends, Etc.dictFromMap(meta), vars.vars, files)
-throw Err("TODO")
-  }
-
-
   ** Choke point to generate the xetolib meta props contents
   static Str:Str buildLibMetaProps(Str name, Version version, LibDepend[] depends, Dict meta)
   {
