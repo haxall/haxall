@@ -107,7 +107,7 @@ internal class ParseLib : ParseStep
 
     // now that include/publish are known we can scan and classify the files
     lib.ast.files = scanFiles(scanner, lib)
-    if (lib.files.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
+    if (scanner.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
 
     // parse source files from the scan
     parseSrcFiles(lib, buildVars)

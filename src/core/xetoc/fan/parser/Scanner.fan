@@ -39,33 +39,33 @@ internal abstract class Scanner
   ** Get libMeta or return null/non-nonexistent file if missing
   abstract File? libMeta()
 
+  ** Scan flag if any chapter resources detected
+  Bool hasChapters
+
   ** Perform scan - must have called scanPrep
   MLibFiles scan(LibFilePattern[] include, LibFilePattern[] publish)
   {
     this.include = include
     this.publish = publish
     acc := Uri:LibFile[:]
-    doScan |uri, f|
-    {
-      acc.addNotNull(uri, scanFile(uri, f))
-    }
+    doScan |uri, f| { scanFile(acc, uri, f) }
     return MLibFiles(acc)
   }
 
-  private LibFile? scanFile(Uri uri, File f)
+  private Void scanFile(Uri:LibFile acc, Uri uri, File f)
   {
     // always skip hidden files
-    if (XetoUtil.isHiddenFile(uri.name)) return null
+    if (XetoUtil.isHiddenFile(uri.name)) return
 
     // no file can start with "xeto-"
     if (XetoUtil.isXetoSystemFile(uri.name))
     {
       // ignore system files in xetolib
-      if (isZip) return null
+      if (isZip) return
 
       // report error
       err("Invalid file name '$uri.name': File name cannot use reserved prefix '$XetoUtil.xetoSystemFilePrefix'", FileLoc(f))
-      return null
+      return
     }
 
     // sources and chapters are intrinsically published or in 'publish' patterns
@@ -73,13 +73,19 @@ internal abstract class Scanner
 
     // includes is anything published or in 'include' patterns
     isIncluded := isPublished || include.any { it.matches(uri) }
-    if (!isIncluded) return null
+    if (!isIncluded) return
 
     // if published verify its a valid publish file name
     if (isPublished) checkPublishPath(uri, f)
 
     // we have a valid publish file
-    return MLibFile(uri, f, isPublished)
+    scanAdd(acc, MLibFile(uri, f, isPublished))
+  }
+
+  private Void scanAdd(Uri:LibFile acc, MLibFile f)
+  {
+    if (XetoUtil.isChapter(f.uri)) hasChapters = true
+    acc.add(f.uri, f)
   }
 
   ** Report the first invalid section of a published path.  A directory is

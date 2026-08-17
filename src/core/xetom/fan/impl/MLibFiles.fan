@@ -24,10 +24,9 @@ const class MLibFiles : LibFiles
     list := map.vals.sort
     list.moveTo(list.find { it.uri == `/lib.xeto` }, 0)
 
-    this.map         = map
-    this.list        = list
-    this.published   = list.findAll { it.isPublished }
-    this.hasChapters = published.any { XetoUtil.isChapter(it.uri) }
+    this.map       = map
+    this.list      = list
+    this.published = list.findAll { it.isPublished }
   }
 
   override Bool isSupported() { true }
@@ -37,8 +36,6 @@ const class MLibFiles : LibFiles
   override const LibFile[] published
 
   private const Uri:LibFile map
-
-  const Bool hasChapters
 
   override LibFile? get(Uri uri, Bool checked := true)
   {
