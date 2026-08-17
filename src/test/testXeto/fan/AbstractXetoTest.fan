@@ -10,6 +10,7 @@ using concurrent
 using util
 using xeto
 using xetom
+using xetoc
 using haystack
 
 **
@@ -64,6 +65,48 @@ class AbstractXetoTest : HaystackTest
   Namespace createNamespace(Str[] libs := ["sys"])
   {
     XetoEnv.cur.resolveNamespace(libs)
+  }
+
+  ** Create a namespace which loads every lib from its packaged xetolib zip
+  ** instead of its source dir.  The dev environment always has both, and
+  ** source wins, so the zip code paths are otherwise never exercised: we
+  ** build an env whose path holds nothing but "lib/xeto" zips.
+  **
+  ** Returns null if the zips have not been built yet - the caller is
+  ** expected to skip, since we cannot compile them from within a test run.
+  Namespace? createZipNamespace(Str[] libs := ["sys"])
+  {
+    env  := XetoEnv.cur
+    vers := env.repo.resolveDepends(libs.map |n->LibDepend| { LibDepend(n) })
+
+    // every lib in the closure must have a built zip
+    missing := vers.findAll |v| { v.isSrc && XetoUtil.srcToLibZip(v)?.exists != true }
+    if (!missing.isEmpty)
+    {
+      echo("")
+      echo("#####################################################################")
+      echo("## SKIP $typeof.name: xetolib zips not built")
+      echo("##   missing: " + missing.join(", ") { it.name })
+      echo("##   run 'fan src/build.fan' to build them")
+      echo("#####################################################################")
+      echo("")
+      return null
+    }
+
+    // stage the zips in a temp dir which is the entire env path, so the
+    // scanner finds no "src/xeto" to prefer over them
+    stage := tempDir + `zipenv/`
+    stage.delete
+    libDir := stage + `lib/xeto/`
+    libDir.create
+    vers.each |v|
+    {
+      zip := v.isSrc ? XetoUtil.srcToLibZip(v) : v.file
+      zip.copyTo(libDir + `${v.name}.xetolib`, ["overwrite":true])
+    }
+
+    zipEnv := FileEnv("ziptest", [stage])
+    return zipEnv.createNamespace(zipEnv.repo.resolveDepends(libs.map |n->LibDepend| { LibDepend(n) }))
   }
 
   Obj? compileData(Str s, Dict? opts := null)
