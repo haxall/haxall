@@ -70,9 +70,6 @@ internal class ParseLib : ParseStep
 {
   override Void run()
   {
-    // special handling for companion
-    if (isCompanion && mode.isLib) return parseCompanionLib
-
     // initialize the scanner
     scanner := Scanner.create(this)
     try
@@ -113,8 +110,8 @@ internal class ParseLib : ParseStep
     lib.ast.files = scanFiles(scanner, lib)
     if (scanner.hasChapters) lib.ast.flags = lib.flags.or(MLibFlags.hasChapters)
 
-    // parse source files from the scan
-    parseSrcFiles(lib, buildVars)
+    // parse remaining source files thru scanner
+    parseSrcFiles(scanner, lib, buildVars)
     bombIfErr
   }
 
@@ -158,79 +155,12 @@ internal class ParseLib : ParseStep
   }
 
   ** Parse every source file in the lib except lib.xeto which is already done
-  private Void parseSrcFiles(ALib lib, BuildVars buildVars)
+  private Void parseSrcFiles(Scanner scanner, ALib lib, BuildVars buildVars)
   {
-    lib.files.published.each |f|
+    scanner.eachSrcFile(lib.files) |f|
     {
-      if (f.uri.ext != "xeto") return
-      if (f.uri == `/lib.xeto`) return
       parse(f.loc, f.readAllStr, lib, buildVars)
     }
-  }
-
-
-//////////////////////////////////////////////////////////////////////////
-// Companion
-//////////////////////////////////////////////////////////////////////////
-
-  private Void parseCompanionLib()
-  {
-    // syntheize the pragma
-    lib := ALib(compiler, FileLoc(input), compiler.libName)
-    lib.tops["pragma"] = synthetizeCompanionLibPragma(lib)
-
-    // parse each record as its own compilation unit under the rec id so a
-    // parse error in one rec is attributed to that rec and quarantined
-    // independently; skip recs already marked in error so partial compilation
-    // only compiles the still-ok subset (see CompanionCompiler).  Funcs are
-    // each printed as their own '+Funcs' block which merge into one mixin
-    // (see multi-file mixins).
-    companionRecs := ns.companionRecs ?: throw Err("No companion recs")
-    companionRecs.each |rec|
-    {
-      if (rec.status.isErr) return
-      parseCompanionRec(lib, rec)
-    }
-
-    // update compiler state
-    compiler.ast  = lib
-    compiler.lib  = lib
-    lib.ast.files = MLibFiles.empty
-    APragma.extract(this, lib)
-  }
-
-  private Void parseCompanionRec(ALib lib, CompanionRec rec)
-  {
-    // print the dict back to Xeto source code to parse; a func is wrapped in
-    // its own '+Funcs' mixin block so all funcs merge into one Funcs spec
-    s := StrBuf()
-    if (rec.isFunc)
-    {
-      s.add("+Funcs {\n")
-      XetoPrinter(ns, s.out, companionPrintOpts).ast(rec.rec)
-      s.add("}\n")
-    }
-    else
-    {
-      XetoPrinter(ns, s.out, companionPrintOpts).ast(rec.rec)
-    }
-    parse(rec.loc, s.toStr, lib, compiler.srcBuildVars)
-  }
-
-  private ASpec? synthetizeCompanionLibPragma(ALib lib)
-  {
-    // generate stub pragma
-    loc := FileLoc.synthetic
-    pragma := ASpec(loc, lib, null, "pragma")
-    pragma.typeRef = ASpecRef(loc, ASimpleName(null, "Lib"))
-    meta := pragma.metaInit
-    meta.set("version", AScalar(loc, null, "0.0.0"))
-    return pragma
-  }
-
-  private once Dict companionPrintOpts()
-  {
-    Etc.dict2("noInferMeta", Marker.val, "qnameForce", Marker.val)
   }
 
 }

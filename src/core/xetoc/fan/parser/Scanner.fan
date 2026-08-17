@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetom
+using haystack
 
 **
 ** Scanner is abstracts scanning LibFiles across xetolib
@@ -17,9 +18,13 @@ using xetom
 @Js
 internal abstract class Scanner
 {
-  ** Create for the given file
+  ** Create for the given input.  The companion has no input file at all -
+  ** its source comes from the project records - so it dispatches on the
+  ** compile rather than on the file.
   static Scanner create(ParseStep step)
   {
+    if (step.compiler.isCompanion && step.mode.isLib) return CompanionScanner(step)
+
     input := step.input
     if (input.ext == "xetolib") return ZipScanner(step, input)
     if (input.isDir) return DirScanner(step, input)
@@ -42,6 +47,17 @@ internal abstract class Scanner
 
   ** Get libMeta or return null/non-nonexistent file if missing
   abstract File? libMeta()
+
+  ** Iterate the source files excluding "lib.xeto" which is already parsed
+  virtual Void eachSrcFile(LibFiles files, |LibFile| cb)
+  {
+    files.published.each |f|
+    {
+      if (f.uri.ext != "xeto") return
+      if (f.uri == `/lib.xeto`) return
+      cb(f)
+    }
+  }
 
   ** Scan flag if any chapter resources detected
   Bool hasChapters
@@ -135,7 +151,7 @@ internal abstract class Scanner
     step.err(msg, loc)
   }
 
-  private ParseStep step
+  protected ParseStep step
   private ScannerPatternList? include
   private ScannerPatternList? publish
   private Str:Str badPaths := [:]
@@ -286,5 +302,72 @@ internal class FileScanner : Scanner
   }
 
   const File file
+}
+
+
+**************************************************************************
+** CompanionScanner
+**************************************************************************
+
+** The companion lib has no files: its source is synthesized from the
+** project records.  It scans nothing and packages nothing, so the only
+** thing it supplies is the source to parse - a stub pragma plus one unit
+** per record.
+@Js
+internal class CompanionScanner : Scanner
+{
+  new make(ParseStep step) : super(step) {}
+
+  ** Stub pragma source to parse like other normal APragma
+  override File? libMeta()
+  {
+    Str<|pragma: Lib <
+           version: "0.0.0"
+         >
+       |>.toBuf.toFile(`lib.xeto`)
+  }
+
+  ** Print each record back to Xeto source as its own compilation unit, so
+  ** a parse error in one rec is attributed to that rec and quarantined
+  ** independently.  Recs already marked in error are skipped, which is what
+  ** lets partial compilation compile the still-ok subset (see
+  ** CompanionCompiler).  Funcs are each wrapped in their own '+Funcs' block
+  ** so they all merge into one mixin (see multi-file mixins).
+  override Void eachSrcFile(LibFiles files, |LibFile| cb)
+  {
+    recs := step.ns.companionRecs ?: throw Err("No companion recs")
+    recs.each |rec|
+    {
+      if (rec.status.isErr) return
+      cb(MemStrLibFile(`/$rec.name`, printRec(rec), true, rec.loc))
+    }
+  }
+
+  private Str printRec(CompanionRec rec)
+  {
+    s := StrBuf()
+    if (rec.isFunc)
+    {
+      s.add("+Funcs {\n")
+      XetoPrinter(step.ns, s.out, printOpts).ast(rec.rec)
+      s.add("}\n")
+    }
+    else
+    {
+      XetoPrinter(step.ns, s.out, printOpts).ast(rec.rec)
+    }
+    return s.toStr
+  }
+
+  private once Dict printOpts()
+  {
+    Etc.dict2("noInferMeta", Marker.val, "qnameForce", Marker.val)
+  }
+
+  ** Return no files - we don't pin our temp source files in memory!
+  override Void doScan(|Uri,File| cb) {}
+
+  ** Cannot use
+  override LibFile reify(Uri uri, File file, Bool isPublished) { throw UnsupportedErr() }
 }
 

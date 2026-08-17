@@ -118,6 +118,31 @@ const class ZipLibFile : LibFile
 }
 
 **************************************************************************
+** MemStrLibFile
+**************************************************************************
+
+@Js
+const class MemStrLibFile : LibFile
+{
+  new make(Uri uri, Str file, Bool isPublished, FileLoc loc)
+  {
+    this.uri         = uri
+    this.file        = file
+    this.isPublished = isPublished
+    this.loc         = loc
+  }
+
+  const Str file
+  const override Uri uri
+  const override Bool isPublished
+  override Int? size() { null }
+  override DateTime? modified() { null }
+  override const FileLoc loc
+  override Obj? read(|InStream->Obj?| f) { throw UnsupportedErr("Must use readAllStr") }
+  override Str readAllStr() { file }
+}
+
+**************************************************************************
 ** UnsupportedLibFiles
 **************************************************************************
 

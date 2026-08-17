@@ -638,7 +638,7 @@ class RepoTest : AbstractXetoTest
   {
     // xeto-build.props sits beside the lib dir in a source env
     srcDir := tempDir + `srczip/`
-    (srcDir + XetoUtil.xetoBuildPropsUri).out.print("x.version=1.0.0\n").close
+    (srcDir + XetoUtil.xetoBuildPropsUri.name.toUri).out.print("x.version=1.0.0\n").close
 
     dir := srcDir + `test.srczip/`
     (dir + `lib.xeto`).out.print(
