@@ -68,7 +68,7 @@ const class HxLibs : RuntimeLibs
 
   HxNamespace ns()
   {
-    while (needRefresh.val) update(HxLibUpdate {})
+    while (cleanCount.val < dirtyCount.val) update(HxLibUpdate {})
     return nsRef.val
   }
 
@@ -224,7 +224,7 @@ const class HxLibs : RuntimeLibs
 
   override Void refresh()
   {
-    needRefresh.val = true
+    dirtyCount.increment
   }
 
   Void refreshSync()
@@ -273,13 +273,21 @@ const class HxLibs : RuntimeLibs
   {
     lock.lock
     try
+    {
+      // a refresh pass is satisfied if the update we waited on published
+      if (u.isRefresh && cleanCount.val >= dirtyCount.val) return nsRef.val
       return doUpdate(u)
+    }
     finally
       lock.unlock
   }
 
   private HxNamespace doUpdate(HxLibUpdate u)
   {
+    // capture dirty epoch before reading any state; a refresh flagged
+    // while we compile keeps clean < dirty so the ns() loop recompiles
+    epoch := dirtyCount.val
+
     // save old namespace for thunk reuse
     oldNs := nsRef.val as MNamespace
 
@@ -303,7 +311,7 @@ const class HxLibs : RuntimeLibs
     this.mapRef.val  = acc.toImmutable
     this.packRef.val = updatePack(ns, acc)
     this.companionLibDigestRef.val = "companion-${rt.name}-${Ref.gen.id}"
-    this.needRefresh.val = false
+    this.cleanCount.val = epoch
 
     // if this is initialization, then we are done
     if (u.init) return ns
@@ -599,7 +607,8 @@ const class HxLibs : RuntimeLibs
 //////////////////////////////////////////////////////////////////////////
 
   private const AtomicRef nsRef := AtomicRef()
-  private const AtomicBool needRefresh := AtomicBool(true)
+  private const AtomicInt dirtyCount := AtomicInt(1)
+  private const AtomicInt cleanCount := AtomicInt()
   private const AtomicRef mapRef := AtomicRef()
   private const Lock lock := Lock.makeReentrant
   private const HxLib? companionLib
@@ -615,6 +624,8 @@ internal class HxLibUpdate
   Str[]? removes  // lib names to remove
   Bool init       // initialization
   Dict? settings  // if adding extension
+
+  Bool isRefresh() { adds == null && removes == null && !init }
 
   Void eachAdd(|Str n, Dict? extra| f)
   {
