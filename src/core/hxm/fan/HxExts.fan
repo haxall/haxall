@@ -362,8 +362,11 @@ const class HxExtRegistry
     cached := byTypeRef.get(type)
     if (cached != null) return cached
 
+    // misses cache the shared empty list; the registry is rebuilt on
+    // namespace changes so stale entries never outlive their libs
     res := list.findAll { it.typeof.fits(type) }.toImmutable
-    if (!res.isEmpty) byTypeRef.set(type, res)
+    if (res.isEmpty) res = Ext#.emptyList
+    byTypeRef.set(type, res)
     return res
   }
 
