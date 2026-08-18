@@ -252,6 +252,120 @@ class RdfExportTest : AbstractXetoTest
     verify(address.contains("temp:Address.city \"Norfolk\"^^xsd:string ;"), address)
   }
 
+  Void testChoiceShapesAndInstances()
+  {
+    rdf := export(
+      Str<|HeatingProcess : Choice
+             HotWaterHeating : HeatingProcess { hotWaterHeating }
+             SteamHeating : HeatingProcess { steamHeating }
+
+             RequiredEquip : Dict { heatingProcess: HeatingProcess }
+             OptionalEquip : Dict { heatingProcess: HeatingProcess? }
+             MultiEquip : Dict { heatingProcesses: HeatingProcess <multiChoice> }
+             OptionalMultiEquip : Dict { heatingProcesses: HeatingProcess? <multiChoice> }
+
+             @equip1: MultiEquip {
+               hotWaterHeating
+               steamHeating
+             }|>)
+
+    hotWater := resourceBlock(rdf, "temp:HotWaterHeating")
+    verify(hotWater.contains("rdfs:subClassOf temp:HeatingProcess ;"), hotWater)
+    verify(hotWater.contains("sys:hasMarker temp:HotWaterHeating.hotWaterHeating ;"), hotWater)
+    verify(rdf.contains("temp:HotWaterHeating.hotWaterHeating\n  a sys:Marker ;"), rdf)
+
+    required := propertyShape(rdf, "RequiredEquip.heatingProcess")
+    verify(required.contains("sh:in (temp:HotWaterHeating temp:SteamHeating) ;"), required)
+    verify(required.contains("sh:minCount 1 ;"), required)
+    verify(required.contains("sh:maxCount 1 ;"), required)
+
+    optional := propertyShape(rdf, "OptionalEquip.heatingProcess")
+    verifyFalse(optional.contains("sh:minCount"), optional)
+    verify(optional.contains("sh:maxCount 1 ;"), optional)
+
+    multi := propertyShape(rdf, "MultiEquip.heatingProcesses")
+    verify(multi.contains("sh:minCount 1 ;"), multi)
+    verifyFalse(multi.contains("sh:maxCount"), multi)
+
+    optionalMulti := propertyShape(rdf, "OptionalMultiEquip.heatingProcesses")
+    verifyFalse(optionalMulti.contains("sh:minCount"), optionalMulti)
+    verifyFalse(optionalMulti.contains("sh:maxCount"), optionalMulti)
+
+    equip := instanceBlock(rdf, "equip1")
+    verify(equip.contains("temp:MultiEquip.heatingProcesses temp:HotWaterHeating ;"), equip)
+    verify(equip.contains("temp:MultiEquip.heatingProcesses temp:SteamHeating ;"), equip)
+    verifyFalse(equip.contains("sys:hasMarker"), equip)
+  }
+
+  Void testListShapesAndInstances()
+  {
+    rdf := export(
+      Str<|Address : Dict { city: Str }
+
+             Batch : Dict {
+               names: List <of:Str, minSize:2, maxSize:3>
+               numbers: List <of:Number, nonEmpty>
+               addresses: List <of:Address>
+             }
+
+             @batch1: Batch {
+               names: {"alpha", "beta"}
+               numbers: {1, 2.5}
+               addresses: {
+                 Address { city: "Richmond" },
+                 Address { city: "Norfolk" }
+               }
+             }|>)
+
+    names := propertyShape(rdf, "Batch.names")
+    verify(names.contains("sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;"), names)
+    verify(names.contains("sh:datatype xsd:string ;"), names)
+    verify(names.contains("sh:minCount 2 ;"), names)
+    verify(names.contains("sh:maxCount 3 ;"), names)
+
+    numbers := propertyShape(rdf, "Batch.numbers")
+    verify(numbers.contains("sh:datatype xsd:decimal ;"), numbers)
+    verify(numbers.contains("sh:minCount 1 ;"), numbers)
+
+    addresses := propertyShape(rdf, "Batch.addresses")
+    verify(addresses.contains("sh:class temp:Address ;"), addresses)
+
+    batch := instanceBlock(rdf, "batch1")
+    alpha := batch.index("\"alpha\"^^xsd:string")
+    beta  := batch.index("\"beta\"^^xsd:string")
+    verify(alpha != null && beta != null && alpha < beta, batch)
+    verify(batch.contains("\"1\"^^xsd:decimal"), batch)
+    verify(batch.contains("\"2.5\"^^xsd:decimal"), batch)
+    richmond := batch.index("\"Richmond\"^^xsd:string")
+    norfolk  := batch.index("\"Norfolk\"^^xsd:string")
+    verify(richmond != null && norfolk != null && richmond < norfolk, batch)
+  }
+
+  Void testUnsupportedListItemTypesFailClosed()
+  {
+    try
+    {
+      export(Str<|Color : Enum { red }
+                   Foo : Dict { colors: List <of:Color> }|>)
+      fail("Expected unsupported enum list item")
+    }
+    catch (UnsupportedErr err)
+    {
+      verify(err.msg.contains("Foo.colors: enum item type"), err.msg)
+      verify(err.msg.endsWith("::Color"), err.msg)
+    }
+
+    try
+    {
+      export(Str<|Foo : Dict { refs: List <of:Ref> }|>)
+      fail("Expected unsupported reference list item")
+    }
+    catch (UnsupportedErr err)
+    {
+      verify(err.msg.contains("Foo.refs: reference item type sys::Ref"), err.msg)
+    }
+  }
+
   private Str export(Str src)
   {
     ns  := createNamespace(["sys"])

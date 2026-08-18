@@ -13,7 +13,6 @@ using haystack
 ** RDF Turtle Exporter
 **
 ** TODO
-**   - list slots not supported
 **   - query constraints not implemented
 **
 @Js
@@ -159,10 +158,8 @@ class RdfExporter : Exporter
     w("  a sys:Class ;").nl
     w("  a rdfs:Class ;").nl
 
-    // Choice members are instances of themselves. Other classes are SHACL
-    // shapes only when they have effective constraints to validate.
-    if (isThisInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
-    else if (hasShape) w("  a sh:NodeShape ;").nl
+    // Classes with effective constraints are also SHACL node shapes.
+    if (hasShape) w("  a sh:NodeShape ;").nl
 
     // supertype
     if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
@@ -198,17 +195,6 @@ class RdfExporter : Exporter
     }
 
     return this
-  }
-
-  private Bool isThisInstance(Spec x)
-  {
-    if (x.isChoice)
-    {
-      // Choice and first level of Choice inheritance are not
-      if (x.base.lib.name == "sys") return false
-      return true
-    }
-    return false
   }
 
   private Void hasMarker(Spec slot)
@@ -257,7 +243,14 @@ class RdfExporter : Exporter
     }
     else if (type.isChoice)
     {
-      throw UnsupportedErr("RDF mapping not implemented for choice slot ${slot.qname}")
+      choice := ns.choice(slot)
+      hasMinCount = !choice.isMaybe
+      hasMaxCount = !choice.isMultiChoice
+    }
+    else if (type.isList)
+    {
+      // List item and size constraints are emitted below on the RDF
+      // collection path. The outer slot remains one list value.
     }
     else if (type.isDict)
     {
@@ -281,8 +274,92 @@ class RdfExporter : Exporter
     w("    sh:path ").qname(slot.qname).w(" ;").nl
     sh.each |v, n| { w("    sh:").w(n).w(" ").w(v).w(" ;").nl }
     if (type.isEnum) enumConstraint(type)
+    if (type.isChoice) choiceConstraint(slot)
+    if (type.isList) listConstraint(slot)
     if (datatype != null) scalarConstraints(slot, datatype)
     w("  ] ;").nl
+  }
+
+  private Void choiceConstraint(Spec slot)
+  {
+    // The RDF specification constrains a choice slot to the member IRIs
+    // visible in the active namespace, rather than to marker values.
+    members := choiceMembers(slot)
+    w("    sh:in (")
+    members.each |member, i|
+    {
+      if (i > 0) w(" ")
+      qname(member.qname)
+    }
+    w(") ;").nl
+  }
+
+  private Spec[] choiceMembers(Spec slot)
+  {
+    choice := ns.choice(slot)
+
+    // Namespace types cover installed dependency libraries. curLib is merged
+    // explicitly because temporary or currently-exported libraries are not
+    // necessarily installed in Namespace.eachType yet. Key by qname so a
+    // library visible through both paths contributes each candidate once.
+    candidates := Str:Spec[:]
+    ns.eachType |candidate| { candidates[candidate.qname] = candidate }
+    curLib?.types?.each |candidate| { candidates[candidate.qname] = candidate }
+
+    members := Spec[,]
+    candidates.each |candidate|
+    {
+      if (!candidate.isChoice) return
+      if (!candidate.isa(choice.type)) return
+      if (!candidate.slots.list.any |Spec memberSlot->Bool| { memberSlot.isMarker }) return
+      members.add(candidate)
+    }
+    members.sort |a, b| { a.qname <=> b.qname }
+    return members
+  }
+
+  private Void listConstraint(Spec slot)
+  {
+    of := slot.of(false)
+    validateListItemType(slot, of)
+
+    minSize := intMeta(slot.meta["minSize"])
+    if (slot.meta.has("nonEmpty") && (minSize == null || minSize < 1)) minSize = 1
+    maxSize := intMeta(slot.meta["maxSize"])
+    if (of == null && minSize == null && maxSize == null) return
+
+    // A Xeto list is one slot value represented by an RDF collection. The
+    // outer property shape handles list presence/cardinality; this nested
+    // shape applies item type and size constraints along rdf:rest*/rdf:first.
+    w("    sh:node [").nl
+    w("      sh:property [").nl
+    w("        sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;").nl
+    if (of != null)
+    {
+      if (of.isScalar)
+        w("        sh:datatype ").w(scalarDatatype(of)).w(" ;").nl
+      else if (of.isDict)
+        w("        sh:class ").qname(of.qname).w(" ;").nl
+    }
+    if (minSize != null) w("        sh:minCount ").w(minSize).w(" ;").nl
+    if (maxSize != null) w("        sh:maxCount ").w(maxSize).w(" ;").nl
+    w("      ]").nl
+    w("    ] ;").nl
+  }
+
+  private Void validateListItemType(Spec slot, Spec? of)
+  {
+    if (of == null) return
+
+    // The current public mapping defines scalar and direct-dictionary items.
+    // Deferred forms fail closed instead of being omitted or stringified.
+    kind := "item type ${of.qname}"
+    if (of.isEnum) kind = "enum item type ${of.qname}"
+    else if (of.isChoice) kind = "choice item type ${of.qname}"
+    else if (of.isRef || of.isMultiRef) kind = "reference item type ${of.qname}"
+    else if (of.isList) kind = "nested-list item type ${of.qname}"
+    else if (of.isScalar || of.isDict) return
+    throw UnsupportedErr("RDF list mapping not supported for ${slot.qname}: ${kind}")
   }
 
   private Void enumConstraint(Spec type)
@@ -483,11 +560,25 @@ class RdfExporter : Exporter
 
   private Void instanceMembers(Dict instance, Spec spec, Str indent)
   {
+    choiceMarkers := Str:Bool[:]
+    spec.slots.each |slot|
+    {
+      if (!slot.isChoice) return
+      instanceChoiceSelections(instance, slot).each |selection|
+      {
+        selection.slots.each |marker|
+        {
+          if (marker.isMarker) choiceMarkers[marker.name] = true
+        }
+      }
+    }
+
     members := ns.reflect(instance, spec).members.dup
     members.sort |a, b| { instanceProperty(spec, a) <=> instanceProperty(spec, b) }
     members.each |member|
     {
       if (member.name == "id" || member.name == "spec" || member.isChoice) return
+      if (choiceMarkers.containsKey(member.name)) return
 
       val := member.val
       slot := member.spec
@@ -495,7 +586,9 @@ class RdfExporter : Exporter
       if (val == null) return
 
       property := instanceProperty(spec, member)
-      type := slot.isSlot ? slot.type : slot
+      // Parameterized list metadata such as `of` and size constraints lives
+      // on the slot spec, not the shared sys::List type.
+      type := slot.isSlot && slot.type.isList ? slot : (slot.isSlot ? slot.type : slot)
       instanceMember(property, type, val, indent)
     }
   }
@@ -535,6 +628,12 @@ class RdfExporter : Exporter
       if (type.enum.spec(key, false) == null)
         throw UnsupportedErr("Invalid ${type.qname} value: ${key}")
       w(indent).qname(property).w(" ").literal(key).w("^^xsd:string ;").nl
+      return
+    }
+
+    if (type.isList)
+    {
+      instanceList(property, type, val, indent)
       return
     }
 
@@ -610,13 +709,78 @@ class RdfExporter : Exporter
     w(indent).w("] ;").nl
   }
 
+  private Void instanceList(Str property, Spec listType, Obj val, Str indent)
+  {
+    items := val as List ?: throw UnsupportedErr("Expected List for ${property}, not ${val.typeof}")
+    of := listType.of(false)
+    validateListItemType(listType, of)
+
+    w(indent).qname(property).w(" (")
+    if (!items.isEmpty) nl
+    items.each |item|
+    {
+      w(indent).w("  ")
+      instanceListItem(property, of, item, indent + "  ")
+      nl
+    }
+    if (!items.isEmpty) w(indent)
+    w(") ;").nl
+  }
+
+  private Void instanceListItem(Str property, Spec? declaredType, Obj item, Str indent)
+  {
+    type := declaredType ?: ns.specOf(item, false)
+    if (type == null)
+      throw UnsupportedErr("RDF list item type not known for ${property}: ${item.typeof}")
+    validateListItemType(type, type)
+
+    if (type.isScalar)
+    {
+      num := item as Number
+      if (num != null && num.unit != null)
+        throw UnsupportedErr("RDF quantity list item mapping not implemented for ${property}")
+      typedLiteral(item, scalarDatatype(type))
+      return
+    }
+
+    if (type.isDict)
+    {
+      nested := item as Dict ?: throw UnsupportedErr("Expected Dict item for ${property}, not ${item.typeof}")
+      nestedId := nested["id"] as Ref
+      if (nestedId != null)
+      {
+        id(nestedId)
+        return
+      }
+
+      nestedSpec := instanceSpec(nested)
+      w("[").nl
+      w(indent).w("  a ").qname(nestedSpec.qname).w(" ;").nl
+      instanceMembers(nested, nestedSpec, indent + "  ")
+      w(indent).w("]")
+      return
+    }
+
+    throw UnsupportedErr("RDF list item mapping not supported for ${property}: ${type.qname}")
+  }
+
   private Void instanceChoice(Dict instance, Spec slot)
   {
-    selected := ns.choice(slot).selections(instance, false)
+    selected := instanceChoiceSelections(instance, slot)
     selected.each |x|
     {
       w("  ").qname(slot.qname).w(" ").qname(x.qname).w(" ;").nl
     }
+  }
+
+  private Spec[] instanceChoiceSelections(Dict instance, Spec slot)
+  {
+    selected := choiceMembers(slot).findAll |Spec candidate->Bool|
+    {
+      markers := candidate.slots.list.findAll |Spec memberSlot->Bool| { memberSlot.isMarker }
+      return markers.all |Spec marker->Bool| { instance.has(marker.name) }
+    }
+    return XetoUtil.excludeSupertypes(selected)
   }
 
   private Spec instanceSpec(Dict instance)
