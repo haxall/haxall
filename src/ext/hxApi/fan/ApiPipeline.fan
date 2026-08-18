@@ -241,14 +241,18 @@ class ApiPipeline
     // downloads on GET and uploads on POST/PUT, which no single marker models
     if (!funcOwnsReq) dispatch.checkMethod
 
-    // read the request to func args
-    args := funcOwnsReq ? Obj#.emptyList : dispatch.readReq
+    try
+    {
+      // read the request to func args
+      args := funcOwnsReq ? Obj#.emptyList : dispatch.readReq
 
-    // invoke the function
-    result := dispatch.call(args)
+      // invoke the function
+      result := dispatch.call(args)
 
-    // write the response; call may have already written an error response
-    if (!funcOwnsRes && !res.isCommitted) dispatch.writeRes(result)
+      // write the response; call may have already written an error response
+      if (!funcOwnsRes && !res.isCommitted) dispatch.writeRes(result)
+    }
+    finally dispatch.cleanup  // delete spooled upload if any
   }
 
   ** Resolve base dispatch class

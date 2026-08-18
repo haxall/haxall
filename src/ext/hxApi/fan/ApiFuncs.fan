@@ -158,9 +158,13 @@ const class ApiFuncs
 // OpenAPI
 //////////////////////////////////////////////////////////////////////////
 
-  ** Serve the OpenAPI 3.1 document for this project's published <op>
-  ** surface.  Reflects the project's full surface rather than the caller's
-  ** permissions -- <op> is an audience marker, never a security boundary.
+  ** Serve the OpenAPI 3.1 document describing this project's published
+  ** `op` surface.  Generated from the project namespace and cached against
+  ** its lib version set, which is also the ETag.
+  **
+  ** The document reflects the project's full `op` surface, not the
+  ** caller's permissions: `op` is an audience marker and permissions are
+  ** a separate axis enforced at call time.
   @Api
   static Void openapi()
   {

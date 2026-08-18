@@ -41,6 +41,9 @@ class ApiDispatchV4 : ApiDispatch
 
   override Obj?[] readReqPost()
   {
+    // file typed params are a version 5 feature
+    if (fileParam != null) throw ApiErr(400, "InvalidArgsErr", "File param op requires API version 5: $func.name")
+
     // find reader to use for MIME type
     mime := MimeType(req.headers["Content-Type"] ?: "", false)
     if (mime == null) throw ApiErr.unsupportedMediaTypeErrMissing

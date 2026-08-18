@@ -52,6 +52,36 @@ abstract class ApiDispatch
   ** Read the request to function args from post body
   abstract Obj?[] readReqPost()
 
+  ** File typed param which receives the post body itself, or null when
+  ** the op takes JSON args.  A file param must be the op's only param
+  ** since the body is consumed whole - there is no encoding for mixed
+  ** file and JSON args.
+  Spec? fileParam()
+  {
+    params := func.func.params
+    file := params.find |p| { isFileParam(p) }
+    if (file == null) return null
+    if (params.size > 1) throw ApiErr(400, "InvalidArgsErr", "File param must be op's only param: $func.name")
+    return file
+  }
+
+  ** Does the param's type walk up to the sys::File root
+  private static Bool isFileParam(Spec p)
+  {
+    for (Spec? x := p.type; x != null; x = x.base)
+      if (x.qname == "sys::File") return true
+    return false
+  }
+
+  ** Temp file the post body was spooled into for a file param, or null.
+  ** The pipeline deletes it after dispatch, so the op func must consume
+  ** the file before it returns.
+  @NoDoc File? uploadFile
+
+  ** Delete the spooled upload if any; failures are swallowed since a
+  ** temp file leak must never mask the real response
+  @NoDoc Void cleanup() { try { uploadFile?.delete } catch {} }
+
   ** Map named args onto the positional list the thunk expects.  The given
   ** function decodes one arg by param, or returns null if the request had
   ** no value for it, in which case the param's default applies.

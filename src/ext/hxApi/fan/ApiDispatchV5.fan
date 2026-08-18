@@ -52,13 +52,38 @@ class ApiDispatchV5 : ApiDispatch
   ** The post body is a JSON object whose members are the named args.  Each
   ** member is decoded against its own param spec rather than the body being
   ** decoded whole, because JSON alone is lossy: a date is just a string
-  ** until a spec says otherwise.
+  ** until a spec says otherwise.  An op declaring a single file typed param
+  ** instead receives the raw body spooled to a temp file, making upload the
+  ** mirror of the file download in `ApiDispatch.writeRes`.
   override Obj?[] readReqPost()
   {
+    // a file typed param receives the post body itself
+    p := fileParam
+    if (p != null) return [readReqFile(p)]
+
     // an op whose params all default may be posted with no body at all
     body := req.in.readAllStr
     args := body.isSpace ? Str:Str[:] : splitBody(body)
     return mapJsonArgs(args)
+  }
+
+  ** Spool the post body to a temp file for a file typed param.  The
+  ** extension comes from the param type's fileExts meta so name sensitive
+  ** loaders see the right type; the base name is meaningless.  Registered
+  ** as `uploadFile` for the pipeline to delete after dispatch.
+  private File readReqFile(Spec p)
+  {
+    ext := (p.type.meta["fileExts"] as Str)?.split?.first ?: "bin"
+    ts := DateTime.now.toLocale("YYMMDD-hhmmss")
+    rand := Buf.random(4).toHex
+    file := Env.cur.tempDir + `api-upload-${ts}-${rand}.${ext}`
+    out := file.out
+    try
+      req.in.pipe(out, null, false)
+    finally
+      out.close
+    this.uploadFile = file
+    return file
   }
 
   ** Split the post body into the raw JSON text of each named arg so that

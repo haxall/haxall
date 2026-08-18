@@ -10,5 +10,12 @@
 
   testIncrement: Func <axon:"x+1"> { x: Number, returns: Number }
 
+  // Echo what the func received for a file typed param so the API test
+  // can verify the upload spool round trip and temp file cleanup
+  testUpload: Func <op> { file: XetoLibFile, returns: Dict }
+
+  // Never dispatchable: a file param must be the op's only param
+  testUploadMixed: Func <op> { file: XetoLibFile, extra: Str, returns: Dict }
+
 }
 

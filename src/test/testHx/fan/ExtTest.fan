@@ -497,3 +497,26 @@ const class HxTestExtWeb : ExtWeb
   }
 }
 
+**************************************************************************
+** HxTestFuncs
+**************************************************************************
+
+** Fantom funcs for the hx.test lib
+const class HxTestFuncs
+{
+  ** Echo what the func received for a file typed param so the API
+  ** test can verify the upload spool round trip and temp file cleanup
+  @Api static Dict testUpload(File file)
+  {
+    Etc.dictFromMap([
+      "name":   file.name,
+      "size":   file.size.toStr,
+      "digest": file.readAllBuf.toDigest("SHA-256").toBase64Uri,
+      "path":   file.osPath,
+    ])
+  }
+
+  ** Never dispatched: a file param must be the op's only param
+  @Api static Dict testUploadMixed(File file, Str extra) { throw UnsupportedErr() }
+}
+

@@ -30,6 +30,7 @@ class Api5Test : ApiTest
     init
     doWriteRes
     doEval
+    doUpload
     cleanup
 
     // TODO: doCommon needs a v5 shape for the ops which still take a v4
@@ -234,6 +235,56 @@ class Api5Test : ApiTest
     verifyCall(c, "eval", ["expr":"marker()"], Marker.val)
     verifyCall(c, "eval", ["expr":"na()"], NA.val)
     verifyCall(c, "eval", ["expr":"1kW"], n(1, "kW"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Upload
+//////////////////////////////////////////////////////////////////////////
+
+  ** An op declaring a single file typed param receives the raw POST body
+  ** spooled to a temp file, which the pipeline deletes after dispatch
+  Void doUpload()
+  {
+    addLib("hx.test")
+
+    // random bytes prove raw pass-through: no JSON parse, no charset decode
+    bytes := Buf.random(4096)
+    digest := bytes.toDigest("SHA-256").toBase64Uri
+    wc := c.toWebClient(`testUpload`)
+    setVersionHeader(wc)
+    wc.reqMethod = "POST"
+    wc.reqHeaders["Content-Type"] = "application/octet-stream"
+    wc.reqHeaders["Content-Length"] = bytes.size.toStr
+    wc.writeReq
+    wc.reqOut.writeBuf(bytes).close
+    wc.readRes
+    verifyEq(wc.resCode, 200)
+    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    wc.close
+
+    // func received the exact bytes under the param type's fileExts
+    // extension; the base name is meaningless
+    verifyEq(json["size"], bytes.size.toStr)
+    verifyEq(json["digest"], digest)
+    verifyEq(((Str)json["name"]).endsWith(".xetolib"), true)
+
+    // spooled temp file is deleted after dispatch; the delete runs in a
+    // finally after the response is written, so poll briefly
+    temp := File.os(json["path"])
+    deadline := Duration.nowTicks + 1sec.ticks
+    while (temp.exists && Duration.nowTicks < deadline) Actor.sleep(10ms)
+    verifyFalse(temp.exists)
+
+    // a file param must be the op's only param
+    verifyReqErr(`testUploadMixed`, "", 400, "sys.api::InvalidArgsErr")
+
+    // upload op has side effects so GET is a 405
+    wc = c.toWebClient(`testUpload`)
+    setVersionHeader(wc)
+    wc.writeReq
+    wc.readRes
+    verifyEq(wc.resCode, 405)
+    wc.close
   }
 
 //////////////////////////////////////////////////////////////////////////

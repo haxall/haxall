@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetom
+using xetoc
 using haystack
 
 **
@@ -171,6 +172,17 @@ class ZipLibTest : AbstractXetoTest
   Void testMetaPropsRequired()
   {
     verifyMetaSkew("version", null)
+  }
+
+  ** Lib name comes from meta.props so an uploaded zip spooled to a
+  ** temp file with a meaningless name still loads with its real name
+  Void testLoadZipFileName()
+  {
+    upload := tempDir + `upload-123.xetolib`
+    buildLibZip.copyTo(upload)
+    v := FileLibVersion.loadZipFile(upload)
+    verifyEq(v.name, "test.skew")
+    verifyEq(v.version, Version("1.0.0"))
   }
 
   ** Build a lib zip, rewrite one meta prop, and verify the compile fails
