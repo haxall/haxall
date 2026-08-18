@@ -54,6 +54,12 @@ const mixin RuntimeExts
   ** based on checked flag.
   @NoDoc abstract Ext? getByType(Type type, Bool checked := true)
 
+  ** Lookup an extension by a type it implements (excluding those inherited
+  ** from sys).  If multiple extensions implement given type, then its
+  ** indeterminate which is returned.  If not found then return null or
+  ** raise UnknownExtErr based on checked flag.
+  @NoDoc abstract Ext? getOwnByType(Type type, Bool checked := true)
+
   ** Lookup all extensions that implement given type (including those
   ** inherited from sys)
   @NoDoc abstract Ext[] getAllByType(Type type)

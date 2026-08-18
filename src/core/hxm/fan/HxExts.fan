@@ -57,6 +57,8 @@ const class HxExts : RuntimeExts
 
   override Ext? getByType(Type type, Bool checked := true) { registry.getByType(type, checked) }
 
+  override Ext? getOwnByType(Type type, Bool checked := true) { registry.getOwnByType(type, checked) }
+
   override Ext[] getAllByType(Type type) { registry.getAllByType(type) }
 
   override Str:ExtWeb webRoutes() { registry.webRoutes }
@@ -337,6 +339,20 @@ const class HxExtRegistry
   {
     ext := getAllByType(type).first
     if (ext != null) return ext
+    if (checked) throw UnknownExtErr(type.qname)
+    return null
+  }
+
+  Ext? getOwnByType(Type type, Bool checked := true)
+  {
+    exts := getAllByType(type)
+    if (exts.size >= 1)
+    {
+      ext := exts.first
+      if (ext.rt === this.rt) return ext
+      ext = exts.find { it.rt === this.rt }
+      if (ext != null) return ext
+    }
     if (checked) throw UnknownExtErr(type.qname)
     return null
   }
