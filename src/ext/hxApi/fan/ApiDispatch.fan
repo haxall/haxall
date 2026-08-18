@@ -73,6 +73,69 @@ abstract class ApiDispatch
     return false
   }
 
+  ** Request Content-Type or raise 415 if missing
+  MimeType reqMime()
+  {
+    mime := MimeType(req.headers["Content-Type"] ?: "", false)
+    if (mime == null) throw ApiErr.unsupportedMediaTypeErrMissing
+    return mime
+  }
+
+  ** Read the POST body as a grid using the filetype for the given mime.
+  ** Raise 415 for an unreadable type and 400 when the body cannot parse.
+  Grid readReqGrid(MimeType mime)
+  {
+    filetype := Filetype.byMime(mime, false)
+    if (filetype == null || !filetype.hasReader) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
+    reqStr := req.in.readAllStr
+    try
+      return filetype.reader(reqStr.in, ioOpts(mime)).readGrid
+    catch (Err e)
+      throw ApiErr.invalidArgsErr(mime.toStr, e)
+  }
+
+  ** Write the result as a grid using the filetype for the given mime.
+  ** Raise 406 when no writer supports it.
+  Void writeResGrid(Obj? result, MimeType mime)
+  {
+    // find GridWriter to use for mime type
+    filetype := Filetype.byMime(mime, false)
+    if (filetype == null || !filetype.hasWriter) throw ApiErr.notAcceptableErrWriter(mime.toStr)
+
+    // a func with no result encodes as the empty grid clients expect;
+    // Etc.toGrid would otherwise make a single row with a null val col
+    grid := result == null ? Etc.emptyGrid : Etc.toGrid(result)
+
+    // accept-encoding
+    gzip := acceptGzip(req)
+
+    // standard headers
+    res.statusCode = 200
+    res.headers["Content-Type"] = mime.toStr
+    res.headers["Cache-Control"] = "no-cache, no-store"
+    if (gzip) res.headers["Content-Encoding"] = "gzip"
+
+    // write result
+    OutStream out := res.out
+    if (gzip) out = Zip.gzipOutStream(out)
+    filetype.writer(out, ioOpts(mime)).writeGrid(grid)
+    out.close
+  }
+
+  ** Is the mime type application/json, which each version binds to its
+  ** own codec: the haystack codec in v4, the xeto codec in v5
+  static Bool isJsonMime(MimeType mime)
+  {
+    mime.mediaType == "application" && mime.subType == "json"
+  }
+
+  ** Filetype reader/writer options; JSON v3 is only reachable via an
+  ** explicit ";version=3" mime param
+  static Dict ioOpts(MimeType mime)
+  {
+    mime.params["version"] == "3" ? Etc.dict1("v3", Marker.val) : Etc.dict0
+  }
+
   ** Temp file the post body was spooled into for a file param, or null.
   ** The pipeline deletes it after dispatch, so the op func must consume
   ** the file before it returns.
@@ -173,6 +236,8 @@ abstract class ApiDispatch
   }
 
   static const MimeType mimeZinc := MimeType("text/zinc; charset=utf-8")
+
+  static const MimeType jsonMime := MimeType("application/json")
 
 //////////////////////////////////////////////////////////////////////////
 // Pipeline Conveniences

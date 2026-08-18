@@ -31,6 +31,7 @@ class Api5Test : ApiTest
     doWriteRes
     doEval
     doUpload
+    doNegotiation
     cleanup
 
     // TODO: doCommon needs a v5 shape for the ops which still take a v4
@@ -90,6 +91,7 @@ class Api5Test : ApiTest
   {
     wc := c.toWebClient(op)
     setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
     wc.postStr(body)
     verifyEq(wc.resCode, 200)
     verifyEq(wc.resHeaders["Content-Type"], "application/json")
@@ -118,6 +120,7 @@ class Api5Test : ApiTest
   {
     wc := c.toWebClient(op)
     setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
     wc.postStr(body)
     verifyEq(wc.resCode, code)
     json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
@@ -139,6 +142,7 @@ class Api5Test : ApiTest
     g := (Grid)eval("ops()")
 
     // every row must validate against the OpInfo spec
+    setupContext
     ns := proj.ns
     opInfo := ns.spec("sys.api::OpInfo")
     verifyEq(g.meta->of, Ref("sys.api::OpInfo"))
@@ -247,8 +251,11 @@ class Api5Test : ApiTest
   {
     addLib("hx.test")
 
-    // random bytes prove raw pass-through: no JSON parse, no charset decode
-    bytes := Buf.random(4096)
+    // random bytes prove raw pass-through: no JSON parse, no charset
+    // decode.  Sized to span many spool chunks (InStream.pipe copies in
+    // 4096 byte chunks) with a ragged tail so the last partial chunk is
+    // exercised too
+    bytes := Buf.random(64 * 4096 + 17)
     digest := bytes.toDigest("SHA-256").toBase64Uri
     wc := c.toWebClient(`testUpload`)
     setVersionHeader(wc)
@@ -288,6 +295,80 @@ class Api5Test : ApiTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Content Negotiation
+//////////////////////////////////////////////////////////////////////////
+
+  ** The negotiation exchange is identical to version 4: Content-Type
+  ** selects the reader, Accept or ?xeto-filetype selects the writer.
+  ** Only application/json binds differently - the xeto codec here, the
+  ** haystack codec in v4 - which the other Api5Test requests cover.
+  Void doNegotiation()
+  {
+    // zinc request body: the first row cells are the named args, and
+    // with no Accept header the response defaults to xeto JSON
+    wc := c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "text/zinc"
+    wc.postStr(ZincWriter.gridToStr(Etc.makeMapGrid(null, ["id":siteA.id])))
+    verifyEq(wc.resCode, 200)
+    verifyEq(wc.resHeaders["Content-Type"], "application/json")
+    rec := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    wc.close
+    verifyEq(rec["dis"], "A")
+
+    // Accept selects a zinc response for a json request
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
+    wc.reqHeaders["Accept"] = "text/zinc"
+    wc.postStr("""{"id":"$siteA.id.id"}""")
+    verifyEq(wc.resCode, 200)
+    verifyEq(wc.resHeaders["Xeto-Version"], "5")
+    verify(wc.resHeaders["Content-Type"].startsWith("text/zinc"))
+    grid := ZincReader(wc.resStr.in).readGrid
+    wc.close
+    verifyEq(grid.first->dis, "A")
+
+    // ?xeto-filetype query override selects the writer for easy testing
+    wc = c.toWebClient(`readById?id=$siteA.id.id&xeto-filetype=trio`)
+    setVersionHeader(wc)
+    wc.writeReq
+    wc.readRes
+    verifyEq(wc.resCode, 200)
+    grid = TrioReader(wc.resStr.in).readGrid
+    wc.close
+    verifyEq(grid.first->dis, "A")
+
+    // a POST with no Content-Type is a 415, same as v4
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Length"] = "2"
+    wc.reqMethod = "POST"
+    wc.writeReq
+    wc.reqOut.print("{}").close
+    wc.readRes
+    verifyEq(wc.resCode, 415)
+    wc.close
+
+    // a Content-Type with no reader is a 415
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/octet-stream"
+    wc.postStr("""{"id":"x"}""")
+    verifyEq(wc.resCode, 415)
+    wc.close
+
+    // an Accept with no writer is a 406
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
+    wc.reqHeaders["Accept"] = "image/png"
+    wc.postStr("""{"id":"$siteA.id.id"}""")
+    verifyEq(wc.resCode, 406)
+    wc.close
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
@@ -308,6 +389,7 @@ class Api5Test : ApiTest
 
     wc := c.toWebClient(op.toUri)
     setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
     wc.postStr(req)
     res := wc.resStr
     wc.close

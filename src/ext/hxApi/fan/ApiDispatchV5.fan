@@ -49,18 +49,35 @@ class ApiDispatchV5 : ApiDispatch
     return JsonOutStream.writeJsonToStr(val)
   }
 
-  ** The post body is a JSON object whose members are the named args.  Each
-  ** member is decoded against its own param spec rather than the body being
-  ** decoded whole, because JSON alone is lossy: a date is just a string
-  ** until a spec says otherwise.  An op declaring a single file typed param
-  ** instead receives the raw body spooled to a temp file, making upload the
-  ** mirror of the file download in `ApiDispatch.writeRes`.
+  ** Read POST body args with the same content negotiation exchange as
+  ** version 4: the Content-Type selects the filetype reader.  The one
+  ** difference between versions is what application/json binds to - the
+  ** xeto codec here, the haystack codec in v4.  An op declaring a single
+  ** file typed param instead receives the raw body spooled to a temp
+  ** file, making upload the mirror of the file download in
+  ** `ApiDispatch.writeRes`.
   override Obj?[] readReqPost()
   {
     // a file typed param receives the post body itself
     p := fileParam
     if (p != null) return [readReqFile(p)]
 
+    // json body is an object whose members are the named args
+    mime := reqMime
+    if (isJsonMime(mime)) return readReqJson
+
+    // any other filetype reads a grid whose first row cells are the
+    // named args, exactly the v4 modeled-op mapping
+    row := readReqGrid(mime).first
+    return mapArgs |param->Obj?| { row?.get(param.name) }
+  }
+
+  ** The json post body is a JSON object whose members are the named args.
+  ** Each member is decoded against its own param spec rather than the body
+  ** being decoded whole, because JSON alone is lossy: a date is just a
+  ** string until a spec says otherwise.
+  private Obj?[] readReqJson()
+  {
     // an op whose params all default may be posted with no body at all
     body := req.in.readAllStr
     args := body.isSpace ? Str:Str[:] : splitBody(body)
@@ -127,18 +144,32 @@ class ApiDispatchV5 : ApiDispatch
 // Write Response
 //////////////////////////////////////////////////////////////////////////
 
-  ** Encode the result as JSON using the namespace codec.  Unlike version 4
-  ** there is no grid envelope: a func which returns nothing answers JSON
-  ** null.  A file result never reaches here - `ApiDispatch.writeRes` serves
-  ** it as a download regardless of version.
+  ** Write the result with the same content negotiation exchange as
+  ** version 4: the Accept header selects the filetype writer.  The two
+  ** differences are the default - application/json here where v4 defaults
+  ** to zinc - and what application/json binds to: the xeto codec with no
+  ** grid envelope, so a func which returns nothing answers JSON null.  A
+  ** file result never reaches here - `ApiDispatch.writeRes` serves it as
+  ** a download regardless of version.
   override Void writeResVal(Obj? result)
+  {
+    // parse Accept header to find requested mime type
+    mime := acceptMimeType(req, jsonMime)
+    if (mime == null) throw ApiErr.notAcceptableErrHeader
+
+    res.headers["Xeto-Version"] = ApiVersion.v5.token
+    if (isJsonMime(mime)) return writeResJson(result)
+    writeResGrid(result, mime)
+  }
+
+  ** Encode the result as JSON using the namespace codec
+  private Void writeResJson(Obj? result)
   {
     gzip := acceptGzip(req)
 
     res.statusCode = 200
     res.headers["Content-Type"] = "application/json"
     res.headers["Cache-Control"] = "no-cache, no-store"
-    res.headers["Xeto-Version"] = ApiVersion.v5.token
     if (gzip) res.headers["Content-Encoding"] = "gzip"
 
     OutStream out := res.out
@@ -146,5 +177,6 @@ class ApiDispatchV5 : ApiDispatch
     cx.ns.io.writeJeto(out, result)
     out.close
   }
+
 }
 
