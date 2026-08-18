@@ -178,7 +178,7 @@ const class ApiFuncs
     res.statusCode = 200
     res.headers["Content-Type"] = "application/json; charset=utf-8"
     out := res.out
-    ex := OpenApiExporter(cx.ns, out, Etc.dict1("format", "json"))
+    ex := OpenApiExporter(cx.ns, out, Etc.dict2("format", "json", "title", "$cx.rt.name API"))
     ex.start
     cx.ns.libs.each |lib| { ex.lib(lib) }
     ex.end

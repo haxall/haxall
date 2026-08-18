@@ -91,6 +91,56 @@ class OpenApiTest : AbstractXetoTest
   }
 
   **
+  ** Info carries the box doctrine and an overridable title
+  **
+  Void testInfo()
+  {
+    ns := createNamespace(["sys", "sys.api"])
+    buf := StrBuf()
+    ex := OpenApiExporter(ns, buf.out, Etc.dict2("format", "json", "title", "Demo API"))
+    ex.start
+    ex.lib(ns.lib("sys.api"))
+    ex.end
+
+    doc := (Str:Obj?)JsonInStream(buf.toStr.in).readJson
+    info := (Str:Obj?)doc["info"]
+    verifyEq(info["title"], "Demo API")
+    verifyEq(info["x-xeto-box"], "none")
+    verify(((Str)info["description"]).contains("box=none"))
+  }
+
+  **
+  ** A file typed param documents as a raw binary request body under the
+  ** file spec's own mime type, and a file return as a binary response --
+  ** the upload and download halves the dispatcher implements
+  **
+  Void testFileOps()
+  {
+    ns := createNamespace(["sys", "sys.api", "sys.files", "sys.repo"])
+    ex := OpenApiExporter(ns, Buf().out, Etc.dict0)
+    ex.lib(ns.lib("sys.repo"))
+
+    // repoPublish { file: XetoLibFile } uploads the raw body
+    pub := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.repo.repoPublish")
+    body := (Obj:Obj)((Obj:Obj)pub["post"])["requestBody"]
+    schema := binarySchema((Obj:Obj)body["content"])
+    verifyEq(schema["format"], "binary")
+
+    // repoFetch returns XetoLibFile as a raw download
+    fetch := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.repo.repoFetch")
+    responses := (Obj:Obj)((Obj:Obj)fetch["post"])["responses"]
+    ok := (Obj:Obj)responses.getChecked("200")
+    schema = binarySchema((Obj:Obj)ok["content"])
+    verifyEq(schema["format"], "binary")
+  }
+
+  ** Dig the schema out of a binary content map keyed by the xetolib mime
+  private Obj:Obj binarySchema(Obj:Obj content)
+  {
+    (Obj:Obj)((Obj:Obj)content.getChecked("application/xetolib"))["schema"]
+  }
+
+  **
   ** C4: a cross-lib collision of <op> names is a generator error, not a
   ** silent last-wins -- the published surface is addressed by unqualified
   ** name in Axon.

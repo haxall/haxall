@@ -32,11 +32,11 @@ class OpenApiExporter : Exporter
     map["jsonSchemaDialect"] = JsonSchemaExporter.dialect
     sysVer := ns.sysLib.version
 
-    // TODO: title and version want a project handle, which the exporter
-    // does not have until the /openapi.json endpoint passes one in.
     map["info"] = [
-      "title": "Xeto API",
-      "version": sysVer.toStr,
+      "title": opts["title"] as Str ?: "Xeto API",
+      "version": opts["version"] as Str ?: sysVer.toStr,
+      "description": boxDoctrine,
+      "x-xeto-box": "none",
       "x-xeto-libs": ns.versions.map |v->Obj| {
         Obj:Obj["name": v.name, "version": v.version.toStr]
       },
@@ -145,13 +145,27 @@ class OpenApiExporter : Exporter
       uri = uri[0..n+1] + uri[(n+"..Funcs.".size)..-1]
     uri = "/api/{projName}/" + uri.replace("::", ".")
 
-    // request body
-    reqSchema := schemaExporter.funcToParams(spec)
-    props := (Str:Obj)reqSchema["properties"]
-    requestBody := [
-      "required": true,
-      "content": jsonSchema(reqSchema)
-    ]
+    // request body: a file typed param receives the raw body per the
+    // dispatcher's upload contract, everything else is the JSON args object
+    [Obj:Obj]? requestBody
+    props := Str:Obj[:]
+    fileParam := toFileParam(spec)
+    if (fileParam != null)
+    {
+      requestBody = [
+        "required": true,
+        "content": binarySchema(fileParam.type)
+      ]
+    }
+    else
+    {
+      reqSchema := schemaExporter.funcToParams(spec)
+      props = (Str:Obj)reqSchema["properties"]
+      requestBody = [
+        "required": true,
+        "content": jsonSchema(reqSchema)
+      ]
+    }
 
     // response
     response := Obj:Obj[:]
@@ -165,11 +179,16 @@ class OpenApiExporter : Exporter
         response = schemaExporter.nullable(response)
     }
 
+    // a file return is served as a raw download with the file's own mime
+    resContent := returns != null && isFileType(returns.type)
+      ? binarySchema(returns.type)
+      : jsonSchema(response)
+
     // responses
     responses := Obj:Obj[:] { ordered = true }
     responses["200"] = [
       "description": "Success",
-      "content": jsonSchema(response)
+      "content": resContent
     ]
     errResponses.each |pair|
     {
@@ -186,7 +205,7 @@ class OpenApiExporter : Exporter
       path["description"] = doc
 
     // GET
-    if (props.isEmpty && spec.meta.has("noSideEffects"))
+    if (fileParam == null && props.isEmpty && spec.meta.has("noSideEffects"))
       path["get"] =  [
         "responses": responses,
         "parameters": opParams,
@@ -248,6 +267,41 @@ class OpenApiExporter : Exporter
       ]
     ]
   }
+
+  ** File typed param which receives the raw request body, or null when
+  ** the op takes JSON args.  Mirrors the dispatcher's upload contract:
+  ** the file must be the op's only param.
+  private static Spec? toFileParam(Spec spec)
+  {
+    params := spec.func.params
+    if (params.size != 1 || !isFileType(params.first.type)) return null
+    return params.first
+  }
+
+  ** Does the type walk up to the sys::File root
+  private static Bool isFileType(Spec type)
+  {
+    for (Spec? x := type; x != null; x = x.base)
+      if (x.qname == "sys::File") return true
+    return false
+  }
+
+  ** Raw binary content keyed by the file spec's own mime type
+  private static Obj:Obj binarySchema(Spec fileType)
+  {
+    mime := fileType.meta["mimeType"] as Str ?: "application/octet-stream"
+    return [
+      mime: [
+        "schema": ["type": "string", "format": "binary"]
+      ]
+    ]
+  }
+
+  ** Schemas describe the unboxed wire; see doc.xeto::HttpApi box modes
+  private static const Str boxDoctrine :=
+    "Schemas describe the box=none wire encoding. Clients validating or " +
+    "generating code from this document should request responses with " +
+    "Accept: application/json;box=none"
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
