@@ -153,9 +153,9 @@ const class HttpExt : ExtObj, IHttpExt
     return true
   }
 
-  ** Dispatch to the www ext if it claims the request's hostname as
-  ** a website virtual host.  Return true if handled.  This is only
-  ** called after the registered system routes such as "/api" and
+  ** Dispatch to the runtime whose website claims the request's
+  ** hostname as a virtual host.  Return true if handled.  This is
+  ** only called after the registered system routes such as "/api" and
   ** "/ux" have had first shot; a website serves the URI space its
   ** domain claims minus the system routes.  The modBase stays "/"
   ** for claimed requests.
@@ -170,10 +170,20 @@ const class HttpExt : ExtObj, IHttpExt
     if (colon != null) host = host[0..<colon]
     host = host.lower
 
-    // route to IWwwExt
-    wwwExt := sys.www(false)
-    if (wwwExt == null) return false
-    return wwwExt.onServiceVirtualHost(host, req, res)
+    // sys first then projects; first domain claim wins
+    // TODO: temp code
+    ext := toVirtualHostExt(sys, host)
+    if (ext == null) ext = sys.proj.list.eachWhile |proj| { toVirtualHostExt(proj, host) }
+    if (ext == null) return false
+    ext.onServiceWebsite(req, res)
+    return true
+  }
+
+  ** Get runtime's www ext if it claims the hostname as its domain
+  private static IWwwExt? toVirtualHostExt(Runtime rt, Str host)
+  {
+    ext := rt.exts.getByType(IWwwExt#, false) as IWwwExt
+    return ext != null && ext.domain == host ? ext : null
   }
 
   ** Dispatch a well-known route. Return true if handled.

@@ -463,12 +463,13 @@ const class HxTestExt : ExtObj, IWwwExt, RepoServer
 
   override const ExtWeb web := HxTestExtWeb(this)
 
-  // IWwwExt impl to test the virtual host hook without hx.www installed
-  override Bool onServiceVirtualHost(Str hostname, WebReq req, WebRes res)
+  // IWwwExt impl to test the virtual host hook
+  override Str? domain() { settings["vhost"] as Str }
+
+  override Bool onServiceWebsite(WebReq req, WebRes res)
   {
-    if (hostname != settings["vhost"] as Str) return false
     res.headers["Content-Type"] = "text/plain"
-    res.out.print("vhost $hostname $req.uri").close
+    res.out.print("vhost $domain $req.uri").close
     return true
   }
 

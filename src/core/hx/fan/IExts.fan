@@ -249,19 +249,21 @@ const mixin IIonExt : SysExt
 **************************************************************************
 
 **
-** Website framework system extension
+** Website framework extension bound per runtime
 **
 @NoDoc
-const mixin IWwwExt : SysExt
+const mixin IWwwExt : Ext
 {
-  ** Service a web request for a website virtual host.  This is called
+  ** Domain name claimed by this runtime's bound website or null.
+  ** The domain is normalized lowercase without the port.
+  abstract Str? domain()
+
+  ** Service a web request for this runtime's website.  This is called
   ** when the URI's first path segment does not match any registered
-  ** web route.  The hostname is normalized lowercase without the port.
-  ** The implementation handles site resolution, authentication, and
-  ** web routing internally.  Return false if the hostname is not
-  ** claimed as a website, in which case the request falls through
-  ** to a 404.
-  abstract Bool onServiceVirtualHost(Str hostname, WebReq req, WebRes res)
+  ** web route and the hostname matches `domain`.  The implementation
+  ** handles authentication and web routing itself.  Return true if handled
+  ** or false if not serviced.
+  abstract Bool onServiceWebsite(WebReq req, WebRes res)
 }
 
 **************************************************************************
