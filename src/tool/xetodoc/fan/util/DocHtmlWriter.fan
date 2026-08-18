@@ -49,7 +49,7 @@ class DocHtmlWriter : WebOutStream
 
   private Void lib(DocLib p)
   {
-    pageHeader(p, "lib")
+    pageHeader(p, "lib") |self| { markdown(p.doc) }
     dictSection("meta", p.meta)
     summarySection("chapters",  p.chapters)
     summarySection("mixins",    p.mixins)
