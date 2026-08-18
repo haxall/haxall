@@ -626,8 +626,8 @@ const class IOFuncs
   ** values beneath it.  Without it only what the payload declares for itself
   ** is recovered.  It may be a spec literal or its string qname:
   **
-  **     ioReadJeto(`io/recs.json`, {spec:Site})
-  **     ioReadJeto(`io/recs.json`, {spec:"ph::Site"})
+  **     ioReadJeto(`io/site.json`, {spec:Site})
+  **     ioReadJeto(`io/site.json`, {spec:"ph::Site"})
   **
   ** The following options are supported:
   **   - spec: the spec expected at the root as a Spec or string qname
@@ -656,7 +656,7 @@ const class IOFuncs
     return ns.spec(arg.toStr)
   }
 
-  ** Write an Axon data structure to [Jeto](doc.xeto::Jeto), xeto-typed
+  ** Write an Axon data structure to [Jeto](doc.xeto::Jeto).  Jeto is xeto-typed
   ** JSON: the spec supplies the types, so the values don't have to declare
   ** them.  A scalar which no spec covers is boxed as an object naming its
   ** own spec.
@@ -1070,8 +1070,9 @@ const class IOFuncs
   **       (code, headers, body) => {code: code, body: ioReadJson(body, {safeNames})})
   **
   **     // Carry a session cookie from one request to the next
-  **     r1 := ioHttp(`https://acme.com/login`, "POST", null, credsBody,
+  **     r1: ioHttp(`https://acme.com/login`, "POST", null, credsBody,
   **       (code, headers, body) => {code: code, cookie: headers["set-cookie"]})
+  **
   **     ioHttp(`https://acme.com/data`, "GET", {"Cookie": r1->cookie}, null,
   **       (code, headers, body) => ioReadJson(body, {safeNames}))
   @Api @Axon { admin = true }

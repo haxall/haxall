@@ -84,6 +84,7 @@ internal const class CountingRepoServer : RepoServer
   override Dict ping() { wrap.ping }
   override Dict search(Str query, Int limit, Int offset) { wrap.search(query, limit, offset) }
   override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit) { wrap.versions(lib, versions, limit) }
+  override Dict publish(File file) { wrap.publish(file) }
   override File fetch(Str lib, Version version)
   {
     fetches.incrementAndGet
@@ -108,4 +109,5 @@ internal const class BadDigestRepoServer : RepoServer
     wrap.versions(lib, versions, limit).map |d->Dict| { Etc.dictSet(d, "digest", "sha256:bogus") }
   }
   override File fetch(Str lib, Version version) { wrap.fetch(lib, version) }
+  override Dict publish(File file) { wrap.publish(file) }
 }

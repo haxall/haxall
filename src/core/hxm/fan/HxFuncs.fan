@@ -477,11 +477,7 @@ const class HxFuncs
     curContext.rt.exts.status(opts)
   }
 
-  ** Report installed web routes as grid.  Reports both the sys runtime and
-  ** the current project so the whole dispatch table is visible from either;
-  ** a project cannot service a sys route and vice versa.  The "type" column
-  ** distinguishes uri routes from websocket subprotocols, which are matched
-  ** on the Sec-WebSocket-Protocol header rather than the path.
+  ** Report installed web routes as grid
   @NoDoc @Api @Axon
   static Grid extWebRoutes()
   {

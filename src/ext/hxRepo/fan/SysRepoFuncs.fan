@@ -35,8 +35,14 @@ const class SysRepoFuncs
 
   ** Search the repo for libs matching the query string.  The query "*"
   ** matches all libs, otherwise a lib matches when its dotted name
-  ** contains the query as a substring.  The result reports the latest
-  ** version of each matching lib along with paging metadata.
+  ** contains the query as a substring; servers may support additional
+  ** query syntax.  The result reports the latest version of each
+  ** matching lib along with paging metadata.
+  **
+  ** Parameters:
+  **   - `query`: search query
+  **   - `limit`: max results to return; server may clamp
+  **   - `offset`: paging offset into the total matches
   @Api @Axon
   static Dict repoSearch(Str query, Obj? limit := null, Obj? offset := null)
   {
@@ -45,6 +51,11 @@ const class SysRepoFuncs
 
   ** List the versions available for the given lib sorted from latest
   ** to oldest.  If the lib name is unknown return an empty list.
+  **
+  ** Parameters:
+  **   - `lib`: dotted lib name
+  **   - `versions`: version constraints to filter results
+  **   - `limit`: max results to return
   @Api @Axon
   static Dict[] repoVersions(Str lib, Obj? versions := null, Obj? limit := null)
   {
@@ -54,10 +65,26 @@ const class SysRepoFuncs
   ** Download the xetolib zip file for the given lib name and version.
   ** If the lib is not available raise `UnknownLibErr`, or if the lib
   ** does not have the requested version raise `UnknownLibVersionErr`.
+  **
+  ** Parameters:
+  **   - `lib`: dotted lib name
+  **   - `version`: exact version to fetch
   @Api @Axon
   static File repoFetch(Str lib, Obj version)
   {
     server.fetch(lib, version as Version ?: Version.fromStr(version.toStr))
+  }
+
+  ** Publish a lib version to the repo.  The posted xetolib zip is
+  ** validated, compiled, and becomes immediately servable at its pin.
+  ** Repos which do not support publishing report a 501 error.
+  **
+  ** Parameters:
+  **   - `file`: xetolib zip file as the raw POST body
+  @Api @Axon
+  static Dict repoPublish(File file)
+  {
+    server.publish(file)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,8 @@
 //   3 Aug 2026  Brian Frank  Creation
 //
 
+using util
+using web
 using xeto
 using xetom
 using xetoc
@@ -32,6 +34,7 @@ class SysRepoTest : HxTest
     doSearch
     doVersions
     doFetch
+    doPublish
     client.close
   }
 
@@ -217,6 +220,50 @@ class SysRepoTest : HxTest
     // http client: unknown lib and version report the server's ApiErr dis
     verifyErrMsg(IOErr#, "repoFetch failed: Unknown lib: no-match-xyz [$repo.uri]") { repo.fetch("no-match-xyz", Version("1.0.0")) }
     verifyErrMsg(IOErr#, "repoFetch failed: Unknown lib version: sys-0.0.1 [$repo.uri]") { repo.fetch("sys", Version("0.0.1")) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Publish
+//////////////////////////////////////////////////////////////////////////
+
+  ** The default namespace repo is read-only so publish reports a 501,
+  ** but the POST exercises the whole file param plumbing: the raw body
+  ** is spooled to a temp file and passed as the func's File arg
+  Void doPublish()
+  {
+    // post a real zip; any xetolib works since the server rejects
+    zip := repo.fetch("sys", proj.ns.lib("sys").version)
+    json := postZip(zip, "5", 501)
+    verifyEq(json["spec"], "sys.api::NotImplementedErr")
+
+    // file typed params are a version 5 feature; v4 is the default
+    json = postZip(zip, null, 400)
+    verifyEq(json["spec"], "sys.api::InvalidArgsErr")
+
+    // repoPublish has side effects so GET is a 405
+    wc := client.toWebClient(`repoPublish`)
+    wc.writeReq
+    wc.readRes
+    verifyEq(wc.resCode, 405)
+    wc.close
+  }
+
+  ** POST raw zip bytes to repoPublish and decode the JSON error body
+  private Str:Obj? postZip(Buf zip, Str? version, Int code)
+  {
+    wc := client.toWebClient(`repoPublish`)
+    wc.reqMethod = "POST"
+    if (version != null) wc.reqHeaders["Xeto-Version"] = version
+    wc.reqHeaders["Content-Type"] = "application/xetolib"
+    wc.reqHeaders["Content-Length"] = zip.size.toStr
+    wc.writeReq
+    wc.reqOut.writeBuf(zip).close
+    wc.readRes
+    verifyEq(wc.resCode, code)
+    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    wc.close
+    verifyEq(json["status"], code)
+    return json
   }
 
   Void verifyFetchedZip(Buf buf, Uri tmpName, Version ver)

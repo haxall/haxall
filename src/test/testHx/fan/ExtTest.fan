@@ -456,6 +456,7 @@ const class HxTestExt : ExtObj, IWwwExt, RepoServer
   override Dict search(Str query, Int limit, Int offset) { def.search(query, limit, offset) }
   override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit) { def.versions(lib, versions, limit) }
   override File fetch(Str lib, Version version) { def.fetch(lib, version) }
+  override Dict publish(File file) { def.publish(file) }
   private RepoServer def() { NamespaceRepoServer(Context.cur.ns, "hx.test") }
 
   override const Observable[] observables := [TestObservable()]

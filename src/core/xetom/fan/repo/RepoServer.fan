@@ -30,6 +30,10 @@ const mixin RepoServer
   ** Service repoFetch op
   abstract File fetch(Str lib, Version version)
 
+  ** Service repoPublish op: validate, store, and index the posted
+  ** xetolib zip; return the RepoLib dict of the published version
+  abstract Dict publish(File file)
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
@@ -67,6 +71,12 @@ const mixin RepoServer
   static ApiErr unknownLibVersionErr(Str lib, Version version)
   {
     ApiErr(404, "sys.repo::UnknownLibVersionErr", "Unknown lib version: $lib-$version", null, ["lib":lib, "version":version.toStr])
+  }
+
+  ** Error for publish to a repo which does not support it
+  static ApiErr publishUnsupportedErr(Str dis)
+  {
+    ApiErr(501, "NotImplementedErr", "Repo does not support publish: $dis")
   }
 }
 
@@ -123,6 +133,12 @@ const class NamespaceRepoServer : RepoServer
     if (v.version != version) throw RepoServer.unknownLibVersionErr(lib, version)
     if (!v.isSrc) return v.file
     return compileSrcLib(v)
+  }
+
+  ** A namespace repo is read-only
+  override Dict publish(File file)
+  {
+    throw RepoServer.publishUnsupportedErr(dis)
   }
 
   ** Always serve the standard "lib/xeto" zip.  If a source lib has not

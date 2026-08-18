@@ -97,11 +97,6 @@ const class FileLibVersion : LibVersion
   ** Load from xetolib zip
   static FileLibVersion loadZipFile(File file)
   {
-    // sanity check name
-    name := file.basename
-    err := XetoUtil.libNameErr(name)
-    if (err != null) throw Err("Invalid lib name $name.toCode [$file.osPath]")
-
     // try to parse xeto-meta.props
     [Str:Str]? props
     zip := Zip.open(file)
@@ -111,6 +106,12 @@ const class FileLibVersion : LibVersion
       props = propsFile.readProps
     }
     finally zip.close
+
+    // name from meta.props falling back to the file basename; an
+    // uploaded zip is spooled to a temp file whose name is meaningless
+    name := props["name"] ?: file.basename
+    err := XetoUtil.libNameErr(name)
+    if (err != null) throw Err("Invalid lib name $name.toCode [$file.osPath]")
 
     // version
     version := Version.fromStr(props.getChecked("version"))
