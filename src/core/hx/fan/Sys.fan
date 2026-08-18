@@ -48,7 +48,7 @@ const mixin Sys : Runtime
   @NoDoc virtual IIonExt? ion(Bool checked := true) { exts.getByType(IIonExt#, checked) }
 
   ** HTTP system extension (required, but not in tests)
-  @NoDoc virtual IHttpExt http() { exts.getByType(IHttpExt#) }
+  @NoDoc virtual IHttpExt? http(Bool checked := true) { exts.getByType(IHttpExt#, checked) }
 
   ** Platform management system extension (optional)
   @NoDoc virtual IPlatformExt? platform(Bool checked := true)  { exts.getByType(IPlatformExt#, checked) }

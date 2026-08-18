@@ -37,7 +37,7 @@ class HttpTest : HxTest
     proj.libs.add("hx.test")
     ext := proj.ext("hx.test")
     ext.settingsUpdate(Etc.dict1("vhost", "test.acme.com"))
-    proj.sync
+    syncVhosts(ext)
 
     // virtual host services the host's path space minus system routes
     verifyGet("test.acme.com", `/`,         200, "vhost test.acme.com /")
@@ -52,6 +52,26 @@ class HttpTest : HxTest
 
     // unclaimed hostname does not dispatch to virtual host
     verifyGet("other.acme.com", `/about`, 404, null)
+
+    // settings change rebinds the vhost table: new domain claims,
+    // old domain released
+    ext.settingsUpdate(Etc.dict1("vhost", "other.acme.com"))
+    syncVhosts(ext)
+    verifyGet("other.acme.com", `/about`, 200, "vhost other.acme.com /about")
+    verifyGet("test.acme.com", `/about`, 404, null)
+
+    // removing the ext drops its claim
+    proj.libs.remove("hx.test")
+    syncVhosts(ext)
+    verifyGet("other.acme.com", `/about`, 404, null)
+  }
+
+  ** Drain the claiming ext's actor (sends vhostsModified) then the
+  ** http ext's actor (processes the table rebuild)
+  private Void syncVhosts(Ext ext)
+  {
+    ext.spi.sync
+    sys.http.spi.sync
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -306,6 +306,7 @@ abstract class HxSysBoot : HxBoot
   **   - hxLic: license Str or load from lic/xxx.trio
   **   - ephemeralHttpPort: Marker to let OS assign HTTP port
   **   - vhost: Str to test virtual hosting routing
+  **   - wwwSubdomain: Str subdomain injected into website domains such as "qa"
   **
   ** SkySpark options:
   **   - safeMode: don't start exts (SkySpark only)

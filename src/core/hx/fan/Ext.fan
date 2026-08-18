@@ -203,7 +203,8 @@ enum class ExtMsgId
 
   // routes to onReceive
 
-  certModified      // crypto certificate modified: a=alias
+  certModified,   // crypto certificate modified: a=alias
+  vhostsModified  // vhost table needs to be rebuilt
 }
 
 **************************************************************************

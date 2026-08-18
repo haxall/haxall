@@ -178,6 +178,7 @@ class ExtTest : HxTest
     proj.libs.add("hx.point")
     proj.libs.add("hx.conn")
     verifySame(verifyGetByType(IConnExt#), proj.exts.conn)
+    verifySame(proj.exts.getOwnByType(IConnExt#), proj.exts.conn)
 
     // remove hx.conn
     proj.libs.remove("hx.conn")
@@ -196,10 +197,12 @@ class ExtTest : HxTest
   Void verifyGetByTypeNotFound(Type t)
   {
     verifyEq(proj.exts.getByType(t, false), null)
+    verifyEq(proj.exts.getOwnByType(t, false), null)
     verifyEq(proj.exts.getAllByType(t), Ext[,])
-    verifyNotSame(proj.exts.getAllByType(t), proj.exts.getAllByType(t)) // don't cache misses
+    verifySame(proj.exts.getAllByType(t), proj.exts.getAllByType(t)) // misses cached too
     verifyErr(UnknownExtErr#) { proj.exts.getByType(t) }
     verifyErr(UnknownExtErr#) { proj.exts.getByType(t, true) }
+    verifyErr(UnknownExtErr#) { proj.exts.getOwnByType(t) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -475,12 +478,14 @@ const class HxTestExt : ExtObj, IWwwExt, RepoServer
 
   override Void onNamespaceModified() { trace("onNamespaceModified") }
 
-  override Void onStart() { trace("onStart[$isRunning]"); if (settings.has("forceStartErr")) throw Err("boo!") }
+  override Void onStart() { trace("onStart[$isRunning]"); vhostsModified; if (settings.has("forceStartErr")) throw Err("boo!") }
   override Void onReady() { trace("onReady[$isRunning]") }
   override Void onSteadyState() { trace("onSteadyState") }
-  override Void onUnready() { trace("onUnready[$isRunning]") }
+  override Void onUnready() { trace("onUnready[$isRunning]"); vhostsModified }
   override Void onStop() { trace("onStop[$isRunning]") }
-  override Void onSettings() { trace("onSettings[$settings]") }
+  override Void onSettings() { trace("onSettings[$settings]"); vhostsModified }
+
+  Void vhostsModified() { sys.http(false)?.spi?.send(HxMsg(ExtMsgId.vhostsModified.name)) }
 }
 
 **************************************************************************

@@ -20,6 +20,11 @@ using hxm
 **
 const class HttpExt : ExtObj, IHttpExt
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Identity
+//////////////////////////////////////////////////////////////////////////
+
   WispService wisp() { wispRef.val ?: throw Err("Not ready") }
   private const AtomicRef wispRef := AtomicRef(null)
 
@@ -52,6 +57,10 @@ const class HttpExt : ExtObj, IHttpExt
 
   ** Get the HTTPS port or null if using HTTP
   override Int? httpsPort() { wisp.httpsPort }
+
+//////////////////////////////////////////////////////////////////////////
+// Lifecycle
+//////////////////////////////////////////////////////////////////////////
 
   ** Ready callback
   override Void onReady()
@@ -104,6 +113,7 @@ const class HttpExt : ExtObj, IHttpExt
   override Obj? onReceive(HxMsg msg)
   {
     if (msg.id == ExtMsgId.certModified.name) return onCertModified(msg.a)
+    if (msg.id == ExtMsgId.vhostsModified.name) return rebuildVhosts
     return super.onReceive(msg)
   }
 
@@ -170,21 +180,12 @@ const class HttpExt : ExtObj, IHttpExt
     if (colon != null) host = host[0..<colon]
     host = host.lower
 
-    // sys first then projects; first domain claim wins
-    // TODO: temp code
-    ext := toVirtualHostExt(sys, host)
-    if (ext == null) ext = sys.proj.list.eachWhile |proj| { toVirtualHostExt(proj, host) }
+    // route to the runtime claiming the hostname
+    ext := vhosts.get(host)
     if (ext == null) return false
-    ext.onServiceWebsite(req, res)
-    return true
+    return ext.onServiceWebsite(req, res)
   }
 
-  ** Get runtime's www ext if it claims the hostname as its domain
-  private static IWwwExt? toVirtualHostExt(Runtime rt, Str host)
-  {
-    ext := rt.exts.getByType(IWwwExt#, false) as IWwwExt
-    return ext != null && ext.domain == host ? ext : null
-  }
 
   ** Dispatch a well-known route. Return true if handled.
   **
@@ -222,5 +223,45 @@ const class HttpExt : ExtObj, IHttpExt
     if (index.isUnsupported) return `/no-index`
     return index.indexRedirect(cx)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Vhosts
+//////////////////////////////////////////////////////////////////////////
+
+  ** Virtual host table of domain name to claiming www ext
+  private Str:IWwwExt vhosts()  { vhostsRef.val }
+
+  ** Rebuild vhost table from current runtime bindings
+  ** Rebuild vhost table from current runtime bindings.  A throw such
+  ** as the project list during early boot must not lose the claims
+  ** already collected; missed project claims self-heal since each
+  ** www ext sends vhostsModified when its own runtime starts
+  private Str:IWwwExt rebuildVhosts()
+  {
+    acc := Str:IWwwExt[:]
+    try
+    {
+      addVhost(acc, sys)
+      sys.proj.list.each |proj| { addVhost(acc, proj) }
+    }
+    catch (Err e) log.err("rebuildVhosts", e)
+    return vhostsRef.val = acc.toImmutable
+  }
+
+  ** Add runtime's www ext domain claim; duplicates warn, first wins.
+  ** A stopped ext never claims: isRunning transitions false before
+  ** onUnready sends vhostsModified, so a rebuild racing an ext remove
+  ** drops the claim even when it reads the pre-remove registry
+  private Void addVhost(Str:IWwwExt acc, Runtime rt)
+  {
+    ext := rt.exts.getOwnByType(IWwwExt#, false) as IWwwExt
+    if (ext == null || !ext.isRunning) return
+    domain := ext.domain
+    if (domain == null) return
+    if (acc[domain] != null) return log.warn("Duplicate website domain $domain.toCode [$rt.name]")
+    acc[domain] = ext
+  }
+
+  private const AtomicRef vhostsRef := AtomicRef(Str:IWwwExt[:].toImmutable)
 }
 

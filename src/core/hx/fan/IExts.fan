@@ -255,14 +255,19 @@ const mixin IIonExt : SysExt
 const mixin IWwwExt : Ext
 {
   ** Domain name claimed by this runtime's bound website or null.
-  ** The domain is normalized lowercase without the port.
+  ** The domain is normalized lowercase without the port.  When the
+  ** claim changes the implementation send `ExtMsgId.vhostsModified`
+  ** to IHttpExt.  Update the state backing the claim before sending
+  ** so the rebuild never reads a stale claim.  Claims are only
+  ** honored while the extension is running.
   abstract Str? domain()
 
   ** Service a web request for this runtime's website.  This is called
   ** when the URI's first path segment does not match any registered
   ** web route and the hostname matches `domain`.  The implementation
   ** handles authentication and web routing itself.  Return true if handled
-  ** or false if not serviced.
+  ** or false if not serviced, in which case the request falls through
+  ** to a 404.
   abstract Bool onServiceWebsite(WebReq req, WebRes res)
 }
 
