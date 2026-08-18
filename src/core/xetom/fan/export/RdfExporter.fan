@@ -25,6 +25,12 @@ class RdfExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
+    if (opts.has("qudtMappings"))
+    {
+      mappingOpt := opts["qudtMappings"]
+      this.qudtRef = mappingOpt as RdfQudtMappings
+        ?: throw ArgErr("qudtMappings option must be RdfQudtMappings, not ${mappingOpt?.typeof}")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,6 +90,11 @@ class RdfExporter : Exporter
     w("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .").nl
     w("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .").nl
     w("@prefix sh: <http://www.w3.org/ns/shacl#> .").nl
+    w("@prefix skos: <http://www.w3.org/2004/02/skos/core#> .").nl
+    w("@prefix qudt: <http://qudt.org/schema/qudt/> .").nl
+    w("@prefix unit: <http://qudt.org/vocab/unit/> .").nl
+    w("@prefix currency: <http://qudt.org/vocab/currency/> .").nl
+    w("@prefix quantitykind: <http://qudt.org/vocab/quantitykind/> .").nl
     lib.depends.each |x| { prefixDef(ns.lib(x.name)) }
     prefixDef(lib)
     nl
@@ -222,9 +233,20 @@ class RdfExporter : Exporter
 
     // value type
     type := slot.type
-    isLiteral := (type.isScalar && !type.isRef) || type.qname == "sys::TimeZone"
+    isQuantityValue := isQuantityValueSlot(slot)
+    isLiteral := ((type.isScalar && !type.isRef) || type.qname == "sys::TimeZone") &&
+                 !isQuantityValue && type.qname != "sys::Unit" &&
+                 type.qname != "sys::UnitQuantity"
     datatype := isLiteral ? scalarDatatype(type) : null
-    if (isLiteral)
+    if (type.qname == "sys::Unit")
+    {
+      sh["class"] = "qudt:Unit"
+    }
+    else if (isQuantityValue)
+    {
+      // The scalar's datatype and range move to qudt:numericValue below.
+    }
+    else if (isLiteral)
     {
       sh["datatype"] = datatype
     }
@@ -237,7 +259,7 @@ class RdfExporter : Exporter
     }
     else if (type.isEnum)
     {
-      if (type.qname == "sys::Unit" || type.qname == "sys::UnitQuantity")
+      if (type.qname == "sys::UnitQuantity")
         throw UnsupportedErr("RDF mapping not implemented for ${type.qname}")
       sh["datatype"] = "xsd:string"
     }
@@ -273,11 +295,98 @@ class RdfExporter : Exporter
     w("  sh:property [").nl
     w("    sh:path ").qname(slot.qname).w(" ;").nl
     sh.each |v, n| { w("    sh:").w(n).w(" ").w(v).w(" ;").nl }
-    if (type.isEnum) enumConstraint(type)
+    if (type.isEnum && type.qname != "sys::Unit" && type.qname != "sys::UnitQuantity")
+      enumConstraint(type)
     if (type.isChoice) choiceConstraint(slot)
     if (type.isList) listConstraint(slot)
+    if (type.qname == "sys::Unit")
+    {
+      quantity := metaQuantity(slot)
+      if (quantity != null) quantityKindConstraint(quantity, "    ")
+    }
+    if (isQuantityValue) quantityValueConstraint(slot)
     if (datatype != null) scalarConstraints(slot, datatype)
     w("  ] ;").nl
+  }
+
+  private Bool isQuantityValueSlot(Spec slot)
+  {
+    slot.type.qname == "sys::Number" &&
+      (slot.meta["unit"] != null || slot.meta["quantity"] != null)
+  }
+
+  private Void quantityValueConstraint(Spec slot)
+  {
+    w("    sh:node [").nl
+    w("      sh:class qudt:QuantityValue ;").nl
+    w("      sh:property [").nl
+    w("        sh:path qudt:numericValue ;").nl
+    w("        sh:datatype xsd:decimal ;").nl
+
+    minVal := quantityNumericMeta(slot, "minVal")
+    if (minVal != null) w("        sh:minInclusive ").w(minVal).w(" ;").nl
+    maxVal := quantityNumericMeta(slot, "maxVal")
+    if (maxVal != null) w("        sh:maxInclusive ").w(maxVal).w(" ;").nl
+    if (slot.meta.has("invariant"))
+    {
+      val := quantityNumericMeta(slot, "val")
+      if (val == null)
+        throw UnsupportedErr("Invariant quantity slot ${slot.qname} is missing val metadata")
+      w("        sh:hasValue ").literal(val).w("^^xsd:decimal ;").nl
+    }
+    w("        sh:minCount 1 ;").nl
+    w("        sh:maxCount 1 ;").nl
+    w("      ] ;").nl
+
+    w("      sh:property [").nl
+    w("        sh:path qudt:unit ;").nl
+    w("        sh:class qudt:Unit ;").nl
+    unit := metaUnit(slot)
+    if (unit != null)
+      w("        sh:hasValue ").w(qudt.unit(unit)).w(" ;").nl
+    quantity := metaQuantity(slot)
+    if (quantity != null) quantityKindConstraint(quantity, "        ")
+    w("        sh:minCount 1 ;").nl
+    w("        sh:maxCount 1 ;").nl
+    w("      ]").nl
+    w("    ] ;").nl
+  }
+
+  private Void quantityKindConstraint(UnitQuantity quantity, Str indent)
+  {
+    targets := qudt.quantity(quantity)
+    if (targets.size == 1)
+    {
+      w(indent).w("sh:node [ sh:property [ sh:path ( qudt:hasQuantityKind [ sh:zeroOrMorePath skos:broader ] ) ; sh:hasValue quantitykind:").w(targets.first).w(" ] ] ;").nl
+      return
+    }
+
+    w(indent).w("sh:node [ sh:or (").nl
+    targets.each |target|
+    {
+      w(indent).w("  [ sh:property [ sh:path ( qudt:hasQuantityKind [ sh:zeroOrMorePath skos:broader ] ) ; sh:hasValue quantitykind:").w(target).w(" ] ]").nl
+    }
+    w(indent).w(") ] ;").nl
+  }
+
+  private Unit? metaUnit(Spec slot)
+  {
+    val := slot.meta["unit"]
+    if (val == null) return null
+    unit := val as Unit
+    if (unit != null) return unit
+    if (val is Str) return Unit.fromStr(val)
+    throw UnsupportedErr("Invalid unit metadata for ${slot.qname}: ${val.typeof}")
+  }
+
+  private UnitQuantity? metaQuantity(Spec slot)
+  {
+    val := slot.meta["quantity"]
+    if (val == null) return null
+    quantity := val as UnitQuantity
+    if (quantity != null) return quantity
+    if (val is Str) return UnitQuantity.fromStr(val)
+    throw UnsupportedErr("Invalid quantity metadata for ${slot.qname}: ${val.typeof}")
   }
 
   private Void choiceConstraint(Spec slot)
@@ -323,9 +432,9 @@ class RdfExporter : Exporter
     of := slot.of(false)
     validateListItemType(slot, of)
 
-    minSize := intMeta(slot.meta["minSize"])
+    minSize := intMeta(slot, "minSize")
     if (slot.meta.has("nonEmpty") && (minSize == null || minSize < 1)) minSize = 1
-    maxSize := intMeta(slot.meta["maxSize"])
+    maxSize := intMeta(slot, "maxSize")
     if (of == null && minSize == null && maxSize == null) return
 
     // A Xeto list is one slot value represented by an RDF collection. The
@@ -377,16 +486,16 @@ class RdfExporter : Exporter
   {
     meta := slot.meta
 
-    minVal := numericMeta(meta["minVal"])
+    minVal := numericMeta(slot, "minVal")
     if (minVal != null) w("    sh:minInclusive ").w(minVal).w(" ;").nl
 
-    maxVal := numericMeta(meta["maxVal"])
+    maxVal := numericMeta(slot, "maxVal")
     if (maxVal != null) w("    sh:maxInclusive ").w(maxVal).w(" ;").nl
 
-    minSize := intMeta(meta["minSize"])
+    minSize := intMeta(slot, "minSize")
     if (minSize != null) w("    sh:minLength ").w(minSize).w(" ;").nl
 
-    maxSize := intMeta(meta["maxSize"])
+    maxSize := intMeta(slot, "maxSize")
     if (maxSize != null) w("    sh:maxLength ").w(maxSize).w(" ;").nl
 
     pattern := scalarPattern(slot)
@@ -399,12 +508,11 @@ class RdfExporter : Exporter
     if (meta.has("invariant"))
     {
       val := meta["val"]
-      if (val != null)
-      {
-        w("    sh:hasValue ")
-        typedLiteral(val, datatype)
-        w(" ;").nl
-      }
+      if (val == null)
+        throw UnsupportedErr("Invariant scalar slot ${slot.qname} is missing val metadata")
+      w("    sh:hasValue ")
+      typedLiteral(val, datatype)
+      w(" ;").nl
     }
   }
 
@@ -431,8 +539,10 @@ class RdfExporter : Exporter
 
   private Str? scalarPattern(Spec slot)
   {
-    pattern := slot.meta["pattern"] as Str
-    if (pattern == null) return null
+    patternVal := slot.meta["pattern"]
+    if (patternVal == null) return null
+    pattern := patternVal as Str
+      ?: throw UnsupportedErr("Invalid pattern metadata for ${slot.qname}: ${patternVal.typeof}")
 
     // Built-in scalar patterns describe Xeto's source encoding; they are not
     // additional value constraints. Keep a slot override or a custom scalar's
@@ -440,7 +550,10 @@ class RdfExporter : Exporter
     type := slot.type
     if (isBuiltInScalar(type.qname))
     {
-      typePattern := type.meta["pattern"] as Str
+      typePatternVal := type.meta["pattern"]
+      typePattern := typePatternVal as Str
+      if (typePatternVal != null && typePattern == null)
+        throw UnsupportedErr("Invalid pattern metadata for ${type.qname}: ${typePatternVal.typeof}")
       if (pattern == typePattern) return null
     }
     return pattern
@@ -455,20 +568,60 @@ class RdfExporter : Exporter
     qname == "sys::TimeZone"
   }
 
-  private Str? numericMeta(Obj? val)
+  private Str? numericMeta(Spec slot, Str name)
   {
+    val := slot.meta[name]
+    if (val == null) return null
     if (val is Int) return val.toStr
-    if (val is Float) return val.toStr
+    if (val is Float)
+    {
+      float := (Float)val
+      if (float.isNaN || float == Float.posInf || float == Float.negInf)
+        throw UnsupportedErr("Invalid numeric metadata for ${slot.qname}.${name}: non-finite Float")
+      return float.toStr
+    }
     num := val as Number
-    if (num == null || num.unit != null) return null
+    if (num == null)
+      throw UnsupportedErr("Invalid numeric metadata for ${slot.qname}.${name}: ${val.typeof}")
+    if (num.unit != null)
+      throw UnsupportedErr("Invalid numeric metadata for ${slot.qname}.${name}: unit-bearing Number")
+    if (num.isSpecial)
+      throw UnsupportedErr("Invalid numeric metadata for ${slot.qname}.${name}: non-finite Number")
     return num.toStr
   }
 
-  private Int? intMeta(Obj? val)
+  private Str? quantityNumericMeta(Spec slot, Str name)
   {
+    val := slot.meta[name]
+    if (val == null) return null
+    if (val is Int) return val.toStr
+    if (val is Float)
+    {
+      float := (Float)val
+      if (float.isNaN || float == Float.posInf || float == Float.negInf)
+        throw UnsupportedErr("Invalid numeric metadata for ${slot.qname}.${name}: non-finite Float")
+      return float.toStr
+    }
+    num := val as Number
+    if (num == null)
+      throw UnsupportedErr("Invalid numeric metadata for ${slot.qname}.${name}: ${val.typeof}")
+    if (num.isSpecial)
+      throw UnsupportedErr("Invalid numeric metadata for ${slot.qname}.${name}: non-finite Number")
+    return num.isInt ? num.toInt.toStr : num.toFloat.toStr
+  }
+
+  private Int? intMeta(Spec slot, Str name)
+  {
+    val := slot.meta[name]
+    if (val == null) return null
     if (val is Int) return val
     num := val as Number
-    if (num == null || num.unit != null || !num.isInt) return null
+    if (num == null)
+      throw UnsupportedErr("Invalid integer metadata for ${slot.qname}.${name}: ${val.typeof}")
+    if (num.unit != null)
+      throw UnsupportedErr("Invalid integer metadata for ${slot.qname}.${name}: unit-bearing Number")
+    if (!num.isInt)
+      throw UnsupportedErr("Invalid integer metadata for ${slot.qname}.${name}: non-integer Number")
     return num.toInt
   }
 
@@ -622,7 +775,13 @@ class RdfExporter : Exporter
 
     if (type.isEnum)
     {
-      if (type.qname == "sys::Unit" || type.qname == "sys::UnitQuantity")
+      if (type.qname == "sys::Unit")
+      {
+        unit := val as Unit ?: throw UnsupportedErr("Expected Unit for ${property}, not ${val.typeof}")
+        w(indent).qname(property).w(" ").w(qudt.unit(unit)).w(" ;").nl
+        return
+      }
+      if (type.qname == "sys::UnitQuantity")
         throw UnsupportedErr("RDF mapping not implemented for ${type.qname}")
       key := val.toStr
       if (type.enum.spec(key, false) == null)
@@ -648,7 +807,10 @@ class RdfExporter : Exporter
     {
       num := val as Number
       if (num != null && num.unit != null)
-        throw UnsupportedErr("RDF quantity value mapping not implemented for ${property}")
+      {
+        instanceQuantityValue(property, num, indent)
+        return
+      }
       w(indent).qname(property).w(" ")
       typedLiteral(val, scalarDatatype(type))
       w(" ;").nl
@@ -656,6 +818,19 @@ class RdfExporter : Exporter
     }
 
     throw UnsupportedErr("RDF instance mapping not implemented for ${property} of ${type.qname}")
+  }
+
+  private Void instanceQuantityValue(Str property, Number num, Str indent)
+  {
+    unit := num.unit ?: throw UnsupportedErr("Expected unit-bearing Number for ${property}")
+    if (num.isSpecial)
+      throw UnsupportedErr("RDF decimal quantity value must be finite for ${property}")
+    value := num.isInt ? num.toInt.toStr : num.toFloat.toStr
+    w(indent).qname(property).w(" [").nl
+    w(indent).w("  a qudt:QuantityValue ;").nl
+    w(indent).w("  qudt:numericValue ").literal(value).w("^^xsd:decimal ;").nl
+    w(indent).w("  qudt:unit ").w(qudt.unit(unit)).nl
+    w(indent).w("] ;").nl
   }
 
   private Void instanceMultiRef(Str property, Obj val, Str indent)
@@ -802,6 +977,12 @@ class RdfExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   private Lib? curLib
+  private RdfQudtMappings? qudtRef
+
+  private RdfQudtMappings qudt()
+  {
+    qudtRef ?: (qudtRef = RdfQudtMappings.load(ns))
+  }
 
   ** Convert library to its RDF URI
   private Str libUri(Lib lib)

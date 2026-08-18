@@ -366,12 +366,126 @@ class RdfExportTest : AbstractXetoTest
     }
   }
 
+  Void testQudtMappingValidation()
+  {
+    mappings := RdfQudtMappings(
+      "fahrenheit=DEG_F\nus_dollar=USD\n",
+      "temperature=Temperature\ncurrency=Currency\n")
+    verifyEq(mappings.unitCount, 2)
+    verifyEq(mappings.quantityCount, 2)
+    verifyEq(mappings.unit(Unit.fromStr("°F")), "unit:DEG_F")
+    verifyEq(mappings.unit(Unit.fromStr("\$")), "currency:USD")
+    verifyEq(mappings.quantity(UnitQuantity.temperature), ["Temperature"])
+
+    verifyErrMsg(IOErr#, "qudt-units.props: mapping resource is empty")
+    {
+      ignored := RdfQudtMappings("", "temperature=Temperature\n")
+    }
+    verifyErrMsg(IOErr#, "qudt-quantities.props: mapping resource is empty")
+    {
+      ignored := RdfQudtMappings("fahrenheit=DEG_F\n", "")
+    }
+
+    verifyErrMsg(IOErr#, "qudt-units.props:2: duplicate mapping 'fahrenheit'; first declared on line 1")
+    {
+      ignored := RdfQudtMappings("fahrenheit=DEG_F\nfahrenheit=DEG_C\n", "temperature=Temperature\n")
+    }
+    verifyErrMsg(IOErr#, "qudt-units.props:1: expected one non-empty name=value row")
+    {
+      ignored := RdfQudtMappings("fahrenheit DEG_F\n", "temperature=Temperature\n")
+    }
+    verifyErrMsg(IOErr#, "qudt-units.props: unknown canonical Xeto unit '°F'")
+    {
+      ignored := RdfQudtMappings("°F=DEG_F\n", "temperature=Temperature\n")
+    }
+    verifyErrMsg(IOErr#, "qudt-quantities.props: empty QUDT target for 'temperature'")
+    {
+      ignored := RdfQudtMappings("fahrenheit=DEG_F\n", "temperature=Temperature,\n")
+    }
+    verifyErrMsg(IOErr#, "qudt-quantities.props: duplicate QUDT target 'Temperature' for 'temperature'")
+    {
+      ignored := RdfQudtMappings("fahrenheit=DEG_F\n", "temperature=Temperature,Temperature\n")
+    }
+
+    ns := createNamespace(["sys"])
+    lib := ns.compileTempLib("Foo : Dict {}")
+    verifyErrMsg(ArgErr#, "qudtMappings option must be RdfQudtMappings, not sys::Str")
+    {
+      RdfExporter(ns, Buf().out, Etc.makeDict(["qudtMappings":"invalid"])).start.lib(lib).end
+    }
+  }
+
+  Void testUnitAndQuantityShapesAndInstances()
+  {
+    mappings := RdfQudtMappings(
+      "fahrenheit=DEG_F\npercent=PERCENT\nkilowatt=KiloW\nus_dollar=USD\n",
+      "temperature=Temperature\npower=Power\ncurrency=Currency\n")
+    rdf := exportWithMappings(
+      Str<|Reading : Dict {
+               unit: Unit <quantity:"temperature">
+               percent: Number <unit:"%", minVal:0, maxVal:100>
+               power: Number <quantity:"power">
+               currency: Unit <quantity:"currency">
+             }
+
+             @reading1: Reading {
+               unit: Unit "°F"
+               percent: Number "50%"
+               power: Number "1kW"
+               currency: Unit "\$"
+             }|>, mappings)
+
+    verify(rdf.contains("sh:path temp:Reading.unit ;\n    sh:class qudt:Unit ;"), rdf)
+    verify(rdf.contains("sh:hasValue quantitykind:Temperature"), rdf)
+    verify(rdf.contains("sh:path temp:Reading.percent ;\n    sh:minCount 1 ;"), rdf)
+    verify(rdf.contains("sh:class qudt:QuantityValue ;"), rdf)
+    verify(rdf.contains("sh:path qudt:numericValue ;"), rdf)
+    verify(rdf.contains("sh:minInclusive 0 ;"), rdf)
+    verify(rdf.contains("sh:maxInclusive 100 ;"), rdf)
+    verify(rdf.contains("sh:path qudt:unit ;"), rdf)
+    verify(rdf.contains("sh:hasValue unit:PERCENT ;"), rdf)
+    verify(rdf.contains("sh:hasValue quantitykind:Power"), rdf)
+
+    reading := instanceBlock(rdf, "reading1")
+    verify(reading.contains("temp:Reading.unit unit:DEG_F ;"), reading)
+    verify(reading.contains("qudt:numericValue \"50\"^^xsd:decimal ;"), reading)
+    verify(reading.contains("qudt:unit unit:PERCENT"), reading)
+    verify(reading.contains("qudt:numericValue \"1\"^^xsd:decimal ;"), reading)
+    verify(reading.contains("qudt:unit unit:KiloW"), reading)
+    verify(reading.contains("temp:Reading.currency currency:USD ;"), reading)
+
+    // QUDT ontology facts are external validation inputs, not copied output.
+    verifyFalse(rdf.contains("unit:DEG_F a qudt:Unit"), rdf)
+    verifyFalse(rdf.contains("quantitykind:Temperature skos:broader"), rdf)
+  }
+
+  Void testUnmappedUnitFailsClosed()
+  {
+    mappings := RdfQudtMappings("percent=PERCENT\n", "temperature=Temperature\n")
+    verifyErrMsg(UnsupportedErr#, "No reviewed QUDT mapping for Xeto unit 'fahrenheit'")
+    {
+      exportWithMappings(
+        Str<|Reading : Dict { unit: Unit }
+               @reading1: Reading { unit: Unit "°F" }|>, mappings)
+    }
+  }
+
   private Str export(Str src)
   {
     ns  := createNamespace(["sys"])
     lib := ns.compileTempLib(src)
     buf := Buf()
     RdfExporter(ns, buf.out, Etc.dict0).start.lib(lib).end
+    return buf.flip.readAllStr.replace(lib.name, "temp")
+  }
+
+  private Str exportWithMappings(Str src, RdfQudtMappings mappings)
+  {
+    ns  := createNamespace(["sys"])
+    lib := ns.compileTempLib(src)
+    buf := Buf()
+    opts := Etc.makeDict(["qudtMappings":mappings])
+    RdfExporter(ns, buf.out, opts).start.lib(lib).end
     return buf.flip.readAllStr.replace(lib.name, "temp")
   }
 

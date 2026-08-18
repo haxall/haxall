@@ -149,6 +149,7 @@ internal abstract class ExportCmd : XetoCmd
     {
       depends[t.lib.name] = t.depend
     }
+    supportLibs.each |name| { depends[name] = LibDepend(name) }
 
     // solve dependencies
     versions := env.repo.resolveDepends(depends.vals)
@@ -224,6 +225,9 @@ internal abstract class ExportCmd : XetoCmd
 
   abstract Exporter initExporter(Namespace ns, OutStream out)
 
+  ** Additional libraries required by an export format itself.
+  virtual Str[] supportLibs() { Str#.emptyList }
+
   abstract Str toFileName(ExportTarget t)
 }
 
@@ -245,4 +249,3 @@ internal const class ExportTarget
 
   override Str toStr() { specName == null ? lib.toStr : "$lib::$specName" }
 }
-

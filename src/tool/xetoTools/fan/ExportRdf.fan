@@ -17,6 +17,8 @@ internal class ExportRdf : ExportCmd
 
   override Str summary() { "Export Xeto to RDF" }
 
+  override Str[] supportLibs() { ["sys.rdf"] }
+
   override Exporter initExporter(Namespace ns, OutStream out)
   {
     opts := Str:Obj[:]
@@ -28,4 +30,3 @@ internal class ExportRdf : ExportCmd
     t.toStr + ".ttl"
   }
 }
-
