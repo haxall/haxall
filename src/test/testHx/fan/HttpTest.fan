@@ -39,6 +39,13 @@ class HttpTest : HxTest
     ext.settingsUpdate(Etc.dict1("vhost", "test.acme.com"))
     syncVhosts(ext)
 
+    // debug func reports the table: domain, claiming runtime, ext
+    debug := (Grid)eval("httpVhosts()")
+    verifyEq(debug.size, 1)
+    verifyEq(debug.first->domain,  "test.acme.com")
+    verifyEq(debug.first->runtime, proj.name)
+    verifyEq(debug.first->ext,     "hx.test")
+
     // virtual host services the host's path space minus system routes
     verifyGet("test.acme.com", `/`,         200, "vhost test.acme.com /")
     verifyGet("test.acme.com", `/about`,    200, "vhost test.acme.com /about")

@@ -231,7 +231,18 @@ const class HttpExt : ExtObj, IHttpExt
   ** Virtual host table of domain name to claiming www ext
   private Str:IWwwExt vhosts()  { vhostsRef.val }
 
-  ** Rebuild vhost table from current runtime bindings
+  ** Debug grid of the current vhost table sorted by domain
+  @NoDoc Grid debugVhosts()
+  {
+    gb := GridBuilder().addCol("domain").addCol("runtime").addCol("ext")
+    vhosts.keys.sort.each |domain|
+    {
+      ext := vhosts[domain]
+      gb.addRow([domain, ext.rt.name, ext.name])
+    }
+    return gb.toGrid
+  }
+
   ** Rebuild vhost table from current runtime bindings.  A throw such
   ** as the project list during early boot must not lose the claims
   ** already collected; missed project claims self-heal since each

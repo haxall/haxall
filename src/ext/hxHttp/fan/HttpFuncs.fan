@@ -22,6 +22,10 @@ const class HttpFuncs
   @Api @Axon
   static Uri httpSiteUri() { curContext.sys.http.siteUri }
 
+  ** Debug grid of the virtual host table: domain to claiming runtime
+  @NoDoc @Api @Axon { admin = true }
+  static Grid httpVhosts() { ((HttpExt)curContext.sys.http).debugVhosts }
+
   ** Current context
   private static Context curContext() { Context.cur }
 

@@ -11,5 +11,8 @@
   // Primary HTTP or HTTPS Uri configured via `siteUri` in HTTP settings
   httpSiteUri: Func { returns: Uri }
 
+  // Debug grid of the virtual host table: domain to claiming runtime
+  httpVhosts: Func <nodoc, su> { returns: Grid }
+
 }
 
