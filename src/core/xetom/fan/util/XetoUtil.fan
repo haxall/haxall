@@ -303,6 +303,9 @@ const class XetoUtil
   ** Is given file auto-publish - xeto source files and chapters
   static Bool isPublishIntrinsic(Uri uri) { uri.ext == "xeto" || isChapter(uri) }
 
+  ** Does the given lib file uri set the hasJavaScript lib flag
+  static Bool isJavaScript(Uri uri) { uri.path.size == 2 && uri.path[0] == "js" && uri.ext == "js" }
+
   ** Is the given lib file uri a documentation chapter.  Chapters are the
   ** markdown files at the lib root: they take a name in the lib's doc
   ** name space alongside the specs and instances, so they are the only

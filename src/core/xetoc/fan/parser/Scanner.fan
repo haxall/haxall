@@ -59,9 +59,6 @@ internal abstract class Scanner
     }
   }
 
-  ** Scan flag if any chapter resources detected
-  Bool hasChapters
-
   ** Perform scan - must have called scanPrep
   MLibFiles scan(APragma pragma)
   {
@@ -109,9 +106,22 @@ internal abstract class Scanner
 
   private Void scanAdd(Uri:LibFile acc, LibFile f)
   {
-    if (XetoUtil.isChapter(f.uri)) hasChapters = true
+    if (XetoUtil.isJavaScript(f.uri)) hasJavaScript = true
+    if (XetoUtil.isChapter(f.uri))    hasChapters = true
     acc.add(f.uri, f)
   }
+
+  ** Lib flags to apply after scan is complete
+  Int scanLibFlags()
+  {
+    flags := 0
+    if (hasJavaScript) flags = flags.or(MLibFlags.hasJavaScript)
+    if (hasChapters)   flags = flags.or(MLibFlags.hasChapters)
+    return flags
+  }
+
+  private Bool hasJavaScript // if any js/*.js detected
+  private Bool hasChapters // any chapter resources detected
 
   ** Report the first invalid section of a published path.  A directory is
   ** walked once per file beneath it, so report each bad name only once.

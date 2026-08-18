@@ -63,6 +63,14 @@ const mixin Lib : Dict
   ** Iterate the instances
   abstract Void eachInstance(|Dict, Str| f)
 
+  ** Access all the resource files contained by this library.  Resources
+  ** are any files included in the libs's zip file excluding xeto files.
+  ** This API is only available in server environments.
+  abstract LibFiles files()
+
+  ** File location of definition or unknown
+  @NoDoc abstract FileLoc loc()
+
   ** Funcs declared by this lib under the `Funcs` mixin.
   @NoDoc abstract SpecMap funcs()
 
@@ -72,16 +80,12 @@ const mixin Lib : Dict
   ** Is this the `proj` companion library
   @NoDoc abstract Bool isCompanion()
 
+  ** Does this library contain contain JavaScript under "/js"
+  @NoDoc abstract Bool hasJavaScript()
+
   ** Does this library contain markdown chapters files
   @NoDoc abstract Bool hasChapters()
 
-  ** File location of definition or unknown
-  @NoDoc abstract FileLoc loc()
-
-  ** Access all the resource files contained by this library.  Resources
-  ** are any files included in the libs's zip file excluding xeto files.
-  ** This API is only available in server environments.
-  abstract LibFiles files()
 
 }
 

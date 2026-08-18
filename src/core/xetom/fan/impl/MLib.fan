@@ -166,7 +166,8 @@ const final class MLib
 @Js
 const class MLibFlags
 {
-  static const Int hasChapters := 0x0001
+  static const Int hasJavaScript := 0x0001
+  static const Int hasChapters   := 0x0002
 
   static Str flagsToStr(Int flags)
   {
@@ -223,15 +224,17 @@ const final class XetoLib : Lib, Dict
 
   override Void eachInstance(|Dict, Str| f) { m.eachInstance(f) }
 
+  override LibFiles files() { m.files }
+
   override SpecMap funcs() { m.funcs }
 
   override Bool isSys() { m.isSys }
 
   override Bool isCompanion() { m.isCompanion }
 
-  override Bool hasChapters() { m.hasFlag(MLibFlags.hasChapters )}
+  override Bool hasJavaScript() { m.hasFlag(MLibFlags.hasJavaScript) }
 
-  override LibFiles files() { m.files }
+  override Bool hasChapters() { m.hasFlag(MLibFlags.hasChapters) }
 
   override final Bool isEmpty() { false }
 
