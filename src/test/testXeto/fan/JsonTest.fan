@@ -521,6 +521,10 @@ class JsonTest : AbstractXetoTest
       Spec?[null, spec, wrong].each |expect|
       {
         if (!jspec.plainRoundTrips(val, expect)) return
+        // a Str in a scalar typed position is trusted as that scalar's
+        // encoded form and decodes as the position's type, so the
+        // identity round trip deliberately does not apply
+        if (val is Str && expect != null && expect.isScalar) return
         if (plainSurvives(ns, val, expect)) return
         errs.add("$spec.qname sample=$val [$val.typeof] at ${expect?.qname}")
       }
@@ -528,6 +532,17 @@ class JsonTest : AbstractXetoTest
 
     if (!errs.isEmpty)
       fail("plainRoundTrips claimed these survive plainly:\n  " + errs.join("\n  "))
+  }
+
+  ** A Str in a scalar typed position is the scalar's encoded form: it
+  ** writes plain at box=auto and the reader gives it the position's
+  ** type, so haystack fidelity values map through the codec
+  Void testStrScalarPassThru()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    tz := ns.spec("sys::TimeZone")
+    verifyEq(JetoUtil(ns).plainRoundTrips("New_York", tz), true)
+    verifyEq(roundTrip(ns, "New_York", boxAuto, tz), TimeZone("New_York"))
   }
 
   ** auto and all must round trip every scalar spec in the namespace.  This is

@@ -133,6 +133,12 @@ using haystack
     // everything else encodes as a quoted string, which decodes as Str
     // unless the position names the value's own type
     if (et == null || !et.isScalar) return val is Str
+
+    // a Str in a scalar typed position is the scalar's encoded form: it
+    // writes plain and the reader gives it the position's type, so any
+    // haystack fidelity value maps through without boxing
+    if (val is Str) return true
+
     return et === ns.specOf(val, false)
   }
 
