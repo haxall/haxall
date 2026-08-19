@@ -218,6 +218,13 @@ class JetoWriter
   {
     if (box.isNone) return null
     if (box.isAuto && xutil.plainRoundTrips(val, expected)) return null
+
+    // a Str in a scalar typed position is that scalar's encoded form,
+    // so it boxes as the position's type - the wire is identical
+    // whether the producer supplied the typed value or its string
+    et := expected?.type
+    if (val is Str && et != null && et.isScalar) return et
+
     return ns.specOf(val, false)
   }
 

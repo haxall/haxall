@@ -534,15 +534,20 @@ class JsonTest : AbstractXetoTest
       fail("plainRoundTrips claimed these survive plainly:\n  " + errs.join("\n  "))
   }
 
-  ** A Str in a scalar typed position is the scalar's encoded form: it
-  ** writes plain at box=auto and the reader gives it the position's
-  ** type, so haystack fidelity values map through the codec
+  ** A Str in a scalar typed position is the scalar's encoded form, so
+  ** haystack fidelity values map through the codec with no wire change:
+  ** plain at box=auto, and boxed with the position's type at box=all
   Void testStrScalarPassThru()
   {
     ns := createNamespace(["hx.test.xeto"])
     tz := ns.spec("sys::TimeZone")
     verifyEq(JetoUtil(ns).plainRoundTrips("New_York", tz), true)
     verifyEq(roundTrip(ns, "New_York", boxAuto, tz), TimeZone("New_York"))
+    verifyEq(roundTrip(ns, "New_York", boxAll, tz), TimeZone("New_York"))
+
+    // the box=all wire names the position's type, not sys::Str
+    json := toJson(ns, "New_York", boxAll, tz)
+    verify(json.contains("sys::TimeZone"), json)
   }
 
   ** auto and all must round trip every scalar spec in the namespace.  This is
