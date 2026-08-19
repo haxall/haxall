@@ -17,6 +17,27 @@ using haystack
 @Js
 class ExportTest : AbstractXetoTest
 {
+  Void testGlobalIdentityJson()
+  {
+    ns := createNamespace(["sys"])
+    lib := ns.compileTempLib(
+      Str<|Person : Dict { *height: Number <minVal:0, maxVal:300, maybe> }
+             TallPerson : Person { height: Int <minVal:100> }|>)
+    buf := Buf()
+    JsonExporter(ns, buf.out, Etc.dict1("effective", m)).start.lib(lib).end
+    doc := (Str:Obj?)JsonInStream(buf.flip.in).readJson
+    exported := (Str:Obj?)doc.getChecked(lib.name)
+    person := (Str:Obj?)exported.getChecked("Person")
+    globals := (Str:Obj?)person.getChecked("globals")
+    height := (Str:Obj?)globals.getChecked("height")
+    verifyEq(height["global"], "\u2713")
+
+    tall := (Str:Obj?)exported.getChecked("TallPerson")
+    slots := (Str:Obj?)tall.getChecked("slots")
+    narrowed := (Str:Obj?)slots.getChecked("height")
+    verifyEq(narrowed["base"], "${lib.name}::Person.height")
+  }
+
   Void test()
   {
     ns := createNamespace(["hx.test.xeto"])
@@ -261,4 +282,3 @@ class ExportTest : AbstractXetoTest
     return e.toGrid
   }
 }
-

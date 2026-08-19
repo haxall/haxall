@@ -96,6 +96,7 @@ class JsonExporter : Exporter
     effective := this.isEffective && depth <= 1
     meta(effective  ? spec.meta  : spec.metaOwn)
     slots(effective ? spec.slots : spec.slotsOwn, depth)
+    globals(spec.globalsOwn, depth)
     objEnd.propEnd
     return this
   }
@@ -104,6 +105,12 @@ class JsonExporter : Exporter
   private This specType(Spec spec)
   {
     prop("type").str(spec.type.qname).propEnd
+    // Preserve the declaration identity of a concrete slot that specializes
+    // a global. Effective metadata alone carries the narrowed constraints but
+    // cannot reconstruct the normative RDF subproperty relationship.
+    if (spec.base != null && !spec.base.isType)
+      prop("base").str(spec.base.qname).propEnd
+    return this
   }
 
   ** Spec base
@@ -119,6 +126,17 @@ class JsonExporter : Exporter
     if (slots.isEmpty) return this
     prop("slots").obj
     slots.each |slot| { doSpec(slot.name, slot, depth+1) }
+    objEnd.propEnd
+    return this
+  }
+
+  ** Global declarations are not ordinary effective slots, but downstream
+  ** schema translators need their identity to preserve global contracts.
+  private This globals(SpecMap globals, Int depth)
+  {
+    if (globals.isEmpty) return this
+    prop("globals").obj
+    globals.each |globalSlot| { doSpec(globalSlot.name, globalSlot, depth+1) }
     objEnd.propEnd
     return this
   }
@@ -262,4 +280,3 @@ class JsonExporter : Exporter
   private Bool[] firsts := Bool[true]    // object state stack
   private Bool lastWasEnd
 }
-

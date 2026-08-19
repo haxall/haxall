@@ -12,9 +12,6 @@ using haystack
 **
 ** RDF Turtle Exporter
 **
-** TODO
-**   - query constraints not implemented
-**
 @Js
 class RdfExporter : Exporter
 {
@@ -51,6 +48,7 @@ class RdfExporter : Exporter
   {
     this.curLib = lib
     this.isSys = lib.name == "sys"
+    validateSealedNamespace(lib)
     types := lib.types.list
 
     prefixDefs(lib)
@@ -62,8 +60,31 @@ class RdfExporter : Exporter
       types = types.dup.moveTo(types.find { it.name == "Obj" }, 0)
     }
 
-    types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
-    lib.mixins.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
+    types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(ns.specx(x)) }
+
+    // A mixin contributes to its target's effective shape; it is not an RDF
+    // class of its own. Emit each affected target once with all namespace
+    // mixins applied, while its contributed slots retain their own qnames.
+    mixinTargets := Str:Spec[][:]
+    lib.mixins.each |contribution|
+    {
+      target := contribution.base
+      if (target == null)
+        throw UnsupportedErr("Mixin contribution ${contribution.qname} has no target spec")
+
+      // +Spec declares metadata rather than application data. Known metadata
+      // is consumed by its mapping rule; metadata without a rule is omitted.
+      if (target.qname == "sys::Spec") return
+
+      mixinTargets.getOrAdd(target.qname) { Spec[,] }.add(contribution)
+    }
+    mixinTargets.each |contributions, targetQname|
+    {
+      target := ns.spec(targetQname, false)
+      if (target == null) target = contributions.first.base
+      if (target == null) throw UnsupportedErr("Mixin target not found: ${targetQname}")
+      mixinShape(target, contributions)
+    }
     lib.instances.each |x| { instance(x) }
     return this
   }
@@ -73,7 +94,7 @@ class RdfExporter : Exporter
     this.isSys = spec.lib.name == "sys"
     if (spec.isType) return cls(spec)
     if (spec.isGlobal) return global(spec)
-    throw Err(spec.name)
+    throw UnsupportedErr("RDF export target is neither a type nor a global: ${spec.qname}")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,8 +116,12 @@ class RdfExporter : Exporter
     w("@prefix unit: <http://qudt.org/vocab/unit/> .").nl
     w("@prefix currency: <http://qudt.org/vocab/currency/> .").nl
     w("@prefix quantitykind: <http://qudt.org/vocab/quantitykind/> .").nl
-    lib.depends.each |x| { prefixDef(ns.lib(x.name)) }
-    prefixDef(lib)
+    // Effective shapes may contain slots contributed by any active namespace
+    // library, including mixins whose owner is not a direct dependency.
+    // Declare every active prefix so all emitted qnames are valid Turtle.
+    libs := ns.libs.dup.sort |a, b| { a.name <=> b.name }
+    libs.each |x| { prefixDef(x) }
+    if (!libs.any |x| { x.name == lib.name }) prefixDef(lib)
     nl
   }
 
@@ -172,9 +197,23 @@ class RdfExporter : Exporter
     // Classes with effective constraints are also SHACL node shapes.
     if (hasShape) w("  a sh:NodeShape ;").nl
 
-    // supertype
-    if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
-    else  w("  rdfs:subClassOf rdfs:Resource ;").nl
+    // Intersections are subclasses of every member. Unions reverse that
+    // relationship below so each member is a subclass of the union.
+    if (x.isCompound && x.isAnd)
+    {
+      w("  rdfs:subClassOf ")
+      x.bases.each |base, i|
+      {
+        if (i > 0) w(", ")
+        qname(base.qname)
+      }
+      w(" ;").nl
+    }
+    else if (!(x.isCompound && x.isOr))
+    {
+      if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
+      else  w("  rdfs:subClassOf rdfs:Resource ;").nl
+    }
 
     // label and comment properties
     labelAndDoc(x)
@@ -204,8 +243,51 @@ class RdfExporter : Exporter
     {
       slot(s)
     }
+    x.globalsOwn.each |g| { global(g) }
+
+    if (x.isCompound && x.isOr)
+    {
+      x.bases.each |member|
+      {
+        qname(member.qname).w(" rdfs:subClassOf ").qname(x.qname).w(" .").nl
+      }
+    }
 
     return this
+  }
+
+  ** Emit only this library's contribution to a dependency-owned target. The
+  ** dependency graph owns the target class and its original constraints;
+  ** this graph adds a SHACL shape with contributor-owned properties.
+  private Void mixinShape(Spec target, Spec[] contributions)
+  {
+    props   := Spec[,]
+    markers := Spec[,]
+    contributions.each |contribution|
+    {
+      contribution.slotsOwn.each |slot|
+      {
+        if (slot.isMarker) markers.add(slot)
+        else props.add(slot)
+      }
+    }
+
+    if (!props.isEmpty || markers.any |slot| { !slot.isMaybe })
+    {
+      qname(target.qname).nl
+      w("  a sh:NodeShape ;").nl
+      markers.each |slot| { hasMarker(slot) }
+      w("  sh:targetClass ").qname(target.qname).w(" ;").nl
+      props.each |slot| { propShape(slot) }
+      markers.each |slot| { if (!slot.isMaybe) markerShape(slot) }
+      w(".").nl
+    }
+
+    contributions.each |contribution|
+    {
+      contribution.slotsOwn.each |slot| { this.slot(slot) }
+      contribution.globalsOwn.each |globalSlot| { global(globalSlot) }
+    }
   }
 
   private Void hasMarker(Spec slot)
@@ -225,6 +307,27 @@ class RdfExporter : Exporter
 
   private Void propShape(Spec slot)
   {
+    type := slot.type
+    if (type.isThis || ((type.isRef || type.isMultiRef) && slot.of(false)?.isThis == true))
+      throw UnsupportedErr("RDF parent-relative This mapping not supported for ${slot.qname}")
+    if (type.isGrid)
+      throw UnsupportedErr("RDF Grid mapping not supported for ${slot.qname} of ${type.qname}")
+    if (type.qname == "sys::Collection")
+      throw UnsupportedErr("RDF Collection mapping not supported for ${slot.qname} of ${type.qname}")
+    if (type.isFunc)
+      throw UnsupportedErr("RDF Func mapping not supported for ${slot.qname} of ${type.qname}")
+    if (type.isInterface)
+      throw UnsupportedErr("RDF Interface mapping not supported for ${slot.qname} of ${type.qname}")
+    if (type.isComp)
+      throw UnsupportedErr("RDF runtime component mapping not supported for ${slot.qname} of ${type.qname}")
+
+    if (slot.isQuery)
+    {
+      required := slot.slotsOwn.list.find |Spec member->Bool| { !member.isMaybe }
+      if (required != null)
+        throw UnsupportedErr("RDF query body mapping not supported for required member ${required.qname}")
+    }
+
     // build constraints
     sh := Str:Obj[:]
     sh.ordered = true
@@ -232,13 +335,19 @@ class RdfExporter : Exporter
     hasMaxCount := true
 
     // value type
-    type := slot.type
     isQuantityValue := isQuantityValueSlot(slot)
     isLiteral := ((type.isScalar && !type.isRef) || type.qname == "sys::TimeZone") &&
                  !isQuantityValue && type.qname != "sys::Unit" &&
                  type.qname != "sys::UnitQuantity"
     datatype := isLiteral ? scalarDatatype(type) : null
-    if (type.qname == "sys::Unit")
+    if (slot.isQuery)
+    {
+      of := slot.of(false)
+      if (of != null) sh["class"] = qnameToUri(of.qname)
+      hasMinCount = false
+      hasMaxCount = false
+    }
+    else if (type.qname == "sys::Unit")
     {
       sh["class"] = "qudt:Unit"
     }
@@ -293,9 +402,13 @@ class RdfExporter : Exporter
 
     // write property shape
     w("  sh:property [").nl
-    w("    sh:path ").qname(slot.qname).w(" ;").nl
+    w("    sh:path ")
+    if (slot.isQuery) queryPath(slot)
+    else qname(slot.qname)
+    w(" ;").nl
     sh.each |v, n| { w("    sh:").w(n).w(" ").w(v).w(" ;").nl }
-    if (type.isEnum && type.qname != "sys::Unit" && type.qname != "sys::UnitQuantity")
+    if (type.isEnum && type.qname != "sys::Unit" &&
+        type.qname != "sys::UnitQuantity" && type.qname != "sys::TimeZone")
       enumConstraint(type)
     if (type.isChoice) choiceConstraint(slot)
     if (type.isList) listConstraint(slot)
@@ -307,6 +420,104 @@ class RdfExporter : Exporter
     if (isQuantityValue) quantityValueConstraint(slot)
     if (datatype != null) scalarConstraints(slot, datatype)
     w("  ] ;").nl
+  }
+
+  ** Write the computed SHACL property path for a query slot. Query metadata
+  ** is resolved in the library that owns the declaration, which matters for
+  ** slots contributed to another library's type by a mixin.
+  private Void queryPath(Spec query)
+  {
+    viaVal := query.meta["via"]
+    inverseVal := query.meta["inverse"]
+    if (viaVal != null && inverseVal != null)
+      throw UnsupportedErr("RDF query ${query.qname} cannot declare both via and inverse")
+
+    if (viaVal != null)
+    {
+      via := viaVal as Str
+        ?: throw UnsupportedErr("Invalid via metadata for ${query.qname}: ${viaVal.typeof}")
+      writeViaPath(query, via, false)
+      return
+    }
+
+    if (inverseVal != null)
+    {
+      inverse := inverseVal as Str
+        ?: throw UnsupportedErr("Invalid inverse metadata for ${query.qname}: ${inverseVal.typeof}")
+      inverseQname := resolveQueryName(query, inverse)
+      inverseQuery := resolveSpec(inverseQname)
+      if (inverseQuery != null && inverseQuery.isQuery)
+      {
+        inverseViaVal := inverseQuery.meta["via"]
+        inverseVia := inverseViaVal as Str
+        if (inverseViaVal != null && inverseVia == null)
+          throw UnsupportedErr("Invalid via metadata for ${inverseQuery.qname}: ${inverseViaVal.typeof}")
+        if (inverseVia == null)
+          throw UnsupportedErr("Inverse query ${query.qname} must reference a via query: ${inverseQname}")
+        writeViaPath(inverseQuery, inverseVia, true)
+      }
+      else
+      {
+        w("[ sh:inversePath ").qname(inverseQname).w(" ]")
+      }
+      return
+    }
+
+    // A plain query is still computed and has no cardinality, but its RDF
+    // predicate is the ordinary declared slot property.
+    qname(query.qname)
+  }
+
+  private Void writeViaPath(Spec query, Str source, Bool inverse)
+  {
+    if (source.isEmpty)
+      throw UnsupportedErr("Empty query path for ${query.qname}")
+
+    quantifier := ""
+    if (source.endsWith("+") || source.endsWith("*"))
+    {
+      quantifier = source[-1].toChar
+      source = source[0..-2]
+      if (source.isEmpty)
+        throw UnsupportedErr("Empty query path for ${query.qname}")
+    }
+
+    property := resolveQueryName(query, source)
+    if (!quantifier.isEmpty)
+      w(quantifier == "+" ? "[ sh:oneOrMorePath " : "[ sh:zeroOrMorePath ")
+    if (inverse) w("[ sh:inversePath ")
+    qname(property)
+    if (inverse) w(" ]")
+    if (!quantifier.isEmpty) w(" ]")
+  }
+
+  ** Resolve an unqualified path relative to the query declaration. A
+  ** Spec.slot path is relative to the declaration's library; a fully
+  ** qualified lib::Spec.slot path retains its explicit owner.
+  private Str resolveQueryName(Spec query, Str name)
+  {
+    if (name.contains("::")) return name
+    if (name.contains(".")) return "${query.lib.name}::${name}"
+    parent := query.parent
+      ?: throw UnsupportedErr("Query ${query.qname} has no declaring parent")
+    return "${parent.qname}.${name}"
+  }
+
+  ** Namespace lookup does not include a temporary library until installed,
+  ** so fall back to the currently exported library for its own query slots.
+  private Spec? resolveSpec(Str qname)
+  {
+    found := ns.spec(qname, false)
+    if (found != null) return found
+
+    lib := curLib
+    if (lib == null || !qname.startsWith("${lib.name}::")) return null
+    local := qname[qname.index("::") + 2..-1]
+    dot := local.index(".")
+    if (dot == null) return lib.spec(local, false)
+    parent := lib.spec(local[0..<dot], false)
+    if (parent == null) return null
+    return parent.slot(local[dot + 1..-1], false)
   }
 
   private Bool isQuantityValueSlot(Spec slot)
@@ -394,6 +605,8 @@ class RdfExporter : Exporter
     // The RDF specification constrains a choice slot to the member IRIs
     // visible in the active namespace, rather than to marker values.
     members := choiceMembers(slot)
+    if (members.isEmpty)
+      throw UnsupportedErr("RDF choice ${slot.qname} has no members in the active namespace")
     w("    sh:in (")
     members.each |member, i|
     {
@@ -498,7 +711,7 @@ class RdfExporter : Exporter
     maxSize := intMeta(slot, "maxSize")
     if (maxSize != null) w("    sh:maxLength ").w(maxSize).w(" ;").nl
 
-    pattern := scalarPattern(slot)
+    pattern := scalarPattern(slot, datatype)
     if (pattern != null)
       w("    sh:pattern ").literal(pattern).w(" ;").nl
 
@@ -511,7 +724,7 @@ class RdfExporter : Exporter
       if (val == null)
         throw UnsupportedErr("Invariant scalar slot ${slot.qname} is missing val metadata")
       w("    sh:hasValue ")
-      typedLiteral(val, datatype)
+      typedLiteral(val, slot.type, slot.qname)
       w(" ;").nl
     }
   }
@@ -537,8 +750,11 @@ class RdfExporter : Exporter
     throw UnsupportedErr("RDF scalar datatype not supported: ${type.qname}")
   }
 
-  private Str? scalarPattern(Spec slot)
+  private Str? scalarPattern(Spec slot, Str datatype)
   {
+    // Xeto's built-in numeric/date patterns describe source syntax and are
+    // not SHACL regex constraints on RDF typed literals.
+    if (datatype != "xsd:string") return null
     patternVal := slot.meta["pattern"]
     if (patternVal == null) return null
     pattern := patternVal as Str
@@ -625,16 +841,102 @@ class RdfExporter : Exporter
     return num.toInt
   }
 
-  private This typedLiteral(Obj val, Str datatype)
+  ** Convert only runtime values with a defined scalar mapping. This avoids
+  ** accepting an arbitrary object merely because its `toStr` happens to look
+  ** like a legal lexical form for the requested RDF datatype.
+  private This typedLiteral(Obj val, Spec type, Str context)
   {
-    literal(val.toStr).w("^^").w(datatype)
+    datatype := scalarDatatype(type)
+    lexical := scalarLexical(val, type, context)
+    return literal(lexical).w("^^").w(datatype)
+  }
+
+  private Str scalarLexical(Obj val, Spec type, Str context)
+  {
+    qname := type.qname
+    wrapped := val as Scalar
+    if (wrapped != null)
+    {
+      if (wrapped.qname != qname)
+        throw UnsupportedErr("Expected ${qname} for ${context}, not ${wrapped.qname}")
+      val = wrapped.val
+    }
+
+    if (qname == "sys::Str" || (type.isScalar && type.lib.name != "sys"))
+      return val as Str ?: throw UnsupportedErr("Expected Str for ${context}, not ${val.typeof}")
+
+    if (qname == "sys::Int")
+    {
+      if (val is Int) return val.toStr
+      num := val as Number
+      if (num == null || num.unit != null || num.isSpecial || !num.isInt)
+        throw UnsupportedErr("Expected integer value for ${context}, not ${val.typeof}")
+      return num.toInt.toStr
+    }
+
+    if (qname == "sys::Number")
+    {
+      if (val is Int) return val.toStr
+      num := val as Number
+      if (num == null || num.unit != null || num.isSpecial)
+        throw UnsupportedErr("Expected finite unitless Number for ${context}, not ${val.typeof}")
+      return num.isInt ? num.toInt.toStr : num.toFloat.toStr
+    }
+
+    if (qname == "sys::Bool")
+    {
+      if (val is Bool) return val.toStr
+      str := val as Str
+      if (str == "true" || str == "false") return str
+      throw UnsupportedErr("Expected Bool for ${context}, not ${val.typeof}")
+    }
+
+    if (qname == "sys::Date")
+    {
+      if (val is Date) return val.toStr
+      str := val as Str
+      if (str != null && Date.fromStr(str, false) != null) return str
+      throw UnsupportedErr("Expected Date for ${context}, not ${val.typeof}")
+    }
+
+    if (qname == "sys::Time")
+    {
+      if (val is Time) return val.toStr
+      str := val as Str
+      if (str != null && Time.fromStr(str, false) != null) return str
+      throw UnsupportedErr("Expected Time for ${context}, not ${val.typeof}")
+    }
+
+    if (qname == "sys::DateTime")
+    {
+      if (val is DateTime) return val.toStr
+      str := val as Str
+      if (str != null && DateTime.fromStr(str, false) != null) return str
+      throw UnsupportedErr("Expected DateTime for ${context}, not ${val.typeof}")
+    }
+
+    if (qname == "sys::Uri")
+    {
+      if (val is Uri) return val.toStr
+      str := val as Str
+      if (str != null && Uri.fromStr(str, false) != null) return str
+      throw UnsupportedErr("Expected Uri for ${context}, not ${val.typeof}")
+    }
+
+    if (qname == "sys::TimeZone")
+    {
+      if (val is TimeZone) return val.toStr
+      str := val as Str
+      if (str != null && TimeZone.fromStr(str, false) != null) return str
+      throw UnsupportedErr("Expected TimeZone for ${context}, not ${val.typeof}")
+    }
+
+    throw UnsupportedErr("RDF scalar value mapping not supported for ${context} of ${qname}")
   }
 
   private This global(Spec x)
   {
-    // don't generate globals, just class properties
-    // prop(x)
-    return this
+    return prop(x)
   }
 
   private This slot(Spec x)
@@ -661,24 +963,28 @@ class RdfExporter : Exporter
   {
     qname(x.qname).nl
     w("  a rdf:Property ;").nl
-    if (!x.base.isType)
-      w("  rdfs:subClassOf ").qname(x.base.qname).w("; ").nl
+    if (x.base != null && !x.base.isType)
+      w("  rdfs:subPropertyOf ").qname(x.base.qname).w(" ;").nl
     labelAndDoc(x)
-    type := globalType(x)
-    // if (type != null) w("  rdfs:range ").w(type).w(" ;").nl
     w(".").nl
     return this
   }
 
-  private Str? globalType(Spec x)
+  ** Sealed is a schema validity rule rather than an RDF statement. Xeto's
+  ** compiler normally prevents this state, but an exporter must still fail
+  ** closed if handed a namespace assembled by another implementation.
+  private Void validateSealedNamespace(Lib lib)
   {
-    type := x.type
-    if (type.qname == "sys::Str") return "xsd:string"
-    if (type.qname == "sys::Int") return "xsd:integer"
-    if (type.isEnum) return qnameToUri(type.qname)
-    if (type.isChoice) return qnameToUri(type.qname)
-    if (type.isRef || type.isMultiRef) return x.of(false)?.qname ?: "sys:Entity"
-    return null
+    candidates := Str:Spec[:]
+    ns.eachType |candidate| { candidates[candidate.qname] = candidate }
+    lib.types.each |candidate| { candidates[candidate.qname] = candidate }
+    candidates.each |candidate|
+    {
+      base := candidate.base
+      if (base == null) return
+      if (base.lib.name != candidate.lib.name && base.meta.has("sealed"))
+        throw UnsupportedErr("External subtype ${candidate.qname} extends sealed spec ${base.qname}")
+    }
   }
 
   private This labelAndDoc(Spec x)
@@ -697,10 +1003,6 @@ class RdfExporter : Exporter
   override This instance(Dict instance)
   {
     id := instance.id
-
-    // TODO - just hide op/filetype instances for now
-    if (id.toStr.startsWith("ph::op:")) return this
-    if (id.toStr.startsWith("ph::filetype:")) return this
 
     spec := instanceSpec(instance)
     this.id(id).nl
@@ -773,6 +1075,14 @@ class RdfExporter : Exporter
       return
     }
 
+    if (type.qname == "sys::TimeZone")
+    {
+      w(indent).qname(property).w(" ")
+      typedLiteral(val, type, property)
+      w(" ;").nl
+      return
+    }
+
     if (type.isEnum)
     {
       if (type.qname == "sys::Unit")
@@ -783,7 +1093,11 @@ class RdfExporter : Exporter
       }
       if (type.qname == "sys::UnitQuantity")
         throw UnsupportedErr("RDF mapping not implemented for ${type.qname}")
-      key := val.toStr
+      scalar := val as Scalar
+        ?: throw UnsupportedErr("Expected ${type.qname} enum value for ${property}, not ${val.typeof}")
+      if (scalar.qname != type.qname)
+        throw UnsupportedErr("Expected ${type.qname} enum value for ${property}, not ${scalar.qname}")
+      key := scalar.val
       if (type.enum.spec(key, false) == null)
         throw UnsupportedErr("Invalid ${type.qname} value: ${key}")
       w(indent).qname(property).w(" ").literal(key).w("^^xsd:string ;").nl
@@ -812,8 +1126,17 @@ class RdfExporter : Exporter
         return
       }
       w(indent).qname(property).w(" ")
-      typedLiteral(val, scalarDatatype(type))
+      typedLiteral(val, type, property)
       w(" ;").nl
+      return
+    }
+
+    if (type.qname == "sys::Obj")
+    {
+      actual := ns.specOf(val, false)
+      if (actual == null || actual.qname == "sys::Obj")
+        throw UnsupportedErr("RDF Obj value type is ambiguous for ${property}: ${val.typeof}")
+      instanceMember(property, actual, val, indent)
       return
     }
 
@@ -914,7 +1237,7 @@ class RdfExporter : Exporter
       num := item as Number
       if (num != null && num.unit != null)
         throw UnsupportedErr("RDF quantity list item mapping not implemented for ${property}")
-      typedLiteral(item, scalarDatatype(type))
+      typedLiteral(item, type, property)
       return
     }
 
@@ -1006,13 +1329,45 @@ class RdfExporter : Exporter
   ** Output Xeto lib::name qualified name
   private This qname(Str qname)
   {
-    w(qnameToUri(qname))
+    validateQName(qname, "RDF name")
+    return w(qnameToUri(qname))
   }
 
   ** Output Xeto lib::name qualified name
   private This id(Ref id)
   {
-    w(qnameToUri(id.toStr))
+    qname := id.toStr
+    sep := qname.index("::")
+    if (sep == null || sep == 0 || sep + 2 >= qname.size || qname.index("::", sep + 2) != null)
+      throw UnsupportedErr("RDF instance id or reference is not library-qualified: ${qname}")
+
+    libName := qname[0..<sep]
+    local := qname[sep + 2..-1]
+    lib := curLib?.name == libName ? curLib : ns.lib(libName, false)
+    if (lib == null)
+      throw UnsupportedErr("RDF instance id or reference uses unknown library ${libName}: ${qname}")
+
+    // Keep ordinary Xeto qnames readable. Ref ids may also contain schemes
+    // such as `op:name` and `filetype:json`; those are legal RDF fragments
+    // but not legal prefixed names, so write their full versioned IRI.
+    if (!local.contains(":") && !local.contains(" ") && !local.contains("\t") &&
+        !local.contains("\r") && !local.contains("\n") && !local.contains("<") &&
+        !local.contains(">") && !local.contains("\"") && !local.contains("\\"))
+      return w(libName).w(":").w(local)
+
+    encoded := Uri.encodeToken(local, Uri.sectionFrag)
+    return w("<").w(libUri(lib)).w("#").w(encoded).w(">")
+  }
+
+  private Void validateQName(Str qname, Str kind)
+  {
+    sep := qname.index("::")
+    invalid := sep == null || sep == 0 || sep + 2 >= qname.size ||
+      qname.index("::", sep + 2) != null || qname[sep + 2..-1].contains(":") ||
+      qname.contains(" ") || qname.contains("\t") || qname.contains("\r") ||
+      qname.contains("\n") || qname.contains("<") || qname.contains(">") ||
+      qname.contains("\"") || qname.contains("\\")
+    if (invalid) throw UnsupportedErr("${kind} is not QName-compatible: ${qname}")
   }
 
   ** Quoted string literal

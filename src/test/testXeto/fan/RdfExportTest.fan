@@ -133,12 +133,191 @@ class RdfExportTest : AbstractXetoTest
     verifyEq(export(src), export(src))
   }
 
+  Void testCompleteSupportedProfileClosure()
+  {
+    src := Str<|Code : Scalar <pattern:"[A-Z]{2}">
+
+                 Suit : Enum { clubs <key:"Clubs"> }
+                 HeatingProcess : Choice
+                 HotWaterHeating : HeatingProcess { hotWaterHeating }
+                 SteamHeating : HeatingProcess { steamHeating }
+
+                 Site : Dict { dis: Str }
+                 Related : Dict
+                 Address : Dict { city: Str }
+                 Named : Dict { dis: Str }
+                 Located : Dict { geoCity: Str }
+                 NamedLocation : Named & Located
+                 Heating : Dict
+                 Cooling : Dict
+                 ThermalProcess : Heating | Cooling
+
+                 Asset : Dict {
+                   *height: Number?<minVal:0, maxVal:300>
+                 }
+
+                 Equip : Asset <doc:"Line one\nLine \"two\" \\ dollar \$"> {
+                   label: Str <nonEmpty, minSize:2, maxSize:40>
+                   code: Code
+                   count: Int <minVal:1, maxVal:60>
+                   value: Number
+                   enabled: Bool
+                   commissioned: Date
+                   observedAt: Time
+                   timestamp: DateTime
+                   source: Uri
+                   zone: TimeZone
+                   anything: Obj
+                   suit: Suit
+                   siteRef: Ref<of:Site>
+                   related: MultiRef?<of:Related>
+                   address: Address
+                   names: List<of:Str, minSize:2, maxSize:3>
+                   addresses: List<of:Address, nonEmpty>
+                   heatingProcesses: HeatingProcess <multiChoice>
+                   points: Query<of:Related, via:"related*">
+                   equip
+                   fixed: Str <invariant> "ok"
+                   height: Int?<minVal:100>
+                   unit: Unit <quantity:"temperature">
+                   percent: Number <unit:"%">
+                 }
+
+                 @site1: Site { dis:"HQ" }
+                 @related1: Related {}
+                 @equip1: Equip {
+                   label: "AHU-1"
+                   code: Code "AB"
+                   count: 7
+                   value: 1.5
+                   enabled: "true"
+                   commissioned: 2026-08-18
+                   observedAt: 02:30:00
+                   timestamp: 2026-08-18T10:00:00Z
+                   source: Uri "https://example.com/a?x=1&y=2"
+                   zone: TimeZone "Chicago"
+                   anything: "free"
+                   suit: "Clubs"
+                   siteRef: @site1
+                   related: MultiRef { @related1 }
+                   address: Address { city:"Richmond" }
+                   names: {"first", "second"}
+                   addresses: { Address { city:"Norfolk" } }
+                   hotWaterHeating
+                   steamHeating
+                   equip
+                   imported
+                   unit: Unit "°F"
+                   percent: Number "50%"
+                 }|>
+
+    mappings := RdfQudtMappings(
+      "fahrenheit=DEG_F\npercent=PERCENT\n",
+      "temperature=Temperature\n")
+    first := exportWithMappings(src, mappings)
+    second := exportWithMappings(src, mappings)
+    verifyEq(first, second)
+
+    equip := instanceBlock(first, "equip1")
+    verify(equip.contains("temp:Equip.label \"AHU-1\"^^xsd:string ;"), equip)
+    verify(equip.contains("temp:Equip.observedAt \"02:30:00\"^^xsd:time ;"), equip)
+    verify(equip.contains("temp:Equip.timestamp \"2026-08-18T10:00:00Z UTC\"^^xsd:dateTime ;"), equip)
+    verify(equip.contains("temp:Equip.source \"https://example.com/a?x=1&y=2\"^^xsd:anyURI ;"), equip)
+    verify(equip.contains("temp:Equip.anything \"free\"^^xsd:string ;"), equip)
+    verify(equip.contains("temp:Equip.siteRef temp:site1 ;"), equip)
+    verify(equip.contains("temp:Equip.address ["), equip)
+    verify(equip.contains("temp:Equip.names ("), equip)
+    verify(equip.contains("temp:Equip.heatingProcesses temp:HotWaterHeating ;"), equip)
+    verify(equip.contains("qudt:numericValue \"50\"^^xsd:decimal ;"), equip)
+    verify(equip.contains("sys:hasMarker temp:Equip.imported ;"), equip)
+    verifyFalse(equip.contains("temp:Equip.points"), equip)
+
+    firstName := equip.index("\"first\"^^xsd:string")
+    secondName := equip.index("\"second\"^^xsd:string")
+    verify(firstName != null && secondName != null && firstName < secondName, equip)
+    verify(first.contains("rdfs:comment " + Str<|"""|> + "\n    Line one"), first)
+    verify(first.contains("Line \"two\" \\\\ dollar \$"), first)
+    verify(first.contains("sh:zeroOrMorePath temp:Equip.related"), first)
+    verify(first.contains("rdfs:subPropertyOf temp:Asset.height ;"), first)
+    verify(first.contains("rdfs:subClassOf temp:Named, temp:Located ;"), first)
+    verify(first.contains("temp:Heating rdfs:subClassOf temp:ThermalProcess ."), first)
+    verify(first.contains("temp:Cooling rdfs:subClassOf temp:ThermalProcess ."), first)
+    verifyFalse(propertyShape(first, "Equip.zone").contains("sh:in"), first)
+  }
+
   Void testUnsupportedSystemScalarFailsClosed()
   {
     verifyErrMsg(UnsupportedErr#, "RDF scalar datatype not supported: sys::Version")
     {
       export(Str<|Reading : Dict { version: Version }|>)
     }
+  }
+
+  Void testUnmappedMetadataIsOmitted()
+  {
+    plain := export(Str<|Person : Dict { dis: Str }|>)
+    annotated := export(
+      Str<|+Spec { icon: Str? }
+
+             Person : Dict <icon:"user"> {
+               dis: Str <icon:"label">
+             }|>)
+
+    verifyEq(resourceBlock(annotated, "temp:Person"), resourceBlock(plain, "temp:Person"))
+    verifyEq(resourceBlock(annotated, "temp:Person.dis"), resourceBlock(plain, "temp:Person.dis"))
+    verifyFalse(annotated.contains("icon"), annotated)
+  }
+
+  Void testOtherCoreTypeInventory()
+  {
+    rdf := export(
+      Str<|Failure : Err
+             Envelope : Dict { failure: Failure? }|>)
+    verify(rdf.contains("temp:Failure\n  a sys:Class ;"), rdf)
+    verify(rdf.contains("rdfs:subClassOf sys:Err ;"), rdf)
+    verify(propertyShape(rdf, "Envelope.failure").contains("sh:node temp:Failure ;"), rdf)
+
+    ["None", "NA", "Float", "Duration", "Version", "Buf", "Span", "Filter", "BuildVar"].each |type|
+    {
+      verifyUnsupported("Holder : Dict { value: ${type} }", "RDF scalar datatype not supported: sys::${type}")
+    }
+    verifyUnsupported("Holder : Dict { value: Grid }", "RDF Grid mapping not supported")
+    verifyUnsupported("Holder : Dict { value: Collection }", "RDF Collection mapping not supported")
+    verifyUnsupported("Holder : Dict { value: Func }", "RDF Func mapping not supported")
+    verifyUnsupported("Holder : Dict { value: Interface }", "RDF Interface mapping not supported")
+    verifyUnsupported("Holder : Dict { value: Funcs }", "RDF Interface mapping not supported")
+  }
+
+  Void testClosureDiagnosticsFailClosed()
+  {
+    try
+    {
+      export(Str<|Point : Dict
+                   Equip : Dict { points: Query { point: Point } }|>)
+      fail("Expected required query body member to fail closed")
+    }
+    catch (UnsupportedErr err)
+    {
+      verify(err.msg.contains("RDF query body mapping not supported for required member"), err.msg)
+      verify(err.msg.endsWith("::Equip.points.point"), err.msg)
+    }
+
+    try
+    {
+      export(Str<|Node : Dict { parent: Ref<of:This> }|>)
+      fail("Expected parent-relative Ref to fail closed")
+    }
+    catch (UnsupportedErr err)
+    {
+      verify(err.msg.contains("RDF parent-relative This mapping not supported for"), err.msg)
+      verify(err.msg.endsWith("::Node.parent"), err.msg)
+    }
+
+    ns := createNamespace(["sys"])
+    colonId := Etc.makeDict(["id":Ref("sys::op:bad"), "spec":Ref("sys::Dict")])
+    buf := Buf()
+    RdfExporter(ns, buf.out, Etc.dict0).start.instance(colonId).end
+    verify(buf.flip.readAllStr.contains("#op:bad>"))
   }
 
   Void testStructuredValueShapes()
@@ -341,6 +520,43 @@ class RdfExportTest : AbstractXetoTest
     verify(richmond != null && norfolk != null && richmond < norfolk, batch)
   }
 
+  Void testQueryPropertyPaths()
+  {
+    rdf := export(
+      Str<|Equip : Dict {
+               points: Query<of:Point, inverse:"Point.equips">
+               plain: Query<of:Point>
+             }
+
+             Point : Dict {
+               equipRef: Ref<of:Equip>
+               equips: Query<of:Equip, via:"equipRef+">
+             }
+
+             @equip1: Equip {}
+             @point1: Point { equipRef: @equip1 }|>)
+
+    points := propertyShape(rdf, "[ sh:oneOrMorePath [ sh:inversePath temp:Point.equipRef ] ]")
+    verify(points.contains("sh:class temp:Point ;"), points)
+    verifyFalse(points.contains("sh:minCount"), points)
+    verifyFalse(points.contains("sh:maxCount"), points)
+
+    equips := propertyShape(rdf, "[ sh:oneOrMorePath temp:Point.equipRef ]")
+    verify(equips.contains("sh:class temp:Equip ;"), equips)
+    verifyFalse(equips.contains("sh:minCount"), equips)
+    verifyFalse(equips.contains("sh:maxCount"), equips)
+
+    plain := propertyShape(rdf, "Equip.plain")
+    verify(plain.contains("sh:class temp:Point ;"), plain)
+    verifyFalse(plain.contains("sh:minCount"), plain)
+    verifyFalse(plain.contains("sh:maxCount"), plain)
+
+    point := instanceBlock(rdf, "point1")
+    verify(point.contains("temp:Point.equipRef temp:equip1 ;"), point)
+    equip := instanceBlock(rdf, "equip1")
+    verifyFalse(equip.contains("temp:Equip.points"), equip)
+  }
+
   Void testUnsupportedListItemTypesFailClosed()
   {
     try
@@ -491,7 +707,9 @@ class RdfExportTest : AbstractXetoTest
 
   private Str propertyShape(Str rdf, Str property)
   {
-    path := "sh:path temp:${property} ;"
+    path := property.startsWith("[")
+      ? "sh:path ${property} ;"
+      : "sh:path temp:${property} ;"
     start := rdf.index(path)
     if (start == null) throw Err("Missing property shape for ${property}")
     close := "  ] ;"
@@ -516,6 +734,19 @@ class RdfExportTest : AbstractXetoTest
     end := rdf.index("\n.\n", start)
     if (end == null) throw Err("Unterminated resource ${resource}")
     return rdf[start..<(end + 3)]
+  }
+
+  private Void verifyUnsupported(Str src, Str expected)
+  {
+    try
+    {
+      export(src)
+      fail("Expected unsupported RDF mapping: ${src}")
+    }
+    catch (UnsupportedErr err)
+    {
+      verify(err.msg.contains(expected), err.msg)
+    }
   }
 
   private Int countMatches(Str source, Str match)
