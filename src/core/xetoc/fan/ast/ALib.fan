@@ -203,6 +203,8 @@ internal const class ALib : Lib, ADoc
   override Bool hasJavaScript() { throw UnsupportedErr() }
 
   override Bool hasChapters() { throw UnsupportedErr() }
+
+  override Bool hasCss() { throw UnsupportedErr() }
 }
 
 **************************************************************************

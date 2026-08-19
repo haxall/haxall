@@ -22,7 +22,7 @@ pragma: Lib <
     { lib: "axon",         versions: BuildVar "hx.depend" }
     { lib: "hx.comps",     versions: BuildVar "hx.depend" }
   }
-  include: {"/data"}
+  include: {"/data", "/js", "/css"}
   publish: {"/res", "/pub-root.txt"}
   categories: {"haxall"}
   license: BuildVar "hx.license"

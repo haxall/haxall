@@ -86,6 +86,9 @@ const mixin Lib : Dict
   ** Does this library contain markdown chapters files
   @NoDoc abstract Bool hasChapters()
 
+  ** Does this library contain contain CSS under "/css"
+  @NoDoc abstract Bool hasCss()
+
 
 }
 

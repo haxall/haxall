@@ -306,6 +306,9 @@ const class XetoUtil
   ** Does the given lib file uri set the hasJavaScript lib flag
   static Bool isJavaScript(Uri uri) { uri.path.size == 2 && uri.path[0] == "js" && uri.ext == "js" }
 
+  ** Does the given lib file uri set the hasCss lib flag
+  static Bool isCss(Uri uri) { uri.path.size == 2 && uri.path[0] == "css" && uri.ext == "css" }
+
   ** Is the given lib file uri a documentation chapter.  Chapters are the
   ** markdown files at the lib root: they take a name in the lib's doc
   ** name space alongside the specs and instances, so they are the only
