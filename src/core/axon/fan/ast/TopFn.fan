@@ -55,10 +55,13 @@ const class TopFn : Fn, Thunk
   ** Return only name
   override Str toStr() { name }
 
-  ** Thunk.callList implementation
+  ** Thunk.callList implementation.  Thunk args are values, so a lazy
+  ** function's Expr params receive them wrapped as literals.
   override Obj? callList(Obj?[]? args := null)
   {
-    call(AxonContext.curAxon, args ?: noArgs)
+    x := args ?: noArgs
+    if (isLazy) x = x.map |a->Obj?| { a == null ? null : (a as Expr ?: Literal(a)) }
+    return call(AxonContext.curAxon, x)
   }
 
   ** Thunk.callComp implementation

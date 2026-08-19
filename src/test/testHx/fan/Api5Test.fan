@@ -30,6 +30,7 @@ class Api5Test : ApiTest
     init
     doCommon      // tests which behave identically in both dialects
     doWriteRes
+    doReads
     doEval
     doAboutTyped
     doLibsFunc
@@ -258,6 +259,33 @@ class Api5Test : ApiTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Reads
+//////////////////////////////////////////////////////////////////////////
+
+  ** The modeled read ops; version 4 serves these shapes through its
+  ** read special, so only version 5 exercises the modeled params
+  Void doReads()
+  {
+    // read: first match as a dict, null on unchecked miss
+    rec := (Dict)call(c, "read", Etc.dict1("filter", "site and dis==\"B\""))
+    verifyEq(rec["id"], siteB.id)
+    verifyEq(call(c, "read", Etc.dict2("filter", "notThere", "checked", false)), null)
+
+    // readAll: every match as a grid, opts limit
+    g := (Grid)call(c, "readAll", Etc.dict1("filter", "site"))
+    verifyEq(g.size, 3)
+    g = (Grid)call(c, "readAll", Etc.dict2("filter", "site", "opts", Etc.dict1("limit", n(2))))
+    verifyEq(g.size, 2)
+
+    // readByIds: rows correspond by index; unchecked misses are null rows
+    g = (Grid)call(c, "readByIds", Etc.dict1("ids", [siteC.id, siteA.id]))
+    verifyEq(g[0]->dis, "C")
+    verifyEq(g[1]->dis, "A")
+    g = (Grid)call(c, "readByIds", Etc.dict2("ids", [siteA.id, Ref.gen], "checked", false))
+    verifyEq(g[1]["id"], null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // About
 //////////////////////////////////////////////////////////////////////////
 
@@ -414,6 +442,34 @@ class Api5Test : ApiTest
     verifyEq(wc.resHeaders["Xeto-Version"], "5")
     verify(wc.resHeaders["Content-Type"].startsWith("text/zinc"))
     grid := ZincReader(wc.resStr.in).readGrid
+    wc.close
+    verifyEq(grid.first->dis, "A")
+
+    // hayson under v5 via its explicit vnd mime, both directions; bare
+    // application/json binds to jeto in this dialect so hayson must be
+    // named explicitly
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/vnd.haystack+json"
+    wc.reqHeaders["Accept"] = "application/vnd.haystack+json"
+    buf := StrBuf()
+    HaysonWriter(buf.out).writeGrid(Etc.makeMapGrid(null, ["id":siteA.id]))
+    wc.postStr(buf.toStr)
+    verifyEq(wc.resCode, 200)
+    grid = HaysonReader(wc.resStr.in).readGrid
+    wc.close
+    verifyEq(grid.first->dis, "A")
+
+    // hayson v3 dialect selected by the version mime param
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/vnd.haystack+json;version=3"
+    wc.reqHeaders["Accept"] = "application/vnd.haystack+json;version=3"
+    buf = StrBuf()
+    HaysonWriter(buf.out, Etc.dict1("v3", m)).writeGrid(Etc.makeMapGrid(null, ["id":siteA.id]))
+    wc.postStr(buf.toStr)
+    verifyEq(wc.resCode, 200)
+    grid = HaysonReader(wc.resStr.in, Etc.dict1("v3", m)).readGrid
     wc.close
     verifyEq(grid.first->dis, "A")
 

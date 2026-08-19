@@ -111,6 +111,28 @@ class FantomTest : HaystackTest
     verifyErrMsg(UnknownSlotErr#, "Unknown slot: testAxon::FantomEx.bad") { eval("FantomEx.make.bad") }
   }
 
+  Void testLazyCallList()
+  {
+    cx := FantomTestContext(this)
+    Actor.locals.set(AxonContext.actorLocalsKey, cx)
+    try
+    {
+      f := FantomFn.reflectType(LazyThunkFuncs#)["lazyEcho"]
+      verifyEq(f.isLazy, true)
+
+      // Thunk.callList wraps values as literal exprs
+      verifyEq(f.callList(["site", n(3)]), "site | 3")
+
+      // exprs pass through to evaluate lazily in the func
+      verifyEq(f.callList([cx.parse("1 + 2"), null]), "3 | omitted")
+
+      // null is an omitted optional arg, distinct from a null literal
+      verifyEq(f.callList(["site", null]), "site | omitted")
+      verifyEq(f.callList(["site", Literal.nullVal]), "site | null")
+    }
+    finally Actor.locals.remove(AxonContext.actorLocalsKey)
+  }
+
   Void verifyEval(Str expr, Obj? expect)
   {
     actual := eval(expr)
@@ -157,6 +179,20 @@ class FantomEx
   static Obj[] fn4(|Obj? a, Obj? b, Obj? c, Obj? d->Obj| f) { f("a", "b", "c", "d") }
   static Obj[] fn5(|Obj? a, Obj? b, Obj? c, Obj? d, Obj? e->Obj| f) { f("a", "b", "c", "d", "e") }
   static Obj[] fn6(|Obj? a, Obj? b, Obj? c, Obj? d, Obj? e, Obj? f->Obj| f) { f("a", "b", "c", "d", "e", "f") }
+}
+
+**************************************************************************
+** LazyThunkFuncs
+**************************************************************************
+
+@Js
+internal class LazyThunkFuncs
+{
+  @Axon static Str lazyEcho(Expr a, Expr? b := null)
+  {
+    cx := AxonContext.curAxon
+    return "${a.eval(cx)} | " + (b == null ? "omitted" : "${b.eval(cx)}")
+  }
 }
 
 **************************************************************************
