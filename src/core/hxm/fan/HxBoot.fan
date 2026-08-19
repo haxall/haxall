@@ -93,6 +93,8 @@ abstract class HxBoot
     return [
       "sys.template",
       "hx.ion",
+      "aura",
+      "aura.hx",
       "ion",
       "ion.actions",
       "ion.card",
