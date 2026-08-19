@@ -30,6 +30,7 @@ class Api5Test : ApiTest
     init
     doWriteRes
     doEval
+    doAboutTyped
     doUpload
     doNegotiation
     cleanup
@@ -47,10 +48,10 @@ class Api5Test : ApiTest
   ** answers clean JSON with no grid envelope.
   Void doWriteRes()
   {
-    // about takes no args, so it exercises the response half alone.  Note
-    // it answers a plain dict rather than an AboutInfo instance, so there
-    // is no spec tag to decode against; see the doAbout TODO below.
+    // about takes no args, so it exercises the response half alone; it
+    // answers a typed AboutInfo instance whose spec tag rides the wire
     json := (Str:Obj?)postJson(`about`)
+    verifyEq(json["spec"], "sys.api::AboutInfo")
     verifyEq(json["whoami"], "charlie")
     verifyEq(json["tz"], TimeZone.cur.name)
     verifyEq(json["productName"], "Haxall")
@@ -239,6 +240,26 @@ class Api5Test : ApiTest
     verifyCall(c, "eval", ["expr":"marker()"], Marker.val)
     verifyCall(c, "eval", ["expr":"na()"], NA.val)
     verifyCall(c, "eval", ["expr":"1kW"], n(1, "kW"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// About
+//////////////////////////////////////////////////////////////////////////
+
+  ** about answers a typed AboutInfo instance: the spec tag rides the
+  ** wire so the codec decodes each slot against its declared type
+  Void doAboutTyped()
+  {
+    about := (Dict)call(c, "about", Str:Obj?[:])
+    verifyEq(about["whoami"], "charlie")
+    verifyEq(about["tz"], TimeZone.cur)
+    verify(about["serverTime"] is DateTime)
+    verify(about["serverBootTime"] is DateTime)
+
+    // and the instance validates against its own spec
+    setupContext
+    ns := proj.ns
+    verifyEq(ns.validate(about, ns.spec("sys.api::AboutInfo")).hasErrs, false)
   }
 
 //////////////////////////////////////////////////////////////////////////

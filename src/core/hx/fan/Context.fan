@@ -113,11 +113,10 @@ class Context : AxonContext, FolioContext
   }
   private const UserSession? sessionRef
 
-  ** About data to use for HTTP API
+  ** About data to use for HTTP API using haystack fidelity typed as AboutInfo
   @NoDoc virtual Dict about()
   {
     tags := Str:Obj?[:] { ordered = true }
-    tags["haystackVersion"] = defs.lib("ph").version.toStr
     tags.addNotNull("projName", proj(false)?.name)
     tags["serverName"]       = Env.cur.host
     tags["serverBootTime"]   = DateTime.boot
@@ -134,6 +133,8 @@ class Context : AxonContext, FolioContext
     tags["whoami"]           = user.username
     tags["hostModel"]        = sys.info.hostModel
     tags.addNotNull("hostId", sys.info.hostId)
+    tags["haystackVersion"]  = defs.lib("ph").version.toStr
+    tags["spec"]             = Ref("sys.api::AboutInfo")
     return Etc.makeDict(tags)
   }
 
