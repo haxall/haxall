@@ -84,9 +84,19 @@ class CheckTest : AbstractXetoTest
 
     verifyPattern("sys::DateTime", "2024-10-29T09:38:21-04:00 New_York",     true)
     verifyPattern("sys::DateTime", "2024-10-29T09:38:21.295-04:00 New_York", true)
+    verifyPattern("sys::DateTime", "2024-10-29T09:38:21Z UTC",               true)
+    verifyPattern("sys::DateTime", "2024-10-29T09:38:21Z",                   true)
     verifyPattern("sys::DateTime", "2024-10-29T09:38:2.295-04:00 New_York",  false)
     verifyPattern("sys::DateTime", "2024-10-29 09:38:22.295-04:00 New_York", false)
     verifyPattern("sys::DateTime", "2024-10-29T9:38:22.295-04:00 New_York",  false)
+    verifyPattern("sys::DateTime", "2024-10-29T09:38:21.2.5-04:00 New_York", false)
+    verifyPattern("sys::DateTime", "2024-10-29T09:38:21",                    false)
+
+    verifyPattern("sys::Ref", "xyz-123",             true)
+    verifyPattern("sys::Ref", "acme.widgets::sku-1", true)
+    verifyPattern("sys::Ref", "p:demo:r:abc_~xyz",   true)
+    verifyPattern("sys::Ref", "a b",                 false)
+    verifyPattern("sys::Ref", "a/b",                 false)
   }
 
   Void verifyPattern(Str qname, Str s, Bool expect)

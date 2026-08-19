@@ -30,7 +30,7 @@ verifyType:
   name: "Scalar"
   base: "sys::Obj"
   meta:
-    doc: "sys::Str Scalar is an atomic value kind"
+    doc: "sys::Str Scalar is an atomic value kind with a string encoding"
     abstract: "sys::Marker"
 ---
 name: "marker"
@@ -71,7 +71,21 @@ verifyType:
   name: "Number"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str Integer or floating point numbers annotated with an optional unit"
+    doc: |
+      sys::Str Number is an integer or floating point value with an optional
+      unit of measurement. Unit symbols are defined by [Unit] enum.
+      ```
+      45             // unitless integer
+      -23.45         // unitless floating point
+      5.4e-7         // unitless exponent format
+      45°F           // integer with unit
+      -23.45m²       // floating point with unit
+      10_000         // underbar is allowed as a separator
+      5.4E+8kW       // exponent format with unit
+      NaN            // not a number - unit is invalid
+      INF            // positive infinity - unit is invalid
+      -INF           // negative infinity - unit is invalid
+      ```
     sealed: "sys::Marker"
     val: "sys::Number 0"
     pattern: sys::Str (-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?[a-zA-Z%_/$\P{ASCII}]*|"(?:NaN|-?INF)")
@@ -128,8 +142,19 @@ verifyType:
   name: "Ref"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str Reference to another dict.  The `of` meta defines target type"
-    pattern: "sys::Str [a-zA-Z\\d\\._~]*"
+    doc: |
+      sys::Str Reference to another dict.  The `of` meta defines target type.
+      Refs must adhere to the following limited set of ASCII characters:
+      - ASCII lower case letter a-z
+      - ASCII upper case letter A-Z
+      - ASCII digit 0-9
+      - Underbar "_"
+      - Colon ":"
+      - Dash "-"
+      - Period "."
+      - Tilde "~"
+      - Double colon "::" is reserved for specs/instances in a xeto lib
+    pattern: "sys::Str [a-zA-Z\\d\\._~:-]*"
     sealed: "sys::Marker"
     val: "sys::Ref x"
 ---
@@ -139,7 +164,7 @@ verifyType:
   name: "Version"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str Version string formatted as decimal digits separated by a dot"
+    doc: "sys::Str Version string formatted as decimal digits separated by a dot: `5.0.3`"
     pattern: "sys::Str \\d+(\\.\\d+)*"
     sealed: "sys::Marker"
     val: "sys::Version 0"
@@ -162,7 +187,7 @@ verifyType:
   base: "sys::Scalar"
   meta:
     doc: "sys::Str ISO 8601 time as hour, minute, seconds: `09:51:27.354`"
-    pattern: "sys::Str \\d{2}:\\d{2}:\\d{2}(\\.\\d+)*"
+    pattern: "sys::Str \\d{2}:\\d{2}:\\d{2}(\\.\\d+)?"
     sealed: "sys::Marker"
     val: "sys::Time 00:00:00"
 ---
@@ -172,8 +197,16 @@ verifyType:
   name: "DateTime"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str  ISO 8601 timestamp followed by timezone identifier"
-    pattern: "sys::Str \\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)*[Z+-][\\d:]*[ ]*[-+a-zA-Z_\\d]*"
+    doc: |
+      sys::Str ISO 8601 timestamp followed by timezone identifier. All timestamps
+      must include a [timezone](TimeZone) unless UTC zero offset. Examples:
+      ```
+      2026-08-19T16:50:23-04:00 New_York   // eastern daylight time
+      2026-08-19T20:50:23Z UTC             // same time in UTC
+      2026-08-19T20:50:23Z                 // may omit timezone if offset is Z
+      2026-08-19T14:50:23.507-06:00 Denver // fractional seconds
+      ```
+    pattern: "sys::Str \\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})( [a-zA-Z_\\d+-]+)?"
     sealed: "sys::Marker"
     val: "sys::DateTime 2000-01-01T00:00:00Z UTC"
 ---
