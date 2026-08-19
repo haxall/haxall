@@ -369,7 +369,7 @@ class RdfExporter : Exporter
     else if (type.isEnum)
     {
       if (type.qname == "sys::UnitQuantity")
-        throw UnsupportedErr("RDF mapping not implemented for ${type.qname}")
+        throw UnsupportedErr("RDF UnitQuantity mapping not supported for ${slot.qname} of ${type.qname}")
       sh["datatype"] = "xsd:string"
     }
     else if (type.isChoice)
@@ -393,7 +393,7 @@ class RdfExporter : Exporter
     }
     else
     {
-      throw UnsupportedErr("RDF mapping not implemented for slot ${slot.qname} of ${type.qname}")
+      throw UnsupportedErr("RDF slot type mapping not supported for ${slot.qname} of ${type.qname}")
     }
 
     // cardinality minCount/maxCount
@@ -676,8 +676,9 @@ class RdfExporter : Exporter
     // The current public mapping defines scalar and direct-dictionary items.
     // Deferred forms fail closed instead of being omitted or stringified.
     kind := "item type ${of.qname}"
-    if (of.isEnum) kind = "enum item type ${of.qname}"
-    else if (of.isChoice) kind = "choice item type ${of.qname}"
+    if (of.isChoice) kind = "choice item type ${of.qname}"
+    else if (of.qname == "sys::Unit") kind = "unit item type ${of.qname}"
+    else if (of.isEnum) kind = "enum item type ${of.qname}"
     else if (of.isRef || of.isMultiRef) kind = "reference item type ${of.qname}"
     else if (of.isList) kind = "nested-list item type ${of.qname}"
     else if (of.isScalar || of.isDict) return
@@ -1092,7 +1093,7 @@ class RdfExporter : Exporter
         return
       }
       if (type.qname == "sys::UnitQuantity")
-        throw UnsupportedErr("RDF mapping not implemented for ${type.qname}")
+        throw UnsupportedErr("RDF UnitQuantity mapping not supported for ${property} of ${type.qname}")
       scalar := val as Scalar
         ?: throw UnsupportedErr("Expected ${type.qname} enum value for ${property}, not ${val.typeof}")
       if (scalar.qname != type.qname)
@@ -1140,7 +1141,7 @@ class RdfExporter : Exporter
       return
     }
 
-    throw UnsupportedErr("RDF instance mapping not implemented for ${property} of ${type.qname}")
+    throw UnsupportedErr("RDF instance value mapping not supported for ${property} of ${type.qname}")
   }
 
   private Void instanceQuantityValue(Str property, Number num, Str indent)
@@ -1236,7 +1237,7 @@ class RdfExporter : Exporter
     {
       num := item as Number
       if (num != null && num.unit != null)
-        throw UnsupportedErr("RDF quantity list item mapping not implemented for ${property}")
+        throw UnsupportedErr("RDF quantity list item mapping not supported for ${property}")
       typedLiteral(item, type, property)
       return
     }
