@@ -39,6 +39,7 @@ internal abstract class InferData : Step
   private Void inferDict(ADict dict)
   {
     inferDictSlots(dict)
+    if (isGridDict(dict)) inferGrid(dict)
   }
 
   private Void inferScalar(AScalar scalar)
@@ -131,6 +132,60 @@ internal abstract class InferData : Step
     ref := ASpecRef(loc, type)
     ref.of = slot.of(false) // smuggle parameterized 'of' into ASpecRef
     return ref
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Grids
+//////////////////////////////////////////////////////////////////////////
+
+  ** Type the cells of a grid shaped dict - see doc.xeto::Grids.  The
+  ** walk is top down, so the cells are typed here before their own
+  ** visit and Reify just decodes.  Precedence: a cell or row with its
+  ** own type keeps it, then the column 'of', then the row spec member,
+  ** where the row spec is the row's own type else the grid 'of'.
+  private Void inferGrid(ADict dict)
+  {
+    // column 'of' specs by name
+    colOf := Str:Spec[:]
+    cols := dict.get("cols") as ADict
+    cols?.each |c|
+    {
+      cd := c as ADict
+      name := cd?.getStr("name")
+      of := (cd?.get("of") as ASpecRef)?.deref
+      if (name != null && of != null) colOf[name] = of
+    }
+
+    // default row spec is the instance 'of'
+    rowSpec := (dict.get("of") as ASpecRef)?.deref
+
+    rows := dict.get("rows") as ADict
+    rows?.each |r|
+    {
+      rd := r as ADict
+      if (rd == null) return
+
+      // a row with its own type infers its members from that type in
+      // inferDictSlots instead of the grid 'of'
+      member := rd.typeRef == null ? rowSpec : null
+      rd.each |cell, name|
+      {
+        if (cell.typeRef != null) return
+        cof := colOf[name]
+        if (cof != null) { cell.typeRef = ASpecRef.makeResolved(cell.loc, cof); return }
+        slot := member?.member(name, false)
+        if (slot != null) cell.typeRef = inferDictSlotType(cell.loc, slot)
+      }
+    }
+  }
+
+  ** Is dict's resolved type a grid
+  private static Bool isGridDict(ADict dict)
+  {
+    typeRef := dict.typeRef
+    if (typeRef == null || !typeRef.isResolved) return false
+    type := typeRef.deref
+    return !type.isAst && type.isGrid
   }
 
   const Ref refDefVal := Ref("x")

@@ -66,6 +66,10 @@ internal abstract class Reify : Step
     {
       asm = reifyRawList(x, type)
     }
+    else if (type.isGrid)
+    {
+      asm = reifyGrid(x, type)
+    }
     else
     {
       asm = reifyRawDict(x, type)
@@ -123,6 +127,70 @@ internal abstract class Reify : Step
     else
       return x.asm
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Grid
+//////////////////////////////////////////////////////////////////////////
+
+  ** Convert a grid shaped dict to a true Grid - see doc.xeto::Grids.
+  ** The same shape decodes off the wire in JetoReader.convertGrid; here
+  ** the decode is compile time so errors carry source locations.
+  private Obj reifyGrid(ADict x, Spec type)
+  {
+    // a grid is a value, never a named instance with an id - same rule as List
+    if (x.nodeType.isInstance) err("Grid cannot be a named instance", x.loc)
+
+    cols := x.get("cols") as ADict
+    rows := x.get("rows") as ADict
+    if (cols == null || rows == null)
+    {
+      missing := cols == null ? "cols" : "rows"
+      err("Grid missing '$missing' list", x.loc)
+      return reifyRawDict(x, type)
+    }
+
+    gb := GridBuilder()
+
+    // grid meta: the structural 'spec' and 'of' refs sit beside the
+    // domain meta tags; the sys::Grid default is elided
+    ofSpec := (x.get("of") as ASpecRef)?.deref
+    gt := type.type
+    meta := shapeMeta(gt.qname != "sys::Grid" ? gt.id : null, ofSpec, x.get("meta"))
+    if (meta != null) gb.setMeta(meta)
+
+    // cols; 'of' is structural and sits beside 'name', not inside meta
+    cols.each |c|
+    {
+      cd := c as ADict
+      name := cd?.getStr("name")
+      if (name == null) { err("Grid col missing 'name'", c.loc); return }
+      gb.addCol(name, shapeMeta(null, (cd.get("of") as ASpecRef)?.deref, cd.get("meta")))
+    }
+
+    // rows are ordinary dicts whose cells were typed at infer time
+    rows.each |r|
+    {
+      rd := r as ADict
+      if (rd == null) { err("Grid row is not a dict", r.loc); return }
+      gb.addDictRow((Dict)rd.asm)
+    }
+
+    return gb.toGrid
+  }
+
+  ** Build grid or col meta: structural refs first, then the domain tags
+  ** from the shape's own meta dict.  Returns null when empty.
+  private Dict? shapeMeta(Ref? specRef, Spec? of, AData? wireData)
+  {
+    wire := wireData?.asm as Dict
+    if (specRef == null && of == null && (wire == null || wire.isEmpty)) return null
+    acc := Str:Obj[:] { ordered = true }
+    if (specRef != null) acc["spec"] = specRef
+    if (of != null) acc["of"] = of.id
+    wire?.each |v, n| { acc[n] = v }
+    return Etc.dictFromMap(acc)
+  }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Scalar

@@ -182,7 +182,7 @@ class JetoReader
     acc.ordered = true
     gt := gridSpec.type
     if (gt !== ns.sys.grid) acc["spec"] = gt.id
-    if (ofRef != null) acc["of"] = Ref.fromStr(ofRef)
+    if (ofRef != null) acc["of"] = toSpecRef(ofRef)
     if (wire != null) eachMetaTag(wire, acc)
     return Etc.dictFromMap(acc)
   }
@@ -196,7 +196,7 @@ class JetoReader
 
     acc := Str:Obj[:]
     acc.ordered = true
-    if (ofRef != null) acc["of"] = Ref.fromStr(ofRef)
+    if (ofRef != null) acc["of"] = toSpecRef(ofRef)
     if (wire != null) eachMetaTag(wire, acc)
     return Etc.dictFromMap(acc)
   }

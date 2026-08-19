@@ -104,8 +104,11 @@ class GridExporter : Exporter
 
   private Void add(Dict x)
   {
-    dicts.add(Etc.dictToHaystack(x))
+    dicts.add(Etc.dictToHaystack(x, toHaystackOpts))
   }
+
+  ** An instance may carry a grid constant as a slot value
+  private static const Dict toHaystackOpts := Etc.dict1("grids", Marker.val)
 
   Grid toGrid()
   {

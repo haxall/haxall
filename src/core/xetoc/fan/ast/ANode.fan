@@ -61,5 +61,6 @@ enum class ANodeType
 
   Bool isLib() { this === lib }
   Bool isSpec() { this === spec }
+  Bool isInstance() { this === instance }
 }
 

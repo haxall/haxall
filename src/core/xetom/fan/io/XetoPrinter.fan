@@ -116,7 +116,7 @@ class XetoPrinter
   {
     if (top is Grid)
     {
-      ((Grid)top).each(dataIterator)
+      grid(top).nl
     }
     else if (XetoUtil.isDictList(top))
     {
@@ -318,7 +318,7 @@ class XetoPrinter
   {
     if (x is Dict) return dict(x)
     if (x is List) return list(x, inferred)
-    if (x is Grid) return list(((Grid)x).toRows, null) // TODO: how to handle?
+    if (x is Grid) return grid(x)
     return scalar(x, inferred)
   }
 
@@ -404,6 +404,88 @@ class XetoPrinter
     if (num > 0) nl.tab
     return wc('}')
   }
+
+  ** Grid value using the formal shape - see doc.xeto::Grids
+  This grid(Grid x)
+  {
+    // grid type
+    type(XpTypeRef.makeId(XetoUtil.gridSpecRef(x))).sp
+    wc('{').nl
+    indent
+
+    // 'of' is structural and sits beside the type, not inside meta
+    of := XetoUtil.gridOfSpecRef(x)
+    if (of != null) tab.w("of: ").type(XpTypeRef.makeId(of)).nl
+
+    // meta minus the structural tags emitted above
+    if (Etc.dictAny(x.meta) |v, n| { !gridMetaSkip.contains(n) })
+      tab.w("meta: ").dictInline(x.meta, null, gridMetaSkip).nl
+
+    // cols; 'of' is structural and sits beside 'name', not inside meta
+    colOf := Str:Spec[:]
+    tab.w("cols: {").nl
+    indent
+    x.cols.each |c|
+    {
+      cof := XetoUtil.gridColSpecRef(c)
+      if (cof != null) { spec := ns.spec(cof.id, false); if (spec != null) colOf[c.name] = spec }
+      tab.wc('{').w("name: ").quoted(c.name)
+      if (cof != null) { w(", of: ").type(XpTypeRef.makeId(cof)) }
+      if (Etc.dictAny(c.meta) |v, n| { !colMetaSkip.contains(n) })
+        w(", meta: ").dictInline(c.meta, null, colMetaSkip)
+      wc('}').nl
+    }
+    unindent
+    tab.wc('}').nl
+
+    // cell inference: the column 'of' outranks the default row spec
+    // member, the same position resolution the jeto codec uses
+    xutil := JetoUtil(ns)
+    rowSpec := xutil.rowSpec(of, xutil.resolve(XetoUtil.gridSpecRef(x), false), false)
+    if (rowSpec != null) x.cols.each |c|
+    {
+      if (colOf[c.name] == null)
+      {
+        m := xutil.member(rowSpec, c.name)?.type
+        if (m != null) colOf[c.name] = m
+      }
+    }
+
+    // rows
+    tab.w("rows: {").nl
+    indent
+    x.each |r| { tab.dictInline(r, colOf).nl }
+    unindent
+    tab.wc('}').nl
+
+    unindent
+    tab.wc('}')
+    return this
+  }
+
+  ** Dict on one line for grid positions: meta, col meta, and rows.  A
+  ** row's cell types are inferred from the column 'of' map.
+  private This dictInline(Dict x, [Str:Spec]? colOf := null, Str[] skip := rowSkip)
+  {
+    spec := specOf(x)
+    if (spec != null && spec !== ns.sys.dict) type(XpTypeRef(spec)).sp
+    wc('{')
+    first := true
+    x.each |v, n|
+    {
+      if (skip.contains(n)) return
+      if (first) first = false
+      else w(", ")
+      if (isMarker(v)) { w(n); return }
+      w(n).wc(':').sp
+      val(v, colOf?.get(n))
+    }
+    return wc('}')
+  }
+
+  private static const Str[] rowSkip      := ["spec"]
+  private static const Str[] gridMetaSkip := ["spec", "of"]
+  private static const Str[] colMetaSkip  := ["of", "spec"]
 
   ** Dict pair, inferFrom is null if meta
   This dictPair(Spec? inferFrom, Str? n, Obj v, Bool inline)
@@ -785,7 +867,7 @@ internal const class XpTypeRef
     this.ofs   = spec.ofs(false)?.map |x->XpTypeRef| { makeSpec(x) }
   }
 
-  new makeId(Ref id, Dict meta)
+  new makeId(Ref id, Dict meta := Etc.dict0)
   {
     s := id.id
     colons := s.index("::") ?: throw Err("Not type qname: $id")
@@ -793,7 +875,7 @@ internal const class XpTypeRef
     this.lib   = s[0..<colons]
     this.name  = s[colons+2..-1]
     this.maybe = meta["maybe"] == Marker.val
-    this.ofs   = (meta["ofs"] as List)?.map |x->XpTypeRef| { makeId(x, Etc.dict0) }
+    this.ofs   = (meta["ofs"] as List)?.map |x->XpTypeRef| { makeId(x) }
   }
 
   const Ref id               // qualified name as id

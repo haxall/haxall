@@ -171,9 +171,6 @@ class IOTest : AbstractXetoTest
         val = Obj[,].addAll(list)
     }
 
-    // for now don't try to map grids to Xeto text format...
-    if (val is Grid) return binary
-
     // xeto text format
     buf.clear
     ns.io.writeXeto(buf.out, val)
@@ -199,6 +196,179 @@ class IOTest : AbstractXetoTest
       verifyErr(IOErr#) { ns.io.readXetoDicts(str, opts) }
     }
     return binary
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Grids
+//////////////////////////////////////////////////////////////////////////
+
+  ** The examples from the doc.xeto::Grids chapter must round trip
+  Void testGrids()
+  {
+    ns := createNamespace(["sys", "ph", "hx.test.xeto"])
+    server = TestServer(ns)
+    client = TestClient(server).boot
+
+    // Shape section example
+    src := Str<|Grid {
+                  meta: {foo: "quux"}
+                  cols: {
+                    {name: "a"},
+                    {name: "b", meta: {dis: "B"}}
+                  }
+                  rows: {
+                    {a: 0, b: "x"},
+                    {a: 1, b: "y"}
+                  }
+                }|>
+    g := (Grid)ns.io.readXeto(src)
+    verifyEq(g.meta["foo"], "quux")
+    verifyEq(g.cols.size, 2)
+    verifyEq(g.col("b").meta["dis"], "B")
+    verifyEq(g.size, 2)
+    verifyEq(g[0]["a"], "0")  // untyped cell is a Str in xeto
+    verifyEq(g[1]["b"], "y")
+    verifyIO(g)
+
+    // Cell Types section example: col 'of' decodes the cells
+    src = Str<|Grid {
+                 cols: {
+                   {name: "ts", of: DateTime},
+                   {name: "val", of: Number}
+                 }
+                 rows: {
+                   {ts: "2026-01-01T00:00:00Z", val: 72°F},
+                   {ts: "2026-01-01T00:15:00Z", val: 73°F}
+                 }
+               }|>
+    g = (Grid)ns.io.readXeto(src)
+    verifyEq(g[0]["ts"], DateTime("2026-01-01T00:00:00Z UTC"))
+    verifyEq(g[0]["val"], n(72, "°F"))
+    verifyEq(g[1]["ts"], DateTime("2026-01-01T00:15:00Z UTC"))
+    verifyEq(XetoUtil.gridColSpecRef(g.col("ts")), Ref("sys::DateTime"))
+    verifyIO(g)
+
+    // grid 'of' default row spec decodes cells by member
+    src = Str<|Grid {
+                 of: Site
+                 cols: {
+                   {name: "dis"},
+                   {name: "area"}
+                 }
+                 rows: {
+                   {dis: "A", area: "45"}
+                 }
+               }|>
+    g = (Grid)ns.io.readXeto(src)
+    verifyEq(XetoUtil.gridOfSpecRef(g), Ref("ph::Site"))
+    verifyEq(g[0]["area"], n(45))
+    verifyIO(g)
+
+    // cell typing matrix: a cell or row with its own type keeps it, then
+    // the column 'of', then the row spec member, where the row spec is
+    // the row's own type else the grid 'of'
+    src = Str<|Grid {
+                 of: GridRowA
+                 cols: { {name: "cell"}, {name: "other", of: Number}, {name: "extra", of: Number} }
+                 rows: {
+                   {cell: "2026-01-02"},
+                   GridRowB {cell: "00:15:00"},
+                   {other: "45"},
+                   GridRowB {extra: "48"},
+                   {cell: Time "00:30:00"},
+                   {other: Date "2026-01-03"}
+                 }
+               }|>
+    g = (Grid)ns.io.readXeto(src)
+    verifyEq(g[0]["cell"], Date("2026-01-02"))            // grid 'of' member
+    verifyEq(g[1]["cell"], Time("00:15:00"))              // row type beats grid 'of'
+    verifyEq(g[1]["spec"], null)                          // rows are columnar: the type governs decoding, the tag is not a cell
+    verifyEq(g[2]["other"], n(45))                        // col 'of' beats grid 'of' member
+    verifyEq(g[3]["extra"], n(48))                        // col 'of' applies within a typed row
+    verifyEq(g[4]["cell"], Time("00:30:00"))              // explicit cell type beats the member
+    verifyEq(g[5]["other"], Date("2026-01-03"))           // explicit cell type beats col 'of'
+    verifyIO(g)
+
+    // a col 'of' contradicting a typed row's declared member is an error
+    verifyErrMsg(XetoCompilerErr#, "Slot 'other': Slot type is 'sys::Str', value type is 'sys::Number'")
+    {
+      ns.io.readXeto(Str<|Grid {
+                            cols: { {name: "other", of: Number} }
+                            rows: { GridRowB {other: "46"} }
+                          }|>)
+    }
+
+    // nested dicts, lists, and non-string scalars in grid meta and col meta
+    src = Str<|Grid {
+                 meta: {count: Number "2", span: {start: Date "2026-01-01", end: Date "2026-01-31"}, tags: List {"a", "b"}}
+                 cols: {
+                   {name: "a", meta: {when: Date "2026-08-19", limits: List {Number "1", Number "2"}, nest: {deep}}}
+                 }
+                 rows: { {a: "x"} }
+               }|>
+    g = (Grid)ns.io.readXeto(src)
+    verifyEq(g.meta["count"], n(2))
+    verifyEq(((Dict)g.meta["span"])["end"], Date("2026-01-31"))
+    verifyEq(((List)g.meta["tags"])[1], "b")
+    cm := g.col("a").meta
+    verifyEq(cm["when"], Date("2026-08-19"))
+    verifyEq(((List)cm["limits"])[0], n(1))
+    verifyEq(((Dict)cm["nest"])["deep"], m)
+
+    // round trip the text; nested dict values compare per tag since
+    // Dict equality is identity
+    rt := (Grid)ns.io.readXeto(ns.io.writeXetoToStr(g))
+    verifyEq(rt.meta["count"], n(2))
+    verifyEq(((Dict)rt.meta["span"])["start"], Date("2026-01-01"))
+    verifyEq(((List)rt.meta["tags"])[1], "b")
+    verifyEq(((List)rt.col("a").meta["limits"])[1], n(2))
+    verifyEq(((Dict)rt.col("a").meta["nest"])["deep"], m)
+
+    // nested dicts, lists, refs, markers, typed scalars, and grids as cells
+    src = Str<|Grid {
+                 meta: {when: Date "2026-08-19"}
+                 cols: { {name: "a"}, {name: "b"} }
+                 rows: {
+                   {a: {x: Date "2026-08-19", nest: {y: 1}}, b: List {"s", 2}},
+                   {a: @ext-ref, b},
+                   {a: Coord "C(37.55,-77.45)", b: Grid { cols: { {name: "n"} }, rows: { {n: "inner"} } }}
+                 }
+               }|>
+    g = (Grid)ns.io.readXeto(src, dict1("externRefs", m))
+    verifyEq(g.meta["when"], Date("2026-08-19"))
+    a0 := (Dict)g[0]["a"]
+    verifyEq(a0["x"], Date("2026-08-19"))
+    verifyEq(((Dict)a0["nest"])["y"], "1")  // untyped scalar is a Str
+    verifyEq(((List)g[0]["b"])[0], "s")
+    verifyEq(((List)g[0]["b"])[1], "2")
+    verifyEq(g[1]["a"], Ref("ext-ref"))
+    verifyEq(g[1]["b"], m)
+    verifyEq(g[2]["a"], Coord(37.55f, -77.45f))
+    inner := (Grid)g[2]["b"]
+    verifyEq(inner.first["n"], "inner")
+
+    // xeto text round trip only: json cannot carry the list cell's
+    // element type, the same limit verifyJsonIO documents
+    verifyGridEq((Grid)ns.io.readXeto(ns.io.writeXetoToStr(g), dict1("externRefs", m)), g)
+
+    // grid shaped dict nested in an ordinary dict converts too
+    x := (Dict)ns.io.readXeto(
+      Str<|{history: Grid { cols: { {name: "a"} }, rows: { {a: "1"} } }}|>)
+    verify(x["history"] is Grid)
+    verifyEq(((Grid)x["history"]).first["a"], "1")
+
+    // grid constant in a lib is a slot value, like List
+    inst := ns.lib("hx.test.xeto").instance("test-grid")
+    g = (Grid)inst["grid"]
+    verifyEq(g.meta["foo"], "bar")
+    verifyEq(g[0]["area"], n(10))
+    verifyEq(g[1]["dis"], "B")
+    verifyIO(g)
+
+    // a grid is a value, never a named instance - in libs and data files
+    gridInst := Str<|@g: Grid { cols: { {name: "a"} }, rows: { {a: "1"} } }|>
+    verifyErrMsg(XetoCompilerErr#, "Grid cannot be a named instance") { ns.compileTempLib(gridInst) }
+    verifyErrMsg(XetoCompilerErr#, "Grid cannot be a named instance") { ns.io.readXeto(gridInst) }
   }
 
 //////////////////////////////////////////////////////////////////////////

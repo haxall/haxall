@@ -821,7 +821,13 @@ class EtcTest : HaystackTest
     verifyToHaystack(this, this.toStr)
     verifyToHaystack(Version("1.2"), "1.2")
 
-    verifyErr(UnsupportedErr#) { Etc.toHaystack(Etc.makeMapGrid(null, ["foo":"bar"])) }
+    // grids raise as a performance guard unless the 'grids' option opts in
+    g := Etc.makeMapGrid(["ver":Version("1.2")], ["foo":123, "bar":"x"])
+    verifyErr(UnsupportedErr#) { Etc.toHaystack(g) }
+    g = (Grid)Etc.toHaystack(g, Etc.dict1("grids", m))
+    verifyEq(g.meta["ver"], "1.2")
+    verifyEq(g.first["foo"], n(123))
+    verifyEq(g.first["bar"], "x")
   }
 
   Void verifyToHaystack(Obj v, Obj? expect)

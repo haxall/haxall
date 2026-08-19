@@ -735,9 +735,12 @@ const class Etc
   }
 
   ** Coerce a value to one of the Haystack types.  Recursively coerce
-  ** dicts and lists.  This method does not support grids.
+  ** dicts and lists.  A grid raises UnsupportedErr as a performance
+  ** guard since coercion copies every row; the 'grids' option opts in.
   ** Options:
   **   - checked: marker to throw err for non-haystack values; coerce otherwise
+  **   - grids: marker to coerce grids via [gridToHaystack]
+  ** NOTE: this call is expensive - it requires a deep clone.
   static Obj? toHaystack(Obj? val, Dict? opts := null)
   {
     if (val == null) return null
@@ -748,7 +751,11 @@ const class Etc
     {
       if (kind.isDict) return dictToHaystack(val, opts)
       if (kind.isList) return ((List)val).map |x| { toHaystack(x, opts) }
-      if (kind.isGrid) throw UnsupportedErr("Cannot use toHaystack with grid")
+      if (kind.isGrid)
+      {
+        if (opts != null && opts.has("grids")) return gridToHaystack(val, opts)
+        throw UnsupportedErr("Cannot use toHaystack with grid")
+      }
       return val
     }
 
@@ -765,9 +772,21 @@ const class Etc
   }
 
   ** Coerce dict to Haystack types, see [toHaystack].
+  ** NOTE: this call is expensive - it requires a deep clone.
   static Dict dictToHaystack(Dict dict, Dict? opts := null)
   {
     dict.map |x| { toHaystack(x, opts) }
+  }
+
+  ** Coerce grid meta, col meta, and rows to Haystack types, see [toHaystack].
+  ** NOTE: this call is expensive - it requires a deep clone.
+  static Grid gridToHaystack(Grid grid, Dict? opts := null)
+  {
+    gb := GridBuilder()
+    if (!grid.meta.isEmpty) gb.setMeta(dictToHaystack(grid.meta, opts))
+    grid.cols.each |c| { gb.addCol(c.name, c.meta.isEmpty ? null : dictToHaystack(c.meta, opts)) }
+    grid.each |row| { gb.addDictRow(dictToHaystack(row, opts)) }
+    return gb.toGrid
   }
 
 //////////////////////////////////////////////////////////////////////////

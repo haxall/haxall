@@ -378,6 +378,8 @@ internal class CheckErrors : Step
 
   Void checkData(AData x, Spec? slot)
   {
+    // instance nodes are not visited here; structural instance rules
+    // such as the grid named-instance check live in Reify
     switch (x.nodeType)
     {
       case ANodeType.dict: checkDict(x, slot)

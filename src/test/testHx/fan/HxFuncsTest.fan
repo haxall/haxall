@@ -296,7 +296,7 @@ class HxFuncsTest : HxTest
     verifyToSpan(now, london, Span(now, now))
     verifyToSpan(makeContext.resolveTopFn("today"), null, Span.today)
     verifyToSpan(Date.today, null, Span.today)
-    verifyToSpan(Date.today, london, Span.today(london))
+    verifyToSpan(Date.today, london, DateSpan.today.toSpan(london)) // local date in london tz, not london's today
   }
 
   Void verifyToId(Obj? val, Obj? expected)

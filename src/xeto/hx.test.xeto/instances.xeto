@@ -65,3 +65,23 @@ TestRefs: Dict {
   dis: "hi"
 }
 
+// grids - see doc.xeto::Grids
+
+GridRowA: Dict { cell: Date?, other: Str? }
+GridRowB: Dict { cell: Time?, other: Str? }
+
+@test-grid: {
+  dis: "Grid constant"
+  grid: Grid {
+    meta: {foo: "bar"}
+    cols: {
+      {name: "dis"},
+      {name: "area", of: Number}
+    }
+    rows: {
+      {dis: "A", area: "10"},
+      {dis: "B", area: "20"}
+    }
+  }
+}
+
