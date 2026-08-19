@@ -106,9 +106,8 @@ internal abstract class Scanner
 
   private Void scanAdd(Uri:LibFile acc, LibFile f)
   {
-    if (XetoUtil.isJavaScript(f.uri)) hasJavaScript = true
-    if (XetoUtil.isChapter(f.uri))    hasChapters = true
-    if (XetoUtil.isCss(f.uri))        hasCss = true
+    if (XetoUtil.isDist(f.uri))    hasDist = true
+    if (XetoUtil.isChapter(f.uri)) hasChapters = true
     acc.add(f.uri, f)
   }
 
@@ -116,15 +115,13 @@ internal abstract class Scanner
   Int scanLibFlags()
   {
     flags := 0
-    if (hasJavaScript) flags = flags.or(MLibFlags.hasJavaScript)
-    if (hasChapters)   flags = flags.or(MLibFlags.hasChapters)
-    if (hasCss)        flags = flags.or(MLibFlags.hasCss)
+    if (hasDist)     flags = flags.or(MLibFlags.hasDist)
+    if (hasChapters) flags = flags.or(MLibFlags.hasChapters)
     return flags
   }
 
-  private Bool hasJavaScript // if any js/*.js detected
-  private Bool hasChapters // any chapter resources detected
-  private Bool hasCss // if any css/*.css detected
+  private Bool hasDist       // if any dist/ files detected
+  private Bool hasChapters   // any chapter resources detected
 
   ** Report the first invalid section of a published path.  A directory is
   ** walked once per file beneath it, so report each bad name only once.
@@ -158,10 +155,16 @@ internal abstract class Scanner
   ** Close the scanner if holding resources
   virtual Void close() {}
 
-  ** Invoke the onErr callback
+  ** Report compiler error
   Void err(Str msg, FileLoc loc)
   {
     step.err(msg, loc)
+  }
+
+  ** Report compiler warning
+  Void warn(Str msg, FileLoc loc)
+  {
+    step.warn(msg, loc)
   }
 
   protected ParseStep step
@@ -210,7 +213,7 @@ internal class ScannerPatternList
     patterns.each |p, i|
     {
       if (!hits[i])
-       s.err("No matching files for $name pattern: $p", loc)
+       s.warn("No matching files for $name pattern: $p", loc)
     }
   }
 

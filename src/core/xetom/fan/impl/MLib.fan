@@ -166,9 +166,8 @@ const final class MLib
 @Js
 const class MLibFlags
 {
-  static const Int hasJavaScript := 0x0001
-  static const Int hasChapters   := 0x0002
-  static const Int hasCss        := 0x0004
+  static const Int hasDist      := 0x0001
+  static const Int hasChapters  := 0x0002
 
   static Str flagsToStr(Int flags)
   {
@@ -233,11 +232,9 @@ const final class XetoLib : Lib, Dict
 
   override Bool isCompanion() { m.isCompanion }
 
-  override Bool hasJavaScript() { m.hasFlag(MLibFlags.hasJavaScript) }
+  override Bool hasDist() { m.hasFlag(MLibFlags.hasDist) }
 
   override Bool hasChapters() { m.hasFlag(MLibFlags.hasChapters) }
-
-  override Bool hasCss() { m.hasFlag(MLibFlags.hasCss) }
 
   override final Bool isEmpty() { false }
 

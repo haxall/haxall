@@ -303,8 +303,7 @@ class ZipLibTest : AbstractXetoTest
     lib := ns.lib("hx.test.xeto")
     verifyEq(lib.spec("Alpha").qname, "hx.test.xeto::Alpha")
     verifyEq(lib.hasChapters, true)
-    verifyEq(lib.hasJavaScript, true)
-    verifyEq(lib.hasCss, true)
+    verifyEq(lib.hasDist, true)
 
     // a spec whose base comes from a depend loaded out of another zip
     verifyEq(ns.spec("ph::Site").name, "Site")

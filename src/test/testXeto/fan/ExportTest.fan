@@ -28,7 +28,7 @@ class ExportTest : AbstractXetoTest
     verifyExport(ns, def, "lib:hx.test.xeto", ["id":lib.id, "version":lib.version.toStr,
       "doc":lib->doc, "depends": depends, "spec":Ref("sys::Lib"),
       "categories":Obj?["haxall"],
-      "include":Obj?["/data", "/js", "/css"],
+      "include":Obj?["/data", "/dist"],
       "publish":Obj?["/res", "/pub-root.txt"],
       "license":"AFL-3.0",
       "nodoc":m,

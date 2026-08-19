@@ -361,16 +361,16 @@ class NamespaceTest : AbstractXetoTest
     {
       // list is everything packaged: sources, chapters, include, and publish
       verifyEq(fileUris(files), [`/ChapterA.md`, `/Readme.md`, `/choices.xeto`, `/comps.xeto`,
-        `/css/test.css`, `/data/c.txt`, `/doc.xeto`, `/equips.xeto`, `/fidelity.xeto`,
-        `/funcs.xeto`, `/funcs2.xeto`, `/globals.xeto`, `/instances.xeto`, `/instantiate.xeto`,
-        `/js/test.js`, `/json.xeto`, `/lib.xeto`, `/meta.xeto`, `/mixins.xeto`, `/printer.xeto`,
-        `/pub-root.txt`, `/res/a.txt`, `/res/subdir/b.txt`, `/scalars.xeto`, `/schema.xeto`,
-        `/test.xeto`])
+        `/data/c.txt`, `/dist/test.css`, `/dist/test.js`, `/doc.xeto`, `/equips.xeto`,
+        `/fidelity.xeto`, `/funcs.xeto`, `/funcs2.xeto`, `/globals.xeto`, `/instances.xeto`,
+        `/instantiate.xeto`, `/json.xeto`, `/lib.xeto`, `/meta.xeto`, `/mixins.xeto`,
+        `/printer.xeto`, `/pub-root.txt`, `/res/a.txt`, `/res/subdir/b.txt`, `/scalars.xeto`,
+        `/schema.xeto`, `/test.xeto`])
 
-      // published is everything except the include-only /data, /js, /css
+      // published is everything except the include-only /data and /dist
       // since sources and chapters are intrinsically published
       verifyEq(publishedUris(files), fileUris(files).findAll |u|
-        { u != `/data/c.txt` && u != `/js/test.js` && u != `/css/test.css` })
+        { u != `/data/c.txt` && u != `/dist/test.js` && u != `/dist/test.css` })
 
       // the lib publishes a list of two patterns, so verify each one
       // selects independently: "/res" as a directory subtree, and
@@ -381,12 +381,11 @@ class NamespaceTest : AbstractXetoTest
 
       // include packages the file, but it gets no uri of its own
       verifyEq(files.get(`/data/c.txt`).isPublished, false)
-      verifyEq(files.get(`/js/test.js`).isPublished, false)
-      verifyEq(files.get(`/css/test.css`).isPublished, false)
+      verifyEq(files.get(`/dist/test.js`).isPublished, false)
+      verifyEq(files.get(`/dist/test.css`).isPublished, false)
 
-      // "/js/*.js" and "/css/*.css" set the lib asset flags
-      verifyEq(lib.hasJavaScript, true)
-      verifyEq(lib.hasCss, true)
+      // any file under "/dist" sets the lib build output flag
+      verifyEq(lib.hasDist, true)
 
       // sources and chapters are intrinsically published
       verifyEq(files.get(`/lib.xeto`).isPublished, true)

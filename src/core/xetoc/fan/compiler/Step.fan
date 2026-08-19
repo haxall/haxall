@@ -63,6 +63,8 @@ abstract internal class Step
 
   XetoCompilerErr err2(Str msg, FileLoc loc1, FileLoc loc2, Err? err := null) { compiler.err2(msg, loc1, loc2, err) }
 
+  Void warn(Str msg, FileLoc loc, Err? err := null) { compiler.warn(msg, loc, err) }
+
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
   Bool isObj(Spec s) { s.base == null }

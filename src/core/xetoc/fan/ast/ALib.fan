@@ -200,11 +200,9 @@ internal const class ALib : Lib, ADoc
 
   override SpecMap funcs() { throw UnsupportedErr() }
 
-  override Bool hasJavaScript() { throw UnsupportedErr() }
+  override Bool hasDist() { throw UnsupportedErr() }
 
   override Bool hasChapters() { throw UnsupportedErr() }
-
-  override Bool hasCss() { throw UnsupportedErr() }
 }
 
 **************************************************************************

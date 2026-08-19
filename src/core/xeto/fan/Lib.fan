@@ -80,15 +80,11 @@ const mixin Lib : Dict
   ** Is this the `proj` companion library
   @NoDoc abstract Bool isCompanion()
 
-  ** Does this library contain contain JavaScript under "/js"
-  @NoDoc abstract Bool hasJavaScript()
+  ** Does this library contain client side build output under "/dist"
+  @NoDoc abstract Bool hasDist()
 
   ** Does this library contain markdown chapters files
   @NoDoc abstract Bool hasChapters()
-
-  ** Does this library contain contain CSS under "/css"
-  @NoDoc abstract Bool hasCss()
-
 
 }
 
