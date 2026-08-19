@@ -499,10 +499,9 @@ class RepoTest : AbstractXetoTest
 
     // invalid xeto source file name.  source publishes intrinsically, so
     // the pattern the helper adds for it also selects nothing
-    verifyFileNames(["foo~bar.xeto"], [
-      "Invalid file name 'foo~bar.xeto': File name cannot contain reserved char '~'",
-      "No matching files for publish pattern: /foo~bar.xeto",
-      ])
+    verifyFileNames(["foo~bar.xeto"],
+      ["Invalid file name 'foo~bar.xeto': File name cannot contain reserved char '~'"],
+      ["No matching files for publish pattern: /foo~bar.xeto"])
 
     // invalid nested resource file name
     verifyFileNames(["res/a%b.txt"], ["Invalid file name 'a%b.txt': Invalid file name char '%' 0x25"])
@@ -511,8 +510,8 @@ class RepoTest : AbstractXetoTest
     verifyFileNames(["sub~dir/a.txt"], ["Invalid file path name 'sub~dir': File name cannot contain reserved char '~'"])
 
     // hidden files are skipped, so its name is never validated - but the
-    // pattern which named it then selects nothing, which is its own error
-    verifyFileNames([".hidden~file"],
+    // pattern which named it then selects nothing, which is its own warning
+    verifyFileNames([".hidden~file"], Str[,],
       ["No matching files for publish pattern: /.hidden~file"])
 
     // every bad name is reported, not just the first
@@ -544,18 +543,16 @@ class RepoTest : AbstractXetoTest
     // reserved prefix, including a system file's own name.  the file is
     // rejected before it can be selected, so the pattern which named it
     // also reports selecting nothing
-    verifyFileNames(["xeto-foo.props"], [
-      "Invalid file name 'xeto-foo.props': File name cannot use reserved prefix 'xeto-'",
-      "No matching files for publish pattern: /xeto-foo.props",
-      ])
+    verifyFileNames(["xeto-foo.props"],
+      ["Invalid file name 'xeto-foo.props': File name cannot use reserved prefix 'xeto-'"],
+      ["No matching files for publish pattern: /xeto-foo.props"])
     // the dir pattern does match "/xeto-dir/a.txt" before the name check
     // rejects it, so only the name error is reported here
     verifyFileNames(["xeto-dir/a.txt"],
       ["Invalid file path name 'xeto-dir': File name cannot use reserved prefix 'xeto-'"])
-    verifyFileNames([XetoUtil.xetoMetaPropsUri.name], [
-      "Invalid file name 'xeto-meta.props': File name cannot use reserved prefix 'xeto-'",
-      "No matching files for publish pattern: /xeto-meta.props",
-      ])
+    verifyFileNames([XetoUtil.xetoMetaPropsUri.name],
+      ["Invalid file name 'xeto-meta.props': File name cannot use reserved prefix 'xeto-'"],
+      ["No matching files for publish pattern: /xeto-meta.props"])
   }
 
   ** A packaged lib may carry system files written by a newer build than
@@ -715,7 +712,7 @@ class RepoTest : AbstractXetoTest
   ** Declaring include or publish and then selecting nothing at all is an
   ** author mistake - either a typo or a file which has since been removed.
   ** Packaging nothing silently is how a lib ships without the resources it
-  ** expects at runtime.
+  ** expects at runtime.  It is a warning not an error: the lib still builds.
   Void testPatternMatchesNothing()
   {
     // every form of pattern is checked: directory, file, and extension
@@ -760,9 +757,9 @@ class RepoTest : AbstractXetoTest
       ["No matching files for include pattern: /*.xeto"])
   }
 
-  ** The error points at the include/publish declaration in lib.xeto rather
+  ** The warning points at the include/publish declaration in lib.xeto rather
   ** than at the lib itself, so a build log entry is clickable
-  Void testPatternErrLoc()
+  Void testPatternWarnLoc()
   {
     dir := tempDir + `patternloc/`
     dir.delete
@@ -776,22 +773,13 @@ class RepoTest : AbstractXetoTest
          |>).close
     (dir + `res/a.txt`).out.print("x\n").close
 
-    c := XetoCompiler.init |c|
-    {
-      c.ns      = createNamespace(["sys"])
-      c.libName = "test.patternloc"
-      c.input   = dir
-      c.log     = XetoCallbackLog.make(|XetoLogRec rec| {})
-    }
-    try
-      c.compileLib
-    catch (XetoCompilerErr e) {}
+    warns := compileLibLog(dir, "test.patternloc").findAll |rec| { rec.level === LogLevel.warn }
 
-    // every error is attributed to lib.xeto, not the lib dir
-    c.errs.each |err| { verifyEq(err.loc.file, (dir + `lib.xeto`).osPath) }
+    // every warning is attributed to lib.xeto, not the lib dir
+    warns.each |w| { verifyEq(w.loc.file, (dir + `lib.xeto`).osPath) }
 
     // and to the line which declares that tag
-    locs := c.errs.map |err->Str| { "$err.loc.line:$err.msg" }.sort
+    locs := warns.map |w->Str| { "$w.loc.line:$w.msg" }.sort
     verifyEq(locs, [
       "4:No matching files for include pattern: /gone",
       "5:No matching files for publish pattern: /*.svg",
@@ -800,7 +788,7 @@ class RepoTest : AbstractXetoTest
   }
 
   ** Compile a temp lib with the given pragma tags and files, and verify
-  ** the exact list of error messages reported
+  ** the exact list of warnings reported (patterns are never errors)
   private Void verifyPatterns(Str tags, Str[] files, Str[] expect)
   {
     dir := tempDir + `patterns/`
@@ -810,24 +798,14 @@ class RepoTest : AbstractXetoTest
       tags + " >\n").close
     files.each |path| { (dir + path[1..-1].toUri).out.print("x\n").close }
 
-    c := XetoCompiler.init |c|
-    {
-      c.ns      = createNamespace(["sys"])
-      c.libName = "test.patterns"
-      c.input   = dir
-      c.log     = XetoCallbackLog.make(|XetoLogRec rec| {})
-    }
-
-    try
-      c.compileLib
-    catch (XetoCompilerErr e) {}
-
-    verifyEq(c.errs.map |e->Str| { e.msg }.sort, expect.dup.sort)
+    recs := compileLibLog(dir, "test.patterns")
+    verifyLogMsgs(recs, LogLevel.err, Str[,])
+    verifyLogMsgs(recs, LogLevel.warn, expect)
   }
 
   ** Compile a temp lib containing the given files and verify the exact
-  ** list of error messages reported
-  Void verifyFileNames(Str[] files, Str[] expect)
+  ** list of error and warning messages reported
+  Void verifyFileNames(Str[] files, Str[] errs, Str[] warns := Str[,])
   {
     // write lib source dir from scratch
     dir := tempDir + `filenames/`
@@ -848,23 +826,38 @@ class RepoTest : AbstractXetoTest
       File(uri).out.print("// test\n").close
     }
 
-    ns := createNamespace(["sys"])
+    recs := compileLibLog(dir, "test.filenames")
+    verifyLogMsgs(recs, LogLevel.err, errs)
+    verifyLogMsgs(recs, LogLevel.warn, warns)
+  }
+
+  ** Compile the given lib source dir and return everything logged.  The
+  ** compile is expected to fail, and warnings are only reported via the
+  ** log - they are not accumulated in compiler.errs like errors are.
+  private XetoLogRec[] compileLibLog(File dir, Str libName)
+  {
+    recs := XetoLogRec[,]
     c := XetoCompiler.init |c|
     {
-      c.ns      = ns
-      c.libName = "test.filenames"
+      c.ns      = createNamespace(["sys"])
+      c.libName = libName
       c.input   = dir
-      c.log     = XetoCallbackLog.make(|XetoLogRec rec| {})
+      c.log     = XetoCallbackLog.make(|XetoLogRec rec| { recs.add(rec) })
     }
 
-    // compileLib throws on the first err via bombIfErr, but every err
-    // reported by the failing step is accumulated in compiler.errs
     try
       c.compileLib
     catch (XetoCompilerErr e) {}
 
-    // directory walk order is not guaranteed, so compare as a set
-    verifyEq(c.errs.map |e->Str| { e.msg }.sort, expect.dup.sort)
+    return recs
+  }
+
+  ** Verify the messages logged at the given level; directory walk order
+  ** is not guaranteed, so compare as a set
+  private Void verifyLogMsgs(XetoLogRec[] recs, LogLevel level, Str[] expect)
+  {
+    actual := recs.findAll |rec| { rec.level === level }.map |rec->Str| { rec.msg }
+    verifyEq(actual.sort, expect.dup.sort)
   }
 }
 
