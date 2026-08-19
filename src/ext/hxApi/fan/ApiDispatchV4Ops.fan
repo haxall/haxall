@@ -20,6 +20,7 @@ abstract class ApiDispatchV4Op : ApiDispatchV4
     "filetypes": ApiDispatchV4Filetypes#,
     "libs":      ApiDispatchV4Libs#,
     "ops":       ApiDispatchV4Ops#,
+    "watchPoll": ApiDispatchV4WatchPoll#,
   ]
 
   new make(ApiPipeline p) : super(p) {}
@@ -30,7 +31,19 @@ abstract class ApiDispatchV4Op : ApiDispatchV4
   ** ApiDispatchV4Read.doCall needs the grid
   override Bool takesReqGrid() { true }
 
-  override Obj? call(Obj?[] args) { doCall(args[0]) }
+  ** A failure raised by the special follows the same legacy contract as
+  ** one raised by an op func: a 200 response carrying an error grid.
+  ** Watch clients detect an invalid watch by exactly that grid.
+  override Obj? call(Obj?[] args)
+  {
+    try
+      return doCall(args[0])
+    catch (ApiErr e)
+      throw e
+    catch (Err e)
+      pipeline.writeErrGrid(e)
+    return null
+  }
 
   abstract Grid doCall(Grid req)
 }
@@ -123,5 +136,23 @@ internal class ApiDispatchV4Ops: ApiDispatchV4Defs
   new make(ApiPipeline p) : super(p) {}
 
   override Void eachDef(Context cx, |Def| f) { cx.defs.feature("op").eachDef(f) }
+}
+
+**************************************************************************
+** WatchPoll
+**************************************************************************
+
+** Version 4 carries watchId/refresh/curValSub in the request grid meta
+** rather than as named args, so map the meta tags onto the modeled func
+internal class ApiDispatchV4WatchPoll : ApiDispatchV4Op
+{
+  new make(ApiPipeline p) : super(p) {}
+
+  override Grid doCall(Grid req)
+  {
+    meta := req.meta
+    watchId := meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
+    return PhApiFuncs.watchPoll(watchId, meta["refresh"] as Marker, meta["curValSub"] as Marker)
+  }
 }
 

@@ -73,6 +73,16 @@ abstract class ApiDispatch
     return false
   }
 
+  ** Is this a grid based op which receives its request grid whole?  By
+  ** convention such an op declares its one param literally named "req".
+  ** Grids are the blessed shape for the batch and tabular ops such as
+  ** commit, hisWrite, and the watches.
+  Bool isReqGridOp()
+  {
+    params := func.func.params
+    return func.meta.has("op") && !params.isEmpty && params.first.name == "req"
+  }
+
   ** Request Content-Type or raise 415 if missing
   MimeType reqMime()
   {

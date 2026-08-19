@@ -127,7 +127,7 @@ const class SysApiFuncs
   ** List the operations this server supports, one row per op; see
   ** `OpInfo` for the columns.  This is a quick summary for debugging
   ** and discovery - to inspect an op's full definition, or to generate
-  ** a client or an API schema, use the spec op instead.
+  ** a client or an API schema, use the openapi op instead.
   **
   ** Clients written against an older protocol version receive that
   ** version's format instead; see [ph.doc::Ops#ops].
@@ -162,6 +162,24 @@ const class SysApiFuncs
   }
 
   private static const Ref opInfoRef := Ref("sys.api::OpInfo")
+
+  ** List the libraries composing the server's namespace, one row per
+  ** lib sorted by name; see `LibInfo` for the columns.
+  @Api @Axon
+  static Grid libs()
+  {
+    gb := GridBuilder()
+    gb.setMeta(Etc.dict1("of", libInfoRef))
+    gb.addCol("name").addCol("version").addCol("doc").addCol("spec")
+    versions := curContext.ns.versions.dup.sort |a, b| { a.name <=> b.name }
+    versions.each |v|
+    {
+      gb.addRow([v.name, v.version.toStr, Etc.firstSentence(v.doc.trimToNull), libInfoRef])
+    }
+    return gb.toGrid
+  }
+
+  private static const Ref libInfoRef := Ref("sys.api::LibInfo")
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

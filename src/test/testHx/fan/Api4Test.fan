@@ -50,6 +50,20 @@ class Api4Test : ApiTest
     c.callGrid(op, Etc.makeMapGrid(null, args))
   }
 
+  ** Version 4 posts the request grid as the body
+  override Grid callGridOp(Client c, Str op, Grid req)
+  {
+    c.callGrid(op, req)
+  }
+
+  ** Version 4 carries watchId/refresh in the request grid meta
+  override Grid callWatchPoll(Client c, Str watchId, Bool refresh := false)
+  {
+    meta := Str:Obj["watchId":watchId]
+    if (refresh) meta["refresh"] = m
+    return c.callGrid("watchPoll", Etc.makeEmptyGrid(meta))
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Read
 //////////////////////////////////////////////////////////////////////////
@@ -366,192 +380,6 @@ class Api4Test : ApiTest
     mime?.params?.get("version") == "3" ? Etc.dict1("v3", Marker.val) : Etc.dict0
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Nav
-//////////////////////////////////////////////////////////////////////////
-
-  Void doNav()
-  {
-    if (sys.info.type.isSkySpark) return
-
-    g := c.callGrid("nav", Etc.makeMapGrid(null, Str:Obj[:]))
-    verifyEq(g.size, 3)
-    verifyEq(g[0].dis, "A")
-    verifyEq(g[0].id, g[0]["navId"])
-
-    g = c.callGrid("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
-    verifyEq(g.size, 1)
-    verifyEq(g[0].dis, "A1")
-    verifyEq(g[0].id, g[0]["navId"])
-
-    g = c.callGrid("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
-    verifyEq(g.size, 2)
-    verifyEq(g[0].dis, "A1X")
-    verifyEq(g[0]["navId"], null)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Watches (watchSub, watchPoll, watchUnsub)
-//////////////////////////////////////////////////////////////////////////
-
-  private Void doWatches()
-  {
-    // haystack: watchSub
-    w := proj.watch
-    verifyEq(w.isWatched(siteA.id), false)
-    verifyEq(w.isWatched(eqA1.id), false)
-    res := c.callGrid("watchSub", Etc.makeListGrid(["watchDis":"test", "lease":n(17, "min")], "id", null, [siteA.id, eqA1.id]))
-    watchId := res.meta->watchId
-    verifyEq(res.meta->lease, n(17, "min"))
-    verifyEq(res.size, 2)
-    verifyDictEq(res[0], siteA)
-    verifyDictEq(res[1], eqA1)
-    verifyEq(w.list.size, 1)
-    verifyEq(w.isWatched(siteA.id), true)
-    verifyEq(w.isWatched(eqA1.id), true)
-    verifyEq(w.list.first.dis, "test")
-    verifyEq(w.list.first.lease, 17min)
-    res = c.callGrid("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
-
-    // haystack: watchPoll
-    eqA1 = commit(eqA1, ["foo":n(123)])
-    res = c.callGrid("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
-    verifyEq(res.size, 1)
-    verifyEq(res[0].id, eqA1.id)
-    verifyEq(res[0]->foo, n(123))
-
-    // haystack: watchUnsub
-    res = c.callGrid("watchUnsub", Etc.makeListGrid(["watchId": watchId], "id", null, [eqA1.id]))
-    verifyEq(w.isWatched(siteA.id), true)
-    verifyEq(w.isWatched(eqA1.id), false)
-
-    // haystack: watchUnsub
-    res = c.callGrid("watchUnsub", Etc.makeEmptyGrid(["watchId": watchId, "close":true]))
-    verifyEq(w.list.size, 0)
-    verifyEq(w.isWatched(siteA.id), false)
-    verifyEq(w.isWatched(eqA1.id), false)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// His
-//////////////////////////////////////////////////////////////////////////
-
-  Void doHis()
-  {
-    tz := TimeZone("New_York")
-    today := DateTime.now.toTimeZone(tz).midnight
-    yesterday := today.date.minus(1day).toDateTime(Time.defVal, tz)
-    ptA := addRec(["dis":"His-A", "point":m, "his":m, "kind":"Number", "tz":tz.name])
-    ptB := addRec(["dis":"His-B", "point":m, "his":m, "kind":"Number", "tz":tz.name])
-
-    // hisWrite to ptA
-    items := HisItem[,]
-    items.add(HisItem(yesterday + 1hr, n(1)))
-    items.add(HisItem(yesterday + 2hr, n(2)))
-    items.add(HisItem(yesterday + 3hr, n(3)))
-    items.add(HisItem(today + 1hr, n(10)))
-    items.add(HisItem(today + 2hr, n(20)))
-    items.add(HisItem(today + 3hr, n(30)))
-    req := Etc.makeDictsGrid(["id":ptA.id.noDis], items)
-    res := c.callGrid("hisWrite", req)
-
-    // batch hisWrite to ptA, ptB
-    gb := GridBuilder()
-    ts := Date("2023-05-13").midnight
-    gb.addCol("ts").addCol("v0", ["id":ptA.id.noDis]).addCol("v1", ["id":ptB.id.noDis])
-    gb.addRow([ts + 0hr, n(100), n(200)])
-    gb.addRow([ts + 1hr, null,   n(201)])
-    gb.addRow([ts + 2hr, n(102), null])
-    gb.addRow([ts + 3hr, n(103), n(203)])
-    res = c.callGrid("hisWrite", gb.toGrid)
-
-    // verify ptA got written
-    proj.sync
-    ptA = proj.readById(ptA.id)
-    ptB = proj.readById(ptB.id)
-    verifyEq(ptA["hisSize"], n(9))
-    verifyEq(ptB["hisSize"], n(3))
-
-    // hisRead from ptA (yesterday)
-    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"yesterday"]))
-    verifyEq(res.size, 3)
-    verifyEq(res.meta->hisStart, yesterday)
-    verifyEq(res.meta->hisEnd, today)
-    verifyDictEq(res[0], items[0])
-    verifyDictEq(res[1], items[1])
-    verifyDictEq(res[2], items[2])
-
-    // hisRead from ptA (today)
-    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"today"]))
-    verifyEq(res.size, 3)
-    verifyDictEq(res[0], items[3])
-    verifyDictEq(res[1], items[4])
-    verifyDictEq(res[2], items[5])
-
-    // hisRead from ptA (range)
-    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":items[4].ts.toStr]))
-    verifyEq(res.size, 2)
-    verifyDictEq(res[0], items[-2])
-    verifyDictEq(res[1], items[-1])
-
-    // batch hisRead
-    gb = GridBuilder().setMeta(["range":"2023-05-13"]).addCol("id")
-    gb.addRow1(ptA.id.noDis)
-    gb.addRow1(ptB.id.noDis)
-    res = c.callGrid("hisRead", gb.toGrid)
-    verifyEq(res.size, 4)
-    verifyEq(res.meta->hisStart, ts)
-    verifyEq(res.meta->hisEnd, ts.plus(1day))
-    verifyDictEq(res[0], ["ts":ts + 0hr, "v0":n(100), "v1":n(200)])
-    verifyDictEq(res[1], ["ts":ts + 1hr, "v0":null,   "v1":n(201)])
-    verifyDictEq(res[2], ["ts":ts + 2hr, "v0":n(102), "v1":null])
-    verifyDictEq(res[3], ["ts":ts + 3hr, "v0":n(103), "v1":n(203)])
-
-    // batch hisRead with explicit tz minus 1hr
-    // first row will be clipped
-    gb = GridBuilder().setMeta(["range":"2023-05-13", "tz":"Chicago"]).addCol("id")
-    tsM1 := ts.date.midnight(TimeZone("Chicago"))
-    gb.addRow1(ptA.id.noDis)
-    gb.addRow1(ptB.id.noDis)
-    res = c.callGrid("hisRead", gb.toGrid)
-    verifyEq(res.size, 3)
-    verifyEq(res.meta->hisStart.toStr, tsM1.toStr)
-    verifyEq(res.meta->hisEnd.toStr, tsM1.plus(1day).toStr)
-    verifyEq(res[0]->ts->tz.toStr, "Chicago")
-    verifyDictEq(res[0], ["ts":tsM1 + 0hr, "v0":null,   "v1":n(201)])
-    verifyDictEq(res[1], ["ts":tsM1 + 1hr, "v0":n(102), "v1":null])
-    verifyDictEq(res[2], ["ts":tsM1 + 2hr, "v0":n(103), "v1":n(203)])
-
-    // hisRead with span using Chicago timezone, results in point's tz
-    res = c.callGrid("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":tsM1.toStr + "," +  tsM1.plus(1day).toStr]))
-    verifyEq(res.size, 2)
-    verifyEq(res.meta->hisStart.toStr, tsM1.toTimeZone(tz).toStr)
-    verifyEq(res.meta->hisEnd.toStr, tsM1.plus(1day).toTimeZone(tz).toStr)
-    verifyEq(res[0]->ts->tz.toStr, "New_York")
-    verifyDictEq(res[0], ["ts":ts + 2hr, "val":n(102)])
-    verifyDictEq(res[1], ["ts":ts + 3hr, "val":n(103)])
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// PointWrite
-//////////////////////////////////////////////////////////////////////////
-
-  Void doPointWrite()
-  {
-    pt := addRec(["dis":"WritePoint", "point":m, "writable":m, "kind":"Number"])
-
-    res := c.callGrid("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(16), "val":n(160)]))
-    res = c.callGrid("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(8), "val":n(80), "duration":n(1, "hr")]))
-    res = c.callGrid("pointWrite", Etc.makeMapGrid(null, ["id":pt.id]))
-
-    verifyEq(res.size, 17)
-    verifyEq(res[7]->level, n(8))
-    verifyEq(res[7]->val, n(80))
-    verifyEq(res[7].has("expires"), true)
-
-    verifyEq(res[15]->level, n(16))
-    verifyEq(res[15]->val, n(160))
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // Close

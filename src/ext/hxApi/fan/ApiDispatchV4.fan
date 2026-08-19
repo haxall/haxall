@@ -65,17 +65,16 @@ class ApiDispatchV4 : ApiDispatch
     return mapArgs |p->Obj?| { row?.get(p.name) }
   }
 
-  ** Does this op still take the whole version 4 request grid as its single
+  ** Does this op take the whole version 4 request grid as its single
   ** argument?  Version 4 passed the grid to any func invoked as an op no
   ** matter what it declared - `hxApi::ApiPipeline.doResolveOpFunc` resolves
   ** any func in the namespace, not just those marked '<op>'.  So args are
-  ** only mapped by name for an '<op>' which has modeled its params, and by
-  ** convention an op which has not been modeled names its one param "req".
+  ** only mapped by name for an '<op>' which has modeled its params; the
+  ** grid based ops receive the grid whole per `ApiDispatch.isReqGridOp`.
   virtual Bool takesReqGrid()
   {
     if (func.meta.missing("op")) return true
-    params := func.func.params
-    return !params.isEmpty && params.first.name == "req"
+    return isReqGridOp
   }
 
 //////////////////////////////////////////////////////////////////////////

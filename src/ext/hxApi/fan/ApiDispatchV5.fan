@@ -66,9 +66,12 @@ class ApiDispatchV5 : ApiDispatch
     mime := reqMime
     if (isJsonMime(mime)) return readReqJson
 
-    // any other filetype reads a grid whose first row cells are the
-    // named args, exactly the v4 modeled-op mapping
-    row := readReqGrid(mime).first
+    // any other filetype reads a grid: a grid based op receives it
+    // whole, otherwise the first row's cells are the named args,
+    // exactly the v4 mapping
+    grid := readReqGrid(mime)
+    if (isReqGridOp) return [grid]
+    row := grid.first
     return mapArgs |param->Obj?| { row?.get(param.name) }
   }
 

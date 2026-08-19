@@ -28,15 +28,15 @@ class Api5Test : ApiTest
     doOpsFunc
 
     init
+    doCommon      // tests which behave identically in both dialects
     doWriteRes
     doEval
     doAboutTyped
+    doLibsFunc
+    doGridOps
     doUpload
     doNegotiation
     cleanup
-
-    // TODO: doCommon needs a v5 shape for the ops which still take a v4
-    // style "req: Grid" arg; eval is the first one modeled with real params
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -210,6 +210,21 @@ class Api5Test : ApiTest
     call(c, op, args)
   }
 
+  ** Version 5 passes the request grid as the named "req" arg encoded
+  ** per the Jeto grid rules
+  override Grid callGridOp(Client c, Str op, Grid req)
+  {
+    call(c, op, Etc.dict1("req", req))
+  }
+
+  ** Version 5 models the watchPoll parameters as named args
+  override Grid callWatchPoll(Client c, Str watchId, Bool refresh := false)
+  {
+    args := Str:Obj["watchId":watchId]
+    if (refresh) args["refresh"] = m
+    return call(c, "watchPoll", args)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Eval
 //////////////////////////////////////////////////////////////////////////
@@ -260,6 +275,58 @@ class Api5Test : ApiTest
     setupContext
     ns := proj.ns
     verifyEq(ns.validate(about, ns.spec("sys.api::AboutInfo")).hasErrs, false)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Libs
+//////////////////////////////////////////////////////////////////////////
+
+  ** The libs listing reports the namespace's composing libraries
+  Void doLibsFunc()
+  {
+    // typed decode through the codec; unqualified resolution narrows to
+    // the <op> func even though hx::libs shares the name
+    g := (Grid)call(c, "libs", Str:Obj?[:])
+    verifyEq(g.meta->of, Ref("sys.api::LibInfo"))
+
+    // every row validates against the LibInfo spec
+    setupContext
+    ns := proj.ns
+    libInfo := ns.spec("sys.api::LibInfo")
+    g.each |row| { verifyEq(ns.validate(row, libInfo).hasErrs, false, row->name) }
+
+    // sys row reports the loaded version, decoded as a real Version
+    row := g.find |r| { r->name == "sys" } ?: throw Err("no sys row")
+    verifyEq(row->version, ns.lib("sys").version)
+
+    // rows are sorted by name
+    names := Str[,]
+    g.each |r| { names.add(r->name) }
+    verifyEq(names, names.dup.sort)
+
+    // axon unqualified libs() still binds hx's runtime status func
+    verifyNotNull(((Grid)eval("libs()")).col("libStatus", false))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Grid Ops
+//////////////////////////////////////////////////////////////////////////
+
+  ** A grid based op receives a non-json body grid whole; the json
+  ** dialect (grid as the named req arg) is covered by the shared
+  ** doCommit running under this dialect's callGridOp hook
+  Void doGridOps()
+  {
+    db := proj.db
+    verifyEq(db.readCount(Filter("gridOpTest")), 0)
+    req := Etc.makeMapGrid(["commit":"add"], ["dis":"Grid Op Zinc", "gridOpTest":m])
+    wc := c.toWebClient(`commit`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "text/zinc"
+    wc.postStr(ZincWriter.gridToStr(req))
+    verifyEq(wc.resCode, 200)
+    wc.close
+    verifyEq(db.readCount(Filter("gridOpTest")), 1)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -416,8 +483,19 @@ class Api5Test : ApiTest
     wc.close
     if (debug) { echo("<<<< $wc.resCode"); echo(res) }
 
-    if (wc.resCode != 200) throw IOErr("Bad HTTP response $wc.resCode $wc.resPhrase")
+    if (wc.resCode != 200) throw toCallErr(res, wc.resCode)
     return ns.io.readJeto(res.in)
+  }
+
+  ** Map a v5 JSON error envelope to CallErr so shared assertions catch
+  ** the same err type both dialects raise
+  private static CallErr toCallErr(Str res, Int code)
+  {
+    [Str:Obj?]? json := null
+    try json = JsonInStream(res.in).readJson as Str:Obj?
+    catch (Err e) {}
+    if (json == null || json["dis"] == null) json = Str:Obj?["dis":"Bad HTTP response $code"]
+    return CallErr.makeMeta(Etc.makeDict(json))
   }
 
   const Bool debug := false

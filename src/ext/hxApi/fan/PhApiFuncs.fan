@@ -369,19 +369,17 @@ const class PhApiFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Read the current status of a writable point's priority array, or write
-  ** to one of its levels.  The mode is determined by the presence of a
-  ** `level` column in the request.
+  ** to one of its levels.  The mode is determined by the presence of the
+  ** `level` parameter.
   **
-  ** Read request: a grid with a single row and an `id` column with the Ref
-  ** of the writable point.
-  **
-  ** Read response: a grid with the current priority array state:
+  ** Read: pass only `id` and the response is a grid with the current
+  ** priority array state:
   **   - `level`: number from 1 - 17 (17 is default)
   **   - `levelDis`: human description of the level
   **   - `val`: current value at the level or null
   **   - `who`: who last controlled the value at this level
   **
-  ** Write request: a grid with a single row and following columns:
+  ** Write parameters:
   **   - `id`: Ref identifier of the writable point
   **   - `level`: Number from 1-17 for the level to write
   **   - `val`: value to write, or null to auto the level
@@ -391,32 +389,26 @@ const class PhApiFuncs
   **
   ** Write response: empty grid
   **
+  ** A version 4 request carries the parameters as the columns of a
+  ** single row request grid.
+  **
   ** See [ph.doc::Ops#pointwrite].
   @Api @Axon
-  static Grid pointWrite(Grid req)
+  static Grid pointWrite(Ref id, Number? level := null, Obj? val := null, Str? who := null, Number? duration := null)
   {
     cx := curContext
-
-    // parse request
-    if (req.size != 1) throw Err("Request grid must have 1 row")
-    reqRow := req.first
-    rec := cx.db.readById(reqRow.id)
+    rec := cx.db.readById(id)
 
     // if reading level will be null
-    level := reqRow["level"] as Number
     if (level == null) return cx.rt.exts.point.pointArray(rec)
 
     // handle write
     cx.checkAdmin("pointWrite op")
-    val := reqRow["val"]
-    who := reqRow["who"]?.toStr ?: cx.user.dis
-    dur := reqRow["duration"] as Number
-
-    who = "Haystack.pointWrite | $who"
+    who = "Haystack.pointWrite | " + (who ?: cx.user.dis)
 
     // if have timed override
-    if (val != null && level.toInt == 8 && dur != null)
-      val = Etc.dict2("val", val, "duration", dur.toDuration)
+    if (val != null && level.toInt == 8 && duration != null)
+      val = Etc.dict2("val", val, "duration", duration.toDuration)
 
     cx.rt.exts.point.pointWrite(rec, val, level.toInt, who).get(30sec)
     return Etc.makeEmptyGrid(Etc.dict1("ok", Marker.val))
@@ -538,9 +530,11 @@ const class PhApiFuncs
 
   ** Poll a watch for changes to the subscribed entities.
   **
-  ** Request: grid meta:
+  ** Parameters:
   **   - `watchId`: required Str identifier of the watch
-  **   - `refresh`: Marker tag to request a full refresh
+  **   - `refresh`: Marker to request a full refresh
+  **   - `curValSub`: Marker to project the rows to just their id,
+  **     curVal, and curStatus columns
   **
   ** Response: a grid where each row corresponds to a watched entity.  The
   ** `id` tag of each row identifies the changed entity and correlates to
@@ -555,22 +549,19 @@ const class PhApiFuncs
   ** If the response is an error grid then the client must assume the watch
   ** is no longer valid and open a new one.
   **
+  ** A version 4 request carries the parameters as the request grid meta.
+  **
   ** See [ph.doc::Ops#watchpoll].
   @Api @Axon
-  static Grid watchPoll(Grid req)
+  static Grid watchPoll(Str watchId, Marker? refresh := null, Marker? curValSub := null)
   {
     cx := curContext
 
-    // parse request
-    watchId := req.meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
-    refresh := req.meta.has("refresh")
-    curValSub := req.meta.has("curValSub")
-
     // poll as refresh or cov
     watch := cx.rt.watch.get(watchId)
-    recs := refresh ? watch.poll(Duration.defVal) : watch.poll
+    recs := refresh != null ? watch.poll(Duration.defVal) : watch.poll
     resMeta := Etc.dict1("watchId", watchId)
-    if (curValSub)
+    if (curValSub != null)
     {
       return GridBuilder()
         .setMeta(resMeta)
