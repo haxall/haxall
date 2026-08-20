@@ -31,7 +31,7 @@ class ApiDispatchV5 : ApiDispatch
     args := Str:Str[:]
     req.uri.query.each |val, name|
     {
-      if (!isControlParam(name)) args[name] = toJson(val)
+      if (!ApiUtil.isControlParam(name)) args[name] = toJson(val)
     }
     return mapJsonArgs(args)
   }
@@ -59,18 +59,18 @@ class ApiDispatchV5 : ApiDispatch
   override Obj?[] readReqPost()
   {
     // a file typed param receives the post body itself
-    p := fileParam
+    p := ApiUtil.fileParam(func)
     if (p != null) return [readReqFile(p)]
 
     // json body is an object whose members are the named args
     mime := reqMime
-    if (isJsonMime(mime)) return readReqJson
+    if (ApiUtil.isJsonMime(mime)) return readReqJson
 
     // any other filetype reads a grid: a grid based op receives it
     // whole, otherwise the first row's cells are the named args,
     // exactly the v4 mapping
     grid := readReqGrid(mime)
-    if (isReqGridOp) return [grid]
+    if (ApiUtil.isOpGrid(func)) return [grid]
     row := grid.first
     return mapArgs |param->Obj?| { row?.get(param.name) }
   }
@@ -157,11 +157,11 @@ class ApiDispatchV5 : ApiDispatch
   override Void writeResVal(Obj? result)
   {
     // parse Accept header to find requested mime type
-    mime := acceptMimeType(req, jsonMime)
+    mime := acceptMimeType(req, ApiUtil.jsonMime)
     if (mime == null) throw ApiErr.notAcceptableErrHeader
 
     res.headers["Xeto-Version"] = ApiVersion.v5.token
-    if (isJsonMime(mime)) return writeResJson(result)
+    if (ApiUtil.isJsonMime(mime)) return writeResJson(result)
     writeResGrid(result, mime)
   }
 

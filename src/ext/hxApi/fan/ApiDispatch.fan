@@ -31,7 +31,7 @@ abstract class ApiDispatch
   {
     if (req.isGet)
     {
-      if (func.meta.missing("noSideEffects"))
+      if (!ApiUtil.allowGet(func))
         throw ApiErr.methodNotAllowedErr(func.name)
       return
     }
@@ -52,26 +52,6 @@ abstract class ApiDispatch
   ** Read the request to function args from post body
   abstract Obj?[] readReqPost()
 
-  ** File typed param which receives the post body itself, or null when
-  ** the op takes JSON args.  A file param must be the op's only param
-  ** since the body is consumed whole - there is no encoding for mixed
-  ** file and JSON args.
-  Spec? fileParam()
-  {
-    f := func.func
-    if (f.isFileParam) return f.params.first
-    if (f.params.any |p| { p.type.isFile }) throw ApiErr(400, "InvalidArgsErr", "File param must be op's only param: $func.name")
-    return null
-  }
-
-  ** Is this a grid based op which receives its request grid whole?
-  ** Declared by the '<opGrid>' marker; grids are the blessed shape for
-  ** the batch and tabular ops such as commit, hisWrite, and the watches.
-  Bool isReqGridOp()
-  {
-    func.meta.has("opGrid")
-  }
-
   ** Request Content-Type or raise 415 if missing
   MimeType reqMime()
   {
@@ -85,7 +65,7 @@ abstract class ApiDispatch
   Grid readReqGrid(MimeType mime)
   {
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || (!filetype.hasReader && !isXetoFiletype(filetype)))
+    if (filetype == null || (!filetype.hasReader && !ApiUtil.isXetoFiletype(filetype)))
       throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
     reqStr := req.in.readAllStr
     try
@@ -93,9 +73,9 @@ abstract class ApiDispatch
       // the xeto family reads through the namespace codec and bridges
       // any value to the request grid; refs are data pointing at recs,
       // not xeto instances, so resolution is external
-      if (isXetoFiletype(filetype))
+      if (ApiUtil.isXetoFiletype(filetype))
         return Etc.toGrid(filetype.name == "xeto" ? cx.ns.io.readXeto(reqStr, externRefs) : cx.ns.io.readJeto(reqStr.in))
-      return filetype.reader(reqStr.in, ioOpts(mime)).readGrid
+      return filetype.reader(reqStr.in, ApiUtil.ioOpts(mime)).readGrid
     }
     catch (Err e)
       throw ApiErr.invalidArgsErr(mime.toStr, e)
@@ -107,7 +87,7 @@ abstract class ApiDispatch
   {
     // find writer for mime type: GridWriter backed or the xeto family
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || (!filetype.hasWriter && !isXetoFiletype(filetype)))
+    if (filetype == null || (!filetype.hasWriter && !ApiUtil.isXetoFiletype(filetype)))
       throw ApiErr.notAcceptableErrWriter(mime.toStr)
 
     // a func with no result encodes as the empty grid clients expect;
@@ -126,37 +106,16 @@ abstract class ApiDispatch
     // write result
     OutStream out := res.out
     if (gzip) out = Zip.gzipOutStream(out)
-    if (isXetoFiletype(filetype))
+    if (ApiUtil.isXetoFiletype(filetype))
     {
       if (filetype.name == "xeto") cx.ns.io.writeXeto(out, grid)
       else cx.ns.io.writeJeto(out, grid)
     }
-    else filetype.writer(out, ioOpts(mime)).writeGrid(grid)
+    else filetype.writer(out, ApiUtil.ioOpts(mime)).writeGrid(grid)
     out.close
   }
 
-  ** Is the filetype the xeto family, which encodes any value through
-  ** the namespace codec rather than a GridReader/GridWriter
-  static Bool isXetoFiletype(Filetype? filetype)
-  {
-    filetype != null && (filetype.name == "xeto" || filetype.name == "jeto")
-  }
-
   private static const Dict externRefs := Etc.dict1("externRefs", Marker.val)
-
-  ** Is the mime type application/json, which each version binds to its
-  ** own codec: the haystack codec in v4, the xeto codec in v5
-  static Bool isJsonMime(MimeType mime)
-  {
-    mime.mediaType == "application" && mime.subType == "json"
-  }
-
-  ** Filetype reader/writer options; JSON v3 is only reachable via an
-  ** explicit ";version=3" mime param
-  static Dict ioOpts(MimeType mime)
-  {
-    mime.params["version"] == "3" ? Etc.dict1("v3", Marker.val) : Etc.dict0
-  }
 
   ** Temp file the post body was spooled into for a file param, or null.
   ** The pipeline deletes it after dispatch, so the op func must consume
@@ -179,6 +138,8 @@ abstract class ApiDispatch
   {
     func.func.params.map |p->Obj?|
     {
+      // a file typed param takes the raw body, never an encoded arg
+      if (p.type.isFile) throw ApiErr(400, "InvalidArgsErr", "File param must be op's only param: $func.name")
       val := f(p)
       if (val != null) return val
       def := p.metaOwn["val"]
@@ -224,15 +185,6 @@ abstract class ApiDispatch
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Query params that control the request itself rather than supply an op
-  ** argument.  These use an "xeto-" prefix which mirrors the request header.
-  ** The prefix is reserved: a xeto identifier cannot contain a dash, so a
-  ** control param can never collide with an op's parameter name.
-  static Bool isControlParam(Str name)
-  {
-    name.startsWith("xeto-")
-  }
-
   ** Return the accept mime type or
   MimeType? acceptMimeType(WebReq req, MimeType defaultMime)
   {
@@ -256,10 +208,6 @@ abstract class ApiDispatch
   {
     (req.headers["Accept-Encoding"] ?: "").contains("gzip")
   }
-
-  static const MimeType mimeZinc := MimeType("text/zinc; charset=utf-8")
-
-  static const MimeType jsonMime := MimeType("application/json")
 
 //////////////////////////////////////////////////////////////////////////
 // Pipeline Conveniences

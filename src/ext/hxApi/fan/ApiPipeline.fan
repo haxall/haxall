@@ -190,8 +190,8 @@ class ApiPipeline
     func = doResolveOpFunc(opName)
 
     // determine if function handles it own request and/or responses
-    funcOwnsReq = func.meta.has("opWebReq")
-    funcOwnsRes = func.meta.has("opWebRes")
+    funcOwnsReq = ApiUtil.isOpWebReq(func)
+    funcOwnsRes = ApiUtil.isOpWebRes(func)
   }
 
   ** Lookup opName and check for ambiguous matches

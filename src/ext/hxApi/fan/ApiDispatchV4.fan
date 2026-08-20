@@ -28,7 +28,7 @@ class ApiDispatchV4 : ApiDispatch
     tags := Str:Obj[:]
     req.uri.query.each |valStr, key|
     {
-      if (isControlParam(key)) return
+      if (ApiUtil.isControlParam(key)) return
       Obj? val := null
       try
         val = ZincReader(valStr.in).readVal
@@ -42,7 +42,7 @@ class ApiDispatchV4 : ApiDispatch
   override Obj?[] readReqPost()
   {
     // file typed params are a version 5 feature
-    if (fileParam != null) throw ApiErr(400, "InvalidArgsErr", "File param op requires API version 5: $func.name")
+    if (ApiUtil.fileParam(func) != null) throw ApiErr(400, "InvalidArgsErr", "File param op requires API version 5: $func.name")
 
     return toArgs(readReqGrid(reqMime))
   }
@@ -70,11 +70,10 @@ class ApiDispatchV4 : ApiDispatch
   ** matter what it declared - `hxApi::ApiPipeline.doResolveOpFunc` resolves
   ** any func in the namespace, not just those marked '<op>'.  So args are
   ** only mapped by name for an '<op>' which has modeled its params; the
-  ** grid based ops receive the grid whole per `ApiDispatch.isReqGridOp`.
+  ** grid based ops receive the grid whole per `ApiUtil.isOpGrid`.
   virtual Bool takesReqGrid()
   {
-    if (func.meta.missing("op")) return true
-    return isReqGridOp
+    ApiUtil.takesReqGridV4(func)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,7 +121,7 @@ class ApiDispatchV4 : ApiDispatch
   override Void writeResVal(Obj? result)
   {
     // parse Accept header to find requested mime type
-    mime := acceptMimeType(req, mimeZinc)
+    mime := acceptMimeType(req, ApiUtil.mimeZinc)
     if (mime == null) throw ApiErr.notAcceptableErrHeader
 
     writeResGrid(result, mime)
