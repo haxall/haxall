@@ -517,19 +517,9 @@ internal const class LibDependArg
 {
   new make(Str s)
   {
-    dash := s.index("-")
-    if (dash == null)
-    {
-      this.name        = s
-      this.constraints = null
-      this.depend      = LibDepend(name)
-    }
-    else
-    {
-      this.name        = s[0..<dash]
-      this.constraints = LibDependVersions.fromStr(s[dash+1..-1])
-      this.depend      = LibDepend(name, constraints)
-    }
+    this.depend      = LibDepend.parse(s, '-')
+    this.name        = depend.name
+    this.constraints = s.index("-") == null ? null : depend.versions
   }
 
   const Str name

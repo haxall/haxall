@@ -244,7 +244,7 @@ abstract const class MEnv : XetoEnv
     buildAsDepends := build.map |v->LibDepend|
     {
       if (!v.isSrc) throw ArgErr("Not source lib: $v")
-      return MLibDepend(v.name, LibDependVersions(v.version))
+      return v.asDepend
     }
 
     // solve dependency graph for full list of libs

@@ -59,9 +59,7 @@ const class RemoteLibVersion : LibVersion
     if (d != null) return LibDepend(d->lib.toStr, LibDependVersions.fromStr(d->versions.toStr))
     m := x as Map
     if (m != null) return LibDepend(m.getChecked("lib").toStr, LibDependVersions.fromStr(m.getChecked("versions").toStr))
-    s := x.toStr
-    sp := s.index(" ") ?: throw ParseErr("Invalid depend: $s")
-    return LibDepend(s[0..<sp].trim, LibDependVersions.fromStr(s[sp+1..-1].trim))
+    return LibDepend.parse(x.toStr, ' ', null)
   }
 
   override const Str name

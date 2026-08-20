@@ -304,12 +304,7 @@ const class RepoFuncs
 
   private static LibDepend[] toLibDepends(Obj names)
   {
-    return toStrList(names).map |s->LibDepend|
-    {
-      dash := s.index("-")
-      if (dash == null) return LibDepend(s)
-      return LibDepend(s[0..<dash], LibDependVersions(s[dash+1..-1]))
-    }
+    return toStrList(names).map |s->LibDepend| { LibDepend.parse(s, '-') }
   }
 
   private static Str[] toStrList(Obj names)

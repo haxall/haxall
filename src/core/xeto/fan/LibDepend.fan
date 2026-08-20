@@ -20,10 +20,22 @@ const mixin LibDepend : Dict
     Slot.findMethod("xetom::MLibDepend.makeFields").call(name, versions, FileLoc.unknown)
   }
 
-  ** Construct from exact LibVersion
-  static new makeExact(LibVersion v)
+  ** Parse "<libName><sep><versions>" format.  If defVers is non-null
+  ** then allow "<libName>" only.
+  @NoDoc static LibDepend parse(Str s, Int sep := ' ', LibDependVersions? defVers := LibDependVersions.wildcard)
   {
-    make(v.name, LibDependVersions(v.version))
+    try
+    {
+      s = s.trim
+      sp := s.index(sep.toChar)
+      if (sp == null)
+      {
+        if (defVers == null) throw Err()
+        return make(s, defVers)
+      }
+      return make(s[0..<sp], LibDependVersions.fromStr(s[sp+1..-1].trim))
+    }
+    catch (Err e) throw ParseErr("Invalid LibDepend: $s")
   }
 
   ** Library dotted name

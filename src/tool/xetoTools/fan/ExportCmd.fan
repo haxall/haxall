@@ -237,7 +237,7 @@ internal const class ExportTarget
   {
     this.lib = lib
     this.specName = specName
-    this.depend = LibDepend(lib.name, LibDependVersions(lib.version))
+    this.depend = lib.asDepend
   }
   const LibVersion lib
   const Str? specName
