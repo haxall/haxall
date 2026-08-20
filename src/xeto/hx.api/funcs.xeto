@@ -24,7 +24,7 @@
   //
   // Also see `hx::Funcs.commit` which takes a list of diffs, and
   // [hx.doc.skyspark::Ops#commit] for the HTTP API details.
-  commit: Func <op, admin> { req: Grid, returns: Grid }
+  commit: Func <op, opGrid, admin> { req: Grid, returns: Grid }
 
   // Evaluate an expression and return its result.  If the expression parses
   // as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
