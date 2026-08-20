@@ -73,6 +73,10 @@ const class MFunc : SpecFunc
     XetoUtil.qname(spec.lib.name, spec.name)
   }
 
+  override Bool isFileReturn() { returns.isFile }
+
+  override Bool isFileParam() { params.size == 1 && params.first.isFile }
+
   override Str signature()
   {
     s := StrBuf().addChar('(')

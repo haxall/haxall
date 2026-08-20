@@ -38,6 +38,12 @@ const mixin SpecFunc
 
   ** Format a human, non-normative signature such as "(id: Ref?) -> Dict"
   @NoDoc abstract Str signature()
+
+  ** Does this function return a `sys::File` type
+  @NoDoc abstract Bool isFileReturn()
+
+  ** Does this function have one parameter of `sys::File` type
+  @NoDoc abstract Bool isFileParam()
 }
 
 **************************************************************************

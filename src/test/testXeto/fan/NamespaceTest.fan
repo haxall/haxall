@@ -69,11 +69,14 @@ class NamespaceTest : AbstractXetoTest
     coll   := verifyLibType(ns, sys, "Collection", obj)
     dict   := verifyLibType(ns, sys, "Dict",     coll)
     list   := verifyLibType(ns, sys, "List",     coll)
+    grid   := verifyLibType(ns, sys, "Grid",     coll)
     spec   := verifyLibType(ns, sys, "Spec",     dict)
     lib    := verifyLibType(ns, sys, "Lib",      dict)
     org    := verifyLibType(ns, sys, "LibOrg",   dict)
     and    := verifyLibType(ns, sys, "And",      obj)
     or     := verifyLibType(ns, sys, "Or",       obj)
+    iface  := verifyLibType(ns, sys, "Interface", dict)
+    file   := verifyLibType(ns, sys, "File",     iface)
 
     // types
     verifyEq(sys.types.isEmpty, false)
@@ -153,6 +156,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ref.isRef, true)
     verifyEq(mref.isRef, false)
     verifyEq(mref.isMultiRef, true)
+    verifyEq(file.isFile, true)
 
     // meta specs
     verifyMeta(ns, sys, "doc", str)
@@ -1077,8 +1081,8 @@ class NamespaceTest : AbstractXetoTest
   private Void verifyFileSpec(Namespace ns, Str ext, Str qname)
   {
     spec := ns.specForFileExt(ext)
-    // echo(">>> $ext => $spec")
     verifyEq(spec.qname, qname)
+    verifyEq(spec.isFile, true)
     verifySame(ns.specForFileExt(ext.upper), spec)
   }
 

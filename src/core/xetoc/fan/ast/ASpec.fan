@@ -313,6 +313,7 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   override Bool isDict()      { hasFlag(MSpecFlags.dict) }
   override Bool isList()      { hasFlag(MSpecFlags.list) }
   override Bool isGrid()      { hasFlag(MSpecFlags.grid) }
+  override Bool isFile()      { hasFlag(MSpecFlags.file) }
   override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
   override Bool isQuery()     { hasFlag(MSpecFlags.query) }
   override Bool isFunc()      { hasFlag(MSpecFlags.func) }

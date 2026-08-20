@@ -150,6 +150,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(m.isDict,      x.isDict)
     verifyEq(m.isList,      x.isList)
     verifyEq(m.isGrid,      x.isGrid)
+    verifyEq(m.isFile,      x.isFile)
     verifyEq(m.isQuery,     x.isQuery)
     verifyEq(m.isInterface, x.isInterface)
     verifyEq(m.isComp,      x.isComp)
