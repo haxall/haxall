@@ -19,6 +19,8 @@ class ApiDispatchV4 : ApiDispatch
 {
   new make(ApiPipeline p) : super(p) {}
 
+  override ApiVersion version() { ApiVersion.v4 }
+
 //////////////////////////////////////////////////////////////////////////
 // Read Request
 //////////////////////////////////////////////////////////////////////////
@@ -36,7 +38,7 @@ class ApiDispatchV4 : ApiDispatch
         val = valStr
       tags[key] = val
     }
-    return toArgs(Etc.makeMapGrid(null, tags))
+    return mapGridArgs(Etc.makeMapGrid(null, tags), takesReqGrid)
   }
 
   override Obj?[] readReqPost()
@@ -44,30 +46,8 @@ class ApiDispatchV4 : ApiDispatch
     // file typed params are a version 5 feature
     if (ApiUtil.fileParam(func) != null) throw ApiErr(400, "InvalidArgsErr", "File param op requires API version 5: $func.name")
 
-    // resolve filetype per v4 rules: bare application/json is hayson
-    mime := reqMime
-    filetype := Filetype.apiMime(mime, ApiVersion.v4)
-    if (filetype == null || !filetype.canRead) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
-
-    return toArgs(readReqGrid(filetype))
-  }
-
-  ** Map the version 4 request grid onto the function args.  An op which
-  ** still takes the legacy envelope gets the grid whole; one which has
-  ** modeled its params has its args read from the first row's cells by name.
-  **
-  ** A cell which matches no param is ignored rather than rejected: a v4
-  ** client may send extra columns, and callers do (Api4Test posts a 'ts'
-  ** column to eval).  A param with no cell falls back to its default.
-  **
-  ** Note only the first row is read, so a multi-row grid posted to a modeled
-  ** op drops rows 2..n.  Every modeled op today is inherently single-row; an
-  ** op which needs the other rows must keep its 'req' param.
-  private Obj?[] toArgs(Grid grid)
-  {
-    if (takesReqGrid) return Obj?[grid]
-    row := grid.first
-    return mapArgs |p->Obj?| { row?.get(p.name) }
+    // every v4 post body is a grid; bare application/json is hayson
+    return mapGridArgs(readReqGrid(reqFiletype), takesReqGrid)
   }
 
   ** Does this op take the whole version 4 request grid as its single
@@ -125,13 +105,9 @@ class ApiDispatchV4 : ApiDispatch
 
   override Void writeResVal(Obj? result)
   {
-    // resolve filetype per v4 rules: the default is zinc and bare
-    // application/json is hayson
-    mime := acceptMimeType(req)
-    filetype := Filetype.apiMime(mime, ApiVersion.v4)
-    if (filetype == null || !filetype.canWrite) throw ApiErr.notAcceptableErrWriter(mime?.toStr ?: "")
-
-    writeResGrid(result, filetype)
+    // v4 answers every result as a grid; the Accept default is zinc
+    // and bare application/json is hayson
+    writeResGrid(acceptFiletype, result)
   }
 }
 

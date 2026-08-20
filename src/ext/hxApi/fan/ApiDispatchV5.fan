@@ -20,6 +20,8 @@ class ApiDispatchV5 : ApiDispatch
 {
   new make(ApiPipeline p) : super(p) {}
 
+  override ApiVersion version() { ApiVersion.v5 }
+
 //////////////////////////////////////////////////////////////////////////
 // Read Request
 //////////////////////////////////////////////////////////////////////////
@@ -62,22 +64,16 @@ class ApiDispatchV5 : ApiDispatch
     if (p != null) return [readReqFile(p)]
 
     // resolve filetype per v5 rules: bare application/json is jeto
-    mime := reqMime
-    filetype := Filetype.apiMime(mime, ApiVersion.v5)
-    if (filetype == null || !filetype.canRead) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
+    filetype := reqFiletype
 
-    // named args formats: jeto is the JSON object of named args and
-    // xeto is its xeto rendering
-    if (filetype.name == "jeto") return readReqJson
-    if (filetype.name == "xeto") return readReqXetoArgs(filetype)
+    // the xeto family carries one object whose members are the named
+    // args: jeto as the JSON object and xeto as its xeto rendering
+    if (filetype.isXetoIO)
+      return filetype.name == "jeto" ? readReqJson : readReqXetoArgs(filetype)
 
     // a haystack grid format reads a grid: a grid based op receives it
-    // whole, otherwise the first row's cells are the named args,
-    // exactly the v4 mapping
-    grid := readReqGrid(filetype)
-    if (ApiUtil.isOpGrid(func)) return [grid]
-    row := grid.first
-    return mapArgs |param->Obj?| { row?.get(param.name) }
+    // whole per opGrid, otherwise the first row demux exactly as v4
+    return mapGridArgs(readReqGrid(filetype), ApiUtil.isOpGrid(func))
   }
 
   ** The json post body is a JSON object whose members are the named args.
@@ -128,7 +124,7 @@ class ApiDispatchV5 : ApiDispatch
         args = val as Dict ?: throw Err("Expecting Xeto dict of args, not ${val?.typeof}")
       }
       catch (Err e)
-        throw ApiErr.invalidArgsErr(filetype.mime.toStr, e)
+        throw ApiErr.invalidArgsErr(filetype.name, e)
     }
     return mapArgs |p->Obj?| { coerceXetoArg(p, args[p.name]) }
   }
@@ -196,36 +192,18 @@ class ApiDispatchV5 : ApiDispatch
   ** regardless of version.
   override Void writeResVal(Obj? result)
   {
-    // resolve filetype per v5 rules: the default and bare
-    // application/json are jeto
-    mime := acceptMimeType(req)
-    filetype := Filetype.apiMime(mime, ApiVersion.v5)
-    if (filetype == null || !filetype.canWrite) throw ApiErr.notAcceptableErrWriter(mime?.toStr ?: "")
+    // resolve filetype per v5 rules: jeto is default and bare application/json
+    filetype := acceptFiletype
 
-    res.headers["Xeto-Version"] = ApiVersion.v5.token
+    // always include version header
+    res.headers["Xeto-Version"] = version.token
 
     // the xeto family answers the bare result value with no envelope;
-    // the mimeRes serves jeto as plain application/json
-    if (filetype.isXetoIO) return writeResXeto(filetype, result)
-
-    writeResGrid(result, filetype)
-  }
-
-  ** Encode the result as the bare value in the xeto family format; a
-  ** null result is an empty body for xeto which has no null literal
-  private Void writeResXeto(Filetype filetype, Obj? result)
-  {
-    gzip := acceptGzip(req)
-
-    res.statusCode = 200
-    res.headers["Content-Type"] = filetype.mimeRes.toStr
-    res.headers["Cache-Control"] = "no-cache, no-store"
-    if (gzip) res.headers["Content-Encoding"] = "gzip"
-
-    OutStream out := res.out
-    if (gzip) out = Zip.gzipOutStream(out)
-    filetype.apiEncode(cx.ns, out, result)
-    out.close
+    // everything else is enveloped as a grid
+    if (filetype.isXetoIO)
+      writeResBody(filetype, result)
+    else
+      writeResGrid(filetype, result)
   }
 
 }

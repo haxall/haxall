@@ -17,10 +17,14 @@ using web
 **
 abstract class ApiDispatch
 {
+
   new make(ApiPipeline p) { this.p = p }
 
+  ** Protocol version this dispatcher implements
+  abstract ApiVersion version()
+
 //////////////////////////////////////////////////////////////////////////
-// Read/Write Hooks
+// Read Request
 //////////////////////////////////////////////////////////////////////////
 
   ** Verify the request method is allowed for this op.  This is separate
@@ -52,14 +56,6 @@ abstract class ApiDispatch
   ** Read the request to function args from post body
   abstract Obj?[] readReqPost()
 
-  ** Request Content-Type or raise 415 if missing
-  MimeType reqMime()
-  {
-    mime := MimeType(req.headers["Content-Type"] ?: "", false)
-    if (mime == null) throw ApiErr.unsupportedMediaTypeErrMissing
-    return mime
-  }
-
   ** Read the POST body as a grid using the resolved filetype.
   ** Raise 400 when the body cannot parse.
   Grid readReqGrid(Filetype filetype)
@@ -70,36 +66,21 @@ abstract class ApiDispatch
       throw ApiErr.invalidArgsErr(filetype.name, e)
   }
 
-  ** Write the result as a grid using the resolved filetype
-  Void writeResGrid(Obj? result, Filetype filetype)
-  {
-    // both protocol versions envelope filetype responses as a grid
-    grid := result == null ? Etc.emptyGrid : Etc.toGrid(result)
-
-    // accept-encoding
-    gzip := acceptGzip(req)
-
-    // standard headers
-    res.statusCode = 200
-    res.headers["Content-Type"] = filetype.mimeRes.toStr
-    res.headers["Cache-Control"] = "no-cache, no-store"
-    if (gzip) res.headers["Content-Encoding"] = "gzip"
-
-    // write result
-    OutStream out := res.out
-    if (gzip) out = Zip.gzipOutStream(out)
-    filetype.apiEncode(cx.ns, out, grid)
-    out.close
-  }
-
   ** Temp file the post body was spooled into for a file param, or null.
   ** The pipeline deletes it after dispatch, so the op func must consume
   ** the file before it returns.
-  @NoDoc File? uploadFile
+  internal File? uploadFile
 
   ** Delete the spooled upload if any; failures are swallowed since a
   ** temp file leak must never mask the real response
-  @NoDoc Void cleanup() { try { uploadFile?.delete } catch {} }
+  internal Void cleanup() { try { uploadFile?.delete } catch {} }
+
+//////////////////////////////////////////////////////////////////////////
+// Call
+//////////////////////////////////////////////////////////////////////////
+
+  ** Invoke the operation function with given args and return result
+  virtual Obj? call(Obj?[] args) { p.call(args) }
 
   ** Map named args onto the positional list the thunk expects.  The given
   ** function decodes one arg by param, or returns null if the request had
@@ -124,8 +105,48 @@ abstract class ApiDispatch
     }
   }
 
-  ** Invalid the operation function with given args and return result
-  virtual Obj? call(Obj?[] args) { p.call(args) }
+  ** Map a request grid onto the function args.  When 'whole' the grid
+  ** itself is the single argument; otherwise the first row's cells are
+  ** the named args.  A cell which matches no param is ignored rather
+  ** than rejected - clients may send extra columns; a param with no
+  ** cell falls back to its default.  Note only the first row is read:
+  ** an op which needs the other rows must take the grid whole.
+  Obj?[] mapGridArgs(Grid grid, Bool whole)
+  {
+    if (whole) return Obj?[grid]
+    row := grid.first
+    return mapArgs |p->Obj?| { row?.get(p.name) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Response
+//////////////////////////////////////////////////////////////////////////
+
+  ** Write the result enveloped as a grid, which is how both protocol
+  ** versions answer the grid based filetypes
+  Void writeResGrid(Filetype filetype, Obj? result)
+  {
+    writeResBody(filetype, result == null ? Etc.emptyGrid : Etc.toGrid(result))
+  }
+
+  ** Write the response body: status code, headers, and gzip plumbing
+  ** around the filetype encoder
+  Void writeResBody(Filetype filetype, Obj? val)
+  {
+    gzip := acceptGzip
+
+    // standard headers
+    res.statusCode = 200
+    res.headers["Content-Type"] = filetype.mimeRes.toStr
+    res.headers["Cache-Control"] = "no-cache, no-store"
+    if (gzip) res.headers["Content-Encoding"] = "gzip"
+
+    // write result
+    OutStream out := res.out
+    if (gzip) out = Zip.gzipOutStream(out)
+    filetype.apiEncode(cx.ns, out, val)
+    out.close
+  }
 
   ** Write the result to the response body.  A file result is served as a
   ** download regardless of protocol version; anything else is encoded by
@@ -160,9 +181,36 @@ abstract class ApiDispatch
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return the Accept mime type, or null when no preference is given
-  ** so that `Filetype.apiMime` supplies the version default
-  MimeType? acceptMimeType(WebReq req)
+  ** Resolve the request Content-Type filetype or raise 415 ApiErr
+  Filetype reqFiletype()
+  {
+    mime := reqMime
+    filetype := Filetype.apiMime(mime, version)
+    if (filetype == null || !filetype.canRead) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
+    return filetype
+  }
+
+  ** Request Content-Type or raise 415 ApiErr if missing
+  private MimeType reqMime()
+  {
+    mime := MimeType(req.headers["Content-Type"] ?: "", false)
+    if (mime == null) throw ApiErr.unsupportedMediaTypeErrMissing
+    return mime
+  }
+
+  ** Resolve the Accept header filetype or raise 406 ApiErr
+  Filetype acceptFiletype()
+  {
+    mime := acceptMimeType
+    filetype := Filetype.apiMime(mime, version)
+    if (filetype == null || !filetype.canWrite) throw ApiErr.notAcceptableErrWriter(mime?.toStr ?: "")
+    return filetype
+  }
+
+  ** Return the Accept mime type, or null when no preference is
+  ** given so that `Filetype.apiMime` supplies the version default.
+  ** Raise 406 ApiErr for invalid accepts.
+  private MimeType? acceptMimeType()
   {
     // check for filetype in query string for easy testing
     queryFiletype := req.uri.query["xeto-filetype"]
@@ -183,7 +231,7 @@ abstract class ApiDispatch
   }
 
   ** Does the request accept gzip
-  static Bool acceptGzip(WebReq req)
+  Bool acceptGzip()
   {
     (req.headers["Accept-Encoding"] ?: "").contains("gzip")
   }
