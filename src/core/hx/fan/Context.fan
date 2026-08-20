@@ -143,7 +143,7 @@ class Context : AxonContext, FolioContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Web request being serviced by this thread.  This is available to API
-  ** functions which service the HTTP request themselves; see the `opWeb`
+  ** functions which service the HTTP request themselves; see the `opWebReq`
   ** marker.  Raise ContextUnavailableErr or return null based on checked
   ** flag if this thread is not servicing a web request.
   @NoDoc WebReq? webReq(Bool checked := true)

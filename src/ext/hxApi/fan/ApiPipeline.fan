@@ -190,11 +190,8 @@ class ApiPipeline
     func = doResolveOpFunc(opName)
 
     // determine if function handles it own request and/or responses
-    if (func.meta.has("opWeb"))
-    {
-      funcOwnsReq = func.func.params.isEmpty
-      funcOwnsRes = func.func.returns.type.isNone
-    }
+    funcOwnsReq = func.meta.has("opWebReq")
+    funcOwnsRes = func.meta.has("opWebRes")
   }
 
   ** Lookup opName and check for ambiguous matches
@@ -223,13 +220,11 @@ class ApiPipeline
 // Dispatch
 //////////////////////////////////////////////////////////////////////////
 
-  ** Dispatch to the op function.  An '<opWeb>' func services part or all of
-  ** the request itself, and its signature says which part: no params means it
-  ** decodes the request, and a 'None' return means it writes the response.
-  ** The signature is the single source of truth here because v5 reads the
-  ** same params/returns to build its JSON encoding and OpenAPI schema.
+  ** Dispatch to the op function.  A raw web func services part or all of
+  ** the request itself: '<opWebReq>' reads the web request and owns the
+  ** method rules, '<opWebRes>' writes the web response.
   **
-  ** Note a func returning a file is not opWeb at all: it returns the file
+  ** Note a func returning a file is not opWebRes: it returns the file
   ** and `ApiDispatch.writeResFile` serves it as a download.
   private Void dispatch()
   {

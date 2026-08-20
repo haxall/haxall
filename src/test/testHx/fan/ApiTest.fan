@@ -696,18 +696,23 @@ abstract class ApiTest : HxTest
     verifyPermissionErr { this.callGridOp(this.a, "hisWrite", Etc.makeDictsGrid(["id":ptA.id.noDis], items)) }
   }
 
-  ** Both funcs resolve to hx.api, carry opWeb, and take no parameters
+  ** Both funcs resolve to hx.api, carry opWebReq, and take no parameters
   private Void verifyOpWebSpecs()
   {
     cx := makeContext(null)
     ["ext", "file"].each |n|
     {
-      f := cx.ns.funcs.getAll(n).find |x| { x.meta.has("opWeb") }
+      f := cx.ns.funcs.getAll(n).find |x| { x.meta.has("opWebReq") }
       verifyNotNull(f, n)
       verifyEq(f.qname, "hx.api::Funcs.${n}")
       verifyEq(f.func.params.size, 0)
       verifyEq(f.meta.has("op"), true)
     }
+
+    // ext writes its own response, file returns its result
+    verifyEq(cx.ns.funcs.get("ext").meta.has("opWebRes"), true)
+    verifyEq(cx.ns.funcs.get("file").meta.has("opWebRes"), false)
+    verifyEq(cx.ns.funcs.get("openapi").meta.has("opWebRes"), true)
   }
 
   ** GET downloads via FileWeblet; POST/PUT routes to the ext upload handler

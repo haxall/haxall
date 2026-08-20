@@ -109,7 +109,7 @@ class ApiDispatchV4 : ApiDispatch
   ** Will this op's response body be a grid we encode?  Note a func may
   ** declare 'returns: None' and still get a grid: sys.api::close answers
   ** the empty grid.  What matters is whether the func writes the response
-  ** itself, which is the pipeline's opWeb reading of the signature.
+  ** itself, which is the '<opWebRes>' marker.
   private Bool writesGrid()
   {
     !pipeline.funcOwnsRes && !func.func.returns.type.isa(fileSpec)

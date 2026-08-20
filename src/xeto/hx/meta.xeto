@@ -18,11 +18,15 @@
   // Tags used for 3.1 det meta including rule ready and action UI
   defMeta: Dict?
 
-  // Marks an `op` which services part or all of the HTTP request itself
-  // instead of using the standard request/response handling.  The function
-  // signature declares which part: no parameters means it reads the web
-  // request itself, and a 'None' return means it writes the web response
-  // itself.  Such functions are not callable outside of an HTTP request.
-  opWeb: Marker? <nodoc>
+  // Marks an `op` which reads the raw HTTP request itself instead of the
+  // standard argument decoding.  The method rules are also delegated: the
+  // op accepts any HTTP method rather than the GET/POST contract.  Such
+  // functions are not callable outside of an HTTP request.
+  opWebReq: Marker? <nodoc>
+
+  // Marks an `op` which writes the raw HTTP response itself instead of
+  // the standard result encoding.  Such functions are not callable outside
+  // of an HTTP request.
+  opWebRes: Marker? <nodoc>
 }
 
