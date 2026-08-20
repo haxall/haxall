@@ -38,8 +38,11 @@ const mixin User
   ** Does this user have admin permissions
   abstract Bool isAdmin()
 
+  ** Does this user have an associated email address
+  abstract Bool hasEmail()
+
   ** Email address if configured
-  abstract Str? email()
+  abstract Str? email(Bool checked := true)
 
   ** User timezone
   @NoDoc abstract TimeZone tz()

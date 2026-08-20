@@ -20,10 +20,10 @@ const class HxUser : User
   new make(Dict meta)
   {
     this.meta     = meta
-    this.id       = meta.id
+    this.idRef    = meta.id
     this.username = meta->username
-    this.dis      = meta["dis"] ?: username
-    this.email    = meta["email"] as Str
+    this.disRef   = meta["dis"] ?: username
+    this.emailRef = meta["email"] as Str
     this.mod      = meta->mod
     this.tz       = TimeZone.fromStr(meta["tz"] as Str ?: "", false) ?: TimeZone.cur
 
@@ -35,13 +35,31 @@ const class HxUser : User
   }
 
   override const Str username
+
   override const Dict meta
-  override const Ref id
-  override const Str dis
+
+  override Ref id() { idRef }
+  const Ref idRef
+
   override const Bool isSu
+
   override const Bool isAdmin
-  override const Str? email
+
+  override Str dis() { disRef }
+  const Str disRef
+
+  override Bool hasEmail() { emailRef != null }
+
+  override Str? email(Bool checked := true)
+  {
+    if (emailRef != null) return emailRef
+    if (checked) throw UnknownNameErr("User missing email address: $username")
+    return null
+  }
+  const Str? emailRef
+
   override const TimeZone tz
+
   override const DateTime mod
 
   override Str toStr() { username }
