@@ -266,7 +266,7 @@ internal class GenEdits : Step
     lines := t.file.lines
     t.slots.each |s|
     {
-      x := t.spec.slotOwn(toXetoName(t, s.name), false)
+      x := t.spec.slotOwn(toXetoName(s.name), false)
       if (x != null && !isSkipped(t, x)) return
       start := s.lines.start
       endEx := s.lines.end + 1
@@ -296,8 +296,8 @@ internal class GenEdits : Step
     return t.kind.isComp ? compSig(t, x, existing) : dictSig(t, x, existing)
   }
 
-  ** Optional markers generate a has check rather than a getter
-  ** since presence is the only information they carry
+  ** Optional markers generate a Bool has check under the marker's
+  ** own name since presence is the only information they carry
   private Str markerSig(AType t, Spec x, ASlot? existing)
   {
     s := StrBuf()
@@ -413,27 +413,14 @@ internal class GenEdits : Step
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Map xeto slot name to Fantom slot name.  Optional markers
-  ** are generated as a 'hasFoo' presence check.
-  private Str toFanName(Spec x)
-  {
-    x.type.isMarker ? "has" + x.name.capitalize : toFanBaseName(x.name)
-  }
+  ** Map xeto slot name to Fantom slot name
+  private Str toFanName(Spec x) { toFanBaseName(x.name) }
 
-  ** Map xeto slot name to Fantom slot name ignoring marker naming
+  ** Map xeto slot name to Fantom slot name
   private Str toFanBaseName(Str n) { n == "readonly" ? "ro" : n }
 
-  ** Map Fantom slot name to xeto slot name; try the marker
-  ** 'hasFoo' shape first then fall back to the plain name
-  private Str toXetoName(AType t, Str n)
-  {
-    if (n.startsWith("has") && n.size > 3)
-    {
-      m := n[3].lower.toChar + n[4..-1]
-      if (t.spec.slotOwn(m, false)?.type?.isMarker == true) return m
-    }
-    return n == "ro" ? "readonly" : n
-  }
+  ** Map Fantom slot name to xeto slot name
+  private Str toXetoName(Str n) { n == "ro" ? "readonly" : n }
 
   ** Spec doc formatted as fandoc comment lines with given indent.
   ** Type level indent zero wraps with leading/trailing bare ** lines.

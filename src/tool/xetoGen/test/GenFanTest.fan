@@ -241,7 +241,7 @@ class GenFanTest : Test
   }
 
   ** Required markers are never generated since they are always
-  ** present; optional markers generate a hasFoo presence check
+  ** present; optional markers generate a Bool has check
   Void testMarker()
   {
     xeto := [
@@ -271,7 +271,7 @@ class GenFanTest : Test
       "const class TestMarker : WrapDict",
       "{",
       "  ** Optional marker",
-      "  @Gen virtual Bool hasCold() { has(\"cold\") }",
+      "  @Gen virtual Bool cold() { has(\"cold\") }",
       "",
       "  ** Not a marker",
       "  @Gen virtual Str dis() { get(\"dis\") }",
@@ -288,7 +288,7 @@ class GenFanTest : Test
       "  @Gen virtual Marker hot() { get(\"hot\") }",
       "",
       "  ** Optional marker",
-      "  @Gen virtual Bool hasCold() { has(\"cold\") }",
+      "  @Gen virtual Bool cold() { has(\"cold\") }",
       "",
       "  ** Not a marker",
       "  @Gen virtual Str dis() { get(\"dis\") }",
