@@ -164,7 +164,8 @@ const class SysApiFuncs
   private static const Ref opInfoRef := Ref("sys.api::OpInfo")
 
   ** List the libraries composing the server's namespace, one row per
-  ** lib sorted by name; see `LibInfo` for the columns.
+  ** lib sorted by name; see [LibInfo] for the columns.  These are the
+  ** libs a client resolves to mirror the namespace locally.
   @Api @Axon
   static Grid libs()
   {
@@ -182,8 +183,11 @@ const class SysApiFuncs
   private static const Ref libInfoRef := Ref("sys.api::LibInfo")
 
   ** List the filetypes available for content negotiation, one row per
-  ** format sorted by name; see `FiletypeInfo` for the columns.  Includes
-  ** deprecated formats such as jsonV3 which are still served.
+  ** format sorted by name; see [FiletypeInfo] for the columns and
+  ** [doc.xeto::HttpApi#filetypes] for how a format is selected.
+  **
+  ** Clients written against an older protocol version receive the
+  ** legacy def format instead.
   @Api @Axon
   static Grid filetypes()
   {

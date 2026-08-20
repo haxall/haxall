@@ -240,6 +240,112 @@ class GenFanTest : Test
     verifyEq(genTemp(xeto, src), expect)
   }
 
+  ** Required markers are never generated since they are always
+  ** present; optional markers generate a hasFoo presence check
+  Void testMarker()
+  {
+    xeto := [
+      "// Marker config for testing",
+      "TestMarker: Dict {",
+      "  // Required marker",
+      "  hot: Marker",
+      "",
+      "  // Optional marker",
+      "  cold: Marker?",
+      "",
+      "  // Not a marker",
+      "  dis: Str",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "const class TestMarker : WrapDict",
+      "{",
+      "}",
+      ].join("\n")
+    expect := [
+      "**",
+      "** Marker config for testing",
+      "**",
+      "@Gen",
+      "const class TestMarker : WrapDict",
+      "{",
+      "  ** Optional marker",
+      "  @Gen virtual Bool hasCold() { has(\"cold\") }",
+      "",
+      "  ** Not a marker",
+      "  @Gen virtual Str dis() { get(\"dis\") }",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+
+    // required marker getters are removed, optional ones retyped
+    stale := [
+      "@Gen",
+      "const class TestMarker : WrapDict",
+      "{",
+      "  ** Required marker",
+      "  @Gen virtual Marker hot() { get(\"hot\") }",
+      "",
+      "  ** Optional marker",
+      "  @Gen virtual Bool hasCold() { has(\"cold\") }",
+      "",
+      "  ** Not a marker",
+      "  @Gen virtual Str dis() { get(\"dis\") }",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, stale), expect)
+  }
+
+  ** Const field slots keep their implementation; only the
+  ** return type and docs are regenerated
+  Void testField()
+  {
+    xeto := [
+      "// Field config for testing",
+      "TestField: Dict {",
+      "  // Display name",
+      "  dis: Str",
+      "",
+      "  // Optional icon",
+      "  icon: Str?",
+      "",
+      "  // Count of things",
+      "  count: Number",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "const class TestField : WrapDict",
+      "{",
+      "  ** stale doc",
+      "  @Gen const Str dis",
+      "",
+      "  @Gen const Ref icon",
+      "",
+      "  @Gen const Str count := 7",
+      "}",
+      ].join("\n")
+    expect := [
+      "**",
+      "** Field config for testing",
+      "**",
+      "@Gen",
+      "const class TestField : WrapDict",
+      "{",
+      "  ** Display name",
+      "  @Gen const Str dis",
+      "",
+      "  ** Optional icon",
+      "  @Gen const Str? icon",
+      "",
+      "  ** Count of things",
+      "  @Gen const Number count := 7",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
   ** Funcs mode aligns @Api methods: docs synced, params verified
   Void testFuncs()
   {

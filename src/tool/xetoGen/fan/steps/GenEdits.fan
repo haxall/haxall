@@ -206,11 +206,11 @@ internal class GenEdits : Step
     t.spec.slotsOwn.each |x|
     {
       if (isSkipped(t, x)) return
-      existing := t.slots.find |s| { s.name == toFanName(x.name) }
+      existing := t.slots.find |s| { s.name == toFanName(x) }
       lines := genUnit(t, x, existing)
       if (existing != null)
         edit(t, existing.lines.start, existing.lines.end+1, lines)
-      else if (!t.handSlots.contains(toFanName(x.name)))
+      else if (!t.handSlots.contains(toFanName(x)))
         inserts.add(lines)  // never insert over a hand-written slot
     }
     genInserts(t, inserts)
@@ -223,6 +223,10 @@ internal class GenEdits : Step
   ** Getter shapes emit legal covariant method overrides.
   private Bool isSkipped(AType t, Spec x)
   {
+    // a required marker is always present so it carries no
+    // information; an optional marker generates a has check
+    if (x.type.isMarker && !x.isMaybe) return true
+
     // func slots are behavior implemented by hand-written methods
     if (t.kind.isComp && x.isFunc) return true
     if (t.kind.isComp && !isGetterOnly(x) && XetoUtil.isCovariantOverride(x)) return true
@@ -254,15 +258,16 @@ internal class GenEdits : Step
     edit(t, at, at, acc)
   }
 
-  ** Remove slots which are no longer declared by the spec.
-  ** Swallow one adjacent blank line so surrounding slots are
-  ** left separated by a single blank line.
+  ** Remove slots which are no longer declared by the spec or
+  ** which are now skipped.  Swallow one adjacent blank line so
+  ** surrounding slots are left separated by a single blank line.
   private Void genDeletes(AType t)
   {
     lines := t.file.lines
     t.slots.each |s|
     {
-      if (t.spec.slotOwn(toXetoName(s.name), false) != null) return
+      x := t.spec.slotOwn(toXetoName(t, s.name), false)
+      if (x != null && !isSkipped(t, x)) return
       start := s.lines.start
       endEx := s.lines.end + 1
       if (start-1 > t.bodyOpen && lines[start-1].trim.isEmpty) start--
@@ -286,13 +291,50 @@ internal class GenEdits : Step
   ** Generate the slot signature line
   private Str sig(AType t, Spec x, ASlot? existing)
   {
-    t.kind.isComp ? compSig(t, x, existing) : dictSig(t, x, existing)
+    if (x.type.isMarker) return markerSig(t, x, existing)
+    if (existing != null && existing.isField) return fieldSig(t, x, existing)
+    return t.kind.isComp ? compSig(t, x, existing) : dictSig(t, x, existing)
+  }
+
+  ** Optional markers generate a has check rather than a getter
+  ** since presence is the only information they carry
+  private Str markerSig(AType t, Spec x, ASlot? existing)
+  {
+    s := StrBuf()
+    if (x.has("nodoc")) s.add("@NoDoc ")
+    s.add("@Gen ")
+    if (t.flags.isMixin && existing?.hasBody != true)
+    {
+      s.add("abstract ")
+      if (isOverride(t, x, existing)) s.add("override ")
+      s.add("Bool ").add(toFanName(x)).add("()")
+    }
+    else
+    {
+      s.add(isOverride(t, x, existing) ? "override " : "virtual ")
+      s.add("Bool ").add(toFanName(x))
+      s.add("() { has(").add(x.name.toCode).add(") }")
+    }
+    return s.toStr
+  }
+
+  ** The author owns a field's implementation, so only retype it
+  ** in place leaving modifiers, name, and any initializer alone
+  private Str fieldSig(AType t, Spec x, ASlot existing)
+  {
+    line := t.file.lines[existing.lines.end].trim
+    i := line.index(toFanName(x))
+    if (i == null) return line
+    prefix := line[0..<i]
+    j := prefix.trimEnd.indexr(" ")
+    if (j == null) return line
+    return prefix[0..j] + typeSig(x) + line[i-1..-1]
   }
 
   ** Comp slots are fields backed by the comp get/set methods
   private Str compSig(AType t, Spec x, ASlot? existing)
   {
-    n := toFanName(x.name)
+    n := toFanName(x)
     s := StrBuf()
     if (x.has("nodoc")) s.add("@NoDoc ")
     s.add("@Gen ").add(isOverride(t, x, existing) ? "override" : "virtual")
@@ -319,12 +361,12 @@ internal class GenEdits : Step
     {
       s.add("abstract ")
       if (isOverride(t, x, existing)) s.add("override ")
-      s.add(typeSig(x)).add(" ").add(toFanName(x.name)).add("()")
+      s.add(typeSig(x)).add(" ").add(toFanName(x)).add("()")
     }
     else
     {
       s.add(isOverride(t, x, existing) ? "override " : "virtual ")
-      s.add(typeSig(x)).add(" ").add(toFanName(x.name))
+      s.add(typeSig(x)).add(" ").add(toFanName(x))
       s.add("() { get(").add(x.name.toCode).add(") }")
     }
     return s.toStr
@@ -371,11 +413,27 @@ internal class GenEdits : Step
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Map xeto slot name to Fantom slot name
-  private Str toFanName(Str n) { n == "readonly" ? "ro" : n }
+  ** Map xeto slot name to Fantom slot name.  Optional markers
+  ** are generated as a 'hasFoo' presence check.
+  private Str toFanName(Spec x)
+  {
+    x.type.isMarker ? "has" + x.name.capitalize : toFanBaseName(x.name)
+  }
 
-  ** Map Fantom slot name to xeto slot name
-  private Str toXetoName(Str n) { n == "ro" ? "readonly" : n }
+  ** Map xeto slot name to Fantom slot name ignoring marker naming
+  private Str toFanBaseName(Str n) { n == "readonly" ? "ro" : n }
+
+  ** Map Fantom slot name to xeto slot name; try the marker
+  ** 'hasFoo' shape first then fall back to the plain name
+  private Str toXetoName(AType t, Str n)
+  {
+    if (n.startsWith("has") && n.size > 3)
+    {
+      m := n[3].lower.toChar + n[4..-1]
+      if (t.spec.slotOwn(m, false)?.type?.isMarker == true) return m
+    }
+    return n == "ro" ? "readonly" : n
+  }
 
   ** Spec doc formatted as fandoc comment lines with given indent.
   ** Type level indent zero wraps with leading/trailing bare ** lines.

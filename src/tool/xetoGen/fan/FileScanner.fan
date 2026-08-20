@@ -270,6 +270,7 @@ internal class FileScanner
     }
     slot := ASlot(slotName, slotFlags, toGen(tag), docRange, start..end, bodyStart)
     slot.paramCount = paramCount
+    slot.isField = methodName == null
     slots.add(slot)
     clearPending
   }
