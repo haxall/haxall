@@ -61,7 +61,7 @@ internal abstract class GenGrid : DefCompilerStep
 
   private Void writeGrid(Grid grid, Filetype filetype, OutStream out)
   {
-    filetype.writer(out).writeGrid(grid)
+    filetype.gridWriter(out).writeGrid(grid)
     out.close
   }
 }

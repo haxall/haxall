@@ -44,7 +44,12 @@ class ApiDispatchV4 : ApiDispatch
     // file typed params are a version 5 feature
     if (ApiUtil.fileParam(func) != null) throw ApiErr(400, "InvalidArgsErr", "File param op requires API version 5: $func.name")
 
-    return toArgs(readReqGrid(reqMime))
+    // resolve filetype per v4 rules: bare application/json is hayson
+    mime := reqMime
+    filetype := Filetype.apiMime(mime, ApiVersion.v4)
+    if (filetype == null || !filetype.canRead) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
+
+    return toArgs(readReqGrid(filetype))
   }
 
   ** Map the version 4 request grid onto the function args.  An op which
@@ -120,11 +125,13 @@ class ApiDispatchV4 : ApiDispatch
 
   override Void writeResVal(Obj? result)
   {
-    // parse Accept header to find requested mime type
-    mime := acceptMimeType(req, ApiUtil.mimeZinc)
-    if (mime == null) throw ApiErr.notAcceptableErrHeader
+    // resolve filetype per v4 rules: the default is zinc and bare
+    // application/json is hayson
+    mime := acceptMimeType(req)
+    filetype := Filetype.apiMime(mime, ApiVersion.v4)
+    if (filetype == null || !filetype.canWrite) throw ApiErr.notAcceptableErrWriter(mime?.toStr ?: "")
 
-    writeResGrid(result, mime)
+    writeResGrid(result, filetype)
   }
 }
 

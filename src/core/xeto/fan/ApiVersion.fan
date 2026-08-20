@@ -43,5 +43,11 @@ enum class ApiVersion
     if (checked) throw ParseErr("ApiVersion: $token")
     return null
   }
+
+  ** Is the v4 constant
+  Bool isV4() { this === v4 }
+
+  ** Is the v5 constant
+  Bool isV5() { this === v5 }
 }
 

@@ -90,7 +90,7 @@ internal class ApiDispatchV4Defs : ApiDispatchV4Op
     opts := req.first as Dict ?: Etc.dict0
     limit := (opts["limit"] as Number)?.toInt ?: Int.maxVal
     filter := Filter.fromStr(opts["filter"] as Str ?: "", false)
-    acc := Def[,]
+    acc := Dict[,]
     incomplete := false
     eachDef(cx) |def|
     {
@@ -102,7 +102,7 @@ internal class ApiDispatchV4Defs : ApiDispatchV4Op
     return Etc.makeDictsGrid(meta, acc)
   }
 
-  virtual Void eachDef(Context cx, |Def| f) { cx.defs.eachDef(f) }
+  virtual Void eachDef(Context cx, |Dict| f) { cx.defs.eachDef(f) }
 }
 
 **************************************************************************
@@ -113,7 +113,24 @@ internal class ApiDispatchV4Filetypes : ApiDispatchV4Defs
 {
   new make(ApiPipeline p) : super(p) {}
 
-  override Void eachDef(Context cx, |Def| f) { cx.defs.feature("filetype").eachDef(f) }
+  ** Synthesize the def shaped rows from the Filetype registry, the
+  ** system of record; the def namespace is no longer consulted
+  override Void eachDef(Context cx, |Dict| f)
+  {
+    Filetype.list.each |ft|
+    {
+      acc := Str:Obj[:] { ordered = true }
+      acc["def"] = Symbol("filetype:$ft.name")
+      acc["filetype"] = Marker.val
+      acc["dis"] = ft.dis
+      acc["mime"] = ft.mime.toStr
+      acc["fileExt"] = ft.fileExt
+      acc["icon"] = ft.icon3
+      doc := cx.ns.spec(ft.spec, false)?.meta?.get("doc") as Str
+      if (doc != null) acc["doc"] = Etc.firstSentence(doc)
+      f(Etc.dictFromMap(acc))
+    }
+  }
 }
 
 **************************************************************************
@@ -124,7 +141,7 @@ internal class ApiDispatchV4Libs: ApiDispatchV4Defs
 {
   new make(ApiPipeline p) : super(p) {}
 
-  override Void eachDef(Context cx, |Def| f) { cx.defs.libsList.each(f) }
+  override Void eachDef(Context cx, |Dict| f) { cx.defs.libsList.each(f) }
 }
 
 **************************************************************************
@@ -135,7 +152,7 @@ internal class ApiDispatchV4Ops: ApiDispatchV4Defs
 {
   new make(ApiPipeline p) : super(p) {}
 
-  override Void eachDef(Context cx, |Def| f) { cx.defs.feature("op").eachDef(f) }
+  override Void eachDef(Context cx, |Dict| f) { cx.defs.feature("op").eachDef(f) }
 }
 
 **************************************************************************

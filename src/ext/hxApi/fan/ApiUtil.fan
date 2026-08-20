@@ -18,14 +18,6 @@ internal const class ApiUtil
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Constants
-//////////////////////////////////////////////////////////////////////////
-
-  static const MimeType mimeZinc := MimeType("text/zinc; charset=utf-8")
-
-  static const MimeType jsonMime := MimeType("application/json")
-
-//////////////////////////////////////////////////////////////////////////
 // Func Spec Checks
 //////////////////////////////////////////////////////////////////////////
 
@@ -59,31 +51,6 @@ internal const class ApiUtil
   static Spec? fileParam(Spec func)
   {
     func.func.isFileParam ? func.func.params.first : null
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Mime Checks
-//////////////////////////////////////////////////////////////////////////
-
-  ** Is the mime type bare application/json, which each protocol version
-  ** binds to its own codec: the haystack codec in v4, the xeto codec in v5
-  static Bool isJsonMime(MimeType mime)
-  {
-    mime.mediaType == "application" && mime.subType == "json"
-  }
-
-  ** Is the filetype the xeto family, which encodes any value through
-  ** the namespace codec rather than a GridReader/GridWriter
-  static Bool isXetoFiletype(Filetype? filetype)
-  {
-    filetype != null && (filetype.name == "xeto" || filetype.name == "jeto")
-  }
-
-  ** Filetype reader/writer options; JSON v3 is only reachable via an
-  ** explicit ";version=3" mime param
-  static Dict ioOpts(MimeType mime)
-  {
-    mime.params["version"] == "3" ? Etc.dict1("v3", Marker.val) : Etc.dict0
   }
 
 //////////////////////////////////////////////////////////////////////////

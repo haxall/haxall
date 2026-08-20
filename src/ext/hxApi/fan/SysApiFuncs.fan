@@ -181,6 +181,26 @@ const class SysApiFuncs
 
   private static const Ref libInfoRef := Ref("sys.api::LibInfo")
 
+  ** List the filetypes available for content negotiation, one row per
+  ** format sorted by name; see `FiletypeInfo` for the columns.  Includes
+  ** deprecated formats such as jsonV3 which are still served.
+  @Api @Axon
+  static Grid filetypes()
+  {
+    gb := GridBuilder()
+    gb.setMeta(Etc.dict1("of", filetypeInfoRef))
+    gb.addCol("name").addCol("dis").addCol("mime").addCol("fileExt")
+      .addCol("fileSpec").addCol("canRead").addCol("canWrite").addCol("spec")
+    Filetype.list.each |f|
+    {
+      gb.addRow([f.name, f.dis, f.mime.toStr, f.fileExt, Ref(f.spec),
+                 f.canRead, f.canWrite, filetypeInfoRef])
+    }
+    return gb.toGrid
+  }
+
+  private static const Ref filetypeInfoRef := Ref("sys.api::FiletypeInfo")
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

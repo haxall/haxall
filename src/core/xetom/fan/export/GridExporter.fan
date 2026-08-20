@@ -38,7 +38,7 @@ class GridExporter : Exporter
   override This end()
   {
     grid := toGrid
-    filetype.writer(out, opts).writeGrid(grid)
+    filetype.gridWriter(out, opts).writeGrid(grid)
     return this
   }
 

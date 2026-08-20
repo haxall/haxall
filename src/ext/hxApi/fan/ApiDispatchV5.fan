@@ -49,27 +49,32 @@ class ApiDispatchV5 : ApiDispatch
     return JsonOutStream.writeJsonToStr(val)
   }
 
-  ** Read POST body args with the same content negotiation exchange as
-  ** version 4: the Content-Type selects the filetype reader.  The one
-  ** difference between versions is what application/json binds to - the
-  ** xeto codec here, the haystack codec in v4.  An op declaring a single
-  ** file typed param instead receives the raw body spooled to a temp
-  ** file, making upload the mirror of the file download in
-  ** `ApiDispatch.writeRes`.
+  ** Read POST body args.  The named args formats - bare json and the
+  ** xeto family - carry one object whose members are the named args; a
+  ** haystack grid format carries the request grid exactly as version 4
+  ** does.  An op declaring a single file typed param instead receives
+  ** the raw body spooled to a temp file, making upload the mirror of
+  ** the file download in `ApiDispatch.writeRes`.
   override Obj?[] readReqPost()
   {
     // a file typed param receives the post body itself
     p := ApiUtil.fileParam(func)
     if (p != null) return [readReqFile(p)]
 
-    // json body is an object whose members are the named args
+    // resolve filetype per v5 rules: bare application/json is jeto
     mime := reqMime
-    if (ApiUtil.isJsonMime(mime)) return readReqJson
+    filetype := Filetype.apiMime(mime, ApiVersion.v5)
+    if (filetype == null || !filetype.canRead) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
 
-    // any other filetype reads a grid: a grid based op receives it
+    // named args formats: jeto is the JSON object of named args and
+    // xeto is its xeto rendering
+    if (filetype.name == "jeto") return readReqJson
+    if (filetype.name == "xeto") return readReqXetoArgs(filetype)
+
+    // a haystack grid format reads a grid: a grid based op receives it
     // whole, otherwise the first row's cells are the named args,
     // exactly the v4 mapping
-    grid := readReqGrid(mime)
+    grid := readReqGrid(filetype)
     if (ApiUtil.isOpGrid(func)) return [grid]
     row := grid.first
     return mapArgs |param->Obj?| { row?.get(param.name) }
@@ -104,6 +109,41 @@ class ApiDispatchV5 : ApiDispatch
       out.close
     this.uploadFile = file
     return file
+  }
+
+  ** A text/xeto body is one dict whose members are the named args - the
+  ** xeto rendering of the JSON object.  Members are typed by their
+  ** literal syntax; a Str member whose param type is a non-Str scalar
+  ** decodes against it, the same rule grid cells use.
+  private Obj?[] readReqXetoArgs(Filetype filetype)
+  {
+    // an op whose params all default may be posted with no body at all
+    body := req.in.readAllStr
+    args := Etc.dict0
+    if (!body.isSpace)
+    {
+      try
+      {
+        val := filetype.apiDecode(cx.ns, body.in)
+        args = val as Dict ?: throw Err("Expecting Xeto dict of args, not ${val?.typeof}")
+      }
+      catch (Err e)
+        throw ApiErr.invalidArgsErr(filetype.mime.toStr, e)
+    }
+    return mapArgs |p->Obj?| { coerceXetoArg(p, args[p.name]) }
+  }
+
+  ** Coerce a Str arg whose param type is a non-Str scalar via its binding
+  private Obj? coerceXetoArg(Spec p, Obj? val)
+  {
+    str := val as Str
+    if (str == null) return val
+    et := p.type
+    if (!et.isScalar || et.qname == "sys::Str") return val
+    try
+      return et.binding.decodeScalar(str, false) ?: throw Err("Invalid '$et.qname' value: $str.toCode")
+    catch (Err e)
+      throw ApiErr.invalidArgsErrParam(p.name, e)
   }
 
   ** Split the post body into the raw JSON text of each named arg so that
@@ -147,37 +187,44 @@ class ApiDispatchV5 : ApiDispatch
 // Write Response
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write the result with the same content negotiation exchange as
-  ** version 4: the Accept header selects the filetype writer.  The two
-  ** differences are the default - application/json here where v4 defaults
-  ** to zinc - and what application/json binds to: the xeto codec with no
-  ** grid envelope, so a func which returns nothing answers JSON null.  A
-  ** file result never reaches here - `ApiDispatch.writeRes` serves it as
-  ** a download regardless of version.
+  ** Write the result per the Accept header.  The named args formats -
+  ** bare json and the xeto family - answer the bare result value with no
+  ** envelope, so a func which returns nothing answers JSON null (an
+  ** empty body for xeto).  A haystack grid format bridges the result
+  ** through a grid exactly as version 4 does.  A file result never
+  ** reaches here - `ApiDispatch.writeRes` serves it as a download
+  ** regardless of version.
   override Void writeResVal(Obj? result)
   {
-    // parse Accept header to find requested mime type
-    mime := acceptMimeType(req, ApiUtil.jsonMime)
-    if (mime == null) throw ApiErr.notAcceptableErrHeader
+    // resolve filetype per v5 rules: the default and bare
+    // application/json are jeto
+    mime := acceptMimeType(req)
+    filetype := Filetype.apiMime(mime, ApiVersion.v5)
+    if (filetype == null || !filetype.canWrite) throw ApiErr.notAcceptableErrWriter(mime?.toStr ?: "")
 
     res.headers["Xeto-Version"] = ApiVersion.v5.token
-    if (ApiUtil.isJsonMime(mime)) return writeResJson(result)
-    writeResGrid(result, mime)
+
+    // the xeto family answers the bare result value with no envelope;
+    // the mimeRes serves jeto as plain application/json
+    if (filetype.isXetoIO) return writeResXeto(filetype, result)
+
+    writeResGrid(result, filetype)
   }
 
-  ** Encode the result as JSON using the namespace codec
-  private Void writeResJson(Obj? result)
+  ** Encode the result as the bare value in the xeto family format; a
+  ** null result is an empty body for xeto which has no null literal
+  private Void writeResXeto(Filetype filetype, Obj? result)
   {
     gzip := acceptGzip(req)
 
     res.statusCode = 200
-    res.headers["Content-Type"] = "application/json"
+    res.headers["Content-Type"] = filetype.mimeRes.toStr
     res.headers["Cache-Control"] = "no-cache, no-store"
     if (gzip) res.headers["Content-Encoding"] = "gzip"
 
     OutStream out := res.out
     if (gzip) out = Zip.gzipOutStream(out)
-    cx.ns.io.writeJeto(out, result)
+    filetype.apiEncode(cx.ns, out, result)
     out.close
   }
 

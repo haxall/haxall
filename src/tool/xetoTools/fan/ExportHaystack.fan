@@ -75,6 +75,6 @@ internal class ExportHayson :  ExportHaystack
 
   override Str summary() { "Export Xeto to Haystack JSON" }
 
-  override Filetype filetype() { Filetype.byName("json") }
+  override Filetype filetype() { Filetype.byName("hayson") }
 }
 

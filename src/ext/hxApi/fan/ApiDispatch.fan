@@ -60,38 +60,20 @@ abstract class ApiDispatch
     return mime
   }
 
-  ** Read the POST body as a grid using the filetype for the given mime.
-  ** Raise 415 for an unreadable type and 400 when the body cannot parse.
-  Grid readReqGrid(MimeType mime)
+  ** Read the POST body as a grid using the resolved filetype.
+  ** Raise 400 when the body cannot parse.
+  Grid readReqGrid(Filetype filetype)
   {
-    filetype := Filetype.byMime(mime, false)
-    if (filetype == null || (!filetype.hasReader && !ApiUtil.isXetoFiletype(filetype)))
-      throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
-    reqStr := req.in.readAllStr
     try
-    {
-      // the xeto family reads through the namespace codec and bridges
-      // any value to the request grid; refs are data pointing at recs,
-      // not xeto instances, so resolution is external
-      if (ApiUtil.isXetoFiletype(filetype))
-        return Etc.toGrid(filetype.name == "xeto" ? cx.ns.io.readXeto(reqStr, externRefs) : cx.ns.io.readJeto(reqStr.in))
-      return filetype.reader(reqStr.in, ApiUtil.ioOpts(mime)).readGrid
-    }
+      return Etc.toGrid(filetype.apiDecode(cx.ns, req.in))
     catch (Err e)
-      throw ApiErr.invalidArgsErr(mime.toStr, e)
+      throw ApiErr.invalidArgsErr(filetype.name, e)
   }
 
-  ** Write the result as a grid using the filetype for the given mime.
-  ** Raise 406 when no writer supports it.
-  Void writeResGrid(Obj? result, MimeType mime)
+  ** Write the result as a grid using the resolved filetype
+  Void writeResGrid(Obj? result, Filetype filetype)
   {
-    // find writer for mime type: GridWriter backed or the xeto family
-    filetype := Filetype.byMime(mime, false)
-    if (filetype == null || (!filetype.hasWriter && !ApiUtil.isXetoFiletype(filetype)))
-      throw ApiErr.notAcceptableErrWriter(mime.toStr)
-
-    // a func with no result encodes as the empty grid clients expect;
-    // Etc.toGrid would otherwise make a single row with a null val col
+    // both protocol versions envelope filetype responses as a grid
     grid := result == null ? Etc.emptyGrid : Etc.toGrid(result)
 
     // accept-encoding
@@ -99,23 +81,16 @@ abstract class ApiDispatch
 
     // standard headers
     res.statusCode = 200
-    res.headers["Content-Type"] = mime.toStr
+    res.headers["Content-Type"] = filetype.mimeRes.toStr
     res.headers["Cache-Control"] = "no-cache, no-store"
     if (gzip) res.headers["Content-Encoding"] = "gzip"
 
     // write result
     OutStream out := res.out
     if (gzip) out = Zip.gzipOutStream(out)
-    if (ApiUtil.isXetoFiletype(filetype))
-    {
-      if (filetype.name == "xeto") cx.ns.io.writeXeto(out, grid)
-      else cx.ns.io.writeJeto(out, grid)
-    }
-    else filetype.writer(out, ApiUtil.ioOpts(mime)).writeGrid(grid)
+    filetype.apiEncode(cx.ns, out, grid)
     out.close
   }
-
-  private static const Dict externRefs := Etc.dict1("externRefs", Marker.val)
 
   ** Temp file the post body was spooled into for a file param, or null.
   ** The pipeline deletes it after dispatch, so the op func must consume
@@ -185,21 +160,25 @@ abstract class ApiDispatch
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return the accept mime type or
-  MimeType? acceptMimeType(WebReq req, MimeType defaultMime)
+  ** Return the Accept mime type, or null when no preference is given
+  ** so that `Filetype.apiMime` supplies the version default
+  MimeType? acceptMimeType(WebReq req)
   {
     // check for filetype in query string for easy testing
     queryFiletype := req.uri.query["xeto-filetype"]
-    if (queryFiletype != null) return Filetype.byName(queryFiletype).mimeType
+    if (queryFiletype != null)
+    {
+      f := Filetype.byName(queryFiletype, false) ?: throw ApiErr.notAcceptableErrWriter(queryFiletype)
+      return f.mime
+    }
 
-    // if not specified or anything accepted return return default
+    // no preference
     accept := req.headers["Accept"]
-    if (accept == null || accept.contains("*/*")) return defaultMime
+    if (accept == null || accept.contains("*/*")) return null
 
-    // parse first mime type
-    toks := accept.split(',')
-    mime := MimeType.fromStr(toks.first, false)
-    if (mime == null) return null
+    // parse first mime type; an unparseable header is a 406
+    mime := MimeType.fromStr(accept.split(',').first, false)
+    if (mime == null) throw ApiErr.notAcceptableErrHeader
     return mime
   }
 

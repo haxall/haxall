@@ -26,9 +26,13 @@ class FiletypeTest : HaystackTest
     list := Filetype.list
     verifyEq(list.of, Filetype#)
 
-    // the standard filetypes are always registered in order
-    verifyEq(list[0..8].map |f->Str| { f.name },
-      ["zinc", "trio", "hayson", "jsonV3", "csv", "excel", "xml", "xeto", "jeto"])
+    // the list is sorted by name and always includes the standard set
+    names := list.map |f->Str| { f.name }
+    verifyEq(names, names.dup.sort)
+    ["zinc", "trio", "hayson", "jsonV3", "csv", "excel", "xml", "xeto", "jeto"].each |n|
+    {
+      verify(names.contains(n), n)
+    }
 
     // every entry is reachable by its own name, and names its file spec
     list.each |f|
@@ -37,14 +41,10 @@ class FiletypeTest : HaystackTest
       verify(f.spec.startsWith("sys.files::"), f.name)
     }
 
-    // every entry is reachable by its own mime, except where two formats
-    // differ only by a mime param that lookup drops: hayson and jsonV3
-    // are both "application/vnd.haystack+json", and the first wins
-    list.each |f|
-    {
-      expect := f.name == "jsonV3" ? Filetype.byName("hayson") : f
-      verifySame(Filetype.byMime(f.mimeType), expect)
-    }
+    // every entry is reachable by its own mime: the mime is the key,
+    // so a version param selects its own filetype
+    list.each |f| { verifySame(Filetype.byMime(f.mime), f) }
+
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,19 +57,27 @@ class FiletypeTest : HaystackTest
     verifyEq(f.name,     "zinc")
     verifyEq(f.dis,      "Zinc")
     verifyEq(f.fileExt,  "zinc")
-    verifyEq(f.icon,     "page")
+    verifyEq(f.icon3,    "page")
     verifyEq(f.toStr,    "zinc")
-    verifyEq(f.mimeType.noParams, MimeType("text/zinc"))
+    verifyEq(f.mime,     MimeType("text/zinc"))
+
+    // mimeRes is the response Content-Type while mime stays the pure
+    // lookup key: charset is added for text/*, and the JSON dialects
+    // are all served as plain application/json
+    verifyEq(f.mimeRes, MimeType("text/zinc; charset=utf-8"))
+    verifyEq(Filetype.byName("jeto").mimeRes,   MimeType("application/json"))
+    verifyEq(Filetype.byName("hayson").mimeRes, MimeType("application/json"))
+    verifyEq(Filetype.byName("jsonV3").mimeRes, MimeType("application/json"))
+    verifyEq(Filetype.byName("xeto").mimeRes,   MimeType("text/xeto; charset=utf-8"))
 
     verifyEq(Filetype.byName("badOne", false), null)
     verifyErr(UnknownFiletypeErr#) { Filetype.byName("badOne") }
     verifyErr(UnknownFiletypeErr#) { Filetype.byName("badOne", true) }
 
-    // "json" is the name this filetype had before the two JSON encodings
-    // had to be told apart; it still resolves so that command lines and
-    // the vnd.haystack+json mime keep working
-    verifySame(Filetype.byName("json"), Filetype.byName("hayson"))
-    verifySame(Filetype.byName("json", false), Filetype.byName("hayson"))
+    // there is no "json" filetype: bare JSON cannot say which dialect
+    // it holds, so resolution is protocol policy via apiMime
+    verifyEq(Filetype.byName("json", false), null)
+    verifyErr(UnknownFiletypeErr#) { Filetype.byName("json") }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -114,27 +122,68 @@ class FiletypeTest : HaystackTest
     verifySame(Filetype.byMime(MimeType("text/csv")), csv)
     verifySame(Filetype.byMime(MimeType("text/jeto")), jeto)
 
-    // plain "application/json" is hayson, which is what a version 4 client
-    // sends; jeto has its own mime because the two cannot share one
-    verifySame(Filetype.byMime(MimeType("application/json")), hayson)
+    // plain "application/json" is deliberately NOT registered: which
+    // codec it binds to is protocol version policy (hayson in v4, jeto
+    // in v5), not registry truth
+    verifyEq(Filetype.byMime(MimeType("application/json"), false), null)
+    verifyErr(UnknownFiletypeErr#) { Filetype.byMime(MimeType("application/json")) }
 
-    // params such as charset/version are ignored for lookup, so the version
-    // is read from the mime params rather than selecting the filetype
+    // the mime is the key: a version param selects its own filetype,
+    // while an unregistered param such as charset falls back to the
+    // bare mime
     verifySame(Filetype.byMime(MimeType("text/zinc; charset=utf-8")), zinc)
-    verifySame(Filetype.byMime(MimeType("application/json;version=3")), hayson)
-    verifySame(Filetype.byMime(MimeType("application/json; charset=utf-8")), hayson)
+    verifySame(Filetype.byMime(MimeType("application/vnd.haystack+json;version=3")), Filetype.byName("jsonV3"))
+    verifySame(Filetype.byMime(MimeType("application/vnd.haystack+json;version=4")), hayson)
+    verifyEq(Filetype.byMime(MimeType("application/json;version=3"), false), null)
+    verifyEq(Filetype.byMime(MimeType("application/json; charset=utf-8"), false), null)
 
     // the "application/vnd.haystack+{name}" form
     verifySame(Filetype.byMime(MimeType("application/vnd.haystack+zinc")), zinc)
     verifySame(Filetype.byMime(MimeType("application/vnd.haystack+trio")), Filetype.byName("trio"))
     verifySame(Filetype.byMime(MimeType("application/vnd.haystack+json")), hayson)
-    verifySame(Filetype.byMime(MimeType("application/vnd.haystack+json;version=3")), hayson)
+    verifySame(Filetype.byMime(MimeType("application/vnd.haystack+zinc; charset=utf-8")), zinc)
 
     // unknown
     verifyEq(Filetype.byMime(MimeType("text/foo"), false), null)
     verifyEq(Filetype.byMime(MimeType("application/vnd.haystack+foo"), false), null)
     verifyErr(UnknownFiletypeErr#) { Filetype.byMime(MimeType("text/foo")) }
     verifyErr(UnknownFiletypeErr#) { Filetype.byMime(MimeType("application/vnd.haystack+foo")) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// ApiMime
+//////////////////////////////////////////////////////////////////////////
+
+  ** apiMime maps a request/accept mime to its filetype per protocol
+  ** version: null is the version default, and bare application/json is
+  ** protocol policy since the mime alone cannot say which dialect
+  Void testApiMime()
+  {
+    zinc   := Filetype.byName("zinc")
+    hayson := Filetype.byName("hayson")
+    jeto   := Filetype.byName("jeto")
+
+    // null is the version default
+    verifySame(Filetype.apiMime(null, ApiVersion.v4), zinc)
+    verifySame(Filetype.apiMime(null, ApiVersion.v5), jeto)
+
+    // bare application/json binds per version
+    verifySame(Filetype.apiMime(MimeType("application/json"), ApiVersion.v4), hayson)
+    verifySame(Filetype.apiMime(MimeType("application/json"), ApiVersion.v5), jeto)
+
+    // the legacy ";version=3" param selects the v3 dialect under v4
+    verifySame(Filetype.apiMime(MimeType("application/json;version=3"), ApiVersion.v4), Filetype.byName("jsonV3"))
+    verifySame(Filetype.apiMime(MimeType("application/json;version=4"), ApiVersion.v4), hayson)
+
+    // a registered mime resolves the same in both versions
+    verifySame(Filetype.apiMime(MimeType("text/zinc"), ApiVersion.v4), zinc)
+    verifySame(Filetype.apiMime(MimeType("text/zinc"), ApiVersion.v5), zinc)
+    verifySame(Filetype.apiMime(MimeType("text/jeto"), ApiVersion.v4), jeto)
+    verifySame(Filetype.apiMime(MimeType("application/vnd.haystack+json;version=3"), ApiVersion.v5), Filetype.byName("jsonV3"))
+
+    // unknown
+    verifyEq(Filetype.apiMime(MimeType("text/foo"), ApiVersion.v4), null)
+    verifyEq(Filetype.apiMime(MimeType("text/foo"), ApiVersion.v5), null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,32 +195,32 @@ class FiletypeTest : HaystackTest
     // the four grid formats round-trip
     verifyRoundTrip("zinc")
     verifyRoundTrip("trio")
-    verifyRoundTrip("json")
+    verifyRoundTrip("hayson")
 
     // zinc/trio/json/csv all have readers
-    ["zinc", "trio", "json", "csv"].each |n|
+    ["zinc", "trio", "hayson", "csv"].each |n|
     {
       f := Filetype.byName(n)
-      verifyEq(f.hasReader, true)
-      verifyEq(f.hasWriter, true)
-      verifyNotNull(f.readerType)
-      verifyNotNull(f.writerType)
+      verifyEq(f.hasGridReader, true)
+      verifyEq(f.hasGridWriter, true)
+      verifyNotNull(f.gridReaderType)
+      verifyNotNull(f.gridWriterType)
     }
 
     // excel/xml are write-only
     ["excel", "xml"].each |n|
     {
       f := Filetype.byName(n)
-      verifyEq(f.hasReader, false)
-      verifyEq(f.readerType, null)
-      verifyEq(f.hasWriter, true)
-      verifyErrMsg(Err#, "No reader defined for filetype $n") { f.reader("".in) }
+      verifyEq(f.hasGridReader, false)
+      verifyEq(f.gridReaderType, null)
+      verifyEq(f.hasGridWriter, true)
+      verifyErrMsg(Err#, "No grid reader defined for filetype $n") { f.gridReader("".in) }
     }
 
     // zinc reader/writer resolve to the expected types
     zinc := Filetype.byName("zinc")
-    verifyEq(zinc.readerType, ZincReader#)
-    verifyEq(zinc.writerType, ZincWriter#)
+    verifyEq(zinc.gridReaderType, ZincReader#)
+    verifyEq(zinc.gridWriterType, ZincWriter#)
   }
 
   private Void verifyRoundTrip(Str name)
@@ -182,8 +231,8 @@ class FiletypeTest : HaystackTest
       .addRow(["hi", n(7), Date("2026-07-27")]).toGrid
 
     buf := Buf()
-    f.writer(buf.out).writeGrid(grid)
-    back := f.reader(buf.flip.readAllStr.in).readGrid
+    f.gridWriter(buf.out).writeGrid(grid)
+    back := f.gridReader(buf.flip.readAllStr.in).readGrid
 
     // trio is a dict format with no column concept, so it does not
     // preserve col order; compare the row dicts rather than the grid
@@ -197,23 +246,23 @@ class FiletypeTest : HaystackTest
 
   Void testJsonVersions()
   {
-    json := Filetype.byName("json")
+    json := Filetype.byName("hayson")
     grid := Etc.toGrid(Date("2026-07-27"))
 
     // v4/hayson is the default: scalars encode with an explicit _kind
     v4 := StrBuf()
-    json.writer(v4.out).writeGrid(grid)
+    json.gridWriter(v4.out).writeGrid(grid)
     verify(v4.toStr.contains("_kind"))
 
     // v3 is selected by the explicit "v3" opt
     v3 := StrBuf()
-    json.writer(v3.out, Etc.dict1("v3", Marker.val)).writeGrid(grid)
+    json.gridWriter(v3.out, Etc.dict1("v3", Marker.val)).writeGrid(grid)
     verifyEq(v3.toStr.contains("_kind"), false)
     verify(v3.toStr.contains("d:2026-07-27"))
 
     // each version round-trips with its own opts
-    verifyGridEq(json.reader(v4.toStr.in).readGrid, grid)
-    verifyGridEq(json.reader(v3.toStr.in, Etc.dict1("v3", Marker.val)).readGrid, grid)
+    verifyGridEq(json.gridReader(v4.toStr.in).readGrid, grid)
+    verifyGridEq(json.gridReader(v3.toStr.in, Etc.dict1("v3", Marker.val)).readGrid, grid)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -249,41 +298,125 @@ class FiletypeTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Menu Sets
+// HTTP API
+//////////////////////////////////////////////////////////////////////////
+
+  ** Capability is what the HTTP API can serve; mechanism is whether a
+  ** GridReader/GridWriter exists.  The xeto family is fully capable with
+  ** no grid codec at all.
+  Void testApiCapability()
+  {
+    verifyApiCap("zinc",   true,  true)
+    verifyApiCap("trio",   true,  true)
+    verifyApiCap("hayson", true,  true)
+    verifyApiCap("jsonV3", true,  true)
+    verifyApiCap("csv",    true,  true)
+    verifyApiCap("excel",  false, true)
+    verifyApiCap("xml",    false, true)
+    verifyApiCap("xeto",   true,  true)
+    verifyApiCap("jeto",   true,  true)
+
+    verifyEq(Filetype.byName("xeto").isXetoIO, true)
+    verifyEq(Filetype.byName("jeto").isXetoIO, true)
+    verifyEq(Filetype.byName("zinc").isXetoIO, false)
+    verifyEq(Filetype.byName("hayson").isXetoIO, false)
+
+    // isGridIO is the mechanism flag: a GridReader/GridWriter exists
+    verifyEq(Filetype.byName("zinc").isGridIO, true)
+    verifyEq(Filetype.byName("xml").isGridIO, true)
+    verifyEq(Filetype.byName("xeto").isGridIO, false)
+    verifyEq(Filetype.byName("jeto").isGridIO, false)
+  }
+
+  private Void verifyApiCap(Str name, Bool canRead, Bool canWrite)
+  {
+    f := Filetype.byName(name)
+    verifyEq(f.canRead,  canRead,  name)
+    verifyEq(f.canWrite, canWrite, name)
+  }
+
+  ** apiEncode/apiDecode round trip per readable+writable format, plus
+  ** the null result and jsonV3 mime param handling
+  Void testApiIO()
+  {
+    ns := XetoEnv.cur.resolveNamespace(["sys", "ph"])
+    grid := Etc.makeMapGrid(["title":"T"], ["dis":"A", "num":n(123), "when":Date("2026-08-20")])
+
+    // every readable+writable format round trips a grid; csv erases
+    // scalars to strings so it only verifies the encoded dis cell
+    Filetype.list.each |f|
+    {
+      if (!f.canRead || !f.canWrite) return
+      buf := Buf()
+      f.apiEncode(ns, buf.out, grid)
+      Grid rt := Etc.toGrid(f.apiDecode(ns, buf.flip.in))
+      if (f.name == "csv") { verifyEq(rt.first->dis, "A"); return }
+      verifyEq(rt.first->dis, "A")
+      verifyEq(rt.first->num, n(123), f.name)
+      verifyEq(rt.first->when, Date("2026-08-20"), f.name)
+    }
+
+    // the jsonV3 dialect is selected by mime resolution: it is its own
+    // filetype and its codec opts come from the filetype itself
+    v3 := Filetype.byName("jsonV3")
+    buf := Buf()
+    v3.apiEncode(ns, buf.out, grid)
+    str := buf.flip.readAllStr
+    verify(str.contains("n:123"))  // v3 encodes numbers as "n:123"
+    Grid rt := v3.apiDecode(ns, str.in)
+    verifyEq(rt.first->num, n(123))
+
+    // null encodes as the empty grid on grid formats
+    buf = Buf()
+    Filetype.byName("zinc").apiEncode(ns, buf.out, null)
+    verifyEq(ZincReader(buf.flip.in).readGrid.size, 0)
+
+    // the xeto family writes the value whole: a null is a jeto null,
+    // and an empty xeto body since xeto has no null literal
+    buf = Buf()
+    Filetype.byName("jeto").apiEncode(ns, buf.out, null)
+    verifyEq(buf.flip.readAllStr.trim, "null")
+    buf = Buf()
+    Filetype.byName("xeto").apiEncode(ns, buf.out, null)
+    verifyEq(buf.flip.readAllStr, "")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fresco UI3
 //////////////////////////////////////////////////////////////////////////
 
   ** The two sets the UI menus offer.  Everything listed can actually be
   ** written: a format with no working GridWriter would throw when picked.
-  Void testMenuSets()
+  Void testFresco()
   {
-    Filetype.exports.each |f|
+    Filetype.exports3.each |f|
     {
-      verify(f.hasWriter, f.name)
-      verifyNotNull(f.writerType(false), f.name)
+      verify(f.hasGridWriter, f.name)
+      verifyNotNull(f.gridWriterType(false), f.name)
       verifyFalse(f.isDeprecated, f.name)
     }
 
     // textViews is exports minus the view aware formats, which render a
     // document rather than the data
-    Filetype.textViews.each |f|
+    Filetype.textViews3.each |f|
     {
-      verify(Filetype.exports.contains(f), f.name)
+      verify(Filetype.exports3.contains(f), f.name)
       verify(f.isText, f.name)
       verifyFalse(f.isView, f.name)
     }
 
     // excel is exportable but not a text view
-    verify(Filetype.exports.contains(Filetype.byName("excel")))
-    verifyFalse(Filetype.textViews.contains(Filetype.byName("excel")))
+    verify(Filetype.exports3.contains(Filetype.byName("excel")))
+    verifyFalse(Filetype.textViews3.contains(Filetype.byName("excel")))
 
     // the xeto formats encode through XetoIO rather than a GridWriter, so
     // they are in neither set: offering them would throw when picked
     ["xeto", "jeto"].each |n|
     {
       f := Filetype.byName(n)
-      verifyFalse(f.hasWriter, n)
-      verifyFalse(Filetype.exports.contains(f), n)
-      verifyFalse(Filetype.textViews.contains(f), n)
+      verifyFalse(f.hasGridWriter, n)
+      verifyFalse(Filetype.exports3.contains(f), n)
+      verifyFalse(Filetype.textViews3.contains(f), n)
     }
 
     // optsTemplate
@@ -302,9 +435,10 @@ class FiletypeTest : HaystackTest
       if (f != null)
       {
         verifyEq(f.isView, true)
-        verifyEq(f.hasReader, false)
-        verifyEq(f.hasWriter, true)
+        verifyEq(f.hasGridReader, false)
+        verifyEq(f.hasGridWriter, true)
       }
     }
   }
 }
+

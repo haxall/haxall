@@ -173,10 +173,9 @@ class Api4Test : ApiTest
     verifyOpMethods("eval",   false, "expr=now()")
     verifyOpMethods("commit", false, "id=@foo")
 
-    // Commented out until finished
     verifyEq(callAsGet("defs").size, c.callGrid("defs").size)
-    //verifyEq(callAsGet("libs").size, c.callGrid("libs").size)
-    //verifyEq(callAsGet("filetypes").size, c.callGrid("filetypes").size)
+    verifyEq(callAsGet("libs").size, c.callGrid("libs").size)
+    verifyEq(callAsGet("filetypes").size, c.callGrid("filetypes").size)
     verifyEq(callAsGet("ops").size, c.callGrid("ops").size)
   }
 
@@ -338,7 +337,7 @@ class Api4Test : ApiTest
     // ?filetype and ?format forms it replaced were undocumented debugging
     // aids, so they are simply gone rather than kept as v4 aliases.
     verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=trio", "trio"), c.readAll("id"))
-    verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=json", "json"), c.readAll("id"))
+    verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=hayson", "hayson"), c.readAll("id"))
     verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=xeto", "xeto"), c.readAll("id"))
     verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=jeto", "jeto"), c.readAll("id"))
   }
@@ -352,8 +351,9 @@ class Api4Test : ApiTest
 
     // encode request using the request mime type; fallback to zinc so we
     // can still post a body when testing unsupported content types
-    reqType := (reqMime == null ? null : Filetype.byMime(reqMime, false)) ?: Filetype.byName("zinc")
-    if (!reqType.hasReader && !isXetoType(reqType)) reqType = Filetype.byName("zinc")
+    zinc := Filetype.byName("zinc")
+    reqType := Filetype.apiMime(reqMime, ApiVersion.v4) ?: zinc
+    if (!reqType.canRead) reqType = zinc
     reqBuf := encodeGrid(reqType, reqGrid, jsonVersionOpts(reqMime))
 
     wc := c.toWebClient(op.toUri)
@@ -371,7 +371,7 @@ class Api4Test : ApiTest
     resBuf := wc.resIn.readAllBuf
     wc.close
 
-    resType := (resMime == null ? null : Filetype.byMime(resMime, false)) ?: Filetype.byName("zinc")
+    resType := Filetype.apiMime(resMime, ApiVersion.v4) ?: Filetype.byName("zinc")
     return decodeGrid(resType, resBuf.seek(0).in, jsonVersionOpts(resMime))
   }
 
@@ -389,7 +389,7 @@ class Api4Test : ApiTest
     buf := Buf()
     if (ft.name == "xeto") proj.ns.io.writeXeto(buf.out, grid)
     else if (ft.name == "jeto") proj.ns.io.writeJeto(buf.out, grid)
-    else ft.writer(buf.out, opts).writeGrid(grid)
+    else ft.gridWriter(buf.out, opts).writeGrid(grid)
     return buf
   }
 
@@ -399,10 +399,10 @@ class Api4Test : ApiTest
   {
     if (ft.name == "xeto") return (Grid)proj.ns.io.readXeto(in.readAllStr, Etc.dict1("externRefs", m))
     if (ft.name == "jeto") return (Grid)proj.ns.io.readJeto(in)
-    return ft.reader(in, opts).readGrid
+    return ft.gridReader(in, opts).readGrid
   }
 
-  static Bool isXetoType(Filetype ft) { ft.name == "xeto" || ft.name == "jeto" }
+
 
   ** Hayson v3 is selected by an explicit ";version=3" mime param
   static Dict jsonVersionOpts(MimeType? mime)
@@ -457,24 +457,36 @@ class Api4Test : ApiTest
     verifyDefIn(g, Symbol("lib:ph"))
     verifyDefIn(g, Symbol("lib:hx"))
 
-    // filetypes and ops have no func at all so they 404, and the GET
-    // parity check needs <noSideEffects> on defs/libs.  Commented out
-    // until the def ops are given implementations.
-    //g = c.callGrid("filetypes")
-    //[Symbol("filetype:zinc"), Symbol("filetype:trio"),
-    // Symbol("filetype:json"), Symbol("filetype:csv")].each |s| { verifyDefIn(g, s) }
-    //
+    // filetypes: the def wire shape synthesized from the Filetype
+    // registry.  The symbols follow the registry names, so hayson
+    // replaces the legacy "json" and the newer formats appear.
+    g = c.callGrid("filetypes")
+    [Symbol("filetype:zinc"), Symbol("filetype:trio"), Symbol("filetype:hayson"),
+     Symbol("filetype:csv"), Symbol("filetype:xeto"), Symbol("filetype:jeto")].each |s| { verifyDefIn(g, s) }
+    zincRow := g.find |r| { r->def == Symbol("filetype:zinc") }
+    verifyEq(zincRow->dis, "Zinc")
+    verifyEq(zincRow->mime, "text/zinc")
+    verifyEq(zincRow->fileExt, "zinc")
+    verifyEq(zincRow.has("filetype"), true)
+    verifyDefIn(g, Symbol("filetype:jsonV3"))
+
+    // filetypes: the def filter/limit machinery applies to the
+    // synthesized rows too
+    g = c.callGrid("filetypes", Etc.makeMapGrid(null, ["filter":"fileExt==\"zinc\""]))
+    verifyEq(g.size, 1)
+
     // ops: v4 gets the legacy def format from the ApiDispatchV4Ops hook,
     // never the sys.api::ops func which serves v5.  The v5 shape is
     // asserted by Api5Test.doOpsFunc.
     g = c.callGrid("ops")
     [Symbol("op:about"), Symbol("op:read"),
      Symbol("op:ops"), Symbol("op:filetypes")].each |s| { verifyDefIn(g, s) }
-    //
-    //["defs", "libs", "ops", "filetypes"].each |op|
-    //{
-    //  verifyEq(callAsGet(op).size, c.callGrid(op).size, op)
-    //}
+
+    // GET parity for the ops which declare <noSideEffects>
+    ["libs", "ops", "filetypes"].each |op|
+    {
+      verifyEq(callAsGet(op).size, c.callGrid(op).size, op)
+    }
   }
 
   Void verifyDefIn(Grid g, Symbol sym)

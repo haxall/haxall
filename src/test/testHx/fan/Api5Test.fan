@@ -34,6 +34,7 @@ class Api5Test : ApiTest
     doEval
     doAboutTyped
     doLibsFunc
+    doFiletypesFunc
     doGridOps
     doUpload
     doNegotiation
@@ -336,6 +337,46 @@ class Api5Test : ApiTest
     verifyNotNull(((Grid)eval("libs()")).col("libStatus", false))
   }
 
+  ** The filetypes listing reports the content negotiation formats from
+  ** the Filetype registry
+  Void doFiletypesFunc()
+  {
+    g := (Grid)call(c, "filetypes", Str:Obj?[:])
+    verifyEq(g.meta->of, Ref("sys.api::FiletypeInfo"))
+
+    // every row validates against the FiletypeInfo spec
+    setupContext
+    ns := proj.ns
+    info := ns.spec("sys.api::FiletypeInfo")
+    g.each |row| { verifyEq(ns.validate(row, info).hasErrs, false, row->name) }
+
+    // full read/write format; the mime is the registry key verbatim
+    zinc := g.find |r| { r->name == "zinc" } ?: throw Err("no zinc row")
+    verifyEq(zinc->mime, "text/zinc")
+    verifyEq(zinc->fileSpec, Ref("sys.files::ZincFile"))
+    verifyEq(zinc->canRead, true)
+    verifyEq(zinc->canWrite, true)
+
+    // hayson's key is the bare vnd mime; version=4 is a lookup alias
+    verifyEq(g.find |r| { r->name == "hayson" }->mime, "application/vnd.haystack+json")
+
+    // write-only document format
+    xml := g.find |r| { r->name == "xml" } ?: throw Err("no xml row")
+    verifyEq(xml->canRead, false)
+    verifyEq(xml->canWrite, true)
+
+    // the xeto family is fully capable via the namespace codec
+    verifyEq(g.find |r| { r->name == "jeto" }->canRead, true)
+
+    // deprecated formats are listed so clients know v3 is still served
+    verifyEq(g.find |r| { r->name == "jsonV3" }->mime, "application/vnd.haystack+json;version=3")
+
+    // rows are sorted by name
+    names := Str[,]
+    g.each |r| { names.add(r->name) }
+    verifyEq(names, names.dup.sort)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Grid Ops
 //////////////////////////////////////////////////////////////////////////
@@ -473,28 +514,50 @@ class Api5Test : ApiTest
     wc.close
     verifyEq(grid.first->dis, "A")
 
-    // xeto and explicit text/jeto: filetype posts carry the request grid
-    // and the response bridges through a grid, identical to version 4
-    reqGrid := Etc.makeMapGrid(null, ["id":siteA.id])
+    // xeto and jeto behave exactly like application/json in this
+    // dialect: one object of named args in, the bare result value out
     wc = c.toWebClient(`readById`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "text/xeto"
     wc.reqHeaders["Accept"] = "text/xeto"
-    wc.postStr(proj.ns.io.writeXetoToStr(reqGrid))
+    wc.postStr("{id: @$siteA.id.id, checked: Bool \"true\"}")
     verifyEq(wc.resCode, 200)
-    grid = (Grid)proj.ns.io.readXeto(wc.resStr, Etc.dict1("externRefs", m))
+    verify(wc.resHeaders["Content-Type"].startsWith("text/xeto"))
+    resDict := (Dict)proj.ns.io.readXeto(wc.resStr, Etc.dict1("externRefs", m))
     wc.close
-    verifyEq(grid.first->dis, "A")
+    verifyEq(resDict->dis, "A")
 
     wc = c.toWebClient(`readById`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "text/jeto"
     wc.reqHeaders["Accept"] = "text/jeto"
-    wc.postStr(proj.ns.io.writeJetoToStr(reqGrid))
+    wc.postStr("""{"id":"$siteA.id.id"}""")
     verifyEq(wc.resCode, 200)
-    grid = (Grid)proj.ns.io.readJeto(wc.resStr.in)
+    verify(wc.resHeaders["Content-Type"].startsWith("application/json"))  // jeto is served as plain json
+    resDict = (Dict)proj.ns.io.readJeto(wc.resStr.in)
     wc.close
-    verifyEq(grid.first->dis, "A")
+    verifyEq(resDict->dis, "A")
+
+    // an opGrid op through jeto named args: the flag is inert on this
+    // path and the grid rides as the "req" member
+    wc = c.toWebClient(`nav`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "text/jeto"
+    wc.reqHeaders["Accept"] = "text/jeto"
+    wc.postStr(proj.ns.io.writeJetoToStr(Etc.dict1("req", Etc.makeEmptyGrid)))
+    verifyEq(wc.resCode, 200)
+    verify(proj.ns.io.readJeto(wc.resStr.in) is Grid)
+    wc.close
+
+    // ?xeto-filetype=xeto GET answers the bare value
+    wc = c.toWebClient(`readById?id=$siteA.id.id&xeto-filetype=xeto`)
+    setVersionHeader(wc)
+    wc.writeReq
+    wc.readRes
+    verifyEq(wc.resCode, 200)
+    resDict = (Dict)proj.ns.io.readXeto(wc.resStr, Etc.dict1("externRefs", m))
+    wc.close
+    verifyEq(resDict->dis, "A")
 
     // ?xeto-filetype query override selects the writer for easy testing
     wc = c.toWebClient(`readById?id=$siteA.id.id&xeto-filetype=trio`)
