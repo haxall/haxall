@@ -310,6 +310,13 @@ class Api4Test : ApiTest
     verifyGridEq(callMime("eval", req, "application/json;version=4", "application/json;version=4"), res)
     verifyGridEq(callMime("eval", req, "application/json;version=3", "application/json"), res)
 
+    // xeto family: full fidelity via the namespace codec, both directions
+    verifyGridEq(callMime("eval", req, "text/xeto", "text/xeto"), res)
+    verifyGridEq(callMime("eval", req, "text/jeto", "text/jeto"), res)
+    verifyGridEq(callMime("eval", req, "text/xeto", "text/jeto"), res)
+    verifyGridEq(callMime("eval", req, "text/zinc", "text/xeto"), res)
+    verifyGridEq(callMime("eval", req, "text/jeto", "text/zinc"), res)
+
     // vnd.haystack+{filetype}
     verifyGridEq(callMime("eval", req, "application/vnd.haystack+zinc", "application/vnd.haystack+zinc"), res)
     verifyGridEq(callMime("eval", req, "application/vnd.haystack+trio", "application/vnd.haystack+trio"), res)
@@ -332,6 +339,8 @@ class Api4Test : ApiTest
     // aids, so they are simply gone rather than kept as v4 aliases.
     verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=trio", "trio"), c.readAll("id"))
     verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=json", "json"), c.readAll("id"))
+    verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=xeto", "xeto"), c.readAll("id"))
+    verifyGridEq(callAsGetWith("read?filter=id&xeto-filetype=jeto", "jeto"), c.readAll("id"))
   }
 
   ** Post reqGrid encoded per reqMime and decode the response per resMime.
@@ -344,9 +353,8 @@ class Api4Test : ApiTest
     // encode request using the request mime type; fallback to zinc so we
     // can still post a body when testing unsupported content types
     reqType := (reqMime == null ? null : Filetype.byMime(reqMime, false)) ?: Filetype.byName("zinc")
-    if (!reqType.hasReader) reqType = Filetype.byName("zinc")
-    reqBuf := Buf()
-    reqType.writer(reqBuf.out, jsonVersionOpts(reqMime)).writeGrid(reqGrid)
+    if (!reqType.hasReader && !isXetoType(reqType)) reqType = Filetype.byName("zinc")
+    reqBuf := encodeGrid(reqType, reqGrid, jsonVersionOpts(reqMime))
 
     wc := c.toWebClient(op.toUri)
     wc.reqMethod = "POST"
@@ -364,15 +372,37 @@ class Api4Test : ApiTest
     wc.close
 
     resType := (resMime == null ? null : Filetype.byMime(resMime, false)) ?: Filetype.byName("zinc")
-    return resType.reader(resBuf.seek(0).in, jsonVersionOpts(resMime)).readGrid
+    return decodeGrid(resType, resBuf.seek(0).in, jsonVersionOpts(resMime))
   }
 
   ** GET the given path and decode the response using given filetype name
   Grid callAsGetWith(Str path, Str filetype)
   {
     str := c.toWebClient(path.toUri).getStr
-    return Filetype.byName(filetype).reader(str.in).readGrid
+    return decodeGrid(Filetype.byName(filetype), str.in, Etc.dict0)
   }
+
+  ** Encode a grid per filetype; the xeto family encodes through the
+  ** namespace codec like the server side does
+  Buf encodeGrid(Filetype ft, Grid grid, Dict opts)
+  {
+    buf := Buf()
+    if (ft.name == "xeto") proj.ns.io.writeXeto(buf.out, grid)
+    else if (ft.name == "jeto") proj.ns.io.writeJeto(buf.out, grid)
+    else ft.writer(buf.out, opts).writeGrid(grid)
+    return buf
+  }
+
+  ** Decode a grid per filetype; the xeto family decodes through the
+  ** namespace codec like the server side does
+  Grid decodeGrid(Filetype ft, InStream in, Dict opts)
+  {
+    if (ft.name == "xeto") return (Grid)proj.ns.io.readXeto(in.readAllStr, Etc.dict1("externRefs", m))
+    if (ft.name == "jeto") return (Grid)proj.ns.io.readJeto(in)
+    return ft.reader(in, opts).readGrid
+  }
+
+  static Bool isXetoType(Filetype ft) { ft.name == "xeto" || ft.name == "jeto" }
 
   ** Hayson v3 is selected by an explicit ";version=3" mime param
   static Dict jsonVersionOpts(MimeType? mime)

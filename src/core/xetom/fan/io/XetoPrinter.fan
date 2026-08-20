@@ -358,7 +358,7 @@ class XetoPrinter
     {
       wc('@')
       w(x.id)
-      if (x.disVal != null) sp.quoted(x.disVal)
+      if (x.disVal != null) sp.quoted(x.disVal, true) // dis is always quoted, even number shaped
     }
     return this
   }
@@ -582,9 +582,9 @@ class XetoPrinter
   }
 
   ** Quoted string literal (we use our own since we don't escape $ like Fantom)
-  This quoted(Str x)
+  This quoted(Str x, Bool force := false)
   {
-    if (XetoUtil.isUnquotedNum(x) && !quoteNums) return w(x)
+    if (!force && XetoUtil.isUnquotedNum(x) && !quoteNums) return w(x)
     wc('"')
     x.each |c|
     {

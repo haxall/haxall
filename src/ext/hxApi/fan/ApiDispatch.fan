@@ -96,10 +96,18 @@ abstract class ApiDispatch
   Grid readReqGrid(MimeType mime)
   {
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || !filetype.hasReader) throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
+    if (filetype == null || (!filetype.hasReader && !isXetoFiletype(filetype)))
+      throw ApiErr.unsupportedMediaTypeErrReader(mime.toStr)
     reqStr := req.in.readAllStr
     try
+    {
+      // the xeto family reads through the namespace codec and bridges
+      // any value to the request grid; refs are data pointing at recs,
+      // not xeto instances, so resolution is external
+      if (isXetoFiletype(filetype))
+        return Etc.toGrid(filetype.name == "xeto" ? cx.ns.io.readXeto(reqStr, externRefs) : cx.ns.io.readJeto(reqStr.in))
       return filetype.reader(reqStr.in, ioOpts(mime)).readGrid
+    }
     catch (Err e)
       throw ApiErr.invalidArgsErr(mime.toStr, e)
   }
@@ -108,9 +116,10 @@ abstract class ApiDispatch
   ** Raise 406 when no writer supports it.
   Void writeResGrid(Obj? result, MimeType mime)
   {
-    // find GridWriter to use for mime type
+    // find writer for mime type: GridWriter backed or the xeto family
     filetype := Filetype.byMime(mime, false)
-    if (filetype == null || !filetype.hasWriter) throw ApiErr.notAcceptableErrWriter(mime.toStr)
+    if (filetype == null || (!filetype.hasWriter && !isXetoFiletype(filetype)))
+      throw ApiErr.notAcceptableErrWriter(mime.toStr)
 
     // a func with no result encodes as the empty grid clients expect;
     // Etc.toGrid would otherwise make a single row with a null val col
@@ -128,9 +137,23 @@ abstract class ApiDispatch
     // write result
     OutStream out := res.out
     if (gzip) out = Zip.gzipOutStream(out)
-    filetype.writer(out, ioOpts(mime)).writeGrid(grid)
+    if (isXetoFiletype(filetype))
+    {
+      if (filetype.name == "xeto") cx.ns.io.writeXeto(out, grid)
+      else cx.ns.io.writeJeto(out, grid)
+    }
+    else filetype.writer(out, ioOpts(mime)).writeGrid(grid)
     out.close
   }
+
+  ** Is the filetype the xeto family, which encodes any value through
+  ** the namespace codec rather than a GridReader/GridWriter
+  static Bool isXetoFiletype(Filetype? filetype)
+  {
+    filetype != null && (filetype.name == "xeto" || filetype.name == "jeto")
+  }
+
+  private static const Dict externRefs := Etc.dict1("externRefs", Marker.val)
 
   ** Is the mime type application/json, which each version binds to its
   ** own codec: the haystack codec in v4, the xeto codec in v5

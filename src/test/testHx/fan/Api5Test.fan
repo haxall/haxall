@@ -473,6 +473,29 @@ class Api5Test : ApiTest
     wc.close
     verifyEq(grid.first->dis, "A")
 
+    // xeto and explicit text/jeto: filetype posts carry the request grid
+    // and the response bridges through a grid, identical to version 4
+    reqGrid := Etc.makeMapGrid(null, ["id":siteA.id])
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "text/xeto"
+    wc.reqHeaders["Accept"] = "text/xeto"
+    wc.postStr(proj.ns.io.writeXetoToStr(reqGrid))
+    verifyEq(wc.resCode, 200)
+    grid = (Grid)proj.ns.io.readXeto(wc.resStr, Etc.dict1("externRefs", m))
+    wc.close
+    verifyEq(grid.first->dis, "A")
+
+    wc = c.toWebClient(`readById`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "text/jeto"
+    wc.reqHeaders["Accept"] = "text/jeto"
+    wc.postStr(proj.ns.io.writeJetoToStr(reqGrid))
+    verifyEq(wc.resCode, 200)
+    grid = (Grid)proj.ns.io.readJeto(wc.resStr.in)
+    wc.close
+    verifyEq(grid.first->dis, "A")
+
     // ?xeto-filetype query override selects the writer for easy testing
     wc = c.toWebClient(`readById?id=$siteA.id.id&xeto-filetype=trio`)
     setVersionHeader(wc)
