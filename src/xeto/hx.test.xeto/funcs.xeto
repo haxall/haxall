@@ -19,6 +19,15 @@
   // ping API (not bound with facet)
   ping2: Func { returns: Date }
 
+  // file upload shape: single file param
+  testFileUpload: Func { file: File, returns: Obj? }
+
+  // file download shape: file return
+  testFileDownload: Func { returns: File? }
+
+  // not the upload shape: file must be the only param
+  testFileTwoParams: Func { a: File, b: Str, returns: Obj? }
+
   // Axon
 
   // add in Axon

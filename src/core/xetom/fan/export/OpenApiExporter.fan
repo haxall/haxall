@@ -180,7 +180,7 @@ class OpenApiExporter : Exporter
     }
 
     // a file return is served as a raw download with the file's own mime
-    resContent := returns != null && isFileType(returns.type)
+    resContent := spec.func.isFileReturn
       ? binarySchema(returns.type)
       : jsonSchema(response)
 
@@ -273,17 +273,7 @@ class OpenApiExporter : Exporter
   ** the file must be the op's only param.
   private static Spec? toFileParam(Spec spec)
   {
-    params := spec.func.params
-    if (params.size != 1 || !isFileType(params.first.type)) return null
-    return params.first
-  }
-
-  ** Does the type walk up to the sys::File root
-  private static Bool isFileType(Spec type)
-  {
-    for (Spec? x := type; x != null; x = x.base)
-      if (x.qname == "sys::File") return true
-    return false
+    spec.func.isFileParam ? spec.func.params.first : null
   }
 
   ** Raw binary content keyed by the file spec's own mime type

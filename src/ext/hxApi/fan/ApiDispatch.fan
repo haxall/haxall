@@ -58,19 +58,10 @@ abstract class ApiDispatch
   ** file and JSON args.
   Spec? fileParam()
   {
-    params := func.func.params
-    file := params.find |p| { isFileParam(p) }
-    if (file == null) return null
-    if (params.size > 1) throw ApiErr(400, "InvalidArgsErr", "File param must be op's only param: $func.name")
-    return file
-  }
-
-  ** Does the param's type walk up to the sys::File root
-  private static Bool isFileParam(Spec p)
-  {
-    for (Spec? x := p.type; x != null; x = x.base)
-      if (x.qname == "sys::File") return true
-    return false
+    f := func.func
+    if (f.isFileParam) return f.params.first
+    if (f.params.any |p| { p.type.isFile }) throw ApiErr(400, "InvalidArgsErr", "File param must be op's only param: $func.name")
+    return null
   }
 
   ** Is this a grid based op which receives its request grid whole?

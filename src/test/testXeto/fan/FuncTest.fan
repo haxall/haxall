@@ -65,6 +65,41 @@ echo("TODO: comp graph funcs!")
     }
   }
 
+  Void testFileFlags()
+  {
+    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestFileFlags(ns) }
+  }
+
+  private Void doTestFileFlags(Namespace ns)
+  {
+    funcs := ns.lib("hx.test.xeto").spec("Funcs")
+
+    // single file param is the upload shape
+    f := funcs.slot("testFileUpload").func
+    verifyEq(f.isFileParam, true)
+    verifyEq(f.isFileReturn, false)
+
+    // file return is the download shape
+    f = funcs.slot("testFileDownload").func
+    verifyEq(f.isFileParam, false)
+    verifyEq(f.isFileReturn, true)
+
+    // a file param must be the only param
+    f = funcs.slot("testFileTwoParams").func
+    verifyEq(f.isFileParam, false)
+    verifyEq(f.isFileReturn, false)
+
+    // no file at all
+    f = funcs.slot("ping1").func
+    verifyEq(f.isFileParam, false)
+    verifyEq(f.isFileReturn, false)
+
+    // Spec.isFile
+    verifyEq(ns.spec("sys::File").isFile, true)
+    verifyEq(funcs.slot("testFileUpload").func.params.first.isFile, true)
+    verifyEq(ns.spec("sys::Dict").isFile, false)
+  }
+
   private Void verifyAdd(Namespace ns, Spec f, Bool valid)
   {
     num := ns.spec("sys::Number")

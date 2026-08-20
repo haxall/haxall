@@ -73,9 +73,9 @@ const class MFunc : SpecFunc
     XetoUtil.qname(spec.lib.name, spec.name)
   }
 
-  override Bool isFileReturn() { returns.isFile }
+  override Bool isFileReturn() { returns.type.isFile }
 
-  override Bool isFileParam() { params.size == 1 && params.first.isFile }
+  override Bool isFileParam() { params.size == 1 && params.first.type.isFile }
 
   override Str signature()
   {

@@ -112,11 +112,8 @@ class ApiDispatchV4 : ApiDispatch
   ** itself, which is the '<opWebRes>' marker.
   private Bool writesGrid()
   {
-    !pipeline.funcOwnsRes && !func.func.returns.type.isa(fileSpec)
+    !pipeline.funcOwnsRes && !func.func.isFileReturn
   }
-
-  ** The 'sys::File' spec, resolved before the func has produced a result
-  private once Spec fileSpec() { cx.ns.spec("sys::File") }
 
 //////////////////////////////////////////////////////////////////////////
 // Write Response
