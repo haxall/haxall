@@ -1129,6 +1129,55 @@ class UtilTest : AbstractXetoTest
     verifyDictEq((Dict)x, ["lib":name, "versions":vers, "spec":Ref("sys::LibDepend")])
   }
 
+  Void testLibDependParse()
+  {
+    // space separator (default)
+    verifyLibDependParse("foo 3.x.x",        ' ', "foo", "3.x.x")
+    verifyLibDependParse("foo.bar 1.2.3",    ' ', "foo.bar", "1.2.3")
+    verifyLibDependParse("foo 1.0.0-2.0.0",  ' ', "foo", "1.0.0-2.0.0")
+    verifyLibDependParse("  foo   3.x.x  ",  ' ', "foo", "3.x.x")
+
+    // dash separator; versions may itself contain a range dash
+    verifyLibDependParse("foo-3.x.x",        '-', "foo", "3.x.x")
+    verifyLibDependParse("foo.bar-1.2.3",    '-', "foo.bar", "1.2.3")
+    verifyLibDependParse("foo-1.0.0-2.0.0",  '-', "foo", "1.0.0-2.0.0")
+
+    // missing separator uses defVers, which defaults to wildcard
+    verifyLibDependParse("foo",              ' ', "foo", "x.x.x")
+    verifyLibDependParse("foo",              '-', "foo", "x.x.x")
+    verifyEq(LibDepend.parse("foo", ' ', LibDependVersions("1.2.x")).toStr, "foo 1.2.x")
+
+    // missing separator is an error when defVers is null
+    verifyErr(ParseErr#) { LibDepend.parse("foo", ' ', null) }
+    verifyErr(ParseErr#) { LibDepend.parse("foo", '-', null) }
+
+    // invalid regardless of defVers
+    verifyErr(ParseErr#) { LibDepend.parse("") }
+    verifyErr(ParseErr#) { LibDepend.parse("foo bad") }
+    verifyErr(ParseErr#) { LibDepend.parse("foo 1.2") }
+    verifyErr(ParseErr#) { LibDepend.parse("not a libName 1.2.3") }
+  }
+
+  Void verifyLibDependParse(Str s, Int sep, Str name, Str vers)
+  {
+    x := LibDepend.parse(s, sep)
+    verifyEq(x.name, name)
+    verifyEq(x.versions, LibDependVersions(vers))
+    verifyEq(x.toStr, "$name $vers")
+    verifyDictEq((Dict)x, (Dict)LibDepend(name, LibDependVersions(vers)))
+  }
+
+  Void testLibVersionAsDepend()
+  {
+    v := RemoteLibVersion("foo.bar", Version("1.2.3"), "", LibDepend[,])
+    d := v.asDepend
+    verifyEq(d.name, "foo.bar")
+    verifyEq(d.versions, LibDependVersions("1.2.3"))
+    verifyEq(d.versions.contains(Version("1.2.3")), true)
+    verifyEq(d.versions.contains(Version("1.2.4")), false)
+    verifyEq(d.toStr, "foo.bar 1.2.3")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Etc.link
 //////////////////////////////////////////////////////////////////////////
