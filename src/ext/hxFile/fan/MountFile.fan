@@ -201,6 +201,11 @@ internal const class HxListFile : SyntheticFile
     return a
   }
 
+  ** A list() only emits entries which existed when the listing was made,
+  ** so we can answer this without a resolve.  Instances are short-lived
+  ** and must not be cached; a stale instance may outlive the file.
+  override Bool exists() { true }
+
   override DateTime? modified { get { attrs["modified"] } set { } }
   override Int? size() { attrs["size"] }
   override Bool isHidden() { attrs["hidden"] == true }
