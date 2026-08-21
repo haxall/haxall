@@ -168,9 +168,11 @@ const class MountFile : SyntheticFile
 **************************************************************************
 
 **
-** Only used to wrap HxMountFile.list() files. It caches the file attrs so we
-** don't have to do a full security-checked resolution to get these values.
-** Should only be used as a result of HxMountFile.list() and should generally
+** Only used to wrap MountFile.list() files. The file attrs are resolved on
+** first access and then cached so we don't have to do a full security-checked
+** resolution to get these values.  Note this means each entry of a list()
+** snapshots its attrs when it is first read, not when the list was made.
+** Should only be used as a result of MountFile.list() and should generally
 ** only be used in cases where the file is not being cached/store; only for
 ** obtaining file attributes.
 **
@@ -184,11 +186,20 @@ internal const class HxListFile : SyntheticFile
   private new make(MountFile f) : super(f.uri)
   {
     this.f = f
-    this.attrs = f.attrs
   }
 
   private const MountFile f
-  private const Str:Obj attrs
+  private const AtomicRef attrsRef := AtomicRef(null)
+
+  ** Attrs are resolved lazily on first access and then cached.  Computing
+  ** them costs a security checked resolution plus a file attribute syscall
+  ** per attribute, so we must not pay that for every entry of a list()
+  private Str:Obj attrs()
+  {
+    a := attrsRef.val
+    if (a == null) attrsRef.val = a = f.attrs.toImmutable
+    return a
+  }
 
   override DateTime? modified { get { attrs["modified"] } set { } }
   override Int? size() { attrs["size"] }
