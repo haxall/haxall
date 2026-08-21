@@ -21,11 +21,16 @@ const class LocalMount : WrapMount
   {
     this.localRoot = ((Uri)config["localPath"]).toFile
     if (!localRoot.isDir) throw ArgErr("Not a directory: ${localRoot}")
+    this.localRootPath = localRoot.normalize.pathStr
   }
 
   ** Files in this mount are resolved relative to this directory
   ** on the local filsystem
   const File localRoot
+
+  ** Normalized path of localRoot; File.normalize is a canonical path
+  ** syscall so we compute it once instead of on every resolve
+  private const Str localRootPath
 
   override protected File resolve(Uri uri, Str mode := "r")
   {
@@ -34,7 +39,7 @@ const class LocalMount : WrapMount
     // sanity checks
     if (uri.toStr.contains(".."))
       throw ArgErr("Uri must not contain '..': ${uri}")
-    if (!file.normalize.pathStr.startsWith(localRoot.normalize.pathStr))
+    if (!file.normalize.pathStr.startsWith(localRootPath))
       throw ArgErr("Uri not under ${localRoot}: ${uri}")
 
     // check access
