@@ -6,6 +6,7 @@
 //   19 May 2026  Matthew Giannini Creation
 //
 
+using concurrent
 using util
 using xeto
 using haystack
@@ -16,26 +17,48 @@ using hx
 **
 const class MountFile : SyntheticFile
 {
-  new make(Uri uri) : super(uri)
+  new make(FileExt fileExt, Uri uri, User? user := null) : super(uri)
   {
+    this.fileExt = fileExt
+    this.user    = user
   }
 
-  virtual FileExt fileExt() { Context.cur.sys.file }
+  ** The file ext which resolved this file
+  const FileExt fileExt
+
+  ** User which resolved this file, used to bind a context when this
+  ** file is used from a thread which does not have one
+  const User? user
+
   virtual Mount root() { fileExt.root }
 
-  override Bool exists() { root.exists(uri) }
+  **
+  ** Run f with a context bound to the current thread.  Files are typically
+  ** resolved on a thread with a context, but may be used later from a thread
+  ** without one (background actors, cached file handles).  In that case we
+  ** create a context for the user which resolved the file so that mount
+  ** resolution and access checks still run against the correct user.
+  **
+  private Obj? withCx(|->Obj?| f)
+  {
+    if (Context.cur(false) != null) return f()
+    if (user == null) throw ContextUnavailableErr("No context and no user bound: $uri")
+    return fileExt.rt.newContext(user).asCur |->Obj?| { f() }
+  }
 
-  override Int? size() { root.size(uri) }
+  override Bool exists() { withCx |->Obj?| { root.exists(uri) } }
 
-  override Bool isEmpty() { root.isEmpty(uri) }
+  override Int? size() { withCx |->Obj?| { root.size(uri) } }
+
+  override Bool isEmpty() { withCx |->Obj?| { root.isEmpty(uri) } }
 
   override DateTime? modified
   {
-    get { root.modified(uri) }
+    get { withCx |->Obj?| { root.modified(uri) } }
     set { throw UnsupportedErr() }
   }
 
-  internal Str:Obj? attrs() { root.attrs(uri) }
+  internal Str:Obj? attrs() { withCx |->Obj?| { root.attrs(uri) } }
 
   override Bool isHidden() { attrs["hidden"] }
 
@@ -51,12 +74,12 @@ const class MountFile : SyntheticFile
   {
     parentUri := uri.parent
     if (parentUri == null) return null
-    return root.ext.resolve(parentUri)
+    return withCx |->Obj?| { root.ext.resolve(parentUri) }
   }
 
   override File[] list(Regex? pattern := null)
   {
-    File[] files := root.list(uri).map { HxListFile.wrap(it) }
+    File[] files := withCx |->Obj?| { root.list(uri).map { HxListFile.wrap(it) } }
     if (pattern == null) return files
     return files.findAll |f| { pattern.matches(f.name) }
   }
@@ -65,14 +88,14 @@ const class MountFile : SyntheticFile
 
   @Operator override File plus(Uri path, Bool checkSlash := true)
   {
-    root.ext.resolve(uri.plus(path))
+    withCx |->Obj?| { root.ext.resolve(uri.plus(path)) }
   }
 
-  virtual File toLocal() { root.toLocal(uri) ?: throw IOErr("Not a local file ${uri}") }
+  virtual File toLocal() { withCx |->Obj?| { root.toLocal(uri) } ?: throw IOErr("Not a local file ${uri}") }
 
   override File create()
   {
-    try return root.create(uri)
+    try return withCx |->Obj?| { root.create(uri) }
     catch (IOErr err) throw err
     catch (Err err) throw IOErr("Create failed", err)
   }
@@ -97,27 +120,30 @@ const class MountFile : SyntheticFile
     // to maintain security, we do not move files to non-mount files
     if (to isnot MountFile) throw IOErr("Cannot move to file of type $to.typeof: $to")
 
-    return root.moveTo(uri, to)
+    return withCx |->Obj?| { root.moveTo(uri, to) }
   }
 
   override Void delete()
   {
     if (!exists) return
-    try root.delete(uri)
+    try withCx |->Obj?| { root.delete(uri); return null }
     catch (IOErr err) throw err
     catch (Err err) throw IOErr("Delete failed", err)
   }
 
   override InStream in(Int? bufferSize := 4096)
   {
-    if (!exists) throw IOErr("File does not exist: $uri")
     if (isDir) throw IOErr("Cannot open InStream for directory: $uri")
-    return root.in(uri, bufferSize)
+    return withCx |->Obj?|
+    {
+      if (!root.exists(uri)) throw IOErr("File does not exist: $uri")
+      return root.in(uri, bufferSize)
+    }
   }
 
   override Obj? withIn(|InStream->Obj?| f)
   {
-    root.withIn(uri, null, f)
+    withCx |->Obj?| { root.withIn(uri, null, f) }
   }
 
   override OutStream out(Bool append := false, Int? bufferSize := 4096)
@@ -125,7 +151,7 @@ const class MountFile : SyntheticFile
     try
     {
       if (isDir) throw IOErr("Cannot write a directory: $uri")
-      return root.out(uri, append, bufferSize)
+      return withCx |->Obj?| { root.out(uri, append, bufferSize) }
     }
     catch (IOErr err) throw err
     catch (Err err) throw IOErr("Failed to opend $uri for write", err)
@@ -133,7 +159,7 @@ const class MountFile : SyntheticFile
 
   override Void withOut(|OutStream| f)
   {
-    root.withOut(uri, null, f)
+    withCx |->Obj?| { root.withOut(uri, null, f); return null }
   }
 }
 

@@ -35,7 +35,7 @@ const class FileExt : ExtObj, IFileExt
       // there is only the root (sys) project to resolve against
       uri = `/`.plus(uri)
     }
-    return MountFile(uri)
+    return MountFile(this, uri, Context.cur(false)?.user)
   }
 
   ** Get a map of all the mount configurations keyed by mount uri. If creds
