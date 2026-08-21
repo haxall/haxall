@@ -444,6 +444,7 @@ class RdfExporter : Exporter
     {
       inverse := inverseVal as Str
         ?: throw UnsupportedErr("Invalid inverse metadata for ${query.qname}: ${inverseVal.typeof}")
+      validateQueryPath(query, inverse, false)
       inverseQname := resolveQueryName(query, inverse)
       inverseQuery := resolveSpec(inverseQname)
       if (inverseQuery != null && inverseQuery.isQuery)
@@ -470,16 +471,13 @@ class RdfExporter : Exporter
 
   private Void writeViaPath(Spec query, Str source, Bool inverse)
   {
-    if (source.isEmpty)
-      throw UnsupportedErr("Empty query path for ${query.qname}")
+    validateQueryPath(query, source, true)
 
     quantifier := ""
     if (source.endsWith("+") || source.endsWith("*"))
     {
       quantifier = source[-1].toChar
       source = source[0..-2]
-      if (source.isEmpty)
-        throw UnsupportedErr("Empty query path for ${query.qname}")
     }
 
     property := resolveQueryName(query, source)
@@ -489,6 +487,23 @@ class RdfExporter : Exporter
     qname(property)
     if (inverse) w(" ]")
     if (!quantifier.isEmpty) w(" ]")
+  }
+
+  private Void validateQueryPath(Spec query, Str source, Bool allowQuantifier)
+  {
+    if (source.isEmpty)
+      throw UnsupportedErr("Empty query path for ${query.qname}")
+
+    path := source
+    if (allowQuantifier && (path.endsWith("+") || path.endsWith("*")))
+    {
+      path = path[0..-2]
+      if (path.isEmpty)
+        throw UnsupportedErr("Empty query path for ${query.qname}")
+    }
+
+    if (path.contains("+") || path.contains("*") || !queryPathRef.matches(path))
+      throw UnsupportedErr("Invalid query path for ${query.qname}: ${source}")
   }
 
   ** Resolve an unqualified path relative to the query declaration. A
@@ -1394,4 +1409,5 @@ class RdfExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   private Bool isSys
+  private static const Regex queryPathRef := Regex<|(?:[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*::[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*)|>
 }

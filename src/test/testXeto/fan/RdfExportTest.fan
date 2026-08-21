@@ -557,6 +557,49 @@ class RdfExportTest : AbstractXetoTest
     verifyFalse(equip.contains("temp:Equip.points"), equip)
   }
 
+  Void testQueryPathValidation()
+  {
+    verifyUnsupportedFragments(
+      Str<|Point : Dict
+           Holder : Dict {
+             values: Query<of:Point, via:"pointRef", inverse:"Point.values">
+           }|>, ["Holder.values", "cannot declare both via and inverse"])
+
+    verifyUnsupportedFragments(
+      Str<|Point : Dict
+           Holder : Dict { values: Query<of:Point, via:""> }|>,
+      ["Empty query path", "Holder.values"])
+    verifyUnsupportedFragments(
+      Str<|Point : Dict
+           Holder : Dict { values: Query<of:Point, inverse:""> }|>,
+      ["Empty query path", "Holder.values"])
+
+    verifyUnsupportedFragments(
+      Str<|Point : Dict
+           Holder : Dict { values: Query<of:Point, via:"pointRef++"> }|>,
+      ["Invalid query path", "Holder.values", "pointRef++"])
+    verifyUnsupportedFragments(
+      Str<|Point : Dict
+           Holder : Dict {
+             values: Query<of:Point, inverse:"Point.equipRef+">
+           }|>, ["Invalid query path", "Holder.values", "Point.equipRef+"])
+
+    verifyUnsupportedFragments(
+      Str<|Equip : Dict {
+             points: Query<of:Point, inverse:"Point.equips">
+           }
+           Point : Dict { equips: Query<of:Equip> }|>,
+      ["Equip.points", "must reference a via query", "Point.equips"])
+
+    rdf := export(
+      Str<|Equip : Dict {
+               points: Query<of:Point, inverse:"Point.equipRef">
+             }
+             Point : Dict { equipRef: Ref<of:Equip, maybe> }|>)
+    direct := propertyShape(rdf, "[ sh:inversePath temp:Point.equipRef ]")
+    verify(direct.contains("sh:class temp:Point ;"), direct)
+  }
+
   Void testUnsupportedListItemTypesFailClosed()
   {
     try
@@ -746,6 +789,19 @@ class RdfExportTest : AbstractXetoTest
     catch (UnsupportedErr err)
     {
       verify(err.msg.contains(expected), err.msg)
+    }
+  }
+
+  private Void verifyUnsupportedFragments(Str src, Str[] expected)
+  {
+    try
+    {
+      export(src)
+      fail("Expected unsupported RDF mapping: ${src}")
+    }
+    catch (UnsupportedErr err)
+    {
+      expected.each |fragment| { verify(err.msg.contains(fragment), err.msg) }
     }
   }
 
