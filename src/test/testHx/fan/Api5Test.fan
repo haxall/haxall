@@ -87,6 +87,14 @@ class Api5Test : ApiTest
     // a control param is reserved for the request and is not a func arg
     rec = (Str:Obj?)getJson(`readById?id=$siteA.id.id&xeto-version=5`)
     verifyEq(rec["dis"], "A")
+
+    // plain JSON decodes against the param specs: the id as a bare
+    // string and the level as a bare number.  The val position is
+    // dynamically typed by the point's own kind, which no position
+    // spec can supply - that is exactly what the box is for
+    g := (Str:Obj?)postJson(`pointWrite`,
+      """{"id":"$ptW.id.id", "level":16, "val":{"spec":"sys::Number", "val":"160"}}""")
+    verifyEq(g["spec"], "sys::Grid")
   }
 
   ** POST an op and decode the JSON response, verifying the version 5
@@ -97,12 +105,12 @@ class Api5Test : ApiTest
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "application/json"
     wc.postStr(body)
-    verifyEq(wc.resCode, 200)
-    verifyEq(wc.resHeaders["Content-Type"], "application/json")
-    verifyEq(wc.resHeaders["Xeto-Version"], "5")
     resBody := wc.resStr
     wc.close
     trace(wc, body, resBody)
+    verifyEq(wc.resCode, 200)
+    verifyEq(wc.resHeaders["Content-Type"], "application/json")
+    verifyEq(wc.resHeaders["Xeto-Version"], "5")
     return JsonInStream(resBody.in).readJson
   }
 

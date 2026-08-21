@@ -874,7 +874,7 @@ abstract class ApiTest : HxTest
   private StrBuf traceBuf := StrBuf()
 
   ** Hook to turn the trace report on/off
-  const Bool traceOn := true
+  const Bool traceOn := false
 
   ** Log passed to haystack::Client to capture its raw wire debug
   private const Log traceLog := ApiTraceLog(this)
