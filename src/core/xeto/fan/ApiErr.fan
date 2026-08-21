@@ -73,6 +73,11 @@ const class ApiErr : Err
   ** for every API error: it sets the status line, the standard headers,
   ** any err specific headers, and the clean JSON body.  Does nothing if
   ** the response is already committed.
+  **
+  ** The Xeto-Version header always reports the server's current version,
+  ** no matter which version the request selected: many errors occur
+  ** before version resolution, so echoing the negotiated version is not
+  ** even well defined on the error path.
   Void writeRes(WebRes res)
   {
     if (res.isCommitted) return
@@ -165,6 +170,12 @@ const class ApiErr : Err
   static ApiErr notAcceptableErrWriter(Str mime)
   {
     make(406, "NotAcceptableErr", "Unsupported Accept type: $mime")
+  }
+
+  ** Request Accept box param is not a supported box mode
+  static ApiErr notAcceptableErrBox(Str token)
+  {
+    make(406, "NotAcceptableErr", "Unsupported box mode: $token")
   }
 
   ** HTTP method is not implemented at all

@@ -70,6 +70,7 @@ class Api4Test : ApiTest
 
   private Void doRead4()
   {
+    traceSection("doRead4")
     verifyRead(a)
     verifyRead(b)
     verifyRead(c)
@@ -136,6 +137,7 @@ class Api4Test : ApiTest
   ** Also verify an op error returns an err grid with the trace by default.
   Void doErrGrid()
   {
+    traceSection("doErrGrid")
     verifyNotNull(makeContext(null).ext("hx.api", false))
 
     // eval an expression which throws; default settings keep the trace
@@ -150,7 +152,9 @@ class Api4Test : ApiTest
     wc.writeReq
     wc.reqOut.print(body).close
     wc.readRes
-    grid := ZincReader(wc.resStr.in).readGrid
+    resBody := wc.resStr
+    trace(wc, body, resBody)
+    grid := ZincReader(resBody.in).readGrid
     verify(grid.meta.has("err"))
     verify(grid.meta.has("errTrace"))
     verifyEq(grid.meta->errTrace.toStr.contains("Trace disabled"), false)
@@ -163,6 +167,7 @@ class Api4Test : ApiTest
   ** the result grid.
   Void doGets()
   {
+    traceSection("doGets")
     // ops which allow GET
     verifyOpMethods("about", true)
     verifyOpMethods("read",  true, "filter=id")
@@ -181,7 +186,9 @@ class Api4Test : ApiTest
 
   Grid callAsGet(Str path)
   {
-    str := c.toWebClient(path.toUri).getStr
+    wc := c.toWebClient(path.toUri)
+    str := wc.getStr
+    trace(wc, null, str)
     return ZincReader(str.in).readGrid
   }
 
@@ -199,6 +206,7 @@ class Api4Test : ApiTest
   ** args; only the simple name works for those five legacy ops.
   Void doQnames()
   {
+    traceSection("doQnames")
     // the qname is the axon style "lib::name", not the spec's own
     // "lib::Funcs.name".  The uri must be built absolute: as a relative
     // fragment the colon pair would parse as a scheme separator.
@@ -219,7 +227,9 @@ class Api4Test : ApiTest
   ** GET an op by qualified name and read the result grid
   Grid getQname(Str qname)
   {
-    str := qnameClient(qname).getStr
+    wc := qnameClient(qname)
+    str := wc.getStr
+    trace(wc, null, str)
     return ZincReader(str.in).readGrid
   }
 
@@ -230,8 +240,10 @@ class Api4Test : ApiTest
     wc.writeReq
     wc.readRes
     code := wc.resCode
-    try { wc.resIn.readAllBuf } catch (Err e) {}
+    Str? resBody := null
+    try { resBody = wc.resIn.readAllStr } catch (Err e) {}
     wc.close
+    trace(wc, null, resBody)
     return code
   }
 
@@ -253,6 +265,7 @@ class Api4Test : ApiTest
   ** into the op's arguments.
   Void doVersionParam()
   {
+    traceSection("doVersionParam")
     // v4 explicitly by param
     verifyEq(callAsGet("about?xeto-version=4").first->productName, sys.info.productName)
 
@@ -273,6 +286,7 @@ class Api4Test : ApiTest
     wc.readRes
     verifyEq(wc.resCode, 400)
     wc.close
+    trace(wc, null, null)
 
     // an unprefixed "version" is an op argument, not protocol control:
     // it reaches the op rather than being consumed by the pipeline
@@ -285,6 +299,7 @@ class Api4Test : ApiTest
 
   Void doFiletypes()
   {
+    traceSection("doFiletypes")
     req := Etc.makeMapGrid(null, ["expr": "today()", "ts": DateTime.now])
     res := Etc.toGrid(Date.today)
 
@@ -367,18 +382,21 @@ class Api4Test : ApiTest
 
     wc.readRes
     if (wc.resCode == 100) wc.readRes
-    if (wc.resCode != 200) { wc.close; return wc.resCode }
-    resBuf := wc.resIn.readAllBuf
+    if (wc.resCode != 200) { wc.close; trace(wc, reqBuf.seek(0).readAllStr, null); return wc.resCode }
+    resStr := wc.resIn.readAllStr
     wc.close
+    trace(wc, reqBuf.seek(0).readAllStr, resStr)
 
     resType := Filetype.apiMime(resMime, ApiVersion.v4) ?: Filetype.byName("zinc")
-    return decodeGrid(resType, resBuf.seek(0).in, jsonVersionOpts(resMime))
+    return decodeGrid(resType, resStr.in, jsonVersionOpts(resMime))
   }
 
   ** GET the given path and decode the response using given filetype name
   Grid callAsGetWith(Str path, Str filetype)
   {
-    str := c.toWebClient(path.toUri).getStr
+    wc := c.toWebClient(path.toUri)
+    str := wc.getStr
+    trace(wc, null, str)
     return decodeGrid(Filetype.byName(filetype), str.in, Etc.dict0)
   }
 
@@ -431,6 +449,7 @@ class Api4Test : ApiTest
   ** the v4 contract before any rewrite.
   Void doDefOps()
   {
+    traceSection("doDefOps")
     // defs: filter selects a single def
     g := c.callGrid("defs", Etc.makeMapGrid(null, ["filter":"def==^ahu"]))
     verifyEq(g.size, 1)

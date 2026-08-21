@@ -76,6 +76,7 @@ abstract class ApiTest : HxTest
 
   Void init()
   {
+    traceInit
     initData
     initSettings
     initClients
@@ -102,6 +103,7 @@ abstract class ApiTest : HxTest
   ** encoding, so they run once per dialect against the same assertions
   Void doAuth()
   {
+    traceSection("doAuth")
     verifyAuthErrJson
     verifyAuthBadHeaderJson
     verifyAuthChallengeNotJson
@@ -113,6 +115,7 @@ abstract class ApiTest : HxTest
     b.close
     c.close
     verifyErrMsg(IOErr#, "Bad HTTP response 403 Invalid or expired authToken") { c.about }
+    traceReport
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -184,6 +187,7 @@ abstract class ApiTest : HxTest
 
   Void initClients()
   {
+    traceSection("initClients (auth handshake)")
     a = authOk("alice",   "a-secret")
     b = authOk("bob",     "b-secret")
     c = authOk("charlie", "c-secret")
@@ -220,9 +224,12 @@ abstract class ApiTest : HxTest
     verifyEq(wc.resCode, 403)
     verifyNotEq(wc.resCode, 401)
     verifyEq(wc.resHeaders["Content-Type"], "application/json")
+    verifyErrVersionHeader(wc)
 
-    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    resBody := wc.resStr
     wc.close
+    trace(wc, null, resBody)
+    json := (Str:Obj?)JsonInStream(resBody.in).readJson
     verifyEq(json["spec"], "sys.api::AuthErr")
     verifyEq(json["status"], 403)
     verifyEq(json["dis"], "Invalid or expired authToken")
@@ -243,10 +250,12 @@ abstract class ApiTest : HxTest
 
     verifyEq(wc.resCode, 400)
     verifyEq(wc.resHeaders["Content-Type"], "application/json")
+    verifyErrVersionHeader(wc)
 
     str := wc.resStr
     json := (Str:Obj?)JsonInStream(str.in).readJson
     wc.close
+    trace(wc, null, str)
     verifyEq(json["spec"], "sys.api::AuthErr")
     verifyEq(json["status"], 400)
     verifyEq(json["dis"], "Missing username or handshakeToken in Authorization header")
@@ -267,11 +276,12 @@ abstract class ApiTest : HxTest
     verifyNotEq(wc.resHeaders["Content-Type"], "application/json")
     verifyEq(wc.resStr, "")
     wc.close
+    trace(wc, null, null)
   }
 
   private Client auth(Str user, Str pass)
   {
-    Client.open(uri, user, pass)
+    Client.open(uri, user, pass, ["log": traceLog])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -303,8 +313,10 @@ abstract class ApiTest : HxTest
     wc.readRes
     verifyEq(wc.resCode, 501)
 
-    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    resBody := wc.resStr
     wc.close
+    trace(wc, null, resBody)
+    json := (Str:Obj?)JsonInStream(resBody.in).readJson
     verifyEq(json["spec"], "sys.api::NotImplementedErr")
     verifyEq(json["status"], 501)
   }
@@ -317,8 +329,10 @@ abstract class ApiTest : HxTest
     wc.writeReq
     wc.readRes
     verifyEq(wc.resCode, 200)
-    try { wc.resIn.readAllBuf } catch (Err e) {}
+    Str? resBody := null
+    try { resBody = wc.resIn.readAllStr } catch (Err e) {}
     wc.close
+    trace(wc, null, resBody)
   }
 
   ** An op without <noSideEffects> rejects GET with 405 and a
@@ -332,11 +346,22 @@ abstract class ApiTest : HxTest
     verifyEq(wc.resCode, 405)
     verifyEq(wc.resPhrase.startsWith("GET not allowed for op"), true)
 
-    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    resBody := wc.resStr
     wc.close
+    trace(wc, null, resBody)
+    json := (Str:Obj?)JsonInStream(resBody.in).readJson
     verifyEq(json["spec"], "sys.api::MethodNotAllowedErr")
     verifyEq(json["status"], 405)
     verifyEq(json["allow"], Obj?["POST"])
+  }
+
+  ** Every error response reports the server's current version, no matter
+  ** which version the request selected: many errors occur before version
+  ** resolution, so echoing the negotiated version is not even well
+  ** defined on the error path
+  Void verifyErrVersionHeader(WebClient wc)
+  {
+    verifyEq(wc.resHeaders["Xeto-Version"], ApiVersion.cur.token)
   }
 
   Void verifyPermissionErr(|This| f)
@@ -362,6 +387,7 @@ abstract class ApiTest : HxTest
   ** programmatic contract; the status code is advisory.
   Void doErrJson()
   {
+    traceSection("doErrJson")
     // unknown proj
     err := verifyErrJson(`/api/badProjName/about`, 404)
     verifyEq(err["spec"], "sys.api::UnknownProjErr")
@@ -392,13 +418,17 @@ abstract class ApiTest : HxTest
   Str:Obj? verifyErrJson(Uri uri, Int code, Str? version := null)
   {
     wc := c.toWebClient(uri)
+    setVersionHeader(wc)
     if (version != null) wc.reqHeaders["Xeto-Version"] = version
     wc.writeReq
     wc.readRes
     verifyEq(wc.resCode, code)
     verifyEq(wc.resHeaders["Content-Type"], "application/json")
-    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    verifyErrVersionHeader(wc)
+    resBody := wc.resStr
     wc.close
+    trace(wc, null, resBody)
+    json := (Str:Obj?)JsonInStream(resBody.in).readJson
 
     // every err carries the advisory status as a JSON integer plus a
     // human readable dis matching the status phrase
@@ -420,6 +450,7 @@ abstract class ApiTest : HxTest
   ** identical in both - which is exactly why they migrate first.
   Void doOpWebFuncs()
   {
+    traceSection("doOpWebFuncs")
     verifyOpWebSpecs
     verifyFileOp
     verifyExtOp
@@ -430,6 +461,7 @@ abstract class ApiTest : HxTest
 
   Void doAbout()
   {
+    traceSection("doAbout")
     verifyAbout(a)
     verifyAbout(b)
     verifyAbout(c)
@@ -456,6 +488,7 @@ abstract class ApiTest : HxTest
 
   Void doCommit()
   {
+    traceSection("doCommit")
     verifyPermissionErr { this.verifyCommit(this.a) }
     verifyCommit(b)
     verifyCommit(c)
@@ -501,6 +534,7 @@ abstract class ApiTest : HxTest
   ** each level navigates by the navId of a returned row
   Void doNav()
   {
+    traceSection("doNav")
     if (sys.info.type.isSkySpark) return
 
     g := callGridOp(c, "nav", Etc.makeMapGrid(null, Str:Obj[:]))
@@ -528,6 +562,7 @@ abstract class ApiTest : HxTest
   ** the same payload per dialect
   Void doPointWrite()
   {
+    traceSection("doPointWrite")
     callOp(c, "pointWrite", ["id":ptW.id, "level":n(16), "val":n(160)])
     callOp(c, "pointWrite", ["id":ptW.id, "level":n(8), "val":n(80), "duration":n(1, "hr")])
     res := (Grid)callOp(c, "pointWrite", ["id":ptW.id])
@@ -553,6 +588,7 @@ abstract class ApiTest : HxTest
   ** parameters, which a v4 request carries as the request grid meta
   Void doWatches()
   {
+    traceSection("doWatches")
     // watchSub
     w := proj.watch
     verifyEq(w.isWatched(siteA.id), false)
@@ -586,11 +622,15 @@ abstract class ApiTest : HxTest
     verifyEq(w.isWatched(siteA.id), true)
     verifyEq(w.isWatched(eqA1.id), false)
 
-    // watchUnsub close; polling it now errs in both dialects
+    // watchUnsub close; polling the closed watch errs in both dialects:
+    // v4 as the legacy err grid, v5 as a 404 sys.api::UnknownEntityErr
+    // so a client can distinguish an expired watch from a server fault
     callGridOp(c, "watchUnsub", Etc.makeEmptyGrid(["watchId":watchId, "close":m]))
     verifyEq(w.list.size, 0)
     verifyEq(w.isWatched(siteA.id), false)
-    verifyErr(CallErr#) { this.callWatchPoll(this.c, watchId) }
+    try { callWatchPoll(c, watchId); fail }
+    catch (CallErr e)
+      verify(e.msg.startsWith("hx::UnknownWatchErr") || e.meta["spec"] == "sys.api::UnknownEntityErr", e.msg)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -601,6 +641,7 @@ abstract class ApiTest : HxTest
   ** the grid meta id, batch uses value columns with id column meta
   Void doHis()
   {
+    traceSection("doHis")
     tz := TimeZone("New_York")
     today := DateTime.now.toTimeZone(tz).midnight
     yesterday := today.date.minus(1day).toDateTime(Time.defVal, tz)
@@ -722,23 +763,29 @@ abstract class ApiTest : HxTest
     proj.sys.file.resolve(`/io/opweb.txt`).out.print("hello opWeb").close
 
     // GET downloads the file
-    verifyEq(c.toWebClient(`file/io/opweb.txt`).getStr, "hello opWeb")
+    dl := c.toWebClient(`file/io/opweb.txt`)
+    setVersionHeader(dl)
+    verifyEq(dl.getStr, "hello opWeb")
 
     // GET sets the identity headers which FileWeblet provides
     wc := c.toWebClient(`file/io/opweb.txt`)
+    setVersionHeader(wc)
     wc.writeReq; wc.readRes
     verifyEq(wc.resCode, 200)
     verifyNotNull(wc.resHeaders["ETag"])
     verifyNotNull(wc.resHeaders["Last-Modified"])
     etag := wc.resHeaders["ETag"]
-    wc.resIn.readAllBuf; wc.close
+    resBody := wc.resIn.readAllStr; wc.close
+    trace(wc, null, resBody)
 
     // conditional GET returns 304 Not Modified
     wc = c.toWebClient(`file/io/opweb.txt`)
+    setVersionHeader(wc)
     wc.reqHeaders["If-None-Match"] = etag
     wc.writeReq; wc.readRes
     verifyEq(wc.resCode, 304)
     wc.close
+    trace(wc, null, null)
 
     // unknown file is 404
     verifyEq(webCode(`file/io/nope-not-here.txt`), 404)
@@ -760,11 +807,14 @@ abstract class ApiTest : HxTest
   {
     // routes to hxd::HxdUserWeb which serves login.css
     wc := c.toWebClient(`ext/user/login.css`)
+    setVersionHeader(wc)
     wc.writeReq; wc.readRes
     verifyEq(wc.resCode, 200)
     verifyEq(wc.resHeaders["Content-Type"].startsWith("text/css"), true)
-    verify(wc.resIn.readAllStr.size > 0)
+    resBody := wc.resIn.readAllStr
+    verify(resBody.size > 0)
     wc.close
+    trace(wc, null, resBody)
 
     // the delegate sees its own modRel: HxdUserWeb 404s an unknown route
     verifyEq(webCode(`ext/user/notARoute`), 404)
@@ -780,6 +830,7 @@ abstract class ApiTest : HxTest
   Int webPut(Uri uri, Str body)
   {
     wc := c.toWebClient(uri)
+    setVersionHeader(wc)
     wc.reqMethod = "PUT"
     wc.reqHeaders["Content-Type"] = "text/plain"
     wc.reqHeaders["Content-Length"] = body.size.toStr
@@ -787,8 +838,10 @@ abstract class ApiTest : HxTest
     wc.reqOut.print(body).close
     wc.readRes
     code := wc.resCode
-    try { wc.resIn.readAllBuf } catch (Err e) {}
+    Str? resBody := null
+    try { resBody = wc.resIn.readAllStr } catch (Err e) {}
     wc.close
+    trace(wc, body, resBody)
     return code
   }
 
@@ -796,14 +849,154 @@ abstract class ApiTest : HxTest
   Int webCode(Uri uri, Str method := "GET")
   {
     wc := c.toWebClient(uri)
+    setVersionHeader(wc)
     wc.reqMethod = method
     wc.writeReq
     wc.readRes
     code := wc.resCode
-    try { wc.resIn.readAllBuf } catch (Err e) {}
+    Str? resBody := null
+    try { resBody = wc.resIn.readAllStr } catch (Err e) {}
     wc.close
+    trace(wc, null, resBody)
     return code
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Trace
+//////////////////////////////////////////////////////////////////////////
+
+  ** Report of every raw request/response for review by eye.  Each chunk
+  ** prints to stdout as it happens - so redirecting the test run captures
+  ** the whole report - and accumulates for the report file written in
+  ** cleanup.  Sites which exchange via WebClient call `trace` with the
+  ** payloads in hand; haystack::Client and the auth handshake are
+  ** captured through the client debug log.
+  private StrBuf traceBuf := StrBuf()
+
+  ** Hook to turn the trace report on/off
+  const Bool traceOn := true
+
+  ** Log passed to haystack::Client to capture its raw wire debug
+  private const Log traceLog := ApiTraceLog(this)
+
+  private Str? tracePendingReq
+
+  ** Enable capture of the haystack::Client wire debug
+  Void traceInit()
+  {
+    if (traceOn) traceLog.level = LogLevel.debug
+  }
+
+  ** Trace an exchange.  Call after readRes with the body payloads in
+  ** hand since the req/res streams can be read only once.
+  Void trace(WebClient wc, Str? reqBody, Str? resBody)
+  {
+    if (!traceOn) return
+    traceHeader(traceOp(wc.reqUri), wc.reqHeaders["Content-Type"], wc.resHeaders["Content-Type"], version)
+    s := StrBuf()
+    s.add("$wc.reqMethod $wc.reqUri.relToAuth\n")
+    wc.reqHeaders.each |v, n| { s.add("$n: $v\n") }
+    traceBody(s, reqBody)
+    s.add("\n")
+    s.add("$wc.resCode $wc.resPhrase\n")
+    wc.resHeaders.each |v, n| { s.add("$n: $v\n") }
+    traceBody(s, resBody)
+    s.add("\n")
+    traceAdd(s.toStr)
+  }
+
+  ** haystack::Client logs its raw request and response as a pair of
+  ** debug messages; join them under the standard exchange banner.  The
+  ** client sends no Xeto-Version header, so its exchanges are the
+  ** default v4 wire no matter which suite runs them - the banner
+  ** reports that wire version, not the suite's.
+  internal Void traceClientMsg(Str msg)
+  {
+    if (msg.startsWith(">")) { tracePendingReq = msg; return }
+    if (!msg.startsWith("<") || tracePendingReq == null) return
+    req := tracePendingReq
+    tracePendingReq = null
+    traceHeader(traceOp(traceClientUri(req)), traceClientHeader(req, "Content-Type"), traceClientHeader(msg, "Content-Type"), ApiVersion.def, "Client")
+    traceAdd(req.trimEnd + "\n\n" + msg.trimEnd + "\n\n")
+  }
+
+  ** Banner for one exchange: "### <op> <req-type> <res-type> <ver>"
+  private Void traceHeader(Str op, Str? reqType, Str? resType, ApiVersion ver, Str suffix := "")
+  {
+    line := "##################################################################\n"
+    header := "### $op " + (reqType ?: "-") + " " + (resType ?: "-") + " v$ver.token $suffix"
+    traceAdd(line + header.trimEnd + "\n" + line + "\n")
+  }
+
+  ** Mark a section of the trace report for the exchanges which follow;
+  ** each test phase method calls this with its own name
+  Void traceSection(Str title)
+  {
+    if (!traceOn) return
+    line := "//////////////////////////////////////////////////////////////////////////\n"
+    traceAdd("$line// $title\n$line\n")
+  }
+
+  ** Write the trace report file and echo its location
+  Void traceReport()
+  {
+    if (!traceOn) return
+    file := Env.cur.tempDir + `api-trace-v${version.token}.txt`
+    file.out.print(traceBuf.toStr).close
+    echo("   API trace report [$file.osPath]")
+  }
+
+  ** Every trace chunk prints to stdout as it happens and accumulates
+  ** for the report file
+  private Void traceAdd(Str chunk)
+  {
+    traceBuf.add(chunk)
+    Env.cur.out.print(chunk).flush
+  }
+
+  private Void traceBody(StrBuf s, Str? body)
+  {
+    if (body == null || body.isEmpty) return
+    s.add("\n").add(body.trimEnd).add("\n")
+  }
+
+  ** Op name for the trace header: the path after /api/{proj}/
+  private static Str traceOp(Uri uri)
+  {
+    uri.path.getSafe(2) ?: uri.toStr
+  }
+
+  ** The second line of a client debug message is "METHOD uri"
+  private static Uri traceClientUri(Str req)
+  {
+    line := req.splitLines.getSafe(1) ?: ""
+    return (line.split(' ').getSafe(1) ?: "").toUri
+  }
+
+  ** Pull a header value out of a client debug message or "-" if missing
+  private static Str traceClientHeader(Str msg, Str name)
+  {
+    line := msg.splitLines.find |x| { x.startsWith("$name:") }
+    return line == null ? "-" : line[name.size+1..-1].trim
+  }
+
+}
+
+**************************************************************************
+** ApiTraceLog
+**************************************************************************
+
+** Routes the haystack::Client wire debug to its test's trace report.
+** Overriding `log` keeps the records out of the standard log handlers
+** so they never pollute the console output; unregistered so the level
+** bump to debug is invisible to everything else.  The test is held via
+** Unsafe since a log must be const; the client logs synchronously on
+** the test's own thread so the hand-off is safe and the report stays
+** in exchange order.
+internal const class ApiTraceLog : Log
+{
+  new make(ApiTest test) : super("apiTrace", false) { this.testRef = Unsafe(test) }
+  override Void log(LogRec rec) { ((ApiTest)testRef.val).traceClientMsg(rec.msg) }
+  private const Unsafe testRef
 }
 

@@ -50,6 +50,7 @@ class Api5Test : ApiTest
   ** answers clean JSON with no grid envelope.
   Void doWriteRes()
   {
+    traceSection("doWriteRes")
     // about takes no args, so it exercises the response half alone; it
     // answers a typed AboutInfo instance whose spec tag rides the wire
     json := (Str:Obj?)postJson(`about`)
@@ -99,9 +100,10 @@ class Api5Test : ApiTest
     verifyEq(wc.resCode, 200)
     verifyEq(wc.resHeaders["Content-Type"], "application/json")
     verifyEq(wc.resHeaders["Xeto-Version"], "5")
-    res := JsonInStream(wc.resStr.in).readJson
+    resBody := wc.resStr
     wc.close
-    return res
+    trace(wc, body, resBody)
+    return JsonInStream(resBody.in).readJson
   }
 
   ** GET an op and decode the JSON response
@@ -113,9 +115,10 @@ class Api5Test : ApiTest
     wc.readRes
     verifyEq(wc.resCode, 200)
     verifyEq(wc.resHeaders["Xeto-Version"], "5")
-    res := JsonInStream(wc.resStr.in).readJson
+    resBody := wc.resStr
     wc.close
-    return res
+    trace(wc, null, resBody)
+    return JsonInStream(resBody.in).readJson
   }
 
   ** Verify a bad request reports the given status and ApiErr spec
@@ -125,9 +128,19 @@ class Api5Test : ApiTest
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "application/json"
     wc.postStr(body)
+    verifyResErr(wc, body, code, spec)
+  }
+
+  ** Verify the response reports the given status and ApiErr JSON body;
+  ** call after the exchange with the request body for the trace
+  private Void verifyResErr(WebClient wc, Str? reqBody, Int code, Str spec)
+  {
     verifyEq(wc.resCode, code)
-    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    verifyErrVersionHeader(wc)
+    resBody := wc.resStr
     wc.close
+    trace(wc, reqBody, resBody)
+    json := (Str:Obj?)JsonInStream(resBody.in).readJson
     verifyEq(json["spec"], spec)
     verifyEq(json["status"], code)
   }
@@ -233,6 +246,7 @@ class Api5Test : ApiTest
 
   Void doEval()
   {
+    traceSection("doEval")
     verifyEval(a)
     verifyEval(b)
     verifyEval(c)
@@ -267,6 +281,7 @@ class Api5Test : ApiTest
   ** read special, so only version 5 exercises the modeled params
   Void doReads()
   {
+    traceSection("doReads")
     // read: first match as a dict, null on unchecked miss
     rec := (Dict)call(c, "read", Etc.dict1("filter", "site and dis==\"B\""))
     verifyEq(rec["id"], siteB.id)
@@ -294,6 +309,7 @@ class Api5Test : ApiTest
   ** wire so the codec decodes each slot against its declared type
   Void doAboutTyped()
   {
+    traceSection("doAboutTyped")
     about := (Dict)call(c, "about", Str:Obj?[:])
     verifyEq(about["whoami"], "charlie")
     verifyEq(about["tz"], TimeZone.cur)
@@ -313,6 +329,7 @@ class Api5Test : ApiTest
   ** The libs listing reports the namespace's composing libraries
   Void doLibsFunc()
   {
+    traceSection("doLibsFunc")
     // typed decode through the codec; unqualified resolution narrows to
     // the <op> func even though hx::libs shares the name
     g := (Grid)call(c, "libs", Str:Obj?[:])
@@ -341,6 +358,7 @@ class Api5Test : ApiTest
   ** the Filetype registry
   Void doFiletypesFunc()
   {
+    traceSection("doFiletypesFunc")
     g := (Grid)call(c, "filetypes", Str:Obj?[:])
     verifyEq(g.meta->of, Ref("sys.api::FiletypeInfo"))
 
@@ -386,15 +404,19 @@ class Api5Test : ApiTest
   ** doCommit running under this dialect's callGridOp hook
   Void doGridOps()
   {
+    traceSection("doGridOps")
     db := proj.db
     verifyEq(db.readCount(Filter("gridOpTest")), 0)
     req := Etc.makeMapGrid(["commit":"add"], ["dis":"Grid Op Zinc", "gridOpTest":m])
+    body := ZincWriter.gridToStr(req)
     wc := c.toWebClient(`commit`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "text/zinc"
-    wc.postStr(ZincWriter.gridToStr(req))
+    wc.postStr(body)
     verifyEq(wc.resCode, 200)
+    resBody := wc.resStr
     wc.close
+    trace(wc, body, resBody)
     verifyEq(db.readCount(Filter("gridOpTest")), 1)
   }
 
@@ -406,6 +428,7 @@ class Api5Test : ApiTest
   ** spooled to a temp file, which the pipeline deletes after dispatch
   Void doUpload()
   {
+    traceSection("doUpload")
     addLib("hx.test")
 
     // random bytes prove raw pass-through: no JSON parse, no charset
@@ -423,8 +446,10 @@ class Api5Test : ApiTest
     wc.reqOut.writeBuf(bytes).close
     wc.readRes
     verifyEq(wc.resCode, 200)
-    json := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    resBody := wc.resStr
     wc.close
+    trace(wc, "[$bytes.size random bytes]", resBody)
+    json := (Str:Obj?)JsonInStream(resBody.in).readJson
 
     // func received the exact bytes under the param type's fileExts
     // extension; the base name is meaningless
@@ -447,8 +472,7 @@ class Api5Test : ApiTest
     setVersionHeader(wc)
     wc.writeReq
     wc.readRes
-    verifyEq(wc.resCode, 405)
-    wc.close
+    verifyResErr(wc, null, 405, "sys.api::MethodNotAllowedErr")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -461,29 +485,36 @@ class Api5Test : ApiTest
   ** haystack codec in v4 - which the other Api5Test requests cover.
   Void doNegotiation()
   {
+    traceSection("doNegotiation")
     // zinc request body: the first row cells are the named args, and
     // with no Accept header the response defaults to xeto JSON
+    body := ZincWriter.gridToStr(Etc.makeMapGrid(null, ["id":siteA.id]))
     wc := c.toWebClient(`readById`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "text/zinc"
-    wc.postStr(ZincWriter.gridToStr(Etc.makeMapGrid(null, ["id":siteA.id])))
+    wc.postStr(body)
     verifyEq(wc.resCode, 200)
     verifyEq(wc.resHeaders["Content-Type"], "application/json")
-    rec := (Str:Obj?)JsonInStream(wc.resStr.in).readJson
+    resBody := wc.resStr
     wc.close
+    trace(wc, body, resBody)
+    rec := (Str:Obj?)JsonInStream(resBody.in).readJson
     verifyEq(rec["dis"], "A")
 
     // Accept selects a zinc response for a json request
+    body = """{"id":"$siteA.id.id"}"""
     wc = c.toWebClient(`readById`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "application/json"
     wc.reqHeaders["Accept"] = "text/zinc"
-    wc.postStr("""{"id":"$siteA.id.id"}""")
+    wc.postStr(body)
     verifyEq(wc.resCode, 200)
     verifyEq(wc.resHeaders["Xeto-Version"], "5")
     verify(wc.resHeaders["Content-Type"].startsWith("text/zinc"))
-    grid := ZincReader(wc.resStr.in).readGrid
+    resBody = wc.resStr
     wc.close
+    trace(wc, body, resBody)
+    grid := ZincReader(resBody.in).readGrid
     verifyEq(grid.first->dis, "A")
 
     // hayson under v5 via its explicit vnd mime, both directions; bare
@@ -497,8 +528,10 @@ class Api5Test : ApiTest
     HaysonWriter(buf.out).writeGrid(Etc.makeMapGrid(null, ["id":siteA.id]))
     wc.postStr(buf.toStr)
     verifyEq(wc.resCode, 200)
-    grid = HaysonReader(wc.resStr.in).readGrid
+    resBody = wc.resStr
     wc.close
+    trace(wc, buf.toStr, resBody)
+    grid = HaysonReader(resBody.in).readGrid
     verifyEq(grid.first->dis, "A")
 
     // hayson v3 dialect selected by the version mime param
@@ -510,44 +543,120 @@ class Api5Test : ApiTest
     HaysonWriter(buf.out, Etc.dict1("v3", m)).writeGrid(Etc.makeMapGrid(null, ["id":siteA.id]))
     wc.postStr(buf.toStr)
     verifyEq(wc.resCode, 200)
-    grid = HaysonReader(wc.resStr.in, Etc.dict1("v3", m)).readGrid
+    resBody = wc.resStr
     wc.close
+    trace(wc, buf.toStr, resBody)
+    grid = HaysonReader(resBody.in, Etc.dict1("v3", m)).readGrid
     verifyEq(grid.first->dis, "A")
 
     // xeto and jeto behave exactly like application/json in this
     // dialect: one object of named args in, the bare result value out
+    body = "{id: @$siteA.id.id, checked: Bool \"true\"}"
     wc = c.toWebClient(`readById`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "text/xeto"
     wc.reqHeaders["Accept"] = "text/xeto"
-    wc.postStr("{id: @$siteA.id.id, checked: Bool \"true\"}")
+    wc.postStr(body)
     verifyEq(wc.resCode, 200)
     verify(wc.resHeaders["Content-Type"].startsWith("text/xeto"))
-    resDict := (Dict)proj.ns.io.readXeto(wc.resStr, Etc.dict1("externRefs", m))
+    resBody = wc.resStr
     wc.close
+    trace(wc, body, resBody)
+    resDict := (Dict)proj.ns.io.readXeto(resBody, Etc.dict1("externRefs", m))
     verifyEq(resDict->dis, "A")
 
+    body = """{"id":"$siteA.id.id"}"""
     wc = c.toWebClient(`readById`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "text/jeto"
     wc.reqHeaders["Accept"] = "text/jeto"
-    wc.postStr("""{"id":"$siteA.id.id"}""")
+    wc.postStr(body)
     verifyEq(wc.resCode, 200)
     verify(wc.resHeaders["Content-Type"].startsWith("application/json"))  // jeto is served as plain json
-    resDict = (Dict)proj.ns.io.readJeto(wc.resStr.in)
+    resBody = wc.resStr
     wc.close
+    trace(wc, body, resBody)
+    resDict = (Dict)proj.ns.io.readJeto(resBody.in)
     verifyEq(resDict->dis, "A")
+
+    // box modes: the Accept box param selects the JSON boxing.  none is
+    // the wire the JSON schemas describe, so the Number comes back in
+    // its plain form rather than the auto box naming its spec
+    body = """{"expr":"1kW"}"""
+    wc = c.toWebClient(`eval`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
+    wc.reqHeaders["Accept"] = "application/json;box=none"
+    wc.postStr(body)
+    verifyEq(wc.resCode, 200)
+    resBody = wc.resStr
+    wc.close
+    trace(wc, body, resBody)
+    verifyEq(JsonInStream(resBody.in).readJson, "1kW")
+
+    // the default is auto: the Number boxes so the untyped position
+    // survives the trip
+    wc = c.toWebClient(`eval`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
+    wc.postStr(body)
+    verifyEq(wc.resCode, 200)
+    resBody = wc.resStr
+    wc.close
+    trace(wc, body, resBody)
+    boxed := (Str:Obj?)JsonInStream(resBody.in).readJson
+    verifyEq(boxed["spec"], "sys::Number")
+    verifyEq(boxed["val"], "1kW")
+
+    // box=all boxes even a scalar whose plain form would decode back
+    body = """{"expr":"true"}"""
+    wc = c.toWebClient(`eval`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
+    wc.reqHeaders["Accept"] = "application/json;box=all"
+    wc.postStr(body)
+    verifyEq(wc.resCode, 200)
+    resBody = wc.resStr
+    wc.close
+    trace(wc, body, resBody)
+    verify(resBody.contains("sys::Bool"))
+    verifyEq(proj.ns.io.readJeto(resBody.in), true)
+
+    // the box param composes with the jeto mime too
+    body = """{"expr":"1kW"}"""
+    wc = c.toWebClient(`eval`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
+    wc.reqHeaders["Accept"] = "text/jeto;box=none"
+    wc.postStr(body)
+    verifyEq(wc.resCode, 200)
+    resBody = wc.resStr
+    wc.close
+    trace(wc, body, resBody)
+    verifyEq(JsonInStream(resBody.in).readJson, "1kW")
+
+    // an unrecognized box token is a 406 so a client never silently
+    // gets the wrong wire
+    wc = c.toWebClient(`eval`)
+    setVersionHeader(wc)
+    wc.reqHeaders["Content-Type"] = "application/json"
+    wc.reqHeaders["Accept"] = "application/json;box=bogus"
+    wc.postStr(body)
+    verifyResErr(wc, body, 406, "sys.api::NotAcceptableErr")
 
     // an opGrid op through jeto named args: the flag is inert on this
     // path and the grid rides as the "req" member
+    body = proj.ns.io.writeJetoToStr(Etc.dict1("req", Etc.makeEmptyGrid))
     wc = c.toWebClient(`nav`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "text/jeto"
     wc.reqHeaders["Accept"] = "text/jeto"
-    wc.postStr(proj.ns.io.writeJetoToStr(Etc.dict1("req", Etc.makeEmptyGrid)))
+    wc.postStr(body)
     verifyEq(wc.resCode, 200)
-    verify(proj.ns.io.readJeto(wc.resStr.in) is Grid)
+    resBody = wc.resStr
     wc.close
+    trace(wc, body, resBody)
+    verify(proj.ns.io.readJeto(resBody.in) is Grid)
 
     // ?xeto-filetype=xeto GET answers the bare value
     wc = c.toWebClient(`readById?id=$siteA.id.id&xeto-filetype=xeto`)
@@ -555,8 +664,10 @@ class Api5Test : ApiTest
     wc.writeReq
     wc.readRes
     verifyEq(wc.resCode, 200)
-    resDict = (Dict)proj.ns.io.readXeto(wc.resStr, Etc.dict1("externRefs", m))
+    resBody = wc.resStr
     wc.close
+    trace(wc, null, resBody)
+    resDict = (Dict)proj.ns.io.readXeto(resBody, Etc.dict1("externRefs", m))
     verifyEq(resDict->dis, "A")
 
     // ?xeto-filetype query override selects the writer for easy testing
@@ -565,8 +676,10 @@ class Api5Test : ApiTest
     wc.writeReq
     wc.readRes
     verifyEq(wc.resCode, 200)
-    grid = TrioReader(wc.resStr.in).readGrid
+    resBody = wc.resStr
     wc.close
+    trace(wc, null, resBody)
+    grid = TrioReader(resBody.in).readGrid
     verifyEq(grid.first->dis, "A")
 
     // a POST with no Content-Type is a 415, same as v4
@@ -577,16 +690,14 @@ class Api5Test : ApiTest
     wc.writeReq
     wc.reqOut.print("{}").close
     wc.readRes
-    verifyEq(wc.resCode, 415)
-    wc.close
+    verifyResErr(wc, "{}", 415, "sys.api::UnsupportedMediaTypeErr")
 
     // a Content-Type with no reader is a 415
     wc = c.toWebClient(`readById`)
     setVersionHeader(wc)
     wc.reqHeaders["Content-Type"] = "application/octet-stream"
     wc.postStr("""{"id":"x"}""")
-    verifyEq(wc.resCode, 415)
-    wc.close
+    verifyResErr(wc, """{"id":"x"}""", 415, "sys.api::UnsupportedMediaTypeErr")
 
     // an Accept with no writer is a 406
     wc = c.toWebClient(`readById`)
@@ -594,8 +705,7 @@ class Api5Test : ApiTest
     wc.reqHeaders["Content-Type"] = "application/json"
     wc.reqHeaders["Accept"] = "image/png"
     wc.postStr("""{"id":"$siteA.id.id"}""")
-    verifyEq(wc.resCode, 406)
-    wc.close
+    verifyResErr(wc, null, 406, "sys.api::NotAcceptableErr")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -615,7 +725,6 @@ class Api5Test : ApiTest
   {
     ns := proj.ns
     req := ns.io.writeJetoToStr(Etc.makeDict(args))
-    if (debug) { echo(">>>> $op"); echo(req) }
 
     wc := c.toWebClient(op.toUri)
     setVersionHeader(wc)
@@ -623,7 +732,7 @@ class Api5Test : ApiTest
     wc.postStr(req)
     res := wc.resStr
     wc.close
-    if (debug) { echo("<<<< $wc.resCode"); echo(res) }
+    trace(wc, req, res)
 
     if (wc.resCode != 200) throw toCallErr(res, wc.resCode)
     return ns.io.readJeto(res.in)
@@ -639,7 +748,5 @@ class Api5Test : ApiTest
     if (json == null || json["dis"] == null) json = Str:Obj?["dis":"Bad HTTP response $code"]
     return CallErr.makeMeta(Etc.makeDict(json))
   }
-
-  const Bool debug := false
 }
 

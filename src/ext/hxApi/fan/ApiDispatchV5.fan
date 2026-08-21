@@ -194,6 +194,7 @@ class ApiDispatchV5 : ApiDispatch
   {
     // resolve filetype per v5 rules: jeto is default and bare application/json
     filetype := acceptFiletype
+    opts := acceptOpts
 
     // always include version header
     res.headers["Xeto-Version"] = version.token
@@ -201,9 +202,9 @@ class ApiDispatchV5 : ApiDispatch
     // the xeto family answers the bare result value with no envelope;
     // everything else is enveloped as a grid
     if (filetype.isXetoIO)
-      writeResBody(filetype, result)
+      writeResBody(filetype, result, opts)
     else
-      writeResGrid(filetype, result)
+      writeResGrid(filetype, result, opts)
   }
 
 }

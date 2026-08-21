@@ -304,14 +304,15 @@ const class Filetype
 
   ** Encode a value to an HTTP response body.  Grid formats bridge any
   ** value through Etc.toGrid with null as the empty grid; the xeto
-  ** family writes the value whole.  Caller must have verified `canWrite`.
-  Void apiEncode(Namespace ns, OutStream out, Obj? val)
+  ** family writes the value whole.  Opts carry encode options such as
+  ** the "box" mode for jeto.  Caller must have verified `canWrite`.
+  Void apiEncode(Namespace ns, OutStream out, Obj? val, Dict opts := Etc.dict0)
   {
     if (isXetoIO)
     {
       // xeto has no null literal, so a null result is an empty body
       if (name == "xeto") { if (val != null) ns.io.writeXeto(out, val) }
-      else ns.io.writeJeto(out, val)
+      else ns.io.writeJeto(out, val, opts)
       return
     }
 

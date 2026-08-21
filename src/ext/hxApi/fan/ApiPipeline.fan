@@ -66,6 +66,10 @@ class ApiPipeline
     {
       writeErr(ApiErr.unknownEntityErr(e.msg, e.cause))
     }
+    catch (UnknownWatchErr e)
+    {
+      writeErr(ApiErr.unknownEntityErr(e.msg, e.cause))
+    }
     catch (TimeoutErr e)
     {
       writeErr(ApiErr.timeoutErr(e.msg, e.cause))

@@ -107,7 +107,7 @@ class ApiDispatchV4 : ApiDispatch
   {
     // v4 answers every result as a grid; the Accept default is zinc
     // and bare application/json is hayson
-    writeResGrid(acceptFiletype, result)
+    writeResGrid(acceptFiletype, result, acceptOpts)
   }
 }
 

@@ -49,7 +49,7 @@ class AuthClientContext : HaystackClientAuth
   const Log log
 
   ** User agent string
-  const Str? userAgent := "SkyArc/$typeof.pod.version"
+  const Str? userAgent := "Haxall/$typeof.pod.version"
 
   ** SocketConfig for WebClient sockets
   const SocketConfig socketConfig
@@ -316,3 +316,4 @@ class AuthClientContext : HaystackClientAuth
     res := cx.get(cx.prepare(WebClient(cx.uri)))
   }
 }
+

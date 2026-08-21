@@ -124,14 +124,14 @@ abstract class ApiDispatch
 
   ** Write the result enveloped as a grid, which is how both protocol
   ** versions answer the grid based filetypes
-  Void writeResGrid(Filetype filetype, Obj? result)
+  Void writeResGrid(Filetype filetype, Obj? result, Dict opts := Etc.dict0)
   {
-    writeResBody(filetype, result == null ? Etc.emptyGrid : Etc.toGrid(result))
+    writeResBody(filetype, result == null ? Etc.emptyGrid : Etc.toGrid(result), opts)
   }
 
   ** Write the response body: status code, headers, and gzip plumbing
   ** around the filetype encoder
-  Void writeResBody(Filetype filetype, Obj? val)
+  Void writeResBody(Filetype filetype, Obj? val, Dict opts := Etc.dict0)
   {
     gzip := acceptGzip
 
@@ -144,7 +144,7 @@ abstract class ApiDispatch
     // write result
     OutStream out := res.out
     if (gzip) out = Zip.gzipOutStream(out)
-    filetype.apiEncode(cx.ns, out, val)
+    filetype.apiEncode(cx.ns, out, val, opts)
     out.close
   }
 
@@ -207,10 +207,22 @@ abstract class ApiDispatch
     return filetype
   }
 
+  ** Encode options from the Accept mime params: the "box" param selects
+  ** the JSON boxing mode for the jeto responses.  An unrecognized box
+  ** token is a 406 so a client never silently gets the wrong wire.
+  Dict acceptOpts()
+  {
+    box := acceptMimeType?.params?.get("box")
+    if (box == null) return Etc.dict0
+    if (box != "none" && box != "auto" && box != "all") throw ApiErr.notAcceptableErrBox(box)
+    return Etc.dict1("box", box)
+  }
+
   ** Return the Accept mime type, or null when no preference is
   ** given so that `Filetype.apiMime` supplies the version default.
-  ** Raise 406 ApiErr for invalid accepts.
-  private MimeType? acceptMimeType()
+  ** Raise 406 ApiErr for invalid accepts.  Once computed so that
+  ** `acceptFiletype` and `acceptOpts` share one parse.
+  private once MimeType? acceptMimeType()
   {
     // check for filetype in query string for easy testing
     queryFiletype := req.uri.query["xeto-filetype"]
