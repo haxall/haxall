@@ -111,6 +111,11 @@ const mixin RemoteRepo : LibRepo
   ** Download the xetolib zip for given name and version
   abstract Buf fetch(Str name, Version version)
 
+  ** Publish a xetolib zip file to the repo and return its published
+  ** version.  Requires a configured auth token with publish permission.
+  ** Repos which do not support publishing raise UnsupportedErr.
+  virtual LibVersion publish(File file) { throw UnsupportedErr("Repo does not support publish: $name") }
+
   ** Return if an env var name if auth token is configured for this repo
   @NoDoc abstract Str? authTokenEnvName()
 

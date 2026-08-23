@@ -64,6 +64,11 @@ const class HttpRepo : MRemoteRepo
     callBuf("repoFetch", ["lib": name, "version": version.toStr])
   }
 
+  override LibVersion publish(File file)
+  {
+    toLibVersion(callPost("repoPublish", file))
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Decoding
 //////////////////////////////////////////////////////////////////////////
@@ -96,6 +101,26 @@ const class HttpRepo : MRemoteRepo
     try
     {
       c.writeReq
+      c.readRes
+      checkRes(c, op)
+      return JsonInStream(c.resStr.in).readJson
+    }
+    finally c.close
+  }
+
+  ** Invoke an op as a POST of the file's raw bytes and decode the
+  ** JSON response
+  private Obj? callPost(Str op, File file)
+  {
+    c := toWebClient(op, Str:Str[:])
+    try
+    {
+      c.reqMethod = "POST"
+      c.reqHeaders["Content-Type"] = "application/xetolib"
+      c.reqHeaders["Content-Length"] = file.size.toStr
+      c.writeReq
+      file.in.pipe(c.reqOut, file.size)
+      c.reqOut.close
       c.readRes
       checkRes(c, op)
       return JsonInStream(c.resStr.in).readJson
