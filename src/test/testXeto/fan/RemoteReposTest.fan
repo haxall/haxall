@@ -363,6 +363,25 @@ class RemoteReposTest : AbstractXetoTest
     verifyLibNotInstalled("beta")
   }
 
+  ** Fetched bytes must hash to the digest the catalog advertised;
+  ** a lib with no advertised digest installs unverified
+  Void testFetchDigest()
+  {
+    initEnv
+    remote = reg.add("test", `http://test-1/foo/bar`, Etc.dict0)
+
+    // catalog digest matches the fetched bytes
+    inst := LibInstaller(env).install(remote, [LibDepend("good.digest")])
+    inst.execute
+    verifyLibInstalled("good.digest", "1.0.0")
+
+    // catalog digest does not match: nothing lands in the install dir
+    inst = LibInstaller(env).install(remote, [LibDepend("evil.digest")])
+    try { inst.execute; fail("no digest err") }
+    catch (InstallExecuteErr e) verify(e.cause.msg.startsWith("Digest mismatch"), e.cause.msg)
+    verifyLibNotInstalled("evil.digest")
+  }
+
   Void verifyPlan(LibInstaller inst, Str expect)
   {
     debug := false
@@ -503,6 +522,11 @@ const class TestRemoteRepo : MRemoteRepo
      lib("bad.b",   "4.0.0", "bad.a"),
      lib("bad.c",   "4.0.0", "notfound"),
      lib("bad.d",   "4.0.0", "bad.c-9.0.0"),
+
+     // catalog advertised digests: good's matches its fetch bytes,
+     // evil's does not
+     lib("good.digest", "1.0.0", "sys", XetoCrypto.digest(toZip("good.digest", "1.0.0", LibDepend("sys").toStr))),
+     lib("evil.digest", "1.0.0", "sys", "sha256:tampered"),
     ]
   }
 
@@ -511,22 +535,30 @@ const class TestRemoteRepo : MRemoteRepo
   override Buf fetch(Str name, Version version)
   {
     v := this.version(name, version)
+    return toZip(name, version.toStr, v.depends.join(";"))
+  }
 
+  ** Fixed entry timestamp so the zip bytes are deterministic and the
+  ** catalog can advertise their digest
+  private static Buf toZip(Str name, Str version, Str depends)
+  {
     props := Str:Str[:]
     props.ordered = true
     props["name"]    = name
-    props["version"] = version.toStr
-    props["depends"] = v.depends.join(";")
+    props["version"] = version
+    props["depends"] = depends
     props["doc"]     = ""
 
     buf := Buf()
     zip := Zip.write(buf.out)
-    zip.writeNext(XetoUtil.xetoMetaPropsUri).writeProps(props).close
+    zip.writeNext(XetoUtil.xetoMetaPropsUri, zipTs).writeProps(props).close
     zip.close
     return buf.toImmutable
   }
 
-  LibVersion lib(Str n, Str v, Str depends := "")
+  private static const DateTime zipTs := DateTime(2026, Month.jan, 1, 0, 0, 0, 0, TimeZone.utc)
+
+  LibVersion lib(Str n, Str v, Str depends := "", Str? digest := null)
   {
     d := depends.split(',').map |dx->LibDepend|
     {
@@ -535,7 +567,7 @@ const class TestRemoteRepo : MRemoteRepo
       dc := toks.getSafe(1) ?: LibDependVersions.wildcard.toStr
       return LibDepend(dn, LibDependVersions(dc))
     }
-    return RemoteLibVersion(n, Version(v), "blah", d)
+    return RemoteLibVersion(n, Version(v), "blah", d, digest)
   }
 }
 

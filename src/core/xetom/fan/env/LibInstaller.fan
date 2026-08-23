@@ -286,10 +286,18 @@ class LibInstaller
 
       // fetch from remote repo
       contents := p.repo.fetch(p.name, p.newVer.version)
+
+      // when the catalog advertised a digest the fetched bytes must
+      // hash to it - a tampered or corrupted artifact is rejected
+      // before anything lands in the install dir
+      digest := XetoCrypto.digest(contents)
+      if (p.newVer.digest != null && p.newVer.digest != digest)
+        throw Err("Digest mismatch: catalog $p.newVer.digest != fetched $digest")
+
       libFile.out.writeBuf(contents).close
 
       // write origin file
-      originFile.out.writeProps(p.toOriginProps(contents)).close
+      originFile.out.writeProps(p.toOriginProps(digest)).close
 
       return [libFile, originFile]
     }
@@ -381,14 +389,14 @@ const class LibInstallPlan
   override Str toStr() { "$action $curVer -> $newVer" }
 
   ** Origin props file
-  Str:Str toOriginProps(Buf contents)
+  Str:Str toOriginProps(Str digest)
   {
     if (repo == null) throw Err("Not origin action $this")
     return Str:Str[
       "repo":    repo.name,
       "uri":     repo.uri.toStr,
       "fetched": DateTime.now.toStr,
-      "digest":  XetoCrypto.digest(contents),
+      "digest":  digest,
     ]
   }
 }
