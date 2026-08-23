@@ -38,6 +38,8 @@ const class RemoteEnv : MEnv
 
   override Int computeInheritanceDigest(Spec t) { throw unavailErr() }
 
+  override Str libCacheKey(MLib lib) { "$lib.name-$lib.version" }
+
   override Void clearLibCache() {}
 
   override Str mode() { "browser" }

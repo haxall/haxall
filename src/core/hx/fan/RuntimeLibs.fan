@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 using haystack
 
 **
@@ -119,23 +120,23 @@ enum class RuntimeLibBasis
 **************************************************************************
 
 **
-** Runtime library pack is a digest based on lib names and versions.
-** It is used to build a xeto pack for browser serialization.  It includes
-** my own libs with an ok status, but for project runtimes excludes sys libs
-** and the special project companion lib.  It changes only when the lib
-** names/versions are modified, it is *not* based on actual lib contents.
+** Runtime library pack is a digest based on a list of libs using a hash
+** of `Lib.cacheKey`.  It is used to build a xeto pack for browser serialization.
+** It includes my own libs with an ok status, but for project runtimes excludes
+** sys libs and the special project companion lib.  It changes only when the lib
+** cacheKey is modified - it is *not* based on actual lib contents.
 **
 @NoDoc
 const class RuntimeLibPack
 {
-  new make(Str digest, Lib[] libs)
+  new make(Lib[] libs)
   {
-    this.digest = digest
-    this.libs   = libs
+    this.libs = libs
+    this.cacheKey = XetoCrypto.libsCacheKey(libs)
   }
 
-  ** Digest of the libs
-  const Str digest
+  ** Cache key the libs hashed from Lib.cacheKey
+  const Str cacheKey
 
   ** Libs in dependency order
   const Lib[] libs

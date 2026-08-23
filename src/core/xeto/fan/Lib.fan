@@ -80,6 +80,13 @@ const mixin Lib : Dict
   ** Is this the `proj` companion library
   @NoDoc abstract Bool isCompanion()
 
+  ** Cache key for this library's file state.  This is not a content
+  ** digest: it is a cheap value which changes whenever the library's
+  ** packaged files change, so it can be used to key caches derived from
+  ** this library.  It is stable across restarts, so two runtimes using
+  ** the same library version compute the same key.
+  @NoDoc abstract Str cacheKey()
+
   ** Does this library contain client side build output under "/dist"
   @NoDoc abstract Bool hasDist()
 

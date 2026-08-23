@@ -98,6 +98,11 @@ const final class MLib
     specs.get("Funcs", false)?.slots ?: SpecMap.empty
   }
 
+  once Str cacheKey()
+  {
+    ((MEnv)XetoEnv.cur).libCacheKey(this)
+  }
+
   override Str toStr() { name }
 
 //////////////////////////////////////////////////////////////////////////
@@ -231,6 +236,8 @@ const final class XetoLib : Lib, Dict
   override Bool isSys() { m.isSys }
 
   override Bool isCompanion() { m.isCompanion }
+
+  override Str cacheKey() { m.cacheKey }
 
   override Bool hasDist() { m.hasFlag(MLibFlags.hasDist) }
 

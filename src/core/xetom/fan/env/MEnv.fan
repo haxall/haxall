@@ -60,6 +60,9 @@ abstract const class MEnv : XetoEnv
   ** compute SHA-1, the browser cannot
   abstract Int computeInheritanceDigest(Spec t)
 
+  ** Compute SHA-256 digest for Lib.cacheKey
+  abstract Str libCacheKey(MLib lib)
+
 //////////////////////////////////////////////////////////////////////////
 // Namespace
 //////////////////////////////////////////////////////////////////////////

@@ -36,11 +36,14 @@ abstract const class LocalEnv : MEnv
     createNamespace(repo.libs)
   }
 
+  override Str libCacheKey(MLib lib)
+  {
+    XetoCrypto.libCacheKey(lib)
+  }
+
   override Int computeInheritanceDigest(Spec t)
   {
-    d := Crypto.cur.digest("SHA-1")
-    updateInheritanceDigest(d, t)
-    return d.digest.readS8
+    XetoCrypto.computeInheritanceDigest(t)
   }
 
   private static Void updateInheritanceDigest(Digest d, Spec t)

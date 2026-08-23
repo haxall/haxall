@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 using haystack
 using hx
 
@@ -50,6 +51,28 @@ class UtilTest : HxTest
     verifyEq(msg, expect)
     if (expect == null) HxUtil.checkProjName(n)
     else verifyErr(ArgErr#) { HxUtil.checkProjName(n) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Pods Cache Key
+//////////////////////////////////////////////////////////////////////////
+
+  Void testPodsCacheKey()
+  {
+    pods := [Pod.find("hx"), Pod.find("haystack"), Pod.find("axon")]
+    key := XetoCrypto.podsCacheKey(pods)
+
+    // key is the bare base64uri SHA-256, no prefix
+    verifyEq(key.size, 43)
+    verifyEq(key.contains(":"), false)
+
+    // deterministic and order independent; caller's list is not resorted
+    verifyEq(XetoCrypto.podsCacheKey(pods.dup.reverse), key)
+    verifyEq(pods.first.name, "hx")
+
+    // a different pod set yields a different key
+    verifyNotEq(XetoCrypto.podsCacheKey(pods[0..1]), key)
+    verifyNotEq(XetoCrypto.podsCacheKey(pods.dup.add(Pod.find("folio"))), key)
   }
 
 //////////////////////////////////////////////////////////////////////////

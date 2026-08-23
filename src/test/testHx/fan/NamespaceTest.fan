@@ -8,6 +8,8 @@
 
 using concurrent
 using xeto
+using xetom
+using xetoc
 using haystack
 using axon
 using hx
@@ -124,6 +126,110 @@ class NamespaceTest : HxTest
     verifySame(a1, a2)
     verifyNotSame(b1, b2)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Cache Keys
+//////////////////////////////////////////////////////////////////////////
+
+  ** Lib.cacheKey keys caches derived from a lib, and the runtime's pack
+  ** digest composes those keys.  What matters is that the same content
+  ** gives the same value, and any change gives a different one.
+  @HxTestProj
+  Void testCacheKeys()
+  {
+    ns := proj.ns
+
+    // every lib has a key, stable on repeated reads and unique per lib
+    byKey := Str:Str[:]
+    ns.libs.each |lib|
+    {
+      key := lib.cacheKey
+      verify(!key.isEmpty)
+      verifySame(key, lib.cacheKey)
+
+      dup := byKey[key]
+      if (dup != null) fail("$lib.name and $dup have the same cacheKey")
+      byKey[key] = lib.name
+    }
+    verifyEq(byKey.size, ns.libs.size)
+
+    // the pack digest is derived from those keys
+    pack1 := proj.libs.pack
+    verify(!pack1.cacheKey.isEmpty)
+    verifySame(pack1, proj.libs.pack)
+
+    // the pack carries the runtime's own libs, never the companion
+    verify(pack1.libs.all |lib| { lib.name != "proj" })
+
+    // the pack keeps dependency order: a reader loads the libs in this
+    // order and resolves each one's depends as it goes, so sorting them
+    // by name would leave a lib referring to one not yet loaded
+    verifyEq(pack1.libs.first.name, "sys")
+    verifyLibsInDependOrder(pack1.libs)
+
+    // a sys lib is not part of a project's pack, so enabling one
+    // leaves the digest alone
+    addLib("hx.task")
+    pack2 := proj.libs.pack
+    verifyEq(pack1.cacheKey, pack2.cacheKey)
+
+    // and the libs it does carry keep their keys across the rebuild
+    ns2 := proj.ns
+    pack1.libs.each |old|
+    {
+      cur := ns2.lib(old.name, false)
+      if (cur != null) verifyEq(old.cacheKey, cur.cacheKey)
+    }
+  }
+
+  ** A lib read from its xetolib zip keys the same as the same lib read
+  ** from its source dir.  The zip keeps the source file timestamps but
+  ** truncates them to its two second resolution, so the key rounds to
+  ** that resolution to let both forms share one cached artifact.
+  Void testCacheKeyZipMatchesSource()
+  {
+    env := XetoEnv.cur
+    name := "hx.test.xeto"
+
+    // resolve from source, which is how the dev environment loads it
+    vers := env.repo.resolveDepends([LibDepend(name)])
+    srcLib := env.createNamespace(vers).lib(name)
+
+    // skip unless every lib in the closure has a built zip; this is a
+    // dev environment which builds from source, so the zips only exist
+    // once the libs have been built
+    missing := vers.findAll |v| { XetoUtil.srcToLibZip(v)?.exists != true }
+    if (!missing.isEmpty)
+    {
+      echo("SKIP testCacheKeyZipMatchesSource: no zip for " + missing.map |v->Str| { v.name })
+      return
+    }
+
+    // load the same closure from the zips
+    zipVers := vers.map |v->LibVersion| { FileLibVersion.loadZipFile(XetoUtil.srcToLibZip(v)) }
+    zipLib := env.createNamespace(zipVers).lib(name)
+
+    verifyEq(uris(zipLib.files.list), uris(srcLib.files.list))
+    verifyEq(zipLib.cacheKey, srcLib.cacheKey)
+  }
+
+  ** Verify every lib comes after all the libs it depends on
+  private Void verifyLibsInDependOrder(Lib[] libs)
+  {
+    seen := Str:Str[:]
+    libs.each |lib|
+    {
+      lib.depends.each |d|
+      {
+        // a depend outside this set is fine; one inside must come first
+        if (libs.any |x| { x.name == d.name } && seen[d.name] == null)
+          fail("$lib.name comes before its depend $d.name")
+      }
+      seen[lib.name] = lib.name
+    }
+  }
+
+  private Uri[] uris(LibFile[] files) { files.map |f->Uri| { f.uri }.sort }
 
 }
 

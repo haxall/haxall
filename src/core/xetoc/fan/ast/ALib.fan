@@ -200,6 +200,8 @@ internal const class ALib : Lib, ADoc
 
   override SpecMap funcs() { throw UnsupportedErr() }
 
+  override Str cacheKey() { throw UnsupportedErr() }
+
   override Bool hasDist() { throw UnsupportedErr() }
 
   override Bool hasChapters() { throw UnsupportedErr() }

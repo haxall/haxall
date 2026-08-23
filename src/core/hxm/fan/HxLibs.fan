@@ -539,16 +539,7 @@ const class HxLibs : RuntimeLibs
       // add to our pack
       packLibs.add(lib)
     }
-
-    // compute digest using sort order
-    digest := Crypto.cur.digest("SHA-1")
-    packLibs.dup.sort.each |x|
-    {
-      digest.updateAscii(x.name)
-      digest.updateAscii(x.version.toStr)
-    }
-
-    return RuntimeLibPack(digest.digest.toBase64Uri, packLibs)
+    return RuntimeLibPack(packLibs)
   }
 
 //////////////////////////////////////////////////////////////////////////
