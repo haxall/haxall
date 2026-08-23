@@ -633,7 +633,10 @@ class RdfExporter : Exporter
 
   private Spec[] choiceMembers(Spec slot)
   {
-    choice := ns.choice(slot)
+    // The declared slot type defines the selected branch. For an intermediate
+    // Choice this includes the marker-bearing type itself and its descendants,
+    // but excludes sibling branches under the root Choice.
+    choiceType := slot.type
 
     // Namespace types cover installed dependency libraries. curLib is merged
     // explicitly because temporary or currently-exported libraries are not
@@ -647,7 +650,7 @@ class RdfExporter : Exporter
     candidates.each |candidate|
     {
       if (!candidate.isChoice) return
-      if (!candidate.isa(choice.type)) return
+      if (!candidate.isa(choiceType)) return
       if (!candidate.slots.list.any |Spec memberSlot->Bool| { memberSlot.isMarker }) return
       members.add(candidate)
     }
@@ -727,9 +730,10 @@ class RdfExporter : Exporter
     maxSize := intMeta(slot, "maxSize")
     if (maxSize != null) w("    sh:maxLength ").w(maxSize).w(" ;").nl
 
-    pattern := scalarPattern(slot, datatype)
-    if (pattern != null)
+    scalarPatterns(slot, datatype).each |pattern|
+    {
       w("    sh:pattern ").literal(pattern).w(" ;").nl
+    }
 
     if (meta.has("nonEmpty"))
       w("    sh:pattern ").literal("\\S").w(" ;").nl
@@ -766,13 +770,35 @@ class RdfExporter : Exporter
     throw UnsupportedErr("RDF scalar datatype not supported: ${type.qname}")
   }
 
-  private Str? scalarPattern(Spec slot, Str datatype)
+  ** Return every string pattern contributed by the custom scalar hierarchy,
+  ** followed by any slot-level refinement. Each pattern is a separate SHACL
+  ** constraint, so a value must satisfy the complete inherited contract.
+  private Str[] scalarPatterns(Spec slot, Str datatype)
   {
     // Xeto's built-in numeric/date patterns describe source syntax and are
     // not SHACL regex constraints on RDF typed literals.
-    if (datatype != "xsd:string") return null
+    if (datatype != "xsd:string") return Str[,]
+
+    patterns := Str[,]
+    added := Str:Bool[:]
+    chain := Spec[,]
+    seen := Str:Bool[:]
+    Spec? cur := slot.type
+    while (cur != null && cur.isScalar && cur.lib.name != "sys")
+    {
+      if (seen.containsKey(cur.qname))
+        throw UnsupportedErr("Cyclic Xeto type inheritance while resolving ${slot.type.qname}: ${cur.qname}")
+      seen[cur.qname] = true
+      chain.add(cur)
+      cur = cur.base
+    }
+    chain.reverse.each |type|
+    {
+      addScalarPattern(patterns, added, type.qname, type.meta["pattern"])
+    }
+
     patternVal := slot.meta["pattern"]
-    if (patternVal == null) return null
+    if (patternVal == null) return patterns
     pattern := patternVal as Str
       ?: throw UnsupportedErr("Invalid pattern metadata for ${slot.qname}: ${patternVal.typeof}")
 
@@ -786,9 +812,24 @@ class RdfExporter : Exporter
       typePattern := typePatternVal as Str
       if (typePatternVal != null && typePattern == null)
         throw UnsupportedErr("Invalid pattern metadata for ${type.qname}: ${typePatternVal.typeof}")
-      if (pattern == typePattern) return null
+      if (pattern == typePattern) return patterns
     }
-    return pattern
+    if (!added.containsKey(pattern))
+    {
+      added[pattern] = true
+      patterns.add(pattern)
+    }
+    return patterns
+  }
+
+  private Void addScalarPattern(Str[] patterns, Str:Bool added, Str owner, Obj? val)
+  {
+    if (val == null) return
+    pattern := val as Str
+      ?: throw UnsupportedErr("Invalid pattern metadata for ${owner}: ${val.typeof}")
+    if (added.containsKey(pattern)) return
+    added[pattern] = true
+    patterns.add(pattern)
   }
 
   private Bool isBuiltInScalar(Str qname)
