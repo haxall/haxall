@@ -48,6 +48,7 @@ class RdfExporter : Exporter
   {
     this.curLib = lib
     this.isSys = lib.name == "sys"
+    validateNamespaceVersions(lib)
     validateSealedNamespace(lib)
     types := lib.types.list
 
@@ -142,7 +143,7 @@ class RdfExporter : Exporter
       lib.depends.each |x, i|
       {
         if (i > 0) w(",").nl.w(Str.spaces(12))
-        w("<").w(libUri(ns.lib(x.name))).w(">")
+        w("<").w(libUri(requireLibrary(x.name))).w(">")
       }
     }
     nl.w(".").nl
@@ -1378,15 +1379,15 @@ class RdfExporter : Exporter
   }
 
   ** Turn Xeto qname into RDF URI
-  static Str qnameToUri(Str qname)
+  private Str qnameToUri(Str qname)
   {
-    qname.replace("::", ":")
+    requireQNameLibrary(qname, "RDF name")
+    return qname.replace("::", ":")
   }
 
   ** Output Xeto lib::name qualified name
   private This qname(Str qname)
   {
-    validateQName(qname, "RDF name")
     return w(qnameToUri(qname))
   }
 
@@ -1400,9 +1401,7 @@ class RdfExporter : Exporter
 
     libName := qname[0..<sep]
     local := qname[sep + 2..-1]
-    lib := curLib?.name == libName ? curLib : ns.lib(libName, false)
-    if (lib == null)
-      throw UnsupportedErr("RDF instance id or reference uses unknown library ${libName}: ${qname}")
+    lib := requireLibrary(libName)
 
     // Keep ordinary Xeto qnames readable. Ref ids may also contain schemes
     // such as `op:name` and `filetype:json`; those are legal RDF fragments
@@ -1425,6 +1424,38 @@ class RdfExporter : Exporter
       qname.contains("\n") || qname.contains("<") || qname.contains(">") ||
       qname.contains("\"") || qname.contains("\\")
     if (invalid) throw UnsupportedErr("${kind} is not QName-compatible: ${qname}")
+  }
+
+  ** Resolve a qname against the pinned namespace before emitting its prefix.
+  private Lib requireQNameLibrary(Str qname, Str kind)
+  {
+    validateQName(qname, kind)
+    sep := qname.index("::") ?: throw UnsupportedErr("${kind} is not QName-compatible: ${qname}")
+    return requireLibrary(qname[0..<sep])
+  }
+
+  ** Resolve one library to the concrete version selected by this namespace.
+  private Lib requireLibrary(Str name)
+  {
+    lib := curLib?.name == name ? curLib : ns.lib(name, false)
+    if (lib == null)
+      throw UnsupportedErr("Concrete Xeto library version unavailable for ${name}")
+    return lib
+  }
+
+  ** A Namespace promises one pinned version per library. Check that invariant
+  ** explicitly so RDF export also fails closed for custom Namespace providers.
+  private Void validateNamespaceVersions(Lib lib)
+  {
+    selected := Str:Version[:]
+    selected[lib.name] = lib.version
+    ns.versions.each |libVersion|
+    {
+      previous := selected[libVersion.name]
+      if (previous != null && previous != libVersion.version)
+        throw UnsupportedErr("Ambiguous Xeto library version for ${libVersion.name}: ${previous} and ${libVersion.version}")
+      selected[libVersion.name] = libVersion.version
+    }
   }
 
   ** Quoted string literal

@@ -318,6 +318,12 @@ class RdfExportTest : AbstractXetoTest
     buf := Buf()
     RdfExporter(ns, buf.out, Etc.dict0).start.instance(colonId).end
     verify(buf.flip.readAllStr.contains("#op:bad>"))
+
+    unknownLibId := Etc.makeDict(["id":Ref("missing.lib::bad"), "spec":Ref("sys::Dict")])
+    verifyErrMsg(UnsupportedErr#, "Concrete Xeto library version unavailable for missing.lib")
+    {
+      RdfExporter(ns, Buf().out, Etc.dict0).start.instance(unknownLibId).end
+    }
   }
 
   Void testStructuredValueShapes()
