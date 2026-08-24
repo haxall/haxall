@@ -235,8 +235,7 @@ class RdfExportTest : AbstractXetoTest
     firstName := equip.index("\"first\"^^xsd:string")
     secondName := equip.index("\"second\"^^xsd:string")
     verify(firstName != null && secondName != null && firstName < secondName, equip)
-    verify(first.contains("rdfs:comment " + Str<|"""|> + "\n    Line one"), first)
-    verify(first.contains("Line \"two\" \\\\ dollar \$"), first)
+    verify(first.contains("rdfs:comment \"Line one\\nLine \\\"two\\\" \\\\ dollar \$\"@en"), first)
     verify(first.contains("sh:zeroOrMorePath temp:Equip.related"), first)
     verify(first.contains("rdfs:subPropertyOf temp:Asset.height ;"), first)
     verify(first.contains("rdfs:subClassOf temp:Named, temp:Located ;"), first)
@@ -507,6 +506,58 @@ class RdfExportTest : AbstractXetoTest
 
     holder := instanceBlock(rdf, "holder1")
     verifyFalse(holder.contains("Holder.targetRef"), holder)
+  }
+
+  Void testLexicalSerialization()
+  {
+    rdf := export(
+      Str<|State : Enum {
+               unusual <key:"line\n\"quoted\"\\slash Ω">
+             }
+
+             Reading : Dict <doc:"line\n\"quoted\"\\slash Ω"> {
+               state: State
+               large: Int <minVal:-9223372036854775808, maxVal:9223372036854775807>
+               tiny: Number <minVal:1e-7, maxVal:1e20>
+             }
+
+             @reading1: Reading {
+               state: "line\n\"quoted\"\\slash Ω"
+               large: 9223372036854775807
+               tiny: 1e-7
+             }|>)
+
+    verify(rdf.contains("\"line\\n\\\"quoted\\\"\\\\slash Ω\"^^xsd:string"), rdf)
+    verify(rdf.contains("rdfs:comment \"line\\n\\\"quoted\\\"\\\\slash Ω\"@en"), rdf)
+    verify(rdf.contains("sh:minInclusive -9223372036854775808 ;"), rdf)
+    verify(rdf.contains("sh:maxInclusive 9223372036854775807 ;"), rdf)
+    verify(rdf.contains("sh:minInclusive 0.0000001 ;"), rdf)
+    verify(rdf.contains("sh:maxInclusive 100000000000000000000 ;"), rdf)
+    verify(rdf.contains("\"0.0000001\"^^xsd:decimal"), rdf)
+
+    controlRdf := export("Controlled : Dict <doc:\"backspace\\u0008 form-feed\\u000C control\\u0001\">")
+    verify(controlRdf.contains("rdfs:comment \"backspace\\b form-feed\\f control\\u0001\"@en"), controlRdf)
+
+    ns := createNamespace(["sys"])
+    sysVersion := ns.lib("sys").version
+    ["sys::tail.", "sys::name~one", "sys::op:name"].each |id|
+    {
+      instance := Etc.makeDict(["id":Ref(id), "spec":Ref("sys::Dict")])
+      buf := Buf()
+      RdfExporter(ns, buf.out, Etc.dict0).start.instance(instance).end
+      rendered := buf.flip.readAllStr
+      verify(rendered.contains("<http://xeto.dev/rdf/sys-${sysVersion}#"), rendered)
+    }
+  }
+
+  Void testNonFiniteDecimalFailsClosed()
+  {
+    ["NaN", "INF", "-INF"].each |special|
+    {
+      verifyUnsupportedFragments(
+        "Reading : Dict { value: Number }\n@reading1: Reading { value: \"${special}\" }",
+        ["Invalid RDF decimal for", "Reading.value", "non-finite Number"])
+    }
   }
 
   Void testListShapesAndInstances()
