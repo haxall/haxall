@@ -49,14 +49,27 @@ const class XetoCrypto
   ** an uploaded lib zip or one of its entries.
   static Str digestStream(InStream in, Bool close := true)
   {
-    d := Crypto.cur.digest("SHA-256")
+    encodePrefix(updateStream(Crypto.cur.digest("SHA-256"), in, close))
+  }
+
+  ** Update digest from stream read to exhaustion without buffering
+  private static Digest updateStream(Digest d, InStream in, Bool close)
+  {
     chunkSize := 64*1024
     buf := Buf(chunkSize)
     try
       while (in.readBuf(buf.clear, chunkSize) != null) d.update(buf.flip)
     finally
       if (close) in.close
-    return encodePrefix(d)
+    return d
+  }
+
+  ** Cache key for the contents of one file: the base64uri encoding of
+  ** the SHA-256 hash without a prefix, matching `podsCacheKey` and
+  ** `libsCacheKey` in format
+  static Str fileCacheKey(File file)
+  {
+    encode(updateStream(Crypto.cur.digest("SHA-256"), file.in, true))
   }
 
 //////////////////////////////////////////////////////////////////////////
