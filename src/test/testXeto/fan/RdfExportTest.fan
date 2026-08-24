@@ -276,7 +276,7 @@ class RdfExportTest : AbstractXetoTest
     verify(rdf.contains("rdfs:subClassOf sys:Err ;"), rdf)
     verify(propertyShape(rdf, "Envelope.failure").contains("sh:node temp:Failure ;"), rdf)
 
-    ["None", "NA", "Float", "Duration", "Version", "Buf", "Span", "Filter", "BuildVar"].each |type|
+    ["None", "NA", "Duration", "Version", "Buf", "Span", "Filter", "BuildVar"].each |type|
     {
       verifyUnsupported("Holder : Dict { value: ${type} }", "RDF scalar datatype not supported: sys::${type}")
     }
@@ -519,12 +519,22 @@ class RdfExportTest : AbstractXetoTest
                state: State
                large: Int <minVal:-9223372036854775808, maxVal:9223372036854775807>
                tiny: Number <minVal:1e-7, maxVal:1e20>
+               ratio: Float <minVal:1e-7, maxVal:1e20>
+               signedZero: Float
+               notANumber: Float
+               positiveInfinity: Float
+               negativeInfinity: Float
              }
 
              @reading1: Reading {
                state: "line\n\"quoted\"\\slash Ω"
                large: 9223372036854775807
                tiny: 1e-7
+               ratio: 1e-7
+               signedZero: -0.0
+               notANumber: "NaN"
+               positiveInfinity: "INF"
+               negativeInfinity: "-INF"
              }|>)
 
     verify(rdf.contains("\"line\\n\\\"quoted\\\"\\\\slash Ω\"^^xsd:string"), rdf)
@@ -534,6 +544,14 @@ class RdfExportTest : AbstractXetoTest
     verify(rdf.contains("sh:minInclusive 0.0000001 ;"), rdf)
     verify(rdf.contains("sh:maxInclusive 100000000000000000000 ;"), rdf)
     verify(rdf.contains("\"0.0000001\"^^xsd:decimal"), rdf)
+    verify(rdf.contains("sh:datatype xsd:double ;"), rdf)
+    verify(rdf.contains("sh:minInclusive \"1E-7\"^^xsd:double ;"), rdf)
+    verify(rdf.contains("sh:maxInclusive \"1E20\"^^xsd:double ;"), rdf)
+    verify(rdf.contains("\"1E-7\"^^xsd:double"), rdf)
+    verify(rdf.contains("\"-0\"^^xsd:double"), rdf)
+    verify(rdf.contains("\"NaN\"^^xsd:double"), rdf)
+    verify(rdf.contains("\"INF\"^^xsd:double"), rdf)
+    verify(rdf.contains("\"-INF\"^^xsd:double"), rdf)
 
     controlRdf := export("Controlled : Dict <doc:\"backspace\\u0008 form-feed\\u000C control\\u0001\">")
     verify(controlRdf.contains("rdfs:comment \"backspace\\b form-feed\\f control\\u0001\"@en"), controlRdf)
@@ -558,6 +576,13 @@ class RdfExportTest : AbstractXetoTest
         "Reading : Dict { value: Number }\n@reading1: Reading { value: \"${special}\" }",
         ["Invalid RDF decimal for", "Reading.value", "non-finite Number"])
     }
+  }
+
+  Void testNaNFloatBoundFailsClosed()
+  {
+    verifyUnsupportedFragments(
+      "Reading : Dict { value: Float <minVal:\"NaN\"> }",
+      ["Invalid numeric metadata for", "Reading.value.minVal", "NaN is not an ordered bound"])
   }
 
   Void testListShapesAndInstances()

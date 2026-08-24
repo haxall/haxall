@@ -728,11 +728,23 @@ class RdfExporter : Exporter
   {
     meta := slot.meta
 
-    minVal := numericMeta(slot, "minVal")
-    if (minVal != null) w("    sh:minInclusive ").w(minVal).w(" ;").nl
+    minVal := numericMeta(slot, "minVal", datatype)
+    if (minVal != null)
+    {
+      w("    sh:minInclusive ")
+      if (datatype == "xsd:double") literal(minVal).w("^^xsd:double")
+      else w(minVal)
+      w(" ;").nl
+    }
 
-    maxVal := numericMeta(slot, "maxVal")
-    if (maxVal != null) w("    sh:maxInclusive ").w(maxVal).w(" ;").nl
+    maxVal := numericMeta(slot, "maxVal", datatype)
+    if (maxVal != null)
+    {
+      w("    sh:maxInclusive ")
+      if (datatype == "xsd:double") literal(maxVal).w("^^xsd:double")
+      else w(maxVal)
+      w(" ;").nl
+    }
 
     minSize := intMeta(slot, "minSize")
     if (minSize != null) w("    sh:minLength ").w(minSize).w(" ;").nl
@@ -765,6 +777,7 @@ class RdfExporter : Exporter
     {
       case "sys::Str":      return "xsd:string"
       case "sys::Number":   return "xsd:decimal"
+      case "sys::Float":    return "xsd:double"
       case "sys::Int":      return "xsd:integer"
       case "sys::Bool":     return "xsd:boolean"
       case "sys::Date":     return "xsd:date"
@@ -845,17 +858,36 @@ class RdfExporter : Exporter
   private Bool isBuiltInScalar(Str qname)
   {
     qname == "sys::Str"     || qname == "sys::Number" ||
-    qname == "sys::Int"     || qname == "sys::Bool"   ||
+    qname == "sys::Float"   || qname == "sys::Int"    ||
+    qname == "sys::Bool"    ||
     qname == "sys::Date"    || qname == "sys::Time"   ||
     qname == "sys::DateTime"|| qname == "sys::Uri"    ||
     qname == "sys::TimeZone"
   }
 
-  private Str? numericMeta(Spec slot, Str name)
+  private Str? numericMeta(Spec slot, Str name, Str datatype)
   {
     val := slot.meta[name]
     if (val == null) return null
     context := "${slot.qname}.${name}"
+    if (datatype == "xsd:double")
+    {
+      if (val is Int) return doubleLexical(val.toStr, context)
+      if (val is Float)
+      {
+        lexical := doubleLexical(val.toStr, context)
+        if (lexical == "NaN")
+          throw UnsupportedErr("Invalid numeric metadata for ${context}: NaN is not an ordered bound")
+        return lexical
+      }
+      num := val as Number
+      if (num == null || num.unit != null)
+        throw UnsupportedErr("Invalid numeric metadata for ${context}: ${val.typeof}")
+      lexical := doubleLexical(num.toStr, context)
+      if (lexical == "NaN")
+        throw UnsupportedErr("Invalid numeric metadata for ${context}: NaN is not an ordered bound")
+      return lexical
+    }
     if (val is Int) return decimalLexical(val.toStr, context)
     if (val is Float)
     {
@@ -954,6 +986,17 @@ class RdfExporter : Exporter
         throw UnsupportedErr("Expected finite unitless Number for ${context}, not ${val.typeof}")
       source := num.isInt ? num.toInt.toStr : num.toFloat.toStr
       return decimalLexical(source, context)
+    }
+
+    if (qname == "sys::Float")
+    {
+      if (val is Int) return doubleLexical(val.toStr, context)
+      float := val as Float
+      if (float != null) return doubleLexical(float.toStr, context)
+      num := val as Number
+      if (num == null || num.unit != null)
+        throw UnsupportedErr("Expected unitless Float for ${context}, not ${val.typeof}")
+      return doubleLexical(num.toStr, context)
     }
 
     if (qname == "sys::Bool")
@@ -1589,6 +1632,58 @@ class RdfExporter : Exporter
     buf := StrBuf(count)
     count.times { buf.addChar('0') }
     return buf.toStr
+  }
+
+  ** Validate one Xeto Float and use a stable xsd:double lexical form.
+  private Str doubleLexical(Str source, Str context)
+  {
+    if (source == "NaN" || source == "INF" || source == "-INF") return source
+    if (source.isEmpty)
+      throw UnsupportedErr("Invalid RDF double for ${context}: ${source}")
+
+    negative := source[0] == '-'
+    hasSign := negative || source[0] == '+'
+    unsigned := hasSign ? (source.size == 1 ? "" : source[1..-1]) : source
+    if (unsigned.isEmpty)
+      throw UnsupportedErr("Invalid RDF double for ${context}: ${source}")
+
+    lowerExp := unsigned.index("e")
+    upperExp := unsigned.index("E")
+    if (lowerExp != null && upperExp != null)
+      throw UnsupportedErr("Invalid RDF double for ${context}: ${source}")
+    expIndex := lowerExp ?: upperExp
+    exponent := 0
+    mantissa := unsigned
+    if (expIndex != null)
+    {
+      mantissa = expIndex == 0 ? "" : unsigned[0..<expIndex]
+      exponentText := expIndex == unsigned.size-1 ? "" : unsigned[expIndex+1..-1]
+      exponentVal := exponentText.toInt(10, false)
+      if (exponentVal == null)
+        throw UnsupportedErr("Invalid RDF double for ${context}: ${source}")
+      exponent = exponentVal
+    }
+
+    dot := mantissa.index(".")
+    if (dot != null && mantissa.index(".", dot+1) != null)
+      throw UnsupportedErr("Invalid RDF double for ${context}: ${source}")
+    integer := dot == null ? mantissa : (dot == 0 ? "" : mantissa[0..<dot])
+    fraction := dot == null || dot == mantissa.size-1 ? "" : mantissa[dot+1..-1]
+    if (integer.isEmpty && fraction.isEmpty)
+      throw UnsupportedErr("Invalid RDF double for ${context}: ${source}")
+    if (!(integer + fraction).all |char| { char.isDigit })
+      throw UnsupportedErr("Invalid RDF double for ${context}: ${source}")
+
+    first := 0
+    while (first < integer.size && integer[first] == '0') first++
+    integer = first == integer.size ? "0" : integer[first..-1]
+    last := fraction.size - 1
+    while (last >= 0 && fraction[last] == '0') last--
+    fraction = last < 0 ? "" : fraction[0..last]
+
+    sign := negative ? "-" : ""
+    normalized := fraction.isEmpty ? "${sign}${integer}" : "${sign}${integer}.${fraction}"
+    return exponent == 0 ? normalized : "${normalized}E${exponent}"
   }
 
   ** Quoted string literal
