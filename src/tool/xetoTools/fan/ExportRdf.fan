@@ -13,6 +13,12 @@ using haystack
 
 internal class ExportRdf : ExportCmd
 {
+  @Opt { help = "Export native instances without schema and ontology triples" }
+  Bool instancesOnly
+
+  @Opt { help = "Export schema and ontology triples without native instances" }
+  Bool schemaOnly
+
   override Str cmdName() { "export-rdf" }
 
   override Str summary() { "Export Xeto to RDF" }
@@ -22,6 +28,8 @@ internal class ExportRdf : ExportCmd
   override Exporter initExporter(Namespace ns, OutStream out)
   {
     opts := Str:Obj[:]
+    if (instancesOnly) opts["instancesOnly"] = Marker.val
+    if (schemaOnly) opts["schemaOnly"] = Marker.val
     return RdfExporter(ns, out, Etc.makeDict(opts))
   }
 

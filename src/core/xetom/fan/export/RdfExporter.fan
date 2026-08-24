@@ -22,6 +22,10 @@ class RdfExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
+    this.instancesOnly = opts.has("instancesOnly")
+    this.schemaOnly = opts.has("schemaOnly")
+    if (instancesOnly && schemaOnly)
+      throw ArgErr("instancesOnly and schemaOnly are mutually exclusive")
     if (opts.has("qudtMappings"))
     {
       mappingOpt := opts["qudtMappings"]
@@ -49,10 +53,15 @@ class RdfExporter : Exporter
     this.curLib = lib
     this.isSys = lib.name == "sys"
     validateNamespaceVersions(lib)
+    prefixDefs(lib)
+    if (instancesOnly)
+    {
+      lib.instances.each |x| { instance(x) }
+      return this
+    }
+
     validateSealedNamespace(lib)
     types := lib.types.list
-
-    prefixDefs(lib)
     ontologyDef(lib)
 
     if (isSys)
@@ -86,7 +95,7 @@ class RdfExporter : Exporter
       if (target == null) throw UnsupportedErr("Mixin target not found: ${targetQname}")
       mixinShape(target, contributions)
     }
-    lib.instances.each |x| { instance(x) }
+    if (!schemaOnly) lib.instances.each |x| { instance(x) }
     return this
   }
 
@@ -707,7 +716,7 @@ class RdfExporter : Exporter
   private Void enumConstraint(Spec type)
   {
     w("    sh:in (")
-    type.enum.keys.each |key, i|
+    type.enum.keys.sort.each |key, i|
     {
       if (i > 0) w(" ")
       literal(key).w("^^xsd:string")
@@ -1095,15 +1104,40 @@ class RdfExporter : Exporter
 
       val := member.val
       slot := member.spec
-      if (val == null && slot.isSlot && slot.metaOwn.has("val")) val = slot.metaOwn["val"]
+      // Global-slot reflection may expose the declaration without carrying the
+      // value already materialized on the completed instance dictionary.
+      if (val == null && instance.has(member.name)) val = instance[member.name]
+      if (val == null && !slot.isMaybe &&
+          (slot.type.isScalar || slot.type.isEnum) && slot.meta.has("val"))
+        val = slot.meta["val"]
       if (val == null) return
 
-      property := instanceProperty(spec, member)
+      // The runtime Ref type uses @x as an internal construction placeholder.
+      // Only export it when the instance actually authored that member.
+      ref := val as Ref
+      if (ref != null && ref.id == "x" && !instance.has(member.name)) return
+
       // Parameterized list metadata such as `of` and size constraints lives
       // on the slot spec, not the shared sys::List type.
       type := slot.isSlot && slot.type.isList ? slot : (slot.isSlot ? slot.type : slot)
-      instanceMember(property, type, val, indent)
+      instanceProperties(spec, member).each |property|
+      {
+        instanceMember(property, type, val, indent)
+      }
     }
+  }
+
+  private Str[] instanceProperties(Spec parent, ReflectMember member)
+  {
+    spec := member.spec
+    properties := Str:Bool[:]
+    properties[instanceProperty(parent, member)] = true
+    while (spec.isSlot && spec.base != null && (spec.base.isSlot || spec.base.isGlobal))
+    {
+      spec = spec.base
+      properties[spec.qname] = true
+    }
+    return properties.keys.sort
   }
 
   private Str instanceProperty(Spec parent, ReflectMember member)
@@ -1358,6 +1392,8 @@ class RdfExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   private Lib? curLib
+  private Bool instancesOnly
+  private Bool schemaOnly
   private RdfQudtMappings? qudtRef
 
   private RdfQudtMappings qudt()

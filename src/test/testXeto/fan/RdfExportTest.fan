@@ -482,6 +482,33 @@ class RdfExportTest : AbstractXetoTest
     verifyFalse(equip.contains("sys:hasMarker"), equip)
   }
 
+  Void testLibraryProjectionProfiles()
+  {
+    src := Str<|Widget : Dict { widget }
+                 @widget1: Widget {}|>
+    schema := exportWithOpts(src, Etc.makeDict(["schemaOnly":Marker.val]))
+    verify(schema.contains("temp:Widget\n  a sys:Class"), schema)
+    verifyFalse(schema.contains("temp:widget1"), schema)
+
+    instances := exportWithOpts(src, Etc.makeDict(["instancesOnly":Marker.val]))
+    verify(instances.contains("temp:widget1"), instances)
+    verify(instances.contains("sys:hasMarker temp:Widget.widget"), instances)
+    verifyFalse(instances.contains("a sh:NodeShape"), instances)
+    verifyFalse(instances.contains("a owl:Ontology"), instances)
+  }
+
+  Void testMissingReferenceDoesNotExportTypeDefault()
+  {
+    rdf := export(
+      Str<|Target : Dict
+             Holder : Dict { targetRef: Ref<of:Target> }
+
+             @holder1: Holder {}|>)
+
+    holder := instanceBlock(rdf, "holder1")
+    verifyFalse(holder.contains("Holder.targetRef"), holder)
+  }
+
   Void testListShapesAndInstances()
   {
     rdf := export(
@@ -737,10 +764,15 @@ class RdfExportTest : AbstractXetoTest
 
   private Str export(Str src)
   {
+    return exportWithOpts(src, Etc.dict0)
+  }
+
+  private Str exportWithOpts(Str src, Dict opts)
+  {
     ns  := createNamespace(["sys"])
     lib := ns.compileTempLib(src)
     buf := Buf()
-    RdfExporter(ns, buf.out, Etc.dict0).start.lib(lib).end
+    RdfExporter(ns, buf.out, opts).start.lib(lib).end
     return buf.flip.readAllStr.replace(lib.name, "temp")
   }
 
