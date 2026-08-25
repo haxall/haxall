@@ -112,6 +112,38 @@ internal class ModbusMasterTest : Test
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Frame Delay
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFrameDelay()
+  {
+    t := ModbusTestTransport()
+    m := ModbusMaster(t).open
+    verifyEq(m.quietTime, 0sec)
+
+    // default issues transactions back-to-back
+    5.times { t.test = toBuf("0103020005"); m.readHoldingReg(1, 0) }
+    verifyEq(t.reqTicks.size, 5)
+    verify(t.reqTicks.last - t.reqTicks.first < 50ms.ticks)
+
+    // quietTime forces silence between consecutive transactions
+    t.reqTicks.clear
+    m.quietTime = 50ms
+    verifyEq(m.quietTime, 50ms)
+    5.times { t.test = toBuf("0103020005"); m.readHoldingReg(1, 0) }
+    verifyEq(t.reqTicks.size, 5)
+    4.times |i| { verify(t.reqTicks[i+1] - t.reqTicks[i] >= 40ms.ticks) }
+
+    // a failed transaction still stamps the wire as idle, so the
+    // next request is paced rather than firing immediately
+    t.reqTicks.clear
+    t.test = toBuf("018305"); verifyErr(Err#) { m.readHoldingReg(1, 0) }
+    t.test = toBuf("0103020005"); m.readHoldingReg(1, 0)
+    verifyEq(t.reqTicks.size, 2)
+    verify(t.reqTicks[1] - t.reqTicks[0] >= 40ms.ticks)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Support
 //////////////////////////////////////////////////////////////////////////
 
@@ -138,6 +170,7 @@ internal class ModbusTestTransport : ModbusTransport
   Bool _open := false
   Bool crc   := true
   Buf test   := Buf()
+  Int[] reqTicks := Int[,]  // when each req hit the wire
 
   override Void open() { _open=true }
   override Void close() { _open=false }
@@ -148,7 +181,9 @@ internal class ModbusTestTransport : ModbusTransport
     // echo("TestTransport.req [crc=$crc]:
     //         req: $msg.toHex [$msg.size]
     //         res: $test.toHex [$test.size]")
-    return ModbusInStream(toRes(test).in, Log.get("modbustest"))
+    pace
+    reqTicks.add(Duration.nowTicks)
+    return ModbusInStream(toRes(test).in, Log.get("modbustest"), "", this)
   }
 
   private Buf toRes(Buf buf)
