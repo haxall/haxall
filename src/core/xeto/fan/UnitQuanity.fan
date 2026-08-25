@@ -39,7 +39,7 @@ enum class UnitQuantity
   reactiveEnergy,
   energyByArea,
   energyByVolume,
-  enthalpy,
+  specificEnthalpy,
   entropy,
   force,
   frequency,

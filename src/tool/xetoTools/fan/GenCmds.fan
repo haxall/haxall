@@ -25,7 +25,7 @@ internal abstract class AbstractGenCmd : XetoCmd
     buf := StrBuf()
     out := buf.out
     out.printLine("//")
-    out.printLine("// Copyright (c) 2011-2025, Project-Haystack")
+    out.printLine("// Copyright (c) 2011-$Date.today.year, Project-Haystack")
     out.printLine("// Licensed under the Academic Free License version 3.0")
     out.printLine("// Auto-generated $ts")
     out.printLine("//")
