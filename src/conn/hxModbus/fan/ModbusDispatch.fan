@@ -56,7 +56,7 @@ class ModbusDispatch : ConnDispatch
 
   override Void onClose()
   {
-    this.link?.close
+    this.link?.release
     this.link = null
     this.dev  = null
   }
@@ -64,8 +64,19 @@ class ModbusDispatch : ConnDispatch
   override Dict onPing()
   {
     try { link.ping(dev) }
-    catch (Err err) { close(err); throw err }
+    catch (Err err) { closeErr(err); throw err }
     return Etc.dict0
+  }
+
+  ** Close this conn due to err. The transport is shared by every conn on this
+  ** uri, so only force it down when it is actually broken: an IOErr means the
+  ** socket is bad, and rtutcp has no transaction id or frame delimiting so a
+  ** late response would desync every subsequent read. Otherwise leave the wire
+  ** alone - a timeout on one slave must not knock over its neighbors.
+  private Void closeErr(Err err)
+  {
+    if (err is IOErr || dev?.uri?.scheme == "modbus-rtutcp") link?.close
+    close(err)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -83,7 +94,7 @@ class ModbusDispatch : ConnDispatch
         updateVals(points, block)
       }
     }
-    catch (Err err) { close(err) }
+    catch (Err err) { closeErr(err) }
   }
 
   private Grid mread(Str[] regNames)
@@ -103,7 +114,7 @@ class ModbusDispatch : ConnDispatch
     }
     catch (Err err)
     {
-      close(err)
+      closeErr(err)
       throw err
     }
   }
@@ -168,7 +179,7 @@ class ModbusDispatch : ConnDispatch
     }
     catch (Err err)
     {
-      close(err)
+      closeErr(err)
       throw err
     }
   }
@@ -189,7 +200,7 @@ class ModbusDispatch : ConnDispatch
     catch (Err err)
     {
       point.updateWriteErr(event, err)
-      close(err)
+      closeErr(err)
     }
   }
 }

@@ -194,3 +194,44 @@ smaller or larger chunks, add the [ModbusConn.modbusBlockMax] tag to your conn r
 
 Be aware a block read failure will result in the entire block's points being
 marked as fault.
+# Frame Delay
+Every conn that shares a `uri` shares a single connection to that endpoint, and
+their transactions are serialized onto it back-to-back with no gap. That is
+usually what you want, but it breaks a multi-drop TCP-to-RTU gateway: the
+gateway needs turnaround time to switch the RS-485 bus direction, and the
+slaves require roughly 3.5 character-times of silence before the next frame.
+
+The failure looks like this. The first request in a poll cycle is answered
+normally, and the second request - whichever unit it happens to target - is
+never answered at all. Because the frame is discarded on the serial side rather
+than rejected by a slave, no Modbus exception code comes back; the read simply
+times out. Enabling a single slave on the gateway masks the problem, since
+`ConnTuning.pollTime` then supplies the gap by accident.
+
+Use [ModbusConn.modbusFrameDelay] to force a minimum silence between
+transactions:
+
+    modbusConn
+    uri: `modbus-tcp://gateway/`
+    modbusFrameDelay: 50ms
+
+Applied to a `connTuning` rec it paces every conn that references it, which is
+usually the better way to configure a whole gateway:
+
+    dis: "Gateway Tuning"
+    connTuning
+    modbusFrameDelay: 50ms
+
+A value on the conn rec takes precedence over the tuning rec. The default is
+0sec, which preserves the original back-to-back behavior.
+
+The delay is measured from the end of one transaction to the start of the next,
+and it applies to every frame on the wire - including the read-modify-write pair
+issued for a bit-mask register.
+
+Note the delay happens inside the window bounded by
+[ModbusConn.modbusReadTimeout] and [ModbusConn.modbusWriteTimeout] (both of
+which default to `Conn.actorTimeout`). Those timeouts cover queue wait plus
+pacing plus the transaction itself, so on a gateway with N slaves they must be
+large enough to cover the full serialized cycle or the polls will still time
+out.

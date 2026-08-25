@@ -32,6 +32,9 @@ using hxConn
   ** If `true` always use 0x10 write-multiple for writeHoldingRegs
   const Bool forceWriteMultiple := false
 
+  ** Minimum silence to enforce on the wire between transactions
+  const Duration frameDelay
+
   ** Timeout for block reads
   const Duration readTimeout
 
@@ -68,6 +71,7 @@ using hxConn
       it.slave  = slave->toInt
       it.regMap = loadRegMap(conn.proj, regUri)
       it.forceWriteMultiple = fwm
+      it.frameDelay   = toDuration(rec, "modbusFrameDelay", 0sec, conn.tuning.rec)
       it.readTimeout  = toDuration(rec, "modbusReadTimeout", conn.timeout)
       it.writeTimeout = toDuration(rec, "modbusWriteTimeout", conn.timeout)
       it.timeout = conn.timeout
@@ -83,9 +87,10 @@ using hxConn
     return ModbusRegMap.fromFile(file)
   }
 
-  private Duration toDuration(Dict rec, Str tag, Duration def)
+  ** Resolve duration tag from conn rec, falling back to the conn tuning rec
+  private Duration toDuration(Dict rec, Str tag, Duration def, Dict? tuning := null)
   {
-    v := rec[tag]
+    v := rec[tag] ?: tuning?.get(tag)
     if (v == null) return def
     try
     {

@@ -33,8 +33,30 @@ abstract class ModbusTransport
   // ** Respond to a master request.
   // abstract Buf res(...)
 
+  ** Minimum silence to enforce on the wire between transactions. A multi-drop
+  ** RTU gateway needs this turnaround time to switch bus direction and to give
+  ** the slaves their 3.5 char-time gap; without it the next request is dropped
+  ** on the serial side with no exception response.
+  Duration quietTime := 0sec
+
+  ** Block until the wire has been quiet for `quietTime`. Subclasses call
+  ** this at the start of `req`.
+  protected Void pace()
+  {
+    last := this.lastTx
+    if (last == null || quietTime <= 0sec) return
+    remain := quietTime - (Duration.now - last)
+    if (remain > 0sec) Actor.sleep(remain)
+  }
+
+  ** Stamp the wire as idle. Called after the request is flushed (so a failed
+  ** read still leaves a stamp) and again when the response stream is closed.
+  internal Void txEnd() { this.lastTx = Duration.now }
+
   ** Log for this instance.
   internal Log? log := null
+
+  private Duration? lastTx := null
 }
 
 **************************************************************************
@@ -81,6 +103,9 @@ class ModbusTcpTransport : ModbusTransport
     if (socket == null || !socket.isConnected)
       throw IOErr("Socket not open")
 
+    // give the wire its turnaround time
+    pace
+
     // handle txId overflow
     reqTxId := txId++
     if (txId > 0xffff) txId = 0
@@ -104,9 +129,10 @@ class ModbusTcpTransport : ModbusTransport
     out.writeI2(msg.size)    // msg length
     out.writeBuf(msg.flip)   // msg
     out.flush
+    txEnd
 
     // verify transactionIds
-    in := ModbusInStream(socket.in, log, "$reqTxId")
+    in := ModbusInStream(socket.in, log, "$reqTxId", this)
     resTxId := in.readU2
     if (reqTxId != resTxId) throw IOErr("Transaction ID mistmatch $reqTxId != $resTxId")
 
@@ -168,8 +194,13 @@ class ModbusRtuTcpTransport : ModbusTransport
     {
       log.debug("> RTU-TCP\nModbus Req\n${msg.toHex}")
     }
+
+    // give the wire its turnaround time
+    pace
+
     socket.out.writeBuf(msg.flip).flush
-    return ModbusInStream(socket.in, log, "RTU-TCP")
+    txEnd
+    return ModbusInStream(socket.in, log, "RTU-TCP", this)
   }
 
   private TcpSocket? socket
@@ -208,6 +239,9 @@ class ModbusRtuTransport : ModbusTransport
       log.debug("> RTU\nModbus Req\n$msg.toHex")
     }
 
+    // honor configured quiet time on top of our own frameDelay
+    pace
+
     // write msg
     port.out.writeBuf(msg.flip).flush
     Actor.sleep(frameDelay)
@@ -234,9 +268,9 @@ class ModbusRtuTransport : ModbusTransport
       }
 
       // return resp
-      return ModbusInStream(buf.flip.in, log, "RTU")
+      return ModbusInStream(buf.flip.in, log, "RTU", this)
     }
-    finally { Actor.sleep(frameDelay) }
+    finally { Actor.sleep(frameDelay); txEnd }
   }
 
   private SerialSocket port
@@ -251,14 +285,16 @@ class ModbusRtuTransport : ModbusTransport
 @NoDoc
 class ModbusInStream : InStream
 {
-  new make(InStream? in, Log? log, Str label := "") : super(in)
+  new make(InStream? in, Log? log, Str label := "", ModbusTransport? tx := null) : super(in)
   {
     this.log     = log
     this.label   = label
+    this.tx      = tx
   }
 
   private Log? log
   private const Str label
+  private ModbusTransport? tx
   Buf data := Buf() { private set }
 
   override Int? read()
@@ -281,6 +317,9 @@ class ModbusInStream : InStream
   // Do not close underlying InStream since it is the actual socket or port to the device
   override Bool close()
   {
+    // response fully consumed - this is when the wire actually goes idle
+    tx?.txEnd
+
     if (log?.isDebug ?: false)
     {
       s := StrBuf()

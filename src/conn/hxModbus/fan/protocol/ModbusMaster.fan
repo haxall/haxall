@@ -36,6 +36,14 @@ class ModbusMaster
     return this
   }
 
+  ** Minimum silence to enforce on the wire between transactions.
+  ** See `ModbusTransport.quietTime`.
+  Duration quietTime
+  {
+    get { transport.quietTime }
+    set { transport.quietTime = it }
+  }
+
   Void withTrace(Log log, |This| f)
   {
     curLog := transport.log

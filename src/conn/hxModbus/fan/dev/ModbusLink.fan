@@ -27,8 +27,14 @@ using hxPlatformSerial
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get the ModbusLink for the given URI.
-  static ModbusLink get(Uri uri) { ModbusLinkMgr.cur.open(uri) }
+  ** Get the ModbusLink for the given URI. Every caller must eventually
+  ** balance this with a `release`.
+  static ModbusLink get(Uri uri)
+  {
+    link := ModbusLinkMgr.cur.open(uri)
+    link.addUser
+    return link
+  }
 
   ** Never call this!
   @NoDoc internal new make(ActorPool pool, ModbusExt ext, Uri uri)
@@ -76,11 +82,27 @@ using hxPlatformSerial
     actor.send(HxMsg("write", dev, reg, val)).get(dev.writeTimeout)
   }
 
-  ** Close this link.
+  ** Release this link. The transport is shared by every conn using this uri,
+  ** so only tear it down once the last user is done with it. The stale link
+  ** reaper in `ModbusLinkMgr` is the backstop if a release is ever missed.
+  internal Void release()
+  {
+    if (_users.decrementAndGet > 0) return
+    close
+  }
+
+  ** Force this link closed regardless of how many conns are using it. Used
+  ** when the transport itself is broken and everyone needs it recycled.
   internal Void close()
   {
     actor.send(HxMsg("close")).get
   }
+
+  ** Register a conn as using this link.
+  internal Void addUser() { _users.incrementAndGet }
+
+  ** Is this link free of any conn holding it.
+  internal Bool isUnused() { _users.val <= 0 }
 
 //////////////////////////////////////////////////////////////////////////
 // Actor Impl
@@ -138,6 +160,7 @@ using hxPlatformSerial
   {
     try
     {
+      master.quietTime = dev.frameDelay
       master.withTrace(dev.log)
       {
         start := block.start - 1
@@ -196,6 +219,7 @@ using hxPlatformSerial
     type := reg.addr.type
     addr := reg.addr.num - 1
 
+    master.quietTime = dev.frameDelay
     master.withTrace(dev.log)
     {
       if (type == ModbusAddrType.coil)
@@ -232,6 +256,7 @@ using hxPlatformSerial
   private const Uri uri
   private const Str name
   private const Actor actor
+  private const AtomicInt _users := AtomicInt(0)
 }
 
 **************************************************************************
@@ -301,7 +326,10 @@ using hxPlatformSerial
     }
   }
 
-  ** Actor check stale links.
+  ** Actor check stale links. Never drop a link a conn is still holding, or
+  ** the next `ModbusLink.get` for that uri would build a second link - and a
+  ** second socket onto the same wire, which defeats both the serialization
+  ** and the frame delay. Releasing the last user already closes the transport.
   private Void _check(Uri:ModbusLink map)
   {
     now  := Duration.nowTicks
@@ -309,7 +337,7 @@ using hxPlatformSerial
     {
       link := map[k]
       diff := now - link.touched
-      if (diff >= staleTime) { link.close; map.remove(k) }
+      if (diff >= staleTime && link.isUnused) { link.close; map.remove(k) }
     }
   }
 

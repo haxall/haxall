@@ -20,6 +20,11 @@ ModbusConn: Conn {
   // Marker tag for ModbusConn type
   modbusConn
 
+  // Minimum silence to enforce on the wire between two consecutive transactions.
+  // Applied to `modbusConn` or its [hx.conn::ConnTuning] rec; a value on the conn
+  // rec takes precedence. See [hx.modbus::doc#frame-delay] for more information.
+  modbusFrameDelay: Duration?
+
   // How long to wait before timing out on a modbus read.
   modbusReadTimeout: Duration?
 
@@ -69,5 +74,11 @@ ModbusPoint: ConnPoint {
   // A value on the conn rec takes precedence.  See [hx.modbus::doc#block-reads]
   // for more information.
   modbusBlockMax: Int?
+
+  // Applied to a `connTuning` rec to set the minimum silence on the wire between
+  // two consecutive transactions for every [ModbusConn.modbusConn] which
+  // references it.  A value on the conn rec takes precedence.  See
+  // [hx.modbus::doc#frame-delay] for more information.
+  modbusFrameDelay: Duration?
 }
 

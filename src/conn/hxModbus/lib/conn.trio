@@ -40,6 +40,25 @@ doc:
   registers to read in a block read. A value on the conn rec takes precedence.
   See `ext-modbus::doc#blockReads` for more information.
 --------------------------------------------------------------------------
+def: ^modbusFrameDelay
+is: ^duration
+tagOn: [^modbusConn, ^connTuning]
+doc:
+  Minimum silence to enforce on the wire between two consecutive transactions.
+  Applied to 'modbusConn' or its 'connTuning' rec. A value on the conn rec takes
+  precedence. Defaults to 0sec.
+
+  All conns sharing a 'uri' share one connection, and their requests are issued
+  back-to-back with no gap. A multi-drop TCP-to-RTU gateway needs turnaround time
+  to switch bus direction and to give the slaves their 3.5 char-time silence;
+  without it the second request in a burst is dropped on the serial side with no
+  exception response, which surfaces as a read timeout. Set this to 50ms or more
+  when several slaves share a gateway.
+
+  Note this delay is inside the window bounded by `modbusReadTimeout` and
+  `modbusWriteTimeout`, so those must be large enough to cover the whole
+  serialized cycle for every slave on the uri.
+--------------------------------------------------------------------------
 def: ^modbusRegMapUri
 is: ^uri
 tagOn: ^modbusConn
