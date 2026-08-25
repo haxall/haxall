@@ -64,7 +64,7 @@ class RdfExportTest : AbstractXetoTest
     verify(rdf.contains("sh:path temp:Reading.count ;\n    sh:datatype xsd:integer ;"))
     verify(rdf.contains("sh:minInclusive 1 ;"))
     verify(rdf.contains("sh:maxInclusive 60 ;"))
-    verify(rdf.contains("sh:path temp:Reading.value ;\n    sh:datatype xsd:decimal ;"))
+    verify(rdf.contains("sh:path temp:Reading.value ;\n    sh:datatype xsd:double ;"))
     verify(rdf.contains("sh:path temp:Reading.enabled ;\n    sh:datatype xsd:boolean ;"))
     verify(rdf.contains("sh:path temp:Reading.commissioned ;\n    sh:datatype xsd:date ;"))
     verify(rdf.contains("sh:path temp:Reading.code ;\n    sh:datatype xsd:string ;"))
@@ -81,7 +81,7 @@ class RdfExportTest : AbstractXetoTest
   {
     rdf := export(
       Str<|Reading : Dict {
-               decimal: Number <minVal:1.5, maxVal:2.5>
+               value: Number <minVal:1.5, maxVal:2.5>
                observedAt: Time
                timestamp: DateTime
                source: Uri
@@ -94,10 +94,10 @@ class RdfExportTest : AbstractXetoTest
                defaulted: Str "fallback"
              }|>)
 
-    decimal := propertyShape(rdf, "Reading.decimal")
-    verify(decimal.contains("sh:datatype xsd:decimal ;"))
-    verify(decimal.contains("sh:minInclusive 1.5 ;"))
-    verify(decimal.contains("sh:maxInclusive 2.5 ;"))
+    value := propertyShape(rdf, "Reading.value")
+    verify(value.contains("sh:datatype xsd:double ;"))
+    verify(value.contains("sh:minInclusive \"1.5\"^^xsd:double ;"))
+    verify(value.contains("sh:maxInclusive \"2.5\"^^xsd:double ;"))
 
     verify(propertyShape(rdf, "Reading.observedAt").contains("sh:datatype xsd:time ;"))
     verify(propertyShape(rdf, "Reading.timestamp").contains("sh:datatype xsd:dateTime ;"))
@@ -228,7 +228,7 @@ class RdfExportTest : AbstractXetoTest
     verify(equip.contains("temp:Equip.address ["), equip)
     verify(equip.contains("temp:Equip.names ("), equip)
     verify(equip.contains("temp:Equip.heatingProcesses temp:HotWaterHeating ;"), equip)
-    verify(equip.contains("qudt:numericValue \"50\"^^xsd:decimal ;"), equip)
+    verify(equip.contains("qudt:numericValue \"50.0\"^^xsd:double ;"), equip)
     verify(equip.contains("sys:hasMarker temp:Equip.imported ;"), equip)
     verifyFalse(equip.contains("temp:Equip.points"), equip)
 
@@ -541,14 +541,14 @@ class RdfExportTest : AbstractXetoTest
     verify(rdf.contains("rdfs:comment \"line\\n\\\"quoted\\\"\\\\slash Ω\"@en"), rdf)
     verify(rdf.contains("sh:minInclusive -9223372036854775808 ;"), rdf)
     verify(rdf.contains("sh:maxInclusive 9223372036854775807 ;"), rdf)
-    verify(rdf.contains("sh:minInclusive 0.0000001 ;"), rdf)
-    verify(rdf.contains("sh:maxInclusive 100000000000000000000 ;"), rdf)
-    verify(rdf.contains("\"0.0000001\"^^xsd:decimal"), rdf)
+    verify(rdf.contains("sh:minInclusive \"1.0E-7\"^^xsd:double ;"), rdf)
+    verify(rdf.contains("sh:maxInclusive \"1.0E20\"^^xsd:double ;"), rdf)
+    verify(rdf.contains("\"1.0E-7\"^^xsd:double"), rdf)
     verify(rdf.contains("sh:datatype xsd:double ;"), rdf)
-    verify(rdf.contains("sh:minInclusive \"1E-7\"^^xsd:double ;"), rdf)
-    verify(rdf.contains("sh:maxInclusive \"1E20\"^^xsd:double ;"), rdf)
-    verify(rdf.contains("\"1E-7\"^^xsd:double"), rdf)
-    verify(rdf.contains("\"-0\"^^xsd:double"), rdf)
+    verify(rdf.contains("sh:minInclusive \"1.0E-7\"^^xsd:double ;"), rdf)
+    verify(rdf.contains("sh:maxInclusive \"1.0E20\"^^xsd:double ;"), rdf)
+    verify(rdf.contains("\"1.0E-7\"^^xsd:double"), rdf)
+    verify(rdf.contains("\"-0.0\"^^xsd:double"), rdf)
     verify(rdf.contains("\"NaN\"^^xsd:double"), rdf)
     verify(rdf.contains("\"INF\"^^xsd:double"), rdf)
     verify(rdf.contains("\"-INF\"^^xsd:double"), rdf)
@@ -568,14 +568,14 @@ class RdfExportTest : AbstractXetoTest
     }
   }
 
-  Void testNonFiniteDecimalFailsClosed()
+  Void testNumberSpecialValuesUseDouble()
   {
-    ["NaN", "INF", "-INF"].each |special|
-    {
-      verifyUnsupportedFragments(
-        "Reading : Dict { value: Number }\n@reading1: Reading { value: \"${special}\" }",
-        ["Invalid RDF decimal for", "Reading.value", "non-finite Number"])
-    }
+    rdf := export(
+      "Reading : Dict { nan: Number, pos: Number, neg: Number }\n" +
+      "@reading1: Reading { nan: \"NaN\", pos: \"INF\", neg: \"-INF\" }")
+    verify(rdf.contains("\"NaN\"^^xsd:double"), rdf)
+    verify(rdf.contains("\"INF\"^^xsd:double"), rdf)
+    verify(rdf.contains("\"-INF\"^^xsd:double"), rdf)
   }
 
   Void testNaNFloatBoundFailsClosed()
@@ -612,7 +612,7 @@ class RdfExportTest : AbstractXetoTest
     verify(names.contains("sh:maxCount 3 ;"), names)
 
     numbers := propertyShape(rdf, "Batch.numbers")
-    verify(numbers.contains("sh:datatype xsd:decimal ;"), numbers)
+    verify(numbers.contains("sh:datatype xsd:double ;"), numbers)
     verify(numbers.contains("sh:minCount 1 ;"), numbers)
 
     addresses := propertyShape(rdf, "Batch.addresses")
@@ -622,8 +622,8 @@ class RdfExportTest : AbstractXetoTest
     alpha := batch.index("\"alpha\"^^xsd:string")
     beta  := batch.index("\"beta\"^^xsd:string")
     verify(alpha != null && beta != null && alpha < beta, batch)
-    verify(batch.contains("\"1\"^^xsd:decimal"), batch)
-    verify(batch.contains("\"2.5\"^^xsd:decimal"), batch)
+    verify(batch.contains("\"1.0\"^^xsd:double"), batch)
+    verify(batch.contains("\"2.5\"^^xsd:double"), batch)
     richmond := batch.index("\"Richmond\"^^xsd:string")
     norfolk  := batch.index("\"Norfolk\"^^xsd:string")
     verify(richmond != null && norfolk != null && richmond < norfolk, batch)
@@ -808,17 +808,17 @@ class RdfExportTest : AbstractXetoTest
     verify(rdf.contains("sh:path temp:Reading.percent ;\n    sh:minCount 1 ;"), rdf)
     verify(rdf.contains("sh:class qudt:QuantityValue ;"), rdf)
     verify(rdf.contains("sh:path qudt:numericValue ;"), rdf)
-    verify(rdf.contains("sh:minInclusive 0 ;"), rdf)
-    verify(rdf.contains("sh:maxInclusive 100 ;"), rdf)
+    verify(rdf.contains("sh:minInclusive \"0.0\"^^xsd:double ;"), rdf)
+    verify(rdf.contains("sh:maxInclusive \"100.0\"^^xsd:double ;"), rdf)
     verify(rdf.contains("sh:path qudt:unit ;"), rdf)
     verify(rdf.contains("sh:hasValue unit:PERCENT ;"), rdf)
     verify(rdf.contains("sh:hasValue quantitykind:Power"), rdf)
 
     reading := instanceBlock(rdf, "reading1")
     verify(reading.contains("temp:Reading.unit unit:DEG_F ;"), reading)
-    verify(reading.contains("qudt:numericValue \"50\"^^xsd:decimal ;"), reading)
+    verify(reading.contains("qudt:numericValue \"50.0\"^^xsd:double ;"), reading)
     verify(reading.contains("qudt:unit unit:PERCENT"), reading)
-    verify(reading.contains("qudt:numericValue \"1\"^^xsd:decimal ;"), reading)
+    verify(reading.contains("qudt:numericValue \"1.0\"^^xsd:double ;"), reading)
     verify(reading.contains("qudt:unit unit:KiloW"), reading)
     verify(reading.contains("temp:Reading.currency currency:USD ;"), reading)
 
