@@ -121,9 +121,22 @@ class RepoTest : AbstractXetoTest
         "cc.nosolve":  DependErr("Lib 'cc.nosolve' has missing depends: ph 9.x.x"),
         "cc.nosolven": DependErr("Lib 'cc.nosolven' has missing depends: bar, foo, ph 9.x.x, qux"),
       ])
+
+    // extern flag allows depends outside the list and ignores them for
+    // ordering; the same list without the flag errs on the missing sys
+    verifyCheckDepends(repo, "ph, ph.points", [
+        "ph":        DependErr("Lib 'ph' has missing depends: sys"),
+        "ph.points": DependErr("Lib 'ph.points' has missing depends: sys"),
+      ])
+    verifyCheckDepends(repo, "ph, ph.points", [:], true)
+
+    // an internal version constraint is still enforced under extern
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.nosolven", [
+        "cc.nosolven": DependErr("Lib 'cc.nosolven' has missing depends: ph 9.x.x"),
+      ], true)
   }
 
-  Void verifyCheckDepends(LocalRepo repo, Str names, Str:Err expectErrs := [:])
+  Void verifyCheckDepends(LocalRepo repo, Str names, Str:Err expectErrs := [:], Bool extern := false)
   {
     LibVersion[] libs := names.split(',').map |x->LibVersion|
     {
@@ -136,7 +149,7 @@ class RepoTest : AbstractXetoTest
 
       // LibVersion.checkDepends
       errs := Str:Err[:]
-      ordered := LibVersion.checkDepends(shuffled, errs)
+      ordered := LibVersion.checkDepends(shuffled, errs, extern)
       // echo("~~~ $names errs=$errs.size"); echo(errs.join("\n"))
       verifyEq(ordered.join(", ") { it.name }, names)
       verifyEq(errs.size, expectErrs.size)
@@ -149,7 +162,7 @@ class RepoTest : AbstractXetoTest
       // LibVersion.orderByDepends returns same thing or raises exception
       try
       {
-        ordered = LibVersion.orderByDepends(shuffled)
+        ordered = LibVersion.orderByDepends(shuffled, extern)
         verifyEq(ordered.join(", ") { it.name }, names)
         if (!errs.isEmpty) fail
       }

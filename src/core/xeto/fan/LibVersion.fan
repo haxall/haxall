@@ -84,11 +84,12 @@ const mixin LibVersion
 
   ** Order a list of versions by their dependencies.  Raise exception if
   ** the given list does not satisify all the internal dependencies or
-  ** has circular dependencies.
-  static LibVersion[] orderByDepends(LibVersion[] libs)
+  ** has circular dependencies.  If extern is true then dependencies on
+  ** libs outside the list are allowed and ignored for ordering.
+  static LibVersion[] orderByDepends(LibVersion[] libs, Bool extern := false)
   {
     errs := Str:Err[:]
-    ordered := checkDepends(libs, errs)
+    ordered := checkDepends(libs, errs, extern)
     if (!errs.isEmpty) throw errs.vals.first
     return ordered
   }
@@ -96,7 +97,7 @@ const mixin LibVersion
   ** Order a list of versions by their dependencies and check for errors.
   ** Populate the errs map with lib names that have errors such as an
   ** unmet depends.  Libs with errors are added to end of the ordered list.
-  @NoDoc static LibVersion[] checkDepends(LibVersion[] libs, Str:Err errs)
+  @NoDoc static LibVersion[] checkDepends(LibVersion[] libs, Str:Err errs, Bool extern := false)
   {
     // build map by name
     byName := Str:LibVersion[:]
@@ -121,13 +122,14 @@ const mixin LibVersion
         return
       }
 
-      // check depends
+      // check depends; a depend outside the list is unmet unless the
+      // extern flag allows it, in which case it plays no part in ordering
       unmet.clear
       x.depends.each |d|
       {
         m := byName[d.name]
-        if (m == null || !d.versions.contains(m.version))
-          unmet.add(d)
+        if (m == null) { if (!extern) unmet.add(d) }
+        else if (!d.versions.contains(m.version)) unmet.add(d)
       }
 
       if (!unmet.isEmpty)
