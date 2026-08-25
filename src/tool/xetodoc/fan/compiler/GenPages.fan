@@ -51,6 +51,8 @@ internal class GenPages: Step
 
   private Void genIndex(Lib[] libs)
   {
+    if (!compiler.genIndex) return
+
     libPages := DocLib[,]
     pages.each |g|
     {
