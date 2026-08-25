@@ -22,10 +22,20 @@ class Client
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Open with URI of project such as "http://host/api/myProj/".
-  ** Throw IOErr for network/connection error or `AuthErr` if
-  ** credentials are not authenticated.
-  static Client open(Uri uri, Str username, Str password, [Str:Obj]? opts := null)
+  ** Open with URI of endpoint such as "http://host/api/myProj/".  Pass
+  ** null for password if using a non-password based protocol such
+  ** as OAuth.  Username must always be specified up front.
+  **
+  ** Throw IOErr for network/connection error.  Throw `AuthErr` if their
+  ** an authentication error such as unsupported protocol or invalid credentials.
+  **
+  ** Options:
+  **  - `interactive`: specify if a human is in the loop (required for OAuth)
+  **  - `timeout`: used for socket connect and receive timeouts
+  **  - `socketConfig`: pass in entire SocketConfig
+  **  - `log`: pass in debug log
+  **
+  static Client open(Uri uri, Str username, Str? password, [Str:Obj]? opts := null)
   {
     // normalize URI
     if (uri.scheme != "http" && uri.scheme != "https") throw ArgErr("Only http/https: URIs supported: $uri")
@@ -325,7 +335,7 @@ class Client
     {
       // authenticate with full debug turned on
       log.level = LogLevel.debug
-      c := Client.open(uri, user, pass, ["log":log])
+      c := Client.open(uri, user, pass, ["log":log, "interactive":true])
       a := c.about
       echo("\nPing successful: $c.uri\n")
       a.each |v, k| { echo("$k: $v") }

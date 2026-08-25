@@ -21,6 +21,12 @@ const class AuthErr : Err
     makeRes("Invalid password",  "Invalid username or password")
   }
 
+  ** Unsupported scheme
+  static AuthErr makeUnsupportedScheme(Str msg := "Unsupported scheme")
+  {
+    makeRes(msg, msg)
+  }
+
   ** Standard constructor - the msg is used for public HTTP response
   new make(Str msg, Err? cause := null) : super(msg, cause)
   {
@@ -40,5 +46,4 @@ const class AuthErr : Err
   ** Status code to use for HTTP response
   const Int resCode := 403
 }
-
 

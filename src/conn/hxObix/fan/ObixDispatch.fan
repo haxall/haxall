@@ -60,7 +60,7 @@ class ObixDispatch : ConnDispatch
     else
     {
       trace.phase("Authenticate using Haystack")
-      auth := AuthClientContext.open(lobbyUri, user, pass, log, sockConfig)
+      auth := AuthClientContext.open(lobbyUri, user, pass, log, Str:Obj[:], sockConfig)
       trace.phase("AuthClientContext", auth.headers.toStr)
       client = ObixClient(lobbyUri, auth.headers)
     }

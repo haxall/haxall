@@ -18,6 +18,23 @@ const class OAuthClient
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Open
+//////////////////////////////////////////////////////////////////////////
+
+  ** Run the loopback oauth2 login called via reflection from `auth::OAuth2Scheme`.
+  ** Return the bearer token or raise AuthErr.
+  static Str open(Uri uri, Str:Str params, Log log)
+  {
+    issuer := params.getChecked("issuer")
+    cid    := params.getChecked("clientId")
+    scopes := params.getChecked("scopes")
+
+    log.info("TODO open $uri, $params")
+
+    return "dummy-bearer-token"
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
@@ -155,3 +172,4 @@ const class OAuthClient
     throw ArgErr("Cannot convert to file ${obj.typeof}: ${obj}")
   }
 }
+

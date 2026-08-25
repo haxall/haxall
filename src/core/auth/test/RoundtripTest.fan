@@ -76,6 +76,7 @@ class RoundtripTest : Test
   {
     wisp = Slot.findMethod("wisp::WispService.testSetup").call(TestMod())
     wisp.start
+    wisp->waitUntilListening
     port = wisp->httpPort
   }
 
@@ -86,7 +87,7 @@ class RoundtripTest : Test
 
   AuthClientContext openClient(Str user, Str pass)
   {
-    AuthClientContext.open(`http://localhost:$port/`, user, pass, Log.get("client")  { level = clientLevel })
+    AuthClientContext.open(`http://localhost:$port/`, user, pass, Log.get("client") { level = clientLevel })
   }
 }
 
@@ -198,3 +199,4 @@ internal const class TestAuthUser : AuthUser
   new make(Str u, Str s, Str:Str p, Str x) : super(u, s, p) { secret = x }
   const Str secret
 }
+

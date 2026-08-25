@@ -9,6 +9,7 @@
 using concurrent
 using inet
 using web
+using xeto
 using haystack
 
 **
@@ -24,13 +25,28 @@ class AuthClientContext : HaystackClientAuth
 //////////////////////////////////////////////////////////////////////////
 
   ** Open an authenticated context which can be used to prepare additional requests
-  static AuthClientContext open(Uri uri, Str user, Str pass, Log log, SocketConfig socketConfig := SocketConfig.cur)
+  static AuthClientContext open(Uri uri, Str user, Str? pass, Log log, Str:Obj opts := noOpts, SocketConfig socketConfig := SocketConfig.cur)
   {
-    make { it.uri = uri; it.user = user; it.pass = pass; it.log = log; it.socketConfig = socketConfig }.doOpen
+    make
+    {
+      it.uri          = uri
+      it.user         = user
+      it.pass         = pass
+      it.log          = log
+      it.interactive  = optBool(opts["interactive"])
+      it.socketConfig = socketConfig
+    }.doOpen
   }
 
+  private static const Str:Obj noOpts := Str:Obj[:]
+
+  private static Bool optBool(Obj? v) { v == true || v == Marker.val }
+
   ** Private it-block constructor
-  private new make(|This| f) { f(this) }
+  private new make(|This| f)
+  {
+    f(this)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // State
@@ -47,6 +63,9 @@ class AuthClientContext : HaystackClientAuth
 
   ** Logging instance
   const Log log
+
+  ** Was interactive option specified
+  const Bool interactive
 
   ** User agent string
   const Str? userAgent := "Haxall/$typeof.pod.version"
@@ -175,6 +194,14 @@ class AuthClientContext : HaystackClientAuth
 
       // let scheme handle handle message
       reqMsg := scheme.onClient(this, resMsg)
+
+      // schemes such as oauth2 obtain the bearer token out-of-band, in
+      // which case the message returned is the final Authorization header
+      if (reqMsg.scheme == "bearer")
+      {
+        this.headers["Authorization"] = reqMsg.toStr
+        return true
+      }
 
       // send request back to the server
       c = prepare(WebClient(uri))
@@ -308,6 +335,8 @@ class AuthClientContext : HaystackClientAuth
   static Void main(Str[] args)
   {
     if (args.size < 3) { echo("usage: <uri> <user> <pass>"); return }
+    opts := Str:Obj[:]
+    opts["interactive"] = true
     log := Log.get("auth")
     log.level = LogLevel.debug
     cx := AuthClientContext.open(args[0].toUri, args[1], args[2], log)
