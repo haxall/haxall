@@ -214,7 +214,7 @@ class LibInstaller
 
   private LibVersion? resolveRemoteDepend(RemoteRepo? repo, LibDepend d)
   {
-    ver := repo.latestMatch(d, false)
+    ver := session(repo).latestMatch(d, false)
     if (ver == null) throw InstallPlanErr("Unresolved dependency '$d' in repo '$repo.name'")
     return ver
   }
@@ -253,11 +253,15 @@ class LibInstaller
     ts := DateTime.now.toLocale("YYMMDD-hhmmss")
     tempDir := Env.cur.tempDir + `xeto-install-$ts/`
     fetched := File[,]
-    plan.each |p|
+    try
     {
-      if (p.action.isFetch)
-        fetched.addAll(fetch(p, tempDir))
+      plan.each |p|
+      {
+        if (!p.action.isFetch) return
+        fetched.addAll(fetch(p, session(p.repo), tempDir))
+      }
     }
+    finally closeSessions
 
     // now move fetched files to the install workDir
     workDirLib := installDir + `lib/xeto/`
@@ -277,7 +281,7 @@ class LibInstaller
   }
 
   ** Fetch plan lib
-  private File[] fetch(LibInstallPlan p, File tempDir)
+  private File[] fetch(LibInstallPlan p, RemoteRepoSession session, File tempDir)
   {
     try
     {
@@ -285,7 +289,7 @@ class LibInstaller
       originFile := tempDir.plus(`${p.name}-origin.props`)
 
       // fetch from remote repo
-      contents := p.repo.fetch(p.name, p.newVer.version)
+      contents := session.fetch(p.name, p.newVer.version)
 
       // when the catalog advertised a digest the fetched bytes must
       // hash to it - a tampered or corrupted artifact is rejected
@@ -316,10 +320,28 @@ class LibInstaller
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Sessions
+//////////////////////////////////////////////////////////////////////////
+
+  ** One session per repo shared by planning and execution, so a whole
+  ** install authenticates once per repo
+  private RemoteRepoSession session(RemoteRepo repo)
+  {
+    sessions.getOrAdd(repo.name) |->RemoteRepoSession| { repo.open }
+  }
+
+  private Void closeSessions()
+  {
+    sessions.each |s| { s.close }
+    sessions.clear
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   private LibInstallPlan[]? planRef
+  private Str:RemoteRepoSession sessions := [:]
 }
 
 **************************************************************************

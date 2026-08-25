@@ -76,9 +76,42 @@ const mixin LocalRepo : LibRepo
 ** local repo.  Subclasses map to specific backends such as the `xeto.dev`
 ** registry or the GitHub HTTP API.
 **
+** A RemoteRepo is only the named configuration for a repo; all network
+** activity happens through a connected [RemoteRepoSession].
+**
 @Js
 const mixin RemoteRepo : LibRepo
 {
+  ** Open a connected session to this remote repo.  The default session
+  ** authenticates each request with the configured bearer token, or
+  ** anonymously when none is configured.  The session is owned by the
+  ** caller who must close it when complete.
+  abstract RemoteRepoSession open()
+
+  ** Return if an env var name if auth token is configured for this repo
+  @NoDoc abstract Str? authTokenEnvName()
+
+  ** Directory in the path where this repo is configured.
+  @NoDoc abstract File pathDir()
+}
+
+**************************************************************************
+** RemoteRepoSession
+**************************************************************************
+
+**
+** RemoteRepoSession is a connected session to a [RemoteRepo].  The repo
+** is the named configuration; the session is the connection: it owns
+** the authentication state for its lifetime and its method surface
+** mirrors the "sys.repo" wire operations.  Sessions are owned by the
+** caller: open one for a batch of calls and close it when complete.
+**
+@Js
+abstract class RemoteRepoSession
+{
+  ** Repo this session is connected to
+  abstract RemoteRepo repo()
+
   ** Ping the remote repo and return metadata; if not reachable raise an
   ** exception or return null based on checked flag.
   abstract Dict? ping(Bool checked := true)
@@ -112,15 +145,12 @@ const mixin RemoteRepo : LibRepo
   abstract Buf fetch(Str name, Version version)
 
   ** Publish a xetolib zip file to the repo and return its published
-  ** version.  Requires a configured auth token with publish permission.
-  ** Repos which do not support publishing raise UnsupportedErr.
-  virtual LibVersion publish(File file) { throw UnsupportedErr("Repo does not support publish: $name") }
+  ** version.  Requires authentication with publish permission.  Repos
+  ** which do not support publishing raise UnsupportedErr.
+  virtual LibVersion publish(File file) { throw UnsupportedErr("Repo does not support publish: $repo.name") }
 
-  ** Return if an env var name if auth token is configured for this repo
-  @NoDoc abstract Str? authTokenEnvName()
-
-  ** Directory in the path where this repo is configured.
-  @NoDoc abstract File pathDir()
+  ** Close the session and release any resources
+  virtual Void close() {}
 }
 
 **************************************************************************

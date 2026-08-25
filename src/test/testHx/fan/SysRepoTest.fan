@@ -23,8 +23,9 @@ using hxRepo
 **
 class SysRepoTest : HxTest
 {
-  RemoteRepo? repo    // HttpRepo client bound to this proj
-  Client? client      // authenticated haystack client
+  RemoteRepo? repo             // HttpRepo client bound to this proj
+  RemoteRepoSession? session   // one open session used across every do method
+  Client? client               // authenticated haystack client
 
   @HxTestProj
   Void test()
@@ -35,6 +36,8 @@ class SysRepoTest : HxTest
     doVersions
     doFetch
     doPublish
+    doClientAuth
+    session.close
     client.close
   }
 
@@ -82,11 +85,14 @@ class SysRepoTest : HxTest
     header := (Str)((Str:Str)client.auth->headers).getChecked("Authorization")
     token := header[header.index("authToken=")+10..-1]
 
-    // resolve HttpRepo client and configure its auth token
+    // resolve HttpRepo client and configure its auth token; the one
+    // session opened here services every op call in the test, proving
+    // a session works across many calls from a single open
     env := (MEnv)proj.ns.env
     env.envVarSet("XETO_REPO_TEST", token)
     this.repo = MRemoteRepo.create(RemoteRepoInit(env, "test", uri, Etc.dict0, env.workDir))
     verifyEq(repo.typeof, HttpRepo#)
+    this.session = repo.open
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,7 +107,7 @@ class SysRepoTest : HxTest
     verifyEq(d["spec"], Ref("sys.repo::RepoPing"))
 
     // http client
-    verifyEq(repo.ping["dis"], proj.dis)
+    verifyEq(session.ping["dis"], proj.dis)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -140,14 +146,14 @@ class SysRepoTest : HxTest
     verifyEq(((List)res["libs"]).size, 0)
 
     // http client: wildcard hydrates LibVersions with paging metadata
-    sr := repo.search(RemoteRepoSearchReq("*"))
+    sr := session.search(RemoteRepoSearchReq("*"))
     verify(sr.libs.size > 0)
     verifyEq(sr.total, sr.libs.size)
     verifyLibVersion(sr.libs.find |v| { v.name == "sys" }, "sys")
     verifyLibVersion(sr.libs.find |v| { v.name == "sys.repo" }, "sys.repo")
 
     // http client: no matches
-    sr = repo.search(RemoteRepoSearchReq("no-match-xyz"))
+    sr = session.search(RemoteRepoSearchReq("no-match-xyz"))
     verifyEq(sr.libs.size, 0)
     verifyEq(sr.total, 0)
   }
@@ -182,18 +188,18 @@ class SysRepoTest : HxTest
     verifyEq(list.size, 0)
 
     // http client: hydrated LibVersions
-    vers := repo.versions("sys")
+    vers := session.versions("sys")
     verifyEq(vers.size, 1)
     verifyLibVersion(vers.first, "sys")
 
     // http client: defaulted latest/latestMatch/version route through versions
-    verifyEq(repo.latest("sys").version, ver)
-    verifyEq(repo.version("sys", ver).version, ver)
-    verifyNull(repo.version("sys", Version("0.0.1"), false))
-    verifyEq(repo.latestMatch(LibDepend("sys", LibDependVersions("${ver.segments.first}.x.x"))).version, ver)
+    verifyEq(session.latest("sys").version, ver)
+    verifyEq(session.version("sys", ver).version, ver)
+    verifyNull(session.version("sys", Version("0.0.1"), false))
+    verifyEq(session.latestMatch(LibDepend("sys", LibDependVersions("${ver.segments.first}.x.x"))).version, ver)
 
     // http client: unknown lib is an empty list
-    verifyEq(repo.versions("no-match-xyz").size, 0)
+    verifyEq(session.versions("no-match-xyz").size, 0)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -215,11 +221,11 @@ class SysRepoTest : HxTest
     verifyFetchErr("""repoFetch("sys", "0.0.1")""", "sys.repo::UnknownLibVersionErr")
 
     // http client: fetch buf and reload
-    verifyFetchedZip(repo.fetch("sys", ver), `http/sys.xetolib`, ver)
+    verifyFetchedZip(session.fetch("sys", ver), `http/sys.xetolib`, ver)
 
     // http client: unknown lib and version report the server's ApiErr dis
-    verifyErrMsg(IOErr#, "repoFetch failed: Unknown lib: no-match-xyz [$repo.uri]") { repo.fetch("no-match-xyz", Version("1.0.0")) }
-    verifyErrMsg(IOErr#, "repoFetch failed: Unknown lib version: sys-0.0.1 [$repo.uri]") { repo.fetch("sys", Version("0.0.1")) }
+    verifyErrMsg(IOErr#, "repoFetch failed: Unknown lib: no-match-xyz [$repo.uri]") { this.session.fetch("no-match-xyz", Version("1.0.0")) }
+    verifyErrMsg(IOErr#, "repoFetch failed: Unknown lib version: sys-0.0.1 [$repo.uri]") { this.session.fetch("sys", Version("0.0.1")) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -232,7 +238,7 @@ class SysRepoTest : HxTest
   Void doPublish()
   {
     // post a real zip; any xetolib works since the server rejects
-    zip := repo.fetch("sys", proj.ns.lib("sys").version)
+    zip := session.fetch("sys", proj.ns.lib("sys").version)
     json := postZip(zip, "5", 501)
     verifyEq(json["spec"], "sys.api::NotImplementedErr")
 
@@ -287,6 +293,38 @@ class SysRepoTest : HxTest
       verifyNotNull(api, axon)
       verifyEq(api.spec, spec)
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Client Auth
+//////////////////////////////////////////////////////////////////////////
+
+  ** End to end proof of caller owned sessions: a session opened from
+  ** the scram authenticated haystack::Client services many calls from
+  ** the one open; the repo itself pins no auth state of its own.
+  Void doClientAuth()
+  {
+    env := (MEnv)proj.ns.env
+    uri := repo.uri
+
+    // no token configured and no client session: the server's auth
+    // challenge fails the op before it is ever dispatched
+    bare := HttpRepo(RemoteRepoInit(env, "noauth", uri, Etc.dict0, env.workDir)).open
+    verifyErr(IOErr#) { bare.ping }
+    bare.close
+
+    // one session opened from the scram client services multiple calls
+    s := ((HttpRepo)MRemoteRepo.create(RemoteRepoInit(env, "scram", uri, Etc.dict0, env.workDir))).openClient(client)
+    try
+    {
+      ver := proj.ns.lib("sys").version
+      verifyEq(s.ping["dis"], proj.dis)
+      verify(s.search(RemoteRepoSearchReq("*")).libs.size > 0)
+      verifyEq(s.versions("sys").first.version, ver)
+      verifyFetchedZip(s.fetch("sys", ver), `scram/sys.xetolib`, ver)
+      verifyEq(s.ping["dis"], proj.dis)  // session stays live after many calls
+    }
+    finally s.close
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -21,8 +21,34 @@ const class HttpRepo : MRemoteRepo
 {
   new make(RemoteRepoInit init) : super(init) {}
 
+  ** Open a session which authenticates each request with the configured
+  ** bearer token, or anonymously when none is configured
+  override RemoteRepoSession open() { HttpRepoSession(this, null) }
+
+  ** Open a session which authenticates each request with the caller
+  ** owned `haystack::Client` session, such as one opened with scram
+  ** credentials or OAuth
+  RemoteRepoSession openClient(Client client) { HttpRepoSession(this, client) }
+}
+
+**************************************************************************
+** HttpRepoSession
+**************************************************************************
+
+**
+** HttpRepoSession is a connected session to an HttpRepo.  Requests
+** authenticate through the caller owned `haystack::Client` when given,
+** otherwise each request resolves the repo's configured bearer token.
+**
+internal class HttpRepoSession : MRemoteRepoSession
+{
+  new make(HttpRepo repo, Client? client) : super(repo) { this.client = client }
+
+  ** Caller owned client session or null to use the configured token
+  private Client? client
+
 //////////////////////////////////////////////////////////////////////////
-// RemoteRepo
+// Ops
 //////////////////////////////////////////////////////////////////////////
 
   override Dict? ping(Bool checked := true)
@@ -142,12 +168,17 @@ const class HttpRepo : MRemoteRepo
     finally c.close
   }
 
-  ** Prepare web client for an op GET request
+  ** Prepare web client for an op request.  Redirects are never followed:
+  ** an auth challenge redirect to a login page must fail as an error,
+  ** and following one would re-send the auth headers to whatever host
+  ** the redirect names.
   private WebClient toWebClient(Str op, Str:Str args)
   {
-    c := WebClient(uri.plusSlash.plusName(op).plusQuery(args))
+    c := WebClient(mrepo.uri.plusSlash.plusName(op).plusQuery(args))
+    c.followRedirects = false
     c.reqHeaders["Xeto-Version"] = ApiVersion.cur.token
-    token := authToken(false)
+    if (client != null) return client.auth.prepare(c)
+    token := mrepo.authToken(false)
     if (token != null) c.reqHeaders["Authorization"] = "bearer authToken=$token"
     return c
   }
@@ -163,7 +194,6 @@ const class HttpRepo : MRemoteRepo
       if (json?.get("dis") != null) dis = json["dis"].toStr
     }
     catch (Err e) {}
-    throw IOErr("$op failed: $dis [$uri]")
+    throw IOErr("$op failed: $dis [$mrepo.uri]")
   }
 }
-

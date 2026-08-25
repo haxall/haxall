@@ -46,12 +46,25 @@ internal class PublishCmd : RepoRemoteCmd
       // load the file, or the whole directory ordered by depends; the
       // load fails fast on a corrupt file before any network traffic
       vers := load
-
-      vers.each |ver|
+      if (preview)
       {
-        if (preview) { ok("Preview [$ver to $repo.name, not published]"); return }
-        pub := repo.publish(ver.file)
-        ok("Published [$pub.name-$pub.version to $repo.name]")
+        vers.each |ver| { ok("Preview [$ver to $repo.name, not published]") }
+        return 0
+      }
+
+      // one session publishes the whole batch
+      s := repo.open
+      try
+      {
+        vers.each |ver|
+        {
+          pub := s.publish(ver.file)
+          ok("Published [$pub.name-$pub.version to $repo.name]")
+        }
+      }
+      finally
+      {
+        s.close
       }
       return 0
     }

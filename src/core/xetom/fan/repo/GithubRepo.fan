@@ -54,8 +54,12 @@ const class GithubRepo : MRemoteRepo
 // RemoteRepo
 //////////////////////////////////////////////////////////////////////////
 
+  ** GitHub access is stateless per request, so the session simply
+  ** delegates back to this repo
+  override RemoteRepoSession open() { GithubRepoSession(this) }
+
  ** Ping the GitHub repo and return metadata dict.
-  override Dict? ping(Bool checked := true)
+  Dict? ping(Bool checked := true)
   {
     try
     {
@@ -88,7 +92,7 @@ const class GithubRepo : MRemoteRepo
 
   ** Search the GitHub repo for xetolibs matching the query.
   ** Filters manifest by name, then returns latest version with full depends.
-  override RemoteRepoSearchRes search(RemoteRepoSearchReq req)
+  RemoteRepoSearchRes search(RemoteRepoSearchReq req)
   {
     manifest := loadManifest
     names := manifest.keys.findAll |n|
@@ -96,12 +100,12 @@ const class GithubRepo : MRemoteRepo
       // use a lightweight RemoteLibVersion for matching
       req.matches(RemoteLibVersion(n, Version.defVal))
     }
-    libs := names.map |n->LibVersion| { latest(n) }
+    libs := names.map |n->LibVersion| { versions(n, Etc.dict1("limit", 1)).first }
     return MRemoteRepoSearchRes { it.libs = libs }
   }
 
   ** List versions for a given library name, sorted latest to oldest.
-  override LibVersion[] versions(Str name, Dict? opts := null)
+  LibVersion[] versions(Str name, Dict? opts := null)
   {
     vers := loadManifest[name]
     if (vers == null) return LibVersion#.emptyList
@@ -114,10 +118,11 @@ const class GithubRepo : MRemoteRepo
   ** compiler rather than packaging the zip ourselves: packaging requires the
   ** include/publish patterns from the lib.xeto pragma, so the compiler is the
   ** only place that can decide what belongs in the zip.
-  override Buf fetch(Str name, Version version)
+  Buf fetch(Str name, Version version)
   {
     // verify the lib+version exists and get enriched metadata
-    ver := this.version(name, version)
+    ver := versions(name, Etc.dict1("versions", LibDependVersions(version))).first
+           ?: throw UnknownLibErr("$name-$version")
 
     // resolve the git ref for this version
     ref := "v$version"
@@ -481,5 +486,29 @@ const class GithubRepo : MRemoteRepo
     }
     finally wc.close
   }
+}
+
+**************************************************************************
+** GithubRepoSession
+**************************************************************************
+
+**
+** GithubRepoSession delegates back to its repo: GitHub access is
+** stateless per request with the token resolved from the environment,
+** so the session carries no state of its own.
+**
+internal class GithubRepoSession : MRemoteRepoSession
+{
+  new make(GithubRepo repo) : super(repo) { this.grepo = repo }
+
+  private const GithubRepo grepo
+
+  override Dict? ping(Bool checked := true) { grepo.ping(checked) }
+
+  override RemoteRepoSearchRes search(RemoteRepoSearchReq req) { grepo.search(req) }
+
+  override LibVersion[] versions(Str name, Dict? opts := null) { grepo.versions(name, opts) }
+
+  override Buf fetch(Str name, Version version) { grepo.fetch(name, version) }
 }
 

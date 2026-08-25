@@ -93,7 +93,11 @@ const class RepoFuncs
   @Api @Axon { su = true }
   static Dict libRepoPing(Str? name := null)
   {
-    return repo(name).ping
+    s := repo(name).open
+    try
+      return s.ping
+    finally
+      s.close
   }
 
   ** Save an authentication token for a remote repo.  The token
@@ -140,8 +144,15 @@ const class RepoFuncs
   @Api @Axon { su = true }
   static Grid libSearch(Str? name, Str query)
   {
-    r := repo(name)
-    res := r.search(RemoteRepoSearchReq(query))
+    s := repo(name).open
+    try
+      return searchGrid(s.search(RemoteRepoSearchReq(query)))
+    finally
+      s.close
+  }
+
+  private static Grid searchGrid(RemoteRepoSearchRes res)
+  {
     gb := GridBuilder()
     gb.addCol("name").addCol("version").addCol("doc")
     res.libs.each |lib|
@@ -165,7 +176,12 @@ const class RepoFuncs
   static Grid libVersions(Str? name, Str lib, Dict? opts := null)
   {
     r := repo(name)
-    vers := r.versions(lib, opts)
+    s := r.open
+    LibVersion[]? vers
+    try
+      vers = s.versions(lib, opts)
+    finally
+      s.close
     gb := GridBuilder()
     gb.addCol("name").addCol("version").addCol("depends")
     vers.each |v|
@@ -277,8 +293,12 @@ const class RepoFuncs
   @Api @Axon { su = true }
   static Dict libFetch(Str? name, Str lib, Str version, Obj handle)
   {
-    r := repo(name)
-    contents := r.fetch(lib, Version(version))
+    s := repo(name).open
+    Buf? contents
+    try
+      contents = s.fetch(lib, Version(version))
+    finally
+      s.close
     Context.cur.rt.exts.io.write(handle) |out| { out.writeBuf(contents) }
     return Etc.dict4("lib", lib, "version", version, "size", Number.makeInt(contents.size), "uri", handle)
   }
@@ -326,3 +346,4 @@ const class RepoFuncs
   }
 
 }
+

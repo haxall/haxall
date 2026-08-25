@@ -219,7 +219,7 @@ class RemoteReposTest : AbstractXetoTest
     r := reg.add("test", `http://test-1/foo/bar`, Etc.dict0)
     verifyEq(r.typeof, TestRemoteRepo#)
 
-    verifyDictEq(r.ping, Etc.dict1("ping", "boom!"))
+    verifyDictEq(r.open.ping, Etc.dict1("ping", "boom!"))
 
     verifySearch(r, RemoteRepoSearchReq("alpha"),
       [["alpha", "1.0.1"],
@@ -235,7 +235,9 @@ class RemoteReposTest : AbstractXetoTest
 
   Void verifySearch(RemoteRepo r, RemoteRepoSearchReq req, Obj[][] expect)
   {
-    res := r.search(req)
+    s := r.open
+    res := s.search(req)
+    s.close
     actual := res.libs
     // echo(res.libs.join("\n"))
     verifyEq(actual.size, expect.size)
@@ -473,15 +475,17 @@ const class TestRemoteRepo : MRemoteRepo
 {
   new make(RemoteRepoInit init) : super(init) {}
 
-  override Dict? ping(Bool checked := true) { Etc.dict1("ping", "boom!") }
+  override RemoteRepoSession open() { TestRemoteRepoSession(this) }
 
-  override RemoteRepoSearchRes search(RemoteRepoSearchReq req)
+  Dict? ping(Bool checked := true) { Etc.dict1("ping", "boom!") }
+
+  RemoteRepoSearchRes search(RemoteRepoSearchReq req)
   {
     matches := testLibs.findAll { req.matches(it) }
     return MRemoteRepoSearchRes { it.libs = matches }
   }
 
-  override LibVersion[] versions(Str name, Dict? opts := null)
+  LibVersion[] versions(Str name, Dict? opts := null)
   {
     list := testLibs.findAll { it.name == name }
     list = list.dup.sortr
@@ -532,9 +536,9 @@ const class TestRemoteRepo : MRemoteRepo
 
   ** The installer only copies the fetched buf to disk without loading it,
   ** so a zip with just the meta props is enough to exercise install plans
-  override Buf fetch(Str name, Version version)
+  Buf fetch(Str name, Version version)
   {
-    v := this.version(name, version)
+    v := testLibs.find { it.name == name && it.version == version } ?: throw UnknownLibErr("$name-$version")
     return toZip(name, version.toStr, v.depends.join(";"))
   }
 
@@ -569,5 +573,24 @@ const class TestRemoteRepo : MRemoteRepo
     }
     return RemoteLibVersion(n, Version(v), "blah", d, digest)
   }
+}
+
+**************************************************************************
+** TestRemoteRepoSession
+**************************************************************************
+
+class TestRemoteRepoSession : MRemoteRepoSession
+{
+  new make(TestRemoteRepo repo) : super(repo) { this.trepo = repo }
+
+  private const TestRemoteRepo trepo
+
+  override Dict? ping(Bool checked := true) { trepo.ping(checked) }
+
+  override RemoteRepoSearchRes search(RemoteRepoSearchReq req) { trepo.search(req) }
+
+  override LibVersion[] versions(Str name, Dict? opts := null) { trepo.versions(name, opts) }
+
+  override Buf fetch(Str name, Version version) { trepo.fetch(name, version) }
 }
 

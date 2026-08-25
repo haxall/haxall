@@ -83,35 +83,6 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
     return list
   }
 
-  ** Default routes to versions with `{limit:1}`
-  override LibVersion? latest(Str name, Bool checked := true)
-  {
-    opts := Etc.dict1("limit", 1)
-    x := versions(name, opts).first
-    if (x != null) return x
-    if (checked) throw UnknownLibErr(name)
-    return null
-  }
-
-  ** Default routes to versions with `{limit:1, versions:d.versions}`
-  override LibVersion? latestMatch(LibDepend d, Bool checked := true)
-  {
-    opts := Etc.dict2("limit", 1, "versions", d.versions)
-    x := versions(d.name, opts).first
-    if (x != null) return x
-    if (checked) throw UnknownLibErr(d.toStr)
-    return null
-  }
-
-  ** Default routes to versions with `{limit:1, versions:version}`
-  override LibVersion? version(Str name, Version version, Bool checked := true)
-  {
-    x := versions(name, Etc.dict1("versions", LibDependVersions(version))).first
-    if (x != null) return x
-    if (checked) throw UnknownLibErr("$name-$version")
-    return null
-  }
-
   ** Return if an env var name if auth token is configured for this repo
   override Str? authTokenEnvName()
   {
@@ -159,6 +130,55 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
   Str? toAuthTokenEnvVal(Str? key)
   {
     key == null ? null : env.envVarGet(key)
+  }
+}
+
+**************************************************************************
+** MRemoteRepoSession
+**************************************************************************
+
+**
+** MRemoteRepoSession is the base class for RemoteRepoSession
+** implementations: it carries the repo reference and the default
+** version lookups which route through `versions`
+**
+@Js
+abstract class MRemoteRepoSession : RemoteRepoSession
+{
+  new make(MRemoteRepo repo) { this.mrepo = repo }
+
+  override RemoteRepo repo() { mrepo }
+
+  ** Repo typed as the implementation base
+  const MRemoteRepo mrepo
+
+  ** Default routes to versions with `{limit:1}`
+  override LibVersion? latest(Str name, Bool checked := true)
+  {
+    opts := Etc.dict1("limit", 1)
+    x := versions(name, opts).first
+    if (x != null) return x
+    if (checked) throw UnknownLibErr(name)
+    return null
+  }
+
+  ** Default routes to versions with `{limit:1, versions:d.versions}`
+  override LibVersion? latestMatch(LibDepend d, Bool checked := true)
+  {
+    opts := Etc.dict2("limit", 1, "versions", d.versions)
+    x := versions(d.name, opts).first
+    if (x != null) return x
+    if (checked) throw UnknownLibErr(d.toStr)
+    return null
+  }
+
+  ** Default routes to versions with `{limit:1, versions:version}`
+  override LibVersion? version(Str name, Version version, Bool checked := true)
+  {
+    x := versions(name, Etc.dict1("versions", LibDependVersions(version))).first
+    if (x != null) return x
+    if (checked) throw UnknownLibErr("$name-$version")
+    return null
   }
 }
 

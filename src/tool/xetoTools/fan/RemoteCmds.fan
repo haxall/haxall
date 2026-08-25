@@ -216,9 +216,14 @@ internal class RemotePingCmd : RepoRemoteCmd
     try
     {
       repo := getRepo
-      meta := repo.ping
-      ok("Ping success [$repo.name]")
-      Etc.dictDump(meta)
+      s := repo.open
+      try
+      {
+        meta := s.ping
+        ok("Ping success [$repo.name]")
+        Etc.dictDump(meta)
+      }
+      finally s.close
       return 0
     }
     catch (Err e)
@@ -259,7 +264,12 @@ internal class RemoteSearchCmd : RepoRemoteCmd
     {
       repo := getRepo
       req  := RemoteRepoSearchReq(query)
-      res  := repo.search(req)
+      s    := repo.open
+      RemoteRepoSearchRes? res
+      try
+        res = s.search(req)
+      finally
+        s.close
 
       table := Obj[,]
       table.add(["name", "latest", "doc"])
@@ -322,7 +332,12 @@ internal class RemoteVersionsCmd : RepoRemoteCmd
       n    := arg.name
       c    := arg.constraints
       opts := Etc.dict2x("limit", limit, "versions", c)
-      vers := repo.versions(n, opts)
+      s    := repo.open
+      LibVersion[]? vers
+      try
+        vers = s.versions(n, opts)
+      finally
+        s.close
 
       table := Obj[,]
       table.add(["name", "version", "depends"])
@@ -461,14 +476,19 @@ internal class RemoteFetchCmd : RepoRemoteCmd
     try
     {
       repo := getRepo
+      arg  := LibVerArg(name)
+      n    := arg.name
 
-      // get name + version from arguments
-      arg := LibVerArg(name)
-      n   := arg.name
-      v   := arg.version ?: repo.latest(n).version
-
-      // fetch
-      buf := repo.fetch(n, v)
+      // one session resolves the version and fetches
+      s := repo.open
+      Buf? buf
+      Version? v
+      try
+      {
+        v = arg.version ?: s.latest(n).version
+        buf = s.fetch(n, v)
+      }
+      finally s.close
 
       // write to file
       fileName := "${n}-${v}.xetolib"
