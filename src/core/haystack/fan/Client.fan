@@ -42,7 +42,8 @@ class Client
     uri = uri.plusSlash
 
     // init options
-    log  := opts?.get("log") as Log ?: Log.get("client")
+    if (opts == null) opts = noOpts
+    log  := opts.get("log") as Log ?: Log.get("client")
 
     // check for socket config option, otherwise fallback to setting timeouts
     SocketConfig? socketConfig := opts?.get("socketConfig") as SocketConfig
@@ -55,7 +56,7 @@ class Client
     }
 
     // use reflection to delegate to auth::AuthClientContext
-    auth := Slot.findMethod("auth::AuthClientContext.open").call(uri+`about`, username, password, log, socketConfig)
+    auth := Slot.findMethod("auth::AuthClientContext.open").call(uri+`about`, username, password, log, opts, socketConfig)
 
     return make(uri, log, auth)
   }
@@ -347,6 +348,8 @@ class Client
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
+
+  private static const Str:Obj noOpts := Str:Obj[:]
 
   @NoDoc static const AtomicInt debugCounter := AtomicInt()
 

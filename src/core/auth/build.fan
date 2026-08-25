@@ -40,6 +40,7 @@ class Build : BuildPod
         "auth::BasicScheme",
         "auth::Folio2Scheme",
         "auth::HmacScheme",
+        "auth::OAuth2Scheme",
         "auth::ScramScheme",
         "auth::PlaintextScheme",
         "auth::XPlaintextScheme",
@@ -48,3 +49,4 @@ class Build : BuildPod
   }
 
 }
+
