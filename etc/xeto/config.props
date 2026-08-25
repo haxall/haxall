@@ -7,7 +7,7 @@
 
 repo.default=xetodev
 
-repo.xetodev.uri=https://xeto.dev/
+repo.xetodev.uri=https://xeto.dev/sys/api
 
 repo.cc.uri=https://github.com/Project-Haystack/xeto-cc
 
