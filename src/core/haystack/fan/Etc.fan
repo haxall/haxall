@@ -1238,6 +1238,24 @@ const class Etc
   }
 
   **
+  ** Convert a display name to a URL slug: lowercased alphanumerics
+  ** with runs of everything else collapsed to a single dash.  The
+  ** same algorithm runs client and server side so a link built from
+  ** a dis lands without a redirect.  The empty string returns "x".
+  **
+  @NoDoc static Str toSlug(Str dis)
+  {
+    s := StrBuf()
+    dis.each |ch|
+    {
+      if (ch.isAlphaNum) s.addChar(ch.lower)
+      else if (!s.isEmpty && s[s.size-1] != '-') s.addChar('-')
+    }
+    if (!s.isEmpty && s[s.size-1] == '-') s.remove(s.size-1)
+    return s.isEmpty ? "x" : s.toStr
+  }
+
+  **
   ** Get the localized string for the given tag name for the
   ** current locale. See [hx.doc.skyspark::Localization#tags].
   **

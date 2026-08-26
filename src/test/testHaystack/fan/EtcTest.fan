@@ -107,6 +107,23 @@ class EtcTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// To Slug
+//////////////////////////////////////////////////////////////////////////
+
+  Void testToSlug()
+  {
+    verifyEq(Etc.toSlug("Acme"), "acme")
+    verifyEq(Etc.toSlug("Acme, Inc"), "acme-inc")
+    verifyEq(Etc.toSlug("Foo  --  Bar"), "foo-bar")
+    verifyEq(Etc.toSlug("  Foo Bar  "), "foo-bar")
+    verifyEq(Etc.toSlug("Brian Frank"), "brian-frank")
+    verifyEq(Etc.toSlug("A1 B2"), "a1-b2")
+    verifyEq(Etc.toSlug("trailing!"), "trailing")
+    verifyEq(Etc.toSlug(""), "x")
+    verifyEq(Etc.toSlug("!!!"), "x")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Escape Tag Name
 //////////////////////////////////////////////////////////////////////////
 
