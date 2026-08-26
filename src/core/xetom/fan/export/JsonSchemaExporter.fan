@@ -109,7 +109,12 @@ class JsonSchemaExporter : Exporter
     funcSpec.slots.each |slot, name|
     {
       if (name == "returns") return
-      if (!slot.isMaybe) required.add(name)
+      // required means the key must be present, and the dispatcher does not
+      // require presence for a defaulted param: mapArgs falls back to the
+      // metaOwn default when the arg is omitted.  metaOwn, not meta, so an
+      // example val inherited from the param's type is never mistaken for
+      // a default -- the same distinction mapArgs draws.
+      if (!slot.isMaybe && slot.metaOwn.missing("val")) required.add(name)
       props[name] = prop(slot)
     }
 

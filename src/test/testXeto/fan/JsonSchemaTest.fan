@@ -60,7 +60,8 @@ class JsonSchemaTest : AbstractXetoTest
     ])
     verifyAllRefsResolved(actual, ex.defs)
 
-    // readByIds: Func { ids: List <of:Ref>, checked: Bool, returns: Grid }
+    // readByIds: Func { ids: List <of:Ref>, checked: Bool "true", returns: Grid }
+    // checked has a metaOwn default so it may be omitted -- not required
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     actual = ex.funcToParams(apiFuncs.slot("readByIds"))
     verifyEq(actual, Str:Obj[
@@ -69,7 +70,7 @@ class JsonSchemaTest : AbstractXetoTest
         "ids": Obj:Obj["type": "array", "items": sysRefRef],
         "checked": Obj:Obj["type": "boolean"],
       ],
-      "required": Obj["ids", "checked"],
+      "required": Obj["ids"],
     ])
     verifyAllRefsResolved(actual, ex.defs)
 
