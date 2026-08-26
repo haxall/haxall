@@ -73,6 +73,18 @@ class Api5Test : ApiTest
     // a missing required arg is a 400, not a null passed to the func
     verifyReqErr(`read`, "{}", 400, "sys.api::InvalidArgsErr")
 
+    // an omitted defaulted param takes its declared default rather than
+    // null: read's checked defaults to true, so a filter which matches
+    // nothing raises instead of answering null.  Passing checked=false
+    // explicitly is the contrast which proves the default is what made
+    // the difference, not the miss itself
+    verifyReqErr(`read`, """{"filter":"notThere"}""", 404, "sys.api::UnknownEntityErr")
+    verifyEq(postJson(`read`, """{"filter":"notThere", "checked":false}"""), null)
+
+    // the default applies on every arg path, so GET must agree with POST
+    verifyGetErr(`read?filter=notThere`, 404, "sys.api::UnknownEntityErr")
+    verifyEq(getJson(`read?filter=notThere&checked=false`), null)
+
     // an op whose params all default may be posted with no body at all,
     // whitespace or otherwise; only a non-blank body is parsed as JSON
     verifyEq(postJson(`about`, "")->get("whoami"), "charlie")
@@ -137,6 +149,16 @@ class Api5Test : ApiTest
     wc.reqHeaders["Content-Type"] = "application/json"
     wc.postStr(body)
     verifyResErr(wc, body, code, spec)
+  }
+
+  ** Verify a bad GET reports the given status and ApiErr spec
+  private Void verifyGetErr(Uri op, Int code, Str spec)
+  {
+    wc := c.toWebClient(op)
+    setVersionHeader(wc)
+    wc.writeReq
+    wc.readRes
+    verifyResErr(wc, null, code, spec)
   }
 
   ** Verify the response reports the given status and ApiErr JSON body;
