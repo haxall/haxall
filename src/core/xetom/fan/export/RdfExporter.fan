@@ -196,7 +196,8 @@ class RdfExporter : Exporter
       if (s.isMarker) markers.add(s)
       else props.add(s)
     }
-    hasShape := !x.isEnum && (!props.isEmpty || markers.any |s| { !s.isMaybe })
+    hasShape := !x.isEnum &&
+                ((x.isCompound && x.isOr) || !props.isEmpty || markers.any |s| { !s.isMaybe })
 
     qname(x.qname).nl
 
@@ -242,6 +243,12 @@ class RdfExporter : Exporter
     if (hasShape)
     {
       w("  sh:targetClass ").qname(x.qname).w(" ;").nl
+      if (x.isCompound && x.isOr)
+      {
+        w("  sh:or (").nl
+        x.bases.each |member| { w("    [ sh:class ").qname(member.qname).w(" ]").nl }
+        w("  ) ;").nl
+      }
       props.each |s| { propShape(s) }
       markers.each |s| { if (!s.isMaybe) markerShape(s) }
     }
@@ -1008,7 +1015,7 @@ class RdfExporter : Exporter
 
     if (qname == "sys::DateTime")
     {
-      if (val is DateTime) return val.toStr
+      if (val is DateTime) return ((DateTime)val).toIso
       str := val as Str
       if (str != null && DateTime.fromStr(str, false) != null) return str
       throw UnsupportedErr("Expected DateTime for ${context}, not ${val.typeof}")
