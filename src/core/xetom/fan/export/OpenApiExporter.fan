@@ -57,8 +57,11 @@ class OpenApiExporter : Exporter
           "name": "Xeto-Version",
           "in": "header",
           "required": true,
+          // single-element enum, not const: openapi-python-client
+          // rejects const in header params even with an explicit type
           "schema": [
-            "const": sysVer.major.toStr,
+            "type": "string",
+            "enum": [sysVer.major.toStr],
           ]
         ]
       ]
@@ -207,12 +210,14 @@ class OpenApiExporter : Exporter
     // GET
     if (fileParam == null && props.isEmpty && spec.meta.has("noSideEffects"))
       path["get"] =  [
+        "operationId": spec.name,
         "responses": responses,
         "parameters": opParams,
       ]
     // POST
     else
       path["post"] =  [
+        "operationId": spec.name,
         "requestBody": requestBody,
         "responses": responses,
         "parameters": opParams,
