@@ -43,7 +43,7 @@ class RemoteReposTest : AbstractXetoTest
 
     // verify installed setup
     verifyLocal
-    verifyRemote("xetodev", `https://xeto.dev/sys/api`, Etc.dict0)
+    verifyRemote("xetodev", `https://xeto.dev/api/repo`, Etc.dict0)
     verifyRemote( "cc", `https://github.com/Project-Haystack/xeto-cc`, Etc.dict0)
 
     // not found remote repos
@@ -126,7 +126,7 @@ class RemoteReposTest : AbstractXetoTest
 
     // verify cannot remove from futher up path
     verifyErr(Err#) { reg.remove("xetodev") }
-    verifyRemote("xetodev", `https://xeto.dev/sys/api`, Etc.dict0)
+    verifyRemote("xetodev", `https://xeto.dev/api/repo`, Etc.dict0)
   }
 
   Void verifyLocal()
