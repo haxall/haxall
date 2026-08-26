@@ -16,7 +16,10 @@ using xeto
   ** Create a write "probe" asking generally is the rec writable.
   ** Used only by the FolioMgr write checks; the rec is always the
   ** current version resolved from a permission checked read.
-  internal static FolioWrite probe(FolioRec rec) { make(rec.dict) }
+  internal static FolioWrite probe(FolioRec rec) { probeRec(rec.dict) }
+
+  ** Create a write "probe" for the given rec dict
+  @NoDoc static FolioWrite probeRec(Dict rec) { make(rec) }
 
   ** Pending commit of the given diff. The oldRec is the current version
   ** of the rec, or null when the diff is an add.
@@ -37,5 +40,17 @@ using xeto
 
   ** Diff being committed, or null for writes which are not a folio rec commit
   const Diff? diff
+
+  ** Is this a pending commit adding a new rec (no current rec)
+  Bool isAdd() { diff != null && oldRec == null }
+
+  ** Is this a pending commit updating an existing rec
+  Bool isUpdate() { diff != null && oldRec != null && !diff.isRemove }
+
+  ** Is this a pending commit removing an existing rec
+  Bool isRemove() { diff != null && diff.isRemove }
+
+  ** Is this a general writability probe with no pending diff
+  Bool isProbe() { diff == null }
 }
 
