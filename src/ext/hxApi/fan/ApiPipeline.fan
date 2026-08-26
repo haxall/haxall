@@ -45,7 +45,7 @@ class ApiPipeline
   {
     try
     {
-      if (routeRemote) return
+      if (resolveRoute) return
       resolveRuntime
       if (upgrade) return
       if (!authenticate) return
@@ -88,9 +88,12 @@ class ApiPipeline
 // Steps
 //////////////////////////////////////////////////////////////////////////
 
-  ** Check if the rtName routes this request to a remote node.  Return
-  ** true if  processed or false to continue the standard pipeline.
-  protected virtual Bool routeRemote() { false }
+  ** Resolve rtName to its route before `resolveRuntime` runs.  A subclass
+  ** may set `rt` itself to route the request to a runtime the standard
+  ** lookup would not find, such as a route alias.  Return true if the
+  ** request was fully serviced, such as tunneling it to a remote node,
+  ** or false to continue the standard pipeline.
+  protected virtual Bool resolveRoute() { false }
 
   ** Resolve /api/{rt name} to the runtime
   private Void resolveRuntime()

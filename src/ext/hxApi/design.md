@@ -18,7 +18,9 @@ document covers how the implementation is organized.
 
 `ApiPipeline` owns the entire lifecycle of one request:
 
-1. `routeRemote` - subclass hook to tunnel the request to another node
+1. `resolveRoute` - subclass hook to resolve the route name: set the
+   runtime for a route the standard lookup would miss such as an alias,
+   or service the request itself by tunneling it to another node
 2. `resolveRuntime` - map `/api/{proj}` to the runtime ("sys" is reserved
    for the system runtime)
 3. `upgrade` - websocket upgrade check before authentication; the ext
@@ -40,7 +42,8 @@ else is a 500 InternalErr.  `call` unwraps EvalErr so those types are
 visible - it is the only unwrap site.
 
 SkySpark subclasses the pipeline for clustering and session concerns
-via the `routeRemote` and `onAuthenticated` hooks.
+via the `resolveRoute` and `onAuthenticated` hooks.  XetoBase subclasses
+it for route aliases via `resolveRoute`.
 
 ## Version Model
 
