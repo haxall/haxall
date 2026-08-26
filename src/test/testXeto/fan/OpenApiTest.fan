@@ -141,6 +141,41 @@ class OpenApiTest : AbstractXetoTest
   }
 
   **
+  ** Codegen compatibility: the two properties stock generators depend on
+  ** beyond spec validity.  The header param schema must be a typed enum --
+  ** generators reject const in header params and silently drop every
+  ** endpoint that references it.  And every operation must carry an
+  ** operationId or generators manufacture names from the URL path.
+  **
+  Void testCodegenCompat()
+  {
+    ns := createNamespace(["sys", "sys.api"])
+    buf := StrBuf()
+    ex := OpenApiExporter(ns, buf.out, Etc.dict1("format", "json"))
+    ex.start
+    ex.lib(ns.lib("sys.api"))
+    ex.end
+
+    doc := (Str:Obj?)JsonInStream(buf.toStr.in).readJson
+
+    // header param schema is a typed single-element enum
+    components := (Str:Obj?)doc["components"]
+    xetoVersion := (Str:Obj?)((Str:Obj?)components["parameters"])["xetoVersion"]
+    schema := (Str:Obj?)xetoVersion["schema"]
+    verifyEq(schema["type"], "string")
+    verifyEq(schema["enum"], Obj?[ns.sysLib.version.major.toStr])
+
+    // every operation carries an operationId equal to the op name
+    paths := (Str:Obj?)doc["paths"]
+    paths.each |Obj? path, Str uri|
+    {
+      op := (Str:Obj?)(((Str:Obj?)path)["get"] ?: ((Str:Obj?)path)["post"])
+      name := uri[uri.indexr(".")+1..-1]
+      verifyEq(op["operationId"], name)
+    }
+  }
+
+  **
   ** C4: a cross-lib collision of <op> names is a generator error, not a
   ** silent last-wins -- the published surface is addressed by unqualified
   ** name in Axon.
