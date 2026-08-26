@@ -1077,6 +1077,16 @@ class UtilTest : AbstractXetoTest
     d := LibDependVersions(v)
     verifyEq(d.toStr, v.toStr)
     verifyEq(d.contains(v), true)
+    verifyEq(d.isExact, true)
+
+    // isExact: single version with no wildcards nor range
+    verifyEq(LibDependVersions("1.2.3").isExact,       true)
+    verifyEq(LibDependVersions("1.2.x").isExact,       false)
+    verifyEq(LibDependVersions("1.x.x").isExact,       false)
+    verifyEq(LibDependVersions("x.x.x").isExact,       false)
+    verifyEq(LibDependVersions.wildcard.isExact,       false)
+    verifyEq(LibDependVersions("1.0.0-2.0.0").isExact, false)
+    verifyEq(LibDependVersions("1.0.0-1.0.0").isExact, false)
   }
 
   Void verifyDependLibVersions(Str s, Str v, Bool expect)

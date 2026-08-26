@@ -107,6 +107,10 @@ const mixin LibDependVersions
 
   ** Return if the given version satisifies this instance's constraints
   abstract Bool contains(Version version)
+
+  ** Is this an exact match of a single version such as "1.2.3" with
+  ** no wildcards nor range
+  abstract Bool isExact()
 }
 
 **************************************************************************
@@ -162,6 +166,8 @@ internal const class MLibDependVersions : LibDependVersions
     this.a0 = a0; this.a1 = a1; this.a2 = a2
     this.b0 = b0; this.b1 = b1; this.b2 = b2
   }
+
+  override Bool isExact() { !isRange && a0 >= 0 && a1 >= 0 && a2 >= 0 }
 
   override Bool contains(Version v)
   {
