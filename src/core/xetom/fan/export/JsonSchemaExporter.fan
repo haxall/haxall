@@ -109,7 +109,8 @@ class JsonSchemaExporter : Exporter
     funcSpec.slots.each |slot, name|
     {
       if (name == "returns") return
-      if (!slot.isMaybe) required.add(name)
+      // omit defaulted params from required to match hxApi::ApiDispatch.mapArgs
+      if (!slot.isMaybe && slot.metaOwn.missing("val")) required.add(name)
       props[name] = prop(slot)
     }
 

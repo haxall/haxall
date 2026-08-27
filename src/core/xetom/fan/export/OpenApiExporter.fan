@@ -142,11 +142,7 @@ class OpenApiExporter : Exporter
     if (!isOp(spec)) return
     checkCollision(spec)
 
-    uri := spec.qname
-    n := uri.index("::Funcs.")
-    if (n != null)
-      uri = uri[0..n+1] + uri[(n+"..Funcs.".size)..-1]
-    uri = "/api/{projName}/" + uri.replace("::", ".")
+    uri := "/api/{projName}/" + spec.func.qname
 
     // request body: a file typed param receives the raw body per the
     // dispatcher's upload contract, everything else is the JSON args object
@@ -175,7 +171,11 @@ class OpenApiExporter : Exporter
     returns := spec.slot("returns", false)
     if (returns != null)
     {
-      response = schemaExporter.prop(returns)
+      // Jeto encodes a None return as JSON null, not the "∅" slot sentinel
+      if (returns.type.isNone)
+        response = Obj:Obj["type": "null"]
+      else
+        response = schemaExporter.prop(returns)
       // the response body has no key to omit, so a maybe return really can
       // answer JSON null -- ApiDispatchV5 writes it literally
       if (returns.isMaybe)

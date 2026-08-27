@@ -30,13 +30,13 @@ class OpenApiTest : AbstractXetoTest
     ex.lib(ns.lib("axon"))
 
     // sys.api marks its funcs <op>
-    verify(ex.paths.containsKey("/api/{projName}/sys.api.readById"))
-    verify(ex.paths.containsKey("/api/{projName}/sys.api.about"))
+    verify(ex.paths.containsKey("/api/{projName}/sys.api::readById"))
+    verify(ex.paths.containsKey("/api/{projName}/sys.api::about"))
 
     // axon is vocabulary, not an API surface -- nothing from it publishes
     ex.paths.keys.each |k|
     {
-      verify(((Str)k).startsWith("/api/{projName}/sys.api."), "unexpected path: $k")
+      verify(((Str)k).startsWith("/api/{projName}/sys.api::"), "unexpected path: $k")
     }
   }
 
@@ -50,12 +50,12 @@ class OpenApiTest : AbstractXetoTest
     ex.lib(ns.lib("sys.api"))
 
     // about: Func <op, noSideEffects> { returns: AboutInfo } -- no params
-    about := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api.about")
+    about := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api::about")
     verifyNotNull(about["get"])
     verifyEq(about["post"], null)
 
     // close: Func <op> { returns: None } -- side effects, so POST
-    close := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api.close")
+    close := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api::close")
     verifyNotNull(close["post"])
     verifyEq(close["get"], null)
 
@@ -76,7 +76,7 @@ class OpenApiTest : AbstractXetoTest
     ex := OpenApiExporter(ns, Buf().out, Etc.dict0)
     ex.lib(ns.lib("sys.api"))
 
-    about := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api.about")
+    about := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api::about")
     responses := (Obj:Obj)((Obj:Obj)about["get"])["responses"]
 
     verifyNotNull(responses["200"])
@@ -121,13 +121,13 @@ class OpenApiTest : AbstractXetoTest
     ex.lib(ns.lib("sys.repo"))
 
     // repoPublish { file: XetoLibFile } uploads the raw body
-    pub := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.repo.repoPublish")
+    pub := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.repo::repoPublish")
     body := (Obj:Obj)((Obj:Obj)pub["post"])["requestBody"]
     schema := binarySchema((Obj:Obj)body["content"])
     verifyEq(schema["format"], "binary")
 
     // repoFetch returns XetoLibFile as a raw download
-    fetch := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.repo.repoFetch")
+    fetch := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.repo::repoFetch")
     responses := (Obj:Obj)((Obj:Obj)fetch["post"])["responses"]
     ok := (Obj:Obj)responses.getChecked("200")
     schema = binarySchema((Obj:Obj)ok["content"])
@@ -170,9 +170,37 @@ class OpenApiTest : AbstractXetoTest
     paths.each |Obj? path, Str uri|
     {
       op := (Str:Obj?)(((Str:Obj?)path)["get"] ?: ((Str:Obj?)path)["post"])
-      name := uri[uri.indexr(".")+1..-1]
+      name := uri[uri.indexr(":")+1..-1]
       verifyEq(op["operationId"], name)
     }
+  }
+
+  **
+  ** Doc fidelity to the dispatcher wire: a None return documents as JSON
+  ** null, and a param with a metaOwn default is omitted from required.
+  **
+  Void testWireFidelity()
+  {
+    ns := createNamespace(["sys", "sys.api"])
+    ex := OpenApiExporter(ns, Buf().out, Etc.dict0)
+    ex.lib(ns.lib("sys.api"))
+
+    // close: Func <op> { returns: None } documents a null response body
+    close := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api::close")
+    responses := (Obj:Obj)((Obj:Obj)close["post"])["responses"]
+    ok := (Obj:Obj)responses.getChecked("200")
+    content := (Obj:Obj)((Obj:Obj)ok["content"])["application/json"]
+    verifyEq(((Obj:Obj)content["schema"])["type"], "null")
+
+    // readByIds { ids: List<of:Ref>, checked: Bool "true" }: the defaulted
+    // checked param is omittable, the undefaulted ids is required
+    read := (Obj:Obj)ex.paths.getChecked("/api/{projName}/sys.api::readByIds")
+    body := (Obj:Obj)((Obj:Obj)read["post"])["requestBody"]
+    reqContent := (Obj:Obj)((Obj:Obj)body["content"])["application/json"]
+    schema := (Obj:Obj)reqContent["schema"]
+    required := (Obj[])schema.getChecked("required")
+    verify(required.contains("ids"))
+    verify(!required.contains("checked"))
   }
 
   **
