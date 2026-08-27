@@ -21,7 +21,7 @@ const class HxUser : User
   {
     this.meta     = meta
     this.idRef    = meta.id
-    this.username = meta->username
+    this.username = toUsername(meta)
     this.disRef   = meta["dis"] ?: username
     this.emailRef = meta["email"] as Str
     this.mod      = meta->mod
@@ -33,6 +33,8 @@ const class HxUser : User
       case "admin": isAdmin = true
     }
   }
+
+  protected virtual Str toUsername(Dict meta) { meta->username }
 
   override const Str username
 
