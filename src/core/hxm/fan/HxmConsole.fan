@@ -166,8 +166,8 @@ const class HxmConsole : HxConsole
   override Str? prompt(Str msg := "")
   {
     // prompt for one or more lines
-    input := Env.cur.prompt(msg+" ").trim
-    if (input.isEmpty) return null
+    input := Env.cur.prompt(msg+" ")?.trimToNull
+    if (input == null) return null
 
     // if it looks like expression is incomplete, then
     // prompt for additional lines until empty
