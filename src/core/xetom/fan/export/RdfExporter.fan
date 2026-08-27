@@ -51,6 +51,7 @@ class RdfExporter : Exporter
   override This lib(Lib lib)
   {
     this.curLib = lib
+    this.instanceMemberSpecs.clear
     this.isSys = lib.name == "sys"
     validateNamespaceVersions(lib)
     prefixDefs(lib)
@@ -1142,7 +1143,7 @@ class RdfExporter : Exporter
       if (choiceMarkers.containsKey(member.name)) return
 
       val := member.val
-      slot := member.spec
+      slot := instanceMemberSpec(spec, member)
       // Global-slot reflection may expose the declaration without carrying the
       // value already materialized on the completed instance dictionary.
       if (val == null && instance.has(member.name)) val = instance[member.name]
@@ -1168,7 +1169,7 @@ class RdfExporter : Exporter
 
   private Str[] instanceProperties(Spec parent, ReflectMember member)
   {
-    spec := member.spec
+    spec := instanceMemberSpec(parent, member)
     properties := Str:Bool[:]
     properties[instanceProperty(parent, member)] = true
     while (spec.isSlot && spec.base != null && (spec.base.isSlot || spec.base.isGlobal))
@@ -1181,8 +1182,52 @@ class RdfExporter : Exporter
 
   private Str instanceProperty(Spec parent, ReflectMember member)
   {
-    spec := member.spec
+    spec := instanceMemberSpec(parent, member)
     return spec.isSlot ? spec.qname : "${parent.qname}.${member.name}"
+  }
+
+  ** Reflection exposes a mixin slot as the target library's materialized
+  ** effective slot. Recover this exporting library's declaration so instance
+  ** properties retain the contributor qname and its original type contract.
+  private Spec instanceMemberSpec(Spec parent, ReflectMember member)
+  {
+    cacheKey := "${parent.qname}.${member.name}"
+    cached := instanceMemberSpecs[cacheKey]
+    if (cached != null) return cached
+
+    // Include installed namespace libraries for direct instance() export, then
+    // overlay curLib because a temporary library is not necessarily installed.
+    libs := Str:Lib[:]
+    ns.libs.each |lib| { libs[lib.name] = lib }
+    if (curLib != null) libs[curLib.name] = curLib
+
+    matches := Str:Spec[:]
+    libs.each |lib|
+    {
+      lib.mixins.each |contribution|
+      {
+        target := contribution.base
+        if (target == null)
+          throw UnsupportedErr("Mixin contribution ${contribution.qname} has no target spec")
+        if (!parent.isa(target)) return
+
+        slot := contribution.slotOwn(member.name, false)
+        if (slot == null) return
+        previous := matches[slot.qname]
+        if (previous != null && previous !== slot)
+          throw UnsupportedErr("Ambiguous mixin property for ${parent.qname}.${member.name}: ${slot.qname}")
+        matches[slot.qname] = slot
+      }
+    }
+
+    if (matches.size > 1)
+    {
+      names := matches.keys.sort.join(", ")
+      throw UnsupportedErr("Ambiguous mixin property for ${parent.qname}.${member.name}: ${names}")
+    }
+    resolved := matches.vals.first ?: member.spec
+    instanceMemberSpecs[cacheKey] = resolved
+    return resolved
   }
 
   private Void instanceMember(Str property, Spec type, Obj val, Str indent)
@@ -1429,6 +1474,7 @@ class RdfExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   private Lib? curLib
+  private Str:Spec instanceMemberSpecs := [:]
   private Bool instancesOnly
   private Bool schemaOnly
   private RdfQudtMappings? qudtRef

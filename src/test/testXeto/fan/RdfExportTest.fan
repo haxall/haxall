@@ -221,7 +221,7 @@ class RdfExportTest : AbstractXetoTest
     equip := instanceBlock(first, "equip1")
     verify(equip.contains("temp:Equip.label \"AHU-1\"^^xsd:string ;"), equip)
     verify(equip.contains("temp:Equip.observedAt \"02:30:00\"^^xsd:time ;"), equip)
-    verify(equip.contains("temp:Equip.timestamp \"2026-08-18T10:00:00Z UTC\"^^xsd:dateTime ;"), equip)
+    verify(equip.contains("temp:Equip.timestamp \"2026-08-18T10:00:00Z\"^^xsd:dateTime ;"), equip)
     verify(equip.contains("temp:Equip.source \"https://example.com/a?x=1&y=2\"^^xsd:anyURI ;"), equip)
     verify(equip.contains("temp:Equip.anything \"free\"^^xsd:string ;"), equip)
     verify(equip.contains("temp:Equip.siteRef temp:site1 ;"), equip)
@@ -494,6 +494,74 @@ class RdfExportTest : AbstractXetoTest
     verify(instances.contains("sys:hasMarker temp:Widget.widget"), instances)
     verifyFalse(instances.contains("a sh:NodeShape"), instances)
     verifyFalse(instances.contains("a owl:Ontology"), instances)
+  }
+
+  Void testMixinInstancePropertyOwnership()
+  {
+    rdf := export(
+      Str<|+Entity { orgRef: Ref<of:Org> }
+             Org : Dict
+             Employee : Entity
+
+             @org1: Org {}
+             @entity1: Entity { orgRef: @org1 }
+             @employee1: Employee { orgRef: @org1 }|>)
+
+    entity := instanceBlock(rdf, "entity1")
+    verify(entity.contains("temp:Entity.orgRef temp:org1 ;"), entity)
+    verifyFalse(entity.contains("sys:Entity.orgRef"), entity)
+
+    employee := instanceBlock(rdf, "employee1")
+    verify(employee.contains("temp:Entity.orgRef temp:org1 ;"), employee)
+    verifyFalse(employee.contains("temp:Employee.orgRef"), employee)
+  }
+
+  Void testDirectInstanceFindsInstalledMixinProperty()
+  {
+    ns := createNamespace(["sys", "hx"])
+    instance := Etc.makeDict([
+      "id": Ref("hx::entity1"),
+      "spec": Ref("sys::Entity"),
+      "mod": DateTime("2026-08-26T12:00:00Z UTC")])
+    buf := Buf()
+    RdfExporter(ns, buf.out, Etc.dict0).start.instance(instance).end
+    rdf := buf.flip.readAllStr
+
+    verify(rdf.contains("hx:Entity.mod \"2026-08-26T12:00:00Z\"^^xsd:dateTime ;"), rdf)
+    verifyFalse(rdf.contains("sys:Entity.mod"), rdf)
+  }
+
+  Void testAmbiguousMixinInstancePropertyFailsClosed()
+  {
+    ns := createNamespace(["sys", "hx"])
+    lib := ns.compileTempLib(
+      Str<|+Entity { mod: DateTime? }
+             @entity1: Entity { mod: 2026-08-26T12:00:00Z }|>)
+    try
+    {
+      RdfExporter(ns, Buf().out, Etc.dict0).start.lib(lib).end
+      fail("Expected ambiguous mixin instance property to fail closed")
+    }
+    catch (UnsupportedErr err)
+    {
+      verify(err.msg.startsWith("Ambiguous mixin property for sys::Entity.mod:"), err.msg)
+      verify(err.msg.contains("hx::Entity.mod"), err.msg)
+      verify(err.msg.contains("${lib.name}::Entity.mod"), err.msg)
+    }
+  }
+
+  Void testMissingMixinTargetRejectedAtCompileBoundary()
+  {
+    ns := createNamespace(["sys"])
+    try
+    {
+      ns.compileTempLib("+Missing { value: Str? }")
+      fail("Expected missing mixin target to fail during compilation")
+    }
+    catch (XetoCompilerErr err)
+    {
+      verify(err.msg.contains("Unresolved spec: Missing"), err.msg)
+    }
   }
 
   Void testMissingReferenceDoesNotExportTypeDefault()
