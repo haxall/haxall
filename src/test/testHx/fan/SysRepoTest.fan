@@ -336,8 +336,8 @@ class SysRepoTest : HxTest
     verifyNotNull(d, lib)
     verifyEq(d["lib"], lib)
     verifyEq(d["version"], proj.ns.lib(lib).version)
-    verifyEq(d["maturity"], Scalar("sys::LibMaturity", "stable"))
-    verifyEq(d["availability"], Scalar("sys.repo::RepoLibAvailability", "available"))
+    verifyEq(d["maturity"], LibMaturity.fromStr(expectMaturity(lib)))
+    verifyEq(d["availability"], RepoLibAvailability.available)
     verifyEq(d["spec"], Ref("sys.repo::RepoLib"))
   }
 
@@ -346,7 +346,13 @@ class SysRepoTest : HxTest
     verifyNotNull(v, lib)
     verifyEq(v.name, lib)
     verifyEq(v.version, proj.ns.lib(lib).version)
-    verifyEq(v.maturity, LibMaturity.stable)
+    verifyEq(v.maturity, LibMaturity.fromStr(expectMaturity(lib)))
     verifyEq(((RemoteLibVersion)v).availability, RepoLibAvailability.available)
+  }
+
+  ** Maturity each lib's own meta claims, default stable
+  Str expectMaturity(Str lib)
+  {
+    proj.ns.lib(lib).meta["maturity"]?.toStr ?: "stable"
   }
 }

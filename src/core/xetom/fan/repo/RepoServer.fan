@@ -38,19 +38,18 @@ const mixin RepoServer
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Map LibVersion to a RepoLib dict
-  static Dict toRepoLib(LibVersion v)
+  ** Map LibVersion to a RepoLib dict.  Availability is catalog state
+  ** the LibVersion model does not carry; an artifact served without a
+  ** catalog is by definition available
+  static Dict toRepoLib(LibVersion v, RepoLibAvailability availability := RepoLibAvailability.available, Str? availabilityMsg := null)
   {
     acc := Str:Obj[:]
     acc.ordered = true
     acc["lib"] = v.name
     acc["version"] = v.version
-    // availability is catalog state carried only by RemoteLibVersion;
-    // anything else this encoder serves is by definition available
-    remote := v as RemoteLibVersion
-    acc["maturity"] = Scalar("sys::LibMaturity", v.maturity.name)
-    acc["availability"] = Scalar("sys.repo::RepoLibAvailability", (remote?.availability ?: RepoLibAvailability.available).name)
-    acc.addNotNull("availabilityMsg", remote?.availabilityMsg)
+    acc["maturity"] = v.maturity
+    acc["availability"] = availability
+    acc.addNotNull("availabilityMsg", availabilityMsg)
     acc.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     acc.addNotNull("depends", v.depends(false))
     acc.addNotNull("digest", v.digest)

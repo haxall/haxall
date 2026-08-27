@@ -136,7 +136,7 @@ internal class ParseLib : ParseStep
     checkMetaProp(props, "name", lib.name)
     checkMetaProp(props, "version", pragma.version.toStr)
     checkMetaProp(props, "depends", pragma.depends.join(";"))
-    checkMetaProp(props, "maturity", pragma.maturity ?: LibMaturity.stable.name)
+    checkMetaProp(props, "maturity", pragma.maturity.name)
   }
 
   private Void checkMetaProp(Str:Str props, Str name, Str expect)

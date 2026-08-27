@@ -18,14 +18,14 @@ const class RemoteLibVersion : LibVersion
 {
   new make(Str name, Version version, Str doc := "", LibDepend[]? depends := null, Str? digest := null, LibMaturity maturity := LibMaturity.stable, RepoLibAvailability availability := RepoLibAvailability.available, Str? availabilityMsg := null)
   {
-    this.name         = name
-    this.version      = version
-    this.doc          = doc
-    this.toStr        = "$name-$version"
-    this.dependsRef   = depends
-    this.digest       = digest
-    this.maturity     = maturity
-    this.availability = availability
+    this.name            = name
+    this.version         = version
+    this.doc             = doc
+    this.toStr           = "$name-$version"
+    this.dependsRef      = depends
+    this.digest          = digest
+    this.maturity        = maturity
+    this.availability    = availability
     this.availabilityMsg = availabilityMsg
   }
 
@@ -35,14 +35,14 @@ const class RemoteLibVersion : LibVersion
   ** keys, or a "name versions" string.
   new makeDict(Dict dict)
   {
-    this.name         = dict->lib.toStr
-    this.version      = Version.fromStr(dict->version.toStr)
-    this.doc          = dict["doc"] as Str ?: ""
-    this.toStr        = "$name-$version"
-    this.dependsRef   = parseDepends(dict["depends"])
-    this.digest       = dict["digest"] as Str
-    this.maturity     = LibMaturity.fromStr(dict["maturity"]?.toStr ?: "", false) ?: LibMaturity.stable
-    this.availability = RepoLibAvailability.fromStr(dict["availability"]?.toStr ?: "", false) ?: RepoLibAvailability.available
+    this.name            = dict->lib.toStr
+    this.version         = Version.fromStr(dict->version.toStr)
+    this.doc             = dict["doc"] as Str ?: ""
+    this.toStr           = "$name-$version"
+    this.dependsRef      = parseDepends(dict["depends"])
+    this.digest          = dict["digest"] as Str
+    this.maturity        = LibMaturity.fromStr(dict["maturity"]?.toStr ?: LibMaturity.stable.name)
+    this.availability    = RepoLibAvailability.fromStr(dict["availability"]?.toStr ?: RepoLibAvailability.available.name)
     this.availabilityMsg = dict["availabilityMsg"] as Str
   }
 

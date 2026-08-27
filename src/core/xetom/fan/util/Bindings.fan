@@ -101,11 +101,13 @@ const class SpecBindings
     add(LibDependBinding          (xeto.type("LibDepend")))
     add(LibDependVersionsBinding  (xeto.type("LibDependVersions")))
     add(LibFilePatternBinding     (xeto.type("LibFilePattern")))
+    add(LibMaturityBinding        (xeto.type("LibMaturity")))
     add(LinkBinding               (xeto.type("Link")))
     add(LinksBinding              (xeto.type("Links")))
     add(MarkerBinding             (xeto.type("Marker")))
     add(NoneBinding               (xeto.type("None")))
     add(RefBinding                (xeto.type("Ref")))
+    add(RepoLibAvailabilityBinding(xeto.type("RepoLibAvailability")))
     add(SpecDictBinding           (xeto.type("Spec")))
     add(UnitQuantityBinding       (xeto.type("UnitQuantity")))
 
@@ -521,6 +523,20 @@ internal const class LibDependVersionsBinding : ScalarBinding
 {
   new make(Type type) : super("sys::LibDependVersions", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { LibDependVersions.fromStr(str, checked) }
+}
+
+@Js
+internal const class LibMaturityBinding : ScalarBinding
+{
+  new make(Type type) : super("sys::LibMaturity", type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { LibMaturity.fromStr(str, checked) }
+}
+
+@Js
+internal const class RepoLibAvailabilityBinding : ScalarBinding
+{
+  new make(Type type) : super("sys.repo::RepoLibAvailability", type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { RepoLibAvailability.fromStr(str, checked) }
 }
 
 @Js

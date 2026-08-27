@@ -51,7 +51,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sysOrg->dis, "Project Haystack")
     verifyEq(sysOrg->uri, `https://project-haystack.org/`)
     verifyEq(sysOrg->spec, Ref("sys::LibOrg"))
-    verifyEq(sys.meta["maturity"], Scalar("sys::LibMaturity", "alpha"))
+    verifyEq(sys.meta["maturity"], LibMaturity.alpha)
 
     // types
     obj    := verifyLibType(ns, sys, "Obj",      null)
@@ -192,7 +192,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ph.depends.size, 1)
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, phVersion.toStr)
-    verifyEq(ph.meta["maturity"], Scalar("sys::LibMaturity", "alpha"))
+    verifyEq(ph.meta["maturity"], LibMaturity.alpha)
 
     entity    := ns.spec("ph::PhEntity")
     equip     := verifyLibType(ns, ph, "Equip",    entity)

@@ -18,7 +18,7 @@ using haystack
 const class FileLibVersion : LibVersion
 {
 
-  new make(Str name, Version version, File file, Str doc, Int flags, LibDepend[] depends, LibMaturity maturity := LibMaturity.stable)
+  new make(Str name, Version version, File file, Str doc, Int flags, LibDepend[] depends, LibMaturity maturity)
   {
     this.name       = name
     this.version    = version

@@ -80,11 +80,11 @@ internal class APragma
     this.step      = step
     this.dict      = dict
     this.version   = parseVersion
+    this.maturity  = parseMaturity
     this.depends   = parseDepends
     this.include   = parseFilePatterns("include")
     this.publish   = parseFilePatterns("publish")
     this.doc       = dict.getStr("doc") ?: ""
-    this.maturity  = dict.getStr("maturity")
     this.hxSysOnly = dict.has("hxSysOnly")
     this.step      = null
   }
@@ -95,11 +95,11 @@ internal class APragma
   ** Lib version declared by the pragma
   const Version version
 
+  ** Maturity declared by the pragma defaulting to stable
+  const LibMaturity maturity
+
   ** Lib doc string, or "" if not declared
   const Str doc
-
-  ** Maturity declared by the pragma or null if unclaimed
-  const Str? maturity
 
   ** Is this lib flagged as Haxall sys only
   const Bool hxSysOnly
@@ -156,6 +156,20 @@ internal class APragma
 
     scalar.asmRef = ver
     return ver
+  }
+
+  ** Maturity claim; reports an error and returns stable if malformed
+  private LibMaturity parseMaturity()
+  {
+    obj := dict.get("maturity")
+    if (obj == null) return LibMaturity.stable
+    m := LibMaturity.fromStr((obj as AScalar)?.str ?: "", false)
+    if (m == null)
+    {
+      err("Invalid maturity: $obj", obj.loc)
+      return LibMaturity.stable
+    }
+    return m
   }
 
   ** Depends declared by the pragma.  Every lib depends on sys, so an

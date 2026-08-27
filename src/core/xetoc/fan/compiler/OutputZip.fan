@@ -60,7 +60,7 @@ internal class OutputZip : Step
     props.ordered = true
     props["name"]     = lib.name
     props["version"]  = lib.version.toStr
-    props["maturity"] = lib.meta["maturity"]?.toStr ?: LibMaturity.stable.name
+    props["maturity"] = lib.pragma.maturity.name
     props["depends"]  = depends.list.join(";")
     props["doc"]      = lib.meta.get("doc") as Str ?: ""
     if (lib.meta.has("hxSysOnly")) props.add("hxSysOnly", "true")
