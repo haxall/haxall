@@ -84,6 +84,7 @@ internal class APragma
     this.include   = parseFilePatterns("include")
     this.publish   = parseFilePatterns("publish")
     this.doc       = dict.getStr("doc") ?: ""
+    this.maturity  = dict.getStr("maturity")
     this.hxSysOnly = dict.has("hxSysOnly")
     this.step      = null
   }
@@ -96,6 +97,9 @@ internal class APragma
 
   ** Lib doc string, or "" if not declared
   const Str doc
+
+  ** Maturity declared by the pragma or null if unclaimed
+  const Str? maturity
 
   ** Is this lib flagged as Haxall sys only
   const Bool hxSysOnly

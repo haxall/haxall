@@ -136,6 +136,7 @@ internal class ParseLib : ParseStep
     checkMetaProp(props, "name", lib.name)
     checkMetaProp(props, "version", pragma.version.toStr)
     checkMetaProp(props, "depends", pragma.depends.join(";"))
+    checkMetaProp(props, "maturity", pragma.maturity ?: LibMaturity.stable.name)
   }
 
   private Void checkMetaProp(Str:Str props, Str name, Str expect)
@@ -145,6 +146,7 @@ internal class ParseLib : ParseStep
     if (actual == expect) return
     err("Mismatched '$name' in $XetoUtil.xetoMetaPropsUri: $actual.toCode != $expect.toCode", FileLoc(input))
   }
+
 
   ** Scan source and resource files
   private MLibFiles scanFiles(Scanner scanner, ALib lib)
