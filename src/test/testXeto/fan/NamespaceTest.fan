@@ -51,6 +51,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sysOrg->dis, "Project Haystack")
     verifyEq(sysOrg->uri, `https://project-haystack.org/`)
     verifyEq(sysOrg->spec, Ref("sys::LibOrg"))
+    verifyEq(sys.meta["maturity"], Scalar("sys::LibMaturity", "alpha"))
 
     // types
     obj    := verifyLibType(ns, sys, "Obj",      null)
@@ -191,6 +192,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ph.depends.size, 1)
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, phVersion.toStr)
+    verifyEq(ph.meta["maturity"], Scalar("sys::LibMaturity", "alpha"))
 
     entity    := ns.spec("ph::PhEntity")
     equip     := verifyLibType(ns, ph, "Equip",    entity)
@@ -776,7 +778,7 @@ class NamespaceTest : AbstractXetoTest
       ["id":Ref("b"), "dis":"ZoneAirTempEffectiveSp", "spec":Ref("ph.points::ZoneAirTempEffectiveSp"), "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
       ["id":Ref("c"), "dis":"ZoneOccupiedSensor",     "spec":Ref("ph.points::ZoneOccupiedSensor"),     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":Ref("ph.points::OccupiedEnum"), "zone":m, "occupied":m],
       ["id":Ref("d"), "dis":"ZoneCo2Sensor",          "spec":Ref("ph.points::ZoneCo2Sensor"),          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
-      ["id":Ref("e"), "dis":"HotWaterValveCmd",       "spec":Ref("ph.points::HotWaterValveCmd"),       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "hot":m, "water":m, "valve":m],
+      ["id":Ref("e"), "dis":"HotWaterValveModulatingCmd", "spec":Ref("ph.points::HotWaterValveModulatingCmd"), "point":m, "cmd":m, "kind":"Number", "equipRef":x, "unit":"%", "hot":m, "water":m, "valve":m, "modulating":m, "actuator":m],
       ["id":Ref("f"), "dis":"DischargeDamperCmd",     "spec":Ref("ph.points::DischargeDamperCmd"),     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m],
       ["id":Ref("g"), "dis":"DischargeAirFlowSensor", "spec":Ref("ph.points::DischargeAirFlowSensor"), "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"cfm","discharge":m, "air":m, "flow":m],
       ["id":Ref("h"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"), "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],

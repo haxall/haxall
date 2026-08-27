@@ -16,7 +16,7 @@ using xeto
 @Js
 const class RemoteLibVersion : LibVersion
 {
-  new make(Str name, Version version, Str doc := "", LibDepend[]? depends := null, Str? digest := null, LibPubStatus pubStatus := LibPubStatus.unknown, Str? pubStatusMsg := null)
+  new make(Str name, Version version, Str doc := "", LibDepend[]? depends := null, Str? digest := null, LibMaturity maturity := LibMaturity.stable, RepoLibAvailability availability := RepoLibAvailability.available, Str? availabilityMsg := null)
   {
     this.name         = name
     this.version      = version
@@ -24,8 +24,9 @@ const class RemoteLibVersion : LibVersion
     this.toStr        = "$name-$version"
     this.dependsRef   = depends
     this.digest       = digest
-    this.pubStatus    = pubStatus
-    this.pubStatusMsg = pubStatusMsg
+    this.maturity     = maturity
+    this.availability = availability
+    this.availabilityMsg = availabilityMsg
   }
 
   ** Construct from a RepoLib dict as defined by `RepoServer.toRepoLib`.
@@ -40,8 +41,9 @@ const class RemoteLibVersion : LibVersion
     this.toStr        = "$name-$version"
     this.dependsRef   = parseDepends(dict["depends"])
     this.digest       = dict["digest"] as Str
-    this.pubStatus    = LibPubStatus.fromStr(dict["pubStatus"]?.toStr ?: "", false) ?: LibPubStatus.unknown
-    this.pubStatusMsg = dict["pubStatusMsg"] as Str
+    this.maturity     = LibMaturity.fromStr(dict["maturity"]?.toStr ?: "", false) ?: LibMaturity.stable
+    this.availability = RepoLibAvailability.fromStr(dict["availability"]?.toStr ?: "", false) ?: RepoLibAvailability.available
+    this.availabilityMsg = dict["availabilityMsg"] as Str
   }
 
   ** Parse depends list flavors; null if not reported
@@ -70,9 +72,16 @@ const class RemoteLibVersion : LibVersion
 
   override const Str? digest
 
-  override const LibPubStatus pubStatus
+  override const LibMaturity maturity
 
-  override const Str? pubStatusMsg
+  ** Availability lifecycle state of this version in the repo catalog.
+  ** This is mutable catalog state, not metadata of the lib artifact
+  ** itself - a version may be yanked after publication without its
+  ** zip ever changing.
+  const RepoLibAvailability availability
+
+  ** Additional message associated with the availability state
+  const Str? availabilityMsg
 
   override LibOrigin? origin(Bool checked := true)
   {

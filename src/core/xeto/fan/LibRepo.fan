@@ -154,6 +154,27 @@ abstract class RemoteRepoSession
 }
 
 **************************************************************************
+** RepoLibAvailability
+**************************************************************************
+
+**
+** Availability lifecycle state of a lib version in a repo.  Matches
+** 'sys.repo::RepoLibAvailability'.
+**
+@Js
+enum class RepoLibAvailability
+{
+  ** Served normally
+  available,
+
+  ** Withdrawn from new resolution; exact pins still resolve
+  yanked,
+
+  ** Content deleted from storage; never served, version stays burned
+  deleted
+}
+
+**************************************************************************
 ** RemoteRepoRegistry
 **************************************************************************
 

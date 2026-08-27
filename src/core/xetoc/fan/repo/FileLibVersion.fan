@@ -18,7 +18,7 @@ using haystack
 const class FileLibVersion : LibVersion
 {
 
-  new make(Str name, Version version, File file, Str doc, Int flags, LibDepend[] depends)
+  new make(Str name, Version version, File file, Str doc, Int flags, LibDepend[] depends, LibMaturity maturity := LibMaturity.stable)
   {
     this.name       = name
     this.version    = version
@@ -27,6 +27,7 @@ const class FileLibVersion : LibVersion
     this.doc        = doc
     this.flags      = flags
     this.dependsRef = depends.toImmutable
+    this.maturity   = maturity
   }
 
   new makeCompanion(Version version)
@@ -37,6 +38,7 @@ const class FileLibVersion : LibVersion
     this.fileRef    = notUsedFile
     this.doc        = "Project library"
     this.dependsRef = LibDepend#.emptyList
+    this.maturity   = LibMaturity.stable
   }
 
   new makeNotFound(Str name)
@@ -47,6 +49,7 @@ const class FileLibVersion : LibVersion
     this.fileRef    = notFoundFile
     this.doc        = "Not found"
     this.dependsRef = LibDepend#.emptyList
+    this.maturity   = LibMaturity.stable
   }
 
   override const Str name
@@ -80,6 +83,8 @@ const class FileLibVersion : LibVersion
   private const LibDepend[] dependsRef
 
   override const Str doc
+
+  override const LibMaturity maturity
 
   override const Int flags
 
@@ -119,6 +124,10 @@ const class FileLibVersion : LibVersion
     // doc
     doc := props["doc"] ?: ""
 
+    // author claimed maturity defaulting to stable
+    claim := props["maturity"]?.trimToNull
+    maturity := claim == null ? LibMaturity.stable : LibMaturity.fromStr(claim)
+
     // flags
     flags := 0
     if (props["hxSysOnly"] != null) flags = flags.or(FileLibVersion.flagHxSysOnly)
@@ -129,7 +138,7 @@ const class FileLibVersion : LibVersion
     if (dependsStr != null) depends = dependsStr.split(';').map |s->LibDepend| { LibDepend.parse(s, ' ', null) }
 
     // create
-    return FileLibVersion(name, version, file, doc, flags, depends)
+    return FileLibVersion(name, version, file, doc, flags, depends, maturity)
   }
 
 //////////////////////////////////////////////////////////////////////////

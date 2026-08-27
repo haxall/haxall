@@ -45,20 +45,17 @@ const mixin RepoServer
     acc.ordered = true
     acc["lib"] = v.name
     acc["version"] = v.version
-    acc["pubStatus"] = Scalar("sys.repo::RepoPubStatus", toRepoPubStatus(v.pubStatus).name)
-    acc.addNotNull("pubStatusMsg", v.pubStatusMsg)
+    // availability is catalog state carried only by RemoteLibVersion;
+    // anything else this encoder serves is by definition available
+    remote := v as RemoteLibVersion
+    acc["maturity"] = Scalar("sys::LibMaturity", v.maturity.name)
+    acc["availability"] = Scalar("sys.repo::RepoLibAvailability", (remote?.availability ?: RepoLibAvailability.available).name)
+    acc.addNotNull("availabilityMsg", remote?.availabilityMsg)
     acc.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     acc.addNotNull("depends", v.depends(false))
     acc.addNotNull("digest", v.digest)
     acc["spec"] = Ref("sys.repo::RepoLib")
     return Etc.dictFromMap(acc)
-  }
-
-  ** Map model status to the wire RepoPubStatus vocabulary: the wire
-  ** requires the repo to make a claim, so unknown is asserted as stable
-  static LibPubStatus toRepoPubStatus(LibPubStatus status)
-  {
-    status === LibPubStatus.unknown ? LibPubStatus.stable : status
   }
 
   ** Error for fetch of unknown lib name
