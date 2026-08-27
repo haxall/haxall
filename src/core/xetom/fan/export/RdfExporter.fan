@@ -686,23 +686,36 @@ class RdfExporter : Exporter
     maxSize := intMeta(slot, "maxSize")
     if (of == null && minSize == null && maxSize == null) return
 
-    // A Xeto list is one slot value represented by an RDF collection. The
-    // outer property shape handles list presence/cardinality; this nested
-    // shape applies item type and size constraints along rdf:rest*/rdf:first.
+    // A Xeto list is one slot value represented by an RDF collection. Validate
+    // item values through rdf:first, but count rdf:rest nodes for size so equal
+    // item values do not collapse under SHACL property-path set semantics.
     w("    sh:node [").nl
-    w("      sh:property [").nl
-    w("        sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;").nl
     if (of != null)
     {
+      w("      sh:property [").nl
+      w("        sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;").nl
       if (of.isScalar)
         w("        sh:datatype ").w(scalarDatatype(of)).w(" ;").nl
       else if (of.isDict)
         w("        sh:class ").qname(of.qname).w(" ;").nl
+      w("      ] ;").nl
     }
-    if (minSize != null) w("        sh:minCount ").w(minSize).w(" ;").nl
-    if (maxSize != null) w("        sh:maxCount ").w(maxSize).w(" ;").nl
-    w("      ]").nl
+    if (minSize != null || maxSize != null)
+    {
+      w("      sh:property [").nl
+      w("        sh:path [ sh:zeroOrMorePath rdf:rest ] ;").nl
+      if (minSize != null) w("        sh:minCount ").w(listNodeCount(slot, "minSize", minSize)).w(" ;").nl
+      if (maxSize != null) w("        sh:maxCount ").w(listNodeCount(slot, "maxSize", maxSize)).w(" ;").nl
+      w("      ] ;").nl
+    }
     w("    ] ;").nl
+  }
+
+  private Int listNodeCount(Spec slot, Str name, Int size)
+  {
+    if (size == Int.maxVal)
+      throw UnsupportedErr("${name} is too large for RDF list-node counting on ${slot.qname}")
+    return size + 1
   }
 
   private Void validateListItemType(Spec slot, Spec? of)

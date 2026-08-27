@@ -676,12 +676,13 @@ class RdfExportTest : AbstractXetoTest
     names := propertyShape(rdf, "Batch.names")
     verify(names.contains("sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;"), names)
     verify(names.contains("sh:datatype xsd:string ;"), names)
-    verify(names.contains("sh:minCount 2 ;"), names)
-    verify(names.contains("sh:maxCount 3 ;"), names)
+    verify(rdf.contains("sh:path [ sh:zeroOrMorePath rdf:rest ] ;"), rdf)
+    verify(rdf.contains("sh:minCount 3 ;"), rdf)
+    verify(rdf.contains("sh:maxCount 4 ;"), rdf)
 
     numbers := propertyShape(rdf, "Batch.numbers")
     verify(numbers.contains("sh:datatype xsd:double ;"), numbers)
-    verify(numbers.contains("sh:minCount 1 ;"), numbers)
+    verify(rdf.contains("sh:minCount 2 ;"), rdf)
 
     addresses := propertyShape(rdf, "Batch.addresses")
     verify(addresses.contains("sh:class temp:Address ;"), addresses)
