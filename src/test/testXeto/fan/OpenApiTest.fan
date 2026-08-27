@@ -176,11 +176,8 @@ class OpenApiTest : AbstractXetoTest
   }
 
   **
-  ** Doc fidelity to the dispatcher's wire behavior.  A None return answers
-  ** literal JSON null on the jeto wire, so the doc must say "null" rather
-  ** than the "∅" sentinel None uses in slot positions.  And a non-maybe
-  ** param with a metaOwn default may be omitted -- mapArgs falls back to
-  ** the default -- so it must not land in "required".
+  ** Doc fidelity to the dispatcher wire: a None return documents as JSON
+  ** null, and a param with a metaOwn default is omitted from required.
   **
   Void testWireFidelity()
   {

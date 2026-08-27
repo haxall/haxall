@@ -61,7 +61,7 @@ class JsonSchemaTest : AbstractXetoTest
     verifyAllRefsResolved(actual, ex.defs)
 
     // readByIds: Func { ids: List <of:Ref>, checked: Bool "true", returns: Grid }
-    // checked has a metaOwn default so it may be omitted -- not required
+    // checked has a metaOwn default so it may be omitted, not required
     ex = JsonSchemaExporter(ns, Buf().out, Etc.dict0)
     actual = ex.funcToParams(apiFuncs.slot("readByIds"))
     verifyEq(actual, Str:Obj[
