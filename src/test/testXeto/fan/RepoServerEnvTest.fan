@@ -82,7 +82,7 @@ internal const class CountingRepoServer : RepoServer
   const AtomicInt fetches := AtomicInt()
 
   override Dict ping() { wrap.ping }
-  override Dict search(Str query, Int limit, Int offset) { wrap.search(query, limit, offset) }
+  override Dict search(Str query, Int limit) { wrap.search(query, limit) }
   override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit) { wrap.versions(lib, versions, limit) }
   override Dict publish(File file) { wrap.publish(file) }
   override File fetch(Str lib, Version version)
@@ -103,7 +103,7 @@ internal const class BadDigestRepoServer : RepoServer
   const RepoServer wrap
 
   override Dict ping() { wrap.ping }
-  override Dict search(Str query, Int limit, Int offset) { wrap.search(query, limit, offset) }
+  override Dict search(Str query, Int limit) { wrap.search(query, limit) }
   override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit)
   {
     wrap.versions(lib, versions, limit).map |d->Dict| { Etc.dictSet(d, "digest", "sha256:bogus") }

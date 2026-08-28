@@ -37,16 +37,15 @@ const class SysRepoFuncs
   ** matches all libs, otherwise a lib matches when its dotted name
   ** contains the query as a substring; servers may support additional
   ** query syntax.  The result reports the latest version of each
-  ** matching lib along with paging metadata.
+  ** matching lib as the best matches in relevance order.
   **
   ** Parameters:
   **   - `query`: search query
   **   - `limit`: max results to return; server may clamp
-  **   - `offset`: paging offset into the total matches
   @Api @Axon
-  static Dict repoSearch(Str query, Obj? limit := null, Obj? offset := null)
+  static Dict repoSearch(Str query, Obj? limit := null)
   {
-    server.search(query, (toIntArg(limit) ?: 100).max(0), (toIntArg(offset) ?: 0).max(0))
+    server.search(query, (toIntArg(limit) ?: 100).max(0))
   }
 
   ** List the versions available for the given lib sorted from latest

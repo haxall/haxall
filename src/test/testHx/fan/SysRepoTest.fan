@@ -119,9 +119,10 @@ class SysRepoTest : HxTest
     // axon: wildcard matches every lib in the namespace
     Dict res := eval("""repoSearch("*")""")
     libs := (List)res["libs"]
+    total := libs.size
     verifyEq(res["spec"], Ref("sys.repo::RepoSearch"))
-    verifyEq(res["total"], libs.size)
-    verifyEq(res["offset"], 0)
+    verifyEq(res["total"], total)
+    verifyEq(res["more"], null)
     verifyRepoLib(libs.find |Dict d->Bool| { d["lib"] == "sys" }, "sys")
     verifyRepoLib(libs.find |Dict d->Bool| { d["lib"] == "sys.repo" }, "sys.repo")
 
@@ -131,31 +132,43 @@ class SysRepoTest : HxTest
     verifyEq(libs.size, 1)
     verifyRepoLib(libs.first, "sys.repo")
 
-    // axon: paging: limit slices, total unchanged
+    // axon: limit slices, total reports every match and flags more
     res = eval("""repoSearch("*", 2)""")
     verifyEq(((List)res["libs"]).size, 2)
-    verifyEq(res["limit"], 2)
+    verifyEq(res["total"], total)
+    verifyEq(res["more"], Marker.val)
 
-    // axon: paging: offset past the end is an empty page
-    res = eval("""repoSearch("*", 100, 10000)""")
+    // axon: limit of zero returns nothing but still reports the total
+    res = eval("""repoSearch("*", 0)""")
     verifyEq(((List)res["libs"]).size, 0)
+    verifyEq(res["total"], total)
+    verifyEq(res["more"], Marker.val)
 
-    // axon: no matches
+    // axon: no matches: zero total is reported, never `more`
     res = eval("""repoSearch("no-match-xyz")""")
     verifyEq(res["total"], 0)
+    verifyEq(res["more"], null)
     verifyEq(((List)res["libs"]).size, 0)
 
-    // http client: wildcard hydrates LibVersions with paging metadata
+    // http client: wildcard hydrates LibVersions with the reported total
     sr := session.search(RemoteRepoSearchReq("*"))
     verify(sr.libs.size > 0)
     verifyEq(sr.total, sr.libs.size)
+    verifyEq(sr.more, false)
     verifyLibVersion(sr.libs.find |v| { v.name == "sys" }, "sys")
     verifyLibVersion(sr.libs.find |v| { v.name == "sys.repo" }, "sys.repo")
+
+    // http client: limit smaller than the match count flags more
+    sr = session.search(RemoteRepoSearchReq("*") { it.limit = 2 })
+    verifyEq(sr.libs.size, 2)
+    verifyEq(sr.total, total)
+    verifyEq(sr.more, true)
 
     // http client: no matches
     sr = session.search(RemoteRepoSearchReq("no-match-xyz"))
     verifyEq(sr.libs.size, 0)
     verifyEq(sr.total, 0)
+    verifyEq(sr.more, false)
   }
 
 //////////////////////////////////////////////////////////////////////////

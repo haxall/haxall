@@ -279,13 +279,20 @@ internal class RemoteSearchCmd : RepoRemoteCmd
       }
       Console.cur.table(table)
 
-      ok("Search success [$repo.name, $res.libs.size matches]")
+      ok("Search success [$repo.name, ${matchesStr(res)}]")
       return 0
     }
     catch (Err e)
     {
       return err("Search failed [$getRepoName]", e)
     }
+  }
+
+  ** Report the returned count against the total when the server knows it
+  private Str matchesStr(RemoteRepoSearchRes res)
+  {
+    if (res.total != null) return "showing $res.libs.size of $res.total matches"
+    return "$res.libs.size matches" + (res.more ? " (more available)" : "")
   }
 }
 

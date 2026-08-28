@@ -482,7 +482,8 @@ const class TestRemoteRepo : MRemoteRepo
   RemoteRepoSearchRes search(RemoteRepoSearchReq req)
   {
     matches := testLibs.findAll { req.matches(it) }
-    return MRemoteRepoSearchRes { it.libs = matches }
+    page := matches.getRange(0..<req.limit.min(matches.size))
+    return MRemoteRepoSearchRes { it.libs = page; it.more = page.size < matches.size; it.total = matches.size }
   }
 
   LibVersion[] versions(Str name, Dict? opts := null)

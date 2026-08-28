@@ -100,8 +100,13 @@ const class GithubRepo : MRemoteRepo
       // use a lightweight RemoteLibVersion for matching
       req.matches(RemoteLibVersion(n, Version.defVal))
     }
-    libs := names.map |n->LibVersion| { versions(n, Etc.dict1("limit", 1)).first }
-    return MRemoteRepoSearchRes { it.libs = libs }
+    page := names.getRange(0..<req.limit.min(names.size))
+    return MRemoteRepoSearchRes
+    {
+      it.libs  = page.map |n->LibVersion| { versions(n, Etc.dict1("limit", 1)).first }
+      it.more  = page.size < names.size
+      it.total = names.size
+    }
   }
 
   ** List versions for a given library name, sorted latest to oldest.

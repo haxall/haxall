@@ -45,7 +45,8 @@ const class SysApiFuncs
   }
 
   ** Read an entity by `id`.  If not found raise error or
-  ** return null based on checked flag.
+  ** return null based on checked flag.  A null id behaves as
+  ** an entity which is not found.
   **
   ** Examples:
   **

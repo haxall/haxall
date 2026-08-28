@@ -267,14 +267,13 @@ const mixin RemoteRepoSearchRes
   **   - doc
   abstract LibVersion[] libs()
 
-  ** Total count of matches
-  abstract Int total()
+  ** Additional matches exist beyond those returned; refine the query
+  ** or raise the limit to see more
+  abstract Bool more()
 
-  ** Actual limit used by remote server
-  abstract Int limit()
-
-  ** Offset for this page of results in the total
-  abstract Int offset()
+  ** Total count of matches, or null if the server did not report it.
+  ** Null means unreported, not zero.
+  abstract Int? total()
 }
 
 @NoDoc @Js
@@ -282,8 +281,7 @@ const class MRemoteRepoSearchRes : RemoteRepoSearchRes
 {
   new make(|This| f) { f(this) }
   override const LibVersion[] libs
-  override const Int total
-  override const Int limit
-  override const Int offset
+  override const Bool more
+  override const Int? total
 }
 

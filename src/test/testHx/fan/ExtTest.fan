@@ -456,7 +456,7 @@ const class HxTestExt : ExtObj, IWwwExt, RepoServer
   // RepoServer impl to test the sys.repo plug point; ping reports a
   // distinctive dis to prove the plug, the rest delegate to the default
   override Dict ping() { Etc.dict2("dis", "hx.test", "spec", Ref("sys.repo::RepoPing")) }
-  override Dict search(Str query, Int limit, Int offset) { def.search(query, limit, offset) }
+  override Dict search(Str query, Int limit) { def.search(query, limit) }
   override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit) { def.versions(lib, versions, limit) }
   override File fetch(Str lib, Version version) { def.fetch(lib, version) }
   override Dict publish(File file) { def.publish(file) }

@@ -22,7 +22,7 @@ const mixin RepoServer
   abstract Dict ping()
 
   ** Service repoSearch op
-  abstract Dict search(Str query, Int limit, Int offset)
+  abstract Dict search(Str query, Int limit)
 
   ** Service repoVersions op
   abstract Dict[] versions(Str lib, LibDependVersions? versions, Int? limit)
@@ -54,6 +54,21 @@ const mixin RepoServer
     acc.addNotNull("depends", v.depends(false))
     acc.addNotNull("digest", v.digest)
     acc["spec"] = Ref("sys.repo::RepoLib")
+    return Etc.dictFromMap(acc)
+  }
+
+  ** Build the RepoSearch wire dict.  Total is the count of all matches
+  ** when the server computed it; null leaves it unreported.  More is
+  ** derived from total when known, otherwise pass it explicitly.
+  static Dict toRepoSearch(Dict[] libs, Int? total, Bool more := false)
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["libs"] = libs
+    if (total != null) more = libs.size < total
+    if (more) acc["more"] = Marker.val
+    acc.addNotNull("total", total)
+    acc["spec"] = Ref("sys.repo::RepoSearch")
     return Etc.dictFromMap(acc)
   }
 
@@ -100,17 +115,10 @@ const class NamespaceRepoServer : RepoServer
     Etc.dict2("dis", dis, "spec", Ref("sys.repo::RepoPing"))
   }
 
-  override Dict search(Str query, Int limit, Int offset)
+  override Dict search(Str query, Int limit)
   {
     matches := libs.findAll |v| { query == "*" || v.name.contains(query) }
-    page := offset >= matches.size ? LibVersion[,] : matches[offset ..< (offset+limit).min(matches.size)]
-    return Etc.dictFromMap([
-      "libs":   page.map |v->Dict| { RepoServer.toRepoLib(v) },
-      "total":  matches.size,
-      "limit":  limit,
-      "offset": offset,
-      "spec":   Ref("sys.repo::RepoSearch"),
-    ])
+    return RepoServer.toRepoSearch(matches.getRange(0..<limit.min(matches.size)).map |v->Dict| { RepoServer.toRepoLib(v) }, matches.size)
   }
 
   override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit)

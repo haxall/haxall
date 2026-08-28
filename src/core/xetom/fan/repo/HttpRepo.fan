@@ -67,13 +67,11 @@ internal class HttpRepoSession : MRemoteRepoSession
   override RemoteRepoSearchRes search(RemoteRepoSearchReq req)
   {
     res := (Str:Obj?)call("repoSearch", ["query": req.query, "limit": req.limit.toStr])
-    libs := toLibVersions(res["libs"])
     return MRemoteRepoSearchRes
     {
-      it.libs   = libs
-      it.total  = toInt(res["total"])  ?: libs.size
-      it.limit  = toInt(res["limit"])  ?: req.limit
-      it.offset = toInt(res["offset"]) ?: 0
+      it.libs  = toLibVersions(res["libs"])
+      it.more  = res["more"] != null
+      it.total = toInt(res["total"])
     }
   }
 
