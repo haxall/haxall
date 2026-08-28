@@ -483,7 +483,14 @@ const class TestRemoteRepo : MRemoteRepo
     {
       v := versions(n).first
       stable := v.maturity === LibMaturity.stable ? v.version : null
-      return RepoLibSummary(v.name, v.version, v.maturity, stable, v.doc)
+      return MRepoLibSummary
+      {
+        it.lib            = v.name
+        it.latestVersion  = v.version
+        it.latestMaturity = v.maturity
+        it.latestStable   = stable
+        it.doc            = v.doc
+      }
     }
     page := matches.getRange(0..<req.limit.min(matches.size))
     return MRemoteRepoSearchRes { it.libs = page; it.more = page.size < matches.size; it.total = matches.size }

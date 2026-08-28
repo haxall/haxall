@@ -290,35 +290,42 @@ const class MRemoteRepoSearchRes : RemoteRepoSearchRes
 ** RepoLibSummary summarizes one lib in a repo as reported by search.
 **
 @Js
-const class RepoLibSummary
+const mixin RepoLibSummary
 {
-  ** Constructor
-  new make(Str lib, Version latestVersion, LibMaturity latestMaturity, Version? latestStable := null, Str? doc := null)
-  {
-    this.lib            = lib
-    this.latestVersion  = latestVersion
-    this.latestMaturity = latestMaturity
-    this.latestStable   = latestStable
-    this.doc            = doc
-  }
-
   ** Dotted lib name
-  const Str lib
+  abstract Str lib()
 
   ** Newest served version
-  const Version latestVersion
+  abstract Version latestVersion()
 
   ** Maturity of the latest version as claimed by the lib author
-  const LibMaturity latestMaturity
+  abstract LibMaturity latestMaturity()
+
+  ** Publish timestamp of the latest version, or null when the repo
+  ** does not report it.  Repos backed by a publish catalog such as
+  ** xeto.dev always report it
+  abstract DateTime? latestPublished()
 
   ** Newest served version with stable maturity; null when the lib has
   ** no stable release
-  const Version? latestStable
+  abstract Version? latestStable()
 
   ** Summary documentation from the lib meta
-  const Str? doc
+  abstract Str? doc()
 
   ** Debug string
   override Str toStr() { "$lib-$latestVersion" }
+}
+
+@NoDoc @Js
+const class MRepoLibSummary : RepoLibSummary
+{
+  new make(|This| f) { f(this) }
+  override const Str lib
+  override const Version latestVersion
+  override const LibMaturity latestMaturity
+  override const DateTime? latestPublished
+  override const Version? latestStable
+  override const Str? doc
 }
 

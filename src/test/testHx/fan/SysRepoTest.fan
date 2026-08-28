@@ -363,6 +363,7 @@ class SysRepoTest : HxTest
     verifyEq(d["lib"], lib)
     verifyEq(d["latestVersion"], proj.ns.lib(lib).version)
     verifyEq(d["latestMaturity"], maturity)
+    verifyEq(d["latestPublished"], null)
     verifyEq(d["latestStable"], maturity === LibMaturity.stable ? d["latestVersion"] : null)
     verifyEq(d["availability"], null)
     verifyEq(d["depends"], null)

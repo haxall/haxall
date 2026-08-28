@@ -59,13 +59,14 @@ const mixin RepoServer
 
   ** Build a RepoLibSummary dict describing the lib itself.  Only libs
   ** which serve something are reported, so there is no availability.
-  static Dict toRepoLibSummary(Str lib, Version latestVersion, LibMaturity latestMaturity, Version? latestStable := null, Str? doc := null)
+  static Dict toRepoLibSummary(Str lib, Version latestVersion, LibMaturity latestMaturity, DateTime? latestPublished := null, Version? latestStable := null, Str? doc := null)
   {
     acc := Str:Obj[:]
     acc.ordered = true
     acc["lib"] = lib
     acc["latestVersion"] = latestVersion
     acc["latestMaturity"] = latestMaturity
+    acc.addNotNull("latestPublished", latestPublished)
     acc.addNotNull("latestStable", latestStable)
     acc.addNotNull("doc", doc != null && doc.isEmpty ? null : doc)
     acc["spec"] = Ref("sys.repo::RepoLibSummary")
@@ -138,7 +139,7 @@ const class NamespaceRepoServer : RepoServer
     page := matches.getRange(0..<limit.min(matches.size)).map |v->Dict|
     {
       stable := v.maturity === LibMaturity.stable ? v.version : null
-      return RepoServer.toRepoLibSummary(v.name, v.version, v.maturity, stable, v.doc)
+      return RepoServer.toRepoLibSummary(v.name, v.version, v.maturity, null, stable, v.doc)
     }
     return RepoServer.toRepoSearch(page, matches.size)
   }

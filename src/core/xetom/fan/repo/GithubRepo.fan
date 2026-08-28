@@ -111,11 +111,18 @@ const class GithubRepo : MRemoteRepo
 
   ** Summarize a lib at the given latest version.  A GitHub repo has no
   ** catalog beyond the manifest, so the stable line is that version
-  ** when it is stable.
+  ** when it is stable and no publish timestamp is reported.
   private static RepoLibSummary toSummary(LibVersion v)
   {
     stable := v.maturity === LibMaturity.stable ? v.version : null
-    return RepoLibSummary(v.name, v.version, v.maturity, stable, v.doc)
+    return MRepoLibSummary
+    {
+      it.lib            = v.name
+      it.latestVersion  = v.version
+      it.latestMaturity = v.maturity
+      it.latestStable   = stable
+      it.doc            = v.doc
+    }
   }
 
   ** List versions for a given library name, sorted latest to oldest.

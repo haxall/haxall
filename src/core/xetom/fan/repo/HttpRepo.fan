@@ -118,10 +118,15 @@ internal class HttpRepoSession : MRemoteRepoSession
     if (list == null) return RepoLibSummary#.emptyList
     return list.map |Str:Obj? x->RepoLibSummary|
     {
-      RepoLibSummary(x["lib"], Version.fromStr(x["latestVersion"].toStr),
-        LibMaturity.fromStr(x["latestMaturity"]?.toStr ?: "stable"),
-        x["latestStable"] == null ? null : Version.fromStr(x["latestStable"].toStr),
-        x["doc"])
+      MRepoLibSummary
+      {
+        it.lib             = x["lib"]
+        it.latestVersion   = Version.fromStr(x["latestVersion"].toStr)
+        it.latestMaturity  = LibMaturity.fromStr(x["latestMaturity"]?.toStr ?: "stable")
+        it.latestPublished = x["latestPublished"] == null ? null : DateTime.fromStr(x["latestPublished"].toStr)
+        it.latestStable    = x["latestStable"] == null ? null : Version.fromStr(x["latestStable"].toStr)
+        it.doc             = x["doc"]
+      }
     }
   }
 
