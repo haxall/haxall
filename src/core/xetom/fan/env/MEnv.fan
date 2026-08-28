@@ -30,11 +30,6 @@ abstract const class MEnv : XetoEnv
 // Hooks
 //////////////////////////////////////////////////////////////////////////
 
-  override once RemoteRepoRegistry remoteRepos()
-  {
-    MRemoteRepoRegistry(this)
-  }
-
   override Str dictDis(Dict x)
   {
     Etc.dictToDis(x, null) ?: x.toStr

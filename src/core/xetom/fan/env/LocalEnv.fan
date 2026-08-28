@@ -6,6 +6,7 @@
 //   15 Aug 2026  Brian Frank  Creation
 //
 
+using concurrent
 using crypto
 using util
 using xeto
@@ -17,7 +18,30 @@ using xeto
 **
 abstract const class LocalEnv : MEnv
 {
+  ** Add given directory to the front of the Fantom env path and
+  ** reinitialize the current environment to pick up the new path.
+  ** The directory is included in the xeto path resolution regardless
+  ** of mode (even when path is pinned by xeto.props).
+  @NoDoc static XetoEnv addToPath(File dir)
+  {
+    pathEnv := Env.cur as PathEnv ?: throw Err("Env.cur not a PathEnv")
+    dir = dir.normalize
+    pathEnv.addToPath(dir)
+    adds := pathAdds
+    if (!adds.contains(dir)) pathAddsRef.val = adds.dup.add(dir).toImmutable
+    return reinit
+  }
+
+  ** Directories explicitly added to the path via addToPath
+  @NoDoc static File[] pathAdds() { pathAddsRef.val ?: File#.emptyList }
+  private const static AtomicRef pathAddsRef := AtomicRef()
+
   override Bool isRemote() { false }
+
+  override once RemoteRepoRegistry remoteRepos()
+  {
+    MRemoteRepoRegistry(this)
+  }
 
   override Namespace resolveNamespace(Str[] names)
   {

@@ -14,7 +14,6 @@ using haystack
 **
 ** RemoteRepoRegistry implementation
 **
-@Js
 const class MRemoteRepoRegistry : RemoteRepoRegistry
 {
   new make(MEnv env)

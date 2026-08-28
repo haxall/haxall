@@ -12,7 +12,6 @@ using haystack
 **
 ** MRemoteRepo is based class for all RemoteRepo implementations
 **
-@Js
 abstract const class MRemoteRepo : MRepo, RemoteRepo
 {
   static MRemoteRepo create(RemoteRepoInit init)
@@ -142,7 +141,6 @@ abstract const class MRemoteRepo : MRepo, RemoteRepo
 ** implementations: it carries the repo reference and the default
 ** version lookups which route through `versions`
 **
-@Js
 abstract class MRemoteRepoSession : RemoteRepoSession
 {
   new make(MRemoteRepo repo) { this.mrepo = repo }

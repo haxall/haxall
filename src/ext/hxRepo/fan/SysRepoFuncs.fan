@@ -36,8 +36,9 @@ const class SysRepoFuncs
   ** Search the repo for libs matching the query string.  The query "*"
   ** matches all libs, otherwise a lib matches when its dotted name
   ** contains the query as a substring; servers may support additional
-  ** query syntax.  The result reports the latest version of each
-  ** matching lib as the best matches in relevance order.
+  ** query syntax.  The result summarizes each matching lib as the best
+  ** matches in relevance order; only libs which currently serve a
+  ** version are reported.
   **
   ** Parameters:
   **   - `query`: search query

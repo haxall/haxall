@@ -89,7 +89,7 @@ const class FileEnv : LocalEnv
   new make(Str mode, File[] path)
   {
     this.mode = mode
-    this.path = XetoEnv.pathAdds.dup.addAll(path).unique
+    this.path = LocalEnv.pathAdds.dup.addAll(path).unique
   }
 
 //////////////////////////////////////////////////////////////////////////

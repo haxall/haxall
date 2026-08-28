@@ -88,7 +88,7 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
   ** Instantiate a list
   private List list(XetoSpec spec)
   {
-    of := spec.of(false)
+    of := XetoUtil.ofType(spec, false)
     listOf := of == null ? Obj# : of.fantomType
     if (of != null && of.isMaybe) listOf = of.base.fantomType.toNullable
     acc := List(listOf, 0)

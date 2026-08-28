@@ -13,6 +13,7 @@ using haystack
 using folio
 using hx
 using hxUtil
+using xetom
 using xetoc
 
 **
@@ -358,7 +359,7 @@ abstract class HxSysBoot : HxBoot
   {
     if (isTest) return
     if (Env.cur isnot PathEnv) { log.warn("Env.cur not a PathEnv"); return }
-    XetoEnv.addToPath(varDir)
+    LocalEnv.addToPath(varDir)
 
     // force reload of pod list in case anything reflected before boot
     typeof.pod->reloadList(LogLevel.silent)
