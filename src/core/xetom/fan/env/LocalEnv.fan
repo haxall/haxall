@@ -70,6 +70,11 @@ abstract const class LocalEnv : MEnv
     XetoCrypto.computeInheritanceDigest(t)
   }
 
+  override Str libVersionDigest(File file)
+  {
+    XetoCrypto.digestStream(file.in)
+  }
+
   private static Void updateInheritanceDigest(Digest d, Spec t)
   {
     d.updateAscii(t.qname)

@@ -314,6 +314,105 @@ class ZipLibTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Digest
+//////////////////////////////////////////////////////////////////////////
+
+  ** A lib built locally has no origin props, so its digest can only come
+  ** from hashing the zip itself.  That is the branch which runs for every
+  ** lib not installed from a repo, and the wire format other peers verify
+  ** against, so pin both the value and its encoding.
+  Void testDigest()
+  {
+    zip := buildLibZip
+    v   := FileLibVersion.loadZipFile(zip)
+
+    verifyEq(v.isSrc, false)
+    verifyEq(v.digest, XetoCrypto.digest(zip.readAllBuf))
+
+    // "sha256:" followed by base64uri - not the bare hash used for cache keys
+    verify(v.digest.startsWith("sha256:"))
+    verifyEq(v.digest["sha256:".size..-1], XetoCrypto.fileCacheKey(zip))
+
+    // computed once and interned
+    verifySame(v.digest, v.digest)
+  }
+
+  ** Digest identifies the bytes: same content hashes the same, and a
+  ** change anywhere in the zip changes it
+  Void testDigestTracksContent()
+  {
+    zip := buildLibZip
+    a   := FileLibVersion.loadZipFile(zip).digest
+
+    // rebuilding the same source must reproduce the same digest
+    verifyEq(FileLibVersion.loadZipFile(buildLibZip).digest, a)
+
+    // and tampering with the packaged meta must not go unnoticed
+    tamper(zip, "version", "7.7.7")
+    verifyNotEq(FileLibVersion.loadZipFile(zip).digest, a)
+  }
+
+  ** LibVersion.digest tracks the file, LibOrigin.digest records what the
+  ** repo served.  Rewriting the zip after install must move one and not
+  ** the other - that difference is the whole point of keeping them apart.
+  Void testDigestVsOriginDigest()
+  {
+    dir := tempDir + `origindig/`
+    dir.delete
+    dir.create
+    zip := buildLibZip.copyTo(dir + `test.skew.xetolib`)
+
+    // seed the props with a digest the file does NOT hash to, so each
+    // value can only come from one source
+    onDisk := XetoCrypto.digest(zip.readAllBuf)
+    served := "sha256:notTheFileDigest"
+    (dir + `test.skew-origin.props`).out.writeProps([
+      "repo":    "testrepo",
+      "uri":     "https://example.com/",
+      "fetched": DateTime.now.toStr,
+      "digest":  served,
+    ]).close
+
+    v := FileLibVersion.loadZipFile(zip)
+    verifyEq(v.digest, onDisk)          // hashed from the zip
+    verifyEq(v.origin.digest, served)   // read from the props
+
+    // tamper with the artifact: the file digest moves, provenance does not
+    tamper(zip, "version", "7.7.7")
+    v = FileLibVersion.loadZipFile(zip)
+    verifyEq(v.digest, XetoCrypto.digest(zip.readAllBuf))
+    verifyNotEq(v.digest, onDisk)
+    verifyEq(v.origin.digest, served)
+  }
+
+  ** An origin file written before digests were recorded has no digest
+  ** key; provenance is unknown but the file itself still hashes
+  Void testOriginWithoutDigest()
+  {
+    dir := tempDir + `nodig/`
+    dir.delete
+    dir.create
+    zip := buildLibZip.copyTo(dir + `test.skew.xetolib`)
+    (dir + `test.skew-origin.props`).out.writeProps([
+      "repo":    "testrepo",
+      "uri":     "https://example.com/",
+      "fetched": DateTime.now.toStr,
+    ]).close
+
+    v := FileLibVersion.loadZipFile(zip)
+    verifyEq(v.origin.digest, null)
+    verifyEq(v.digest, XetoCrypto.digest(zip.readAllBuf))
+  }
+
+  ** Source libs have no stable zip artifact, so they report no digest
+  Void testSrcHasNoDigest()
+  {
+    v := XetoEnv.cur.repo.lib("sys")
+    verifyEq(v.isSrc, true)
+    verifyEq(v.digest, null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

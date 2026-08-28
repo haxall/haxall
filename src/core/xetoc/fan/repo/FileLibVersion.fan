@@ -155,9 +155,9 @@ const class FileLibVersion : LibVersion
 
   private Void loadDigest()
   {
-    // use digest recorded in origin props at install, else compute once
-    d := origin(false)?.meta?.get("digest") as Str ?: XetoCrypto.digest(file.readAllBuf)
-    #digestRef->setConst(this, d)
+    // always the bytes on disk right now; what the repo served at install
+    // is provenance and lives on LibOrigin.digest
+    #digestRef->setConst(this, ((MEnv)XetoEnv.cur).libVersionDigest(file))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -208,12 +208,14 @@ internal const class MLibOrigin : LibOrigin
     this.repoName = meta->repo
     this.uri      = meta->uri
     this.fetched  = meta->fetched
+    this.digest   = meta["digest"]
     this.meta     = meta
   }
 
   override const Str repoName
   override const Uri uri
   override const DateTime fetched
+  override const Str? digest
   override const Dict meta
 }
 

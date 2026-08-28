@@ -40,6 +40,8 @@ const class RemoteEnv : MEnv
 
   override Str libCacheKey(MLib lib) { "$lib.name-$lib.version" }
 
+  override Str libVersionDigest(File file) { throw unavailErr() }
+
   override Void clearLibCache() {}
 
   override Str mode() { "browser" }

@@ -58,6 +58,10 @@ abstract const class MEnv : XetoEnv
   ** Compute SHA-256 digest for Lib.cacheKey
   abstract Str libCacheKey(MLib lib)
 
+  ** Digest the bytes of a xetolib zip for `xeto::LibVersion.digest`;
+  ** local envs hash the file, the browser has no crypto to do it
+  abstract Str libVersionDigest(File file)
+
 //////////////////////////////////////////////////////////////////////////
 // Namespace
 //////////////////////////////////////////////////////////////////////////

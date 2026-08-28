@@ -223,6 +223,11 @@ const mixin LibOrigin
   ** DateTime when library was downloaded from remote repo
   @NoDoc abstract DateTime fetched()
 
+  ** Digest the remote repo advertised for the bytes it served, formatted
+  ** as [LibVersion.digest].  Comparing the two detects an artifact
+  ** which changed on disk after it was installed.
+  abstract Str? digest()
+
   ** Metadata about the origin
   @NoDoc abstract Dict meta()
 }

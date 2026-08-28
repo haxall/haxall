@@ -222,7 +222,7 @@ const mixin RemoteRepoRegistry
 **************************************************************************
 
 **
-** RemoteRepoSearchReq encapsulates [RemoteRepo.search] request
+** RemoteRepoSearchReq encapsulates [RemoteRepoSession.search] request
 **
 @Js
 const class RemoteRepoSearchReq
@@ -256,7 +256,7 @@ const class RemoteRepoSearchReq
 **************************************************************************
 
 **
-** RemoteRepoSearchRes encapsulates [RemoteRepo.search] response
+** RemoteRepoSearchRes encapsulates [RemoteRepoSession.search] response
 **
 @Js
 const mixin RemoteRepoSearchRes

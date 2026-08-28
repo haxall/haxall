@@ -445,9 +445,11 @@ class RemoteReposTest : AbstractXetoTest
     verifySame(o.meta->uri, o.uri)
     verifySame(o.meta->repo, o.repoName)
 
-    // verify digest read from origin props, matches zip bytes, and interned
-    verifyEq(lib.digest, o.meta->digest)
+    // lib digest is the bytes on disk; origin digest is what the repo
+    // served.  They agree until the artifact changes after install.
     verifyEq(lib.digest, XetoCrypto.digest(xf.readAllBuf))
+    verifyEq(o.digest, lib.digest)
+    verifyEq(o.digest, o.meta->digest)
     verifySame(lib.digest, lib.digest)
   }
 
