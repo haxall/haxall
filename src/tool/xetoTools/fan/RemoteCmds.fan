@@ -272,10 +272,10 @@ internal class RemoteSearchCmd : RepoRemoteCmd
         s.close
 
       table := Obj[,]
-      table.add(["name", "latest", "doc"])
+      table.add(["name", "latest", "stable", "doc"])
       res.libs.each |lib|
       {
-        table.add([lib.name, lib.version.toStr, lib.doc])
+        table.add([lib.lib, lib.latestVersion.toStr, lib.latestStable?.toStr ?: "-", lib.doc])
       }
       Console.cur.table(table)
 

@@ -91,7 +91,7 @@ const class GithubRepo : MRemoteRepo
   }
 
   ** Search the GitHub repo for xetolibs matching the query.
-  ** Filters manifest by name, then returns latest version with full depends.
+  ** Filters manifest by name, then summarizes each at its latest version.
   RemoteRepoSearchRes search(RemoteRepoSearchReq req)
   {
     manifest := loadManifest
@@ -103,10 +103,19 @@ const class GithubRepo : MRemoteRepo
     page := names.getRange(0..<req.limit.min(names.size))
     return MRemoteRepoSearchRes
     {
-      it.libs  = page.map |n->LibVersion| { versions(n, Etc.dict1("limit", 1)).first }
+      it.libs  = page.map |n->RepoLibSummary| { toSummary(versions(n, Etc.dict1("limit", 1)).first) }
       it.more  = page.size < names.size
       it.total = names.size
     }
+  }
+
+  ** Summarize a lib at the given latest version.  A GitHub repo has no
+  ** catalog beyond the manifest, so the stable line is that version
+  ** when it is stable.
+  private static RepoLibSummary toSummary(LibVersion v)
+  {
+    stable := v.maturity === LibMaturity.stable ? v.version : null
+    return RepoLibSummary(v.name, v.version, v.maturity, stable, v.doc)
   }
 
   ** List versions for a given library name, sorted latest to oldest.

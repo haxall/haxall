@@ -154,10 +154,10 @@ const class RepoFuncs
   private static Grid searchGrid(RemoteRepoSearchRes res)
   {
     gb := GridBuilder()
-    gb.addCol("name").addCol("version").addCol("doc")
+    gb.addCol("name").addCol("version").addCol("stable").addCol("doc")
     res.libs.each |lib|
     {
-      gb.addRow([lib.name, lib.version, lib.doc])
+      gb.addRow([lib.lib, lib.latestVersion, lib.latestStable, lib.doc])
     }
     return gb.toGrid
   }

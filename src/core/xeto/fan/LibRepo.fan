@@ -261,11 +261,8 @@ const class RemoteRepoSearchReq
 @Js
 const mixin RemoteRepoSearchRes
 {
-  ** Matching libs with following data:
-  **   - name
-  **   - version (latest by default)
-  **   - doc
-  abstract LibVersion[] libs()
+  ** Matching libs summarized; see `RepoLibSummary`
+  abstract RepoLibSummary[] libs()
 
   ** Additional matches exist beyond those returned; refine the query
   ** or raise the limit to see more
@@ -280,8 +277,48 @@ const mixin RemoteRepoSearchRes
 const class MRemoteRepoSearchRes : RemoteRepoSearchRes
 {
   new make(|This| f) { f(this) }
-  override const LibVersion[] libs
+  override const RepoLibSummary[] libs
   override const Bool more
   override const Int? total
+}
+
+**************************************************************************
+** RepoLibSummary
+**************************************************************************
+
+**
+** RepoLibSummary summarizes one lib in a repo as reported by search.
+**
+@Js
+const class RepoLibSummary
+{
+  ** Constructor
+  new make(Str lib, Version latestVersion, LibMaturity latestMaturity, Version? latestStable := null, Str? doc := null)
+  {
+    this.lib            = lib
+    this.latestVersion  = latestVersion
+    this.latestMaturity = latestMaturity
+    this.latestStable   = latestStable
+    this.doc            = doc
+  }
+
+  ** Dotted lib name
+  const Str lib
+
+  ** Newest served version
+  const Version latestVersion
+
+  ** Maturity of the latest version as claimed by the lib author
+  const LibMaturity latestMaturity
+
+  ** Newest served version with stable maturity; null when the lib has
+  ** no stable release
+  const Version? latestStable
+
+  ** Summary documentation from the lib meta
+  const Str? doc
+
+  ** Debug string
+  override Str toStr() { "$lib-$latestVersion" }
 }
 

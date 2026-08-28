@@ -31,17 +31,17 @@ const mixin RepoServer
   abstract File fetch(Str lib, Version version)
 
   ** Service repoPublish op: validate, store, and index the posted
-  ** xetolib zip; return the RepoLib dict of the published version
+  ** xetolib zip; return the RepoLibVersion dict of the published version
   abstract Dict publish(File file)
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Map LibVersion to a RepoLib dict.  Availability is catalog state
-  ** the LibVersion model does not carry; an artifact served without a
-  ** catalog is by definition available
-  static Dict toRepoLib(LibVersion v, RepoLibAvailability availability := RepoLibAvailability.available, Str? availabilityMsg := null)
+  ** Map LibVersion to a RepoLibVersion dict.  Availability is catalog
+  ** state the LibVersion model does not carry; an artifact served
+  ** without a catalog is by definition available
+  static Dict toRepoLibVersion(LibVersion v, RepoLibAvailability availability := RepoLibAvailability.available, Str? availabilityMsg := null)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -53,7 +53,22 @@ const mixin RepoServer
     acc.addNotNull("doc", v.doc.isEmpty ? null : v.doc)
     acc.addNotNull("depends", v.depends(false))
     acc.addNotNull("digest", v.digest)
-    acc["spec"] = Ref("sys.repo::RepoLib")
+    acc["spec"] = Ref("sys.repo::RepoLibVersion")
+    return Etc.dictFromMap(acc)
+  }
+
+  ** Build a RepoLibSummary dict describing the lib itself.  Only libs
+  ** which serve something are reported, so there is no availability.
+  static Dict toRepoLibSummary(Str lib, Version latestVersion, LibMaturity latestMaturity, Version? latestStable := null, Str? doc := null)
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["lib"] = lib
+    acc["latestVersion"] = latestVersion
+    acc["latestMaturity"] = latestMaturity
+    acc.addNotNull("latestStable", latestStable)
+    acc.addNotNull("doc", doc != null && doc.isEmpty ? null : doc)
+    acc["spec"] = Ref("sys.repo::RepoLibSummary")
     return Etc.dictFromMap(acc)
   }
 
@@ -115,10 +130,17 @@ const class NamespaceRepoServer : RepoServer
     Etc.dict2("dis", dis, "spec", Ref("sys.repo::RepoPing"))
   }
 
+  ** A namespace serves exactly one version of each lib, so that version
+  ** is both the latest and - when stable - the stable line
   override Dict search(Str query, Int limit)
   {
     matches := libs.findAll |v| { query == "*" || v.name.contains(query) }
-    return RepoServer.toRepoSearch(matches.getRange(0..<limit.min(matches.size)).map |v->Dict| { RepoServer.toRepoLib(v) }, matches.size)
+    page := matches.getRange(0..<limit.min(matches.size)).map |v->Dict|
+    {
+      stable := v.maturity === LibMaturity.stable ? v.version : null
+      return RepoServer.toRepoLibSummary(v.name, v.version, v.maturity, stable, v.doc)
+    }
+    return RepoServer.toRepoSearch(page, matches.size)
   }
 
   override Dict[] versions(Str lib, LibDependVersions? versions, Int? limit)
@@ -127,7 +149,7 @@ const class NamespaceRepoServer : RepoServer
     if (v == null) return Dict#.emptyList
     if (versions != null && !versions.contains(v.version)) return Dict#.emptyList
     if (limit != null && limit < 1) return Dict#.emptyList
-    return [RepoServer.toRepoLib(v)]
+    return [RepoServer.toRepoLibVersion(v)]
   }
 
   override File fetch(Str lib, Version version)

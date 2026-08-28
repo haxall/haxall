@@ -69,7 +69,7 @@ internal class HttpRepoSession : MRemoteRepoSession
     res := (Str:Obj?)call("repoSearch", ["query": req.query, "limit": req.limit.toStr])
     return MRemoteRepoSearchRes
     {
-      it.libs  = toLibVersions(res["libs"])
+      it.libs  = toLibSummaries(res["libs"])
       it.more  = res["more"] != null
       it.total = toInt(res["total"])
     }
@@ -97,7 +97,7 @@ internal class HttpRepoSession : MRemoteRepoSession
 // Decoding
 //////////////////////////////////////////////////////////////////////////
 
-  ** Map JSON list of RepoLib dicts to LibVersions
+  ** Map JSON list of RepoLibVersion dicts to LibVersions
   private LibVersion[] toLibVersions(Obj? json)
   {
     list := json as List
@@ -105,10 +105,24 @@ internal class HttpRepoSession : MRemoteRepoSession
     return list.map |x->LibVersion| { toLibVersion(x) }
   }
 
-  ** Map JSON RepoLib dict to LibVersion
+  ** Map JSON RepoLibVersion dict to LibVersion
   private LibVersion toLibVersion(Str:Obj? json)
   {
     RemoteLibVersion.makeDict(Etc.dictFromMap(json))
+  }
+
+  ** Map JSON list of RepoLibSummary dicts to summaries
+  private RepoLibSummary[] toLibSummaries(Obj? json)
+  {
+    list := json as List
+    if (list == null) return RepoLibSummary#.emptyList
+    return list.map |Str:Obj? x->RepoLibSummary|
+    {
+      RepoLibSummary(x["lib"], Version.fromStr(x["latestVersion"].toStr),
+        LibMaturity.fromStr(x["latestMaturity"]?.toStr ?: "stable"),
+        x["latestStable"] == null ? null : Version.fromStr(x["latestStable"].toStr),
+        x["doc"])
+    }
   }
 
   ** Coerce JSON number to Int

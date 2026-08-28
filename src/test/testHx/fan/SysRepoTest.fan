@@ -123,14 +123,14 @@ class SysRepoTest : HxTest
     verifyEq(res["spec"], Ref("sys.repo::RepoSearch"))
     verifyEq(res["total"], total)
     verifyEq(res["more"], null)
-    verifyRepoLib(libs.find |Dict d->Bool| { d["lib"] == "sys" }, "sys")
-    verifyRepoLib(libs.find |Dict d->Bool| { d["lib"] == "sys.repo" }, "sys.repo")
+    verifyRepoLibSummary(libs.find |Dict d->Bool| { d["lib"] == "sys" }, "sys")
+    verifyRepoLibSummary(libs.find |Dict d->Bool| { d["lib"] == "sys.repo" }, "sys.repo")
 
     // axon: substring match
     res = eval("""repoSearch("sys.repo")""")
     libs = (List)res["libs"]
     verifyEq(libs.size, 1)
-    verifyRepoLib(libs.first, "sys.repo")
+    verifyRepoLibSummary(libs.first, "sys.repo")
 
     // axon: limit slices, total reports every match and flags more
     res = eval("""repoSearch("*", 2)""")
@@ -150,13 +150,13 @@ class SysRepoTest : HxTest
     verifyEq(res["more"], null)
     verifyEq(((List)res["libs"]).size, 0)
 
-    // http client: wildcard hydrates LibVersions with the reported total
+    // http client: wildcard hydrates summaries with the reported total
     sr := session.search(RemoteRepoSearchReq("*"))
     verify(sr.libs.size > 0)
     verifyEq(sr.total, sr.libs.size)
     verifyEq(sr.more, false)
-    verifyLibVersion(sr.libs.find |v| { v.name == "sys" }, "sys")
-    verifyLibVersion(sr.libs.find |v| { v.name == "sys.repo" }, "sys.repo")
+    verifyLibSummary(sr.libs.find |v| { v.lib == "sys" }, "sys")
+    verifyLibSummary(sr.libs.find |v| { v.lib == "sys.repo" }, "sys.repo")
 
     // http client: limit smaller than the match count flags more
     sr = session.search(RemoteRepoSearchReq("*") { it.limit = 2 })
@@ -182,7 +182,7 @@ class SysRepoTest : HxTest
     // axon: known lib reports its single local version
     List list := eval("""repoVersions("sys")""")
     verifyEq(list.size, 1)
-    verifyRepoLib(list.first, "sys")
+    verifyRepoLibVersion(list.first, "sys")
 
     // axon: constraint which matches
     list = eval("""repoVersions("sys", "${ver.segments.first}.x.x")""")
@@ -344,14 +344,30 @@ class SysRepoTest : HxTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Void verifyRepoLib(Dict? d, Str lib)
+  Void verifyRepoLibVersion(Dict? d, Str lib)
   {
     verifyNotNull(d, lib)
     verifyEq(d["lib"], lib)
     verifyEq(d["version"], proj.ns.lib(lib).version)
     verifyEq(d["maturity"], LibMaturity.fromStr(expectMaturity(lib)))
     verifyEq(d["availability"], RepoLibAvailability.available)
-    verifyEq(d["spec"], Ref("sys.repo::RepoLib"))
+    verifyEq(d["spec"], Ref("sys.repo::RepoLibVersion"))
+  }
+
+  ** Search reports the lib itself: no availability, and no version
+  ** detail like depends or digest
+  Void verifyRepoLibSummary(Dict? d, Str lib)
+  {
+    maturity := LibMaturity.fromStr(expectMaturity(lib))
+    verifyNotNull(d, lib)
+    verifyEq(d["lib"], lib)
+    verifyEq(d["latestVersion"], proj.ns.lib(lib).version)
+    verifyEq(d["latestMaturity"], maturity)
+    verifyEq(d["latestStable"], maturity === LibMaturity.stable ? d["latestVersion"] : null)
+    verifyEq(d["availability"], null)
+    verifyEq(d["depends"], null)
+    verifyEq(d["digest"], null)
+    verifyEq(d["spec"], Ref("sys.repo::RepoLibSummary"))
   }
 
   Void verifyLibVersion(LibVersion? v, Str lib)
@@ -361,6 +377,18 @@ class SysRepoTest : HxTest
     verifyEq(v.version, proj.ns.lib(lib).version)
     verifyEq(v.maturity, LibMaturity.fromStr(expectMaturity(lib)))
     verifyEq(((RemoteLibVersion)v).availability, RepoLibAvailability.available)
+  }
+
+  ** A namespace serves one version per lib, so the stable line is that
+  ** version exactly when the lib claims stable maturity
+  Void verifyLibSummary(RepoLibSummary? s, Str lib)
+  {
+    maturity := LibMaturity.fromStr(expectMaturity(lib))
+    verifyNotNull(s, lib)
+    verifyEq(s.lib, lib)
+    verifyEq(s.latestVersion, proj.ns.lib(lib).version)
+    verifyEq(s.latestMaturity, maturity)
+    verifyEq(s.latestStable, maturity === LibMaturity.stable ? s.latestVersion : null)
   }
 
   ** Maturity each lib's own meta claims, default stable

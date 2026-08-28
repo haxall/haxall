@@ -29,7 +29,7 @@ const class RemoteLibVersion : LibVersion
     this.availabilityMsg = availabilityMsg
   }
 
-  ** Construct from a RepoLib dict as defined by `RepoServer.toRepoLib`.
+  ** Construct from a RepoLibVersion dict as defined by `RepoServer.toRepoLibVersion`.
   ** Values may carry their in-process or wire types: version as Version
   ** or Str; each depend as a LibDepend, a dict or map with lib/versions
   ** keys, or a "name versions" string.

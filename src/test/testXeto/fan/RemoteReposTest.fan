@@ -221,14 +221,10 @@ class RemoteReposTest : AbstractXetoTest
 
     verifyDictEq(r.open.ping, Etc.dict1("ping", "boom!"))
 
+    // search summarizes each matching lib once at its newest version,
+    // never one row per version
     verifySearch(r, RemoteRepoSearchReq("alpha"),
-      [["alpha", "1.0.1"],
-       ["alpha", "1.0.2"],
-       ["alpha", "1.1.0"],
-       ["alpha", "1.1.9"],
-       ["alpha", "1.2.0"],
-       ["alpha", "2.0.0"],
-       ["alpha", "2.3.0"],
+      [["alpha", "2.3.0"],
        ["need.alpha11", "1.0.0"]]
        )
   }
@@ -244,8 +240,8 @@ class RemoteReposTest : AbstractXetoTest
     actual.each |a, i|
     {
       e := expect[i]
-      verifyEq(a.name,         e[0])
-      verifyEq(a.version.toStr, e[1])
+      verifyEq(a.lib,                 e[0])
+      verifyEq(a.latestVersion.toStr, e[1])
     }
   }
 
@@ -479,9 +475,16 @@ const class TestRemoteRepo : MRemoteRepo
 
   Dict? ping(Bool checked := true) { Etc.dict1("ping", "boom!") }
 
+  ** Summarize each matching lib once at its newest version
   RemoteRepoSearchRes search(RemoteRepoSearchReq req)
   {
-    matches := testLibs.findAll { req.matches(it) }
+    names := testLibs.findAll { req.matches(it) }.map |v->Str| { v.name }.unique
+    matches := names.map |n->RepoLibSummary|
+    {
+      v := versions(n).first
+      stable := v.maturity === LibMaturity.stable ? v.version : null
+      return RepoLibSummary(v.name, v.version, v.maturity, stable, v.doc)
+    }
     page := matches.getRange(0..<req.limit.min(matches.size))
     return MRemoteRepoSearchRes { it.libs = page; it.more = page.size < matches.size; it.total = matches.size }
   }
