@@ -433,11 +433,8 @@ internal class CheckErrors : Step
     }
 
     // determine if we need to check item type against of
-    of := spec.of(false)
-    if (spec.name == "ofs") of = null
-    if (spec.isMultiRef)  of = null
-    while (of != null && XetoUtil.isAutoName(of.name))
-      of = of?.base
+    Spec? of := null
+    if (spec.name != "ofs" && !spec.isMultiRef) of = XetoUtil.ofType(spec, false)
 
     // walk thru each item and check auto-name and optionally item type
     named := false

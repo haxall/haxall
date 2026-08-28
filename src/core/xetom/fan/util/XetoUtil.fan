@@ -100,6 +100,22 @@ const class XetoUtil
     return true
   }
 
+  ** Item type of a collection/ref spec resolved to a named type.  An
+  ** inline parameterized item such as "Ref<of:Foo>" compiles to an auto
+  ** named spec which carries no binding and no useful name of its own,
+  ** so walk to the named type it parameterizes.  A maybe item such as
+  ** "Ref?" is also auto named but its nullability is the whole point,
+  ** so it is returned as-is.  Use this instead of `Spec.of` whenever
+  ** the answer is used as a type rather than inspected for its own meta.
+  static Spec? ofType(Spec spec, Bool checked := true)
+  {
+    of := spec.of(false)
+    while (of != null && isAutoName(of.name) && !of.isMaybe) of = of.base
+    if (of != null) return of
+    if (checked) throw UnresolvedErr("No 'of' type specified: $spec.qname")
+    return null
+  }
+
   ** Generate an auto name of "_0", "_1", etc.
   ** This method must be called in incrementing order for a given thread
   static Str autoName(Int i)

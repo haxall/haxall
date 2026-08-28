@@ -399,7 +399,7 @@ internal class GenEdits : Step
     if (x.isOr) sig = "Obj"
     else if (x.type.isList)
     {
-      of := x.of(false)
+      of := XetoUtil.ofType(x, false)
       sig = (of?.fantomType?.name ?: "Obj?") + "[]"
     }
     else sig = x.type.fantomType.name

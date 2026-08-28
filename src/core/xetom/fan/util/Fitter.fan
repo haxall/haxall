@@ -250,9 +250,7 @@ internal class Fitter
     }
 
     // if no item type, then it fits!
-    of := spec.of(false)
-    while (of != null && XetoUtil.isAutoName(of.name))
-      of = of?.base
+    of := XetoUtil.ofType(spec, false)
     if (of == null) return fits
 
     // check every item
