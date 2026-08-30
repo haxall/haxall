@@ -31,7 +31,7 @@ ConnExt: Ext <abstract> {
 
 // Connector for communication to a remote system.
 // See [hx.doc.haxall::Conns]
-Conn: Entity <abstract> {
+Conn: Entity <abstract, text: "$<conn>", icon: "conn", color: "purple"> {
 
   // Marker tag for Conn type
   conn

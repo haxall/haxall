@@ -58,7 +58,7 @@ ValSelect: HxComp <abstract> {
 }
 
 // Bool select
-BoolSelect: ValSelect {
+BoolSelect: ValSelect <color: "lime"> {
   // Input A
   inA: StatusStr? <summary>
 
@@ -91,7 +91,7 @@ BoolSelect: ValSelect {
 }
 
 // Number select
-NumberSelect: ValSelect {
+NumberSelect: ValSelect <color: "purple"> {
   // Input A
   inA: StatusNumber? <summary>
 
@@ -124,7 +124,7 @@ NumberSelect: ValSelect {
 }
 
 // Str select
-StrSelect: ValSelect {
+StrSelect: ValSelect <color: "amber"> {
   // Input A
   inA: StatusStr? <summary>
 

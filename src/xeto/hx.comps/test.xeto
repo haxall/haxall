@@ -7,7 +7,7 @@
 //
 
 // Contains a slot for each status flag
-StatusTestComp : HxComp {
+StatusTestComp: HxComp <icon: "flask-conical"> {
   ok:         StatusNumber <summary, readonly>
   alarm:      StatusNumber <summary, readonly>
   disabled:   StatusNumber <summary, readonly>

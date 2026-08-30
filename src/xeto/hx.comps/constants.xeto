@@ -7,20 +7,20 @@
 //
 
 // The base spec for all constant components
-Const: HxComp <abstract>
+Const: HxComp <abstract, icon: "folder">
 
 // Boolean constant
-BoolConst: Const {
+BoolConst: Const <icon: "circle-dot", color: "lime"> {
   out: StatusBool? <summary>
 }
 
 // Number constant
-NumberConst: Const {
+NumberConst: Const <icon: "circle-dot", color: "purple"> {
   out: StatusNumber? <summary>
 }
 
 // Str constant
-StrConst: Const {
+StrConst: Const <icon: "case-sensitive", color: "amber"> {
   out: StatusStr? <summary>
 }
 

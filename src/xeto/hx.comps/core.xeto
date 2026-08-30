@@ -24,17 +24,17 @@ StatusVal: Dict {
 }
 
 // StatusNumber pairs a number with status flags
-StatusNumber: StatusVal {
+StatusNumber: StatusVal <color: "purple"> {
   val: Number    // Numeric scalar value
 }
 
 // StatusBool pairs a boolean with status flags
-StatusBool: StatusVal {
+StatusBool: StatusVal <color: "lime"> {
   val: Bool      // Boolean scalar value
 }
 
 // StatusStr pairs a string or enum name with status flags
-StatusStr: StatusVal {
+StatusStr: StatusVal <color: "amber"> {
   val: Str       // String scalar value
 }
 

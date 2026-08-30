@@ -28,7 +28,7 @@ Password: Scalar
 // the "skill-" prefix stripped.  The prompt should be defined as a file in the
 // lib named "/skills/{name}.md".  Skills can be defined in the project database,
 // in which case the prompt must have a `name` and `prompt` tag.
-AiSkill: Entity {
+AiSkill: Entity <icon:"ai-skill"> {
   doc: Str                             // Short summary doc that describes the skill
   keywords: List? <of:Str>             // List of keywords that trigger the skill
   include: List? <of:Ref<of:AiSkill>>  // Skills always included with this skill

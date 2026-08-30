@@ -25,7 +25,7 @@ ValSwitch: HxComp <abstract> {
 }
 
 // Bool switch
-BoolSwitch: ValSwitch {
+BoolSwitch: ValSwitch <color: "lime"> {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary, transient>
@@ -41,7 +41,7 @@ BoolSwitch: ValSwitch {
 }
 
 // Number switch
-NumberSwitch: ValSwitch {
+NumberSwitch: ValSwitch <color: "purple"> {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary, transient>
@@ -57,7 +57,7 @@ NumberSwitch: ValSwitch {
 }
 
 // Str switch
-StrSwitch: ValSwitch {
+StrSwitch: ValSwitch <color: "amber"> {
 
   // If true, then the output is set to `inTrue`. Otherwise it is set to `inFalse`
   inSwitch: StatusBool? <summary, transient>
