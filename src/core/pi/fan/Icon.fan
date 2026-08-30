@@ -3,29 +3,386 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   29 Aug 2026  Brian Frank  Creation
+//   14 Jun 2023  Brian Frank  Creation
 //
 
+using concurrent
+using dom
+using graphics::GraphicsEnv
+using graphics::Image
+using util
 using xeto
 
 **
-** Icon represents a logical SVG icon name against installed manifest.
+** Icon represents a logical SVG icon name
 **
-@Js @Gen
+@Js
 const mixin Icon
 {
+  ** List all installed icons
+  static Icon[] list()
+  {
+    IconRegistry.cur.list
+  }
+
+  ** Search the installed icons with keyword
+  static Icon[] search(Str query)
+  {
+    IconSearch(query).search
+  }
+
   ** Lookup icon by its name
   static new fromStr(Str name, Bool checked := true)
   {
-    throw Err("TODO")
+    IconRegistry.cur.get(name, checked)
   }
 
-  ** Blank icon (default value)
-  static Icon blank() { throw Err("TODO") }
+  ** Map SkySpark 3 icon name to Ion icon
+  @NoDoc static Icon? from3(Str name, Bool checked := true)
+  {
+    fromStr(Icon3.map[name] ?: name, checked)
+  }
+
+  ** Map icon from record or meta dict
+  @NoDoc static Icon? fromDict(Dict dict)
+  {
+    val := dict["icon"]
+    if (val != null) return coerce(val)
+    return null
+  }
+
+  ** Coerce value to icon
+  @NoDoc
+  static Icon? coerce(Obj? arg)
+  {
+    if (arg == null) return null
+    if (arg is Str)  return fromStr(arg)
+    if (arg is Icon) return arg
+    if (arg is Dict) return fromStr(arg->name)
+    throw Err("Cannot coerce to Icon: $arg [$arg.typeof]")
+  }
 
   ** Icon name key
   abstract Str name()
 
+  ** Uri formatted as "icon:{name}"
+  Uri uri() { "icon:$name".toUri }
+
+  ** Tags for icon to aid search
+  @NoDoc abstract Str[] tags()
+
+  ** SVG body elements
+  @NoDoc abstract Str svgBody()
+
+  ** SVG icon as in-memory image for rendering to canvas
+  @NoDoc abstract Image image()
+
   ** Is the blank icon (default value)
   @NoDoc Bool isBlank() { name == "blank" }
+
+  ** Blank icon
+  static Icon blank() { IconRegistry.cur.blank }
 }
+
+**************************************************************************
+** MIcon
+**************************************************************************
+
+**
+** Icon implementation
+**
+@NoDoc @Js
+final const class MIcon : Icon
+{
+  static new fromStr(Str name, Bool checked := true)
+  {
+    IconRegistry.cur.get(name, checked)
+  }
+
+  internal new make(Str name, Str[] tags, Str svgBody)
+  {
+    this.name    = name
+    this.tags    = tags
+    this.svgBody = svgBody
+  }
+
+  const override Str name
+
+  const override Str[] tags
+
+  const override Str svgBody
+
+  override Str toStr() { name }
+
+  override Int hash() { name.hash }
+
+  override Bool equals(Obj? that)
+  {
+    a := this
+    b := that as MIcon
+    if (b == null) return false
+    return a.name == b.name
+  }
+
+  once override Image image()
+  {
+    // this does not work
+    prefix := """<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"""
+    svg := Buf(prefix.size + svgBody.size + 6).print(prefix).print(svgBody).print("</svg>")
+    return GraphicsEnv.cur.image(`/icon/$name`, svg)
+  }
+
+}
+
+**************************************************************************
+** IconRegistry
+**************************************************************************
+
+@NoDoc @Js
+const class IconRegistry
+{
+  static IconRegistry cur() { curRef.val ?: throw Err("Icons not loaded") }
+  private static const AtomicRef curRef := AtomicRef()
+
+  private new make(Str:Icon map, Icon[] list)
+  {
+    this.map  = map
+    this.list = list.sort
+    this.blank = map["blank"] ?: list.first
+  }
+
+  const Icon[] list
+
+  const Str:Icon map
+
+  const Icon blank
+
+  Icon? get(Str name, Bool checked)
+  {
+    icon := map.get(name)
+    if (icon != null) return icon
+    if (checked) throw UnresolvedErr("Unknown icon: $name")
+    return null
+  }
+
+
+  // Server side load uses static initializer
+  static { if (!Env.cur.isBrowser) loadServer }
+
+  ** Load in Java uses pod file
+  @NoDoc static Void loadServer()
+  {
+    try
+    {
+      load(Pod.find("pi").file(`/res/icons.txt`).readAllStr)
+    }
+    catch (Err e)
+    {
+      Console.cur.err("Cannot load icons", e)
+    }
+  }
+
+  ** Load in JavaScript uses HTTP fetch from server
+  @NoDoc static Future loadBrowser(Uri uri)
+  {
+    future := Future.makeCompletable
+    if (!Env.cur.isBrowser) return future.complete("server")
+    req := HttpReq { it.uri = uri }
+    req.get |res|
+    {
+      if (res.status != 200)
+      {
+        Console.cur.err("Cannot load icons $res.status [$uri]")
+        return future.completeErr(Err("Cannot load icons [$uri]"))
+      }
+
+      try
+      {
+        load(res.content)
+        future.complete("loaded")
+      }
+      catch (Err e)
+      {
+        future.completeErr(e)
+      }
+    }
+    return future
+  }
+
+  ** Do load from the ionExt::/res/icons.txt file
+  @NoDoc static Void load(Str file)
+  {
+    t1 := Duration.now
+    curRef.val = parseFile(file)
+    t2 := Duration.now
+    Console.cur.info("Loaded $cur.list.size icons [" + (t2-t1).toLocale + "]")
+  }
+
+  ** Load from the text file generated by hxIon::IconsCompiler
+  @NoDoc static IconRegistry parseFile(Str file)
+  {
+    // split file into lines and check header
+    lines := file.splitLines
+    i := 0
+    if (lines[i++] != "# icons 1.0") throw IOErr("Invalid # icons")
+
+    // first parse tags into list
+    if (lines[i++] != "# tags") throw IOErr("Invalid # Tags")
+    tags := Str[,]
+    tags.capacity = 3500
+    while (true)
+    {
+      line := lines[i++]
+      if (line[0] == '#') break
+      tags.add(line)
+    }
+
+    // parse icons
+    map := Str:Icon[:]
+    list := Icon[,]
+    while (i < lines.size)
+    {
+      line := lines[i++]
+      if (line.isEmpty || line[0] == '#') continue
+      try
+      {
+        icon := parseIcon(list, line, tags)
+        list.add(icon)
+        map.add(icon.name, icon)
+      }
+      catch (Err e)
+      {
+        Console.cur.err("Icon parse: $line", e)
+      }
+    }
+
+    return make(map, list)
+  }
+
+  private static MIcon parseIcon(Icon[] list, Str line, Str[] tagsList)
+  {
+    // parse name|tags|svg/alias
+    bar0 := line.index("|", 1)
+    bar1 := line.index("|", bar0+1)
+    name := line[0..<bar0]
+    tagIndices := line[bar0+1..<bar1]
+    rest := line[bar1+1..-1]
+
+    // parse tags indices
+    tags := tagIndices.isEmpty ?
+           Str#.emptyList :
+           tagIndices.split(',').map |tok->Str| { tagsList[tok.toInt] }
+
+    // rest is either svg or alias index into icons list
+    Str? svg
+    if (rest.isEmpty)
+    {
+      if (name != "blank") throw Err()
+      svg = ""
+    }
+    else if (rest[0].isDigit)
+    {
+      // alias
+      svg = list[rest.toInt].svgBody
+    }
+    else
+    {
+      // svg
+      if (rest[0] != '<') throw Err()
+      svg = rest
+    }
+
+    return MIcon(name, tags, svg)
+  }
+}
+
+**************************************************************************
+** IconSearch
+**************************************************************************
+
+@Js
+internal class IconSearch
+{
+  new make(Str q)
+  {
+    q = q.lower.trim
+    this.q = q
+    this.qdash  = "-" + q
+    this.qspace = " " + q
+  }
+
+  Icon[] search()
+  {
+    if (q.isEmpty) return Icon.list
+
+    // check all the icons
+    Icon.list.each |icon| { check(icon) }
+
+    // sort by weight and map to icon list
+    hits := hitsByName.vals.sortr
+    return hits.map |x->Icon| { x.icon }
+  }
+
+  private Void check(Icon x)
+  {
+    // match name highest weights
+    n := x.name
+    if (n == q) return add(x, 10)
+    if (n.startsWith(q)) return add(x, 9)
+    if (n.contains(qdash)) return add(x, 8)
+
+    // match tags lower weights
+    // IconsCompiler should replace "foo-bar" as "foo bar"
+    for (i := 0; i<x.tags.size; ++i)
+    {
+      t := x.tags[i]
+      if (t == q) return add(x, 7)
+      if (t.startsWith(q)) return add(x ,6)
+      if (t.contains(qspace)) return add(x, 5)
+    }
+  }
+
+  private Void add(Icon icon, Int weight)
+  {
+    dup := hitsByName[icon.name]
+    if (dup == null || dup.weight < weight)
+      hitsByName[icon.name] = IconSearchHit(icon, weight)
+  }
+
+  private const Str q
+  private const Str qdash
+  private const Str qspace
+  private Str:IconSearchHit hitsByName := [:]
+}
+
+@Js
+internal const class IconSearchHit
+{
+  new make(Icon icon, Int weight) { this.icon = icon; this.weight = weight }
+  override Int compare(Obj that) { weight <=> ((IconSearchHit)that).weight }
+  const Icon icon
+  const Int weight
+}
+
+**************************************************************************
+** Icon3 - Mapping table for Skyspark 3 to Ion names
+**************************************************************************
+
+** TODO: use aliases
+@Js
+internal const class Icon3
+{
+  static const Str:Str map := [
+    "clear":         "sun",
+    "cloudy":        "cloudy",
+    "flurries":      "cloud-snow",
+    "ice":           "snowflake",
+    "partlyCloudy":  "cloud-sun",
+    "rain":          "cloud-rain",
+    "showers":       "cloud-drizzle",
+    "snow":          "snowflake",
+    "thunderstorms": "cloud-lightning",
+    "unknown":       "circle-question-mark",
+  ]
+}
+

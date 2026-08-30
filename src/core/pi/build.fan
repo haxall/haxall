@@ -28,6 +28,10 @@ class Build : BuildPod
                "hx.docFantom": "true",
                ]
     depends = ["sys @{fan.depend}",
+               "concurrent @{fan.depend}",
+               "dom @{fan.depend}",
+               "graphics @{fan.depend}",
+               "util @{fan.depend}",
                "xeto @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`locale/`]
