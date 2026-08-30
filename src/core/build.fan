@@ -17,6 +17,7 @@ class Build : BuildGroup
     childrenScripts =
     [
       `xeto/build.fan`,
+      `pi/build.fan`,
       `haystack/build.fan`,
       `xetom/build.fan`,
       `xetoc/build.fan`,

@@ -1,0 +1,44 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   29 Aug 2026  Brian Frank  Creation
+//
+
+// Icon represents a logical SVG icon name against installed manifest.
+Icon: Scalar "blank"
+
+// Text wraps a string for display with localization macro support.
+// ```
+// Localization "$<key>"       // for keys in "pi" pod itself
+// Localization "$<pod::key>"  // for keys in other pods
+// ```
+Text: Scalar ""
+
+// Palette color name.
+ColorName: Enum {
+  slate    // Slate
+  gray     // Gray
+  zinc     // Zinc
+  neutral  // Neutral
+  stone    // Stone
+  red      // Red - errors
+  orange   // Orange - warnings, faults
+  amber    // Amber
+  yellow   // Yellow - down
+  lime     // Lime
+  green    // Green - ok, success
+  emerald  // Emerald
+  teal     // Teal
+  cyan     // Cyan
+  sky      // Sky
+  blue     // Blue - informational
+  indigo   // Indigo
+  violet   // Violet
+  purple   // Purple - abnormal
+  fuchsia  // Fuchsia
+  pink     // Pink
+  rose     // Rose
+}
+

@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   29 Aug 2026  Brian Frank  Creation
+//
+
++Spec {
+  // Icon to use for visualization
+  icon: Icon?
+
+  // Default color for visualization
+  color: ColorName?
+
+  // Display text
+  text: Text?
+}
