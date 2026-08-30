@@ -55,7 +55,7 @@ class PiTest : Test
     verifyMacro("a", "a")
     verifyMacro("Foo Bar", "Foo Bar")
 
-    // imply this pod
+    // bare key resolves against this pod's centralized manifest
     verifyMacro(Str<|$<byStateByCity>|>, "By State/City")
 
     // explicit pod
@@ -67,9 +67,9 @@ class PiTest : Test
     verifyMacro(Str<|$<pi::baz>|>, "pi::baz")
 
     // complex
-    verifyMacro(Str<|_$<pi::byStateByCity>|>, "_By State/City")
-    verifyMacro(Str<|$<pi::byStateByCity>_|>, "By State/City_")
-    verifyMacro(Str<|_$<pi::byStateByCity>!|>, "_By State/City!")
+    verifyMacro(Str<|_$<byStateByCity>|>, "_By State/City")
+    verifyMacro(Str<|$<byStateByCity>_|>, "By State/City_")
+    verifyMacro(Str<|_$<byStateByCity>!|>, "_By State/City!")
 
     // multiple locale keys
     verifyMacro(Str<|$<eval>$<eula>|>, "EvalEULA")
