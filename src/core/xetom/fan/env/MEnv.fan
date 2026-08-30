@@ -48,6 +48,11 @@ abstract const class MEnv : XetoEnv
     return Etc.dictFromMap(acc)
   }
 
+  override Str valToDis(Obj? val, Dict? meta := null)
+  {
+    Etc.valToDis(val, meta)
+  }
+
   ** Build variables of this environment
   virtual BuildVars buildVars() { BuildVars.empty }
 

@@ -121,6 +121,9 @@ abstract const class XetoEnv
   ** Implementation for Dict.map
   @NoDoc abstract Dict dictMap(Dict x, |Obj,Str->Obj| f)
 
+  ** Format any value to a display string using optional meta
+  @NoDoc abstract Str valToDis(Obj? val, Dict? meta := null)
+
 //////////////////////////////////////////////////////////////////////////
 // Debug
 //////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,4 @@
+// Keys used by PiTest to exercise Text macro evaluation
+byStateByCity = By State/City
+eval = Eval
+eula = EULA

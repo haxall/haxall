@@ -29,7 +29,8 @@ class Build : BuildPod
                ]
     depends = ["sys @{fan.depend}",
                "xeto @{hx.depend}"]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `test/`]
+    resDirs = [`locale/`]
     index   = ["xeto.bindings": "pi"]
   }
 }
