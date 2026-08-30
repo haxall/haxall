@@ -25,6 +25,7 @@ internal class GenEdits : Step
   {
     if (t.kind.isFuncs) return genFuncs(t)
     genTypeDoc(t)
+    if (t.kind.isScalar) return  // scalars have no slots to mirror
     if (t.kind.isEnum) return genEnumItems(t)
     genSlots(t)
     genDeletes(t)

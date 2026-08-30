@@ -547,6 +547,39 @@ class GenFanTest : Test
     verifyGen(src, expect)
   }
 
+  ** Scalars sync their type doc only; members are hand-written
+  Void testScalarDoc()
+  {
+    xeto := [
+      "// Logical icon name resolved against the installed manifest",
+      "Icon: Scalar \"blank\"",
+      ].join("\n")
+    src := [
+      "**",
+      "** Stale doc to be replaced",
+      "**",
+      "@Gen",
+      "const mixin Icon",
+      "{",
+      "  ** Icon name key",
+      "  abstract Str name()",
+      "}",
+      ].join("\n")
+    expect := [
+      "**",
+      "** Logical icon name resolved against the installed manifest",
+      "**",
+      "@Gen",
+      "const mixin Icon",
+      "{",
+      "  ** Icon name key",
+      "  abstract Str name()",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+    verifyEq(genTemp(xeto, expect), expect)
+  }
+
   ** Slots in the @Gen meta skip list are not generated
   Void testSkip()
   {

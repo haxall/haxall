@@ -6,12 +6,12 @@
 //   29 Aug 2026  Brian Frank  Creation
 //
 
+using xeto
+
 **
-** Icon represents a logical SVG icon name.  The name is resolved
-** against the installed icon manifest; rendering is handled by the
-** UI framework.
+** Icon represents a logical SVG icon name against installed manifest.
 **
-@Js
+@Js @Gen
 const mixin Icon
 {
   ** Lookup icon by its name
