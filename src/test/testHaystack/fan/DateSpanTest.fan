@@ -272,7 +272,7 @@ class DateSpanTest : Test
     // weeks with mon start of week
     Locale("es").use
     {
-      mon := sun+1day
+      mon := today; while (mon.weekday != Weekday.mon) mon = mon - 1day
       verifySpan(DateSpan.thisWeek,  mon, mon+6day, "week", "${mon}..${mon+6day}")
       verifySpan(DateSpan.lastWeek,  mon-7day, mon-1day, "week", "${mon-7day}..${mon-1day}")
     }
