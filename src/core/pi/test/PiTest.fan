@@ -145,15 +145,51 @@ class PiTest : Test
 // Icon
 //////////////////////////////////////////////////////////////////////////
 
-  ** TODO: port from testIon::MiscTest.testIcon/testIconParse once the
-  ** manifest lands here; those cover lookup, aliases resolving to the
-  ** same svgBody, tags, and keyword search ranking.
   Void testIcon()
   {
-    verifyErr(Err#) { x := Icon("smile") }
-    verifyErr(Err#) { x := Icon.blank }
+    // lucide icon
+    verifyIcon(Icon("house"), "house", houseTags)
+
+    // aliases
+    verifyIcon(Icon("proj"), "proj", Str[,])
+    verifyEq(Icon("proj").svgBody, Icon("database").svgBody)
+
+    // search
+    verifyIconSearch("apple",           "apple")
+    verifyIconSearch("camera",          "camera, camera-off", 2)
+    verifyIconSearch("vent",            "air-vent, fan")
+    verifyIconSearch("climate control", "air-vent")
+    verifyIconSearch("pressure",        "gauge, wind-arrow-down, circle-gauge, heart-pulse")
   }
 
+  Void testIconParse()
+  {
+    file := Pod.find("pi").file(`/res/icons.txt`)
+    reg := IconRegistry.parseFile(file.readAllStr)
+    verifyIcon(reg.get("house", true), "house", houseTags)
+    verifyIcon(reg.get("equip", true), "equip", Str[,])
+  }
+
+  Str[] houseTags()
+  {
+    ["architecture", "building", "buildings", "home", "living", "navigation", "residence"]
+  }
+
+  Void verifyIcon(Icon x, Str name, Str[] tags)
+  {
+    // echo("~~> $x.name $x.tags $x.typeof")
+    verifyEq(x.name, name)
+    verifyEq(x.tags, tags)
+    verifyEq(x.svgBody.startsWith("<"), true)
+  }
+
+  Void verifyIconSearch(Str q, Str expect, Int? max := null)
+  {
+    actual := Icon.search(q)
+    // echo("\n~~~ $q > $actual")
+    if (max != null) actual = actual[0..<max]
+    verifyEq(actual.join(", "), expect)
+  }
 
 }
 

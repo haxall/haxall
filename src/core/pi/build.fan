@@ -34,7 +34,7 @@ class Build : BuildPod
                "util @{fan.depend}",
                "xeto @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
-    resDirs = [`locale/`]
+    resDirs = [`locale/`, `res/`]
     index   = ["xeto.bindings": "pi"]
   }
 }
