@@ -1,0 +1,64 @@
+name               alias                     tags
+-----------------  ------------------------  --------
+ai                 <brain>
+ai-agent           <hat-glasses>
+ai-conv            <messages-square>
+ai-model           <qr-code>
+ai-provider        <brain>
+ai-skill           <flashlight>
+audio              <voicemail>
+axon               <square-function>
+bacnet                                       conn
+blank                                        transparent empty
+conn               <plug>
+cur                <square-play>             rule
+device             <circuit-board>
+dict               <braces>
+equip              <hard-drive>
+entity             <id-card>
+ext                <puzzle>
+fantom             <ghost>                   dev lang
+func               <square-function>
+java               <coffee>                  dev lang
+javascript         <shield-half>             dev lang
+kpi                <chart-column-big>        rule
+lib                <library-big>
+modbus                                       conn
+ok                 <circle-check>            status
+point              <circle-dot>
+proj               <database>
+rule               <settings>
+scalar             <atom>
+space              <door-closed>
+spec               <aperture>
+site               <building>
+spark              <chart-bar-big>           rule
+sys                <hard-drive>
+system             <shapes>
+task               <spool>
+unknown            <circle-question-mark>    status
+widget             <box>
+widget-box         <box>
+widget-button      <command>
+widget-canvas      <paintbrush>
+widget-checkbox    <square-check>
+widget-dialog      <app-window>
+widget-divider     <separator-horizontal>
+widget-dropdown    <square-arrow-down>
+widget-grid        <grid-3x2>
+widget-heading     <heading-1>
+widget-hero        <square-user>
+widget-hstack      <columns-3>
+widget-input       <text-cursor-input>
+widget-label       <case-sensitive>
+widget-menu        <menu>
+widget-popup       <picture-in-picture-2>
+widget-select      <list-check>
+widget-stepper     <list-ordered>
+widget-text-input  <text-cursor-input>
+widget-tooltip     <message-square>
+widget-toggle      <toggle-right>
+widget-vstack      <rows-3>
+weather            <cloud-sun>
+xeto               <aperture>                dev lang
+
