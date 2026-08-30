@@ -43,6 +43,58 @@ ListOfTest: {
   a: {"2024-11-26", "2024-11-27"}
 }
 
+// dict of: a Dict type with 'of' meta types its unnamed slots, the
+// same way a parameterized List types its items
+
+DictOfItem: Dict {
+  name: Str
+  tags: List? <of:Str>
+}
+
+// subtype of the item used to override an inferred slot
+DictOfItemSub: DictOfItem {
+  extra: Str?
+}
+
+DictOfTest: Dict <of:DictOfItem>
+
+DictOfSub: DictOfTest
+
+DictOfDates: Dict <of:Date>
+
+DictOfSlots: Dict {
+  table: DictOfTest?
+  scalars: DictOfDates?
+}
+
+@dictOf: DictOfTest {
+  one: { name:"One", tags:{"x", "y"} }
+  two: { name:"Two" }
+}
+
+// a slot may override the inferred type with a subtype, and inferred
+// and overridden items coexist in the same dict
+@dictOfOverride: DictOfTest {
+  inferred: { name:"Inferred" }
+  overridden: DictOfItemSub { name:"Override", extra:"x" }
+}
+
+@dictOfInherit: DictOfSub {
+  one: { name:"One" }
+}
+
+// 'of' a scalar type: items are typed and decoded, and one may override
+@dictOfScalar: DictOfDates {
+  d1: "2024-11-26"
+  d2: "2024-11-27"
+  d3: Date "2024-11-28"
+}
+
+@dictOfNested: DictOfSlots {
+  table: { one: { name:"One", tags:{"x"} } }
+  scalars: { d1: "2024-11-26" }
+}
+
 // refs
 
 TestRefs: Dict {

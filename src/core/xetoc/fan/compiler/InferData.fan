@@ -75,7 +75,7 @@ internal abstract class InferData : Step
     }
 
     // infer values from parameterized of
-    of := dict.typeRef?.of
+    of := dictOf(dict)
     if (of != null)
     {
       dict.each |item|
@@ -84,6 +84,23 @@ internal abstract class InferData : Step
           item.typeRef = ASpecRef(item.loc, of)
       }
     }
+  }
+
+  ** Component spec used to type a dict's unnamed items.  Prefer the
+  ** declaring slot's parameterized 'of' smuggled into the ASpecRef; a
+  ** top-level instance has no such slot, so fall back to the type's own
+  ** 'of' meta which is how 'Foos: Dict <of:Foo>' types its items.  Walk
+  ** the bases since an AST spec has not inherited its meta yet.
+  private Spec? dictOf(ADict dict)
+  {
+    ref := dict.typeRef
+    if (ref.of != null) return ref.of
+    for (Spec? s := ref.isResolved ? ref.deref : null; s != null; s = s.base)
+    {
+      of := s.of(false)
+      if (of != null) return of
+    }
+    return null
   }
 
   private Void inferDictSlot(ADict dict, Spec slot)

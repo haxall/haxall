@@ -485,6 +485,64 @@ class CompileTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Dict Of Instances
+//////////////////////////////////////////////////////////////////////////
+
+  ** A Dict type with 'of' meta types its unnamed slots, so the items of
+  ** 'Foos: Dict <of:Foo>' need not repeat Foo on every row.  This is the
+  ** dict analog of a parameterized List typing its items.
+  Void testDictOfInstances()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    item := ns.spec("hx.test.xeto::DictOfItem")
+    sub  := ns.spec("hx.test.xeto::DictOfItemSub")
+
+    // items are typed by the enclosing 'of' without naming it, and
+    // carry the spec tag as if they had
+    x := ns.instance("hx.test.xeto::dictOf")
+    verifyDictOfItem(ns, x, "one", item, "One", Obj["x", "y"])
+    verifyDictOfItem(ns, x, "two", item, "Two", null)
+
+    // a slot may override the inferred type with a subtype; inferred
+    // and overridden items coexist in one dict
+    o := ns.instance("hx.test.xeto::dictOfOverride")
+    verifyDictOfItem(ns, o, "inferred", item, "Inferred", null)
+    verifyDictOfItem(ns, o, "overridden", sub, "Override", null)
+    verifyEq(((Dict)o->overridden)->extra, "x")
+
+    // 'of' is inherited by a subtype of the container
+    verifyDictOfItem(ns, ns.instance("hx.test.xeto::dictOfInherit"), "one", item, "One", null)
+
+    // 'of' a scalar type decodes the items, and one may override
+    s := ns.instance("hx.test.xeto::dictOfScalar")
+    verifyDictOfScalar(ns, s, "d1", Date("2024-11-26"))
+    verifyDictOfScalar(ns, s, "d2", Date("2024-11-27"))
+    verifyDictOfScalar(ns, s, "d3", Date("2024-11-28"))
+
+    // 'of' applies through a declared slot for both dict and scalar
+    nested := ns.instance("hx.test.xeto::dictOfNested")
+    verifyDictOfItem(ns, nested->table, "one", item, "One", Obj["x"])
+    verifyDictOfScalar(ns, nested->scalars, "d1", Date("2024-11-26"))
+  }
+
+  private Void verifyDictOfItem(Namespace ns, Dict parent, Str name, Spec item, Str dis, Obj[]? tags)
+  {
+    x := (Dict)parent.trap(name)
+    verifySame(ns.specOf(x), item)
+    verifyEq(x["spec"], Ref(item.qname))
+    verifyEq(x->name, dis)
+    verifyEq(x["tags"], tags)
+  }
+
+  private Void verifyDictOfScalar(Namespace ns, Dict parent, Str name, Date expect)
+  {
+    x := parent.trap(name)
+    verifyEq(x, expect)
+    verifyEq(x.typeof, Date#)
+    verifySame(ns.specOf(x), ns.spec("sys::Date"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Data Instances
 //////////////////////////////////////////////////////////////////////////
 
