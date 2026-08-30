@@ -93,7 +93,6 @@ abstract class HxBoot
     if (Pod.find("ion", false) == null) return Str#.emptyList
     return [
       "sys.template",
-      "pi",
       "hx.ion",
       "aura",
       "aura.hx",

@@ -59,6 +59,7 @@ class HxdBoot : HxSysBoot
       "sys.api",
       "sys.comp",
       "sys.files",
+      "pi",
       "axon",
       "hx",
       "hx.api",
