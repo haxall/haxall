@@ -7,7 +7,7 @@
 //
 
 // Dispatch task function
-Task: Entity <text: "$<task>", icon: "task", color: "lime"> {
+Task: Entity <text: "$<task>", plural: "$<tasks>", icon: "task", color: "lime"> {
   // Marker tag for Task type
   task
 

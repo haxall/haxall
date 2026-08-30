@@ -13,6 +13,9 @@
   // Default color for visualization
   color: ColorName?
 
+  // Plural display text
+  plural: Text?
+
   // Display text
   text: Text?
 }
