@@ -33,6 +33,7 @@ class Build : BuildPod
                "web @{fan.depend}",
                "yaml @{fan.depend}",
                "xeto @{hx.depend}",
+               "pi @{hx.depend}",
                "haystack @{hx.depend}"]
     index   = ["xeto.repo": "https://github.com/ xetom::GithubRepo"]
     srcDirs = [`fan/ast/`,

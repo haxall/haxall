@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using pi
 using haystack
 
 **
@@ -78,6 +79,7 @@ const class SpecBindings
   {
     sys  := Pod.find("sys")
     xeto := Pod.find("xeto")
+    pi   := Pod.find("pi")
     hay  := Pod.find("haystack")
 
     // sys pod
@@ -110,6 +112,10 @@ const class SpecBindings
     add(RepoLibAvailabilityBinding(xeto.type("RepoLibAvailability")))
     add(SpecDictBinding           (xeto.type("Spec")))
     add(UnitQuantityBinding       (xeto.type("UnitQuantity")))
+
+    // pi pod
+    add(IconBinding  (pi.type("Icon")))
+    add(TextBinding  (pi.type("Text")))
 
     // haystack pod
     add(CoordBinding     (hay.type("Coord")))
@@ -512,6 +518,13 @@ internal const class FloatBinding : ScalarBinding
 }
 
 @Js
+internal const class IconBinding : ScalarBinding
+{
+  new make(Type type) : super(type.qname, type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Icon.fromStr(str, checked) }
+}
+
+@Js
 internal const class IntBinding : ScalarBinding
 {
   new make(Type type) : super(type.qname, type) {}
@@ -526,24 +539,17 @@ internal const class LibDependVersionsBinding : ScalarBinding
 }
 
 @Js
-internal const class LibMaturityBinding : ScalarBinding
-{
-  new make(Type type) : super("sys::LibMaturity", type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { LibMaturity.fromStr(str, checked) }
-}
-
-@Js
-internal const class RepoLibAvailabilityBinding : ScalarBinding
-{
-  new make(Type type) : super("sys.repo::RepoLibAvailability", type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { RepoLibAvailability.fromStr(str, checked) }
-}
-
-@Js
 internal const class LibFilePatternBinding : ScalarBinding
 {
   new make(Type type) : super("sys::LibFilePattern", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { LibFilePattern.fromStr(str, checked) }
+}
+
+@Js
+internal const class LibMaturityBinding : ScalarBinding
+{
+  new make(Type type) : super("sys::LibMaturity", type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { LibMaturity.fromStr(str, checked) }
 }
 
 @Js
@@ -579,6 +585,13 @@ internal const class RefBinding : ScalarBinding
 }
 
 @Js
+internal const class RepoLibAvailabilityBinding : ScalarBinding
+{
+  new make(Type type) : super("sys.repo::RepoLibAvailability", type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { RepoLibAvailability.fromStr(str, checked) }
+}
+
+@Js
 internal const class SpanBinding : ScalarBinding
 {
   new make(Type type) : super("sys::Span", type) {}
@@ -604,6 +617,13 @@ internal const class SymbolBinding : ScalarBinding
 {
   new make(Type type) : super("ph::Symbol", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Symbol.fromStr(str) }
+}
+
+@Js
+internal const class TextBinding : ScalarBinding
+{
+  new make(Type type) : super(type.qname, type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Text.fromStr(str) }
 }
 
 @Js
