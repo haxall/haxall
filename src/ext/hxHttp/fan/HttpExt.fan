@@ -133,7 +133,7 @@ const class HttpExt : ExtObj, IHttpExt
     if (routeExt(routeName, req, res)) return
     if (routeWellKnown(routeName, req, res)) return
 
-    // no system route matched; check if ion claims this hostname
+    // no system route matched; check if a www ext claims this hostname
     if (routeVirtualHost(req, res)) return
 
     // if route name is empty then authenticate and perform index redirect
