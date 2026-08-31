@@ -125,6 +125,7 @@ internal class HttpRepoSession : MRemoteRepoSession
         it.latestMaturity  = LibMaturity.fromStr(x["latestMaturity"]?.toStr ?: "stable")
         it.latestPublished = x["latestPublished"] == null ? null : DateTime.fromStr(x["latestPublished"].toStr)
         it.latestStable    = x["latestStable"] == null ? null : Version.fromStr(x["latestStable"].toStr)
+        it.deprecated      = x["deprecated"]
         it.doc             = x["doc"]
       }
     }

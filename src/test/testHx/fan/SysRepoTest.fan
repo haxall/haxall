@@ -365,6 +365,7 @@ class SysRepoTest : HxTest
     verifyEq(d["latestMaturity"], maturity)
     verifyEq(d["latestPublished"], null)
     verifyEq(d["latestStable"], maturity === LibMaturity.stable ? d["latestVersion"] : null)
+    verifyEq(d["deprecated"], null)
     verifyEq(d["availability"], null)
     verifyEq(d["depends"], null)
     verifyEq(d["digest"], null)

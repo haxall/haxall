@@ -57,18 +57,19 @@ const mixin RepoServer
     return Etc.dictFromMap(acc)
   }
 
-  ** Build a RepoLibSummary dict describing the lib itself.  Only libs
-  ** which serve something are reported, so there is no availability.
-  static Dict toRepoLibSummary(Str lib, Version latestVersion, LibMaturity latestMaturity, DateTime? latestPublished := null, Version? latestStable := null, Str? doc := null)
+  ** Map a RepoLibSummary to its wire dict.  Only libs which serve
+  ** something are reported, so there is no availability.
+  static Dict toRepoLibSummary(RepoLibSummary x)
   {
     acc := Str:Obj[:]
     acc.ordered = true
-    acc["lib"] = lib
-    acc["latestVersion"] = latestVersion
-    acc["latestMaturity"] = latestMaturity
-    acc.addNotNull("latestPublished", latestPublished)
-    acc.addNotNull("latestStable", latestStable)
-    acc.addNotNull("doc", doc != null && doc.isEmpty ? null : doc)
+    acc["lib"] = x.lib
+    acc["latestVersion"] = x.latestVersion
+    acc["latestMaturity"] = x.latestMaturity
+    acc.addNotNull("latestPublished", x.latestPublished)
+    acc.addNotNull("latestStable", x.latestStable)
+    acc.addNotNull("deprecated", x.deprecated)
+    acc.addNotNull("doc", x.doc != null && x.doc.isEmpty ? null : x.doc)
     acc["spec"] = Ref("sys.repo::RepoLibSummary")
     return Etc.dictFromMap(acc)
   }
@@ -139,7 +140,14 @@ const class NamespaceRepoServer : RepoServer
     page := matches.getRange(0..<limit.min(matches.size)).map |v->Dict|
     {
       stable := v.maturity === LibMaturity.stable ? v.version : null
-      return RepoServer.toRepoLibSummary(v.name, v.version, v.maturity, null, stable, v.doc)
+      return RepoServer.toRepoLibSummary(MRepoLibSummary
+      {
+        it.lib            = v.name
+        it.latestVersion  = v.version
+        it.latestMaturity = v.maturity
+        it.latestStable   = stable
+        it.doc            = v.doc
+      })
     }
     return RepoServer.toRepoSearch(page, matches.size)
   }

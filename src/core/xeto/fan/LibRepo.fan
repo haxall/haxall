@@ -310,6 +310,10 @@ const mixin RepoLibSummary
   ** no stable release
   abstract Version? latestStable()
 
+  ** Deprecation message when the whole library is deprecated, or
+  ** null when it is not
+  abstract Str? deprecated()
+
   ** Summary documentation from the lib meta
   abstract Str? doc()
 
@@ -326,6 +330,7 @@ const class MRepoLibSummary : RepoLibSummary
   override const LibMaturity latestMaturity
   override const DateTime? latestPublished
   override const Version? latestStable
+  override const Str? deprecated
   override const Str? doc
 }
 
