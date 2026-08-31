@@ -22,6 +22,10 @@ class JsonExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
+    box := opts["box"] ?: "none"
+    if (box != "none" && box != "auto" && box != "all")
+      throw ArgErr("Invalid JSON scalar boxing mode: ${box}")
+    this.instanceScalarOpts = Etc.dict1("box", box)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -59,14 +63,19 @@ class JsonExporter : Exporter
     relId := XetoUtil.qnameToName(instance.id.id)
     prop(relId).obj
 
+    instanceValues = true
+
     spec := instance["spec"]
-    if (spec != null) dictPair("spec", spec)
+    if (spec != null) dictPairPlain("spec", spec)
 
     instance.each |v, n|
     {
       if (n == "spec") return
-      dictPair(n, v)
+      if (n == "id") dictPairPlain(n, v)
+      else dictPair(n, v)
     }
+
+    instanceValues = false
 
     objEnd.propEnd
     return this
@@ -168,7 +177,18 @@ class JsonExporter : Exporter
 
   private This dictPair(Str n, Obj v)
   {
-    prop(n).val(v).propEnd
+    if (instanceValues && (n == "id" || n == "spec"))
+      return dictPairPlain(n, v)
+    return prop(n).val(v).propEnd
+  }
+
+  ** Structural identity fields stay plain even when instance values use
+  ** lossless scalar boxes, so consumers can locate and type each record.
+  private This dictPairPlain(Str n, Obj v)
+  {
+    prop(n)
+    JetoWriter(ns, out, null, boxNone).writeVal(v)
+    return propEnd
   }
 
   private This list(Obj[] x)
@@ -182,13 +202,11 @@ class JsonExporter : Exporter
     return this
   }
 
-  ** Boxing is pinned off: the schema types every scalar as a string with a
-  ** pattern, so a boxed scalar - an object - would not validate against the
-  ** schema this exporter itself generates.  Do not let this inherit the
-  ** codec default, which is auto.
+  ** Schema data retains the established unboxed JSON format. An explicit
+  ** instance transport mode may box runtime scalars so their types survive.
   private This scalar(Obj x)
   {
-    JetoWriter(ns, out, null, boxNone).writeVal(x)
+    JetoWriter(ns, out, null, instanceValues ? instanceScalarOpts : boxNone).writeVal(x)
     return this
   }
 
@@ -279,4 +297,6 @@ class JsonExporter : Exporter
 
   private Bool[] firsts := Bool[true]    // object state stack
   private Bool lastWasEnd
+  private Bool instanceValues
+  private const Dict instanceScalarOpts
 }

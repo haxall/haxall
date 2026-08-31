@@ -40,6 +40,24 @@ class RdfExportTest : AbstractXetoTest
     verifyEq(countMatches(rdf, "temp:Person.dis\n  a rdf:Property ;"), 1)
   }
 
+  Void testAbstractSpecRejectsDirectType()
+  {
+    rdf := export(
+      Str<|AbstractThing : Dict <abstract> {
+               dis: Str
+             }
+
+             ConcreteThing : AbstractThing|>)
+
+    abstractRdf := rdf[rdf.index("temp:AbstractThing\n")..<rdf.index("temp:ConcreteThing\n")]
+    verify(abstractRdf.contains("a sh:NodeShape ;"), abstractRdf)
+    verify(abstractRdf.contains("sh:path rdf:type ;"), abstractRdf)
+    verify(abstractRdf.contains("sh:hasValue temp:AbstractThing"), abstractRdf)
+
+    concrete := rdf[rdf.index("temp:ConcreteThing\n")..-1]
+    verifyFalse(concrete.contains("sh:hasValue temp:ConcreteThing"), concrete)
+  }
+
   Void testScalarConstraints()
   {
     rdf := export(
@@ -154,6 +172,7 @@ class RdfExportTest : AbstractXetoTest
 
                  Asset : Dict {
                    *height: Number?<minVal:0, maxVal:300>
+                   *tracked: Marker?
                  }
 
                  Equip : Asset <doc:"Line one\nLine \"two\" \\ dollar \$"> {
@@ -179,6 +198,7 @@ class RdfExportTest : AbstractXetoTest
                    equip
                    fixed: Str <invariant> "ok"
                    height: Int?<minVal:100>
+                   tracked: Marker
                    unit: Unit <quantity:"temperature">
                    percent: Number <unit:"%">
                  }
@@ -238,6 +258,7 @@ class RdfExportTest : AbstractXetoTest
     verify(first.contains("rdfs:comment \"Line one\\nLine \\\"two\\\" \\\\ dollar \$\"@en"), first)
     verify(first.contains("sh:zeroOrMorePath temp:Equip.related"), first)
     verify(first.contains("rdfs:subPropertyOf temp:Asset.height ;"), first)
+    verify(first.contains("temp:Equip.tracked\n  a sys:Marker ;\n  rdfs:subPropertyOf temp:Asset.tracked ;"), first)
     verify(first.contains("rdfs:subClassOf temp:Named, temp:Located ;"), first)
     verify(first.contains("temp:Heating rdfs:subClassOf temp:ThermalProcess ."), first)
     verify(first.contains("temp:Cooling rdfs:subClassOf temp:ThermalProcess ."), first)
@@ -434,6 +455,25 @@ class RdfExportTest : AbstractXetoTest
     address := instanceBlock(rdf, "address1")
     verify(address.contains("a sys:Entity, temp:Address ;"), address)
     verify(address.contains("temp:Address.city \"Norfolk\"^^xsd:string ;"), address)
+  }
+
+  Void testInheritedGlobalUriInstance()
+  {
+    rdf := exportWithOpts(
+      Str<|Base : Dict {
+               *baseUri: Uri?
+               *unused: Str?
+               *unusedMarker: Marker?
+             }
+
+             Site : Base
+
+             @site1: Site {
+               baseUri: Uri "https://example.com/base/"
+             }|>, Etc.makeDict(["instancesOnly":Marker.val]))
+
+    verify(rdf.contains("temp:Site.baseUri \"https://example.com/base/\"^^xsd:anyURI ;"), rdf)
+    verifyFalse(rdf.contains("unused"), rdf)
   }
 
   Void testChoiceShapesAndInstances()

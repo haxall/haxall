@@ -197,8 +197,9 @@ class RdfExporter : Exporter
       if (s.isMarker) markers.add(s)
       else props.add(s)
     }
+    isAbstract := x.meta.has("abstract")
     hasShape := !x.isEnum &&
-                ((x.isCompound && x.isOr) || !props.isEmpty || markers.any |s| { !s.isMaybe })
+                (isAbstract || (x.isCompound && x.isOr) || !props.isEmpty || markers.any |s| { !s.isMaybe })
 
     qname(x.qname).nl
 
@@ -249,6 +250,17 @@ class RdfExporter : Exporter
         w("  sh:or (").nl
         x.bases.each |member| { w("    [ sh:class ").qname(member.qname).w(" ]").nl }
         w("  ) ;").nl
+      }
+      if (isAbstract)
+      {
+        // Concrete descendants remain valid; reject only an instance whose
+        // rdf:type directly names this abstract spec.
+        w("  sh:not [").nl
+        w("    sh:property [").nl
+        w("      sh:path rdf:type ;").nl
+        w("      sh:hasValue ").qname(x.qname).nl
+        w("    ]").nl
+        w("  ] ;").nl
       }
       props.each |s| { propShape(s) }
       markers.each |s| { if (!s.isMaybe) markerShape(s) }
@@ -808,8 +820,9 @@ class RdfExporter : Exporter
       case "sys::TimeZone": return "xsd:string"
     }
 
-    // User-defined Scalar subtypes have string lexical values unless this
-    // profile assigns their qname a more specific datatype above.
+    // sys is a closed runtime vocabulary, so an unlisted sys scalar is
+    // unsupported. A declared non-sys Scalar is the profile's custom string
+    // datatype extension unless a more specific mapping appears above.
     if (type.isScalar && type.lib.name != "sys") return "xsd:string"
     throw UnsupportedErr("RDF scalar datatype not supported: ${type.qname}")
   }
@@ -971,8 +984,18 @@ class RdfExporter : Exporter
       val = wrapped.val
     }
 
-    if (qname == "sys::Str" || (type.isScalar && type.lib.name != "sys"))
+    if (qname == "sys::Str")
       return val as Str ?: throw UnsupportedErr("Expected Str for ${context}, not ${val.typeof}")
+
+    if (type.isScalar && type.lib.name != "sys")
+    {
+      str := val as Str
+      if (str != null) return str
+      binding := type.binding
+      if (binding.isScalar && val.typeof.fits(binding.type))
+        return binding.encodeScalar(val)
+      throw UnsupportedErr("Expected ${binding.type} for ${context}, not ${val.typeof}")
+    }
 
     if (qname == "sys::Int")
     {
@@ -1074,6 +1097,8 @@ class RdfExporter : Exporter
   {
     qname(x.qname).nl
     w("  a sys:Marker ;").nl
+    if (x.base != null && !x.base.isType)
+      w("  rdfs:subPropertyOf ").qname(x.base.qname).w(" ;").nl
     labelAndDoc(x)
     w(".").nl
     return this
@@ -1135,6 +1160,9 @@ class RdfExporter : Exporter
 
   private Void instanceMembers(Dict instance, Spec spec, Str indent)
   {
+    storedNames := Str:Bool[:]
+    instance.each |val, name| { storedNames[name] = true }
+
     choiceMarkers := Str:Bool[:]
     spec.slots.each |slot|
     {
@@ -1155,24 +1183,19 @@ class RdfExporter : Exporter
       if (member.name == "id" || member.name == "spec" || member.isChoice) return
       if (choiceMarkers.containsKey(member.name)) return
 
-      val := member.val
       slot := instanceMemberSpec(spec, member)
-      // Global-slot reflection may expose the declaration without carrying the
-      // value already materialized on the completed instance dictionary.
-      if (val == null && instance.has(member.name)) val = instance[member.name]
-      if (val == null && !slot.isMaybe &&
-          (slot.type.isScalar || slot.type.isEnum) && slot.meta.has("val"))
-        val = slot.meta["val"]
+      val := storedNames.containsKey(member.name) ? member.val : null
       if (val == null) return
 
       // The runtime Ref type uses @x as an internal construction placeholder.
       // Only export it when the instance actually authored that member.
       ref := val as Ref
-      if (ref != null && ref.id == "x" && !instance.has(member.name)) return
+      if (ref != null && ref.id == "x" && !storedNames.containsKey(member.name)) return
 
-      // Parameterized list metadata such as `of` and size constraints lives
-      // on the slot spec, not the shared sys::List type.
-      type := slot.isSlot && slot.type.isList ? slot : (slot.isSlot ? slot.type : slot)
+      // Slots and globals both wrap their value type. Parameterized list
+      // metadata such as `of` and size constraints remains on that wrapper.
+      isMember := slot.isSlot || slot.isGlobal
+      type := isMember && slot.type.isList ? slot : (isMember ? slot.type : slot)
       instanceProperties(spec, member).each |property|
       {
         instanceMember(property, type, val, indent)

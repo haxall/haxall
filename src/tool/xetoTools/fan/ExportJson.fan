@@ -21,6 +21,9 @@ internal class ExportJson : ExportCmd
   @Opt { aliases=["e"]; help = "Generate inherited effective meta/slots (default is own)" }
   Bool effective
 
+  @Opt { help = "Instance scalar boxing: none, auto, or all (default none)" }
+  Str box := "none"
+
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
@@ -32,6 +35,7 @@ internal class ExportJson : ExportCmd
   {
     opts := Str:Obj[:]
     if (effective) opts["effective"] = Marker.val
+    opts["box"] = box
     return JsonExporter(ns, out, Etc.makeDict(opts))
   }
 
@@ -40,4 +44,3 @@ internal class ExportJson : ExportCmd
     t.toStr + ".json"
   }
 }
-
