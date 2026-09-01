@@ -138,8 +138,9 @@ class SpecTest : AbstractXetoTest
   {
     ns := createNamespace(["ph.points"])
 
-    // AirTempPoint : NumberPoint <abstract> {
-    // AirTempSensor : AirTempPoint & SensorPoint <abstract>
+    // FluidTempPoint : NumberPoint <abstract> {
+    // FluidTempSensor : FluidTempPoint & SensorPoint <abstract>
+    // AirTempSensor : FluidTempSensor { air }
     // DischargeAirTempSensor : AirTempSensor { discharge }
 
     and        := ns.spec("sys::And")
@@ -151,8 +152,9 @@ class SpecTest : AbstractXetoTest
     point      := ns.spec("ph::Point")
     numPt      := ns.spec("ph::NumberPoint")
     sensor     := ns.spec("ph::SensorPoint")
-    tempPt     := ns.spec("ph.points::AirTempPoint")
-    tempSensor := ns.spec("ph.points::AirTempSensor")
+    tempPt     := ns.spec("ph.points::FluidTempPoint")
+    tempSensor := ns.spec("ph.points::FluidTempSensor")
+    airTempSensor := ns.spec("ph.points::AirTempSensor")
     dat        := ns.spec("ph.points::DischargeAirTempSensor")
 
     verifyEq(obj.base, null)
@@ -166,13 +168,15 @@ class SpecTest : AbstractXetoTest
     verifySame(tempPt.base, numPt)
     verifySame(tempSensor.base, and)
     verifyEq(tempSensor.ofs, Spec[tempPt, sensor])
-    verifySame(dat.base, tempSensor)
+    verifySame(airTempSensor.base, tempSensor)
+    verifySame(dat.base, airTempSensor)
 
     verifyEq(obj.bases, Spec[,])
     verifyEq(coll.bases, Spec[obj])
     verifyEq(tempPt.bases, Spec[numPt])
     verifyEq(tempSensor.bases, Spec[tempPt, sensor])
-    verifyEq(dat.bases, Spec[tempSensor])
+    verifyEq(airTempSensor.bases, Spec[tempSensor])
+    verifyEq(dat.bases, Spec[airTempSensor])
 
     verifyInheritance(obj,        [obj])
     verifyInheritance(coll,       [obj, coll])
@@ -184,7 +188,8 @@ class SpecTest : AbstractXetoTest
     verifyInheritance(sensor,     [obj, coll, dict, entity, phe, point, sensor])
     verifyInheritance(tempPt,     [obj, coll, dict, entity, phe, point, numPt, tempPt])
     verifyInheritance(tempSensor, [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor])
-    verifyInheritance(dat,        [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, dat])
+    verifyInheritance(airTempSensor, [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, airTempSensor])
+    verifyInheritance(dat,        [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, airTempSensor, dat])
   }
 
   Void verifyInheritance(Spec spec, Spec[] expect)
@@ -262,20 +267,26 @@ class SpecTest : AbstractXetoTest
 
     // env.print(env.spec("ph.points::DischargeAirTempSensor"))
 
-    s := verifyIsa(ns, "ph.points::AirFlowSensor", "sys::And", true)
-    verifyIsa(ns, "ph.points::AirFlowSensor", "ph::Point", true)
-    verifyIsa(ns, "ph.points::AirFlowSensor", "ph::SensorPoint", true)
-    verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Entity", true)
-    verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Dict", true, false)
+    s := verifyIsa(ns, "ph.points::FluidFlowSensor", "sys::And", true)
+    verifyIsa(ns, "ph.points::FluidFlowSensor", "ph::Point", true)
+    verifyIsa(ns, "ph.points::FluidFlowSensor", "ph::SensorPoint", true)
+    verifyIsa(ns, "ph.points::FluidFlowSensor", "sys::Entity", true)
+    verifyIsa(ns, "ph.points::FluidFlowSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, true)
 
-    s = verifyIsa(ns, "ph.points::AirTempSensor", "ph.points::AirTempPoint", true)
+    s = verifyIsa(ns, "ph.points::AirFlowSensor", "ph.points::FluidFlowSensor", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "ph.points::FluidFlowPoint", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "ph::SensorPoint", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Dict", true, false)
+    verifyEq(s.isAnd, false)
+
+    s = verifyIsa(ns, "ph.points::AirTempSensor", "ph.points::FluidTempPoint", true)
     s = verifyIsa(ns, "ph.points::AirTempSensor", "ph::Point", true)
     s = verifyIsa(ns, "ph.points::AirTempSensor", "sys::Entity", true)
-    verifyEq(s.isAnd, true)
+    verifyEq(s.isAnd, false)
 
     s = verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph::Point", true)
-    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::AirTempPoint", true)
+    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::FluidTempPoint", true)
     verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
     verifyIsa(ns, "ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, false)
@@ -520,13 +531,15 @@ class SpecTest : AbstractXetoTest
       "tz:TimeZone?", "writable:Marker?",
       "equips:Query"]
     numPtSlots := ptSlots.dup.addAll(["unit:Unit", "maxVal:Number?", "minVal:Number?"])
-    afSlots    := numPtSlots.dup.addAll(["air:Marker", "flow:Marker"])
-    afsSlots   := afSlots.dup.add("sensor:Marker")
+    ffSlots    := numPtSlots.dup.add("flow:Marker")
+    ffsSlots   := ffSlots.dup.add("sensor:Marker")
+    afsSlots   := ffsSlots.dup.add("air:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")
 
     verifySlots(ph.type("Point"), ptSlots)
     verifySlots(ph.type("NumberPoint"), numPtSlots)
-    verifySlots(phx.type("AirFlowPoint"), afSlots)
+    verifySlots(phx.type("FluidFlowPoint"), ffSlots)
+    verifySlots(phx.type("FluidFlowSensor"), ffsSlots)
     verifySlots(phx.type("AirFlowSensor"), afsSlots)
     verifySlots(phx.type("DischargeAirFlowSensor"), dafsSlots)
 
