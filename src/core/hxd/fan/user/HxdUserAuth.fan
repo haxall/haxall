@@ -9,6 +9,7 @@
 using concurrent
 using web
 using auth
+using xeto
 using haystack
 using hx
 using hxm
@@ -19,11 +20,12 @@ using folio
 **
 internal class HxdUserAuth
 {
-  new make(HxdUserExt ext, WebReq req, WebRes res)
+  new make(HxdUserExt ext, WebReq req, WebRes res, Dict? opts := null)
   {
     this.ext = ext
     this.req = req
     this.res = res
+    this.skipLogin = opts != null && opts.has("skipLogin")
   }
 
   const HxdUserExt ext
@@ -31,6 +33,9 @@ internal class HxdUserAuth
   WebReq req { private set }
 
   WebRes res { private set }
+
+  ** Return null instead of redirecting to the login page
+  const Bool skipLogin
 
   private Folio db() { ext.db }
 
@@ -55,7 +60,7 @@ internal class HxdUserAuth
     if (res.isCommitted) return null
 
     // not authenticated, redirect to login page
-    res.redirect(ext.loginUri)
+    if (!skipLogin) res.redirect(ext.loginUri)
     return null
   }
 

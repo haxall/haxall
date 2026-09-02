@@ -79,6 +79,13 @@ const mixin IUserExt : SysExt
   ** Authenticate a web request and return an authenticated Context for the given rt.
   ** The context will be installed to current actor if authentication is successful.
   ** If the request is not authenticated then redirect to login page and return null.
+  **
+  ** Options:
+  **   - skipLogin: do not redirect to the login page when the request is
+  **     not authenticated; return null instead.  Used to serve public
+  **     content such as websites where an anonymous visitor is expected,
+  **     but a logged in user should still be seen as themselves.  The
+  **     caller creates a `guest` context for the null result.
   abstract Context? authenticate(WebReq req, WebRes res, Runtime rt, Dict? opts := null)
 
   ** Create a user instance.  The tags arg may be a dict or a map.

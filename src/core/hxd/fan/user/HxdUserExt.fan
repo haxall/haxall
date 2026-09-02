@@ -70,7 +70,7 @@ const class HxdUserExt : ExtObj, IUserExt
   override Context? authenticate(WebReq req, WebRes res, Runtime rt, Dict? opts := null)
   {
     // authenticate to get a session
-    session := HxdUserAuth(this, req, res).authenticate
+    session := HxdUserAuth(this, req, res, opts).authenticate
     if (session == null) return null
 
     // verify the user has access to the runtime
