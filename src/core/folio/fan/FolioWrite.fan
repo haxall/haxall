@@ -10,6 +10,8 @@ using xeto
 
 **
 ** FolioWrite encapsulates information about a potential commit/write.
+** The is* predicates are mutually exclusive, but not exhaustive - a
+** non-add commit whose rec does not exist is none of them.
 **
 @NoDoc const class FolioWrite
 {
@@ -22,7 +24,7 @@ using xeto
   @NoDoc static FolioWrite probeRec(Dict rec) { make(rec) }
 
   ** Pending commit of the given diff. The oldRec is the current version
-  ** of the rec, or null when the diff is an add.
+  ** of the rec, or null when the diff is an add or the rec does not exist.
   new makeCommit(Dict? oldRec, Diff diff)
   {
     this.oldRec = oldRec
@@ -35,20 +37,21 @@ using xeto
     this.oldRec = oldRec
   }
 
-  ** Current version of the rec being written, or null when committing an add
+  ** Current version of the rec being written, or null when committing
+  ** an add or when the rec does not exist
   const Dict? oldRec
 
   ** Diff being committed, or null for writes which are not a folio rec commit
   const Diff? diff
 
-  ** Is this a pending commit adding a new rec (no current rec)
-  Bool isAdd() { diff != null && oldRec == null }
+  ** Is this a pending commit adding a new rec
+  Bool isAdd() { diff != null && diff.isAdd }
 
-  ** Is this a pending commit updating an existing rec
-  Bool isUpdate() { diff != null && oldRec != null && !diff.isRemove }
+  ** Is this a pending commit updating an existing rec; implies oldRec
+  Bool isUpdate() { diff != null && diff.isUpdate && oldRec != null }
 
-  ** Is this a pending commit removing an existing rec
-  Bool isRemove() { diff != null && diff.isRemove }
+  ** Is this a pending commit removing an existing rec; implies oldRec
+  Bool isRemove() { diff != null && diff.isRemove && oldRec != null }
 
   ** Is this a general writability probe with no pending diff
   Bool isProbe() { diff == null }
