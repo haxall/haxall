@@ -3,7 +3,7 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   2 Sep 2026  Creation
+//   2 Sep 2026  Rex Fenley  Creation
 //
 
 using xeto
@@ -55,3 +55,4 @@ const class RdfQudtMap
   private const Str:Str units
   private const Str:Str[] quantities
 }
+
