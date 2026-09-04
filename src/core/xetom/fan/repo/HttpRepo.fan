@@ -153,7 +153,9 @@ internal class HttpRepoSession : MRemoteRepoSession
   }
 
   ** Invoke an op as a POST of the file's raw bytes and decode the
-  ** JSON response
+  ** JSON response.  The Expect header lets the server fail-fast on
+  ** auth or validation with the body never sent; a body the server
+  ** never reads aborts the connection on some platforms.
   private Obj? callPost(Str op, File file)
   {
     c := toWebClient(op, Str:Str[:])
@@ -162,10 +164,15 @@ internal class HttpRepoSession : MRemoteRepoSession
       c.reqMethod = "POST"
       c.reqHeaders["Content-Type"] = "application/xetolib"
       c.reqHeaders["Content-Length"] = file.size.toStr
+      c.reqHeaders["Expect"] = "100-continue"
       c.writeReq
-      file.in.pipe(c.reqOut, file.size)
-      c.reqOut.close
       c.readRes
+      if (c.resCode == 100)
+      {
+        file.in.pipe(c.reqOut, file.size)
+        c.reqOut.close
+        c.readRes
+      }
       checkRes(c, op)
       return JsonInStream(c.resStr.in).readJson
     }
