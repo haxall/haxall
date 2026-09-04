@@ -219,7 +219,7 @@ class GlobalTest : AbstractXetoTest
   {
     // we want to verify that constrained query slots don't use global slots
 
-    ns := createNamespace(["sys", "ph", "ph.points"])
+    ns := createNamespace(["sys", "ph", "ph.points", "ph.points.sugar"])
     lib := ns.compileTempLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" }, { lib:"ph.points" } } >
 
@@ -233,7 +233,7 @@ class GlobalTest : AbstractXetoTest
            |>)
 
      dict := ns.spec("sys::Dict")
-     dat := ns.spec("ph.points::DischargeAirTempSensor")
+     dat := ns.spec("ph.points.sugar::DischargeAirTempSensor")
 
      foo := lib.type("Foo")
      // env.print(foo)

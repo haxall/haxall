@@ -19,11 +19,11 @@ class EquipTest : AbstractXetoTest
 
   Void testBasics()
   {
-    ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "hx.test.xeto"])
+    ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"])
 
     specA   := ns.spec("hx.test.xeto::EquipA")
-    zat     := ns.spec("ph.points::ZoneAirTempSensor")
-    zah     := ns.spec("ph.points::ZoneAirHumiditySensor")
+    zat     := ns.spec("ph.points.sugar::ZoneAirTempSensor")
+    zah     := ns.spec("ph.points.sugar::ZoneAirHumiditySensor")
     qn0     := specA.slot("points").slot("_0").qname
     qn1     := specA.slot("points").slot("_1").qname
 

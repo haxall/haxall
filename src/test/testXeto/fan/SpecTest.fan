@@ -136,7 +136,7 @@ class SpecTest : AbstractXetoTest
 
   Void testInheritance()
   {
-    ns := createNamespace(["ph.points"])
+    ns := createNamespace(["ph.points.sugar"])
 
     // FluidTempPoint : NumberPoint <abstract> {
     // FluidTempSensor : FluidTempPoint & SensorPoint <abstract>
@@ -155,7 +155,7 @@ class SpecTest : AbstractXetoTest
     tempPt     := ns.spec("ph.points::FluidTempPoint")
     tempSensor := ns.spec("ph.points::FluidTempSensor")
     airTempSensor := ns.spec("ph.points::AirTempSensor")
-    dat        := ns.spec("ph.points::DischargeAirTempSensor")
+    dat        := ns.spec("ph.points.sugar::DischargeAirTempSensor")
 
     verifyEq(obj.base, null)
     verifySame(coll.base, obj)
@@ -207,7 +207,7 @@ class SpecTest : AbstractXetoTest
 
   Void testIsa()
   {
-    verifyLocalAndRemote(["ph.points"]) |ns| { doTestIsa(ns) }
+    verifyLocalAndRemote(["ph.points", "ph.points.sugar"]) |ns| { doTestIsa(ns) }
   }
 
   Void doTestIsa(Namespace ns)
@@ -285,10 +285,10 @@ class SpecTest : AbstractXetoTest
     s = verifyIsa(ns, "ph.points::AirTempSensor", "sys::Entity", true)
     verifyEq(s.isAnd, false)
 
-    s = verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph::Point", true)
-    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::FluidTempPoint", true)
-    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
-    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
+    s = verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "ph::Point", true)
+    verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "ph.points::FluidTempPoint", true)
+    verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
+    verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, false)
 
     verifyIsa(ns, "ph::DuctSection",   "sys::Choice",    true)
@@ -508,6 +508,7 @@ class SpecTest : AbstractXetoTest
     ns := createNamespace(["ph.points", "hx.test.xeto"])
     ph := ns.lib("ph")
     phx := ns.lib("ph.points")
+    phs := ns.lib("ph.points.sugar")
 
     equipSlots := [
       "id:Ref", "spec:Ref?", "equip:Marker",
@@ -541,7 +542,7 @@ class SpecTest : AbstractXetoTest
     verifySlots(phx.type("FluidFlowPoint"), ffSlots)
     verifySlots(phx.type("FluidFlowSensor"), ffsSlots)
     verifySlots(phx.type("AirFlowSensor"), afsSlots)
-    verifySlots(phx.type("DischargeAirFlowSensor"), dafsSlots)
+    verifySlots(phs.type("DischargeAirFlowSensor"), dafsSlots)
 
     cond := phx.type("WeatherCondPoint")
     verifyEq(cond.slot("enum")["val"], Ref("ph::WeatherCondEnum"))

@@ -413,7 +413,7 @@ class AxonTest : AbstractAxonTest
     verifyFits(Str<|fits({spec:@sys::Dict}, Dict)|>, true)
     verifyFits(Str<|fits({spec:@sys::Dict}, null)|>, true)
 
-    ns = initNamespace(["ph", "ph.points"])
+    ns = initNamespace(["ph", "ph.points", "ph.points.sugar"])
 
     verifyFits(Str<|fits({id:@x}, DischargeAirTempSensor)|>, false)
     verifyFits(Str<|fits({id:@x, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
