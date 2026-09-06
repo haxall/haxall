@@ -76,8 +76,6 @@ const class HxLibs : RuntimeLibs
 
   override Bool has(Str name) { map.containsKey(name) }
 
-  override Bool hasCompanion() { has(XetoUtil.companionLibName) }
-
   override RuntimeLib? get(Str name, Bool checked := true)
   {
     lib := map[name]

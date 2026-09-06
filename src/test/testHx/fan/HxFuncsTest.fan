@@ -616,7 +616,6 @@ class HxFuncsTest : HxTest
     // add
     eval("""companionAdd({rt:"spec", name:"Foo", base:@sys::Dict, spec:@sys::Spec, doc:":-)"})""")
     spec := proj.ns.spec("proj::Foo")
-    verifyEq(proj.libs.hasCompanion, true)
     verifySame(spec, proj.ns.spec("proj::Foo"))
     verifySame(spec.base, proj.ns.spec("sys::Dict"))
     verifyEq(spec.meta["doc"], ":-)")
