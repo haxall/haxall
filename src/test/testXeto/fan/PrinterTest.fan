@@ -277,12 +277,10 @@ class PrinterTest : AbstractXetoTest
               marker2: Marker <admin>
               marker3: Marker?
               marker4: Marker? <admin>
-              marker5: Marker? {
-                <axon: ---
+              marker5: Marker? <axon:---
                 foo
                 bar
                 --->
-              }
             }
             |>)
 
@@ -427,7 +425,6 @@ class PrinterTest : AbstractXetoTest
   **   - TODO: a spec referencing a synthetic top, printed as "@lib::_0"
   **   - TODO: a MultiRef value printed as a Str, and a List "val" default
   **     printed as a "sys::Obj {...}" dict
-  **   - TODO: multiline meta on a scalar printed as a "{...}" body
   private Bool includeInRoundTrip(Spec x)
   {
     if (XetoUtil.isAutoName(x.name)) return false
@@ -436,7 +433,7 @@ class PrinterTest : AbstractXetoTest
   }
 
   private const Str[] roundTripTodo := ["InstantiateA", "InstantiateB", "Sigs",
-                                        "Fidelity", "TestPrintD"]
+                                        "Fidelity"]
 
   ** Minimal pragma for a lib which depends on the one being round tripped
   private Str roundTripPragma(Lib lib)
@@ -487,6 +484,17 @@ class PrinterTest : AbstractXetoTest
       Str<|// documentation
            Foo: ph::Ahu & ph::Vav & ph::Fcu <admin> {
              dis: sys::Str? <axon:"src">
+           }
+           |>)
+
+    // a mixin prints with its "+" prefix on the AST path too, where the
+    // "mixin" meta comes from the source rather than being derived
+    verifyAst(
+      Str<|+Foo <admin> {
+             bar: Str?
+           }|>,
+      Str<|+Foo <admin> {
+             bar: sys::Str?
            }
            |>)
 

@@ -698,7 +698,7 @@ class XetoPrinter
   static const Str:Str skipInst := Str:Str[:].setList(["id", "name", "spec", "rt", "mod"])
 
   ** Always skip these which should be encoded outside of meta
-  static const Str:Str skipMeta := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "ofs", "base", "type", "slots", "maybe"])
+  static const Str:Str skipMeta := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "ofs", "base", "type", "slots", "maybe", "mixin"])
 
   const MNamespace ns       // xeto namespace
   private OutStream out     // output stream
@@ -715,7 +715,7 @@ class XetoPrinter
 @Js
 internal abstract const class XpSpec
 {
-  new make(Str? name, XpTypeRef? type, Dict metaOwn, Bool isEnum, Bool isMixin, XpSpec? parent)
+  new make(Str? name, XpTypeRef? type, Dict metaOwn, Bool isEnum, XpSpec? parent)
   {
     if (name != null && XetoUtil.isAutoName(name)) name = null
 
@@ -723,7 +723,6 @@ internal abstract const class XpSpec
     this.type       = type
     this.metaOwn    = metaOwn
     this.isEnum     = isEnum
-    this.isMixin    = isMixin
     this.isSlot     = parent != null
     this.isEnumItem = parent != null && parent.isEnum
     this.metaHeader = emptyMeta
@@ -739,7 +738,6 @@ internal abstract const class XpSpec
       // skip meta we handle specially; "sealed" is implied on an enum
       if (XetoPrinter.skipMeta.containsKey(n)) return
       if (isEnum && n == "sealed") return
-      if (isMixin && n == "mixin") return
       if (n == "doc") { this.doc = v.toStr; return }
       if (n == "val" && isScalar(v)) { this.val = v.toStr; return }
 
@@ -774,6 +772,9 @@ internal abstract const class XpSpec
   abstract Void eachSlot(|XpSpec| f)
 
   abstract Bool isNonCovariantOverride()
+
+  ** Is a mixin, declared by its "+" prefix rather than by "mixin" meta
+  abstract Bool isMixin()
 
   ** Is this a mixin slot which overrides an inherited slot, in which case
   ** its type is taken from the base and cannot be restated
@@ -815,7 +816,6 @@ internal abstract const class XpSpec
   private static const Str[] emptyMeta := Str[,]
 
   const Bool isEnum          // enum: sealed/val/item types are all derived
-  const Bool isMixin         // mixin: declared by "+" prefix, "mixin" meta is derived
   const Bool isSlot          // is this a slot of another spec
   const Bool isEnumItem      // slot of an enum: type is implied by parent
   const Str? name            // type name / slot name (null for autoName)
@@ -835,7 +835,7 @@ internal abstract const class XpSpec
 internal const class XpReflectSpec : XpSpec
 {
   new make(Spec spec, XpSpec? parent := null)
-    : super(spec.name, toType(spec), spec.metaOwn, spec.type.isEnum, spec.isMixin, parent)
+    : super(spec.name, toType(spec), spec.metaOwn, spec.type.isEnum, parent)
   {
     this.spec = spec
   }
@@ -852,6 +852,8 @@ internal const class XpReflectSpec : XpSpec
   override Bool hasSlots() { !spec.slotsOwn.isEmpty }
 
   override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s, this)) } }
+
+  override Bool isMixin() { spec.isMixin }
 
   override Bool isMixinOverride()
   {
@@ -874,7 +876,7 @@ internal const class XpReflectSpec : XpSpec
 internal const class XpAstSpec : XpSpec
 {
   new make(Dict ast, Bool top, XpSpec? parent := null)
-    : super(ast["name"], toType(ast, top), ast, false, false, parent)
+    : super(ast["name"], toType(ast, top), ast, false, parent)
   {
     this.slots = ast["slots"] as Grid
   }
@@ -889,6 +891,9 @@ internal const class XpAstSpec : XpSpec
   override Bool hasSlots() { slots != null && !slots.isEmpty }
 
   override Void eachSlot(|XpSpec| f) { slots?.each |s| { f(XpAstSpec(s, false, this)) } }
+
+  ** "mixin" is declared in the AST source, unlike the compiler derived facts
+  override Bool isMixin() { metaOwn.has("mixin") }
 
   override Bool isMixinOverride() { false }
 
