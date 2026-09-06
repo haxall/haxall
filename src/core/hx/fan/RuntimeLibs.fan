@@ -28,6 +28,9 @@ const mixin RuntimeLibs
   ** Check if there is an enabled library with given name
   abstract Bool has(Str name)
 
+  ** Check if runtime has a project companion lib and its compiled successfully
+  abstract Bool hasCompanion()
+
   ** Convenience to add one library
   abstract Void add(Str name)
 
