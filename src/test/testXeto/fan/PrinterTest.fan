@@ -69,6 +69,15 @@ class PrinterTest : AbstractXetoTest
            }
            |>)
 
+    // qualified id prints as its simple name
+    out = newCase(opts)
+    out.instance(Etc.dictx("id",Ref("some.lib::foo"), "dis","Foo"))
+    verifyInstance(
+      Str<|@foo: {
+             dis: "Foo"
+           }
+           |>)
+
     // instance with refs
     out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"), "a",Ref("abc"), "b",Ref("xyz-123", "Display")))
@@ -317,6 +326,26 @@ class PrinterTest : AbstractXetoTest
        Str<|TestPrintEnumKeys: Enum {
               utc <key:"UTC">
               newYork <key:"New_York">
+            }
+            |>)
+
+    // a compound base declares its ofs on the spec itself, not on sys::And
+    newCase(opts).spec(lib.spec("AB"))
+    verifyOutput(
+       Str<|// AB
+            AB: A & B <qux:"AB", s:Date 2024-03-01> {
+              z: Str
+            }
+            |>)
+
+    // a mixin is declared by its "+" prefix, and its items are still enum
+    // items even though the mixin spec itself is not the enum
+    newCase(opts).spec(lib.spec("CurStatus"))
+    verifyOutput(
+       Str<|+CurStatus <qux:"_self_"> {
+              ok <foo:"green">
+              down <foo:"yellow">
+              fault <foo:"red">
             }
             |>)
   }

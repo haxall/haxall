@@ -64,6 +64,12 @@ class XetoPrinter
       w(x.name)
       metaHeader(x)
     }
+    else if (x.isMixin)
+    {
+      // mixin is declared by its "+" prefix: "+Name <meta>"
+      wc('+').w(x.name)
+      metaHeader(x)
+    }
     else
     {
       if (x.showName) w(x.name).wc(':')
@@ -152,12 +158,11 @@ class XetoPrinter
   **     }
   This instance(Dict x)
   {
-    // leading id
+    // leading id, qualified ids print as their simple name
     id := x["id"] as Ref
     if (id != null)
     {
-      id = XetoUtil.qnameToName(id) ?: id
-      wc('@').w(id).wc(':').sp
+      wc('@').w(XetoUtil.qnameToName(id) ?: id.id).wc(':').sp
     }
 
     forceType := id == null
@@ -709,7 +714,7 @@ class XetoPrinter
 @Js
 internal abstract const class XpSpec
 {
-  new make(Str? name, XpTypeRef? type, Dict metaOwn, Bool isEnum, XpSpec? parent)
+  new make(Str? name, XpTypeRef? type, Dict metaOwn, Bool isEnum, Bool isMixin, XpSpec? parent)
   {
     if (name != null && XetoUtil.isAutoName(name)) name = null
 
@@ -717,6 +722,7 @@ internal abstract const class XpSpec
     this.type       = type
     this.metaOwn    = metaOwn
     this.isEnum     = isEnum
+    this.isMixin    = isMixin
     this.isSlot     = parent != null
     this.isEnumItem = parent != null && parent.isEnum
     this.metaHeader = emptyMeta
@@ -732,6 +738,7 @@ internal abstract const class XpSpec
       // skip meta we handle specially; "sealed" is implied on an enum
       if (XetoPrinter.skipMeta.containsKey(n)) return
       if (isEnum && n == "sealed") return
+      if (isMixin && n == "mixin") return
       if (n == "doc") { this.doc = v.toStr; return }
       if (n == "val" && isScalar(v)) { this.val = v.toStr; return }
 
@@ -803,6 +810,7 @@ internal abstract const class XpSpec
   private static const Str[] emptyMeta := Str[,]
 
   const Bool isEnum          // enum: sealed/val/item types are all derived
+  const Bool isMixin         // mixin: declared by "+" prefix, "mixin" meta is derived
   const Bool isSlot          // is this a slot of another spec
   const Bool isEnumItem      // slot of an enum: type is implied by parent
   const Str? name            // type name / slot name (null for autoName)
@@ -822,7 +830,7 @@ internal abstract const class XpSpec
 internal const class XpReflectSpec : XpSpec
 {
   new make(Spec spec, XpSpec? parent := null)
-    : super(spec.name, toType(spec), spec.metaOwn, spec.isEnum, parent)
+    : super(spec.name, toType(spec), spec.metaOwn, spec.type.isEnum, spec.isMixin, parent)
   {
     this.spec = spec
   }
@@ -830,7 +838,7 @@ internal const class XpReflectSpec : XpSpec
   private static XpTypeRef? toType(Spec spec)
   {
     if (spec.flavor.isMember) return XpTypeRef.makeSpec(spec)
-    if (spec.base != null) return XpTypeRef.makeSpec(spec.base)
+    if (spec.base != null) return XpTypeRef.makeSpec(spec.base, spec)
     return null // sys::Obj
   }
 
@@ -856,7 +864,7 @@ internal const class XpReflectSpec : XpSpec
 internal const class XpAstSpec : XpSpec
 {
   new make(Dict ast, Bool top, XpSpec? parent := null)
-    : super(ast["name"], toType(ast, top), ast, false, parent)
+    : super(ast["name"], toType(ast, top), ast, false, false, parent)
   {
     this.slots = ast["slots"] as Grid
   }
@@ -887,14 +895,16 @@ internal const class XpAstSpec : XpSpec
 @Js
 internal const class XpTypeRef
 {
-  new makeSpec(Spec spec)
+  ** The ofs of a compound base are declared by the derived spec, not by
+  ** sys::And/sys::Or itself, so they come from ofsOn when it is passed
+  new makeSpec(Spec spec, Spec ofsOn := spec)
   {
     type := spec.type
     this.id    = type.id
     this.lib   = type.lib.name
     this.name  = type.name
     this.maybe = spec.flavor.isMember && spec.meta["maybe"] == Marker.val
-    this.ofs   = spec.ofs(false)?.map |x->XpTypeRef| { makeSpec(x) }
+    this.ofs   = ofsOn.ofs(false)?.map |x->XpTypeRef| { makeSpec(x) }
   }
 
   new makeId(Ref id, Dict meta := Etc.dict0)
