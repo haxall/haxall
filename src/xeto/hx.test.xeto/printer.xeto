@@ -15,6 +15,7 @@ TestPrint: Dict {
   date5: Date?
   date6: Date?
   date7: Date?
+  date8: Date?
 
   sv1: StatusVal?
   sv2: StatusVal?
@@ -36,6 +37,7 @@ TestPrintA: TestPrint {
   date5: <metaQ> "2026-04-20"
   date6: <metaQ, metaStr:"src code">
   date7: Date <metaQ> // comment
+  date8: Date?
 }
 
 TestPrintB: TestPrint {
@@ -70,3 +72,12 @@ TestPrintE: TestPrint {
   s5: "123.4gH₂O/kgAir 123"
 }
 
+TestPrintEnum: Enum {
+  alpha
+  beta
+}
+
+TestPrintEnumKeys: Enum {
+  utc <key:"UTC">
+  newYork <key:"New_York">
+}

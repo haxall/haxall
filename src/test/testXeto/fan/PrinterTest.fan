@@ -219,6 +219,7 @@ class PrinterTest : AbstractXetoTest
               date6: <metaQ, metaStr:"src code">
               // comment
               date7: Date <metaQ>
+              date8: Date?
             }
             |>)
 
@@ -299,6 +300,25 @@ class PrinterTest : AbstractXetoTest
               s5: Str? "123.4gH₂O/kgAir 123"
             }
             |>)
+
+    // enum: implied "sealed"/"val" meta and implied item types are
+    // all dropped, otherwise the output does not parse back
+    newCase(opts).spec(lib.spec("TestPrintEnum"))
+    verifyOutput(
+       Str<|TestPrintEnum: Enum {
+              alpha
+              beta
+            }
+            |>)
+
+    // enum items keep their own meta
+    newCase(opts).spec(lib.spec("TestPrintEnumKeys"))
+    verifyOutput(
+       Str<|TestPrintEnumKeys: Enum {
+              utc <key:"UTC">
+              newYork <key:"New_York">
+            }
+            |>)
   }
 
   Void verifySpecMeta(Spec spec, Spec type, Str:Obj expectMeta)
@@ -347,6 +367,16 @@ class PrinterTest : AbstractXetoTest
       Str<|// documentation
            Foo: ph::Ahu & ph::Vav & ph::Fcu <admin> {
              dis: sys::Str? <axon:"src">
+           }
+           |>)
+
+    // only a slot may drop its type to print as a bare marker
+    verifyAst(
+      Str<|Foo: Marker {
+             bar: Marker
+           }|>,
+      Str<|Foo: sys::Marker {
+             bar
            }
            |>)
   }

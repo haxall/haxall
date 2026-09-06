@@ -43,36 +43,42 @@ class XetoPrinter
   ** Output a spec
   This spec(Spec spec)
   {
-    doSpec(XpReflectSpec(spec), false)
+    doSpec(XpReflectSpec(spec))
   }
 
   ** Common implementation for reflect Spec and AST dict
-  private This doSpec(XpSpec x, Bool isSlot)
+  private This doSpec(XpSpec x)
   {
     // doc
     if (x.doc != null) this.doc(x.doc)
 
     // name: Type <meta> "val"
     tab
-    if (isSlot && x.isBareMarker)
+    if (x.isBareMarker)
     {
       w(x.name)
     }
+    else if (x.isEnumItem)
+    {
+      // enum item type is implied by its parent: "name <meta>"
+      w(x.name)
+      metaHeader(x)
+    }
     else
     {
-      if (x.name != null) w(x.name).wc(':')
-      if (x.type != null && (showInferredTypes || !x.isNonCovariantOverride)) sp.type(x.type)
+      if (x.showName) w(x.name).wc(':')
+      if (x.showType(showInferredTypes)) sp.type(x.type)
       metaHeader(x)
-      if (x.val != null) sp.quoted(x.val)
+      if (x.showVal) sp.quoted(x.val)
     }
 
-    // if no slots or inline meta, all done
-    if (!x.hasSlots && x.metaInline.isEmpty) return nl
+    // if no body, all done
+    if (!x.hasBody) return nl
 
     // { ... }
     sp.w("{").nl
     indent
-    x.eachSlot |s| { doSpec(s, true) }
+    x.eachSlot |s| { doSpec(s) }
     metaInline(x)
     unindent
     tab.w("}").nl
@@ -82,7 +88,7 @@ class XetoPrinter
   ** Write spec meta data dict
   private Void metaHeader(XpSpec x)
   {
-    if (x.metaHeader.isEmpty) return
+    if (!x.showMetaHeader) return
     sp.wc('<')
     spec := ns.sys.spec
     x.metaHeader.each |n, i|
@@ -175,7 +181,7 @@ class XetoPrinter
   ** Print AST spec representation
   This astSpec(Dict ast)
   {
-    doSpec(XpAstSpec(ast, true), false)
+    doSpec(XpAstSpec(ast, true))
   }
 
   ** Print AST instance representation
@@ -703,13 +709,16 @@ class XetoPrinter
 @Js
 internal abstract const class XpSpec
 {
-  new make(Str? name, XpTypeRef? type, Dict metaOwn)
+  new make(Str? name, XpTypeRef? type, Dict metaOwn, Bool isEnum, XpSpec? parent)
   {
     if (name != null && XetoUtil.isAutoName(name)) name = null
 
     this.name       = name
     this.type       = type
     this.metaOwn    = metaOwn
+    this.isEnum     = isEnum
+    this.isSlot     = parent != null
+    this.isEnumItem = parent != null && parent.isEnum
     this.metaHeader = emptyMeta
     this.metaInline = emptyMeta
 
@@ -720,8 +729,9 @@ internal abstract const class XpSpec
 
     metaOwn.each |v, n|
     {
-      // skip meta we handle specially
+      // skip meta we handle specially; "sealed" is implied on an enum
       if (XetoPrinter.skipMeta.containsKey(n)) return
+      if (isEnum && n == "sealed") return
       if (n == "doc") { this.doc = v.toStr; return }
       if (n == "val" && isScalar(v)) { this.val = v.toStr; return }
 
@@ -761,10 +771,26 @@ internal abstract const class XpSpec
 
   Bool noMeta() { metaHeader.isEmpty && metaInline.isEmpty }
 
-  Bool isBareMarker()
-  {
-    name != null && type != null && type.isMarker && !type.maybe && noMeta
-  }
+  ** Is marker with no meta
+  Bool isBareMarker() { isSlot && name != null && type != null && type.isMarker && !type.maybe && noMeta }
+
+  ** Show name
+  Bool showName() { name != null }
+
+  ** Show type
+  Bool showType(Bool force) { type != null && (force || !isNonCovariantOverride || !hasPostType) }
+
+  ** Show meta
+  Bool showMetaHeader() { !metaHeader.isEmpty }
+
+  ** Does anything follow the type in "name: Type <meta> val {...}"
+  Bool hasPostType() { showMetaHeader || showVal || hasBody }
+
+  ** An enum type's "val" is the compiler derived default item
+  Bool showVal() { val != null && !isEnum }
+
+  ** Is a "{...}" body required for slots or inline meta
+  Bool hasBody() { hasSlots || !metaInline.isEmpty }
 
   private static Bool isMetaInline(Obj v)
   {
@@ -776,6 +802,9 @@ internal abstract const class XpSpec
 
   private static const Str[] emptyMeta := Str[,]
 
+  const Bool isEnum          // enum: sealed/val/item types are all derived
+  const Bool isSlot          // is this a slot of another spec
+  const Bool isEnumItem      // slot of an enum: type is implied by parent
   const Str? name            // type name / slot name (null for autoName)
   const XpTypeRef? type      // type base / slot type (null for sys::Obj or inferred)
   const Dict metaOwn         // metaOwn
@@ -792,7 +821,8 @@ internal abstract const class XpSpec
 @Js
 internal const class XpReflectSpec : XpSpec
 {
-  new make(Spec spec) : super(spec.name, toType(spec), spec.metaOwn)
+  new make(Spec spec, XpSpec? parent := null)
+    : super(spec.name, toType(spec), spec.metaOwn, spec.isEnum, parent)
   {
     this.spec = spec
   }
@@ -808,7 +838,7 @@ internal const class XpReflectSpec : XpSpec
 
   override Bool hasSlots() { !spec.slotsOwn.isEmpty }
 
-  override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s)) } }
+  override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s, this)) } }
 
   override Bool isNonCovariantOverride()
   {
@@ -825,8 +855,8 @@ internal const class XpReflectSpec : XpSpec
 @Js
 internal const class XpAstSpec : XpSpec
 {
-  new make(Dict ast, Bool top)
-    : super(ast["name"], toType(ast, top), ast)
+  new make(Dict ast, Bool top, XpSpec? parent := null)
+    : super(ast["name"], toType(ast, top), ast, false, parent)
   {
     this.slots = ast["slots"] as Grid
   }
@@ -840,7 +870,7 @@ internal const class XpAstSpec : XpSpec
 
   override Bool hasSlots() { slots != null && !slots.isEmpty }
 
-  override Void eachSlot(|XpSpec| f) { slots?.each |s| { f(XpAstSpec(s, false)) } }
+  override Void eachSlot(|XpSpec| f) { slots?.each |s| { f(XpAstSpec(s, false, this)) } }
 
   override Bool isNonCovariantOverride() { false }
 
