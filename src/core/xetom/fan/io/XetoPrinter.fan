@@ -715,18 +715,27 @@ class XetoPrinter
 @Js
 internal abstract const class XpSpec
 {
-  new make(Str? name, XpTypeRef? type, Dict metaOwn, Bool isEnum, XpSpec? parent)
+  ** Construct with basics.  If using reflection we pass the spec which
+  ** is used to do some tricky checks that just cannot be done for AST dict
+  new make(Str? name, Spec? reflect, XpTypeRef? type, Dict metaOwn, XpSpec? parent)
   {
     if (name != null && XetoUtil.isAutoName(name)) name = null
 
     this.name       = name
     this.type       = type
     this.metaOwn    = metaOwn
-    this.isEnum     = isEnum
+    this.isEnum     = reflect != null && reflect.type.isEnum
     this.isSlot     = parent != null
     this.isEnumItem = parent != null && parent.isEnum
     this.metaHeader = emptyMeta
     this.metaInline = emptyMeta
+
+    // check for scalar value
+    valObj := metaOwn["val"]
+    if (valObj != null && isScalar(valObj)) this.val = valObj.toStr
+
+    // we can never use inline meta for scalar types
+    noInlineMeta := this.val != null || (reflect != null && reflect.type.isScalar)
 
     if (metaOwn.isEmpty) return
 
@@ -737,12 +746,12 @@ internal abstract const class XpSpec
     {
       // skip meta we handle specially; "sealed" is implied on an enum
       if (XetoPrinter.skipMeta.containsKey(n)) return
+      if (n == "val" && val != null) return
       if (isEnum && n == "sealed") return
       if (n == "doc") { this.doc = v.toStr; return }
-      if (n == "val" && isScalar(v)) { this.val = v.toStr; return }
 
       // check if we should inline it
-      if (isMetaInline(v))
+      if (!noInlineMeta && isMetaInline(v))
         inline.add(n)
       else
         header.add(n)
@@ -835,7 +844,7 @@ internal abstract const class XpSpec
 internal const class XpReflectSpec : XpSpec
 {
   new make(Spec spec, XpSpec? parent := null)
-    : super(spec.name, toType(spec), spec.metaOwn, spec.type.isEnum, parent)
+    : super(spec.name, spec, toType(spec), spec.metaOwn, parent)
   {
     this.spec = spec
   }
@@ -876,7 +885,7 @@ internal const class XpReflectSpec : XpSpec
 internal const class XpAstSpec : XpSpec
 {
   new make(Dict ast, Bool top, XpSpec? parent := null)
-    : super(ast["name"], toType(ast, top), ast, false, parent)
+    : super(ast["name"], null, toType(ast, top), ast, parent)
   {
     this.slots = ast["slots"] as Grid
   }
