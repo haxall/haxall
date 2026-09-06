@@ -58,9 +58,10 @@ class XetoPrinter
     {
       w(x.name)
     }
-    else if (x.isEnumItem)
+    else if (x.isEnumItem || x.isMixinOverride)
     {
-      // enum item type is implied by its parent: "name <meta>"
+      // type comes from the context - an enum item from its parent, a
+      // mixin slot from the slot it overrides: "name <meta>"
       w(x.name)
       metaHeader(x)
     }
@@ -774,6 +775,10 @@ internal abstract const class XpSpec
 
   abstract Bool isNonCovariantOverride()
 
+  ** Is this a mixin slot which overrides an inherited slot, in which case
+  ** its type is taken from the base and cannot be restated
+  abstract Bool isMixinOverride()
+
   Obj metaGet(Str n) { metaOwn.get(n) ?: throw Err("Missing meta: $n") }
 
   Bool noMeta() { metaHeader.isEmpty && metaInline.isEmpty }
@@ -848,6 +853,11 @@ internal const class XpReflectSpec : XpSpec
 
   override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s, this)) } }
 
+  override Bool isMixinOverride()
+  {
+    spec.parent != null && spec.parent.isMixin && spec.base.parent != null
+  }
+
   override Bool isNonCovariantOverride()
   {
     if (spec.flavor.isTop) return false
@@ -879,6 +889,8 @@ internal const class XpAstSpec : XpSpec
   override Bool hasSlots() { slots != null && !slots.isEmpty }
 
   override Void eachSlot(|XpSpec| f) { slots?.each |s| { f(XpAstSpec(s, false, this)) } }
+
+  override Bool isMixinOverride() { false }
 
   override Bool isNonCovariantOverride() { false }
 

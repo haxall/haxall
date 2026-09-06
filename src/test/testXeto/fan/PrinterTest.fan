@@ -8,6 +8,7 @@
 
 using xeto
 using xetom
+using xetoc
 using haystack
 
 **
@@ -338,6 +339,17 @@ class PrinterTest : AbstractXetoTest
             }
             |>)
 
+    // a mixin slot which overrides an inherited slot takes its type from
+    // the base, so the type (and its colon) must not be restated
+    newCase(opts).spec(lib.spec("Site"))
+    verifyOutput(
+       Str<|+Site <foo:"building"> {
+              // no taek
+              area <bar:"hello", foo:"AreaEditor">
+              newSlot: Str <foo:"hi">
+            }
+            |>)
+
     // a mixin is declared by its "+" prefix, and its items are still enum
     // items even though the mixin spec itself is not the enum
     newCase(opts).spec(lib.spec("CurStatus"))
@@ -356,6 +368,85 @@ class PrinterTest : AbstractXetoTest
     // echo("~~ $spec | $spec.type | $actualMeta")
     verifySame(spec.type, type)
     verifyDictEq(actualMeta, expectMeta)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Round Trip
+//////////////////////////////////////////////////////////////////////////
+
+  ** Print every top level spec of hx.test.xeto, recompile the printed
+  ** source as its own lib, and verify each spec survived the round trip.
+  ** This is the broad net: the printer must emit parsable source for
+  ** every spec shape the test lib exercises.
+  Void testRoundTrip()
+  {
+    lib  := ns.lib("hx.test.xeto")
+    tops := lib.specs.list.findAll |x| { includeInRoundTrip(x) }
+
+    // print all top level specs
+    src := StrBuf()
+    printer := XetoPrinter(ns, src.out, Etc.dict1("qnameForce", m))
+    tops.each |x| { printer.spec(x); src.add("\n") }
+
+    // stage as a lib which depends on the original
+    dir := tempDir + `roundtrip/`
+    dir.delete
+    dir.create
+    (dir + `lib.xeto`).out.print(roundTripPragma(lib)).close
+    (dir + `specs.xeto`).out.print(src.toStr).close
+
+    // recompile - any printer defect shows up as a compile error here
+    Lib? rt := null
+    try
+      rt = XetoCompiler.init |c|
+      {
+        c.ns      = ns
+        c.libName = "test.roundtrip"
+        c.input   = dir
+        c.build   = tempDir + `test.roundtrip.xetolib`
+      }.compileLib
+    catch (Err e)
+      fail("Cannot recompile printed source: $e.msg")
+
+    // every spec made it across with the same shape
+    verifyEq(rt.specs.list.size, tops.size)
+    tops.each |x|
+    {
+      a := rt.spec(x.name)
+      verifyEq(a.base?.name, x.base?.name, x.name)
+      verifyEq(a.isEnum,  x.isEnum,  x.name)
+      verifyEq(a.isMixin, x.isMixin, x.name)
+      verifyEq(a.slotsOwn.names.dup.sort, x.slotsOwn.names.dup.sort, x.name)
+    }
+  }
+
+  ** A spec is excluded from the round trip when reprinting it into a second
+  ** lib is not meaningful, or when the printer cannot yet express it:
+  **   - synthetic tops hoisted from an inline parameterized type
+  **   - a mixin on a sys type, which would duplicate its meta specs
+  **   - TODO: a spec referencing a synthetic top, printed as "@lib::_0"
+  **   - TODO: a MultiRef value printed as a Str, and a List "val" default
+  **     printed as a "sys::Obj {...}" dict
+  **   - TODO: multiline meta on a scalar printed as a "{...}" body
+  private Bool includeInRoundTrip(Spec x)
+  {
+    if (XetoUtil.isAutoName(x.name)) return false
+    if (x.isMixin && x.type.lib.name == "sys") return false
+    return !roundTripTodo.contains(x.name)
+  }
+
+  private const Str[] roundTripTodo := ["InstantiateA", "InstantiateB", "Sigs",
+                                        "Fidelity", "TestPrintD"]
+
+  ** Minimal pragma for a lib which depends on the one being round tripped
+  private Str roundTripPragma(Lib lib)
+  {
+    s := StrBuf()
+    s.add("pragma: Lib <\n  doc: \"round trip\"\n  version: \"0.0.1\"\n  depends: {\n")
+    lib.depends.each |d| { s.add("    { lib: ").add(d.name.toCode).add(" }\n") }
+    s.add("    { lib: ").add(lib.name.toCode).add(" }\n")
+    s.add("  }\n  org: { dis: \"Test\", uri: \"http://test/\" }\n>\n")
+    return s.toStr
   }
 
 //////////////////////////////////////////////////////////////////////////
