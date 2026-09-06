@@ -100,14 +100,16 @@ class RuntimeTest : HxTest
     catch (DependErr e)
     {
       unmet := (Grid)e.meta->unmet
-      verifyEq(unmet.size, 5)
+      verifyEq(unmet.size, 6)
       verifyEq(unmet[0]->name, "hx.comps")
       verifyEq(unmet[1]->name, "ph.attrs")
     }
 
     // add new lib 'ph.points' which fills 'g36' depend
     p.libs.add("ph.points")
+    p.libs.add("ph.points.sugar")
     expectLibs["ph.points"] = "sys ok"
+    expectLibs["ph.points.sugar"] = "sys ok"
     expectLibs["ashrae.g36"] = "sys ok"
     verifyProjLibs(p, expectLibs)
 
