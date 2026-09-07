@@ -328,6 +328,38 @@ class PrinterTest : AbstractXetoTest
             }
             |>)
 
+    // a Ref "val" default uses "@id" syntax, not a quoted string
+    newCase(opts).spec(lib.spec("InstantiateB"))
+    verifyOutput(
+       Str<|InstantiateB: InstantiateA {
+              a: "alpha-b"
+              b: "bravo-b"
+              c: "charlie-b"
+              icon: @hx.test.xeto::icon-b
+              multiRef1: @hx.test.xeto::icon-a
+              multiRef2: {
+                 Dict @hx.test.xeto::icon-a
+                 Dict @hx.test.xeto::icon-b
+              }
+            }
+            |>)
+
+    // an inline parameterized type is hoisted to a synthetic spec, which has
+    // no source name - print it inline as its base type plus its own meta
+    newCase(opts).spec(lib.spec("Sigs"))
+    verifyOutput(
+       Str<|Sigs: Dict {
+              a: Str
+              b: Str?
+              c: A | B
+              d: A & B
+              e: A | B
+              f: A & B
+              g: List <of:sys::Str>
+              h: List <of:Ref<of:A>>
+            }
+            |>)
+
     // a compound base declares its ofs on the spec itself, not on sys::And
     newCase(opts).spec(lib.spec("AB"))
     verifyOutput(
@@ -406,8 +438,10 @@ class PrinterTest : AbstractXetoTest
     catch (Err e)
       fail("Cannot recompile printed source: $e.msg")
 
-    // every spec made it across with the same shape
-    verifyEq(rt.specs.list.size, tops.size)
+    // every spec made it across with the same shape; the recompiled lib
+    // hoists its own synthetics for inline parameterized types, so compare
+    // only the specs which were actually named in the source
+    verifyEq(rt.specs.list.findAll |x| { !XetoUtil.isAutoName(x.name) }.size, tops.size)
     tops.each |x|
     {
       a := rt.spec(x.name)
@@ -423,8 +457,7 @@ class PrinterTest : AbstractXetoTest
   **   - synthetic tops hoisted from an inline parameterized type
   **   - a mixin on a sys type, which would duplicate its meta specs
   **   - TODO: a spec referencing a synthetic top, printed as "@lib::_0"
-  **   - TODO: a MultiRef value printed as a Str, and a List "val" default
-  **     printed as a "sys::Obj {...}" dict
+  **   - TODO: a List "val" default printed as a "sys::Obj {...}" dict
   private Bool includeInRoundTrip(Spec x)
   {
     if (XetoUtil.isAutoName(x.name)) return false
@@ -432,8 +465,7 @@ class PrinterTest : AbstractXetoTest
     return !roundTripTodo.contains(x.name)
   }
 
-  private const Str[] roundTripTodo := ["InstantiateA", "InstantiateB", "Sigs",
-                                        "Fidelity"]
+  private const Str[] roundTripTodo := ["Fidelity"]
 
   ** Minimal pragma for a lib which depends on the one being round tripped
   private Str roundTripPragma(Lib lib)

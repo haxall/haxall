@@ -76,7 +76,7 @@ class XetoPrinter
       if (x.showName) w(x.name).wc(':')
       if (x.showType(showInferredTypes)) sp.type(x.type)
       metaHeader(x)
-      if (x.showVal) sp.quoted(x.val)
+      if (x.showVal) sp.specVal(x.val)
     }
 
     // if no body, all done
@@ -102,7 +102,9 @@ class XetoPrinter
     {
       v := x.metaGet(n)
       if (i > 0) wc(',').sp
-      dictPair(spec, n, v, true)
+      ofSig := n == "of" ? x.ofSignature(|Str q->Str| { typeName(q) }) : null
+      if (ofSig != null) w(n).wc(':').w(ofSig)
+      else dictPair(spec, n, v, true)
     }
     wc('>')
   }
@@ -353,6 +355,14 @@ class XetoPrinter
     if (str.contains("\n")) indent.heredoc(str).unindent
     else quoted(str)
     return this
+  }
+
+  ** A spec's "val" default: a Ref uses "@id" syntax, everything else
+  ** is encoded as a quoted scalar
+  This specVal(Obj v)
+  {
+    if (v is Ref) return ref(v)
+    return quoted(v.toStr)
   }
 
   ** Ref scalar
@@ -732,7 +742,7 @@ internal abstract const class XpSpec
 
     // check for scalar value
     valObj := metaOwn["val"]
-    if (valObj != null && isScalar(valObj)) this.val = valObj.toStr
+    if (valObj != null && isScalar(valObj)) this.val = valObj
 
     // we can never use inline meta for scalar types
     noInlineMeta := this.val != null || (reflect != null && reflect.type.isScalar)
@@ -791,6 +801,11 @@ internal abstract const class XpSpec
 
   Obj metaGet(Str n) { metaOwn.get(n) ?: throw Err("Missing meta: $n") }
 
+  ** An "of" pointing at a compiler hoisted synthetic spec has no source
+  ** name to reference, so it must be printed inline as its signature.
+  ** Returns null when "of" is a normal named type ref.
+  virtual Str? ofSignature(|Str->Str| nameFn) { null }
+
   Bool noMeta() { metaHeader.isEmpty && metaInline.isEmpty }
 
   ** Is marker with no meta
@@ -833,7 +848,7 @@ internal abstract const class XpSpec
   const Str[] metaHeader     // metaOwn to encode in header (excludes maybe, ofs, doc, val)
   const Str[] metaInline     // metaOwn to encode in body inline
   const Str? doc             // metaOwn doc tag (not inherited)
-  const Str? val             // metaOwn scalar value (not inherited)
+  const Obj? val             // metaOwn scalar value (not inherited)
 }
 
 **************************************************************************
@@ -851,7 +866,7 @@ internal const class XpReflectSpec : XpSpec
 
   private static XpTypeRef? toType(Spec spec)
   {
-    if (spec.flavor.isMember) return XpTypeRef.makeSpec(spec)
+    if (spec.flavor.isMember) return XpTypeRef(spec)
     if (spec.base != null) return XpTypeRef.makeSpec(spec.base, spec)
     return null // sys::Obj
   }
@@ -863,6 +878,13 @@ internal const class XpReflectSpec : XpSpec
   override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s, this)) } }
 
   override Bool isMixin() { spec.isMixin }
+
+  override Str? ofSignature(|Str->Str| nameFn)
+  {
+    of := spec.of(false)
+    if (of == null || !XetoUtil.isAutoName(of.name)) return null
+    return XpTypeRef.synSignature(of, nameFn)
+  }
 
   override Bool isMixinOverride()
   {
@@ -950,10 +972,23 @@ internal const class XpTypeRef
   const Str name             // simple name
   const Bool maybe           // maybe type
   const XpTypeRef[]? ofs     // meta ofs for And/Or type
+  const Spec? of             // nested "of" meta on a synthetic, ie Ref<of:A>
 
   Bool isCompound() { (isAnd || isOr) && ofs != null}
   Bool isAnd()    { qname == "sys::And" }
   Bool isOr()     { qname == "sys::Or" }
   Bool isMarker() { qname == "sys::Marker" }
+
+  ** Signature of a compiler hoisted synthetic spec, which has no source
+  ** name of its own: the base type plus the meta the source declared,
+  ** ie "Ref?" or "Ref<of:A>".  Type names are formatted by nameFn.
+  static Str synSignature(Spec syn, |Str->Str| nameFn)
+  {
+    s := StrBuf().add(nameFn(syn.base.qname))
+    of := syn.of(false)
+    if (of != null) s.add("<of:").add(nameFn(of.qname)).add(">")
+    if (syn.isMaybe) s.addChar('?')
+    return s.toStr
+  }
 }
 
