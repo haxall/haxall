@@ -14,6 +14,7 @@ using web
 **
 ** DocHtmlWriter renders DocPages to HTML
 **
+@Js
 class DocHtmlWriter : WebOutStream
 {
   new make(OutStream out) : super(out) {}
