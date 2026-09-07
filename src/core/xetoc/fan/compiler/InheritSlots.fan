@@ -166,6 +166,9 @@ internal class InheritSlots : Step
     // infer type from base
     if (x.base != null) return ASpecRef(x.loc, x.base.type)
 
+    // items of a MultiRef list are always refs
+    if (x.parent != null && x.parent.isMultiRef) return x.typeRef = sys.ref
+
     // scalars default to str and everything else to dict
     x.typeRef = x.val == null ? sys.dict : sys.str
     return x.typeRef

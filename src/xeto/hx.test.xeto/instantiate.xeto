@@ -39,3 +39,11 @@ InstantiateD: {
 @icon-a: Dict {}
 @icon-b: Dict {}
 
+
+@multiRefSingle: InstantiateA {
+  multiRef1: @icon-a
+}
+
+@multiRefList: InstantiateA {
+  multiRef2: { @icon-a, @icon-b }
+}

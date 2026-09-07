@@ -755,6 +755,21 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(dict["multiRef1"], Ref[Ref("hx.test.xeto::icon-a")])
     verifyEq(dict["multiRef2"], Ref[Ref("hx.test.xeto::icon-a"), Ref("hx.test.xeto::icon-b")])
 
+    // a MultiRef is either a single Ref or a list of Refs, in the spec
+    // default and in instance data alike
+    b := ns.spec("hx.test.xeto::InstantiateB")
+    verifyEq(b.slot("multiRef1").type.qname, "sys::MultiRef")
+    verifyEq(b.slot("multiRef2").type.qname, "sys::MultiRef")
+    b.slot("multiRef2").slotsOwn.each |item|
+    {
+      verifyEq(item.type.qname, "sys::Ref")
+      verifyEq(item["val"] is Ref, true)
+    }
+    verifyEq(ns.instance("hx.test.xeto::multiRefSingle")["multiRef1"], Ref("hx.test.xeto::icon-a"))
+
+    verifyEq(ns.instance("hx.test.xeto::multiRefList")["multiRef2"],
+             Ref[Ref("hx.test.xeto::icon-a"), Ref("hx.test.xeto::icon-b")])
+
     dict = ns.instantiate(instantiateC)
     verifyEq(dict["a"], "alpha-b")
     verifyEq(dict["b"], "bravo-b")

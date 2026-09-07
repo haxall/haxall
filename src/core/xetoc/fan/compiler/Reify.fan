@@ -58,9 +58,10 @@ internal abstract class Reify : Step
     // if already assembled
     if (x.isAsm) return x.asm
 
-    // turn ADict into raw Dict or Obj?[]
+    // turn ADict into raw Dict or Obj?[]; a MultiRef holding multiple
+    // refs is a list, same as sys::List (a single ref is just a scalar)
     type := x.type
-    isList := type.isList
+    isList := type.isList || type.isMultiRef
     Obj? asm
     if (isList)
     {
@@ -114,7 +115,7 @@ internal abstract class Reify : Step
 
   private Obj[] reifyRawList(ADict x, Spec type)
   {
-    of := x.listOf ?: Obj#
+    of := x.listOf ?: (type.isMultiRef ? Ref# : Obj#)
     list := List(of, x.size)
     x.each |obj| { list.add(reifyDictVal(obj)) }
     return list.toImmutable

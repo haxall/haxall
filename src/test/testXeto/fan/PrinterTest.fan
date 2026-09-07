@@ -338,8 +338,8 @@ class PrinterTest : AbstractXetoTest
               icon: @hx.test.xeto::icon-b
               multiRef1: @hx.test.xeto::icon-a
               multiRef2: {
-                 Dict @hx.test.xeto::icon-a
-                 Dict @hx.test.xeto::icon-b
+                 Ref @hx.test.xeto::icon-a
+                 Ref @hx.test.xeto::icon-b
               }
             }
             |>)
