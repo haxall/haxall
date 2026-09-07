@@ -33,7 +33,7 @@ space              <door-closed>
 spec               <aperture>
 site               <building>
 spark              <chart-bar-big>           rule
-sys                <hard-drive>
+sys                <pc-case>
 system             <shapes>
 task               <spool>
 unknown            <circle-question-mark>    status

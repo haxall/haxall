@@ -35,6 +35,7 @@ class IconsCompiler
     acc.sort |a, b| { a.name <=> b.name }
     check
     write(ionGenFile)
+    echo("Wrote [$ionGenFile.osPath]")
     return 0
   }
 
