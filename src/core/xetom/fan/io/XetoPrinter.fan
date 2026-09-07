@@ -412,7 +412,10 @@ class XetoPrinter
   ** List value
   This list(List list, Spec? inferred)
   {
-    spec := inferred ?: specOf(list)
+    // "val" meta is declared as sys::Obj, so an inferred type which is not
+    // itself a list cannot name the container - fall back to the actual type
+    spec := inferred
+    if (spec == null || !spec.isList) spec = specOf(list)
     if (spec != null) type(XpTypeRef(spec)).sp
     wc('{')
     num := 0
@@ -531,7 +534,8 @@ class XetoPrinter
     if (id != null)
     {
       if (showName) sp
-      ref(id.noDis)
+      // an instance id is declared unqualified, same as at the top level
+      wc('@').w(XetoUtil.qnameToName(id) ?: id.id)
     }
     if (needColon) { wc(':'); if (!inline) sp }
 

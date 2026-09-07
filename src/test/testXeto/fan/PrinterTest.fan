@@ -418,12 +418,26 @@ class PrinterTest : AbstractXetoTest
     printer := XetoPrinter(ns, src.out, Etc.dict1("qnameForce", m))
     tops.each |x| { printer.spec(x); src.add("\n") }
 
+    // print all instances, except those which the source declares nested
+    // inside another instance - printing those standalone duplicates them
+    nested := Str:Str[:]
+    lib.instances.each |x|
+    {
+      x.each |v, n| { if (v is Dict) { id := ((Dict)v)["id"] as Ref; if (id != null) nested[id.id] = n } }
+    }
+    tinsts := lib.instances.findAll |x| { !nested.containsKey(x->id.toStr) }
+
+    insts := StrBuf()
+    instPrinter := XetoPrinter(ns, insts.out, Etc.dict1("qnameForce", m))
+    tinsts.each |x| { instPrinter.instance(x); insts.add("\n") }
+
     // stage as a lib which depends on the original
     dir := tempDir + `roundtrip/`
     dir.delete
     dir.create
     (dir + `lib.xeto`).out.print(roundTripPragma(lib)).close
     (dir + `specs.xeto`).out.print(src.toStr).close
+    (dir + `instances.xeto`).out.print(insts.toStr).close
 
     // recompile - any printer defect shows up as a compile error here
     Lib? rt := null
@@ -450,22 +464,27 @@ class PrinterTest : AbstractXetoTest
       verifyEq(a.isMixin, x.isMixin, x.name)
       verifyEq(a.slotsOwn.names.dup.sort, x.slotsOwn.names.dup.sort, x.name)
     }
+
+    // every instance made it across with the same tags
+    verifyEq(rt.instances.size, lib.instances.size)
+    tinsts.each |x|
+    {
+      name := XetoUtil.qnameToName(x->id) ?: x->id.toStr
+      a := rt.instance(name)
+      verifyEq(a.get("spec")?.toStr, x.get("spec")?.toStr, name)
+      verifyEq(Etc.dictNames(a).sort, Etc.dictNames(x).sort, name)
+    }
   }
 
-  ** A spec is excluded from the round trip when reprinting it into a second
-  ** lib is not meaningful, or when the printer cannot yet express it:
-  **   - synthetic tops hoisted from an inline parameterized type
-  **   - a mixin on a sys type, which would duplicate its meta specs
-  **   - TODO: a spec referencing a synthetic top, printed as "@lib::_0"
-  **   - TODO: a List "val" default printed as a "sys::Obj {...}" dict
+  ** A spec is excluded when reprinting it into a second lib is not
+  ** meaningful: a synthetic top hoisted from an inline parameterized type
+  ** has no source name, and a mixin on a sys type would duplicate its
+  ** meta specs in the new lib.
   private Bool includeInRoundTrip(Spec x)
   {
     if (XetoUtil.isAutoName(x.name)) return false
-    if (x.isMixin && x.type.lib.name == "sys") return false
-    return !roundTripTodo.contains(x.name)
+    return !(x.isMixin && x.type.lib.name == "sys")
   }
-
-  private const Str[] roundTripTodo := ["Fidelity"]
 
   ** Minimal pragma for a lib which depends on the one being round tripped
   private Str roundTripPragma(Lib lib)
