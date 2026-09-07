@@ -161,6 +161,9 @@ class XetoPrinter
   **     }
   This instance(Dict x)
   {
+    // a "doc" tag is the source comment folded into the instance
+    doc(x["doc"] as Str)
+
     // leading id, qualified ids print as their simple name
     id := x["id"] as Ref
     if (id != null)
@@ -709,7 +712,7 @@ class XetoPrinter
   static const Str:Str skipDict := Str:Str[:].setList(["id", "spec"])
 
   ** Always skip these which should be encoded outside of meta
-  static const Str:Str skipInst := Str:Str[:].setList(["id", "name", "spec", "rt", "mod"])
+  static const Str:Str skipInst := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "doc"])
 
   ** Always skip these which should be encoded outside of meta
   static const Str:Str skipMeta := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "ofs", "base", "type", "slots", "maybe", "mixin"])
