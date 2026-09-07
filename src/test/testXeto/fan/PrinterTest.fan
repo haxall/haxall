@@ -439,15 +439,17 @@ class PrinterTest : AbstractXetoTest
     (dir + `specs.xeto`).out.print(src.toStr).close
     (dir + `instances.xeto`).out.print(insts.toStr).close
 
-    // recompile - any printer defect shows up as a compile error here
+    // recompile under the same lib name so every qualified id in the
+    // printed source still resolves; the namespace holds only its depends
+    // so the original lib is not also in scope
     Lib? rt := null
     try
       rt = XetoCompiler.init |c|
       {
-        c.ns      = ns
-        c.libName = "test.roundtrip"
+        c.ns      = createNamespace(lib.depends.map |d->Str| { d.name })
+        c.libName = lib.name
         c.input   = dir
-        c.build   = tempDir + `test.roundtrip.xetolib`
+        c.build   = tempDir + `roundtrip.xetolib`
       }.compileLib
     catch (Err e)
       fail("Cannot recompile printed source: $e.msg")
@@ -476,23 +478,16 @@ class PrinterTest : AbstractXetoTest
     }
   }
 
-  ** A spec is excluded when reprinting it into a second lib is not
-  ** meaningful: a synthetic top hoisted from an inline parameterized type
-  ** has no source name, and a mixin on a sys type would duplicate its
-  ** meta specs in the new lib.
-  private Bool includeInRoundTrip(Spec x)
-  {
-    if (XetoUtil.isAutoName(x.name)) return false
-    return !(x.isMixin && x.type.lib.name == "sys")
-  }
+  ** A synthetic top hoisted from an inline parameterized type has no
+  ** source name of its own, so it is never printed standalone.
+  private Bool includeInRoundTrip(Spec x) { !XetoUtil.isAutoName(x.name) }
 
-  ** Minimal pragma for a lib which depends on the one being round tripped
+  ** Minimal pragma carrying the same depends as the lib being round tripped
   private Str roundTripPragma(Lib lib)
   {
     s := StrBuf()
     s.add("pragma: Lib <\n  doc: \"round trip\"\n  version: \"0.0.1\"\n  depends: {\n")
     lib.depends.each |d| { s.add("    { lib: ").add(d.name.toCode).add(" }\n") }
-    s.add("    { lib: ").add(lib.name.toCode).add(" }\n")
     s.add("  }\n  org: { dis: \"Test\", uri: \"http://test/\" }\n>\n")
     return s.toStr
   }
