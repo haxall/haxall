@@ -240,6 +240,39 @@ class RepoFuncsTest : RemoteReposTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Installed
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInstalled()
+  {
+    initEnv
+    remote = reg.add("test", `http://test-1/`, Etc.dict0)
+    initRt
+
+    // install one lib so we have an origin row
+    RepoFuncs.libInstall("test", "alpha", null)
+
+    grid := RepoFuncs.nsInstall(null)
+    verifyEq(grid.colNames, ["name", "version", "origin", "src", "doc"])
+    row := grid.find { it->name == "alpha" }
+    verifyEq(row->version, "2.3.0")
+    verifyEq(row->origin, "test")
+    verifyEq(row["src"], null)
+
+    // sys has no origin in test env
+    row = grid.find { it->name == "sys" }
+    verifyEq(row["origin"], null)
+
+    // search opt filters
+    grid = RepoFuncs.nsInstall(Etc.dict1("search", "alpha"))
+    verifyEq(grid.size, 1)
+    verifyEq(grid.first->name, "alpha")
+
+    // cleanup
+    RepoFuncs.libUninstall("alpha")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Update
 //////////////////////////////////////////////////////////////////////////
 

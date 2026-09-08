@@ -304,6 +304,41 @@ const class RepoFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// UI Support
+//////////////////////////////////////////////////////////////////////////
+
+  ** List the libs installed in the local repo.  The result grid
+  ** includes the following columns:
+  **   - `name`: lib dotted name
+  **   - `version`: currently installed version
+  **   - `origin`: remote repo name if installed from a remote repo
+  **   - `src`: marker if lib is a local source directory
+  **   - `doc`: summary documentation
+  **
+  ** Options:
+  **   - 'search': search string to filter results
+  **
+  ** Examples:
+  **   ```axon
+  **   nsInstall()
+  **   nsInstall({search:"ph"})
+  **   ```
+  @Api @Axon { su = true }
+  static Grid nsInstall(Dict? opts := null)
+  {
+    gb := GridBuilder()
+    gb.addCol("name").addCol("version").addCol("origin").addCol("src").addCol("doc")
+    env.repo.libs.dup.sort |a, b| { a.name <=> b.name }.each |x|
+    {
+      gb.addRow([x.name, x.version.toStr, x.origin(false)?.repoName, Marker.fromBool(x.isSrc), x.doc])
+    }
+    grid := gb.toGrid
+    search := opts?.get("search") as Str
+    if (search != null) grid = grid.filter(Filter.search(search))
+    return grid
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

@@ -149,4 +149,23 @@
   //   ```
   libFetch: Func <su> { repo: Str?, lib: Str, version: Str, handle: Obj, returns: Dict }
 
+  // List the libs installed in the local repo.  The result grid
+  // includes the following columns:
+  //   - `name`: lib dotted name
+  //   - `version`: currently installed version
+  //   - `origin`: remote repo name if installed from a remote repo
+  //   - `src`: marker if lib is a local source directory
+  //   - `doc`: summary documentation
+  //
+  // Options:
+  //   - 'search': search string to filter results
+  //
+  // Examples:
+  //   ```axon
+  //   nsInstall()
+  //   nsInstall({search:"ph"})
+  //   ```
+  nsInstall: Func <su, nodoc> { opts: Dict?, returns: Grid }
+
 }
+
