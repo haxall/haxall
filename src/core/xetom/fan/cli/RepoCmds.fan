@@ -76,7 +76,7 @@ internal class RepoCmd : XetoCmd
     echo("  Version: $x.version")
     echo("  File:    $x.file.osPath")
     echo("  Doc:     $x.doc")
-    if (x.origin != null) echo("  Origin: $x.origin")
+    if (x.origin(false) != null) echo("  Origin:  " + x.origin)
     echo("  Depends: " + x.depends.join(", "))
   }
 }
