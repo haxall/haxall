@@ -19,6 +19,25 @@ using hx
 const class RepoFuncs
 {
 
+  ** Search a remote repo for the nsInstall view.  Same data as
+  ** `libSearch` decorated with UI presentation: locale date for
+  ** published and column display meta.
+  @Api @Axon { su = true }
+  static Grid nsInstallSearch(Str? repo, Str query)
+  {
+    raw := libSearch(repo, query)
+    gb := GridBuilder()
+    gb.addCol("name").addCol("latest", Etc.dict1("colWidth", Number(160f)))
+      .addCol("maturity", Etc.dict1("hidden", Marker.val))
+      .addCol("stable").addCol("published").addCol("deprecated").addCol("doc")
+    raw.each |r|
+    {
+      gb.addRow([r["name"], r["latest"], r["maturity"], r["stable"],
+                 (r["published"] as DateTime)?.date?.toLocale, r["deprecated"], r["doc"]])
+    }
+    return gb.toGrid
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Repo Management
 //////////////////////////////////////////////////////////////////////////
@@ -159,7 +178,7 @@ const class RepoFuncs
     res.libs.each |lib|
     {
       gb.addRow([lib.lib, lib.latestVersion.toStr, lib.latestMaturity.name,
-                 lib.latestStable?.toStr, lib.latestPublished?.date?.toLocale, lib.deprecated, lib.doc])
+                 lib.latestStable?.toStr, lib.latestPublished, lib.deprecated, lib.doc])
     }
     return gb.toGrid
   }
@@ -185,11 +204,11 @@ const class RepoFuncs
     finally
       s.close
     gb := GridBuilder()
-    gb.addCol("name").addCol("version").addCol("depends")
+    gb.addCol("name").addCol("version").addCol("maturity").addCol("depends")
     vers.each |v|
     {
       deps := v.depends(false)
-      gb.addRow([v.name, v.version.toStr, deps?.join(", ")])
+      gb.addRow([v.name, v.version.toStr, v.maturity.name, deps?.join(", ")])
     }
     return gb.toGrid
   }
@@ -374,10 +393,10 @@ const class RepoFuncs
   private static Grid planToGrid(LibInstallPlan[] plan)
   {
     gb := GridBuilder()
-    gb.addCol("action").addCol("name").addCol("curVer").addCol("newVer").addCol("repo")
+    gb.addCol("action").addCol("name").addCol("curVer").addCol("newVer").addCol("maturity").addCol("repo")
     plan.each |p|
     {
-      gb.addRow([p.action.name, p.name, p.curVer?.version?.toStr, p.newVer?.version?.toStr, p.repo?.name])
+      gb.addRow([p.action.name, p.name, p.curVer?.version?.toStr, p.newVer?.version?.toStr, p.newVer?.maturity?.name, p.repo?.name])
     }
     return gb.toGrid
   }

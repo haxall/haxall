@@ -130,6 +130,12 @@ class RepoFuncsTest : RemoteReposTest
     grid = RepoFuncs.libSearch("test", "doesnotexist999")
     verifyGridCols(grid, ["name", "latest", "maturity", "stable", "published", "deprecated", "doc"])
     verifyEq(grid.size, 0)
+
+    // nsInstallSearch decorates with UI meta
+    grid = RepoFuncs.nsInstallSearch("test", "alpha")
+    verifyGridCols(grid, ["name", "latest", "maturity", "stable", "published", "deprecated", "doc"])
+    verifyEq(grid.col("latest").meta["colWidth"], Number(160f))
+    verifyEq(grid.col("maturity").meta["hidden"], Marker.val)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -144,13 +150,13 @@ class RepoFuncsTest : RemoteReposTest
 
     // returns Grid with name, version, depends cols
     Grid grid := RepoFuncs.libVersions("test", "alpha", null)
-    verifyGridCols(grid, ["name", "version", "depends"])
+    verifyGridCols(grid, ["name", "version", "maturity", "depends"])
     verify(grid.size > 0)
     verify(grid.all { it->name == "alpha" })
 
     // with opts (limit)
     grid = RepoFuncs.libVersions("test", "alpha", Etc.dict1("limit", 2))
-    verifyGridCols(grid, ["name", "version", "depends"])
+    verifyGridCols(grid, ["name", "version", "maturity", "depends"])
     verifyEq(grid.size, 2)
   }
 
@@ -352,7 +358,7 @@ class RepoFuncsTest : RemoteReposTest
   ** Verify grid has the standard install/update/uninstall columns
   Void verifyInstallGrid(Grid grid)
   {
-    verifyGridCols(grid, ["action", "name", "curVer", "newVer", "repo"])
+    verifyGridCols(grid, ["action", "name", "curVer", "newVer", "maturity", "repo"])
   }
 
   ** Verify grid column names match expected list

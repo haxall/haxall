@@ -167,5 +167,9 @@
   //   ```
   nsInstall: Func <su, nodoc> { opts: Dict?, returns: Grid }
 
+  // Search a remote repo for the nsInstall view.  Same data as
+  // `libSearch` decorated with UI presentation meta.
+  nsInstallSearch: Func <su, nodoc> { repo: Str?, query: Str, returns: Grid }
+
 }
 
