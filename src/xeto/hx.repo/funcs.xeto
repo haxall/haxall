@@ -98,7 +98,8 @@
   // example "ph-5.0.6" or "ph-5.x.x".  If no version constraint is
   // specified, the latest available version is used.  If repo is null
   // then the default repo is used.  Pass `{preview}` in opts to
-  // return the plan without executing.
+  // return the plan without executing.  Pass `{upgrade}` to allow
+  // currently installed libs to be updated to meet dependencies.
   //
   // Examples:
   //   ```axon

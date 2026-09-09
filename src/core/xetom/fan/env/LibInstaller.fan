@@ -198,22 +198,26 @@ class LibInstaller
     // check if we need to update an installed version; explicit update
     // targets always check their origin for the latest match, otherwise
     // only when the installed version violates the version constraint
-    else if (!d.versions.contains(curVer.version) || (install == null && !transitive))
+    else
     {
-      origin := toUpdateRepo(install, curVer)
-      latest := resolveRemoteDepend(origin, d)
+      satisfied := d.versions.contains(curVer.version)
+      if (!satisfied || (install == null && !transitive))
+      {
+        origin := toUpdateRepo(install, curVer)
+        latest := resolveRemoteDepend(origin, d)
 
-      // when installed version satisfies the constraint only move
-      // forward; an equal or older match means already up to date,
-      // which explicit targets still report as a plan row
-      if (!d.versions.contains(curVer.version) || latest.version > curVer.version)
-      {
-        newVer = latest
-        acc.add(name, LibInstallPlan.update(origin, curVer, newVer, transitive))
-      }
-      else
-      {
-        acc.add(name, LibInstallPlan.upToDate(origin, curVer))
+        // when installed version satisfies the constraint only move
+        // forward; an equal or older match means already up to date,
+        // which explicit targets still report as a plan row
+        if (!satisfied || latest.version > curVer.version)
+        {
+          newVer = latest
+          acc.add(name, LibInstallPlan.update(origin, curVer, newVer, transitive))
+        }
+        else
+        {
+          acc.add(name, LibInstallPlan.upToDate(origin, curVer))
+        }
       }
     }
 
@@ -377,10 +381,10 @@ const class LibInstallPlan
     this.transitive = transitive
   }
 
-  ** Update constructor
+  ** Update constructor; classifies as downgrade when moving backwards
   internal new update(RemoteRepo repo, LibVersion curVer, RemoteLibVersion newVer, Bool transitive)
   {
-    this.action     = LibInstallAction.update
+    this.action     = newVer.version < curVer.version ? LibInstallAction.downgrade : LibInstallAction.update
     this.name       = curVer.name
     this.curVer     = curVer
     this.newVer     = newVer
@@ -456,9 +460,10 @@ enum class LibInstallAction
 {
   install,
   update,
+  downgrade,
   uninstall,
   upToDate
 
-  Bool isFetch() { this === install || this === update }
+  Bool isFetch() { this === install || this === update || this === downgrade }
 }
 

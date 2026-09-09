@@ -335,6 +335,10 @@ class RepoFuncsTest : RemoteReposTest
     verifyEq(grid.first->curVer, "2.0.1")
     verifyEq(grid.first->newVer, "2.0.1")
 
+    // pinning an older version classifies as downgrade
+    grid = RepoFuncs.libUpdate("beta-1.1.x", Etc.dict1("preview", Marker.val))
+    verifyEq(grid.find { it->name == "beta" }->action, "downgrade")
+
     // cleanup
     RepoFuncs.libUninstall(["alpha", "beta"])
     verifyLibNotInstalled("alpha")

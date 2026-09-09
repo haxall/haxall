@@ -25,17 +25,10 @@ const class RepoFuncs
   @Api @Axon { su = true }
   static Grid nsInstallSearch(Str? repo, Str query)
   {
-    raw := libSearch(repo, query)
-    gb := GridBuilder()
-    gb.addCol("name").addCol("latest", Etc.dict1("colWidth", Number(160f)))
-      .addCol("maturity", Etc.dict1("hidden", Marker.val))
-      .addCol("stable").addCol("published").addCol("deprecated").addCol("doc")
-    raw.each |r|
-    {
-      gb.addRow([r["name"], r["latest"], r["maturity"], r["stable"],
-                 (r["published"] as DateTime)?.date?.toLocale, r["deprecated"], r["doc"]])
-    }
-    return gb.toGrid
+    libSearch(repo, query)
+      .addColMeta("latest",    Etc.dict1("colWidth", Number(160f)))
+      .addColMeta("maturity",  Etc.dict1("hidden", Marker.val))
+      .addColMeta("published", Etc.dict1("format", "D-MMM-YYYY"))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -348,17 +341,17 @@ const class RepoFuncs
   @Api @Axon { su = true }
   static Grid nsInstall(Dict? opts := null)
   {
-    // show opt filters to libs with/without a remote repo origin
+    // show opt filters to libs with/without a remote repo origin;
+    // resolve origin once per lib for both the filter and the column
     show := (opts?.get("show") as Str)?.lower ?: ""
-    libs := env.repo.libs.dup
-    if (show.contains("dist"))   libs = libs.findAll |x| { x.origin(false) == null }
-    if (show.contains("remote")) libs = libs.findAll |x| { x.origin(false) != null }
-
     gb := GridBuilder()
     gb.addCol("name").addCol("version").addCol("origin").addCol("src").addCol("doc")
-    libs.sort |a, b| { a.name <=> b.name }.each |x|
+    env.repo.libs.dup.sort |a, b| { a.name <=> b.name }.each |x|
     {
-      gb.addRow([x.name, x.version.toStr, x.origin(false)?.repoName, Marker.fromBool(x.isSrc), x.doc])
+      origin := x.origin(false)?.repoName
+      if (show.contains("dist") && origin != null) return
+      if (show.contains("remote") && origin == null) return
+      gb.addRow([x.name, x.version.toStr, origin, Marker.fromBool(x.isSrc), x.doc])
     }
     grid := gb.toGrid
     search := opts?.get("search") as Str
