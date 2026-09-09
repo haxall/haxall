@@ -37,6 +37,7 @@ class MixinTest : AbstractXetoTest
     phasem    := lib.spec("Phase")
     specm     := lib.spec("Spec")
     funcs     := lib.spec("Funcs")
+    phem      := ns.spec("ph.protocols::PhEntity")
 
     verifyEq(sitem.isType, false)
     verifyEq(sitem.isMixin, true)
@@ -47,8 +48,8 @@ class MixinTest : AbstractXetoTest
     verifyFlavor(ns, sitem, SpecFlavor.mixIn)
 
     verifyEq(ns.mixinsFor(str), Spec[,])
-    verifyEq(ns.mixinsFor(site), Spec[sitem])
-    verifyEq(ns.mixinsFor(testSite), Spec[sitem])
+    verifyEq(ns.mixinsFor(site), Spec[sitem, phem])
+    verifyEq(ns.mixinsFor(testSite), Spec[sitem, phem])
     verifyEq(ns.mixinsFor(testSite).isImmutable, true)
 
     verifyEq(ns.mixinsOwn(str), Spec[,])
