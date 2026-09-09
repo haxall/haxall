@@ -280,13 +280,13 @@ const class RepoFuncs
   **   libUninstall(["acme.widgets", "acme.core"])
   **   ```
   @Api @Axon { su = true }
-  static Grid libUninstall(Obj libs)
+  static Grid libUninstall(Obj libs, Dict? opts := null)
   {
     cx := Context.cur
     names := toStrList(libs)
 
-    // check if any libs are enabled in any project
-    cx.sys.proj.list.each |p|
+    // check if any libs are enabled in any local project
+    cx.sys.proj.locals.each |p|
     {
       names.each |n|
       {
@@ -297,6 +297,7 @@ const class RepoFuncs
 
     e := env
     inst := LibInstaller(e).uninstall(names)
+    if (opts?.has("preview") == true) return planToGrid(inst.plan)
     inst.execute
     return planToGrid(inst.plan)
   }

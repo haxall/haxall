@@ -134,8 +134,9 @@
   //   ```axon
   //   libUninstall("acme.widgets")
   //   libUninstall(["acme.widgets", "acme.core"])
+  //   libUninstall("acme.widgets", {preview})
   //   ```
-  libUninstall: Func <su> { libs: Obj, returns: Grid }
+  libUninstall: Func <su> { libs: Obj, opts: Dict?, returns: Grid }
 
   // Fetch a xetolib zip for a specific lib and version from a remote
   // repo and write it to an I/O handle.  If repo is null then the

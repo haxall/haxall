@@ -61,6 +61,9 @@ const mixin IProjExt : SysExt
 
   ** List all accessible projects
   abstract Proj[] list()
+
+  ** List local projects running in the system
+  virtual Proj[] locals() { list }
 }
 
 **************************************************************************
