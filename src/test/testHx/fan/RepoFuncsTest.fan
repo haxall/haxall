@@ -382,7 +382,7 @@ class RepoFuncsTest : RemoteReposTest
   ** Verify grid has the standard install/update/uninstall columns
   Void verifyInstallGrid(Grid grid)
   {
-    verifyGridCols(grid, ["action", "name", "curVer", "newVer", "maturity", "repo"])
+    verifyGridCols(grid, ["action", "name", "curVer", "newVer", "maturity", "transitive", "repo"])
   }
 
   ** Verify grid column names match expected list

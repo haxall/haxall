@@ -393,10 +393,10 @@ const class RepoFuncs
   private static Grid planToGrid(LibInstallPlan[] plan)
   {
     gb := GridBuilder()
-    gb.addCol("action").addCol("name").addCol("curVer").addCol("newVer").addCol("maturity").addCol("repo")
+    gb.addCol("action").addCol("name").addCol("curVer").addCol("newVer").addCol("maturity").addCol("transitive").addCol("repo")
     plan.each |p|
     {
-      gb.addRow([p.action.name, p.name, p.curVer?.version?.toStr, p.newVer?.version?.toStr, p.newVer?.maturity?.name, p.repo?.name])
+      gb.addRow([p.action.name, p.name, p.curVer?.version?.toStr, p.newVer?.version?.toStr, p.newVer?.maturity?.name, Marker.fromBool(p.transitive), p.repo?.name])
     }
     return gb.toGrid
   }
