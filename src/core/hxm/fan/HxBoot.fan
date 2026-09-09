@@ -119,7 +119,7 @@ abstract class HxBoot
 
   ** Extension settings overrides keyed by lib name such "hx.http".  This
   ** is a dict that is merged into the settings stored on disk (it does *not*
-  ** change what is stored on disk (used only for testing).
+  ** change what is stored on disk).
   Str:Dict extSettingsOverrides := [:]
 
   ** Lookup sysConfig noAuth flag

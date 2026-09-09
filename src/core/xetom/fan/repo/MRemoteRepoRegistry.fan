@@ -41,6 +41,7 @@ const class MRemoteRepoRegistry : RemoteRepoRegistry
         if (!f.exists) return
         f.readProps.each |v, n|
         {
+          if (props[n] != null) return // first dir in path wins
           props[n] = v
           propToDir[n] = dir
         }

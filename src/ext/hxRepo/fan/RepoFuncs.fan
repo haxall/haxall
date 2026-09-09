@@ -154,10 +154,12 @@ const class RepoFuncs
   private static Grid searchGrid(RemoteRepoSearchRes res)
   {
     gb := GridBuilder()
-    gb.addCol("name").addCol("version").addCol("stable").addCol("doc")
+    gb.addCol("name").addCol("latest").addCol("maturity").addCol("stable")
+      .addCol("published").addCol("deprecated").addCol("doc")
     res.libs.each |lib|
     {
-      gb.addRow([lib.lib, lib.latestVersion, lib.latestStable, lib.doc])
+      gb.addRow([lib.lib, lib.latestVersion.toStr, lib.latestMaturity.name,
+                 lib.latestStable?.toStr, lib.latestPublished?.date?.toLocale, lib.deprecated, lib.doc])
     }
     return gb.toGrid
   }
@@ -187,7 +189,7 @@ const class RepoFuncs
     vers.each |v|
     {
       deps := v.depends(false)
-      gb.addRow([v.name, v.version, deps?.join(", ")])
+      gb.addRow([v.name, v.version.toStr, deps?.join(", ")])
     }
     return gb.toGrid
   }
@@ -375,7 +377,7 @@ const class RepoFuncs
     gb.addCol("action").addCol("name").addCol("curVer").addCol("newVer").addCol("repo")
     plan.each |p|
     {
-      gb.addRow([p.action, p.name, p.curVer?.version, p.newVer?.version, p.repo?.name])
+      gb.addRow([p.action.name, p.name, p.curVer?.version?.toStr, p.newVer?.version?.toStr, p.repo?.name])
     }
     return gb.toGrid
   }

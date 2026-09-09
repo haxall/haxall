@@ -122,13 +122,13 @@ class RepoFuncsTest : RemoteReposTest
 
     // returns Grid summarizing each lib: name, latest, stable, doc
     Grid grid := RepoFuncs.libSearch("test", "alpha")
-    verifyGridCols(grid, ["name", "version", "stable", "doc"])
+    verifyGridCols(grid, ["name", "latest", "maturity", "stable", "published", "deprecated", "doc"])
     verify(grid.size > 0)
     verify(grid.any { it->name == "alpha" })
 
     // empty results for unknown lib
     grid = RepoFuncs.libSearch("test", "doesnotexist999")
-    verifyGridCols(grid, ["name", "version", "stable", "doc"])
+    verifyGridCols(grid, ["name", "latest", "maturity", "stable", "published", "deprecated", "doc"])
     verifyEq(grid.size, 0)
   }
 
