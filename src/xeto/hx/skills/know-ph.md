@@ -460,14 +460,14 @@ A site with AHU, VAV, and points:
   equipRef: @hq-vav1
 }
 
-@hq-vav1-damper: DischargeDamperCmd {
+@hq-vav1-damper: DischargeAirDamperModulatingCmd {
   navName: "Damper"
   disMacro: "$equipRef $navName"
   siteRef: @hq
   equipRef: @hq-vav1
 }
 
-@hq-vav1-reheat: HotWaterValveCmd {
+@hq-vav1-reheat: HotWaterValveModulatingCmd {
   navName: "Reheat"
   disMacro: "$equipRef $navName"
   siteRef: @hq
