@@ -274,6 +274,14 @@ class RepoFuncsTest : RemoteReposTest
     verifyEq(grid.size, 1)
     verifyEq(grid.first->name, "alpha")
 
+    // show opt filters by origin
+    grid = RepoFuncs.nsInstall(Etc.dict1("show", "Remote Origin"))
+    verifyEq(grid.size, 1)
+    verifyEq(grid.first->name, "alpha")
+    grid = RepoFuncs.nsInstall(Etc.dict1("show", "Dist"))
+    verifyEq(grid.find { it->name == "alpha" }, null)
+    verify(grid.any { it->name == "sys" })
+
     // cleanup
     RepoFuncs.libUninstall("alpha")
   }

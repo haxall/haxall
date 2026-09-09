@@ -348,9 +348,15 @@ const class RepoFuncs
   @Api @Axon { su = true }
   static Grid nsInstall(Dict? opts := null)
   {
+    // show opt filters to libs with/without a remote repo origin
+    show := (opts?.get("show") as Str)?.lower ?: ""
+    libs := env.repo.libs.dup
+    if (show.contains("dist"))   libs = libs.findAll |x| { x.origin(false) == null }
+    if (show.contains("remote")) libs = libs.findAll |x| { x.origin(false) != null }
+
     gb := GridBuilder()
     gb.addCol("name").addCol("version").addCol("origin").addCol("src").addCol("doc")
-    env.repo.libs.dup.sort |a, b| { a.name <=> b.name }.each |x|
+    libs.sort |a, b| { a.name <=> b.name }.each |x|
     {
       gb.addRow([x.name, x.version.toStr, x.origin(false)?.repoName, Marker.fromBool(x.isSrc), x.doc])
     }

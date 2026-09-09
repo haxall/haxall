@@ -160,11 +160,14 @@
   //
   // Options:
   //   - 'search': search string to filter results
+  //   - 'show': "dist" for distribution libs with no remote origin,
+  //     "remote" for libs installed from a remote repo
   //
   // Examples:
   //   ```axon
   //   nsInstall()
   //   nsInstall({search:"ph"})
+  //   nsInstall({show:"remote"})
   //   ```
   nsInstall: Func <su, nodoc> { opts: Dict?, returns: Grid }
 
