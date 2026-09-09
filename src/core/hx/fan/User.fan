@@ -50,6 +50,9 @@ const mixin User
   ** User record modified time
   @NoDoc abstract DateTime mod()
 
+  ** Is this the special guest user for public context
+  @NoDoc virtual Bool isGuest() { false }
+
   ** Is this user account disabled
   @NoDoc Bool isDisabled()
   {

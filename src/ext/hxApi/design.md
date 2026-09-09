@@ -16,7 +16,9 @@ document covers how the implementation is organized.
 
 ## Pipeline
 
-`ApiPipeline` owns the entire lifecycle of one request:
+`ApiPipeline` owns the entire lifecycle of one request.  The constructor
+splits the op path segment into `opLib` / `opName` (qnames are axon
+style "sys.api::about"); the steps are:
 
 1. `resolveRoute` - subclass hook to resolve the route name: set the
    runtime for a route the standard lookup would miss such as an alias,
@@ -25,14 +27,18 @@ document covers how the implementation is organized.
    for the system runtime)
 3. `upgrade` - websocket upgrade check before authentication; the ext
    declaring the protocol services the whole request
-4. `authenticate` - the auth layer writes its own 401 challenges
-5. `resolveVersion` - after authentication, so an unauthenticated request
+4. `checkPublicOp` - resolve a public op (see below) via the
+   `resolvePublicOp` subclass hook before authentication
+5. `authenticate` - the auth layer writes its own 401 challenges.  A
+   public op skips the challenge: an anonymous request runs as the
+   least privilege guest account instead
+6. `resolveVersion` - after authentication, so an unauthenticated request
    answers its auth challenge before any version error
-6. `onAuthenticated` - subclass hook with the authenticated context, before
+7. `onAuthenticated` - subclass hook with the authenticated context, before
    the body is read (a subclass may pipe the unread body elsewhere)
-7. `resolveOpFunc` - map op name to its func spec; qnames ("lib::name")
-   resolve directly, simple names narrow ambiguity to `<op>` marked funcs
-8. `dispatch` - build the version specific dispatcher and run
+8. `resolveOpFunc` - map op name to its func spec; qnames resolve
+   directly, simple names narrow ambiguity to `<op>` marked funcs
+9. `dispatch` - build the version specific dispatcher and run
    readReq / call / writeRes
 
 The catch sequence in `service` is the mapping from Fantom err types to
@@ -43,7 +49,24 @@ visible - it is the only unwrap site.
 
 SkySpark subclasses the pipeline for clustering and session concerns
 via the `resolveRoute` and `onAuthenticated` hooks.  XetoBase subclasses
-it for route aliases via `resolveRoute`.
+it for route aliases via `resolveRoute` and public repo ops via
+`resolvePublicOp` / `onAuthenticated`.
+
+## Public Ops
+
+A public op may be invoked anonymously.  The `resolvePublicOp` subclass
+hook maps `opLib` / `opName` to a func spec before authentication (it
+must never raise); when it resolves one, an unauthenticated request runs
+as the `IUserExt.guest` account instead of answering a challenge, while
+a logged in user is still seen as themselves via the `skipLogin` auth
+opt.  `hx::User.isGuest` distinguishes the two afterwards.  Public
+access is server policy, never lib metadata - the default is no public
+ops - and only `noSideEffects` ops are ever eligible no matter what the
+hook reports.  When the hook answers null the request flows exactly as
+before, so a non-public request learns nothing before its challenge and
+error ordering is unchanged.  Both error choke points force `Cache-Control: no-store` so
+a response marked cacheable for a shared cache (XetoBase marks guest
+repo responses via `onAuthenticated`) never survives as a cached error.
 
 ## Version Model
 

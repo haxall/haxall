@@ -135,10 +135,11 @@ abstract class ApiDispatch
   {
     gzip := acceptGzip
 
-    // standard headers
+    // standard headers; Cache-Control is a default so the pipeline can
+    // mark a public op response cacheable before dispatch
     res.statusCode = 200
     res.headers["Content-Type"] = filetype.mimeRes.toStr
-    res.headers["Cache-Control"] = "no-cache, no-store"
+    if (res.headers["Cache-Control"] == null) res.headers["Cache-Control"] = "no-cache, no-store"
     if (gzip) res.headers["Content-Encoding"] = "gzip"
 
     // write result

@@ -33,7 +33,23 @@ class ApiPipeline
     this.res    = res
     this.path   = req.modRel.path
     this.rtName = path.getSafe(0)
-    this.opName = path.getSafe(1)
+
+    op := path.getSafe(1)
+    if (op != null)
+    {
+      // qname is axon style "sys.api::about" (without Funcs)
+      colon := op.index("::")
+      if (colon == null || colon + 2 >= op.size)
+      {
+        this.opLib  = null
+        this.opName = op
+      }
+      else
+      {
+        this.opLib  = op[0..<colon]
+        this.opName = op[colon+2..-1]
+      }
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,7 +64,9 @@ class ApiPipeline
       if (resolveRoute) return
       resolveRuntime
       if (upgrade) return
+      checkPublicOp
       if (!authenticate) return
+      initContext
       resolveVersion
       if (onAuthenticated) return
       resolveOpFunc
@@ -147,16 +165,55 @@ class ApiPipeline
     return true
   }
 
+  ** Allow sub-classes to resolve a public op *before* authentication.
+  private Void checkPublicOp()
+  {
+    if (opName == null) return
+    f := resolvePublicOp
+    if (f != null && ApiUtil.allowPublic(f))
+      this.publicFunc = f
+  }
+
+  ** Hook to resolve `opName` as a public op function.  A public op
+  ** never challenges for authentication and uses the guest account
+  ** instead.  Only ops marked 'noSideEffects' are eligible no matter
+  ** what this hook reports.  This function must *never* raise any
+  ** exceptions.
+  protected virtual Spec? resolvePublicOp() { null }
+
   ** Authenticate the request against the runtime.  A failure here is
   ** reported by the auth layer which writes its own 401 challenge, so
   ** no `sys.api::AuthErr` body is produced on this path.
+  **
+  ** A request targeting a public op skips the challenge: a logged in
+  ** user is still authenticated as themselves, but an anonymous request
+  ** is serviced as the least privilege guest account.
   private Bool authenticate()
   {
+    // if we have a public function, then allow guest context
+    if (publicFunc != null)
+    {
+      // check for session without login
+      cx = sys.user.authenticate(req, res, rt, Etc.dict1("skipLogin", Marker.val))
+      if (res.isCommitted) return false
+      if (cx != null) return true
+
+      // setup guest context
+      cx = rt.newContext(sys.user.guest)
+      Actor.locals[ActorContext.actorLocalsKey] = cx
+      return true
+    }
+
+    // standard authentication
     cx = sys.user.authenticate(req, res, rt)
     if (cx == null) return false
-
-    cx.timeout = rt.meta.evalTimeout
     return true
+  }
+
+  ** Initialize the context before dispatch
+  private Void initContext()
+  {
+    cx.timeout = rt.meta.evalTimeout
   }
 
   ** Hook called once the request is authenticated and the context is
@@ -164,7 +221,7 @@ class ApiPipeline
   ** written.  Return true if the hook fully serviced the request, in
   ** which case the pipeline stops.
   **
-  ** This is the seam for host level concerns which need the authenticated
+  ** This is the hook for host level concerns which need the authenticated
   ** `hx::Context` and its session: tunnelling the raw request to another
   ** cluster node, or binding a UI session onto the context.  It must fire
   ** before the body is read because a subclass may pipe the unread body
@@ -193,8 +250,8 @@ class ApiPipeline
     // rebase to to the op path "/api/{projName}/{opName}/..."
     req.modBase = req.uri[0..2].plusSlash
 
-    // lookup all functions by name
-    func = doResolveOpFunc(opName)
+    // use public function or lookup by name
+    func = publicFunc ?: doResolveOpFunc
 
     // determine if function handles it own request and/or responses
     funcOwnsReq = ApiUtil.isOpWebReq(func)
@@ -202,20 +259,19 @@ class ApiPipeline
   }
 
   ** Lookup opName and check for ambiguous matches
-  private Spec doResolveOpFunc(Str opName)
+  private Spec doResolveOpFunc()
   {
     // qname is axon style "sys.api::about" (without Funcs)
-    colon := opName.index("::")
-    if (colon != null)
+    if (opLib != null)
     {
-      lib := cx.ns.lib(opName[0..<colon], false)
-      spec := lib?.funcs?.get(opName[colon+2..-1], false)
-      if (spec == null) throw ApiErr.unknownFuncErr(opName)
+      lib := rt.ns.lib(opLib, false)
+      spec := lib?.funcs?.get(opName, false)
+      if (spec == null) throw ApiErr.unknownFuncErr("${opLib}::${opName}")
       return spec
     }
 
     // unqualified resolution
-    funcs := cx.ns.funcs.getAll(opName)
+    funcs := rt.ns.funcs.getAll(opName)
     if (funcs.size == 1) return funcs.first
     if (funcs.size == 0) throw ApiErr.unknownFuncErr(opName)
     funcs = funcs.findAll |f| { f.meta.has("op") } // narrow down to <op> only
@@ -286,8 +342,14 @@ class ApiPipeline
 // Error Handling
 //////////////////////////////////////////////////////////////////////////
 
-  ** Choke point for all error handling
-  Void writeErr(ApiErr err) { err.writeRes(res) }
+  ** Choke point for all error handling.  Errors are never cacheable:
+  ** a public op may have marked the response cacheable before dispatch,
+  ** which must not survive onto a shared cache as an error.
+  Void writeErr(ApiErr err)
+  {
+    if (!res.isCommitted) res.headers["Cache-Control"] = "no-store"
+    err.writeRes(res)
+  }
 
   ** Write an err as a version 4 style 200 response carrying an error grid.
   ** This is the legacy wire contract: `haystack::Client` parses the grid to
@@ -296,6 +358,7 @@ class ApiPipeline
   ** error, such as a replacement session key.
   @NoDoc Void writeErrGrid(Err err, [Str:Obj?]? meta := null)
   {
+    if (!res.isCommitted) res.headers["Cache-Control"] = "no-store"
     acc := meta == null ? Str:Obj?[:] : meta.dup
     if (ext.settings.disableErrTrace)
       acc["errTrace"] = "${err}\n  Trace disabled"
@@ -310,12 +373,14 @@ class ApiPipeline
   const ApiExt ext          // make
   const Str[] path          // make
   const Str? rtName         // make
-  const Str? opName         // make
+  const Str? opLib          // make - lib if qname
+  const Str? opName         // make - simple name
   WebReq req                // make
   WebRes res                // make
   Runtime? rt               // resolveRuntime
   Context? cx               // authenticate
   ApiVersion? version       // resolveVersion
+  Spec? publicFunc          // checkPublicOp
   Spec? func                // resolveOpFunc
   Bool funcOwnsReq          // resolveOpFunc
   Bool funcOwnsRes          // resolveOpFunc

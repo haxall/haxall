@@ -35,6 +35,10 @@ internal const class ApiUtil
   ** Op may be invoked with GET; otherwise POST is required
   static Bool allowGet(Spec func) { func.meta.has("noSideEffects") }
 
+  ** Op is eligible to be served anonymously as a public op; only ops
+  ** without side effects may ever be public no matter the server policy
+  static Bool allowPublic(Spec func) { func.meta.has("noSideEffects") }
+
   ** Version 4 passed the request grid to any func invoked as an op no
   ** matter what it declared, so a func not marked '<op>' takes the grid
   ** whole for compatibility; a modeled op takes it whole only via opGrid
