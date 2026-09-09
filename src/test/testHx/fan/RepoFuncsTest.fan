@@ -323,6 +323,18 @@ class RepoFuncsTest : RemoteReposTest
     verifyInstallGrid(grid)
     verifyLibInstalled("beta", "1.1.0") // still at old version
 
+    // plain name (no constraint) updates to latest from origin
+    grid = RepoFuncs.libUpdate("beta", null)
+    verifyInstallGrid(grid)
+    verifyLibInstalled("beta", "2.0.1")
+
+    // and again reports explicit target as up to date
+    grid = RepoFuncs.libUpdate("beta", null)
+    verifyEq(grid.size, 1)
+    verifyEq(grid.first->action, "upToDate")
+    verifyEq(grid.first->curVer, "2.0.1")
+    verifyEq(grid.first->newVer, "2.0.1")
+
     // cleanup
     RepoFuncs.libUninstall(["alpha", "beta"])
     verifyLibNotInstalled("alpha")

@@ -195,13 +195,26 @@ class LibInstaller
       acc.add(name, LibInstallPlan.install(install, newVer, transitive))
     }
 
-    // check if we need an update an installed version
-    else if (!d.versions.contains(curVer.version))
+    // check if we need to update an installed version; explicit update
+    // targets always check their origin for the latest match, otherwise
+    // only when the installed version violates the version constraint
+    else if (!d.versions.contains(curVer.version) || (install == null && !transitive))
     {
       origin := toUpdateRepo(install, curVer)
-      newVer = resolveRemoteDepend(origin, d)
-      if (newVer == null) throw InstallPlanErr("Unresolved depend '$d' in repo '$install.name'")
-      acc.add(name, LibInstallPlan.update(origin, curVer, newVer, transitive))
+      latest := resolveRemoteDepend(origin, d)
+
+      // when installed version satisfies the constraint only move
+      // forward; an equal or older match means already up to date,
+      // which explicit targets still report as a plan row
+      if (!d.versions.contains(curVer.version) || latest.version > curVer.version)
+      {
+        newVer = latest
+        acc.add(name, LibInstallPlan.update(origin, curVer, newVer, transitive))
+      }
+      else
+      {
+        acc.add(name, LibInstallPlan.upToDate(origin, curVer))
+      }
     }
 
     // now ensure depends are solved
@@ -375,6 +388,17 @@ const class LibInstallPlan
     this.transitive = transitive
   }
 
+  ** Up-to-date constructor: explicit update target already current
+  internal new upToDate(RemoteRepo repo, LibVersion curVer)
+  {
+    this.action     = LibInstallAction.upToDate
+    this.name       = curVer.name
+    this.curVer     = curVer
+    this.newVer     = curVer
+    this.repo       = repo
+    this.transitive = false
+  }
+
   ** Uninstall constructor
   internal new uninstall(LibVersion curVer)
   {
@@ -432,7 +456,8 @@ enum class LibInstallAction
 {
   install,
   update,
-  uninstall
+  uninstall,
+  upToDate
 
   Bool isFetch() { this === install || this === update }
 }
