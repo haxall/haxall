@@ -94,8 +94,11 @@ class JsonExporter : Exporter
     if (spec.isType) specBase(spec)
     else specType(spec)
     effective := this.isEffective && depth <= 1
-    meta(effective  ? spec.meta  : spec.metaOwn)
-    slots(effective ? spec.slots : spec.slotsOwn, depth)
+    tags := effective ? spec.meta : spec.metaOwn
+    if (spec.isGlobal && tags.missing("global")) prop("global").val(Marker.val).propEnd
+    meta(tags)
+    slots(useEffectiveSlots(spec, depth) ? spec.slots : spec.slotsOwn, depth)
+    globals(spec.globalsOwn, depth)
     objEnd.propEnd
     return this
   }
@@ -113,12 +116,30 @@ class JsonExporter : Exporter
     return prop("base").str(spec.base.qname).propEnd
   }
 
+  ** Effective slots for the top-level spec and for query slots which union
+  ** inherited constraints; other members expand only declared slots - their
+  ** type's own slots (enum items, entity members) belong to that type's export
+  private Bool useEffectiveSlots(Spec spec, Int depth)
+  {
+    isEffective && (depth == 0 || (depth == 1 && spec.isQuery))
+  }
+
   ** Spec slots
   private This slots(SpecMap slots, Int depth)
   {
     if (slots.isEmpty) return this
     prop("slots").obj
-    slots.each |slot| { doSpec(slot.name, slot, depth+1) }
+    slots.each |slot, name| { doSpec(name, slot, depth+1) }
+    objEnd.propEnd
+    return this
+  }
+
+  ** Spec globals
+  private This globals(SpecMap globals, Int depth)
+  {
+    if (globals.isEmpty) return this
+    prop("globals").obj
+    globals.each |x, name| { doSpec(name, x, depth+1) }
     objEnd.propEnd
     return this
   }
