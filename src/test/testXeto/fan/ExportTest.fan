@@ -156,6 +156,53 @@ class ExportTest : AbstractXetoTest
       ])
   }
 
+  Void testGlobals()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    def := Etc.dict0
+    eff := Etc.dict1("effective", m)
+
+    /*
+    own
+    TestGlobalsA: {
+      *globA
+      *globB: Str
+      *globC: Number <minVal:0>
+      globD <global>
+      globE: Str <global>
+    }
+    */
+    verifyJsonExport(ns, def, "TestGlobalsA", ["base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "doc":"Test A",
+      "globals":Etc.makeDict([
+        "globA": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsA.globA"), "spec":Ref("sys::Spec"), "type":Ref("sys::Marker"), "global":m]),
+        "globB": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsA.globB"), "spec":Ref("sys::Spec"), "type":Ref("sys::Str"), "global":m]),
+        "globC": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsA.globC"), "spec":Ref("sys::Spec"), "type":Ref("sys::Number"), "global":m, "minVal":n(0)]),
+        "globD": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsA.globD"), "spec":Ref("sys::Spec"), "type":Ref("sys::Marker"), "global":m]),
+        "globE": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsA.globE"), "spec":Ref("sys::Spec"), "type":Ref("sys::Str"), "global":m]),
+      ])
+    ])
+
+    /*
+    effective - slot override of inherited global gets base link
+    TestGlobalsB: TestGlobalsA {
+      *globF: Str
+      *globG: Str
+      globA
+    }
+    */
+    verifyJsonExport(ns, eff, "TestGlobalsB", ["base":Ref("hx.test.xeto::TestGlobalsA"), "spec":Ref("sys::Spec"), "doc":"Test B",
+      "slots":Etc.makeDict([
+        "globA": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsB.globA"), "spec":Ref("sys::Spec"),
+          "type":Ref("sys::Marker"), "base":Ref("hx.test.xeto::TestGlobalsA.globA"),
+          "doc":"Marker labels a dict with typing information", "pattern":m, "val":m]),
+      ]),
+      "globals":Etc.makeDict([
+        "globF": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsB.globF"), "spec":Ref("sys::Spec"), "type":Ref("sys::Str"), "global":m, "doc":"Unicode string of characters", "val":""]),
+        "globG": Etc.makeDict(["id":Ref("hx.test.xeto::TestGlobalsB.globG"), "spec":Ref("sys::Spec"), "type":Ref("sys::Str"), "global":m, "doc":"Unicode string of characters", "val":""]),
+      ])
+    ])
+  }
+
   Void verifyExport(Namespace ns, Dict opts, Str relId, Str:Obj expect)
   {
     verifyGridExport(ns, opts, relId, expect)

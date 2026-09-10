@@ -92,7 +92,7 @@ class JsonExporter : Exporter
     prop("id").val(spec.id).propEnd
     prop("spec").val(specRef).propEnd
     if (spec.isType) specBase(spec)
-    else specType(spec)
+    else specType(spec).memberBase(spec)
     effective := this.isEffective && depth <= 1
     tags := effective ? spec.meta : spec.metaOwn
     if (spec.isGlobal && tags.missing("global")) prop("global").val(Marker.val).propEnd
@@ -114,6 +114,15 @@ class JsonExporter : Exporter
   {
     if (spec.base == null) return this
     return prop("base").str(spec.base.qname).propEnd
+  }
+
+  ** Member base in effective exports: the immediate declaration this
+  ** member overrides, which preserves declaration identity downstream
+  private This memberBase(Spec spec)
+  {
+    base := spec.base
+    if (!isEffective || base == null || !base.isMember) return this
+    return prop("base").str(base.qname).propEnd
   }
 
   ** Effective slots for the top-level spec and for query slots which union
