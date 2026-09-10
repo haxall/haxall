@@ -26,22 +26,23 @@ class JetoWriter
 
   new make(MNamespace ns, OutStream out, Spec? rootSpec := null, Dict opts := Etc.dict0)
   {
-    this.ns         = ns
-    this.out        = out
-    this.rootSpec   = rootSpec
-    this.xutil      = JetoUtil(ns)
-    this.box        = XetoUtil.optBox(opts)
-    this.pretty     = XetoUtil.optBool(opts, "pretty", false)
-    this.escUnicode = XetoUtil.optBool(opts, "escapeUnicode", false)
+    this.ns          = ns
+    this.out         = out
+    this.rootSpec    = rootSpec
+    this.xutil       = JetoUtil(ns)
+    this.box         = XetoUtil.optBox(opts)
+    this.pretty      = XetoUtil.optBool(opts, "pretty", false)
+    this.indentation = XetoUtil.optInt(opts, "indent", 0)
+    this.escUnicode  = XetoUtil.optBool(opts, "escapeUnicode", false)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Values
 //////////////////////////////////////////////////////////////////////////
 
-  Void writeVal(Obj? val)
+  Void writeVal(Obj? val, Spec? spec := null)
   {
-    doVal(val, rootSpec)
+    doVal(val, spec ?: rootSpec)
   }
 
   private This doVal(Obj? val, Spec? spec)
@@ -62,7 +63,7 @@ class JetoWriter
     {
       if (first) first = false
       else wc(',').nl
-      indent.quoted(n).wc(':')
+      indent.quoted(n).colon
 
       // spec and of are structural refs; they are never boxed
       if (isStructuralTag(n) && (x is Ref || x is Str))
@@ -99,7 +100,7 @@ class JetoWriter
 
     // spec
     specRef := XetoUtil.gridSpecRef(grid)
-    indent.quoted("spec").wc(':').quoted(specRef.id)
+    indent.quoted("spec").colon.quoted(specRef.id)
     wc(',').nl
 
     // 'of' is structural and sits beside 'spec', not inside meta -- same
@@ -107,7 +108,7 @@ class JetoWriter
     ofRef := XetoUtil.gridOfSpecRef(grid)
     if (ofRef != null)
     {
-      indent.quoted("of").wc(':').quoted(ofRef.id)
+      indent.quoted("of").colon.quoted(ofRef.id)
       wc(',').nl
     }
 
@@ -115,7 +116,7 @@ class JetoWriter
     meta := dictExclude(grid.meta, ["spec", "of"])
     if (!meta.isEmpty)
     {
-      indent.quoted("meta").wc(':').writeDict(meta, null)
+      indent.quoted("meta").colon.writeDict(meta, null)
       wc(',').nl
     }
 
@@ -123,7 +124,7 @@ class JetoWriter
     rowSpec := xutil.rowSpec(ofRef, xutil.resolve(specRef, false), false)
 
     // cols
-    indent.quoted("cols").wc(':')
+    indent.quoted("cols").colon
     wc('[').nl
     indentation++
     first := true
@@ -138,7 +139,7 @@ class JetoWriter
     wc(',').nl
 
     // rows
-    indent.quoted("rows").wc(':')
+    indent.quoted("rows").colon
     wc('[').nl
     indentation++
     first = true
@@ -164,20 +165,20 @@ class JetoWriter
   {
     wc('{').nl
     indentation++
-    indent.quoted("name").wc(':').quoted(c.name)
+    indent.quoted("name").colon.quoted(c.name)
 
     of := XetoUtil.gridColSpecRef(c)
     if (of != null)
     {
       wc(',').nl
-      indent.quoted("of").wc(':').quoted(of.id)
+      indent.quoted("of").colon.quoted(of.id)
     }
 
     meta := dictExclude(c.meta, ["of"])
     if (!meta.isEmpty)
     {
       wc(',').nl
-      indent.quoted("meta").wc(':').writeDict(meta, null)
+      indent.quoted("meta").colon.writeDict(meta, null)
     }
 
     indentation--
@@ -234,16 +235,16 @@ class JetoWriter
   {
     wc('{').nl
     indentation++
-    indent.quoted("val").wc(':').quoted(encodeScalar(val))
+    indent.quoted("val").colon.quoted(encodeScalar(val))
     wc(',').nl
-    indent.quoted("spec").wc(':').quoted(spec.qname)
+    indent.quoted("spec").colon.quoted(spec.qname)
 
     // a box is the only place a Ref's display string can travel
     dis := (val as Ref)?.disVal
     if (dis != null)
     {
       wc(',').nl
-      indent.quoted("dis").wc(':').quoted(dis)
+      indent.quoted("dis").colon.quoted(dis)
     }
 
     indentation--
@@ -344,6 +345,12 @@ class JetoWriter
   {
     if (pretty) w(Str.spaces(indentation*2))
     return this
+  }
+
+  ** Name/value separator - the single choke point for the colon style
+  private This colon()
+  {
+    wc(':')
   }
 
   private This wc(Int char)

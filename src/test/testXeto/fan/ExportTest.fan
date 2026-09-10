@@ -203,6 +203,44 @@ class ExportTest : AbstractXetoTest
     ])
   }
 
+  Void testBox()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    auto := Etc.dict1("box", "auto")
+    all  := Etc.dict1("box", "all")
+
+    // auto boxes only values whose plain JSON form loses the type;
+    // untyped instance ids box too per the Jeto ref rules
+    verifyJsonExport(ns, auto, "coerce", [
+      "id":box("hx.test.xeto::coerce", "sys::Ref"),
+      "bool": true, "int":n(1), "float":n(2.1f),
+      "nan":box("NaN", "sys::Float"), "posInf":box("INF", "sys::Float"), "negInf":box("-INF", "sys::Float"),
+      "dur":box("3min", "sys::Duration"), "num":box("4kW", "sys::Number"),
+      "date":box("2024-10-31", "sys::Date"), "version":box("1.2.3", "sys::Version"),
+      "list":Obj?[n(4)], "dict":Etc.dict1("x", n(4))
+      ])
+
+    // typed positions round-trip plainly, so auto leaves them unboxed;
+    // structural spec stays a plain string at every box mode
+    verifyJsonExport(ns, auto, "lists", [
+      "id":box("hx.test.xeto::lists", "sys::Ref"),
+      "spec":Ref("hx.test.xeto::ListOfTest"),
+      "a":Obj?["2024-11-26", "2024-11-27"]
+      ])
+
+    // all boxes every instance field value
+    verifyJsonExport(ns, all, "coerce", [
+      "id":box("hx.test.xeto::coerce", "sys::Ref"),
+      "bool":box("true", "sys::Bool"), "int":box("1", "sys::Int"), "float":box("2.1", "sys::Float"),
+      "nan":box("NaN", "sys::Float"), "posInf":box("INF", "sys::Float"), "negInf":box("-INF", "sys::Float"),
+      "dur":box("3min", "sys::Duration"), "num":box("4kW", "sys::Number"),
+      "date":box("2024-10-31", "sys::Date"), "version":box("1.2.3", "sys::Version"),
+      "list":Obj?[box("4", "sys::Int")], "dict":Etc.dict1("x", box("4", "sys::Int"))
+      ])
+  }
+
+  private static Dict box(Str val, Str spec) { Etc.dict2("val", val, "spec", spec) }
+
   Void verifyExport(Namespace ns, Dict opts, Str relId, Str:Obj expect)
   {
     verifyGridExport(ns, opts, relId, expect)
@@ -219,7 +257,7 @@ class ExportTest : AbstractXetoTest
     }
     else
     {
-      expect["id"] = "hx.test.xeto::$relId"
+      if (expect["id"] == null) expect["id"] = "hx.test.xeto::$relId"
     }
 
     doc := jsonExport(ns, opts)

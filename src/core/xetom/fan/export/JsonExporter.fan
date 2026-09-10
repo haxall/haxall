@@ -22,6 +22,7 @@ class JsonExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
+    this.plainWriter = JetoWriter(ns, out, null, boxNone)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,22 +55,20 @@ class JsonExporter : Exporter
     return this
   }
 
+  ** Instances are Jeto full stop: the codec owns instance encoding
+  ** including the box option; this exporter owns only the spec AST
   override This instance(Dict instance)
   {
     relId := XetoUtil.qnameToName(instance.id.id)
-    prop(relId).obj
+    prop(relId)
+    instanceWriter.writeVal(instance)
+    return propEnd
+  }
 
-    spec := instance["spec"]
-    if (spec != null) dictPair("spec", spec)
-
-    instance.each |v, n|
-    {
-      if (n == "spec") return
-      dictPair(n, v)
-    }
-
-    objEnd.propEnd
-    return this
+  private JetoWriter instanceWriter()
+  {
+    JetoWriter(ns, out, null, Etc.dict3(
+      "box", opts["box"] ?: "none", "pretty", true, "indent", indentation))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -194,13 +193,13 @@ class JsonExporter : Exporter
     return this
   }
 
-  ** Boxing is pinned off: the schema types every scalar as a string with a
-  ** pattern, so a boxed scalar - an object - would not validate against the
-  ** schema this exporter itself generates.  Do not let this inherit the
-  ** codec default, which is auto.
+  ** Boxing is pinned off for spec meta: the schema types every scalar as a
+  ** string with a pattern, so a boxed scalar - an object - would not
+  ** validate against the schema this exporter itself generates.  Do not let
+  ** this inherit the codec default, which is auto.
   private This scalar(Obj x)
   {
-    JetoWriter(ns, out, null, boxNone).writeVal(x)
+    plainWriter.writeVal(x)
     return this
   }
 
@@ -291,5 +290,6 @@ class JsonExporter : Exporter
 
   private Bool[] firsts := Bool[true]    // object state stack
   private Bool lastWasEnd
+  private JetoWriter plainWriter         // spec meta scalars, always plain
 }
 
