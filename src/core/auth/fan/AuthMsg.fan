@@ -29,6 +29,13 @@ const class AuthMsg
     splitList(s).map |tok->AuthMsg| { fromStr(tok) }
   }
 
+  ** Encode a list of AuthMsg instances into a single comma-joined
+  ** string suitable for a WWW-Authenticate header value per RFC 7235.
+  static Str listToStr(AuthMsg[] msgs)
+  {
+    msgs.join(", ") |msg| { msg.toStr }
+  }
+
   ** Parse a string encoding according to RFC 7235.
   static new fromStr(Str s, Bool checked := true)
   {
