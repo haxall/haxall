@@ -795,7 +795,7 @@ class NamespaceTest : AbstractXetoTest
       ["id":Ref("d"), "dis":"ZoneCo2Sensor",          "spec":Ref("ph.points::ZoneCo2Sensor"),          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
       ["id":Ref("e"), "dis":"HotWaterValveModulatingCmd", "spec":Ref("ph.points.sugar::HotWaterValveModulatingCmd"), "point":m, "cmd":m, "kind":"Number", "equipRef":x, "unit":"%", "hot":m, "water":m, "valve":m, "modulating":m, "actuator":m],
       ["id":Ref("f"), "dis":"DischargeAirDamperModulatingCmd", "spec":Ref("ph.points.sugar::DischargeAirDamperModulatingCmd"), "point":m, "cmd":m, "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m, "actuator":m, "modulating":m],
-      ["id":Ref("g"), "dis":"DischargeAirFlowSensor", "spec":Ref("ph.points.sugar::DischargeAirFlowSensor"), "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"cfm","discharge":m, "air":m, "flow":m],
+      ["id":Ref("g"), "dis":"DischargeAirFlowSensor", "spec":Ref("ph.points.sugar::DischargeAirFlowSensor"), "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"cfm","discharge":m, "air":m, "flow":m, "volume":m],
       ["id":Ref("h"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points.sugar::DischargeAirTempSensor"), "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
     ])
 

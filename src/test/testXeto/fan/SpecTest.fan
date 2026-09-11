@@ -267,14 +267,14 @@ class SpecTest : AbstractXetoTest
 
     // env.print(env.spec("ph.points::DischargeAirTempSensor"))
 
-    s := verifyIsa(ns, "ph.points::FluidFlowSensor", "sys::And", true)
-    verifyIsa(ns, "ph.points::FluidFlowSensor", "ph::Point", true)
-    verifyIsa(ns, "ph.points::FluidFlowSensor", "ph::SensorPoint", true)
-    verifyIsa(ns, "ph.points::FluidFlowSensor", "sys::Entity", true)
-    verifyIsa(ns, "ph.points::FluidFlowSensor", "sys::Dict", true, false)
+    s := verifyIsa(ns, "ph.points::FluidVolumetricFlowSensor", "sys::And", true)
+    verifyIsa(ns, "ph.points::FluidVolumetricFlowSensor", "ph::Point", true)
+    verifyIsa(ns, "ph.points::FluidVolumetricFlowSensor", "ph::SensorPoint", true)
+    verifyIsa(ns, "ph.points::FluidVolumetricFlowSensor", "sys::Entity", true)
+    verifyIsa(ns, "ph.points::FluidVolumetricFlowSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, true)
 
-    s = verifyIsa(ns, "ph.points::AirFlowSensor", "ph.points::FluidFlowSensor", true)
+    s = verifyIsa(ns, "ph.points::AirFlowSensor", "ph.points::FluidVolumetricFlowSensor", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "ph.points::FluidFlowPoint", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "ph::SensorPoint", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Dict", true, false)
@@ -533,14 +533,16 @@ class SpecTest : AbstractXetoTest
       "equips:Query"]
     numPtSlots := ptSlots.dup.addAll(["unit:Unit", "maxVal:Number?", "minVal:Number?"])
     ffSlots    := numPtSlots.dup.add("flow:Marker")
-    ffsSlots   := ffSlots.dup.add("sensor:Marker")
+    fvfSlots   := ffSlots.dup.add("volume:Marker")
+    ffsSlots   := fvfSlots.dup.add("sensor:Marker")
     afsSlots   := ffsSlots.dup.add("air:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")
 
     verifySlots(ph.type("Point"), ptSlots)
     verifySlots(ph.type("NumberPoint"), numPtSlots)
     verifySlots(phx.type("FluidFlowPoint"), ffSlots)
-    verifySlots(phx.type("FluidFlowSensor"), ffsSlots)
+    verifySlots(phx.type("FluidVolumetricFlowPoint"), fvfSlots)
+    verifySlots(phx.type("FluidVolumetricFlowSensor"), ffsSlots)
     verifySlots(phx.type("AirFlowSensor"), afsSlots)
     verifySlots(phs.type("DischargeAirFlowSensor"), dafsSlots)
 
