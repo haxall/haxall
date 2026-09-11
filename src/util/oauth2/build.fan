@@ -35,6 +35,7 @@ class Build : BuildPod
                "util @{fan.depend}",
               ]
     srcDirs = [`fan/`,
+               `test/`,
               ]
   }
 }
