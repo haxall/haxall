@@ -37,8 +37,12 @@ const class AuthCodeGrant
     pkce := Pkce.gen
     authRes := authReq.authorize(pkce.params)
 
-    // 2. Send the authorization code to the token endpoint to obtain the acces token
-    tokenParams := ["code": authRes["code"], "code_verifier": pkce.codeVerifier]
+    // 2. Send the authorization code to the token endpoint to obtain the access token.
+    // Also forward redirect_uri when authorize() returns one (e.g. from an ephemeral
+    // loopback port — the same URI must be sent to the token endpoint per RFC 6749 §4.1.3).
+    tokenParams := Str:Str["code": authRes["code"], "code_verifier": pkce.codeVerifier]
+    if (authRes.containsKey("redirect_uri"))
+      tokenParams["redirect_uri"] = authRes["redirect_uri"]
     return tokenReq.grant(authReq, tokenParams)
   }
 

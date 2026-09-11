@@ -56,13 +56,18 @@ const abstract class AuthReq
 **************************************************************************
 
 **
-** If the authorization server is configured to redirect to the localhost, then this
-** class can be used to do an authorization request. It will open a browser window for the
-** user to authorize access with the remote authorization server. It will spawn a
-** web server on the localhost to handle the redirect that the authorization server
-** will do after the authorization access is granted or denied. It granted, we grabe
-** the authorization code from the spawned web server so that the authorization code
-** grant flow can continue.
+** Handles the Authorization Code request using a loopback HTTP listener.
+**
+** The authorization server must be configured to redirect to the loopback
+** address (127.0.0.1 or localhost).  This class:
+**   1. Starts a WispService on the port from `redirectUri`, or an OS-assigned
+**      ephemeral port when no port is specified (RFC 8252 §7.3).
+**   2. Builds the effective `redirect_uri` using the actual bound port.
+**   3. Opens the authorization URL in the system browser.
+**   4. Waits up to 2 minutes for the AS to redirect back with an auth code.
+**   5. Verifies the `state` parameter to prevent CSRF.
+**   6. Returns a result map that includes `redirect_uri` so that the token
+**      endpoint receives the exact same URI (RFC 6749 §4.1.3).
 **
 const class LoopbackAuthReq : AuthReq
 {
@@ -88,23 +93,39 @@ const class LoopbackAuthReq : AuthReq
 
   override Str:Str authorize(Str:Str flowParams)
   {
-    params := this.build
-    params["state"] = Buf.random(16).toBase64Uri
-    params.addAll(flowParams)
-
+    // Use the caller-specified port when present in redirectUri, otherwise let
+    // the OS assign an ephemeral port (httpPort=-1).  RFC 8252 §7.3 recommends
+    // ephemeral ports, but some AS configurations require a fixed registered port.
+    requestedPort := redirectUri.port ?: -1
     mod  := LoopbackMod()
-    wisp := WispService {
-      it.httpPort = redirectUri.port ?: 80
-      it.root     = mod
-    }.start
-
+    wisp := WispService { it.httpPort = requestedPort; it.root = mod }.start
     try
     {
-      uri := authUri.plusQuery(params)
-      Desktop.getDesktop().browse(URI(uri.encode))
+      // Wait until Wisp is actually listening so we can read the bound port.
+      // waitUntilListening blocks until isListening is true, at which point the
+      // WispService has already setConst'd httpPort to the OS-assigned value.
+      wisp.waitUntilListening
+      port := wisp.httpPort ?: throw Err("WispService did not assign an httpPort after listening")
 
-      authRes := mod.authRes.get(2min)
-      return verify(authRes, params["state"])
+      // Build the effective redirect_uri with the actual bound port.
+      effectiveRedirect := "http://127.0.0.1:${port}/callback"
+
+      // Build the authorize request params, replacing redirect_uri with the
+      // port-resolved value and adding PKCE + state.
+      params := this.build
+      params["redirect_uri"] = effectiveRedirect
+      params["state"]        = Buf.random(16).toBase64Uri
+      params.addAll(flowParams)
+
+      Desktop.getDesktop().browse(URI(authUri.plusQuery(params).encode))
+
+      authRes  := mod.authRes.get(2min)
+      verified := verify(authRes, params["state"]).dup
+
+      // Forward the effective redirect_uri so the token endpoint receives the
+      // identical URI used in the authorize request (RFC 6749 §4.1.3).
+      verified["redirect_uri"] = effectiveRedirect
+      return verified
     }
     finally wisp.stop
   }
