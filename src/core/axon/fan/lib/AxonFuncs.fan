@@ -3144,7 +3144,8 @@ const class AxonFuncs
   @NoDoc @Api @Axon
   static Obj? evalOrReadAll(Str expr)
   {
-    AxonContext.curAxon.evalOrReadAll(expr)
+    if (expr.isEmpty) return null
+    return AxonContext.curAxon.evalOrReadAll(expr)
   }
 
   ** Reflectively call a function with the given arguments.  The func
