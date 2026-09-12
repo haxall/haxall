@@ -26,7 +26,7 @@ class Context : AxonContext, FolioContext
   ** Current context for actor thread
   static Context? cur(Bool checked := true)
   {
-    cx := ActorContext.curx(false)
+    cx := ActorContext.curx(false) as Context
     if (cx != null) return cx
     if (checked) throw ContextUnavailableErr("No Context available")
     return null
