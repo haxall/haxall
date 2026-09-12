@@ -79,5 +79,14 @@ enum class ColorName
 
   ** Rose
   rose
+
+
+  ** Coerce to color name instance
+  @NoDoc static ColorName? coerce(Obj? x, ColorName? def := null)
+  {
+    if (x is ColorName) return x
+    if (x is Str) return fromStr(x.toStr, false) ?: def
+    return def
+  }
 }
 

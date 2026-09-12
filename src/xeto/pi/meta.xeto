@@ -16,6 +16,10 @@
   // Plural display text
   plural: Text?
 
+  // Applied to an action function when view selection is required
+  selectMode: SelectMode?
+
   // Display text
   text: Text?
 }
+

@@ -32,7 +32,8 @@ class Build : BuildPod
                "dom @{fan.depend}",
                "graphics @{fan.depend}",
                "util @{fan.depend}",
-               "xeto @{hx.depend}"]
+               "xeto @{hx.depend}",
+               "haystack @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`locale/`, `res/`]
     index   = ["xeto.bindings": "pi"]

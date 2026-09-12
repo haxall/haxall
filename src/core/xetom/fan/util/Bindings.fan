@@ -114,8 +114,10 @@ const class SpecBindings
     add(UnitQuantityBinding       (xeto.type("UnitQuantity")))
 
     // pi pod
-    add(IconBinding  (pi.type("Icon")))
-    add(TextBinding  (pi.type("Text")))
+    add(IconBinding       (pi.type("Icon")))
+    add(SelectModeBinding (pi.type("SelectMode")))
+    add(SniBinding        (pi.type("Sni")))
+    add(TextBinding       (pi.type("Text")))
 
     // haystack pod
     add(CoordBinding     (hay.type("Coord")))
@@ -589,6 +591,20 @@ internal const class RepoLibAvailabilityBinding : ScalarBinding
 {
   new make(Type type) : super("sys.repo::RepoLibAvailability", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { RepoLibAvailability.fromStr(str, checked) }
+}
+
+@Js
+internal const class SelectModeBinding : ScalarBinding
+{
+  new make(Type type) : super(type.qname, type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { SelectMode.fromStr(str, checked) }
+}
+
+@Js
+internal const class SniBinding : ScalarBinding
+{
+  new make(Type type) : super(type.qname, type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Sni.fromStr(str, checked) }
 }
 
 @Js

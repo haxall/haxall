@@ -42,3 +42,15 @@ ColorName: Enum {
   rose     // Rose
 }
 
+// SelectionMode
+SelectMode: Enum {
+  disabled   // Selection is disabled
+  single     // Can select only one item
+  multi      // Can select one or more items
+}
+
+// Subject navigation identifier formatted as "/provider/tail?params#frag".
+// The `of` meta names the resolved referent type: a single item such as
+// `Sni<of:Equip>`, or a collection such as `Sni<of:Collection<of:Point>>`.
+Sni: Scalar
+
