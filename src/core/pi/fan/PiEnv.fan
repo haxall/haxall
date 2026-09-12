@@ -18,7 +18,7 @@ using haystack
 abstract const class PiEnv
 {
   ** Current environment for VM
-  static PiEnv cur() { curRef.val ?: throw Err("PiEnv not avail") }
+  static PiEnv? cur() { curRef.val ?: throw Err("PiEnv not avail") }
 
   static const AtomicRef curRef := AtomicRef()
 
@@ -36,5 +36,8 @@ abstract const class PiEnv
 
   ** Wrap a grid as an ItemGrid collection
   abstract ItemCollection itemGrid(Grid grid)
+
+  ** Display flash notification for an error to the user
+  virtual Void flash(Str msg, Err? err := null) { Console.cur.err(msg, err) }
 }
 
