@@ -114,6 +114,7 @@ const class SpecBindings
     add(UnitQuantityBinding       (xeto.type("UnitQuantity")))
 
     // pi pod
+    add(FormatBinding     (pi.type("Format")))
     add(IconBinding       (pi.type("Icon")))
     add(SelectModeBinding (pi.type("SelectMode")))
     add(SniBinding        (pi.type("Sni")))
@@ -517,6 +518,13 @@ internal const class FloatBinding : ScalarBinding
 {
   new make(Type type) : super(type.qname, type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Float.fromStr(str, checked) }
+}
+
+@Js
+internal const class FormatBinding : ScalarBinding
+{
+  new make(Type type) : super(type.qname, type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Format.fromStr(str) }
 }
 
 @Js
