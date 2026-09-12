@@ -246,7 +246,7 @@ const class PiCoerce
   {
     if (x == null) return null
     if (x is Dict) return x
-    if (x is Grid) return ((Grid)x).first ?: throw Err("Empty grid")
+    if (x is Grid) return ((Grid)x).first  // empty grid is the no-data placeholder
     if (x is Item) return ((Item)x).data
     throw Err("Invalid dict data: $x [$x.typeof]")
   }

@@ -890,6 +890,7 @@ class JsonTest : AbstractXetoTest
     "sys::SpanMode":          "lastMonth",
     "sys.comp::CompLayout":   "1,2,8",
     "axon::AxonExpr":         "today()",
+    "pi::Sni":                "/db/site-a",
   ]
 
   ** Scalar specs deliberately outside the sweep, each with its reason
