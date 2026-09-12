@@ -26,7 +26,7 @@ abstract const class PiEnv
   abstract Namespace ns()
 
   ** Relativize id in the current runtime
-  virtual Ref normRef(Ref id) { id }
+  abstract Ref normRef(Ref id)
 
   ** Item wrapper for a spec cached per space namespace
   abstract Item specItem(Spec spec)
@@ -38,6 +38,6 @@ abstract const class PiEnv
   abstract ItemCollection itemGrid(Grid grid)
 
   ** Display flash notification for an error to the user
-  virtual Void flash(Str msg, Err? err := null) { Console.cur.err(msg, err) }
+  abstract Void flash(ItemStatus status, Str msg, Err? err := null)
 }
 

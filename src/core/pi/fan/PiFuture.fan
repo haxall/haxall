@@ -145,7 +145,7 @@ const class PiFuture : Future
     if (cb != null) return cb(err)
 
     msg := "$<futureFailed>: $descriptionRef"
-    PiEnv.cur.flash(msg, err)
+    PiEnv.cur.flash(ItemStatus.err, msg, err)
     throw err
   }
 
