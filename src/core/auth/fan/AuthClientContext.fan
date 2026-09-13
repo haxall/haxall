@@ -166,6 +166,19 @@ class AuthClientContext : HaystackClientAuth
     return true
   }
 
+  ** Select the best challenge from a list returned by the server.
+  ** Interactive clients prefer oauth2; non-interactive clients skip it
+  ** (requires a browser). Falls back to first if no non-oauth2 scheme found.
+  internal static AuthMsg selectChallenge(AuthMsg[] msgs, Bool interactive)
+  {
+    if (interactive)
+    {
+      oauth := msgs.find |m| { m.scheme == "oauth2" }
+      if (oauth != null) return oauth
+    }
+    return msgs.find |m| { m.scheme != "oauth2" } ?: msgs.first
+  }
+
   ** Attempt standard authentication via Haystack/RFC 7235
   private Bool openStd(WebClient c)
   {
@@ -186,10 +199,10 @@ class AuthClientContext : HaystackClientAuth
       // sanity check that we don't loop too many times
       if (loopCount > 5) throw err("Loop count exceeded")
 
-      // parse the WWW-Auth header and use the first scheme
+      // parse all challenges and select the best one per client mode
       header  := resHeader(c, "WWW-Authenticate")
       resMsgs := AuthMsg.listFromStr(header)
-      resMsg  := resMsgs.first
+      resMsg  := selectChallenge(resMsgs, interactive)
       scheme  = AuthScheme.find(resMsg.scheme)
 
       // let scheme handle handle message

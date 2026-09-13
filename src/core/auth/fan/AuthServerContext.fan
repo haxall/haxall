@@ -120,6 +120,7 @@ abstract class AuthServerContext
 
       // handle hello message by routing to user's configured scheme, otherwise
       // verify the scheme matches the user's configured scheme
+      extras := schemeName == "hello" ? extraChallenges : AuthMsg[,]
       if (schemeName == "hello") schemeName = user.scheme
       if (isDebug) debug("Scheme name: $schemeName")
       if (schemeName != user.scheme) return sendErrRes(res, 400, "Invalid auth scheme for user: $schemeName != $user.scheme")
@@ -141,7 +142,8 @@ abstract class AuthServerContext
       }
       else
       {
-        res.headers["WWW-Authenticate"] = resMsg.toStr
+        // on the hello exchange only, extras is populated with extraChallenges()
+        res.headers["WWW-Authenticate"] = AuthMsg.listToStr([resMsg].addAll(extras))
         sendRes(res, 401, "Auth challenge")
       }
       return null
@@ -169,6 +171,12 @@ abstract class AuthServerContext
     }
     return sendErrRes(res, 403, "Invalid or expired authToken")
   }
+
+  ** Additional challenges to globally append to every hello 401
+  ** response alongside the user-specific challenge (e.g. OAUTH2 when
+  ** OAuth 2.0 is enabled on the server).  Default returns an empty list.
+  ** Subclasses override to inject globally-available alternatives.
+  virtual AuthMsg[] extraChallenges() { AuthMsg[,] }
 
   ** Low-level callback to handle scheme messages. The default behavior is to
   ** lookup the AuthScheme and delegate handling of the request to it. But one could

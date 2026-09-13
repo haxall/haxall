@@ -118,7 +118,32 @@ class AuthMsgTest : Test
     {
       verifyEq(a, expected[i])
     }
+  }
 
+//////////////////////////////////////////////////////////////////////////
+// ListToStr
+//////////////////////////////////////////////////////////////////////////
+
+  Void testListToStr()
+  {
+    // empty list yields empty string
+    verifyEq(AuthMsg.listToStr(AuthMsg[,]), "")
+
+    // single challenge round-trips (matches toStr)
+    a := AuthMsg("scram", ["hash":"SHA-256", "handshakeToken":"aabbcc"])
+    verifyListToStr([a])
+
+    // two challenges (SCRAM + OAUTH2) round-trip through listToStr → listFromStr
+    oauth2 := AuthMsg("oauth2", ["clientId":"dGVzdC1jbGllbnQ", "issuer":"aHR0cHM6Ly9leGFtcGxlLmNvbQ"])
+    verifyListToStr([a, oauth2])
+  }
+
+  ** Round-trip: listToStr → listFromStr and check every element survives intact.
+  private Void verifyListToStr(AuthMsg[] msgs)
+  {
+    parsed := AuthMsg.listFromStr(AuthMsg.listToStr(msgs))
+    verifyEq(parsed.size, msgs.size)
+    parsed.each |p, i| { verifyEq(p, msgs[i]) }
   }
 
 }
