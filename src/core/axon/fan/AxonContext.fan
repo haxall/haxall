@@ -114,7 +114,9 @@ abstract class AxonContext : HaystackContext, CompContext
   ** is still in use.
   @NoDoc Void nsCacheClear() { tops.clear; xetoIsSpecCache = null }
 
-  private Spec? resolveUnqualifiedFunc(Str name, FileLoc loc, Bool checked)
+  ** Resolve unqualified func name to its spec using Axon symbol
+  ** resolution rules: op funcs lose to normal funcs, proj lib override
+  @NoDoc Spec? resolveUnqualifiedFunc(Str name, FileLoc loc := FileLoc.eval, Bool checked := true)
   {
     // resolve func as list from namespace (cached in MNameespace)
     list := ns.funcs.getAll(name)
