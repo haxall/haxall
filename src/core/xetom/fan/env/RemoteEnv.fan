@@ -42,8 +42,6 @@ const class RemoteEnv : MEnv
 
   override Str libVersionDigest(File file) { throw unavailErr() }
 
-  override Void clearLibCache() {}
-
   override Str mode() { "browser" }
 
   override Str:Str debugProps() { Str:Obj[:] }
