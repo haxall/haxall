@@ -16,8 +16,9 @@ using hx
 ** Exposes Xeto libraries and their files as: `{xetoLib}/{path}`
 **
 ** The Xeto LibFiles API only lists resource files (not directories), even
-** though they may be stored in directories in the lib itself. So we have
-** to do some work to figure out the actual filesystem layout of the lib.
+** though they may be stored in directories in the lib itself.  A file uri
+** resolves to its LibFile via `toLibFile`; directories are derived from
+** the file paths.
 **
 const class LibMount : Mount
 {
@@ -33,7 +34,9 @@ const class LibMount : Mount
 
   override Bool exists(Uri uri)
   {
-    toLibUri(uri) != null
+    if (isRoot(uri)) return true
+    if (uri.isDir) return dirExists(uri)
+    return toLibFile(uri) != null
   }
 
   override Int? size(Uri uri)
@@ -64,47 +67,21 @@ const class LibMount : Mount
     // list all libs
     if (isRoot(uri)) return ns.libs.map { ext.resolve(mountAbs(`${it.name}/`)) }
 
-    acc := File[,]
-
-    // list a directory
     lib := toLib(uri)
-    if (lib == null) return acc
+    if (lib == null) return File[,]
 
+    // collapse the accessible files into their immediate child entries;
+    // a directory only shows up when an accessible file lives under it
     path := toPath(uri)
-
-    children := [Uri:LibFile][:]
-    lib.files.published.each |f|
+    children := Uri:File[:] { ordered = true }
+    accessible(lib).each |f|
     {
       fileUri := f.uri
-      if (fileUri != path && fileUri.toStr.startsWith(path.toStr))
-      {
-        rel := fileUri.relTo(path)
-        children[rel[0..<1]] = f
-      }
+      if (fileUri == path || !fileUri.toStr.startsWith(path.toStr)) return
+      child := `${path}${fileUri.relTo(path)[0..<1]}`
+      children[child] = ext.resolve(mountAbs(`${lib.name}${child}`))
     }
-    children.each |file, rel|
-    {
-      libPath := `${path}${rel}`
-      // check access
-      if (!canAccess(libPath)) return
-      // don't show empty directories
-      if (libPath.isDir && isLibDirEmpty(lib, libPath)) return
-      acc.add(ext.resolve(mountAbs(`${lib.name}${libPath}`)))
-    }
-    return acc
-  }
-
-  private Bool isLibDirEmpty(Lib lib, Uri dir)
-  {
-    // lib files are always files, never directory entries
-    child := lib.files.published.eachWhile |f| {
-      fileUri := f.uri
-      if (fileUri == dir) return null
-      if (!fileUri.toStr.startsWith(dir.toStr)) return null
-      if (!canAccess(fileUri)) return null
-      return fileUri
-    }
-    return child == null
+    return children.vals
   }
 
   // override InStream in(Uri uri, Int? bufferSize)
@@ -118,50 +95,52 @@ const class LibMount : Mount
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Security
+// Resolution
 //////////////////////////////////////////////////////////////////////////
 
-  private Bool canAccess(Uri path)
+  ** Resolve a mount uri to its LibFile or null.  Only published files
+  ** are reachable: a file which is merely packaged in the lib does not
+  ** resolve even by its exact path.  Directories never map to a LibFile.
+  LibFile? toLibFile(Uri uri)
   {
-    if (path.isDir) return true
+    if (isRoot(uri) || uri.isDir) return null
 
-    // check whitelist for a file
-    if (!fileAccess.whitelisted(path)) return false
+    lib := toLib(uri)
+    if (lib == null) return null
 
-    return true
+    f := lib.files.get(toPath(uri), false)
+    if (f == null || !f.isPublished || !canAccess(f)) return null
+    return f
+  }
+
+  ** A directory exists if it is a lib root or an accessible file lives under it
+  private Bool dirExists(Uri uri)
+  {
+    lib := toLib(uri)
+    if (lib == null) return false
+
+    path := toPath(uri)
+    if (path == `/`) return true
+    return accessible(lib).any |f| { f.uri.toStr.startsWith(path.toStr) }
+  }
+
+  ** The published files readable thru this mount
+  private LibFile[] accessible(Lib lib)
+  {
+    lib.files.published.findAll |f| { canAccess(f) }
+  }
+
+  ** A published file is officially part of the lib's public API, so the
+  ** publish list is its own whitelist; anything else falls back to the
+  ** file extension whitelist
+  private Bool canAccess(LibFile f)
+  {
+    f.isPublished || fileAccess.whitelisted(f.uri)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Util
 //////////////////////////////////////////////////////////////////////////
-
-  private Uri? toLibUri(Uri uri)
-  {
-    if (isRoot(uri)) return `xeto:///`
-
-    lib := toLib(uri)
-    if (lib == null) return null
-
-    path := toPath(uri)
-
-    // check access
-    if (!canAccess(path)) return null
-
-    if (path.isDir)
-    {
-      // if it is just the lib dir then it always exists
-      if (path == `/`) return uri
-      return lib.files.published.eachWhile |f|
-      {
-        f.uri.toStr.startsWith(path.toStr) ? f.uri : null
-      }
-    }
-
-    libFile := toPublished(lib, path)
-    if (libFile == null) return null
-
-    return libFile.uri
-  }
 
   private Lib? toLib(Uri uri)
   {
@@ -174,32 +153,9 @@ const class LibMount : Mount
   }
 
   ** {xetoLib}/{path} => {path}
-  Uri toPath(Uri uri)
+  private Uri toPath(Uri uri)
   {
     if (uri.path.size < 2) return `/`
     return uri.getRangeToPathAbs(1..-1)
   }
-
-  LibFile? toLibFile(Uri uri)
-  {
-    if (isRoot(uri) || uri.isDir) return null
-
-    lib := toLib(uri)
-    if (lib == null) return null
-
-    path := toPath(uri)
-
-    if (!canAccess(path)) return null
-
-    return toPublished(lib, path)
-  }
-
-  ** The mount only exposes what the lib publishes, so a file which is
-  ** merely packaged is not reachable even by its exact path
-  private LibFile? toPublished(Lib lib, Uri path)
-  {
-    f := lib.files.get(path, false)
-    return f != null && f.isPublished ? f : null
-  }
 }
-
