@@ -29,6 +29,7 @@ class Build : BuildPod
     depends = ["sys @{fan.depend}",
                "crypto @{fan.depend}",
                "concurrent @{fan.depend}",
+               "dom @{fan.depend}",
                "util @{fan.depend}",
                "web @{fan.depend}",
                "yaml @{fan.depend}",

@@ -6,6 +6,8 @@
 //   2 Sep 2026  Rex Fenley  Creation
 //
 
+using concurrent
+using dom
 using xeto
 
 **
@@ -14,14 +16,61 @@ using xeto
 @NoDoc @Js
 const class RdfQudtMap
 {
-  ** Load the mappings packaged by sys.rdf.
+  ** Load the mappings packaged by sys.rdf.  The server resolves the lib
+  ** directly; the browser cannot, so it must fetch the two props files
+  ** over HTTP and install them first.
   static RdfQudtMap load()
   {
+    cur := curRef.val as RdfQudtMap
+    if (cur != null) return cur
+    if (Env.cur.isBrowser) throw UnsupportedErr("RdfQudtMap not installed in browser")
     lib := XetoEnv.cur.resolveNamespace(["sys.rdf"]).lib("sys.rdf")
     units := (Str:Str)lib.files.get(`/qudt-units.props`).read |in| { in.readProps }
     quantities := (Str:Str)lib.files.get(`/qudt-quantities.props`).read |in| { in.readProps }
-    return make(units, quantities)
+    return install(units, quantities)
   }
+
+  ** Is the map loaded and cached
+  static Bool isLoaded() { curRef.val != null }
+
+  ** Install the map from the parsed contents of the sys.rdf props files
+  static RdfQudtMap install(Str:Str units, Str:Str quantities)
+  {
+    curRef.val = make(units, quantities)
+  }
+
+  ** Load the map in the browser by fetching the props files from the
+  ** given base URI for the sys.rdf lib files, such as the file space
+  ** lib mount `/api/demo/file/lib/sys.rdf/`.  Return future that
+  ** completes once the map is installed.
+  static Future loadBrowser(Uri baseUri)
+  {
+    future := Future.makeCompletable
+    if (isLoaded) return future.complete(load)
+    fetchProps(baseUri + `qudt-units.props`, future) |units|
+    {
+      fetchProps(baseUri + `qudt-quantities.props`, future) |quantities|
+      {
+        future.complete(install(units, quantities))
+      }
+    }
+    return future
+  }
+
+  ** Fetch and parse one props file, completing the future on error
+  private static Void fetchProps(Uri uri, Future future, |Str:Str| onOk)
+  {
+    HttpReq { it.uri = uri }.get |res|
+    {
+      if (res.status != 200) { future.completeErr(IOErr("Cannot load $uri [$res.status]")); return }
+      try
+        onOk(res.content.in.readProps)
+      catch (Err e)
+        future.completeErr(e)
+    }
+  }
+
+  private static const AtomicRef curRef := AtomicRef()
 
   private new make(Str:Str units, Str:Str quantityProps)
   {
