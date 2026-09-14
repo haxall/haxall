@@ -576,6 +576,23 @@ class RdfTest : AbstractXetoTest
 
     // rdf encodes instances only
     verifyErr(UnsupportedErr#) { ns.io.writeRdfToStr("scalar") }
+
+    // an unqualified ref such as a folio rec id requires the baseUri opt
+    rec := Etc.makeDict(["id":Ref("p:demo:r:322de9c0-3157ae0e"), "spec":Ref("sys::Entity")])
+    verifyErr(UnsupportedErr#) { ns.io.writeRdfToStr(rec) }
+    opts := Etc.dict1("baseUri", `https://acme.com/api/demo/rec/`)
+    rdf = ns.io.writeRdfToStr(rec, opts)
+    verify(rdf.contains("<https://acme.com/api/demo/rec/p:demo:r:322de9c0-3157ae0e>"), rdf)
+
+    // haystack fidelity carries an enum value as its Str key
+    ph := createNamespace(["sys", "ph"])
+    site := Etc.makeDict(["id":Ref("p:demo:r:site"), "spec":Ref("ph::Site"), "geoCountry":"US"])
+    rdf = ph.io.writeRdfToStr(site, opts)
+    verify(rdf.contains("\"US\"^^xsd:string"), rdf)
+
+    // but an invalid enum key still fails closed
+    bad := Etc.makeDict(["id":Ref("p:demo:r:site"), "spec":Ref("ph::Site"), "geoCountry":"XX"])
+    verifyErr(UnsupportedErr#) { ph.io.writeRdfToStr(bad, opts) }
   }
 
   Void testDirectInstanceFindsInstalledMixinProperty()

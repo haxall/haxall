@@ -86,6 +86,10 @@ const mixin XetoIO
   ** Dict[], or Grid of instances and every instance requires an 'id' tag.
   ** RDF is a write only format.  The stream is left open and returned.
   **
+  ** Options:
+  **   - baseUri: mint IRIs for refs which are not library-qualified as
+  **     '<{baseUri}{ref}>'; without it such refs raise UnsupportedErr
+  **
   abstract OutStream writeRdf(OutStream out, Obj? val, Dict? opts := null)
 
   **

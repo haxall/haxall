@@ -24,6 +24,7 @@ class RdfExporter : Exporter
   {
     this.instancesOnly = opts.has("instancesOnly")
     this.schemaOnly = opts.has("schemaOnly")
+    this.baseUri = opts["baseUri"]?.toStr
     if (instancesOnly && schemaOnly)
       throw ArgErr("instancesOnly and schemaOnly are mutually exclusive")
   }
@@ -1299,11 +1300,16 @@ class RdfExporter : Exporter
       }
       if (type.qname == "sys::UnitQuantity")
         throw UnsupportedErr("RDF UnitQuantity mapping not supported for ${property} of ${type.qname}")
-      scalar := val as Scalar
-        ?: throw UnsupportedErr("Expected ${type.qname} enum value for ${property}, not ${val.typeof}")
-      if (scalar.qname != type.qname)
-        throw UnsupportedErr("Expected ${type.qname} enum value for ${property}, not ${scalar.qname}")
-      key := scalar.val
+      // haystack fidelity carries an enum value as its Str key
+      key := val as Str
+      if (key == null)
+      {
+        scalar := val as Scalar
+          ?: throw UnsupportedErr("Expected ${type.qname} enum value for ${property}, not ${val.typeof}")
+        if (scalar.qname != type.qname)
+          throw UnsupportedErr("Expected ${type.qname} enum value for ${property}, not ${scalar.qname}")
+        key = scalar.val
+      }
       if (type.enum.spec(key, false) == null)
         throw UnsupportedErr("Invalid ${type.qname} value: ${key}")
       w(indent).qname(property).w(" ").literal(key).w("^^xsd:string ;").nl
@@ -1507,6 +1513,7 @@ class RdfExporter : Exporter
   private Str:Spec instanceMemberSpecs := [:]
   private Bool instancesOnly
   private Bool schemaOnly
+  private Str? baseUri
   private RdfQudtMap? qudtRef
 
   private RdfQudtMap qudt()
@@ -1546,7 +1553,13 @@ class RdfExporter : Exporter
     qname := id.toStr
     sep := qname.index("::")
     if (sep == null || sep == 0 || sep + 2 >= qname.size || qname.index("::", sep + 2) != null)
+    {
+      // an unqualified ref such as a folio rec id mints its IRI from the
+      // baseUri opt; without the opt we stay fail-closed
+      if (baseUri != null)
+        return w("<").w(baseUri).w(Uri.encodeToken(qname, Uri.sectionFrag)).w(">")
       throw UnsupportedErr("RDF instance id or reference is not library-qualified: ${qname}")
+    }
 
     libName := qname[0..<sep]
     local := qname[sep + 2..-1]
