@@ -391,21 +391,24 @@ const final class ConnPoint : HxConnPoint
              kind:           $kind
              tz:             $tz
              unit:           $unit
-             tuning:         $tuning.rec.id.toZinc
              data:           $data
              isWatched:      $isWatched
 
              """)
 
-    detailsAddr(s, model.curTag,   curAddr)
-    detailsAddr(s, model.hisTag,   hisAddr)
-    detailsAddr(s, model.writeTag, writeAddr, model.writeLevelTag)
+    detailsAddr(s, model.curTag,   curAddr,   isCurEnabled,   config.curFault)
+    detailsAddr(s, model.hisTag,   hisAddr,   isHisEnabled,   config.hisFault)
+    detailsAddr(s, model.writeTag, writeAddr, isWriteEnabled, config.writeFault, model.writeLevelTag)
 
     s.add("\n")
     committer.details(s)
 
     extra := ext.onPointDetails(this).trim
     if (!extra.isEmpty) s.add("\n").add(extra).add("\n")
+
+    detailsRec(s)
+
+    detailsTuning(s)
 
     watches := ext.proj.watch.listOn(id)
     s.add("""
@@ -455,10 +458,46 @@ const final class ConnPoint : HxConnPoint
     return s.toStr
   }
 
-  private Void detailsAddr(StrBuf s, Str? tag, Obj? val, Str? levelTag := null)
+  private Void detailsTuning(StrBuf s)
+  {
+    t := tuning
+    source := config.tuning != null ? "point" : (conn.config.tuning != null ? "conn" : "ext")
+    writeMin := t.writeMinTime?.toStr ?: "-"
+    writeMax := t.writeMaxTime?.toStr ?: "-"
+    s.add("""
+             Tuning
+             =============================
+             id:            $t.id.toZinc
+             source:        $source
+             pollTime:      $t.pollTime
+             staleTime:     $t.staleTime
+             writeMinTime:  $writeMin
+             writeMaxTime:  $writeMax
+             writeOnOpen:   $t.writeOnOpen
+             writeOnStart:  $t.writeOnStart
+             """)
+    if (conn.pollMode === ConnPollMode.buckets)
+    {
+      bucket := conn.pollBuckets.find |b| { b.tuning === t }
+      s.add("pollBucket:    ").add(bucket?.toStr ?: "-").add("\n")
+    }
+  }
+
+  private Void detailsRec(StrBuf s)
+  {
+    s.add("""
+             Rec
+             =============================
+             """)
+    s.add(TrioWriter.dictToStr(rec))
+  }
+
+  private Void detailsAddr(StrBuf s, Str? tag, Obj? val, Bool enabled, Str? fault, Str? levelTag := null)
   {
     if (tag == null) return
     s.add("$tag:".padr(16)).add(val == null ? "-" : ZincWriter.valToStr(val))
+    if (val != null) s.add(enabled ? " [enabled]" : " [disabled]")
+    if (fault != null) s.add(" fault: ").add(fault)
     if (levelTag != null) s.add(" ").add(levelTag).add("=").add(rec.get(levelTag) ?: "missing")
     s.add("\n")
   }
