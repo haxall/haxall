@@ -78,6 +78,22 @@ const mixin XetoIO
   abstract Str writeJetoToStr(Obj? val, Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////
+// RDF
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Write xeto instance data as RDF Turtle.  The val must be a Dict,
+  ** Dict[], or Grid of instances and every instance requires an 'id' tag.
+  ** RDF is a write only format.  The stream is left open and returned.
+  **
+  abstract OutStream writeRdf(OutStream out, Obj? val, Dict? opts := null)
+
+  **
+  ** Convenience for writeRdf to an in-memory string
+  **
+  abstract Str writeRdfToStr(Obj? val, Dict? opts := null)
+
+//////////////////////////////////////////////////////////////////////////
 // AST
 //////////////////////////////////////////////////////////////////////////
 

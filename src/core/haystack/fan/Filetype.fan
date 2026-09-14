@@ -13,7 +13,7 @@ using xeto
 **
 ** Filetype models a the table of data reader/writers:
 **   - haystack grid formats: zinc, hayson, trio, csv (isGridIO)
-**   - xeto formats: xeto, jeto (isXetoIO)
+**   - xeto formats: xeto, jeto (isXetoIO), rdf (isRdf)
 **   - document formats: excel, pdf, svg, html (isView, ui3 only)
 **
 @NoDoc @Js
@@ -96,8 +96,9 @@ const class Filetype
     add(make("xml",    "XML",     "text/xml",                 "xml",  "sys.files::XmlFile",             null,                    "hxUtil::XmlWriter"))
 
     // xeto formats
-    add(make("xeto",   "Xeto",    "text/xeto",                "xeto", "sys.files::XetoFile",  null, null))
-    add(make("jeto",   "Jeto",    "text/jeto",                "json", "sys.files::JetoFile",  null, null))
+    add(make("xeto",   "Xeto",    "text/xeto",                "xeto", "sys.files::XetoFile",   null, null))
+    add(make("jeto",   "Jeto",    "text/jeto",                "json", "sys.files::JetoFile",   null, null))
+    add(make("rdf",    "RDF",     "text/turtle",              "ttl",  "sys.files::TurtleFile", null, null))
 
     // skyarc view formats are only available when the view pod is installed
     if (Pod.find("view", false) != null)
@@ -128,6 +129,7 @@ const class Filetype
     this.isText         = mime.isText
     this.isGridIO       = reader != null || writer != null
     this.isXetoIO       = name == "xeto" || name == "jeto"
+    this.isRdf          = name == "rdf"
     this.isView         = name == "pdf" || name == "svg" || name == "html"
   }
 
@@ -173,6 +175,10 @@ const class Filetype
   ** the namespace codec rather than a GridReader/GridWriter
   const Bool isXetoIO
 
+  ** Is this the RDF turtle format, written through the namespace
+  ** RDF exporter; it is a write only format
+  const Bool isRdf
+
   ** Is this a format that supports view aware exports (versus data only export)
   const Bool isView
 
@@ -192,11 +198,14 @@ const class Filetype
   }
 
   ** Formats to offer as a text view of a grid, such as the shell's view
-  ** picker.  This is `exports` minus the view aware formats, which render
-  ** a document rather than the data itself.
+  ** picker and the table copy menus.  This is every writable text format
+  ** minus the view aware formats, which render a document rather than the
+  ** data itself.  The formats without a GridWriter encode through the
+  ** xeto namespace, so the UI must skip them if the session has no
+  ** namespace loaded.
   static Filetype[] textViews3()
   {
-    exports3.findAll |f| { f.isText && !f.isView }
+    list.findAll |f| { f.canWrite && f.isText && !f.isView }
   }
 
   ** Return ui3 Fresco options template for export dialogs or null
@@ -263,7 +272,7 @@ const class Filetype
   Bool canRead() { hasGridReader || isXetoIO }
 
   ** Can this filetype encode an HTTP response body
-  Bool canWrite() { hasGridWriter || isXetoIO }
+  Bool canWrite() { hasGridWriter || isXetoIO || isRdf }
 
   ** Map an HTTP API request mime type to file format or return null
   static Filetype? apiMime(MimeType? mime, ApiVersion version)
@@ -315,6 +324,9 @@ const class Filetype
       else ns.io.writeJeto(out, val, opts)
       return
     }
+
+    // rdf is write only; a null result is an empty body
+    if (isRdf) { if (val != null) ns.io.writeRdf(out, val, opts); return }
 
     // a null result encodes as the empty grid clients expect; Etc.toGrid
     // would otherwise make a single row with a null val col

@@ -75,6 +75,28 @@ const final class MXetoIO : XetoIO
   }
 
 //////////////////////////////////////////////////////////////////////////
+// RDF
+//////////////////////////////////////////////////////////////////////////
+
+  override OutStream writeRdf(OutStream out, Obj? val, Dict? opts := null)
+  {
+    e := RdfExporter(ns, out, opts ?: Etc.dict0).start
+    if (val is Grid) ((Grid)val).each |row| { e.instance(row) }
+    else if (val is List) ((List)val).each |x| { e.instance(x) }
+    else if (val is Dict) e.instance(val)
+    else if (val != null) throw UnsupportedErr("Cannot encode to RDF: ${val.typeof}")
+    e.end
+    return out
+  }
+
+  override Str writeRdfToStr(Obj? val, Dict? opts := null)
+  {
+    buf := StrBuf(256)
+    writeRdf(buf.out, val, opts)
+    return buf.toStr
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // AST
 //////////////////////////////////////////////////////////////////////////
 

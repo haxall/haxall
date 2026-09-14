@@ -561,6 +561,23 @@ class RdfTest : AbstractXetoTest
     verifyFalse(employee.contains("temp:Employee.orgRef"), employee)
   }
 
+  Void testXetoIO()
+  {
+    ns := createNamespace(["sys", "hx"])
+    a := Etc.makeDict(["id":Ref("hx::a"), "spec":Ref("sys::Entity")])
+    b := Etc.makeDict(["id":Ref("hx::b"), "spec":Ref("sys::Entity")])
+
+    // grid, dict list, and single dict all encode as instances
+    rdf := ns.io.writeRdfToStr(Etc.makeDictsGrid(null, [a, b]))
+    verify(rdf.contains("hx:a"), rdf)
+    verify(rdf.contains("hx:b"), rdf)
+    verifyEq(rdf, ns.io.writeRdfToStr([a, b]))
+    verify(ns.io.writeRdfToStr(a).contains("hx:a"))
+
+    // rdf encodes instances only
+    verifyErr(UnsupportedErr#) { ns.io.writeRdfToStr("scalar") }
+  }
+
   Void testDirectInstanceFindsInstalledMixinProperty()
   {
     ns := createNamespace(["sys", "hx"])

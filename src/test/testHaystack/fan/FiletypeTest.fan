@@ -315,11 +315,17 @@ class FiletypeTest : HaystackTest
     verifyApiCap("xml",    false, true)
     verifyApiCap("xeto",   true,  true)
     verifyApiCap("jeto",   true,  true)
+    verifyApiCap("rdf",    false, true)
 
     verifyEq(Filetype.byName("xeto").isXetoIO, true)
     verifyEq(Filetype.byName("jeto").isXetoIO, true)
     verifyEq(Filetype.byName("zinc").isXetoIO, false)
     verifyEq(Filetype.byName("hayson").isXetoIO, false)
+
+    // rdf is its own write only family
+    verifyEq(Filetype.byName("rdf").isRdf, true)
+    verifyEq(Filetype.byName("rdf").isXetoIO, false)
+    verifyEq(Filetype.byName("xeto").isRdf, false)
 
     // isGridIO is the mechanism flag: a GridReader/GridWriter exists
     verifyEq(Filetype.byName("zinc").isGridIO, true)
@@ -396,27 +402,28 @@ class FiletypeTest : HaystackTest
       verifyFalse(f.isDeprecated, f.name)
     }
 
-    // textViews is exports minus the view aware formats, which render a
-    // document rather than the data
+    // textViews is every writable text format minus the view aware ones
     Filetype.textViews3.each |f|
     {
-      verify(Filetype.exports3.contains(f), f.name)
+      verify(f.canWrite, f.name)
       verify(f.isText, f.name)
       verifyFalse(f.isView, f.name)
+      verifyFalse(f.isDeprecated, f.name)
     }
 
     // excel is exportable but not a text view
     verify(Filetype.exports3.contains(Filetype.byName("excel")))
     verifyFalse(Filetype.textViews3.contains(Filetype.byName("excel")))
 
-    // the xeto formats encode through XetoIO rather than a GridWriter, so
-    // they are in neither set: offering them would throw when picked
-    ["xeto", "jeto"].each |n|
+    // the xeto family and rdf encode through the namespace rather than a
+    // GridWriter: text views but not exports
+    ["xeto", "jeto", "rdf"].each |n|
     {
       f := Filetype.byName(n)
       verifyFalse(f.hasGridWriter, n)
+      verify(f.canWrite, n)
       verifyFalse(Filetype.exports3.contains(f), n)
-      verifyFalse(Filetype.textViews3.contains(f), n)
+      verify(Filetype.textViews3.contains(f), n)
     }
 
     // optsTemplate
