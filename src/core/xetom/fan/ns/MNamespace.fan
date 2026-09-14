@@ -25,6 +25,7 @@ const class MNamespace : Namespace, CNamespace
   **
   ** Constructor options:
   **   - uncheckedDepends: load with unmet depends (libs just go into err)
+  **   - srcBuildVars: Str:BuildVars keyed by lib name for source compiles
   **
   new make(MEnv env, LibVersion[] versions, Dict opts := Etc.dict0)
   {

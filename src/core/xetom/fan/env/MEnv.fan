@@ -155,12 +155,14 @@ abstract const class MEnv : XetoEnv
   internal XetoCompiler initCompiler(MNamespace ns, LibVersion v)
   {
     build := ns.opts.get("build") as Str:File
+    vars  := ns.opts.get("srcBuildVars") as Str:BuildVars
     return XetoCompiler.init
     {
-      it.ns      = ns
-      it.libName = v.name
-      it.input   = v.file
-      it.build   = build?.get(v.name)
+      it.ns           = ns
+      it.libName      = v.name
+      it.input        = v.file
+      it.build        = build?.get(v.name)
+      it.srcBuildVars = vars?.get(v.name)
       it.applyOpts(ns.opts)
     }
   }
