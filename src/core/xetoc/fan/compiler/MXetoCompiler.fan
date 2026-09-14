@@ -116,7 +116,7 @@ internal class MXetoCompiler : XetoCompiler
       ParseLib(),
     ])
 
-    dir := input.parent
+    dir := input.parent ?: input  // in-memory input has no parent
     pragma := lib.pragma
 
     flags := 0
