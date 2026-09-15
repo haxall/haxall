@@ -98,9 +98,9 @@ const class LibMount : Mount
 // Resolution
 //////////////////////////////////////////////////////////////////////////
 
-  ** Resolve a mount uri to its LibFile or null.  Only published files
-  ** are reachable: a file which is merely packaged in the lib does not
-  ** resolve even by its exact path.  Directories never map to a LibFile.
+  ** Resolve a mount uri to its LibFile or null. A published file always
+  ** resolves; a file merely included in the lib resolves only when its
+  ** extension is whitelisted. Directories never map to a LibFile.
   LibFile? toLibFile(Uri uri)
   {
     if (isRoot(uri) || uri.isDir) return null
@@ -109,7 +109,7 @@ const class LibMount : Mount
     if (lib == null) return null
 
     f := lib.files.get(toPath(uri), false)
-    if (f == null || !f.isPublished || !canAccess(f)) return null
+    if (f == null || !canAccess(f)) return null
     return f
   }
 
@@ -124,10 +124,10 @@ const class LibMount : Mount
     return accessible(lib).any |f| { f.uri.toStr.startsWith(path.toStr) }
   }
 
-  ** The published files readable thru this mount
+  ** The packaged files readable thru this mount
   private LibFile[] accessible(Lib lib)
   {
-    lib.files.published.findAll |f| { canAccess(f) }
+    lib.files.list.findAll |f| { canAccess(f) }
   }
 
   ** A published file is officially part of the lib's public API, so the

@@ -42,7 +42,7 @@ class MountFileTest : HxTest
 // LibMount
 //////////////////////////////////////////////////////////////////////////
 
-  ** LibMount exposes published lib files as lib/{xetoLib}/{path}
+  ** LibMount exposes published and whitelisted lib files as lib/{xetoLib}/{path}
   @HxTestProj
   Void testLibMount()
   {
@@ -68,20 +68,27 @@ class MountFileTest : HxTest
     // root markdown chapters are intrinsically published
     verifyLibExists(`lib/hx.test.xeto/Readme.md`, true)
 
-    // a file merely included in the lib is not reachable even by its
-    // exact path, and its directory stays hidden too
-    verifyLibExists(`lib/hx.test.xeto/dist/`, false)
-    verifyLibExists(`lib/hx.test.xeto/data/`, false)
-    verifyLibExists(`lib/hx.test.xeto/data/c.txt`, false)
-    verifyErr(IOErr#) { resolve(`lib/hx.test.xeto/data/c.txt`).withIn |in| { in.readAllStr } }
+    // a file merely included in the lib works like a pod resource: it is
+    // reachable when its extension is whitelisted, and the haxall default
+    // whitelist accepts every extension
+    verifyLibExists(`lib/hx.test.xeto/dist/`, true)
+    verifyLibExists(`lib/hx.test.xeto/data/`, true)
+    verifyLibExists(`lib/hx.test.xeto/data/c.txt`, true)
+    verifyLibRead(`lib/hx.test.xeto/data/c.txt`, "gamma\n")
 
-    // listings surface only published entries; xeto sources and root
-    // markdown chapters are intrinsically published
+    // a file not packaged at all is never reachable
+    verifyLibExists(`lib/hx.test.xeto/test-exclude/`, false)
+    verifyLibExists(`lib/hx.test.xeto/test-exclude/excluded.txt`, false)
+    verifyErr(IOErr#) { resolve(`lib/hx.test.xeto/test-exclude/excluded.txt`).withIn |in| { in.readAllStr } }
+
+    // listings surface published and included entries; xeto sources and
+    // root markdown chapters are intrinsically published
     names := resolve(`lib/hx.test.xeto/`).list.map |x->Str| { x.name }
-    ["lib.xeto", "ChapterA.md", "Readme.md", "pub-root.txt", "res"].each |n| { verify(names.contains(n), n) }
-    ["data", "dist"].each |n| { verifyFalse(names.contains(n), n) }
+    ["lib.xeto", "ChapterA.md", "Readme.md", "pub-root.txt", "res", "data", "dist"].each |n| { verify(names.contains(n), n) }
+    verifyFalse(names.contains("test-exclude"))
     verifyLibList(`lib/hx.test.xeto/res/`, ["a.txt", "subdir"])
     verifyLibList(`lib/hx.test.xeto/res/subdir/`, ["b.txt"])
+    verifyLibList(`lib/hx.test.xeto/dist/`, ["test.css", "test.js"])
 
     // size/modified come from the LibFile; dirs have no size
     libFile := Context.cur.ns.lib("hx.test.xeto").files.get(`/res/a.txt`)
