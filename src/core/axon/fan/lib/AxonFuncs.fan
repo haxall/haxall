@@ -3121,7 +3121,7 @@ const class AxonFuncs
     AxonContext.curAxon.eval(expr)
   }
 
-  ** Evalate an Axon string expression to a function.  Typically the
+  ** Evaluate an Axon string expression to a function.  Typically the
   ** expression is just a function name, but it can be any expression
   ** that evaluates to a function.  Raise an exception if the expression
   ** does not evaluate to a function. Note this call does evalute the

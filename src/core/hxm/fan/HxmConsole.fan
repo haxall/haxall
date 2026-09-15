@@ -297,7 +297,7 @@ const class HxmConsole : HxConsole
       info(HxUtil.threadDump(id))
   }
 
-  @HxmConsoleCmd { help="Evalate axon expression"
+  @HxmConsoleCmd { help="Evaluate axon expression"
     usage="""eval <expr>   Evaluate given expr""" }
   Void onEval(Str input)
   {
