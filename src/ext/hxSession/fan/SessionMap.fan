@@ -35,18 +35,12 @@ internal const class SessionMap
   {
     username := session.username
     return sessionLock.withLock |->Obj?| {
-      try
-      {
-        userCounts.set(username, userCount(username)+1)
-        byId.add(session.id, session)
-        byKey.add(session.key, session)
-        return session
-      }
-      catch (Err err)
-      {
-        remove(session)
-        throw err
-      }
+      // map by key first since it is the only key that can collide; a
+      // collision throws with other state untouched
+      byKey.add(session.key, session)
+      byId.add(session.id, session)
+      userCounts.set(username, userCount(username)+1)
+      return session
     }
   }
 
