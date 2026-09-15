@@ -708,8 +708,27 @@ const class IOFuncs
 // RDF
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write an Axon data structure to RDF [Turtle](doc.xeto::Rdf) format.
-  ** The `val` must be an Axon type that can be converted to a Grid.
+  ** Write xeto instance data to RDF Turtle format.  The baseUri option
+  ** defaults to the runtime's API rec base under `IHttpExt.siteUri`.
+  ** See [fan.xeto::XetoIO.writeRdf] for details and options.
+  @Api @Axon { admin = true }
+  static Obj? ioWriteRdf(Obj? val, Obj? handle, Obj? opts := null)
+  {
+    cx := curContext
+    Dict o := opts as Dict ?: Etc.dict0
+    if (o.missing("baseUri"))
+    {
+      siteUri := cx.sys.http(false)?.siteUri
+      if (siteUri != null) o = Etc.dictSet(o, "baseUri", siteUri + `api/${cx.rt.name}/rec/`)
+    }
+    return toHandle(handle).withOut |out|
+    {
+      cx.ns.io.writeRdf(out, val, o)
+    }
+  }
+
+  ** Deprecated: use `ioWriteRdf()`
+  @NoDoc @Deprecated { msg = "Use ioWriteRdf" }
   @Api @Axon { admin = true }
   static Obj? ioWriteTurtle(Obj? val, Obj? handle)
   {
@@ -720,8 +739,8 @@ const class IOFuncs
     }
   }
 
-  ** Write an Axon data structure to RDF [JSON-LD](doc.xeto::Rdf) format.
-  ** The `val` must be an Axon type that can be converted to a Grid.
+  ** Deprecated: use `ioWriteRdf()`
+  @NoDoc @Deprecated { msg = "Use ioWriteRdf" }
   @Api @Axon { admin = true }
   static Obj? ioWriteJsonLd(Obj? val, Obj? handle)
   {

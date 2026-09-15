@@ -355,6 +355,12 @@ class IOTest : HxTest
            n: "Andy"
          }""")
 
+    // ioWriteRdf
+    eval("""ioWriteRdf({id:@p:demo:r:abc, spec:@sys::Entity}, `io/foo.ttl`, {baseUri:`https://acme.com/rec/`})""")
+    ttl := projDir.plus(`io/foo.ttl`).readAllStr
+    verify(ttl.contains("<https://acme.com/rec/p:demo:r:abc>"))
+    verify(ttl.contains("a sys:Entity"))
+
     // ioZipDir
     zip := Zip.write(projDir.plus(`io/zipped.zip`).out)
     zip.writeNext(`/alpha.txt`).print("alpha!").close
