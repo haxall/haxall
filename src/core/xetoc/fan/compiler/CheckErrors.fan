@@ -286,12 +286,20 @@ internal class CheckErrors : Step
 
   Void checkMember(ASpec x)
   {
+    checkMemberName(x)
     checkSpec(x)
     checkMemberType(x)
     checkMemberMeta(x)
     checkMemberVal(x)
     if (x.parent.isMixin) checkMixinMember(x)
     if (x.parent.parent != null) checkNestedMember(x)
+  }
+
+  Void checkMemberName(ASpec x)
+  {
+    if (XetoUtil.isAutoName(x.name)) return
+    if (!XetoUtil.isSlotName(x.name))
+      err("Slots must start with lower case: $x.name", x.loc)
   }
 
   Void checkMemberType(ASpec slot)

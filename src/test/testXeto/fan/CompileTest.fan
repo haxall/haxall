@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 
 **
@@ -933,6 +934,34 @@ class CompileTest : AbstractXetoTest
 
     deref := lib.spec(name)
     return toNestedSpecSig(lib, deref)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Slot Names
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSlotNames()
+  {
+    ns := createNamespace(["sys"])
+
+    // unnamed capitalized type slots get auto-names
+    lib := ns.compileTempLib(
+      Str<|Bar: {}
+           Foo: { a: Str, Bar }
+           |>)
+    verifyEq(lib.type("Foo").slots.names, ["a", "_0"])
+
+    // named slots must start with lower case
+    verifyErrMsg(XetoCompilerErr#, "Slots must start with lower case: Bar")
+    {
+      ns.compileTempLib(Str<|Foo: { Bar: Str }|>)
+    }
+
+    // nested slots including query constraints are checked too
+    verifyErrMsg(XetoCompilerErr#, "Slots must start with lower case: MSI2")
+    {
+      ns.compileTempLib(Str<|Foo: { pts: { MSI2: Str } }|>)
+    }
   }
 }
 
