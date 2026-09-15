@@ -194,6 +194,7 @@ class DocHtmlWriter : WebOutStream
     slotSig(slot)
     slotBase(slot)
     markdown(slot.doc)
+    slotSrc(slot)
     nestedSlots(slot)
     tabSectionEnd
   }
@@ -276,6 +277,19 @@ class DocHtmlWriter : WebOutStream
     }
     w("&gt;")
     return this
+  }
+
+  private Void slotSrc(DocSlot slot)
+  {
+    if (!slot.type.isFunc) return
+    src := slot.meta.getStr("axon")
+    if (src == null) return
+    tag(tagSlotSrc).nl
+    tag("details").nl
+    tag("summary").w("Source").tagEnd("summary").nl
+    pre.esc(src.trim).preEnd
+    tagEnd("details").nl
+    tagEnd(tagSlotSrc).nl
   }
 
   private Void slotVal(Str name, DocVal val)
@@ -832,6 +846,7 @@ class DocHtmlWriter : WebOutStream
   static const Str tagSlot        := "xetodoc-slot"
   static const Str tagSlotNested  := "xetodoc-slot-nested"
   static const Str tagSlotBase    := "xetodoc-slot-base"
+  static const Str tagSlotSrc     := "xetodoc-slot-src"
   static const Str tagChapter     := "xetodoc-chapter"
   static const Str tagFooter      := "xetodoc-footer"
   static const Str tagSearchInfo  := "xetodoc-search-info"

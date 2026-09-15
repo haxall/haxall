@@ -244,6 +244,20 @@ xetodoc-slot-base a {
   color: var(--sidebar-color);
 }
 
+xetodoc-slot-src {
+  display: block;
+}
+
+xetodoc-slot-src summary {
+  cursor: pointer;
+  font-size: 80%;
+  color: var(--sidebar-color);
+}
+
+xetodoc-slot-src pre {
+  margin: 0.5em 0;
+}
+
 xetodoc-slot-nested {
   display: block;
 }

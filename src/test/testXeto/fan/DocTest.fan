@@ -91,6 +91,12 @@ class DocTest : AbstractXetoTest
     verifyPoints(spec, page)
     verifyPoints(spec, roundtrip(page))
 
+    // func axon source
+    spec = lib.spec("Funcs")
+    page = toPage(compiler, `/$lib.name/$spec.name`)
+    verifyFuncSrc(page)
+    verifyFuncSrc(roundtrip(page))
+
     // chapter
     page = toPage(compiler, `/doc.xeto/Namespaces`)
     verifyChapter(page)
@@ -200,6 +206,17 @@ class DocTest : AbstractXetoTest
     verifyEq(siteRef.type.qname, "sys::Ref")
 
     verifyEq(n.doc.html.trim, "<p>Equip with <em>points</em></p>")
+  }
+
+  Void verifyFuncSrc(DocSpec n)
+  {
+    // axon source is included in slot meta
+    verifyEq(n.slots.getChecked("add1").meta.getStr("axon"), "a + b")
+
+    // nosrc strips axon source from slot meta
+    nosrc := n.slots.getChecked("add1NoSrc")
+    verifyEq(nosrc.meta.has("nosrc"), true)
+    verifyEq(nosrc.meta.has("axon"), false)
   }
 
   Void verifyInstance(Dict inst, DocInstance n)

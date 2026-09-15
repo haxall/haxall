@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetom
+using haystack
 
 **
 ** Generate DocPage for each entry
@@ -190,7 +191,7 @@ internal class GenPages: Step
      it.flavor     = x.flavor
      it.srcLoc     = DocUtil.srcLoc(x)
      it.doc        = genSpecDoc(x)
-     it.meta       = genDict(x.meta, specMeta)
+     it.meta       = genDict(metaFilter(x.meta), specMeta)
      it.tags       = genSpecTags(x)
      it.base       = x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
      it.supertypes = genSupertypes(x)
@@ -311,7 +312,7 @@ internal class GenPages: Step
   {
     loc     := DocUtil.srcLoc(slot)
     doc     := genSpecDoc(slot)
-    meta    := genDict(slot.metaOwn, specMeta)
+    meta    := genDict(metaFilter(slot.metaOwn), specMeta)
     typeRef := genTypeRef(slot)
     parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
     base    := genSlotBase(slot)
@@ -380,6 +381,12 @@ internal class GenPages: Step
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  ** Strip axon source from spec meta if nosrc marker is specified
+  private static Dict metaFilter(Dict meta)
+  {
+    meta.has("nosrc") && meta.has("axon") ? Etc.dictRemove(meta, "axon") : meta
+  }
 
   private DocDict genDict(Dict d, Spec? spec, DocLink? link := null)
   {
