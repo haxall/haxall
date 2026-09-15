@@ -325,8 +325,7 @@ internal class StubCli : HxCli
   ** Write lib.xeto
   private Void genXetoLib()
   {
-    hx      := this.haxall
-    extType := "${typePrefix}Ext"
+    hx := this.haxall
 
     xetoLibFile.out.writeChars(applyTemplate(`lib.xeto.template`) |key->Str?| {
       switch (key)
@@ -339,13 +338,14 @@ internal class StubCli : HxCli
         case "bv-orgUri":  return hx ? Str<|BuildVar "hx.org.uri"|> : this.orgUri.toCode
         case "bv-vcs":     return hx ? Str<|BuildVar "hx.vcs.type"|> : this.vcs.toCode
         case "bv-vcsUri":  return hx ? Str<|BuildVar "hx.vcs.uri"|> : this.vcsUri.toCode
-        case "libExt":     return isExt ? "libExt: ${extType}" : ""
+        case "libExt":     return isExt ? "libExt: ${typePrefix}Ext" : ""
         case "connStart":  return conn ? "" : "/*"
         case "connEnd":    return conn ? "" : "*/"
       }
       if (key == "extSpec")
       {
         if (isResource) return ""
+        extType := "${typePrefix}Ext"
         if (conn) return "${extType}: ConnExt <connFeatures:{}>"
         return "${extType}: Ext"
       }
