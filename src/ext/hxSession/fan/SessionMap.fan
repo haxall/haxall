@@ -31,10 +31,15 @@ internal const class SessionMap
   ** The number of sessions (Int) open for a user (keyed by username)
   private const ConcurrentMap userCounts := ConcurrentMap()
 
-  UserSession add(UserSession session)
+  ** Add the session to the map. The check function is invoked while
+  ** holding the lock and may throw to reject the session before it is
+  ** mapped, which makes the limit checks atomic with the add.
+  UserSession add(UserSession session, |->| check)
   {
     username := session.username
     return sessionLock.withLock |->Obj?| {
+      check()
+
       // map by key first since it is the only key that can collide; a
       // collision throws with other state untouched
       byKey.add(session.key, session)
@@ -62,14 +67,22 @@ internal const class SessionMap
 
   ServerSession[] list()  { byKey.vals(ServerSession#) }
 
-  Void remove(UserSession session)
+  ** Remove the session from the map. Return false if this session is not
+  ** mapped, which means it was already closed.
+  Bool remove(UserSession session)
   {
     username := session.username
-    sessionLock.withLock |->Obj?| {
+    return sessionLock.withLock |->Obj?| {
+      // only unmap and decrement if this exact session is still mapped
+      if (byId.get(session.id) !== session) return false
       byId.remove(session.id)
       byKey.remove(session.key)
-      userCounts.set(username, userCount(username)-1)
-      return null
+
+      // drop the count entry once the user has no sessions
+      count := userCount(username) - 1
+      if (count > 0) userCounts.set(username, count)
+      else userCounts.remove(username)
+      return true
     }
   }
 

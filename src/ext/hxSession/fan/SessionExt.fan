@@ -119,27 +119,28 @@ const class SessionExt : ExtObj, ISessionExt
     ServerSession(this, user, key, attestKey, Etc.makeDict(meta))
   }
 
-  ** Chokepoint for registering a newly opened session.
+  ** Chokepoint for registering a newly opened session. The limit checks
+  ** run while holding the session map lock so concurrent logins cannot
+  ** overshoot the limits.
   private ServerSession register(ServerSession session)
   {
+    sessionMap.add(session) |->| { checkLimits(session) }
+    return session
+  }
+
+  ** Check session limits; super users can always create new sessions
+  private Void checkLimits(ServerSession session)
+  {
+    if (session.user.isSu) return
     username := session.username
 
-    // check session limits
-    if (!session.user.isSu)
-    {
-      // user limit
-      if (sessionMap.userCount(username) >= settings.maxSessionsPerUser)
-        throw MaxSessionsErr("Max sessions exceeded for user: ${username}")
+    // user limit
+    if (sessionMap.userCount(username) >= settings.maxSessionsPerUser)
+      throw MaxSessionsErr("Max sessions exceeded for user: ${username}")
 
-      // system limit
-      if (this.size >= settings.maxSessions)
-        throw MaxSessionsErr("Max total sessions exceeded")
-    }
-
-    // register the session
-    sessionMap.add(session)
-
-    return session
+    // system limit
+    if (this.size >= settings.maxSessions)
+      throw MaxSessionsErr("Max total sessions exceeded")
   }
 
   override ServerSession? get(Str key, Bool checked := true) { sessionMap.get(key, checked) }
@@ -156,12 +157,12 @@ const class SessionExt : ExtObj, ISessionExt
 
   final override Void close(UserSession session)
   {
-    sessionMap.remove(session)
-    onClose(session)
+    // closing a session that is already closed is a no-op
+    if (sessionMap.remove(session)) onClose(session)
   }
 
   ** Callback when a session is closed. The session will already be unmapped
-  ** when this is called
+  ** when this is called. Not called if the session was already closed.
   protected virtual Void onClose(UserSession session) { }
 
 //////////////////////////////////////////////////////////////////////////
