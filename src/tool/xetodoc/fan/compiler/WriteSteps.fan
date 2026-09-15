@@ -81,6 +81,7 @@ internal class WriteHtml : WriteStep
     {
       w := DocHtmlWriter(out)
       w.footerText = footerText
+      w.srcToHtml = compiler.srcToHtml
       w.page(page)
     }
     finally out.close

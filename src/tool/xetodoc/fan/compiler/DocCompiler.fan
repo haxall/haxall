@@ -61,6 +61,10 @@ class DocCompiler
   ** Hook to handle warnings just for unresolved links
   |Str uri, FileLoc| warnLink := |Str uri, FileLoc loc| { warn("unresolved link [$uri]", loc) }
 
+  ** Hook to syntax highlight func source code as HTML
+  ** markup; or if null then output as escaped plain text
+  |Str src->Str|? srcToHtml
+
 //////////////////////////////////////////////////////////////////////////
 // Options
 //////////////////////////////////////////////////////////////////////////

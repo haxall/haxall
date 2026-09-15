@@ -287,7 +287,10 @@ class DocHtmlWriter : WebOutStream
     tag(tagSlotSrc).nl
     tag("details").nl
     tag("summary").w("Source").tagEnd("summary").nl
-    pre.esc(src.trim).preEnd
+    pre
+    if (srcToHtml != null) w(srcToHtml(src.trim))
+    else esc(src.trim)
+    preEnd
     tagEnd("details").nl
     tagEnd(tagSlotSrc).nl
   }
@@ -859,6 +862,7 @@ class DocHtmlWriter : WebOutStream
   Bool hrefNorm := true
   Str footerText := "footer"
   Str cssFilename := "xetodoc.css"
+  |Str src->Str|? srcToHtml   // hook to syntax highlight func source
   Str? searchTitle
   Uri? searchFormAction
   Str searchPlaceholder := "Search docs..."

@@ -258,6 +258,31 @@ xetodoc-slot-src pre {
   margin: 0.5em 0;
 }
 
+xetodoc-slot-src pre b {
+  color: #f00;
+  font-weight: normal;
+}
+
+xetodoc-slot-src pre i {
+  color: #00f;
+  font-style: normal;
+}
+
+xetodoc-slot-src pre em {
+  color: #7f42cc;
+  font-style: normal;
+}
+
+xetodoc-slot-src pre q {
+  color: #27ae60;
+  font-style: normal;
+}
+
+xetodoc-slot-src pre q:before,
+xetodoc-slot-src pre q:after {
+  content: '';
+}
+
 xetodoc-slot-nested {
   display: block;
 }
