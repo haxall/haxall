@@ -1203,7 +1203,8 @@ class RdfExporter : Exporter
     spec := instanceMemberSpec(parent, member)
     properties := Str:Bool[:]
     properties[instanceProperty(parent, member)] = true
-    while (spec.isSlot && spec.base != null && (spec.base.isSlot || spec.base.isGlobal))
+    // Globals supply inherited constraints, not extra instance properties.
+    while (spec.isSlot && spec.base != null && spec.base.isSlot && !spec.base.isGlobal)
     {
       spec = spec.base
       properties[spec.qname] = true
