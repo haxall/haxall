@@ -207,6 +207,27 @@ class SpecTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Sugar
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSugarLibs()
+  {
+    ns := createNamespace(["ph.points.sugar"])
+
+    // every type in a sugar lib must carry the sugar marker, directly
+    // or inherited; core libs must contain only nominal specs
+    verifySugarLib(ns.lib("ph.points.sugar"), true)
+    verifySugarLib(ns.lib("ph.points"), false)
+    verifySugarLib(ns.lib("ph"), false)
+  }
+
+  Void verifySugarLib(Lib lib, Bool isSugar)
+  {
+    verify(!lib.types.list.isEmpty)
+    lib.types.each |t| { verifyEq(t.meta.has("sugar"), isSugar, t.qname) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Is-A
 //////////////////////////////////////////////////////////////////////////
 
