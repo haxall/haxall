@@ -119,28 +119,10 @@ const class SessionExt : ExtObj, ISessionExt
     ServerSession(this, user, key, attestKey, Etc.makeDict(meta))
   }
 
-  ** Chokepoint for registering a newly opened session. The limit checks
-  ** run while holding the session map lock so concurrent logins cannot
-  ** overshoot the limits.
+  ** Chokepoint for registering a newly opened session.
   private ServerSession register(ServerSession session)
   {
-    sessionMap.add(session) |->| { checkLimits(session) }
-    return session
-  }
-
-  ** Check session limits; super users can always create new sessions
-  private Void checkLimits(ServerSession session)
-  {
-    if (session.user.isSu) return
-    username := session.username
-
-    // user limit
-    if (sessionMap.userCount(username) >= settings.maxSessionsPerUser)
-      throw MaxSessionsErr("Max sessions exceeded for user: ${username}")
-
-    // system limit
-    if (this.size >= settings.maxSessions)
-      throw MaxSessionsErr("Max total sessions exceeded")
+    sessionMap.add(session, settings)
   }
 
   override ServerSession? get(Str key, Bool checked := true) { sessionMap.get(key, checked) }

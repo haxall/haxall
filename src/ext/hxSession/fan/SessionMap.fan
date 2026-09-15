@@ -31,14 +31,13 @@ internal const class SessionMap
   ** The number of sessions (Int) open for a user (keyed by username)
   private const ConcurrentMap userCounts := ConcurrentMap()
 
-  ** Add the session to the map. The check function is invoked while
-  ** holding the lock and may throw to reject the session before it is
-  ** mapped, which makes the limit checks atomic with the add.
-  UserSession add(UserSession session, |->| check)
+  ** Add the session to the map. Session settings are enforced before adding
+  ** the session. This method will throw if the new session is rejected.
+  UserSession add(UserSession session, SessionSettings settings)
   {
     username := session.username
     return sessionLock.withLock |->Obj?| {
-      check()
+      checkLimits(session, settings)
 
       // map by key first since it is the only key that can collide; a
       // collision throws with other state untouched
@@ -47,6 +46,22 @@ internal const class SessionMap
       userCounts.set(username, userCount(username)+1)
       return session
     }
+  }
+
+  ** Check session limits and throw an Err if any limit is exceeded
+  private Void checkLimits(UserSession session, SessionSettings settings)
+  {
+    // su never can exceed limits
+    if (session.user.isSu) return
+    username := session.username
+
+    // user limit
+    if (userCount(username) >= settings.maxSessionsPerUser)
+      throw MaxSessionsErr("Max sessions exceeded for user: ${username}")
+
+    // system limit
+    if (this.size >= settings.maxSessions)
+      throw MaxSessionsErr("Max total sessions exceeded")
   }
 
   ServerSession? get(Str key, Bool checked := true)
