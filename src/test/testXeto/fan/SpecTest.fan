@@ -139,9 +139,10 @@ class SpecTest : AbstractXetoTest
     ns := createNamespace(["ph.points.sugar"])
 
     // FluidTempPoint : NumberPoint <abstract> {
-    // FluidTempSensor : FluidTempPoint & SensorPoint <abstract>
+    // FluidTempSensor : FluidTempPoint & SensorPoint
     // AirTempSensor : FluidTempSensor { air }
-    // DischargeAirTempSensor : AirTempSensor { discharge }
+    // DuctAirTempSensor : AirTempSensor { ductSection, ductDeck }
+    // DischargeAirTempSensor : DuctAirTempSensor { discharge }
 
     and        := ns.spec("sys::And")
     obj        := ns.spec("sys::Obj")
@@ -155,6 +156,7 @@ class SpecTest : AbstractXetoTest
     tempPt     := ns.spec("ph.points::FluidTempPoint")
     tempSensor := ns.spec("ph.points::FluidTempSensor")
     airTempSensor := ns.spec("ph.points::AirTempSensor")
+    ductAirTempSensor := ns.spec("ph.points::DuctAirTempSensor")
     dat        := ns.spec("ph.points.sugar::DischargeAirTempSensor")
 
     verifyEq(obj.base, null)
@@ -169,14 +171,16 @@ class SpecTest : AbstractXetoTest
     verifySame(tempSensor.base, and)
     verifyEq(tempSensor.ofs, Spec[tempPt, sensor])
     verifySame(airTempSensor.base, tempSensor)
-    verifySame(dat.base, airTempSensor)
+    verifySame(ductAirTempSensor.base, airTempSensor)
+    verifySame(dat.base, ductAirTempSensor)
 
     verifyEq(obj.bases, Spec[,])
     verifyEq(coll.bases, Spec[obj])
     verifyEq(tempPt.bases, Spec[numPt])
     verifyEq(tempSensor.bases, Spec[tempPt, sensor])
     verifyEq(airTempSensor.bases, Spec[tempSensor])
-    verifyEq(dat.bases, Spec[airTempSensor])
+    verifyEq(ductAirTempSensor.bases, Spec[airTempSensor])
+    verifyEq(dat.bases, Spec[ductAirTempSensor])
 
     verifyInheritance(obj,        [obj])
     verifyInheritance(coll,       [obj, coll])
@@ -189,7 +193,8 @@ class SpecTest : AbstractXetoTest
     verifyInheritance(tempPt,     [obj, coll, dict, entity, phe, point, numPt, tempPt])
     verifyInheritance(tempSensor, [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor])
     verifyInheritance(airTempSensor, [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, airTempSensor])
-    verifyInheritance(dat,        [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, airTempSensor, dat])
+    verifyInheritance(ductAirTempSensor, [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, airTempSensor, ductAirTempSensor])
+    verifyInheritance(dat,        [sensor, obj, coll, dict, entity, phe, point, numPt, tempPt, tempSensor, airTempSensor, ductAirTempSensor, dat])
   }
 
   Void verifyInheritance(Spec spec, Spec[] expect)
@@ -285,10 +290,10 @@ class SpecTest : AbstractXetoTest
     s = verifyIsa(ns, "ph.points::AirTempSensor", "sys::Entity", true)
     verifyEq(s.isAnd, false)
 
-    s = verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "ph::Point", true)
-    verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "ph.points::FluidTempPoint", true)
-    verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
-    verifyIsa(ns, "ph.points.sugar::ZoneAirTempSensor", "sys::Dict", true, false)
+    s = verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph::Point", true)
+    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::FluidTempPoint", true)
+    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
+    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, false)
 
     verifyIsa(ns, "ph::DuctSection",   "sys::Choice",    true)
@@ -533,10 +538,15 @@ class SpecTest : AbstractXetoTest
       "equips:Query"]
     numPtSlots := ptSlots.dup.addAll(["unit:Unit", "maxVal:Number?", "minVal:Number?"])
     ffSlots    := numPtSlots.dup.add("flow:Marker")
+    ffSlots[ffSlots.index("pointQuantity:Quantity?")] = "pointQuantity:Flow"
+    ffSlots[ffSlots.index("pointSubject:Phenomenon?")] = "pointSubject:Fluid"
     fvfSlots   := ffSlots.dup.add("volume:Marker")
+    fvfSlots[fvfSlots.index("pointQuantity:Flow")] = "pointQuantity:VolumetricFlow"
     ffsSlots   := fvfSlots.dup.add("sensor:Marker")
+    ffsSlots[ffsSlots.index("pointFunction:PointFunction?")] = "pointFunction:SensorPointFunction"
     afsSlots   := ffsSlots.dup.add("air:Marker")
-    dafsSlots  := afsSlots.dup.add("discharge:Marker")
+    dufsSlots  := afsSlots.dup.addAll(["ductSection:DuctSection", "ductDeck:DuctDeck?"])
+    dafsSlots  := dufsSlots.dup.add("discharge:Marker")
 
     verifySlots(ph.type("Point"), ptSlots)
     verifySlots(ph.type("NumberPoint"), numPtSlots)
@@ -544,6 +554,7 @@ class SpecTest : AbstractXetoTest
     verifySlots(phx.type("FluidVolumetricFlowPoint"), fvfSlots)
     verifySlots(phx.type("FluidVolumetricFlowSensor"), ffsSlots)
     verifySlots(phx.type("AirFlowSensor"), afsSlots)
+    verifySlots(phx.type("DuctAirFlowSensor"), dufsSlots)
     verifySlots(phs.type("DischargeAirFlowSensor"), dafsSlots)
 
     cond := phx.type("WeatherCondPoint")

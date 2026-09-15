@@ -789,7 +789,7 @@ class NamespaceTest : AbstractXetoTest
     x := Ref("x")
     verifyInstantiateGraph(ns, "ashrae.g36::G36ReheatVav", [
       ["id":Ref("x"), "dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m],
-      ["id":Ref("a"), "dis":"ZoneAirTempSensor",      "spec":Ref("ph.points.sugar::ZoneAirTempSensor"),      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
+      ["id":Ref("a"), "dis":"ZoneAirTempSensor",      "spec":Ref("ph.points::ZoneAirTempSensor"),      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
       ["id":Ref("b"), "dis":"ZoneAirTempEffectiveSp", "spec":Ref("ph.points.sugar::ZoneAirTempEffectiveSp"), "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
       ["id":Ref("c"), "dis":"ZoneOccupiedSensor",     "spec":Ref("ph.points::ZoneOccupiedSensor"),     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":Ref("ph.points::OccupiedEnum"), "zone":m, "occupied":m],
       ["id":Ref("d"), "dis":"ZoneCo2Sensor",          "spec":Ref("ph.points::ZoneCo2Sensor"),          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],

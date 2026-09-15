@@ -1352,7 +1352,7 @@ class UtilTest : AbstractXetoTest
 
     verifyCommonSuper(ns, ["ph.points.sugar::DischargeAirTempSensor",
                            "ph.points.sugar::ReturnAirTempSensor"],
-                           "ph.points::AirTempSensor")
+                           "ph.points::DuctAirTempSensor")
 
     verifyCommonSuper(ns, ["ph.points.sugar::DischargeAirTempSensor",
                            "ph.points.sugar::ReturnAirPressureSensor"],
