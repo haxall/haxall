@@ -183,18 +183,20 @@ const class Filetype
   const Bool isView
 
   ** Is this format deprecated and slated for removal.  A deprecated format
-  ** is still read and written for existing clients, but is left out of the
-  ** UI pickers so that nothing new is authored in it.
+  ** is still read, written, and offered as a text view, but is left out
+  ** of the export dialog so that nothing new is authored in it.
   Bool isDeprecated() { name == "jsonV3" }
 
 //////////////////////////////////////////////////////////////////////////
 // Fresco UI3
 //////////////////////////////////////////////////////////////////////////
 
-  ** Formats to offer for exporting a grid in UiExport dialog
+  ** Formats to offer for exporting a grid in UiExport dialog.  This is
+  ** the grid writer formats plus the xeto family, which the export
+  ** pipeline encodes through the namespace.
   static Filetype[] exports3()
   {
-    list.findAll |f| { !f.isDeprecated && f.hasGridWriter }
+    list.findAll |f| { !f.isDeprecated && (f.hasGridWriter || f.isXetoIO) }
   }
 
   ** Formats to offer as a text view of a grid, such as the shell's view
@@ -211,9 +213,10 @@ const class Filetype
   ** Return ui3 Fresco options template for export dialogs or null
   Str? optsTemplate()
   {
-    if (name == "pdf") return "pdfOpts"
-    if (name == "csv") return "csvOpts"
-    if (name == "svg") return "svgOpts"
+    if (name == "pdf")  return "pdfOpts"
+    if (name == "csv")  return "csvOpts"
+    if (name == "svg")  return "svgOpts"
+    if (name == "jeto") return "jetoOpts"
     return null
   }
 
@@ -246,22 +249,24 @@ const class Filetype
   ** GridWriter type or null if this format cannot write grids
   Type? gridWriterType(Bool checked := true) { gridWriterName == null ? null : Type.find(gridWriterName, checked) }
 
-  ** Instantiate a GridReader instance for this filetype.
+  ** Instantiate a GridReader instance for this filetype.  Null opts
+  ** default to `ioOpts` so the jsonV3 dialect decodes as v3.
   GridReader gridReader(InStream in, Dict? opts := null)
   {
     type := gridReaderType ?: throw Err("No grid reader defined for filetype $name")
     ctor := type.method("make")
     if (ctor.params.size == 1) return ctor.call(in)
-    return ctor.call(in, opts ?: Etc.dict0)
+    return ctor.call(in, opts ?: ioOpts)
   }
 
-  ** Instantiate GridWriter instance for this filetype.
+  ** Instantiate GridWriter instance for this filetype.  Null opts
+  ** default to `ioOpts` so the jsonV3 dialect encodes as v3.
   GridWriter gridWriter(OutStream out, Dict? opts := null)
   {
     type := gridWriterType ?: throw Err("No grid writer defined for filetype $name")
     ctor := type.method("make")
     if (ctor.params.size == 1) return ctor.call(out)
-    return ctor.call(out, opts ?: Etc.dict0)
+    return ctor.call(out, opts ?: ioOpts)
   }
 
 //////////////////////////////////////////////////////////////////////////

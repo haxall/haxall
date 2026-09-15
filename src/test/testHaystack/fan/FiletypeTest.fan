@@ -263,6 +263,14 @@ class FiletypeTest : HaystackTest
     // each version round-trips with its own opts
     verifyGridEq(json.gridReader(v4.toStr.in).readGrid, grid)
     verifyGridEq(json.gridReader(v3.toStr.in, Etc.dict1("v3", Marker.val)).readGrid, grid)
+
+    // the jsonV3 filetype defaults its reader/writer opts to the v3
+    // dialect so picking it in the UI encodes as v3
+    jsonV3 := Filetype.byName("jsonV3")
+    v3d := StrBuf()
+    jsonV3.gridWriter(v3d.out).writeGrid(grid)
+    verify(v3d.toStr.contains("d:2026-07-27"))
+    verifyGridEq(jsonV3.gridReader(v3d.toStr.in).readGrid, grid)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -289,7 +297,7 @@ class FiletypeTest : HaystackTest
     verifyEq(Filetype.byName("csv").isView, false)
 
     // a deprecated format stays resolvable by name and mime so existing
-    // clients keep working, but the UI pickers leave it out
+    // clients keep working, but the export dialog leaves it out
     verifyEq(Filetype.byName("jsonV3").isDeprecated, true)
     verifyEq(Filetype.byName("hayson").isDeprecated, false)
     verifyEq(Filetype.byName("jeto").isDeprecated, false)
@@ -392,13 +400,12 @@ class FiletypeTest : HaystackTest
 //////////////////////////////////////////////////////////////////////////
 
   ** The two sets the UI menus offer.  Everything listed can actually be
-  ** written: a format with no working GridWriter would throw when picked.
+  ** written server side or client side respectively.
   Void testFresco()
   {
     Filetype.exports3.each |f|
     {
-      verify(f.hasGridWriter, f.name)
-      verifyNotNull(f.gridWriterType(false), f.name)
+      verify(f.canWrite, f.name)
       verifyFalse(f.isDeprecated, f.name)
     }
 
@@ -408,26 +415,35 @@ class FiletypeTest : HaystackTest
       verify(f.canWrite, f.name)
       verify(f.isText, f.name)
       verifyFalse(f.isView, f.name)
-      verifyFalse(f.isDeprecated, f.name)
     }
 
     // excel is exportable but not a text view
     verify(Filetype.exports3.contains(Filetype.byName("excel")))
     verifyFalse(Filetype.textViews3.contains(Filetype.byName("excel")))
 
-    // the xeto family and rdf encode through the namespace rather than a
-    // GridWriter: text views but not exports
-    ["xeto", "jeto", "rdf"].each |n|
+    // deprecated jsonV3 is a text view for existing clients, but is
+    // left out of the export dialog so nothing new is authored in it
+    verify(Filetype.textViews3.contains(Filetype.byName("jsonV3")))
+    verifyFalse(Filetype.exports3.contains(Filetype.byName("jsonV3")))
+
+    // the xeto family encodes through the namespace rather than a
+    // GridWriter: in both exports and text views
+    ["xeto", "jeto"].each |n|
     {
       f := Filetype.byName(n)
       verifyFalse(f.hasGridWriter, n)
-      verify(f.canWrite, n)
-      verifyFalse(Filetype.exports3.contains(f), n)
+      verify(Filetype.exports3.contains(f), n)
       verify(Filetype.textViews3.contains(f), n)
     }
 
+    // rdf is a text view but not an export
+    rdf := Filetype.byName("rdf")
+    verifyFalse(Filetype.exports3.contains(rdf))
+    verify(Filetype.textViews3.contains(rdf))
+
     // optsTemplate
-    verifyEq(Filetype.byName("csv").optsTemplate, "csvOpts")
+    verifyEq(Filetype.byName("csv").optsTemplate,  "csvOpts")
+    verifyEq(Filetype.byName("jeto").optsTemplate, "jetoOpts")
     verifyEq(Filetype.byName("zinc").optsTemplate, null)
   }
 
