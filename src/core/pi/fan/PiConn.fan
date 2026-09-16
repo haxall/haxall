@@ -20,8 +20,10 @@ const class PiConns
   new make(Namespace ns)
   {
     byConn := Spec:PiConn[:]
+    byName := Str:PiConn[:]
     byAddr := Spec:PiConn[:]
 
+    // map all extensions that subtype ConnExt
     connExt := ns.spec("hx.conn::ConnExt", false)
     if (connExt != null)
     {
@@ -37,22 +39,61 @@ const class PiConns
           {
             c := PiConn(ns, extSpec)
             byConn[c.conn] = c
+            byName[c.name] = c
           }
           catch (Err e) Console.cur.err("PiConn map $extSpec", e)
         }
       }
     }
 
-    addr := ns.spec("ph.protocols::ProtocolAddr", false)
-    if (addr != null)
+    // map ProtocolAddr subtypes to conn models by name: ModbusAddr -> modbus
+    protocolAddr := ns.spec("ph.protocols::ProtocolAddr", false)
+    if (protocolAddr != null && !byConn.isEmpty)
     {
+      ns.libs.each |lib|
+      {
+        lib.types.each |t|
+        {
+          if (t.base !== protocolAddr) return
+          c := byName[addrToName(t)]
+          if (c != null) byAddr[t] = c
+        }
+      }
     }
 
     this.byConn = byConn
     this.byAddr = byAddr
   }
 
+  ** Map addr spec name to conn model name: "ModbusAddr" -> "modbus"
+  private static Str addrToName(Spec addr)
+  {
+    n := addr.name
+    if (n.endsWith("Addr")) n = n[0..-5]
+    return n.decapitalize
+  }
+
+  ** Lookup conn model for a connector spec walking base types
+  PiConn? forConn(Spec? spec, Bool checked := true) { lookup(byConn, spec, checked) }
+
+  ** Lookup conn model for a protocol addr spec walking base types
+  PiConn? forAddr(Spec? spec, Bool checked := true) { lookup(byAddr, spec, checked) }
+
+  private static PiConn? lookup(Spec:PiConn map, Spec? spec, Bool checked)
+  {
+    for (Spec? t := spec; t != null; t = t.base)
+    {
+      c := map[t]
+      if (c != null) return c
+    }
+    if (checked) throw Err("No conn model mapped: $spec")
+    return null
+  }
+
+  ** Map of protocol addr spec to its conn model
   const Spec:PiConn byAddr
+
+  ** Map of connector spec to its conn model
   const Spec:PiConn byConn
 }
 
