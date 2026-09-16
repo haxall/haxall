@@ -19,6 +19,9 @@ ConnExt: Ext <abstract> {
   // Defines the features supported by a given connector.  This is
   // a tag added to the `conn` def itself.  The value is a dict with the
   // following standardized keys:
+  // - `name`: model name used as prefix for tags and funcs; only required
+  //   when it differs from the last section of the lib dotted name such
+  //   as "energyStar"
   // - `learn`: marker tag if point learn is supported
   // - `pollMode`: manual or buckets
   // Also see `docHaxall::CustomConns#defs`

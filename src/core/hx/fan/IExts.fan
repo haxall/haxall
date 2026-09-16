@@ -473,7 +473,7 @@ const mixin HxConnExt
   ** Library dotted name
   abstract Str name()
 
-  ** Model name
+  ** Model name used as prefix for tags and funcs such as "bacnet"
   abstract Str modelName()
 
   ** Display name to use for connector library

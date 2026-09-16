@@ -41,9 +41,13 @@ you wish to support:
   4. Implement point [history sync](#point-history-sync)
   5. Provide additional Axon [functions](#axon-funcs) for your connector
 
-All tag and class names will be derived from your library name.  You cannot
-deviate from the naming conventions - the framework expects your tags and
-class names to follow the standard naming patterns.
+All tag and class names will be derived from your connector's *model name*.
+By default the model name is the last section of your lib dotted name; for
+example the lib "acme.foo" has a model name of "foo".  If your model name
+requires camel case such as "energyStar", then declare it with the `name`
+key in [hx.conn::Spec.connFeatures].  You cannot deviate from the naming
+conventions - the framework expects your tags and class names to follow
+the standard naming patterns.
 
 # Fantom Pod
 All connectors must be defined as a Fantom [pod](fan.docLang::Pods).  You will
@@ -105,6 +109,9 @@ The [hx.conn::Spec.connFeatures] tag declares the features you connector support
 introspected by the framework when your connector boots.  The value must be
 a nested Dict that uses the following tags:
 
+  - `name`: model name used as prefix for tags and funcs; only required
+    when it differs from the last section of the lib dotted name such
+    as "energyStar"
   - `learn`: marker tag if your connector supports [learn](#learn)
   - `pollMode`: enum for [fan.hxConn::ConnPollMode] - see [below](#polling)
 

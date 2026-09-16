@@ -30,5 +30,5 @@ pragma: Lib <
 >
 
 // Test connector
-ConnTestExt: ConnExt <connFeatures:{learn, pollMode:"manual"}>
+ConnTestExt: ConnExt <connFeatures:{name:"connTest", learn, pollMode:"manual"}>
 

@@ -15,7 +15,6 @@ using hxConn
 
 const class ConnTestExt : ConnExt
 {
-  override Str modelName() { "connTest" }
 }
 
 class ConnTestDispatch : ConnDispatch

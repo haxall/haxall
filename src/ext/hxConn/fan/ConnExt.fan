@@ -30,6 +30,8 @@ abstract const class ConnExt : ExtObj, HxConnExt
     }
     this.poller = ConnPoller(this)
     this.modelRef = ConnModel(this)
+    this.connTag = model.name + "Conn"
+    this.connRefTag = connTag + "Ref"
   }
 
   ** Settings record
@@ -47,21 +49,18 @@ abstract const class ConnExt : ExtObj, HxConnExt
   @NoDoc ConnModel model() { modelRef }
   private const ConnModel modelRef
 
-  ** Get the conn model name which is used to map to tags:
-  **   - Library name: acme.foobar
-  **   - Model name: fooBar
-  ** By default this is the last part of the library dotted name.
-  override Str modelName() { this.name.split('.').last }
-
 //////////////////////////////////////////////////////////////////////////
 // HxConnExt
 //////////////////////////////////////////////////////////////////////////
 
-  @NoDoc override Str extDis() { modelName.capitalize }
+  ** Model name used as prefix for tags and funcs such as "bacnet"
+  override Str modelName() { model.name }
 
-  @NoDoc override const Str connTag := modelName + "Conn"
+  @NoDoc override Str extDis() { model.name.capitalize }
 
-  @NoDoc override const Str connRefTag := modelName + "ConnRef"
+  @NoDoc override const Str connTag
+
+  @NoDoc override const Str connRefTag
 
   @NoDoc override Str icon() { model.icon }
 
@@ -170,7 +169,7 @@ abstract const class ConnExt : ExtObj, HxConnExt
 //////////////////////////////////////////////////////////////////////////
 
   ** Create default point tuning configuration for this library
-  virtual ConnTuning tuningDefault() { ConnTuning(Etc.dict1("id", Ref(this.modelName+"-default"))) }
+  virtual ConnTuning tuningDefault() { ConnTuning(Etc.dict1("id", Ref(model.name+"-default"))) }
 
   ** Library level callback to process a connector learn.  The default
   ** operation dispatches to the connector actor, performs an open,

@@ -26,7 +26,5 @@ const class EnergyStarExt : ConnExt
   {
     Context.cur.ext("hx.energystar", checked)
   }
-
-  override Str modelName() { "energyStar" }
 }
 

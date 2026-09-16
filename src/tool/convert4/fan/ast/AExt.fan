@@ -112,8 +112,10 @@ class AExt
       list := isTag as Obj?[] ?: [isTag]
       return list.any |x| { x?.toStr == "conn" }
     }
-    if (connDef == null) return Etc.dict0
-    return connDef.get("connFeatures") as Dict ?: Etc.dict0
+    features := connDef?.get("connFeatures") as Dict ?: Etc.dict0
+    // add name when model name differs from last section of new lib dotted name
+    if (oldName != libName.split('.').last) features = Etc.dictMerge(Etc.dict1("name", oldName), features)
+    return features
   }
 
   Dict[] defs() { defsRef.ro }

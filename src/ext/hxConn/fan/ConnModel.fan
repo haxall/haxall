@@ -21,8 +21,11 @@ const final class ConnModel
   ** Construct for given lib
   @NoDoc new make(ConnExt ext)
   {
-    // simplify the hx.foo name to just foo
-    this.name = ext.modelName
+    // features from spec meta
+    features := ext.spec.meta["connFeatures"] as Dict ?: throw Err("Must define connFeatures meta on $ext.spec")
+
+    // model name from features or last section of lib dotted name
+    this.name = features["name"]?.toStr ?: ext.name.split('.').last
     prefix := name
 
     // infer tag names from prefix
@@ -35,7 +38,6 @@ const final class ConnModel
     lib := ext.spec.lib
     connSpec  := lib.type(connTag.capitalize)
     pointSpec := lib.type(pointTag.capitalize)
-    features  := ext.spec.meta["connFeatures"] as Dict ?: throw Err("Must define connFeatures meta on $ext.spec")
 
     // cur tags
     curTagSpec := pointSpec.slot("${prefix}Cur", false)
