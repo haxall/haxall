@@ -36,7 +36,8 @@ class Build : BuildPod
                "haystack @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`locale/`, `res/`]
-    index   = ["xeto.bindings": "pi"]
+    index   = ["xeto.bindings": "pi",
+               "pi.conn": "hx.modbus pi::PiModbusConn"]
   }
 }
 
