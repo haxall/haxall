@@ -39,5 +39,8 @@ abstract const class PiEnv
 
   ** Display flash notification for an error to the user
   abstract Void flash(ItemStatus status, Str msg, Err? err := null)
+
+  ** Connector model registry
+  once PiConns conns() { PiConns(ns) }
 }
 
