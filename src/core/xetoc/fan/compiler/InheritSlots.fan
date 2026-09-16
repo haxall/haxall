@@ -388,6 +388,13 @@ internal class InheritSlots : Step
         if (dup === slot) return
         slot = overrideSlot(dup, slot)
       }
+      else if (slot.typeRef == null && slot.isSlot)
+      {
+        // untyped slot with no inherited member may bind to a global
+        // contributed by a depend lib mixin for my type chain
+        g := depends.slotx(spec.base, name)
+        if (g != null) slot = overrideSlot(g, slot)
+      }
 
       // accumlate
       if (slot.isSlot)

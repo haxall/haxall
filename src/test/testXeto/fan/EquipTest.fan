@@ -17,6 +17,30 @@ using haystack
 class EquipTest : AbstractXetoTest
 {
 
+  Void testSlotx()
+  {
+    // untyped constraint slots bind to globals contributed by
+    // depend lib mixins for the type chain (ADepends.slotx): the
+    // addr slots infer type and maybe from ph.protocols +PhEntity
+    ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"])
+    zt := ns.spec("hx.test.xeto::EquipNamed").slot("points").slot("zoneTemp")
+
+    ma := zt.slot("modbusAddr")
+    verifyEq(ma.type.qname, "ph.protocols::ModbusAddr")
+    verifyEq(ma.isMaybe, true)
+    verifyEq(ma.slot("addr").meta["val"]?.toStr, "1001")
+    verifyEq(ma.slot("access").meta["val"]?.toStr, "rw")
+
+    ba := zt.slot("bacnetAddr")
+    verifyEq(ba.type.qname, "ph.protocols::BacnetAddr")
+    verifyEq(ba.isMaybe, true)
+    verifyEq(ba.slot("addr").meta["val"]?.toStr, "AI1")
+
+    // typed slots and same-lib inherited members are untouched
+    a0 := ns.spec("hx.test.xeto::EquipA").slot("points").slot("_0")
+    verifyEq(a0.slot("_0").type.qname, "ph.protocols::ModbusAddr")
+  }
+
   Void testBasics()
   {
     ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"])
