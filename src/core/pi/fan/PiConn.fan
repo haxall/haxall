@@ -74,7 +74,8 @@ const class PiConn
   ** Constructor
   new make(Namespace ns, Spec ext)
   {
-    this.name           = ext.lib.name.split('.').last // TODO
+    this.features       = ext.meta["connFeatures"] as Dict ?: throw Err("Must define connFeatures meta on $ext")
+    this.name           = features["name"]?.toStr ?: ext.lib.name.split('.').last
     this.conn           = ext.lib.type(name.capitalize + "Conn")
     this.point          = ext.lib.type(name.capitalize + "Point")
     this.connRefSlot    = point.slot("${name}ConnRef")
@@ -82,7 +83,7 @@ const class PiConn
     this.writeSlot      = point.slot("${name}Write", false)
     this.writeLevelSlot = point.slot("${name}WriteLevel", false)
     this.hisSlot        = point.slot("${name}His", false)
-    this.features       = ext.meta["connFeatures"] as Dict ?: throw Err("Must define connFeatures meta on $ext")
+    this.pollFreqSlot   = conn.slot("${name}PollFreq", false)
     this.hasLearn       = features.has("learn")
     this.hasCur         = curSlot != null
     this.hasWrite       = writeSlot != null
@@ -121,6 +122,10 @@ const class PiConn
   ** Point slot for the history address such as "bacnetHis".
   ** This field is null if history syncs are not supported.
   const Spec? hisSlot
+
+  ** Conn slot for the manual poll frequency such as "bacnetPollFreq".
+  ** This field is null if manual polling is not supported.
+  const Spec? pollFreqSlot
 
   ** Debug string
   override Str toStr() { "PiConn $name" }

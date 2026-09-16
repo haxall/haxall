@@ -10,6 +10,7 @@
 using xeto
 using haystack
 using hx
+using pi
 
 **
 ** ConnModel reflects specs to cache the features and tags supported
@@ -21,63 +22,37 @@ const final class ConnModel
   ** Construct for given lib
   @NoDoc new make(ConnExt ext)
   {
-    // features from spec meta
-    features := ext.spec.meta["connFeatures"] as Dict ?: throw Err("Must define connFeatures meta on $ext.spec")
+    // reflect specs via PiConn
+    pi := PiConn(ext.rt.ns, ext.spec)
 
-    // model name from features or last section of lib dotted name
-    this.name = features["name"]?.toStr ?: ext.name.split('.').last
-    prefix := name
+    // tag names from specs
+    this.name          = pi.name
+    this.connTag       = pi.conn.name.decapitalize
+    this.connRefTag    = pi.connRefSlot.name
+    this.pointTag      = pi.point.name.decapitalize
+    this.curTag        = pi.curSlot?.name
+    this.writeTag      = pi.writeSlot?.name
+    this.writeLevelTag = pi.writeLevelSlot?.name
+    this.hisTag        = pi.hisSlot?.name
 
-    // infer tag names from prefix
-    this.connTag    = prefix + "Conn"
-    this.connRefTag = this.connTag + "Ref"
-    this.pointTag   = prefix + "Point"
-
-    // lookup key required specs
-    ns := ext.rt.ns
-    lib := ext.spec.lib
-    connSpec  := lib.type(connTag.capitalize)
-    pointSpec := lib.type(pointTag.capitalize)
-
-    // cur tags
-    curTagSpec := pointSpec.slot("${prefix}Cur", false)
-    if (curTagSpec != null)
-    {
-      this.curTag     = curTagSpec.name
-      this.curTagType = toAddrType(curTagSpec)
-    }
-
-    // write addr
-    writeTagSpec := pointSpec.slot("${prefix}Write", false)
-    if (writeTagSpec != null)
-    {
-      this.writeTag      = writeTagSpec.name
-      this.writeTagType  = toAddrType(writeTagSpec)
-      this.writeLevelTag = pointSpec.slot("${prefix}WriteLevel", false)?.name
-    }
-
-    // his addr
-    hisTagSpec := pointSpec.slot("${prefix}His", false)
-    if (hisTagSpec != null)
-    {
-      this.hisTag     = hisTagSpec.name
-      this.hisTagType = toAddrType(hisTagSpec)
-    }
+    // expected fantom types for address tags
+    this.curTagType   = toAddrType(pi.curSlot)
+    this.writeTagType = toAddrType(pi.writeSlot)
+    this.hisTagType   = toAddrType(pi.hisSlot)
 
     // features
-    this.hasLearn  = features.has("learn")
-    this.hasCur    = curTag   != null
-    this.hasWrite  = writeTag != null
-    this.hasHis    = hisTag   != null
-    this.pollMode  = ConnPollMode.fromStr(features["pollMode"] ?: "disabled")
-    this.icon      = features["icon"]?.toStr ?: (connSpec.lib.name.startsWith("hx.") ? name : "conn")
+    this.hasLearn = pi.hasLearn
+    this.hasCur   = pi.hasCur
+    this.hasWrite = pi.hasWrite
+    this.hasHis   = pi.hasHis
+    this.pollMode = ConnPollMode.fromStr(pi.features["pollMode"] ?: "disabled")
+    this.icon     = pi.features["icon"]?.toStr ?: (ext.spec.lib.name.startsWith("hx.") ? name : "conn")
 
     // polling tags
     if (pollMode === ConnPollMode.manual)
     {
-      pollFreqTagSpec := connSpec.slot("${prefix}PollFreq")
-      this.pollFreqTag     = pollFreqTagSpec.name
-      this.pollFreqDefault = Etc.dictGetDuration(pollFreqTagSpec.meta, "val", 10sec)
+      this.pollFreqTag     = pi.pollFreqSlot.name
+      this.pollFreqDefault = Etc.dictGetDuration(pi.pollFreqSlot.meta, "val", 10sec)
     }
 
     // helper classes
@@ -93,9 +68,9 @@ const final class ConnModel
     this.features = Etc.makeDict(f)
   }
 
-  private static Type toAddrType(Spec spec)
+  private static Type? toAddrType(Spec? spec)
   {
-    spec.type.fantomType
+    spec?.type?.fantomType
   }
 
 //////////////////////////////////////////////////////////////////////////

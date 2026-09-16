@@ -37,6 +37,7 @@ class Build : BuildPod
                 "obs @{hx.depend}",
                 "folio @{hx.depend}",
                 "hx @{hx.depend}",
+                "pi @{hx.depend}",
                 "hxUtil @{hx.depend}",
                 "hxPoint @{hx.depend}"]
     srcDirs = [`fan/`]
