@@ -253,14 +253,12 @@ const class PiConn
         if (writeLevelSlot != null && opts.has("writeLevel")) acc[writeLevelSlot.name] = opts->writeLevel
       }
     }
-    if (opts.has("his"))
+    if (opts.has("his") && hisSlot != null)
     {
-      acc["his"] = Marker.val
-      if (hisSlot != null)
-      {
-        val := toHisVal(addr, opts)
-        if (val != null) acc[hisSlot.name] = val
-      }
+      // his on a connector point means syncing from the connector,
+      // so the marker requires a his address
+      val := toHisVal(addr, opts)
+      if (val != null) { acc["his"] = Marker.val; acc[hisSlot.name] = val }
     }
     return Etc.dictFromMap(acc)
   }
