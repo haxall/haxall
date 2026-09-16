@@ -23,15 +23,15 @@ abstract const class ConnExt : ExtObj, HxConnExt
   ** Constructor
   new make()
   {
-    this.connActorPool = ActorPool
-    {
-      it.name = "$proj.name-$this.name.capitalize"
-      it.maxThreads = settings.effectiveMaxThreads
-    }
-    this.poller = ConnPoller(this)
     this.modelRef = ConnModel(this)
     this.connTag = model.name + "Conn"
     this.connRefTag = connTag + "Ref"
+    this.connActorPool = ActorPool
+    {
+      it.name = "$proj.name-$model.name.capitalize"
+      it.maxThreads = settings.effectiveMaxThreads
+    }
+    this.poller = ConnPoller(this)
   }
 
   ** Settings record
