@@ -62,7 +62,7 @@ abstract const class ConnExt : ExtObj, HxConnExt
 
   @NoDoc override const Str connRefTag
 
-  @NoDoc override Str icon() { model.icon }
+  @NoDoc override Str icon3() { model.icon3 }
 
   @NoDoc override Int numConns() { roster.numConns }
 

@@ -46,7 +46,7 @@ const final class ConnModel
     this.hasWrite = pi.hasWrite
     this.hasHis   = pi.hasHis
     this.pollMode = ConnPollMode.fromStr(pi.features["pollMode"] ?: "disabled")
-    this.icon     = pi.features["icon"]?.toStr ?: (ext.spec.lib.name.startsWith("hx.") ? name : "conn")
+    this.icon3    = ext.spec.lib.name.startsWith("hx.") ? name : "conn"
 
     // polling tags
     if (pollMode === ConnPollMode.manual)
@@ -129,8 +129,8 @@ const final class ConnModel
   ** Dict encoding for HxConn.connFeature
   const Dict features
 
-  ** Icon name
-  const Str icon
+  ** Legacy icon name for Fresco UI
+  const Str icon3
 
 //////////////////////////////////////////////////////////////////////////
 // Support

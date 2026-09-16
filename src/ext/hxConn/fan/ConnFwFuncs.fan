@@ -256,7 +256,7 @@ const class ConnFwFuncs
     meta := Str:Obj[
       "conn": c.rec,
       "enabled": c.trace.isEnabled,
-      "icon": c.ext.icon,
+      "icon": c.ext.icon3,
       ]
 
     // read the trace, setup feed, and map to grid

@@ -479,8 +479,8 @@ const mixin HxConnExt
   ** Display name to use for connector library
   abstract Str extDis()
 
-  ** Icon logical name to use for this connector type library
-  abstract Str icon()
+  ** Legacy icon name to use for this connector type in Fresco UI
+  abstract Str icon3()
 
   ** Tag name for the connector records such as `bacnetConn`
   abstract Str connTag()
