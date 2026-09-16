@@ -11,6 +11,7 @@ pragma: Lib <
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys",     versions: BuildVar "ph.depend" }
+    { lib: "pi",      versions: BuildVar "hx.depend" }
     { lib: "axon",    versions: BuildVar "hx.depend" }
     { lib: "hx",      versions: BuildVar "hx.depend" }
     { lib: "hx.conn", versions: BuildVar "hx.depend" }
@@ -29,5 +30,5 @@ pragma: Lib <
 >
 
 // Modbus connector
-ModbusExt: ConnExt <connFeatures:{learn, pollMode:"buckets"}>
+ModbusExt: ConnExt <icon:"modbus", connFeatures:{learn, pollMode:"buckets"}>
 

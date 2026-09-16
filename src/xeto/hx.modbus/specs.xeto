@@ -7,7 +7,7 @@
 //
 
 // Modbus connector
-ModbusConn: Conn {
+ModbusConn: Conn <icon:"modbus"> {
   // Applied to `modbusConn` or its [hx.conn::ConnTuning] rec to allow for gaps
   // in block reads. See [hx.modbus::doc#block-reads] for more information.
   modbusBlockGap: Int?
@@ -47,7 +47,7 @@ ModbusConn: Conn {
 // Point which synchronizes data via a Modbus connector.
 ModbusPoint: ConnPoint {
   // Used on a proxy point to reference its parent [ModbusConn.modbusConn]
-  modbusConnRef: Ref? <of:ModbusConn> 
+  modbusConnRef: Ref? <of:ModbusConn>
 
   // Modbus address to use for current value subscriptions. See
   // [hx.modbus::doc#current-points] for format.

@@ -187,6 +187,9 @@ const class PiConn
   ** Spec for points such as "BacnetPoint"
   const Spec point
 
+  ** Presentation icon for the connector spec
+  once Icon icon() { PiEnv.cur.specItem(conn).icon }
+
   ** Point slot for the connector reference such as "bacnetConnRef"
   const Spec connRefSlot
 
@@ -338,3 +341,4 @@ const class PiModbusConn : PiConn
     return access.contains("w") ? opts["name"] : null
   }
 }
+
