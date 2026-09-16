@@ -74,6 +74,24 @@ Equip3Own : EquipWithPointsX & EquipWithPointsY & EquipWithPointsZ {
   }
 }
 
+// named point slots used as graph compose correlation anchors;
+// zoneCo2 also authors an explicit dis
+EquipNamed : Ahu {
+  points: {
+    zoneTemp: ZoneAirTempSensor {
+      ModbusAddr { addr: "1001", encoding: "s2", access: "rw" }
+      BacnetAddr { addr: "AI1" }
+    }
+    zoneHumidity: ZoneAirHumiditySensor {
+      ModbusAddr { addr: "1002" }
+    }
+    zoneCo2: ZoneCo2Sensor {
+      dis: "Zone CO2"
+      BacnetAddr { addr: "AI3" }
+    }
+  }
+}
+
 // inheriting global thru multple inheritance paths:
 
 ElecEquipA : Equip { elec }

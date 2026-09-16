@@ -104,11 +104,11 @@ const class PiConns
     return n.decapitalize
   }
 
-  ** Lookup conn model for a connector spec walking base types
+  ** Lookup conn model for a connector spec
   PiConn? forConn(Spec? spec, Bool checked := true) { lookup(byConn, spec, checked) }
 
-  ** Lookup conn model for a connector rec by its spec tag walking
-  ** base types, else by its protocol conn marker for legacy recs
+  ** Lookup conn model for a connector rec by its spec tag, else
+  ** by its protocol conn marker for legacy recs
   PiConn? forConnRec(Dict rec, Bool checked := true)
   {
     spec := ns.spec((rec["spec"] as Ref)?.toStr ?: "", false)
@@ -119,16 +119,13 @@ const class PiConns
     return null
   }
 
-  ** Lookup conn model for a protocol addr spec walking base types
+  ** Lookup conn model for a protocol addr spec
   PiConn? forAddr(Spec? spec, Bool checked := true) { lookup(byAddr, spec, checked) }
 
   private static PiConn? lookup(Spec:PiConn map, Spec? spec, Bool checked)
   {
-    for (Spec? t := spec; t != null; t = t.base)
-    {
-      c := map[t]
-      if (c != null) return c
-    }
+    c := spec == null ? null : map[spec]
+    if (c != null) return c
     if (checked) throw Err("No conn model mapped: $spec")
     return null
   }
