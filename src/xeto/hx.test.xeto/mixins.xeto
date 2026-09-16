@@ -23,3 +23,5 @@
   l1L2 <foo:"Line 1 to Line 2">  // ignore doc
 }
 
+// project naming standard used by graph compose navName seeding
++ZoneAirTempSensor <pointDis: "Zone Temp">

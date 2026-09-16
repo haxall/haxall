@@ -21,6 +21,7 @@ pragma: Lib <
     { lib: "ph.points",       versions: BuildVar "ph.depend" }
     { lib: "ph.points.sugar", versions: BuildVar "ph.depend" }
     { lib: "axon",            versions: BuildVar "hx.depend" }
+    { lib: "pi",              versions: BuildVar "hx.depend" }
     { lib: "hx.comps",        versions: BuildVar "hx.depend" }
   }
   include: {"/data", "/dist"}

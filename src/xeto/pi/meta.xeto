@@ -13,6 +13,10 @@
   // Default color for visualization
   color: ColorName?
 
+  // Customer specific display name standard for point specs;
+  // seeds the navName of points created from templates
+  pointDis: Str?
+
   // Plural display text
   plural: Text?
 
