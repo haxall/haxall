@@ -162,6 +162,51 @@ class MixinTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Globals
+//////////////////////////////////////////////////////////////////////////
+
+  ** Verify a mixin's declared globals are wired through the reflection
+  ** APIs in both local and remote namespaces
+  Void testGlobals()
+  {
+    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestGlobals(ns) }
+  }
+
+  Void doTestGlobals(Namespace ns)
+  {
+    lib   := ns.lib("hx.test.xeto")
+    site  := ns.spec("ph::Site")
+    sitem := lib.mixinFor(site)
+
+    // globals are partitioned out of the slot maps
+    gdate := sitem.globalsOwn.get("gdate")
+    verifyEq(sitem.slotsOwn.get("gdate", false), null)
+    verifyEq(sitem.slots.get("gdate", false), null)
+    verifySame(sitem.membersOwn.get("gdate"), gdate)
+    verifySame(sitem.member("gdate"), gdate)
+
+    // reflection of the global itself
+    verifyEq(gdate.name, "gdate")
+    verifyEq(gdate.qname, "hx.test.xeto::Site.gdate")
+    verifySame(gdate.parent, sitem)
+    verifyEq(gdate.isGlobal, true)
+    verifyEq(gdate.flavor, SpecFlavor.global)
+    verifyEq(gdate.isMaybe, true)
+    verifyEq(gdate.type.qname, "sys::Date")
+
+    // global with meta; maybe-ness follows declaration in step 1
+    gnum := sitem.globalsOwn.get("gnum")
+    verifyEq(gnum.isGlobal, true)
+    verifyEq(gnum.isMaybe, false)
+    verifyEq(gnum.type.qname, "sys::Number")
+    verifyEq(gnum.meta["minVal"], n(0))
+
+    // globals do not leak into the extended type nor its specx view
+    verifyEq(site.member("gdate", false), null)
+    verifyEq(ns.specx(site).slot("gdate", false), null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fits
 //////////////////////////////////////////////////////////////////////////
 

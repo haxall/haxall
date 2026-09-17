@@ -21,6 +21,7 @@ const final class MMixin: MSpec
     this.lib   = init.lib
     this.qname = init.qname
     this.id    = Ref(qname, null)
+    this.globalsOwn = init.globalsOwn
   }
 
   const override XetoLib lib
@@ -30,6 +31,8 @@ const final class MMixin: MSpec
   const override Ref id
 
   override SpecFlavor flavor() { SpecFlavor.mixIn }
+
+  override const SpecMap globalsOwn
 
   override Str toStr() { qname }
 }

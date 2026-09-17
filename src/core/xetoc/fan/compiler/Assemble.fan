@@ -93,7 +93,7 @@ internal class Assemble : Step
       it.metaOwn    = x.metaOwn
       it.slots      = asmSlots(x)
       it.slotsOwn   = asmMembersOwn(x, false)
-      it.globalsOwn = x.isType ? asmMembersOwn(x, true) : null
+      it.globalsOwn = x.isTop ? asmMembersOwn(x, true) : null
       it.flags      = x.flags
       it.args       = x.args
       it.binding    = x.isType ? x.binding : null

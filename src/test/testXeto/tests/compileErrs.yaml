@@ -321,9 +321,8 @@ compileLib: |
 verifyErrs: |
   Mixin cannot specify slot type: area
   Mixin extend global: equip
-  Mixin cannot declare global: foo
   Spec mixin slot 'bar' must be maybe type
-  Mixin cannot declare global: baz
+  Spec mixin slot 'baz' must be maybe type
   Nested specs cannot declare global: ohNo
 ---
 name: "covariance"

@@ -350,9 +350,6 @@ internal class CheckErrors : Step
 
   Void checkMixinMember(ASpec x)
   {
-    // mixins cannot have globals
-    if (x.isGlobal) return err("Mixin cannot declare global: $x.name", x.loc)
-
     // mixins on sys::Spec
     if (!isSys && x.parent.base == ns.sys.spec)
     {
