@@ -100,11 +100,12 @@ class ModbusDispatch : ConnDispatch
   private Grid mread(Str[] regNames)
   {
     open
+
+    regs := regNames.map |n| { dev.regMap.reg(n) }
     try
     {
       gb := GridBuilder()
       gb.addColNames(["name","val"])
-      regs := regNames.map |n| { dev.regMap.reg(n) }
       toBlocks(regs).each |block|
       {
         link.readBlock(dev, block)
@@ -171,9 +172,11 @@ class ModbusDispatch : ConnDispatch
   private Obj? mwrite(Str regName, Obj val)
   {
     open
+
+    // resolve outside try so config errors don't close the conn
+    reg := dev.regMap.reg(regName)
     try
     {
-      reg := dev.regMap.reg(regName)
       link.write(dev, reg, val)
       return null
     }
@@ -187,14 +190,25 @@ class ModbusDispatch : ConnDispatch
 
   override Void onWrite(ConnPoint point, ConnWriteInfo event)
   {
+    // resolve in its own try so config errors only fault the point
+    ModbusReg? reg
     try
     {
       if (event.val != null)
       {
         write := point.rec["modbusWrite"] ?: throw FaultErr("Missing modbusWrite")
-        reg   := dev.regMap.reg(write)
-        link.write(dev, reg, event.val)
+        reg = dev.regMap.reg(write)
       }
+    }
+    catch (Err err)
+    {
+      point.updateWriteErr(event, err)
+      return
+    }
+
+    try
+    {
+      if (reg != null) link.write(dev, reg, event.val)
       point.updateWriteOk(event)
     }
     catch (Err err)
