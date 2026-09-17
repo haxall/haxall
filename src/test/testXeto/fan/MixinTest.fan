@@ -207,6 +207,80 @@ class MixinTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Member Resolution
+//////////////////////////////////////////////////////////////////////////
+
+  ** Verify declared slots resolve against mixin members in scope:
+  ** untyped slots infer type, typed slots bind base with covariance
+  Void testMemberResolve()
+  {
+    ns := createNamespace(["ph", "hx.test.xeto"])
+    pragma := Str<|pragma: Lib < version: "0.0.0", depends: { {lib:"sys"}, {lib:"ph"}, {lib:"hx.test.xeto"} } >
+                   |>
+
+    // untyped slots infer from depend lib mixin members - both a
+    // mixin slot (newSlot) and a mixin global (gdate)
+    lib := ns.compileTempLib(pragma +
+      Str<|Foo: Site {
+             newSlot: "custom"
+             gdate: "2026-01-01"
+           }
+           |>)
+    newSlot := lib.spec("Foo").slot("newSlot")
+    verifyEq(newSlot.type.qname, "sys::Str")
+    verifyEq(newSlot.base.qname, "hx.test.xeto::Site.newSlot")
+    gdate := lib.spec("Foo").slot("gdate")
+    verifyEq(gdate.type.qname, "sys::Date")
+    verifyEq(gdate.base.qname, "hx.test.xeto::Site.gdate")
+    verifyEq(gdate.base.isGlobal, true)
+    verifyEq(gdate.isMaybe, true)
+
+    // own lib mixin members resolve too (gap in the old slotx design)
+    lib2 := ns.compileTempLib(pragma +
+      Str<|+ph::Site { *own: Number? }
+           Bar: Site { own: 123 }
+           |>)
+    own := lib2.spec("Bar").slot("own")
+    verifyEq(own.type.qname, "sys::Number")
+    verifyEq(own.isMaybe, true)
+    verifyEq(own.base.isGlobal, true)
+
+    // typed slot binds to the mixin member and covariance checks
+    // (previously an unlinked silent shadow)
+    verifyMemberResolveErr(ns, pragma +
+      "Bad: Site { newSlot: Date }\n",
+      "conflicts inherited slot 'hx.test.xeto::Site.newSlot'")
+
+    // declared global colliding with a mixin global is a dup
+    verifyMemberResolveErr(ns, pragma +
+      "Baz: Site { *gdate: Str }\n",
+      "Duplicate global: hx.test.xeto::Site.gdate")
+
+    // two mixins contributing the same name coexist legally...
+    ns.compileTempLib(pragma +
+      Str<|+ph::Site { *gdate: Number? }
+           Qux: Site {}
+           |>)
+
+    // ...but a declared slot inheriting against the ambiguous name errs
+    verifyMemberResolveErr(ns, pragma +
+      Str<|+ph::Site { *gdate: Number? }
+           Amb: Site { gdate: "x" }
+           |>,
+      "Ambiguous inherited member 'gdate' from multiple mixins")
+  }
+
+  Void verifyMemberResolveErr(Namespace ns, Str src, Str contains)
+  {
+    Err? err
+    try
+      ns.compileTempLib(src)
+    catch (Err e) err = e
+    verifyNotNull(err, contains)
+    verify(err.msg.contains(contains), err.msg)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fits
 //////////////////////////////////////////////////////////////////////////
 

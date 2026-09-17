@@ -204,19 +204,14 @@ internal class InheritSlots : InheritFlags
       name := slot.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
 
-      // if duplicate then check if validate override
+      // if duplicate then check if valid override; members in scope
+      // include mixin members visible thru my declared depends
       dup := slots[name] ?: globals[name]
+      if (dup == null && !spec.isMixin) dup = mixinMember(spec, slot, name)
       if (dup != null)
       {
         if (dup === slot) return
         slot = overrideSlot(dup, slot)
-      }
-      else if (slot.typeRef == null && slot.isSlot)
-      {
-        // untyped slot with no inherited member may bind to a global
-        // contributed by a depend lib mixin for my type chain
-        g := depends.slotx(spec.base, name)
-        if (g != null) slot = overrideSlot(g, slot)
       }
 
       // accumlate
@@ -226,6 +221,32 @@ internal class InheritSlots : InheritFlags
         globals[name] = slot
     }
     return autoCount
+  }
+
+  ** Resolve slot name against members contributed by mixins in scope
+  ** for the spec's inheritance chain.  Mixins may legally contribute
+  ** the same name; inheriting against an ambiguous name is an error.
+  private Spec? mixinMember(ASpec spec, ASpec slot, Str name)
+  {
+    Spec? match := null
+    depends.mixinsFor(spec).each |m|
+    {
+      // AST mixins read their computed member map; assembled depend
+      // mixins read membersOwn (never members, whose lazy globals walk
+      // drags in the extended chain's entire vocabulary)
+      Spec? x
+      if (m.isAst)
+      {
+        a := (ASpec)m
+        if (a.ast.members == null) return  // self reference mid-inherit
+        x = a.member(name, false)
+      }
+      else x = m.membersOwn.get(name, false)
+      if (x == null) return
+      if (match == null) { match = x; return }
+      if (match !== x) err("Ambiguous inherited member '$name' from multiple mixins: $match.qname, $x.qname", slot.loc)
+    }
+    return match
   }
 
   ** Override the base slot from an inherited type

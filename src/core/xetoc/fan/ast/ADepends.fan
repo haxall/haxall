@@ -84,20 +84,6 @@ internal class ADepends
     return acc.isEmpty ? Spec#.emptyList : acc.vals
   }
 
-  ** TODO - to be removed
-  Spec? slotx(Spec? type, Str name)
-  {
-    while (type != null && type.isAst) type = type.base
-    if (libs == null || type == null) return null
-    Spec? match := null
-    XetoUtil.eachInherited(type) |t|
-    {
-      if (match != null || !t.isType) return
-      match = libs.eachWhile |lib| { lib.mixinFor(t, false)?.slotsOwn?.get(name, false) }
-    }
-    return match
-  }
-
   private Str:Spec[] mixinsForCache := [:]
 }
 
