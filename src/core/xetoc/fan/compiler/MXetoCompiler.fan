@@ -59,6 +59,7 @@ internal class MXetoCompiler : XetoCompiler
       ParseLib(),
       Resolve(),
       InheritBase(),
+      InheritEnums(),
       InheritSlots(),
       LoadBindings(),
       MixinMeta(),

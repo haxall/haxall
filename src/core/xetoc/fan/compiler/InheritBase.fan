@@ -102,101 +102,12 @@ internal class InheritBase : InheritFlags
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
 
+    // compute effective flags
+    inheritFlags(spec)
+
     // keep track of tops in order now that inheritance has been processed
     if (spec.isType) types.add(spec)
     if (spec.isMixin) mixins.add(spec)
-
-    // special handling for Enums
-    if (isEnum(spec)) return inheritEnum(spec)
-
-    // compute effective flags
-    inheritFlags(spec)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Enum
-//////////////////////////////////////////////////////////////////////////
-
-  ** At this point the ASpec.type will be sys::Enum (base is still null)
-  private Bool isEnum(ASpec spec)
-  {
-    t := spec.typeRef.deref
-    return t.isSys && t.name == "Enum" && spec.isType
-  }
-
-  ** Enum slots are implied as the parent type
-  private Void inheritEnum(ASpec spec)
-  {
-    // set base to typeRef (which is sys::Enum)
-    spec.ast.base = spec.typeRef.deref
-
-    // set flags
-    spec.flags = spec.base.flags.or(MSpecFlags.enum)
-
-    // sealed is implied
-    loc := spec.loc
-    if (spec.metaHas("sealed"))
-      err("Enum types are implied sealed", loc)
-    else
-      spec.metaInit.set("sealed", sys.markerScalar(loc))
-
-    // recurse children slots to process as the enum items
-    slots := Str:Spec[:]; slots.ordered = true
-    enums := Str:Spec[:]; enums.ordered = true
-    hasKeys := false
-    enumRef := ASpecRef(loc, spec)
-    defKey := null
-    spec.declared?.each |slot|
-    {
-      item := inheritEnumItem(spec, enumRef, slot)
-
-      // map slot by its programatic name
-      slots.add(item.name, item)
-
-      // map by key
-      key := item.name
-      keyVal := item.metaGet("key") as AScalar
-      if (keyVal != null)
-      {
-        key = keyVal.str
-        hasKeys = true
-      }
-      if (enums[key] != null)
-        err("Duplicate enum key: $key", item.loc)
-      else
-        enums.add(key, item)
-
-      if (defKey == null) defKey = key
-    }
-
-    // if we don't have any key meta, then reuse same slots map to save RAM
-    if (!hasKeys) enums = slots
-
-    // set first key to the default value for enum type
-    if (defKey == null)
-      err("Enum has no items", spec.loc)
-    else
-      spec.metaInit.set("val", AScalar(spec.loc, enumRef, defKey))
-
-    // save away both slots and enums
-    specMap := SpecMap(slots)
-    spec.ast.members = specMap
-    spec.ast.slots   = specMap
-    spec.ast.enum    = MEnum(enums, defKey ?: "")
-  }
-
-  ** Check that an item was a marker only, then coerce to be derived from parent enum
-  private ASpec inheritEnumItem(ASpec enum, ASpecRef enumRef, ASpec item)
-  {
-    // this should only be true if slot created in Parser.parseMarkerSpec
-    if (item.typeRef !== sys.marker)
-      err("Enum item '$item.name' cannot have type", item.loc)
-
-    item.ast.base = enum
-    item.typeRef  = enumRef
-    item.flags    = enum.flags
-    item.setNoMembers
-    return item
   }
 
 //////////////////////////////////////////////////////////////////////////
