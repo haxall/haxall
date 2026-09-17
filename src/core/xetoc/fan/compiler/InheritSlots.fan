@@ -44,24 +44,27 @@ internal class InheritSlots : InheritFlags
     if (spec.ast.members != null) return
 
     // infer the base we inherit from (may be null)
-    spec.ast.base = inferBase(spec)
+    if (spec.flags < 0)
+    {
+      spec.ast.base = inferBase(spec)
 
-    // now infer the type of the spec
-    explicitTypeRef := spec.typeRef != null
-    if (!explicitTypeRef) spec.typeRef = inferType(spec)
+      // now infer the type of the spec
+      explicitTypeRef := spec.typeRef != null
+      if (!explicitTypeRef) spec.typeRef = inferType(spec)
 
-    // if we couldn't infer base before, then use type as base
-    if (spec.base == null) spec.ast.base = spec.typeRef.deref
+      // if we couldn't infer base before, then use type as base
+      if (spec.base == null) spec.ast.base = spec.typeRef.deref
 
-    // if base is in my AST, then recursively process it first
-    if (spec.base.isAst) inherit(spec.base)
+      // if base is in my AST, then recursively process it first
+      if (spec.base.isAst) inherit(spec.base)
 
-    // if base is maybe and my own type is not then clear maybe flag
-    if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
-      spec.metaSetNone("maybe")
+      // if base is maybe and my own type is not then clear maybe flag
+      if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
+        spec.metaSetNone("maybe")
 
-    // compute effective flags
-    inheritFlags(spec)
+      // compute effective flags
+      inheritFlags(spec)
+    }
 
     // compute effective slots
     inheritSlots(spec)
@@ -127,8 +130,6 @@ internal class InheritSlots : InheritFlags
       if (ofs != null) ofs.each |of|
       {
         if (of.isAst) inherit(of)
-        if (of.isComp)   spec.flags = spec.flags.or(MSpecFlags.comp)
-        if (of.isEntity) spec.flags = spec.flags.or(MSpecFlags.entity)
         autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, of)
       }
     }

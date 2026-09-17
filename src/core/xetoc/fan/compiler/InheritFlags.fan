@@ -45,12 +45,20 @@ internal abstract class InheritFlags : Step
       flags = setMetaFlag(flags, x, "output",    MSpecFlags.output)
     }
 
-    // if my base is compound type
-    baseName := x.base.name
-    switch (baseName)
+    // if my base is compound type; And compounds also
+    // inherit entity/comp from their ofs
+    if (x.base === sys.and.deref)
     {
-      case "And":  flags = flags.or(MSpecFlags.and)
-      case "Or":   flags = flags.or(MSpecFlags.or)
+      flags = flags.or(MSpecFlags.and)
+      x.ofs(false)?.each |of|
+      {
+        if (of.isComp)   flags = flags.or(MSpecFlags.comp)
+        if (of.isEntity) flags = flags.or(MSpecFlags.entity)
+      }
+    }
+    else if (x.base === sys.or.deref)
+    {
+      flags = flags.or(MSpecFlags.or)
     }
 
     // special handling ph lib
