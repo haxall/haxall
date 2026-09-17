@@ -35,9 +35,8 @@ internal class InheritSlots : Step
 {
   override Void run()
   {
-    lib.tops.each |spec| { inherit(spec) }
+    lib.ast.topsInInheritOrder.each |spec| { inherit(spec) }
     bombIfErr
-    lib.ast.types = types
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -47,59 +46,14 @@ internal class InheritSlots : Step
   ** Process inheritance of given spec with cyclic checks
   private Void inherit(ASpec spec)
   {
-    // check if already inherited
+    // skip if already inherited
     if (spec.ast.members != null) return
 
-    // check for cyclic inheritance
-    if (isCyclicInheritance(spec) && !isSys)
-    {
-      // report error for every type in the cycle
-      types := Str:Str[:]
-      stack.each |s| { if (s.isType) types[s.qname] = s.qname }
-      err("Cyclic inheritance: " + types.vals.sort.join(", "), spec.loc)
-      spec.flags = 0
-      setNoMembers(spec)
-      return
-    }
-
-    // push onto stack to keep track of cycles
-    stack.push(spec)
-
-    // process
-    doInherit(spec)
-
-    // pop from stack
-    stack.pop
-  }
-
-  private Bool isCyclicInheritance(ASpec spec)
-  {
-    // walk stack backwards checking if spec is already on the stack
-    // via a pure type inheritance path (not thru slot references)
-    for (i := stack.size - 1; i >= 0; --i)
-    {
-      s := stack[i]
-      if (s === spec) return true
-
-      /*
-      // if we turn this on we can have slots that forward refernce
-      // subtypes of the parent type; however enabling that will
-      // break RemoteLoader which requires a single pass; see the
-      // hx.test.xeto test for "TestWidget" and "TestTool"
-      if (!s.isType) return false
-      */
-    }
-    return false
-  }
-
-  private Void doInherit(ASpec spec)
-  {
     // special handling for sys::Obj
     if (spec.isObj)
     {
       spec.flags = 0
-      setNoMembers(spec)
-      types.add(spec)
+      spec.setNoMembers
       return
     }
 
@@ -115,9 +69,6 @@ internal class InheritSlots : Step
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
-
-    // keep track of type now that inheritance has been processed
-    if (spec.isType) types.add(spec)
 
     // if base is maybe and my own type is not then clear maybe flag
     if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
@@ -577,6 +528,8 @@ internal class InheritSlots : Step
   ** Enum slots are implied as the parent type
   private Void inheritEnum(ASpec spec)
   {
+return
+/* TODO
     // set base to typeRef (which is sys::Enum)
     spec.ast.base = spec.typeRef.deref
 
@@ -589,6 +542,8 @@ internal class InheritSlots : Step
       err("Enum types are implied sealed", loc)
     else
       spec.metaInit.set("sealed", sys.markerScalar(loc))
+*/
+loc := spec.loc
 
     // recurse children slots to process as the enum items
     slots := Str:Spec[:]; slots.ordered = true
@@ -645,26 +600,9 @@ internal class InheritSlots : Step
     item.ast.base = enum
     item.typeRef  = enumRef
     item.flags    = enum.flags
-    setNoMembers(item)
+    item.setNoMembers
     return item
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Utils
-//////////////////////////////////////////////////////////////////////////
-
-  private Void setNoMembers(ASpec x)
-  {
-    x.ast.members = SpecMap.empty
-    x.ast.slots   = SpecMap.empty
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Fields
-//////////////////////////////////////////////////////////////////////////
-
-  private const Str:Spec emptySpecMap := Str:Spec[:].toImmutable
-  private ASpec[] stack := [,]
-  private ASpec[] types := [,]
 }
 

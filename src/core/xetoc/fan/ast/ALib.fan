@@ -231,7 +231,7 @@ internal class ALibState : ADocAst
   ADict? meta
   Int flags
   Str:ASpec tops := [:] { ordered = true }
-  ASpec[]? types
+  ASpec[]? topsInInheritOrder
   Int autoNameCount
 
   ASpec? spec(Str name)

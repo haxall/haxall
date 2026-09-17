@@ -61,7 +61,7 @@ class DefUtil
         case "ph::WeatherCondEnum":     return parseEnum("unknown,clear,partlyCloudy,cloudy,showers,rain,thunderstorms,ice,flurries,snow")
         case "ph::WeatherDaytimeEnum":  return parseEnum("nighttime,daytime")
         case "ph.points::RunEnum":      return parseEnum("off,on")
-        case "ph.points::OccupiedEnum": return parseEnum("unoccupied occupied")
+        case "ph.points::OccupiedEnum": return parseEnum("unoccupied,occupied")
       }
       echo("WARN: xeto enum refs not supported yet: $enum")
       return emptyEnum

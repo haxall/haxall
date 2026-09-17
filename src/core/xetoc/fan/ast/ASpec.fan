@@ -224,6 +224,12 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
     return ast.declared
   }
 
+  Void setNoMembers()
+  {
+    ast.members = SpecMap.empty
+    ast.slots   = SpecMap.empty
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Spec
 //////////////////////////////////////////////////////////////////////////

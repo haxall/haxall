@@ -37,7 +37,7 @@ internal class LoadBindings : Step
   private Void assignBindings()
   {
     // types in inheritance order
-    lib.ast.types.each |spec|
+    lib.ast.topsInInheritOrder.each |spec|
     {
       spec.ast.binding = resolveBinding(spec)
     }
