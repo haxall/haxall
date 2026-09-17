@@ -43,7 +43,7 @@ using haystack
         cur   := r.addr.qnum
         curt  := r.addr.type
         lastt := acc.last.addr.type
-        if (curt != lastt || cur-end > gap || cur-first >= max)
+        if (curt != lastt || cur-end > gap || end.max(cur + r.data.size)-first > max)
         {
           blocks.add(ModbusBlock(acc))
           acc.clear

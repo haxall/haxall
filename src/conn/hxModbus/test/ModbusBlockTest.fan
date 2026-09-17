@@ -130,6 +130,25 @@ internal class ModbusBlockTest : Test
     verifyEq(blocks.size, 2)
     verifyEq(blocks[0].start, 7)
     verifyEq(blocks[0].size,  4)
+
+    // max includes the full size of the last register
+    i := reg("i", "40001", "u2")
+    j := reg("j", "40002", "f8")
+    k := reg("k", "40002", "bit:0")
+    blocks = ModbusBlock.optimize([i,j], 0, 2)
+    verifyEq(blocks.size, 2)
+    verifyEq(blocks[0].size, 1)
+    verifyEq(blocks[1].size, 4)
+
+    // exactly max fits in one block
+    blocks = ModbusBlock.optimize([i,j], 0, 5)
+    verifyEq(blocks.size, 1)
+    verifyEq(blocks[0].size, 5)
+
+    // register inside the widest register does not grow the block
+    blocks = ModbusBlock.optimize([i,j,k], 0, 5)
+    verifyEq(blocks.size, 1)
+    verifyEq(blocks[0].size, 5)
   }
 
 //////////////////////////////////////////////////////////////////////////
