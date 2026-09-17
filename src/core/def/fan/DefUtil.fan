@@ -41,6 +41,10 @@ class DefUtil
   **   - Str comma separated names
   **   - Str fandoc list as - name: fandoc lines
   **
+  ** NOTE: legacy.  New code should use `pi::PiEnv.enum` which
+  ** handles every format including a Ref to a Xeto `sys::Enum`.
+  ** This is retained only for the old def based consumers.
+  **
   static Str:Dict parseEnum(Obj? enum)
   {
     if (enum == null) return emptyEnum
@@ -49,19 +53,8 @@ class DefUtil
 
     if (enum is List) return parseEnumList(enum)
 
-    // Xeto allows enum spec ref; for now just support predefined ph enums
-    if (enum is Ref)
-    {
-      switch (enum.toStr)
-      {
-        case "ph::WeatherCondEnum":     return parseEnum("unknown,clear,partlyCloudy,cloudy,showers,rain,thunderstorms,ice,flurries,snow")
-        case "ph::WeatherDaytimeEnum":  return parseEnum("nighttime,daytime")
-        case "ph.points::RunEnum":      return parseEnum("off,on")
-        case "ph.points::OccupiedEnum": return parseEnum("unoccupied occupied")
-      }
-      echo("WARN: xeto enum refs not supported yet: $enum")
-      return emptyEnum
-    }
+    // Xeto enum spec refs are not supported here; see PiEnv.enum
+    if (enum is Ref) return emptyEnum
 
     enumStr := enum.toStr.trimStart
     if (enumStr.startsWith("-")) return parseEnumFandoc(enumStr)

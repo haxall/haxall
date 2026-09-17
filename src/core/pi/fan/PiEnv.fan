@@ -37,6 +37,17 @@ abstract const class PiEnv
   ** Wrap a grid as an ItemGrid collection
   abstract ItemCollection itemGrid(Grid grid)
 
+  ** Map a value to an enumeration.  Handles every shape the `enum`
+  ** tag is allowed to take: comma or newline separated keys, a
+  ** markdown "- key: doc" list, a dict of dicts, a list of keys, and
+  ** a Ref to a Xeto `sys::Enum` spec.  Returns `EnumItems.none` if
+  ** the value does not map to an enumeration.
+  abstract EnumItems enum(Obj? val)
+
+  ** Map a Xeto `sys::Enum` spec to its enumeration.  Returns
+  ** `EnumItems.none` if the spec is not an enum.
+  abstract EnumItems enumForSpec(Spec spec)
+
   ** Display flash notification for an error to the user
   abstract Void flash(ItemStatus status, Str msg, Err? err := null)
 
