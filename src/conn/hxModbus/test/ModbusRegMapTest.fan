@@ -134,6 +134,17 @@ class ModbusRegMapTest : HxTest
     verifyScale(ModbusScale("+ 100 / 10"), 20, (20 + 100) / 10)
     verifyScale(ModbusScale("+ -10 * 2"), 15f, (15f -10f) * 2f)
 
+    // exponents; a sign following e/E is part of the number
+    verifyScale(ModbusScale("*1e3"),       5f,   5000f)
+    verifyScale(ModbusScale("/1E+2"),      250f, 2.5f)
+    verifyScale(ModbusScale("*5e-1"),      10f,  5f)
+    verifyScale(ModbusScale("- 2.5E-1"),   10f,  9.75f)
+    verifyScale(ModbusScale("*5e-1 -1"),   10f,  4f)
+    verifyScale(ModbusScale("*5e-1+1"),    10f,  6f)
+    verifyScale(ModbusScale("* -5e-1"),    10f,  -5f)
+    verifyEq(ModbusScale("*1e-3").factors.first, Number(0.001f))
+    verifyEq(ModbusScale("*1e-", false), null)
+
     // verifyEq(ModbusScale("+foo").name,   "foo")
     // verifyEq(ModbusScale("-  bar").name, "bar")
     // verifyEq(ModbusScale("* ai0").name,  "ai0")

@@ -454,7 +454,13 @@ using haystack
         while (true)
         {
           ch := s.getSafe(pos)
-          if (ch == 0 || ops.contains(ch)) break
+          if (ch == 0) break
+          if (ops.contains(ch))
+          {
+            // a sign right after e/E is part of an exponent such as 1e-3
+            isExp := (ch == '+' || ch == '-') && pos > start && s[pos-1].lower == 'e'
+            if (!isExp) break
+          }
           ++pos
         }
         factor := Number.fromStr(s[start..<pos].trim)
