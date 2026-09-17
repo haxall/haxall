@@ -95,6 +95,11 @@ internal class CheckErrors : Step
     checkTopName(x)
     checkTypeInherit(x)
     checkSpec(x)
+
+    // maybe marks an optional slot; top level specs cannot be maybe
+    // (excluding synthetic tops hoisted from inline types like Ref?)
+    if (x.metaHas("maybe") && !XetoUtil.isAutoName(x.name))
+      err("Top level spec cannot be maybe: $x.name", x.loc)
   }
 
   Void checkTopName(ASpec x)

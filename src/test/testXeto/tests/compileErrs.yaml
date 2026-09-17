@@ -164,6 +164,13 @@ compileLib: |
 verifyErrs: |
   Spec name 'Pragma' is reserved
 ---
+name: "topMaybe"
+compileLib: |
+  Foo: Dict
+  Bar: Foo?
+verifyErrs: |
+  Top level spec cannot be maybe: Bar
+---
 name: "reservedInstanceNames"
 compileLib: |
   @pragma: {}

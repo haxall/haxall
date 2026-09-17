@@ -114,56 +114,63 @@ verifySpecIs:
 ---
 name: "maybeScalar"
 compileLib: |
-  Foo: Scalar?
+  Foo: Dict {
+    x: Scalar?
+  }
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",        expect: true}
-  - {a: "test::Foo", b: "sys::Scalar",     expect: true}
-  - {a: "test::Foo", b: "sys::Str",        expect: false}
-  - {a: "test::Foo", b: "sys::None",       expect: true}
-  - {a: "test::Foo", b: "sys::Number",     expect: false}
-  - {a: "test::Foo", b: "sys::Collection", expect: false}
+  - {a: "test::Foo.x", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo.x", b: "sys::Scalar",     expect: true}
+  - {a: "test::Foo.x", b: "sys::Str",        expect: false}
+  - {a: "test::Foo.x", b: "sys::None",       expect: true}
+  - {a: "test::Foo.x", b: "sys::Number",     expect: false}
+  - {a: "test::Foo.x", b: "sys::Collection", expect: false}
 ---
 name: "maybeDict"
 compileLib: |
-  Foo: Dict? <of:Str>
+  Foo: Dict {
+    x: Dict? <of:Str>
+  }
 verifySpecIs:
-  - {a: "test::Foo", b: "sys::Obj",        expect: true}
-  - {a: "test::Foo", b: "sys::Collection", expect: true}
-  - {a: "test::Foo", b: "sys::List",       expect: false}
-  - {a: "test::Foo", b: "sys::None",       expect: true}
-  - {a: "test::Foo", b: "sys::Scalar",     expect: false}
-  - {a: "test::Foo", b: "sys::Str",        expect: false}
-  - {a: "test::Foo", b: "sys::Dict",       expect: true}
+  - {a: "test::Foo.x", b: "sys::Obj",        expect: true}
+  - {a: "test::Foo.x", b: "sys::Collection", expect: true}
+  - {a: "test::Foo.x", b: "sys::List",       expect: false}
+  - {a: "test::Foo.x", b: "sys::None",       expect: true}
+  - {a: "test::Foo.x", b: "sys::Scalar",     expect: false}
+  - {a: "test::Foo.x", b: "sys::Str",        expect: false}
+  - {a: "test::Foo.x", b: "sys::Dict",       expect: true}
 ---
 name: "maybeCustom"
 compileLib: |
   Foo: Dict
   Bar: Foo
-  Baz: Bar?
+  Baz: Dict {
+    x: Bar?
+  }
 verifySpecIs:
-  - {a: "test::Baz", b: "sys::Obj",    expect: true}
-  - {a: "test::Baz", b: "sys::Dict",   expect: true}
-  - {a: "test::Baz", b: "test::Foo",   expect: true}
-  - {a: "test::Baz", b: "test::Bar",   expect: true}
-  - {a: "test::Baz", b: "test::Baz",   expect: true}
-  - {a: "test::Baz", b: "sys::None",   expect: true}
-  - {a: "test::Baz", b: "sys::Scalar", expect: false}
-  - {a: "test::Baz", b: "sys::Str",    expect: false}
+  - {a: "test::Baz.x", b: "sys::Obj",    expect: true}
+  - {a: "test::Baz.x", b: "sys::Dict",   expect: true}
+  - {a: "test::Baz.x", b: "test::Foo",   expect: true}
+  - {a: "test::Baz.x", b: "test::Bar",   expect: true}
+  - {a: "test::Baz.x", b: "sys::None",   expect: true}
+  - {a: "test::Baz.x", b: "sys::Scalar", expect: false}
+  - {a: "test::Baz.x", b: "sys::Str",    expect: false}
 ---
 name: "maybeOverride"
 compileLib: |
   Foo: Dict
-  Bar: Foo?
-  Baz: Bar
+  Bar: Dict {
+    x: Foo?
+  }
+  Baz: Bar {
+    x: Foo
+  }
 verifySpecIs:
-  - {a: "test::Baz", b: "sys::Obj",    expect: true}
-  - {a: "test::Baz", b: "sys::Dict",   expect: true}
-  - {a: "test::Baz", b: "test::Foo",   expect: true}
-  - {a: "test::Baz", b: "test::Bar",   expect: true}
-  - {a: "test::Baz", b: "test::Baz",   expect: true}
-  - {a: "test::Baz", b: "sys::None",   expect: false}
-  - {a: "test::Baz", b: "sys::Scalar", expect: false}
-  - {a: "test::Baz", b: "sys::Str",    expect: false}
+  - {a: "test::Baz.x", b: "sys::Obj",    expect: true}
+  - {a: "test::Baz.x", b: "sys::Dict",   expect: true}
+  - {a: "test::Baz.x", b: "test::Foo",   expect: true}
+  - {a: "test::Baz.x", b: "sys::None",   expect: false}
+  - {a: "test::Baz.x", b: "sys::Scalar", expect: false}
+  - {a: "test::Baz.x", b: "sys::Str",    expect: false}
 ---
 
 
