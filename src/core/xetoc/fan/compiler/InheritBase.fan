@@ -93,15 +93,11 @@ internal class InheritBase : InheritFlags
       return
     }
 
-    // infer the base we inherit from (may be null)
-    spec.ast.base = inferBase(spec)
+    // if inheritance type was omitted we assume dict
+    if (spec.typeRef == null) spec.typeRef = sys.dict
 
-    // now infer the type of the spec
-    explicitTypeRef := spec.typeRef != null
-    if (!explicitTypeRef) spec.typeRef = inferType(spec)
-
-    // if we couldn't infer base before, then use type as base
-    if (spec.base == null) spec.ast.base = spec.typeRef.deref
+    // base is always same as type
+    spec.ast.base = spec.typeRef.deref
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
@@ -110,53 +106,11 @@ internal class InheritBase : InheritFlags
     if (spec.isType) types.add(spec)
     if (spec.isMixin) mixins.add(spec)
 
-    // if base is maybe and my own type is not then clear maybe flag
-    if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
-      spec.metaSetNone("maybe")
-
     // special handling for Enums
     if (isEnum(spec)) return inheritEnum(spec)
 
     // compute effective flags
     inheritFlags(spec)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Infer Base
-//////////////////////////////////////////////////////////////////////////
-
-  ** Infer the base spec we inherit from
-  Spec? inferBase(ASpec x)
-  {
-    // if already inferred
-    if (x.base != null) return x.base
-
-    // try to infer from the explicit type if available
-    return x.typeRef?.deref
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Infer Type
-//////////////////////////////////////////////////////////////////////////
-
-  ** If x does not have an explicit type specified, then infer
-  ** it from either given base or whether it is a scalar/dict.
-  ** If a type is given, then we use that to decide if we need
-  ** clear maybe flag (set to None).
-  ASpecRef inferType(ASpec x)
-  {
-    // if already specified use it
-    if (x.typeRef != null) return x.typeRef
-
-    // infer type from base
-    if (x.base != null) return ASpecRef(x.loc, x.base.type)
-
-    // items of a MultiRef list are always refs
-    if (x.parent != null && x.parent.isMultiRef) return x.typeRef = sys.ref
-
-    // scalars default to str and everything else to dict
-    x.typeRef = x.val == null ? sys.dict : sys.str
-    return x.typeRef
   }
 
 //////////////////////////////////////////////////////////////////////////
