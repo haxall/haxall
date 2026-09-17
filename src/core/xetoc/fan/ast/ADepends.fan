@@ -24,22 +24,6 @@ internal class ADepends
   MXetoCompiler compiler                // make
   [Str:XetoLib]? libs                   // Resolve
 
-  ** Resolve the extended slot with the given name contributed by a
-  ** depend lib mixin, walking the type inheritance graph including
-  ** And compounds in priority order the same as Namespace.mixinsFor
-  Spec? slotx(Spec? type, Str name)
-  {
-    while (type != null && type.isAst) type = type.base
-    if (libs == null || type == null) return null
-    Spec? match := null
-    XetoUtil.eachInherited(type) |t|
-    {
-      if (match != null || !t.isType) return
-      match = libs.eachWhile |lib| { lib.mixinFor(t, false)?.slotsOwn?.get(name, false) }
-    }
-    return match
-  }
-
   ** Libs this compile depends on.  Normally these are declared by the
   ** lib's pragma, but a compile with nothing declared to go on resolves
   ** against every lib in the namespace instead.  Computed on first read
@@ -47,6 +31,13 @@ internal class ADepends
   once MLibDepend[] list()
   {
     compiler.useNsDepends ? nsToDepends : compiler.lib.pragma.depends
+  }
+
+  ** Iterate every lib in the dependency scope include transients and my own
+  Void eachLibInScope(|Lib| f)
+  {
+    libs.each(f)
+    f(compiler.lib)
   }
 
   ** Every lib in the namespace, excluding ourself and any lib in error
@@ -60,5 +51,49 @@ internal class ADepends
       return MLibDepend(name, LibDependVersions.wildcard, FileLoc.synthetic)
     }
   }
+
+  ** Walk the dependency chain to build the list of mixins for given type
+  Spec[] mixinsFor(Spec type)
+  {
+    x := mixinsForCache[type.qname]
+    if (x == null) mixinsForCache[type.qname] = x = resolveMixinsFor(type)
+    return x
+  }
+
+  private Spec[] resolveMixinsFor(Spec type)
+  {
+    acc := Str:Spec[:]
+
+    // add mixins registered on base using cache
+    XetoUtil.eachBase(type) |base|
+    {
+      mixinsFor(base).each |x| { acc[x.qname] = x }
+    }
+
+    // find my own mixins
+    eachLibInScope |lib|
+    {
+      x := lib.mixinFor(type, false)
+      if (x != null) acc[x.qname] = x
+    }
+
+    return acc.isEmpty ? Spec#.emptyList : acc.vals
+  }
+
+  ** TODO - to be removed
+  Spec? slotx(Spec? type, Str name)
+  {
+    while (type != null && type.isAst) type = type.base
+    if (libs == null || type == null) return null
+    Spec? match := null
+    XetoUtil.eachInherited(type) |t|
+    {
+      if (match != null || !t.isType) return
+      match = libs.eachWhile |lib| { lib.mixinFor(t, false)?.slotsOwn?.get(name, false) }
+    }
+    return match
+  }
+
+  private Str:Spec[] mixinsForCache := [:]
 }
 

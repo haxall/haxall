@@ -723,6 +723,18 @@ const class XetoUtil
     return Spec[x.base].ro
   }
 
+  static Void eachBase(Spec x, |Spec| f)
+  {
+    if (x.isCompound)
+    {
+      x.ofs.each(f)
+    }
+    else if (x.base != null)
+    {
+      f(x.base)
+    }
+  }
+
   static Void eachInherited(Spec x, |Spec| f)
   {
     f(x)

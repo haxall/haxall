@@ -156,6 +156,14 @@ internal const class ALib : Lib, ADoc
   override ALibState ast() { astRef.val }
   const Unsafe astRef
 
+  override Spec? mixinFor(Spec type, Bool checked := true)
+  {
+    m := tops.find |x| { x.isMixin && x.base === type }
+    if (m != null) return m
+    if (checked) throw UnknownSpecErr("No mixin for $type.qname")
+    return null
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dict (unsupported)
 //////////////////////////////////////////////////////////////////////////
@@ -189,8 +197,6 @@ internal const class ALib : Lib, ADoc
   override Spec? type(Str name, Bool checked := true)  { throw UnsupportedErr() }
 
   override SpecMap mixins()  { throw UnsupportedErr() }
-
-  override Spec? mixinFor(Spec type, Bool checked := true) { throw UnsupportedErr() }
 
   override Dict[] instances() { throw UnsupportedErr() }
 

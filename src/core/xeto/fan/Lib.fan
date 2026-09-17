@@ -51,7 +51,8 @@ const mixin Lib : Dict
   ** Top level mixin specs keyed by simple name
   abstract SpecMap mixins()
 
-  ** Lookup the mixin for the given type in this library
+  ** Lookup the mixin for the given type in this library. This only
+  ** returns an exact match for the type (not its inheritance tree).
   abstract Spec? mixinFor(Spec type, Bool checked := true)
 
   ** List the instance data dicts declared in this library
