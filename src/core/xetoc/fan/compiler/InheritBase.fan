@@ -27,7 +27,7 @@ internal class InheritBase : Step
   {
     lib.tops.each |spec| { inherit(spec) }
     bombIfErr
-    lib.ast.topsInInheritOrder = tops
+    lib.ast.topsInInheritOrder = mixins.addAll(types)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,8 +37,8 @@ internal class InheritBase : Step
   ** Process inheritance of given spec with cyclic checks
   private Void inherit(ASpec spec)
   {
-    // check if already inherited
-    if (spec.ast.members != null) return
+    // check if already processed
+    if (spec.ast.flags >= 0) return
 
     // check for cyclic inheritance
     if (isCyclicInheritance(spec) && !isSys)
@@ -89,7 +89,7 @@ internal class InheritBase : Step
     {
       spec.flags = 0
       spec.setNoMembers
-      tops.add(spec)
+      types.add(spec)
       return
     }
 
@@ -106,8 +106,9 @@ internal class InheritBase : Step
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
 
-    // keep track of type now that inheritance has been processed
-    if (spec.isTop) tops.add(spec)
+    // keep track of tops in order now that inheritance has been processed
+    if (spec.isType) types.add(spec)
+    if (spec.isMixin) mixins.add(spec)
 
     // if base is maybe and my own type is not then clear maybe flag
     if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
@@ -360,7 +361,8 @@ internal class InheritBase : Step
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private ASpec[] stack := [,]
-  private ASpec[] tops := [,]
+  private ASpec[] stack  := [,]
+  private ASpec[] types  := [,]
+  private ASpec[] mixins := [,]
 }
 
