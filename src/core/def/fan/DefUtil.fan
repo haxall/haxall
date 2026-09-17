@@ -53,8 +53,19 @@ class DefUtil
 
     if (enum is List) return parseEnumList(enum)
 
-    // Xeto enum spec refs are not supported here; see PiEnv.enum
-    if (enum is Ref) return emptyEnum
+    // Xeto allows enum spec ref; for now just support predefined ph enums
+    if (enum is Ref)
+    {
+      switch (enum.toStr)
+      {
+        case "ph::WeatherCondEnum":     return parseEnum("unknown,clear,partlyCloudy,cloudy,showers,rain,thunderstorms,ice,flurries,snow")
+        case "ph::WeatherDaytimeEnum":  return parseEnum("nighttime,daytime")
+        case "ph.points::RunEnum":      return parseEnum("off,on")
+        case "ph.points::OccupiedEnum": return parseEnum("unoccupied occupied")
+      }
+      echo("WARN: xeto enum refs not supported yet: $enum")
+      return emptyEnum
+    }
 
     enumStr := enum.toStr.trimStart
     if (enumStr.startsWith("-")) return parseEnumFandoc(enumStr)
