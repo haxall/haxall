@@ -79,6 +79,14 @@ class ModbusDispatch : ConnDispatch
     close(err)
   }
 
+  ** Is err a rejected write request that leaves the wire in sync, so only
+  ** the request fails and the conn stays open: a value or register that
+  ** can't be written, or a valid exception response from the device.
+  internal static Bool isRequestErr(Err err)
+  {
+    err is ModbusExceptionErr || err is ArgErr || err is CastErr
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Sync Cur
 //////////////////////////////////////////////////////////////////////////
@@ -182,7 +190,7 @@ class ModbusDispatch : ConnDispatch
     }
     catch (Err err)
     {
-      closeErr(err)
+      if (!isRequestErr(err)) closeErr(err)
       throw err
     }
   }
@@ -214,7 +222,7 @@ class ModbusDispatch : ConnDispatch
     catch (Err err)
     {
       point.updateWriteErr(event, err)
-      closeErr(err)
+      if (!isRequestErr(err)) closeErr(err)
     }
   }
 }
