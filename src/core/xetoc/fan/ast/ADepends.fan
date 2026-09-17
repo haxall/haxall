@@ -33,11 +33,12 @@ internal class ADepends
     compiler.useNsDepends ? nsToDepends : compiler.lib.pragma.depends
   }
 
-  ** Iterate every lib in the dependency scope include transients and my own
+  ** Iterate every lib in the dependency scope: my declared depends
+  ** in pragma declaration order, then my own lib
   Void eachLibInScope(|Lib| f)
   {
-    libs.each(f)
-    f(compiler.lib)
+    if (libs != null) list.each |d| { lib := libs[d.name]; if (lib != null) f(lib) }
+    if (compiler.lib != null) f(compiler.lib)
   }
 
   ** Every lib in the namespace, excluding ourself and any lib in error
@@ -52,7 +53,10 @@ internal class ADepends
     }
   }
 
-  ** Walk the dependency chain to build the list of mixins for given type
+  ** Walk the dependency chain to build the list of mixins for the given
+  ** type.  Results are cached per type and layered thru the base chain.
+  ** Only valid once InheritBase completes: mixinFor matches by base
+  ** identity, which requires every top's base to be resolved.
   Spec[] mixinsFor(Spec type)
   {
     x := mixinsForCache[type.qname]
@@ -62,7 +66,7 @@ internal class ADepends
 
   private Spec[] resolveMixinsFor(Spec type)
   {
-    acc := Str:Spec[:]
+    acc := Str:Spec[:] { ordered = true }
 
     // add mixins registered on base using cache
     XetoUtil.eachBase(type) |base|

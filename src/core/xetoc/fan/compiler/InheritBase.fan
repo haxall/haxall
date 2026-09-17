@@ -17,8 +17,12 @@ using haystack
 **   - typeRef
 **   - flags
 **
-** We also use this step to create a list of types orderd by inheritance
-** for subsequent steps to use in lib.types.
+** A top's base is always its declared type, so this step also owns
+** cyclic inheritance detection.  Flags are assigned on every completion
+** path making 'flags >= 0' the done marker.  We also use this step to
+** create lib.ast.topsInInheritOrder: mixins first, then types, with
+** bases before subtypes - InheritSlots relies on that order so mixin
+** members are computed before any type resolves its slots.
 **
 @Js
 internal class InheritBase : InheritFlags

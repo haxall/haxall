@@ -43,9 +43,12 @@ internal class InheritSlots : InheritFlags
     // skip if already inherited
     if (spec.ast.members != null) return
 
-    // infer the base we inherit from (may be null)
+    // InheritBase finalized base/typeRef/flags for tops (flags >= 0);
+    // nested slots are finalized here because their base is an output
+    // of the parent's override resolution
     if (spec.flags < 0)
     {
+      // infer the base we inherit from (may be null)
       spec.ast.base = inferBase(spec)
 
       // now infer the type of the spec
@@ -54,9 +57,6 @@ internal class InheritSlots : InheritFlags
 
       // if we couldn't infer base before, then use type as base
       if (spec.base == null) spec.ast.base = spec.typeRef.deref
-
-      // if base is in my AST, then recursively process it first
-      if (spec.base.isAst) inherit(spec.base)
 
       // if base is maybe and my own type is not then clear maybe flag
       if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
