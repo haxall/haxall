@@ -32,12 +32,12 @@ internal class ModbusMasterTest : Test
     // test transport.send with CRC
     t.crc  = true
     t.test = toBuf("0103020005"); verifyEq(m.readHoldingReg(1, 0), 5)
-    t.test = toBuf("018305"); verifyErr(Err#) { m.readHoldingReg(1, 0) }
+    t.test = toBuf("018305"); verifyErr(ModbusExceptionErr#) { m.readHoldingReg(1, 0) }
 
     // test transport.send without CRC
     t.crc  = false
     t.test = toBuf("0103020007"); verifyEq(m.readHoldingReg(1, 0), 7)
-    t.test = toBuf("018307"); verifyErr(Err#) { m.readHoldingReg(1, 0) }
+    t.test = toBuf("018307"); verifyErr(ModbusExceptionErr#) { m.readHoldingReg(1, 0) }
 
     // test transport.close
     m.close
@@ -105,10 +105,56 @@ internal class ModbusMasterTest : Test
     t.test = toBuf("0103020001"); verifyErr(Err#) { m.readHoldingReg(3, 0) }       // wrong slave
     t.test = toBuf("0105020001"); verifyErr(Err#) { m.readHoldingReg(1, 0) }       // wrong func
     t.test = toBuf("0107020001"); verifyErr(Err#) { m.writeHoldingReg(1, 0, 22) }  // wrong func
-    t.test = toBuf("018305");     verifyErr(Err#) { m.readHoldingReg(1, 0) }
-    t.test = toBuf("018305");     verifyErr(Err#) { m.readHoldingRegs(1, 0, 10) }
-    t.test = toBuf("018601");     verifyErr(Err#) { m.writeHoldingReg(1, 0, 3) }
-    t.test = toBuf("019001");     verifyErr(Err#) { m.writeHoldingRegs(1, 0, [1,2,3]) }
+    t.test = toBuf("018305");     verifyErr(ModbusExceptionErr#) { m.readHoldingReg(1, 0) }
+    t.test = toBuf("018305");     verifyErr(ModbusExceptionErr#) { m.readHoldingRegs(1, 0, 10) }
+    t.test = toBuf("018601");     verifyErr(ModbusExceptionErr#) { m.writeHoldingReg(1, 0, 3) }
+    t.test = toBuf("019001");     verifyErr(ModbusExceptionErr#) { m.writeHoldingRegs(1, 0, [1,2,3]) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Exception Responses
+//////////////////////////////////////////////////////////////////////////
+
+  Void testExceptionErr()
+  {
+    t := ModbusTestTransport()
+    m := ModbusMaster(t).open
+
+    // every request type raises typed err with code
+    [true, false].each |crc|
+    {
+      t.crc = crc
+      verifyExceptionErr(t, "018102", 2)  |->| { m.readCoil(1, 0) }
+      verifyExceptionErr(t, "018502", 2)  |->| { m.writeCoil(1, 0, true) }
+      verifyExceptionErr(t, "018303", 3)  |->| { m.readHoldingReg(1, 0) }
+      verifyExceptionErr(t, "018401", 1)  |->| { m.readInputReg(1, 0) }
+      verifyExceptionErr(t, "018604", 4)  |->| { m.writeHoldingReg(1, 0, 3) }
+      verifyExceptionErr(t, "01900b", 11) |->| { m.writeHoldingRegs(1, 0, [1,2]) }
+    }
+
+    // msg
+    verifyEq(ModbusExceptionErr(2).msg,  "Exception code 2: Illegal Data Address")
+    verifyEq(ModbusExceptionErr(99).msg, "Exception code 99: Unknown code")
+
+    // exception response with bad CRC is not a valid exception
+    t.crc = true
+    t.badCrc = true
+    t.test = toBuf("018302")
+    try { m.readHoldingReg(1, 0); fail }
+    catch (TestErr e) { throw e }
+    catch (Err e) { verifyEq(e.typeof, Err#); verify(e.msg.startsWith("Invalid CRC")) }
+  }
+
+  private Void verifyExceptionErr(ModbusTestTransport t, Str res, Int code, |->| f)
+  {
+    t.test = toBuf(res)
+    ModbusExceptionErr? err
+    try { f(); fail }
+    catch (ModbusExceptionErr e) { err = e }
+    verifyEq(err.code, code)
+
+    // CRC is consumed so the frame is fully read off the wire
+    verifyEq(t.test.remaining, 0)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -137,7 +183,7 @@ internal class ModbusMasterTest : Test
     // a failed transaction still stamps the wire as idle, so the
     // next request is paced rather than firing immediately
     t.reqTicks.clear
-    t.test = toBuf("018305"); verifyErr(Err#) { m.readHoldingReg(1, 0) }
+    t.test = toBuf("018305"); verifyErr(ModbusExceptionErr#) { m.readHoldingReg(1, 0) }
     t.test = toBuf("0103020005"); m.readHoldingReg(1, 0)
     verifyEq(t.reqTicks.size, 2)
     verify(t.reqTicks[1] - t.reqTicks[0] >= 40ms.ticks)
@@ -168,8 +214,9 @@ internal class ModbusMasterTest : Test
 internal class ModbusTestTransport : ModbusTransport
 {
   Bool _open := false
-  Bool crc   := true
-  Buf test   := Buf()
+  Bool crc    := true
+  Bool badCrc := false
+  Buf test    := Buf()
   Int[] reqTicks := Int[,]  // when each req hit the wire
 
   override Void open() { _open=true }
@@ -191,6 +238,7 @@ internal class ModbusTestTransport : ModbusTransport
     if (useCrc)
     {
       crc := buf.crc("CRC-16")
+      if (badCrc) crc = crc.xor(0xffff)
       buf.write(crc)            // LSB of CRC
       buf.write(crc.shiftr(8))  // MSB of CRC
     }

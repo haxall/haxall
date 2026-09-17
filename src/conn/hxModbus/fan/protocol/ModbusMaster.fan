@@ -326,26 +326,13 @@ class ModbusMaster
   ** Check for error condition.
   private Bool isErr(Int code) { code.and(0x80) != 0 }
 
-  ** Make error for expection code.
+  ** Make error for exception response. The CRC must be consumed so
+  ** the frame is fully read off the wire.
   private Err err(ModbusInStream in)
   {
     code := in.readU1
-    msg  := ""
-    switch (code)
-    {
-      case 1:   msg = "Illegal Function"
-      case 2:   msg = "Illegal Data Address"
-      case 3:   msg = "Illegal Data Value"
-      case 4:   msg = "Slave Device Failure"
-      case 5:   msg = "Acknowledge"
-      case 6:   msg = "Slave Device Busy"
-      case 7:   msg = "Negative Acknowledge"
-      case 8:   msg = "Memory Parity Error"
-      case 10:  msg = "Gateway Path Unavailable"
-      case 11:  msg = "Gateway Target Device Failed to Respond"
-      default:  msg = "Unknown code"
-    }
-    return Err("Exception code $code: $msg")
+    verifyCrc(in)
+    return ModbusExceptionErr(code)
   }
 
   ** Add CRC to message if supported.
@@ -371,4 +358,42 @@ class ModbusMaster
 //////////////////////////////////////////////////////////////////////////
 
   private ModbusTransport transport
+}
+
+**************************************************************************
+** ModbusExceptionErr
+**************************************************************************
+
+**
+** ModbusExceptionErr is raised when a slave returns a valid exception
+** response. The response was fully read, so the wire is still in sync.
+**
+@NoDoc const class ModbusExceptionErr : Err
+{
+  ** Construct with exception code from the response
+  new make(Int code) : super("Exception code ${code}: ${codeToMsg(code)}")
+  {
+    this.code = code
+  }
+
+  ** Exception code from the response
+  const Int code
+
+  private static Str codeToMsg(Int code)
+  {
+    switch (code)
+    {
+      case 1:   return "Illegal Function"
+      case 2:   return "Illegal Data Address"
+      case 3:   return "Illegal Data Value"
+      case 4:   return "Slave Device Failure"
+      case 5:   return "Acknowledge"
+      case 6:   return "Slave Device Busy"
+      case 7:   return "Negative Acknowledge"
+      case 8:   return "Memory Parity Error"
+      case 10:  return "Gateway Path Unavailable"
+      case 11:  return "Gateway Target Device Failed to Respond"
+      default:  return "Unknown code"
+    }
+  }
 }
