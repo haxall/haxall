@@ -133,6 +133,45 @@ internal class ModbusBlockTest : Test
   }
 
 //////////////////////////////////////////////////////////////////////////
+// testSharedAddr
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSharedAddr()
+  {
+    a := reg("a", "40101", "u4")
+    b := reg("b", "40101", "bit:0")
+    c := reg("c", "40101", "bit:1")
+    d := reg("d", "40103", "u2")
+
+    // size must not depend on which register sorts last
+    [[a,b,c], [b,c,a], [b,a,c]].each |regs|
+    {
+      blocks := ModbusBlock.optimize(regs)
+      verifyEq(blocks.size, 1)
+      verifyEq(blocks[0].start, 101)
+      verifyEq(blocks[0].size,  2)
+    }
+
+    // next register is contiguous with the widest register
+    [[a,b,c,d], [b,c,a,d]].each |regs|
+    {
+      blocks := ModbusBlock.optimize(regs)
+      verifyEq(blocks.size, 1)
+      verifyEq(blocks[0].size, 3)
+    }
+
+    // each register resolves its own value from the shared words
+    block := ModbusBlock.optimize([a,b,c,d]).first
+    block.resolve([0x0001, 0x0002, 0x0003])
+    vals := Str:Obj[:]
+    block.regs.each |r,i| { vals[r.name] = block.vals[i] }
+    verifyEq(vals["a"], Number.makeInt(0x0001_0002))
+    verifyEq(vals["b"], true)
+    verifyEq(vals["c"], false)
+    verifyEq(vals["d"], Number.makeInt(3))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // testBlockConfig
 //////////////////////////////////////////////////////////////////////////
 

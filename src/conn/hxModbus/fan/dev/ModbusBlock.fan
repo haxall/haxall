@@ -31,6 +31,7 @@ using haystack
 
     blocks := ModbusBlock[,]
     acc    := ModbusReg[,]
+    end    := 0
 
     regs = regs.sort |a,b| { a.addr.qnum <=> b.addr.qnum }
     regs.each |r|
@@ -41,15 +42,17 @@ using haystack
         first := acc.first.addr.qnum
         cur   := r.addr.qnum
         curt  := r.addr.type
-        last  := acc.last.addr.qnum + acc.last.data.size
         lastt := acc.last.addr.type
-        if (curt != lastt || cur-last > gap || cur-first >= max)
+        if (curt != lastt || cur-end > gap || cur-first >= max)
         {
           blocks.add(ModbusBlock(acc))
           acc.clear
+          end = 0
         }
         acc.add(r)
       }
+      // regs at the same addr may differ in size, so end is the max of all
+      end = end.max(r.addr.qnum + r.data.size)
     }
     if (acc.size > 0) blocks.add(ModbusBlock(acc))
     return blocks
@@ -85,8 +88,11 @@ using haystack
   Int size()
   {
     if (regs.size == 0) return 0
-    if (regs.size == 1) return regs.first.data.size
-    return (regs.last.addr.num + regs.last.data.size) - start
+
+    // regs at the same addr may differ in size, so end is the max of all
+    end := 0
+    regs.each |r| { end = end.max(r.addr.num + r.data.size) }
+    return end - start
   }
 
   override Str toStr()
