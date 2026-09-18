@@ -344,6 +344,34 @@ class MixinTest : AbstractXetoTest
     verifyFitsExplain(ns, missing, testSite, [
       "Slot 'newSlot': Missing required slot"
       ])
+
+    // globals restrict present tags: absence is legal (implicitly
+    // maybe), but a present value must fit the global's type and meta
+    okG := Etc.dictx("id", ref("x"), "site", m, "dis", "Site", "newSlot", "x",
+      "gdate", Date("2026-01-01"), "gnum", n(4))
+    verifyEq(ns.fits(okG, site), true)
+    verifyFitsExplain(ns, okG, site, Str[,])
+
+    badType := Etc.dictx("id", ref("x"), "site", m, "dis", "Site", "newSlot", "x",
+      "gdate", "garbage")
+    verifyEq(ns.fits(badType, site), false)
+    verifyFitsExplain(ns, badType, site, [
+      "Slot 'gdate': Global type is 'sys::Date', value type is 'sys::Str'"
+      ])
+
+    badMeta := Etc.dictx("id", ref("x"), "site", m, "dis", "Site", "newSlot", "x",
+      "gnum", n(-4))
+    verifyEq(ns.fits(badMeta, site), false)
+    verifyFitsExplain(ns, badMeta, site, [
+      "Slot 'gnum': Number -4 < minVal 0"
+      ])
+
+    // plain chain globals restrict the same way
+    badDis := Etc.dictx("id", ref("x"), "site", m, "dis", n(123), "newSlot", "x")
+    verifyEq(ns.fits(badDis, site), false)
+    verifyFitsExplain(ns, badDis, site, [
+      "Slot 'dis': Global type is 'sys::Str', value type is 'sys::Number'"
+      ])
   }
 
 //////////////////////////////////////////////////////////////////////////

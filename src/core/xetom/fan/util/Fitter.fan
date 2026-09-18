@@ -275,9 +275,11 @@ internal class Fitter
 
   private Bool checkSlotAgainstGlobals(Spec spec, Str name, Obj val)
   {
-    global := spec.globals.get(name, false)
-    if (global == null) return true
-    return valFits(val, global)
+    // ambiguous contributions from multiple mixins are legal at the
+    // namespace layer; we cannot restrict against an ambiguous name
+    globals := spec.globals.getAll(name)
+    if (globals.size != 1) return true
+    return valFits(val, globals.first)
   }
 
   private Bool checkNonSlotVal(Spec spec, Str name, Obj val)
