@@ -302,7 +302,8 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 
   override Bool isThis() { isSys && name == "This" }
 
-  override Bool isEnum() { base != null && base.isSys && base.name == "Enum" }
+  ** Only enum types; a mixin extending sys::Enum is not an enum
+  override Bool isEnum() { isType && base != null && base.isSys && base.name == "Enum" }
 
   override Bool isAnd() { base != null && base.isSys && base.name == "And" }
 

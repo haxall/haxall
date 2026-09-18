@@ -12,7 +12,7 @@
   newSlot: Str <foo:"hi">
 
   // globals contribute tag type inference, not slots
-  *gdate: Date?
+  *gdate: Date
   *gnum: Number <minVal:0>
 }
 

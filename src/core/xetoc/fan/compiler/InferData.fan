@@ -111,7 +111,7 @@ internal abstract class InferData : Step
     // if no value and slot is nullable/global, then don't infer anything
     if (cur == null)
     {
-      if (dict.isMeta || slot.isGlobal || slot.isMaybe) return
+      if (dict.isMeta || slot.isMaybe) return  // globals are implicitly maybe
     }
 
     // if we have a slot value, then infer the type only

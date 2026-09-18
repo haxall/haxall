@@ -305,10 +305,21 @@ internal class InheritSlots : InheritFlags
     if (XetoUtil.isCovariantOverride(slot)) return false
 
     // no own meta; AST specs haven't reified metaOwn yet at this step
-    // so check the raw declared meta, otherwise use assembled metaOwn
+    // so check the raw declared meta, otherwise use assembled metaOwn.
+    // The maybe:none stamped on explicitly typed refs to globals (which
+    // are implicitly maybe) is compiler generated, not authored, so it
+    // does not count as a change
     ast := slot as ASpec
-    if (ast != null) return ast.ast.meta == null || ast.ast.meta.size == 0
-    return slot.metaOwn.isEmpty
+    if (ast != null)
+    {
+      meta := ast.ast.meta
+      if (meta == null || meta.size == 0) return true
+      return meta.size == 1 && meta.get("maybe")?.isNone == true
+    }
+
+    metaOwn := slot.metaOwn
+    if (metaOwn.isEmpty) return true
+    return metaOwn.eachWhile |v, n| { n == "maybe" && v === None.val ? null : true } == null
   }
 
   ** Is b derived from a through its base inheritance chain

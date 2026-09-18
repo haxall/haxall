@@ -17,24 +17,43 @@ using haystack
 class EquipTest : AbstractXetoTest
 {
 
+  ** Untyped constraint slots bind to globals contributed by mixins
+  ** in the dependency chain: the addr slots infer type and implicit
+  ** maybe from ph.protocols +PhEntity.  Runs local and remote so the
+  ** base refs into mixin members are verified across the wire.
   Void testSlotx()
   {
-    // untyped constraint slots bind to globals contributed by
-    // depend lib mixins for the type chain (ADepends.slotx): the
-    // addr slots infer type and maybe from ph.protocols +PhEntity
-    ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"])
+    verifyLocalAndRemote(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"]) |ns| { doTestSlotx(ns) }
+  }
+
+  Void doTestSlotx(Namespace ns)
+  {
     zt := ns.spec("hx.test.xeto::EquipNamed").slot("points").slot("zoneTemp")
 
     ma := zt.slot("modbusAddr")
     verifyEq(ma.type.qname, "ph.protocols::ModbusAddr")
     verifyEq(ma.isMaybe, true)
+    verifyEq(ma.base.qname, "ph.protocols::PhEntity.modbusAddr")
+    verifyEq(ma.base.isGlobal, true)
     verifyEq(ma.slot("addr").meta["val"]?.toStr, "1001")
     verifyEq(ma.slot("access").meta["val"]?.toStr, "rw")
 
     ba := zt.slot("bacnetAddr")
     verifyEq(ba.type.qname, "ph.protocols::BacnetAddr")
     verifyEq(ba.isMaybe, true)
+    verifyEq(ba.base.qname, "ph.protocols::PhEntity.bacnetAddr")
+    verifyEq(ba.base.isGlobal, true)
     verifyEq(ba.slot("addr").meta["val"]?.toStr, "AI1")
+
+    // plain globals declared within the type chain drive inference the
+    // same way: an authored dis in a template binds the implicitly
+    // maybe PhEntity.dis global, so the slot is not required
+    zc := ns.spec("hx.test.xeto::EquipNamed").slot("points").slot("zoneCo2")
+    dis := zc.slot("dis")
+    verifyEq(dis.type.qname, "sys::Str")
+    verifyEq(dis.base.isGlobal, true)
+    verifyEq(dis.isMaybe, true)
+    verifyEq(ns.spec("ph::PhEntity").globals.get("dis").isMaybe, true)
 
     // typed slots and same-lib inherited members are untouched
     a0 := ns.spec("hx.test.xeto::EquipA").slot("points").slot("_0")

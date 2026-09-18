@@ -168,8 +168,35 @@ name: "topMaybe"
 compileLib: |
   Foo: Dict
   Bar: Foo?
+  Qux: Foo <maybe>
 verifyErrs: |
   Top level spec cannot be maybe: Bar
+  Top level spec cannot be maybe: Qux
+---
+name: "globalMaybe"
+compileLib: |
+  pragma: Lib <
+      doc: "Test lib"
+      version: "1.2.3"
+      depends: { {lib:"sys"}, {lib:"ph"} }
+    >
+  Baz: Dict {
+    *foo: Str?
+    *bar: Marker?
+    *foo2: Str <maybe>
+    baz: Str?
+    baz2: Str <maybe>
+  }
+  +Site {
+    *qux: Number?
+    *qux2: Number <maybe>
+  }
+verifyErrs: |
+  Global cannot be maybe: foo
+  Global cannot be maybe: bar
+  Global cannot be maybe: foo2
+  Global cannot be maybe: qux
+  Global cannot be maybe: qux2
 ---
 name: "reservedInstanceNames"
 compileLib: |
@@ -329,7 +356,6 @@ verifyErrs: |
   Mixin cannot specify slot type: area
   Mixin extend global: equip
   Spec mixin slot 'bar' must be maybe type
-  Spec mixin slot 'baz' must be maybe type
   Nested specs cannot declare global: ohNo
 ---
 name: "covariance"

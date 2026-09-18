@@ -325,6 +325,11 @@ internal class CheckErrors : Step
   {
     if (slot.ast.meta == null) return
 
+    // globals have no containing type to be required of, so maybe
+    // is implied and cannot be declared
+    if (slot.isGlobal && slot.ast.meta.get("maybe") != null)
+      err("Global cannot be maybe: $slot.name", slot.loc)
+
     hasVal := slot.ast.meta.get("val") != null
     if (hasVal && slot.base != null && slot.base.meta.has("invariant"))
       err("Slot '$slot.name' is invariant and cannot declare new default value", slot.loc)

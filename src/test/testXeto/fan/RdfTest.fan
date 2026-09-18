@@ -171,8 +171,8 @@ class RdfTest : AbstractXetoTest
                  ThermalProcess : Heating | Cooling
 
                  Asset : Dict {
-                   *height: Number?<minVal:0, maxVal:300>
-                   *tracked: Marker?
+                   *height: Number<minVal:0, maxVal:300>
+                   *tracked: Marker
                  }
 
                  Equip : Asset <doc:"Line one\nLine \"two\" \\ dollar \$"> {
@@ -458,9 +458,9 @@ class RdfTest : AbstractXetoTest
   {
     rdf := exportWithOpts(
       Str<|Base : Dict {
-               *baseUri: Uri?
-               *unused: Str?
-               *unusedMarker: Marker?
+               *baseUri: Uri
+               *unused: Str
+               *unusedMarker: Marker
              }
 
              Site : Base

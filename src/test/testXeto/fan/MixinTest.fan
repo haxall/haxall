@@ -194,10 +194,11 @@ class MixinTest : AbstractXetoTest
     verifyEq(gdate.isMaybe, true)
     verifyEq(gdate.type.qname, "sys::Date")
 
-    // global with meta; maybe-ness follows declaration in step 1
+    // global with meta; globals are implicitly maybe - they have no
+    // containing type to be required of
     gnum := sitem.globalsOwn.get("gnum")
     verifyEq(gnum.isGlobal, true)
-    verifyEq(gnum.isMaybe, false)
+    verifyEq(gnum.isMaybe, true)
     verifyEq(gnum.type.qname, "sys::Number")
     verifyEq(gnum.meta["minVal"], n(0))
 
@@ -237,13 +238,31 @@ class MixinTest : AbstractXetoTest
 
     // own lib mixin members resolve too (gap in the old slotx design)
     lib2 := ns.compileTempLib(pragma +
-      Str<|+ph::Site { *own: Number? }
+      Str<|+ph::Site { *own: Number }
            Bar: Site { own: 123 }
            |>)
     own := lib2.spec("Bar").slot("own")
     verifyEq(own.type.qname, "sys::Number")
     verifyEq(own.isMaybe, true)
     verifyEq(own.base.isGlobal, true)
+
+    // the three case rule: typed = required, typed maybe = maybe,
+    // value only infers as maybe; the ? sugar and explicit <maybe>
+    // meta are equivalent spellings
+    lib3 := ns.compileTempLib(pragma +
+      Str<|Req: Site { gdate: Date }
+           Opt: Site { gdate: Date? }
+           Opt2: Site { gdate: Date <maybe> }
+           |>)
+    verifyEq(lib3.spec("Req").slot("gdate").isMaybe, false)
+    verifyEq(lib3.spec("Opt").slot("gdate").isMaybe, true)
+    verifyEq(lib3.spec("Opt2").slot("gdate").isMaybe, true)
+
+    // marker refs to a plain chain global follow the same rule: a
+    // bare marker is an explicitly typed slot and required
+    verifyEq(ns.spec("hx.test.xeto::ElecEquipA").slot("elec").isMaybe, false)
+    verifyEq(ns.spec("hx.test.xeto::ElecEquipMaybeA").slot("elec").isMaybe, true)
+    verifyEq(ns.spec("ph::PhEntity").globals.get("elec").isMaybe, true)
 
     // typed slot binds to the mixin member and covariance checks
     // (previously an unlinked silent shadow)
@@ -258,16 +277,19 @@ class MixinTest : AbstractXetoTest
 
     // two mixins contributing the same name coexist legally...
     ns.compileTempLib(pragma +
-      Str<|+ph::Site { *gdate: Number? }
+      Str<|+ph::Site { *gdate: Number }
            Qux: Site {}
            |>)
 
     // ...but a declared slot inheriting against the ambiguous name errs
     verifyMemberResolveErr(ns, pragma +
-      Str<|+ph::Site { *gdate: Number? }
+      Str<|+ph::Site { *gdate: Number }
            Amb: Site { gdate: "x" }
            |>,
       "Ambiguous inherited member 'gdate' from multiple mixins")
+
+    // a mixin extending sys::Enum is meta contribution, not an enum
+    ns.compileTempLib(pragma + "+Enum <foo:\"list\">\n")
   }
 
   Void verifyMemberResolveErr(Namespace ns, Str src, Str contains)

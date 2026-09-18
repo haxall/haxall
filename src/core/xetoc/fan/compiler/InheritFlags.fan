@@ -34,8 +34,9 @@ internal abstract class InheritFlags : Step
     // start off with my base type flags that are inherited
     flags := x.base.flags.and(MSpecFlags.inheritMask)
 
-    // global is both flavor and flag so we can use one MSpec
-    if (x.isGlobal) flags = flags.or(MSpecFlags.global)
+    // global is both flavor and flag so we can use one MSpec; a global
+    // has no containing type to be required of, so maybe is implied
+    if (x.isGlobal) flags = flags.or(MSpecFlags.global).or(MSpecFlags.maybe)
 
     // merge in my own meta flags
     if (x.ast.meta != null)
