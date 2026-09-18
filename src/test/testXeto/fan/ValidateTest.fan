@@ -72,11 +72,11 @@ class ValidateTest : AbstractXetoTest
     verifyEq(item.subjectId, Ref("x"))
     verifyEq(item.msg, "Number 123 > maxVal 100")
 
-    // missing required slot
+    // missing required slot; item is positioned on the missing slot
     r = ns.validate(Etc.dict0, spec)
     item = r.items.first
     verifyEq(item.rule, Ref("sys::missingSlot"))
-    verifyEq(item.slot, null)
+    verifyEq(item.slot, "num")
     verifyEq(item.msg, "Missing required slot 'num'")
 
     // validateAll: no spec tag
@@ -95,9 +95,9 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "A", ["num":n(5, "%")],   ["sys::underMinVal"])
     verifyEngine(ns, lib, "A", ["num":n(200, "%")], ["sys::overMaxVal"])
 
-    // unit mismatch fires the unit rules; underMinVal would also fire
-    // on 5 < 10 but is suppressed by its unless: @minValUnit
-    verifyEngine(ns, lib, "A", ["num":n(5)], ["sys::minValUnit", "sys::maxValUnit"])
+    // unit mismatch fires the unit rules in registry order; underMinVal
+    // would also fire on 5 < 10 but is suppressed by its unless: @minValUnit
+    verifyEngine(ns, lib, "A", ["num":n(5)], ["sys::maxValUnit", "sys::minValUnit"])
   }
 
   ** Validate tags against lib spec and verify item rule qnames

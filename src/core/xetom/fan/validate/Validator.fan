@@ -41,34 +41,61 @@ class Validator
   ** Validate value against spec, or its own spec if null
   ValidateReport validate(Obj? val, Spec? spec)
   {
-    if (spec == null) spec = ns.specOf(val)
-    spec = specx(spec)
-
+    // subject validation
     subject := val as Dict
     if (subject != null)
     {
-      state := ValidateState.makeSubject(this, subject, spec)
-      doValidate(state)
+      if (spec == null)
+      {
+        validateSubject(subject)
+      }
+      else
+      {
+        state := ValidateState.makeSubject(this, subject, specx(spec))
+        doValidate(state)
+      }
       return MValidateReport([subject], items)
     }
-    else
-    {
-      state := ValidateState.makeVal(this, val, spec)
-      doValidate(state)
-      return MValidateReport(Dict#.emptyList, items)
-    }
+
+    // bare value validation
+    spec = specx(spec ?: ns.specOf(val))
+    state := ValidateState.makeVal(this, val, spec)
+    doValidate(state)
+    return MValidateReport(Dict#.emptyList, items)
   }
 
   ** Validate each subject dict against its declared spec tag
   ValidateReport validateAll(Dict[] subjects)
   {
-    subjects.each |s|
-    {
-      spec := specx(ns.specOf(s))
-      state := ValidateState.makeSubject(this, s, spec)
-      doValidate(state)
-    }
+    subjects.each |s| { validateSubject(s) }
     return MValidateReport(subjects, items)
+  }
+
+  ** Validate subject against the spec derived from its spec tag
+  private Void validateSubject(Dict subject)
+  {
+    // fail fast when subject has no spec tag
+    specRef := subject["spec"] as Ref
+    if (specRef == null)
+    {
+      state := ValidateState.makeSubject(this, subject, ns.sys.dict)
+      rules.missingSpecRef.check(state)
+      return
+    }
+
+    // fail fast when specRef cannot be resolved
+    spec := ns.spec(specRef.id, false)
+    if (spec == null)
+    {
+      state := ValidateState.makeSubject(this, subject, ns.sys.dict)
+      rules.unknownSpecRef.check(state)
+      return
+    }
+
+    // run thru standard subject validation
+    spec = specx(spec)
+    state := ValidateState.makeSubject(this, subject, spec)
+    doValidate(state)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,8 +104,13 @@ class Validator
 
   private Void doValidate(ValidateState s)
   {
-    // run rules on current state
-    rules.eachApplicable(s) |rule| { rule.check(s) }
+    // run rules on current state skipping rules whose unless suppressor fired
+    s.firedClear
+    rules.eachApplicable(s) |rule|
+    {
+      if (s.suppressed(rule)) return
+      rule.check(s)
+    }
 
     // dict must be be checked against spec members
     if (s.dict != null)

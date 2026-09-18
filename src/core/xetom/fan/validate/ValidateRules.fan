@@ -30,6 +30,11 @@ const class ValidateRules
       {
         r := ValidateRule.create(ns, x)
         acc.add(r)
+        switch (r.qname)
+        {
+          case "sys::missingSpecRef": this.missingSpecRef = r
+          case "sys::unknownSpecRef": this.unknownSpecRef = r
+        }
       }
       catch (Err e) Console.cur.err("Invalid ValidateRule: $x.id", e)
     }
@@ -37,6 +42,15 @@ const class ValidateRules
     // order them by their unless
     this.rules = order(acc)
   }
+
+  ** All rules
+  const ValidateRule[] rules
+
+  ** Rule invoked by engine when subject has no spec tag
+  const ValidateRule? missingSpecRef
+
+  ** Rule invoked by engine when subject spec cannot be resolved
+  const ValidateRule? unknownSpecRef
 
   private static ValidateRule[] order(ValidateRule[] list)
   {
@@ -73,14 +87,13 @@ const class ValidateRules
     return acc
   }
 
-  ** All rules in the namespace
-  const ValidateRule[] rules
-
   ** Iterate the rules applicable to the given state
   Void eachApplicable(ValidateState s, |ValidateRule| f)
   {
-    // TODO - just all for now
-    rules.each(f)
+    rules.each |r|
+    {
+      if (r.isApplicable(s)) f(r)
+    }
   }
 
   ** Debug dump

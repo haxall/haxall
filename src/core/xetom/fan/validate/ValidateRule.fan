@@ -52,8 +52,8 @@ abstract const class ValidateRule
   ** Return qname
   override Str toStr() { qname }
 
-  ** Render msg template with given args scope
-  Str render(Dict args) { Etc.macro(msg, args) }
+  ** Is the given rule applicable to the state
+  virtual Bool isApplicable(ValidateState s) { true }
 
   ** Run rule against given state
   Void check(ValidateState state)

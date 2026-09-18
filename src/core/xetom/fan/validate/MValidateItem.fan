@@ -8,6 +8,8 @@
 
 using util
 using xeto
+using haystack
+using haystack::Macro
 
 @Js
 const class MValidateItem : ValidateItem
@@ -18,9 +20,19 @@ const class MValidateItem : ValidateItem
     this.level   = r.level
     this.subject = s.subject
     this.slot    = s.slotPath
-    this.msg     = r.render(args)
     this.val     = s.val
     this.loc     = s.loc
+    this.msg     = Macro(r.msg).apply |n| { macroResolve(n, r, s, args) ?: "?" }
+  }
+
+  private Str? macroResolve(Str n, ValidateRule r, ValidateState s, Dict args)
+  {
+    switch (n)
+    {
+      case "val":  return val?.toStr
+      case "slot": return slot
+    }
+    return args.get(n)?.toStr
   }
 
   override const Ref rule
