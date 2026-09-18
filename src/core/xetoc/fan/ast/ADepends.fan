@@ -36,10 +36,11 @@ internal class ADepends
   ** Resolved dependency scope libs; only valid once Resolve completes
   once Lib[] libsInScope()
   {
+    if (libs == null) throw Err("Not Resolved")
     acc := Lib[,]
-    if (libs != null) list.each |d| { acc.addNotNull(libs[d.name]) }
+    list.each |d| { acc.addNotNull(libs[d.name]) }
     acc.addNotNull(compiler.lib)
-    return acc.ro
+    return acc
   }
 
   ** Every lib in the namespace, excluding ourself and any lib in error
