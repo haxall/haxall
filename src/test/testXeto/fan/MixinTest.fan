@@ -282,12 +282,12 @@ class MixinTest : AbstractXetoTest
 
     // typed slot binds to the mixin member and covariance checks
     // (previously an unlinked silent shadow)
-    verifyMemberResolveErr(ns, pragma +
+    verifyCompileErr(ns, pragma +
       "Bad: Site { newSlot: Date }\n",
       "conflicts inherited slot 'hx.test.xeto::Site.newSlot'")
 
     // declared global colliding with a mixin global is a dup
-    verifyMemberResolveErr(ns, pragma +
+    verifyCompileErr(ns, pragma +
       "Baz: Site { *gdate: Str }\n",
       "Duplicate global: hx.test.xeto::Site.gdate")
 
@@ -298,7 +298,7 @@ class MixinTest : AbstractXetoTest
            |>)
 
     // ...but a declared slot inheriting against the ambiguous name errs
-    verifyMemberResolveErr(ns, pragma +
+    verifyCompileErr(ns, pragma +
       Str<|+ph::Site { *gdate: Number }
            Amb: Site { gdate: "x" }
            |>,
@@ -306,16 +306,6 @@ class MixinTest : AbstractXetoTest
 
     // a mixin extending sys::Enum is meta contribution, not an enum
     ns.compileTempLib(pragma + "+Enum <foo:\"list\">\n")
-  }
-
-  Void verifyMemberResolveErr(Namespace ns, Str src, Str contains)
-  {
-    Err? err
-    try
-      ns.compileTempLib(src)
-    catch (Err e) err = e
-    verifyNotNull(err, contains)
-    verify(err.msg.contains(contains), err.msg)
   }
 
 //////////////////////////////////////////////////////////////////////////

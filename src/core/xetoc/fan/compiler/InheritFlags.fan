@@ -48,7 +48,7 @@ internal abstract class InheritFlags : Step
 
     // if my base is compound type; And compounds also
     // inherit entity/comp from their ofs
-    if (x.base === sys.and.deref)
+    if (x.isAnd)
     {
       flags = flags.or(MSpecFlags.and)
       x.ofs(false)?.each |of|
@@ -57,7 +57,7 @@ internal abstract class InheritFlags : Step
         if (of.isEntity) flags = flags.or(MSpecFlags.entity)
       }
     }
-    else if (x.base === sys.or.deref)
+    else if (x.isOr)
     {
       flags = flags.or(MSpecFlags.or)
     }

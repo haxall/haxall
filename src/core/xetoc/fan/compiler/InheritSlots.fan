@@ -48,7 +48,6 @@ internal class InheritSlots : InheritFlags
     // of the parent's override resolution
     if (spec.flags < 0)
     {
-      // infer the base we inherit from (may be null)
       spec.ast.base = inferBase(spec)
 
       // now infer the type of the spec
@@ -207,7 +206,7 @@ internal class InheritSlots : InheritFlags
       // if duplicate then check if valid override; members in scope
       // include mixin members visible thru my declared depends
       dup := slots[name] ?: globals[name]
-      if (dup == null && !spec.isMixin) dup = mixinMember(spec, slot, name)
+      if (dup == null) dup = mixinMember(spec, slot, name)
       if (dup != null)
       {
         if (dup === slot) return
@@ -226,14 +225,15 @@ internal class InheritSlots : InheritFlags
   ** Resolve slot name against members contributed by mixins in scope
   ** for the spec's inheritance chain.  Mixins may legally contribute
   ** the same name; inheriting against an ambiguous name is an error.
+  ** Mixins themselves never resolve against mixin contributions.
   private Spec? mixinMember(ASpec spec, ASpec slot, Str name)
   {
+    if (spec.isMixin) return null
     Spec? match := null
     depends.mixinsFor(spec).each |m|
     {
-      // AST mixins read their computed member map; assembled depend
-      // mixins read membersOwn (never members, whose lazy globals walk
-      // drags in the extended chain's entire vocabulary)
+      // never use assembled members, whose lazy globals walk drags in
+      // the extended chain's entire vocabulary
       Spec? x
       if (m.isAst)
       {

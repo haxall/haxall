@@ -21,12 +21,12 @@ class EquipTest : AbstractXetoTest
   ** in the dependency chain: the addr slots infer type and implicit
   ** maybe from ph.protocols +PhEntity.  Runs local and remote so the
   ** base refs into mixin members are verified across the wire.
-  Void testSlotx()
+  Void testMixinInference()
   {
-    verifyLocalAndRemote(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"]) |ns| { doTestSlotx(ns) }
+    verifyLocalAndRemote(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"]) |ns| { doTestMixinInference(ns) }
   }
 
-  Void doTestSlotx(Namespace ns)
+  Void doTestMixinInference(Namespace ns)
   {
     zt := ns.spec("hx.test.xeto::EquipNamed").slot("points").slot("zoneTemp")
 

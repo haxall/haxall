@@ -98,7 +98,7 @@ internal class CheckErrors : Step
 
     // maybe marks an optional slot; top level specs cannot be maybe
     // (excluding synthetic tops hoisted from inline types like Ref?)
-    if (x.metaHas("maybe") && !XetoUtil.isAutoName(x.name))
+    if (x.metaHas("maybe") && !x.parsedSyntheticRef)
       err("Top level spec cannot be maybe: $x.name", x.loc)
   }
 

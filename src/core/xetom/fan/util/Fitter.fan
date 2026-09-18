@@ -277,9 +277,13 @@ internal class Fitter
   {
     // ambiguous contributions from multiple mixins are legal at the
     // namespace layer; we cannot restrict against an ambiguous name
-    globals := spec.globals.getAll(name)
-    if (globals.size != 1) return true
-    return valFits(val, globals.first)
+    Spec? global
+    try
+      global = spec.globals.get(name, false)
+    catch (AmbiguousSpecErr e)
+      return true
+    if (global == null) return true
+    return valFits(val, global)
   }
 
   private Bool checkNonSlotVal(Spec spec, Str name, Obj val)

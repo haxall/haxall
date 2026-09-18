@@ -103,14 +103,9 @@ internal class InheritBase : InheritFlags
     // base is always same as type
     spec.ast.base = spec.typeRef.deref
 
-    // if base is in my AST, then recursively process it first; for
-    // compounds recurse the ofs so their flags are computed before mine
-    if (spec.base.isAst) inherit(spec.base)
-    if (spec.base === sys.and.deref || spec.base === sys.or.deref)
-    {
-      ofs := spec.ofs(false)
-      if (ofs != null) ofs.each |of| { if (of.isAst) inherit(of) }
-    }
+    // recursively process what I inherit from first so its flags are
+    // computed before mine: my base, or my ofs for compound types
+    XetoUtil.eachBase(spec) |b| { if (b.isAst) inherit(b) }
 
     // compute effective flags
     inheritFlags(spec)

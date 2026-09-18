@@ -64,38 +64,41 @@ const final class XSpec : WrapSpec
 
   override once SpecMap slots()
   {
+    mergeMixins(m.slots, |Spec mix->SpecMap| { mix.slots }, |Spec slot->Spec| { slotx(slot) })
+  }
+
+  ** Merge mixin contributed members over the wrapped spec's own map.
+  ** Duplicate names are legal and accumulate as collisions.
+  private SpecMap mergeMixins(SpecMap own, |Spec->SpecMap| mixinMap, |Spec->Spec| xform)
+  {
     collisions := false
     acc := Str:Obj[:]
     acc.ordered = true
 
-    // start of with the effective slots
-    m.slots.each |slot, name|
-    {
-      acc[name] = slotx(slot)
-    }
+    // start off with the wrapped spec's effective members
+    own.each |s, name| { acc[name] = xform(s) }
 
-    // merge in mixin new slots
+    // merge in mixin contributions
     mixins.each |mix|
     {
-      mix.slots.each |slot, name|
+      mixinMap(mix).each |s, name|
       {
         dup := acc[name]
 
         // if no dup, then accumulate it
-        if (dup ==  null) { acc[name] = slot; return }
+        if (dup == null) { acc[name] = s; return }
 
         // ignore if same one we already mapped
-        if (dup === slot) return
+        if (dup === s) return
 
         // if slotx from original we already processed it
-        // slot already processed
         if (dup is XSlotSpec) return
 
         // otherwise a duplicate is a naming collision
         if (dup is List)
-          ((List)dup).add(slot)
+          ((List)dup).add(s)
         else
-          acc[name] = Spec[dup, slot]
+          acc[name] = Spec[dup, s]
         collisions = true
       }
     }
@@ -123,32 +126,9 @@ const final class XSpec : WrapSpec
 
   override once SpecMap globals()
   {
-    collisions := false
-    acc := Str:Obj[:]
-    acc.ordered = true
-
-    // start off with the effective chain globals
-    m.globals.each |g, name| { acc[name] = g }
-
-    // merge in globals declared by the mixins; two mixins may legally
-    // contribute the same name so dups accumulate as collisions just
-    // like slots
-    mixins.each |mix|
-    {
-      mix.globalsOwn.each |g, name|
-      {
-        dup := acc[name]
-        if (dup == null) { acc[name] = g; return }
-        if (dup === g) return
-        if (dup is List)
-          ((List)dup).add(g)
-        else
-          acc[name] = Spec[dup, g]
-        collisions = true
-      }
-    }
-
-    return collisions ? SpecMap.makeCollisions(acc) : SpecMap(acc)
+    // common case is that no mixin contributes globals
+    if (mixins.all |mix| { mix.globalsOwn.isEmpty }) return m.globals
+    return mergeMixins(m.globals, |Spec mix->SpecMap| { mix.globalsOwn }, |Spec g->Spec| { g })
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -33,12 +33,13 @@ internal class ADepends
     compiler.useNsDepends ? nsToDepends : compiler.lib.pragma.depends
   }
 
-  ** Iterate every lib in the dependency scope: my declared depends
-  ** in pragma declaration order, then my own lib
-  Void eachLibInScope(|Lib| f)
+  ** Resolved dependency scope libs; only valid once Resolve completes
+  once Lib[] libsInScope()
   {
-    if (libs != null) list.each |d| { lib := libs[d.name]; if (lib != null) f(lib) }
-    if (compiler.lib != null) f(compiler.lib)
+    acc := Lib[,]
+    if (libs != null) list.each |d| { acc.addNotNull(libs[d.name]) }
+    acc.addNotNull(compiler.lib)
+    return acc.ro
   }
 
   ** Every lib in the namespace, excluding ourself and any lib in error
@@ -54,34 +55,36 @@ internal class ADepends
   }
 
   ** Walk the dependency chain to build the list of mixins for the given
-  ** type.  Results are cached per type and layered thru the base chain.
-  ** Only valid once InheritBase completes: mixinFor matches by base
-  ** identity, which requires every top's base to be resolved.
-  Spec[] mixinsFor(Spec type)
+  ** spec.  Slots resolve thru their owning type so results are cached
+  ** once per type and layered thru the base chain.  Only valid once
+  ** InheritBase completes: mixinFor matches by base identity, which
+  ** requires every top's base to be resolved.
+  Spec[] mixinsFor(Spec spec)
   {
-    x := mixinsForCache[type.qname]
-    if (x == null) mixinsForCache[type.qname] = x = resolveMixinsFor(type)
+    spec = spec.type
+    x := mixinsForCache[spec.qname]
+    if (x == null) mixinsForCache[spec.qname] = x = resolveMixinsFor(spec)
     return x
   }
 
   private Spec[] resolveMixinsFor(Spec type)
   {
-    acc := Str:Spec[:] { ordered = true }
+    acc := Spec[,]
 
     // add mixins registered on base using cache
     XetoUtil.eachBase(type) |base|
     {
-      mixinsFor(base).each |x| { acc[x.qname] = x }
+      mixinsFor(base).each |x| { if (!acc.containsSame(x)) acc.add(x) }
     }
 
     // find my own mixins
-    eachLibInScope |lib|
+    libsInScope.each |lib|
     {
       x := lib.mixinFor(type, false)
-      if (x != null) acc[x.qname] = x
+      if (x != null && !acc.containsSame(x)) acc.add(x)
     }
 
-    return acc.isEmpty ? Spec#.emptyList : acc.vals
+    return acc.isEmpty ? Spec#.emptyList : acc
   }
 
   private Str:Spec[] mixinsForCache := [:]

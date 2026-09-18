@@ -54,9 +54,9 @@ class XetoPrinter
 
     // name: Type <meta> "val"; globals prefixed with "*"
     tab
+    if (x.isGlobal) wc('*')
     if (x.isBareMarker)
     {
-      if (x.isGlobal) wc('*')
       w(x.name)
     }
     else if (x.isEnumItem || x.isMixinOverride)
@@ -74,7 +74,7 @@ class XetoPrinter
     }
     else
     {
-      if (x.showName) { if (x.isGlobal) wc('*'); w(x.name).wc(':') }
+      if (x.showName) w(x.name).wc(':')
       if (x.showType(showInferredTypes)) sp.type(x.type)
       metaHeader(x)
       if (x.showVal) sp.specVal(x.val)
@@ -745,7 +745,6 @@ internal abstract const class XpSpec
     this.isEnum     = reflect != null && reflect.type.isEnum
     this.isSlot     = parent != null
     this.isEnumItem = parent != null && parent.isEnum
-    this.isGlobal   = metaOwn.has("global")
     this.metaHeader = emptyMeta
     this.metaInline = emptyMeta
 
@@ -804,6 +803,9 @@ internal abstract const class XpSpec
   ** Is a mixin, declared by its "+" prefix rather than by "mixin" meta
   abstract Bool isMixin()
 
+  ** Is a global member, declared by its "*" prefix
+  abstract Bool isGlobal()
+
   ** Is this a mixin slot which overrides an inherited slot, in which case
   ** its type is taken from the base and cannot be restated
   abstract Bool isMixinOverride()
@@ -851,7 +853,6 @@ internal abstract const class XpSpec
   const Bool isEnum          // enum: sealed/val/item types are all derived
   const Bool isSlot          // is this a slot of another spec
   const Bool isEnumItem      // slot of an enum: type is implied by parent
-  const Bool isGlobal        // global member declared by its "*" prefix
   const Str? name            // type name / slot name (null for autoName)
   const XpTypeRef? type      // type base / slot type (null for sys::Obj or inferred)
   const Dict metaOwn         // metaOwn
@@ -872,6 +873,7 @@ internal const class XpReflectSpec : XpSpec
     : super(spec.name, spec, toType(spec), spec.metaOwn, parent)
   {
     this.spec = spec
+    this.membersOwn = spec.membersOwn
   }
 
   private static XpTypeRef? toType(Spec spec)
@@ -883,11 +885,15 @@ internal const class XpReflectSpec : XpSpec
 
   const Spec spec
 
-  override Bool hasSlots() { !spec.membersOwn.isEmpty }
+  private const SpecMap membersOwn
 
-  override Void eachSlot(|XpSpec| f) { spec.membersOwn.each |s| { f(XpReflectSpec(s, this)) } }
+  override Bool hasSlots() { !membersOwn.isEmpty }
+
+  override Void eachSlot(|XpSpec| f) { membersOwn.each |s| { f(XpReflectSpec(s, this)) } }
 
   override Bool isMixin() { spec.isMixin }
+
+  override Bool isGlobal() { spec.isGlobal }
 
   override Str? ofSignature(|Str->Str| nameFn)
   {
@@ -935,6 +941,8 @@ internal const class XpAstSpec : XpSpec
 
   ** "mixin" is declared in the AST source, unlike the compiler derived facts
   override Bool isMixin() { metaOwn.has("mixin") }
+
+  override Bool isGlobal() { metaOwn.has("global") }
 
   override Bool isMixinOverride() { false }
 

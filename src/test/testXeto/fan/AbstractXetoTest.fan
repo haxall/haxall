@@ -62,6 +62,18 @@ class AbstractXetoTest : HaystackTest
     f(client.ns)
   }
 
+  ** Verify compiling the given source raises an err whose
+  ** message contains the given string
+  Void verifyCompileErr(Namespace ns, Str src, Str contains)
+  {
+    Err? err
+    try
+      ns.compileTempLib(src)
+    catch (Err e) err = e
+    verifyNotNull(err, "expected err: $contains")
+    verify(err.msg.contains(contains), err.msg)
+  }
+
   Namespace createNamespace(Str[] libs := ["sys"])
   {
     XetoEnv.cur.resolveNamespace(libs)
