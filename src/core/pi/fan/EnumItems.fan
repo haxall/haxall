@@ -63,7 +63,7 @@ const mixin EnumItem : Item
 {
   ** The enumerated key.  This is the value stored in a record, and
   ** may contain arbitrary characters when mapping to an external
-  ** enumeration - use this, not [id], as the value.
+  ** enumeration - use this, not `id`, as the value.
   abstract Str key()
 
   ** Documentation for this key or null.  Never inherited: an item
