@@ -21,17 +21,62 @@ const class OAuthClient
 // Open
 //////////////////////////////////////////////////////////////////////////
 
-  ** Run the loopback oauth2 login called via reflection from `auth::OAuth2Scheme`.
-  ** Return the bearer token or raise AuthErr.
+  ** Run the loopback OAuth 2.0 Authorization Code + PKCE login, called via
+  ** reflection from `auth::OAuth2Scheme`.  Returns the access token string or
+  ** raises on failure.
   static Str open(Uri uri, Str:Str params, Log log)
   {
-    issuer := params.getChecked("issuer")
-    cid    := params.getChecked("clientId")
-    scopes := params.getChecked("scopes")
+    issuer       := params.getChecked("issuer").toUri
+    cid          := params.getChecked("clientId")
+    scopes       := params["scopes"]               // optional
+    redirectPort := params["redirectPort"]?.toInt  // optional fixed loopback port
 
-    log.info("TODO open $uri, $params")
+    // Resolve authorization and token endpoints.  Explicit params win; otherwise
+    // use RFC 8414 discovery; fall back to conventional paths under the issuer.
+    // Discovery is skipped entirely when both endpoints are provided explicitly.
+    authUri  := params["authorizationEndpoint"]?.toUri
+    tokenUri := params["tokenEndpoint"]?.toUri
+    if (authUri == null || tokenUri == null)
+    {
+      // checked=false → returns null on fetch failure; throws on invalid document
+      meta := AsMetadata.discover(issuer, log, false)
+      base := AsMetadata.normalize(issuer)
+      if (authUri  == null) authUri  = meta != null ? meta.authorizationEndpoint : "${base}/oauth/authorize".toUri
+      if (tokenUri == null) tokenUri = meta != null ? meta.tokenEndpoint         : "${base}/oauth/token".toUri
+      if (meta == null)
+        log.warn("OAuth discovery unavailable for <$issuer>; using conventional endpoint paths")
+    }
 
-    return "dummy-bearer-token"
+    // Build the loopback redirect_uri.  When redirectPort is specified the
+    // WispService binds that exact port; otherwise the OS assigns an ephemeral
+    // port (RFC 8252 §7.3) and LoopbackAuthReq overwrites the URI accordingly.
+    redirectUri := redirectPort != null
+      ? "http://127.0.0.1:${redirectPort}/callback".toUri
+      : `http://127.0.0.1/callback`
+
+    // Configure the Authorization Code + PKCE grant.
+    // LoopbackAuthReq handles: PKCE generation, WispService listener, browser
+    // open (via java.awt.Desktop), state CSRF check, and Future-based wait.
+    authReq := LoopbackAuthReq(authUri, cid)
+    {
+      it.redirectUri = redirectUri
+      if (scopes != null) it.scopes = scopes.split(' ')
+    }
+    tokenReq := AuthCodeTokenReq(tokenUri)
+    grant    := AuthCodeGrant(authReq, tokenReq)
+
+    log.info("Opening browser to authenticate against: $issuer")
+
+    // Run the full PKCE Authorization Code flow:
+    //   1. Generate code_verifier + S256 code_challenge  (Pkce.gen)
+    //   2. Start loopback WispService on ephemeral port  (LoopbackAuthReq)
+    //   3. Open authorizationEndpoint?... in browser     (java.awt.Desktop)
+    //   4. Wait for redirect with auth code              (Future.get(2min))
+    //   5. POST tokenEndpoint with code + code_verifier  (AuthCodeTokenReq)
+    //   6. Return access token string
+    token := grant.run
+    log.info("OAuth authentication successful")
+    return token.accessToken
   }
 
 //////////////////////////////////////////////////////////////////////////

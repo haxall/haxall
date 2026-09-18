@@ -59,10 +59,29 @@ const class AuthCodeTokenReq : TokenReq
   {
     params := flowParams.dup.addAll(this.build)
     params["client_id"] = req.clientId
-    if (req.redirectUri != null) params["redirect_uri"] = req.redirectUri.toStr
+    // Use the redirect_uri carried in flowParams when present (set by
+    // LoopbackAuthReq.authorize after resolving the ephemeral port).
+    // Fall back to req.redirectUri for static-port callers.
+    if (!params.containsKey("redirect_uri") && req.redirectUri != null)
+      params["redirect_uri"] = req.redirectUri.toStr
 
     client := WebClient(tokenUri).postForm(params)
-    return JsonAccessToken(client.resStr)
+    resStr := client.resStr
+
+    // Surface OAuth error responses (RFC 6749 §5.2) before attempting to
+    // parse as a success token.  Without this check a server-side error
+    // such as "invalid_grant" produces an opaque UnknownKeyErr: access_token
+    // instead of a readable message.
+    json := JsonInStream(resStr.in).readJson as Map
+    if (json == null) throw Err("Token endpoint returned non-JSON response: $resStr")
+    errCode := json["error"] as Str
+    if (errCode != null)
+    {
+      errDesc := json["error_description"] as Str ?: "(no description)"
+      throw Err("OAuth token error: $errCode - $errDesc")
+    }
+
+    return JsonAccessToken(json)
   }
 }
 
