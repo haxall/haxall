@@ -192,18 +192,13 @@ internal class Resolve : Step
     if (!baseRef.isResolved) return
 
     // not walk the names
-    base := baseRef.deref
-    Spec? p := base
+    Spec? p := baseRef.deref
     for (i := 1; i<n.size; ++i)
     {
-      // if the base is an AST spec within my own lib, then this is
-      // super tricky because we have not inherited slots yet; so for
-      // now we just don't support it
-      if (p.isAst) return err("Dotted spec name within lib not supported: $n", ref.loc)
-
-      // resolve slot in the current spec
+      // AST specs have not inherited their slots yet, so we only
+      // resolve against lexically declared members within my own lib
       slotName := n.nameAt(i)
-      p = base.slot(slotName, false)
+      p = p.isAst ? ((ASpec)p).declared?.get(slotName) : p.slot(slotName, false)
       if (p == null) return err("Unresolved dotted spec name '$n'", ref.loc)
     }
 
