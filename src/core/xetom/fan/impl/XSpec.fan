@@ -118,6 +118,40 @@ const final class XSpec : WrapSpec
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Globals
+//////////////////////////////////////////////////////////////////////////
+
+  override once SpecMap globals()
+  {
+    collisions := false
+    acc := Str:Obj[:]
+    acc.ordered = true
+
+    // start off with the effective chain globals
+    m.globals.each |g, name| { acc[name] = g }
+
+    // merge in globals declared by the mixins; two mixins may legally
+    // contribute the same name so dups accumulate as collisions just
+    // like slots
+    mixins.each |mix|
+    {
+      mix.globalsOwn.each |g, name|
+      {
+        dup := acc[name]
+        if (dup == null) { acc[name] = g; return }
+        if (dup === g) return
+        if (dup is List)
+          ((List)dup).add(g)
+        else
+          acc[name] = Spec[dup, g]
+        collisions = true
+      }
+    }
+
+    return collisions ? SpecMap.makeCollisions(acc) : SpecMap(acc)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Enum
 //////////////////////////////////////////////////////////////////////////
 
@@ -187,7 +221,7 @@ const class WrapSpec : Spec
 
   override final SpecMap globalsOwn() { m.globalsOwn }
 
-  override final SpecMap globals() { m.globals }
+  override SpecMap globals() { m.globals }
 
   override final Bool isa(Spec x) { m.isa(x) }
 

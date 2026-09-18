@@ -127,7 +127,6 @@ class MixinTest : AbstractXetoTest
     verifySame(m.metaOwn,    x.metaOwn)
     verifySame(m.flavor,     x.flavor)
     verifySame(m.globalsOwn, x.globalsOwn)
-    verifySame(m.globals,    x.globals)
     verifySame(m.loc,        x.loc)
     verifySame(m.binding,    x.binding)
     verifySame(m.fantomType, x.fantomType)
@@ -202,9 +201,26 @@ class MixinTest : AbstractXetoTest
     verifyEq(gnum.type.qname, "sys::Number")
     verifyEq(gnum.meta["minVal"], n(0))
 
-    // globals do not leak into the extended type nor its specx view
+    // globals never leak into the plain declared-scope view
     verifyEq(site.member("gdate", false), null)
-    verifyEq(ns.specx(site).slot("gdate", false), null)
+    verifyEq(site.globals.get("gdate", false), null)
+
+    // but specx is the namespace-effective view: mixin globals are
+    // merged into globals/members while never becoming slots, and
+    // own stays declared-only
+    sitex := ns.specx(site)
+    xg := sitex.globals.get("gdate")
+    verifyEq(xg.qname, "hx.test.xeto::Site.gdate")
+    verifyEq(xg.isGlobal, true)
+    verifyEq(xg.isMaybe, true)
+    verifyEq(xg.type.qname, "sys::Date")
+    verifySame(sitex.member("gdate"), xg)
+    verifyEq(sitex.slot("gdate", false), null)
+    verifyEq(sitex.globalsOwn.get("gdate", false), null)
+
+    // chain globals and subtypes flow thru the merged view too
+    verifySame(sitex.globals.get("dis"), site.globals.get("dis"))
+    verifyEq(ns.specx(ns.spec("hx.test.xeto::TestSite")).globals.get("gdate").qname, "hx.test.xeto::Site.gdate")
   }
 
 //////////////////////////////////////////////////////////////////////////
