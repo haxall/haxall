@@ -47,6 +47,7 @@ class Build : BuildPod
                `fan/ns/`,
                `fan/repo/`,
                `fan/util/`,
+               `fan/validate/`,
                ]
   }
 }

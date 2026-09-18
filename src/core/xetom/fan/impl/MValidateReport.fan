@@ -66,18 +66,24 @@ const class MValidateReport : ValidateReport
 @Js
 const class MValidateItem : ValidateItem
 {
-  new make(ValidateLevel level, Dict subject, Str? slot, Str msg)
+  new make(Ref rule, ValidateLevel level, Dict subject, Str? slot, Str msg, Obj? val := null, FileLoc? loc := null)
   {
+    this.rule    = rule
     this.level   = level
     this.subject = subject
     this.slot    = slot
     this.msg     = msg
+    this.val     = val
+    this.loc     = loc
   }
 
+  override const Ref rule
   override const ValidateLevel level
   override const Dict subject
   override const Str? slot
   override const Str msg
+  override const Obj? val
+  override const FileLoc? loc
 
   Bool isSlotMatch(Str name)
   {

@@ -11,7 +11,7 @@ using util
 **
 ** ValidateReport bundles a list of validation items
 **
-@NoDoc @Js
+@Js
 const mixin ValidateReport
 {
   ** Subject dicts validated
@@ -49,6 +49,10 @@ const mixin ValidateReport
 @Js
 const mixin ValidateItem
 {
+  ** Rule which reported this item as a ref to a `sys::ValidateRule`
+  ** instance such as "sys::overMaxVal"
+  abstract Ref rule()
+
   ** Warning or error level
   abstract ValidateLevel level()
 
@@ -56,11 +60,20 @@ const mixin ValidateItem
   ** non-dict value then this is an empty dict.
   abstract Dict subject()
 
+  ** Id of the subject dict or null
+  Ref? subjectId() { subject.get("id") as Ref }
+
   ** Slot of subject or null if on subject itself.
   ** This is dotted path if item is on a nested dict in the subject.
   abstract Str? slot()
 
-  ** Free-form message for validation error
+  ** Offending value when applicable
+  abstract Obj? val()
+
+  ** Source file location when validated at compile time
+  @NoDoc abstract FileLoc? loc()
+
+  ** Message for validation error rendered from the rule msg template
   abstract Str msg()
 }
 

@@ -476,48 +476,18 @@ const class MNamespace : Namespace, CNamespace
 
   override ValidateReport validate(Obj? val, Spec? spec := null, Dict? opts := null)
   {
-    // TODO: for now reuse existing fitsExplain
-    items := MValidateItem[,]
-    subject := val as Dict ?: Etc.dict0
-    logger := |XetoLogRec x| { items.add(logRecToItem(subject, x)) }
-
-    cx := ActorContext.curx(false) as XetoContext
-    if (cx == null) Console.cur.warn("Must call Namespace.validate within XetoContext")
-
-    opts = Etc.dictSet(opts, "explain", Unsafe(logger))
-    if (spec == null) spec = specOf(val)
-    fits(val, spec, opts)
-
-    return MValidateReport(Dict[subject], items)
+    Validator(this, curCx, opts ?: Etc.dict0).validate(val, spec)
   }
 
   override ValidateReport validateAll(Dict[] subjects, Dict? opts := null)
   {
-    // TODO: for now reuse existing fitsExplain
-    items := MValidateItem[,]
-    Dict? subject
-    logger := |XetoLogRec x| { items.add(logRecToItem(subject, x)) }
-
-    opts = Etc.dictSet(opts, "explain", Unsafe(logger))
-    subjects.each |x| { subject = x; fits(x, specOf(x), opts) }
-
-    return MValidateReport(subjects, items)
+    Validator(this, curCx, opts ?: Etc.dict0).validateAll(subjects)
   }
 
-  private MValidateItem logRecToItem(Dict subject, XetoLogRec x)
+  ** Current thread's XetoContext or nil context
+  private XetoContext curCx()
   {
-    level := x.level === LogLevel.err ? ValidateLevel.err : ValidateLevel.warn
-    msg   := x->msg.toStr
-    slot  := null
-
-    if (msg.startsWith("Slot '"))
-    {
-      end := msg.index("': ")
-      slot = msg[6..<end]
-      msg  = msg[end+3..-1]
-    }
-
-    return MValidateItem(level, subject, slot, msg)
+    XetoContext.curx(false) ?: NilXetoContext.val
   }
 
 //////////////////////////////////////////////////////////////////////////

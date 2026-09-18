@@ -87,9 +87,10 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sys.types.list.containsSame(str), true)
 
     // instances
-    verifyEq(sys.instances.size, 0)
+    verifyEq(sys.instances.size, 30)
     verifyEq(sys.instances.isImmutable, true)
     verifySame(sys.instances, sys.instances)
+    verifyEq(sys.instance("overMaxVal")->on, Ref("sys::Spec.maxVal"))
 
     // slots
     orgDis := verifySlot(ns, org, "dis", str)
@@ -167,7 +168,7 @@ class NamespaceTest : AbstractXetoTest
     if (!ns.env.isRemote)
     {
       // sys is all source, and source is intrinsically published
-      verifyEq(fileUris(sys.files), [`/lib.xeto`, `/libmeta.xeto`, `/spec.xeto`, `/timezones.xeto`, `/types.xeto`, `/units.xeto`])
+      verifyEq(fileUris(sys.files), [`/lib.xeto`, `/libmeta.xeto`, `/spec.xeto`, `/timezones.xeto`, `/types.xeto`, `/units.xeto`, `/validation.xeto`])
       verifyEq(publishedUris(sys.files), fileUris(sys.files))
       verifyEq(sys.files.get(`/lib.xeto`).isPublished, true)
       verifyEq(sys.files.get(`bad`, false), null)
