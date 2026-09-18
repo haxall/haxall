@@ -194,10 +194,16 @@ const mixin Namespace
   ** Validate a single value against a spec.  If spec is null,
   ** then validate against `specOf(val)`. Should be called within an
   ** XetoContext context to verify external refs.
+  ** Options:
+  **   - `haystack`: marker tag to use Haystack level data fidelity
+  **   - `ignoreRefs`: marker to skip checking ref targets
+  **   - `ignoreMixins`: marker to not use mixins and specx
+  **   - `graph`: marker to check query graph such as required points
   abstract ValidateReport validate(Obj? val, Spec? spec := null, Dict? opts := null)
 
   ** Validate a graph of records using their configured `spec` tag.
   ** Should be called within an XetoContext context to verify external refs.
+  ** Uses the same options as [validate].
   abstract ValidateReport validateAll(Dict[] subjects, Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////

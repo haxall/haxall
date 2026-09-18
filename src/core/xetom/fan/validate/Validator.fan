@@ -25,13 +25,13 @@ class Validator
 
   new make(MNamespace ns, XetoContext cx, Dict opts)
   {
-    this.ns       = ns
-    this.cx       = cx
-    this.rules    = ns.validateRules
-    this.refs     = ValidateRefs.fromStr(opts["refs"] as Str ?: "conform")
-    this.graph    = opts.has("graph")
-    this.fidelity = XetoUtil.optFidelity(opts)
-    this.failFast = opts.has("failFast")
+    this.ns           = ns
+    this.cx           = cx
+    this.rules        = ns.validateRules
+    this.fidelity     = XetoUtil.optFidelity(opts)
+    this.ignoreRefs   = opts.has("ignoreRefs")
+    this.ignoreMixins = opts.has("ignoreMixins")
+    this.graph        = opts.has("graph")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -41,8 +41,10 @@ class Validator
   ** Validate value against spec, or its own spec if null
   ValidateReport validate(Obj? val, Spec? spec)
   {
-    subject := val as Dict
     if (spec == null) spec = ns.specOf(val)
+    spec = specx(spec)
+
+    subject := val as Dict
     if (subject != null)
     {
       state := ValidateState.makeSubject(this, subject, spec)
@@ -62,7 +64,8 @@ class Validator
   {
     subjects.each |s|
     {
-      state := ValidateState.makeSubject(this, s, ns.specOf(s))
+      spec := specx(ns.specOf(s))
+      state := ValidateState.makeSubject(this, s, spec)
       doValidate(state)
     }
     return MValidateReport(subjects, items)
@@ -110,30 +113,27 @@ class Validator
   ** Accumulator one item
   Void emit(MValidateItem item) { items.add(item) }
 
+  ** Compute specx once per spec
+  Spec specx(Spec spec)
+  {
+    if (ignoreMixins) return spec
+    x := specxCache[spec.qname]
+    if (x == null) specxCache[spec.qname] = x = ns.specx(spec)
+    return x
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   const MNamespace ns             // namespace
   const ValidateRules rules       // namespace rule registry
-  const ValidateRefs refs         // ref target checking mode
-  const Bool graph                // run graph query constraints
   const XetoFidelity fidelity     // value fidelity level
-  const Bool failFast             // stop at first error
-  XetoContext cx { private set }  // context
+  const Bool ignoreMixins         // use or ignore mixins
+  const Bool ignoreRefs           // check or skip refs targets
+  const Bool graph                // run graph query constraints
+  XetoContext cx { private set }
   private MValidateItem[] items := [,]
-}
-
-**************************************************************************
-** ValidateRefs
-**************************************************************************
-
-** Ref target checking mode
-@Js
-enum class ValidateRefs
-{
-  none,     // do not check ref targets
-  exists,   // check ref targets resolve
-  conform   // check ref targets resolve and fit their 'of' type
+  private Str:Spec specxCache := [:]
 }
 
