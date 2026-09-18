@@ -377,6 +377,9 @@ class PrinterTest : AbstractXetoTest
               // no taek
               area <bar:"hello", foo:"AreaEditor">
               newSlot: Str <foo:"hi">
+              // globals contribute tag type inference, not slots
+              *gdate: Date
+              *gnum: Number <minVal:Number 0>
             }
             |>)
 
@@ -465,6 +468,7 @@ class PrinterTest : AbstractXetoTest
       verifyEq(a.isEnum,  x.isEnum,  x.name)
       verifyEq(a.isMixin, x.isMixin, x.name)
       verifyEq(a.slotsOwn.names.dup.sort, x.slotsOwn.names.dup.sort, x.name)
+      verifyEq(a.globalsOwn.names.dup.sort, x.globalsOwn.names.dup.sort, x.name)
     }
 
     // every instance made it across with the same tags

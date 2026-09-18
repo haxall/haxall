@@ -52,10 +52,11 @@ class XetoPrinter
     // doc
     if (x.doc != null) this.doc(x.doc)
 
-    // name: Type <meta> "val"
+    // name: Type <meta> "val"; globals prefixed with "*"
     tab
     if (x.isBareMarker)
     {
+      if (x.isGlobal) wc('*')
       w(x.name)
     }
     else if (x.isEnumItem || x.isMixinOverride)
@@ -73,7 +74,7 @@ class XetoPrinter
     }
     else
     {
-      if (x.showName) w(x.name).wc(':')
+      if (x.showName) { if (x.isGlobal) wc('*'); w(x.name).wc(':') }
       if (x.showType(showInferredTypes)) sp.type(x.type)
       metaHeader(x)
       if (x.showVal) sp.specVal(x.val)
@@ -715,7 +716,7 @@ class XetoPrinter
   static const Str:Str skipInst := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "doc"])
 
   ** Always skip these which should be encoded outside of meta
-  static const Str:Str skipMeta := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "ofs", "base", "type", "slots", "maybe", "mixin"])
+  static const Str:Str skipMeta := Str:Str[:].setList(["id", "name", "spec", "rt", "mod", "ofs", "base", "type", "slots", "maybe", "mixin", "global"])
 
   const MNamespace ns       // xeto namespace
   private OutStream out     // output stream
@@ -744,6 +745,7 @@ internal abstract const class XpSpec
     this.isEnum     = reflect != null && reflect.type.isEnum
     this.isSlot     = parent != null
     this.isEnumItem = parent != null && parent.isEnum
+    this.isGlobal   = metaOwn.has("global")
     this.metaHeader = emptyMeta
     this.metaInline = emptyMeta
 
@@ -849,6 +851,7 @@ internal abstract const class XpSpec
   const Bool isEnum          // enum: sealed/val/item types are all derived
   const Bool isSlot          // is this a slot of another spec
   const Bool isEnumItem      // slot of an enum: type is implied by parent
+  const Bool isGlobal        // global member declared by its "*" prefix
   const Str? name            // type name / slot name (null for autoName)
   const XpTypeRef? type      // type base / slot type (null for sys::Obj or inferred)
   const Dict metaOwn         // metaOwn
@@ -880,9 +883,9 @@ internal const class XpReflectSpec : XpSpec
 
   const Spec spec
 
-  override Bool hasSlots() { !spec.slotsOwn.isEmpty }
+  override Bool hasSlots() { !spec.membersOwn.isEmpty }
 
-  override Void eachSlot(|XpSpec| f) { spec.slotsOwn.each |s| { f(XpReflectSpec(s, this)) } }
+  override Void eachSlot(|XpSpec| f) { spec.membersOwn.each |s| { f(XpReflectSpec(s, this)) } }
 
   override Bool isMixin() { spec.isMixin }
 
