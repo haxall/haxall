@@ -22,74 +22,73 @@ const class ValidateRules
   ** Build registry from all ValidateRule instances in namespace
   new make(MNamespace ns)
   {
-    byRule := Str:ValidateRule[:]
-    byOn   := Str:ValidateRule[][:]
+    // build up rule collection
+    acc := ValidateRule[,]
     ns.eachInstanceThatIs(ns.spec("sys::ValidateRule")) |x, spec|
     {
       try
       {
-        r := ValidateRule(x)
-        byRule[r.qname] = r
-        if (r.on == null) return
-        onId := r.on.id
-        byOn[onId] = (byOn[onId] ?: ValidateRule[,]).add(r)
+        r := ValidateRule.create(ns, x)
+        acc.add(r)
       }
       catch (Err e) Console.cur.err("Invalid ValidateRule: $x.id", e)
     }
-    this.byRule = byRule
-    this.byOn   = byOn
+
+    // order them by their unless
+    this.rules = order(acc)
   }
 
-  ** Lookup rule by qname such as "sys::overMaxVal"
-  ValidateRule? rule(Str qname, Bool checked := true)
+  private static ValidateRule[] order(ValidateRule[] list)
   {
-    r := byRule[qname]
-    if (r != null) return r
-    if (checked) throw UnknownNameErr("ValidateRule: $qname")
-    return null
+    // first sort by qname for determinism
+    list.sort
+
+    // index by qname; an unless not in the namespace is treated as satisfied
+    byQname := Str:ValidateRule[:]
+    list.each |x| { byQname[x.qname] = x }
+
+    // add rules in passes so every rule follows the rules its unless
+    // references; a pass with no progress means a cycle or self
+    // reference, so dump the remainder at the end
+    acc := ValidateRule[,] { capacity = list.size }
+    added := Str:ValidateRule[:]
+    remaining := list
+    while (!remaining.isEmpty)
+    {
+      before := remaining.size
+      remaining = remaining.exclude |x|
+      {
+        if (!x.unless.all |u| { byQname[u.id] == null || added[u.id] != null }) return false
+        acc.add(x)
+        added[x.qname] = x
+        return true
+      }
+      if (remaining.size == before)
+      {
+        Console.cur.err("ValidateRule cyclic unless")
+        acc.addAll(remaining)
+        break
+      }
+    }
+    return acc
   }
 
-  ** Lookup rules registered on given spec qname
-  ValidateRule[] on(Str qname)
+  ** All rules in the namespace
+  const ValidateRule[] rules
+
+  ** Iterate the rules applicable to the given state
+  Void eachApplicable(ValidateState s, |ValidateRule| f)
   {
-    byOn[qname] ?: ValidateRule#.emptyList
+    // TODO - just all for now
+    rules.each(f)
   }
 
-  private const Str:ValidateRule byRule  // rule qname -> rule
-  private const Str:ValidateRule[] byOn  // on target qname -> rules
-}
-
-**************************************************************************
-** ValidateRule
-**************************************************************************
-
-**
-** ValidateRule wraps one sys::ValidateRule instance dict
-**
-@Js
-const class ValidateRule
-{
-  new make(Dict instance)
+  ** Debug dump
+  Void dump(Console con := Console.cur)
   {
-    this.instance = instance
-    this.id       = instance.id
-    this.on       = instance["on"] as Ref
-    this.level    = ValidateLevel.fromStr(instance["level"]?.toStr ?: "err")
-    this.msg      = instance["msg"] as Str ?: id.id
+    con.group("ValidateRules [$rules.size]")
+    rules.each |r| { con.info("$r.id [$r.typeof.qname]") }
+    con.groupEnd
   }
-
-  const Dict instance         // instance dict definition
-  const Ref id                // qualified id such as "sys::overMaxVal"
-  const Ref? on               // spec this rule is registered on
-  const ValidateLevel level   // diagnostic level
-  const Str msg               // message template
-
-  ** Rule id as qname string
-  Str qname() { id.id }
-
-  ** Render msg template with given args scope
-  Str render(Dict args) { Etc.macro(msg, args) }
-
-  override Str toStr() { qname }
 }
 

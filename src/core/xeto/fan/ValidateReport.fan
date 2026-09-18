@@ -71,7 +71,7 @@ const mixin ValidateItem
   abstract Obj? val()
 
   ** Source file location when validated at compile time
-  @NoDoc abstract FileLoc? loc()
+  @NoDoc abstract FileLoc loc()
 
   ** Message for validation error rendered from the rule msg template
   abstract Str msg()

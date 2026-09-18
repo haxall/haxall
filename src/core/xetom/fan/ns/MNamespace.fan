@@ -474,6 +474,8 @@ const class MNamespace : Namespace, CNamespace
 // Validation
 //////////////////////////////////////////////////////////////////////////
 
+  once ValidateRules validateRules() { ValidateRules(this) }
+
   override ValidateReport validate(Obj? val, Spec? spec := null, Dict? opts := null)
   {
     Validator(this, curCx, opts ?: Etc.dict0).validate(val, spec)

@@ -20,6 +20,33 @@ class ValidateTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Rules
+//////////////////////////////////////////////////////////////////////////
+
+  Void testRules()
+  {
+    ns := createNamespace(["sys"])
+    reg := ((MNamespace)ns).validateRules
+
+    r := reg.rules.find { it.id == Ref("sys::overMaxVal") }
+    verifyEq(r.level, ValidateLevel.err)
+    verifyEq(r.on, Ref("sys::Spec.maxVal"))
+    verifyEq(r.typeof.qname, "xetom::ValidateSysOverMaxVal")
+    verifyEq(r.unless, Ref[Ref("sys::maxValUnit")])
+
+    // every unless target in the namespace is ordered before its rule
+    verifyEq(reg.rules.any |x| { !x.unless.isEmpty }, true)
+    reg.rules.each |x, i|
+    {
+      x.unless.each |u|
+      {
+        ui := reg.rules.findIndex { it.id == u }
+        if (ui != null) verify(ui < i, "$u.id must order before $x.id")
+      }
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Engine
 //////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +84,27 @@ class ValidateTest : AbstractXetoTest
     item = r.items.first
     verifyEq(item.rule, Ref("sys::missingSpecRef"))
     verifyEq(item.subjectId, Ref("y"))
+  }
+
+  Void testEngineUnless()
+  {
+    ns := createNamespace(["sys"])
+    lib := ns.compileTempLib("A: Dict { num: Number <minVal:10%, maxVal:100%> }")
+
+    verifyEngine(ns, lib, "A", ["num":n(50, "%")],  [,])
+    verifyEngine(ns, lib, "A", ["num":n(5, "%")],   ["sys::underMinVal"])
+    verifyEngine(ns, lib, "A", ["num":n(200, "%")], ["sys::overMaxVal"])
+
+    // unit mismatch fires the unit rules; underMinVal would also fire
+    // on 5 < 10 but is suppressed by its unless: @minValUnit
+    verifyEngine(ns, lib, "A", ["num":n(5)], ["sys::minValUnit", "sys::maxValUnit"])
+  }
+
+  ** Validate tags against lib spec and verify item rule qnames
+  Void verifyEngine(Namespace ns, Lib lib, Str specName, Str:Obj tags, Str[] expect)
+  {
+    r := ns.validate(Etc.makeDict(tags), lib.spec(specName))
+    verifyEq(r.items.join(",") { it.rule.id }, expect.join(","))
   }
 
 //////////////////////////////////////////////////////////////////////////

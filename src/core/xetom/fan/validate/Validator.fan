@@ -27,7 +27,7 @@ class Validator
   {
     this.ns       = ns
     this.cx       = cx
-    this.rules    = ValidateRules(ns)
+    this.rules    = ns.validateRules
     this.refs     = ValidateRefs.fromStr(opts["refs"] as Str ?: "conform")
     this.graph    = opts.has("graph")
     this.fidelity = XetoUtil.optFidelity(opts)
@@ -41,143 +41,86 @@ class Validator
   ** Validate value against spec, or its own spec if null
   ValidateReport validate(Obj? val, Spec? spec)
   {
-    subject = val as Dict ?: Etc.dict0
+    subject := val as Dict
     if (spec == null) spec = ns.specOf(val)
-    validateVal(val, spec)
-    return MValidateReport([subject], items)
+    if (subject != null)
+    {
+      state := ValidateState.makeSubject(this, subject, spec)
+      doValidate(state)
+      return MValidateReport([subject], items)
+    }
+    else
+    {
+      state := ValidateState.makeVal(this, val, spec)
+      doValidate(state)
+      return MValidateReport(Dict#.emptyList, items)
+    }
   }
 
   ** Validate each subject dict against its declared spec tag
   ValidateReport validateAll(Dict[] subjects)
   {
-    subjects.each |s| { validateSubject(s) }
+    subjects.each |s|
+    {
+      state := ValidateState.makeSubject(this, s, ns.specOf(s))
+      doValidate(state)
+    }
     return MValidateReport(subjects, items)
   }
 
-  private Void validateSubject(Dict x)
-  {
-    subject = x
-    specRef := x["spec"] as Ref
-    if (specRef == null) return emit(rule("sys::missingSpecRef"), Etc.dict0)
-    spec := ns.spec(specRef.id, false)
-    if (spec == null) return emit(rule("sys::unresolvedRef"), Etc.dict1("ref", specRef))
-    validateVal(x, spec)
-  }
-
 //////////////////////////////////////////////////////////////////////////
-// Walk
+// Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  private Void validateVal(Obj? val, Spec spec)
+  private Void doValidate(ValidateState s)
   {
-    // TODO: type conformance (invalidType, unknownType)
-    if (val is Dict) return validateDict(val, spec)
-    if (val is List) return validateList(val, spec)
-    validateScalar(val, spec)
-  }
+    // run rules on current state
+    rules.eachApplicable(s) |rule| { rule.check(s) }
 
-  private Void validateDict(Dict dict, Spec spec)
-  {
-    // TODO: choices, queries, globals, undeclared tags, sugar constraints
-    ns.specx(spec).slots.each |slot| { validateSlot(dict, slot) }
-  }
-
-  private Void validateSlot(Dict dict, Spec slot)
-  {
-    if (slot.type.isChoice || slot.type.isQuery) return // TODO
-
-    val := dict.get(slot.name)
-    if (val == null)
+    // dict must be be checked against spec members
+    if (s.dict != null)
     {
-      if (!slot.isMaybe) emit(rule("sys::missingSlot"), Etc.dict1("slotName", slot.name))
-      return
-    }
+      // check spec slots
+      s.spec.slots.each |slot|
+      {
+        doValidateSlot(s, slot, s.dict[slot.name])
+      }
 
-    push(slot.name)
-    validateVal(val, slot)
-    pop
-  }
-
-  private Void validateList(Obj?[] list, Spec spec)
-  {
-    // TODO: listNullItem, listItemType, size constraints
-    checkMeta(spec, list)
-  }
-
-  private Void validateScalar(Obj? val, Spec spec)
-  {
-    // TODO: enum, pattern, invariant, refs
-    checkMeta(spec, val)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Rule Dispatch
-//////////////////////////////////////////////////////////////////////////
-
-  ** Dispatch rules registered on each constraint meta tag present
-  private Void checkMeta(Spec spec, Obj? val)
-  {
-    spec.meta.each |v, n|
-    {
-      rules.on("sys::Spec.$n").each |r| { dispatch(r, spec, val) }
+      // check rest of the dict tags against globals
+      globals := s.spec.globals
+      s.dict.each |v, n|
+      {
+        global := globals.get(n, false)
+        if (global != null) doValidateSlot(s, global, v)
+      }
     }
   }
 
-  ** Bound Fantom implementations keyed by rule qname
-  private Void dispatch(ValidateRule rule, Spec spec, Obj? val)
+  private Void doValidateSlot(ValidateState s, Spec slot, Obj? val)
   {
-    switch (rule.qname)
-    {
-      case "sys::overMaxVal": checkOverMaxVal(rule, spec, val)
-      // TODO: remaining built-in rules; Axon rules via XetoContext hook
-    }
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Checks
-//////////////////////////////////////////////////////////////////////////
-
-  private Void checkOverMaxVal(ValidateRule rule, Spec spec, Obj? val)
-  {
-    max := spec.meta["maxVal"] as Number
-    x := val as Number
-    if (max == null || x == null) return
-    if (max.unit != null && max.unit != x.unit) return // maxValUnit's check
-    if (x > max) emit(rule, Etc.dictx("val", x, "maxVal", max))
+    s.push(ValidateStateVal(slot.name, val, slot))
+    doValidate(s)
+    s.pop
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Emit item for rule with msg rendered from args
-  private Void emit(ValidateRule rule, Dict args)
-  {
-    items.add(MValidateItem(
-      rule.id, rule.level, subject, slotPath, rule.render(args), args["val"]))
-  }
-
-  private ValidateRule rule(Str qname) { rules.rule(qname) }
-
-  private Str? slotPath() { slotStack.isEmpty ? null : slotStack.join(".") }
-
-  private Void push(Str name) { slotStack.push(name) }
-
-  private Void pop() { slotStack.pop }
+  ** Accumulator one item
+  Void emit(MValidateItem item) { items.add(item) }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const MNamespace ns
-  private const ValidateRules rules
-  private const ValidateRefs refs      // ref target checking mode
-  private const Bool graph             // run graph query constraints
-  private const XetoFidelity fidelity  // value fidelity level
-  private const Bool failFast          // stop at first error
-  private XetoContext cx
-  private Dict subject := Etc.dict0
-  private Str[] slotStack := [,]
+  const MNamespace ns             // namespace
+  const ValidateRules rules       // namespace rule registry
+  const ValidateRefs refs         // ref target checking mode
+  const Bool graph                // run graph query constraints
+  const XetoFidelity fidelity     // value fidelity level
+  const Bool failFast             // stop at first error
+  XetoContext cx { private set }  // context
   private MValidateItem[] items := [,]
 }
 
@@ -193,3 +136,4 @@ enum class ValidateRefs
   exists,   // check ref targets resolve
   conform   // check ref targets resolve and fit their 'of' type
 }
+
