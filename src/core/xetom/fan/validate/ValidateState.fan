@@ -83,6 +83,9 @@ class ValidateState
   ** Actual type of current value or null if unmapped
   Spec? valType() { cur.valType }
 
+  ** Fidelity level of this validation run
+  XetoFidelity fidelity() { validator.fidelity }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

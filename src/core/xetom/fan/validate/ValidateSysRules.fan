@@ -105,3 +105,185 @@ using haystack
   }
 }
 
+
+@Js internal const class ValidateSysWrongUnit : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    if (s.num == null) return
+    unit := s.spec.meta["unit"] as Unit
+    if (unit != null && unit != s.num.unit) s.emit
+  }
+}
+
+@Js internal const class ValidateSysUnitless : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    if (s.num?.unit == null) return
+    if (s.spec.meta.has("unitless")) s.emit
+  }
+}
+
+@Js internal const class ValidateSysWrongQuantity : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    q := s.spec.meta["quantity"]
+    if (q == null) return
+
+    // number unit quantity
+    if (s.num != null)
+    {
+      unit := s.num.unit
+      if (unit == null) return emitReason(s, "no unit specified")
+      uq := UnitQuantity.unitToQuantity[unit]
+      if (uq == null) return emitReason(s, "'$unit' has no quantity")
+      if (uq != q) return emitReason(s, "'$unit' has quantity of '$uq'")
+      return
+    }
+
+    // unit enum quantity
+    if (s.spec.type.qname == "sys::Unit")
+    {
+      key := ValidateSysWrongEnumKey.enumKey(s.val)
+      if (key == null) return
+      item := s.spec.type.enum.spec(key, false)
+      if (item == null) return // wrongEnumKey's check
+      uq := item.meta["quantity"] ?: "none"
+      if (uq != q) emitReason(s, "'$key' has quantity of '$uq'")
+    }
+  }
+
+  private Void emitReason(ValidateState s, Str reason) { s.emit(Etc.dict1("reason", reason)) }
+}
+
+@Js internal const class ValidateSysPatternMismatch : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    pattern := s.spec.meta["pattern"] as Str
+    if (pattern == null) return
+    if (s.spec.type.isEnum) return // enums validate by key
+    str := toPatternStr(s.val)
+    if (str == null) return
+    if (!Regex(pattern).matches(str)) s.emit
+  }
+
+  ** String encoding to check or null if not string encoded
+  private static Str? toPatternStr(Obj? val)
+  {
+    if (val is Str) return val
+    if (val is Scalar) return val.toStr
+    return null
+  }
+}
+
+@Js internal const class ValidateSysInvariantVal : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    if (s.spec.meta.missing("invariant")) return
+
+    // check actual against expected invariant value, narrowing
+    // the expected value when using less than full fidelity
+    expect := s.spec.meta["val"]
+    if (expect == null) return
+    if (Etc.eq(expect, s.val)) return
+    narrow := s.fidelity.coerce(expect)
+    if (narrow !== expect && Etc.eq(narrow, s.val)) return
+
+    s.emit(Etc.dict1("expect", expect))
+  }
+}
+
+@Js internal const class ValidateSysEnumValType : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    if (!s.spec.type.isEnum) return
+    if (ValidateSysWrongEnumKey.enumKey(s.val) == null) s.emit
+  }
+}
+
+@Js internal const class ValidateSysWrongEnumKey : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    enum := s.spec.type
+    if (!enum.isEnum) return
+    key := enumKey(s.val)
+    if (key == null) return // enumValType's check
+    if (enum.enum.spec(key, false) == null) s.emit
+  }
+
+  ** Map enum value to its string key or null
+  internal static Str? enumKey(Obj? val)
+  {
+    if (val is Str)      return val
+    if (val is Scalar)   return ((Scalar)val).val
+    if (val is Enum)     return ((Enum)val).name
+    if (val is Unit)     return ((Unit)val).symbol
+    if (val is TimeZone) return ((TimeZone)val).name
+    return null
+  }
+}
+
+@Js internal const class ValidateSysNonEmpty : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    if (s.spec.meta.missing("nonEmpty")) return
+    list := s.val as List
+    if (list != null) { if (list.isEmpty) s.emit; return }
+    str := ValidateSysUnderMinSize.toSizeStr(s.val)
+    if (str != null && str.trim.isEmpty) s.emit
+  }
+}
+
+@Js internal const class ValidateSysUnderMinSize : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    min := CheckVal.toInt(s.spec.meta["minSize"])
+    if (min == null) return
+    size := toSize(s.val)
+    if (size != null && size < min) s.emit
+  }
+
+  ** Size of string encoded or list value or null
+  internal static Int? toSize(Obj? val)
+  {
+    if (val is List) return ((List)val).size
+    return toSizeStr(val)?.size
+  }
+
+  ** String encoding to size or null if not string encoded
+  internal static Str? toSizeStr(Obj? val)
+  {
+    if (val is Str) return val
+    if (val is Scalar) return val.toStr
+    return null
+  }
+}
+
+@Js internal const class ValidateSysOverMaxSize : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    max := CheckVal.toInt(s.spec.meta["maxSize"])
+    if (max == null) return
+    size := ValidateSysUnderMinSize.toSize(s.val)
+    if (size != null && size > max) s.emit
+  }
+}

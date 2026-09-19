@@ -215,6 +215,102 @@ class ValidateTest : AbstractXetoTest
     verifyScalarVal(ns, lib, "color", "red", false, true)
   }
 
+  Void testEngineConstraints()
+  {
+    ns := nsTest
+    lib := ns.compileTempLib(
+      Str<|A: Dict { pct: Number? <unit:"%"> }
+           B: Dict { scale: Number? <unitless> }
+           C: Dict { pow: Number? <quantity:"power"> }
+           D: Dict { u: Unit? <quantity:"power"> }
+           E: Dict { color: TestPrintEnum? }
+           F: Dict { name: Str? <nonEmpty, minSize:3, maxSize:5> }
+           G: Dict { ssn: TestSsn? }
+           H: Dict { fixed: Str? <invariant> "x" }
+           I: Dict { u: Unit? <invariant> "%" }
+           J: Dict { n: Number? <invariant> 123kW }
+           K: Dict { i: Int? }
+           L: Dict { s: MySizeStr? }
+           M: Dict { tz: TestPrintEnumKeys? }
+           N: Dict { tags: List? <nonEmpty, minSize:2, maxSize:3, of:Str> }
+           MySizeStr: Scalar <nonEmpty, minSize:2, maxSize:4>
+           |>)
+    hay := Etc.dict1("haystack", Marker.val)
+
+    // unit
+    verifyEngine(ns, lib, "A", ["pct":n(50, "%")],  [,])
+    verifyEngine(ns, lib, "A", ["pct":n(50)],       ["sys::wrongUnit"])
+    verifyEngine(ns, lib, "A", ["pct":n(50, "kW")], ["sys::wrongUnit"])
+
+    // unitless
+    verifyEngine(ns, lib, "B", ["scale":n(2)],      [,])
+    verifyEngine(ns, lib, "B", ["scale":n(2, "%")], ["sys::unitless"])
+
+    // number unit quantity
+    verifyEngine(ns, lib, "C", ["pow":n(5, "kW")], [,])
+    verifyEngine(ns, lib, "C", ["pow":n(5)],       ["sys::wrongQuantity"])
+    verifyEngine(ns, lib, "C", ["pow":n(5, "°C")], ["sys::wrongQuantity"])
+
+    // unit enum quantity: Unit instance at full, Str key at haystack
+    verifyEngine(ns, lib, "D", ["u":Unit("kW")], [,])
+    verifyEngine(ns, lib, "D", ["u":Unit("°C")], ["sys::wrongQuantity"])
+    verifyEngine(ns, lib, "D", ["u":"kW"], [,], hay)
+    verifyEngine(ns, lib, "D", ["u":"°C"], ["sys::wrongQuantity"], hay)
+
+    // enum keys: Scalar wrapper at full, Str key at haystack
+    verifyEngine(ns, lib, "E", ["color":toEnum("alpha")], [,])
+    verifyEngine(ns, lib, "E", ["color":toEnum("bad")],   ["sys::wrongEnumKey"])
+    verifyEngine(ns, lib, "E", ["color":"alpha"], [,], hay)
+    verifyEngine(ns, lib, "E", ["color":"bad"],   ["sys::wrongEnumKey"], hay)
+
+    // pattern: Scalar wrapper at full, Str at haystack
+    verifyEngine(ns, lib, "G", ["ssn":toSsn("123-45-6789")], [,])
+    verifyEngine(ns, lib, "G", ["ssn":toSsn("bad")], ["sys::patternMismatch"])
+    verifyEngine(ns, lib, "G", ["ssn":"123-45-6789"], [,], hay)
+    verifyEngine(ns, lib, "G", ["ssn":"bad"], ["sys::patternMismatch"], hay)
+
+    // string sizes; blank fires both nonEmpty and underMinSize
+    verifyEngine(ns, lib, "F", ["name":"abcd"],   [,])
+    verifyEngine(ns, lib, "F", ["name":"ab"],     ["sys::underMinSize"])
+    verifyEngine(ns, lib, "F", ["name":"abcdef"], ["sys::overMaxSize"])
+    verifyEngine(ns, lib, "F", ["name":"  "],     ["sys::nonEmpty", "sys::underMinSize"])
+
+    // invariant with fidelity narrowing for Unit
+    verifyEngine(ns, lib, "H", ["fixed":"x"], [,])
+    verifyEngine(ns, lib, "H", ["fixed":"y"], ["sys::invariantVal"])
+    verifyEngine(ns, lib, "I", ["u":Unit("%")], [,])
+    verifyEngine(ns, lib, "I", ["u":"%"], [,], hay)
+    verifyEngine(ns, lib, "I", ["u":"m"], ["sys::invariantVal"], hay)
+
+    // invariant number
+    verifyEngine(ns, lib, "J", ["n":n(123, "kW")], [,])
+    verifyEngine(ns, lib, "J", ["n":n(123, "W")],  ["sys::invariantVal"])
+
+    // Int/Float inherit unitless from sys; Number erasure keeps checking it
+    verifyEngine(ns, lib, "K", ["i":n(5)],       [,], hay)
+    verifyEngine(ns, lib, "K", ["i":n(5, "kW")], ["sys::unitless"], hay)
+
+    // constraint meta declared on named scalar type instead of slot
+    verifyEngine(ns, lib, "L", ["s":"ab"],     [,], hay)
+    verifyEngine(ns, lib, "L", ["s":" "],      ["sys::nonEmpty", "sys::underMinSize"], hay)
+    verifyEngine(ns, lib, "L", ["s":"a"],      ["sys::underMinSize"], hay)
+    verifyEngine(ns, lib, "L", ["s":"abcde"],  ["sys::overMaxSize"], hay)
+
+    // enum with remapped keys validates by key not name
+    verifyEngine(ns, lib, "M", ["tz":"New_York"], [,], hay)
+    verifyEngine(ns, lib, "M", ["tz":"newYork"],  ["sys::wrongEnumKey"], hay)
+
+    // list sizes via shared size constraints
+    verifyEngine(ns, lib, "N", ["tags":["a", "b"]], [,])
+    verifyEngine(ns, lib, "N", ["tags":Str[,]], ["sys::nonEmpty", "sys::underMinSize"])
+    verifyEngine(ns, lib, "N", ["tags":["a"]], ["sys::underMinSize"])
+    verifyEngine(ns, lib, "N", ["tags":["a", "b", "c", "d"]], ["sys::overMaxSize"])
+  }
+
+  Scalar toEnum(Str key) { Scalar("hx.test.xeto::TestPrintEnum", key) }
+
+  Scalar toSsn(Str val)  { Scalar("hx.test.xeto::TestSsn", val) }
+
   ** Verify value type conformance for the slot's type both as a
   ** top-level bare value and as a slot value, at full and haystack
   ** fidelity.  Expect zero items when ok, else single invalidType.
