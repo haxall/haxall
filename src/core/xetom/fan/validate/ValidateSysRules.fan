@@ -43,6 +43,11 @@ using haystack
   new make(ValidateRuleInit init) : super(init) {}
 }
 
+@Js internal const class ValidateSysUnknownType : ValidateIntrinsicRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+}
+
 @Js internal const class ValidateSysInvalidType : ValidateIntrinsicRule
 {
   new make(ValidateRuleInit init) : super(init) {}

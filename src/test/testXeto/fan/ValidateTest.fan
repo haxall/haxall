@@ -100,10 +100,154 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "A", ["num":n(5)], ["sys::maxValUnit", "sys::minValUnit"])
   }
 
-  ** Validate tags against lib spec and verify item rule qnames
-  Void verifyEngine(Namespace ns, Lib lib, Str specName, Str:Obj tags, Str[] expect)
+  Void testEngineTypes()
   {
-    r := ns.validate(Etc.makeDict(tags), lib.spec(specName))
+    ns := createNamespace(["sys"])
+    lib := ns.compileTempLib(
+      Str<|Foo: Dict { num: Number?, str: Str?, date: Date?, i: Int?, u: Unit? }
+           Ssn: Scalar <pattern:"\\d{3}-\\d{2}-\\d{4}">
+           Bar: Dict { ssn: Ssn? }
+           Baz: Dict { num: Number? <maxVal:100> }
+           Refs: Dict { refs: MultiRef? }
+           |>)
+    hay := Etc.dict1("haystack", Marker.val)
+
+    // ok
+    verifyEngine(ns, lib, "Foo", ["num":n(1), "str":"x", "date":Date.today], [,])
+
+    // wrong types
+    verifyEngine(ns, lib, "Foo", ["num":"bad"], ["sys::invalidType"])
+    verifyEngine(ns, lib, "Foo", ["str":n(2)],  ["sys::invalidType"])
+
+    // strings not allowed for sys scalars at any fidelity
+    verifyEngine(ns, lib, "Foo", ["date":"2024-01-01"], ["sys::invalidType"])
+    verifyEngine(ns, lib, "Foo", ["date":"2024-01-01"], ["sys::invalidType"], hay)
+
+    // invalid type gates constraint rules: no overMaxVal noise
+    verifyEngine(ns, lib, "Baz", ["num":"bad"], ["sys::invalidType"])
+
+    // Unit has no haystack kind: Str ok at haystack, invalid at full
+    verifyEngine(ns, lib, "Foo", ["u":"%"], ["sys::invalidType"])
+    verifyEngine(ns, lib, "Foo", ["u":"%"], [,], hay)
+
+    // custom scalar as string: invalid at full fidelity, ok at haystack
+    verifyEngine(ns, lib, "Bar", ["ssn":"123-45-6789"], ["sys::invalidType"])
+    verifyEngine(ns, lib, "Bar", ["ssn":"123-45-6789"], [,], hay)
+
+    // haystack erases Int to Number: bare Number ok at haystack only
+    verifyEngine(ns, lib, "Foo", ["i":n(5)], ["sys::invalidType"])
+    verifyEngine(ns, lib, "Foo", ["i":n(5)], [,], hay)
+
+    // Int/Float/Duration are not haystack kinds but at haystack
+    // fidelity must be Number and never Str
+    verifyEq(ns.spec("sys::Int").isHaystack, false)
+    verifyEq(ns.spec("sys::Float").isHaystack, false)
+    verifyEq(ns.spec("sys::Duration").isHaystack, false)
+    verifyEngine(ns, lib, "Foo", ["i":"5"], ["sys::invalidType"])
+    verifyEngine(ns, lib, "Foo", ["i":"5"], ["sys::invalidType"], hay)
+
+    // MultiRef accepts Ref or list of Refs
+    verifyEngine(ns, lib, "Refs", ["refs":Ref("a")], [,])
+    verifyEngine(ns, lib, "Refs", ["refs":[Ref("a"), Ref("b")]], [,])
+    verifyEngine(ns, lib, "Refs", ["refs":Obj["x"]], ["sys::invalidType"])
+
+    // bare value validation
+    r := ns.validate(Date.today, ns.spec("sys::Date"))
+    verifyEq(r.items.size, 0)
+    r = ns.validate("foo", ns.spec("sys::Date"))
+    verifyEq(r.items.join(",") { it.rule.id }, "sys::invalidType")
+  }
+
+  Void testEngineScalars()
+  {
+    ns := nsTest
+    lib := ns.compileTempLib(
+      Str<|Foo: Dict {
+             bool: Bool?
+             date: Date?
+             number: Number?
+             int: Int?
+             float: Float?
+             duration: Duration?
+             str: Str?
+             uri: Uri?
+             ref: Ref?
+             unit: Unit?
+             tz: TimeZone?
+             ssn: TestSsn?
+             color: Color?
+           }
+           Color: Enum { red, blue }
+           |>)
+
+    // haystack kinds: exact type both fidelities, never Str
+    verifyScalarVal(ns, lib, "bool",   true,          true,  true)
+    verifyScalarVal(ns, lib, "date",   Date.today,    true,  true)
+    verifyScalarVal(ns, lib, "date",   "2024-01-01",  false, false)
+    verifyScalarVal(ns, lib, "number", n(5),          true,  true)
+    verifyScalarVal(ns, lib, "number", "5",           false, false)
+    verifyScalarVal(ns, lib, "str",    "x",           true,  true)
+    verifyScalarVal(ns, lib, "uri",    `file.txt`,    true,  true)
+    verifyScalarVal(ns, lib, "uri",    "file.txt",    false, false)
+    verifyScalarVal(ns, lib, "ref",    Ref("a"),      true,  true)
+
+    // Int/Float/Duration: Fantom type at full, Number erasure at haystack
+    verifyScalarVal(ns, lib, "int",      5,             true,  false)
+    verifyScalarVal(ns, lib, "int",      n(5),          false, true)
+    verifyScalarVal(ns, lib, "int",      "5",           false, false)
+    verifyScalarVal(ns, lib, "float",    5f,            true,  false)
+    verifyScalarVal(ns, lib, "float",    n(5),          false, true)
+    verifyScalarVal(ns, lib, "duration", 5min,          true,  false)
+    verifyScalarVal(ns, lib, "duration", n(5, "min"),   false, true)
+
+    // non-haystack sys scalars: Fantom type at full, Str at haystack
+    verifyScalarVal(ns, lib, "unit", Unit("%"),        true,  false)
+    verifyScalarVal(ns, lib, "unit", "%",              false, true)
+    verifyScalarVal(ns, lib, "tz",   TimeZone.utc,     true,  false)
+    verifyScalarVal(ns, lib, "tz",   "UTC",            false, true)
+
+    // custom scalar: Scalar wrapper at full, Str at haystack
+    verifyScalarVal(ns, lib, "ssn", Scalar("hx.test.xeto::TestSsn", "123-45-6789"), true, false)
+    verifyScalarVal(ns, lib, "ssn", "123-45-6789", false, true)
+
+    // enum: Str key at haystack; full fidelity currently rejects Str
+    // TODO: is Str key the legal full fidelity form for unbound enums?
+    verifyScalarVal(ns, lib, "color", "red", false, true)
+  }
+
+  ** Verify value type conformance for the slot's type both as a
+  ** top-level bare value and as a slot value, at full and haystack
+  ** fidelity.  Expect zero items when ok, else single invalidType.
+  Void verifyScalarVal(Namespace ns, Lib lib, Str slot, Obj val, Bool fullOk, Bool hayOk)
+  {
+    hay  := Etc.dict1("haystack", Marker.val)
+    foo  := lib.spec("Foo")
+    type := foo.slot(slot).type
+    dict := Etc.makeDict(Str:Obj[slot: val])
+
+    verifyScalarReport("bare full $slot", ns.validate(val, type),       fullOk)
+    verifyScalarReport("bare hay $slot",  ns.validate(val, type, hay),  hayOk)
+    verifyScalarReport("slot full $slot", ns.validate(dict, foo),       fullOk)
+    verifyScalarReport("slot hay $slot",  ns.validate(dict, foo, hay),  hayOk)
+  }
+
+  private Void verifyScalarReport(Str title, ValidateReport r, Bool ok)
+  {
+    if (ok)
+    {
+      verifyEq(r.items.size, 0, title)
+    }
+    else
+    {
+      verifyEq(r.items.size, 1, title)
+      verifyEq(r.items.first.rule, Ref("sys::invalidType"), title)
+    }
+  }
+
+  ** Validate tags against lib spec and verify item rule qnames
+  Void verifyEngine(Namespace ns, Lib lib, Str specName, Str:Obj tags, Str[] expect, Dict? opts := null)
+  {
+    r := ns.validate(Etc.makeDict(tags), lib.spec(specName), opts)
     verifyEq(r.items.join(",") { it.rule.id }, expect.join(","))
   }
 

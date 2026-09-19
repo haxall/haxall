@@ -32,6 +32,8 @@ class Validator
     this.ignoreRefs   = opts.has("ignoreRefs")
     this.ignoreMixins = opts.has("ignoreMixins")
     this.graph        = opts.has("graph")
+    this.strSpec      = ns.sys.str
+    this.numberSpec   = ns.sys.number
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,10 +59,10 @@ class Validator
       return MValidateReport([subject], items)
     }
 
-    // bare value validation
+    // bare value validation runs the slot level intrinsics too
     spec = specx(spec ?: ns.specOf(val))
     state := ValidateState.makeVal(this, val, spec)
-    doValidate(state)
+    doValidateSlot(state)
     return MValidateReport(Dict#.emptyList, items)
   }
 
@@ -148,7 +150,9 @@ class Validator
   {
     // perform intrinsic checks before running all the rules
     if (isMissingSlot(s)) return rules.missingSlot.emit(s)
-    if (isInvalidType(s)) return rules.invalidType.emit(s)
+    if (s.val == null) return // absent maybe slot
+    if (s.valType == null) return rules.unknownType.emit(s)
+    if (!isValidType(s)) return rules.invalidType.emit(s)
 
     // run thru the standard rules
     doValidate(s)
@@ -161,9 +165,38 @@ class Validator
     return true
   }
 
-  private Bool isInvalidType(ValidateState s)
+  private Bool isValidType(ValidateState s)
   {
-    return false // TODO
+    type    := s.spec.type
+    val     := s.val
+    valType := s.valType
+
+    // haystack fidelity has special scalar restrictions; at full
+    // fidelity scalars must be their mapped Fantom type or xeto::Scalar
+    if (fidelity.isHaystack && type.isScalar)
+    {
+      // haystack fidelity erases Int/Float/Duration to plain Number
+      if (type.isa(numberSpec)) return s.num != null
+
+      // if built-in haystack kind then must match exactly
+      if  (type.isHaystack) return valType === type
+
+      // otherwise all non-haystack scalars must map to string
+      return valType === strSpec
+    }
+
+    // if it fits by direct nominal typing
+    if (valType.isa(type)) return true
+
+    // MultiRef may be either Ref or Ref[]
+    if (type.isMultiRef)
+    {
+      if (val is Ref) return true
+      if (val is List) return ((List)val).all |x| { x is Ref }
+    }
+
+    // invalid type
+    return false
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -192,6 +225,8 @@ class Validator
   const Bool ignoreMixins         // use or ignore mixins
   const Bool ignoreRefs           // check or skip refs targets
   const Bool graph                // run graph query constraints
+  const Spec strSpec              // spec for sys::Str
+  const Spec numberSpec           // spec for sys::Number
   XetoContext cx { private set }
   private MValidateItem[] items := [,]
   private Str:Spec specxCache := [:]

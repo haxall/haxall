@@ -47,6 +47,7 @@ const class ValidateRules
     this.unknownSpecRef = map.getChecked("sys::unknownSpecRef")
     this.missingSlot    = map.getChecked("sys::missingSlot")
     this.invalidType    = map.getChecked("sys::invalidType")
+    this.unknownType    = map.getChecked("sys::unknownType")
   }
 
   private static ValidateRule[] order(ValidateRule[] list, Str:ValidateRule map)
@@ -92,6 +93,7 @@ const class ValidateRules
   internal const ValidateIntrinsicRule unknownSpecRef
   internal const ValidateIntrinsicRule missingSlot
   internal const ValidateIntrinsicRule invalidType
+  internal const ValidateIntrinsicRule unknownType
 
 //////////////////////////////////////////////////////////////////////////
 // Debug
