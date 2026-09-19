@@ -270,7 +270,11 @@ class TestContext : XetoContext
   }
 
   override Dict? xetoReadById(Obj id) { recs.get(id) }
-  override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
+  override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f)
+  {
+    fq := Filter(filter)
+    return recs.vals.eachWhile |r| { fq.matches(r) ? f(r) : null }
+  }
   override Bool xetoIsSpec(Str spec, Dict rec) { false }
   Ref:Dict recs := [:]
 }

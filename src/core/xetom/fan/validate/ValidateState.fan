@@ -101,6 +101,11 @@ class ValidateState
   ** positioned on the id slot, or when ignoreRefs is opted in.
   ValidateRef[] refs() { cur.refs }
 
+  ** Constraint matches when positioned on a query slot with the
+  ** graph option enabled, or null otherwise.  The extent is queried
+  ** and matched once for the query rules.
+  ValidateQueryMatch[]? queryMatches { internal set }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
@@ -180,6 +185,26 @@ const class ValidateRef
   const Dict? target  // resolved target or null if unresolved
 
   override Str toStr() { ref.toStr }
+}
+
+**************************************************************************
+** ValidateQueryMatch
+**************************************************************************
+
+** ValidateQueryMatch pairs one query constraint with its extent matches
+@Js
+const class ValidateQueryMatch
+{
+  internal new make(Spec constraint, Dict[] matches)
+  {
+    this.constraint = constraint
+    this.matches    = matches
+  }
+
+  const Spec constraint  // query constraint slot
+  const Dict[] matches   // extent records matching the constraint
+
+  override Str toStr() { constraint.toStr }
 }
 
 **************************************************************************

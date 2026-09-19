@@ -282,6 +282,125 @@ class ValidateTest : AbstractXetoTest
     }
   }
 
+  Void testEngineQueries()
+  {
+    ns := nsTest
+    lib := ns.compileTempLib(
+      Str<|QEquip: Equip {
+             points: Query {
+               ta: ZoneAirTempSensor
+               tb: ZoneCo2Sensor?
+             }
+           }
+           |>)
+    graph := Etc.dict1("graph", Marker.val)
+
+    // equip A has exactly one of each; B has none; C has dup discharge
+    a := Ref("q-a"); b := Ref("q-b"); c := Ref("q-c")
+    site := Ref("q-site")
+    recs[site] = Etc.makeDict(Str:Obj["id":site, "spec":Ref("ph::Site"), "site":m])
+    recs[a] = Etc.makeDict(Str:Obj["id":a, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+    recs[b] = Etc.makeDict(Str:Obj["id":b, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+    recs[c] = Etc.makeDict(Str:Obj["id":c, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+    addPt := |Str id, Str spec, Ref equip|
+    {
+      ref := Ref(id)
+      recs[ref] = Etc.makeDict(Str:Obj[
+        "id":ref, "spec":Ref(spec), "equipRef":equip, "point":m, "kind":"Number"])
+    }
+    addPt("q-a1", "ph.points::ZoneAirTempSensor", a)
+    addPt("q-a2", "ph.points::ZoneCo2Sensor", a)
+    addPt("q-c1", "ph.points::ZoneAirTempSensor", c)
+    addPt("q-c2", "ph.points::ZoneAirTempSensor", c)
+
+    initContext(lib).asCur |cx|
+    {
+      // queries are not checked without the graph opt
+      r := ns.validate(recs[b], lib.spec("QEquip"))
+      verifyEq(r.items.size, 0)
+
+      // exactly one match per constraint; maybe absent ok
+      r = ns.validate(recs[a], lib.spec("QEquip"), graph)
+      verifyEq(r.items.size, 0)
+
+      // missing required constraint
+      r = ns.validate(recs[b], lib.spec("QEquip"), graph)
+      item := r.items.first
+      verifyEq(r.items.size, 1)
+      verifyEq(item.rule, Ref("sys::missingQuery"))
+      verifyEq(item.slot, "points")
+      verifyEq(item.msg, "Missing required Point: ta")
+
+      // ambiguous match
+      r = ns.validate(recs[c], lib.spec("QEquip"), graph)
+      item = r.items.first
+      verifyEq(r.items.size, 1)
+      verifyEq(item.rule, Ref("sys::ambiguousQuery"))
+      verifyEq(item.slot, "points")
+      verifyEq(item.msg, "Ambiguous match for Point: ta [@q-c1 \"q-c1\", @q-c2 \"q-c2\"]")
+    }
+
+    // marker constraint forms mirroring AxonTest.testQuery
+    lib2 := ns.compileTempLib(
+        Str<|MAhu: Equip {
+               points: Query {
+                 temp: {discharge, temp}
+                 flow: {discharge, flow}
+               }
+             }
+             DTemp: {discharge, temp}
+             DFlow: {discharge, flow}
+             DPressure: {discharge, pressure}
+             SAhu: Equip { points: { DTemp, DFlow, DPressure? } }
+             |>)
+
+    x := Ref("q-x"); y := Ref("q-y"); z := Ref("q-z")
+    recs[x] = Etc.makeDict(Str:Obj["id":x, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+    recs[y] = Etc.makeDict(Str:Obj["id":y, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+    recs[z] = Etc.makeDict(Str:Obj["id":z, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+    addMarkerPt := |Str id, Ref equip, Str marker|
+    {
+      ref := Ref(id)
+      recs[ref] = Etc.makeDict(Str:Obj[
+        "id":ref, "spec":Ref("ph::Point"), "equipRef":equip, "siteRef":site,
+        "point":m, "kind":"Number", "discharge":m, marker:m])
+    }
+    addMarkerPt("q-x1", x, "temp")
+    addMarkerPt("q-x2", x, "flow")
+    addMarkerPt("q-z1", z, "temp")
+    addMarkerPt("q-z2", z, "temp")
+    addMarkerPt("q-z3", z, "flow")
+    addMarkerPt("q-z4", z, "pressure")
+    addMarkerPt("q-z5", z, "pressure")
+
+    initContext(lib2).asCur |cx2|
+    {
+      // inline marker constraints and shape types with exactly one each
+      verifyEngine(ns, lib2, "MAhu", recsTags(x), [,], graph)
+      verifyEngine(ns, lib2, "SAhu", recsTags(x), [,], graph)
+
+      // multiple missing constraints; shapes display by type qname
+      verifyEngine(ns, lib2, "MAhu", recsTags(y),
+        ["sys::missingQuery", "sys::missingQuery"], graph)
+      r := ns.validate(recs[y], lib2.spec("SAhu"), graph)
+      verifyEq(r.items.join(",") { it.rule.id }, "sys::missingQuery,sys::missingQuery")
+      verifyEq(r.items.first.msg, "Missing required Point: ${lib2.name}::DTemp")
+
+      // ambiguous for required and even for maybe constraints
+      verifyEngine(ns, lib2, "MAhu", recsTags(z), ["sys::ambiguousQuery"], graph)
+      verifyEngine(ns, lib2, "SAhu", recsTags(z),
+        ["sys::ambiguousQuery", "sys::ambiguousQuery"], graph)
+    }
+  }
+
+  ** Map rec id to its tags map for verifyEngine
+  Str:Obj recsTags(Ref id)
+  {
+    acc := Str:Obj[:]
+    recs[id].each |v, n| { acc[n] = v }
+    return acc
+  }
+
   Void testEngineScalars()
   {
     ns := nsTest

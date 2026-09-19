@@ -25,6 +25,7 @@ class Validator
   {
     this.ns           = ns
     this.cx           = cx
+    this.opts         = opts
     this.rules        = ns.validateRules
     this.fidelity     = XetoUtil.optFidelity(opts)
     this.ignoreRefs   = opts.has("ignoreRefs")
@@ -149,6 +150,9 @@ class Validator
     // choice slots are validated against the parent dict's markers
     if (s.spec.isChoice) return run(s)
 
+    // query slots are validated against the graph extent
+    if (s.spec.isQuery) return doValidateQuery(s)
+
     // perform intrinsic checks before running all the rules
     if (isMissingSlot(s)) return rules.missingSlot.emit(s)
     if (s.val == null) return // absent maybe slot
@@ -202,6 +206,67 @@ class Validator
 
     // invalid type
     return false
+  }
+
+  private Void doValidateQuery(ValidateState s)
+  {
+    // graph queries are opt-in and only checked when constrained
+    if (!graph) return
+    query := s.spec
+    if (query.slots.isEmpty) return
+    subject := s.parentDict
+    if (subject == null) return
+
+    // run query to get extent; errors leave the query unchecked
+    Dict[]? extent
+    try
+      extent = Query(ns, cx, opts).query(subject, query)
+    catch (Err e)
+      return
+
+    // compute matches per constraint once for the query rules
+    acc := ValidateQueryMatch[,]
+    query.slots.each |c|
+    {
+      matches := extent.findAll |x| { queryConstraintMatches(c, x) }
+      acc.add(ValidateQueryMatch(c, matches))
+    }
+    s.queryMatches = acc
+    run(s)
+    s.queryMatches = null
+  }
+
+  ** Return if extent record matches the query constraint: nominal
+  ** anchor plus the constraint's own marker and scalar slots.  A
+  ** shape constraint based directly on Dict matches by slots alone;
+  ** the anchor's inherited body slots never act as constraints.
+  ** TODO: replace with sugar matching once that lands
+  private Bool queryConstraintMatches(Spec c, Dict x)
+  {
+    t := ns.specOf(x, false)
+    if (t == null) return false
+
+    // Dict based shapes skip the nominal anchor check
+    isShape := c.type.base?.qname == "sys::Dict"
+    if (!isShape && !t.isa(c.type)) return false
+
+    // constraint slots are the inline body plus shape type slots
+    if (!matchesConstraintSlots(c.slotsOwn, x)) return false
+    if (isShape && !matchesConstraintSlots(c.type.slots, x)) return false
+    return true
+  }
+
+  ** Constraint markers must be present and scalars must match
+  private static Bool matchesConstraintSlots(SpecMap slots, Dict x)
+  {
+    r := slots.eachWhile |Spec cs->Obj?|
+    {
+      v := x.get(cs.name)
+      if (v == null) return "no"
+      if (cs.type.isMarker) return null
+      return Etc.eq(v, cs.meta["val"]) ? null : "no"
+    }
+    return r == null
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -264,6 +329,7 @@ class Validator
   const Bool ignoreMixins         // use or ignore mixins
   const Bool ignoreRefs           // check or skip refs targets
   const Bool graph                // run graph query constraints
+  const Dict opts                 // raw options for engine plumbing
   const Spec strSpec              // spec for sys::Str
   const Spec numberSpec           // spec for sys::Number
   XetoContext cx { private set }

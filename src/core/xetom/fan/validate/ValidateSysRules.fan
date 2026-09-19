@@ -377,3 +377,61 @@ using haystack
     }
   }
 }
+
+@Js internal const class ValidateSysMissingQuery : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    s.queryMatches?.each |qm|
+    {
+      if (qm.matches.isEmpty && !qm.constraint.isMaybe)
+        s.emit(Etc.dictx("of", ofDis(s), "constraint", constraintDis(qm.constraint)))
+    }
+  }
+
+  ** Display name for the query of type such as "Point"
+  internal static Str ofDis(ValidateState s)
+  {
+    s.spec.of(false)?.name ?: s.spec.name
+  }
+
+  ** Display name for constraint; auto-named constraints use their type
+  internal static Str constraintDis(Spec c)
+  {
+    XetoUtil.isAutoName(c.name) ? c.type.qname : c.name
+  }
+}
+
+@Js internal const class ValidateSysAmbiguousQuery : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    s.queryMatches?.each |qm|
+    {
+      if (qm.matches.size > 1)
+        s.emit(Etc.dictx(
+          "of", ValidateSysMissingQuery.ofDis(s),
+          "constraint", ValidateSysMissingQuery.constraintDis(qm.constraint),
+          "matches", matchesDis(qm.matches)))
+    }
+  }
+
+  ** Display for ambiguous matches as "@id dis" truncated for length
+  private static Str matchesDis(Dict[] recs)
+  {
+    s := StrBuf()
+    recs = recs.dup.sort |a, b| { a["id"] <=> b["id"] }
+    for (i := 0; i<recs.size; ++i)
+    {
+      rec := recs[i]
+      if (!s.isEmpty) s.add(", ")
+      s.addChar('@').add(rec.id).add(" ").add(rec.dis.toCode)
+      if (s.size > 50 && i+1 < recs.size)
+        return s.add(", ${recs.size - i - 1} more ...").toStr
+    }
+    return s.toStr
+  }
+}
+
