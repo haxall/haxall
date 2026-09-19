@@ -16,21 +16,41 @@ using haystack
   override Void onCheck(ValidateState s) {}
 }
 
-// Invoked directly by Validator fail fast
-@Js internal const class ValidateSysMissingSpecRef : ValidateRule
+**************************************************************************
+** Intrinsic Rules (handled by Validator itself)
+**************************************************************************
+
+@Js internal abstract const class ValidateIntrinsicRule : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
-  override Bool isApplicable(ValidateState s) { false } // special handling
-  override Void onCheck(ValidateState s) { s.emit }
+  override final Bool isApplicable(ValidateState s) { false }
+  override final Void onCheck(ValidateState s) { throw Err("Not used") }
+  Void emit(ValidateState s) { s.emitRule(this) }
 }
 
-// Invoked directly by Validator fail fast
-@Js internal const class ValidateSysUnknownSpecRef : ValidateRule
+@Js internal const class ValidateSysMissingSpecRef : ValidateIntrinsicRule
 {
   new make(ValidateRuleInit init) : super(init) {}
-  override Bool isApplicable(ValidateState s) { false } // special handling
-  override Void onCheck(ValidateState s) { s.emit }
 }
+
+@Js internal const class ValidateSysUnknownSpecRef : ValidateIntrinsicRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+}
+
+@Js internal const class ValidateSysMissingSlot : ValidateIntrinsicRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+}
+
+@Js internal const class ValidateSysInvalidType : ValidateIntrinsicRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+}
+
+**************************************************************************
+** Applied Rules
+**************************************************************************
 
 @Js internal const class ValidateSysOverMaxVal : ValidateRule
 {
@@ -77,20 +97,6 @@ using haystack
     max := s.spec.meta["maxVal"] as Number
     if (max?.unit != null && max.unit != s.num.unit)
       s.emit(Etc.dict1("unit", max.unit.toStr))
-  }
-}
-
-@Js internal const class ValidateSysMissingSlot : ValidateRule
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Void onCheck(ValidateState s)
-  {
-    if (s.val != null) return
-    if (s.slotPath == null) return // never on the subject itself
-    spec := s.spec
-    if (spec.isMaybe) return
-    if (spec.type.isChoice || spec.type.isQuery) return // their own rules
-    s.emit(Etc.dict1("slotName", spec.name))
   }
 }
 

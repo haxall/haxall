@@ -91,6 +91,14 @@ class ValidateState
     validator.emit(MValidateItem(r, this, args))
   }
 
+  ** Emit a validation item for the current state and rule
+  Void emitRule(ValidateRule rule, Dict args := Etc.dict0)
+  {
+    this.rule = rule
+    emit(args)
+    this.rule = null
+  }
+
   ** Is rule suppressed because an unless rule fired on current value
   internal Bool suppressed(ValidateRule rule)
   {
@@ -98,7 +106,7 @@ class ValidateState
   }
 
   ** Clear fired rules when walk positions on a new value
-  internal Void firedClear() { fired.clear }
+  internal Void reset() { fired.clear }
 
   ** Current slot path in the subject or null if not applicable
   Str? slotPath()

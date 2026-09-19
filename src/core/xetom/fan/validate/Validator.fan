@@ -79,7 +79,7 @@ class Validator
     if (specRef == null)
     {
       state := ValidateState.makeSubject(this, subject, ns.sys.dict)
-      rules.missingSpecRef.check(state)
+      rules.missingSpecRef.emit(state)
       return
     }
 
@@ -88,7 +88,7 @@ class Validator
     if (spec == null)
     {
       state := ValidateState.makeSubject(this, subject, ns.sys.dict)
-      rules.unknownSpecRef.check(state)
+      rules.unknownSpecRef.emit(state)
       return
     }
 
@@ -104,13 +104,8 @@ class Validator
 
   private Void doValidate(ValidateState s)
   {
-    // run rules on current state skipping rules whose unless suppressor fired
-    s.firedClear
-    rules.eachApplicable(s) |rule|
-    {
-      if (s.suppressed(rule)) return
-      rule.check(s)
-    }
+    // run rules on current state
+    run(s)
 
     // dict must be be checked against spec members
     if (s.dict != null)
@@ -118,7 +113,7 @@ class Validator
       // check spec slots
       s.spec.slots.each |slot|
       {
-        doValidateSlot(s, slot, s.dict[slot.name])
+        validateSlot(s, slot, s.dict[slot.name])
       }
 
       // check rest of the dict tags against globals
@@ -126,16 +121,49 @@ class Validator
       s.dict.each |v, n|
       {
         global := globals.get(n, false)
-        if (global != null) doValidateSlot(s, global, v)
+        if (global != null) validateSlot(s, global, v)
       }
     }
   }
 
-  private Void doValidateSlot(ValidateState s, Spec slot, Obj? val)
+  private Void run(ValidateState s)
+  {
+    s.reset
+    rules.each |r|
+    {
+      if (!r.isApplicable(s)) return
+      if (s.suppressed(r)) return
+      r.check(s)
+    }
+  }
+
+  private Void validateSlot(ValidateState s, Spec slot, Obj? val)
   {
     s.push(ValidateStateVal(slot.name, val, slot))
-    doValidate(s)
+    doValidateSlot(s)
     s.pop
+  }
+
+  private Void doValidateSlot(ValidateState s)
+  {
+    // perform intrinsic checks before running all the rules
+    if (isMissingSlot(s)) return rules.missingSlot.emit(s)
+    if (isInvalidType(s)) return rules.invalidType.emit(s)
+
+    // run thru the standard rules
+    doValidate(s)
+  }
+
+  private Bool isMissingSlot(ValidateState s)
+  {
+    if (s.val != null) return false
+    if (s.spec.isMaybe || s.spec.isChoice || s.spec.isQuery) return false
+    return true
+  }
+
+  private Bool isInvalidType(ValidateState s)
+  {
+    return false // TODO
   }
 
 //////////////////////////////////////////////////////////////////////////

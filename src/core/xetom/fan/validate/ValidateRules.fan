@@ -19,47 +19,40 @@ using haystack
 @Js
 const class ValidateRules
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
   ** Build registry from all ValidateRule instances in namespace
   new make(MNamespace ns)
   {
     // build up rule collection
-    acc := ValidateRule[,]
+    list := ValidateRule[,]
+    map  := Str:ValidateRule[:]
     ns.eachInstanceThatIs(ns.spec("sys::ValidateRule")) |x, spec|
     {
       try
       {
         r := ValidateRule.create(ns, x)
-        acc.add(r)
-        switch (r.qname)
-        {
-          case "sys::missingSpecRef": this.missingSpecRef = r
-          case "sys::unknownSpecRef": this.unknownSpecRef = r
-        }
+        list.add(r)
+        map.add(r.qname, r)
       }
       catch (Err e) Console.cur.err("Invalid ValidateRule: $x.id", e)
     }
 
-    // order them by their unless
-    this.rules = order(acc)
+    // order them by their unless, and get special constants
+    this.rules = order(list, map)
+    this.missingSpecRef = map.getChecked("sys::missingSpecRef")
+    this.unknownSpecRef = map.getChecked("sys::unknownSpecRef")
+    this.missingSlot    = map.getChecked("sys::missingSlot")
+    this.invalidType    = map.getChecked("sys::invalidType")
   }
 
-  ** All rules
-  const ValidateRule[] rules
-
-  ** Rule invoked by engine when subject has no spec tag
-  const ValidateRule? missingSpecRef
-
-  ** Rule invoked by engine when subject spec cannot be resolved
-  const ValidateRule? unknownSpecRef
-
-  private static ValidateRule[] order(ValidateRule[] list)
+  private static ValidateRule[] order(ValidateRule[] list, Str:ValidateRule map)
   {
     // first sort by qname for determinism
     list.sort
-
-    // index by qname; an unless not in the namespace is treated as satisfied
-    byQname := Str:ValidateRule[:]
-    list.each |x| { byQname[x.qname] = x }
 
     // add rules in passes so every rule follows the rules its unless
     // references; a pass with no progress means a cycle or self
@@ -72,7 +65,7 @@ const class ValidateRules
       before := remaining.size
       remaining = remaining.exclude |x|
       {
-        if (!x.unless.all |u| { byQname[u.id] == null || added[u.id] != null }) return false
+        if (!x.unless.all |u| { map[u.id] == null || added[u.id] != null }) return false
         acc.add(x)
         added[x.qname] = x
         return true
@@ -87,16 +80,23 @@ const class ValidateRules
     return acc
   }
 
-  ** Iterate the rules applicable to the given state
-  Void eachApplicable(ValidateState s, |ValidateRule| f)
-  {
-    rules.each |r|
-    {
-      if (r.isApplicable(s)) f(r)
-    }
-  }
+//////////////////////////////////////////////////////////////////////////
+// Rules
+//////////////////////////////////////////////////////////////////////////
 
-  ** Debug dump
+  const ValidateRule[] rules
+
+  Void each(|ValidateRule| f) { rules.each(f) }
+
+  internal const ValidateIntrinsicRule missingSpecRef
+  internal const ValidateIntrinsicRule unknownSpecRef
+  internal const ValidateIntrinsicRule missingSlot
+  internal const ValidateIntrinsicRule invalidType
+
+//////////////////////////////////////////////////////////////////////////
+// Debug
+//////////////////////////////////////////////////////////////////////////
+
   Void dump(Console con := Console.cur)
   {
     con.group("ValidateRules [$rules.size]")
