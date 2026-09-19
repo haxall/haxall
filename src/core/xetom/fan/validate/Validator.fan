@@ -109,6 +109,9 @@ class Validator
     // run rules on current state
     run(s)
 
+    // recurse list items as frames typed by the item type
+    if (s.list != null) return validateItems(s)
+
     // dict must be be checked against spec members
     if (s.dict != null)
     {
@@ -141,6 +144,19 @@ class Validator
       if (!r.isApplicable(s)) return
       if (s.suppressed(r)) return
       r.check(s)
+    }
+  }
+
+  ** Validate each list item against the parameterized item type;
+  ** null items are reported by the listNullItem rule at list level
+  private Void validateItems(ValidateState s)
+  {
+    of := s.listOf
+    if (of == null) return
+    ofx := specx(of)
+    s.list.each |v, i|
+    {
+      if (v != null) validateSlot(s, i.toStr, ofx, v)
     }
   }
 

@@ -562,10 +562,14 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "N", ["tags":["a"]], ["sys::underMinSize"])
     verifyEngine(ns, lib, "N", ["tags":["a", "b", "c", "d"]], ["sys::overMaxSize"])
 
-    // list item types and nulls; one item per violation
-    verifyEngine(ns, lib, "N", ["tags":Obj["a", n(3)]], ["sys::listItemType"])
-    verifyEngine(ns, lib, "N", ["tags":Obj[n(1), n(2)]], ["sys::listItemType", "sys::listItemType"])
+    // list items are frames: type errors report invalidType with
+    // dotted item paths; nulls report listNullItem at list level
+    verifyEngine(ns, lib, "N", ["tags":Obj["a", n(3)]], ["sys::invalidType"])
+    verifyEngine(ns, lib, "N", ["tags":Obj[n(1), n(2)]], ["sys::invalidType", "sys::invalidType"])
     verifyEngine(ns, lib, "N", ["tags":Obj?["a", null]], ["sys::listNullItem"])
+    r2 := ns.validate(Etc.dict1("tags", Obj["a", n(3)]), lib.spec("N"))
+    verifyEq(r2.items.first.slot, "tags.1")
+    verifyEq(r2.items.first.val, n(3))
   }
 
   Scalar toEnum(Str key) { Scalar("hx.test.xeto::TestPrintEnum", key) }

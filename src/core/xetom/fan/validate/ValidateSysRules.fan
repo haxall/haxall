@@ -338,37 +338,10 @@ using haystack
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
   {
-    // TODO: replace internal iteration with per-item frames so items
-    // get dotted paths, the full type gate, and per-item ref checks
+    // non-null items are validated as their own frames by the walk
     of := s.listOf
     if (of == null || of.isMaybe) return
     s.list.each |v| { if (v == null) s.emit }
-  }
-}
-
-@Js internal const class ValidateSysListItemType : ValidateRule
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Void onCheck(ValidateState s)
-  {
-    // TODO: replace internal iteration with per-item frames
-    of := s.listOf
-    if (of == null) return
-
-    // memo the specOf hierarchy walk for homogeneous lists
-    Type? lastType := null
-    Spec? lastSpec := null
-    s.list.each |v|
-    {
-      if (v == null) return // listNullItem's check
-      Spec? t
-      if (v is Dict) t = s.ns.specOf(v, false)
-      else if (v.typeof === lastType) t = lastSpec
-      else { lastType = v.typeof; lastSpec = t = s.ns.specOf(v, false) }
-      if (t === of) return
-      if (t == null || !t.isa(of))
-        s.emit(Etc.dict1("valType", t?.qname ?: v.typeof.qname))
-    }
   }
 }
 
