@@ -137,19 +137,24 @@ const final class MChoice : SpecChoice
   ** Validate given selections for an instance based on maybe/multi-choice flags
   static Void validate(Spec spec, Spec[] selections, |Str| onErr)
   {
-    // if exactly one selection - always valid
-    if (selections.size == 1) return
-
-    // if zero selections - only valid if maybe type
     if (selections.size == 0)
     {
-      if (maybe(spec)) return
-      onErr("Missing required choice '$spec.type'")
+      if (!maybe(spec)) onErr("Missing required choice '$spec.type'")
       return
     }
 
+    if (isConflict(spec, selections))
+      onErr("Conflicting choice '$spec.type': " + selections.join(", ") { it.name })
+  }
+
+  ** Return if multiple selections are an illegal combination
+  static Bool isConflict(Spec spec, Spec[] selections)
+  {
+    // zero or one selection is never a conflict
+    if (selections.size <= 1) return false
+
     // multiple choices - only valid if multiChoice
-    if (multiChoice(spec)) return
+    if (multiChoice(spec)) return false
 
     // TODO: allow air for other gases such as "air co2" for concentrations
     if (selections.size == 2)
@@ -162,11 +167,11 @@ const final class MChoice : SpecChoice
         otherIndex := airIndex == 0 ? 1 : 0
         other := selections[otherIndex]
         for (Spec? x := other; x != null; x = x.base)
-          if (x.qname == "ph::Gas") return
+          if (x.qname == "ph::Gas") return false
       }
     }
 
-    onErr("Conflicting choice '$spec.type': " + selections.join(", ") { it.name })
+    return true
   }
 
   ** Return if instance has all the given marker tags of the given choice

@@ -148,6 +148,9 @@ class Validator
 
   private Void doValidateSlot(ValidateState s)
   {
+    // choice slots are validated against the parent dict's markers
+    if (s.spec.isChoice) return run(s)
+
     // perform intrinsic checks before running all the rules
     if (isMissingSlot(s)) return rules.missingSlot.emit(s)
     if (s.val == null) return // absent maybe slot
@@ -184,6 +187,10 @@ class Validator
       // otherwise all non-haystack scalars must map to string
       return valType === strSpec
     }
+
+    // a dict without a spec tag is checked as a standard dict
+    // against the declared slot type
+    if (s.dict != null && s.dict.missing("spec")) return true
 
     // if it fits by direct nominal typing
     if (valType.isa(type)) return true

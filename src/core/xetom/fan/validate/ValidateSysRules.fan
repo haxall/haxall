@@ -287,3 +287,34 @@ using haystack
     if (size != null && size > max) s.emit
   }
 }
+
+@Js internal const class ValidateSysMissingChoice : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    slot := s.spec
+    if (!slot.isChoice || slot.isMaybe) return
+    dict := s.parentDict
+    if (dict == null) return
+    acc := Spec[,]
+    MChoice.findSelections((CNamespace)s.ns, slot, dict, acc)
+    if (acc.isEmpty) s.emit(Etc.dict1("choice", slot.type.id))
+  }
+}
+
+@Js internal const class ValidateSysConflictingChoice : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    slot := s.spec
+    if (!slot.isChoice) return
+    dict := s.parentDict
+    if (dict == null) return
+    acc := Spec[,]
+    MChoice.findSelections((CNamespace)s.ns, slot, dict, acc)
+    if (MChoice.isConflict(slot, acc))
+      s.emit(Etc.dictx("choice", slot.type.id, "selections", acc.join(", ") { it.name }))
+  }
+}

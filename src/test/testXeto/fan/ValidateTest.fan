@@ -156,6 +156,56 @@ class ValidateTest : AbstractXetoTest
     verifyEq(r.items.size, 0)
     r = ns.validate("foo", ns.spec("sys::Date"))
     verifyEq(r.items.join(",") { it.rule.id }, "sys::invalidType")
+
+    // nested dict without spec tag checked as standard dict; item
+    // positioned with dotted slot path
+    lib2 := ns.compileTempLib("Parent: Dict { child: Child }\nChild: Dict { num: Number? <maxVal:10> }")
+    r = ns.validate(Etc.dict1("child", Etc.dict1("num", n(99))), lib2.spec("Parent"))
+    verifyEq(r.items.join(",") { it.rule.id }, "sys::overMaxVal")
+    verifyEq(r.items.first.slot, "child.num")
+    r = ns.validate(Etc.dict1("child", Etc.dict1("num", n(5))), lib2.spec("Parent"))
+    verifyEq(r.items.size, 0)
+  }
+
+  Void testEngineChoices()
+  {
+    ns := nsTest
+    lib := ns.compileTempLib(
+      Str<|Foo: Dict {
+             a: DuctSection
+             b: PipeSection?
+             c: HeatingProcess <multiChoice>
+             d: Fluid?
+           }
+           |>)
+
+    // ok; multiChoice allows both heating processes
+    verifyEngine(ns, lib, "Foo", ["discharge":m, "hotWaterHeating":m, "naturalGasHeating":m], [,])
+
+    // missing required for a and c; maybe b/d not required
+    verifyEngine(ns, lib, "Foo", [:], ["sys::missingChoice", "sys::missingChoice"])
+
+    // conflicting duct section
+    verifyEngine(ns, lib, "Foo", ["discharge":m, "return":m, "elecHeating":m, "hotWaterHeating":m],
+      ["sys::conflictingChoice"])
+
+    // air with a gas is the allowed special case; air with water conflicts
+    verifyEngine(ns, lib, "Foo", ["discharge":m, "elecHeating":m, "air":m, "co2":m], [,])
+    verifyEngine(ns, lib, "Foo", ["discharge":m, "elecHeating":m, "air":m, "water":m],
+      ["sys::conflictingChoice"])
+
+    // item detail for missing choice
+    r := ns.validate(Etc.dict1("elecHeating", m), lib.spec("Foo"))
+    item := r.items.first
+    verifyEq(item.rule, Ref("sys::missingChoice"))
+    verifyEq(item.slot, "a")
+    verifyEq(item.msg, "Missing required choice 'ph::DuctSection'")
+
+    // conflict msg detail
+    r = ns.validate(Etc.makeDict(Str:Obj["discharge":m, "return":m, "elecHeating":m]), lib.spec("Foo"))
+    conflict := r.items.find { it.rule == Ref("sys::conflictingChoice") }
+    verifyEq(conflict.slot, "a")
+    verifyEq(conflict.msg, "Conflicting choice 'ph::DuctSection': DischargeDuctSection, ReturnDuctSection")
   }
 
   Void testEngineScalars()

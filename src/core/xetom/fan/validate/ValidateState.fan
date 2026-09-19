@@ -51,6 +51,9 @@ class ValidateState
 // Subject
 //////////////////////////////////////////////////////////////////////////
 
+  ** Namespace of validation run
+  const Namespace ns
+
   ** Subject
   const Dict subject
 
@@ -85,6 +88,13 @@ class ValidateState
 
   ** Fidelity level of this validation run
   XetoFidelity fidelity() { validator.fidelity }
+
+  ** Enclosing dict of the current slot value or null at subject level
+  Dict? parentDict()
+  {
+    if (stack.isEmpty) return null
+    return stack.size == 1 ? root.dict : stack[-2].dict
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
@@ -140,7 +150,6 @@ class ValidateState
 //////////////////////////////////////////////////////////////////////////
 
   private Validator validator
-  private const Namespace ns
   private const ValidateStateVal root
   private ValidateStateVal[] stack := [,]
   private ValidateStateVal cur
