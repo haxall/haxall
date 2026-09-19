@@ -146,10 +146,11 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "Foo", ["i":"5"], ["sys::invalidType"])
     verifyEngine(ns, lib, "Foo", ["i":"5"], ["sys::invalidType"], hay)
 
-    // MultiRef accepts Ref or list of Refs
-    verifyEngine(ns, lib, "Refs", ["refs":Ref("a")], [,])
-    verifyEngine(ns, lib, "Refs", ["refs":[Ref("a"), Ref("b")]], [,])
-    verifyEngine(ns, lib, "Refs", ["refs":Obj["x"]], ["sys::invalidType"])
+    // MultiRef accepts Ref or list of Refs (ignoreRefs: type check only)
+    ignore := Etc.dict1("ignoreRefs", Marker.val)
+    verifyEngine(ns, lib, "Refs", ["refs":Ref("a")], [,], ignore)
+    verifyEngine(ns, lib, "Refs", ["refs":[Ref("a"), Ref("b")]], [,], ignore)
+    verifyEngine(ns, lib, "Refs", ["refs":Obj["x"]], ["sys::invalidType"], ignore)
 
     // bare value validation
     r := ns.validate(Date.today, ns.spec("sys::Date"))
@@ -206,6 +207,79 @@ class ValidateTest : AbstractXetoTest
     conflict := r.items.find { it.rule == Ref("sys::conflictingChoice") }
     verifyEq(conflict.slot, "a")
     verifyEq(conflict.msg, "Conflicting choice 'ph::DuctSection': DischargeDuctSection, ReturnDuctSection")
+  }
+
+  Void testEngineRefs()
+  {
+    ns := nsTest
+    lib := ns.compileTempLib(
+      Str<|Foo: Dict {
+             a: Ref
+             b: Ref?
+             c: Ref<of:Bar>
+             d: MultiRef<of:Bar>
+             e: MultiRef?<of:Bar>
+             equipRef: Ref?<of:Equip>
+           }
+           Bar: Dict {}
+           |>)
+
+    refFoo  := Ref("to-foo-1")
+    refBar  := Ref("to-bar-1")
+    refBar2 := Ref("to-bar-2")
+    refEq1  := Ref("to-eq-1")
+    refEqX  := Ref("to-eq-x")
+
+    recs[refFoo]  = Etc.makeDict(["id":refFoo,  "spec":Ref("temp::Foo")])
+    recs[refBar]  = Etc.makeDict(["id":refBar,  "spec":Ref("temp::Bar")])
+    recs[refBar2] = Etc.makeDict(["id":refBar2, "spec":Ref("temp::Bar")])
+    recs[refEq1]  = Etc.makeDict(["id":refEq1,  "spec":Ref("ph::AcElecMeter")])
+    recs[refEqX]  = Etc.makeDict(["id":refEqX,  "spec":Ref("bad.lib::BadSpec")])
+
+    initContext(lib).asCur |cx|
+    {
+      // ok including multiref as single Ref and Ref list
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar], [,])
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":[refBar, refBar2]], [,])
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "equipRef":refEq1], [,])
+
+      // unresolved refs; suppresses target checks on same value
+      verifyEngine(ns, lib, "Foo", ["a":Ref("to-err-1"), "c":refBar, "d":refBar],
+        ["sys::unresolvedRef"])
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":[refBar, Ref("to-err-2")]],
+        ["sys::unresolvedRef"])
+
+      // wrong target types for Ref, MultiRef list, MultiRef single
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refFoo, "d":refBar],
+        ["sys::refTargetType"])
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":[refBar, refFoo]],
+        ["sys::refTargetType"])
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "e":refFoo],
+        ["sys::refTargetType"])
+
+      // target as lib instance
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":Ref("hx.test.xeto::refs-a"), "d":refBar],
+        ["sys::refTargetType"])
+
+      // ref to a spec: target is Spec not Equip
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "equipRef":Ref("ph::Site")],
+        ["sys::refTargetType"])
+
+      // target spec not found
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "equipRef":refEqX],
+        ["sys::refTargetSpec"])
+
+      // ignoreRefs skips all target checking
+      verifyEngine(ns, lib, "Foo", ["a":Ref("to-err-3"), "c":refFoo, "d":refBar], [,],
+        Etc.dict1("ignoreRefs", Marker.val))
+
+      // item details
+      r := ns.validate(Etc.makeDict(Str:Obj["a":refFoo, "c":refFoo, "d":refBar]), lib.spec("Foo"))
+      item := r.items.first
+      verifyEq(item.rule, Ref("sys::refTargetType"))
+      verifyEq(item.slot, "c")
+      verifyEq(item.msg, "Ref target must be '${lib.name}::Bar', target is '${lib.name}::Foo'")
+    }
   }
 
   Void testEngineScalars()
@@ -366,14 +440,16 @@ class ValidateTest : AbstractXetoTest
   ** fidelity.  Expect zero items when ok, else single invalidType.
   Void verifyScalarVal(Namespace ns, Lib lib, Str slot, Obj val, Bool fullOk, Bool hayOk)
   {
-    hay  := Etc.dict1("haystack", Marker.val)
+    // type conformance only: ignoreRefs so unresolved refs don't report
+    full := Etc.dict1("ignoreRefs", Marker.val)
+    hay  := Etc.dict2("haystack", Marker.val, "ignoreRefs", Marker.val)
     foo  := lib.spec("Foo")
     type := foo.slot(slot).type
     dict := Etc.makeDict(Str:Obj[slot: val])
 
-    verifyScalarReport("bare full $slot", ns.validate(val, type),       fullOk)
+    verifyScalarReport("bare full $slot", ns.validate(val, type, full), fullOk)
     verifyScalarReport("bare hay $slot",  ns.validate(val, type, hay),  hayOk)
-    verifyScalarReport("slot full $slot", ns.validate(dict, foo),       fullOk)
+    verifyScalarReport("slot full $slot", ns.validate(dict, foo, full), fullOk)
     verifyScalarReport("slot hay $slot",  ns.validate(dict, foo, hay),  hayOk)
   }
 

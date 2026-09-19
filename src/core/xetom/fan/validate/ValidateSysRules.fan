@@ -318,3 +318,62 @@ using haystack
       s.emit(Etc.dictx("choice", slot.type.id, "selections", acc.join(", ") { it.name }))
   }
 }
+
+@Js internal const class ValidateSysUnresolvedRef : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    s.refs.each |x|
+    {
+      if (x.target == null) s.emit(Etc.dict1("ref", x.ref))
+    }
+  }
+}
+
+@Js internal const class ValidateSysRefTargetSpec : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    of := s.spec.of(false)
+    if (of == null) return
+    s.refs.each |x|
+    {
+      if (x.target == null) return // unresolvedRef's check
+
+      // target spec tag must be present and resolvable; temp libs
+      // are not in the namespace so let them fall thru to type check
+      specRef := x.target["spec"] as Ref
+      if (specRef == null) return s.emit(Etc.dict1("ref", x.ref))
+      if (specRef.id == of.qname) return
+      if (s.ns.spec(specRef.id, false) == null && !specRef.id.startsWith("temp"))
+        s.emit(Etc.dict1("ref", x.ref))
+    }
+  }
+}
+
+@Js internal const class ValidateSysRefTargetType : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    of := s.spec.of(false)
+    if (of == null) return
+    s.refs.each |x|
+    {
+      if (x.target == null) return // unresolvedRef's check
+
+      // short circuit if qnames match exactly (useful for testing too)
+      specRef := x.target["spec"] as Ref
+      if (specRef == null) return // refTargetSpec's check
+      if (specRef.id == of.qname) return
+
+      // check target type; unresolvable temp lib spec is a mismatch
+      targetSpec := s.ns.spec(specRef.id, false)
+      if (targetSpec == null && !specRef.id.startsWith("temp")) return // refTargetSpec's
+      if (targetSpec == null || !targetSpec.isa(of))
+        s.emit(Etc.dictx("ref", x.ref, "targetSpec", specRef))
+    }
+  }
+}

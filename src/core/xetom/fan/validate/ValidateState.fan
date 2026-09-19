@@ -30,7 +30,7 @@ class ValidateState
     this.reflect     = ns.reflect(subject, spec)
     this.subjectSpec = spec
     this.loc         = loc
-    this.root        = ValidateStateVal(ns, null, subject, spec)
+    this.root        = ValidateStateVal(validator, null, subject, spec)
     this.cur         = root
   }
 
@@ -43,7 +43,7 @@ class ValidateState
     this.reflect     = ns.reflect(subject, spec)
     this.subjectSpec = spec
     this.loc         = loc
-    this.root        = ValidateStateVal(ns, null, val, spec)
+    this.root        = ValidateStateVal(validator, null, val, spec)
     this.cur         = root
   }
 
@@ -95,6 +95,11 @@ class ValidateState
     if (stack.isEmpty) return null
     return stack.size == 1 ? root.dict : stack[-2].dict
   }
+
+  ** Refs of the current Ref or MultiRef value paired with their
+  ** resolved targets.  Empty when the value is not refs, when
+  ** positioned on the id slot, or when ignoreRefs is opted in.
+  ValidateRef[] refs() { cur.refs }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
@@ -158,30 +163,55 @@ class ValidateState
 }
 
 **************************************************************************
+** ValidateRef
+**************************************************************************
+
+** ValidateRef pairs a ref value with its resolved target
+@Js
+const class ValidateRef
+{
+  internal new make(Ref ref, Dict? target)
+  {
+    this.ref    = ref
+    this.target = target
+  }
+
+  const Ref ref       // ref value
+  const Dict? target  // resolved target or null if unresolved
+
+  override Str toStr() { ref.toStr }
+}
+
+**************************************************************************
 ** ValidateStateVal
 **************************************************************************
 
 @Js
 internal const class ValidateStateVal
 {
-  new make(Namespace ns, Str? name, Obj? val, Spec spec)
+  new make(Validator validator, Str? name, Obj? val, Spec spec)
   {
     this.name    = name
     this.val     = val
     this.spec    = spec
-    this.valType = ns.specOf(val, false)
-    this.dict    = val as Dict
+    this.valType = validator.ns.specOf(val, false)
+    this.refs    = validator.resolveRefs(spec, val)
+
+    // specific value types
+    this.dict = val as Dict
     if (dict == null)
     {
       this.num = val as Number
     }
+
   }
 
-  const Str? name      // slot name or null for root subject
-  const Obj? val       // current value
-  const Dict? dict     // val as Dict
-  const Number? num    // val as Number
-  const Spec spec      // current value spec
-  const Spec? valType  // actual type of val or null if unmapped
+  const Str? name           // slot name or null for root subject
+  const Obj? val            // current value
+  const Dict? dict          // val as Dict
+  const Number? num         // val as Number
+  const Spec spec           // current value spec
+  const Spec? valType       // actual type of val or null if unmapped
+  const ValidateRef[] refs  // resolved ref or ref[]
 }
 

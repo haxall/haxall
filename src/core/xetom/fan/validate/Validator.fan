@@ -11,9 +11,7 @@ using xeto
 using haystack
 
 **
-** Validator is the new validation engine designed to replace Fitter.
-** Skeleton: the walk and rule dispatch are scaffolded end to end with
-** most checks stubbed; overMaxVal is implemented as the tracer.
+** Xeto validation engine
 **
 @Js
 class Validator
@@ -141,7 +139,7 @@ class Validator
 
   private Void validateSlot(ValidateState s, Spec slot, Obj? val)
   {
-    s.push(ValidateStateVal(ns, slot.name, val, slot))
+    s.push(ValidateStateVal(this, slot.name, val, slot))
     doValidateSlot(s)
     s.pop
   }
@@ -222,6 +220,40 @@ class Validator
     return x
   }
 
+  ** Resolve ref target once per validation run
+  internal ValidateRef resolveRef(Ref ref)
+  {
+    x := refCache[ref.id]
+    if (x == null)
+    {
+      Dict? target
+      if (ref.id.contains("::"))
+      {
+        target = (Dict?)ns.spec(ref.id, false) ?: ns.instance(ref.id, false)
+      }
+      else
+      {
+        target = cx.xetoReadById(ref)
+      }
+      refCache[ref.id] = x = ValidateRef(ref, target)
+    }
+    return x
+  }
+
+  ** Map value to list of ValidateRef
+  internal ValidateRef[] resolveRefs(Spec spec, Obj? v)
+  {
+    if (ignoreRefs || spec.name == "id") return ValidateRef#.emptyList
+    if (v is Ref) return [resolveRef(v)]
+    if (v is List && spec.isMultiRef)
+    {
+      acc := ValidateRef[,]
+      ((List)v).each |x| { if (x is Ref) acc.add(resolveRef(x)) }
+      return acc
+    }
+    return ValidateRef#.emptyList
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
@@ -237,5 +269,6 @@ class Validator
   XetoContext cx { private set }
   private MValidateItem[] items := [,]
   private Str:Spec specxCache := [:]
+  private Str:ValidateRef refCache := [:]
 }
 
