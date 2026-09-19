@@ -10,11 +10,9 @@ using util
 using xeto
 using haystack
 
-@Js internal const class ValidateSysTodo : ValidateRule
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Void onCheck(ValidateState s) {}
-}
+// One class per sys ValidateRule instance.  Class names are derived
+// mechanically from the rule qname by ValidateRule.create.  So keep
+// this file in sync with sys validation.xeto.
 
 **************************************************************************
 ** Intrinsic Rules (handled by Validator itself)
@@ -54,7 +52,7 @@ using haystack
 }
 
 **************************************************************************
-** Applied Rules
+** Number Constraints
 **************************************************************************
 
 @Js internal const class ValidateSysOverMaxVal : ValidateRule
@@ -161,6 +159,10 @@ using haystack
   private Void emitReason(ValidateState s, Str reason) { s.emit(Etc.dict1("reason", reason)) }
 }
 
+**************************************************************************
+** Scalar Constraints
+**************************************************************************
+
 @Js internal const class ValidateSysPatternMismatch : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
@@ -236,6 +238,10 @@ using haystack
   }
 }
 
+**************************************************************************
+** Size Constraints
+**************************************************************************
+
 @Js internal const class ValidateSysNonEmpty : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
@@ -288,6 +294,10 @@ using haystack
   }
 }
 
+**************************************************************************
+** Choices
+**************************************************************************
+
 @Js internal const class ValidateSysMissingChoice : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
@@ -318,6 +328,53 @@ using haystack
       s.emit(Etc.dictx("choice", slot.type.id, "selections", acc.join(", ") { it.name }))
   }
 }
+
+**************************************************************************
+** Lists
+**************************************************************************
+
+@Js internal const class ValidateSysListNullItem : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    // TODO: replace internal iteration with per-item frames so items
+    // get dotted paths, the full type gate, and per-item ref checks
+    of := s.listOf
+    if (of == null || of.isMaybe) return
+    s.list.each |v| { if (v == null) s.emit }
+  }
+}
+
+@Js internal const class ValidateSysListItemType : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    // TODO: replace internal iteration with per-item frames
+    of := s.listOf
+    if (of == null) return
+
+    // memo the specOf hierarchy walk for homogeneous lists
+    Type? lastType := null
+    Spec? lastSpec := null
+    s.list.each |v|
+    {
+      if (v == null) return // listNullItem's check
+      Spec? t
+      if (v is Dict) t = s.ns.specOf(v, false)
+      else if (v.typeof === lastType) t = lastSpec
+      else { lastType = v.typeof; lastSpec = t = s.ns.specOf(v, false) }
+      if (t === of) return
+      if (t == null || !t.isa(of))
+        s.emit(Etc.dict1("valType", t?.qname ?: v.typeof.qname))
+    }
+  }
+}
+
+**************************************************************************
+** Refs
+**************************************************************************
 
 @Js internal const class ValidateSysUnresolvedRef : ValidateRule
 {
@@ -378,6 +435,10 @@ using haystack
   }
 }
 
+**************************************************************************
+** Queries
+**************************************************************************
+
 @Js internal const class ValidateSysMissingQuery : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
@@ -433,5 +494,21 @@ using haystack
     }
     return s.toStr
   }
+}
+
+**************************************************************************
+** TODO
+**************************************************************************
+
+@Js internal const class ValidateSysSugarConstraint : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s) {}
+}
+
+@Js internal const class ValidateSysListNamedItem : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s) {}
 }
 

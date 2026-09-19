@@ -43,6 +43,7 @@ const class MSys
     this.time       = x.get("Time")
     this.dateTime   = x.get("DateTime")
     this.ref        = x.get("Ref")
+    this.multiRef   = x.get("MultiRef")
     this.enum       = x.get("Enum")
     this.and        = x.get("And")
     this.or         = x.get("Or")
@@ -74,6 +75,7 @@ const class MSys
   const XetoSpec time
   const XetoSpec dateTime
   const XetoSpec ref
+  const XetoSpec multiRef
   const XetoSpec enum
   const XetoSpec and
   const XetoSpec or

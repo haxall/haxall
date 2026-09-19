@@ -33,6 +33,7 @@ class Validator
     this.graph        = opts.has("graph")
     this.strSpec      = ns.sys.str
     this.numberSpec   = ns.sys.number
+    this.multiRefSpec = ns.sys.multiRef
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -114,15 +115,20 @@ class Validator
       // check spec slots
       s.spec.slots.each |slot|
       {
-        validateSlot(s, slot, s.dict[slot.name])
+        validateSlot(s, slot.name, slot, s.dict[slot.name])
       }
 
-      // check rest of the dict tags against globals
-      globals := s.spec.globals
+      // check rest of the dict tags: members chain resolves globals
+      // after slots; unknown tags with ref values get their targets
+      // checked for existence.  The id and spec tag names are
+      // reserved and exempt from unknown ref checking.
       s.dict.each |v, n|
       {
-        global := globals.get(n, false)
-        if (global != null) validateSlot(s, global, v)
+        if (s.spec.slots.has(n)) return // walked as declared slot above
+        member := s.spec.members.get(n, false)
+        if (member != null) return validateSlot(s, member.name, member, v)
+        if (isUnknownRefs(v) && n != "id" && n != "spec")
+          validateSlot(s, n, v is List ? multiRefSpec : ns.sys.ref, v)
       }
     }
   }
@@ -138,9 +144,17 @@ class Validator
     }
   }
 
-  private Void validateSlot(ValidateState s, Spec slot, Obj? val)
+  ** Is unknown tag value a Ref or list of Refs to target check
+  private static Bool isUnknownRefs(Obj? v)
   {
-    s.push(ValidateStateVal(this, slot.name, val, slot))
+    if (v is Ref) return true
+    list := v as List
+    return list != null && !list.isEmpty && list.all |x| { x is Ref }
+  }
+
+  private Void validateSlot(ValidateState s, Str name, Spec spec, Obj? val)
+  {
+    s.push(ValidateStateVal(this, name, val, spec))
     doValidateSlot(s)
     s.pop
   }
@@ -332,6 +346,7 @@ class Validator
   const Dict opts                 // raw options for engine plumbing
   const Spec strSpec              // spec for sys::Str
   const Spec numberSpec           // spec for sys::Number
+  const Spec multiRefSpec         // spec for sys::MultiRef
   XetoContext cx { private set }
   private MValidateItem[] items := [,]
   private Str:Spec specxCache := [:]

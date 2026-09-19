@@ -23,10 +23,7 @@ abstract const class ValidateRule
     qname := init.id.id
     colon := qname.index(":")
     type  := StrBuf(14 + qname.size - colon).add("ValidateSys").addChar(qname[colon+2].upper).addRange(qname, colon+3..-1)
-    try
-      return ValidateRule#.pod.type(type.toStr).make([init])
-    catch (UnknownTypeErr e)
-      return ValidateSysTodo(init) // TODO
+    return ValidateRule#.pod.type(type.toStr).make([init])
   }
 
   protected new make(ValidateRuleInit init)

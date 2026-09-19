@@ -269,6 +269,19 @@ class ValidateTest : AbstractXetoTest
       verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "equipRef":refEqX],
         ["sys::refTargetSpec"])
 
+      // unknown tags with ref values get existence checks; id/spec skipped
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "xref":refBar2], [,])
+      r2 := ns.validate(Etc.makeDict(Str:Obj["a":refFoo, "c":refBar, "d":refBar, "xref":Ref("to-err-9")]), lib.spec("Foo"))
+      verifyEq(r2.items.join(",") { it.rule.id }, "sys::unresolvedRef")
+      verifyEq(r2.items.first.slot, "xref")
+
+      // unknown tags with ref lists resolve their items too
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "xrefs":[refBar, refBar2]], [,])
+      r2 = ns.validate(Etc.makeDict(Str:Obj["a":refFoo, "c":refBar, "d":refBar, "xrefs":[refBar, Ref("to-err-8")]]), lib.spec("Foo"))
+      verifyEq(r2.items.join(",") { it.rule.id }, "sys::unresolvedRef")
+      verifyEq(r2.items.first.slot, "xrefs")
+      verifyEngine(ns, lib, "Foo", ["a":refFoo, "c":refBar, "d":refBar, "notRefs":["x", "y"]], [,])
+
       // ignoreRefs skips all target checking
       verifyEngine(ns, lib, "Foo", ["a":Ref("to-err-3"), "c":refFoo, "d":refBar], [,],
         Etc.dict1("ignoreRefs", Marker.val))
@@ -548,6 +561,11 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "N", ["tags":Str[,]], ["sys::nonEmpty", "sys::underMinSize"])
     verifyEngine(ns, lib, "N", ["tags":["a"]], ["sys::underMinSize"])
     verifyEngine(ns, lib, "N", ["tags":["a", "b", "c", "d"]], ["sys::overMaxSize"])
+
+    // list item types and nulls; one item per violation
+    verifyEngine(ns, lib, "N", ["tags":Obj["a", n(3)]], ["sys::listItemType"])
+    verifyEngine(ns, lib, "N", ["tags":Obj[n(1), n(2)]], ["sys::listItemType", "sys::listItemType"])
+    verifyEngine(ns, lib, "N", ["tags":Obj?["a", null]], ["sys::listNullItem"])
   }
 
   Scalar toEnum(Str key) { Scalar("hx.test.xeto::TestPrintEnum", key) }

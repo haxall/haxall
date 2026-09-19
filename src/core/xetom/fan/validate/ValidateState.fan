@@ -86,6 +86,12 @@ class ValidateState
   ** Actual type of current value or null if unmapped
   Spec? valType() { cur.valType }
 
+  ** Current value as list when positioned on a list typed slot
+  Obj?[]? list() { cur.list }
+
+  ** Parameterized item type when positioned on a list typed slot
+  Spec? listOf() { cur.listOf }
+
   ** Fidelity level of this validation run
   XetoFidelity fidelity() { validator.fidelity }
 
@@ -227,8 +233,12 @@ internal const class ValidateStateVal
     if (dict == null)
     {
       this.num = val as Number
+      if (spec.type.isList)
+      {
+        this.list = val as List
+        if (list != null) this.listOf = XetoUtil.ofType(spec, false)
+      }
     }
-
   }
 
   const Str? name           // slot name or null for root subject
@@ -238,5 +248,7 @@ internal const class ValidateStateVal
   const Spec spec           // current value spec
   const Spec? valType       // actual type of val or null if unmapped
   const ValidateRef[] refs  // resolved ref or ref[]
+  const Obj?[]? list        // val as List when spec is a list type
+  const Spec? listOf        // parameterized item type when list
 }
 
