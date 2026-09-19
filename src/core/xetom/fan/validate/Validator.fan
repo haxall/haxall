@@ -88,7 +88,7 @@ class Validator
     if (spec == null)
     {
       state := ValidateState.makeSubject(this, subject, ns.sys.dict)
-      rules.unknownSpecRef.emit(state)
+      rules.unknownSpecRef.emit(state, Etc.dict1("spec", specRef))
       return
     }
 
@@ -139,7 +139,7 @@ class Validator
 
   private Void validateSlot(ValidateState s, Spec slot, Obj? val)
   {
-    s.push(ValidateStateVal(slot.name, val, slot))
+    s.push(ValidateStateVal(ns, slot.name, val, slot))
     doValidateSlot(s)
     s.pop
   }

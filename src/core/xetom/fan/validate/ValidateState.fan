@@ -30,7 +30,7 @@ class ValidateState
     this.reflect     = ns.reflect(subject, spec)
     this.subjectSpec = spec
     this.loc         = loc
-    this.root        = ValidateStateVal(null, subject, spec)
+    this.root        = ValidateStateVal(ns, null, subject, spec)
     this.cur         = root
   }
 
@@ -43,7 +43,7 @@ class ValidateState
     this.reflect     = ns.reflect(subject, spec)
     this.subjectSpec = spec
     this.loc         = loc
-    this.root        = ValidateStateVal(null, val, spec)
+    this.root        = ValidateStateVal(ns, null, val, spec)
     this.cur         = root
   }
 
@@ -76,8 +76,12 @@ class ValidateState
   ** Current value as number
   Number? num() { cur.num }
 
-  ** Current value or null if at the subject level
+  ** Spec of the current position: the subject spec at subject
+  ** level, or the member spec when positioned on a slot value
   Spec spec() { cur.spec }
+
+  ** Actual type of current value or null if unmapped
+  Spec? valType() { cur.valType }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
@@ -148,22 +152,24 @@ class ValidateState
 @Js
 internal const class ValidateStateVal
 {
-  new make(Str? name, Obj? val, Spec spec)
+  new make(Namespace ns, Str? name, Obj? val, Spec spec)
   {
-    this.name = name
-    this.val  = val
-    this.spec = spec
-    this.dict = val as Dict
+    this.name    = name
+    this.val     = val
+    this.spec    = spec
+    this.valType = ns.specOf(val, false)
+    this.dict    = val as Dict
     if (dict == null)
     {
       this.num = val as Number
     }
   }
 
-  const Str? name     // slot name or null for root subject
-  const Obj? val      // current value
-  const Dict? dict    // val as Dict
-  const Number? num   // val as Number
-  const Spec spec     // current value spec
+  const Str? name      // slot name or null for root subject
+  const Obj? val       // current value
+  const Dict? dict     // val as Dict
+  const Number? num    // val as Number
+  const Spec spec      // current value spec
+  const Spec? valType  // actual type of val or null if unmapped
 }
 

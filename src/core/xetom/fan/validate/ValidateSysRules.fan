@@ -25,7 +25,7 @@ using haystack
   new make(ValidateRuleInit init) : super(init) {}
   override final Bool isApplicable(ValidateState s) { false }
   override final Void onCheck(ValidateState s) { throw Err("Not used") }
-  Void emit(ValidateState s) { s.emitRule(this) }
+  Void emit(ValidateState s, Dict args := Etc.dict0) { s.emitRule(this, args) }
 }
 
 @Js internal const class ValidateSysMissingSpecRef : ValidateIntrinsicRule
@@ -60,7 +60,7 @@ using haystack
     if (s.num == null) return
     max := s.spec.meta["maxVal"] as Number
     if (max == null) return
-    if (s.num > max) s.emit(Etc.dict1("maxVal", max))
+    if (s.num > max) s.emit
   }
 }
 
@@ -72,7 +72,7 @@ using haystack
     if (s.num == null) return
     min := s.spec.meta["minVal"] as Number
     if (min == null) return
-    if (s.num < min) s.emit(Etc.dict1("minVal", min))
+    if (s.num < min) s.emit
   }
 }
 
@@ -84,7 +84,7 @@ using haystack
     if (s.num == null) return
     min := s.spec.meta["minVal"] as Number
     if (min?.unit != null && min.unit != s.num.unit)
-      s.emit(Etc.dict1("unit", min.unit.toStr))
+      s.emit
   }
 }
 
@@ -96,7 +96,7 @@ using haystack
     if (s.num == null) return
     max := s.spec.meta["maxVal"] as Number
     if (max?.unit != null && max.unit != s.num.unit)
-      s.emit(Etc.dict1("unit", max.unit.toStr))
+      s.emit
   }
 }
 

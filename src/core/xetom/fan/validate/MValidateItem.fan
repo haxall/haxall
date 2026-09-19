@@ -27,12 +27,28 @@ const class MValidateItem : ValidateItem
 
   private Str? macroResolve(Str n, ValidateRule r, ValidateState s, Dict args)
   {
+    // state specials
     switch (n)
     {
-      case "val":  return val?.toStr
-      case "slot": return slot
+      case "val":     return val?.toStr
+      case "slot":    return slot
+      case "type":    return s.spec.type.qname
+      case "valType": return s.valType?.qname ?: val?.typeof?.qname
+      case "size":    return valSize
     }
-    return args.get(n)?.toStr
+
+    // rule supplied args, then fall thru to spec effective meta
+    // so templates can reference constraints such as $minVal
+    v := args.get(n) ?: s.spec.meta.get(n)
+    return v?.toStr
+  }
+
+  ** Size of current value for Str/List or null
+  private Str? valSize()
+  {
+    if (val is Str)  return ((Str)val).size.toStr
+    if (val is List) return ((List)val).size.toStr
+    return null
   }
 
   override const Ref rule
