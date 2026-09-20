@@ -500,6 +500,58 @@ class AxonTest : AbstractAxonTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Validate function
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testValidate()
+  {
+    ns := initNamespace(["ph", "hx.test.xeto"])
+
+    // bare values
+    verifyValidateFunc(Str<|validate(123, Number)|>, Str[,])
+    verifyValidateFunc(Str<|validate("bad", Number)|>, ["null sys::invalidType"])
+
+    // explicit spec; test ns mixes newSlot into ph::Site
+    verifyValidateFunc(Str<|validate({id:@x, site, newSlot:"x"}, Site, {ignoreRefs})|>, Str[,])
+    verifyValidateFunc(Str<|validate({id:@x}, Site)|>, [
+      "site sys::missingSlot",
+      "newSlot sys::missingSlot"])
+
+    // spec derived from spec tag; missing tag fails fast
+    verifyValidateFunc(Str<|validate({id:@x, spec:@ph::Site, site, newSlot:"x"}, null, {ignoreRefs})|>, Str[,])
+    verifyValidateFunc(Str<|validate({foo})|>, ["null sys::missingSpecRef"])
+
+    // batch over committed recs resolves ref targets thru folio
+    site := addRec(["spec":Ref("ph::Site"), "site":m, "newSlot":"x"])
+    ahu  := addRec(["spec":Ref("ph::Ahu"), "dis":"AHU", "ahu":m, "equip":m, "siteRef":site.id])
+    bad  := addRec(["spec":Ref("ph::Ahu"), "dis":"Bad", "equip":m, "siteRef":site.id])
+    grid := (Grid)eval("readAll(site or equip).validate")
+    verifyEq(grid.meta->numErrs, Number(1))
+    verifyEq(grid.size, 1)
+    verifyEq(grid[0]->subject, bad.id)
+    verifyEq(grid[0]->slot, "ahu")
+    verifyEq(grid[0]->rule, Ref("sys::missingSlot"))
+
+    // explicit spec over multiple recs
+    grid = (Grid)eval("readAll(equip).validate(Ahu, {ignoreRefs})")
+    verifyEq(grid.meta->numErrs, Number(1))
+    verifyEq(grid.size, 1)
+    verifyEq(grid[0]->subject, bad.id)
+    verifyEq(grid[0]->slot, "ahu")
+  }
+
+  Void verifyValidateFunc(Str expr, Str[] expect)
+  {
+    grid := (Grid)makeContext.eval(expr)
+    // echo; echo("-- $expr"); grid.dump
+    actual := Str[,]
+    grid.each |r| { actual.add((r["slot"] ?: "null").toStr + " " + r->rule.toStr) }
+    verifyEq(actual.sort, expect.dup.sort)
+    verifyEq(grid.meta->numErrs, Number(grid.size))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // FitsMatchAll
 //////////////////////////////////////////////////////////////////////////
 

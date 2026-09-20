@@ -365,6 +365,38 @@
   //      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav, {graph})
   fitsExplain: Func { recs: Obj?, spec: Spec?, opts: Dict?, returns: Grid }
 
+  // Validate recs or a bare value and return a grid of the
+  // validation items.  A dict, ref, grid, or list of dicts/refs is
+  // coerced to recs via [toRecList()] and each rec is validated
+  // against the given spec, or against its declared 'spec' tag when
+  // the spec is null; a rec missing the tag reports a
+  // 'sys::missingSpecRef' item.  Any other value validates against
+  // the spec as a bare value, such as one scalar against its slot
+  // spec.  Values are always checked at haystack fidelity.
+  //
+  // Options:
+  //   - `graph`: marker to also check graph of references such as required points
+  //   - `ignoreRefs`: marker to not validate if refs exist or match target spec
+  //
+  // The result grid has a row per validation item:
+  //   - `subject`: id of the subject rec or null if not applicable
+  //   - `slot`: dotted slot path within the subject or null if
+  //     positioned on the subject itself
+  //   - `level`: "err" or "warn"
+  //   - `rule`: ref to the 'sys::ValidateRule' instance
+  //   - `msg`: display message
+  //   - `val`: offending value when applicable
+  //
+  // Grid meta has `numErrs` and `numWarns`.
+  //
+  // Examples:
+  //
+  //      readAll(equip).validate                >> validate against each rec's spec tag
+  //      readAll(vav).validate(G36ReheatVav)    >> validate against explicit spec
+  //      readAll(equip).validate(null, {graph}) >> also validate required points
+  //      validate(123, Str)                     >> validate a bare value
+  validate: Func { val: Obj?, spec: Spec?, opts: Dict?, returns: Grid }
+
   // Match dict recs against specs to find all the specs that fit.  The recs
   // argument can be anything accepted by [toRecList()].  Specs must be a
   // Spec or list of Specs.  If specs argument is omitted, then we match against

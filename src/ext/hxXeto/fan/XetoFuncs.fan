@@ -668,6 +668,73 @@ const class XetoFuncs
     return gb.toGrid
   }
 
+  ** Validate recs or a bare value and return a grid of the
+  ** validation items.  A dict, ref, grid, or list of dicts/refs is
+  ** coerced to recs via [toRecList()] and each rec is validated
+  ** against the given spec, or against its declared 'spec' tag when
+  ** the spec is null; a rec missing the tag reports a
+  ** 'sys::missingSpecRef' item.  Any other value validates against
+  ** the spec as a bare value, such as one scalar against its slot
+  ** spec.  Values are always checked at haystack fidelity.
+  **
+  ** Options:
+  **   - `graph`: marker to also check graph of references such as required points
+  **   - `ignoreRefs`: marker to not validate if refs exist or match target spec
+  **
+  ** The result grid has a row per validation item:
+  **   - `subject`: id of the subject rec or null if not applicable
+  **   - `slot`: dotted slot path within the subject or null if
+  **     positioned on the subject itself
+  **   - `level`: "err" or "warn"
+  **   - `rule`: ref to the 'sys::ValidateRule' instance
+  **   - `msg`: display message
+  **   - `val`: offending value when applicable
+  **
+  ** Grid meta has `numErrs` and `numWarns`.
+  **
+  ** Examples:
+  **
+  **      readAll(equip).validate                >> validate against each rec's spec tag
+  **      readAll(vav).validate(G36ReheatVav)    >> validate against explicit spec
+  **      readAll(equip).validate(null, {graph}) >> also validate required points
+  **      validate(123, Str)                     >> validate a bare value
+  @Api @Axon static Grid validate(Obj? val, Spec? spec := null, Dict? opts := null)
+  {
+    ns := curContext.ns
+    opts = Etc.dictSet(opts, "haystack", Marker.val) // force haystack level fidelity
+
+    // dicts, refs, and grids validate as recs; anything else is a
+    // bare value validated against the spec
+    isRecs := val is Dict || val is Ref || val is Grid ||
+              (val is List && ((List)val).all |x| { x is Dict || x is Ref })
+    ValidateReport[]? reports
+    if (!isRecs)
+    {
+      reports = [ns.validate(val, spec, opts)]
+    }
+    else
+    {
+      recList := Etc.toRecs(val)
+      reports = spec == null ?
+        [ns.validateAll(recList, opts)] :
+        recList.map |rec->ValidateReport| { ns.validate(rec, spec, opts) }
+    }
+
+    numErrs := 0; numWarns := 0
+    gb := GridBuilder()
+      .addCol("subject").addCol("slot").addCol("level").addCol("rule").addCol("msg").addCol("val")
+    reports.each |report|
+    {
+      numErrs += report.numErrs; numWarns += report.numWarns
+      report.items.each |item|
+      {
+        gb.addRow([item.subjectId, item.slot, item.level.name, item.rule, item.msg, item.val])
+      }
+    }
+    gb.setMeta(Etc.dict2("numErrs", Number(numErrs), "numWarns", Number(numWarns)))
+    return gb.toGrid
+  }
+
   ** Match dict recs against specs to find all the specs that fit.  The recs
   ** argument can be anything accepted by [toRecList()].  Specs must be a
   ** Spec or list of Specs.  If specs argument is omitted, then we match against
