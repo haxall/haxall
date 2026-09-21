@@ -124,6 +124,26 @@ class ValidateState
     validator.emit(MValidateItem(r, this, args))
   }
 
+  ** Emit a validation item against a slot of the current dict instead of
+  ** the current position.  A rule registered on a type reports where the
+  ** problem is: a rule on an entity spec fires once at the entity, but
+  ** flags the offending tag so tools can highlight that form field.  The
+  ** item takes its slot path, value, and spec from the slot, so '$val'
+  ** and the other msg vars resolve against it.
+  **
+  ** The name may be any tag of the current dict; a tag without a declared
+  ** slot reports against the value with the dict's own spec.
+  Void emitOn(Str name, Dict args := Etc.dict0)
+  {
+    dict := this.dict ?: throw Err("Not positioned on a dict")
+    slot := spec.member(name, false) ?: spec
+    push(ValidateStateVal(validator, name, dict.get(name), slot))
+    try
+      emit(args)
+    finally
+      pop
+  }
+
   ** Emit a validation item for the current state and rule
   Void emitRule(ValidateRule rule, Dict args := Etc.dict0)
   {

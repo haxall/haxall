@@ -9,6 +9,8 @@
 // Type with a custom rule registered on it
 TestRuleSubject: Dict {
   code: Str?
+  min: Number?
+  max: Number?
 }
 
 // Custom rule bound to testXeto::ValidateTestCodePrefix
@@ -22,4 +24,11 @@ TestRuleSubject: Dict {
 @testUnbound: ValidateRule {
   on: TestRuleSubject
   msg: "Never reported"
+}
+
+// Cross-tag rule: fires once on the entity but reports against the
+// offending tag so tools can flag that field
+@testMinMax: ValidateRule {
+  on: TestRuleSubject
+  msg: "Value $val must be below max"
 }

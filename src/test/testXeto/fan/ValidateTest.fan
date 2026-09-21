@@ -94,6 +94,28 @@ class ValidateTest : AbstractXetoTest
     verifyEq(ns.validate(Etc.dict1("code", "X100"), ns.spec("sys::Dict")).items.size, 0)
   }
 
+  ** A rule registered on a type fires once at the subject but can report
+  ** against the offending tag, so tools know which field to flag
+  Void testRulesEmitOn()
+  {
+    ns   := createNamespace(["sys", "hx.test.xeto"])
+    spec := ns.spec("hx.test.xeto::TestRuleSubject")
+
+    // min below max is clean
+    verifyEq(ns.validate(Etc.dictx("id", Ref("x"), "min", n(1), "max", n(10)), spec).items.size, 0)
+
+    // min above max reports on the min tag, not the subject; the item
+    // takes its slot, val, and msg vars from the slot it reports on
+    items := ns.validate(Etc.dictx("id", Ref("x"), "min", n(20), "max", n(10)), spec).items
+    verifyEq(items.size, 1)
+    item := items[0]
+    verifyEq(item.rule, Ref("hx.test.xeto::testMinMax"))
+    verifyEq(item.slot, "min")
+    verifyEq(item.val, n(20))
+    verifyEq(item.subjectId, Ref("x"))
+    verifyEq(item.msg, "Value 20 must be below max")
+  }
+
   ** Rules only run where their on types apply: a constraint declared on
   ** the wrong value type is never checked, and a rule listing unrelated
   ** types such as Ref and MultiRef reaches both
@@ -1429,6 +1451,24 @@ const class ValidateTestCodePrefix : ValidateRule
   {
     code := s.dict?.get("code") as Str
     if (code != null && !code.startsWith("T")) s.emit(Etc.dict1("code", code))
+  }
+}
+
+**************************************************************************
+** ValidateTestMinMax
+**************************************************************************
+
+** Cross-tag rule: registered on the entity type, but reports against
+** the offending tag rather than the subject
+@Js
+const class ValidateTestMinMax : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    min := s.dict?.get("min") as Number
+    max := s.dict?.get("max") as Number
+    if (min != null && max != null && min > max) s.emitOn("min")
   }
 }
 
