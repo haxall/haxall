@@ -1,0 +1,81 @@
+<!--
+author:     Brian Frank
+created:    21 Sep 2026
+copyright:  Copyright (c) 2026, SkyFoundry LLC, All Rights Reserved
+-->
+
+# xetom Design
+
+The xetom pod is the Xeto runtime implementation: namespaces, specs,
+instances, and the services over them.
+
+# Validation
+
+See [Validation](hx.doc.haxall::Validation) for what rules are and how to
+write them.  This covers only how the engine is put together.
+
+Files in `fan/validate/`:
+
+- `Validator`: the walk, and the intrinsic checks it performs itself
+- `ValidateState`: position in the walk; what a rule sees
+- `ValidateRule`: one rule instance, and the factory which binds it
+- `ValidateRules`: the namespace's rules ordered for `unless`
+- `ValidateSysRules`: one class per sys rule
+- `ValidateFuncRule`: rule implemented by a xeto func
+- `MValidateItem`: reported item; renders msg from the rule and args
+
+## Dispatch
+
+`Validator.run` fires rules at every frame of the walk: the subject, each
+slot, each list item.  `ValidateRules.eachApplicable` scans all the rules
+and skips the ones whose `on` types do not match the position.
+
+The scan is linear on purpose.  With a few hundred rules the isa tests
+cost less than keeping an index, and registry order is also dispatch
+order, which is what makes `unless` work without a merge step.
+
+`on` is a MultiRef because some rules cover types with no common base:
+`Ref` and `MultiRef` are both sealed, and the size rules take a `Scalar`
+or a `List`.
+
+A rule narrows again in its own check.  `overMaxVal` is registered on
+`Number` and returns if the spec has no `maxVal`.  The `on` target is the
+type test, the check body is the constraint test.
+
+## Bindings
+
+The implementation names the rule, never the other way around.  A Fantom
+class is named for its rule, and a func tags itself `validateRule`.
+
+This is not just symmetry.  An instance pointing at its func would need a
+ref to a func slot, and xetoc rejects dotted refs in instance data.  A
+func naming its rule is a plain instance ref which resolves today.
+
+`ValidateRule.create` maps a rule's lib to its pod through `SpecBindings`
+and reflects the class.  sys maps to xetom itself since sys registers its
+bindings directly instead of through the `xeto.bindings` index.
+
+An unimplemented rule becomes a `ValidateUnboundRule` so it stays in the
+registry.  Func rules return from `onCheck` when there is no
+`XetoContext`, which is how lib compiles skip them.
+
+## Reporting Position
+
+An item takes its slot path, value, and spec from the frame it is emitted
+at, so `$val` and the other message variables always describe what the
+item points at.
+
+`emit` reports at the current frame.  `emitOn` pushes a frame for a tag
+of the current dict, reports there, and pops.  It reuses the same frame
+the walk itself pushes, which is why the message variables come out right
+with no special handling.
+
+## Intrinsics
+
+Five rules are emitted by `Validator` directly instead of being
+dispatched: `missingSpecRef`, `unknownSpecRef`, `missingSlot`,
+`unknownType`, `invalidType`.  They run in order before any other rule
+because they gate the walk - there is no point reporting a `maxVal`
+problem on a value which is not even a number.
+`ValidateIntrinsicRule.isApplicable` is always false so normal dispatch
+passes them over.

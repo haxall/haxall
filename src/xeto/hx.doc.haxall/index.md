@@ -10,6 +10,7 @@
 - [Folio](Folio.md): Tag database
 - [Axon](Axon.md): Axon scripting language
 - [Namespace](Namespace.md): Xeto lib namespace
+- [Validation](Validation.md): Validating data against specs and custom rules
 - [Exts](Exts.md): Extensions
 - [ManagedRecs](ManagedRecs.md): Managed recs for meta, libs, and companion lib
 - [Comps](Comps.md): Xeto based component framework
