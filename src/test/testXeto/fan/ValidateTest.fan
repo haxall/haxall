@@ -181,6 +181,86 @@ class ValidateTest : AbstractXetoTest
     verifyEq(items[0].subjectId, Ref("x"))
   }
 
+  ** The ph rules check agreement between a rec and the recs it points
+  ** to, which the ontology cannot express as slot declarations
+  Void testPhRules()
+  {
+    ns   := createNamespace(["sys", "ph"])
+    cx   := TestContext()
+    site := Ref("s1")
+    other := Ref("s2")
+    equip := Ref("e1")
+    ws    := Ref("w1")
+    cx.recs[site]  = Etc.makeDict(["id":site, "spec":Ref("ph::Site"), "site":m, "tz":"New_York"])
+    cx.recs[other] = Etc.makeDict(["id":other, "spec":Ref("ph::Site"), "site":m, "tz":"Chicago"])
+    cx.recs[equip] = Etc.makeDict(["id":equip, "spec":Ref("ph::Equip"), "equip":m, "siteRef":other])
+    cx.recs[ws]    = Etc.makeDict(["id":ws, "spec":Ref("ph::WeatherStation"), "tz":"Denver"])
+    space := Ref("sp1")
+    system := Ref("sy1")
+    cx.recs[space]  = Etc.makeDict(["id":space, "spec":Ref("ph::Space"), "space":m, "siteRef":other])
+    cx.recs[system] = Etc.makeDict(["id":system, "spec":Ref("ph::System"), "system":m, "siteRef":other])
+
+    pt := ns.spec("ph::NumberPoint")
+    cx.asCur |x|
+    {
+      // point with no site or weather station
+      verifyPhRule(ns, pt, ["kind":"Number"], "ph::pointMissingSiteRef")
+
+      // tz is advisory, not an error
+      items := ns.validate(phPoint(["siteRef":site]), pt).items
+      tzItem := items.find |i| { i.rule == Ref("ph::pointMissingTz") } ?: throw Err("no tz item")
+      verifySame(tzItem.level, ValidateLevel.warn)
+      verifyEq(ns.validate(phPoint(["siteRef":site]), pt).numWarns, 1)
+
+      // tz must match the site it belongs to
+      verifyPhRule(ns, pt, ["siteRef":site, "tz":"New_York"], null)
+      verifyPhRule(ns, pt, ["siteRef":site, "tz":"Chicago"], "ph::pointSiteTz", "tz",
+        "Point tz 'Chicago' does not match site tz 'New_York'")
+
+      // a weather point matches against its station instead
+      verifyPhRule(ns, pt, ["weatherStationRef":ws, "tz":"Denver"], null)
+      verifyPhRule(ns, pt, ["weatherStationRef":ws, "tz":"Chicago"], "ph::pointSiteTz")
+
+      // equipRef must lead to the same site as siteRef
+      verifyPhRule(ns, pt, ["siteRef":other, "equipRef":equip, "tz":"Chicago"], null)
+      verifyPhRule(ns, pt, ["siteRef":site, "equipRef":equip, "tz":"New_York"],
+        "ph::equipRefSite", "siteRef", "equipRef site @s2 does not match siteRef @s1")
+
+      // spaceRef and systemRef cross check the same way
+      verifyPhRule(ns, pt, ["siteRef":other, "spaceRef":space, "tz":"Chicago"], null)
+      verifyPhRule(ns, pt, ["siteRef":site, "spaceRef":space, "tz":"New_York"],
+        "ph::spaceRefSite", "siteRef", "spaceRef site @s2 does not match siteRef @s1")
+      verifyPhRule(ns, pt, ["siteRef":other, "systemRef":system, "tz":"Chicago"], null)
+      verifyPhRule(ns, pt, ["siteRef":site, "systemRef":system, "tz":"New_York"],
+        "ph::systemRefSite", "siteRef", "systemRef site @s2 does not match siteRef @s1")
+
+      // systemRef as a MultiRef list is not cross checked today
+      verifyPhRule(ns, pt, ["siteRef":site, "systemRef":[system], "tz":"New_York"], null)
+    }
+  }
+
+  ** Build a ph point rec with the given tags
+  private Dict phPoint(Str:Obj tags)
+  {
+    Etc.makeDict(tags.dup.setAll(["id":Ref("p1"), "spec":Ref("ph::NumberPoint"),
+                                  "point":m, "kind":"Number"]))
+  }
+
+  ** Verify which ph rule fires on a point, if any
+  private Void verifyPhRule(Namespace ns, Spec spec, Str:Obj tags, Str? rule,
+                            Str? slot := null, Str? msg := null)
+  {
+    items := ns.validate(phPoint(tags), spec).items.findAll |x|
+    {
+      x.rule.id.startsWith("ph::") && x.rule != Ref("ph::pointMissingTz")
+    }
+    if (rule == null) return verifyEq(items.size, 0, "$tags -> $items")
+    verifyEq(items.size, 1, "$tags -> $items")
+    verifyEq(items[0].rule, Ref(rule))
+    if (slot != null) verifyEq(items[0].slot, slot)
+    if (msg != null) verifyEq(items[0].msg, msg)
+  }
+
   ** A rule registered on a type fires once at the subject but can report
   ** against the offending tag, so tools know which field to flag
   Void testRulesEmitOn()
@@ -279,6 +359,20 @@ class ValidateTest : AbstractXetoTest
     item = r.items.first
     verifyEq(item.rule, Ref("sys::missingSpecRef"))
     verifyEq(item.subjectId, Ref("y"))
+
+    // validateAll: spec tag which does not resolve
+    r = ns.validateAll([Etc.dict2("id", Ref("y"), "spec", Ref("bad.lib::Nope"))])
+    item = r.items.first
+    verifyEq(r.items.size, 1)
+    verifyEq(item.rule, Ref("sys::unknownSpecRef"))
+    verifyEq(item.subjectId, Ref("y"))
+    verifyEq(item.msg, "Unknown 'spec' ref: bad.lib::Nope")
+
+    // value which maps to no spec at all
+    r = ns.validate(Etc.dict1("num", Regex("x")), spec)
+    item = r.items.first
+    verifyEq(item.rule, Ref("sys::unknownType"))
+    verifyEq(item.slot, "num")
   }
 
   Void testEngineUnless()

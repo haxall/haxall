@@ -87,7 +87,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sys.types.list.containsSame(str), true)
 
     // instances
-    verifyEq(sys.instances.size, 29)
+    verifyEq(sys.instances.size, 28)
     verifyEq(sys.instances.isImmutable, true)
     verifySame(sys.instances, sys.instances)
     verifyEq(sys.instance("overMaxVal")->on, Ref("sys::Number"))
@@ -258,7 +258,7 @@ class NamespaceTest : AbstractXetoTest
       // ph is all source, and source is intrinsically published
       verifyEq(fileUris(ph.files), [`/attr.xeto`, `/choices.xeto`, `/device.xeto`, `/entity.xeto`,
         `/enums.xeto`, `/equip.xeto`, `/kinds.xeto`, `/lib.xeto`, `/ops.xeto`, `/phenomenon.xeto`,
-        `/point.xeto`, `/quantity.xeto`, `/site.xeto`, `/space.xeto`, `/system.xeto`, `/weather.xeto`])
+        `/point.xeto`, `/quantity.xeto`, `/site.xeto`, `/space.xeto`, `/system.xeto`, `/validation.xeto`, `/weather.xeto`])
       verifyEq(publishedUris(ph.files), fileUris(ph.files))
       verifyEq(ph.files.get(`bad`, false), null)
       verifyErr(UnresolvedErr#) { ph.files.get(`bad`) }

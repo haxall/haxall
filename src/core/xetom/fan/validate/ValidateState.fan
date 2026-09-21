@@ -107,6 +107,17 @@ class ValidateState
   ** positioned on the id slot, or when ignoreRefs is opted in.
   ValidateRef[] refs() { cur.refs }
 
+  ** Read the rec targeted by a Ref tag of the current dict, or null if
+  ** the tag is missing, is not a Ref, or does not resolve.  Used by rules
+  ** which must compare a rec against another rec it points to.  Targets
+  ** are resolved once per validation run.
+  Dict? readRef(Str name)
+  {
+    ref := dict?.get(name) as Ref
+    if (ref == null) return null
+    return validator.resolveRef(ref).target
+  }
+
   ** Constraint matches when positioned on a query slot with the
   ** graph option enabled, or null otherwise.  The extent is queried
   ** and matched once for the query rules.

@@ -551,8 +551,11 @@ class AxonTest : AbstractAxonTest
     grid.each |r|
     {
       verify(((List)r->on).size > 0, r->rule.toStr)
-      verifyEq(r->level, "err")
+      verify(r->level == "err" || r->level == "warn", r->rule.toStr)
     }
+
+    // levels are reported; ph has the first warn level rule
+    verifyEq(grid.find |r| { r->rule == Ref("ph::pointMissingTz") }?->level, "warn")
 
     // a lib rule bound by name reports its impl; one declared without
     // a class reports null so tooling can see it never runs

@@ -204,16 +204,6 @@ using haystack
   }
 }
 
-@Js internal const class ValidateEnumValType : ValidateRule
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Void onCheck(ValidateState s)
-  {
-    if (!s.spec.type.isEnum) return
-    if (ValidateWrongEnumKey.enumKey(s.val) == null) s.emit
-  }
-}
-
 @Js internal const class ValidateWrongEnumKey : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
@@ -222,7 +212,7 @@ using haystack
     enum := s.spec.type
     if (!enum.isEnum) return
     key := enumKey(s.val)
-    if (key == null) return // enumValType's check
+    if (key == null) return // invalidType's check
     if (enum.enum.spec(key, false) == null) s.emit
   }
 

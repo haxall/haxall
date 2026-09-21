@@ -46,11 +46,12 @@ abstract const class ValidateRule
     return pod.type(name.toStr, false)
   }
 
-  ** Pod which implements a lib's rules; sys rules live here in xetom
-  ** since sys binds its types directly rather than thru the index
+  ** Pod which implements a lib's rules.  The sys and ph rules live here
+  ** in xetom: both are Project Haystack libs which cannot name a Fantom
+  ** pod, and neither registers a lib binding in the xeto.bindings index.
   private static Pod? podFor(Str lib)
   {
-    if (lib == "sys") return ValidateRule#.pod
+    if (lib == "sys" || lib == "ph") return ValidateRule#.pod
     podName := SpecBindings.cur.libToPod(lib)
     return podName == null ? null : Pod.find(podName, false)
   }
