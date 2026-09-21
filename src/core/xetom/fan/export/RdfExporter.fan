@@ -1214,18 +1214,17 @@ class RdfExporter : Exporter
       // metadata such as `of` and size constraints remains on that wrapper.
       isMember := slot.isSlot || slot.isGlobal
       type := isMember && slot.type.isList ? slot : (isMember ? slot.type : slot)
-      instanceProperties(spec, member).each |property|
+      instanceProperties(slot, instanceProperty(spec, member)).each |property|
       {
         instanceMember(property, type, val, indent)
       }
     }
   }
 
-  private Str[] instanceProperties(Spec parent, ReflectMember member)
+  private Str[] instanceProperties(Spec spec, Str property)
   {
-    spec := instanceMemberSpec(parent, member)
     properties := Str:Bool[:]
-    properties[instanceProperty(parent, member)] = true
+    properties[property] = true
     // Globals supply inherited constraints, not extra instance properties.
     while (spec.isSlot && spec.base != null && spec.base.isSlot && !spec.base.isGlobal)
     {
@@ -1505,9 +1504,12 @@ class RdfExporter : Exporter
   private Void instanceChoice(Dict instance, Spec slot)
   {
     selected := instanceChoiceSelections(instance, slot)
-    selected.each |x|
+    instanceProperties(slot, slot.qname).each |property|
     {
-      w("  ").qname(slot.qname).w(" ").qname(x.qname).w(" ;").nl
+      selected.each |x|
+      {
+        w("  ").qname(property).w(" ").qname(x.qname).w(" ;").nl
+      }
     }
   }
 
