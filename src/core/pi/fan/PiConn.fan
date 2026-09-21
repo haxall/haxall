@@ -64,6 +64,7 @@ const class PiConns
     }
 
     this.byConn = byConn
+    this.byName = byName
     this.byAddr = byAddr
   }
 
@@ -135,6 +136,9 @@ const class PiConns
 
   ** Map of protocol addr spec to its conn model
   const Spec:PiConn byAddr
+
+  ** Conn models keyed by protocol name such as "bacnet"
+  @NoDoc const Str:PiConn byName
 
   ** Map of connector spec to its conn model
   const Spec:PiConn byConn
@@ -228,24 +232,43 @@ const class PiConn
   ** The addr is the point's ph.protocols addr slot from its template
   ** spec.  Opts:
   **  - 'conn': Ref of the connector rec (required)
-  **  - 'name': Str point name used by register based protocols
   **  - 'cur'/'write'/'his': markers for the deployment modes
   **  - 'writeLevel': Number when applicable to the protocol
   ** Deployment markers are added only when the protocol supports
   ** the mode and an address value resolves.
   virtual Dict bind(Spec addr, Dict opts)
   {
+    bindAddrs(["cur":addr, "write":addr, "his":addr], opts)
+  }
+
+  ** Compute the point diff tags to bind a point to this connector
+  ** given one authored address per function.
+  **
+  ** ph.protocols authors a separate global per function -
+  ** 'bacnetCurAddr', 'bacnetWriteAddr', 'bacnetHisAddr' - so each
+  ** mode reads its own address rather than deriving all three from
+  ** one spec.  A mode is applied only when the caller asked for it,
+  ** this protocol supports it, *and* an address was authored for
+  ** it: a modbus point has no his address, so it never gets his.
+  **
+  ** Opts are as [bind].
+  @NoDoc virtual Dict bindAddrs(Str:Spec addrs, Dict opts)
+  {
     acc := Str:Obj[:] { ordered = true }
     acc[name + "Point"] = Marker.val
     acc[connRefSlot.name] = opts->conn
-    if (opts.has("cur") && curSlot != null)
+
+    curAddr := addrs["cur"]
+    if (opts.has("cur") && curSlot != null && curAddr != null)
     {
-      val := toCurVal(addr, opts)
+      val := toCurVal(curAddr, opts)
       if (val != null) { acc["cur"] = Marker.val; acc[curSlot.name] = val }
     }
-    if (opts.has("write") && writeSlot != null)
+
+    writeAddr := addrs["write"]
+    if (opts.has("write") && writeSlot != null && writeAddr != null)
     {
-      val := toWriteVal(addr, opts)
+      val := toWriteVal(writeAddr, opts)
       if (val != null)
       {
         acc["writable"] = Marker.val
@@ -253,11 +276,13 @@ const class PiConn
         if (writeLevelSlot != null && opts.has("writeLevel")) acc[writeLevelSlot.name] = opts->writeLevel
       }
     }
-    if (opts.has("his") && hisSlot != null)
+
+    hisAddr := addrs["his"]
+    if (opts.has("his") && hisSlot != null && hisAddr != null)
     {
       // his on a connector point means syncing from the connector,
       // so the marker requires a his address
-      val := toHisVal(addr, opts)
+      val := toHisVal(hisAddr, opts)
       if (val != null) { acc["his"] = Marker.val; acc[hisSlot.name] = val }
     }
     return Etc.dictFromMap(acc)
@@ -285,8 +310,9 @@ const class PiConn
   ** Point slot value for the write address; default is the addr value
   protected virtual Obj? toWriteVal(Spec addr, Dict opts) { slotVal(addr, "addr") }
 
-  ** Point slot value for the history address; default is the trend value
-  protected virtual Obj? toHisVal(Spec addr, Dict opts) { slotVal(addr, "trend") }
+  ** Point slot value for the history address; the his address
+  ** global carries it in its own addr field
+  protected virtual Obj? toHisVal(Spec addr, Dict opts) { slotVal(addr, "addr") }
 
   ** Authored addr slot value such as "addr" or "trend"
   protected static Str? slotVal(Spec addr, Str name)
@@ -320,23 +346,22 @@ const class PiConn
 **************************************************************************
 
 **
-** PiModbusConn customizes binding for modbus where point addresses
-** reference register map names, never raw addresses.
+** PiModbusConn customizes binding for modbus where a point
+** references its address spec rather than a raw register address.
+**
+** The bound value is the qname of the authored addr slot itself,
+** such as '@foo::Equip.reg4000.modbusCurAddr' - the register map
+** the connector reads for encoding, scale, and byte order lives
+** there, so the point only needs to name it.  Cur and write are
+** separate globals, so each mode names its own spec.
 **
 @NoDoc @Js
 const class PiModbusConn : PiConn
 {
   new make(Namespace ns, Spec ext) : super(ns, ext) {}
 
-  ** Modbus cur references the register map name
-  protected override Obj? toCurVal(Spec addr, Dict opts) { opts["name"] }
+  protected override Obj? toCurVal(Spec addr, Dict opts) { addr.id }
 
-  ** Modbus write references the register map name and requires
-  ** the addr access to allow writes
-  protected override Obj? toWriteVal(Spec addr, Dict opts)
-  {
-    access := slotVal(addr, "access") ?: "r"
-    return access.contains("w") ? opts["name"] : null
-  }
+  protected override Obj? toWriteVal(Spec addr, Dict opts) { addr.id }
 }
 

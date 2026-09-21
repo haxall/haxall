@@ -30,18 +30,18 @@ class EquipTest : AbstractXetoTest
   {
     zt := ns.spec("hx.test.xeto::EquipNamed").slot("points").slot("zoneTemp")
 
-    ma := zt.slot("modbusAddr")
+    ma := zt.slot("modbusCurAddr")
     verifyEq(ma.type.qname, "ph.protocols::ModbusAddr")
     verifyEq(ma.isMaybe, true)
-    verifyEq(ma.base.qname, "ph.protocols::PhEntity.modbusAddr")
+    verifyEq(ma.base.qname, "ph.protocols::PhEntity.modbusCurAddr")
     verifyEq(ma.base.isGlobal, true)
     verifyEq(ma.slot("addr").meta["val"]?.toStr, "1001")
     verifyEq(ma.slot("access").meta["val"]?.toStr, "rw")
 
-    ba := zt.slot("bacnetAddr")
+    ba := zt.slot("bacnetCurAddr")
     verifyEq(ba.type.qname, "ph.protocols::BacnetAddr")
     verifyEq(ba.isMaybe, true)
-    verifyEq(ba.base.qname, "ph.protocols::PhEntity.bacnetAddr")
+    verifyEq(ba.base.qname, "ph.protocols::PhEntity.bacnetCurAddr")
     verifyEq(ba.base.isGlobal, true)
     verifyEq(ba.slot("addr").meta["val"]?.toStr, "AI1")
 
