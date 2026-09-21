@@ -201,6 +201,7 @@ class RdfExporter : Exporter
     // classes
     w("  a sys:Class ;").nl
     w("  a rdfs:Class ;").nl
+    if (isCustomScalar(x)) w("  a rdfs:Datatype ;").nl
 
     // Classes with effective constraints are also SHACL node shapes.
     if (hasShape) w("  a sh:NodeShape ;").nl
@@ -702,7 +703,19 @@ class RdfExporter : Exporter
       w("      sh:property [").nl
       w("        sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;").nl
       if (of.isScalar)
+      {
         w("        sh:datatype ").w(scalarDatatype(of)).w(" ;").nl
+        if (isCustomScalar(of))
+        {
+          patterns := scalarPatterns(of, scalarDatatype(of))
+          if (!patterns.isEmpty)
+          {
+            w("        sh:and (").nl
+            patterns.each |pattern| { w("          [ sh:pattern ").literal(pattern).w(" ]").nl }
+            w("        ) ;").nl
+          }
+        }
+      }
       else if (of.isDict)
         w("        sh:class ").qname(of.qname).w(" ;").nl
       w("      ] ;").nl
@@ -780,13 +793,16 @@ class RdfExporter : Exporter
     maxSize := intMeta(slot, "maxSize")
     if (maxSize != null) w("    sh:maxLength ").w(maxSize).w(" ;").nl
 
-    scalarPatterns(slot, datatype).each |pattern|
+    patterns := scalarPatterns(slot, datatype)
+    if (meta.has("nonEmpty") && !patterns.contains("\\S")) patterns.add("\\S")
+    patterns.sort
+    if (patterns.size > 1) w("    sh:and (").nl
+    patterns.each |pattern|
     {
-      w("    sh:pattern ").literal(pattern).w(" ;").nl
+      if (patterns.size > 1) w("      [ sh:pattern ").literal(pattern).w(" ]").nl
+      else w("    sh:pattern ").literal(pattern).w(" ;").nl
     }
-
-    if (meta.has("nonEmpty"))
-      w("    sh:pattern ").literal("\\S").w(" ;").nl
+    if (patterns.size > 1) w("    ) ;").nl
 
     if (meta.has("invariant"))
     {
@@ -815,11 +831,16 @@ class RdfExporter : Exporter
       case "sys::TimeZone": return "xsd:string"
     }
 
-    // sys is a closed runtime vocabulary, so an unlisted sys scalar is
-    // unsupported. A declared non-sys Scalar is the profile's custom string
-    // datatype extension unless a more specific mapping appears above.
-    if (type.isScalar && type.lib.name != "sys") return "xsd:string"
+    if (type.isEnum && type.qname != "sys::Unit" && type.qname != "sys::UnitQuantity")
+      return "xsd:string"
+    if (isCustomScalar(type)) return qnameToUri(type.qname)
     throw UnsupportedErr("RDF scalar datatype not supported: ${type.qname}")
+  }
+
+  private Bool isCustomScalar(Spec type)
+  {
+    type.isScalar && !type.isEnum && !type.isRef && !type.isMarker &&
+      type.qname != "sys::Scalar" && !isBuiltInScalar(type.qname)
   }
 
   ** Return every string pattern contributed by the custom scalar hierarchy,
@@ -829,14 +850,14 @@ class RdfExporter : Exporter
   {
     // Xeto's built-in numeric/date patterns describe source syntax and are
     // not SHACL regex constraints on RDF typed literals.
-    if (datatype != "xsd:string") return Str[,]
+    if (datatype != "xsd:string" && !isCustomScalar(slot.type)) return Str[,]
 
     patterns := Str[,]
     added := Str:Bool[:]
     chain := Spec[,]
     seen := Str:Bool[:]
     Spec? cur := slot.type
-    while (cur != null && cur.isScalar && cur.lib.name != "sys")
+    while (cur != null && isCustomScalar(cur))
     {
       if (seen.containsKey(cur.qname))
         throw UnsupportedErr("Cyclic Xeto type inheritance while resolving ${slot.type.qname}: ${cur.qname}")
@@ -846,11 +867,13 @@ class RdfExporter : Exporter
     }
     chain.reverse.each |type|
     {
-      addScalarPattern(patterns, added, type.qname, type.meta["pattern"])
+      if (cur == null || type.meta["pattern"] != cur.meta["pattern"])
+        addScalarPattern(patterns, added, type.qname, type.meta["pattern"])
     }
 
     patternVal := slot.meta["pattern"]
-    if (patternVal == null) return patterns
+    if (patternVal == null) return patterns.sort
+    if (cur != null && patternVal == cur.meta["pattern"]) return patterns.sort
     pattern := patternVal as Str
       ?: throw UnsupportedErr("Invalid pattern metadata for ${slot.qname}: ${patternVal.typeof}")
 
@@ -864,14 +887,14 @@ class RdfExporter : Exporter
       typePattern := typePatternVal as Str
       if (typePatternVal != null && typePattern == null)
         throw UnsupportedErr("Invalid pattern metadata for ${type.qname}: ${typePatternVal.typeof}")
-      if (pattern == typePattern) return patterns
+      if (pattern == typePattern) return patterns.sort
     }
     if (!added.containsKey(pattern))
     {
       added[pattern] = true
       patterns.add(pattern)
     }
-    return patterns
+    return patterns.sort
   }
 
   private Void addScalarPattern(Str[] patterns, Str:Bool added, Str owner, Obj? val)
@@ -974,7 +997,7 @@ class RdfExporter : Exporter
     wrapped := val as Scalar
     if (wrapped != null)
     {
-      if (wrapped.qname != qname)
+      if (wrapped.qname != qname && resolveSpec(wrapped.qname)?.isa(type) != true)
         throw UnsupportedErr("Expected ${qname} for ${context}, not ${wrapped.qname}")
       val = wrapped.val
     }
@@ -982,7 +1005,7 @@ class RdfExporter : Exporter
     if (qname == "sys::Str")
       return val as Str ?: throw UnsupportedErr("Expected Str for ${context}, not ${val.typeof}")
 
-    if (type.isScalar && type.lib.name != "sys")
+    if (isCustomScalar(type) || (type.isEnum && qname != "sys::Unit" && qname != "sys::UnitQuantity"))
     {
       str := val as Str
       if (str != null) return str
@@ -1333,7 +1356,7 @@ class RdfExporter : Exporter
     if (type.isScalar && !type.isRef)
     {
       num := val as Number
-      if (num != null && num.unit != null)
+      if (type.qname == "sys::Number" && num != null && num.unit != null)
       {
         instanceQuantityValue(property, num, indent)
         return
@@ -1346,7 +1369,7 @@ class RdfExporter : Exporter
 
     if (type.qname == "sys::Obj")
     {
-      actual := ns.specOf(val, false)
+      actual := instanceValueSpec(val)
       if (actual == null || actual.qname == "sys::Obj")
         throw UnsupportedErr("RDF Obj value type is ambiguous for ${property}: ${val.typeof}")
       instanceMember(property, actual, val, indent)
@@ -1438,7 +1461,7 @@ class RdfExporter : Exporter
 
   private Void instanceListItem(Str property, Spec? declaredType, Obj item, Str indent)
   {
-    type := declaredType ?: ns.specOf(item, false)
+    type := declaredType ?: instanceValueSpec(item)
     if (type == null)
       throw UnsupportedErr("RDF list item type not known for ${property}: ${item.typeof}")
     validateListItemType(type, type)
@@ -1471,6 +1494,12 @@ class RdfExporter : Exporter
     }
 
     throw UnsupportedErr("RDF list item mapping not supported for ${property}: ${type.qname}")
+  }
+
+  private Spec? instanceValueSpec(Obj val)
+  {
+    scalar := val as Scalar
+    return scalar == null ? ns.specOf(val, false) : resolveSpec(scalar.qname)
   }
 
   private Void instanceChoice(Dict instance, Spec slot)

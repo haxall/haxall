@@ -85,13 +85,14 @@ class RdfTest : AbstractXetoTest
     verify(rdf.contains("sh:path temp:Reading.value ;\n    sh:datatype xsd:double ;"))
     verify(rdf.contains("sh:path temp:Reading.enabled ;\n    sh:datatype xsd:boolean ;"))
     verify(rdf.contains("sh:path temp:Reading.commissioned ;\n    sh:datatype xsd:date ;"))
-    verify(rdf.contains("sh:path temp:Reading.code ;\n    sh:datatype xsd:string ;"))
+    verify(rdf.contains("sh:path temp:Reading.code ;\n    sh:datatype temp:Code ;"))
     verify(rdf.contains("sh:pattern \"[A-Z]{2}\" ;"))
     verify(rdf.contains("sh:hasValue \"ok\"^^xsd:string ;"))
 
     // A custom scalar without direct validation constraints is vocabulary,
     // not an empty SHACL shape.
     code := rdf[rdf.index("temp:Code\n")..<rdf.index("temp:Reading\n")]
+    verify(code.contains("a rdfs:Datatype ;"), code)
     verifyFalse(code.contains("a sh:NodeShape"))
   }
 
@@ -262,12 +263,58 @@ class RdfTest : AbstractXetoTest
     verifyFalse(propertyShape(first, "Equip.zone").contains("sh:in"), first)
   }
 
-  Void testUnsupportedSystemScalarFailsClosed()
+  Void testAbstractScalarSlotRemainsDeferred()
   {
-    verifyErrMsg(UnsupportedErr#, "RDF scalar datatype not supported: sys::Version")
+    verifyErrMsg(UnsupportedErr#, "RDF scalar datatype not supported: sys::Scalar")
     {
-      export(Str<|Reading : Dict { version: Version }|>)
+      export(Str<|Reading : Dict { value: Scalar }|>)
     }
+  }
+
+  Void testCustomScalarValues()
+  {
+    rdf := export(
+      Str<|Code : Scalar <pattern:"[A-Z]+">
+             ChildCode : Code <pattern:"[A-Z]{2}">
+             Reading : Dict {
+               code: Code
+               child: ChildCode
+               fixed: Code <invariant> "AB"
+               opaque: Obj
+               plain: Obj
+               codes: List<of:ChildCode>
+               version: Version
+               bytes: Buf
+               elapsed: Duration
+             }
+             @reading1: Reading {
+               code: ChildCode "AB"
+               child: "CD"
+               opaque: ChildCode "EF"
+               plain: "EF"
+               codes: {ChildCode "GH"}
+               version: "1.02.3"
+               bytes: "+/8="
+               elapsed: "2sec"
+             }|>)
+
+    verify(propertyShape(rdf, "Reading.child").contains("sh:and ("), rdf)
+    verify(propertyShape(rdf, "Reading.fixed").contains("sh:hasValue \"AB\"^^temp:Code ;"), rdf)
+    verify(propertyShape(rdf, "Reading.codes").contains("sh:datatype temp:ChildCode ;"), rdf)
+    reading := instanceBlock(rdf, "reading1")
+    ["code": "\"AB\"^^temp:Code",
+     "child": "\"CD\"^^temp:ChildCode",
+     "fixed": "\"AB\"^^temp:Code",
+     "opaque": "\"EF\"^^temp:ChildCode",
+     "plain": "\"EF\"^^xsd:string",
+     "version": "\"1.2.3\"^^sys:Version",
+     "bytes": "\"-_8\"^^sys:Buf",
+     "elapsed": "\"2sec\"^^sys:Duration"].each |literal, field|
+    {
+      verify(reading.contains("temp:Reading.${field} ${literal} ;"), reading)
+    }
+    verify(reading.contains("\"GH\"^^temp:ChildCode"), reading)
+    verifyFalse(reading.contains("qudt:numericValue"), reading)
   }
 
   Void testUnmappedMetadataIsOmitted()
@@ -294,9 +341,10 @@ class RdfTest : AbstractXetoTest
     verify(rdf.contains("rdfs:subClassOf sys:Err ;"), rdf)
     verify(propertyShape(rdf, "Envelope.failure").contains("sh:node temp:Failure ;"), rdf)
 
-    ["None", "NA", "Duration", "Version", "Buf", "Span", "Filter", "BuildVar"].each |type|
+    ["None", "NA", "Duration", "Version", "Buf", "Span", "Filter", "BuildVar", "LibDependVersions", "LibFilePattern"].each |type|
     {
-      verifyUnsupported("Holder : Dict { value: ${type} }", "RDF scalar datatype not supported: sys::${type}")
+      scalar := export("Holder : Dict { value: ${type} }")
+      verify(propertyShape(scalar, "Holder.value").contains("sh:datatype sys:${type} ;"), scalar)
     }
     verifyUnsupported("Holder : Dict { value: Grid }", "RDF Grid mapping not supported")
     verifyUnsupported("Holder : Dict { value: Collection }", "RDF Collection mapping not supported")
