@@ -18,7 +18,13 @@ using haystack
 abstract const class PiEnv
 {
   ** Current environment for VM
-  static PiEnv? cur() { curRef.val ?: throw Err("PiEnv not avail") }
+  static PiEnv? cur(Bool checked := true)
+  {
+    v := curRef.val
+    if (v != null) return v
+    if (checked) throw Err("PiEnv not avail")
+    return null
+  }
 
   static const AtomicRef curRef := AtomicRef()
 
@@ -55,7 +61,13 @@ abstract const class PiEnv
   ** completes with a grid of one row per id in the order requested
   ** where an unresolvable id is an empty row.  Environments without
   ** a runtime connection complete with an empty grid.
-  virtual PiFuture readByIds(Ref[] ids) { PiFuture().complete(Etc.makeEmptyGrid) }
+  abstract PiFuture readByIds(Ref[] ids)
+
+  ** Read the given record ids from the runtime.  The future
+  ** completes with a grid of one row per id in the order requested
+  ** where an unresolvable id is an empty row.  Environments without
+  ** a runtime connection complete with an empty grid.
+  abstract PiRecCache recCache()
 
   ** Connector model registry
   once PiConns conns() { PiConns(ns) }
