@@ -118,6 +118,25 @@ class ValidateState
     return validator.resolveRef(ref).target
   }
 
+  ** Read the recs targeted by a Ref or MultiRef tag of the current dict.
+  ** Unresolved refs are skipped, so the result may be shorter than the
+  ** tag's own list; empty when the tag is missing or holds no refs.
+  Dict[] readRefs(Str name)
+  {
+    v := dict?.get(name)
+    if (v is Ref)
+    {
+      target := validator.resolveRef(v).target
+      return target == null ? Dict#.emptyList : [target]
+    }
+    list := v as List
+    if (list == null) return Dict#.emptyList
+    return list.mapNotNull |x->Dict?|
+    {
+      x is Ref ? validator.resolveRef(x).target : null
+    }
+  }
+
   ** Constraint matches when positioned on a query slot with the
   ** graph option enabled, or null otherwise.  The extent is queried
   ** and matched once for the query rules.

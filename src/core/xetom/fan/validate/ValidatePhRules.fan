@@ -75,12 +75,13 @@ using haystack
     site := s.dict?.get("siteRef")
     if (site == null) return
 
-    parent := s.readRef(refTag)
-    if (parent == null) return // unresolvedRef's check
-
-    parentSite := parent["siteRef"]
-    if (parentSite != null && !Etc.eq(site, parentSite))
-      s.emitOn("siteRef", Etc.dict1("refSite", parentSite))
+    // the tag may be a Ref or a MultiRef list; every target must agree
+    s.readRefs(refTag).each |parent|
+    {
+      parentSite := parent["siteRef"]
+      if (parentSite != null && !Etc.eq(site, parentSite))
+        s.emitOn("siteRef", Etc.dict1("refSite", parentSite))
+    }
   }
 }
 

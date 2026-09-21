@@ -199,6 +199,10 @@ class ValidateTest : AbstractXetoTest
     system := Ref("sy1")
     cx.recs[space]  = Etc.makeDict(["id":space, "spec":Ref("ph::Space"), "space":m, "siteRef":other])
     cx.recs[system] = Etc.makeDict(["id":system, "spec":Ref("ph::System"), "system":m, "siteRef":other])
+    system2 := Ref("sy2")
+    systemOk := Ref("sy3")
+    cx.recs[system2]  = Etc.makeDict(["id":system2, "spec":Ref("ph::System"), "system":m, "siteRef":other])
+    cx.recs[systemOk] = Etc.makeDict(["id":systemOk, "spec":Ref("ph::System"), "system":m, "siteRef":site])
 
     pt := ns.spec("ph::NumberPoint")
     cx.asCur |x|
@@ -234,8 +238,20 @@ class ValidateTest : AbstractXetoTest
       verifyPhRule(ns, pt, ["siteRef":site, "systemRef":system, "tz":"New_York"],
         "ph::systemRefSite", "siteRef", "systemRef site @s2 does not match siteRef @s1")
 
-      // systemRef as a MultiRef list is not cross checked today
-      verifyPhRule(ns, pt, ["siteRef":site, "systemRef":[system], "tz":"New_York"], null)
+      // systemRef is a MultiRef: a list is checked the same as a Ref
+      verifyPhRule(ns, pt, ["siteRef":other, "systemRef":[system], "tz":"Chicago"], null)
+      verifyPhRule(ns, pt, ["siteRef":site, "systemRef":[system], "tz":"New_York"],
+        "ph::systemRefSite", "siteRef", "systemRef site @s2 does not match siteRef @s1")
+
+      // every mismatched target in the list reports
+      items2 := ns.validate(phPoint(["siteRef":site, "systemRef":[system, system2],
+        "tz":"New_York"]), pt).items.findAll |i| { i.rule == Ref("ph::systemRefSite") }
+      verifyEq(items2.size, 2)
+
+      // a list mixing a match and a mismatch reports just the mismatch
+      items2 = ns.validate(phPoint(["siteRef":site, "systemRef":[systemOk, system],
+        "tz":"New_York"]), pt).items.findAll |i| { i.rule == Ref("ph::systemRefSite") }
+      verifyEq(items2.size, 1)
     }
   }
 
