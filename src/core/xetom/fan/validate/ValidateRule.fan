@@ -16,15 +16,17 @@ using haystack
 @Js
 abstract const class ValidateRule
 {
-  ** Construct the rule for one ValidateRule instance.  The check is a
-  ** Fantom class named "Validate" plus the capitalized rule name in the
-  ** pod bound to the rule's lib: 'acme.rules::customCheck' binds to
-  ** 'ValidateCustomCheck' in the pod bound to 'acme.rules'.  A rule
-  ** without a class loads unbound so it stays visible in the registry
-  ** instead of disappearing.
-  static ValidateRule create(Namespace ns, Dict instance)
+  ** Construct the rule for one ValidateRule instance.  The check is
+  ** whatever implements the rule: a func which tags itself with this
+  ** rule's id, otherwise a Fantom class named "Validate" plus the
+  ** capitalized rule name in the pod bound to the rule's lib, so
+  ** 'acme.rules::customCheck' binds to 'ValidateCustomCheck' in the pod
+  ** bound to 'acme.rules'.  A rule nothing implements loads unbound so
+  ** it stays visible in the registry instead of disappearing.
+  static ValidateRule create(Namespace ns, Dict instance, Spec? func := null)
   {
     init := ValidateRuleInit(instance, ns)
+    if (func != null) return ValidateFuncRule(init, func)
     type := findType(init.id)
     return type == null ? ValidateUnboundRule(init) : type.make([init])
   }
@@ -79,6 +81,9 @@ abstract const class ValidateRule
   ** Does this rule have a check implementation
   virtual Bool isBound() { true }
 
+  ** Qualified name of what implements the check, or null if unbound
+  virtual Str? impl() { typeof.qname }
+
   ** Is this rule applicable to the state's current position.  A rule runs
   ** where the position's spec is one of its 'on' types; the check itself
   ** then narrows on the constraint meta it enforces.
@@ -113,6 +118,7 @@ internal const class ValidateUnboundRule : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Bool isBound() { false }
+  override Str? impl() { null }
   override Bool isApplicable(ValidateState s) { false }
   override Void onCheck(ValidateState s) {}
 }

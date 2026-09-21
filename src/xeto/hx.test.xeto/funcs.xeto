@@ -295,6 +295,28 @@ testTemplateBindD: Template {
       a: List { Foreach <axon:"data.findAll(isOdd)"> { Bind<axon:"it + 100"> } }
     }
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Validate Rules
+//////////////////////////////////////////////////////////////////////////
+
+  // rule func on an instance: flags the offending tag
+  testValidateMinMax: Func <validateRule:@hx.test.xeto::testFuncMinMax> {
+    spec: Spec, val: Obj?, returns: Obj?
+    <axon:"if (val.has(\"min\") and val.has(\"max\") and val->min > val->max) {slot:\"min\"}">
+  }
+
+  // rule func on a value position: no slot to flag
+  testValidateEven: Func <validateRule:@hx.test.xeto::testFuncEven> {
+    spec: Spec, val: Obj?, returns: Obj?
+    <axon:"if (val.toStr.size.isOdd) {}">
+  }
+
+  // rule func on one slot of a type
+  testValidateNote: Func <validateRule:@hx.test.xeto::testFuncNote> {
+    spec: Spec, val: Obj?, returns: Obj?
+    <axon:"if (val.trim.isEmpty) {}">
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

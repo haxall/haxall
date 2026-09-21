@@ -27,6 +27,9 @@ const class ValidateRules
   ** Build registry from all ValidateRule instances in namespace
   new make(MNamespace ns)
   {
+    // funcs which implement a rule name it, not the reverse
+    funcs := findFuncs(ns)
+
     // build up rule collection
     list := ValidateRule[,]
     map  := Str:ValidateRule[:]
@@ -34,7 +37,7 @@ const class ValidateRules
     {
       try
       {
-        r := ValidateRule.create(ns, x)
+        r := ValidateRule.create(ns, x, funcs[x.id.id])
         list.add(r)
         map.add(r.qname, r)
       }
@@ -48,6 +51,30 @@ const class ValidateRules
     this.missingSlot    = map.getChecked("sys::missingSlot")
     this.invalidType    = map.getChecked("sys::invalidType")
     this.unknownType    = map.getChecked("sys::unknownType")
+  }
+
+  ** Map rule qname to the func which implements it.  Two funcs claiming
+  ** the same rule is ambiguous, so neither is used.
+  private static Str:Spec findFuncs(MNamespace ns)
+  {
+    acc := Str:Spec[:]
+    dups := Str[,]
+    ns.libs.each |lib|
+    {
+      lib.funcs.each |f|
+      {
+        rule := f.meta["validateRule"] as Ref
+        if (rule == null) return
+        if (acc[rule.id] != null) dups.add(rule.id)
+        acc[rule.id] = f
+      }
+    }
+    dups.each |id|
+    {
+      Console.cur.err("Multiple funcs implement ValidateRule: $id")
+      acc.remove(id)
+    }
+    return acc
   }
 
   private static ValidateRule[] order(ValidateRule[] list, Str:ValidateRule map)

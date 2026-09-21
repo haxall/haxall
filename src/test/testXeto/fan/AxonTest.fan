@@ -558,6 +558,10 @@ class AxonTest : AbstractAxonTest
     // a class reports null so tooling can see it never runs
     verifyEq(grid.find |r| { r->rule == Ref("hx.test.xeto::testCodePrefix") }->impl,
       "testXeto::ValidateTestCodePrefix")
+
+    // a func rule names its func, not the generic wrapper class
+    verifyEq(grid.find |r| { r->rule == Ref("hx.test.xeto::testFuncMinMax") }->impl,
+      "hx.test.xeto::testValidateMinMax")
     verifyEq(grid.find |r| { r->rule == Ref("hx.test.xeto::testUnbound") }["impl"], null)
 
     row := grid.find |r| { r->rule == Ref("sys::overMaxVal") }

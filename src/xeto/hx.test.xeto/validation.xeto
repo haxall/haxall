@@ -11,6 +11,9 @@ TestRuleSubject: Dict {
   code: Str?
   min: Number?
   max: Number?
+  even: TestRuleEven?
+  note: Str?   // targeted by a slot scoped rule
+  other: Str?  // same type as note, but not targeted
 }
 
 // Custom rule bound to testXeto::ValidateTestCodePrefix
@@ -31,4 +34,26 @@ TestRuleSubject: Dict {
 @testMinMax: ValidateRule {
   on: TestRuleSubject
   msg: "Value $val must be below max"
+}
+
+// Rule implemented by an axon func which reports against the tag
+@testFuncMinMax: ValidateRule {
+  on: TestRuleSubject
+  msg: "Func: $val must be below max"
+}
+
+// Rule implemented by an axon func at a value position
+@testFuncEven: ValidateRule {
+  on: TestRuleEven
+  msg: "Func: $val must be even"
+}
+
+// Scalar type with an axon rule registered on it
+TestRuleEven: Scalar
+
+// Rule registered on one slot of a type rather than a type: fires only
+// at that slot's position, never at the same value type elsewhere
+@testFuncNote: ValidateRule {
+  on: TestRuleSubject.note
+  msg: "Func: note '$val' cannot be blank"
 }

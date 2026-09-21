@@ -94,6 +94,93 @@ class ValidateTest : AbstractXetoTest
     verifyEq(ns.validate(Etc.dict1("code", "X100"), ns.spec("sys::Dict")).items.size, 0)
   }
 
+  ** A rule is implemented by whatever names it: a func tags itself with
+  ** the rule id, the same way a Fantom class is named for the rule
+  Void testRulesFunc()
+  {
+    ns  := createNamespace(["sys", "hx.test.xeto"])
+    reg := ((MNamespace)ns).validateRules
+
+    // the rule instance is plain; the func claimed it
+    r := reg.rules.find { it.qname == "hx.test.xeto::testFuncMinMax" } ?: throw Err("testFuncMinMax")
+    verifyEq(r.typeof.qname, "xetom::ValidateFuncRule")
+    verifyEq(r.isBound, true)
+    verifyEq(r.impl, "hx.test.xeto::testValidateMinMax")
+  }
+
+  ** Rule registered on an entity type: fires at the instance, so the
+  ** func's val is the dict itself and it reports across tags
+  Void testRulesOnEntity()
+  {
+    ns   := createNamespace(["sys", "hx.test.xeto"])
+    spec := ns.spec("hx.test.xeto::TestRuleSubject")
+    rule := Ref("hx.test.xeto::testFuncMinMax")
+
+    TestAxonContext(ns).asCur |cx|
+    {
+      // null return is a miss
+      verifyFuncRule(ns, spec, rule, ["min":n(1), "max":n(10)], null)
+
+      // dict with slot reports against that tag, not the instance
+      verifyFuncRule(ns, spec, rule, ["min":n(20), "max":n(10)], "min", n(20),
+        "Func: 20 must be below max")
+    }
+  }
+
+  ** Rule registered on a scalar type: fires at each value of that type,
+  ** so the func's val is the scalar and it reports on its own position
+  Void testRulesOnScalar()
+  {
+    ns   := createNamespace(["sys", "hx.test.xeto"])
+    spec := ns.spec("hx.test.xeto::TestRuleSubject")
+    even := ns.spec("hx.test.xeto::TestRuleEven").qname
+    rule := Ref("hx.test.xeto::testFuncEven")
+
+    TestAxonContext(ns).asCur |cx|
+    {
+      verifyFuncRule(ns, spec, rule, ["even":Scalar(even, "ab")], null)
+
+      // empty dict reports at the rule's own frame, which is the slot
+      // holding the value
+      verifyFuncRule(ns, spec, rule, ["even":Scalar(even, "abc")], "even",
+        Scalar(even, "abc"), "Func: abc must be even")
+    }
+  }
+
+  ** Rule registered on one slot of a type: fires only at that slot, not
+  ** at every value which happens to share its type
+  Void testRulesOnSlot()
+  {
+    ns   := createNamespace(["sys", "hx.test.xeto"])
+    spec := ns.spec("hx.test.xeto::TestRuleSubject")
+    rule := Ref("hx.test.xeto::testFuncNote")
+
+    TestAxonContext(ns).asCur |cx|
+    {
+      verifyFuncRule(ns, spec, rule, ["note":"ok"], null)
+      verifyFuncRule(ns, spec, rule, ["note":" "], "note", " ",
+        "Func: note ' ' cannot be blank")
+
+      // 'other' is the same Str type but is not the rule's slot
+      verifyFuncRule(ns, spec, rule, ["note":"ok", "other":" "], null)
+    }
+  }
+
+  ** Validate tags against spec and verify whether rule reported an item.
+  ** Other rules may fire on the same subject, so select just this rule.
+  private Void verifyFuncRule(Namespace ns, Spec spec, Ref rule, Str:Obj tags,
+                              Str? slot, Obj? val := null, Str? msg := null)
+  {
+    subject := Etc.makeDict(tags.dup.set("id", Ref("x")))
+    items := ns.validate(subject, spec).items.findAll |x| { x.rule == rule }
+    if (slot == null) return verifyEq(items.size, 0, "$rule on $tags")
+    verifyEq(items.size, 1, "$rule on $tags")
+    verifyEq(items[0].slot, slot)
+    verifyEq(items[0].val, val)
+    verifyEq(items[0].msg, msg)
+    verifyEq(items[0].subjectId, Ref("x"))
+  }
+
   ** A rule registered on a type fires once at the subject but can report
   ** against the offending tag, so tools know which field to flag
   Void testRulesEmitOn()

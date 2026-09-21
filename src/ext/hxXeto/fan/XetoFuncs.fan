@@ -746,8 +746,8 @@ const class XetoFuncs
   **   - `unless`: rules which suppress this one when they fire first
   **   - `level`: "err" or "warn"
   **   - `msg`: message template
-  **   - `impl`: Fantom type implementing the check, or null if the rule
-  **     is declared without one and so never runs
+  **   - `impl`: qname of what implements the check - a func or a native
+  **     type - or null if the rule is unimplemented and so never runs
   **
   ** Examples:
   **
@@ -761,7 +761,7 @@ const class XetoFuncs
     ((MNamespace)curContext.ns).validateRules.each |r|
     {
       gb.addRow([r.id, r.on.map |Spec x->Ref| { x.id }, r.unless,
-                 r.level.name, r.msg, r.isBound ? r.typeof.qname : null])
+                 r.level.name, r.msg, r.impl])
     }
     return gb.toGrid
   }
