@@ -44,10 +44,11 @@ internal abstract class InheritFlags : Step
       flags = setMetaFlag(flags, x, "maybe",     MSpecFlags.maybe)
       flags = setMetaFlag(flags, x, "transient", MSpecFlags.transient)
       flags = setMetaFlag(flags, x, "output",    MSpecFlags.output)
+      flags = setMetaFlag(flags, x, "sugar",     MSpecFlags.sugar)
     }
 
     // if my base is compound type; And compounds also
-    // inherit entity/comp from their ofs
+    // inherit entity/comp/sugar from their ofs
     if (x.isAnd)
     {
       flags = flags.or(MSpecFlags.and)
@@ -55,6 +56,7 @@ internal abstract class InheritFlags : Step
       {
         if (of.isComp)   flags = flags.or(MSpecFlags.comp)
         if (of.isEntity) flags = flags.or(MSpecFlags.entity)
+        if (of.isSugar)  flags = flags.or(MSpecFlags.sugar)
       }
     }
     else if (x.isOr)

@@ -338,10 +338,14 @@
   //      fits(equipRec, Site)           >>  false
   //      fits(vav, MyVavSpec)           >> validate tags only
   //      fits(vav, MyVavSpec, {graph})  >> validate tags and required points
+  //
+  // NOTE: this function is deprecated and will be removed
   fits: Func { val: Obj?, spec: Spec, opts: Dict?, returns: Bool }
 
   // Return a grid explaining why spec `a` does not fit `b`.
   // If `a` does fit `b` then return an empty grid.
+  //
+  // NOTE: this function is deprecated and will be removed
   specFitsExplain: Func { a: Spec, b: Spec, returns: Grid }
 
   // Return grid which explains how data fits the given spec.  This
@@ -363,6 +367,8 @@
   //
   //      // validate tags and required points and other graph queries
   //      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav, {graph})
+  //
+  // NOTE: this function is deprecated in favor of [validate()]
   fitsExplain: Func { recs: Obj?, spec: Spec?, opts: Dict?, returns: Grid }
 
   // Validate recs or a bare value and return a grid of the
@@ -413,6 +419,7 @@
   // Example:
   //
   //      readAll(equip).fitsMatchAll
+  //
   fitsMatchAll: Func { recs: Obj?, specs: Obj?, opts: Dict?, returns: Grid }
 
   // Evaluate a relationship query and return record dict.  If no matches

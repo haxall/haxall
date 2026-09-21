@@ -208,6 +208,9 @@ const mixin Spec : Dict
   ** Fits `sys::Entity` with consideration of And (but not Or)
   @NoDoc abstract Bool isEntity()
 
+  ** Is the `sugar` meta flag set with consideration of And (but not Or)
+  @NoDoc abstract Bool isSugar()
+
   ** Is base `sys::And`
   @NoDoc abstract Bool isAnd()
 

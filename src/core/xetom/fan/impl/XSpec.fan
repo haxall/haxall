@@ -259,6 +259,7 @@ const class WrapSpec : Spec
   override final Bool isInterface() { m.isInterface }
   override final Bool isComp()      { m.isComp }
   override final Bool isEntity()    { m.isEntity }
+  override final Bool isSugar()     { m.isSugar }
   override final Bool isEnum()      { m.isEnum }
   override final Bool isAnd()       { m.isAnd }
   override final Bool isOr()        { m.isOr }

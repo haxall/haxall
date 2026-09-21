@@ -28,6 +28,7 @@ const class MSpecFlags
   static const Int entity      := 0x00_4000
   static const Int transient   := 0x00_8000
   static const Int output      := 0x01_0000
+  static const Int sugar       := 0x02_0000
   static const Int inheritMask := 0xFF_FFFF
 
   // non-inherited flags
