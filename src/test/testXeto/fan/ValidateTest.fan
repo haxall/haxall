@@ -30,9 +30,18 @@ class ValidateTest : AbstractXetoTest
 
     r := reg.rules.find { it.id == Ref("sys::overMaxVal") }
     verifyEq(r.level, ValidateLevel.err)
-    verifyEq(r.on, Ref("sys::Spec.maxVal"))
     verifyEq(r.typeof.qname, "xetom::ValidateSysOverMaxVal")
     verifyEq(r.unless, Ref[Ref("sys::maxValUnit")])
+
+    // on resolves to the types the rule applies to; several types when
+    // the check spans unrelated ones such as Ref and MultiRef
+    verifyOn(reg, "sys::overMaxVal", ["sys::Number"])
+    verifyOn(reg, "sys::underMinSize", ["sys::Scalar", "sys::List"])
+    verifyOn(reg, "sys::unresolvedRef", ["sys::Ref", "sys::MultiRef"])
+    verifyOn(reg, "sys::wrongQuantity", ["sys::Number", "sys::Unit"])
+
+    // every rule resolves all of its on targets
+    reg.rules.each |x| { verify(!x.on.isEmpty, "$x.id has no on target") }
 
     // every unless target in the namespace is ordered before its rule
     verifyEq(reg.rules.any |x| { !x.unless.isEmpty }, true)
@@ -43,6 +52,50 @@ class ValidateTest : AbstractXetoTest
         ui := reg.rules.findIndex { it.id == u }
         if (ui != null) verify(ui < i, "$u.id must order before $x.id")
       }
+    }
+  }
+
+  private Void verifyOn(ValidateRules reg, Str rule, Str[] expect)
+  {
+    r := reg.rules.find { it.qname == rule } ?: throw Err(rule)
+    verifyEq(r.on.map |Spec x->Str| { x.qname }, expect, rule)
+  }
+
+  ** Rules only run where their on types apply: a constraint declared on
+  ** the wrong value type is never checked, and a rule listing unrelated
+  ** types such as Ref and MultiRef reaches both
+  Void testRulesDispatch()
+  {
+    ns  := nsTest
+    lib := ns.compileTempLib(
+      Str<|Num:    Dict { v: Number <maxVal:100> }
+           Sized:  Dict { v: Str <maxSize:3> }
+           Custom: Scalar <maxSize:3>
+           Wrap:   Dict { v: Custom }
+           Refs:   Dict { r: Ref<of:Bar>, m: MultiRef<of:Bar> }
+           Bar:    Dict {}
+           |>)
+
+    // each constraint fires only for the value type it is declared on
+    verifyEngine(ns, lib, "Num",   ["v":n(123)], ["sys::overMaxVal"])
+    verifyEngine(ns, lib, "Sized", ["v":"abcd"], ["sys::overMaxSize"])
+    verifyEngine(ns, lib, "Num",   ["v":n(50)],  [,])
+    verifyEngine(ns, lib, "Sized", ["v":"abc"],  [,])
+
+    // size rules reach any scalar, not just Str
+    hay := Etc.dict1("haystack", Marker.val)
+    verifyEngine(ns, lib, "Wrap", ["v":"abc"],  [,], hay)
+    verifyEngine(ns, lib, "Wrap", ["v":"abcd"], ["sys::overMaxSize"], hay)
+
+    // ref rules list both Ref and MultiRef, which are unrelated sealed types
+    bar := Ref("to-bar-1")
+    recs[bar] = Etc.makeDict(["id":bar, "spec":Ref("temp::Bar")])
+    initContext(lib).asCur |cx|
+    {
+      verifyEngine(ns, lib, "Refs", ["r":bar, "m":bar], [,])
+      verifyEngine(ns, lib, "Refs", ["r":Ref("no-such-1"), "m":bar], ["sys::unresolvedRef"])
+      verifyEngine(ns, lib, "Refs", ["r":bar, "m":Ref("no-such-2")], ["sys::unresolvedRef"])
+      verifyEngine(ns, lib, "Refs", ["r":bar, "m":[bar, Ref("no-such-3")]], ["sys::unresolvedRef"])
     }
   }
 

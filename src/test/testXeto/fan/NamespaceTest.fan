@@ -90,7 +90,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sys.instances.size, 29)
     verifyEq(sys.instances.isImmutable, true)
     verifySame(sys.instances, sys.instances)
-    verifyEq(sys.instance("overMaxVal")->on, Ref("sys::Spec.maxVal"))
+    verifyEq(sys.instance("overMaxVal")->on, Ref("sys::Number"))
 
     // slots
     orgDis := verifySlot(ns, org, "dis", str)

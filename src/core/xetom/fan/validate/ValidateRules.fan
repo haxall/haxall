@@ -11,10 +11,10 @@ using xeto
 using haystack
 
 **
-** ValidateRules indexes the ValidateRule instances of a namespace.
-** Rules are registered on a spec via their 'on' ref: constraint rules
-** on the meta spec they enforce such as "sys::Spec.maxVal", structural
-** rules on the type they check.
+** ValidateRules is the ValidateRule instances of a namespace ordered so
+** that every rule follows the rules its 'unless' names.  Rules declare
+** the types they apply to via their 'on' refs; the engine short circuits
+** on those types rather than running every rule at every position.
 **
 @Js
 const class ValidateRules
@@ -88,6 +88,13 @@ const class ValidateRules
   const ValidateRule[] rules
 
   Void each(|ValidateRule| f) { rules.each(f) }
+
+  ** Iterate the rules applicable to the state's current position in
+  ** registry order, so a rule always follows the rules its unless names
+  Void eachApplicable(ValidateState s, |ValidateRule| f)
+  {
+    rules.each |r| { if (r.isApplicable(s)) f(r) }
+  }
 
   internal const ValidateIntrinsicRule missingSpecRef
   internal const ValidateIntrinsicRule unknownSpecRef

@@ -139,9 +139,8 @@ class Validator
   private Void run(ValidateState s)
   {
     s.reset
-    rules.each |r|
+    rules.eachApplicable(s) |r|
     {
-      if (!r.isApplicable(s)) return
       if (s.suppressed(r)) return
       r.check(s)
     }
