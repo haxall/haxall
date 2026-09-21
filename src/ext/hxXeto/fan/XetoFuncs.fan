@@ -746,12 +746,13 @@ const class XetoFuncs
   **   - `unless`: rules which suppress this one when they fire first
   **   - `level`: "err" or "warn"
   **   - `msg`: message template
-  **   - `impl`: Fantom type implementing the check
+  **   - `impl`: Fantom type implementing the check, or null if the rule
+  **     is declared without one and so never runs
   **
   ** Examples:
   **
-  **      validateRules()                         >> all rules in order
-  **      validateRules.findAll(r => r->on.isEmpty)  >> rules with unresolved targets
+  **      validateRules()                              >> all rules in order
+  **      validateRules.findAll(r => r.missing("impl"))  >> declared but unbound
   @Api @Axon static Grid validateRules()
   {
     gb := GridBuilder()
@@ -760,7 +761,7 @@ const class XetoFuncs
     ((MNamespace)curContext.ns).validateRules.each |r|
     {
       gb.addRow([r.id, r.on.map |Spec x->Ref| { x.id }, r.unless,
-                 r.level.name, r.msg, r.typeof.qname])
+                 r.level.name, r.msg, r.isBound ? r.typeof.qname : null])
     }
     return gb.toGrid
   }

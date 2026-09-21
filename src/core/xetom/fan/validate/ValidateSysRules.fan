@@ -10,9 +10,9 @@ using util
 using xeto
 using haystack
 
-// One class per sys ValidateRule instance.  Class names are derived
-// mechanically from the rule qname by ValidateRule.create.  So keep
-// this file in sync with sys validation.xeto.
+// One class per sys ValidateRule instance, named "Validate" plus the
+// rule name the same way every lib binds its rules - see
+// ValidateRule.create.  So keep this file in sync with sys validation.xeto.
 
 **************************************************************************
 ** Intrinsic Rules (handled by Validator itself)
@@ -26,27 +26,27 @@ using haystack
   Void emit(ValidateState s, Dict args := Etc.dict0) { s.emitRule(this, args) }
 }
 
-@Js internal const class ValidateSysMissingSpecRef : ValidateIntrinsicRule
+@Js internal const class ValidateMissingSpecRef : ValidateIntrinsicRule
 {
   new make(ValidateRuleInit init) : super(init) {}
 }
 
-@Js internal const class ValidateSysUnknownSpecRef : ValidateIntrinsicRule
+@Js internal const class ValidateUnknownSpecRef : ValidateIntrinsicRule
 {
   new make(ValidateRuleInit init) : super(init) {}
 }
 
-@Js internal const class ValidateSysMissingSlot : ValidateIntrinsicRule
+@Js internal const class ValidateMissingSlot : ValidateIntrinsicRule
 {
   new make(ValidateRuleInit init) : super(init) {}
 }
 
-@Js internal const class ValidateSysUnknownType : ValidateIntrinsicRule
+@Js internal const class ValidateUnknownType : ValidateIntrinsicRule
 {
   new make(ValidateRuleInit init) : super(init) {}
 }
 
-@Js internal const class ValidateSysInvalidType : ValidateIntrinsicRule
+@Js internal const class ValidateInvalidType : ValidateIntrinsicRule
 {
   new make(ValidateRuleInit init) : super(init) {}
 }
@@ -55,7 +55,7 @@ using haystack
 ** Number Constraints
 **************************************************************************
 
-@Js internal const class ValidateSysOverMaxVal : ValidateRule
+@Js internal const class ValidateOverMaxVal : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -67,7 +67,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysUnderMinVal : ValidateRule
+@Js internal const class ValidateUnderMinVal : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -79,7 +79,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysMinValUnit : ValidateRule
+@Js internal const class ValidateMinValUnit : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -91,7 +91,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysMaxValUnit : ValidateRule
+@Js internal const class ValidateMaxValUnit : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -104,7 +104,7 @@ using haystack
 }
 
 
-@Js internal const class ValidateSysWrongUnit : ValidateRule
+@Js internal const class ValidateWrongUnit : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -115,7 +115,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysUnitless : ValidateRule
+@Js internal const class ValidateUnitless : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -125,7 +125,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysWrongQuantity : ValidateRule
+@Js internal const class ValidateWrongQuantity : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -147,7 +147,7 @@ using haystack
     // unit enum quantity
     if (s.spec.type.qname == "sys::Unit")
     {
-      key := ValidateSysWrongEnumKey.enumKey(s.val)
+      key := ValidateWrongEnumKey.enumKey(s.val)
       if (key == null) return
       item := s.spec.type.enum.spec(key, false)
       if (item == null) return // wrongEnumKey's check
@@ -163,7 +163,7 @@ using haystack
 ** Scalar Constraints
 **************************************************************************
 
-@Js internal const class ValidateSysPatternMismatch : ValidateRule
+@Js internal const class ValidatePatternMismatch : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -185,7 +185,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysInvariantVal : ValidateRule
+@Js internal const class ValidateInvariantVal : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -204,17 +204,17 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysEnumValType : ValidateRule
+@Js internal const class ValidateEnumValType : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
   {
     if (!s.spec.type.isEnum) return
-    if (ValidateSysWrongEnumKey.enumKey(s.val) == null) s.emit
+    if (ValidateWrongEnumKey.enumKey(s.val) == null) s.emit
   }
 }
 
-@Js internal const class ValidateSysWrongEnumKey : ValidateRule
+@Js internal const class ValidateWrongEnumKey : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -242,7 +242,7 @@ using haystack
 ** Size Constraints
 **************************************************************************
 
-@Js internal const class ValidateSysNonEmpty : ValidateRule
+@Js internal const class ValidateNonEmpty : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -250,12 +250,12 @@ using haystack
     if (s.spec.meta.missing("nonEmpty")) return
     list := s.val as List
     if (list != null) { if (list.isEmpty) s.emit; return }
-    str := ValidateSysUnderMinSize.toSizeStr(s.val)
+    str := ValidateUnderMinSize.toSizeStr(s.val)
     if (str != null && str.trim.isEmpty) s.emit
   }
 }
 
-@Js internal const class ValidateSysUnderMinSize : ValidateRule
+@Js internal const class ValidateUnderMinSize : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -282,14 +282,14 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysOverMaxSize : ValidateRule
+@Js internal const class ValidateOverMaxSize : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
   {
     max := CheckVal.toInt(s.spec.meta["maxSize"])
     if (max == null) return
-    size := ValidateSysUnderMinSize.toSize(s.val)
+    size := ValidateUnderMinSize.toSize(s.val)
     if (size != null && size > max) s.emit
   }
 }
@@ -298,7 +298,7 @@ using haystack
 ** Choices
 **************************************************************************
 
-@Js internal const class ValidateSysMissingChoice : ValidateRule
+@Js internal const class ValidateMissingChoice : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -313,7 +313,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysConflictingChoice : ValidateRule
+@Js internal const class ValidateConflictingChoice : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -333,7 +333,7 @@ using haystack
 ** Lists
 **************************************************************************
 
-@Js internal const class ValidateSysListNullItem : ValidateRule
+@Js internal const class ValidateListNullItem : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -349,7 +349,7 @@ using haystack
 ** Refs
 **************************************************************************
 
-@Js internal const class ValidateSysUnresolvedRef : ValidateRule
+@Js internal const class ValidateUnresolvedRef : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -361,7 +361,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysRefTargetSpec : ValidateRule
+@Js internal const class ValidateRefTargetSpec : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -383,7 +383,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysRefTargetType : ValidateRule
+@Js internal const class ValidateRefTargetType : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -412,7 +412,7 @@ using haystack
 ** Queries
 **************************************************************************
 
-@Js internal const class ValidateSysMissingQuery : ValidateRule
+@Js internal const class ValidateMissingQuery : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -437,7 +437,7 @@ using haystack
   }
 }
 
-@Js internal const class ValidateSysAmbiguousQuery : ValidateRule
+@Js internal const class ValidateAmbiguousQuery : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
@@ -446,8 +446,8 @@ using haystack
     {
       if (qm.matches.size > 1)
         s.emit(Etc.dictx(
-          "of", ValidateSysMissingQuery.ofDis(s),
-          "constraint", ValidateSysMissingQuery.constraintDis(qm.constraint),
+          "of", ValidateMissingQuery.ofDis(s),
+          "constraint", ValidateMissingQuery.constraintDis(qm.constraint),
           "matches", matchesDis(qm.matches)))
     }
   }
@@ -473,13 +473,13 @@ using haystack
 ** TODO
 **************************************************************************
 
-@Js internal const class ValidateSysSugarConstraint : ValidateRule
+@Js internal const class ValidateSugarConstraint : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s) {}
 }
 
-@Js internal const class ValidateSysListNamedItem : ValidateRule
+@Js internal const class ValidateListNamedItem : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s) {}

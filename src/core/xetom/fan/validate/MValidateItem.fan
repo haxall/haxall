@@ -46,7 +46,7 @@ const class MValidateItem : ValidateItem
   ** Size of current value for string encoded or list value or null
   private Str? valSize()
   {
-    ValidateSysUnderMinSize.toSize(val)?.toStr
+    ValidateUnderMinSize.toSize(val)?.toStr
   }
 
   override const Ref rule

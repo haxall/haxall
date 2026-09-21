@@ -414,12 +414,13 @@
   //   - `unless`: rules which suppress this one when they fire first
   //   - `level`: "err" or "warn"
   //   - `msg`: message template
-  //   - `impl`: Fantom type implementing the check
+  //   - `impl`: Fantom type implementing the check, or null if the rule
+  //     is declared without one and so never runs
   //
   // Examples:
   //
-  //      validateRules()                            >> all rules in order
-  //      validateRules.findAll(r => r->on.isEmpty)  >> rules with unresolved targets
+  //      validateRules()                                >> all rules in order
+  //      validateRules.findAll(r => r.missing("impl"))  >> declared but unbound
   validateRules: Func { returns: Grid }
 
   // Match dict recs against specs to find all the specs that fit.  The recs

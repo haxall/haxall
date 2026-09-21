@@ -16,14 +16,41 @@ using haystack
 @Js
 abstract const class ValidateRule
 {
-  ** Factory - right now only support built in rules
+  ** Construct the rule for one ValidateRule instance.  The check is a
+  ** Fantom class named "Validate" plus the capitalized rule name in the
+  ** pod bound to the rule's lib: 'acme.rules::customCheck' binds to
+  ** 'ValidateCustomCheck' in the pod bound to 'acme.rules'.  A rule
+  ** without a class loads unbound so it stays visible in the registry
+  ** instead of disappearing.
   static ValidateRule create(Namespace ns, Dict instance)
   {
-    init  := ValidateRuleInit(instance, ns)
-    qname := init.id.id
-    colon := qname.index(":")
-    type  := StrBuf(14 + qname.size - colon).add("ValidateSys").addChar(qname[colon+2].upper).addRange(qname, colon+3..-1)
-    return ValidateRule#.pod.type(type.toStr).make([init])
+    init := ValidateRuleInit(instance, ns)
+    type := findType(init.id)
+    return type == null ? ValidateUnboundRule(init) : type.make([init])
+  }
+
+  ** Reflect the check class for a rule id or null if none
+  private static Type? findType(Ref id)
+  {
+    qname := id.id
+    colon := qname.index("::")
+    if (colon == null) return null
+
+    pod := podFor(qname[0..<colon])
+    if (pod == null) return null
+
+    name := StrBuf(8 + qname.size - colon - 2).add("Validate")
+      .addChar(qname[colon+2].upper).addRange(qname, colon+3..-1)
+    return pod.type(name.toStr, false)
+  }
+
+  ** Pod which implements a lib's rules; sys rules live here in xetom
+  ** since sys binds its types directly rather than thru the index
+  private static Pod? podFor(Str lib)
+  {
+    if (lib == "sys") return ValidateRule#.pod
+    podName := SpecBindings.cur.libToPod(lib)
+    return podName == null ? null : Pod.find(podName, false)
   }
 
   protected new make(ValidateRuleInit init)
@@ -49,6 +76,9 @@ abstract const class ValidateRule
   ** Return qname
   override Str toStr() { qname }
 
+  ** Does this rule have a check implementation
+  virtual Bool isBound() { true }
+
   ** Is this rule applicable to the state's current position.  A rule runs
   ** where the position's spec is one of its 'on' types; the check itself
   ** then narrows on the constraint meta it enforces.
@@ -67,6 +97,24 @@ abstract const class ValidateRule
 
   ** Run rule against given state
   abstract Void onCheck(ValidateState state)
+}
+
+**************************************************************************
+** ValidateUnboundRule
+**************************************************************************
+
+**
+** ValidateUnboundRule is a rule declared without a check implementation.
+** It never runs, but stays in the registry so tooling can see that the
+** rule is defined and unbound rather than missing.
+**
+@Js
+internal const class ValidateUnboundRule : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Bool isBound() { false }
+  override Bool isApplicable(ValidateState s) { false }
+  override Void onCheck(ValidateState s) {}
 }
 
 **************************************************************************

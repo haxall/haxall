@@ -30,7 +30,7 @@ class ValidateTest : AbstractXetoTest
 
     r := reg.rules.find { it.id == Ref("sys::overMaxVal") }
     verifyEq(r.level, ValidateLevel.err)
-    verifyEq(r.typeof.qname, "xetom::ValidateSysOverMaxVal")
+    verifyEq(r.typeof.qname, "xetom::ValidateOverMaxVal")
     verifyEq(r.unless, Ref[Ref("sys::maxValUnit")])
 
     // on resolves to the types the rule applies to; several types when
@@ -59,6 +59,39 @@ class ValidateTest : AbstractXetoTest
   {
     r := reg.rules.find { it.qname == rule } ?: throw Err(rule)
     verifyEq(r.on.map |Spec x->Str| { x.qname }, expect, rule)
+  }
+
+  ** A lib binds its rules to Fantom classes of the same name in its
+  ** bound pod, and a rule declared without a class loads unbound
+  Void testRulesCustom()
+  {
+    ns  := createNamespace(["sys", "hx.test.xeto"])
+    reg := ((MNamespace)ns).validateRules
+
+    // custom rule binds to testXeto::ValidateTestCodePrefix by name
+    r := reg.rules.find { it.qname == "hx.test.xeto::testCodePrefix" } ?: throw Err("testCodePrefix")
+    verifyEq(r.typeof.qname, "testXeto::ValidateTestCodePrefix")
+    verifyEq(r.isBound, true)
+    verifyEq(r.on.map |Spec x->Str| { x.qname }, ["hx.test.xeto::TestRuleSubject"])
+
+    // rule with no class loads unbound: present but never runs
+    u := reg.rules.find { it.qname == "hx.test.xeto::testUnbound" } ?: throw Err("testUnbound")
+    verifyEq(u.isBound, false)
+
+    // sys rules bind thru the same convention
+    verifyEq(reg.rules.find { it.qname == "sys::overMaxVal" }.typeof.qname,
+             "xetom::ValidateOverMaxVal")
+
+    // the custom rule runs against its on type
+    spec := ns.spec("hx.test.xeto::TestRuleSubject")
+    verifyEq(ns.validate(Etc.dict1("code", "T100"), spec).items.size, 0)
+    items := ns.validate(Etc.dict1("code", "X100"), spec).items
+    verifyEq(items.size, 1)
+    verifyEq(items[0].rule, Ref("hx.test.xeto::testCodePrefix"))
+    verifyEq(items[0].msg, "Code 'X100' must start with 'T'")
+
+    // and not against other types
+    verifyEq(ns.validate(Etc.dict1("code", "X100"), ns.spec("sys::Dict")).items.size, 0)
   }
 
   ** Rules only run where their on types apply: a constraint declared on
@@ -1382,5 +1415,20 @@ class ValidateTest : AbstractXetoTest
   ** Verbose debug flag
   Bool isDebug  := false
 
+}
+
+**************************************************************************
+** ValidateTestCodePrefix
+**************************************************************************
+
+@Js
+const class ValidateTestCodePrefix : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    code := s.dict?.get("code") as Str
+    if (code != null && !code.startsWith("T")) s.emit(Etc.dict1("code", code))
+  }
 }
 

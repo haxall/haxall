@@ -1,0 +1,25 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 Sep 2026  Brian Frank  Creation
+//
+
+// Type with a custom rule registered on it
+TestRuleSubject: Dict {
+  code: Str?
+}
+
+// Custom rule bound to testXeto::ValidateTestCodePrefix
+@testCodePrefix: ValidateRule {
+  on: TestRuleSubject
+  msg: "Code '$code' must start with 'T'"
+}
+
+// Custom rule declared without a Fantom class; loads unbound and
+// never runs, but stays visible in the registry
+@testUnbound: ValidateRule {
+  on: TestRuleSubject
+  msg: "Never reported"
+}

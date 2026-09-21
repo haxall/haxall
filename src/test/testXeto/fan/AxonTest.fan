@@ -544,22 +544,27 @@ class AxonTest : AbstractAxonTest
   @HxTestProj
   Void testValidateRules()
   {
-    initNamespace(["ph"])
+    initNamespace(["ph", "hx.test.xeto"])
     grid := (Grid)makeContext.eval("validateRules()")
 
-    // every sys rule is reported with its on targets resolved
-    verifyEq(grid.size, 29)
+    // every rule is reported with its on targets resolved
     grid.each |r|
     {
       verify(((List)r->on).size > 0, r->rule.toStr)
       verifyEq(r->level, "err")
     }
 
+    // a lib rule bound by name reports its impl; one declared without
+    // a class reports null so tooling can see it never runs
+    verifyEq(grid.find |r| { r->rule == Ref("hx.test.xeto::testCodePrefix") }->impl,
+      "testXeto::ValidateTestCodePrefix")
+    verifyEq(grid.find |r| { r->rule == Ref("hx.test.xeto::testUnbound") }["impl"], null)
+
     row := grid.find |r| { r->rule == Ref("sys::overMaxVal") }
     verifyEq(row->on, Ref[Ref("sys::Number")])
     verifyEq(row->unless, Ref[Ref("sys::maxValUnit")])
     verifyEq(row->msg, "Number \$val > maxVal \$maxVal")
-    verifyEq(row->impl, "xetom::ValidateSysOverMaxVal")
+    verifyEq(row->impl, "xetom::ValidateOverMaxVal")
 
     // rules span several unrelated types when the check does
     verifyEq(grid.find |r| { r->rule == Ref("sys::unresolvedRef") }->on,
