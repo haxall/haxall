@@ -21,6 +21,13 @@ const abstract class PiRecCache
   ** cached as unresolvable also returns null.
   abstract Dict? get(Ref id)
 
+  ** Has this id been read to a verdict: either a record or a known
+  ** miss.  False means the answer is simply not known yet, which
+  ** callers must not report as a missing target.  Use this rather
+  ** than tracking resolution yourself: only the cache knows when
+  ** an entry expires and its answer reverts to unknown.
+  abstract Bool isResolved(Ref id)
+
   ** Asynchronously resolve the given ids.  Ids already cached and
   ** unexpired are skipped, so the future completes immediately when
   ** everything is already available.
