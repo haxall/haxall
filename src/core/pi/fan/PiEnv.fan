@@ -51,6 +51,12 @@ abstract const class PiEnv
   ** Display flash notification for an error to the user
   abstract Void flash(ItemStatus status, Str msg, Err? err := null)
 
+  ** Read the given record ids from the runtime.  The future
+  ** completes with a grid of one row per id in the order requested
+  ** where an unresolvable id is an empty row.  Environments without
+  ** a runtime connection complete with an empty grid.
+  virtual PiFuture readByIds(Ref[] ids) { PiFuture().complete(Etc.makeEmptyGrid) }
+
   ** Connector model registry
   once PiConns conns() { PiConns(ns) }
 }
