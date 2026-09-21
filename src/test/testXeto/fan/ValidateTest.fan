@@ -204,6 +204,17 @@ class ValidateTest : AbstractXetoTest
     cx.recs[system2]  = Etc.makeDict(["id":system2, "spec":Ref("ph::System"), "system":m, "siteRef":other])
     cx.recs[systemOk] = Etc.makeDict(["id":systemOk, "spec":Ref("ph::System"), "system":m, "siteRef":site])
 
+    // equipOk is in site; equipChild is in site but its parent is not
+    equipOk := Ref("e2"); equipChild := Ref("e3")
+    cx.recs[equipOk]    = Etc.makeDict(["id":equipOk, "spec":Ref("ph::Equip"), "equip":m, "siteRef":site])
+    cx.recs[equipChild] = Etc.makeDict(["id":equipChild, "spec":Ref("ph::Equip"), "equip":m,
+                                        "siteRef":site, "equipRef":equip])
+
+    // a two rec equipRef cycle
+    loopA := Ref("la"); loopB := Ref("lb")
+    cx.recs[loopA] = Etc.makeDict(["id":loopA, "spec":Ref("ph::Equip"), "equip":m, "siteRef":site, "equipRef":loopB])
+    cx.recs[loopB] = Etc.makeDict(["id":loopB, "spec":Ref("ph::Equip"), "equip":m, "siteRef":site, "equipRef":loopA])
+
     pt := ns.spec("ph::NumberPoint")
     cx.asCur |x|
     {
@@ -228,31 +239,89 @@ class ValidateTest : AbstractXetoTest
       // equipRef must lead to the same site as siteRef
       verifyPhRule(ns, pt, ["siteRef":other, "equipRef":equip, "tz":"Chicago"], null)
       verifyPhRule(ns, pt, ["siteRef":site, "equipRef":equip, "tz":"New_York"],
-        "ph::equipRefSite", "siteRef", "equipRef site @s2 does not match siteRef @s1")
+        "ph::refSite", "siteRef", "equipRef leads to site @s2, not siteRef @s1")
 
       // spaceRef and systemRef cross check the same way
       verifyPhRule(ns, pt, ["siteRef":other, "spaceRef":space, "tz":"Chicago"], null)
       verifyPhRule(ns, pt, ["siteRef":site, "spaceRef":space, "tz":"New_York"],
-        "ph::spaceRefSite", "siteRef", "spaceRef site @s2 does not match siteRef @s1")
+        "ph::refSite", "siteRef", "spaceRef leads to site @s2, not siteRef @s1")
       verifyPhRule(ns, pt, ["siteRef":other, "systemRef":system, "tz":"Chicago"], null)
       verifyPhRule(ns, pt, ["siteRef":site, "systemRef":system, "tz":"New_York"],
-        "ph::systemRefSite", "siteRef", "systemRef site @s2 does not match siteRef @s1")
+        "ph::refSite", "siteRef", "systemRef leads to site @s2, not siteRef @s1")
 
       // systemRef is a MultiRef: a list is checked the same as a Ref
       verifyPhRule(ns, pt, ["siteRef":other, "systemRef":[system], "tz":"Chicago"], null)
       verifyPhRule(ns, pt, ["siteRef":site, "systemRef":[system], "tz":"New_York"],
-        "ph::systemRefSite", "siteRef", "systemRef site @s2 does not match siteRef @s1")
+        "ph::refSite", "siteRef", "systemRef leads to site @s2, not siteRef @s1")
 
       // every mismatched target in the list reports
       items2 := ns.validate(phPoint(["siteRef":site, "systemRef":[system, system2],
-        "tz":"New_York"]), pt).items.findAll |i| { i.rule == Ref("ph::systemRefSite") }
+        "tz":"New_York"]), pt).items.findAll |i| { i.rule == Ref("ph::refSite") }
       verifyEq(items2.size, 2)
 
       // a list mixing a match and a mismatch reports just the mismatch
       items2 = ns.validate(phPoint(["siteRef":site, "systemRef":[systemOk, system],
-        "tz":"New_York"]), pt).items.findAll |i| { i.rule == Ref("ph::systemRefSite") }
+        "tz":"New_York"]), pt).items.findAll |i| { i.rule == Ref("ph::refSite") }
       verifyEq(items2.size, 1)
+
+      // refSite walks the whole chain: a grandparent in another site is
+      // caught even when the direct parent agrees
+      verifyPhRule(ns, pt, ["siteRef":site, "equipRef":equipOk, "tz":"New_York"], null)
+      verifyPhRule(ns, pt, ["siteRef":site, "equipRef":equipChild, "tz":"New_York"],
+        "ph::refSite", "siteRef", "equipRef leads to site @s2, not siteRef @s1")
+
+      // a cycle is reported instead of walking forever
+      items2 = ns.validate(phPoint(["siteRef":site, "equipRef":loopA, "tz":"New_York"]),
+        pt).items.findAll |i| { i.rule == Ref("ph::refCycle") }
+      verifyEq(items2.size, 1)
+      verifyEq(items2[0].slot, "equipRef")
+      verify(items2[0].msg.startsWith("equipRef forms a cycle:"))
+
+      // refSite is suppressed on a cycle so one tangle is one message
+      verifyEq(ns.validate(phPoint(["siteRef":site, "equipRef":loopA, "tz":"New_York"]),
+        pt).items.findAll |i| { i.rule == Ref("ph::refSite") }.size, 0)
     }
+  }
+
+  ** Point value constraints must agree with the point's own unit
+  Void testPhPointVals()
+  {
+    ns := createNamespace(["sys", "ph"])
+    pt := ns.spec("ph::NumberPoint")
+    hay := Etc.dict1("haystack", Marker.val)
+
+    // min/max carrying the point's unit is clean
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(0, "kW"), "maxVal":n(10, "kW")], [,])
+
+    // wrong unit on either tag reports against that tag
+    verifyPointVals(ns, pt, ["unit":"kW", "maxVal":n(10, "°C")], ["ph::pointValUnit"])
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(0, "°C")], ["ph::pointValUnit"])
+
+    // unitless min/max is a mismatch too
+    verifyPointVals(ns, pt, ["unit":"kW", "maxVal":n(10)], ["ph::pointValUnit"])
+
+    // min above max
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10, "kW"), "maxVal":n(1, "kW")],
+      ["ph::pointMinMax"])
+
+    // equal is allowed
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(5, "kW"), "maxVal":n(5, "kW")], [,])
+
+    // a unit mismatch suppresses the comparison rather than comparing
+    // values which are not comparable
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10, "kW"), "maxVal":n(1, "°C")],
+      ["ph::pointValUnit"])
+  }
+
+  private Void verifyPointVals(Namespace ns, Spec spec, Str:Obj tags, Obj[] expect)
+  {
+    hay := Etc.dict1("haystack", Marker.val)
+    rec := Etc.makeDict(tags.dup.setAll(["id":Ref("p1"), "spec":Ref("ph::NumberPoint"),
+                                         "point":m, "kind":"Number"]))
+    only := ["ph::pointValUnit", "ph::pointMinMax"]
+    items := ns.validate(rec, spec, hay).items.findAll |i| { only.contains(i.rule.id) }
+    actual := items.map |i->Str| { i.rule.id }.sort.join(",")
+    verifyEq(actual, expect.map |x->Str| { x.toStr }.sort.join(","), "$tags -> $items")
   }
 
   ** Build a ph point rec with the given tags

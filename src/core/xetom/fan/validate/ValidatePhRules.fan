@@ -57,48 +57,113 @@ using haystack
 }
 
 **************************************************************************
-** Site Containment
+** Point Values
 **************************************************************************
 
-** A rec which references a container must agree with it about the site.
-** The ref target types are checked by refTargetType; this checks that
-** the two paths to a site lead to the same one.
-@Js internal abstract const class ValidateRefSite : ValidateRule
+@Js internal const class ValidatePointValUnit : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    unit := s.dict?.get("unit") as Str
+    if (unit == null) return
+    ["minVal", "maxVal"].each |tag|
+    {
+      num := s.dict.get(tag) as Number
+      if (num != null && num.unit?.symbol != unit) s.emitOn(tag)
+    }
+  }
+}
+
+@Js internal const class ValidatePointMinMax : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    min := s.dict?.get("minVal") as Number
+    max := s.dict?.get("maxVal") as Number
+    if (min == null || max == null) return
+    if (min.unit != max.unit) return // pointValUnit's check
+    if (min > max) s.emitOn("minVal")
+  }
+}
+
+**************************************************************************
+** Containment
+**************************************************************************
+
+** The equipRef, spaceRef, and systemRef tags form a tree rooted at a
+** site.  These two rules walk that tree: refSite checks every ancestor
+** agrees about the site, refCycle catches a cycle which would make the
+** parent/child queries recurse forever.
+@Js internal abstract const class ValidateContainment : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
 
-  ** Ref tag naming the container to cross check
-  abstract Str refTag()
+  ** Tags which form the containment tree
+  static const Str[] refTags := ["equipRef", "spaceRef", "systemRef"]
 
+  ** Max ancestors walked before giving up, so a cycle through tags we do
+  ** not follow cannot hang the validation
+  private static const Int maxDepth := 100
+
+  ** Walk the chain of ancestors reachable from a tag and call f with each
+  ** one.  A MultiRef tag starts a chain per ref.  When a chain revisits an
+  ** id, f is passed null plus the ids walked, and that chain stops.
+  protected Void eachAncestor(ValidateState s, Str tag, |Dict?, Ref[]| f)
+  {
+    start := s.dict?.get("id") as Ref
+    s.readRefs(tag).each |rec|
+    {
+      seen := start == null ? Ref[,] : Ref[start]
+      Dict? cur := rec
+      while (cur != null && seen.size < maxDepth)
+      {
+        id := cur["id"] as Ref
+        if (id != null && seen.contains(id)) { f(null, seen.dup.add(id)); break }
+        if (id != null) seen.add(id)
+        f(cur, seen)
+
+        next := cur[tag] as Ref
+        cur = next == null ? null : s.readById(next)
+      }
+    }
+  }
+}
+
+@Js internal const class ValidateRefSite : ValidateContainment
+{
+  new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
   {
     site := s.dict?.get("siteRef")
     if (site == null) return
 
-    // the tag may be a Ref or a MultiRef list; every target must agree
-    s.readRefs(refTag).each |parent|
+    refTags.each |tag|
     {
-      parentSite := parent["siteRef"]
-      if (parentSite != null && !Etc.eq(site, parentSite))
-        s.emitOn("siteRef", Etc.dict1("refSite", parentSite))
+      eachAncestor(s, tag) |rec, path|
+      {
+        if (rec == null) return // refCycle's check
+        recSite := rec["siteRef"]
+        if (recSite != null && !Etc.eq(site, recSite))
+          s.emitOn("siteRef", Etc.dictx("refTag", tag, "refSite", recSite))
+      }
     }
   }
 }
 
-@Js internal const class ValidateEquipRefSite : ValidateRefSite
+@Js internal const class ValidateRefCycle : ValidateContainment
 {
   new make(ValidateRuleInit init) : super(init) {}
-  override Str refTag() { "equipRef" }
-}
-
-@Js internal const class ValidateSpaceRefSite : ValidateRefSite
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Str refTag() { "spaceRef" }
-}
-
-@Js internal const class ValidateSystemRefSite : ValidateRefSite
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Str refTag() { "systemRef" }
+  override Void onCheck(ValidateState s)
+  {
+    refTags.each |tag|
+    {
+      eachAncestor(s, tag) |rec, path|
+      {
+        if (rec == null)
+          s.emitOn(tag, Etc.dictx("refTag", tag, "path", path.join(" -> ")))
+      }
+    }
+  }
 }

@@ -114,9 +114,12 @@ class ValidateState
   Dict? readRef(Str name)
   {
     ref := dict?.get(name) as Ref
-    if (ref == null) return null
-    return validator.resolveRef(ref).target
+    return ref == null ? null : readById(ref)
   }
+
+  ** Read the rec a ref points to, or null if it does not resolve.
+  ** Targets are resolved once per validation run.
+  Dict? readById(Ref ref) { validator.resolveRef(ref).target }
 
   ** Read the recs targeted by a Ref or MultiRef tag of the current dict.
   ** Unresolved refs are skipped, so the result may be shorter than the
@@ -126,15 +129,12 @@ class ValidateState
     v := dict?.get(name)
     if (v is Ref)
     {
-      target := validator.resolveRef(v).target
+      target := readById(v)
       return target == null ? Dict#.emptyList : [target]
     }
     list := v as List
     if (list == null) return Dict#.emptyList
-    return list.mapNotNull |x->Dict?|
-    {
-      x is Ref ? validator.resolveRef(x).target : null
-    }
+    return list.mapNotNull |x->Dict?| { x is Ref ? readById(x) : null }
   }
 
   ** Constraint matches when positioned on a query slot with the
