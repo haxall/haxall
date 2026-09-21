@@ -403,6 +403,25 @@
   //      validate(123, Str)                     >> validate a bare value
   validate: Func { val: Obj?, spec: Spec?, opts: Dict?, returns: Grid }
 
+  // Debug the validation rules of the current namespace.  Returns a grid
+  // with a row per `sys::ValidateRule` instance in the order the engine
+  // runs them, which is always after the rules named by their 'unless'.
+  //
+  // The result grid has a row per rule:
+  //   - `rule`: ref to the 'sys::ValidateRule' instance
+  //   - `on`: types the rule applies to; the engine only runs the rule
+  //     where the value's spec is one of them
+  //   - `unless`: rules which suppress this one when they fire first
+  //   - `level`: "err" or "warn"
+  //   - `msg`: message template
+  //   - `impl`: Fantom type implementing the check
+  //
+  // Examples:
+  //
+  //      validateRules()                            >> all rules in order
+  //      validateRules.findAll(r => r->on.isEmpty)  >> rules with unresolved targets
+  validateRules: Func { returns: Grid }
+
   // Match dict recs against specs to find all the specs that fit.  The recs
   // argument can be anything accepted by [toRecList()].  Specs must be a
   // Spec or list of Specs.  If specs argument is omitted, then we match against

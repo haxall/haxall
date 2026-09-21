@@ -541,6 +541,41 @@ class AxonTest : AbstractAxonTest
     verifyEq(grid[0]->slot, "ahu")
   }
 
+  @HxTestProj
+  Void testValidateRules()
+  {
+    initNamespace(["ph"])
+    grid := (Grid)makeContext.eval("validateRules()")
+
+    // every sys rule is reported with its on targets resolved
+    verifyEq(grid.size, 29)
+    grid.each |r|
+    {
+      verify(((List)r->on).size > 0, r->rule.toStr)
+      verifyEq(r->level, "err")
+    }
+
+    row := grid.find |r| { r->rule == Ref("sys::overMaxVal") }
+    verifyEq(row->on, Ref[Ref("sys::Number")])
+    verifyEq(row->unless, Ref[Ref("sys::maxValUnit")])
+    verifyEq(row->msg, "Number \$val > maxVal \$maxVal")
+    verifyEq(row->impl, "xetom::ValidateSysOverMaxVal")
+
+    // rules span several unrelated types when the check does
+    verifyEq(grid.find |r| { r->rule == Ref("sys::unresolvedRef") }->on,
+      Ref[Ref("sys::Ref"), Ref("sys::MultiRef")])
+
+    // rows are in engine order: a rule follows every rule its unless names
+    grid.each |r, i|
+    {
+      ((List)r->unless).each |u|
+      {
+        ui := grid.findIndex |x| { x->rule == u }
+        if (ui != null) verify(ui < i, "$u must order before " + r->rule)
+      }
+    }
+  }
+
   Void verifyValidateFunc(Str expr, Str[] expect)
   {
     grid := (Grid)makeContext.eval(expr)
