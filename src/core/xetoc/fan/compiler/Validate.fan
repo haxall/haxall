@@ -89,11 +89,14 @@ internal class CompileValidator : Validator, CNamespace
     this.prefix   = lib == null ? null : lib.name + "::"
   }
 
-  ** Companion values originate from haystack data such as comp saves,
-  ** so they validate at haystack fidelity
+  ** Skip mixin composition since specx enumerates a namespace still
+  ** under construction; companion values originate from haystack data
+  ** such as comp saves, so they validate at haystack fidelity
   private static Dict toOpts(MXetoCompiler c)
   {
-    c.isCompanion ? Etc.dictSet(compileOpts, "haystack", Marker.val) : compileOpts
+    opts := Etc.dict1("ignoreMixins", Marker.val)
+    if (c.isCompanion) opts = Etc.dictSet(opts, "haystack", Marker.val)
+    return opts
   }
 
   ** Validate one AST node so items can map their locs back thru it.
@@ -137,10 +140,12 @@ internal class CompileValidator : Validator, CNamespace
     return loc
   }
 
-  ** Unresolved refs are externs already settled by Resolve; missing
-  ** slots are not checked because instances inherit from their spec
-  private static const Dict compileOpts :=
-    Etc.dict2("ignoreUnresolvedRefs", Marker.val, "ignoreMissingSlots", Marker.val)
+  ** Missing slots are not checked because instances inherit from
+  ** their spec
+  override Bool checkMissingSlots() { false }
+
+  ** Unresolved refs are externs already settled by the Resolve step
+  override Bool checkUnresolvedRefs() { false }
 
   override Spec? resolveSpec(Str qname)
   {
@@ -182,10 +187,6 @@ internal class CompileValidator : Validator, CNamespace
     }
     return null
   }
-
-  ** Cross-lib mixins compose at runtime only; the lib's own mixin
-  ** meta is already folded into its specs by the MixinMeta step
-  override Spec specx(Spec spec) { spec }
 
   ** Type enumeration such as choice subtype discovery must see the
   ** lib under compile, so we are our own CNamespace

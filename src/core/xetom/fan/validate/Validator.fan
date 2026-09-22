@@ -32,8 +32,6 @@ class Validator
     this.fidelity     = XetoUtil.optFidelity(opts)
     this.ignoreRefs   = opts.has("ignoreRefs")
     this.ignoreMixins = opts.has("ignoreMixins")
-    this.ignoreUnresolvedRefs = opts.has("ignoreUnresolvedRefs")
-    this.ignoreMissingSlots   = opts.has("ignoreMissingSlots")
     this.graph        = opts.has("graph")
     this.strSpec      = ns.sys.str
     this.numberSpec   = ns.sys.number
@@ -196,7 +194,7 @@ class Validator
     if (s.spec.isQuery) return doValidateQuery(s)
 
     // perform intrinsic checks before running all the rules
-    if (isMissingSlot(s)) { if (!ignoreMissingSlots) rules.missingSlot.emit(s); return }
+    if (isMissingSlot(s)) { if (checkMissingSlots) rules.missingSlot.emit(s); return }
     if (s.val == null) return // absent maybe slot
     if (s.valType == null) return rules.unknownType.emit(s)
     if (!isValidType(s)) return rules.invalidType.emit(s)
@@ -342,8 +340,19 @@ class Validator
   ** the compiler substitutes its AST aware namespace
   virtual CNamespace cns() { ns }
 
-  ** Compute specx once per spec
-  virtual Spec specx(Spec spec)
+  ** Check missing required slots; the compiler skips them since
+  ** instances inherit from their spec
+  virtual Bool checkMissingSlots() { true }
+
+  ** Check refs that do not resolve; the compiler drops them since the
+  ** Resolve step already settled existence, so what does not resolve
+  ** there is an extern outside the compile unit
+  virtual Bool checkUnresolvedRefs() { true }
+
+  ** Compute specx once per spec; the ignoreMixins opt skips mixin
+  ** composition here, which the compiler requires since specx
+  ** enumerates a namespace still under construction
+  Spec specx(Spec spec)
   {
     if (ignoreMixins) return spec
     x := specxCache[spec.qname]
@@ -371,9 +380,7 @@ class Validator
     return x
   }
 
-  ** Map value to list of ValidateRef.  The compiler drops unresolved
-  ** refs: the Resolve step already settled existence, so what does not
-  ** resolve here is an extern outside the compile unit
+  ** Map value to list of ValidateRef
   internal ValidateRef[] resolveRefs(Spec spec, Obj? v)
   {
     if (ignoreRefs || spec.name == "id") return ValidateRef#.emptyList
@@ -381,7 +388,7 @@ class Validator
     if (v is Ref) acc.add(resolveRef(v))
     else if (v is List && spec.isMultiRef)
       ((List)v).each |x| { if (x is Ref) acc.add(resolveRef(x)) }
-    if (ignoreUnresolvedRefs) acc = acc.findAll |x| { x.target != null }
+    if (!checkUnresolvedRefs) acc = acc.findAll |x| { x.target != null }
     return acc.isEmpty ? ValidateRef#.emptyList : acc
   }
 
@@ -392,10 +399,8 @@ class Validator
   const MNamespace ns             // namespace
   const ValidateRules rules       // namespace rule registry
   const XetoFidelity fidelity     // value fidelity level
-  const Bool ignoreMixins         // use or ignore mixins
   const Bool ignoreRefs           // check or skip refs targets
-  const Bool ignoreUnresolvedRefs // drop refs that do not resolve (compiler)
-  const Bool ignoreMissingSlots   // skip missingSlot intrinsic (compiler)
+  const Bool ignoreMixins         // skip mixin composition in specx
   const Bool graph                // run graph query constraints
   const Dict opts                 // raw options for engine plumbing
   const Spec strSpec              // spec for sys::Str

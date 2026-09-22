@@ -1002,6 +1002,23 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "Dict", ["x":Etc.dict1("spec", Ref("ph::Point"))], [,])
   }
 
+  ** The ignoreMixins opt skips mixin composition at the specx choke
+  ** point, so mixin contributed members are not resolved or checked
+  Void testEngineIgnoreMixins()
+  {
+    ns   := nsTest
+    lib  := ns.lib("ph")
+    tags := ["id":Ref("s"), "site":m, "gnum":n(-5)]
+
+    // hx.test.xeto mixin contributes required newSlot and the global
+    // gnum: Number <minVal:0>
+    verifyEngine(ns, lib, "Site", tags, ["sys::missingSlot", "sys::underMinVal"])
+
+    // with ignoreMixins newSlot is not required and gnum is just an
+    // unknown tag
+    verifyEngine(ns, lib, "Site", tags, [,], Etc.dict1("ignoreMixins", Marker.val))
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Scalars
 //////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,7 @@ const class ValidateRules
   new make(MNamespace ns) : this.makeLibs(ns, ns.libs) {}
 
   ** Build registry from ValidateRule instances in given libs.  Compiler
-  ** passes a lib's depends, so this ctor must use only lib  only lookups.
+  ** passes a lib's depends, so this ctor must use only lib lookups.
   new makeLibs(Namespace ns, Lib[] libs)
   {
     // funcs with validateRule meta tag
