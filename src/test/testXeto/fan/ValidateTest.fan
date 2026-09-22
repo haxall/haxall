@@ -988,6 +988,20 @@ class ValidateTest : AbstractXetoTest
     verifyEq(r.items.join(",") { it.rule.id }, expect.join(","))
   }
 
+  ** Unknown tags holding scalar wrappers validate against the spec
+  ** they name for themselves; dicts under unknown tags are open
+  ** content and pass
+  Void testEngineUnknownTags()
+  {
+    ns   := nsTest
+    lib  := ns.lib("sys")
+    ssn  := "hx.test.xeto::TestSsn"
+
+    verifyEngine(ns, lib, "Dict", ["x":Scalar(ssn, "123-45-6789")], [,])
+    verifyEngine(ns, lib, "Dict", ["x":Scalar(ssn, "123-45-678x")], ["sys::patternMismatch"])
+    verifyEngine(ns, lib, "Dict", ["x":Etc.dict1("spec", Ref("ph::Point"))], [,])
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Scalars
 //////////////////////////////////////////////////////////////////////////
@@ -1556,6 +1570,155 @@ class ValidateTest : AbstractXetoTest
       "0x1A", "0o77", "\"+INF\"", "foo",
       "0@", "1.2#", "3e4="
     ].each |Str s| { verifyFalse(re.matches(s)) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Compile Time
+//////////////////////////////////////////////////////////////////////////
+
+  ** Custom rules from the depends run at compile time on our instances;
+  ** the runtime side of these rules is covered by testRulesCustom
+  Void testCompileDependRules()
+  {
+    src :=
+    Str<|Foo: TestRuleSubject
+         |>
+
+    verifyCompileTime(src, toInstance(["code":"T100"]), [,])
+    verifyCompileTime(src, toInstance(["code":"X100"]), [
+      "Code 'X100' must start with 'T'",
+    ])
+
+    // the Fantom bound testMinMax rule fires while its func twin
+    // testFuncMinMax skips: there is no context at compile to call
+    // funcs (their runtime behavior is covered by testRulesOnEntity)
+    verifyCompileTime(src, toInstance(["min":n(20), "max":n(10)]), [
+      "Slot 'min': Value 20 must be below max",
+    ])
+  }
+
+  ** A lib's own rules never run at compile time: the registry is built
+  ** from the depends only, so they first apply at runtime
+  Void testCompileOwnLibRules()
+  {
+    src := srcAddPragma(
+      Str<|Foo: Dict { code: Str? }
+
+           @ruleCode: ValidateRule {
+             on: Foo
+             msg: "Code '$code' must start with 'T'"
+           }
+
+           @bad: Foo { code: "X100" }
+           |>)
+    lib := nsTest.compileTempLib(src)
+    verifyEq(lib.instance("bad")->code, "X100")
+  }
+
+  ** Warn level items report to the warn stream and do not fail the
+  ** compile; err level items fail it
+  Void testCompileWarns()
+  {
+    // ph pointTz is a warn: point compiles with a warning
+    src := srcAddPragma(
+      Str<|@site: ph::Site { dis: "Site" }
+           @pt: ph::Point { siteRef: @site }
+           |>)
+    errs := XetoLogRec[,]
+    lib := nsTest.compileTempLib(src, logOpts("log", errs))
+    verifyEq(lib.instances.size, 2)
+    verifyEq(errs.size, 1)
+    verifyEq(errs.first.level, LogLevel.warn)
+    verifyEq(errs.first.msg, "Point should have tz")
+
+    // ph pointMissingSiteRef is an err: the compile fails
+    src = srcAddPragma(
+      Str<|@pt: ph::Point { tz: "New_York" }
+           |>)
+    errs.clear
+    try { nsTest.compileTempLib(src, logOpts("log", errs)); fail } catch (Err e) {}
+    verifyEq(errs.first.msg, "Point must have siteRef or weatherStationRef")
+  }
+
+  ** Missing required slots are not compile errors since instances
+  ** inherit from their spec; at runtime they report
+  Void testCompileMissingSlots()
+  {
+    src :=
+    Str<|Foo: Dict {
+           req: Str
+           opt: Str?
+         }|>
+
+    verifyValidate(src, ["req":"x"], [,])
+    verifyValidate(src, [:], [,], [
+      "Slot 'req': Missing required slot 'req'",
+    ])
+  }
+
+  ** Spec meta values validate against their meta member specs; This
+  ** typed meta such as minVal follows the plain numeric idiom and is
+  ** not checked
+  Void testCompileMeta()
+  {
+    verifyCompileMeta("Foo: Dict <metaSized:\"abc\">", null)
+    verifyCompileMeta("Foo: Dict <metaSized:\"ab\">", "Size 2 < minSize 3")
+    verifyCompileMeta("Foo: Dict { a: Str <metaSized:\"ab\"> }", "Size 2 < minSize 3")
+    verifyCompileMeta("Foo: Scalar <minVal:0, maxVal:1> \"0\"", null)
+  }
+
+  private Void verifyCompileMeta(Str src, Str? expect)
+  {
+    errs := XetoLogRec[,]
+    try
+      nsTest.compileTempLib(srcAddPragma(src), logOpts("log", errs))
+    catch (Err e)
+      {}
+    verifyEq(errs.map |x->Str| { x.msg }, expect == null ? Str[,] : Str[expect])
+  }
+
+  ** Items report at the source loc of the offending value, refined by
+  ** walking the item's slot path back thru the AST
+  Void testCompileLocs()
+  {
+    src := srcAddPragma(
+      Str<|Foo: Dict {
+             num: Number <maxVal:5>
+             tags: List<of:Number>
+           }
+
+           @a: Foo {
+             num: 10
+             tags: { Number 1, Uri "x" }
+           }
+           |>)
+    errs := XetoLogRec[,]
+    try { nsTest.compileTempLib(src, logOpts("log", errs)) } catch (Err e) {}
+    verifyEq(errs.size, 2)
+    verifyEq(errs[0].msg, "Slot 'num': Number 10 > maxVal 5")
+    verifyEq(errs[0].loc.line, 11)
+    verifyEq(errs[1].msg.contains("Slot 'tags.1'"), true)
+    verifyEq(errs[1].loc.line, 12)
+  }
+
+  ** Data compiles validate thru the engine: scalar roots, dict roots,
+  ** and custom rules from the namespace
+  Void testCompileData()
+  {
+    ns := nsTest
+
+    ssnOk := ns.io.readXeto(Str<|hx.test.xeto::TestSsn "123-45-6789"|>)
+    verifyEq(ssnOk, Scalar("hx.test.xeto::TestSsn", "123-45-6789"))
+
+    verifyErrMsg(XetoCompilerErr#, "String encoding does not match pattern for 'hx.test.xeto::TestSsn'")
+    {
+      ns.io.readXeto(Str<|hx.test.xeto::TestSsn "123-45-678x"|>)
+    }
+
+    verifyErrMsg(XetoCompilerErr#, "Code 'X100' must start with 'T'")
+    {
+      ns.io.readXeto(Str<|hx.test.xeto::TestRuleSubject { code: "X100" }|>)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -18,6 +18,7 @@
   metaR: Marker? <noInherit>
   metaNum: Number?
   metaStr: Str?
+  metaSized: Str? <minSize:3>
 }
 
 MetaInheritA: Dict <metaQ, metaR> {
