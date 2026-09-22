@@ -290,7 +290,7 @@ class IOTest : AbstractXetoTest
     verifyIO(g)
 
     // a col 'of' contradicting a typed row's declared member is an error
-    verifyErrMsg(XetoCompilerErr#, "Slot 'other': Slot type is 'sys::Str', value type is 'sys::Number'")
+    verifyErrMsg(XetoCompilerErr#, "Slot 'other': Col 'of' type 'sys::Number' conflicts row type 'sys::Str'")
     {
       ns.io.readXeto(Str<|Grid {
                             cols: { {name: "other", of: Number} }

@@ -70,6 +70,7 @@ internal class MXetoCompiler : XetoCompiler
       ReifyInstances(),
       CheckErrors(),
       Assemble(),
+      Validate(),
       ReuseThunks(),
       OutputZip()
     ])
@@ -87,6 +88,7 @@ internal class MXetoCompiler : XetoCompiler
       InferInstances(),
       ReifyInstances(),
       CheckErrors(),
+      Validate(),
     ])
 
     res := ast.asm

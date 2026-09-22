@@ -59,6 +59,16 @@ An unimplemented rule becomes a `ValidateUnboundRule` so it stays in the
 registry.  Func rules return from `onCheck` when there is no
 `XetoContext`, which is how lib compiles skip them.
 
+## Unknown Tags
+
+The walk checks a dict tag with no declared slot or member two ways:
+ref values get their targets resolved and checked, and Scalar wrappers
+and spec tagged dicts are validated against the spec they name for
+themselves - a value that declares its own type must satisfy it.  Other
+unknown tag values are untyped data and pass.  A tag-less dict value is accepted against a
+declared dict type and walked structurally; against any other type it
+is an invalid type.
+
 ## Reporting Position
 
 An item takes its slot path, value, and spec from the frame it is emitted
@@ -69,6 +79,44 @@ item points at.
 of the current dict, reports there, and pops.  It reuses the same frame
 the walk itself pushes, which is why the message variables come out right
 with no special handling.
+
+## Compile Time
+
+The same engine runs inside the xetoc pipeline: the `Validate` step runs
+after `Assemble`, when instances and specs are their real
+implementations.  Items route into the compiler err/warn streams as
+they emit via the `Validator.onEmit` hook, with locs refined by walking
+the item's slot path back thru the AST.
+`CheckErrors` keeps only the checks with no runtime analog: AST
+shape (names, inheritance, covariance, member structure), named list
+items (names do not survive reification), and the spec meta value path,
+which stays on `CheckVal` until the old Fitter engine retires.
+
+Data compiles validate the root asm value directly - the engine walks
+dicts, lists, and scalars just like at runtime.  A Grid has no instance
+level checks: rows are columnar and carry no spec tags, so the col 'of'
+versus declared row member conflict is reported by InferData, where the
+AST typing lives.
+
+Rules come only from the dependency chain: `ValidateRules.makeLibs`
+builds the registry from the compile's depends, so a lib's own rules
+never run on its own instances at compile time - they first apply at
+runtime once the lib loads into a full namespace.  This scoping is also
+what makes compile time work at all: the namespace is still under
+construction during lib compiles (`MNamespace` compiles libs from its
+own constructor), so compile-time code may point-lookup loaded libs thru
+the namespace but must never enumerate it.  The step skips entirely when
+sys is not in the depends, which is only the sys bootstrap itself.
+
+`xetoc::CompileValidator` overrides the engine's resolution hooks
+(`resolveSpec`, `resolveInstance`, `specOf`, `specx`, `cns`) to overlay
+the lib under compile, which is not in the namespace yet.  It is its own
+`CNamespace` because choice subtype discovery must enumerate the
+assembled own lib - `ANamespace` cannot be reused there since its AST
+tops never `isa` an assembled spec.  Two opts keep parity with the old
+CheckErrors behavior: `ignoreUnresolvedRefs` (Resolve already settled
+existence, so what does not resolve here is an extern) and
+`ignoreMissingSlots` (instances inherit from their spec).
 
 ## Intrinsics
 

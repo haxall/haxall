@@ -462,7 +462,7 @@ internal const class BoolBinding : ScalarBinding
 internal const class BufBinding : ScalarBinding
 {
   new make(Type type) : super(type.qname, type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Buf.fromBase64(str) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { Buf.fromBase64(str).toImmutable }
   override Str encodeScalar(Obj v) { ((Buf)v).toBase64Uri }
 }
 

@@ -432,13 +432,14 @@ verifyErrs: |
   Slot 'a': Number must be 'length' unit; 'kW' has quantity of 'power'
   Slot 'b': Number -21kW < minVal -20kW
   Slot 'b': Number -9kW > maxVal -10kW
-  Slot 'b': Number -15W has invalid unit, minVal requires 'kW'
-  Slot 'c': Number 12 has invalid unit, maxVal requires 'kW'
-  Slot 'c': Number 12% has invalid unit, maxVal requires 'kW'
+  Slot 'b': Number -15W has unit incompatible with maxVal -10kW
+  Slot 'b': Number -15W has unit incompatible with minVal -20kW
+  Slot 'c': Number 12 has unit incompatible with maxVal 100kW
+  Slot 'c': Number 12% has unit incompatible with maxVal 100kW
   Slot 'd': Number 3 must have unit of 'kWh'
   Slot 'd': Number 3% must have unit of 'kWh'
   Slot 'd': Number 3Wh must have unit of 'kWh'
-  Slot 'e': Unit 'ft' must be 'power' not 'length'
+  Slot 'e': Number must be 'power' unit; 'ft' has quantity of 'length'
 ---
 name: "listChecks"
 compileLib: |
@@ -495,9 +496,9 @@ compileLib: |
 
   @e: Car { color:"blue", st: "TX", ok }
 verifyErrs: |
-  Invalid key 'bad1' for enum type 'temp::Color'
+  Slot 'color': Invalid key 'bad1' for enum type 'temp::Color'
   Slot 'color': Invalid key 'bad2' for enum type 'temp::Color'
-  Invalid key 'tx' for enum type 'temp::State'
+  Slot 'st': Invalid key 'tx' for enum type 'temp::State'
   Slot 'st': Invalid key 'va' for enum type 'temp::State'
 ---
 name: "choiceChecks"
@@ -523,9 +524,23 @@ compileLib: |
   @c: Car {red,blue}
 verifyErrs: |
   Slot 'color': Missing required choice 'temp::Color'
-  Slot 'color': Conflicting choice 'temp::Color': Red, Blue
+  Slot 'color': Conflicting choice 'temp::Color': Blue, Red
 ---
 name: "finalVal"
+compileLib: |
+  Foo: {
+    a: Str "A"
+    b: Str "B"
+    c: Str <invariant> "C"
+  }
+
+  Baz: Foo {
+    c: Str "no way"
+  }
+verifyErrs: |
+  Slot 'c' is invariant and cannot declare new default value
+---
+name: "finalValInstance"
 compileLib: |
   Foo: {
     a: Str "A"
@@ -537,15 +552,10 @@ compileLib: |
     b: Str <invariant> "Boo"
   }
 
-  Baz: Foo {
-    c: Str "no way"
-  }
-
   @ok: Foo { a:"alpha", b:"beta", c:"C" }
   @errC: Foo { a:"alpha", b:"beta", c:"charlie" }
   @errB: Bar { a:"alpha", b:"beta", c:"C" }
 verifyErrs: |
-  Slot 'c' is invariant and cannot declare new default value
   Slot 'c': Must have invariant value 'C'
   Slot 'b': Must have invariant value 'Boo'
 ---

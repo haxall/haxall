@@ -298,7 +298,7 @@ using haystack
     dict := s.parentDict
     if (dict == null) return
     acc := Spec[,]
-    MChoice.findSelections((CNamespace)s.ns, slot, dict, acc)
+    MChoice.findSelections(s.cns, slot, dict, acc)
     if (acc.isEmpty) s.emit(Etc.dict1("choice", slot.type.id))
   }
 }
@@ -313,7 +313,7 @@ using haystack
     dict := s.parentDict
     if (dict == null) return
     acc := Spec[,]
-    MChoice.findSelections((CNamespace)s.ns, slot, dict, acc)
+    MChoice.findSelections(s.cns, slot, dict, acc)
     if (MChoice.isConflict(slot, acc))
       s.emit(Etc.dictx("choice", slot.type.id, "selections", acc.join(", ") { it.name }))
   }
@@ -464,12 +464,6 @@ using haystack
 **************************************************************************
 
 @Js internal const class ValidateSugarConstraint : ValidateRule
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Void onCheck(ValidateState s) {}
-}
-
-@Js internal const class ValidateListNamedItem : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s) {}

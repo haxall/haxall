@@ -1033,16 +1033,15 @@ class ValidateTest : AbstractXetoTest
     // all ok
     verifyValidate(src, ["num":n(123), "str":"hi"], [,])
 
-    // invalid types
+    // invalid types; compile fails fast on the scalar decode err
+    // before the Validate step runs
     verifyValidate(src, ["num":"bad", "str":n(123), "ref":n(123)],
       [
         "Invalid 'sys::Number' string value: \"bad\"",
-        "Slot 'num': String encoding does not match pattern for 'sys::Number'",
-        "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
       ],
       [
-        "Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
-        "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
+        "Slot 'num': Invalid type 'sys::Str', expecting 'sys::Number'",
+        "Slot 'str': Invalid type 'sys::Number', expecting 'sys::Str'",
       ])
   }
 
@@ -1174,32 +1173,54 @@ class ValidateTest : AbstractXetoTest
          MySizeStr: Scalar <minSize:2, maxSize:4>
          |>
 
-    // all ok
+    // at runtime full fidelity requires custom scalars to be Scalar
+    // wrappers, so plain Str values for b/d/f are invalid types (see
+    // testEngineConstraints for runtime checks with typed values)
+    bInvalid := "Slot 'b': Invalid type 'sys::Str', expecting 'temp::MyDate'"
+    dInvalid := "Slot 'd': Invalid type 'sys::Str', expecting 'temp::MyNonEmpty'"
+    fInvalid := "Slot 'f': Invalid type 'sys::Str', expecting 'temp::MySizeStr'"
+
+    // all ok at compile
     ok := ["a":"2024-11-07", "b":"1234-56-78", "c":"!", "d":"!", "e":"ab", "f":"abce"]
-    verifyValidate(src, ok, [,])
+    verifyValidate(src, ok, [,], [bInvalid, dInvalid, fInvalid])
 
     // bad pattern
     verifyValidate(src, ok.dup.setAll(["a":"2024-11-7", "b":"1234_56_78"]), [
-      "Slot 'a': String encoding does not match pattern for 'temp::Foo.a'",
+      "Slot 'a': String encoding does not match pattern for 'sys::Str'",
       "Slot 'b': String encoding does not match pattern for 'temp::MyDate'",
+    ], [
+      "Slot 'a': String encoding does not match pattern for 'sys::Str'",
+      bInvalid, dInvalid, fInvalid,
     ])
 
     // empty
     verifyValidate(src, ok.dup.setAll(["c":"", "d":" "]), [
-      "Slot 'c': String must be non-empty",
-      "Slot 'd': String must be non-empty",
+      "Slot 'c': Must be non-empty",
+      "Slot 'd': Must be non-empty",
+    ], [
+      bInvalid,
+      "Slot 'c': Must be non-empty",
+      dInvalid, fInvalid,
     ])
 
     // minSize
     verifyValidate(src, ok.dup.setAll(["e":"", "f":"1"]), [
-      "Slot 'e': String size 0 < minSize 2",
-      "Slot 'f': String size 1 < minSize 2",
+      "Slot 'e': Size 0 < minSize 2",
+      "Slot 'f': Size 1 < minSize 2",
+    ], [
+      bInvalid, dInvalid,
+      "Slot 'e': Size 0 < minSize 2",
+      fInvalid,
     ])
 
     // maxSize
     verifyValidate(src, ok.dup.setAll(["e":"12345", "f":"123456"]), [
-      "Slot 'e': String size 5 > maxSize 4",
-      "Slot 'f': String size 6 > maxSize 4",
+      "Slot 'e': Size 5 > maxSize 4",
+      "Slot 'f': Size 6 > maxSize 4",
+    ], [
+      bInvalid, dInvalid,
+      "Slot 'e': Size 5 > maxSize 4",
+      fInvalid,
     ])
   }
 
@@ -1224,30 +1245,29 @@ class ValidateTest : AbstractXetoTest
 
     // empty
     verifyValidate(src, ok.dup.setAll(["a":Str[,]]), [
-      "Slot 'a': List must be non-empty",
+      "Slot 'a': Must be non-empty",
     ])
 
     // minSize
     verifyValidate(src, ok.dup.setAll(["b":Str[,]]), [
-      "Slot 'b': List size 0 < minSize 1",
+      "Slot 'b': Size 0 < minSize 1",
     ])
 
     // maxSize
     verifyValidate(src, ok.dup.setAll(["b":["1", "2", "3", "4"]]), [
-      "Slot 'b': List size 4 > maxSize 3",
+      "Slot 'b': Size 4 > maxSize 3",
     ])
 
-    // item types
+    // item types report as per-item frames at dotted paths
     verifyValidate(src, ok.dup.set("c", [n(123), Etc.dict0, 123, `uri`]), [
-      "Slot 'c': List item type is 'sys::Number', item type is 'sys::Dict'",
-      "Slot 'c': List item type is 'sys::Number', item type is 'sys::Uri'",
+      "Slot 'c.1': Invalid type 'sys::Dict', expecting 'sys::Number'",
+      "Slot 'c.3': Invalid type 'sys::Uri', expecting 'sys::Number'",
     ])
 
-    // item types using list subtype, for compile-time we require nominal
-    // typing but for fits-time we allow structure typing
+    // item types using list subtype
     verifyRunTime(src, ok.dup.set("d", [`uri1`, n(123), Etc.dict0, `uri2`]), [
-      "Slot 'd': List item type is 'sys::Uri', item type is 'sys::Number'",
-      "Slot 'd': List item type is 'sys::Uri', item type is 'sys::Dict'",
+      "Slot 'd.1': Invalid type 'sys::Number', expecting 'sys::Uri'",
+      "Slot 'd.2': Invalid type 'sys::Dict', expecting 'sys::Uri'",
     ])
   }
 
@@ -1267,15 +1287,24 @@ class ValidateTest : AbstractXetoTest
          Color: Enum { red, blue }
          |>
 
-    // all ok
-    verifyValidate(src, ["s":"down", "p":"Bank Branch", "c":"red"], [,])
+    // at runtime full fidelity requires enum values to be Scalar
+    // wrappers, so plain Str values are invalid types (see
+    // testEngineConstraints for runtime checks with typed values)
+    enumInvalid := [
+      "Slot 'c': Invalid type 'sys::Str', expecting 'temp::Color'",
+      "Slot 'p': Invalid type 'sys::Str', expecting 'ph::PrimaryFunction'",
+      "Slot 's': Invalid type 'sys::Str', expecting 'ph::CurStatus'",
+    ]
+
+    // all ok at compile
+    verifyValidate(src, ["s":"down", "p":"Bank Branch", "c":"red"], [,], enumInvalid)
 
     // bad keys
     verifyValidate(src, ["c":"x", "p":"bankBranch", "s":"y"], [
       "Slot 'c': Invalid key 'x' for enum type 'temp::Color'",
       "Slot 'p': Invalid key 'bankBranch' for enum type 'ph::PrimaryFunction'",
       "Slot 's': Invalid key 'y' for enum type 'ph::CurStatus'",
-    ])
+    ], enumInvalid)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1361,8 +1390,8 @@ class ValidateTest : AbstractXetoTest
 
     // invalid multiref types
     verifyValidate(src, ok.dup.setAll(["d":n(123), "e":[n(123)], "u":refFoo]), [
-      "Slot 'd': Slot type is 'sys::MultiRef', value type is 'sys::Number'",
-      "Slot 'e': Slot type is 'sys::MultiRef', value type is 'sys::List'",
+      "Slot 'd': Invalid type 'sys::Number', expecting 'sys::MultiRef'",
+      "Slot 'e': Invalid type 'sys::List', expecting 'sys::MultiRef'",
     ])
 
     // unresolved refs (in compiler this happens in Resolve step)
@@ -1399,9 +1428,9 @@ class ValidateTest : AbstractXetoTest
       "Slot 'equipRef': Ref target must be 'ph::Equip', target is 'sys::Spec'",
     ])
 
-    // target type not found (only in fitter)
+    // target type not found (runtime only)
     verifyRunTime(src, ok.dup.set("equipRef", refEqX).set("enum", Ref("ph::WeatherCondEnum")), [
-      "Slot 'equipRef': Ref target spec not found: 'bad.lib::BadSpec'",
+      "Slot 'equipRef': Ref target spec not found: @to-eq-x",
     ])
 
     // list of refs
@@ -1422,7 +1451,7 @@ class ValidateTest : AbstractXetoTest
     // invalid target types in lib
     verifyValidate(src, ["id":Ref.gen, "area":n(13, "ft"), "site":Date.today], [
       "Slot 'area': Number must be 'area' unit; 'ft' has quantity of 'length'",
-      "Slot 'site': Global type is 'sys::Marker', value type is 'sys::Date'",
+      "Slot 'site': Invalid type 'sys::Date', expecting 'sys::Marker'",
       ])
 
 
@@ -1436,7 +1465,7 @@ class ValidateTest : AbstractXetoTest
 
     // invalid target types in lib
     verifyCompileTime(src, toInstance(["baz":Uri("file.txt")]), [
-      "Slot 'baz': Global type is 'sys::Number', value type is 'sys::Uri'",
+      "Slot 'baz': Invalid type 'sys::Uri', expecting 'sys::Number'",
       ])
 
     // invalid target types in lib
@@ -1568,22 +1597,22 @@ class ValidateTest : AbstractXetoTest
     verifyErrs("Compile Time", instance, null, errs, expect)
   }
 
-  ** Verify the instance checked using fits explain after lib src is compiled.
-  ** TODO: rejoin ns.validate here once the new engine reaches parity; these
-  ** fixtures then become the old-vs-new compare harness
+  ** Verify the instance checked using ns.validate after lib src is compiled
   Void verifyRunTime(Str src, Obj instance, Str[] expect)
   {
     src = srcAddPragma(src)
     instance = toInstance(instance)
     lib  := nsTest.compileTempLib(src)
     spec := lib.spec("Foo")
-    errs := XetoLogRec[,]
-    opts := logOpts("explain", errs)
     initContext(lib).asCur |cx|
     {
-      fits := nsTest.fits(instance, spec, opts)
-      verifyErrs("Fits Time", instance, null, errs, expect)
-      verifyEq(fits, errs.isEmpty)
+      r := nsTest.validate(instance, spec)
+      recs := r.items.map |item->XetoLogRec|
+      {
+        msg := item.slot != null ? "Slot '$item.slot': $item.msg" : item.msg
+        return XetoLogRec(item.level.isErr ? LogLevel.err : LogLevel.warn, null, msg, FileLoc.unknown, null)
+      }
+      verifyErrs("Run Time", instance, r, recs, expect)
     }
   }
 

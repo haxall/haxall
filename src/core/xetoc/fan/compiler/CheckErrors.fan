@@ -19,10 +19,8 @@ internal class CheckErrors : Step
 {
   override Void run()
   {
-    if (isLib)
-      checkLib(lib)
-    else
-      checkData(data.root, null)
+    // instance and data value checks are performed by the Validate step
+    if (isLib) checkLib(lib)
     bombIfErr
   }
 
@@ -384,7 +382,20 @@ internal class CheckErrors : Step
     else if (!XetoUtil.isInstanceName(name))
       err("Instance name '$name' is invalid", x.loc)
 
-    checkDict(x, null)
+    // named list items are an AST only check: names do not survive
+    // reification, so the Validate step cannot see them
+    x.walkTopDown |n|
+    {
+      d := n as ADict
+      if (d != null && d.isList) checkListNames(d)
+    }
+  }
+
+  Void checkListNames(ADict x)
+  {
+    named := false
+    x.each |v, n| { if (!XetoUtil.isAutoName(n)) named = true }
+    if (named) err("List cannot contain named items", x.loc)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -451,17 +462,15 @@ internal class CheckErrors : Step
     Spec? of := null
     if (spec.name != "ofs" && !spec.isMultiRef) of = XetoUtil.ofType(spec, false)
 
-    // walk thru each item and check auto-name and optionally item type
-    named := false
+    // walk thru each item and check item type against of
     x.each |v, n|
     {
-      if (!XetoUtil.isAutoName(n)) named = true
       if (of != null && !v.type.isa(of))
       {
         errSlot(slot, "List item type is '$of', item type is '$v.type'", v.loc)
       }
     }
-    if (named) errSlot(slot, "List cannot contain named items", x.loc)
+    checkListNames(x)
   }
 
   Void checkDictSlot(ADict x, Spec slot)

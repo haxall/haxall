@@ -189,7 +189,15 @@ internal abstract class InferData : Step
       {
         if (cell.typeRef != null) return
         cof := colOf[name]
-        if (cof != null) { cell.typeRef = ASpecRef.makeResolved(cell.loc, cof); return }
+        if (cof != null)
+        {
+          // col 'of' cannot contradict a typed row's declared member
+          rowMember := rd.typeRef?.deref?.member(name, false)
+          if (rowMember != null && !cof.isa(rowMember.type))
+            errSlot(rowMember, "Col 'of' type '$cof' conflicts row type '$rowMember.type'", cell.loc)
+          cell.typeRef = ASpecRef.makeResolved(cell.loc, cof)
+          return
+        }
         slot := member?.member(name, false)
         if (slot != null) cell.typeRef = inferDictSlotType(cell.loc, slot)
       }

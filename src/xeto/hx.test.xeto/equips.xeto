@@ -79,7 +79,7 @@ Equip3Own : EquipWithPointsX & EquipWithPointsY & EquipWithPointsZ {
 EquipNamed : Ahu {
   points: {
     zoneTemp: ZoneAirTempSensor {
-      modbusCurAddr:   { addr: "1001", encoding: "s2" }
+      modbusCurAddr:   { addr: "1001", encoding: "s2", access: "rw" }
       modbusWriteAddr: { addr: "1101", encoding: "s2" }
       bacnetCurAddr:   { addr: "AI1" }
       bacnetHisAddr:   { addr: "TL1" }

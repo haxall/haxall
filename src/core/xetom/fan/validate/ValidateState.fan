@@ -27,7 +27,6 @@ class ValidateState
     this.validator   = validator
     this.ns          = validator.ns
     this.subject     = subject
-    this.reflect     = ns.reflect(subject, spec)
     this.subjectSpec = spec
     this.loc         = loc
     this.root        = ValidateStateVal(validator, null, subject, spec)
@@ -40,7 +39,6 @@ class ValidateState
     this.validator   = validator
     this.ns          = validator.ns
     this.subject     = Etc.dict0
-    this.reflect     = ns.reflect(subject, spec)
     this.subjectSpec = spec
     this.loc         = loc
     this.root        = ValidateStateVal(validator, null, val, spec)
@@ -54,14 +52,17 @@ class ValidateState
   ** Namespace of validation run
   const Namespace ns
 
+  ** Namespace for type enumeration such as choice subtype discovery
+  CNamespace cns() { validator.cns }
+
   ** Subject
   const Dict subject
 
   ** Subject spec we are validating against
   const Spec subjectSpec
 
-  ** Reflection of subject
-  const ReflectDict reflect
+  ** Reflection of subject, computed lazily on first use
+  once ReflectDict reflect() { ns.reflect(subject, subjectSpec) }
 
   ** File location if applicable
   const FileLoc loc

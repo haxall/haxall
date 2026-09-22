@@ -32,6 +32,8 @@ class Validator
     this.fidelity     = XetoUtil.optFidelity(opts)
     this.ignoreRefs   = opts.has("ignoreRefs")
     this.ignoreMixins = opts.has("ignoreMixins")
+    this.ignoreUnresolvedRefs = opts.has("ignoreUnresolvedRefs")
+    this.ignoreMissingSlots   = opts.has("ignoreMissingSlots")
     this.graph        = opts.has("graph")
     this.strSpec      = ns.sys.str
     this.numberSpec   = ns.sys.number
@@ -126,15 +128,22 @@ class Validator
 
       // check rest of the dict tags: members chain resolves globals
       // after slots; unknown tags with ref values get their targets
-      // checked for existence.  The id and spec tag names are
-      // reserved and exempt from unknown ref checking.
+      // checked for existence, and scalar wrappers and spec tagged
+      // dicts are checked against the spec they name for themselves.
+      // The id and spec tag names are reserved and exempt from
+      // unknown tag checking.
       s.dict.each |v, n|
       {
         if (s.spec.slots.has(n)) return // walked as declared slot above
         member := s.spec.members.get(n, false)
         if (member != null) return validateSlot(s, member.name, member, v)
-        if (isUnknownRefs(v) && n != "id" && n != "spec")
-          validateSlot(s, n, v is List ? multiRefSpec : ns.sys.ref, v)
+        if (n == "id" || n == "spec") return
+        if (isUnknownRefs(v)) return validateSlot(s, n, v is List ? multiRefSpec : ns.sys.ref, v)
+        if (v is Scalar || (v as Dict)?.has("spec") == true)
+        {
+          sp := specOf(v)
+          if (sp != null) validateSlot(s, n, specx(sp), v)
+        }
       }
     }
   }
@@ -186,7 +195,7 @@ class Validator
     if (s.spec.isQuery) return doValidateQuery(s)
 
     // perform intrinsic checks before running all the rules
-    if (isMissingSlot(s)) return rules.missingSlot.emit(s)
+    if (isMissingSlot(s)) { if (!ignoreMissingSlots) rules.missingSlot.emit(s); return }
     if (s.val == null) return // absent maybe slot
     if (s.valType == null) return rules.unknownType.emit(s)
     if (!isValidType(s)) return rules.invalidType.emit(s)
@@ -222,9 +231,9 @@ class Validator
       return valType === strSpec
     }
 
-    // a dict without a spec tag is checked as a standard dict
-    // against the declared slot type
-    if (s.dict != null && s.dict.missing("spec")) return true
+    // a dict without a spec tag is checked as a standard dict against
+    // the declared slot type, but only when that type is itself a dict
+    if (s.dict != null && s.dict.missing("spec") && type.isDict) return true
 
     // if it fits by direct nominal typing
     if (valType.isa(type)) return true
@@ -306,7 +315,14 @@ class Validator
 //////////////////////////////////////////////////////////////////////////
 
   ** Accumulator one item
-  Void emit(MValidateItem item) { items.add(item) }
+  Void emit(MValidateItem item)
+  {
+    items.add(item)
+    onEmit(item)
+  }
+
+  ** Hook when new item is emitted
+  virtual Void onEmit(MValidateItem item) {}
 
   ** Resolution hooks: the compiler overrides these to overlay the lib
   ** under compile, which is not in the namespace yet.  Everything the
@@ -320,6 +336,10 @@ class Validator
 
   ** Map value to its actual spec or null if unmapped
   virtual Spec? specOf(Obj? val) { ns.specOf(val, false) }
+
+  ** Namespace for type enumeration such as choice subtype discovery;
+  ** the compiler substitutes its AST aware namespace
+  virtual CNamespace cns() { ns }
 
   ** Compute specx once per spec
   virtual Spec specx(Spec spec)
@@ -350,18 +370,18 @@ class Validator
     return x
   }
 
-  ** Map value to list of ValidateRef
+  ** Map value to list of ValidateRef.  The compiler drops unresolved
+  ** refs: the Resolve step already settled existence, so what does not
+  ** resolve here is an extern outside the compile unit
   internal ValidateRef[] resolveRefs(Spec spec, Obj? v)
   {
     if (ignoreRefs || spec.name == "id") return ValidateRef#.emptyList
-    if (v is Ref) return [resolveRef(v)]
-    if (v is List && spec.isMultiRef)
-    {
-      acc := ValidateRef[,]
+    acc := ValidateRef[,]
+    if (v is Ref) acc.add(resolveRef(v))
+    else if (v is List && spec.isMultiRef)
       ((List)v).each |x| { if (x is Ref) acc.add(resolveRef(x)) }
-      return acc
-    }
-    return ValidateRef#.emptyList
+    if (ignoreUnresolvedRefs) acc = acc.findAll |x| { x.target != null }
+    return acc.isEmpty ? ValidateRef#.emptyList : acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -373,6 +393,8 @@ class Validator
   const XetoFidelity fidelity     // value fidelity level
   const Bool ignoreMixins         // use or ignore mixins
   const Bool ignoreRefs           // check or skip refs targets
+  const Bool ignoreUnresolvedRefs // drop refs that do not resolve (compiler)
+  const Bool ignoreMissingSlots   // skip missingSlot intrinsic (compiler)
   const Bool graph                // run graph query constraints
   const Dict opts                 // raw options for engine plumbing
   const Spec strSpec              // spec for sys::Str
