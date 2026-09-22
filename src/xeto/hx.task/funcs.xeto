@@ -150,7 +150,7 @@
   taskDebugPool: Func <nodoc, admin> { returns: Grid }
 
   // Refresh the user account used for tasks
-  taskRefreshUser: Func <admin, sideEffects> { returns: Obj? }
+  taskRefreshUser: Func <admin> { returns: Obj? }
 
   // White-box testing for adjunct
   taskTestAdjunct: Func <nodoc> { returns: Number }
