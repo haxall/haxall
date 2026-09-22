@@ -190,6 +190,9 @@ abstract class AxonContext : HaystackContext, CompContext
 // XetoContext
 //////////////////////////////////////////////////////////////////////////
 
+  ** Axon contexts can call function thunks
+  @NoDoc override Bool xetoCanCallFuncs() { true }
+
   ** Return true if the given rec is nominally an instance of the given
   ** spec.  This is used by haystack Filters with a spec name.  The spec
   ** name may be qualified or unqualified.

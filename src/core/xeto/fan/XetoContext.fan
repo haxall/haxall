@@ -28,6 +28,10 @@ mixin XetoContext : ActorContext
   ** spec.  This is used by haystack Filters with a spec name.  The spec
   ** name may be qualified or unqualified.
   @NoDoc abstract Bool xetoIsSpec(Str spec, Dict rec)
+
+  ** Can this context call function thunks, which require an Axon
+  ** runtime.  Func validation rules skip when this is false.
+  @NoDoc virtual Bool xetoCanCallFuncs() { false }
 }
 
 **************************************************************************

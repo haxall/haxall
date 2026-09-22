@@ -35,8 +35,9 @@ const class ValidateFuncRule : ValidateRule
 
   override Void onCheck(ValidateState s)
   {
-    // funcs need a runtime to call them; compiling a lib has none
-    if (XetoContext.curXeto(false) == null) return
+    // funcs need a runtime to call them; compiling a lib has none and
+    // a plain xeto context such as a compiler or test context cannot
+    if (XetoContext.curXeto(false)?.xetoCanCallFuncs != true) return
 
     res := func.func.thunk.callList([s.spec, s.val])
     if (res == null) return

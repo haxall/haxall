@@ -108,6 +108,20 @@ class ValidateTest : AbstractXetoTest
     verifyEq(r.impl, "hx.test.xeto::testValidateMinMax")
   }
 
+  ** Func rules skip under a context which cannot call funcs, such as
+  ** a plain xeto context without an Axon runtime; the Fantom bound
+  ** rule on the same subject still fires
+  Void testRulesFuncNoAxon()
+  {
+    ns   := createNamespace(["sys", "hx.test.xeto"])
+    spec := ns.spec("hx.test.xeto::TestRuleSubject")
+    TestContext().asCur |cx|
+    {
+      items := ns.validate(Etc.dictx("id", Ref("x"), "min", n(20), "max", n(10)), spec).items
+      verifyEq(items.map |x->Ref| { x.rule }, Ref[Ref("hx.test.xeto::testMinMax")])
+    }
+  }
+
   ** Rule registered on an entity type: fires at the instance, so the
   ** func's val is the dict itself and it reports across tags
   Void testRulesOnEntity()
