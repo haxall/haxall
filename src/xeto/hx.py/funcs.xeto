@@ -22,7 +22,7 @@
   //
   // Sessions created in the context of a task are persistent, meaning they will
   // not be closed until the task is killed.
-  py: Func <admin> { opts: Dict?, returns: PySession }
+  py: Func <admin, sideEffects> { opts: Dict?, returns: PySession }
 
   // Set the timeout for [pyEval()].
   pyTimeout: Func <admin> { py: PySession, val: Number?, returns: PySession }
@@ -43,11 +43,11 @@
   // Note: python `exec()` does not return a value, so use [pyEval()] if you need
   // the result of running a python statement. This method is primarily useful
   // for declaring functions that you want available when using [pyEval()].
-  pyExec: Func <admin> { py: PySession, code: Str, returns: PySession }
+  pyExec: Func <admin, sideEffects> { py: PySession, code: Str, returns: PySession }
 
   // Evalue the given python statement in the session, and return the result.
   // The session will be closed unless it is running in a task.
-  pyEval: Func <admin> { py: PySession, stmt: Str, returns: Obj? }
+  pyEval: Func <admin, sideEffects> { py: PySession, stmt: Str, returns: Obj? }
 
 }
 

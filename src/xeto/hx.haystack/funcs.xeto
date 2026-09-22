@@ -9,23 +9,23 @@
 +Funcs {
 
   // Deprecated - use [connPing()]
-  haystackPing: Func <admin, deprecated> { conn: Obj, returns: Future }
+  haystackPing: Func <admin, deprecated, sideEffects> { conn: Obj, returns: Future }
 
   // Deprecated - use [connLearn()]
   haystackLearn: Func <admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
 
   // Deprecated - use [connSyncCur()]
-  haystackSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
+  haystackSyncCur: Func <admin, deprecated, sideEffects> { points: Obj, returns: List }
 
   // Deprecated - use [connSyncHis()]
-  haystackSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
+  haystackSyncHis: Func <admin, deprecated, sideEffects> { points: Obj, span: Obj?, returns: Obj? }
 
   // Perform Haystack HTTP API call to given Str op name and with
   // given request grid (can be anything acceptable [toGrid()]).  If
   // the checked flag is true and server returns an error grid, then
   // raise [fan.haystack::CallErr], otherwise return the grid itself.
   // Result is returned as Grid.  Also see [fan.haystack::Client.call].
-  haystackCall: Func <admin> { conn: Obj, op: Str, req: Obj?, checked: Bool, returns: Grid }
+  haystackCall: Func <admin, sideEffects> { conn: Obj, op: Str, req: Obj?, checked: Bool, returns: Grid }
 
   // Perform Haystack HTTP API call to read a record by its unique
   // identifier.  Return result as dict.  If the record is not found, then
@@ -64,7 +64,7 @@
   // identifier and action is a Str action name.  If args are
   // specified, then they should be a Dict keyed by parameter
   // name.
-  haystackInvokeAction: Func <admin> { conn: Obj, id: Obj, action: Str, args: Dict?, returns: Obj? }
+  haystackInvokeAction: Func <admin, sideEffects> { conn: Obj, id: Obj, action: Str, args: Dict?, returns: Obj? }
 
   // Evaluate an Axon expression in a remote server over
   // a haystack connector.  The remote server must be a SkySpark
@@ -89,7 +89,7 @@
   //     read(haystackConn).haystackEval(3 + 4)
   //     read(haystackConn).haystackEval(readAll(site))
   //     read(haystackConn).haystackEval(readAll(kw).hisRead(yesterday))
-  haystackEval: Func <admin> { conn: Obj, expr: Obj?, opts: Dict?, returns: Obj? }
+  haystackEval: Func <admin, sideEffects> { conn: Obj, expr: Obj?, opts: Dict?, returns: Obj? }
 
 }
 

@@ -104,26 +104,26 @@
 
   // User level-1 manual override of writable point.
   // See [pointWrite()].
-  pointEmergencyOverride: Func <admin> { point: Obj, val: Obj?, returns: Obj? }
+  pointEmergencyOverride: Func <admin, sideEffects> { point: Obj, val: Obj?, returns: Obj? }
 
   // User level-1 manual auto (override release) of writable point.
   // See [pointWrite()].
-  pointEmergencyAuto: Func <admin> { point: Obj, returns: Obj? }
+  pointEmergencyAuto: Func <admin, sideEffects> { point: Obj, returns: Obj? }
 
   // User level-8 manual override of writable point.
   // If duration is specified it must be a number with unit of time
   // that indicates how long to put the point into override.  After
   // the duration expires, the point is set back to auto (null).
   // See [pointWrite()].
-  pointOverride: Func <admin> { point: Obj, val: Obj?, duration: Number?, returns: Obj? }
+  pointOverride: Func <admin, sideEffects> { point: Obj, val: Obj?, duration: Number?, returns: Obj? }
 
   // User level-8 manual auto (override release) of writable point.
   // See [pointWrite()].
-  pointAuto: Func <admin> { point: Obj, returns: Obj? }
+  pointAuto: Func <admin, sideEffects> { point: Obj, returns: Obj? }
 
   // Set the relinquish default value (level-17) of writable point.
   // See [pointWrite()].
-  pointSetDef: Func <admin> { point: Obj, val: Obj?, returns: Obj? }
+  pointSetDef: Func <admin, sideEffects> { point: Obj, val: Obj?, returns: Obj? }
 
   // Set a writable point's priority array value at the given level.
   // The point may be any value accepted by [toRec()].  Level must
@@ -131,11 +131,11 @@
   // is a string which represent debugging information about which
   // user or application is writing to this priorirty array level.
   // If who is omitted, then the current user's display string is used
-  pointWrite: Func <admin> { point: Obj, val: Obj?, level: Number?, who: Obj?, opts: Dict?, returns: Obj? }
+  pointWrite: Func <admin, sideEffects> { point: Obj, val: Obj?, level: Number?, who: Obj?, opts: Dict?, returns: Obj? }
 
   // Issue a point override command based on current user's access
   // control permissions
-  pointOverrideCommand: Func { point: Obj, val: Obj?, level: Number, duration: Number?, returns: Obj? }
+  pointOverrideCommand: Func <sideEffects> { point: Obj, val: Obj?, level: Number, duration: Number?, returns: Obj? }
 
   // Return the current priority array state of a writable point.
   // The point may be any value accepted by [toRec()].  The result is
@@ -198,10 +198,10 @@
 
   // Write all hisCollect items buffered in memory to the historian.
   // Block until complete or until timeout exceeded.
-  hisCollectWriteAll: Func <admin> { timeout: Number?, returns: Obj? }
+  hisCollectWriteAll: Func <admin, sideEffects> { timeout: Number?, returns: Obj? }
 
   // Force history collector to recreate its watch
-  hisCollectReset: Func <nodoc, su> { timeout: Number?, returns: Obj? }
+  hisCollectReset: Func <nodoc, su, sideEffects> { timeout: Number?, returns: Obj? }
 
   // Legacy support
   pointExtSync: Func <nodoc, admin, deprecated> { returns: Obj? }

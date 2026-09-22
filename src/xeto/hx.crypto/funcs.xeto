@@ -16,7 +16,7 @@
   //   - `notAfter` (Date): the end date for the certificate validity period (default=today+365day)
   //
   // This func will throw an error if an entry with the given alias already exists.
-  cryptoGenSelfSignedCert: Func <su> { alias: Str, subjectDn: Str, opts: Dict, returns: Obj? }
+  cryptoGenSelfSignedCert: Func <su, sideEffects> { alias: Str, subjectDn: Str, opts: Dict, returns: Obj? }
 
   cryptoLocal: Func <nodoc, su> { type: Str?, returns: Grid }
 
@@ -27,27 +27,27 @@
 
   // Add certificate chain for a URI to the trust store.
   // Dict must define `alias` Str and `uri` URI.
-  cryptoTrustUri: Func <nodoc, su> { dict: Obj, returns: Grid }
+  cryptoTrustUri: Func <nodoc, su, sideEffects> { dict: Obj, returns: Grid }
 
   // Retrieve certificate chain for a URI without adding to trust store.
   cryptoCheckUri: Func <nodoc, su> { uri: Uri, returns: Grid }
 
   // Delete a list of entries
-  cryptoEntryDelete: Func <nodoc, su> { aliases: Obj?, returns: Obj? }
+  cryptoEntryDelete: Func <nodoc, su, sideEffects> { aliases: Obj?, returns: Obj? }
 
   // Rename a key
-  cryptoEntryRename: Func <nodoc, su> { dict: Obj, returns: Obj? }
+  cryptoEntryRename: Func <nodoc, su, sideEffects> { dict: Obj, returns: Obj? }
 
   cryptoShowPub: Func <nodoc> { obj: Obj, returns: Grid }
 
   // Add a private key and cert chain entry.
   // Can also trust a single certificate if no priv key is supplied.
-  cryptoAddCert: Func <nodoc, su> { alias: Str, pem: Str, force: Bool, returns: Obj? }
+  cryptoAddCert: Func <nodoc, su, sideEffects> { alias: Str, pem: Str, force: Bool, returns: Obj? }
 
-  cryptoEstGetCaCerts: Func <nodoc, su> { server: Uri, opts: Dict?, returns: Grid }
+  cryptoEstGetCaCerts: Func <nodoc, su, sideEffects> { server: Uri, opts: Dict?, returns: Grid }
 
-  cryptoEstEnroll: Func <nodoc, su> { dict: Obj, returns: Grid }
+  cryptoEstEnroll: Func <nodoc, su, sideEffects> { dict: Obj, returns: Grid }
 
-  cryptoEstReenroll: Func <nodoc, su> { alias: Str, returns: Grid }
+  cryptoEstReenroll: Func <nodoc, su, sideEffects> { alias: Str, returns: Grid }
 
 }

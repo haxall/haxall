@@ -139,7 +139,7 @@
   //
   //     // add someTag to some group of records
   //     readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
-  commit: Func <admin> { diffs: Obj, returns: Obj? }
+  commit: Func <admin, sideEffects> { diffs: Obj, returns: Obj? }
 
   // Store a password key/val pair into current project's password
   // store.  The key is typically a Ref of the associated record.
@@ -150,7 +150,7 @@
   // passwordSet(@abc-123, "password")
   // passwordSet(@abc-123, null)
   // ```
-  passwordSet: Func <admin> { key: Obj, val: Str?, opts: Dict?, returns: Obj? }
+  passwordSet: Func <admin, sideEffects> { key: Obj, val: Str?, opts: Dict?, returns: Obj? }
 
   // Strip any tags which cannot be persistently committed to Folio.
   // This includes special tags such as `hisSize` and any transient tags
@@ -216,10 +216,10 @@
   projMeta: Func { returns: Dict }
 
   // Update system meta
-  sysMetaUpdate: Func <su, nodoc> { newMeta: Dict, returns: Obj? }
+  sysMetaUpdate: Func <su, nodoc, sideEffects> { newMeta: Dict, returns: Obj? }
 
   // Update current project meta
-  projMetaUpdate: Func <admin, nodoc> { newMeta: Dict, returns: Obj? }
+  projMetaUpdate: Func <admin, nodoc, sideEffects> { newMeta: Dict, returns: Obj? }
 
   // Block until all folio/project message queues are fully processed.
   // Use to await background work before verifying its effects.
@@ -237,19 +237,19 @@
   libs: Func <noSideEffects> { opts: Dict?, returns: Grid }
 
   // Reload all the xeto libraries in project
-  libReload: Func <su> { returns: Obj? }
+  libReload: Func <su, sideEffects> { returns: Obj? }
 
   // Enable one or more Xeto libs by name:
   //
   //     libAdd("ph.points")
   //     libAdd(["ph.points", "ph.equips"])
-  libAdd: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
+  libAdd: Func <admin, sideEffects> { names: Obj, opts: Dict?, returns: Obj }
 
   // Disable or more Xeto libs by name:
   //
   //     libRemove("ph.points")
   //     libRemove(["ph.points", "ph.equips"])
-  libRemove: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
+  libRemove: Func <admin, sideEffects> { names: Obj, opts: Dict?, returns: Obj }
 
   // Get the current project's lib namespace digest
   libDigest: Func <admin, nodoc> { returns: Str }
@@ -276,7 +276,7 @@
   // Update ext settings for given dotted lib name:
   //
   //     extSettingsUpdate("hx.task", {maxThreads:20})
-  extSettingsUpdate: Func <admin> { name: Str, changes: Dict, returns: Dict }
+  extSettingsUpdate: Func <admin, sideEffects> { name: Str, changes: Dict, returns: Dict }
 
 //////////////////////////////////////////////////////////////////////////
 // Companion
@@ -294,14 +294,14 @@
   //
   //     companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
   //     companionParse("MySpec: Dict { dis: Str }").companionAdd
-  companionAdd: Func <admin> { rec: Dict, returns: Dict }
+  companionAdd: Func <admin, sideEffects> { rec: Dict, returns: Dict }
 
   // Update existing spec or instance in companion lib - see [fan.hx::ProjCompanion.update].
   // Examples:
   //
   //     companionReadByName("MySpec").merge({base:@sys::Scalar}).companionUpdate
   //     companionReadByName("myFunc").merge({axon:"(x)=>x"}).companionUpdate
-  companionUpdate: Func <admin> { rec: Dict, returns: Dict }
+  companionUpdate: Func <admin, sideEffects> { rec: Dict, returns: Dict }
 
   // Remove a spec or instance from companion lib - see [fan.hx::ProjCompanion.remove].
   // The id argument can be any value accepted by [toRecId()].
@@ -309,7 +309,7 @@
   //
   //     companionRemove(@123)
   //     companionReadByName("MySpec").companionRemove
-  companionRemove: Func <admin> { id: Obj, returns: Obj? }
+  companionRemove: Func <admin, sideEffects> { id: Obj, returns: Obj? }
 
   // Parse xeto source to its companion lib AST representation - see [fan.hx::ProjCompanion.parse].
   // Pipe to [companionAdd()] or [companionUpdate()] to update from Xeto source.

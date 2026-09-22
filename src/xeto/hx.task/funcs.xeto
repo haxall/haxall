@@ -27,11 +27,11 @@
   // Return a future to track the asynchronous result.  Note the
   // expr passed cannot use any variables from the current scope.
   // See [hx.task::doc#ephemeral-tasks].
-  taskRun: Func <admin> { expr: Obj?, msg: Dict?, returns: Future }
+  taskRun: Func <admin, sideEffects> { expr: Obj?, msg: Dict?, returns: Future }
 
   // Restart a task.  This kills the tasks and discards any
   // pending messages in its queue.  See [hx.task::doc#lifecycle].
-  taskRestart: Func <admin> { task: Obj, returns: Dict }
+  taskRestart: Func <admin, sideEffects> { task: Obj, returns: Dict }
 
   // Set cancel flag for the given task.  Cancelling a task sets an
   // internal flag which is checked by the context's heartbeat on every
@@ -39,7 +39,7 @@
   // will raise a [fan.sys::CancelledErr] which will be raised by the respective
   // future.  Cancelling a task does **not** interrupt any current operations,
   // so any blocking future or I/O calls should always use a timeout.
-  taskCancel: Func <admin> { task: Obj, returns: Obj? }
+  taskCancel: Func <admin, sideEffects> { task: Obj, returns: Obj? }
 
   // Update the current running task's progress data with given dict.
   // This is a silent no-op if the current context is not running in a task.
@@ -62,19 +62,19 @@
   // Asynchronously send a message to the given task for processing.
   // Return a future to track the asynchronous result.
   // See [hx.task::doc#messaging].
-  taskSend: Func <admin> { task: Obj, msg: Obj?, returns: Future }
+  taskSend: Func <admin, sideEffects> { task: Obj, msg: Obj?, returns: Future }
 
   // Schedule a message for delivery after the specified period of
   // duration has elapsed.  Once the period has elapsed the message is
   // appended to the end of the task's queue.  Return a future to
   // track the asynchronous result.  See [hx.task::doc#messaging].
-  taskSendLater: Func <admin> { task: Obj, dur: Number, msg: Obj?, returns: Future }
+  taskSendLater: Func <admin, sideEffects> { task: Obj, dur: Number, msg: Obj?, returns: Future }
 
   // Schedule a message for delivery after the given future has completed.
   // Completion may be due to the future returning a result, throwing an
   // exception, or cancellation.  Return a future to track the asynchronous
   // result.  See [hx.task::doc#messaging].
-  taskSendWhenComplete: Func <admin> { task: Obj, future: Future, msg: Obj?, returns: Future }
+  taskSendWhenComplete: Func <admin, sideEffects> { task: Obj, future: Future, msg: Obj?, returns: Future }
 
   // Get a task local variable by name or def if not defined.
   // Must be running in a task context.  See [hx.task::doc#locals].
@@ -98,7 +98,7 @@
   // removed from the actor's queue and will not be processed.
   // No guarantee is made that the message will not be processed.
   // See [hx.task::doc#futures].
-  futureCancel: Func <admin> { future: Future, returns: Obj? }
+  futureCancel: Func <admin, sideEffects> { future: Future, returns: Obj? }
 
   // Return current state of a future as one of the following strings:
   //  - `pending`: still queued or being processed
@@ -135,13 +135,13 @@
   taskSleep: Func <admin> { dur: Number, returns: Obj? }
 
   // Send empty message to tasks
-  taskRunAction: Func <nodoc, admin> { taskIds: Obj, returns: Obj? }
+  taskRunAction: Func <nodoc, admin, sideEffects> { taskIds: Obj, returns: Obj? }
 
   // Implementation for taskSendAction Axon wrapper
-  taskCancelAction: Func <nodoc, admin> { taskIds: Obj, returns: Obj? }
+  taskCancelAction: Func <nodoc, admin, sideEffects> { taskIds: Obj, returns: Obj? }
 
   // Implementation for taskSendAction Axon wrapper
-  taskSendAction: Func <nodoc, admin> { taskIds: Obj, msg: Str, returns: Obj? }
+  taskSendAction: Func <nodoc, admin, sideEffects> { taskIds: Obj, msg: Str, returns: Obj? }
 
   // Return plaintext grid for task's debug details
   taskDebugDetails: Func <nodoc, admin> { task: Obj, returns: Grid }
@@ -150,7 +150,7 @@
   taskDebugPool: Func <nodoc, admin> { returns: Grid }
 
   // Refresh the user account used for tasks
-  taskRefreshUser: Func <admin> { returns: Obj? }
+  taskRefreshUser: Func <admin, sideEffects> { returns: Obj? }
 
   // White-box testing for adjunct
   taskTestAdjunct: Func <nodoc> { returns: Number }

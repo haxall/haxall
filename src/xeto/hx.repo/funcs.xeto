@@ -31,7 +31,7 @@
   //   ```axon
   //   libRepoAdd("myrepo", `https://example.com/xeto`)
   //   ```
-  libRepoAdd: Func <su> { name: Str, uri: Uri }
+  libRepoAdd: Func <su, sideEffects> { name: Str, uri: Uri }
 
   // Remove a remote repo configuration by name.
   //
@@ -39,7 +39,7 @@
   //   ```axon
   //   libRepoRemove("myrepo")
   //   ```
-  libRepoRemove: Func <su> { name: Str }
+  libRepoRemove: Func <su, sideEffects> { name: Str }
 
   // Ping a remote repo and return metadata.  If repo is null
   // then the default repo is used.
@@ -59,7 +59,7 @@
   //   ```axon
   //   libRepoLogin("xetodev", "my-secret-token")
   //   ```
-  libRepoLogin: Func <su> { repo: Str?, token: Str }
+  libRepoLogin: Func <su, sideEffects> { repo: Str?, token: Str }
 
   // Remove the authentication token for a remote repo.  If repo
   // is null then the default repo is used.
@@ -68,7 +68,7 @@
   //   ```axon
   //   libRepoLogout("xetodev")
   //   ```
-  libRepoLogout: Func <su> { repo: Str? }
+  libRepoLogout: Func <su, sideEffects> { repo: Str? }
 
   // Search a remote repo for libs matching the query string.
   // If repo is null then the default repo is used.
@@ -108,7 +108,7 @@
   //   libInstall(null, ["acme.widgets", "acme.core"])
   //   libInstall(null, "acme.widgets", {preview})
   //   ```
-  libInstall: Func <su> { repo: Str?, libs: Obj, opts: Dict?, returns: Grid }
+  libInstall: Func <su, sideEffects> { repo: Str?, libs: Obj, opts: Dict?, returns: Grid }
 
   // Update one or more installed libs from their origin repo.
   // The libs argument accepts a single lib name or a list of
@@ -124,7 +124,7 @@
   //   libUpdate(["ph", "ph.points"])
   //   libUpdate("ph", {preview})
   //   ```
-  libUpdate: Func <su> { libs: Obj, opts: Dict?, returns: Grid }
+  libUpdate: Func <su, sideEffects> { libs: Obj, opts: Dict?, returns: Grid }
 
   // Uninstall one or more libs from disk.  The libs argument
   // accepts a single lib name or a list of lib names.  Raises
@@ -137,7 +137,7 @@
   //   libUninstall(["acme.widgets", "acme.core"])
   //   libUninstall("acme.widgets", {preview})
   //   ```
-  libUninstall: Func <su> { libs: Obj, opts: Dict?, returns: Grid }
+  libUninstall: Func <su, sideEffects> { libs: Obj, opts: Dict?, returns: Grid }
 
   // Fetch a xetolib zip for a specific lib and version from a remote
   // repo and write it to an I/O handle.  If repo is null then the
@@ -149,7 +149,7 @@
   //   ```axon
   //   libFetch(null, "ph", "4.0.5", `io/ph.xetolib`)
   //   ```
-  libFetch: Func <su> { repo: Str?, lib: Str, version: Str, handle: Obj, returns: Dict }
+  libFetch: Func <su, sideEffects> { repo: Str?, lib: Str, version: Str, handle: Obj, returns: Dict }
 
   // List the libs installed in the local repo.  The result grid
   // includes the following columns:

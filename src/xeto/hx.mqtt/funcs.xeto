@@ -24,6 +24,6 @@
   // ```
   // read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min, mqttUserProps: {key: "value"}})
   // ```
-  mqttPublish: Func <admin> { conn: Obj, topic: Str, payload: Obj, cfg: Dict, returns: Obj? }
+  mqttPublish: Func <admin, sideEffects> { conn: Obj, topic: Str, payload: Obj, cfg: Dict, returns: Obj? }
 
 }

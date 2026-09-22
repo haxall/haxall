@@ -12,7 +12,7 @@
 
   sessionDetails: Func <nodoc, su> { returns: Grid }
 
-  sessionLogout: Func <nodoc, su, defMeta:{disKey:"ui::logout", select}> { sessionRefs: Obj?, returns: Obj? }
+  sessionLogout: Func <nodoc, su, sideEffects, defMeta:{disKey:"ui::logout", select}> { sessionRefs: Obj?, returns: Obj? }
 
   sessions: Func <nodoc, su> { returns: Grid }
 

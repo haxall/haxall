@@ -9,13 +9,13 @@
 +Funcs {
 
   // Reboot the operating system and runtime process
-  platformReboot: Func <su> { returns: Obj? }
+  platformReboot: Func <su, sideEffects> { returns: Obj? }
 
   // Restart runtime process, but do not reboot operating system
-  platformRestart: Func <su> { returns: Obj? }
+  platformRestart: Func <su, sideEffects> { returns: Obj? }
 
   // Shutdown operating system and runtime process
-  platformShutdown: Func <su> { returns: Obj? }
+  platformShutdown: Func <su, sideEffects> { returns: Obj? }
 
   // Return grid of summary information used to populate UI.
   // This is a nodoc method subject to change

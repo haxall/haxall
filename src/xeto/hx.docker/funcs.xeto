@@ -13,8 +13,8 @@
   dockerListContainers: Func <admin> { returns: Grid }
 
   // Kill and remove a container.
-  dockerDeleteContainer: Func <admin> { id: Obj, returns: Dict }
+  dockerDeleteContainer: Func <admin, sideEffects> { id: Obj, returns: Dict }
 
-  dockerRun: Func <admin> { image: Str, config: Obj, returns: Str }
+  dockerRun: Func <admin, sideEffects> { image: Str, config: Obj, returns: Str }
 
 }

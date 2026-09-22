@@ -9,7 +9,7 @@
 +Funcs {
 
   // Set the system clock time.  It is recommended to restart after.
-  platformTimeSet: Func <su> { ts: DateTime, returns: Obj? }
+  platformTimeSet: Func <su, sideEffects> { ts: DateTime, returns: Obj? }
 
   // Get the list of network time protocol server addresses as
   // list of strings.  If NTP is not supported, then return null.
@@ -17,7 +17,7 @@
 
   // Set the list of network time protocol server addresses as
   // list of strings.
-  platformTimeNtpServersSet: Func <su> { addresses: List, returns: Obj? }
+  platformTimeNtpServersSet: Func <su, sideEffects> { addresses: List, returns: Obj? }
 
   // Return grid of summary information used to populate UI.
   // This is a nodoc method subject to change

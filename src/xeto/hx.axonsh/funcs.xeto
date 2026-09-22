@@ -57,18 +57,18 @@
   //
   //     // load from a HTTP URI
   //     load(`https://project-haystack.org/example/download/bravo.zinc`)
-  load: Func { uri: Uri, opts: Dict?, returns: Obj? }
+  load: Func <sideEffects> { uri: Uri, opts: Dict?, returns: Obj? }
 
   // Unload all the data from the in-memory database.
   // This is essentially a commit to remove all recs.
-  unloadAll: Func { returns: Obj? }
+  unloadAll: Func <sideEffects> { returns: Obj? }
 
   // Backdoor hook to refresh ref dis
-  refreshDisAll: Func  <nodoc>{ returns: Obj? }
+  refreshDisAll: Func  <nodoc, sideEffects>{ returns: Obj? }
 
   // Backdoor hook to load Axon functions from a resource pod.
   // No checking is done for dependencies.
-  loadFuncs: Func <nodoc> { libName: Str, returns: Obj? }
+  loadFuncs: Func <nodoc, sideEffects> { libName: Str, returns: Obj? }
 
 }
 

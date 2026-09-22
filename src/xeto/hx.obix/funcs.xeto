@@ -9,13 +9,13 @@
 +Funcs {
 
   // Deprecated - use [connPing()]
-  obixPing: Func <admin, deprecated> { conn: Obj, returns: Future }
+  obixPing: Func <admin, deprecated, sideEffects> { conn: Obj, returns: Future }
 
   // Deprecated - use [connSyncCur()]
-  obixSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
+  obixSyncCur: Func <admin, deprecated, sideEffects> { points: Obj, returns: List }
 
   // Deprecated - use [connSyncHis()]
-  obixSyncHis: Func <admin, deprecated> { points: Obj, span: Obj?, returns: Obj? }
+  obixSyncHis: Func <admin, deprecated, sideEffects> { points: Obj, span: Obj?, returns: Obj? }
 
   // Deprecated - use [connLearn()]
   obixLearn: Func <nodoc, admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
@@ -62,14 +62,14 @@
   //     XML Str     pass thru
   //
   // Result object is transformed using same rules as [obixReadObj()].
-  obixWriteObj: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
+  obixWriteObj: Func <admin, sideEffects> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
 
   // Invoke an `obix:op` operation as identified by given uri.
   // See [obixWriteObj()] for supported arg values and [obixReadObj()]
   // for result object.
-  obixInvoke: Func <admin> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
+  obixInvoke: Func <admin, sideEffects> { conn: Obj, uri: Obj, arg: Obj?, returns: Grid }
 
   // Ancient function left around just in case anybody ever used it
-  obixSyncHisGroup: Func <nodoc, admin> { group: Str, range: Obj?, returns: Obj? }
+  obixSyncHisGroup: Func <nodoc, admin, sideEffects> { group: Str, range: Obj?, returns: Obj? }
 
 }

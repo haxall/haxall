@@ -27,7 +27,7 @@
   //
   //     read(conn).connPing
   //     connPing(connId)
-  connPing: Func <admin> { conn: Obj, returns: Future }
+  connPing: Func <admin, sideEffects> { conn: Obj, returns: Future }
 
   // Force the given connector closed and return a future.
   // The future result is the connector rec dict.  The `conn`
@@ -37,7 +37,7 @@
   //
   //     read(conn).connClose
   //     connClose(connId)
-  connClose: Func <admin> { conn: Obj, returns: Future }
+  connClose: Func <admin, sideEffects> { conn: Obj, returns: Future }
 
   // Perform a learn on the given connector and return a future.
   // The future result is the learn grid.  The `conn` parameter may
@@ -58,7 +58,7 @@
   // Examples:
   //
   //     readAll(bacnetCur).connSyncCur
-  connSyncCur: Func <admin> { points: Obj, returns: List }
+  connSyncCur: Func <admin, sideEffects> { points: Obj, returns: List }
 
   // Perform a remote sync of history data for the given points.
   // The `points` parameter may be anything acceptable by [toRecIdList()].
@@ -71,7 +71,7 @@
   // Examples:
   //
   //     readAll(haystackHis).connSyncHis(null)
-  connSyncHis: Func <admin> { points: Obj, span: Obj?, returns: Obj? }
+  connSyncHis: Func <admin, sideEffects> { points: Obj, span: Obj?, returns: Obj? }
 
   // Return debug details for a connector or a connector point.
   // The argument is anything acceptable by [toRecId()].  The result

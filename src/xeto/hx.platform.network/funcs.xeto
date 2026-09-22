@@ -15,7 +15,7 @@
   // Write the configure of an IP interface.  The config must
   // be a dict that defines the `name` tag for an existing interface.
   // See SPI class docs for modeling details.
-  platformNetworkInterfaceSet: Func <su> { config: Dict, returns: Obj? }
+  platformNetworkInterfaceSet: Func <su, sideEffects> { config: Dict, returns: Obj? }
 
   // Return grid of summary information used to populate UI.
   // This is a nodoc method subject to change

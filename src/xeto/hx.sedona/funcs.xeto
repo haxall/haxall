@@ -9,10 +9,10 @@
 +Funcs {
 
   // Deprecated - use [connPing()]
-  sedonaPing: Func <admin, deprecated> { conn: Obj, returns: Future }
+  sedonaPing: Func <admin, deprecated, sideEffects> { conn: Obj, returns: Future }
 
   // Deprecated - use [connSyncCur()]
-  sedonaSyncCur: Func <admin, deprecated> { points: Obj, returns: List }
+  sedonaSyncCur: Func <admin, deprecated, sideEffects> { points: Obj, returns: List }
 
   // Deprecated - use [connLearn()]
   sedonaLearn: Func <nodoc, admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
@@ -22,7 +22,7 @@
   sedonaReadComp: Func <admin> { conn: Obj, compId: Number, returns: Obj? }
 
   // Synchronously write a property
-  sedonaWrite: Func <admin> { conn: Obj, addr: Str, val: Obj?, returns: Obj? }
+  sedonaWrite: Func <admin, sideEffects> { conn: Obj, addr: Str, val: Obj?, returns: Obj? }
 
   // Discover function for sedona.
   sedonaDiscover: Func <nodoc, admin> { returns: Grid }
@@ -31,12 +31,12 @@
   sedonaKitManifests: Func <nodoc, admin> { returns: Grid }
 
   // Upload kit manifests as list of URIs to io/upload/ directory
-  sedonaKitManifestUpload: Func <nodoc, admin> { uris: List, returns: Obj? }
+  sedonaKitManifestUpload: Func <nodoc, admin, sideEffects> { uris: List, returns: Obj? }
 
   // Display kit manifest file
   sedonaKitManifestView: Func <nodoc, admin> { id: Obj, returns: Grid }
 
   // Delete given kit manifests.
-  sedonaDeleteKitManifests: Func <nodoc, admin> { ids: List, returns: Obj? }
+  sedonaDeleteKitManifests: Func <nodoc, admin, sideEffects> { ids: List, returns: Obj? }
 
 }

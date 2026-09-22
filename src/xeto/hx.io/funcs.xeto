@@ -70,13 +70,13 @@
   //
   //     ioCreate(`io/new-dir/`)        // create new empty directory
   //     ioCreate(`io/new-file.txt`)    // create new empty file
-  ioCreate: Func <admin> { handle: Obj?, returns: Obj? }
+  ioCreate: Func <admin, sideEffects> { handle: Obj?, returns: Obj? }
 
   // Delete a file or a directory as mapped by the given I/O handle.
   // If a directory is specified, then it is recursively deleted.  If the
   // I/O handle does map to a file system then raise exception.  If the
   // file does not exist then no action is taken.
-  ioDelete: Func <admin> { handle: Obj?, returns: Obj? }
+  ioDelete: Func <admin, sideEffects> { handle: Obj?, returns: Obj? }
 
   // Copy a file or directory to the new specified location.
   // If this file represents a directory, then it recursively
@@ -94,19 +94,19 @@
   //     ioCopy(`io/file.txt`, `io/file-copy.txt`)
   //     ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite})
   //     ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite:false})
-  ioCopy: Func <admin> { from: Obj?, to: Obj?, opts: Dict, returns: Obj? }
+  ioCopy: Func <admin, sideEffects> { from: Obj?, to: Obj?, opts: Dict, returns: Obj? }
 
   // Move or rename a file or directory.  Both handles must reference
   // a local file or directory on the file system.  If the target file
   // already exists then raise an IOErr.
-  ioMove: Func <admin> { from: Obj?, to: Obj?, returns: Obj? }
+  ioMove: Func <admin, sideEffects> { from: Obj?, to: Obj?, returns: Obj? }
 
   // Read an I/O handle into memory as a string.
   // Newlines are always normalized into "\n" characters.
   ioReadStr: Func <admin> { handle: Obj?, returns: Str }
 
   // Write a string to an I/O handle.
-  ioWriteStr: Func <admin> { str: Str, handle: Obj?, returns: Obj? }
+  ioWriteStr: Func <admin, sideEffects> { str: Str, handle: Obj?, returns: Obj? }
 
   // Read an I/O handle into memory as a list of string lines.
   // Lines are processed according to [fan.sys::InStream.readLine] semanatics.
@@ -131,7 +131,7 @@
   ioStreamLines: Func <admin> { handle: Obj?, returns: Obj }
 
   // Write a list of string lines separated with "\n" character.
-  ioWriteLines: Func <admin> { lines: List, handle: Obj?, returns: Obj? }
+  ioWriteLines: Func <admin, sideEffects> { lines: List, handle: Obj?, returns: Obj? }
 
   // Read a [Trio](ph.doc::Trio) file into memory as a list of Dicts.
   ioReadTrio: Func <admin> { handle: Obj?, returns: List }
@@ -141,13 +141,13 @@
   //
   // Following options are supported
   //   - noSort: marker to prevent tags from being sorted by name
-  ioWriteTrio: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+  ioWriteTrio: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Read a [Zinc](ph.doc::Zinc) file into memory as a Haystack data type.
   ioReadZinc: Func <admin> { handle: Obj?, returns: Grid }
 
   // Write a Grid to the [Zinc](ph.doc::Zinc) format.
-  ioWriteZinc: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
+  ioWriteZinc: Func <admin, sideEffects> { val: Obj?, handle: Obj?, returns: Obj? }
 
   // Read a Xeto data file into memory as a Haystack data type.
   // See [fan.xeto::XetoIO.readXeto] for details and options.
@@ -155,7 +155,7 @@
 
   // Write value to a Xeto text format file.
   // See [fan.xeto::XetoIO.writeXeto] for details and options.
-  ioWriteXeto: Func <admin> { val: Obj?, handle: Obj?, opts: Obj?, returns: Obj? }
+  ioWriteXeto: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Obj?, returns: Obj? }
 
   // Read a CSV (comma separated values) file into memory as a Grid.
   // CSV format is implemented as specified by RFC 4180:
@@ -205,7 +205,7 @@
   //   - stripUnits: write all numbers without a unit
   //
   // Also [ioReadCsv()], [ioEachCsv()], and [ph.doc::Csv].
-  ioWriteCsv: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+  ioWriteCsv: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Write an Excel XLS file, where `val` may be:
   //   - `Grid` - writted a a single worksheet
@@ -217,7 +217,7 @@
   // Example:
   //
   //     readAll(site).ioWriteExcel(`io/sites.xls`)
-  ioWriteExcel: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
+  ioWriteExcel: Func <admin, sideEffects> { val: Obj?, handle: Obj?, returns: Obj? }
 
   // Read a JSON file into memory.  Any JSON file decodes to Axon dicts,
   // lists, strings, numbers, and bools - so this can be used to read any
@@ -253,7 +253,7 @@
   //   - noEscapeUnicode: do not escape characters over 0x7F
   //   - v3: Encode JSON using Haystack 3 encoding (deprecated, will be removed in the future)
   //   - v4: Explicitly request the default Haystack 4 encoding
-  ioWriteJson: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+  ioWriteJson: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Read a [Hayson](ph.doc::Hayson) file into memory, the Haystack 4 JSON
   // encoding where each typed scalar carries a `_kind` discriminator.  A
@@ -277,7 +277,7 @@
   //
   // The following options are supported:
   //   - noEscapeUnicode: do not escape characters over 0x7F
-  ioWriteHayson: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+  ioWriteHayson: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Read a [Jeto](doc.xeto::Jeto) file into memory.  Jeto is xeto-typed
   // JSON: the spec supplies the types, so the values don't have to declare
@@ -303,14 +303,14 @@
   // The following options are supported:
   //   - box: "none", "auto", or "all" boxing mode
   //   - pretty: add indentation to pretty print
-  ioWriteJeto: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+  ioWriteJeto: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Write an Axon data structure to HTML. The `val` must be an
   // Axon type that can be converted to a Grid.
-  ioWriteHtml: Func <admin> { val: Obj?, handle: Obj?, opts: Dict, returns: Obj? }
+  ioWriteHtml: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict, returns: Obj? }
 
   // Write a grid to an [XML](hx.doc.haxall::Xml) file.
-  ioWriteXml: Func <admin> { val: Obj?, handle: Obj?, returns: Obj? }
+  ioWriteXml: Func <admin, sideEffects> { val: Obj?, handle: Obj?, returns: Obj? }
 
   // Write xeto instance data to RDF [Turtle](doc.xeto::Rdf) format.  The
   // val must be a dict, list of dicts, or grid of instances and every
@@ -329,17 +329,17 @@
   //
   //     // mint the same rec id as <https://acme.com/rec/p:demo:r:abc>
   //     readAll(site).ioWriteRdf(`io/sites.ttl`, {baseUri:`https://acme.com/rec/`})
-  ioWriteRdf: Func <admin> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
+  ioWriteRdf: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict?, returns: Obj? }
 
   // Write an Axon data structure to RDF [Turtle](doc.xeto::Rdf) format.
   // The `val` must be an Axon type that can be converted to a Grid.
   // Deprecated: use `ioWriteRdf()`.
-  ioWriteTurtle: Func <admin, nodoc> { val: Obj?, handle: Obj?, returns: Obj? }
+  ioWriteTurtle: Func <admin, nodoc, sideEffects> { val: Obj?, handle: Obj?, returns: Obj? }
 
   // Write an Axon data structure to RDF [JSON-LD](doc.xeto::Rdf) format.
   // The `val` must be an Axon type that can be converted to a Grid.
   // Deprecated: use `ioWriteRdf()`.
-  ioWriteJsonLd: Func <admin, nodoc> { val: Obj?, handle: Obj?, returns: Obj? }
+  ioWriteJsonLd: Func <admin, nodoc, sideEffects> { val: Obj?, handle: Obj?, returns: Obj? }
 
   // Read a zip file's entry listing, return a grid with cols:
   //   - `path`: path of entry inside zip as Uri
@@ -484,7 +484,7 @@
   //     readAll(site).ioWritePdf(`io/sites.pdf`, {pageSize:"auto"})
   //
   // Note: this feature is available in SkySpark only
-  ioWritePdf: Func <admin> { val: Obj?, handle: Obj?, opts: Dict, returns: Obj? }
+  ioWritePdf: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict, returns: Obj? }
 
   // Render data to an SVG file.  Pass `size` option to specify
   // the SVG `viewBox`, `width`, and `height` attribtues (defaults
@@ -498,12 +498,12 @@
   //     read(power).hisRead(yesterday).ioWriteSvg(`io/example.svg`, {size:"600,400"})
   //
   // Note: this feature is available in SkySpark only
-  ioWriteSvg: Func <admin> { val: Obj?, handle: Obj?, opts: Dict, returns: Obj? }
+  ioWriteSvg: Func <admin, sideEffects> { val: Obj?, handle: Obj?, opts: Dict, returns: Obj? }
 
   // Export a view to the given file handle - see [hx.doc.fresco::Export].
   //
   // Note: this feature is available in SkySpark only
-  ioExport: Func <admin> { req: Dict, handle: Obj?, returns: Obj }
+  ioExport: Func <admin, sideEffects> { req: Dict, handle: Obj?, returns: Obj }
 
   // Make an HTTP request and process the response in a callback.
   // The connection is guaranteed to be closed when the callback returns.
@@ -562,7 +562,7 @@
   //
   //     ioHttp(`https://acme.com/data`, "GET", {"Cookie": r1->cookie}, null,
   //       (code, headers, body) => ioReadJson(body, {safeNames}))
-  ioHttp: Func <admin> { uri: Uri, method: Str, headers: Dict?, body: Obj?, fn: Func, returns: Obj? }
+  ioHttp: Func <admin, sideEffects> { uri: Uri, method: Str, headers: Dict?, body: Obj?, fn: Func, returns: Obj? }
 
 }
 
