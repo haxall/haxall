@@ -34,10 +34,10 @@ Step lists:
                      InheritEnums, InheritSlots, LoadBindings,
                      MixinMeta, InferMeta, ReifyMeta, InheritMeta,
                      InferInstances, ReifyInstances, CheckErrors,
-                     Assemble, ReuseThunks, OutputZip
+                     Assemble, Validate, ReuseThunks, OutputZip
 
     readData:        InitData, ParseData, Resolve, InferInstances,
-                     ReifyInstances, CheckErrors
+                     ReifyInstances, CheckErrors, Validate
 
     readAst:         InitAst, ParseLib, Resolve, MixinMeta,
                      InferMeta, AstToDict
@@ -72,6 +72,9 @@ Step lists:
 - `InheritMeta`: effective meta for all specs
 - `CheckErrors`: AST validation
 - `Assemble`: assemble AST into xetom implementation instances
+- `Validate`: run the xetom validation engine over reified instances
+  and spec meta using rules from the depends closure; rules of the
+  lib under compile never run at compile time
 - `ReuseThunks`: reuse func thunks when recompiling the companion lib
 - `AstToDict`: encode AST into dicts (readAst only)
 - `OutputZip`: write the xetolib zip
@@ -86,10 +89,15 @@ Step lists:
   assembled XetoLib; some Spec accessors throw on ASpec (membersOwn
   always, others until their step runs), so code touching both must
   branch on `isAst`
-- Two scopes: compile resolution sees only the declared depends
-  (ADepends), never the ambient namespace the compile runs inside -
-  same source plus same resolved depends always yields the same
-  output; the namespace-wide view is `Namespace.specx`
+- Two scopes: compile semantics see only the depends, never the
+  ambient namespace the compile runs inside - same source plus same
+  resolved depends always yields the same output; the namespace-wide
+  view is `Namespace.specx`.  Ref resolution uses the direct declared
+  depends only; discovery checks (mixins, meta vocabulary, validate
+  rules, choice subtypes) use the transitive closure.  ADepends owns
+  the depends bookkeeping and always excludes the lib under compile;
+  ANamespace is the compile's CNamespace layering the lib under
+  compile over the closure
 - Nothing effective persists: member maps are computed per compile
   and xetolibs recompile from source per environment; only declared
   state (slotsOwn, globalsOwn, meta) is stored or transported

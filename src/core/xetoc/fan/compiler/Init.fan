@@ -36,7 +36,7 @@ internal abstract class Init : Step
     if (!input.exists) throw err("Input file not found: $input", FileLoc.inputs)
 
     // initialize AST namespace instance
-    compiler.cns = ANamespace(this)
+    compiler.cns = ANamespace(compiler)
   }
 
   virtual Bool nsRequired() { true }

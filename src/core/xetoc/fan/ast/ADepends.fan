@@ -11,7 +11,9 @@ using xeto
 using xetom
 
 **
-** AST dependencies and imported namespace handling
+** AST dependency bookkeeping for the compile.  Every method here
+** excludes the lib under compile itself; ANamespace layers the
+** compile's own lib over this scope.
 **
 @Js
 internal class ADepends
@@ -22,25 +24,37 @@ internal class ADepends
   }
 
   MXetoCompiler compiler                // make
-  [Str:XetoLib]? libs                   // Resolve
+  [Str:XetoLib]? direct                 // Resolve; direct depends by name
 
-  ** Libs this compile depends on.  Normally these are declared by the
-  ** lib's pragma, but a compile with nothing declared to go on resolves
-  ** against every lib in the namespace instead.  Computed on first read
-  ** since it is not known until ParseLib has the pragma.
-  once MLibDepend[] list()
+  ** Declared depends of this compile.  Normally these are declared by
+  ** the lib's pragma, but a compile with nothing declared to go on
+  ** resolves against every lib in the namespace instead.  Computed on
+  ** first read since it is not known until ParseLib has the pragma.
+  once MLibDepend[] declared()
   {
     compiler.useNsDepends ? nsToDepends : compiler.lib.pragma.depends
   }
 
-  ** Resolved dependency scope libs; only valid once Resolve completes
-  once Lib[] libsInScope()
+  ** Transitive closure of the direct depends; only valid once
+  ** Resolve completes
+  once XetoLib[] all()
   {
-    if (libs == null) throw Err("Not Resolved")
-    acc := Lib[,]
-    list.each |d| { acc.addNotNull(libs[d.name]) }
-    acc.addNotNull(compiler.lib)
-    return acc
+    if (direct == null) throw Err("Not Resolved")
+    acc := Str:XetoLib[:]
+    acc.ordered = true
+    direct.each |lib| { doAll(acc, lib) }
+    return acc.vals
+  }
+
+  private Void doAll(Str:XetoLib acc, XetoLib lib)
+  {
+    if (acc[lib.name] != null) return
+    acc[lib.name] = lib
+    lib.depends.each |d|
+    {
+      x := compiler.ns.lib(d.name, false)
+      if (x != null) doAll(acc, x)
+    }
   }
 
   ** Every lib in the namespace, excluding ourself and any lib in error
@@ -54,40 +68,4 @@ internal class ADepends
       return MLibDepend(name, LibDependVersions.wildcard, FileLoc.synthetic)
     }
   }
-
-  ** Walk the dependency chain to build the list of mixins for the given
-  ** spec.  Slots resolve thru their owning type so results are cached
-  ** once per type and layered thru the base chain.  Only valid once
-  ** InheritBase completes: mixinFor matches by base identity, which
-  ** requires every top's base to be resolved.
-  Spec[] mixinsFor(Spec spec)
-  {
-    spec = spec.type
-    x := mixinsForCache[spec.qname]
-    if (x == null) mixinsForCache[spec.qname] = x = resolveMixinsFor(spec)
-    return x
-  }
-
-  private Spec[] resolveMixinsFor(Spec type)
-  {
-    acc := Spec[,]
-
-    // add mixins registered on base using cache
-    XetoUtil.eachBase(type) |base|
-    {
-      mixinsFor(base).each |x| { if (!acc.containsSame(x)) acc.add(x) }
-    }
-
-    // find my own mixins
-    libsInScope.each |lib|
-    {
-      x := lib.mixinFor(type, false)
-      if (x != null && !acc.containsSame(x)) acc.add(x)
-    }
-
-    return acc.isEmpty ? Spec#.emptyList : acc
-  }
-
-  private Str:Spec[] mixinsForCache := [:]
 }
-

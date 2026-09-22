@@ -10,6 +10,9 @@
 Beta : Dict {
 }
 
+// Subtype used to verify rules and mixins apply thru transitive depends
+DeepRuleSubject: TestRuleSubject
+
 
 @norm-instance: Dict {
   metaNum:"987"

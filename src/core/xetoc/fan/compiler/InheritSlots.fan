@@ -204,7 +204,7 @@ internal class InheritSlots : InheritFlags
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
 
       // if duplicate then check if valid override; members in scope
-      // include mixin members visible thru my declared depends
+      // include mixin members visible thru my depends closure
       dup := slots[name] ?: globals[name]
       if (dup == null) dup = mixinMember(spec, slot, name)
       if (dup != null)
@@ -230,7 +230,7 @@ internal class InheritSlots : InheritFlags
   {
     if (spec.isMixin) return null
     Spec? match := null
-    depends.mixinsFor(spec).each |m|
+    cns.mixinsFor(spec).each |m|
     {
       // never use assembled members, whose lazy globals walk drags in
       // the extended chain's entire vocabulary

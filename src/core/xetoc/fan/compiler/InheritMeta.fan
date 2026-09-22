@@ -179,8 +179,8 @@ internal class MixinMeta : Step
     acc := Str:Spec[:]
     type.slots.each |s, n| { acc[n] = s }
 
-    // add in all the dependencies
-    depends.libs.each |lib|
+    // add in the depends closure
+    depends.all.each |lib|
     {
       add(acc, lib.mixinFor(type, false)?.slotsOwn)
     }

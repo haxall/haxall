@@ -126,7 +126,7 @@ internal class MXetoCompiler : XetoCompiler
     flags := 0
     if (pragma.hxSysOnly) flags = flags.or(LibVersion.flagHxSysOnly)
 
-    return FileLibVersion(libName, lib.version, dir, pragma.doc, flags, depends.list, pragma.maturity)
+    return FileLibVersion(libName, lib.version, dir, pragma.doc, flags, depends.declared, pragma.maturity)
   }
 
   ** Parse top-level symbols in lib directory

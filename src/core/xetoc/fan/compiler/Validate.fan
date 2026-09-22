@@ -25,8 +25,8 @@ internal class Validate : Step
     // skip sys bootstrapping
     if (ns == null || isSys) return
 
-    // rules for libs in scope
-    rules := ValidateRules.makeLibs(ns, depends.libs.vals)
+    // rules from the depends closure, never the lib under compile
+    rules := ValidateRules.makeLibs(ns, depends.all)
 
     // init validator with rules
     validator := CompileValidator(compiler, rules)
@@ -75,7 +75,7 @@ internal class Validate : Step
 ** namespace yet, over the engine's qname resolution.
 **
 @Js
-internal class CompileValidator : Validator, CNamespace
+internal class CompileValidator : Validator
 {
   new make(MXetoCompiler c, ValidateRules rules)
     : super(c.ns, NilXetoContext.val, toOpts(c), rules)
@@ -155,17 +155,9 @@ internal class CompileValidator : Validator, CNamespace
     return lib.instance(n, false)
   }
 
-  ** Type enumeration such as choice subtype discovery must see the
-  ** lib under compile, so we are our own CNamespace
-  override CNamespace cns() { this }
-
-  ** Enumerate the assembled lib under compile plus the loaded libs
-  ** of the namespace
-  override Void eachTypeThatIs(Spec type, |Spec| f)
-  {
-    lib?.types?.each |x| { if (x.isa(type)) f(x) }
-    XetoUtil.eachLoadedTypeThatIs(ns, type, f)
-  }
+  ** Type enumeration such as choice subtype discovery is scoped to
+  ** the depends closure plus the lib under compile
+  override CNamespace cns() { compiler.cns }
 
   ** Name within the lib under compile if qname targets it, else null
   private Str? ownName(Str qname)

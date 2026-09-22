@@ -39,13 +39,13 @@ internal class Resolve : Step
   private Void resolveDepends()
   {
     // init namespace map
-    depends.libs = Str:XetoLib[:]
+    depends.direct = Str:XetoLib[:]
 
     // sys has no dependencies
     if (isSys) return
 
     // resolve each lib we depend on
-    depends.list.each |depend|
+    depends.declared.each |depend|
     {
       resolveDepend(depend)
     }
@@ -80,7 +80,7 @@ internal class Resolve : Step
     }
 
     // register the library into our depends map
-    depends.libs.add(lib.name, lib)
+    depends.direct.add(lib.name, lib)
     return lib
   }
 
@@ -167,7 +167,7 @@ internal class Resolve : Step
 
     // match to external dependencies
     matches := Obj[,]
-    depends.libs.each |d| { matches.addNotNull(resolveInDepend(ref, n.name, d)) }
+    depends.direct.each |d| { matches.addNotNull(resolveInDepend(ref, n.name, d)) }
     if (matches.isEmpty)
     {
       if (allowUnresolved) return
@@ -223,7 +223,7 @@ internal class Resolve : Step
     }
 
     // resolve from dependent lib
-    XetoLib? depend := depends.libs[n.lib]
+    XetoLib? depend := depends.direct[n.lib]
     if (depend == null)
     {
       // libs must have explicit depends, but we allow lazy depends in data files

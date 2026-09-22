@@ -452,5 +452,73 @@ class MixinTest : AbstractXetoTest
              |>)
     }
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Depends Scope
+//////////////////////////////////////////////////////////////////////////
+
+  ** Compile semantics scope to the transitive depends closure: mixin
+  ** members, meta vocabulary, and validate rules from a depend of a
+  ** depend all apply to the lib under compile.  Uses real lib dir
+  ** compiles since compileTempLib resolves against the entire
+  ** namespace rather than a declared depends list.
+  Void testDependsScope()
+  {
+    // mixin members resolve declared slots; hx.test.xeto is direct,
+    // ph and ph.protocols only transitive
+    lib := scopeCompile(["sys", "hx.test.xeto"],
+      Str<|Foo: TestSite {
+             newSlot: "custom"
+             bacnetCurAddr: {addr:"AO4"}
+           }
+           |>)
+    newSlot := lib.spec("Foo").slot("newSlot")
+    verifyEq(newSlot.base.qname, "hx.test.xeto::Site.newSlot")
+    addr := lib.spec("Foo").slot("bacnetCurAddr")
+    verifyEq(addr.type.qname, "ph.protocols::BacnetAddr")
+    verifyEq(addr.base.qname, "ph.protocols::PhEntity.bacnetCurAddr")
+    verifyEq(addr.base.isGlobal, true)
+
+    // the sys::Spec mixin tags of hx.test.xeto are visible thru
+    // hx.test.xeto.deep
+    lib = scopeCompile(["sys", "hx.test.xeto.deep"],
+      Str<|Foo: Dict <metaQ, metaStr:"hello">
+           |>)
+    verifyEq(lib.spec("Foo").meta["metaQ"], Marker.val)
+    verifyEq(lib.spec("Foo").meta["metaStr"], "hello")
+
+    // rule hx.test.xeto::testCodePrefix on TestRuleSubject applies
+    // to instances of hx.test.xeto.deep::DeepRuleSubject
+    scopeCompile(["sys", "hx.test.xeto.deep"],
+      Str<|@ok: DeepRuleSubject { code:"T100" }
+           |>)
+    Err? err
+    try
+      scopeCompile(["sys", "hx.test.xeto.deep"],
+        Str<|@bad: DeepRuleSubject { code:"X100" }
+             |>)
+    catch (Err e) err = e
+    verifyNotNull(err)
+    verify(err.msg.contains("Code 'X100' must start with 'T'"), err.msg)
+  }
+
+  ** Compile a lib dir with the given declared depends against a
+  ** namespace bigger than its closure
+  private Lib scopeCompile(Str[] depends, Str src)
+  {
+    dir := tempDir + `scope/test.scope/`
+    dir.delete
+    pragma := StrBuf().add("pragma: Lib <\n  version: \"0.0.0\"\n  depends: {\n")
+    depends.each |d| { pragma.add("    { lib: $d.toCode }\n") }
+    pragma.add("  }\n>\n")
+    (dir + `lib.xeto`).out.print(pragma.toStr).close
+    (dir + `test.xeto`).out.print(src).close
+    return XetoCompiler.init
+    {
+      it.ns      = createNamespace(["ph", "hx.test.xeto", "hx.test.xeto.deep"])
+      it.libName = "test.scope"
+      it.input   = dir
+    }.compileLib
+  }
 }
 
