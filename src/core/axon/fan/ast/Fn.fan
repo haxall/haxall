@@ -72,6 +72,9 @@ const class Fn : Expr, HaystackFunc
   ** Return if this function has been deprecated
   @NoDoc virtual Bool isDeprecated() { false }
 
+  ** Return if this function is tagged as having side effects
+  @NoDoc virtual Bool hasSideEffects() { false }
+
   ** Invoke this function with the given arguments.
   ** Note: the `args` parameter must be mutable and may be modified
   Obj? call(AxonContext cx, Obj?[] args) { callx(cx, args, FileLoc.unknown) }

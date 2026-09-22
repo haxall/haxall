@@ -26,9 +26,10 @@ const class TopFn : Fn, Thunk
     : super(loc, name, params, body)
   {
     this.meta = meta
-    this.isSu         = meta.has("su")
-    this.isAdmin      = this.isSu || meta.has("admin")
-    this.isDeprecated = meta.has("deprecated")
+    this.isSu           = meta.has("su")
+    this.isAdmin        = this.isSu || meta.has("admin")
+    this.isDeprecated   = meta.has("deprecated")
+    this.hasSideEffects = meta.has("sideEffects")
   }
 
   ** Func def metadata
@@ -48,6 +49,9 @@ const class TopFn : Fn, Thunk
 
   ** Return if this function has been deprecated
   const override Bool isDeprecated
+
+  ** Is this function tagged as having side effects
+  const override Bool hasSideEffects
 
   ** Is this a lazy function that accepts un-evaluated arguments
   virtual Bool isLazy() { false }
