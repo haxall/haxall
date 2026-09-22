@@ -6,38 +6,52 @@ ai-conv            <messages-square>
 ai-model           <qr-code>
 ai-provider        <brain>
 ai-skill           <flashlight>
+arc                <notepad-text>
 audio              <voicemail>
 axon               <square-function>
 bacnet                                       conn
+binding            <unplug>                  dev lang
 blank                                        transparent empty
+chart-heat-map     <grid-3x3>                chart
 conn               <plug>
+context            <target>
 cur                <square-play>             rule
+def                <tag>
 device             <circuit-board>
 dict               <braces>
-equip              <hard-drive>
 entity             <id-card>
+equip              <hard-drive>
+ev                 <ev-charger>
 ext                <puzzle>
+fandoc             <text-initial>
 fantom             <ghost>                   dev lang
 func               <square-function>
 github                                       git
+his                <hourglass>               history trend
+ide                <square-terminal>         dev
 java               <coffee>                  dev lang
 javascript         <shield-half>             dev lang
 kpi                <chart-column-big>        rule
 lib                <library-big>
+mixin              <blender>
+markdown           <text-initial>
 modbus                                       conn
+num                <hash>                    dev lang
 ok                 <circle-check>            status
 point              <circle-dot>
 proj               <database>
 rule               <settings>
 scalar             <atom>
-space              <door-closed>
-spec               <aperture>
 site               <building>
+space              <door-closed>
 spark              <chart-bar-big>           rule
+spec               <aperture>
+split-view         <square-split-horizontal> layout
 sys                <pc-case>
 system             <shapes>
 task               <spool>
 unknown            <circle-question-mark>    status
+weather            <cloud-sun>
 widget             <box>
 widget-box         <box>
 widget-button      <command>
@@ -57,9 +71,10 @@ widget-popup       <picture-in-picture-2>
 widget-select      <list-check>
 widget-stepper     <list-ordered>
 widget-text-input  <text-cursor-input>
-widget-tooltip     <message-square>
 widget-toggle      <toggle-right>
+widget-tooltip     <message-square>
 widget-vstack      <rows-3>
-weather            <cloud-sun>
+workbook           <book-marked>             doc
+worksheet          <sheet>                   doc grid
 xeto               <aperture>                dev lang
 
