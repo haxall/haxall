@@ -19,6 +19,7 @@ entity             <id-card>
 ext                <puzzle>
 fantom             <ghost>                   dev lang
 func               <square-function>
+github                                       git
 java               <coffee>                  dev lang
 javascript         <shield-half>             dev lang
 kpi                <chart-column-big>        rule
