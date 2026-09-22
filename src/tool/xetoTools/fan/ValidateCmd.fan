@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2024, SkyFoundry LLC
+// Copyright (c) 2026, SkyFoundry LLC
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   30 Nov 2024  Brian Frank  Creation
+//   22 Sep 2026  Brian Frank  Creation
 //
 
 using concurrent
@@ -13,14 +13,13 @@ using xetom
 using haystack
 
 **
-** FitsCmd validates input data using the old fits engine.  It will be
-** removed with that engine; use ValidateCmd instead.
+** ValidateCmd validates input data using the validation engine
 **
-internal class FitsCmd : XetoCmd
+internal class ValidateCmd : XetoCmd
 {
-  override Str cmdName() { "fits" }
+  override Str cmdName() { "validate" }
 
-  override Str summary() { "Validate input data against configured specs (DEPRECATED)" }
+  override Str summary() { "Validate input data against configured specs" }
 
   @Opt { help = "Check graph of query references such as required points" }
   Bool graph
@@ -55,7 +54,7 @@ internal class FitsCmd : XetoCmd
   {
     readInput
     loadNamespace
-    runFits
+    runValidate
     writeOutput
     return 0
   }
@@ -92,56 +91,24 @@ internal class FitsCmd : XetoCmd
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Run Fits
+// Run Validate
 //////////////////////////////////////////////////////////////////////////
 
-  private Void runFits()
+  private Void runValidate()
   {
-    this.hits = XetoLogRec[,]
-    logger := |XetoLogRec rec| { hits.add(rec) }
-
     optsMap := Str:Obj[:]
-    optsMap["explain"] = Unsafe(logger)
-    optsMap["haystack"] = Marker.val // force use for haystack level fidelity
+    optsMap["haystack"] = Marker.val // input files are haystack fidelity
     if (graph) optsMap["graph"] = Marker.val
     if (ignoreRefs) optsMap["ignoreRefs"] = Marker.val
-    opts := Etc.makeDict(optsMap)
 
     cx := DataCmdContext(recsById, recs)
     Actor.locals[ActorContext.actorLocalsKey] = cx
-    recs.each |rec|
-    {
-      id := rec.id
-      startSize := hits.size
-
-      specTag := rec["spec"] as Ref
-      if (specTag == null)
-      {
-        logger(XetoLogRec(LogLevel.err, id, "Missing 'spec' ref tag", FileLoc.unknown, null))
-        numErr++
-        return
-      }
-
-      spec := ns.spec(specTag.id, false)
-      if (spec == null)
-      {
-        logger(XetoLogRec(LogLevel.err, id, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
-        numErr++
-        return
-      }
-
-      ns.fits(rec, spec, opts)
-
-      if (hits.size == startSize)
-        numOk++
-      else
-        numErr++
-    }
+    this.report = ns.validateAll(recs, Etc.makeDict(optsMap))
     Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Write Ouput
+// Write Output
 //////////////////////////////////////////////////////////////////////////
 
   private Void writeOutput()
@@ -155,28 +122,38 @@ internal class FitsCmd : XetoCmd
   private Void writeConsole(Console con)
   {
     table := Obj[][,]
-    table.add(["id", "dis", "msg"])
-    hits.each |hit|
+    table.add(["id", "dis", "level", "slot", "msg"])
+    report.items.each |item|
     {
-      id := hit.id
-      table.add([id?.id, id?.dis, hit.msg])
+      id := item.subjectId
+      table.add([id?.id, id?.dis, item.level.name, item.slot, item.msg])
+    }
+
+    numWarn := 0; numErr := 0
+    recs.each |rec|
+    {
+      items := report.itemsForSubject(rec)
+      if (items.isEmpty) return
+      if (items.any |item| { item.level.isErr }) numErr++
+      else numWarn++
     }
 
     con.info("")
     con.table(table)
     con.info("")
-    con.info("Num recs ok:  $numOk")
-    con.info("Num recs err: $numErr")
+    con.info("Num recs ok:   ${recs.size - numWarn - numErr}")
+    con.info("Num recs warn: $numWarn")
+    con.info("Num recs err:  $numErr")
     con.info("")
   }
 
   private Void writeFile()
   {
     gb := GridBuilder()
-    gb.addCol("id").addCol("msg")
-    hits.each |hit|
+    gb.addCol("id").addCol("level").addCol("slot").addCol("msg")
+    report.items.each |item|
     {
-      gb.addRow2(hit.id, hit.msg)
+      gb.addRow([item.subjectId, item.level.name, item.slot, item.msg])
     }
     writeOutputFile(outFile, gb.toGrid)
   }
@@ -188,8 +165,41 @@ internal class FitsCmd : XetoCmd
   internal Dict[]? recs             // readInput
   internal [Ref:Dict]? recsById     // readInput
   internal Namespace? ns            // loadNamespace
-  internal XetoLogRec[]? hits       // runFits
-  private Int numOk                 // runFits
-  private Int numErr                // runFits
+  private ValidateReport? report    // runValidate
 }
 
+**************************************************************************
+** DataCmdContext
+**************************************************************************
+
+** Context to resolve refs and filters against the input data set
+internal class DataCmdContext : HaystackContext
+{
+  new make([Ref:Dict] recsById, Dict[] recs)
+  {
+    this.recsById = recsById
+    this.recs = recs
+  }
+
+  override xeto::Dict? xetoReadById(Obj id) { recsById.get(id) }
+
+  override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)
+  {
+    x := Filter(filter)
+    return recs.eachWhile |rec|
+    {
+      x.matches(rec) ? f(rec) : null
+    }
+  }
+
+  override Bool xetoIsSpec(Str spec, xeto::Dict rec) { throw Err() }
+
+  override xeto::Dict? deref(Ref id) { recsById.get(id) }
+
+  override FilterInference inference() { FilterInference.nil }
+
+  override xeto::Dict toDict() { Etc.dict0 }
+
+  [Ref:Dict] recsById
+  Dict[] recs
+}
