@@ -680,6 +680,9 @@ const class XetoFuncs
   ** Options:
   **   - `graph`: marker to also check graph of references such as required points
   **   - `ignoreRefs`: marker to not validate if refs exist or match target spec
+  **   - `ignoreUnresolvedRefs`: marker to skip unresolved refs, but still
+  **     check the target type of refs that do resolve
+  **   - `ignoreMissingSlots`: marker to skip missing required slot checks
   **
   ** The result grid has a row per validation item:
   **   - `subject`: id of the subject rec or null if not applicable

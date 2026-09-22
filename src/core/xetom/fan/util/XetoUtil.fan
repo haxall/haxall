@@ -116,6 +116,60 @@ const class XetoUtil
     return null
   }
 
+  ** Resolve spec within lib by dotted name path such as "Foo" or "Foo.bar"
+  static Spec? libSpec(Lib lib, Str name)
+  {
+    names := name.split('.', false)
+    spec := lib.spec(names.first, false)
+    for (i:=1; spec != null && i<names.size; ++i) spec = spec.member(names[i], false)
+    return spec
+  }
+
+  ** Map value to its spec: dicts by their spec tag, Fantom types thru
+  ** their bindings, scalar wrappers by their qname.  All qnames funnel
+  ** thru the given resolver so the compiler can overlay the lib under
+  ** compile.  Returns null if the value cannot be mapped.
+  static Spec? specOf(MSys sys, Obj? val, |Str->Spec?| resolve)
+  {
+    if (val == null) return sys.none
+
+    // dict handling
+    dict := val as Dict
+    if (dict != null)
+    {
+      specRef := dict["spec"] as Ref
+      if (specRef == null) return sys.dict
+      return resolve(specRef.id)
+    }
+
+    // look in Fantom class hiearchy
+    type := val as Type ?: val.typeof
+    bindings := SpecBindings.cur
+    for (Type? p := type; p.base != null; p = p.base)
+    {
+      binding := bindings.forType(p) ?: p.mixins.eachWhile |m->SpecBinding?| { bindings.forType(m) }
+      if (binding != null) return resolve(((SpecBinding)binding).spec)
+    }
+
+    // fallbacks
+    if (val is Scalar) return resolve(((Scalar)val).qname)
+    if (type.fits(List#)) return sys.list
+    if (type.fits(Grid#)) return sys.grid
+    return null
+  }
+
+  ** Iterate the types of loaded libs that fit given type.  The
+  ** namespace may still be under construction during lib compiles,
+  ** so only touch libs that resolve as loaded.
+  static Void eachLoadedTypeThatIs(MNamespace ns, Spec type, |Spec| f)
+  {
+    ns.versions.each |v|
+    {
+      lib := ns.lib(v.name, false)
+      if (lib != null) lib.types.each |x| { if (x.isa(type)) f(x) }
+    }
+  }
+
   ** Generate an auto name of "_0", "_1", etc.
   ** This method must be called in incrementing order for a given thread
   static Str autoName(Int i)

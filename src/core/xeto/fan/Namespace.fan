@@ -198,6 +198,8 @@ const mixin Namespace
   **   - `haystack`: marker tag to use Haystack level data fidelity
   **   - `ignoreRefs`: marker to skip checking ref targets
   **   - `ignoreMixins`: marker to not use mixins and specx
+  **   - `ignoreMissingSlots`: marker to skip missing slot checks
+  **   - `ignoreUnresolvedRefs`: marker to skip unresolved ref checks
   **   - `graph`: marker to check query graph such as required points
   abstract ValidateReport validate(Obj? val, Spec? spec := null, Dict? opts := null)
 

@@ -55,6 +55,13 @@ class ValidateState
   ** Namespace for type enumeration such as choice subtype discovery
   CNamespace cns() { validator.cns }
 
+  ** Skip unresolved ref checks; set by the compiler since its Resolve
+  ** step already settled existence
+  Bool ignoreUnresolvedRefs() { validator.ignoreUnresolvedRefs }
+
+  ** Choice subtypes for given choice slot, computed once per run
+  Obj[] choiceSubtypes(Spec spec) { validator.choiceSubtypes(spec) }
+
   ** Subject
   const Dict subject
 

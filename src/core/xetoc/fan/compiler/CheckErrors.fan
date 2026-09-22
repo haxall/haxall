@@ -8,7 +8,6 @@
 
 using util
 using xeto
-using haystack
 using xetom
 
 **
@@ -392,15 +391,10 @@ internal class CheckErrors : Step
     x.walkTopDown |n|
     {
       d := n as ADict
-      if (d != null && d.isList) checkListNames(d)
+      if (d == null || !d.isList) return
+      if (d.eachWhile(|v, name->Obj?| { XetoUtil.isAutoName(name) ? null : "named" }) != null)
+        err("List cannot contain named items", d.loc)
     }
-  }
-
-  Void checkListNames(ADict x)
-  {
-    named := false
-    x.each |v, n| { if (!XetoUtil.isAutoName(n)) named = true }
-    if (named) err("List cannot contain named items", x.loc)
   }
 }
 

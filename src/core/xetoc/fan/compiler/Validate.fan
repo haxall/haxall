@@ -52,19 +52,15 @@ internal class Validate : Step
   ** value with no member checks against its own inferred type
   private Void validateSpecMeta(CompileValidator validator, ASpec x)
   {
-    meta := x.ast.meta
-    if (meta != null)
+    x.ast.meta?.each |v, n|
     {
-      meta.each |v, n|
-      {
-        if (v.isNone) return // None clears an inherited tag, nothing to check
-        member := metas.get(n, false)
-        // This typed meta such as minVal and val is not checked: the
-        // idiom of plain numerics for custom scalar ranges means the
-        // value type never matches the resolved self type
-        if (member != null && member.type.isThis) return
-        validator.validateNode(v, member)
-      }
+      if (v.isNone) return // None clears an inherited tag, nothing to check
+      member := metas.get(n, false)
+      // This typed meta such as minVal and val is not checked: the
+      // idiom of plain numerics for custom scalar ranges means the
+      // value type never matches the resolved self type
+      if (member != null && member.type.isThis) return
+      validator.validateNode(v, member)
     }
     x.declared?.each |slot| { validateSpecMeta(validator, slot) }
   }
@@ -89,14 +85,18 @@ internal class CompileValidator : Validator, CNamespace
     this.prefix   = lib == null ? null : lib.name + "::"
   }
 
-  ** Skip mixin composition since specx enumerates a namespace still
-  ** under construction; companion values originate from haystack data
-  ** such as comp saves, so they validate at haystack fidelity
+  ** Compile time opts: skip mixin composition since specx enumerates a
+  ** namespace still under construction; skip missing slots since
+  ** instances inherit from their spec; skip unresolved refs since the
+  ** Resolve step already settled existence.  Companion values originate
+  ** from haystack data such as comp saves, so they validate at
+  ** haystack fidelity.
   private static Dict toOpts(MXetoCompiler c)
   {
-    opts := Etc.dict1("ignoreMixins", Marker.val)
-    if (c.isCompanion) opts = Etc.dictSet(opts, "haystack", Marker.val)
-    return opts
+    Etc.dictx("ignoreMixins", Marker.val,
+              "ignoreMissingSlots", Marker.val,
+              "ignoreUnresolvedRefs", Marker.val,
+              "haystack", Marker.fromBool(c.isCompanion))
   }
 
   ** Validate one AST node so items can map their locs back thru it.
@@ -105,8 +105,9 @@ internal class CompileValidator : Validator, CNamespace
   ** The spec to check against defaults to the node's own type.
   Void validateNode(AData node, Spec? spec := null)
   {
-    // skip refs (a Spec asm is a Dict) and factory values such as Grid
-    if (node.nodeType === ANodeType.specRef || node.nodeType === ANodeType.dataRef) return
+    // skip specRefs (a Spec asm is a Dict) and anything not reified
+    // to a dict, list, or scalar such as Grid or Fantom bound values
+    if (node.nodeType === ANodeType.specRef) return
     if (node.nodeType !== ANodeType.scalar && node.asm isnot Dict && node.asm isnot List) return
 
     this.curNode = node
@@ -117,11 +118,10 @@ internal class CompileValidator : Validator, CNamespace
   ** Route each item into the compiler err/warn streams as it emits
   override Void onEmit(MValidateItem item)
   {
-    msg := item.slot != null ? "Slot '$item.slot': $item.msg" : item.msg
     if (item.level.isErr)
-      compiler.err(msg, itemLoc(item))
+      compiler.err(item.dis, itemLoc(item))
     else
-      compiler.warn(msg, itemLoc(item))
+      compiler.warn(item.dis, itemLoc(item))
   }
 
   ** Refine item loc by walking its slot path down the current AST
@@ -140,21 +140,12 @@ internal class CompileValidator : Validator, CNamespace
     return loc
   }
 
-  ** Missing slots are not checked because instances inherit from
-  ** their spec
-  override Bool checkMissingSlots() { false }
-
-  ** Unresolved refs are externs already settled by the Resolve step
-  override Bool checkUnresolvedRefs() { false }
 
   override Spec? resolveSpec(Str qname)
   {
     n := ownName(qname)
     if (n == null) return super.resolveSpec(qname)
-    names := n.split('.', false)
-    spec := lib.spec(names.first, false)
-    for (i:=1; spec != null && i<names.size; ++i) spec = spec.member(names[i], false)
-    return spec
+    return XetoUtil.libSpec(lib, n)
   }
 
   override Dict? resolveInstance(Str qname)
@@ -164,46 +155,16 @@ internal class CompileValidator : Validator, CNamespace
     return lib.instance(n, false)
   }
 
-  override Spec? specOf(Obj? val)
-  {
-    // own lib dicts and scalars resolve their spec thru the overlay
-    scalar := val as Scalar
-    if (scalar != null && ownName(scalar.qname) != null) return resolveSpec(scalar.qname)
-    specRef := (val as Dict)?.get("spec") as Ref
-    if (specRef != null && ownName(specRef.id) != null) return resolveSpec(specRef.id)
-    return super.specOf(val) ?: bindingSpecOf(val)
-  }
-
-  ** Fantom bound values whose binding spec qname lives in the lib under
-  ** compile; mirrors the type hierarchy walk of MNamespace.specOf
-  private Spec? bindingSpecOf(Obj? val)
-  {
-    if (val == null) return null
-    bindings := SpecBindings.cur
-    for (Type? p := val.typeof; p.base != null; p = p.base)
-    {
-      b := bindings.forType(p) ?: p.mixins.eachWhile |m->SpecBinding?| { bindings.forType(m) }
-      if (b != null) return resolveSpec(((SpecBinding)b).spec)
-    }
-    return null
-  }
-
   ** Type enumeration such as choice subtype discovery must see the
   ** lib under compile, so we are our own CNamespace
   override CNamespace cns() { this }
 
-  ** Enumerate the assembled lib under compile plus the loaded libs of
-  ** the namespace; the namespace may still be under construction, so
-  ** like ANamespace we only touch libs that resolve as loaded
+  ** Enumerate the assembled lib under compile plus the loaded libs
+  ** of the namespace
   override Void eachTypeThatIs(Spec type, |Spec| f)
   {
     lib?.types?.each |x| { if (x.isa(type)) f(x) }
-    ns.versions.each |v|
-    {
-      l := ns.lib(v.name, false)
-      if (l == null || l === lib) return
-      l.types.each |x| { if (x.isa(type)) f(x) }
-    }
+    XetoUtil.eachLoadedTypeThatIs(ns, type, f)
   }
 
   ** Name within the lib under compile if qname targets it, else null

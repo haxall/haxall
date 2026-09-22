@@ -40,7 +40,7 @@ const class ValidateRules
     map  := Str:ValidateRule[:]
     libs.each |lib|
     {
-      lib.instances.each |x|
+      lib.eachInstance |x|
       {
         specRef := x["spec"] as Ref
         if (specRef == null) return

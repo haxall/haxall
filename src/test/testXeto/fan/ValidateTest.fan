@@ -1789,8 +1789,7 @@ class ValidateTest : AbstractXetoTest
       r := nsTest.validate(instance, spec)
       recs := r.items.map |item->XetoLogRec|
       {
-        msg := item.slot != null ? "Slot '$item.slot': $item.msg" : item.msg
-        return XetoLogRec(item.level.isErr ? LogLevel.err : LogLevel.warn, null, msg, FileLoc.unknown, null)
+        XetoLogRec(item.level.isErr ? LogLevel.err : LogLevel.warn, null, item.dis, FileLoc.unknown, null)
       }
       verifyErrs("Run Time", instance, r, recs, expect)
     }

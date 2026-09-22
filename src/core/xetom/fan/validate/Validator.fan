@@ -32,10 +32,13 @@ class Validator
     this.fidelity     = XetoUtil.optFidelity(opts)
     this.ignoreRefs   = opts.has("ignoreRefs")
     this.ignoreMixins = opts.has("ignoreMixins")
+    this.ignoreMissingSlots   = opts.has("ignoreMissingSlots")
+    this.ignoreUnresolvedRefs = opts.has("ignoreUnresolvedRefs")
     this.graph        = opts.has("graph")
     this.strSpec      = ns.sys.str
     this.numberSpec   = ns.sys.number
     this.multiRefSpec = ns.sys.multiRef
+    this.resolveSpecFunc = |Str q->Spec?| { resolveSpec(q) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -123,6 +126,7 @@ class Validator
       {
         validateSlot(s, slot.name, slot, s.dict[slot.name])
       }
+      members := s.spec.members
 
       // check rest of the dict tags: members chain resolves globals
       // after slots; unknown tags with ref values get their targets
@@ -134,7 +138,7 @@ class Validator
       s.dict.each |v, n|
       {
         if (s.spec.slots.has(n)) return // walked as declared slot above
-        member := s.spec.members.get(n, false)
+        member := members.get(n, false)
         if (member != null) return validateSlot(s, member.name, member, v)
         if (n == "id" || n == "spec") return
         if (isUnknownRefs(v)) return validateSlot(s, n, v is List ? multiRefSpec : ns.sys.ref, v)
@@ -194,7 +198,7 @@ class Validator
     if (s.spec.isQuery) return doValidateQuery(s)
 
     // perform intrinsic checks before running all the rules
-    if (isMissingSlot(s)) { if (checkMissingSlots) rules.missingSlot.emit(s); return }
+    if (isMissingSlot(s)) return rules.missingSlot.emit(s)
     if (s.val == null) return // absent maybe slot
     if (s.valType == null) return rules.unknownType.emit(s)
     if (!isValidType(s)) return rules.invalidType.emit(s)
@@ -203,11 +207,10 @@ class Validator
     doValidate(s)
   }
 
+  ** Choice and query slots never reach here; see doValidateSlot
   private Bool isMissingSlot(ValidateState s)
   {
-    if (s.val != null) return false
-    if (s.spec.isMaybe || s.spec.isChoice || s.spec.isQuery) return false
-    return true
+    !ignoreMissingSlots && s.val == null && !s.spec.isMaybe
   }
 
   private Bool isValidType(ValidateState s)
@@ -320,35 +323,6 @@ class Validator
     onEmit(item)
   }
 
-  ** Hook when new item is emitted
-  virtual Void onEmit(MValidateItem item) {}
-
-  ** Resolution hooks: the compiler overrides these to overlay the lib
-  ** under compile, which is not in the namespace yet.  Everything the
-  ** engine resolves by qname or value funnels through here.
-
-  ** Resolve spec qname to its spec or null
-  virtual Spec? resolveSpec(Str qname) { ns.spec(qname, false) }
-
-  ** Resolve instance qname to its dict or null
-  virtual Dict? resolveInstance(Str qname) { ns.instance(qname, false) }
-
-  ** Map value to its actual spec or null if unmapped
-  virtual Spec? specOf(Obj? val) { ns.specOf(val, false) }
-
-  ** Namespace for type enumeration such as choice subtype discovery;
-  ** the compiler substitutes its AST aware namespace
-  virtual CNamespace cns() { ns }
-
-  ** Check missing required slots; the compiler skips them since
-  ** instances inherit from their spec
-  virtual Bool checkMissingSlots() { true }
-
-  ** Check refs that do not resolve; the compiler drops them since the
-  ** Resolve step already settled existence, so what does not resolve
-  ** there is an extern outside the compile unit
-  virtual Bool checkUnresolvedRefs() { true }
-
   ** Compute specx once per spec; the ignoreMixins opt skips mixin
   ** composition here, which the compiler requires since specx
   ** enumerates a namespace still under construction
@@ -384,13 +358,48 @@ class Validator
   internal ValidateRef[] resolveRefs(Spec spec, Obj? v)
   {
     if (ignoreRefs || spec.name == "id") return ValidateRef#.emptyList
-    acc := ValidateRef[,]
-    if (v is Ref) acc.add(resolveRef(v))
-    else if (v is List && spec.isMultiRef)
+    if (v is Ref) return [resolveRef(v)]
+    if (v is List && spec.isMultiRef)
+    {
+      acc := ValidateRef[,]
       ((List)v).each |x| { if (x is Ref) acc.add(resolveRef(x)) }
-    if (!checkUnresolvedRefs) acc = acc.findAll |x| { x.target != null }
-    return acc.isEmpty ? ValidateRef#.emptyList : acc
+      return acc
+    }
+    return ValidateRef#.emptyList
   }
+
+  ** Choice subtypes computed once per validation run
+  internal Obj[] choiceSubtypes(Spec spec)
+  {
+    x := choiceCache[spec.type.qname]
+    if (x == null) choiceCache[spec.type.qname] = x = MChoice.findChoiceSubtypes(cns, spec)
+    return x
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Compiler Hooks
+//////////////////////////////////////////////////////////////////////////
+
+  ** Hook when new item is emitted
+  virtual Void onEmit(MValidateItem item) {}
+
+  ** Resolution hooks: the compiler overrides these to overlay the lib
+  ** under compile, which is not in the namespace yet.  Everything the
+  ** engine resolves by qname or value funnels through here.
+
+  ** Resolve spec qname to its spec or null
+  virtual Spec? resolveSpec(Str qname) { ns.spec(qname, false) }
+
+  ** Resolve instance qname to its dict or null
+  virtual Dict? resolveInstance(Str qname) { ns.instance(qname, false) }
+
+  ** Map value to its actual spec or null if unmapped; all qname
+  ** resolution funnels thru resolveSpec
+  Spec? specOf(Obj? val) { XetoUtil.specOf(ns.sys, val, resolveSpecFunc) }
+
+  ** Namespace for type enumeration such as choice subtype discovery;
+  ** the compiler substitutes its AST aware namespace
+  virtual CNamespace cns() { ns }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -401,14 +410,18 @@ class Validator
   const XetoFidelity fidelity     // value fidelity level
   const Bool ignoreRefs           // check or skip refs targets
   const Bool ignoreMixins         // skip mixin composition in specx
+  const Bool ignoreMissingSlots   // skip missing slot checks (compiler)
+  const Bool ignoreUnresolvedRefs // skip unresolved ref checks (compiler)
   const Bool graph                // run graph query constraints
   const Dict opts                 // raw options for engine plumbing
   const Spec strSpec              // spec for sys::Str
   const Spec numberSpec           // spec for sys::Number
   const Spec multiRefSpec         // spec for sys::MultiRef
   XetoContext cx { private set }
+  private |Str->Spec?| resolveSpecFunc
   private MValidateItem[] items := [,]
   private Str:Spec specxCache := [:]
   private Str:ValidateRef refCache := [:]
+  private Str:Obj[] choiceCache := [:]
 }
 

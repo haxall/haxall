@@ -298,7 +298,7 @@ using haystack
     dict := s.parentDict
     if (dict == null) return
     acc := Spec[,]
-    MChoice.findSelections(s.cns, slot, dict, acc)
+    MChoice.doFindSelections(s.choiceSubtypes(slot), dict, acc)
     if (acc.isEmpty) s.emit(Etc.dict1("choice", slot.type.id))
   }
 }
@@ -313,7 +313,7 @@ using haystack
     dict := s.parentDict
     if (dict == null) return
     acc := Spec[,]
-    MChoice.findSelections(s.cns, slot, dict, acc)
+    MChoice.doFindSelections(s.choiceSubtypes(slot), dict, acc)
     if (MChoice.isConflict(slot, acc))
       s.emit(Etc.dictx("choice", slot.type.id, "selections", acc.join(", ") { it.name }))
   }
@@ -344,6 +344,7 @@ using haystack
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
   {
+    if (s.ignoreUnresolvedRefs) return
     s.refs.each |x|
     {
       if (x.target == null) s.emit(Etc.dict1("ref", x.ref))

@@ -45,6 +45,11 @@ validate(123, Str)                      // check a bare value
 Options:
   - `graph`: also check queries such as the points an equip requires
   - `ignoreRefs`: skip checking that refs resolve and hit their target type
+  - `ignoreUnresolvedRefs`: skip checking that refs resolve, but still
+    check the target type of refs that do; use when validating a data
+    subset whose refs point outside the available context
+  - `ignoreMissingSlots`: skip checking for missing required slots; use
+    when validating partially authored data such as a form in progress
 
 # Rules
 

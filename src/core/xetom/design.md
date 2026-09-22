@@ -118,17 +118,18 @@ the namespace but must never enumerate it.  The step skips entirely
 when compiling sys itself, whose rule catalog does not exist yet.
 
 `xetoc::CompileValidator` overrides the engine's resolution hooks
-(`resolveSpec`, `resolveInstance`, `specOf`, `cns`) to overlay
-the lib under compile, which is not in the namespace yet.  It is its own
-`CNamespace` because choice subtype discovery must enumerate the
-assembled own lib - `ANamespace` cannot be reused there since its AST
-tops never `isa` an assembled spec.  Two more overrides keep parity
-with the old CheckErrors behavior: `checkUnresolvedRefs` false (Resolve
-already settled existence, so what does not resolve here is an extern)
-and `checkMissingSlots` false (instances inherit from their spec).
-The compiler also passes the `ignoreMixins` opt to skip mixin
-composition at the `specx` choke point, which enumerates a namespace
-still under construction.
+(`resolveSpec`, `resolveInstance`, `cns`) to overlay the lib under
+compile, which is not in the namespace yet.  All value-to-spec mapping
+funnels thru `resolveSpec` (see `XetoUtil.specOf`), so overriding it
+covers dict spec tags, scalar wrappers, and Fantom bindings alike.  It
+is its own `CNamespace` because choice subtype discovery must enumerate
+the assembled own lib - `ANamespace` cannot be reused there since its
+AST tops never `isa` an assembled spec.  Three opts keep parity with
+the old CheckErrors behavior: `ignoreMixins` (the `specx` choke point
+enumerates a namespace still under construction), `ignoreMissingSlots`
+(instances inherit from their spec), and `ignoreUnresolvedRefs`
+(Resolve already settled existence, so what does not resolve here is
+an extern).
 
 ## Intrinsics
 

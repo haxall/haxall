@@ -187,11 +187,8 @@ const class MNamespace : Namespace, CNamespace
     }
 
     libName := qname[0..<colon]
-    names := qname[colon+2..-1].split('.', false)
-
-    spec := lib(libName, false)?.spec(names.first, false)
-    for (i:=1; spec != null && i<names.size; ++i)
-      spec = spec.member(names[i], false)
+    lib := lib(libName, false)
+    spec := lib == null ? null : XetoUtil.libSpec(lib, qname[colon+2..-1])
 
     if (spec != null) return spec
     if (checked) throw UnknownSpecErr(qname)
@@ -395,36 +392,11 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec? specOf(Obj? val, Bool checked := true)
   {
-    if (val == null) return sys.none
-
-    // dict handling
-    dict := val as Dict
-    if (dict != null)
-    {
-      specRef := dict["spec"] as Ref
-      if (specRef == null) return sys.dict
-      return spec(specRef.id, checked)
-    }
-
-    // look in Fantom class hiearchy
-    type := val as Type ?: val.typeof
-    bindings := SpecBindings.cur
-    for (Type? p := type; p.base != null; p = p.base)
-    {
-      spec := bindings.forTypeToSpec(this, p)
-      if (spec != null) return spec
-      spec = p.mixins.eachWhile |m| { bindings.forTypeToSpec(this, m) }
-      if (spec != null) return spec
-    }
-
-    // fallbacks
-    if (val is Scalar) return spec(((Scalar)val).qname, checked)
-    if (type.fits(List#)) return sys.list
-    if (type.fits(Grid#)) return sys.grid
-
-    // cannot map to spec
-    if (checked) throw UnknownSpecErr("No spec mapped for '$type'")
-    return null
+    x := XetoUtil.specOf(sys, val) |q| { spec(q, false) }
+    if (x != null || !checked) return x
+    specRef := (val as Dict)?.get("spec") as Ref
+    if (specRef != null) throw UnknownSpecErr(specRef.id)
+    throw UnknownSpecErr("No spec mapped for '${val as Type ?: val?.typeof}'")
   }
 
   override Bool fits(Obj? val, Spec spec, Dict? opts := null)

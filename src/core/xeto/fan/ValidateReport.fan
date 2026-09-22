@@ -75,6 +75,9 @@ const mixin ValidateItem
 
   ** Message for validation error rendered from the rule msg template
   abstract Str msg()
+
+  ** Display string as "Slot 'slot': msg" or just msg when not on a slot
+  Str dis() { slot != null ? "Slot '$slot': $msg" : msg }
 }
 
 **************************************************************************

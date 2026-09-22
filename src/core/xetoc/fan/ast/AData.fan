@@ -181,6 +181,8 @@ internal class ADict : AData
   ** Convenience to iterate name/value pairs
   Void each(|AData,Str| f) { map.each(f) }
 
+  Obj? eachWhile(|AData,Str->Obj?| f) { map.eachWhile(f) }
+
   ** Tree walk
   override Void walkBottomUp(|ANode| f)
   {

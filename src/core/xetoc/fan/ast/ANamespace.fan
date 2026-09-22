@@ -70,24 +70,7 @@ internal class ANamespace : CNamespace
     // iterate types from imported namespace only
     // if base type is not in the AST being compiled
     if (ns != null && type is XetoSpec)
-    {
-      // we can only iterate libs that have been loaded already - we don't
-      // want to try to force a load of the lib currently being compiled
-      // or any depends further upstream; we should be able to safely say
-      // that in order to get this point all the dependent libs are loaded
-      typeSpec := (XetoSpec)type
-      ns.versions.each |v|
-      {
-        lib := ns.lib(v.name, false)
-        if (lib != null)
-        {
-          lib.types.each |x|
-          {
-            if (x.isa(typeSpec)) f(x)
-          }
-        }
-      }
-    }
+      XetoUtil.eachLoadedTypeThatIs(ns, type, f)
 
     // iterate my own types
     if (compiler.lib != null)
