@@ -7,7 +7,6 @@
 //   27 Jan 22  Matthew Giannini  Port to Haxall
 //
 
-using concurrent
 using web
 
 **
@@ -33,11 +32,8 @@ const class AuthCodeGrant
   ** See [RFC 7636](https://tools.ietf.org/html/rfc7636) for PKCE details.
   @NoDoc AccessToken run()
   {
-    // 1. Do the authorization request
     pkce := Pkce.gen
     authRes := authReq.authorize(pkce.params)
-
-    // 2. Send the authorization code to the token endpoint to obtain the acces token
     tokenParams := ["code": authRes["code"], "code_verifier": pkce.codeVerifier]
     return tokenReq.grant(authReq, tokenParams)
   }

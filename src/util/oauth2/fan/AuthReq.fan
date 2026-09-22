@@ -56,13 +56,15 @@ const abstract class AuthReq
 **************************************************************************
 
 **
-** If the authorization server is configured to redirect to the localhost, then this
-** class can be used to do an authorization request. It will open a browser window for the
-** user to authorize access with the remote authorization server. It will spawn a
-** web server on the localhost to handle the redirect that the authorization server
-** will do after the authorization access is granted or denied. It granted, we grabe
-** the authorization code from the spawned web server so that the authorization code
-** grant flow can continue.
+** Handles the Authorization Code request using a loopback HTTP listener.
+**
+** RFC 8252 sec 7.3: the 'redirectUri' must have a loopback host (127.0.0.1
+** or localhost) and a concrete port.  OAuthClient.open pre-resolves an
+** ephemeral port via a throwaway TcpListener so this class always receives
+** a fully specified URI and uses it verbatim.
+**
+** RFC 6749 sec 4.1.3: the token endpoint must receive the identical
+** redirect_uri used in the authorize request.
 **
 const class LoopbackAuthReq : AuthReq
 {
@@ -74,6 +76,17 @@ const class LoopbackAuthReq : AuthReq
 
   override const Str responseType := "code"
 
+  **
+  ** How long to wait for the user to complete the browser login (including
+  ** any multifactor authentication steps) before timing out.  Defaults to
+  ** 3 minutes; increase this for environments with slow MFA delivery or
+  ** manual enrollment steps.
+  **
+  ** Example: set to 5 minutes via the it-block constructor:
+  **   req := LoopbackAuthReq(authUri, clientId) { it.loginTimeout = 5min }
+  **
+  const Duration loginTimeout := 3min
+
   private Void checkHost()
   {
     switch (redirectUri.host.lower)
@@ -83,27 +96,23 @@ const class LoopbackAuthReq : AuthReq
       case IpAddr.local.toStr:
         return
     }
-    throw ArgErr("Invalid host [$redirectUri.host] for ${typeof.name}. Use '127.0.0.1' instead.")
+    throw ArgErr("Invalid host [${redirectUri.host}] for ${typeof.name}. Use '127.0.0.1' instead.")
   }
 
   override Str:Str authorize(Str:Str flowParams)
   {
-    params := this.build
-    params["state"] = Buf.random(16).toBase64Uri
-    params.addAll(flowParams)
-
+    // bind the loopback listener to redirectUri.host only (RFC 8252 sec 8.3)
     mod  := LoopbackMod()
-    wisp := WispService {
-      it.httpPort = redirectUri.port ?: 80
-      it.root     = mod
-    }.start
-
+    wisp := WispService { it.addr = IpAddr(redirectUri.host); it.httpPort = redirectUri.port; it.root = mod }.start
     try
     {
-      uri := authUri.plusQuery(params)
-      Desktop.getDesktop().browse(URI(uri.encode))
+      params := this.build
+      params["state"] = Buf.random(16).toBase64Uri
+      params.addAll(flowParams)
+      Desktop.getDesktop().browse(URI(authUri.plusQuery(params).encode))
 
-      authRes := mod.authRes.get(2min)
+      // wait for the AS redirect; verify CSRF state
+      authRes := mod.authRes.get(loginTimeout)
       return verify(authRes, params["state"])
     }
     finally wisp.stop
@@ -135,12 +144,11 @@ internal const class LoopbackMod : WebMod
     out.html
       .head.title.w("Auth Success").titleEnd.headEnd
       .body
-        .h1.w("Authorization Granted").h1
+        .h1.w("Authorization Granted").h1End
         .p.w("You may close this page").pEnd
       .bodyEnd
     .htmlEnd
 
-    // complete the response future with the auth code
     authRes.complete(req.uri.query)
   }
 
@@ -150,12 +158,11 @@ internal const class LoopbackMod : WebMod
     error := q["error"]
     if (error == null) return false
 
-    // complete the response future with an error
     authRes.completeErr(AuthReqErr(q))
 
     res.headers["Content-Type"] = "text/html; charset=utf-8"
 
-    desc := q["error_description"] ?: "No futher details available"
+    desc := q["error_description"] ?: "No further details available"
     out := res.out
     out.html
       .head.title.w("Auth Error").titleEnd.headEnd
