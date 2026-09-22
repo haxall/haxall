@@ -115,8 +115,13 @@ const class AuthServerMetadata
     {
       c.writeReq.readRes
       if (c.resCode != 200) throw IOErr("HTTP ${c.resCode}")
-      json := JsonInStream(c.resIn).readJson as Str:Obj
-      if (json == null) throw IOErr("empty response body")
+      obj := null
+      try
+        obj = JsonInStream(c.resIn).readJson
+      catch (ParseErr e)
+        throw IOErr("invalid JSON body", e)
+      json := obj as Str:Obj
+      if (json == null) throw IOErr("expected JSON object")
       return json
     }
     finally c.close

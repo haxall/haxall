@@ -71,6 +71,7 @@ const class LoopbackAuthReq : AuthReq
   new make(Uri authUri, Str clientId, |This|? f := null) : super(authUri, clientId, f)
   {
     if (redirectUri == null) throw ArgErr("Must set redirectUri")
+    if (redirectUri.port == null) throw ArgErr("redirectUri must specify a port")
     checkHost
   }
 
