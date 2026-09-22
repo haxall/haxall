@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using inet
 using web
 using util
 
@@ -21,17 +22,63 @@ const class OAuthClient
 // Open
 //////////////////////////////////////////////////////////////////////////
 
-  ** Run the loopback oauth2 login called via reflection from `auth::OAuth2Scheme`.
-  ** Return the bearer token or raise AuthErr.
+  ** Run the loopback OAuth 2.0 Authorization Code + PKCE login, called via
+  ** reflection from 'auth::OAuth2Scheme'.  Returns the access token string or
+  ** raises on failure.
   static Str open(Uri uri, Str:Str params, Log log)
   {
-    issuer := params.getChecked("issuer")
-    cid    := params.getChecked("clientId")
-    scopes := params.getChecked("scopes")
+    issuer       := params.getChecked("issuer").toUri
+    cid          := params.getChecked("clientId")
+    scopes       := params["scopes"]                // optional
+    redirectPort  := params["redirectPort"]?.toInt  // optional fixed loopback port
+    loginTimeout  := params["loginTimeout"]         // optional Duration string, e.g. "5min"
 
-    log.info("TODO open $uri, $params")
+    authUri  := params["authorizationEndpoint"]?.toUri
+    tokenUri := params["tokenEndpoint"]?.toUri
+    if (authUri == null || tokenUri == null)
+    {
+      AuthServerMetadata? meta := null
+      try
+        meta = AuthServerMetadata.discover(issuer)
+      catch (IOErr e) {}
+      base := AuthServerMetadata.normalize(issuer)
+      if (authUri  == null) authUri  = meta != null ? meta.authorizationEndpoint : `${base}/oauth/authorize`
+      if (tokenUri == null) tokenUri = meta != null ? meta.tokenEndpoint         : `${base}/oauth/token`
+    }
 
-    return "dummy-bearer-token"
+    redirectUri := resolveRedirectUri(redirectPort)
+
+    authReq := LoopbackAuthReq(authUri, cid)
+    {
+      it.redirectUri = redirectUri
+      if (scopes != null) it.scopes = scopes.split(' ')
+      if (loginTimeout != null) it.loginTimeout = Duration.fromStr(loginTimeout)
+    }
+    tokenReq := AuthCodeTokenReq(tokenUri)
+    grant    := AuthCodeGrant(authReq, tokenReq)
+
+    log.debug("""Opening browser to authenticate...
+                  server: ${issuer}
+                  authUri: ${authUri}
+                  tokenUri: ${tokenUri}""")
+    token := grant.run
+    log.info("OAuth authentication successful")
+    return token.accessToken
+  }
+
+  ** Bind a throwaway TcpListener to obtain an available loopback port, then
+  ** close it so WispService can bind the same port.
+  private static Uri resolveRedirectUri(Int? fixedPort)
+  {
+    if (fixedPort != null) return `http://127.0.0.1:${fixedPort}/callback`
+    l := TcpListener()
+    try
+    {
+      l.bind(IpAddr("127.0.0.1"), null)
+      port := l.localPort
+      return `http://127.0.0.1:${port}/callback`
+    }
+    finally l.close
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -47,13 +94,13 @@ const class OAuthClient
 
   ** Create an OAuthClient that supports token refresh.
   ** The tokenUri is the endpoint to use to refresh the token.
-  ** The params must at least include the `client_id` parameter.
+  ** The params must at least include the 'client_id' parameter.
   new makeRefreshable(AccessToken token, Uri tokenUri, Str:Str params)
   {
     this.tokenRef.val  = token
     this.tokenUri      = tokenUri
     this.refreshParams = params
-    if (params["client_id"] == null) throw ArgErr("Must specify 'client_id' in params: $params")
+    if (params["client_id"] == null) throw ArgErr("Must specify 'client_id' in params: ${params}")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,27 +112,27 @@ const class OAuthClient
   protected AccessToken token() { tokenRef.val }
   private const AtomicRef tokenRef := AtomicRef()
 
-  private const Uri? tokenUri := null
-
+  private const Uri? tokenUri
   private const Str:Str refreshParams := emptyHeaders
 
 //////////////////////////////////////////////////////////////////////////
 // Client
 //////////////////////////////////////////////////////////////////////////
 
-  ** Do an HTTP request with the given method (GET, PUT, etc.) to the given URI. You can
-  ** also pass additional headers to include with the request. This method will handle
+  ** Do an HTTP request with the given method (GET, PUT, etc.) to the given URI.  You can
+  ** also pass additional headers to include with the request.  This method will handle
   ** OAuth token refresh.
   **
-  ** If the `req` parameter is non-null, it will be first be converted to a File
+  ** If the 'req' parameter is non-null, it will be first be converted to a File
   ** as described below and then written as the request body (see WebClient.writeFile).
   **  - File: no conversion done, file is written as-is
   **  - Buf: converted to a File using Buf.toFile. The Content-Type will be
   **   'application/octet-stream'.
-  **  - Map: encoded to JSON and written as a File with `.json` ext.
+  **  - Map: encoded to JSON and written as a File with '.json' ext.
   **
-  ** Returns a WebClient in a state where [web::WebClient.readRes] has been called and
-  ** the [web::WebClient.resIn] is available for reading.
+  ** Returns a WebClient in a state where [web::WebClient.readRes]`web::WebClient.readRes`
+  ** has been called and the [web::WebClient.resIn]`web::WebClient.resIn` is available
+  ** for reading.
   WebClient call(Str method, Uri uri, Obj? req := null, [Str:Str] headers := emptyHeaders)
   {
     WebClient? c := null
@@ -107,16 +154,10 @@ const class OAuthClient
     c := prepare(method, uri, headers)
     try
     {
-// echo("---")
-// echo("$method $uri")
-      // request
       if (req == null) c.writeReq
       else c.writeFile(method, toFile(req))
-
-      // read the response
       c.readRes
       return c
-
     }
     catch (IOErr err)
     {
@@ -129,7 +170,7 @@ const class OAuthClient
     }
   }
 
-  ** Utility to obtain a raw WebClient with uri, method, and headers set (including Bearer token)
+  ** Utility to obtain a raw WebClient with uri, method, and headers set (including Bearer token).
   WebClient prepare(Str method, Uri uri, Str:Str headers := emptyHeaders)
   {
     c := WebClient(uri)

@@ -17,7 +17,7 @@ const mixin AccessToken
   ** The access token type (e.g. "Bearer")
   abstract Str tokenType()
 
-  ** The acces token
+  ** The access token
   abstract Str accessToken()
 
   ** Get the refresh token if one is present
@@ -34,7 +34,7 @@ const mixin AccessToken
 }
 
 **
-** JSON Access Token (RFC 6749 §5.1)
+** JSON Access Token (RFC 6749 sec 5.1)
 **
 const class JsonAccessToken : AccessToken
 {
@@ -43,8 +43,17 @@ const class JsonAccessToken : AccessToken
     JsonAccessToken((Map)JsonInStream(json.in).readJson)
   }
 
+  ** Construct from a parsed JSON map.  Throws 'AuthReqErr' when the map
+  ** contains an RFC 6749 sec 5.2 error response.
   new make(Str:Obj? json)
   {
+    errCode := json["error"] as Str
+    if (errCode != null)
+    {
+      errDesc := json["error_description"] as Str ?: "(no description)"
+      params  := Str:Str["error": errCode, "error_description": errDesc]
+      throw AuthReqErr(params)
+    }
     this.json = json
   }
 

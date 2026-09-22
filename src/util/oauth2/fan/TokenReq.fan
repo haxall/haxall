@@ -61,8 +61,13 @@ const class AuthCodeTokenReq : TokenReq
     params["client_id"] = req.clientId
     if (req.redirectUri != null) params["redirect_uri"] = req.redirectUri.toStr
 
-    client := WebClient(tokenUri).postForm(params)
-    return JsonAccessToken(client.resStr)
+    c := WebClient(tokenUri)
+    try
+    {
+      c.postForm(params)
+      return JsonAccessToken.fromStr(c.resStr)
+    }
+    finally c.close
   }
 }
 
