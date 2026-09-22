@@ -275,7 +275,7 @@ internal const class ValidateStateVal
     this.name    = name
     this.val     = val
     this.spec    = spec
-    this.valType = validator.ns.specOf(val, false)
+    this.valType = validator.specOf(val)
     this.refs    = validator.resolveRefs(spec, val)
 
     // specific value types

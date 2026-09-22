@@ -21,12 +21,14 @@ class Validator
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, XetoContext cx, Dict opts)
+  ** The compiler passes its own depends scoped rules registry; the
+  ** runtime defaults to the full namespace registry
+  new make(MNamespace ns, XetoContext cx, Dict opts, ValidateRules? rules := null)
   {
     this.ns           = ns
     this.cx           = cx
     this.opts         = opts
-    this.rules        = ns.validateRules
+    this.rules        = rules ?: ns.validateRules
     this.fidelity     = XetoUtil.optFidelity(opts)
     this.ignoreRefs   = opts.has("ignoreRefs")
     this.ignoreMixins = opts.has("ignoreMixins")
@@ -40,8 +42,9 @@ class Validator
 // Entry Points
 //////////////////////////////////////////////////////////////////////////
 
-  ** Validate value against spec, or its own spec if null
-  ValidateReport validate(Obj? val, Spec? spec)
+  ** Validate value against spec, or its own spec if null; the compiler
+  ** passes the source file location to carry into reported items
+  ValidateReport validate(Obj? val, Spec? spec, FileLoc loc := FileLoc.unknown)
   {
     // subject validation
     subject := val as Dict
@@ -49,11 +52,11 @@ class Validator
     {
       if (spec == null)
       {
-        validateSubject(subject)
+        validateSubject(subject, loc)
       }
       else
       {
-        state := ValidateState.makeSubject(this, subject, specx(spec))
+        state := ValidateState.makeSubject(this, subject, specx(spec), loc)
         doValidate(state)
       }
       return MValidateReport([subject], items)
@@ -61,7 +64,7 @@ class Validator
 
     // bare value validation runs the slot level intrinsics too
     spec = specx(spec ?: ns.specOf(val))
-    state := ValidateState.makeVal(this, val, spec)
+    state := ValidateState.makeVal(this, val, spec, loc)
     doValidateSlot(state)
     return MValidateReport(Dict#.emptyList, items)
   }
@@ -74,29 +77,29 @@ class Validator
   }
 
   ** Validate subject against the spec derived from its spec tag
-  private Void validateSubject(Dict subject)
+  private Void validateSubject(Dict subject, FileLoc loc := FileLoc.unknown)
   {
     // fail fast when subject has no spec tag
     specRef := subject["spec"] as Ref
     if (specRef == null)
     {
-      state := ValidateState.makeSubject(this, subject, ns.sys.dict)
+      state := ValidateState.makeSubject(this, subject, ns.sys.dict, loc)
       rules.missingSpecRef.emit(state)
       return
     }
 
     // fail fast when specRef cannot be resolved
-    spec := ns.spec(specRef.id, false)
+    spec := resolveSpec(specRef.id)
     if (spec == null)
     {
-      state := ValidateState.makeSubject(this, subject, ns.sys.dict)
+      state := ValidateState.makeSubject(this, subject, ns.sys.dict, loc)
       rules.unknownSpecRef.emit(state, Etc.dict1("spec", specRef))
       return
     }
 
     // run thru standard subject validation
     spec = specx(spec)
-    state := ValidateState.makeSubject(this, subject, spec)
+    state := ValidateState.makeSubject(this, subject, spec, loc)
     doValidate(state)
   }
 
@@ -272,7 +275,7 @@ class Validator
   ** TODO: replace with sugar matching once that lands
   private Bool queryConstraintMatches(Spec c, Dict x)
   {
-    t := ns.specOf(x, false)
+    t := specOf(x)
     if (t == null) return false
 
     // Dict based shapes skip the nominal anchor check
@@ -305,8 +308,21 @@ class Validator
   ** Accumulator one item
   Void emit(MValidateItem item) { items.add(item) }
 
+  ** Resolution hooks: the compiler overrides these to overlay the lib
+  ** under compile, which is not in the namespace yet.  Everything the
+  ** engine resolves by qname or value funnels through here.
+
+  ** Resolve spec qname to its spec or null
+  virtual Spec? resolveSpec(Str qname) { ns.spec(qname, false) }
+
+  ** Resolve instance qname to its dict or null
+  virtual Dict? resolveInstance(Str qname) { ns.instance(qname, false) }
+
+  ** Map value to its actual spec or null if unmapped
+  virtual Spec? specOf(Obj? val) { ns.specOf(val, false) }
+
   ** Compute specx once per spec
-  Spec specx(Spec spec)
+  virtual Spec specx(Spec spec)
   {
     if (ignoreMixins) return spec
     x := specxCache[spec.qname]
@@ -323,7 +339,7 @@ class Validator
       Dict? target
       if (ref.id.contains("::"))
       {
-        target = (Dict?)ns.spec(ref.id, false) ?: ns.instance(ref.id, false)
+        target = (Dict?)resolveSpec(ref.id) ?: resolveInstance(ref.id)
       }
       else
       {

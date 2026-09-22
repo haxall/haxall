@@ -25,23 +25,35 @@ const class ValidateRules
 //////////////////////////////////////////////////////////////////////////
 
   ** Build registry from all ValidateRule instances in namespace
-  new make(MNamespace ns)
+  new make(MNamespace ns) : this.makeLibs(ns, ns.libs) {}
+
+  ** Build registry from ValidateRule instances in given libs.  Compiler
+  ** passes a lib's depends, so this ctor must use only lib  only lookups.
+  new makeLibs(Namespace ns, Lib[] libs)
   {
-    // funcs which implement a rule name it, not the reverse
-    funcs := findFuncs(ns)
+    // funcs with validateRule meta tag
+    funcs := findFuncs(libs)
 
     // build up rule collection
+    ruleSpec := ns.spec("sys::ValidateRule")
     list := ValidateRule[,]
     map  := Str:ValidateRule[:]
-    ns.eachInstanceThatIs(ns.spec("sys::ValidateRule")) |x, spec|
+    libs.each |lib|
     {
-      try
+      lib.instances.each |x|
       {
-        r := ValidateRule.create(ns, x, funcs[x.id.id])
-        list.add(r)
-        map.add(r.qname, r)
+        specRef := x["spec"] as Ref
+        if (specRef == null) return
+        spec := ns.spec(specRef.id, false)
+        if (spec == null || !spec.isa(ruleSpec)) return
+        try
+        {
+          r := ValidateRule.create(ns, x, funcs[x.id.id])
+          list.add(r)
+          map.add(r.qname, r)
+        }
+        catch (Err e) Console.cur.err("Invalid ValidateRule: $x.id", e)
       }
-      catch (Err e) Console.cur.err("Invalid ValidateRule: $x.id", e)
     }
 
     // order them by their unless, and get special constants
@@ -55,11 +67,11 @@ const class ValidateRules
 
   ** Map rule qname to the func which implements it.  Two funcs claiming
   ** the same rule is ambiguous, so neither is used.
-  private static Str:Spec findFuncs(MNamespace ns)
+  private static Str:Spec findFuncs(Lib[] libs)
   {
     acc := Str:Spec[:]
     dups := Str[,]
-    ns.libs.each |lib|
+    libs.each |lib|
     {
       lib.funcs.each |f|
       {
