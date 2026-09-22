@@ -85,12 +85,13 @@ abstract const class ValidateRule
   ** Qualified name of what implements the check, or null if unbound
   virtual Str? impl() { typeof.qname }
 
-  ** Is this rule applicable to the state's current position.  A rule runs
-  ** where the position's spec is one of its 'on' types; the check itself
-  ** then narrows on the constraint meta it enforces.
-  virtual Bool isApplicable(ValidateState s)
+  ** Is this rule applicable to a position with the given spec.  A rule
+  ** runs where the spec is one of its 'on' types; the check itself then
+  ** narrows on the constraint meta it enforces.  Must be a pure function
+  ** of spec since ValidateRules caches the result per spec.
+  virtual Bool isApplicable(Spec spec)
   {
-    on.any |x| { s.spec.isa(x) }
+    on.any |x| { spec.isa(x) }
   }
 
   ** Run rule against given state
@@ -120,7 +121,7 @@ internal const class ValidateUnboundRule : ValidateRule
   new make(ValidateRuleInit init) : super(init) {}
   override Bool isBound() { false }
   override Str? impl() { null }
-  override Bool isApplicable(ValidateState s) { false }
+  override Bool isApplicable(Spec spec) { false }
   override Void onCheck(ValidateState s) {}
 }
 

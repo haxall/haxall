@@ -6,6 +6,7 @@
 //   18 Sep 2026  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using xeto
 using haystack
@@ -132,8 +133,18 @@ const class ValidateRules
   ** registry order, so a rule always follows the rules its unless names
   Void eachApplicable(ValidateState s, |ValidateRule| f)
   {
-    rules.each |r| { if (r.isApplicable(s)) f(r) }
+    applicable(s.spec).each(f)
   }
+
+  ** Rules applicable to spec, cached per spec
+  private ValidateRule[] applicable(Spec spec)
+  {
+    r := applicableCache.get(spec)
+    if (r == null) applicableCache[spec] = r = rules.findAll { it.isApplicable(spec) }.toImmutable
+    return r
+  }
+
+  private const ConcurrentMap applicableCache := ConcurrentMap()
 
   internal const ValidateIntrinsicRule missingSpecRef
   internal const ValidateIntrinsicRule unknownSpecRef

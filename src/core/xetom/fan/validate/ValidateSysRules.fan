@@ -21,7 +21,7 @@ using haystack
 @Js internal abstract const class ValidateIntrinsicRule : ValidateRule
 {
   new make(ValidateRuleInit init) : super(init) {}
-  override final Bool isApplicable(ValidateState s) { false }
+  override final Bool isApplicable(Spec spec) { false }
   override final Void onCheck(ValidateState s) { throw Err("Not used") }
   Void emit(ValidateState s, Dict args := Etc.dict0) { s.emitRule(this, args) }
 }

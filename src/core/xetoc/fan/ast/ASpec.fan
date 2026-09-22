@@ -224,10 +224,14 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
     return ast.declared
   }
 
-  Void setNoMembers()
+  Void setNoMembers() { setMembers(SpecMap.empty) }
+
+  ** Set effective slots and globals; members chains them
+  Void setMembers(SpecMap slots, SpecMap globals := SpecMap.empty)
   {
-    ast.members = SpecMap.empty
-    ast.slots   = SpecMap.empty
+    ast.slots   = slots
+    ast.globals = globals
+    ast.members = SpecMap(slots, globals)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -247,6 +251,8 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
   override SpecMap members() { ast.members ?: throw NotReadyErr(qname) }
 
   override SpecMap slots() { ast.slots ?: throw NotReadyErr(qname) }
+
+  override SpecMap globals() { ast.globals ?: throw NotReadyErr(qname) }
 
   override final Spec? of(Bool checked := true)
   {
@@ -361,8 +367,6 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 
   override SpecMap globalsOwn() { throw UnsupportedErr() }
 
-  override SpecMap globals() { throw UnsupportedErr() }
-
   override Bool isEmpty() { throw UnsupportedErr() }
 
   @Operator override Obj? get(Str n) { throw UnsupportedErr() }
@@ -465,6 +469,7 @@ internal class ASpecState
   Bool declaredHasGlobals
   SpecMap? members
   SpecMap? slots
+  SpecMap? globals
   Int flags := -1
   SpecEnum? enum
   SpecBinding? binding

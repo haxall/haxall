@@ -129,7 +129,7 @@ internal class InheritSlots : InheritFlags
       if (ofs != null) ofs.each |of|
       {
         if (of.isAst) inherit(of)
-        autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, of)
+        autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, of.members)
       }
     }
     else
@@ -137,32 +137,23 @@ internal class InheritSlots : InheritFlags
       from := spec.base
       if (spec.isCovariantOverride) from = spec.type
       if (from.isAst) inherit(from)
-      if (!from.isAst) baseGlobals = from.globals
-      autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, from)
+
+      // common case reuses base globals as is, so only copy base slots
+      if (!spec.ast.declaredHasGlobals) baseGlobals = from.globals
+      autoCount = inheritSlotsFrom(spec, slots, globals, autoCount, baseGlobals == null ? from.members : from.slots)
     }
 
     // now merge in my own slots
-    addOwnSlots(spec, slots, globals, autoCount)
-
-    // slots map
-    slotsMap := SpecMap(slots)
-
-    // globals map - optimize to reuse globals from base for common case
-    SpecMap? globalsMap
-    if (baseGlobals != null && !spec.ast.declaredHasGlobals)
-      globalsMap = baseGlobals
-    else
-      globalsMap = SpecMap(globals)
+    addOwnSlots(spec, slots, globals, baseGlobals, autoCount)
 
     // we now have effective members
-    spec.ast.slots   = slotsMap
-    spec.ast.members = SpecMap(slotsMap, globalsMap)
+    spec.setMembers(SpecMap(slots), baseGlobals ?: SpecMap(globals))
   }
 
-  ** Inherit slots from the given base type to accumulator
-  private Int inheritSlotsFrom(ASpec spec, Str:Spec slots, Str:Spec globals, Int autoCount, Spec base)
+  ** Inherit members of a base type to accumulator
+  private Int inheritSlotsFrom(ASpec spec, Str:Spec slots, Str:Spec globals, Int autoCount, SpecMap members)
   {
-    base.members.each |member|
+    members.each |member|
     {
       // we don't inherit constructors
       if (spec.isInterface && metaHas(member, "new")) return
@@ -194,7 +185,7 @@ internal class InheritSlots : InheritFlags
   }
 
   ** Merge in my own slots to accumulator and handle slot overrides
-  private Int addOwnSlots(ASpec spec,  Str:Spec slots, Str:Spec globals, Int autoCount)
+  private Int addOwnSlots(ASpec spec,  Str:Spec slots, Str:Spec globals, SpecMap? baseGlobals, Int autoCount)
   {
     if (spec.declared == null) return autoCount
     spec.declared.each |ASpec slot|
@@ -206,6 +197,7 @@ internal class InheritSlots : InheritFlags
       // if duplicate then check if valid override; members in scope
       // include mixin members visible thru my depends closure
       dup := slots[name] ?: globals[name]
+      if (dup == null && baseGlobals != null) dup = baseGlobals.get(name, false)
       if (dup == null) dup = mixinMember(spec, slot, name)
       if (dup != null)
       {
@@ -375,9 +367,7 @@ internal class InheritSlots : InheritFlags
     autoCount = mergeQueryConstraints(merge, acc, autoCount, b.slots.list, false)
     autoCount = mergeQueryConstraints(merge, acc, autoCount, cur?.declared?.vals, true)
 
-    specMap := SpecMap(acc)
-    merge.ast.members = specMap
-    merge.ast.slots   = specMap
+    merge.setMembers(SpecMap(acc))
 
     // the merge is a declared slot of the spec (reusing the own slot if any)
     spec.initDeclared[name] = merge

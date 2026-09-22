@@ -21,7 +21,7 @@ const class MLibFiles : LibFiles
   new make(Uri:LibFile map)
   {
     // sort by name but put lib.xeto first
-    list := map.vals.sort
+    list := map.vals.sort |a, b| { a.uri <=> b.uri }
     list.moveTo(list.find { it.uri == `/lib.xeto` }, 0)
 
     this.map       = map

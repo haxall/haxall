@@ -78,9 +78,7 @@ internal class InheritEnums : InheritFlags
       spec.metaInit.set("val", AScalar(spec.loc, enumRef, defKey))
 
     // save away both slots and enums
-    specMap := SpecMap(slots)
-    spec.ast.members = specMap
-    spec.ast.slots   = specMap
+    spec.setMembers(SpecMap(slots))
     spec.ast.enum    = MEnum(enums, defKey ?: "")
   }
 

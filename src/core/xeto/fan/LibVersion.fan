@@ -136,16 +136,17 @@ const mixin LibVersion
 
     // sort those not in error by dependency order
     left := libs.findAll { errs[it.name] == null && it !== companion }.sort
+    leftNames := Str:LibVersion[:].setList(left) { it.name }
     ordered := LibVersion[,]
     ordered.capacity = libs.size
     while (!left.isEmpty)
     {
       // find next that doesn't have depends in left list
-      i := left.findIndex |x| { noDependsInLeft(left, x) }
-      if (i == null)
-        break
-      else
-        ordered.add(left.removeAt(i));
+      i := left.findIndex |x| { x.depends.all |d| { leftNames[d.name] == null } }
+      if (i == null) break
+      x := left.removeAt(i)
+      leftNames.remove(x.name)
+      ordered.add(x)
     }
 
     // add companion lib last
@@ -162,11 +163,6 @@ const mixin LibVersion
 
     // return ordered list
     return ordered
-  }
-
-  private static Bool noDependsInLeft(LibVersion[] left, LibVersion x)
-  {
-    x.depends.all |d| { left.all |q| { q.name != d.name } }
   }
 
   ** Bitmask flags

@@ -68,11 +68,12 @@ internal abstract class InferData : Step
     if (dict.typeRef == null) dict.typeRef = sys.dict
 
     // infer slots and globals from spec
+    // meta only infers slots with a value, so walk the dict not the vocabulary
     members := dict.isSpecMeta ? this.metas : dict.type.members
-    members.each |slot|
-    {
-      inferDictSlot(dict, slot)
-    }
+    if (dict.isMeta)
+      dict.each |v, n| { slot := members.get(n, false); if (slot != null) inferDictSlot(dict, slot) }
+    else
+      members.each |slot| { inferDictSlot(dict, slot) }
 
     // infer values from parameterized of
     of := dictOf(dict)
