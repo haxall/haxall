@@ -104,7 +104,7 @@ class EnumTest : AbstractXetoTest
            }
            +Spec {
              color: Str?
-             foo: Str?
+             foo: Marker?
            }
            |>)
 

@@ -35,32 +35,38 @@ internal class Validate : Step
     if (isLib)
       validateLib(validator)
     else
-      validateData(validator)
+      validator.validateNode(data.root)
 
     // boom!
     bombIfErr
   }
 
-  ** Validate all the instances in the lib
+  ** Validate all the instances and spec meta in the lib
   private Void validateLib(CompileValidator validator)
   {
     lib.ast.instances.each |x| { validator.validateNode(x) }
+    lib.tops.each |x| { validateSpecMeta(validator, x) }
   }
 
-  ** Validate root value of a data compile
-  private Void validateData(CompileValidator validator)
+  ** Validate spec meta values against their meta member specs; a
+  ** value with no member checks against its own inferred type
+  private Void validateSpecMeta(CompileValidator validator, ASpec x)
   {
-    root := data.root
-    if (runValidateData(root))
-      validator.validateNode(root)
-  }
-
-  ** We only validate scalars, dicts, and lists; not a ASpecRef or Grids
-  private Bool runValidateData(AData root)
-  {
-    if (root.nodeType === ANodeType.scalar ) return true
-    if (root.nodeType === ANodeType.dict) return root.asm is Dict || root.asm is List
-    return false
+    meta := x.ast.meta
+    if (meta != null)
+    {
+      meta.each |v, n|
+      {
+        if (v.isNone) return // None clears an inherited tag, nothing to check
+        member := metas.get(n, false)
+        // This typed meta such as minVal and val is not checked: the
+        // idiom of plain numerics for custom scalar ranges means the
+        // value type never matches the resolved self type
+        if (member != null && member.type.isThis) return
+        validator.validateNode(v, member)
+      }
+    }
+    x.declared?.each |slot| { validateSpecMeta(validator, slot) }
   }
 }
 
@@ -76,18 +82,32 @@ internal class Validate : Step
 internal class CompileValidator : Validator, CNamespace
 {
   new make(MXetoCompiler c, ValidateRules rules)
-    : super(c.ns, NilXetoContext.val, compileOpts, rules)
+    : super(c.ns, NilXetoContext.val, toOpts(c), rules)
   {
     this.compiler = c
     this.lib      = c.mode.isLib ? c.lib.asm : null
     this.prefix   = lib == null ? null : lib.name + "::"
   }
 
-  ** Validate one AST node so items can map their locs back thru it
-  Void validateNode(AData node)
+  ** Companion values originate from haystack data such as comp saves,
+  ** so they validate at haystack fidelity
+  private static Dict toOpts(MXetoCompiler c)
   {
+    c.isCompanion ? Etc.dictSet(compileOpts, "haystack", Marker.val) : compileOpts
+  }
+
+  ** Validate one AST node so items can map their locs back thru it.
+  ** The engine walks values reified to a dict, list, or scalar; a
+  ** specRef, dataRef, or factory value such as Grid has no checks.
+  ** The spec to check against defaults to the node's own type.
+  Void validateNode(AData node, Spec? spec := null)
+  {
+    // skip refs (a Spec asm is a Dict) and factory values such as Grid
+    if (node.nodeType === ANodeType.specRef || node.nodeType === ANodeType.dataRef) return
+    if (node.nodeType !== ANodeType.scalar && node.asm isnot Dict && node.asm isnot List) return
+
     this.curNode = node
-    validate(node.asm, node.type.asm, node.loc)
+    validate(node.asm, spec?.asm ?: node.type.asm, node.loc)
     this.curNode = null
   }
 

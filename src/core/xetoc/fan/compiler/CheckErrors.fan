@@ -190,7 +190,7 @@ internal class CheckErrors : Step
       if (isReservedMeta(slot)) err("Reserved spec meta tag '$n'", x.loc)
     }
 
-    checkDict(x.ast.meta, null)
+    checkNamedLists(x.ast.meta)
   }
 
   Void checkCovariant(ASpec x)
@@ -382,8 +382,13 @@ internal class CheckErrors : Step
     else if (!XetoUtil.isInstanceName(name))
       err("Instance name '$name' is invalid", x.loc)
 
-    // named list items are an AST only check: names do not survive
-    // reification, so the Validate step cannot see them
+    checkNamedLists(x)
+  }
+
+  ** Named list items are an AST only check: names do not survive
+  ** reification, so the Validate step cannot see them
+  Void checkNamedLists(AData x)
+  {
     x.walkTopDown |n|
     {
       d := n as ADict
@@ -397,159 +402,5 @@ internal class CheckErrors : Step
     x.each |v, n| { if (!XetoUtil.isAutoName(n)) named = true }
     if (named) err("List cannot contain named items", x.loc)
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Data
-//////////////////////////////////////////////////////////////////////////
-
-  Void checkData(AData x, Spec? slot)
-  {
-    // instance nodes are not visited here; structural instance rules
-    // such as the grid named-instance check live in Reify
-    switch (x.nodeType)
-    {
-      case ANodeType.dict: checkDict(x, slot)
-      case ANodeType.scalar: checkScalar(x, slot)
-      case ANodeType.specRef: checkSpecRef(x)
-      case ANodeType.dataRef: checkDataRef(x)
-    }
-  }
-
-  Void checkScalar(AScalar x, Spec? slot)
-  {
-    spec := slot ?: x.type
-    checkVal.check(spec, x.asm) |msg|
-    {
-      errSlot(slot, msg, x.loc)
-    }
-  }
-
-  Void checkDict(ADict x, Spec? slot)
-  {
-    spec := x.type
-
-    if (spec.isList) checkList(x, slot)
-
-    x.each |v, n|
-    {
-      checkData(v, spec.member(n, false))
-    }
-
-    spec.members.each |memberSpec|
-    {
-      checkDictSlot(x, memberSpec)
-    }
-  }
-
-  Void checkList(ADict x, Spec? slot)
-  {
-    spec := slot ?: x.type
-    list := x.asm as List
-
-    if (list == null)
-    {
-      echo("WARN: need to checkList on $x.asm`.typeof")
-      return
-    }
-
-    // check spec meta notEmpty, minSize, maxSize
-    checkVal.check(spec, list) |msg|
-    {
-      errSlot(slot, msg, x.loc)
-    }
-
-    // determine if we need to check item type against of
-    Spec? of := null
-    if (spec.name != "ofs" && !spec.isMultiRef) of = XetoUtil.ofType(spec, false)
-
-    // walk thru each item and check item type against of
-    x.each |v, n|
-    {
-      if (of != null && !v.type.isa(of))
-      {
-        errSlot(slot, "List item type is '$of', item type is '$v.type'", v.loc)
-      }
-    }
-    checkListNames(x)
-  }
-
-  Void checkDictSlot(ADict x, Spec slot)
-  {
-    if (slot.type.isChoice) return checkDictChoice(x, slot)
-
-    val := x.get(slot.name)
-    if (val == null)
-    {
-      // we don't check for missing slots in compiler,
-      // instances automatically inherit from their spec
-      return
-    }
-
-    if (!x.isSpecMeta)
-    {
-      valType := val.type
-      if (!valTypeFits(slot.type, valType, val.asm))
-      {
-        memberType := slot.isGlobal ? "Global" : "Slot"
-        errSlot(slot, "$memberType type is '$slot.type', value type is '$valType'", x.loc)
-      }
-
-      if (slot.isRef || slot.isMultiRef)
-        checkRefTarget(slot, val)
-    }
-  }
-
-  Bool valTypeFits(Spec type, Spec valType, Obj val)
-  {
-    // check if fits by nominal typing
-    if (valType.isa(type)) return true
-
-    // MultiRef may be either Ref or Ref[]
-    if (type.isMultiRef)
-    {
-      if (val is Ref) return true
-      if (val is List) return ((List)val).all |x| { x is Ref }
-    }
-
-    return false
-  }
-
-  Void checkRefTarget(Spec slot, AData val)
-  {
-    of := slot.of(false)
-    if (of == null) return true
-
-    if (val is ADataRef)
-    {
-      instance := ((ADataRef)val).deref
-      if (!instance.type.isa(of))
-        errSlot(slot, "Ref target must be '$of.qname', target is '$instance.type'", val.loc)
-      return
-    }
-
-    if (val is ADict)
-    {
-      ((ADict)val).each |item| { checkRefTarget(slot, item) }
-      return
-    }
-  }
-
-  Void checkSpecRef(ASpecRef x)
-  {
-  }
-
-  Void checkDataRef(ADataRef x)
-  {
-  }
-
-  Void checkDictChoice(ADict x, Spec slot)
-  {
-    MChoice.check(cns, slot, x.asm) |msg|
-    {
-      errSlot(slot, msg, x.loc)
-    }
-  }
-
-  const CheckVal checkVal := CheckVal(Etc.dict0)
 }
 

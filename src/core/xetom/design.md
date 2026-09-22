@@ -63,9 +63,11 @@ registry.  Func rules return from `onCheck` when there is no
 
 The walk checks a dict tag with no declared slot or member two ways:
 ref values get their targets resolved and checked, and Scalar wrappers
-and spec tagged dicts are validated against the spec they name for
-themselves - a value that declares its own type must satisfy it.  Other
-unknown tag values are untyped data and pass.  A tag-less dict value is accepted against a
+are validated against the spec they name for themselves - a value that
+declares its own type must satisfy it.  Dicts under unknown tags are
+open content and pass: running entity rules on such fragments would be
+far stricter than a self consistency check.  Other unknown tag values
+are untyped data and pass.  A tag-less dict value is accepted against a
 declared dict type and walked structurally; against any other type it
 is an invalid type.
 
@@ -88,9 +90,16 @@ implementations.  Items route into the compiler err/warn streams as
 they emit via the `Validator.onEmit` hook, with locs refined by walking
 the item's slot path back thru the AST.
 `CheckErrors` keeps only the checks with no runtime analog: AST
-shape (names, inheritance, covariance, member structure), named list
-items (names do not survive reification), and the spec meta value path,
-which stays on `CheckVal` until the old Fitter engine retires.
+shape (names, inheritance, covariance, member structure) and named
+list items (names do not survive reification).
+
+Spec meta values validate against their meta member specs with two
+exemptions: a `None` value clears an inherited tag and is a compile
+convention with nothing to check, and `This` typed meta such as
+`minVal` and `val` is skipped because the idiom of plain numerics for
+custom scalar ranges means the value type never matches the resolved
+self type.  Companion compiles validate at haystack fidelity since
+their values originate from haystack data such as comp saves.
 
 Data compiles validate the root asm value directly - the engine walks
 dicts, lists, and scalars just like at runtime.  A Grid has no instance
@@ -105,8 +114,8 @@ runtime once the lib loads into a full namespace.  This scoping is also
 what makes compile time work at all: the namespace is still under
 construction during lib compiles (`MNamespace` compiles libs from its
 own constructor), so compile-time code may point-lookup loaded libs thru
-the namespace but must never enumerate it.  The step skips entirely when
-sys is not in the depends, which is only the sys bootstrap itself.
+the namespace but must never enumerate it.  The step skips entirely
+when compiling sys itself, whose rule catalog does not exist yet.
 
 `xetoc::CompileValidator` overrides the engine's resolution hooks
 (`resolveSpec`, `resolveInstance`, `specOf`, `specx`, `cns`) to overlay

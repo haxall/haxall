@@ -128,10 +128,11 @@ class Validator
 
       // check rest of the dict tags: members chain resolves globals
       // after slots; unknown tags with ref values get their targets
-      // checked for existence, and scalar wrappers and spec tagged
-      // dicts are checked against the spec they name for themselves.
-      // The id and spec tag names are reserved and exempt from
-      // unknown tag checking.
+      // checked for existence, and scalar wrappers are checked against
+      // the spec they name for themselves.  Dicts under unknown tags
+      // are open content and pass - running entity rules on such
+      // fragments would be far stricter than a self consistency check.
+      // The id and spec tag names are reserved and exempt.
       s.dict.each |v, n|
       {
         if (s.spec.slots.has(n)) return // walked as declared slot above
@@ -139,7 +140,7 @@ class Validator
         if (member != null) return validateSlot(s, member.name, member, v)
         if (n == "id" || n == "spec") return
         if (isUnknownRefs(v)) return validateSlot(s, n, v is List ? multiRefSpec : ns.sys.ref, v)
-        if (v is Scalar || (v as Dict)?.has("spec") == true)
+        if (v is Scalar)
         {
           sp := specOf(v)
           if (sp != null) validateSlot(s, n, specx(sp), v)

@@ -33,7 +33,7 @@ CarD: {
 }
 
 CarE: CarD {
-  color: Color <foo>  // inherits from CarD.color
+  color: Color <foo:"x">  // inherits from CarD.color
 }
 
 // not color choice
