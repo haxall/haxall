@@ -43,7 +43,6 @@ internal class GenPages: Step
     // clear caches for gc
     docns = null
     docCache.clear
-    specxCache.clear
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -479,17 +478,7 @@ catch (Err e) echo("TODO: $e")
     return specx(spec)
   }
 
-  private Spec specx(Spec spec)
-  {
-    // use cache for specx since its expensive
-    x := specxCache[spec.qname]
-    if (x == null)
-    {
-      x = ns.specx(spec)
-      specxCache[spec.qname] = x
-    }
-    return x
-  }
+  private Spec specx(Spec spec) { docns.specx(spec) }
 
 //////////////////////////////////////////////////////////////////////////
 // Generation
@@ -519,7 +508,6 @@ catch (Err e) echo("TODO: $e")
   private DocNamespace? docns
   private Uri:GenPage pages := [:]
   private Str:DocMarkdown docCache := [:]
-  private Str:Spec specxCache := [:]
   private Lib? lib
   private DocSpec? libFuncs
   private DocLibRef? libRef

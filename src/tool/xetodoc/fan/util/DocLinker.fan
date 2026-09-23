@@ -92,6 +92,7 @@ class DocLinker
     }
 
     // lib is required for everything else - resolve libName or use scope
+    qualified := libName != null
     Lib? lib
     if (libName == null)
     {
@@ -113,14 +114,15 @@ class DocLinker
     }
 
     // doc - spec
-    spec := resolveSpec(lib, docName)
+    spec := qualified ? lib.spec(docName, false) : resolveType(lib, docName)
     if (spec != null)
     {
       dis := spec.name
       if (frag != null) return null
       if (slotName != null)
       {
-        spec = spec.member(slotName, false)
+        // effective slot including those from mixins
+        spec = (spec.isType ? ns.specx(spec) : spec).member(slotName, false)
         if (spec == null) return null
         dis = slotName
       }
@@ -158,18 +160,18 @@ class DocLinker
     return null
   }
 
-  ** Spec in library of one of it depends
-  private Spec? resolveSpec(Lib lib, Str name)
+  ** Unqualified type name in library or one of its depends
+  private Spec? resolveType(Lib lib, Str name)
   {
     // if in library itself then it always wins
-    spec := lib.spec(name, false)
-    if (spec != null) return spec
+    type := lib.type(name, false)
+    if (type != null) return type
 
-    // find all types in lib's depends (cannot use mixins)
+    // find all types in lib's depends
     specs := Spec[,]
     ns.libs.each |x|
     {
-      spec = x.type(name, false)
+      spec := x.type(name, false)
       if (spec == null) return
       if (XetoUtil.isInDepends(ns.ns, lib.name, spec.lib.name)) specs.add(spec)
     }

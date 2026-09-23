@@ -86,8 +86,20 @@ const class DocNamespace
     else return acc.toImmutable
   }
 
+  ** Cached version of Namespace.specx since its expensive
+  Spec specx(Spec type)
+  {
+    x := specxByQName.get(type.qname)
+    if (x == null)
+    {
+      specxByQName[type.qname] = x = ns.specx(type)
+    }
+    return x
+  }
+
   private const Str:DocNamespaceChapter noChapters := [:]
   private const ConcurrentMap chaptersByLibName := ConcurrentMap()
+  private const ConcurrentMap specxByQName := ConcurrentMap()
 }
 
 **************************************************************************
