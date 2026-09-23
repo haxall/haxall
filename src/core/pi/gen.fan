@@ -34,9 +34,22 @@ class IconsCompiler
     loadIon
     acc.sort |a, b| { a.name <=> b.name }
     check
+    if (errs > 0)
+    {
+      echo("FAILED: $errs error(s); $ionGenFile.name not written")
+      return 1
+    }
     write(ionGenFile)
     echo("Wrote [$ionGenFile.osPath]")
-    return 0
+    return build
+  }
+
+  ** Rebuild the pi pod so the new icons.txt is packaged
+  private Int build()
+  {
+    script := Env.cur.workDir + `src/core/pi/build.fan`
+    echo("Building [$script.osPath]")
+    return Process(["fan", script.osPath]).run.join
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,12 +167,14 @@ class IconsCompiler
 
   Void check()
   {
-    // first check unique names
+    // first check unique names; a dup corrupts icons.txt so the
+    // registry cannot parse it - must be fatal, not a warning
     byName := Str:IconFile[:]
     acc.each |x|
     {
-      if (byName[x.name] != null) echo("WARNING: duplicate icon names: $x.name")
-      else byName[x.name] = x
+      dup := byName[x.name]
+      if (dup == null) { byName[x.name] = x; return }
+      err("duplicate icon name: $x.name (" + srcOf(dup) + " and " + srcOf(x) + ")")
     }
 
     // check alias match an icon with svg
@@ -167,19 +182,32 @@ class IconsCompiler
     {
       if (x.alias == null) return
       match := byName[x.alias]
-      if (match == null) echo("WARNING: alias not found: $x.name => $x.alias")
-      else if (match.svg == null) echo("WARNING: alias to non-svg icon: $x.name => $x.alias")
+      if (match == null) err("alias not found: $x.name => $x.alias")
+      else if (match.svg == null) err("alias to non-svg icon: $x.name => $x.alias")
     }
 
     // check all names and tags
     acc.each |x|
     {
-      if (!isValidIconName(x.name)) echo("WARNING: invalid icon name: $x.name")
+      if (!isValidIconName(x.name)) err("invalid icon name: $x.name")
       x.tags.each |tag|
       {
-        if (!isValidTagName(tag)) echo("WARNING: icon '$x.name' has invalid tag name: $tag")
+        if (!isValidTagName(tag)) err("icon '$x.name' has invalid tag name: $tag")
       }
     }
+  }
+
+  ** Report an error and bump the count checked by main
+  private Void err(Str msg)
+  {
+    echo("ERROR: $msg")
+    errs++
+  }
+
+  ** Describe where an icon came from to make dups easy to track down
+  private Str srcOf(IconFile x)
+  {
+    x.svg == null ? "manifest alias" : "svg"
   }
 
   Bool isValidIconName(Str n)
@@ -290,6 +318,9 @@ class IconsCompiler
 //////////////////////////////////////////////////////////////////////////
 
   IconFile[] acc := [,]
+
+  ** Number of errors reported by check
+  Int errs := 0
 }
 
 **************************************************************************
