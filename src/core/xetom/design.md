@@ -140,3 +140,25 @@ because they gate the walk - there is no point reporting a `maxVal`
 problem on a value which is not even a number.
 `ValidateIntrinsicRule.isApplicable` is always false so normal dispatch
 passes them over.
+
+# Sugar
+
+See [Sugar](doc.xeto::Sugar) for the semantics.  `MSugar` flattens a
+sugar spec to its nominal anchor and effective constraints.
+
+The `sugar` flag is an inherited flag bit, so every subtype of a sugar
+spec is sugar without re-declaring the marker, and And types pick it
+up from their ofs.  The flattened form is computed lazily and cached on
+`MSpec` like `MFunc`: it is a pure function of declared state (bases
+and slotsOwn), so nothing new is stored in xetolibs or on the wire and
+remote namespaces recompute it on demand.
+
+The walk descends through sugar bases only and stops at the first
+nominal spec in each branch; those nominal specs reduced to the most
+specific are the anchor candidates.  The anchor's own body tags are
+never constraints.  Subtypes are walked first so their constraint slots
+win over their supertypes'.  Query slots are excluded: they participate
+in validation, never matching.
+
+Mixin contributed constraints are namespace dependent, so `XSpec`
+recomputes with the mixins which target the sugar chain.

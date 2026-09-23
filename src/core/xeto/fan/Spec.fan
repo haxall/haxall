@@ -211,6 +211,9 @@ const mixin Spec : Dict
   ** Is the `sugar` meta flag set with consideration of And (but not Or)
   @NoDoc abstract Bool isSugar()
 
+  ** Return sugar anchor and constraints.  Raise exception if [isSugar] is false.
+  @NoDoc abstract SpecSugar sugar()
+
   ** Is base `sys::And`
   @NoDoc abstract Bool isAnd()
 

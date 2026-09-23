@@ -140,6 +140,17 @@ const final class XSpec : WrapSpec
     if (!isEnum) throw UnsupportedErr("Spec is not enum: $qname")
     return MEnum.init(slots)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Sugar
+//////////////////////////////////////////////////////////////////////////
+
+  override once SpecSugar sugar()
+  {
+    // common case is that no mixin targets the sugar chain
+    if (mixins.all |x| { !x.base.isSugar }) return m.sugar
+    return MSugar.init(m, mixins)
+  }
 }
 
 **************************************************************************
@@ -232,6 +243,8 @@ const class WrapSpec : Spec
   override SpecEnum enum() { m.enum }
 
   override final SpecFunc func() { m.func }
+
+  override SpecSugar sugar() { m.sugar }
 
   override final Void eachInherited(|Spec| f) { XetoUtil.eachInherited(this, f) }
 

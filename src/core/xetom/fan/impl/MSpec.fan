@@ -94,6 +94,16 @@ const class MSpec
   }
   private const MFunc? funcRef
 
+  MSugar sugar(Spec spec)
+  {
+    if (sugarRef != null) return sugarRef
+    if (!hasFlag(MSpecFlags.sugar)) throw UnsupportedErr("Spec is not sugar: $qname")
+    // must be ok if dups by multiple threads
+    MSpec#sugarRef->setConst(this, MSugar.init(spec))
+    return sugarRef
+  }
+  private const MSugar? sugarRef
+
   virtual Int inheritanceDigest(Spec spec)
   {
     throw UnsupportedErr(qname)
@@ -223,6 +233,8 @@ const class XetoSpec : Spec, CNode
   override final SpecEnum enum() { m.enum }
 
   override final SpecFunc func() { m.func(this) }
+
+  override final SpecSugar sugar() { m.sugar(this) }
 
   override final Void eachInherited(|Spec| f) { XetoUtil.eachInherited(this, f) }
 

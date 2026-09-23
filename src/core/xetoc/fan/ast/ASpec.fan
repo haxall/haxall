@@ -365,6 +365,8 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
 
   override SpecMap slotsOwn() { throw UnsupportedErr() }
 
+  override SpecSugar sugar() { throw UnsupportedErr() }
+
   override SpecMap globalsOwn() { throw UnsupportedErr() }
 
   override Bool isEmpty() { throw UnsupportedErr() }
