@@ -227,12 +227,12 @@ class GlobalTest : AbstractXetoTest
              ahu
              points: {
                discharge: DischargeAirTempSensor
-               return: {return, air, temp, sensor, point}
+               return: Point {return, air, temp, sensor}
              }
            }
            |>)
 
-     dict := ns.spec("sys::Dict")
+     point := ns.spec("ph::Point")
      dat := ns.spec("ph.points.sugar::DischargeAirTempSensor")
 
      foo := lib.type("Foo")
@@ -242,7 +242,7 @@ class GlobalTest : AbstractXetoTest
      verifySame(pts.base, ns.spec("ph::Equip.points"))
 
      verifySlotOld(pts, "discharge", dat, dat)
-     verifySlotOld(pts, "return",   dict, dict)
+     verifySlotOld(pts, "return",   point, point)
   }
 
 //////////////////////////////////////////////////////////////////////////

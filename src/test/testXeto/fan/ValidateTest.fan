@@ -752,8 +752,8 @@ class ValidateTest : AbstractXetoTest
     lib2 := ns.compileTempLib(
         Str<|MAhu: Equip {
                points: Query {
-                 temp: {discharge, temp}
-                 flow: {discharge, flow}
+                 temp: Point {discharge, temp}
+                 flow: Point {discharge, flow}
                }
              }
              DTemp: {discharge, temp}

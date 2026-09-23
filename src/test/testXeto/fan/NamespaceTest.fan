@@ -257,7 +257,7 @@ class NamespaceTest : AbstractXetoTest
     {
       // ph is all source, and source is intrinsically published
       verifyEq(fileUris(ph.files), [`/attr.xeto`, `/choices.xeto`, `/device.xeto`, `/entity.xeto`,
-        `/enums.xeto`, `/equip.xeto`, `/kinds.xeto`, `/lib.xeto`, `/ops.xeto`, `/phenomenon.xeto`,
+        `/enums.xeto`, `/equip.xeto`, `/kinds.xeto`, `/lib.xeto`, `/meta.xeto`, `/ops.xeto`, `/phenomenon.xeto`,
         `/point.xeto`, `/quantity.xeto`, `/site.xeto`, `/space.xeto`, `/system.xeto`, `/validation.xeto`, `/weather.xeto`])
       verifyEq(publishedUris(ph.files), fileUris(ph.files))
       verifyEq(ph.files.get(`bad`, false), null)
@@ -803,14 +803,14 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiateGraph(ns, "hx.test.xeto::EqA", [
       ["id":Ref("x"), "dis":"EqA", "spec":Ref("hx.test.xeto::EqA"), "equip":m],
       ["id":Ref("a"), "dis":"a", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x],
-      ["id":Ref("b"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":"!"],
+      ["id":Ref("b"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "geoCity":"!"],
     ])
 
     verifyInstantiateGraph(ns, "hx.test.xeto::NestedEq", [
       ["id":Ref("x"),  "dis":"NestedEq", "spec":Ref("hx.test.xeto::NestedEq"), "equip":m],
       ["id":Ref("a"),  "dis":"EqA", "spec":Ref("hx.test.xeto::EqA"), "equip":m, "equipRef":Ref("x")],
       ["id":Ref("a1"), "dis":"a", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":Ref("a")],
-      ["id":Ref("a2"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":Ref("a"), "foo":"!"],
+      ["id":Ref("a2"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":Ref("a"), "geoCity":"!"],
       ["id":Ref("b"),  "dis":"EqB", "spec":Ref("hx.test.xeto::EqB"), "equip":m, "equipRef":Ref("x")],
       ["id":Ref("b2"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points.sugar::DischargeAirTempSensor"), "point":m, "sensor":m, "air":m, "discharge":m, "temp":m, "kind":"Number", "unit":"°F", "equipRef":Ref("b")],
       ["id":Ref("x1"), "dis":"OutsideAirTempSensor", "spec":Ref("ph.points.sugar::OutsideAirTempSensor"), "point":m, "sensor":m, "air":m, "outside":m, "temp":m, "kind":"Number", "unit":"°F", "equipRef":Ref("x")],

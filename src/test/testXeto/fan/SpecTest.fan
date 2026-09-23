@@ -589,10 +589,10 @@ class SpecTest : AbstractXetoTest
     eqA := ns.spec("hx.test.xeto::EqA")
     a := eqA.slot("points").slot("a")
     verifyEq(a.slot("co2")["val"], Marker.val)
-    verifyEq(a.slot("foo", false), null)
+    verifyEq(a.slot("geoCity", false), null)
     b := eqA.slot("points").slot("b")
     verifyEq(b.slot("co2")["val"], Marker.val)
-    verifyEq(b.slot("foo")["val"], "!")
+    verifyEq(b.slot("geoCity")["val"], "!")
   }
 
   Void verifySlots(Spec t, Str[] expected)
@@ -624,12 +624,12 @@ class SpecTest : AbstractXetoTest
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
            AhuA: Equip {
              points: {
-               { discharge, temp }
+               Point { discharge, temp }
              }
            }
            AhuB: Equip {
              points: {
-               { return, temp }
+               Point { return, temp }
              }
            }
 
@@ -637,18 +637,18 @@ class SpecTest : AbstractXetoTest
 
            AhuC: AhuAB {
              points: {
-               { outside, temp }
+               Point { outside, temp }
              }
            }
 
            AhuX: Equip {
              points: {
-               dat: { discharge, temp }
+               dat: Point { discharge, temp }
              }
            }
            AhuY : Equip {
              points: {
-               rat: { return, temp }
+               rat: Point { return, temp }
              }
            }
 
@@ -656,7 +656,7 @@ class SpecTest : AbstractXetoTest
 
            AhuZ: AhuXY {
              points: {
-               oat: { outside, temp }
+               oat: Point { outside, temp }
              }
            }
            |>)
@@ -696,7 +696,7 @@ class SpecTest : AbstractXetoTest
     {
       // env.print(slot, Env.cur.out, env.dict1("effective", m))
       sb := StrBuf()
-      slot.slots.each |tag| { sb.join(tag.name, "-") }
+      slot.slotsOwn.each |tag| { sb.join(tag.name, "-") }
       s := sb.toStr
       if (!slot.name.startsWith("_")) s = "$slot.name:$s"
       actualPoints.add(s)

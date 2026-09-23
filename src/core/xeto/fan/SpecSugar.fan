@@ -17,8 +17,9 @@ const mixin SpecSugar
   ** Nominal anchor: single most specific non-sugar ancestor
   abstract Spec anchor()
 
-  ** Effective marker and scalar constraint slots down the sugar
-  ** chain up to the anchor sorted by name; queries are excluded
+  ** Effective constraint slots down the sugar chain up to the anchor
+  ** sorted by name: required markers and invariant scalars.  Other
+  ** slots are defaults for instantiation and never constrain
   abstract SpecMap constraints()
 }
 

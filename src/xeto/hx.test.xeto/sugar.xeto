@@ -9,8 +9,8 @@
 // sugar inherited from DischargeFanRunCmd
 ColdDeckDischargeFanRunCmd: DischargeFanRunCmd { coldDeck }
 
-// scalar constraint
-Stage2DischargeFanRunCmd: DischargeFanRunCmd { stage: 2 }
+// invariant scalar constraint
+Stage2DischargeFanRunCmd: DischargeFanRunCmd { stage: Int <invariant> 2 }
 
 // And of sugar specs which share one anchor
 ColdDeckStage2DischargeFanRunCmd: ColdDeckDischargeFanRunCmd & Stage2DischargeFanRunCmd
@@ -22,3 +22,6 @@ StandardFanVav: Vav <sugar> {
     DischargeFanRunCmd
   }
 }
+
+// mixin adds constraint to sugar spec
++ReturnFanRunCmd { hotDeck }

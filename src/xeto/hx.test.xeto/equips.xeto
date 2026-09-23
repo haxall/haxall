@@ -13,12 +13,12 @@ EquipA : Ahu {
   }
   points: {
     ZoneAirTempSensor {
-      ModbusAddr { addr: "16474", encoding: "s2", scale: "0.01" }
-      BacnetAddr { addr: "AI3" }
+      modbusCurAddr: { addr: "16474", encoding: "s2", scale: "0.01" }
+      bacnetCurAddr: { addr: "AI3" }
     }
     ZoneAirHumiditySensor {
-      ModbusAddr { addr: "16477", encoding: "u2", scale: "0.1" }
-      BacnetAddr { addr: "AI4" }
+      modbusCurAddr: { addr: "16477", encoding: "u2", scale: "0.1" }
+      bacnetCurAddr: { addr: "AI4" }
     }
   }
 }
@@ -26,8 +26,8 @@ EquipA : Ahu {
 EquipB : EquipA {
   points: {
     ZoneCo2Sensor {
-      ModbusAddr { addr: "16478" }
-      BacnetAddr { addr: "AI5" }
+      modbusCurAddr: { addr: "16478" }
+      bacnetCurAddr: { addr: "AI5" }
     }
   }
 }
@@ -37,13 +37,13 @@ EquipB : EquipA {
 
 EquipWithPointsX : Equip {
   points: {
-    ZoneAirTempSensor { BacnetAddr { addr: "AI1" } }
+    ZoneAirTempSensor { bacnetCurAddr: { addr: "AI1" } }
   }
 }
 
 EquipWithPointsY : Equip {
   points: {
-    ZoneCo2Sensor { BacnetAddr { addr: "AI2" } }
+    ZoneCo2Sensor { bacnetCurAddr: { addr: "AI2" } }
   }
 }
 
@@ -54,7 +54,7 @@ EquipXY : EquipWithPointsX & EquipWithPointsY
 // constraints since those exercise the remote loader's key/name divergence
 EquipXYOwn : EquipWithPointsX & EquipWithPointsY {
   points: {
-    DischargeAirTempSensor { BacnetAddr { addr: "AI3" } }
+    DischargeAirTempSensor { bacnetCurAddr: { addr: "AI3" } }
   }
 }
 
@@ -62,7 +62,7 @@ EquipXYOwn : EquipWithPointsX & EquipWithPointsY {
 // points; own constraints order after all the supertype constraints
 EquipWithPointsZ : Equip {
   points: {
-    DischargeAirFlowSensor { BacnetAddr { addr: "AI6" } }
+    DischargeAirFlowSensor { bacnetCurAddr: { addr: "AI6" } }
   }
 }
 
@@ -70,7 +70,7 @@ Equip3 : EquipWithPointsX & EquipWithPointsY & EquipWithPointsZ
 
 Equip3Own : EquipWithPointsX & EquipWithPointsY & EquipWithPointsZ {
   points: {
-    DischargeAirTempSensor { BacnetAddr { addr: "AI3" } }
+    DischargeAirTempSensor { bacnetCurAddr: { addr: "AI3" } }
   }
 }
 

@@ -21,7 +21,7 @@ TestSite: Site {
 EqA: Equip {
   points: {
     a: ZoneCo2Sensor
-    b: ZoneCo2Sensor { foo:"!" }
+    b: ZoneCo2Sensor { geoCity:"!" }
   }
 }
 

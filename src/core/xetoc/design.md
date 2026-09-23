@@ -70,7 +70,9 @@ Step lists:
 - `ReifyMeta`/`ReifyInstances`: reify AST data into concrete Fantom
   values; finalize metaOwn
 - `InheritMeta`: effective meta for all specs
-- `CheckErrors`: AST validation
+- `CheckErrors`: AST validation; includes sugar body rules (members
+  must resolve to existing tags, no new structure) and a single
+  nominal anchor via `MSugar.anchors`
 - `Assemble`: assemble AST into xetom implementation instances
 - `Validate`: run the xetom validation engine over reified instances
   and spec meta using rules from the depends closure; rules of the

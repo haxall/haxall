@@ -35,7 +35,7 @@ const final class MSugar : SpecSugar
   ** a valid sugar spec has exactly one
   static Spec[] anchors(Spec spec)
   {
-    acc := Str:Spec[:]
+    acc := Str:Spec[:] { ordered = true }
     eachSugar(spec) |x| { XetoUtil.eachBase(x) |b| { if (!b.isSugar) acc[b.qname] = b } }
     return XetoUtil.excludeSupertypes(acc.vals)
   }
@@ -47,10 +47,18 @@ const final class MSugar : SpecSugar
     XetoUtil.eachBase(x) |b| { if (b.isSugar) eachSugar(b, f) }
   }
 
-  ** Subtypes are walked first so their constraints win
+  ** Constraints are required markers and invariant scalars; other
+  ** slots are defaults for instantiation.  Subtypes are walked first
+  ** so their constraints win
   private static Void addConstraints(Str:Spec acc, SpecMap slots)
   {
-    slots.each |s, n| { if (!s.isQuery && acc[n] == null) acc[n] = s }
+    slots.each |s, n| { if (isConstraint(s) && acc[n] == null) acc[n] = s }
+  }
+
+  ** Is slot a required marker or invariant scalar
+  static Bool isConstraint(Spec slot)
+  {
+    slot.isMarker ? !slot.isMaybe : slot.meta.has("invariant")
   }
 
   private new make(Spec anchor, SpecMap constraints)

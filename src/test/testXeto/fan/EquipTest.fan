@@ -55,9 +55,10 @@ class EquipTest : AbstractXetoTest
     verifyEq(dis.isMaybe, true)
     verifyEq(ns.spec("ph::PhEntity").globals.get("dis").isMaybe, true)
 
-    // typed slots and same-lib inherited members are untouched
+    // same-lib inherited members bind the same way
     a0 := ns.spec("hx.test.xeto::EquipA").slot("points").slot("_0")
-    verifyEq(a0.slot("_0").type.qname, "ph.protocols::ModbusAddr")
+    verifyEq(a0.slot("modbusCurAddr").type.qname, "ph.protocols::ModbusAddr")
+    verifyEq(a0.slot("modbusCurAddr").base.isGlobal, true)
   }
 
   Void testBasics()

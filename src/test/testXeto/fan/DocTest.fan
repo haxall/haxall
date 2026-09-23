@@ -388,7 +388,7 @@ class DocTest : AbstractXetoTest
     EqA: Equip {
       points: {
         a: ZoneCo2Sensor
-        b: ZoneCo2Sensor { foo:"!" }
+        b: ZoneCo2Sensor { geoCity:"!" }
       }
     }
 
@@ -409,7 +409,7 @@ class DocTest : AbstractXetoTest
     b := points.getChecked("b")
     verifyEq(b.type.qname, "ph.points::ZoneCo2Sensor")
     verifyEq(b.slots.size, 1)
-    verifyEq(b.slots["foo"].type.name, "Str")
+    verifyEq(b.slots["geoCity"].type.name, "Str")
     verifyEq(b.parent.qname, "hx.test.xeto::EqA.points")
 
     c := points.getChecked("c")

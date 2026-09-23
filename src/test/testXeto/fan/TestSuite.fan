@@ -531,19 +531,7 @@ class DataTestCase
     verifyEq(actual.qname, expected)
   }
 
-  Str normQName(Str msg)
-  {
-    // normalize temp123::X to temp::X
-    Int? tempi := 0
-    while (true)
-    {
-      tempi = msg.index("temp", tempi+1)
-      if (tempi == null) break
-      colons := msg.index("::", tempi+1)
-      msg = msg[0..<tempi+4] + msg[colons..-1]
-    }
-    return msg
-  }
+  Str normQName(Str msg) { AbstractXetoTest.normQName(msg) }
 
   Void verifyStr(Str actual, Str expected)
   {

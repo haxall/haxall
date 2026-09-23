@@ -95,7 +95,7 @@ class ExportTest : AbstractXetoTest
     EqA: Equip {
       points: {
         a: ZoneCo2Sensor
-        b: ZoneCo2Sensor { foo }
+        b: ZoneCo2Sensor { geoCity:"!" }
       }
     }
     */
@@ -116,8 +116,8 @@ class ExportTest : AbstractXetoTest
                  "type":Ref("ph.points::ZoneCo2Sensor"),
                  "spec":Ref("sys::Spec"),
                  "slots": Etc.makeDict([
-                    "foo": Etc.makeDict([
-                      "id":Ref("hx.test.xeto::EqA.points.b.foo"),
+                    "geoCity": Etc.makeDict([
+                      "id":Ref("hx.test.xeto::EqA.points.b.geoCity"),
                       "spec":Ref("sys::Spec"),
                       "type":Ref("sys::Str"),
                       "val":"!",

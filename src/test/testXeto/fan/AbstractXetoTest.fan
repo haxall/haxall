@@ -74,6 +74,19 @@ class AbstractXetoTest : HaystackTest
     verify(err.msg.contains(contains), err.msg)
   }
 
+  ** Verify compiling the given source logs exactly the given errs in
+  ** order; temp lib qnames are normalized to "temp::X"
+  Void verifyCompileErrs(Namespace ns, Str src, Str[] expect)
+  {
+    errs := Str[,]
+    logger := |XetoLogRec rec| { if (rec.level === LogLevel.err) errs.add(normQName(rec.msg)) }
+    try
+      ns.compileTempLib(src, Etc.dict1("log", Unsafe(logger)))
+    catch (Err e)
+      {}
+    verifyEq(errs, expect)
+  }
+
   Namespace createNamespace(Str[] libs := ["sys"])
   {
     XetoEnv.cur.resolveNamespace(libs)
@@ -232,6 +245,20 @@ class AbstractXetoTest : HaystackTest
       names.remove(n)
     }
     verifyEq(names.size, 0, names.keys.toStr)
+  }
+
+  ** Normalize temp123::X to temp::X
+  static Str normQName(Str msg)
+  {
+    Int? tempi := 0
+    while (true)
+    {
+      tempi = msg.index("temp", tempi+1)
+      if (tempi == null) break
+      colons := msg.index("::", tempi+1)
+      msg = msg[0..<tempi+4] + msg[colons..-1]
+    }
+    return msg
   }
 
   static Str normTempLibName(Str str)

@@ -666,9 +666,9 @@ class AxonTest : AbstractAxonTest
       Str<|pragma: Lib < version: 0.0.0, depends: { { lib:"sys" }, { lib:"ph" } } >
            Ahu1: ph::Equip {
              points: {
-               temp: {discharge, temp}
-               flow: {discharge, flow}
-               fan:  {fan, run}
+               temp: Point {discharge, temp}
+               flow: Point {discharge, flow}
+               fan:  Point {fan, run}
              }
            }
 

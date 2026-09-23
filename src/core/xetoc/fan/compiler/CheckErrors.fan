@@ -92,6 +92,7 @@ internal class CheckErrors : Step
     checkTopName(x)
     checkTypeInherit(x)
     checkSpec(x)
+    if (x.isSugar) checkSugar(x)
 
     // maybe marks an optional slot; top level specs cannot be maybe
     // (excluding synthetic tops hoisted from inline types like Ref?)
@@ -199,8 +200,9 @@ internal class CheckErrors : Step
     xType := x.type
     bType := b.type
 
-    // for mixins that add meta to slots, they cannot be typed
-    if (x.parent != null && x.parent.isMixin && x.base.parent != null)
+    // for mixins that add meta to slots, they cannot be typed; mixins
+    // on sugar specs add constraints checked like any sugar member
+    if (x.parent != null && x.parent.isMixin && !x.parent.isSugar && x.base.parent != null)
     {
       if (x.base.isGlobal)
         err("Mixin extend global: $x.name", x.loc)
@@ -294,6 +296,7 @@ internal class CheckErrors : Step
     checkMemberMeta(x)
     checkMemberVal(x)
     if (x.parent.isMixin) checkMixinMember(x)
+    if (isSugarBody(x.parent)) checkSugarMember(x)
     if (x.parent.parent != null) checkNestedMember(x)
   }
 
@@ -368,6 +371,50 @@ internal class CheckErrors : Step
   {
     if (x.isGlobal) err("Nested specs cannot declare global: $x.name", x.loc)
     //if (x.isQuery) err("Nested specs cannot declare query type: $x.name", x.loc)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Sugar
+//////////////////////////////////////////////////////////////////////////
+
+  ** Sugar spec is a conjunction of one nominal anchor plus constraints
+  Void checkSugar(ASpec x)
+  {
+    if (x.isOr) return err("Sugar spec cannot be Or type: $x.name", x.loc)
+
+    anchors := MSugar.anchors(x)
+    if (anchors.size != 1) err("Sugar spec must have one nominal anchor: $x.name $anchors", x.loc)
+  }
+
+  ** Sugar rules apply to sugar types, their mixins, and the
+  ** inline constraints of a query which act as anonymous sugar
+  Bool isSugarBody(ASpec x)
+  {
+    if (x.parent == null) return x.isSugar
+    return x.parent.isQuery
+  }
+
+  ** Sugar bodies declare queries, marker and invariant constraints,
+  ** and defaults; every slot must resolve to a global in scope
+  Void checkSugarMember(ASpec x)
+  {
+    if (x.isQuery) return
+    if (x.isGlobal)
+      err("Sugar spec cannot declare global '$x.name'", x.loc)
+    else if (!isGlobalOverride(x))
+      err("Sugar slot '$x.name' is not a global tag", x.loc)
+    else if (x.type.isMarker && x.isMaybe)
+      err("Sugar constraint '$x.name' cannot be maybe", x.loc)
+    else if (!x.type.isMarker && x.val == null && !x.metaHas("val") && x.declared == null)
+      err("Sugar slot '$x.name' must be marker, invariant, or default value", x.loc)
+  }
+
+  ** Does slot override a global directly or thru inherited slots
+  private static Bool isGlobalOverride(ASpec x)
+  {
+    for (b := x.base; b != null && !b.isType; b = b.base)
+      if (b.isGlobal) return true
+    return false
   }
 
 //////////////////////////////////////////////////////////////////////////
