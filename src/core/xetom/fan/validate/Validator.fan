@@ -219,26 +219,26 @@ class Validator
     val     := s.val
     valType := s.valType
 
-    // haystack fidelity has special scalar restrictions; at full
-    // fidelity scalars must be their mapped Fantom type or xeto::Scalar
+    // if it fits by direct nominal typing
+    if (valType.isa(type)) return true
+
+    // haystack fidelity erases scalars; at full fidelity scalars
+    // must be their mapped Fantom type or xeto::Scalar
     if (fidelity.isHaystack && type.isScalar)
     {
       // haystack fidelity erases Int/Float/Duration to plain Number
       if (type.isa(numberSpec)) return s.num != null
 
-      // if built-in haystack kind then must match exactly
-      if  (type.isHaystack) return valType === type
+      // built-in haystack kinds have no erasure
+      if (type.isHaystack) return false
 
-      // otherwise all non-haystack scalars must map to string
+      // otherwise non-haystack scalars may be erased to string
       return valType === strSpec
     }
 
     // a dict without a spec tag is checked as a standard dict against
     // the declared slot type, but only when that type is itself a dict
     if (s.dict != null && s.dict.missing("spec") && type.isDict) return true
-
-    // if it fits by direct nominal typing
-    if (valType.isa(type)) return true
 
     // MultiRef may be either Ref or Ref[]
     if (type.isMultiRef)
