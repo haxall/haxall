@@ -534,6 +534,13 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "Foo", ["i":"5"], ["sys::invalidType"])
     verifyEngine(ns, lib, "Foo", ["i":"5"], ["sys::invalidType"], hay)
 
+    // exact type always fits; message names erased type at haystack
+    verifyEngine(ns, lib, "Foo", ["u":Unit("%")], [,], hay)
+    verifyTypeMsg(ns, lib, ["u":TimeZone.utc], null, "Invalid type 'sys::TimeZone', expecting 'sys::Unit'")
+    verifyTypeMsg(ns, lib, ["u":TimeZone.utc], hay,  "Invalid type 'sys::TimeZone', expecting 'sys::Unit' or 'sys::Str'")
+    verifyTypeMsg(ns, lib, ["i":"5"], hay,  "Invalid type 'sys::Str', expecting 'sys::Int' or 'sys::Number'")
+    verifyTypeMsg(ns, lib, ["date":"x"], hay,  "Invalid type 'sys::Str', expecting 'sys::Date'")
+
     // MultiRef accepts Ref or list of Refs (ignoreRefs: type check only)
     ignore := Etc.dict1("ignoreRefs", Marker.val)
     verifyEngine(ns, lib, "Refs", ["refs":Ref("a")], [,], ignore)
@@ -835,23 +842,23 @@ class ValidateTest : AbstractXetoTest
     verifyScalarVal(ns, lib, "uri",    "file.txt",    false, false)
     verifyScalarVal(ns, lib, "ref",    Ref("a"),      true,  true)
 
-    // Int/Float/Duration: Fantom type at full, Number erasure at haystack
-    verifyScalarVal(ns, lib, "int",      5,             true,  false)
+    // Int/Float/Duration: Fantom type always, Number erasure at haystack
+    verifyScalarVal(ns, lib, "int",      5,             true,  true)
     verifyScalarVal(ns, lib, "int",      n(5),          false, true)
     verifyScalarVal(ns, lib, "int",      "5",           false, false)
-    verifyScalarVal(ns, lib, "float",    5f,            true,  false)
+    verifyScalarVal(ns, lib, "float",    5f,            true,  true)
     verifyScalarVal(ns, lib, "float",    n(5),          false, true)
-    verifyScalarVal(ns, lib, "duration", 5min,          true,  false)
+    verifyScalarVal(ns, lib, "duration", 5min,          true,  true)
     verifyScalarVal(ns, lib, "duration", n(5, "min"),   false, true)
 
-    // non-haystack sys scalars: Fantom type at full, Str at haystack
-    verifyScalarVal(ns, lib, "unit", Unit("%"),        true,  false)
+    // non-haystack sys scalars: Fantom type always, Str erasure at haystack
+    verifyScalarVal(ns, lib, "unit", Unit("%"),        true,  true)
     verifyScalarVal(ns, lib, "unit", "%",              false, true)
-    verifyScalarVal(ns, lib, "tz",   TimeZone.utc,     true,  false)
+    verifyScalarVal(ns, lib, "tz",   TimeZone.utc,     true,  true)
     verifyScalarVal(ns, lib, "tz",   "UTC",            false, true)
 
-    // custom scalar: Scalar wrapper at full, Str at haystack
-    verifyScalarVal(ns, lib, "ssn", Scalar("hx.test.xeto::TestSsn", "123-45-6789"), true, false)
+    // custom scalar: Scalar wrapper always, Str erasure at haystack
+    verifyScalarVal(ns, lib, "ssn", Scalar("hx.test.xeto::TestSsn", "123-45-6789"), true, true)
     verifyScalarVal(ns, lib, "ssn", "123-45-6789", false, true)
 
     // enum: Str key at haystack; full fidelity currently rejects Str
@@ -1000,6 +1007,13 @@ class ValidateTest : AbstractXetoTest
   {
     r := ns.validate(Etc.makeDict(tags), lib.spec(specName), opts)
     verifyEq(r.items.join(",") { it.rule.id }, expect.join(","))
+  }
+
+  Void verifyTypeMsg(Namespace ns, Lib lib, Str:Obj tags, Dict? opts, Str msg)
+  {
+    r := ns.validate(Etc.makeDict(tags), lib.spec("Foo"), opts)
+    verifyEq(r.items.size, 1)
+    verifyEq(r.items.first.msg, msg)
   }
 
   ** Unknown tags holding scalar wrappers validate against the spec

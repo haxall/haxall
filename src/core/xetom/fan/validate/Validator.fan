@@ -201,7 +201,7 @@ class Validator
     if (isMissingSlot(s)) return rules.missingSlot.emit(s)
     if (s.val == null) return // absent maybe slot
     if (s.valType == null) return rules.unknownType.emit(s)
-    if (!isValidType(s)) return rules.invalidType.emit(s)
+    if (!isValidType(s)) return rules.invalidType.emit(s, Etc.dict1("expecting", expecting(s)))
 
     // run thru the standard rules
     doValidate(s)
@@ -222,19 +222,9 @@ class Validator
     // if it fits by direct nominal typing
     if (valType.isa(type)) return true
 
-    // haystack fidelity erases scalars; at full fidelity scalars
-    // must be their mapped Fantom type or xeto::Scalar
-    if (fidelity.isHaystack && type.isScalar)
-    {
-      // haystack fidelity erases Int/Float/Duration to plain Number
-      if (type.isa(numberSpec)) return s.num != null
-
-      // built-in haystack kinds have no erasure
-      if (type.isHaystack) return false
-
-      // otherwise non-haystack scalars may be erased to string
-      return valType === strSpec
-    }
+    // haystack fidelity scalars may be their erased type; at full
+    // fidelity scalars must be their mapped Fantom type or xeto::Scalar
+    if (isErased(type)) return valType.isa(haystackType(type))
 
     // a dict without a spec tag is checked as a standard dict against
     // the declared slot type, but only when that type is itself a dict
@@ -249,6 +239,26 @@ class Validator
 
     // invalid type
     return false
+  }
+
+  ** Expected types for invalidType message including haystack erasure
+  private Str expecting(ValidateState s)
+  {
+    type := s.spec.type
+    erased := isErased(type) ? haystackType(type) : type
+    return erased === type ? "'$type.qname'" : "'$type.qname' or '$erased.qname'"
+  }
+
+  ** Is type a scalar erased by haystack fidelity
+  private Bool isErased(Spec type) { fidelity.isHaystack && type.isScalar }
+
+  ** Haystack encoding of scalar type: Int/Float/Duration erase
+  ** to Number, haystack kinds are themselves, all others Str
+  private Spec haystackType(Spec type)
+  {
+    if (type.isa(numberSpec)) return numberSpec
+    if (type.isHaystack) return type
+    return strSpec
   }
 
   private Void doValidateQuery(ValidateState s)
