@@ -133,6 +133,13 @@ const mixin Namespace
   ** List all unqualified types against loaded libs.
   @NoDoc abstract Spec[] unqualifiedTypes(Str name)
 
+  ** Resolve a type by its qualified name such as "ph::Meter" or its
+  ** unqualified name such as "Meter" using [unqualifiedType] rules:
+  **   - one match return it
+  **   - zero return null or raise exception based on checked flag
+  **   - two or more raise exception regardless of checked flag
+  @NoDoc abstract Spec? findType(Str name, Bool checked := true)
+
   ** Convenience for specForFileExt with support for directories
   @NoDoc abstract Spec specForFile(File file)
 

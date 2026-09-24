@@ -432,7 +432,6 @@ class BasicTest : AbstractFolioTest
   Void testSpecFilters() { runImpls }
   Void doTestSpecFilters()
   {
-    if (!impl.supportsSpecs) return
     open
     folio.hooks = NsTestHooks(XetoEnv.cur.resolveNamespace(["ph.points.sugar", "hx.test.xeto"]))
 

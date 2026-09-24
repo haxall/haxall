@@ -71,7 +71,7 @@ using haystack
   private Obj? eachWhileImpl(Filter filter, Bool trashOnly, FolioReader reader)
   {
     map := this.map
-    cx := PatherContext(|Ref id->Dict?| { map.get(id) })
+    cx := MemFolioContext(this) |Ref id->Dict?| { map.get(id) }
     return map.eachWhile |Dict rec->Obj?|
     {
       if (!filter.matches(rec, cx)) return null
@@ -79,4 +79,21 @@ using haystack
       return reader.accept(rec)
     }
   }
+}
+
+**************************************************************************
+** MemFolioContext
+**************************************************************************
+
+internal class MemFolioContext : PatherContext
+{
+  new make(MemFolio folio, |Ref->Dict?| pather) : super(pather) { this.folio = folio }
+
+  override Bool xetoIsSpec(Str specName, Dict rec)
+  {
+    ns := folio.hooks.ns(false)
+    return ns != null && ns.fits(rec, ns.findType(specName))
+  }
+
+  private MemFolio folio
 }

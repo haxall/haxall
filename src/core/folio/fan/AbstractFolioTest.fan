@@ -244,9 +244,6 @@ abstract class FolioTestImpl
   ** Does the implementation support the file API
   virtual Bool supportsFile() { true }
 
-  ** Does the implementation support filter spec terms
-  virtual Bool supportsSpecs() { true }
-
   ** Does the implementation support re-opening with different id prefix
   virtual Bool supportsIdPrefixRename() { true }
 

@@ -112,7 +112,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Clear namespace derived caches such as resolved top-level names.
   ** Must be called when the namespace is modified while this context
   ** is still in use.
-  @NoDoc Void nsCacheClear() { tops.clear; xetoIsSpecCache = null }
+  @NoDoc Void nsCacheClear() { tops.clear }
 
   ** Resolve unqualified func name to its spec using Axon symbol
   ** resolution rules: op funcs lose to normal funcs, proj lib override
@@ -199,18 +199,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** or unqualified.
   @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
   {
-    // cache the spec since it can be fairly expensive to lookup
-    // and this method could be called 1000s of time in a filter loop
-    spec := xetoIsSpecCache?.get(specName)
-    if (spec == null)
-    {
-      if (xetoIsSpecCache == null) xetoIsSpecCache = Str:Spec[:]
-      spec = specName.contains("::") ?
-             ns.type(specName) :
-             ns.unqualifiedType(specName)
-      xetoIsSpecCache[specName] = spec
-    }
-    return ns.fits(rec, spec)
+    ns.fits(rec, ns.findType(specName))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -499,7 +488,6 @@ abstract class AxonContext : HaystackContext, CompContext
   private CallFrame[] stack := [,]
   private [Str:Obj] tops := [:]
   private [Str:Regex]? regex
-  private [Str:Spec]? xetoIsSpecCache
   private [Str:Obj]? toDictExtra
 }
 

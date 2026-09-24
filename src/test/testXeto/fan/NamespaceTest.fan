@@ -230,6 +230,18 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad") }
     verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad", true) }
 
+    // unqualifiedTypes
+    verifyEq(ns.unqualifiedTypes("Equip"), Spec[ns.spec("ph::Equip")])
+    verifyEq(ns.unqualifiedTypes("FooBarBazBad"), Spec[,])
+
+    // findType by qualified or unqualified name
+    verifySame(ns.findType("ph::Equip"), ns.spec("ph::Equip"))
+    verifySame(ns.findType("Equip"), ns.spec("ph::Equip"))
+    verifyEq(ns.findType("ph::FooBarBazBad", false), null)
+    verifyEq(ns.findType("FooBarBazBad", false), null)
+    verifyErr(UnknownSpecErr#) { ns.findType("ph::FooBarBazBad") }
+    verifyErr(UnknownSpecErr#) { ns.findType("FooBarBazBad") }
+
     /*
     verifySame(ns.unqualifiedMeta("nodoc"), ns.spec("sys::nodoc"))
     verifyEq(ns.unqualifiedMetas("nodoc"), Spec[ns.spec("sys::nodoc")])

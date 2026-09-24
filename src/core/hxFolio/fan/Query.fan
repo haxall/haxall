@@ -47,20 +47,7 @@ internal class Query : HaystackContext
   @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
   {
     ns := folio.hooks.ns(false)
-    if (ns == null) return false
-
-    // cache the spec since it can be fairly expensive to lookup
-    // and this method could be called 1000s of time in a filter loop
-    spec := xetoIsSpecCache?.get(specName)
-    if (spec == null)
-    {
-      if (xetoIsSpecCache == null) xetoIsSpecCache = Str:Spec[:]
-      spec = specName.contains("::") ?
-             ns.type(specName) :
-             ns.unqualifiedType(specName)
-      xetoIsSpecCache[specName] = spec
-    }
-    return ns.fits(rec, spec)
+    return ns != null && ns.fits(rec, ns.findType(specName))
   }
 
   override Dict? deref(Ref id)
@@ -117,7 +104,6 @@ internal class Query : HaystackContext
   const Filter filter
   const Int startTicks
   Bool trashOnly { private set }
-  private [Str:Spec]? xetoIsSpecCache
 }
 
 **************************************************************************

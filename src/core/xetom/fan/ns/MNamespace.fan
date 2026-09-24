@@ -169,12 +169,16 @@ const class MNamespace : Namespace, CNamespace
       if (checked) throw ArgErr("Invalid qname: $qname")
       return null
     }
-    libName := qname[0..<colon]
-    typeName := qname[colon+2..-1]
-    type := lib(libName, false)?.type(typeName, false)
+    type := qnameType(qname, colon)
     if (type != null) return type
     if (checked) throw UnknownSpecErr("Unknown data type: $qname")
     return null
+  }
+
+  ** Lookup type by qname given the index of its "::"
+  private Spec? qnameType(Str qname, Int colon)
+  {
+    lib(qname[0..<colon], false)?.type(qname[colon+2..-1], false)
   }
 
   override Spec? spec(Str qname, Bool checked := true)
@@ -369,8 +373,9 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec? unqualifiedType(Str name, Bool checked := true)
   {
-    acc := unqualifiedTypes(name)
-    if (acc.size == 1) return acc[0]
+    x := unqualified(name)
+    if (x is Spec) return x
+    acc := (Spec[])x
     if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous type for '$name' $acc")
     if (checked) throw UnknownTypeErr(name)
     return null
@@ -378,12 +383,31 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec[] unqualifiedTypes(Str name)
   {
+    x := unqualified(name)
+    return x is Spec ? Spec[x] : x
+  }
+
+  override Spec? findType(Str name, Bool checked := true)
+  {
+    colon := name.index("::")
+    x := colon == null ? unqualifiedType(name, false) : qnameType(name, colon)
+    if (x != null || !checked) return x
+    throw UnknownSpecErr(name)
+  }
+
+  ** Cache unqualified name to its one Spec, else an immutable Spec[]
+  ** since dups are rare; libs never change.  Misses are not cached
+  ** since arbitrary names would grow the cache unbounded.
+  private Obj unqualified(Str name)
+  {
+    x := unqualifiedCache.get(name)
+    if (x != null) return x
     acc := Spec[,]
-    libs.each |lib|
-    {
-      acc.addNotNull(lib.type(name, false))
-    }
-    return acc
+    libs.each |lib| { acc.addNotNull(lib.type(name, false)) }
+    if (acc.isEmpty) return Spec#.emptyList
+    x = acc.size == 1 ? acc.first : acc.toImmutable
+    unqualifiedCache.set(name, x)
+    return x
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -482,6 +506,7 @@ const class MNamespace : Namespace, CNamespace
   const MSys sys
   const Dict opts
   private const ConcurrentMap entriesMap := ConcurrentMap()
+  private const ConcurrentMap unqualifiedCache := ConcurrentMap()
   private const AtomicRef libsRef := AtomicRef()
   private const AtomicRef specByFileExt := AtomicRef()
 }
