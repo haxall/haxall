@@ -77,8 +77,9 @@ const class HxdUserExt : ExtObj, IUserExt
     user := session.user
     if (!user.access.canSeeProj(rt.meta)) return null
 
-    // create a context and install it into current actor
-    cx :=  rt.newContextSession(session)
+    // create a context and install it into current actor if the user has access
+    cx := rt.newContextSession(session)
+    if (rt.isProj && !cx.canSeeProj(rt)) return null
     Actor.locals[ActorContext.actorLocalsKey] = cx
 
     return cx

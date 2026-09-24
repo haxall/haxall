@@ -266,6 +266,9 @@ class Context : AxonContext, FolioContext
     else if (fn.isAdmin) checkAdmin(fn.name)
   }
 
+  ** Return if context's user can access the given project
+  @NoDoc virtual Bool canSeeProj(Proj proj) { true }
+
   ** Return an immutable thread safe object which will be passed thru
   ** the commit process and available via the FolioHooks callbacks.
   ** This is typically the User instance.  Context always returns user.
