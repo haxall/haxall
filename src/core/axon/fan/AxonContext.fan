@@ -193,9 +193,10 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Axon contexts can call function thunks
   @NoDoc override Bool xetoCanCallFuncs() { true }
 
-  ** Return true if the given rec is nominally an instance of the given
-  ** spec.  This is used by haystack Filters with a spec name.  The spec
-  ** name may be qualified or unqualified.
+  ** Return true if the given rec fits the given spec as defined by
+  ** [xeto::Namespace.fits] which includes sugar specs.  This is used by
+  ** haystack Filters with a spec name.  The spec name may be qualified
+  ** or unqualified.
   @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
   {
     // cache the spec since it can be fairly expensive to lookup
@@ -209,7 +210,7 @@ abstract class AxonContext : HaystackContext, CompContext
              ns.unqualifiedType(specName)
       xetoIsSpecCache[specName] = spec
     }
-    return ns.specOf(rec).isa(spec)
+    return ns.fits(rec, spec)
   }
 
 //////////////////////////////////////////////////////////////////////////

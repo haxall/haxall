@@ -515,12 +515,16 @@ const class XetoFuncs
   ** Fits never checks required slots or queries; use [validate()] for
   ** that.  Also see [is()] to check strictly via nominal typing.
   **
+  ** The spec is used as given: pass the extended spec from [specx()]
+  ** to also apply constraints added to a sugar spec by mixins.
+  **
   ** Examples:
   **
   **     fits("foo", Str)                                  >>  true
   **     fits({spec:@ph::Ahu}, Equip)                      >>  true
   **     fits({spec:@ph.points::DuctFanRunCmd, discharge},
   **          DischargeFanRunCmd)                          >>  true
+  **     fits(rec, specx(MySugar))                         >> include mixins
   @Api @Axon static Bool fits(Obj? val, Spec spec)
   {
     curContext.ns.fits(val, spec)

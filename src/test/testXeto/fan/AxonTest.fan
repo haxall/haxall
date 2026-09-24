@@ -283,7 +283,7 @@ class AxonTest : AbstractAxonTest
   @HxTestProj
   Void testFits()
   {
-    initNamespace(["ph", "ph.points", "ph.points.sugar"])
+    initNamespace(["ph", "ph.points", "ph.points.sugar", "hx.test.xeto"])
 
     verifyEval(Str<|fits("hi", Str)|>, true)
     verifyEval(Str<|fits("hi", Marker)|>, false)
@@ -291,6 +291,11 @@ class AxonTest : AbstractAxonTest
     verifyEval(Str<|fits({spec:@ph::Ahu}, Site)|>, false)
     verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd, discharge}, DischargeFanRunCmd)|>, true)
     verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd}, DischargeFanRunCmd)|>, false)
+
+    // mixins only apply thru specx
+    verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd, return}, ReturnFanRunCmd)|>, true)
+    verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd, return}, specx(ReturnFanRunCmd))|>, false)
+    verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd, return, hotDeck}, specx(ReturnFanRunCmd))|>, true)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -312,6 +317,27 @@ class AxonTest : AbstractAxonTest
     verifyFilterIs(recs, "Equip", [b, c])
     verifyFilterIs(recs, "Ahu", [b, c])
     verifyFilterIs(recs, "Rtu", [c])
+  }
+
+  @HxTestProj
+  Void testFilterIsSugar()
+  {
+    ns := initNamespace(["ph", "ph.points", "ph.points.sugar", "hx.test.xeto"])
+
+    fan := Ref("ph.points::DuctFanRunCmd")
+    a := Etc.makeDict(["dis":"A", "spec":fan, "discharge":m])
+    b := Etc.makeDict(["dis":"B", "spec":fan, "return":m])
+    c := Etc.makeDict(["dis":"C", "spec":Ref("ph.points.sugar::DischargeFanRunCmd")])
+    d := Etc.makeDict(["dis":"D", "spec":fan, "discharge":m, "stage":n(2)])
+    e := Etc.makeDict(["dis":"E", "discharge":m, "fan":m, "run":m, "cmd":m, "point":m])
+    recs := [a, b, c, d, e]
+
+    // named sugar matches by assertion or nominal anchor plus tags;
+    // filters use the plain spec so mixin constraints do not apply
+    verifyFilterIs(recs, "DuctFanRunCmd", [a, b, c, d])
+    verifyFilterIs(recs, "DischargeFanRunCmd", [a, c, d])
+    verifyFilterIs(recs, "ReturnFanRunCmd", [b])
+    verifyFilterIs(recs, "Stage2DischargeFanRunCmd", [d])
   }
 
   Void verifyFilterIs(Dict[] recs, Str expr, Dict[] expect)
@@ -344,6 +370,23 @@ class AxonTest : AbstractAxonTest
     verifyFolioReadAll("ph::Rtu", [b])
     verifyFolioReadAll("Meter", [c, d])
     verifyFolioReadAll("ElecMeter", [c])
+  }
+
+  @HxTestProj
+  Void testFolioReadAllSugar()
+  {
+    ns := initNamespace(["ph", "ph.points", "ph.points.sugar"])
+
+    fan := Ref("ph.points::DuctFanRunCmd")
+    a := addRec(["dis":"a", "spec":fan, "discharge":m])
+    b := addRec(["dis":"b", "spec":fan, "return":m])
+    c := addRec(["dis":"c", "spec":Ref("ph.points.sugar::DischargeFanRunCmd")])
+    d := addRec(["dis":"d", "discharge":m, "fan":m, "run":m, "cmd":m, "point":m])
+
+    verifyFolioReadAll("DuctFanRunCmd", [a, b, c])
+    verifyFolioReadAll("DischargeFanRunCmd", [a, c])
+    verifyFolioReadAll("ph.points.sugar::ReturnFanRunCmd", [b])
+    verifyFolioReadAll("DischargeFanRunCmd and not discharge", [c])
   }
 
   Void verifyFolioReadAll(Str filter, Dict[] expect)

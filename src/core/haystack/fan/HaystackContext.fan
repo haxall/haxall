@@ -18,9 +18,10 @@ mixin HaystackContext : XetoContext
   @NoDoc static HaystackContext nil() { nilRef }
   private static const NilContext nilRef := NilContext()
 
-  ** Return true if the given rec is nominally an instance of the given
-  ** spec.  This is used by haystack Filters with a spec name.  The spec
-  ** name may be qualified or unqualified.
+  ** Return true if the given rec fits the given spec as defined by
+  ** [xeto::Namespace.fits] which includes sugar specs.  This is used by
+  ** haystack Filters with a spec name.  The spec name may be qualified
+  ** or unqualified.
   @NoDoc override Bool xetoIsSpec(Str spec, Dict rec) { false }
 
   ** Read a data record by id or return null

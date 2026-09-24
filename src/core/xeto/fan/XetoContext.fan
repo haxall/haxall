@@ -24,9 +24,10 @@ mixin XetoContext : ActorContext
   ** Read all the records that match given haytack filter
   @NoDoc abstract Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f)
 
-  ** Return true if the given rec is nominally an instance of the given
-  ** spec.  This is used by haystack Filters with a spec name.  The spec
-  ** name may be qualified or unqualified.
+  ** Return true if the given rec fits the given spec as defined by
+  ** [xeto::Namespace.fits] which includes sugar specs.  This is used by
+  ** haystack Filters with a spec name.  The spec name may be qualified
+  ** or unqualified.
   @NoDoc abstract Bool xetoIsSpec(Str spec, Dict rec)
 
   ** Can this context call function thunks, which require an Axon

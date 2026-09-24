@@ -34,6 +34,9 @@ class FolioFlatFileTestImpl : FolioTestImpl
 
   // don't support file API
   override Bool supportsFile() { false }
+
+  // don't support filter spec terms
+  override Bool supportsSpecs() { false }
 }
 
 **************************************************************************

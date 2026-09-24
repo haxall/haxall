@@ -429,6 +429,37 @@ class BasicTest : AbstractFolioTest
     verifyFilter("refx->ref->num == 20", [g])
   }
 
+  Void testSpecFilters() { runImpls }
+  Void doTestSpecFilters()
+  {
+    if (!impl.supportsSpecs) return
+    open
+    folio.hooks = NsTestHooks(XetoEnv.cur.resolveNamespace(["ph.points.sugar", "hx.test.xeto"]))
+
+    fan := Ref("ph.points::DuctFanRunCmd")
+    a := addRec(["dis":"a", "spec":fan, "discharge":m])
+    b := addRec(["dis":"b", "spec":fan, "return":m])
+    c := addRec(["dis":"c", "spec":Ref("ph.points.sugar::DischargeFanRunCmd")])
+    d := addRec(["dis":"d", "discharge":m, "fan":m, "run":m, "cmd":m, "point":m])
+    e := addRec(["dis":"e", "spec":fan, "discharge":m, "stage":n(2)])
+    f := addRec(["dis":"f", "spec":fan, "discharge":m, "stage":n(3)])
+    g := addRec(["dis":"g", "spec":Ref("ph::Ahu"), "discharge":m])
+
+    // nominal spec terms match by spec tag only
+    verifyFilter("ph.points::DuctFanRunCmd", [a, b, c, e, f])
+    verifyFilter("ph::Equip", [g])
+
+    // sugar matches by assertion or nominal anchor plus constraint tags
+    verifyFilter("ph.points.sugar::DischargeFanRunCmd", [a, c, e, f])
+    verifyFilter("ph.points.sugar::ReturnFanRunCmd", [b])
+    verifyFilter("hx.test.xeto::Stage2DischargeFanRunCmd", [e])
+
+    // asserted but untagged recs remain findable
+    verifyFilter("ph.points.sugar::DischargeFanRunCmd and not discharge", [c])
+    verifyFilter("ph.points.sugar::DischargeFanRunCmd or ph::Equip", [a, c, e, f, g])
+    verifyEq(folio.readCount(Filter("ph.points.sugar::DischargeFanRunCmd")), 4)
+  }
+
   Void verifyFilter(Str filter, Dict[] expected)
   {
     actual := folio.readAll(Filter(filter)).sortDis

@@ -27,7 +27,7 @@ class FolioFileTest : AbstractFolioTest
     if (!impl.supportsFile) return
 
     folio := open
-    folio.hooks = FileTestHooks(ns)
+    folio.hooks = NsTestHooks(ns)
 
     id := Ref("test-file")
     rec := addRec([
@@ -90,7 +90,7 @@ class FolioFileTest : AbstractFolioTest
     folio := open
     // force files/ directory to be clean
     folio.dir.plus(`files/`).delete
-    folio.hooks = FileTestHooks(ns)
+    folio.hooks = NsTestHooks(ns)
 
     id := Ref("conversation-1")
     rec := addRec([
@@ -174,7 +174,7 @@ class FolioFileTest : AbstractFolioTest
   }
 }
 
-const class FileTestHooks : FolioHooks
+const class NsTestHooks : FolioHooks
 {
   new make(Namespace ns) { nsRef = ns }
 
