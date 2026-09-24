@@ -498,11 +498,6 @@ class AxonTest : AbstractAxonTest
                fan:  Point {fan, run}
              }
            }
-
-           DTemp: {discharge, temp}
-           DFlow: {discharge, flow}
-           DPressure: {discharge, pressure}
-           Ahu2: ph::Equip { points: { DTemp, DFlow, DPressure? } }
            |>)
      ahu1 := lib.type("Ahu1")
 

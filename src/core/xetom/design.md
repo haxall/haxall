@@ -176,4 +176,11 @@ spec is-a the target, or for a sugar target a dict whose spec is-a the
 anchor and whose tags satisfy the constraints.  Fits uses the spec as
 given: pass the `specx` extended spec to include mixin constraints.
 Invariants compare at full or haystack fidelity because dicts may come
-from either.
+from either.  The core after resolving the value's spec is
+`XetoUtil.fits`, which the validator shares for query extents so its
+`specOf` hook (the compile-time overlay) applies.
+
+There is no sugar specific validation rule.  An instance asserting a
+sugar spec has its constraints checked by the standard walk: constraint
+markers are required slots (`missingSlot`) and invariants are checked
+by `invariantVal`.

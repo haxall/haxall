@@ -401,16 +401,8 @@ const class MNamespace : Namespace, CNamespace
 
   override Bool fits(Obj? val, Spec spec)
   {
-    // own spec or a subtype, including computed sugar subtypes
     t := specOf(val, false)
-    if (t == null) return false
-    if (t.isa(spec)) return true
-
-    // dict also fits sugar by nominal anchor plus constraint tags
-    dict := val as Dict
-    if (dict == null || !spec.isSugar) return false
-    MSugar sugar := spec.sugar
-    return t.isa(sugar.anchor) && sugar.matches(dict)
+    return t != null && XetoUtil.fits(t, val, spec)
   }
 
   override Obj? queryWhile(Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)

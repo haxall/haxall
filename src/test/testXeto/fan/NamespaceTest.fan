@@ -87,7 +87,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(sys.types.list.containsSame(str), true)
 
     // instances
-    verifyEq(sys.instances.size, 27)
+    verifyEq(sys.instances.size, 26)
     verifyEq(sys.instances.isImmutable, true)
     verifySame(sys.instances, sys.instances)
     verifyEq(sys.instance("overMaxVal")->on, Ref("sys::Number"))

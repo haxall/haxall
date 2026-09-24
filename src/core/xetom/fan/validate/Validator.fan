@@ -281,7 +281,7 @@ class Validator
     acc := ValidateQueryMatch[,]
     query.slots.each |c|
     {
-      matches := extent.findAll |x| { queryConstraintMatches(c, x) }
+      matches := extent.findAll |x| { fits(x, c) }
       acc.add(ValidateQueryMatch(c, matches))
     }
     s.queryMatches = acc
@@ -289,37 +289,12 @@ class Validator
     s.queryMatches = null
   }
 
-  ** Return if extent record matches the query constraint: nominal
-  ** anchor plus the constraint's own marker and scalar slots.  A
-  ** shape constraint based directly on Dict matches by slots alone;
-  ** the anchor's inherited body slots never act as constraints.
-  ** TODO: replace with sugar matching once that lands
-  private Bool queryConstraintMatches(Spec c, Dict x)
+  ** Does extent rec fit the query constraint which is anonymous
+  ** sugar; spec resolution goes thru the specOf hook
+  private Bool fits(Dict x, Spec c)
   {
     t := specOf(x)
-    if (t == null) return false
-
-    // Dict based shapes skip the nominal anchor check
-    isShape := c.type.base?.qname == "sys::Dict"
-    if (!isShape && !t.isa(c.type)) return false
-
-    // constraint slots are the inline body plus shape type slots
-    if (!matchesConstraintSlots(c.slotsOwn, x)) return false
-    if (isShape && !matchesConstraintSlots(c.type.slots, x)) return false
-    return true
-  }
-
-  ** Constraint markers must be present and scalars must match
-  private static Bool matchesConstraintSlots(SpecMap slots, Dict x)
-  {
-    r := slots.eachWhile |Spec cs->Obj?|
-    {
-      v := x.get(cs.name)
-      if (v == null) return "no"
-      if (cs.type.isMarker) return null
-      return Etc.eq(v, cs.meta["val"]) ? null : "no"
-    }
-    return r == null
+    return t != null && XetoUtil.fits(t, x, c)
   }
 
 //////////////////////////////////////////////////////////////////////////

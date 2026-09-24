@@ -460,13 +460,3 @@ using haystack
   }
 }
 
-**************************************************************************
-** TODO
-**************************************************************************
-
-@Js internal const class ValidateSugarConstraint : ValidateRule
-{
-  new make(ValidateRuleInit init) : super(init) {}
-  override Void onCheck(ValidateState s) {}
-}
-

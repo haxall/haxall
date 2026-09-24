@@ -756,9 +756,9 @@ class ValidateTest : AbstractXetoTest
                  flow: Point {discharge, flow}
                }
              }
-             DTemp: {discharge, temp}
-             DFlow: {discharge, flow}
-             DPressure: {discharge, pressure}
+             DTemp: Point <sugar> {discharge, temp}
+             DFlow: Point <sugar> {discharge, flow}
+             DPressure: Point <sugar> {discharge, pressure}
              SAhu: Equip { points: { DTemp, DFlow, DPressure? } }
              |>)
 
@@ -783,11 +783,11 @@ class ValidateTest : AbstractXetoTest
 
     initContext(lib2).asCur |cx2|
     {
-      // inline marker constraints and shape types with exactly one each
+      // inline marker constraints and sugar types with exactly one each
       verifyEngine(ns, lib2, "MAhu", recsTags(x), [,], graph)
       verifyEngine(ns, lib2, "SAhu", recsTags(x), [,], graph)
 
-      // multiple missing constraints; shapes display by type qname
+      // multiple missing constraints; sugar types display by qname
       verifyEngine(ns, lib2, "MAhu", recsTags(y),
         ["sys::missingQuery", "sys::missingQuery"], graph)
       r := ns.validate(recs[y], lib2.spec("SAhu"), graph)

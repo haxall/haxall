@@ -870,6 +870,18 @@ const class XetoUtil
     return false
   }
 
+  ** Return if val whose spec is t fits spec: t is-a spec including
+  ** computed sugar subtypes, or for sugar a dict whose spec is-a the
+  ** nominal anchor and whose tags satisfy the constraints
+  static Bool fits(Spec t, Obj? val, Spec spec)
+  {
+    if (t.isa(spec)) return true
+    dict := val as Dict
+    if (dict == null || !spec.isSugar) return false
+    MSugar sugar := spec.sugar
+    return t.isa(sugar.anchor) && sugar.matches(dict)
+  }
+
   ** Given a list of specs, remove any specs that are
   ** supertypes of other specs in this same list:
   **
