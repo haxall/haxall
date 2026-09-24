@@ -47,6 +47,9 @@ internal abstract class InheritFlags : Step
       flags = setMetaFlag(flags, x, "sugar",     MSpecFlags.sugar)
     }
 
+    // query items are anonymous sugar
+    if (x.parent != null && x.parent.isQuery) flags = flags.or(MSpecFlags.sugar)
+
     // if my base is compound type; And compounds also
     // inherit entity/comp/sugar from their ofs
     if (x.isAnd)

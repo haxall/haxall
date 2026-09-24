@@ -399,6 +399,20 @@ const class MNamespace : Namespace, CNamespace
     throw UnknownSpecErr("No spec mapped for '${val as Type ?: val?.typeof}'")
   }
 
+  override Bool fits(Obj? val, Spec spec)
+  {
+    // own spec or a subtype, including computed sugar subtypes
+    t := specOf(val, false)
+    if (t == null) return false
+    if (t.isa(spec)) return true
+
+    // dict also fits sugar by nominal anchor plus constraint tags
+    dict := val as Dict
+    if (dict == null || !spec.isSugar) return false
+    MSugar sugar := spec.sugar
+    return t.isa(sugar.anchor) && sugar.matches(dict)
+  }
+
   override Obj? queryWhile(Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
   {
     cx := XetoContext.curx(false) ?: NilXetoContext.val

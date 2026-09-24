@@ -268,7 +268,7 @@
 
   // Return the Xeto spec of the given value.  Raise exception
   // if value type is not mapped into the data type system.  Also
-  // see [is()].
+  // see [is()] and [fits()].
   //
   // Examples:
   //
@@ -280,7 +280,7 @@
 
   // Return if spec `a` inherits from spec `b` based on nominal typing.
   // This method checks the explicit inheritance hierarchy via [specBase()].
-  // Use [is()] to check if an instance is of a given type.
+  // Use [is()] or [fits()] to check if an instance is of a given type.
   //
   // Examples:
   //
@@ -290,6 +290,20 @@
   //     specIs(Meter, Equip)    >>  true
   //     specIs(Meter, Point)    >>  false
   specIs: Func { a: Spec, b: Spec, returns: Bool }
+
+  // Return if the value is a member of the spec.  A value fits if its
+  // spec is the given spec or a subtype.  A dict also fits a sugar spec
+  // if it fits the sugar's nominal anchor and has every constraint tag.
+  // Fits never checks required slots or queries; use [validate()] for
+  // that.  Also see [is()] to check strictly via nominal typing.
+  //
+  // Examples:
+  //
+  //     fits("foo", Str)                                  >>  true
+  //     fits({spec:@ph::Ahu}, Equip)                      >>  true
+  //     fits({spec:@ph.points::DuctFanRunCmd, discharge},
+  //          DischargeFanRunCmd)                          >>  true
+  fits: Func { val: Obj?, spec: Spec, returns: Bool }
 
   // Given a choice spec, return the most specific choice subtype
   // implemented by the instance.  If the instance implements zero or more

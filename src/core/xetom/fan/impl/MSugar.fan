@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack
 
 **
 ** Implementation of SpecSugar
@@ -29,6 +30,12 @@ const final class MSugar : SpecSugar
     sorted := Str:Spec[:] { ordered = true }
     acc.keys.sort.each |n| { sorted[n] = acc[n] }
     return make(anchors.first, SpecMap(sorted))
+  }
+
+  private new make(Spec anchor, SpecMap constraints)
+  {
+    this.anchor = anchor
+    this.constraints = constraints
   }
 
   ** Nominal bases of the sugar chain reduced to the most specific;
@@ -61,10 +68,32 @@ const final class MSugar : SpecSugar
     slot.isMarker ? !slot.isMaybe : slot.meta.has("invariant")
   }
 
-  private new make(Spec anchor, SpecMap constraints)
+  ** Computed subtyping: a's anchor is-a b's anchor and a's
+  ** constraints are a superset of b's with equal values
+  static Bool isa(SpecSugar a, SpecSugar b)
   {
-    this.anchor = anchor
-    this.constraints = constraints
+    if (!a.anchor.isa(b.anchor)) return false
+    r := b.constraints.eachWhile |bc, n|
+    {
+      ac := a.constraints.get(n, false)
+      return ac != null && Etc.eq(ac.meta["val"], bc.meta["val"]) ? null : "no"
+    }
+    return r == null
+  }
+
+  ** Does dict have every constraint: markers present and invariant
+  ** values equal at either full or haystack fidelity
+  Bool matches(Dict x)
+  {
+    r := constraints.eachWhile |c, n|
+    {
+      v := x.get(n)
+      if (v == null) return "no"
+      if (c.isMarker) return null  // markers match by presence like filter has
+      expect := c.meta["val"]
+      return Etc.eq(expect, v) || Etc.eq(XetoFidelity.haystack.coerce(expect), v) ? null : "no"
+    }
+    return r == null
   }
 
   const override Spec anchor

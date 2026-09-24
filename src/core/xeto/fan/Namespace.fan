@@ -149,6 +149,12 @@ const mixin Namespace
   ** Spec for Fantom [sys::Type] or the typeof given object
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
+  ** Return if the value is a member of the spec.  A value fits if its
+  ** spec is the given spec or a subtype.  A dict also fits a sugar spec
+  ** if it fits the sugar's nominal anchor and has every constraint tag.
+  ** Fits never checks required slots or queries; use [validate] for that.
+  abstract Bool fits(Obj? val, Spec spec)
+
   ** Query a relationship using the given subject and query spec.
   ** Call given callback function until it returns non-null and return
   ** as overall result of the method.

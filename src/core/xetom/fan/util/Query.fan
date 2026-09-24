@@ -74,7 +74,7 @@ internal class Query
       visited.add(ref)
       rec := cx.xetoReadById(ref)
       if (rec == null) return
-      if (fits(rec, of)) acc.add(rec) // can traverse over refs that don't match type
+      if (ns.fits(rec, of)) acc.add(rec) // can traverse over refs that don't match type
       if (multiHop) traverseVia(rec, of, via, multiHop, visited, acc)
     }
   }
@@ -103,7 +103,7 @@ internal class Query
     acc := Dict[,]
     cx.xetoReadAllEachWhile(via) |rec|
     {
-       match := matchInverse(subjectId, rec, via, multiHop, Obj[,]) && fits(rec, of)
+       match := matchInverse(subjectId, rec, via, multiHop, Obj[,]) && ns.fits(rec, of)
        if (match) acc.add(rec)
        return null
     }
@@ -131,12 +131,6 @@ internal class Query
   {
     if (val == null) return Obj#.emptyList
     return val as List ?: Obj[val]
-  }
-
-  ** TODO: nominal only until sugar aware fits lands
-  private Bool fits(Obj? val, Spec spec)
-  {
-    ns.specOf(val, false)?.isa(spec) ?: false
   }
 
 //////////////////////////////////////////////////////////////////////////

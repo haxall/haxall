@@ -148,7 +148,9 @@ sugar spec to its nominal anchor and effective constraints.
 
 The `sugar` flag is an inherited flag bit, so every subtype of a sugar
 spec is sugar without re-declaring the marker, and And types pick it
-up from their ofs.  The flattened form is computed lazily and cached on
+up from their ofs.  The compiler also sets it on every query item:
+inline query constraints are anonymous sugar, anchored by the item's
+type and constrained by its body.  The flattened form is computed lazily and cached on
 `MSpec` like `MFunc`: it is a pure function of declared state (bases
 and slotsOwn), so nothing new is stored in xetolibs or on the wire and
 remote namespaces recompute it on demand.
@@ -157,8 +159,21 @@ The walk descends through sugar bases only and stops at the first
 nominal spec in each branch; those nominal specs reduced to the most
 specific are the anchor candidates.  The anchor's own body tags are
 never constraints.  Subtypes are walked first so their constraint slots
-win over their supertypes'.  Query slots are excluded: they participate
-in validation, never matching.
+win over their supertypes'.  Only required markers and invariant
+scalars are constraints; other slots are defaults for instantiation,
+and query slots participate in validation, never matching.
 
 Mixin contributed constraints are namespace dependent, so `XSpec`
 recomputes with the mixins which target the sugar chain.
+
+Sugar enters the type system in two relations.  `Spec.isa` is the type
+relation: `XetoUtil.isa` walks the nominal chain first and only when
+both specs are sugar falls back to the computed rule (anchor is-a and
+constraint superset), so the nominal hot path pays one flag test.  It
+uses the namespace independent flattening; AST specs stay nominal.
+`Namespace.fits` is the membership relation built on it: the value's
+spec is-a the target, or for a sugar target a dict whose spec is-a the
+anchor and whose tags satisfy the constraints.  Fits uses the spec as
+given: pass the `specx` extended spec to include mixin constraints.
+Invariants compare at full or haystack fidelity because dicts may come
+from either.

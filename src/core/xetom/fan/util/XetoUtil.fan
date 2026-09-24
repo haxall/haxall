@@ -862,7 +862,10 @@ const class XetoUtil
     }
 
     // check a's base type
-    if (a.base != null) return isa(a.base, b, false)
+    if (a.base != null && isa(a.base, b, false)) return true
+
+    // sugar subtyping is computed from anchor and constraints
+    if (isTop && a.isSugar && b.isSugar && !a.isAst && !b.isAst) return MSugar.isa(a.sugar, b.sugar)
 
     return false
   }

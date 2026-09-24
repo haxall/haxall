@@ -480,7 +480,7 @@ const class XetoFuncs
 
   ** Return the Xeto spec of the given value.  Raise exception
   ** if value type is not mapped into the data type system.  Also
-  ** see [is()].
+  ** see [is()] and [fits()].
   **
   ** Examples:
   **
@@ -495,7 +495,7 @@ const class XetoFuncs
 
   ** Return if spec `a` inherits from spec `b` based on nominal typing.
   ** This method checks the explicit inheritance hierarchy via [specBase()].
-  ** Use [is()] to check if an instance is of a given type.
+  ** Use [is()] or [fits()] to check if an instance is of a given type.
   **
   ** Examples:
   **
@@ -507,6 +507,23 @@ const class XetoFuncs
   @Api @Axon static Bool specIs(Spec a, Spec b)
   {
     a.isa(b)
+  }
+
+  ** Return if the value is a member of the spec.  A value fits if its
+  ** spec is the given spec or a subtype.  A dict also fits a sugar spec
+  ** if it fits the sugar's nominal anchor and has every constraint tag.
+  ** Fits never checks required slots or queries; use [validate()] for
+  ** that.  Also see [is()] to check strictly via nominal typing.
+  **
+  ** Examples:
+  **
+  **     fits("foo", Str)                                  >>  true
+  **     fits({spec:@ph::Ahu}, Equip)                      >>  true
+  **     fits({spec:@ph.points::DuctFanRunCmd, discharge},
+  **          DischargeFanRunCmd)                          >>  true
+  @Api @Axon static Bool fits(Obj? val, Spec spec)
+  {
+    curContext.ns.fits(val, spec)
   }
 
   ** Given a choice spec, return the most specific choice subtype
@@ -720,8 +737,7 @@ const class XetoFuncs
       {
         name := slot.name
         if (acc[name] != null) return null // already matched
-        // TODO: nominal only until sugar aware fits lands
-        if (ns.specOf(hit, false)?.isa(slot.type) == true) return acc[name] = hit
+        if (ns.fits(hit, slot)) return acc[name] = hit
         return null
       }
       return null

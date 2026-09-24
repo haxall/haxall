@@ -12,6 +12,12 @@ ColdDeckDischargeFanRunCmd: DischargeFanRunCmd { coldDeck }
 // invariant scalar constraint
 Stage2DischargeFanRunCmd: DischargeFanRunCmd { stage: Int <invariant> 2 }
 
+// invariant which conflicts with Stage2DischargeFanRunCmd
+Stage3DischargeFanRunCmd: DischargeFanRunCmd { stage: Int <invariant> 3 }
+
+// same anchor and constraints as ph.points.sugar::DischargeFanRunCmd
+MyDischargeFanRunCmd: DuctFanRunCmd <sugar> { discharge }
+
 // And of sugar specs which share one anchor
 ColdDeckStage2DischargeFanRunCmd: ColdDeckDischargeFanRunCmd & Stage2DischargeFanRunCmd
 
@@ -20,6 +26,13 @@ StandardFanVav: Vav <sugar> {
   singleDuct
   points: {
     DischargeFanRunCmd
+  }
+}
+
+// query items are anonymous sugar
+SugarItemsEquip: Equip {
+  points: {
+    fan: DuctFanRunCmd { discharge }
   }
 }
 

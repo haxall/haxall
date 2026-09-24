@@ -277,6 +277,23 @@ class AxonTest : AbstractAxonTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Fits function
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testFits()
+  {
+    initNamespace(["ph", "ph.points", "ph.points.sugar"])
+
+    verifyEval(Str<|fits("hi", Str)|>, true)
+    verifyEval(Str<|fits("hi", Marker)|>, false)
+    verifyEval(Str<|fits({spec:@ph::Ahu}, Equip)|>, true)
+    verifyEval(Str<|fits({spec:@ph::Ahu}, Site)|>, false)
+    verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd, discharge}, DischargeFanRunCmd)|>, true)
+    verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd}, DischargeFanRunCmd)|>, false)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Filter Is
 //////////////////////////////////////////////////////////////////////////
 
