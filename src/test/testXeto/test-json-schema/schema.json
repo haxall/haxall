@@ -3314,24 +3314,6 @@
         "numbers"
       ]
     },
-    "hx.test.xeto.FitsExplain1": {
-      "x-xeto": {
-        "spec": "hx.test.xeto::FitsExplain1"
-      },
-      "additionalProperties": true,
-      "type": "object",
-      "properties": {
-        "a": {
-          "type": "string"
-        },
-        "b": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "a"
-      ]
-    },
     "hx.test.xeto.FixDocs": {
       "description": "Test fix docs **bold**, *em*, `inline` and\nthis is link to [ph::PhEntity.site] tag.\n\nList of links:\n  - [sys::Entity.id]\n  - [ph::PhEntity.dis]\n  - [hx::User.userRole]\n  - [ph::PhEntity.temp]\n  - [ph::PhEntity.sensor]\n  - [now func](now())\n  - [hx.doc.haxall::Axon]\n  - [ph::SimScenario]\n  - [ph::No2Concentration]\n  - [ph::SyntheticPoint]\n  - [fan.haystack::Grid]\n  - [fan.haystack::Grid.getRange]\n  - [hx.task::index]\n  - [hx.task::doc]\n  - [hx.doc.haxall::Conns#included-connectors]\n  - [hx.task::doc#record-tasks]\n\nOrdered\n  1. foo `inline`\n  2. bar `inline`\n  second line of bar\n\n# H1 Title here\n\n# H2 Title here\n\n## H3 Title here\n\n### H4 Title here",
       "x-xeto": {
