@@ -139,9 +139,6 @@ const mixin UserSession
 @Js @NoDoc
 const mixin UserAccess
 {
-  ** Return if user has access to given project passing Proj.meta
-  abstract Bool canSeeProj(Dict projMeta)
-
   ** Can the given user override level 1, 8, or 17 (relinquish default)
   abstract Bool canPointWriteAtLevel(Int level)
 
