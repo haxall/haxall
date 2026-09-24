@@ -29,7 +29,6 @@ class OpenApiExporter : Exporter
     errRef = schemaExporter.ensureRef(ns.spec("sys::Err"))
 
     map["openapi"] = "3.1.0"
-    map["jsonSchemaDialect"] = JsonSchemaExporter.dialect
     sysVer := ns.sysLib.version
 
     map["info"] = [
@@ -41,6 +40,12 @@ class OpenApiExporter : Exporter
         Obj:Obj["name": v.name, "version": v.version.toStr]
       },
     ]
+
+    // servers only when serving a live document from a known site uri
+    siteUri := opts["siteUri"] as Uri
+    if (siteUri != null)
+      map["servers"] = [["url": siteUri.plusSlash.toStr[0..-2]]]
+
     map["paths"] = paths
     map["components"] = [
       "schemas": schemaExporter.defs,
@@ -49,9 +54,7 @@ class OpenApiExporter : Exporter
           "name": "projName",
           "in": "path",
           "required": true,
-          "schema": [
-            "type": "string",
-          ]
+          "schema": projNameSchema(opts["projName"] as Str),
         ],
         "xetoVersion": [
           "name": "Xeto-Version",
@@ -207,21 +210,16 @@ class OpenApiExporter : Exporter
     if (doc != null)
       path["description"] = doc
 
-    // GET
-    if (fileParam == null && props.isEmpty && spec.meta.has("noSideEffects"))
-      path["get"] =  [
-        "operationId": spec.name,
-        "responses": responses,
-        "parameters": opParams,
-      ]
-    // POST
-    else
-      path["post"] =  [
-        "operationId": spec.name,
-        "requestBody": requestBody,
-        "responses": responses,
-        "parameters": opParams,
-      ]
+    // operation: GET if no args and no side effects, otherwise POST
+    isGet := fileParam == null && props.isEmpty && spec.meta.has("noSideEffects")
+    op := Obj:Obj[:] { ordered = true }
+    op["operationId"] = spec.name
+    op["summary"] = spec.name
+    op["tags"] = [spec.lib.name]
+    if (!isGet) op["requestBody"] = requestBody
+    op["responses"] = responses
+    op["parameters"] = opParams
+    path[isGet ? "get" : "post"] = op
 
     // done
     paths[uri] = path
@@ -262,6 +260,14 @@ class OpenApiExporter : Exporter
       Obj:Obj["\$ref": "#/components/parameters/projName"],
       Obj:Obj["\$ref": "#/components/parameters/xetoVersion"],
     ]
+  }
+
+  ** Project name param schema, defaulted when serving a live document
+  private static Obj:Obj projNameSchema(Str? projName)
+  {
+    schema := Obj:Obj["type": "string"]
+    if (projName != null) schema["default"] = projName
+    return schema
   }
 
   private static Obj:Obj jsonSchema(Obj:Obj schema)
