@@ -110,6 +110,61 @@ class OpenApiTest : AbstractXetoTest
   }
 
   **
+  ** Servers and projName default only when passed in by the live document
+  **
+  Void testLiveDoc()
+  {
+    ns := createNamespace(["sys", "sys.api"])
+    doc := exportJson(ns, Etc.dict3("format", "json", "siteUri", `http://acme.com:8080/`, "projName", "demo"))
+    servers := (Obj?[])doc["servers"]
+    verifyEq(servers.size, 1)
+    verifyEq(((Str:Obj?)servers.first)["url"], "http://acme.com:8080")
+    verifyEq(projNameSchema(doc)["default"], "demo")
+
+    // offline export has neither
+    doc = exportJson(ns, Etc.dict1("format", "json"))
+    verifyEq(doc["servers"], null)
+    verifyEq(projNameSchema(doc)["default"], null)
+  }
+
+  ** Export the sys.api lib as a parsed JSON document
+  private Str:Obj? exportJson(Namespace ns, Dict opts)
+  {
+    buf := StrBuf()
+    ex := OpenApiExporter(ns, buf.out, opts)
+    ex.start
+    ex.lib(ns.lib("sys.api"))
+    ex.end
+    return JsonInStream(buf.toStr.in).readJson
+  }
+
+  ** Dig the projName param schema out of the components
+  private Str:Obj? projNameSchema(Str:Obj? doc)
+  {
+    params := (Str:Obj?)((Str:Obj?)doc["components"])["parameters"]
+    return (Str:Obj?)((Str:Obj?)params["projName"])["schema"]
+  }
+
+  **
+  ** Every operation is summarized by its name and tagged by its lib, and
+  ** the document omits jsonSchemaDialect so tools use the OpenAPI base
+  ** dialect
+  **
+  Void testSummaryAndTags()
+  {
+    doc := exportJson(createNamespace(["sys", "sys.api"]), Etc.dict1("format", "json"))
+    verifyEq(doc["jsonSchemaDialect"], null)
+
+    paths := (Str:Obj?)doc["paths"]
+    paths.each |Obj? path|
+    {
+      op := (Str:Obj?)(((Str:Obj?)path)["get"] ?: ((Str:Obj?)path)["post"])
+      verifyEq(op["summary"], op["operationId"])
+      verifyEq(op["tags"], Obj?["sys.api"])
+    }
+  }
+
+  **
   ** A file typed param documents as a raw binary request body under the
   ** file spec's own mime type, and a file return as a binary response --
   ** the upload and download halves the dispatcher implements
