@@ -309,58 +309,51 @@ class MixinTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Fits
+// Validate
 //////////////////////////////////////////////////////////////////////////
 
-  Void testFits()
+  Void testValidate()
   {
     ns   := createNamespace(["ph", "hx.test.xeto"])
     site := ns.spec("ph::Site")
 
     // mixin-contributed required slot must be enforced
     ok := Etc.dict4("id", ref("x"), "site", m, "dis", "Site",  "newSlot", "x")
-    verifyEq(ns.fits(ok, site), true)
-    verifyFitsExplain(ns, ok, site, Str[,])
+    verifyValidateItems(ns, ok, site, Str[,])
 
     missing := Etc.dict3("id", ref("x"), "site", m, "dis", "Site")
-    verifyEq(ns.fits(missing, site), false)
-    verifyFitsExplain(ns, missing, site, [
-      "Slot 'newSlot': Missing required slot"
+    verifyValidateItems(ns, missing, site, [
+      "Slot 'newSlot': Missing required slot 'newSlot'"
       ])
 
     // subtype inherits the mixin contribution
     testSite := ns.spec("hx.test.xeto::TestSite")
-    verifyEq(ns.fits(missing, testSite), false)
-    verifyFitsExplain(ns, missing, testSite, [
-      "Slot 'newSlot': Missing required slot"
+    verifyValidateItems(ns, missing, testSite, [
+      "Slot 'newSlot': Missing required slot 'newSlot'"
       ])
 
     // globals restrict present tags: absence is legal (implicitly
     // maybe), but a present value must fit the global's type and meta
     okG := Etc.dictx("id", ref("x"), "site", m, "dis", "Site", "newSlot", "x",
       "gdate", Date("2026-01-01"), "gnum", n(4))
-    verifyEq(ns.fits(okG, site), true)
-    verifyFitsExplain(ns, okG, site, Str[,])
+    verifyValidateItems(ns, okG, site, Str[,])
 
     badType := Etc.dictx("id", ref("x"), "site", m, "dis", "Site", "newSlot", "x",
       "gdate", "garbage")
-    verifyEq(ns.fits(badType, site), false)
-    verifyFitsExplain(ns, badType, site, [
-      "Slot 'gdate': Global type is 'sys::Date', value type is 'sys::Str'"
+    verifyValidateItems(ns, badType, site, [
+      "Slot 'gdate': Invalid type 'sys::Str', expecting 'sys::Date'"
       ])
 
     badMeta := Etc.dictx("id", ref("x"), "site", m, "dis", "Site", "newSlot", "x",
       "gnum", n(-4))
-    verifyEq(ns.fits(badMeta, site), false)
-    verifyFitsExplain(ns, badMeta, site, [
+    verifyValidateItems(ns, badMeta, site, [
       "Slot 'gnum': Number -4 < minVal 0"
       ])
 
     // plain chain globals restrict the same way
     badDis := Etc.dictx("id", ref("x"), "site", m, "dis", n(123), "newSlot", "x")
-    verifyEq(ns.fits(badDis, site), false)
-    verifyFitsExplain(ns, badDis, site, [
-      "Slot 'dis': Global type is 'sys::Str', value type is 'sys::Number'"
+    verifyValidateItems(ns, badDis, site, [
+      "Slot 'dis': Invalid type 'sys::Number', expecting 'sys::Str'"
       ])
   }
 

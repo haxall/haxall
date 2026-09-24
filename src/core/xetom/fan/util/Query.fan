@@ -24,7 +24,6 @@ internal class Query
     this.ns = ns
     this.cx = cx
     this.opts = opts
-    this.fitter = Fitter(ns, cx, opts)
   }
 
   Dict[] query(Dict subject, Spec query)
@@ -134,9 +133,10 @@ internal class Query
     return val as List ?: Obj[val]
   }
 
+  ** TODO: nominal only until sugar aware fits lands
   private Bool fits(Obj? val, Spec spec)
   {
-    fitter.valFits(val, spec)
+    ns.specOf(val, false)?.isa(spec) ?: false
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,6 +146,5 @@ internal class Query
   private const MNamespace ns
   private const Dict opts
   private XetoContext cx
-  private Fitter fitter
 }
 

@@ -226,29 +226,14 @@ class DataTestCase
       a := spec(map.getChecked("a"))
       b := spec(map.getChecked("b"))
       expect := (Bool)map.getChecked("expect")
-      //echo("~~ verifySpecIs $a fits $b ?= $expect")
+      //echo("~~ verifySpecIs $a is $b ?= $expect")
 
       verifyEq(a.isa(b), expect, "$a is $b")
-
-      // specIs(a, b) true requires spedFits(a, b) to be true also
-      if (expect) verifyEq(ns.specFits(a, b), expect, "$a fits $b")
 
       // check for isFoo flags
       // TODO
       // m := a.typeof.method("is${b.name}", false)
       // if (m != null) verifyEq(m.callOn(a, [b]), expect, m.qname)
-    }
-  }
-
-  Void verifySpecFits([Str:Obj][] list)
-  {
-    list.each |map|
-    {
-      a := spec(map.getChecked("a"))
-      b := spec(map.getChecked("b"))
-      expect := (Bool)map.getChecked("expect")
-      //echo("~~ verifySpecFits $a fits $b ?= $expect")
-      verifyEq(ns.specFits(a, b), expect, "$a fits $b")
     }
   }
 

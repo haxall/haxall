@@ -175,7 +175,7 @@ class ChoiceTest : AbstractXetoTest
   {
     type := spec.parent
     if (type == null) return
-    verifyFitsExplain(ns, instance, type, errs)
+    verifyValidateItems(ns, instance, type, errs)
   }
 
 //////////////////////////////////////////////////////////////////////////

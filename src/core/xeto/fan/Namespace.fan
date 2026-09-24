@@ -149,16 +149,6 @@ const mixin Namespace
   ** Spec for Fantom [sys::Type] or the typeof given object
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
-  ** Return if the given instance fits the spec via structural typing.
-  ** Options:
-  **   - `graph`: marker to also check graph of references such as required points
-  **   - `ignoreRefs`: marker to ignore if refs resolve to valid target
-  **   - `haystack`: marker tag to use Haystack level data fidelity
-  abstract Bool fits(Obj? val, Spec spec, Dict? opts := null)
-
-  ** Return if spec `a` fits spec `b` based on structural typing.
-  @NoDoc abstract Bool specFits(Spec a, Spec b, Dict? opts := null)
-
   ** Query a relationship using the given subject and query spec.
   ** Call given callback function until it returns non-null and return
   ** as overall result of the method.

@@ -2042,10 +2042,9 @@ const class AxonFuncs
 
   ** Return if the given instance inherits from the spec via nominal
   ** typing.  Use [specIs()] to check nominal typing between two types.
-  ** Also see [fits()] and [specFits()] to check via structural typing.
   **
   ** Note that dict values will only match the generic `sys.Dict`
-  ** type.  Use [fits()] for structural type matching.
+  ** type.
   **
   ** Examples:
   **

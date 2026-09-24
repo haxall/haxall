@@ -247,13 +247,8 @@ class AxonTest : AbstractAxonTest
 
   Void verifySpecIs(Str expr, Bool expect)
   {
-    // override hook to reuse specIs() tests for specFits()
-    if (verifySpecIsFunc != null) return verifySpecIsFunc(expr, expect)
-
     verifyEval(expr, expect)
   }
-
-  |Str,Bool|? verifySpecIsFunc := null
 
 //////////////////////////////////////////////////////////////////////////
 // Is function
@@ -278,13 +273,8 @@ class AxonTest : AbstractAxonTest
 
   Void verifyIs(Str expr, Bool expect)
   {
-    // override hook to reuse is() tests for fits()
-    if (verifyIsFunc != null) return verifyIsFunc(expr, expect)
-
     verifyEval(expr, expect)
   }
-
-  |Str,Bool|? verifyIsFunc := null
 
 //////////////////////////////////////////////////////////////////////////
 // Filter Is
@@ -346,157 +336,6 @@ class AxonTest : AbstractAxonTest
     e := expect.join(",") { it.dis }
     // echo("-- $filter | $a ?= $e")
     verifyEq(a, e)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// SpecFits function
-//////////////////////////////////////////////////////////////////////////
-
-  @HxTestProj
-  Void testSpecFits()
-  {
-    ns := initNamespace(["ph"])
-
-    // run all the is tests with fits
-    verifySpecIsFunc = |Str expr, Bool expect|
-    {
-      verifySpecFits(expr.replace("specIs(", "specFits("), expect)
-    }
-    testSpecIs
-  }
-
-  Void verifySpecFits(Str expr, Bool expect)
-  {
-    // echo("   $expr")
-    verifyEval(expr, expect)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Fits function
-//////////////////////////////////////////////////////////////////////////
-
-  @HxTestProj
-  Void testFits()
-  {
-    // run all the is tests with fits
-    verifyIsFunc = |Str expr, Bool expect|
-    {
-      verifyFits(expr.replace("is(", "fits("), expect)
-    }
-    testIs
-
-    verifyFits(Str<|fits("hi", Str)|>, true)
-    verifyFits(Str<|fits("hi", Marker)|>, false)
-    verifyFits(Str<|fits("hi", Dict)|>, false)
-
-    ns := initNamespace(["ph"])
-
-    verifyFits(Str<|fits({site}, Str)|>, false)
-    verifyFits(Str<|fits({site}, Dict)|>, true)
-    verifyFits(Str<|fits({id:@x, site}, Equip)|>, false)
-    verifyFits(Str<|fits({id:@x, site}, Site)|>, true)
-    verifyFits(Str<|fits(`ok`, CurStatus)|>, false)
-    verifyFits(Str<|fits("foo", CurStatus)|>, false)
-    verifyFits(Str<|fits("ok", CurStatus)|>, true)
-    verifyFits(Str<|fits("bool", Kind)|>, false)
-    verifyFits(Str<|fits("Bool", Kind)|>, true)
-    verifyFits(Str<|fits({discharge}, Choice)|>, false)
-    verifyFits(Str<|fits({discharge}, DuctSection)|>, false)
-    verifyFits(Str<|fits({discharge}, DischargeDuctSection)|>, true)
-    // TODO: to fit these, we need to namespace to look for all subtypes
-    // verifyFits(Str<|fits({water}, Substance)|>, true)
-    // verifyFits(Str<|fits({water}, Fluid)|>, true)
-    verifyFits(Str<|fits({water}, Water)|>, true)
-    verifyFits(Str<|fits({water}, HotWater)|>, false)
-    verifyFits(Str<|fits({hot, water}, HotWater)|>, true)
-    verifyFits(Str<|fits({hot, water}, ChilledWater)|>, false)
-    verifyFits(Str<|fits({spec:@sys::Dict}, Dict)|>, true)
-    verifyFits(Str<|fits({spec:@sys::Dict}, null)|>, true)
-
-    ns = initNamespace(["ph", "ph.points", "ph.points.sugar"])
-
-    verifyFits(Str<|fits({id:@x}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, temp, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F"}, DischargeAirTempSensor)|>, true)
-  }
-
-  Void verifyFits(Str expr, Bool expect)
-  {
-    // echo("-- $expr => $expect")
-    res := eval(expr)
-    if (res != expect)
-    {
-      echo("FAIL: $expr")
-      grid := (Grid)eval(expr.replace("fits(", "fitsExplain("))
-      grid.dump
-    }
-    verifyEq(res, expect)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Fits function
-//////////////////////////////////////////////////////////////////////////
-
-  @HxTestProj
-  Void testFitsExplain()
-  {
-    ns := initNamespace(["ph", "ph.points","ph.attrs", "ph.protocols", "hx.test.xeto"])
-
-    verifyFitsExplain(Str<|fitsExplain({}, Dict)|>, [,])
-
-    verifyFitsExplain(Str<|fitsExplain({id:@x, site, newSlot:"x"}, Site)|>, [,])
-    verifyFitsExplain(Str<|fitsExplain({}, Site)|>, [
-      "Slot 'id': Missing required slot",
-      "Slot 'site': Missing required marker",
-      "Slot 'newSlot': Missing required slot"
-      ])
-    verifyFitsExplain(Str<|fitsExplain({id:@x}, Site)|>, [
-      "Slot 'site': Missing required marker",
-      "Slot 'newSlot': Missing required slot"
-      ])
-
-    verifyFitsExplain(Str<|fitsExplain({id:@x, ahu, equip, siteRef:@s}, Ahu, {ignoreRefs})|>, [,])
-    verifyFitsExplain(Str<|fitsExplain({id:@x}, Ahu)|>, [
-      "Slot 'equip': Missing required marker",
-      "Slot 'siteRef': Missing required slot",
-      "Slot 'ahu': Missing required marker"
-      ])
-
-    verifyFitsExplain(Str<|fitsExplain({}, FitsExplain1)|>, [
-      "Slot 'a': Missing required slot",
-      ])
-
-    verifyFitsExplain(Str<|fitsExplain({a:"x", b}, FitsExplain1)|>, [
-      "Slot 'b': Slot type is 'sys::Str', value type is 'sys::Marker'",
-      ])
-  }
-
-  Void verifyFitsExplain(Str expr, Str[] expect)
-  {
-
-    grid := (Grid)makeContext.eval(expr)
-
-    // echo; echo("-- $expr"); grid.dump
-
-    if (expect.isEmpty) return verifyEq(grid.size, 0)
-
-    verifyEq(grid.size, expect.size+1)
-    verifyEq(grid[0]->msg, expect.size == 1 ? "1 error" : "$expect.size errors")
-    expect.each |msg, i|
-    {
-      verifyEq(grid[i+1]->msg, msg)
-    }
-  }
-
-  Void dumpFitsExplain(Dict rec, Str qname)
-  {
-    recAxon := Etc.toAxon(rec)
-    eval("fitsExplain($recAxon, $qname).dump")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -599,35 +438,6 @@ class AxonTest : AbstractAxonTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// FitsMatchAll
-//////////////////////////////////////////////////////////////////////////
-
-  @HxTestProj
-  Void testFitsMatchAll()
-  {
-    ns := initNamespace(["ph"])
-
-    site := addRec(["id":Ref("site"), "spec":Ref("ph::Site"), "site":m])
-    ahu := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m, "siteRef":site.id])
-    rtu := addRec(["id":Ref("rtu"), "dis":"RTU", "ahu":m, "rtu":m, "equip":m, "siteRef":site.id])
-    meter := addRec(["id":Ref("meter"), "dis":"Meter", "ahu":m, "meter":m, "equip":m, "siteRef":site.id])
-    elec := addRec(["id":Ref("elec-meter"), "dis":"Elec-Meter", "ahu":m, "elec":m, "meter":m, "equip":m, "siteRef":site.id])
-
-    grid := (Grid)eval("readAll(equip).sortDis.fitsMatchAll")
-    verifyFitsMatchAll(grid, ahu,   ["ph::Ahu"])
-    verifyFitsMatchAll(grid, elec,  ["ph::Ahu", "ph::Elec", "ph::ElecEquip", "ph::ElecMeter"])
-    verifyFitsMatchAll(grid, meter, ["ph::Ahu", "ph::Meter"])
-    verifyFitsMatchAll(grid, rtu,   ["ph::Rtu"])
-  }
-
-  Void verifyFitsMatchAll(Grid g, Dict r, Str[] expect)
-  {
-    x := g.find { it.id == r.id }
-    verifyEq(x->num, n(expect.size))
-    verifyEq(((Spec[])x->specs).join(", "), expect.join(", "))
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Query
 //////////////////////////////////////////////////////////////////////////
 
@@ -678,44 +488,9 @@ class AxonTest : AbstractAxonTest
            Ahu2: ph::Equip { points: { DTemp, DFlow, DPressure? } }
            |>)
      ahu1 := lib.type("Ahu1")
-     ahu2 := lib.type("Ahu2")
 
      // verify queryNamed
      verifyQueryNamed(ahu, ahu1.slot("points"), ["temp":dtemp, "flow":dflow, "fan":drun])
-
-     // verify fitsExplain for missing points
-     ahuX := addRec(["id":Ref("x"), "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site.id])
-     verifyQueryFitsExplain(ahuX, ahu1, [
-       "Slot 'points': Missing required Point: temp",
-       "Slot 'points': Missing required Point: flow",
-       "Slot 'points': Missing required Point: fan",
-      ])
-     verifyQueryFitsExplain(ahuX, ahu2, [
-       "Slot 'points': Missing required Point: ${lib.name}::DTemp",
-       "Slot 'points': Missing required Point: ${lib.name}::DFlow",
-      ])
-
-     // ambiguous matches
-     d1 := addRec(["id":Ref("d1"), "dis":"Temp 1", "spec":Ref("ph::Point"), "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
-     d2 := addRec(["id":Ref("d2"), "dis":"Temp 2", "spec":Ref("ph::Point"), "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
-     verifyQueryFitsExplain(ahuX, ahu1, [
-       "Slot 'points': Ambiguous match for Point: temp [$d1.id.toZinc, $d2.id.toZinc]",
-       "Slot 'points': Missing required Point: flow",
-       "Slot 'points': Missing required Point: fan",
-      ])
-     verifyQueryFitsExplain(ahuX, ahu2, [
-       "Slot 'points': Ambiguous match for Point: ${lib.name}::DTemp [$d1.id.toZinc, $d2.id.toZinc]",
-       "Slot 'points': Missing required Point: ${lib.name}::DFlow",
-      ])
-
-     // ambiguous matches for optional point
-     proj.commit(Diff(d1, null, Diff.remove))
-     p1 := addRec(["id":Ref("p1"), "dis":"Pressure 1", "spec":Ref("ph::Point"), "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
-     p2 := addRec(["id":Ref("p2"), "dis":"Pressure 2", "spec":Ref("ph::Point"), "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
-     verifyQueryFitsExplain(ahuX, ahu2, [
-       "Slot 'points': Missing required Point: ${lib.name}::DFlow",
-       "Slot 'points': Ambiguous match for Point: ${lib.name}::DPressure [$p1.id.toZinc, $p2.id.toZinc]",
-      ])
   }
 
   @HxTestProj
@@ -814,30 +589,6 @@ class AxonTest : AbstractAxonTest
       a := actual[name]
       if (a == null) fail("Missing $name")
       verifyDictEq(e, a)
-    }
-  }
-
-  Void verifyQueryFitsExplain(Dict subject, Spec spec, Str[] expect)
-  {
-    cx := makeContext
-
-    // first eval with without opts to verify we don't validate graph
-    Grid grid := cx.evalToFunc("fitsExplain").call(cx, [subject, spec])
-    verifyEq(grid.size, 0)
-
-    // now verify with graph option
-    opts := Etc.dict1("graph", Marker.val)
-    grid = cx.evalToFunc("fitsExplain").call(cx, [subject, spec, opts])
-
-    // echo; echo("-- $subject | $spec"); grid.dump
-
-    if (expect.isEmpty) return verifyEq(grid.size, 0)
-
-    verifyEq(grid.size, expect.size+1)
-    verifyEq(grid[0]->msg, expect.size == 1 ? "1 error" : "$expect.size errors")
-    expect.each |msg, i|
-    {
-      verifyEq(grid[i+1]->msg, msg)
     }
   }
 

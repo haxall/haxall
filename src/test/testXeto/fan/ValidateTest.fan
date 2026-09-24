@@ -1054,7 +1054,7 @@ class ValidateTest : AbstractXetoTest
   Void testScalars()
   {
     verifyScalarErr(Date.today, "sys::Date", null)
-    verifyScalarErr("foo", "sys::Date", "Type 'sys::Str' does not fit 'sys::Date'")
+    verifyScalarErr("foo", "sys::Date", "Invalid type 'sys::Str', expecting 'sys::Date'")
 
     verifyScalarErr("123-89-4567", "hx.test.xeto::TestSsn", null)
     verifyScalarErr("123-xx-4567", "hx.test.xeto::TestSsn", "String encoding does not match pattern for 'hx.test.xeto::TestSsn'")
@@ -1062,19 +1062,9 @@ class ValidateTest : AbstractXetoTest
 
   Void verifyScalarErr(Obj? val, Str qname, Str? expect)
   {
-    errs := XetoLogRec[,]
-    fits := nsTest.fits(val, nsTest.spec(qname), logOpts("explain", errs))
-
-    if (expect == null)
-    {
-      verifyEq(fits, true)
-      verifyEq(errs.size, 0)
-      return
-    }
-
-    verifyEq(fits, false)
-    verifyEq(errs.size, 1)
-    verifyEq(errs.first.msg, expect)
+    // haystack fidelity so scalar strings validate by pattern
+    r := nsTest.validate(val, nsTest.spec(qname), Etc.dict1("haystack", Marker.val))
+    verifyEq(r.items.join("\n") { it.dis }, expect ?: "")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1181,9 +1171,9 @@ class ValidateTest : AbstractXetoTest
     {
       // full fidelity: bare Number does not fit Int/Float
       verifyFidelity(spec, ["i":n(1995)], null, [
-        "Slot 'i': Slot type is 'sys::Int', value type is 'sys::Number'"])
+        "Slot 'i': Invalid type 'sys::Number', expecting 'sys::Int'"])
       verifyFidelity(spec, ["f":n(72)], null, [
-        "Slot 'f': Slot type is 'sys::Float', value type is 'sys::Number'"])
+        "Slot 'f': Invalid type 'sys::Number', expecting 'sys::Float'"])
 
       // haystack fidelity: bare Number fits Int/Float/Duration
       verifyFidelity(spec, ["i":n(1995)], "haystack", [,])
@@ -1201,12 +1191,9 @@ class ValidateTest : AbstractXetoTest
   Void verifyFidelity(Spec spec, Str:Obj tags, Str? opt, Str[] expect)
   {
     instance := toInstance(tags)
-    errs := XetoLogRec[,]
-    opts := logOpts("explain", errs)
-    if (opt != null) opts = Etc.dictSet(opts, opt, Marker.val)
-    fits := nsTest.fits(instance, spec, opts)
-    verifyErrs("Fidelity", instance, null, errs, expect)
-    verifyEq(fits, errs.isEmpty)
+    opts := opt == null ? Etc.dict0 : Etc.dict1(opt, Marker.val)
+    r := nsTest.validate(instance, spec, opts)
+    verifyEq(r.items.join("\n") { it.dis }, expect.join("\n"))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1770,7 +1757,7 @@ class ValidateTest : AbstractXetoTest
 // Verify
 //////////////////////////////////////////////////////////////////////////
 
-  ** Verify both compile time and fits time for spec called Foo in src
+  ** Verify both compile time and run time for spec called Foo in src
   Void verifyValidate(Str src, Str:Obj tags, Str[] expect, Str[]? runtimeExpect := null)
   {
     instance := toInstance(tags)
@@ -1823,14 +1810,14 @@ class ValidateTest : AbstractXetoTest
     }
   }
 
-  ** Create opts with log to use for both compiler and fits
+  ** Create opts with log for the compiler
   Dict logOpts(Str key, XetoLogRec[] acc)
   {
     logger := |XetoLogRec rec| { acc.add(rec) }
     return Etc.dict1(key, Unsafe(logger))
   }
 
-  ** Create opts with log to use for both compiler and fits
+  ** Create context with the recs remapped to the compiled temp lib
   TestContext initContext(Lib lib)
   {
     cx := TestContext()
@@ -1844,7 +1831,7 @@ class ValidateTest : AbstractXetoTest
     return cx
   }
 
-  ** Verify actual errors from compiler/fits against expected results
+  ** Verify actual errors from compiler/validator against expected results
   Void verifyErrs(Str title, Obj instance, ValidateReport? r, XetoLogRec[] actual, Str[] expect)
   {
     if (isDebug)

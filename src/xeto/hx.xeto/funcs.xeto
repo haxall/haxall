@@ -268,7 +268,7 @@
 
   // Return the Xeto spec of the given value.  Raise exception
   // if value type is not mapped into the data type system.  Also
-  // see [is()] and [fits()].
+  // see [is()].
   //
   // Examples:
   //
@@ -280,8 +280,7 @@
 
   // Return if spec `a` inherits from spec `b` based on nominal typing.
   // This method checks the explicit inheritance hierarchy via [specBase()].
-  // Use [is()] to check if an instance is of a given type.  Also see
-  // [fits()] and [specFits()] to check using structural typing.
+  // Use [is()] to check if an instance is of a given type.
   //
   // Examples:
   //
@@ -291,16 +290,6 @@
   //     specIs(Meter, Equip)    >>  true
   //     specIs(Meter, Point)    >>  false
   specIs: Func { a: Spec, b: Spec, returns: Bool }
-
-  // Return if spec `a` fits spec `b` based on structural typing.
-  // Use [fits()] to check if an instance fits a given type.  Also see
-  // [is()] and [specIs()] to check using nominal typing.
-  //
-  // Examples:
-  //
-  //     specFits(Meter, Equip)    >>  true
-  //     specFits(Meter, Point)    >>  false
-  specFits: Func { a: Spec, b: Spec, returns: Bool }
 
   // Given a choice spec, return the most specific choice subtype
   // implemented by the instance.  If the instance implements zero or more
@@ -313,63 +302,6 @@
   //     choiceOf({discharge, duct}, DuctSection)  >>  DischargeDuct
   //     choiceOf({hot, water}, Fluid)             >>  HotWater
   choiceOf: Func { instance: Obj, choice: Spec, checked: Bool, returns: Spec? }
-
-  // Return if the given instance fits the spec via structural typing.
-  // Use [specFits()] to check structural typing between two types.
-  // Also see [is()] and [specIs()] to check via nominal typing.  Use
-  // [fitsExplain()] to explain why fits returns true or false.
-  //
-  // If the val is a Dict, then the default behavior is to only check
-  // the dict's tags against the given spec.  In this mode all spec query
-  // slots are ignored.  Pass the `{graph}` option to also check
-  // queries to validate the graph of entities.  For example, the graph
-  // option can be used with equip specs to validate required points.
-  //
-  //
-  // Options:
-  //   - `graph`: marker to also check graph of references such as required points
-  //   - `ignoreRefs`: marker to not validate if refs exist or match target spec
-  //
-  // Examples:
-  //
-  //      fits("foo", Str)               >>  true
-  //      fits(123, Str)                 >>  false
-  //      fits(equipRec, Equip)          >>  true
-  //      fits(equipRec, Site)           >>  false
-  //      fits(vav, MyVavSpec)           >> validate tags only
-  //      fits(vav, MyVavSpec, {graph})  >> validate tags and required points
-  //
-  // NOTE: this function is deprecated and will be removed
-  fits: Func { val: Obj?, spec: Spec, opts: Dict?, returns: Bool }
-
-  // Return a grid explaining why spec `a` does not fit `b`.
-  // If `a` does fit `b` then return an empty grid.
-  //
-  // NOTE: this function is deprecated and will be removed
-  specFitsExplain: Func { a: Spec, b: Spec, returns: Grid }
-
-  // Return grid which explains how data fits the given spec.  This
-  // function takes one or more recs and returns a grid.  For each rec
-  // zero or more rows are returned with an error why the rec does not
-  // fit the given type.  If a rec does fit the type, then zero rows are
-  // returned for that record.
-  //
-  // If you pass null for the spec, then each record is fit against
-  // its declared `spec` tag.  If a given rec is missing a `spec` tag
-  // then it is reported an error.
-  //
-  // See [fits()] for list of options.
-  //
-  // Example:
-  //
-  //      // validate tags on records only
-  //      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
-  //
-  //      // validate tags and required points and other graph queries
-  //      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav, {graph})
-  //
-  // NOTE: this function is deprecated in favor of [validate()]
-  fitsExplain: Func { recs: Obj?, spec: Spec?, opts: Dict?, returns: Grid }
 
   // Validate recs or a bare value and return a grid of the
   // validation items.  A dict, ref, grid, or list of dicts/refs is
@@ -425,25 +357,6 @@
   //      validateRules()                                >> all rules in order
   //      validateRules.findAll(r => r.missing("impl"))  >> declared but unbound
   validateRules: Func { returns: Grid }
-
-  // Match dict recs against specs to find all the specs that fit.  The recs
-  // argument can be anything accepted by [toRecList()].  Specs must be a
-  // Spec or list of Specs.  If specs argument is omitted, then we match against
-  // all the non-abstract [types](specs()) currently in scope.  Only the most
-  // specific subtype is returned.
-  //
-  // Result is a grid for each input rec with the following columns:
-  //   - id: of the input record
-  //   - num: number of matches
-  //   - specs: list of Spec for all matching specs
-  //
-  // See [fits()] for a list of supported fit options.
-  //
-  // Example:
-  //
-  //      readAll(equip).fitsMatchAll
-  //
-  fitsMatchAll: Func { recs: Obj?, specs: Obj?, opts: Dict?, returns: Grid }
 
   // Evaluate a relationship query and return record dict.  If no matches
   // found throw UnknownRecErr or return null based on checked flag.

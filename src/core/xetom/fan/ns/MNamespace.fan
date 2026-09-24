@@ -399,28 +399,6 @@ const class MNamespace : Namespace, CNamespace
     throw UnknownSpecErr("No spec mapped for '${val as Type ?: val?.typeof}'")
   }
 
-  override Bool fits(Obj? val, Spec spec, Dict? opts := null)
-  {
-    if (opts == null) opts = Etc.dict0
-    explain := XetoUtil.optLog(opts, "explain")
-    cx := XetoContext.curx(false) ?: NilXetoContext.val
-    if (explain == null)
-      return Fitter(this, cx, opts).valFits(val, spec)
-    else
-      return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
-  }
-
-  override Bool specFits(Spec a, Spec b, Dict? opts := null)
-  {
-    if (opts == null) opts = Etc.dict0
-    explain := XetoUtil.optLog(opts, "explain")
-    cx := NilXetoContext.val
-    if (explain == null)
-      return Fitter(this, cx, opts).specFits(a, b)
-    else
-      return ExplainFitter(this, cx, opts, explain).specFits(a, b)
-  }
-
   override Obj? queryWhile(Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
   {
     cx := XetoContext.curx(false) ?: NilXetoContext.val

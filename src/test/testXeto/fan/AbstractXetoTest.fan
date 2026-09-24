@@ -209,22 +209,11 @@ class AbstractXetoTest : HaystackTest
     }
   }
 
-  Void verifyFitsExplain(Namespace ns, Obj? val, Spec spec, Str[] expected)
+  ** Verify validating val against spec reports exactly the given items
+  Void verifyValidateItems(Namespace ns, Obj? val, Spec spec, Str[] expected)
   {
-    hits := XetoLogRec[,]
-    explain := |XetoLogRec rec| { hits.add(rec) }
-    opts := Etc.dict1("explain", Unsafe(explain))
-    ns.fits(val, spec, opts)
-    if (expected.size != hits.size)
-    {
-      echo("FAIL verifyFitsExplain $val $spec [$hits.size != $expected.size]")
-      echo(hits.join("\n"))
-      fail
-    }
-    expected.each |expect, i|
-    {
-      verifyEq(expect, hits[i].msg)
-    }
+    r := ns.validate(val, spec)
+    verifyEq(r.items.join("\n") { it.dis }, expected.join("\n"))
   }
 
   Void verifyCompEq(Comp c, Str:Obj expect)

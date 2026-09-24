@@ -475,12 +475,12 @@ const class XetoFuncs
 */
 
 //////////////////////////////////////////////////////////////////////////
-// If/Fits
+// Is
 //////////////////////////////////////////////////////////////////////////
 
   ** Return the Xeto spec of the given value.  Raise exception
   ** if value type is not mapped into the data type system.  Also
-  ** see [is()] and [fits()].
+  ** see [is()].
   **
   ** Examples:
   **
@@ -495,8 +495,7 @@ const class XetoFuncs
 
   ** Return if spec `a` inherits from spec `b` based on nominal typing.
   ** This method checks the explicit inheritance hierarchy via [specBase()].
-  ** Use [is()] to check if an instance is of a given type.  Also see
-  ** [fits()] and [specFits()] to check using structural typing.
+  ** Use [is()] to check if an instance is of a given type.
   **
   ** Examples:
   **
@@ -508,19 +507,6 @@ const class XetoFuncs
   @Api @Axon static Bool specIs(Spec a, Spec b)
   {
     a.isa(b)
-  }
-
-  ** Return if spec `a` fits spec `b` based on structural typing.
-  ** Use [fits()] to check if an instance fits a given type.  Also see
-  ** [is()] and [specIs()] to check using nominal typing.
-  **
-  ** Examples:
-  **
-  **     specFits(Meter, Equip)    >>  true
-  **     specFits(Meter, Point)    >>  false
-  @Api @Axon static Bool specFits(Spec a, Spec b)
-  {
-    curContext.ns.specFits(a, b, null)
   }
 
   ** Given a choice spec, return the most specific choice subtype
@@ -536,136 +522,6 @@ const class XetoFuncs
   @Api @Axon static Spec? choiceOf(Obj instance, Spec choice, Bool checked := true)
   {
     curContext.ns.choice(choice).selection(Etc.toRec(instance), checked)
-  }
-
-  ** Return if the given instance fits the spec via structural typing.
-  ** Use [specFits()] to check structural typing between two types.
-  ** Also see [is()] and [specIs()] to check via nominal typing.  Use
-  ** [fitsExplain()] to explain why fits returns true or false.
-  **
-  ** If the val is a Dict, then the default behavior is to only check
-  ** the dict's tags against the given spec.  In this mode all spec query
-  ** slots are ignored.  Pass the `{graph}` option to also check
-  ** queries to validate the graph of entities.  For example, the graph
-  ** option can be used with equip specs to validate required points.
-  **
-  **
-  ** Options:
-  **   - `graph`: marker to also check graph of references such as required points
-  **   - `ignoreRefs`: marker to not validate if refs exist or match target spec
-  **
-  ** Examples:
-  **
-  **      fits("foo", Str)               >>  true
-  **      fits(123, Str)                 >>  false
-  **      fits(equipRec, Equip)          >>  true
-  **      fits(equipRec, Site)           >>  false
-  **      fits(vav, MyVavSpec)           >> validate tags only
-  **      fits(vav, MyVavSpec, {graph})  >> validate tags and required points
-  @Api @Axon static Bool fits(Obj? val, Spec? spec, Dict? opts := null)
-  {
-    ns := curContext.ns
-    if (spec == null) spec = ns.specOf(val)
-    opts = Etc.dictSet(opts, "haystack", Marker.val) // force haystack level fidelity
-    return ns.fits(val, spec, opts)
-  }
-
-  ** Return a grid explaining why spec `a` does not fit `b`.
-  ** If `a` does fit `b` then return an empty grid.
-  @Api @Axon
-  static Grid specFitsExplain(Spec a, Spec b)
-  {
-    gb := GridBuilder().addCol("msg")
-    explain := |XetoLogRec rec| { gb.addRow1(rec.msg) }
-    opts := Etc.dict1("explain", Unsafe(explain))
-    curContext.ns.specFits(a, b, opts)
-    return gb.toGrid
-  }
-
-  ** Return grid which explains how data fits the given spec.  This
-  ** function takes one or more recs and returns a grid.  For each rec
-  ** zero or more rows are returned with an error why the rec does not
-  ** fit the given type.  If a rec does fit the type, then zero rows are
-  ** returned for that record.
-  **
-  ** If you pass null for the spec, then each record is fit against
-  ** its declared `spec` tag.  If a given rec is missing a `spec` tag
-  ** then it is reported an error.
-  **
-  ** See [fits()] for list of options.
-  **
-  ** Example:
-  **
-  **      // validate tags on records only
-  **      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
-  **
-  **      // validate tags and required points and other graph queries
-  **      readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav, {graph})
-  @Api @Axon
-  static Grid fitsExplain(Obj? recs, Spec? spec, Dict? opts := null)
-  {
-    cx := curContext
-    ns := cx.ns
-    hits := XetoLogRec[,]
-    gb := GridBuilder()
-            .addCol("id")
-            .addCol("recId", Etc.dict1("hidden", Marker.val))
-            .addCol("status")
-            .addCol("msg")
-
-    // massage opts dict to include built-in opts
-    optsMap := Etc.dictToMap(opts)
-    optsMap["explain"] = Unsafe(|XetoLogRec rec| { hits.add(rec) })
-    optsMap["haystack"] = Marker.val // force haystack level fidelity
-    opts = Etc.dictFromMap(optsMap)
-    showOk := opts.has("showOk")
-
-    // walk thru each rec
-    Etc.toRecs(recs).each |rec, i|
-    {
-      // reset hits accumulator
-      hits.clear
-
-      // lookup record's declared spec if spec param is null
-      recId := rec.get("id") as Ref
-      recSpec := spec
-      if (recSpec == null)
-      {
-        specTag := rec["spec"] as Ref
-        if (specTag == null)
-        {
-          hits.add(XetoLogRec(LogLevel.err, recId, "Missing 'spec' ref tag", FileLoc.unknown, null))
-        }
-        else
-        {
-          recSpec = ns.spec(specTag.id, false)
-          if (recSpec == null)
-            hits.add(XetoLogRec(LogLevel.err, recId, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
-        }
-      }
-
-      // call fits explain with this rec
-      if (recSpec != null) ns.fits(rec, recSpec, opts)
-
-      // if we had hits, then add to our result grid
-      id := rec["id"] as Ref ?: Ref("_$i")
-      if (hits.isEmpty)
-      {
-        if (showOk)
-          gb.addRow([id, id, "ok", "0 errors"])
-      }
-      else
-      {
-        gb.addRow([id, id, "err", hits.size == 1 ? "1 error" : "$hits.size errors"])
-        hits.each |hit, hiti|
-        {
-          hitId := Ref("$id-$hiti", id.disVal)
-          gb.addRow([hitId, id, "err", hit.msg])
-        }
-      }
-    }
-
-    return gb.toGrid
   }
 
   ** Validate recs or a bare value and return a grid of the
@@ -769,59 +625,6 @@ const class XetoFuncs
     return gb.toGrid
   }
 
-  ** Match dict recs against specs to find all the specs that fit.  The recs
-  ** argument can be anything accepted by [toRecList()].  Specs must be a
-  ** Spec or list of Specs.  If specs argument is omitted, then we match against
-  ** all the non-abstract [types](specs()) currently in scope.  Only the most
-  ** specific subtype is returned.
-  **
-  ** Result is a grid for each input rec with the following columns:
-  **   - id: of the input record
-  **   - num: number of matches
-  **   - specs: list of Spec for all matching specs
-  **
-  ** See [fits()] for a list of supported fit options.
-  **
-  ** Example:
-  **
-  **      readAll(equip).fitsMatchAll
-  @Api @Axon
-  static Grid fitsMatchAll(Obj? recs, Obj? specs := null, Dict? opts := null)
-  {
-    // coerce specs to list
-    specList := specs as Spec[]
-    if (specList == null && specs != null) specList = [(Spec)specs]
-
-    // if specs not specific, get all in scope
-    cx := curContext
-    dictSpec := cx.ns.spec("sys::Dict") // TODO - make isDict work for AND types
-    if (specList == null)
-      specList = typesInScope(cx) |t| { !t.qname.startsWith("sys::") && t.isa(dictSpec) && t.missing("abstract") }
-
-    // walk thru each record add row
-    gb := GridBuilder().addCol("id").addCol("num").addCol("specs")
-    Etc.toRecs(recs).each |rec|
-    {
-      matches := doFitsMatchAll(cx, rec, specList, opts)
-      gb.addRow([rec.id, Number(matches.size), matches])
-    }
-    return gb.toGrid
-  }
-
-  private static Spec[] doFitsMatchAll(AxonContext cx, Dict rec, Spec[] specs, Dict? opts)
-  {
-    // first pass is fit each type
-    ns := cx.ns
-    XetoSpec[] matches := specs.findAll |spec| { ns.fits(rec, spec, opts) }
-
-    // second pass is to remove supertypes so we only
-    // return the most specific subtype
-    XetoSpec[] best := XetoUtil.excludeSupertypes(matches)
-
-    // return most specific matches sorted
-    return best.sort
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Query
 //////////////////////////////////////////////////////////////////////////
@@ -917,7 +720,8 @@ const class XetoFuncs
       {
         name := slot.name
         if (acc[name] != null) return null // already matched
-        if (ns.fits(hit, slot)) return acc[name] = hit
+        // TODO: nominal only until sugar aware fits lands
+        if (ns.specOf(hit, false)?.isa(slot.type) == true) return acc[name] = hit
         return null
       }
       return null

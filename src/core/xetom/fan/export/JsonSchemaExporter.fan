@@ -480,8 +480,8 @@ class JsonSchemaExporter : Exporter
       of := slot.of(false)
       if (of != null)
       {
-        // List<of:Foo?> legitimately holds nulls -- Fitter.fitsList only
-        // rejects them when the of type is not maybe
+        // List<of:Foo?> legitimately holds nulls; they are only
+        // invalid when the of type is not maybe
         items := ensureRef(of)
         res["items"] = of.isMaybe ? nullable(items) : items
       }
