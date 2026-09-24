@@ -24,7 +24,7 @@ const class SysApiFuncs
 // Database Reads
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read the first entity which matches [filter](ph.doc::Filters).
+  ** Read the first entity which matches [filter](doc.xeto::Filters).
   ** If no matches found raise error or return null based on checked
   ** flag.  If there are multiple matches it is indeterminate which one is
   ** returned.
@@ -74,7 +74,7 @@ const class SysApiFuncs
     curContext.db.readByIds(ids, checked)
   }
 
-  ** Read all entities which match the [filter](ph.doc::Filters).
+  ** Read all entities which match the [filter](doc.xeto::Filters).
   **
   ** Options:
   **   - `limit`: max number of entities to return

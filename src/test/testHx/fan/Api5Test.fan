@@ -233,7 +233,7 @@ class Api5Test : ApiTest
     // doc is the first sentence only, never a mid-sentence cut and
     // never the whole hard wrapped paragraph
     verifyEq(about->doc, "Return summary information about the server")
-    verifyEq(read->doc, "Read the first entity which matches [filter](ph.doc::Filters)")
+    verifyEq(read->doc, "Read the first entity which matches [filter](doc.xeto::Filters)")
   }
 
   private Dict verifyOpRow(Grid g, Str qname)

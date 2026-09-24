@@ -524,7 +524,7 @@ const class AxonFuncs
     throw argErr("findAll", val)
   }
 
-  ** Apply a [filter](ph.doc::Filters) expression to a collection
+  ** Apply a [filter](doc.xeto::Filters) expression to a collection
   ** of dicts.  The collection value may be any of the following:
   **  - `Grid`: returns new grid with filtered rows
   **  - `Dict[]`: returns list of filtered dicts (nulls are filtered out)
@@ -2654,7 +2654,7 @@ const class AxonFuncs
     Filter.search(val)
   }
 
-  ** Convert a [filter](ph.doc::Filters) expression to a function
+  ** Convert a [filter](doc.xeto::Filters) expression to a function
   ** which maybe used with [findAll()] or [find()].  The returned function
   ** accepts one Dict parameter and returns true/false if the
   ** Dict is matched by the filter.  Also see [filter()] and [parseFilter()].

@@ -206,7 +206,7 @@ for view consumption (SkySpark only):
 
 ## filter
 The [filter()] function transforms a stream by filtering items
-using a [filter](ph.doc::Filters) expression:
+using a [filter](doc.xeto::Filters) expression:
 
     readAllStream(equip).filter(siteMeter and elec and meter).collect
 

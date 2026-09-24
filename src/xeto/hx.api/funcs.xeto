@@ -27,7 +27,7 @@
   commit: Func <op, opGrid, admin, sideEffects> { req: Grid, returns: Grid }
 
   // Evaluate an expression and return its result.  If the expression parses
-  // as a [filter](ph.doc::Filters) such as "site and area > 1000" then it
+  // as a [filter](doc.xeto::Filters) such as "site and area > 1000" then it
   // is read as a query, otherwise it is evaluated as an Axon expression.
   //
   // Also see `axon::Funcs.eval` which evaluates an expression directly without

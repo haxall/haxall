@@ -202,7 +202,7 @@ abstract const class Folio
     FolioIdsReader(ids, checkRead.doReadRecsById(ids), includeTrash)
   }
 
-  ** Return the number of records which match given [filter](ph.doc::Filters).
+  ** Return the number of records which match given [filter](doc.xeto::Filters).
   ** This method supports the same options and security semantics as [readAll].
   Int readCount(Filter filter, Dict? opts := null)
   {
@@ -217,7 +217,7 @@ abstract const class Folio
     return reader.count
   }
 
-  ** Find the first record which matches the given [filter](ph.doc::Filters).
+  ** Find the first record which matches the given [filter](doc.xeto::Filters).
   ** If checked is true, throw [haystack::UnknownRecErr] if none found.  Or if
   ** checked is false return null.  Recs missing read permission in current context
   ** are silently excluded from the match; a [haystack::PermissionErr] is never
@@ -230,7 +230,7 @@ abstract const class Folio
   ** Options constant for {limit:1}
   private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
 
-  ** Match all the records against a [filter](ph.doc::Filters) and return
+  ** Match all the records against a [filter](doc.xeto::Filters) and return
   ** as list.  This method uses same options and security semantics
   ** as [readAll].
   Dict[] readAllList(Filter filter, Dict? opts := null)
@@ -238,7 +238,7 @@ abstract const class Folio
     scan(filter, opts, false).dicts
   }
 
-  ** Match all the records against a [filter](ph.doc::Filters) and
+  ** Match all the records against a [filter](doc.xeto::Filters) and
   ** return as grid.  Recs missing read permission in current context
   ** are silently excluded; a [haystack::PermissionErr] is never thrown.
   **
@@ -252,7 +252,7 @@ abstract const class Folio
     scan(filter, opts, false).grid(opts, false)
   }
 
-  ** Match all the records in the trash against a [filter](ph.doc::Filters)
+  ** Match all the records in the trash against a [filter](doc.xeto::Filters)
   ** and return as grid.  Only records with the `trash` tag are returned;
   ** every other read method excludes them.  Uses the same options and
   ** security semantics as [readAll].

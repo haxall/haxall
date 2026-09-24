@@ -314,7 +314,7 @@
   //     readAll(site).findAll(s => s->area > 10_000ft²)
   findAll: Func { val: Obj, fn: Func, returns: Obj? }
 
-  // Apply a [filter](ph.doc::Filters) expression to a collection
+  // Apply a [filter](doc.xeto::Filters) expression to a collection
   // of dicts.  The collection value may be any of the following:
   //  - `Grid`: returns new grid with filtered rows
   //  - `Dict[]`: returns list of filtered dicts (nulls are filtered out)
@@ -1662,7 +1662,7 @@
   //     readAll(point).filter(parseSearch("RTU* Fan"))
   parseSearch: Func { val: Str, returns: Filter }
 
-  // Convert a [filter](ph.doc::Filters) expression to a function
+  // Convert a [filter](doc.xeto::Filters) expression to a function
   // which maybe used with [findAll()] or [find()].  The returned function
   // accepts one Dict parameter and returns true/false if the
   // Dict is matched by the filter.  Also see [filter()] and [parseFilter()].

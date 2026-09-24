@@ -123,7 +123,7 @@ follows:
    'A' - 'Z', '0' - '9', or '_'
 
 # Queries
-The APIs for querying a Folio database are based on [filters](ph.doc::Filters).
+The APIs for querying a Folio database are based on [filters](doc.xeto::Filters).
 Filters allow you to construct predicates using basic boolean logic and comparison
 operators.  Filters support pathing: any tag with a Ref value may be traversed
 using the `->` operator during the query operation.
@@ -146,7 +146,7 @@ see [parseSearch()]):
   - `f:<filter>`: haystack filter
 
 # Indexing
-All queries to a Folio project take the form of a predicate [ph.doc::Filters]
+All queries to a Folio project take the form of a predicate [doc.xeto::Filters]
 which is used to match a set of records.  In the simplest case, each
 record in a project is scanned and checked against the filter for a
 match.  Because the records are stored in RAM this operation is

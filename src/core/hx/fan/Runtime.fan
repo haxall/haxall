@@ -138,7 +138,7 @@ const mixin Runtime
   ** Return the number of records which match the given filter string.
   ** Recs missing read permission in current context are silently
   ** excluded; a [haystack::PermissionErr] is never thrown.  See
-  ** [Filter Chapter](ph.doc::Filters) for filter format.
+  ** [Filter Chapter](doc.xeto::Filters) for filter format.
   abstract Int readCount(Str filter)
 
   ** Find the first record which matches the given filter string.
@@ -146,18 +146,18 @@ const mixin Runtime
   ** Or if checked is false return null.  Recs missing read permission in
   ** current context are silently excluded from the match; a
   ** [haystack::PermissionErr] is never thrown.  See
-  ** [Filter Chapter](ph.doc::Filters) for filter format.
+  ** [Filter Chapter](doc.xeto::Filters) for filter format.
   abstract Dict? read(Str filter, Bool checked := true)
 
   ** Match all the records against a filter string and return as grid.
   ** Recs missing read permission in current context are silently
   ** excluded; a [haystack::PermissionErr] is never thrown.  See
-  ** [Filter Chapter](ph.doc::Filters) for filter format.
+  ** [Filter Chapter](doc.xeto::Filters) for filter format.
   abstract Grid readAll(Str filter, Dict? opts := null)
 
   ** Match all the records against a filter string and return as list.
   ** This method uses the same security semantics as [readAll].  See
-  ** [Filter Chapter](ph.doc::Filters) for filter format and [readAll]
+  ** [Filter Chapter](doc.xeto::Filters) for filter format and [readAll]
   ** to return results as a grid.
   abstract Dict[] readAllList(Str filter, Dict? opts := null)
 

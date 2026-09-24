@@ -128,7 +128,7 @@ const class HxFuncs
     return Number(cx.db.readCount(filter))
   }
 
-  ** Read all records in the trash which match the [filter](ph.doc::Filters).
+  ** Read all records in the trash which match the [filter](doc.xeto::Filters).
   ** Records are moved to the trash by adding the `trash` marker tag, which
   ** excludes them from every other read function.  If the filter is omitted
   ** then every record in the trash is returned.
