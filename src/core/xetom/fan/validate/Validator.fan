@@ -277,16 +277,41 @@ class Validator
     catch (Err e)
       return
 
+    // recs anchored on a constraint by their spec tag match it alone;
+    // the rest are free to match unclaimed constraints structurally
+    claims := Str:Dict[][:]
+    free := Dict[,]
+    extent.each |x|
+    {
+      c := anchorOf(x, query)
+      if (c == null) free.add(x)
+      else claims.getOrAdd(c.name) { Dict[,] }.add(x)
+    }
+
     // compute matches per constraint once for the query rules
     acc := ValidateQueryMatch[,]
     query.slots.each |c|
     {
-      matches := extent.findAll |x| { fits(x, c) }
+      matches := claims[c.name] ?: free.findAll |x| { fits(x, c) }
       acc.add(ValidateQueryMatch(c, matches))
     }
     s.queryMatches = acc
     run(s)
     s.queryMatches = null
+  }
+
+  ** Constraint of query which rec's spec tag names directly or thru
+  ** an override in a subtype query.  This is nominal only: sibling
+  ** constraints with equal tags are computed sugar subtypes of each
+  ** other, so isa would bind the rec to all of them
+  private Spec? anchorOf(Dict x, Spec query)
+  {
+    for (t := specOf(x); t != null; t = t.base)
+    {
+      c := query.slots.get(t.name, false)
+      if (c != null && c.qname == t.qname) return c
+    }
+    return null
   }
 
   ** Does extent rec fit the query constraint which is anonymous

@@ -94,6 +94,22 @@ EquipNamed : Ahu {
   }
 }
 
+// named point slots with identical constraints: only the spec tag
+// anchor distinguishes them; EquipTwinsSub overrides one slot
+EquipTwins : Equip {
+  points: {
+    a: Point {sp}
+    b: Point? {sp}
+    c: Point? {sp}
+  }
+}
+
+EquipTwinsSub : EquipTwins {
+  points: {
+    a: Point {sp, cmd}
+  }
+}
+
 // inheriting global thru multple inheritance paths:
 
 ElecEquipA : Equip { elec }

@@ -89,6 +89,18 @@ named) via `emitOn` from the query frame, where the name is a member of
 the query spec and the value is null.  So a tool can show each required
 point on its own without parsing messages.
 
+## Query Anchors
+
+`doValidateQuery` partitions the extent before matching.  A rec whose
+spec tag resolves to a constraint of the query, or to an override of
+one up its base chain, is anchored and matches that constraint alone;
+the rest are free and match the constraints with no anchored rec
+structurally.  The anchor test compares qnames, never `isa`: query
+items are anonymous sugar, so siblings with equal tags are computed
+subtypes of each other and `isa` would bind a rec to all of them.
+This is what makes validation agree with graph compose, which stamps
+the template slot qname as the spec tag.
+
 ## Compile Time
 
 The same engine runs inside the xetoc pipeline: the `Validate` step runs

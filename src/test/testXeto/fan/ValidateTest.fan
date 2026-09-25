@@ -816,6 +816,71 @@ class ValidateTest : AbstractXetoTest
     }
   }
 
+  Void testEngineQueryAnchors()
+  {
+    ns := nsTest
+    graph := Etc.dict1("graph", Marker.val)
+    site := Ref("qa-site")
+    recs[site] = Etc.makeDict(Str:Obj["id":site, "spec":Ref("ph::Site"), "site":m])
+    addEquip := |Str id->Ref|
+    {
+      ref := Ref(id)
+      recs[ref] = Etc.makeDict(Str:Obj["id":ref, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+      return ref
+    }
+    addPt := |Str id, Ref equip, Str slot|
+    {
+      ref := Ref(id)
+      spec := slot.contains("::") ? slot : "hx.test.xeto::EquipTwins.points.$slot"
+      recs[ref] = Etc.makeDict(Str:Obj[
+        "id":ref, "spec":Ref(spec), "equipRef":equip, "siteRef":site,
+        "point":m, "kind":"Number", "sp":m, "cmd":m])
+    }
+
+    // anchored recs bind to their own constraint despite equal tags
+    e1 := addEquip("qa-e1")
+    addPt("qa-e1a", e1, "a")
+    addPt("qa-e1b", e1, "b")
+
+    // two recs anchored on same constraint
+    e2 := addEquip("qa-e2")
+    addPt("qa-e2a", e2, "a")
+    addPt("qa-e2b", e2, "a")
+
+    // free recs only match unclaimed constraints
+    e3 := addEquip("qa-e3")
+    addPt("qa-e3a", e3, "a")
+    addPt("qa-e3x", e3, "ph::Point")
+
+    // two free recs are ambiguous on every unclaimed constraint
+    e4 := addEquip("qa-e4")
+    addPt("qa-e4a", e4, "a")
+    addPt("qa-e4x", e4, "ph::Point")
+    addPt("qa-e4y", e4, "ph::Point")
+
+    // rec anchored on subtype override claims the base constraint
+    e5 := addEquip("qa-e5")
+    addPt("qa-e5a", e5, "hx.test.xeto::EquipTwinsSub.points.a")
+    addPt("qa-e5b", e5, "b")
+
+    initContext(ns.lib("hx.test.xeto")).asCur |cx|
+    {
+      verifyQueryAnchors(ns, e1, [,], graph)
+      verifyQueryAnchors(ns, e2, ["points.a"], graph)
+      verifyQueryAnchors(ns, e3, [,], graph)
+      verifyQueryAnchors(ns, e4, ["points.b", "points.c"], graph)
+      verifyQueryAnchors(ns, e5, [,], graph)
+    }
+  }
+
+  ** Verify EquipTwins validation reports ambiguousQuery on exactly slots
+  Void verifyQueryAnchors(Namespace ns, Ref equip, Str[] slots, Dict opts)
+  {
+    r := ns.validate(recs[equip], ns.spec("hx.test.xeto::EquipTwins"), opts)
+    verify(r.items.all |x| { x.rule.id == "sys::ambiguousQuery" })
+    verifyEq(r.items.join(",") { it.slot }, slots.join(","))
+  }
+
   ** Map rec id to its tags map for verifyEngine
   Str:Obj recsTags(Ref id)
   {
