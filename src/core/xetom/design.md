@@ -87,13 +87,17 @@ A missing tag reports on that tag, and the query rules report on the
 unsatisfied constraint (`points.zoneTemp`, or `points._0` when auto
 named) via `emitOn` from the query frame, where the name is a member of
 the query spec and the value is null.  So a tool can show each required
-point on its own without parsing messages.
+point on its own without parsing messages.  The name is the
+constraint's **key in the query**, never `constraint.name`: merging a
+base query renumbers auto named slots, so a subtype's own `_0` may be
+keyed `_2` while its name stays `_0` and collides with the base's.
 
 ## Query Anchors
 
 `doValidateQuery` partitions the extent before matching.  A rec whose
 spec tag resolves to a constraint of the query, or to an override of
-one up its base chain, is anchored and matches that constraint alone;
+one up its base chain, is anchored - by the constraint's key, found
+thru its qname - and matches that constraint alone;
 the rest are free and match the constraints with no anchored rec
 structurally.  The anchor test compares qnames, never `isa`: query
 items are anonymous sugar, so siblings with equal tags are computed

@@ -873,6 +873,40 @@ class ValidateTest : AbstractXetoTest
     }
   }
 
+  Void testEngineQueryAutoNames()
+  {
+    ns := nsTest
+    graph := Etc.dict1("graph", Marker.val)
+    site := Ref("an-site")
+    recs[site] = Etc.makeDict(Str:Obj["id":site, "spec":Ref("ph::Site"), "site":m])
+    addEquip := |Str id->Ref|
+    {
+      ref := Ref(id)
+      recs[ref] = Etc.makeDict(Str:Obj["id":ref, "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site])
+      return ref
+    }
+    addPt := |Str id, Ref equip, Str spec, Str marker|
+    {
+      ref := Ref(id)
+      recs[ref] = Etc.makeDict(Str:Obj[
+        "id":ref, "spec":Ref(spec), "equipRef":equip, "siteRef":site,
+        "point":m, "kind":"Number", marker:m])
+    }
+
+    // missing constraints report on their key in the merged query:
+    // the sub's own "_0" is "_2", never the base's "_0"
+    e1 := addEquip("an-e1")
+    addPt("an-e1a", e1, "ph::Point", "sp")
+
+    initContext(ns.lib("hx.test.xeto")).asCur |cx|
+    {
+      sub := ns.spec("hx.test.xeto::EquipAutoSub")
+      r := ns.validate(recs[e1], sub, graph)
+      verifyEq(r.items.join(",") { it.slot }, "points._1,points._2")
+      verifyEq(r.items.all |x| { x.rule.id == "sys::missingQuery" }, true)
+    }
+  }
+
   ** Verify EquipTwins validation reports ambiguousQuery on exactly slots
   Void verifyQueryAnchors(Namespace ns, Ref equip, Str[] slots, Dict opts)
   {

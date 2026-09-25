@@ -261,12 +261,14 @@ const class ValidateRef
 @Js
 const class ValidateQueryMatch
 {
-  internal new make(Spec constraint, Dict[] matches)
+  internal new make(Str name, Spec constraint, Dict[] matches)
   {
+    this.name       = name
     this.constraint = constraint
     this.matches    = matches
   }
 
+  const Str name         // constraint key in the query, not constraint.name
   const Spec constraint  // query constraint slot
   const Dict[] matches   // extent records matching the constraint
 

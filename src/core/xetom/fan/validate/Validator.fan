@@ -277,39 +277,46 @@ class Validator
     catch (Err e)
       return
 
+    // constraints are identified by their key in the query, never
+    // their name: merging a base query renumbers auto named slots, so
+    // a subtype's own "_0" is not the base's "_0"
+    keys := Str:Str[:]
+    query.slots.each |c, key| { keys[c.qname] = key }
+
     // recs anchored on a constraint by their spec tag match it alone;
     // the rest are free to match unclaimed constraints structurally
     claims := Str:Dict[][:]
     free := Dict[,]
     extent.each |x|
     {
-      c := anchorOf(x, query)
-      if (c == null) free.add(x)
-      else claims.getOrAdd(c.name) { Dict[,] }.add(x)
+      key := anchorOf(x, keys)
+      if (key == null) free.add(x)
+      else claims.getOrAdd(key) { Dict[,] }.add(x)
     }
 
     // compute matches per constraint once for the query rules
     acc := ValidateQueryMatch[,]
-    query.slots.each |c|
+    query.slots.each |c, key|
     {
-      matches := claims[c.name] ?: free.findAll |x| { fits(x, c) }
-      acc.add(ValidateQueryMatch(c, matches))
+      matches := claims[key] ?: free.findAll |x| { fits(x, c) }
+      acc.add(ValidateQueryMatch(key, c, matches))
     }
     s.queryMatches = acc
     run(s)
     s.queryMatches = null
   }
 
-  ** Constraint of query which rec's spec tag names directly or thru
-  ** an override in a subtype query.  This is nominal only: sibling
-  ** constraints with equal tags are computed sugar subtypes of each
-  ** other, so isa would bind the rec to all of them
-  private Spec? anchorOf(Dict x, Spec query)
+  ** Key of the query constraint which rec's spec tag names directly
+  ** or thru an override in a subtype query, given constraint keys by
+  ** qname.  This is nominal only: sibling constraints with equal tags
+  ** are computed sugar subtypes of each other, so isa would bind the
+  ** rec to all of them
+  private Str? anchorOf(Dict x, Str:Str keys)
   {
     for (t := specOf(x); t != null; t = t.base)
     {
-      c := query.slots.get(t.name, false)
-      if (c != null && c.qname == t.qname) return c
+      key := keys[t.qname]
+      if (key != null) return key
     }
     return null
   }

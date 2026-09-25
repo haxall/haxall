@@ -110,6 +110,21 @@ EquipTwinsSub : EquipTwins {
   }
 }
 
+// auto named constraints thru inheritance: the merged query keys the
+// sub's own "_0" as "_2" after the base's "_0" and "_1"
+EquipAutoBase : Equip {
+  points: {
+    Point {sp}
+    Point {cmd}
+  }
+}
+
+EquipAutoSub : EquipAutoBase {
+  points: {
+    Point {sensor}
+  }
+}
+
 // inheriting global thru multple inheritance paths:
 
 ElecEquipA : Equip { elec }
