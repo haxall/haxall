@@ -302,21 +302,24 @@ class ValidateTest : AbstractXetoTest
   {
     ns := createNamespace(["sys", "ph"])
     pt := ns.spec("ph::NumberPoint")
-    hay := Etc.dict1("haystack", Marker.val)
 
     // min/max carrying the point's unit is clean
     verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(0, "kW"), "maxVal":n(10, "kW")], [,])
 
     // wrong unit on either tag reports against that tag
-    verifyPointVals(ns, pt, ["unit":"kW", "maxVal":n(10, "°C")], ["ph::pointValUnit"])
-    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(0, "°C")], ["ph::pointValUnit"])
+    verifyPointVals(ns, pt, ["unit":"kW", "maxVal":n(10, "°C")],
+      ["ph::pointValUnit: maxVal 10°C must have unit of 'kW'"])
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(0, "°C")],
+      ["ph::pointValUnit: minVal 0°C must have unit of 'kW'"])
 
     // unitless min/max is a mismatch too
-    verifyPointVals(ns, pt, ["unit":"kW", "maxVal":n(10)], ["ph::pointValUnit"])
+    verifyPointVals(ns, pt, ["unit":"V", "minVal":n(0), "maxVal":n(10)],
+      ["ph::pointValUnit: minVal 0 must have unit of 'V'",
+       "ph::pointValUnit: maxVal 10 must have unit of 'V'"])
 
     // min above max
     verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10, "kW"), "maxVal":n(1, "kW")],
-      ["ph::pointMinMax"])
+      ["ph::pointMinMax: minVal 10kW is above maxVal 1kW"])
 
     // equal is allowed
     verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(5, "kW"), "maxVal":n(5, "kW")], [,])
@@ -324,18 +327,22 @@ class ValidateTest : AbstractXetoTest
     // a unit mismatch suppresses the comparison rather than comparing
     // values which are not comparable
     verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10, "kW"), "maxVal":n(1, "°C")],
-      ["ph::pointValUnit"])
+      ["ph::pointValUnit: maxVal 1°C must have unit of 'kW'"])
   }
 
-  private Void verifyPointVals(Namespace ns, Spec spec, Str:Obj tags, Obj[] expect)
+  ** Verify point value rules in both fidelities: haystack encodes
+  ** the unit tag as Str and xeto encodes it as Unit
+  private Void verifyPointVals(Namespace ns, Spec spec, Str:Obj tags, Str[] expect)
   {
-    hay := Etc.dict1("haystack", Marker.val)
-    rec := Etc.makeDict(tags.dup.setAll(["id":Ref("p1"), "spec":Ref("ph::NumberPoint"),
-                                         "point":m, "kind":"Number"]))
-    only := ["ph::pointValUnit", "ph::pointMinMax"]
-    items := ns.validate(rec, spec, hay).items.findAll |i| { only.contains(i.rule.id) }
-    actual := items.map |i->Str| { i.rule.id }.sort.join(",")
-    verifyEq(actual, expect.map |x->Str| { x.toStr }.sort.join(","), "$tags -> $items")
+    only := [Ref("ph::pointValUnit"), Ref("ph::pointMinMax")]
+    [true, false].each |hay|
+    {
+      rec   := phPoint(hay ? tags : tags.dup.set("unit", Unit(tags["unit"])))
+      opts  := hay ? Etc.dict1("haystack", m) : null
+      items := ns.validate(rec, spec, opts).items.findAll |i| { only.contains(i.rule) }
+      actual := items.map |i->Str| { "$i.rule.id: $i.msg" }.sort
+      verifyEq(actual, Str[,].addAll(expect).sort, "$tags hay=$hay -> $items")
+    }
   }
 
   ** Build a ph point rec with the given tags

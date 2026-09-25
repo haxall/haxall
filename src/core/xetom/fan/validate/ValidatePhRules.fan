@@ -65,12 +65,13 @@ using haystack
   new make(ValidateRuleInit init) : super(init) {}
   override Void onCheck(ValidateState s)
   {
-    unit := s.dict?.get("unit") as Str
+    // haystack fidelity encodes unit as Str, xeto fidelity as Unit
+    unit := ValidateWrongEnumKey.enumKey(s.dict?.get("unit"))
     if (unit == null) return
     ["minVal", "maxVal"].each |tag|
     {
       num := s.dict.get(tag) as Number
-      if (num != null && num.unit?.symbol != unit) s.emitOn(tag)
+      if (num != null && num.unit?.symbol != unit) s.emitOn(tag, Etc.dict1("unit", unit))
     }
   }
 }
@@ -84,7 +85,7 @@ using haystack
     max := s.dict?.get("maxVal") as Number
     if (min == null || max == null) return
     if (min.unit != max.unit) return // pointValUnit's check
-    if (min > max) s.emitOn("minVal")
+    if (min > max) s.emitOn("minVal", Etc.dict1("maxVal", max))
   }
 }
 
