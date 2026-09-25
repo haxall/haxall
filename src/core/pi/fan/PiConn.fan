@@ -360,8 +360,8 @@ const class PiModbusConn : PiConn
 {
   new make(Namespace ns, Spec ext) : super(ns, ext) {}
 
-  protected override Obj? toCurVal(Spec addr, Dict opts) { addr.id }
+  protected override Obj? toCurVal(Spec addr, Dict opts) { addr.id.toStr }
 
-  protected override Obj? toWriteVal(Spec addr, Dict opts) { addr.id }
+  protected override Obj? toWriteVal(Spec addr, Dict opts) { addr.id.toStr }
 }
 
