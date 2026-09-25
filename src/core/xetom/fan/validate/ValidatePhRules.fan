@@ -70,8 +70,9 @@ using haystack
     if (unit == null) return
     ["minVal", "maxVal"].each |tag|
     {
+      // unitless is implicitly in the point's unit
       num := s.dict.get(tag) as Number
-      if (num != null && num.unit?.symbol != unit) s.emitOn(tag, Etc.dict1("unit", unit))
+      if (num?.unit != null && num.unit.symbol != unit) s.emitOn(tag, Etc.dict1("unit", unit))
     }
   }
 }
@@ -84,7 +85,7 @@ using haystack
     min := s.dict?.get("minVal") as Number
     max := s.dict?.get("maxVal") as Number
     if (min == null || max == null) return
-    if (min.unit != max.unit) return // pointValUnit's check
+    if (min.unit != null && max.unit != null && min.unit != max.unit) return // pointValUnit's check
     if (min > max) s.emitOn("minVal", Etc.dict1("maxVal", max))
   }
 }

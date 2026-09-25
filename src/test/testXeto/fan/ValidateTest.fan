@@ -312,14 +312,21 @@ class ValidateTest : AbstractXetoTest
     verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(0, "°C")],
       ["ph::pointValUnit: minVal 0°C must have unit of 'kW'"])
 
-    // unitless min/max is a mismatch too
-    verifyPointVals(ns, pt, ["unit":"V", "minVal":n(0), "maxVal":n(10)],
-      ["ph::pointValUnit: minVal 0 must have unit of 'V'",
-       "ph::pointValUnit: maxVal 10 must have unit of 'V'"])
+    // unitless min/max is implicitly in the point's unit
+    verifyPointVals(ns, pt, ["unit":"V", "minVal":n(0), "maxVal":n(10)], [,])
+    verifyPointVals(ns, pt, ["unit":"V", "minVal":n(0), "maxVal":n(10, "V")], [,])
 
     // min above max
     verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10, "kW"), "maxVal":n(1, "kW")],
       ["ph::pointMinMax: minVal 10kW is above maxVal 1kW"])
+
+    // min above max still compares when one or both are unitless
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10), "maxVal":n(1, "kW")],
+      ["ph::pointMinMax: minVal 10 is above maxVal 1kW"])
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10, "kW"), "maxVal":n(1)],
+      ["ph::pointMinMax: minVal 10kW is above maxVal 1"])
+    verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(10), "maxVal":n(1)],
+      ["ph::pointMinMax: minVal 10 is above maxVal 1"])
 
     // equal is allowed
     verifyPointVals(ns, pt, ["unit":"kW", "minVal":n(5, "kW"), "maxVal":n(5, "kW")], [,])
