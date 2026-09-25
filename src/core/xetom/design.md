@@ -82,6 +82,13 @@ of the current dict, reports there, and pops.  It reuses the same frame
 the walk itself pushes, which is why the message variables come out right
 with no special handling.
 
+Items point at what is wrong, never at where the rule happened to run.
+A missing tag reports on that tag, and the query rules report on the
+unsatisfied constraint (`points.zoneTemp`, or `points._0` when auto
+named) via `emitOn` from the query frame, where the name is a member of
+the query spec and the value is null.  So a tool can show each required
+point on its own without parsing messages.
+
 ## Compile Time
 
 The same engine runs inside the xetoc pipeline: the `Validate` step runs

@@ -411,7 +411,7 @@ using haystack
     s.queryMatches?.each |qm|
     {
       if (qm.matches.isEmpty && !qm.constraint.isMaybe)
-        s.emit(Etc.dictx("of", ofDis(s), "constraint", constraintDis(qm.constraint)))
+        s.emitOn(qm.constraint.name, Etc.dictx("of", ofDis(s), "constraint", constraintDis(qm.constraint)))
     }
   }
 
@@ -436,7 +436,7 @@ using haystack
     s.queryMatches?.each |qm|
     {
       if (qm.matches.size > 1)
-        s.emit(Etc.dictx(
+        s.emitOn(qm.constraint.name, Etc.dictx(
           "of", ValidateMissingQuery.ofDis(s),
           "constraint", ValidateMissingQuery.constraintDis(qm.constraint),
           "matches", matchesDis(qm.matches)))

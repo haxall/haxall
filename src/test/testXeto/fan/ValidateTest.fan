@@ -750,7 +750,7 @@ class ValidateTest : AbstractXetoTest
       item := r.items.first
       verifyEq(r.items.size, 1)
       verifyEq(item.rule, Ref("sys::missingQuery"))
-      verifyEq(item.slot, "points")
+      verifyEq(item.slot, "points.ta")
       verifyEq(item.msg, "Missing required Point: ta")
 
       // ambiguous match
@@ -758,7 +758,7 @@ class ValidateTest : AbstractXetoTest
       item = r.items.first
       verifyEq(r.items.size, 1)
       verifyEq(item.rule, Ref("sys::ambiguousQuery"))
-      verifyEq(item.slot, "points")
+      verifyEq(item.slot, "points.ta")
       verifyEq(item.msg, "Ambiguous match for Point: ta [@q-c1 \"q-c1\", @q-c2 \"q-c2\"]")
     }
 
@@ -807,6 +807,7 @@ class ValidateTest : AbstractXetoTest
       r := ns.validate(recs[y], lib2.spec("SAhu"), graph)
       verifyEq(r.items.join(",") { it.rule.id }, "sys::missingQuery,sys::missingQuery")
       verifyEq(r.items.first.msg, "Missing required Point: ${lib2.name}::DTemp")
+      verifyEq(r.items.first.slot, "points._0")
 
       // ambiguous for required and even for maybe constraints
       verifyEngine(ns, lib2, "MAhu", recsTags(z), ["sys::ambiguousQuery"], graph)
