@@ -27,7 +27,8 @@ abstract class Exporter
     this.out         = out
     this.opts        = opts
     this.indentation = XetoUtil.optInt(opts, "indent", 0)
-    this.isEffective = XetoUtil.optBool(opts, "effective", false)
+    this.isMixins    = XetoUtil.optBool(opts, "mixins", false)
+    this.isEffective = isMixins || XetoUtil.optBool(opts, "effective", false)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -115,6 +116,7 @@ abstract class Exporter
   const MNamespace ns             // namespace
   const Dict opts                 // options
   const Bool isEffective          // options
+  const Bool isMixins             // options; implies isEffective
   const Ref specRef := Ref("sys::Spec")
   protected OutStream out         // output stream
   Int indentation                 // current level of indentation

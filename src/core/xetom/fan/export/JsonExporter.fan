@@ -87,6 +87,8 @@ class JsonExporter : Exporter
   ** Spec implementation with given qname or name
   private This doSpec(Str name, Spec spec, Int depth)
   {
+    // mixins opt exports the namespace view of types
+    if (isMixins && spec.isType) spec = ns.specx(spec)
     prop(name).obj
     prop("id").val(spec.id).propEnd
     prop("spec").val(specRef).propEnd
@@ -132,12 +134,17 @@ class JsonExporter : Exporter
     isEffective && (depth == 0 || (depth == 1 && spec.isQuery))
   }
 
-  ** Spec slots
+  ** Spec slots; a name contributed by multiple mixins cannot be
+  ** represented as a JSON key
   private This slots(SpecMap slots, Int depth)
   {
     if (slots.isEmpty) return this
     prop("slots").obj
-    slots.each |slot, name| { doSpec(name, slot, depth+1) }
+    slots.eachList |list, name|
+    {
+      if (list.size > 1) throw AmbiguousSpecErr("Ambiguous slot '$name' $list")
+      doSpec(name, list[0], depth+1)
+    }
     objEnd.propEnd
     return this
   }

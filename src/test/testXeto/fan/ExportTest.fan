@@ -203,6 +203,38 @@ class ExportTest : AbstractXetoTest
     ])
   }
 
+  Void testMixins()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+    // effective alone is the declared inheritance view
+    x := jsonSpec(ns, Etc.dict1("effective", m), "TestSite")
+    verifyEq(x["foo"], null)
+    verifyEq(jsonSlot(x, "area")["foo"], null)
+    verifyEq(jsonSlot(x, "newSlot"), null)
+
+    // mixins implies effective and merges in namespace mixins;
+    // contributed slots keep their declaration identity
+    x = jsonSpec(ns, Etc.dict1("mixins", m), "TestSite")
+    verifyEq(x["foo"], "building")
+    verifyEq(jsonSlot(x, "area")["foo"], "AreaEditor")
+    newSlot := jsonSlot(x, "newSlot")
+    verifyEq(newSlot["id"], "hx.test.xeto::Site.newSlot")
+    verifyEq(newSlot["type"], "sys::Str")
+    verifyEq(newSlot["foo"], "hi")
+  }
+
+  private Str:Obj? jsonSpec(Namespace ns, Dict opts, Str name)
+  {
+    lib := (Str:Obj?)jsonExport(ns, opts).getChecked("hx.test.xeto")
+    return lib.getChecked(name)
+  }
+
+  private [Str:Obj?]? jsonSlot(Str:Obj? spec, Str name)
+  {
+    ((Str:Obj?)spec.getChecked("slots"))[name]
+  }
+
   Void testBox()
   {
     ns := createNamespace(["hx.test.xeto"])
