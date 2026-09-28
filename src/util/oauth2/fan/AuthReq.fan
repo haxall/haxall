@@ -110,7 +110,11 @@ const class LoopbackAuthReq : AuthReq
       params := this.build
       params["state"] = Buf.random(16).toBase64Uri
       params.addAll(flowParams)
-      Desktop.getDesktop().browse(URI(authUri.plusQuery(params).encode))
+
+      // print the login uri since the browser may open unnoticed or not at all
+      uri := authUri.plusQuery(params).encode
+      echo("Waiting for browser login (${loginTimeout.toLocale} timeout):\n  $uri")
+      Desktop.getDesktop().browse(URI(uri))
 
       // wait for the AS redirect; verify CSRF state
       authRes := mod.authRes.get(loginTimeout)
