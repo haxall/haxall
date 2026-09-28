@@ -473,7 +473,7 @@ const class TestRemoteRepo : MRemoteRepo
 {
   new make(RemoteRepoInit init) : super(init) {}
 
-  override RemoteRepoSession open() { TestRemoteRepoSession(this) }
+  override RemoteRepoSession open(Dict? opts := null) { TestRemoteRepoSession(this) }
 
   Dict? ping(Bool checked := true) { Etc.dict1("ping", "boom!") }
 

@@ -322,9 +322,22 @@ class SysRepoTest : HxTest
 
     // no token configured and no client session: the server's auth
     // challenge fails the op before it is ever dispatched
-    bare := HttpRepo(RemoteRepoInit(env, "noauth", uri, Etc.dict0, env.workDir)).open
+    noauth := HttpRepo(RemoteRepoInit(env, "noauth", uri, Etc.dict0, env.workDir))
+    bare := noauth.open
     verifyErr(IOErr#) { bare.ping }
     bare.close
+
+    // interactive with no token logs in thru the server's challenge
+    // at open, which fails here since scram has no password to give
+    interactive := Etc.dict1("interactive", Marker.val)
+    verifyErr(null) { noauth.open(interactive) }
+
+    // a configured token always wins over an interactive login
+    tokened := repo.open(interactive)
+    try
+      verifyEq(tokened.ping["dis"], proj.dis)
+    finally
+      tokened.close
 
     // one session opened from the scram client services multiple calls
     s := ((HttpRepo)MRemoteRepo.create(RemoteRepoInit(env, "scram", uri, Etc.dict0, env.workDir))).openClient(client)

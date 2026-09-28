@@ -22,8 +22,15 @@ const class HttpRepo : MRemoteRepo
   new make(RemoteRepoInit init) : super(init) {}
 
   ** Open a session which authenticates each request with the configured
-  ** bearer token, or anonymously when none is configured
-  override RemoteRepoSession open() { HttpRepoSession(this, null) }
+  ** bearer token.  When none is configured the interactive option logs
+  ** in thru the server's auth challenge such as a browser OAuth login;
+  ** otherwise the session is anonymous.
+  override RemoteRepoSession open(Dict? opts := null)
+  {
+    if (opts != null && opts.has("interactive") && authToken(false) == null)
+      return openClient(Client.open(uri, Env.cur.user, null, ["interactive":true]))
+    return HttpRepoSession(this, null)
+  }
 
   ** Open a session which authenticates each request with the caller
   ** owned `haystack::Client` session, such as one opened with scram

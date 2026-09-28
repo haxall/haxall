@@ -56,7 +56,7 @@ const class GithubRepo : MRemoteRepo
 
   ** GitHub access is stateless per request, so the session simply
   ** delegates back to this repo
-  override RemoteRepoSession open() { GithubRepoSession(this) }
+  override RemoteRepoSession open(Dict? opts := null) { GithubRepoSession(this) }
 
  ** Ping the GitHub repo and return metadata dict.
   Dict? ping(Bool checked := true)

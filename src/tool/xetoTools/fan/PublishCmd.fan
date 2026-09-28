@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack
 using xetom
 using xetoc
 
@@ -52,8 +53,9 @@ internal class PublishCmd : RepoRemoteCmd
         return 0
       }
 
-      // one session publishes the whole batch
-      s := repo.open
+      // one session publishes the whole batch; without a configured
+      // token the session opens with an interactive browser login
+      s := repo.open(Etc.dict1("interactive", Marker.val))
       try
       {
         vers.each |ver|

@@ -86,7 +86,11 @@ const mixin RemoteRepo : LibRepo
   ** authenticates each request with the configured bearer token, or
   ** anonymously when none is configured.  The session is owned by the
   ** caller who must close it when complete.
-  abstract RemoteRepoSession open()
+  **
+  ** Options:
+  **   - interactive: marker if a human is in the loop to login, such
+  **     as a browser based OAuth login when no token is configured
+  abstract RemoteRepoSession open(Dict? opts := null)
 
   ** Return if an env var name if auth token is configured for this repo
   @NoDoc abstract Str? authTokenEnvName()
