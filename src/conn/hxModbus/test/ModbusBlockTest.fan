@@ -191,6 +191,29 @@ internal class ModbusBlockTest : Test
   }
 
 //////////////////////////////////////////////////////////////////////////
+// testOptimizeInput
+//////////////////////////////////////////////////////////////////////////
+
+  Void testOptimizeInput()
+  {
+    a := reg("a", "40003", "u2")
+    b := reg("b", "40001", "u2")
+    c := reg("c", "40002", "u2")
+
+    // sorting the regs must not reorder the caller's list
+    regs := [a,b,c]
+    blocks := ModbusBlock.optimize(regs)
+    verifyEq(blocks.size, 1)
+    verifyEq(blocks[0].regs, [b,c,a])
+    verifyEq(regs, [a,b,c])
+
+    // a readonly list such as ModbusRegMap.regs is a valid input
+    blocks = ModbusBlock.optimize([a,b,c].toImmutable)
+    verifyEq(blocks.size, 1)
+    verifyEq(blocks[0].regs, [b,c,a])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // testBlockConfig
 //////////////////////////////////////////////////////////////////////////
 
