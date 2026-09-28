@@ -107,12 +107,17 @@ class AiWriter
     return this
   }
 
+  ** Grid shape without newline: "Grid 3 cols x 150 rows"
+  This gridSummary(Grid x)
+  {
+    w("Grid ").w(x.cols.size).w(" cols x ").w(x.size).w(" rows")
+  }
+
   ** Grid as summary line + zinc; over maxRows write only the first
   ** rows followed by count of those clipped and paging hint
   private This grid(Grid x)
   {
-    // summary line: Grid 3 cols x 150 rows
-    w("Grid ").w(x.cols.size).w(" cols x ").w(x.size).w(" rows").nl
+    gridSummary(x).nl
 
     // zinc rows: all if under maxRows, else first maxRows + paging hint
     more := x.size - maxRows
