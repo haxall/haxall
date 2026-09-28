@@ -95,11 +95,11 @@ class ModbusDispatch : ConnDispatch
   {
     try
     {
-      regs := mapToRegs(points)
-      toBlocks(regs).each |block|
+      byReg := mapToRegs(points)
+      toBlocks(byReg.keys).each |block|
       {
         link.readBlock(dev, block)
-        updateVals(points, block)
+        updateVals(byReg, block)
       }
     }
     catch (Err err) { closeErr(err) }
@@ -143,29 +143,31 @@ class ModbusDispatch : ConnDispatch
     return v ?: def
   }
 
-  private ModbusReg[] mapToRegs(ConnPoint[] points)
+  ** Group the points by the register they read. The register instance is the
+  ** identity used to route values back in `updateVals`, and a register shared
+  ** by multiple points is only read once.
+  private ModbusReg:ConnPoint[] mapToRegs(ConnPoint[] points)
   {
-    regs := ModbusReg[,]
+    acc := ModbusReg:ConnPoint[][:] { ordered = true }
     points.each |p|
     {
       try
       {
         cur := p.rec["modbusCur"] ?: throw FaultErr("Missing modbusCur")
         reg := dev.regMap.reg(cur)
-        regs.add(reg)
+        acc.getOrAdd(reg) { ConnPoint[,] }.add(p)
       }
       catch (Err err) { p.updateCurErr(err) }
     }
-    return regs
+    return acc
   }
 
-  private Void updateVals(ConnPoint[] points, ModbusBlock block)
+  private Void updateVals(ModbusReg:ConnPoint[] byReg, ModbusBlock block)
   {
     block.regs.each |r,i|
     {
       val := block.vals[i]
-      pts := points.findAll |x| { x.rec["modbusCur"] == r.name }
-      pts.each |p|
+      byReg[r]?.each |p|
       {
         if (val is Err) p.updateCurErr(val)
         else p.updateCurOk(val)

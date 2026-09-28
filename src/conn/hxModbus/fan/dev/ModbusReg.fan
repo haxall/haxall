@@ -38,7 +38,7 @@ using haystack
   const ModbusData data
 
   ** Number of 16-bit words required to hold register value.
-  const Int size
+  Int size() { data.size }
 
   ** Can we read this regiter
   const Bool readable
