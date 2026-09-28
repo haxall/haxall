@@ -33,7 +33,8 @@ using haystack
     acc    := ModbusReg[,]
     end    := 0
 
-    regs = regs.sort |a,b| { a.addr.qnum <=> b.addr.qnum }
+    // sort a copy - List.sort is in place and the caller owns its list
+    regs = regs.dup.sort |a,b| { a.addr.qnum <=> b.addr.qnum }
     regs.each |r|
     {
       if (acc.isEmpty) acc.add(r)
