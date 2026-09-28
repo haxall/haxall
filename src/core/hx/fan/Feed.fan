@@ -61,7 +61,8 @@ abstract const class Feed
     throw UnsupportedErr("${typeof}.subscribe")
   }
 
-  ** Poll for new data or null if no new data
+  ** Poll for new data or null if no new data.  The given context is
+  ** the current context for the duration of the poll.
   abstract Obj? poll(Context cx)
 
   ** Unsubscribe and cleanup resources
