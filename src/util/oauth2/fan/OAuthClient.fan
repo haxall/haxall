@@ -57,10 +57,8 @@ const class OAuthClient
     tokenReq := AuthCodeTokenReq(tokenUri)
     grant    := AuthCodeGrant(authReq, tokenReq)
 
-    log.debug("""Opening browser to authenticate...
-                  server: ${issuer}
-                  authUri: ${authUri}
-                  tokenUri: ${tokenUri}""")
+    log.info("Waiting for browser login [$authUri, ${authReq.loginTimeout.toLocale} timeout]")
+    log.debug("OAuth issuer: $issuer, tokenUri: $tokenUri")
     token := grant.run
     log.info("OAuth authentication successful")
     return token.accessToken

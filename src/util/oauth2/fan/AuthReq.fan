@@ -68,8 +68,11 @@ const abstract class AuthReq
 **
 const class LoopbackAuthReq : AuthReq
 {
-  new make(Uri authUri, Str clientId, |This|? f := null) : super(authUri, clientId, f)
+  ** The it-block runs here since the base constructor would run it before
+  ** our field defaults such as loginTimeout which would then clobber it
+  new make(Uri authUri, Str clientId, |This|? f := null) : super(authUri, clientId, null)
   {
+    f?.call(this)
     if (redirectUri == null) throw ArgErr("Must set redirectUri")
     if (redirectUri.port == null) throw ArgErr("redirectUri must specify a port")
     checkHost
@@ -110,11 +113,7 @@ const class LoopbackAuthReq : AuthReq
       params := this.build
       params["state"] = Buf.random(16).toBase64Uri
       params.addAll(flowParams)
-
-      // print the login uri since the browser may open unnoticed or not at all
-      uri := authUri.plusQuery(params).encode
-      echo("Waiting for browser login (${loginTimeout.toLocale} timeout):\n  $uri")
-      Desktop.getDesktop().browse(URI(uri))
+      Desktop.getDesktop().browse(URI(authUri.plusQuery(params).encode))
 
       // wait for the AS redirect; verify CSRF state
       authRes := mod.authRes.get(loginTimeout)
