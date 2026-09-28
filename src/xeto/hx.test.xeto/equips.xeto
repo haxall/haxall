@@ -13,11 +13,11 @@ EquipA : Ahu {
   }
   points: {
     ZoneAirTempSensor {
-      modbusCurAddr: { addr: "16474", encoding: "s2", scale: "0.01" }
+      modbusCurAddr: { addr: "416474", encoding: "s2", scale: "*0.01" }
       bacnetCurAddr: { addr: "AI3" }
     }
     ZoneAirHumiditySensor {
-      modbusCurAddr: { addr: "16477", encoding: "u2", scale: "0.1" }
+      modbusCurAddr: { addr: "416477", encoding: "u2", scale: "*0.1" }
       bacnetCurAddr: { addr: "AI4" }
     }
   }
@@ -26,7 +26,7 @@ EquipA : Ahu {
 EquipB : EquipA {
   points: {
     ZoneCo2Sensor {
-      modbusCurAddr: { addr: "16478" }
+      modbusCurAddr: { addr: "416478", encoding: "u2" }
       bacnetCurAddr: { addr: "AI5" }
     }
   }
@@ -79,13 +79,13 @@ Equip3Own : EquipWithPointsX & EquipWithPointsY & EquipWithPointsZ {
 EquipNamed : Ahu {
   points: {
     zoneTemp: ZoneAirTempSensor {
-      modbusCurAddr:   { addr: "1001", encoding: "s2", access: "rw" }
-      modbusWriteAddr: { addr: "1101", encoding: "s2" }
+      modbusCurAddr:   { addr: "401001", encoding: "s2", access: "rw" }
+      modbusWriteAddr: { addr: "401101", encoding: "s2" }
       bacnetCurAddr:   { addr: "AI1" }
       bacnetHisAddr:   { addr: "TL1" }
     }
     zoneHumidity: ZoneAirHumiditySensor {
-      modbusCurAddr: { addr: "1002" }
+      modbusCurAddr: { addr: "401002", encoding: "u2" }
     }
     zoneCo2: ZoneCo2Sensor {
       dis: "Zone CO2"

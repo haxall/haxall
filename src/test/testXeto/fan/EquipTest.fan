@@ -35,7 +35,7 @@ class EquipTest : AbstractXetoTest
     verifyEq(ma.isMaybe, true)
     verifyEq(ma.base.qname, "ph.protocols::PhEntity.modbusCurAddr")
     verifyEq(ma.base.isGlobal, true)
-    verifyEq(ma.slot("addr").meta["val"]?.toStr, "1001")
+    verifyEq(ma.slot("addr").meta["val"]?.toStr, "401001")
     verifyEq(ma.slot("access").meta["val"]?.toStr, "rw")
 
     ba := zt.slot("bacnetCurAddr")
