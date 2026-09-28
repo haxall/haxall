@@ -46,6 +46,7 @@ class RdfExporter : Exporter
   override This lib(Lib lib)
   {
     this.curLib = lib
+    this.quantityKeys.clear
     this.instanceMemberSpecs.clear
     this.isSys = lib.name == "sys"
     validateNamespaceVersions(lib)
@@ -90,6 +91,27 @@ class RdfExporter : Exporter
       if (target == null) target = contributions.first.base
       if (target == null) throw UnsupportedErr("Mixin target not found: ${targetQname}")
       mixinShape(target, contributions)
+    }
+    if (!quantityKeys.isEmpty)
+    {
+      qname("sys::UnitQuantityShape").w(" a sh:NodeShape ;").nl
+      w("  sh:nodeKind sh:IRI ;").nl
+      w("  sh:in (")
+      quantityKeys.keys.sort.each |key, i|
+      {
+        if (i > 0) w(" ")
+        qname("sys::UnitQuantity.$key")
+      }
+      w(") .").nl
+    }
+    quantityKeys.keys.sort.each |key|
+    {
+      qname("sys::UnitQuantity.$key").w(" a ").qname("sys::UnitQuantity")
+        .w(" ; rdfs:label ").literal(key).w("@en .").nl
+      qudt.quantityLinks(UnitQuantity.fromStr(key)).each |target|
+      {
+        qname("sys::UnitQuantity.$key").w(" rdfs:seeAlso quantitykind:").w(target).w(" .").nl
+      }
     }
     if (!schemaOnly) lib.instances.each |x| { instance(x) }
     return this
@@ -394,9 +416,8 @@ class RdfExporter : Exporter
     }
     else if (type.isEnum)
     {
-      if (type.qname == "sys::UnitQuantity")
-        throw UnsupportedErr("RDF UnitQuantity mapping not supported for ${slot.qname} of ${type.qname}")
-      sh["datatype"] = "xsd:string"
+      if (type.qname == "sys::UnitQuantity") sh["node"] = qnameToUri("sys::UnitQuantityShape")
+      else sh["datatype"] = "xsd:string"
     }
     else if (type.isChoice)
     {
@@ -434,8 +455,14 @@ class RdfExporter : Exporter
     w(" ;").nl
     sh.each |v, n| { w("    sh:").w(n).w(" ").w(v).w(" ;").nl }
     if (type.isEnum && type.qname != "sys::Unit" &&
-        type.qname != "sys::UnitQuantity" && type.qname != "sys::TimeZone")
+        type.qname != "sys::TimeZone")
       enumConstraint(type)
+    if (type.qname == "sys::UnitQuantity" && slot.meta.has("invariant"))
+    {
+      key := slot.meta["val"]?.toStr ?: throw UnsupportedErr("Missing invariant UnitQuantity value for ${slot.qname}")
+      if (type.enum.spec(key, false) == null) throw UnsupportedErr("Invalid UnitQuantity value: $key")
+      w("    sh:hasValue ").qname("sys::UnitQuantity.$key").w(" ;").nl
+    }
     if (type.isChoice) choiceConstraint(slot)
     if (type.isList) listConstraint(slot)
     if (type.qname == "sys::Unit")
@@ -756,6 +783,11 @@ class RdfExporter : Exporter
 
   private Void enumConstraint(Spec type)
   {
+    if (type.qname == "sys::UnitQuantity")
+    {
+      type.enum.keys.each |key| { quantityKeys[key] = true }
+      return
+    }
     w("    sh:in (")
     type.enum.keys.sort.each |key, i|
     {
@@ -1322,7 +1354,12 @@ class RdfExporter : Exporter
         return
       }
       if (type.qname == "sys::UnitQuantity")
-        throw UnsupportedErr("RDF UnitQuantity mapping not supported for ${property} of ${type.qname}")
+      {
+        quantity := val as UnitQuantity
+          ?: throw UnsupportedErr("Expected UnitQuantity for ${property}, not ${val.typeof}")
+        w(indent).qname(property).w(" ").qname("sys::UnitQuantity.${quantity.name}").w(" ;").nl
+        return
+      }
       // haystack fidelity carries an enum value as its Str key
       key := val as Str
       if (key == null)
@@ -1546,6 +1583,7 @@ class RdfExporter : Exporter
   private Bool instancesOnly
   private Bool schemaOnly
   private Str? baseUri
+  private Str:Bool quantityKeys := [:]
   private RdfQudtMap? qudtRef
 
   private RdfQudtMap qudt()
