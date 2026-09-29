@@ -46,7 +46,7 @@ const class FileLibVersion : LibVersion
     this.name       = name
     this.version    = Version("0.0.0")
     this.toStr      = "$name-$version"
-    this.fileRef    = notFoundFile
+    this.fileRef    = null
     this.doc        = "Not found"
     this.dependsRef = LibDepend#.emptyList
     this.maturity   = LibMaturity.stable
@@ -58,10 +58,15 @@ const class FileLibVersion : LibVersion
 
   override const Str toStr
 
-  override File? file(Bool checked := true) { fileRef }
-  const File fileRef
+  override File? file(Bool checked := true)
+  {
+    if (fileRef != null) return fileRef
+    if (checked) throw UnknownLibErr("Lib '$name' not found")
+    return null
+  }
+  const File? fileRef
 
-  override Bool isSrc() { fileRef.isDir }
+  override Bool isSrc() { fileRef != null && fileRef.isDir }
 
   override Void eachSrcFile(|File| cb)
   {
@@ -88,10 +93,9 @@ const class FileLibVersion : LibVersion
 
   override const Int flags
 
-  private static const File notFoundFile := Buf().toFile(`not-found`)
   private static const File notUsedFile := Buf().toFile(`not-used`)
 
-  override Bool isNotFound() { file === notFoundFile }
+  override Bool isNotFound() { fileRef == null }
 
   override Bool isCompanion() { name === XetoUtil.companionLibName }
 

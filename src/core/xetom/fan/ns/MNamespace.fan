@@ -67,7 +67,7 @@ const class MNamespace : Namespace, CNamespace
   {
     // compile depend errs too so compiler reports them with its file
     // locs; only libs with nothing to compile immediately return err
-    if (dependErr != null && (version.isNotFound || version.file(false) == null))
+    if (dependErr != null && version.file(false) == null)
       return MLibEntry(version, dependErr)
 
     // get from cache or compile
