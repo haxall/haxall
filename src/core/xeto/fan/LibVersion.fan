@@ -90,7 +90,8 @@ const mixin LibVersion
 
   ** Order a list of versions by their dependencies and check for errors.
   ** Populate the errs map with lib names that have errors such as an
-  ** unmet depends.  Libs with errors are added to end of the ordered list.
+  ** unmet depends.  Libs with unmet depends are still ordered by their
+  ** depends; not found and circular libs are added to end of the list.
   @NoDoc static LibVersion[] checkDepends(LibVersion[] libs, Str:Err errs, Bool extern := false)
   {
     // build map by name
@@ -134,8 +135,9 @@ const mixin LibVersion
       }
     }
 
-    // sort those not in error by dependency order
-    left := libs.findAll { errs[it.name] == null && it !== companion }.sort
+    // sort all but not found libs by dependency order; unmet depends
+    // are not in the left list so they don't block ordering
+    left := libs.findAll { !it.isNotFound && it !== companion }.sort
     leftNames := Str:LibVersion[:].setList(left) { it.name }
     ordered := LibVersion[,]
     ordered.capacity = libs.size
@@ -155,11 +157,11 @@ const mixin LibVersion
     // mark those left as circular dependencies
     left.each |x|
     {
-      errs[x.name] = DependErr("Lib '$x.name' has circular depends")
+      if (errs[x.name] == null) errs[x.name] = DependErr("Lib '$x.name' has circular depends")
     }
 
-    // add those in error (sorted)
-    errs.keys.sort.each |name| { ordered.add(byName.getChecked(name)) }
+    // add not found and circular libs (sorted)
+    ordered.addAll(libs.findAll { it.isNotFound }.addAll(left).sort)
 
     // return ordered list
     return ordered

@@ -61,11 +61,10 @@ internal class Resolve : Step
       return null
     }
 
-    // if we could not compile dependency
+    // if we could not compile dependency; its own err is already reported
     if (libStatus.isErr)
     {
-      msg := ns.libErr(d.name)
-      err("Depend lib '$d.name' could not be compiled: $msg", d.loc)
+      err("Depend lib '$d.name' could not be compiled", d.loc)
       return null
     }
 

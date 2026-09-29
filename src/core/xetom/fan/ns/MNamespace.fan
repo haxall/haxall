@@ -65,8 +65,10 @@ const class MNamespace : Namespace, CNamespace
 
   private MLibEntry initEntry(LibVersion version, Err? dependErr)
   {
-    // if depend error then immediately return error entry
-    if (dependErr != null) return MLibEntry(version, dependErr)
+    // compile depend errs too so compiler reports them with its file
+    // locs; only libs with nothing to compile immediately return err
+    if (dependErr != null && (version.isNotFound || version.file(false) == null))
+      return MLibEntry(version, dependErr)
 
     // get from cache or compile
     try

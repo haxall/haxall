@@ -301,6 +301,9 @@ const class HxLibs : RuntimeLibs
     updateRemoves(acc, u.removes)
     companionRecs := updateCompanionRecs(oldNs)
 
+    // report libs not found in repo once on init
+    if (u.init) logNotFound(acc)
+
     // create namespace
     nsVers := acc.vals.map |x->LibVersion| { x.ver }
     nsOpts := Etc.dict2x("uncheckedDepends", Marker.val, "companionRecs", companionRecs)
@@ -424,6 +427,7 @@ const class HxLibs : RuntimeLibs
   {
     if (names == null || names.isEmpty) return
 
+    removed := Str[,]
     names.each |name|
     {
       x := acc[name]
@@ -440,26 +444,31 @@ const class HxLibs : RuntimeLibs
 
       // remove it
       acc.remove(name)
+      removed.add(name)
     }
 
-    // check we are not removing libs that are required for remaining libs
-    unmet := LibDepend[,]
+    // check we are not removing libs that are required for remaining libs;
+    // only removed libs count so existing unmet depends don't block removes
     acc.each |remaining|
     {
-      unmet.clear
-      remaining.ver.depends.each |d|
-      {
-        x := acc[d.name]
-        if (x == null || !d.versions.contains(x.ver.version)) unmet.add(d)
-      }
-      if (!unmet.isEmpty)
-        throw DependErr("Removing '$unmet.first.name' breaks depends for '$remaining.name'")
+      d := remaining.ver.depends.find |d| { removed.contains(d.name) }
+      if (d != null) throw DependErr("Removing '$d.name' breaks depends for '$remaining.name'")
     }
   }
 
   private LibVersion updateVersion(Str name)
   {
     repo.lib(name, false) ?: FileLibVersion.makeNotFound(name)
+  }
+
+  private Void logNotFound(Str:HxLib acc)
+  {
+    // proj skips sys libs already reported by sys
+    acc.keys.sort.each |n|
+    {
+      x := acc[n]
+      if (x.ver.isNotFound && (x.basis == myBasis || bootLibNames.contains(n))) log.err("Lib '$n' not found")
+    }
   }
 
   private CompanionRecs? updateCompanionRecs(HxNamespace? oldNs)

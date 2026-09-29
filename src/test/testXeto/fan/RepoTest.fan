@@ -102,11 +102,11 @@ class RepoTest : AbstractXetoTest
       "cc.notfound":UnknownLibErr("Lib 'cc.notfound' not found")
       ])
 
-    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.nosolve", [
+    verifyCheckDepends(repo, "sys, ph, cc.nosolve, ph.points, cc.ahus", [
       "cc.nosolve":DependErr("Lib 'cc.nosolve' has missing depends: ph 9.x.x")
       ])
 
-    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.nosolven", [
+    verifyCheckDepends(repo, "sys, ph, cc.nosolven, ph.points, cc.ahus", [
       "cc.nosolven":DependErr("Lib 'cc.nosolven' has missing depends: bar, foo, ph 9.x.x, qux")
       ])
 
@@ -114,7 +114,7 @@ class RepoTest : AbstractXetoTest
         "cc.circular":DependErr("Lib 'cc.circular' has circular depends")
       ])
 
-    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.circular, cc.missing1, cc.missing2, cc.nosolve, cc.nosolven", [
+    verifyCheckDepends(repo, "sys, ph, cc.nosolve, cc.nosolven, ph.points, cc.ahus, cc.circular, cc.missing1, cc.missing2", [
         "cc.circular": DependErr("Lib 'cc.circular' has circular depends"),
         "cc.missing1": UnknownLibErr("Lib 'cc.missing1' not found"),
         "cc.missing2": UnknownLibErr("Lib 'cc.missing2' not found"),
@@ -131,7 +131,7 @@ class RepoTest : AbstractXetoTest
     verifyCheckDepends(repo, "ph, ph.points", [:], true)
 
     // an internal version constraint is still enforced under extern
-    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.nosolven", [
+    verifyCheckDepends(repo, "sys, ph, cc.nosolven, ph.points, cc.ahus", [
         "cc.nosolven": DependErr("Lib 'cc.nosolven' has missing depends: ph 9.x.x"),
       ], true)
   }
