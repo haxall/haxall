@@ -95,6 +95,8 @@ abstract class HxBoot
       "sys.template",
       "hx.ion",
       "aura",
+      "aura.pim",
+      "aura.grams",
       "aura.hx",
       "ion",
       "ion.actions",
