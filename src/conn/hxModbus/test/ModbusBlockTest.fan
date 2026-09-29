@@ -191,6 +191,34 @@ internal class ModbusBlockTest : Test
   }
 
 //////////////////////////////////////////////////////////////////////////
+// testAddrWidth
+//////////////////////////////////////////////////////////////////////////
+
+  Void testAddrWidth()
+  {
+    // an addr renders 5 digits below register 10000 and 6 digits at or
+    // above it, so the qualified number jumps by 360001 at the boundary
+    // and block arithmetic must use the register number instead
+    a := reg("a", "409999", "u2")
+    b := reg("b", "410000", "u2")
+    blocks := ModbusBlock.optimize([a,b])
+    verifyEq(blocks.size, 1)
+    verifyEq(blocks[0].regs, [a,b])
+    verifyEq(blocks[0].start, 9999)
+    verifyEq(blocks[0].size, 2)
+
+    // the same jump makes a 6-digit coil collide with a discrete input,
+    // so registers must sort by type before number
+    c1 := reg("c1", "010000", "bit")
+    c2 := reg("c2", "010001", "bit")
+    d1 := reg("d1", "100001", "bit")
+    blocks = ModbusBlock.optimize([c1,d1,c2])
+    verifyEq(blocks.size, 2)
+    verifyEq(blocks[0].regs, [c1,c2])
+    verifyEq(blocks[1].regs, [d1])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // testOptimizeInput
 //////////////////////////////////////////////////////////////////////////
 

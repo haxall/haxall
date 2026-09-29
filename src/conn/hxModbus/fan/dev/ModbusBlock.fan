@@ -33,15 +33,21 @@ using haystack
     acc    := ModbusReg[,]
     end    := 0
 
-    // sort a copy - List.sort is in place and the caller owns its list
-    regs = regs.dup.sort |a,b| { a.addr.qnum <=> b.addr.qnum }
+    // sort a copy - List.sort is in place and the caller owns its list.
+    // order by type then register number: qnum is not comparable, since
+    // the addr grows from 5 to 6 digits at register 10000
+    regs = regs.dup.sort |a,b|
+    {
+      cmp := a.addr.type <=> b.addr.type
+      return cmp != 0 ? cmp : a.addr.num <=> b.addr.num
+    }
     regs.each |r|
     {
       if (acc.isEmpty) acc.add(r)
       else
       {
-        first := acc.first.addr.qnum
-        cur   := r.addr.qnum
+        first := acc.first.addr.num
+        cur   := r.addr.num
         curt  := r.addr.type
         lastt := acc.last.addr.type
         if (curt != lastt || cur-end > gap || end.max(cur + r.data.size)-first > max)
@@ -53,7 +59,7 @@ using haystack
         acc.add(r)
       }
       // regs at the same addr may differ in size, so end is the max of all
-      end = end.max(r.addr.qnum + r.data.size)
+      end = end.max(r.addr.num + r.data.size)
     }
     if (acc.size > 0) blocks.add(ModbusBlock(acc))
     return blocks
