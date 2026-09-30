@@ -349,19 +349,19 @@ const class PiConn
 ** PiModbusConn customizes binding for modbus where a point
 ** references its address spec rather than a raw register address.
 **
-** The bound value is the qname of the authored addr slot itself,
-** such as '@foo::Equip.reg4000.modbusCurAddr' - the register map
-** the connector reads for encoding, scale, and byte order lives
-** there, so the point only needs to name it.  Cur and write are
-** separate globals, so each mode names its own spec.
+** The bound value is the qname of the point slot that authors the
+** addr, such as 'foo::Equip.points.reg4000' - the register map the
+** connector reads for encoding, scale, and byte order lives in its
+** modbusCurAddr/modbusWriteAddr slots, so the point only needs to
+** name the slot and the connector picks the addr per function.
 **
 @NoDoc @Js
 const class PiModbusConn : PiConn
 {
   new make(Namespace ns, Spec ext) : super(ns, ext) {}
 
-  protected override Obj? toCurVal(Spec addr, Dict opts) { addr.id.toStr }
+  protected override Obj? toCurVal(Spec addr, Dict opts) { addr.parent.qname }
 
-  protected override Obj? toWriteVal(Spec addr, Dict opts) { addr.id.toStr }
+  protected override Obj? toWriteVal(Spec addr, Dict opts) { addr.parent.qname }
 }
 
