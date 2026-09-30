@@ -27,6 +27,9 @@ internal class PublishCmd : RepoRemoteCmd
   @Opt { help = "Report what would be published without publishing" }
   Bool preview
 
+  @Opt { help = "Skip confirmation"; aliases=["y"] }
+  Bool yes
+
   override Int usage(OutStream out := Env.cur.out)
   {
     super.usage(out)
@@ -35,6 +38,7 @@ internal class PublishCmd : RepoRemoteCmd
     out.printLine("  xeto publish foo.xetolib           // publish to default repo")
     out.printLine("  xeto publish foo.xetolib -r acme   // publish to repo named 'acme'")
     out.printLine("  xeto publish foo.xetolib -preview  // report without publishing")
+    out.printLine("  xeto publish foo.xetolib -y        // publish without confirmation")
     out.printLine("  xeto publish someDir/              // publish whole dir in depends order")
     return 1
   }
@@ -48,10 +52,23 @@ internal class PublishCmd : RepoRemoteCmd
       // load the lib, file, or the whole directory ordered by depends;
       // the load fails fast on a corrupt file before any network traffic
       vers := load
-      if (preview)
+
+      // preview plan
+      printLine
+      printLine("Publish plan [$repo.name]:")
+      printLine
+      vers.each |ver| { printLine("  $ver.name-$ver.version") }
+      if (preview) return 0
+
+      // confirm
+      if (!yes)
       {
-        vers.each |ver| { ok("Preview [$ver to $repo.name, not published]") }
-        return 0
+        printLine
+        if (!promptConfirm("Publish?"))
+        {
+          err("Cancelled")
+          return 1
+        }
       }
 
       // one session publishes the whole batch; without a configured
