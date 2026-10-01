@@ -109,7 +109,7 @@ class ModbusDispatch : ConnDispatch
   {
     open
 
-    regs := regNames.map |n| { dev.regMap.reg(n) }
+    regs := regNames.map |n| { dev.reg(n, false) }
     try
     {
       gb := GridBuilder()
@@ -154,7 +154,7 @@ class ModbusDispatch : ConnDispatch
       try
       {
         cur := p.rec["modbusCur"] ?: throw FaultErr("Missing modbusCur")
-        reg := dev.regMap.reg(cur)
+        reg := dev.reg(cur, false)
         acc.getOrAdd(reg) { ConnPoint[,] }.add(p)
       }
       catch (Err err) { p.updateCurErr(err) }
@@ -184,7 +184,7 @@ class ModbusDispatch : ConnDispatch
     open
 
     // resolve outside try so config errors don't close the conn
-    reg := dev.regMap.reg(regName)
+    reg := dev.reg(regName, true)
     try
     {
       link.write(dev, reg, val)
@@ -207,7 +207,7 @@ class ModbusDispatch : ConnDispatch
       if (event.val != null)
       {
         write := point.rec["modbusWrite"] ?: throw FaultErr("Missing modbusWrite")
-        reg = dev.regMap.reg(write)
+        reg = dev.reg(write, true)
       }
     }
     catch (Err err)

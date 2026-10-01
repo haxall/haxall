@@ -28,9 +28,16 @@ ModbusConn: Conn <icon:"modbus"> {
   // How long to wait before timing out on a modbus read.
   modbusReadTimeout: Duration?
 
+  // Applied to `modbusConn` to read for [connPing]. The qname of a point
+  // spec, in the same form as [ModbusPoint.modbusCur]. Required when this
+  // connector's points address their registers by addr spec; a connector
+  // with a register map defines a register named "ping" instead.
+  modbusPingAddr: Str?
+
   // Applied to `modbusConn` to define the register map CSV file.
   // This URI must be a path relative to the project's home directory
-  // or can be a "fan://" URI to a CSV file bundled in a pod.
+  // or can be a "fan://" URI to a CSV file bundled in a pod. Optional when
+  // every point addresses its registers by addr spec.
   modbusRegMapUri: Uri?
 
   // Applied to `modbusConn` to identify the slave address on this
@@ -49,16 +56,21 @@ ModbusPoint: ConnPoint {
   // Used on a proxy point to reference its parent [ModbusConn.modbusConn]
   modbusConnRef: Ref? <of:ModbusConn>
 
-  // Modbus address to use for current value subscriptions. See
-  // [hx.modbus::doc#current-points] for format.
+  // Modbus address to use for current value subscriptions. Either a register
+  // name in the connector's register map, or the qname of a point spec such
+  // as "acme.vav::Vav.points.zoneTemp", whose [ph.protocols::ModbusAddr] is
+  // read from its 'modbusCurAddr'. See [hx.modbus::doc#current-points]
+  // for format.
   modbusCur: Str?
 
   // Marker tag for ModbusPoint type
   modbusPoint
 
   // Used on a modbus proxy point to store the id of the entity in the
-  // remote system used to write [ph::PhEntity.writeVal].  See [hx.modbus::doc#writable-points]
-  // for format.
+  // remote system used to write [ph::PhEntity.writeVal]. Either a register
+  // name in the connector's register map, or the qname of a point spec,
+  // whose [ph.protocols::ModbusAddr] is read from its 'modbusWriteAddr'.
+  // See [hx.modbus::doc#writable-points] for format.
   modbusWrite: Str?
 }
 

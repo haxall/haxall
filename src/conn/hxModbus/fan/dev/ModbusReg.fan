@@ -20,7 +20,6 @@ using haystack
   new make(|This| f)
   {
     f(this)
-    if (!Etc.isTagName(name)) throw Err("Invalid register name: $name")
     if (dis == null || dis.isEmpty) dis = name
     if (tags == null) tags = Etc.dict0
   }
@@ -54,6 +53,55 @@ using haystack
 
   ** Additional tags used for modeling the register as a point
   const Dict tags
+
+  ** Map an authored `ph.protocols::ModbusAddr` spec to a register. The addr
+  ** fields are spec slot defaults, so each one is read from its slot 'val'
+  ** meta. The register is named for the point which owns the addr, since
+  ** that is the qname a point rec stores. Whether it is readable or
+  ** writable is decided by which global carried the addr, not by the addr's
+  ** own 'access' field, which defaults to "r" even on a modbusWriteAddr.
+  static ModbusReg fromSpec(Spec spec, Bool forWrite)
+  {
+    addr  := slotVal(spec, "addr")     ?: throw FaultErr("Missing addr: ${spec.qname}")
+    enc   := slotVal(spec, "encoding") ?: throw FaultErr("Missing encoding: ${spec.qname}")
+    scale := slotVal(spec, "scale")
+    dis   := disOf(spec)
+    return ModbusReg
+    {
+      it.name     = (spec.parent ?: spec).qname
+      it.addr     = ModbusAddr.fromStr(addr)
+      it.data     = ModbusData.fromStr(toDataName(spec, enc))
+      it.readable = !forWrite
+      it.writable = forWrite
+      if (scale != null) it.scale = ModbusScale.fromStr(scale)
+      if (dis != null) it.dis = dis
+    }
+  }
+
+  ** Vendor point name: the addr's own dis when authored, else the dis of
+  ** the point which owns it. An unauthored dis reads as empty, not null.
+  private static Str? disOf(Spec spec)
+  {
+    d := slotVal(spec, "dis")
+    if (d == null || d.isEmpty) d = spec.parent == null ? null : slotVal(spec.parent, "dis")
+    return d == null || d.isEmpty ? null : d
+  }
+
+  ** Map the encoding, bitIndex and byteOrder to a `ModbusData` name.
+  ** bitIndex is only honored for bit encoding: every addr reports a
+  ** bitIndex of zero, so an authored zero cannot be told from the default.
+  private static Str toDataName(Spec spec, Str enc)
+  {
+    if (enc == "bit") return "bit:" + (slotVal(spec, "bitIndex") ?: "0")
+    order := slotVal(spec, "byteOrder")
+    return order == null || order == "be" ? enc : enc + order
+  }
+
+  ** Authored value of an addr slot such as "addr" or "encoding"
+  private static Str? slotVal(Spec spec, Str name)
+  {
+    spec.slot(name, false)?.meta?.get("val")?.toStr
+  }
 
   override Str toStr()
   {

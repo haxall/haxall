@@ -383,7 +383,7 @@ class NamespaceTest : AbstractXetoTest
         `/data/c.txt`, `/dist/test.css`, `/dist/test.js`, `/doc.xeto`, `/equips.xeto`,
         `/fidelity.xeto`, `/funcs.xeto`, `/funcs2.xeto`, `/globals.xeto`, `/instances.xeto`,
         `/instantiate.xeto`, `/json.xeto`, `/lib.xeto`, `/meta.xeto`, `/mixins.xeto`,
-        `/printer.xeto`, `/pub-root.txt`, `/res/a.txt`, `/res/subdir/b.txt`, `/scalars.xeto`,
+        `/modbus.xeto`, `/printer.xeto`, `/pub-root.txt`, `/res/a.txt`, `/res/subdir/b.txt`, `/scalars.xeto`,
         `/schema.xeto`, `/sugar.xeto`, `/test.xeto`, `/validation.xeto`])
 
       // published is everything except the include-only /data and /dist

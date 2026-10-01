@@ -131,6 +131,9 @@ register map name:
     modbusConnRef: @conn
     modbusCur: ai0
 
+A point may instead address its register directly from a spec - see
+[Addr Specs](#addr-specs).
+
 
 # Writable Points
 Modbus proxy points are configured to write to remote system points via
@@ -140,6 +143,59 @@ the [modbusWrite()] tag:
     writable
     modbusConnRef: @conn
     modbusWrite: ao5
+
+
+# Addr Specs
+A point may address its registers directly from an equip template instead of
+a register map.  Author a [ph.protocols::ModbusAddr] on the point using the
+`modbusCurAddr` and `modbusWriteAddr` globals:
+
+    Vav : Equip {
+      points: {
+        zoneTemp: ZoneAirTempSensor {
+          modbusCurAddr:   { addr: "400101", encoding: "s2", scale: "*0.1" }
+          modbusWriteAddr: { addr: "400201", encoding: "s2" }
+        }
+      }
+    }
+
+Binding the template to a connector sets [ModbusPoint.modbusCur] and
+[ModbusPoint.modbusWrite] to the qname of the point spec.  Both tags hold the
+same value; the tag selects which addr global is read off it, and the
+connector takes the encoding, scale and byte order from there:
+
+    point
+    modbusConnRef: @conn
+    modbusCur:   "acme.vav::Vav.points.zoneTemp"
+    modbusWrite: "acme.vav::Vav.points.zoneTemp"
+
+The point slot must be named.  An unnamed constraint is auto-named by
+position, and that index shifts whenever the spec or one of its supertypes
+gains a constraint, so a point addressed that way is faulted rather than
+silently read from the wrong register.
+
+Any value containing "::" is resolved as a qname; anything else is a register
+map name, so the two styles can be mixed on one connector.  A connector whose
+points all use addr specs needs no [ModbusConn.modbusRegMapUri], but it must
+define [ModbusConn.modbusPingAddr] because there is no `ping` register to read.
+That tag names an addr spec exactly the way a point does; a connector with a
+register map defines a register named `ping` instead.
+
+The spec fields map onto the register map columns as follows:
+
+| ModbusAddr  | Register map | Notes
+|-------------|--------------|------
+| `addr`      | `addr`       | Must be 6-digit extended Modicon
+| `encoding`  | `data`       | Combined with `bitIndex` and `byteOrder`
+| `bitIndex`  | `data`       | Only applies to `bit` encoding
+| `byteOrder` | `data`       | Suffix, `be` adds none
+| `scale`     | `scale`      | Requires a leading operator such as `*0.1`
+| `dis`       | `dis`        |
+
+There is no unit field on the addr; the point's own `unit` tag is applied to
+the value.  The `access` field is ignored: whether a register is read or
+written is decided by which global carried the addr, so a readable and
+writable point authors both.
 
 # History
 History synchronization is not supported by Modbus.  You will need to use

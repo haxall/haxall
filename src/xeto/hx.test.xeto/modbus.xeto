@@ -1,0 +1,78 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Sep 2026  Matthew Giannini  Creation
+//
+
+// Points which exercise every ph.protocols ModbusAddr encoding, bit index
+// and byte order that the hxModbus connector maps onto its own data types.
+ModbusEquip : Equip {
+  points: {
+    // a coil addresses one bit, so no bit index applies
+    coil: FanRunSensor {
+      modbusCurAddr: { addr: "000101", encoding: "bit" }
+    }
+
+    // a discrete input is read only by virtue of its address type
+    discrete: FanRunSensor {
+      modbusCurAddr: { addr: "100103", encoding: "bit" }
+    }
+
+    // writable coil
+    coilCmd: FanRunCmd {
+      modbusWriteAddr: { addr: "000105", encoding: "bit" }
+    }
+
+    // bit index selects the bit within a holding register - all three
+    // share one register, so they also resolve from a single read
+    regBit: FanRunSensor {
+      modbusCurAddr: { addr: "400021", encoding: "bit", bitIndex: 2 }
+    }
+    regBitOff: FanRunSensor {
+      modbusCurAddr: { addr: "400021", encoding: "bit", bitIndex: 1 }
+    }
+    regBitDef: FanRunSensor {
+      modbusCurAddr: { addr: "400021", encoding: "bit" }
+    }
+
+    // byte order suffixes, all reading the same pair of registers
+    bigEnd: ZoneAirTempSensor {
+      modbusCurAddr: { addr: "400011", encoding: "u4", byteOrder: "be" }
+    }
+    wordSwap: ZoneAirTempSensor {
+      modbusCurAddr: { addr: "400011", encoding: "u4", byteOrder: "lew" }
+    }
+    byteSwap: ZoneAirTempSensor {
+      modbusCurAddr: { addr: "400011", encoding: "u4", byteOrder: "leb" }
+    }
+
+    // input register, little endian in both byte and word order
+    inputF4: ZoneAirTempSensor {
+      modbusCurAddr: { addr: "300015", encoding: "f4", byteOrder: "le" }
+    }
+
+    // multi-op scale chain
+    scaled: ZoneAirHumiditySensor {
+      modbusCurAddr: { addr: "400010", encoding: "u2", scale: "+32768 /10" }
+    }
+
+    // vendor point name, on the addr
+    named: ZoneAirHumiditySensor {
+      modbusCurAddr: { addr: "400031", encoding: "u2", dis: "Vendor Tag" }
+    }
+
+    // vendor point name on the point instead, the way iSMA authors it
+    pointNamed: ZoneAirHumiditySensor {
+      dis: "Vendor Point"
+      modbusCurAddr: { addr: "400032", encoding: "u2" }
+    }
+
+    // separate cur and write addresses on a writable point
+    split: ZoneAirTempSp {
+      modbusCurAddr:   { addr: "400041", encoding: "s2" }
+      modbusWriteAddr: { addr: "400042", encoding: "s2" }
+    }
+  }
+}

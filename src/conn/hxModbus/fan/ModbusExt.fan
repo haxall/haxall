@@ -37,6 +37,9 @@ const class ModbusExt : ConnExt
 
   override Future onLearn(Conn conn, Obj? arg)
   {
+    // learn walks a register map; points addressed by spec are
+    // discovered from their equip template, not from the device
+    if (conn.rec["modbusRegMapUri"] == null) throw FaultErr("Learn requires a register map")
     regMap := ModbusRegMap.fromConn(proj, conn.rec)
     tagMap := Str:Str[:]
     regMap.regs.each |reg|

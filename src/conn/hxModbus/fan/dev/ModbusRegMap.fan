@@ -98,9 +98,12 @@ const class ModbusRegMap
     {
       try
       {
+        // reg() looks up by name, so map names must be tag names
+        name := row[colName]
+        if (!Etc.isTagName(name)) throw Err("Invalid register name: ${name}")
         registers.add(ModbusReg
         {
-          it.name = row[colName]
+          it.name = name
           it.addr = ModbusAddr(row[colAddr])
           it.data = ModbusData.fromStr(row[colData])
           it.readable = row[colRw].contains("r")

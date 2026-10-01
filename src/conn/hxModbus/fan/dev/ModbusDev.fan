@@ -26,8 +26,16 @@ using hxConn
   ** Slave address for this device.
   const Int slave
 
-  ** Register map for this device.
-  const ModbusRegMap regMap
+  ** Register map for this device, or null if every point addresses its
+  ** registers directly by addr spec.
+  const ModbusRegMap? regMap
+
+  ** Project used to resolve addr specs.
+  const Proj proj
+
+  ** Qname of the addr spec to read for ping, or null to fall back to
+  ** the 'ping' register in the map.
+  const Str? pingId
 
   ** If `true` always use 0x10 write-multiple for writeHoldingRegs
   const Bool forceWriteMultiple := false
@@ -59,9 +67,16 @@ using hxConn
     if (slave == null) throw FaultErr("Missing 'slave' tag")
     if (slave isnot Number) throw FaultErr("Invalid 'slave' tag - must be a Number")
 
+    // optional: points may address their registers by addr spec instead
     regUri := rec["modbusRegMapUri"]
-    if (regUri == null) throw FaultErr("Missing 'modbusRegMapUri' tag")
-    if (regUri isnot Uri) throw FaultErr("Invalid 'modbusRegMapUri' tag - must be an Uri")
+    if (regUri != null && regUri isnot Uri) throw FaultErr("Invalid 'modbusRegMapUri' tag - must be an Uri")
+
+    pingId := rec["modbusPingAddr"]
+    if (pingId != null)
+    {
+      if (pingId isnot Str) throw FaultErr("Invalid 'modbusPingAddr' tag - must be a Str")
+      if (!pingId.toStr.contains("::")) throw FaultErr("Invalid 'modbusPingAddr' tag - must be an addr spec qname")
+    }
 
     fwm := rec["modbusForceWriteMultiple"] != null
 
@@ -69,7 +84,9 @@ using hxConn
     {
       it.uri    = uri
       it.slave  = slave->toInt
-      it.regMap = loadRegMap(conn.proj, regUri)
+      it.proj   = conn.proj
+      it.regMap = regUri == null ? null : loadRegMap(conn.proj, regUri)
+      it.pingId = pingId
       it.forceWriteMultiple = fwm
       it.frameDelay   = toDuration(rec, "modbusFrameDelay", 0sec, conn.tuning.rec)
       it.readTimeout  = toDuration(rec, "modbusReadTimeout", conn.timeout)
@@ -77,6 +94,46 @@ using hxConn
       it.timeout = conn.timeout
       it.log = conn.trace.asLog
     }
+  }
+
+  ** Resolve a modbusCur/modbusWrite value to its register. A value with a
+  ** "::" is the qname of a point spec, and the tag it came from selects
+  ** which addr global to read off it; any other value is a register name
+  ** in the map.
+  ModbusReg reg(Str id, Bool forWrite)
+  {
+    if (!id.contains("::"))
+    {
+      if (regMap == null) throw FaultErr("Missing 'modbusRegMapUri' tag")
+      return regMap.reg(id)
+    }
+
+    checkNamed(id)
+    name := forWrite ? "modbusWriteAddr" : "modbusCurAddr"
+    spec := proj.ns.spec(id, false) ?: throw FaultErr("Unknown point spec: ${id}")
+    addr := spec.slot(name, false) ?: throw FaultErr("Missing ${name}: ${id}")
+    return ModbusReg.fromSpec(addr, forWrite)
+  }
+
+  ** An auto-named slot is positional: its index shifts when the spec gains
+  ** a constraint, and is renumbered again when a subtype merges inherited
+  ** ones, so it cannot identify a register across edits.
+  internal static Void checkNamed(Str qname)
+  {
+    qname.split('.').each |n|
+    {
+      if (n.size < 2 || n[0] != '_') return
+      if (n[1..-1].all |c| { c.isDigit }) throw FaultErr("Point slot must be named, not positional: ${qname}")
+    }
+  }
+
+  ** Register to read for ping, or null if this device has no way to ping.
+  ** A device with a register map defines a register named "ping"; one whose
+  ** points address by spec names an addr spec the same way a point does.
+  ModbusReg? pingReg()
+  {
+    if (pingId == null) return regMap?.reg("ping", false)
+    return reg(pingId, false)
   }
 
   ** Load register map from URI.

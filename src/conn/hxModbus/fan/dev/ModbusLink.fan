@@ -53,11 +53,11 @@ using hxPlatformSerial
   Int touched() { _touched.val }
   private const AtomicInt _touched := AtomicInt(0)
 
-  ** Convenience for [read] with the `ping` register. Throws error
-  ** if `ping` register not found, or if read failed.
+  ** Convenience for [read] with the device's ping register. Throws error
+  ** if the device has no ping register configured, or if the read failed.
   Void ping(ModbusDev dev)
   {
-    ping := dev.regMap.reg("ping", false) ?: throw FaultErr("Missing ping register")
+    ping := dev.pingReg ?: throw FaultErr("Missing 'modbusPingAddr' tag or 'ping' register")
     val  := read(dev, ping)
     if (val is Err) throw val
   }
