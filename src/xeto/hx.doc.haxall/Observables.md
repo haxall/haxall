@@ -29,8 +29,9 @@ The following are SkySpark only observables:
   - [obsSparks](#sparks): observe when new sparks are detected
   - [obsEvents](#events): observe when event dicts are created
 
-There are two mechanisms to setup observers:
+There are three mechanisms to setup observers:
   - [Tasks](#task-observe): Axon observers use the task extension
+  - [Routines](#routine-observe): AI agent observers use the hx.ai extension
   - [Fantom](#fantom-observe): Fantom observers use the [fan.hx::Ext.observe] method
 
 # Observations
@@ -46,6 +47,12 @@ A tasks managed by the [task ext](hx.task::doc#subscriptions) can
 subscribe to an observable using tags.  Tasks subscribe to a specific
 observable by applying the appropiate marker tag and its associated
 configuration tags.
+
+# Routine Observe
+AI routines managed by the [hx.ai ext](hx.ai::doc#routines) subscribe
+to an observable using the same tags as a task.  Each observation wakes
+a background AI agent whose prompt is rendered from the observation.
+The hx.ai extension is not bundled with Haxall.
 
 # Fantom Observe
 HxLibs written in Fantom may use the [fan.hx::Ext.observe] method to subscribe
