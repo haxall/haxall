@@ -36,6 +36,9 @@ class ModbusMaster
     return this
   }
 
+  ** See `ModbusTransport.isFramed`.
+  Bool isFramed() { transport.isFramed }
+
   ** Minimum silence to enforce on the wire between transactions.
   ** See `ModbusTransport.quietTime`.
   Duration quietTime

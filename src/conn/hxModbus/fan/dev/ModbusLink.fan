@@ -205,8 +205,13 @@ using hxPlatformSerial
     catch (Err err)
     {
 // echo("# [$Time.now] [Err] $err.msg")
-      ex := Err("$err.msg [$block.regs.first.addr count=$block.size]", err)
+      ex := Err("${err.msg} [${block.regs.first.addr} count=${block.size}]", err)
       block.resolveErr(ex)
+
+      // the block absorbs the error so the conn stays up, but an unframed
+      // transport still has the rest of the bad response queued; recycle it
+      // rather than read that tail as the next response
+      if (!master.isFramed) _close(master)
     }
     return null
   }
