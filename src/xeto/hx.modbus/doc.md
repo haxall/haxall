@@ -9,6 +9,10 @@ license:    Licensed under the AFL v3.0
 # Overview
 The ModbusExt implements connector support for Modbus protocol.
 
+A connector describes its device one of two ways: a register map CSV, or the
+xeto spec which models the device.  See [Register Map](#register-map) and
+[Addr Specs](#addr-specs).
+
 # Supported Protocols
 ModbusExt supports two protocols for accessing Modbus slave devices:
 
@@ -36,11 +40,13 @@ To access the slave using serial RTU over a TCP connection, use the
 
 
 # Register Map
-Modbus connectors are required to define a register map using the
-[ModbusConn.modbusRegMapUri] tag. The register map specifies which points get read/written
-out of a Modbus slave. The register map URI must be a path relative to the
-project's home directory or can be a `fan://` URI to a CSV file bundled
-in a pod.
+A connector may define a register map using the [ModbusConn.modbusRegMapUri]
+tag. The register map specifies which points get read/written out of a Modbus
+slave. The register map URI must be a path relative to the project's home
+directory or can be a `fan://` URI to a CSV file bundled in a pod.
+
+A connector whose points address their registers from a spec needs no register
+map - see [Addr Specs](#addr-specs).
 
 Register maps are simple CSV files:
 
@@ -54,15 +60,23 @@ Register maps are simple CSV files:
 
 ## Addressing
 Register address are defined with `addr` column and specified using
-Modbus convention:
+Modbus convention, where the leading digit selects the register type and
+the rest is the 1-based register number.  Both the 5-digit form and the
+6-digit extended form are accepted:
 
-    0xxxx  Coil              00001-065536
-    1xxxx  Discrete Input    10001-165536
-    3xxxx  Input Register    30001-365536
-    4xxxx  Holding Register  40001-465536
+    0xxxx  Coil              00001-09999    0xxxxx  000001-065536
+    1xxxx  Discrete Input    10001-19999    1xxxxx  100001-165536
+    3xxxx  Input Register    30001-39999    3xxxxx  300001-365536
+    4xxxx  Holding Register  40001-49999    4xxxxx  400001-465536
+
+The two are equivalent where they overlap: `40001` and `400001` are both
+holding register 1.  Registers above 9999 need the extended form, as do
+addresses authored in a spec - see [Addr Specs](#addr-specs).
 
 ## Ping
 A valid `ping` register is required in order to test connectivity to slave.
+A connector configured by device spec names a point instead - see
+[Ping Point](#ping-point).
 
 ## Data Type
 The `data` column specifies how register data is modeled.
@@ -80,7 +94,7 @@ The `data` column specifies how register data is modeled.
 
 ### Bit Mask
 The `bit` data type supports a position notation for cases where bits are
-packed into input or holding registers:
+packed into input or holding registers.  The position is 0 to 15:
 
     name, addr,  data,  rw
     do0,  40101, bit:0, rw
@@ -91,9 +105,12 @@ packed into input or holding registers:
 If register data is not stored in network byte order, you can specify the
 order using a suffix:
 
-    u2le   Unsigned 16-bit Int  Little endian byte and word order
-    u2leb  Unsigned 16-bit Int  Little endian byte order only
-    u2lew  Unsigned 16-bit Int  Little endian word order only
+    u4le   Unsigned 32-bit Int  Little endian byte and word order
+    u4leb  Unsigned 32-bit Int  Little endian byte order only
+    u4lew  Unsigned 32-bit Int  Little endian word order only
+
+Word order only applies to types which span more than one register, so on a
+16-bit type `u2lew` is the same as `u2`, and `u2le` the same as `u2leb`.
 
 ## Read/Write
 Read and write permissions are configured using `rw` column:
@@ -115,6 +132,9 @@ You can also chain multiple scaling factors together:
 
     chained: +32768 /10
 
+Every term needs its operator: a bare `0.1` is not a scale and fails the row
+rather than loading the register unscaled.
+
 ## Dis, Unit, Tags
 The `dis`, `unit`, and `tags` column allow optional pre-configuration for the
 point during the learn process:
@@ -122,10 +142,13 @@ point during the learn process:
     name, addr,  data, rw, dis,  unit, tags
     ai1,  40002, u2,   r,  AI-1, kW,   power foo bar
 
+The `unit` must be a known unit symbol or name; an unrecognized one fails the
+row rather than loading the register unitless.
+
 
 # Current Points
-Modbus proxy points are configured with [ModbusPoint.modbusCur] tag, which maps to a valid
-register map name:
+Modbus proxy points are configured with the [ModbusPoint.modbusCur] tag, which
+names a register in the connector's register map:
 
     point
     modbusConnRef: @conn
@@ -137,17 +160,20 @@ A point may instead address its register directly from a spec - see
 
 # Writable Points
 Modbus proxy points are configured to write to remote system points via
-the [modbusWrite()] tag:
+the [ModbusPoint.modbusWrite] tag:
 
     point
     writable
     modbusConnRef: @conn
     modbusWrite: ao5
 
+A point may instead address its register directly from a spec - see
+[Addr Specs](#addr-specs).
+
 
 # Addr Specs
-A point may address its registers directly from an equip template instead of
-a register map.  Author a [ph.protocols::ModbusAddr] on the point using the
+A point may address its registers from an equip template instead of a register
+map.  Author a [ph.protocols::ModbusAddr] on the point using the
 `modbusCurAddr` and `modbusWriteAddr` globals:
 
     Vav : Equip {
@@ -160,8 +186,8 @@ a register map.  Author a [ph.protocols::ModbusAddr] on the point using the
     }
 
 Binding the template to a connector sets [ModbusPoint.modbusCur] and
-[ModbusPoint.modbusWrite] to the qname of the point spec.  Both tags hold the
-same value; the tag selects which addr global is read off it, and the
+[ModbusPoint.modbusWrite] to the qname of the point spec.
+The tag selects which addr global is read off it, and the
 connector takes the encoding, scale and byte order from there:
 
     point
@@ -169,32 +195,10 @@ connector takes the encoding, scale and byte order from there:
     modbusCur:   "acme.vav::Vav.points.zoneTemp"
     modbusWrite: "acme.vav::Vav.points.zoneTemp"
 
-The point slot must be named.  An unnamed constraint is auto-named by
-position, and that index shifts whenever the spec or one of its supertypes
-gains a constraint, so a point addressed that way is faulted rather than
-silently read from the wrong register.
-
 Any value containing "::" is resolved as a qname; anything else is a register
-map name, so the two styles can be mixed on one connector.  A connector whose
-points all use addr specs needs no [ModbusConn.modbusRegMapUri], but it must
-define [ModbusConn.modbusPingAddr] because there is no `ping` register to read.
-That tag names one of the device spec's points, such as `msi2`, and its
-`modbusCurAddr` is read:
+map name, so the two styles can be mixed on one connector.
 
-    modbusConn
-    modbusDeviceSpec: "cc.isma.vav14::IsmaVav14"
-    modbusPingAddr: "msi2"
-
-A connector with a register map defines a register named `ping` instead.
-
-A connector may name the device's spec with [ModbusConn.modbusDeviceSpec],
-in which case [connLearn()] walks that spec's points rather than a register map.
-Each learned row carries the point's `dis`, `kind` and `unit`, and addresses
-its registers by qname:
-
-    modbusConn
-    modbusDeviceSpec: "cc.isma.vav14::IsmaVav14"
-
+## Field Mapping
 The spec fields map onto the register map columns as follows:
 
 | ModbusAddr  | Register map | Notes
@@ -207,9 +211,34 @@ The spec fields map onto the register map columns as follows:
 | `dis`       | `dis`        |
 
 There is no unit field on the addr; the point's own `unit` tag is applied to
-the value.  The `access` field is ignored: whether a register is read or
-written is decided by which global carried the addr, so a readable and
-writable point authors both.
+the value.
+
+## Device Spec
+A connector whose points address their registers this way names the spec which
+models the device with [ModbusConn.modbusDeviceSpec], and needs no
+[ModbusConn.modbusRegMapUri]:
+
+    modbusConn
+    uri: `modbus-tcp://host/`
+    modbusSlave: 1
+    modbusDeviceSpec: "acme.vav::Vav"
+    modbusPingAddr: "zoneTemp"
+
+## Learn
+With a device spec configured, [connLearn()] walks that spec's points rather
+than a register map.  The root level is a folder per register type in use -
+coils, discrete inputs, input registers, holding registers - and expanding one
+lists its points in register order.  Each learned point carries its `dis`,
+`kind` and `unit` from the point spec, and addresses its registers by qname.
+
+A connector with a register map is learned the same way, grouping its
+registers into the same folders.
+
+## Ping Point
+There is no `ping` register without a register map, so a connector configured
+by device spec reads one of that spec's points instead.
+[ModbusConn.modbusPingAddr] names it, such as `zoneTemp`, and its `modbusCurAddr`
+is the register read.
 
 # History
 History synchronization is not supported by Modbus.  You will need to use
@@ -244,7 +273,7 @@ a single block:
     40001 u2
     40002 u2
     40003 u2
-    40005 u2  // 400004 will be read but discarded
+    40005 u2  // 40004 will be read but discarded
 
 ## modbusBlockMax
 By default, blocks are limited to 100 total registers (which includes skipped
@@ -264,6 +293,7 @@ smaller or larger chunks, add the [ModbusConn.modbusBlockMax] tag to your conn r
 
 Be aware a block read failure will result in the entire block's points being
 marked as fault.
+
 # Frame Delay
 Every conn that shares a `uri` shares a single connection to that endpoint, and
 their transactions are serialized onto it back-to-back with no gap. That is

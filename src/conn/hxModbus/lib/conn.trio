@@ -64,7 +64,7 @@ is: ^str
 tagOn: ^modbusConn
 doc:
   Applied to 'modbusConn' to name the xeto spec which models this device,
-  such as "cc.isma.vav14::IsmaVav14".  Learn walks that spec's points
+  such as "acme.vav::Vav".  Learn walks that spec's points
   instead of a register map, and each learned point addresses its
   registers by qname.  A connector needs this or `modbusRegMapUri`.
 --------------------------------------------------------------------------
@@ -73,7 +73,7 @@ is: ^str
 tagOn: ^modbusConn
 doc:
   Applied to 'modbusConn' to name the point to read for 'connPing', such
-  as "msi2".  Resolved within 'modbusDeviceSpec', whose 'modbusCurAddr' is
+  as "zoneTemp".  Resolved within 'modbusDeviceSpec', whose 'modbusCurAddr' is
   read.  Required when this connector is modelled by a device spec; a
   connector with a register map defines a register named "ping" instead.
 --------------------------------------------------------------------------

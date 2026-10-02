@@ -112,7 +112,7 @@ internal class ModbusSpecTest : Test
     verifyEq(r.dis, r.name)
     verifyEq(reg("named").dis, "Vendor Tag")
 
-    // a vendor may name the point rather than the addr - iSMA does
+    // a device spec may name the point rather than the addr
     verifyEq(reg("pointNamed").dis, "Vendor Point")
   }
 

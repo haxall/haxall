@@ -81,7 +81,7 @@ using hxConn
     {
       if (pingId isnot Str) throw FaultErr("Invalid 'modbusPingAddr' tag - must be a Str")
       if (pingId.toStr.contains("::"))
-        throw FaultErr("Invalid 'modbusPingAddr' tag - must be a point name such as \"msi2\", not a qname")
+        throw FaultErr("Invalid 'modbusPingAddr' tag - must be a point name, not a qname")
     }
 
     fwm := rec["modbusForceWriteMultiple"] != null
@@ -151,7 +151,7 @@ using hxConn
 
   ** Register to read for ping, or null if this device has no way to ping.
   ** A device with a register map defines a register named "ping"; one
-  ** modelled by a spec names one of that spec's points, such as "msi2".
+  ** modelled by a spec names one of that spec's points, such as "zoneTemp".
   ModbusReg? pingReg()
   {
     if (pingId == null) return regMap?.reg("ping", false)

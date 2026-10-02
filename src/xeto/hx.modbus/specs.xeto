@@ -35,7 +35,7 @@ ModbusConn: Conn <icon:"modbus"> {
   modbusReadTimeout: Duration?
 
   // Applied to `modbusConn` to read for [connPing()]. The name of a point in
-  // [ModbusConn.modbusDeviceSpec], such as "msi2", whose 'modbusCurAddr' is read.
+  // [ModbusConn.modbusDeviceSpec], such as "zoneTemp", whose 'modbusCurAddr' is read.
   // Required when this connector is modelled by a device spec; a connector
   // with a register map defines a register named "ping" instead.
   modbusPingAddr: Str?
