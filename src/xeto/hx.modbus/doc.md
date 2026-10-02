@@ -188,7 +188,7 @@ That tag names one of the device spec's points, such as `msi2`, and its
 A connector with a register map defines a register named `ping` instead.
 
 A connector may name the device's spec with [ModbusConn.modbusDeviceSpec],
-in which case [connLearn] walks that spec's points rather than a register map.
+in which case [connLearn()] walks that spec's points rather than a register map.
 Each learned row carries the point's `dis`, `kind` and `unit`, and addresses
 its registers by qname:
 
