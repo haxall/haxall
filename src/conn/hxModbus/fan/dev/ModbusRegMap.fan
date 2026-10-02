@@ -119,9 +119,11 @@ const class ModbusRegMap
           it.data = ModbusData.fromStr(row[colData])
           it.readable = row[colRw].contains("r")
           it.writable = row[colRw].contains("w")
-          if (colScale >= 0) it.scale = ModbusScale(row[colScale], false)
+          // an empty cell is no scale, but a malformed one is a bad row:
+          // silently dropping it reads the register at the wrong magnitude
+          if (colScale >= 0 && !row[colScale].trim.isEmpty) it.scale = ModbusScale(row[colScale])
           if (colDis   >= 0) it.dis   = row[colDis]
-          if (colUnits >= 0) it.unit  = Unit(row[colUnits], false)
+          if (colUnits >= 0 && !row[colUnits].trim.isEmpty) it.unit = Unit(row[colUnits])
           if (colTags  >= 0) it.tags  = ZincReader(row[colTags].in).readTags
         })
       }

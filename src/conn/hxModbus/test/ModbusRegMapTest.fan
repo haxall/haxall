@@ -151,6 +151,48 @@ class ModbusRegMapTest : HxTest
     // verifyEq(ModbusScale("/ai6").name,   "ai6")
   }
 
+  Void testBadScale()
+  {
+    // an empty scale cell is simply no scale
+    f := tempDir + `scale-ok.csv`
+    f.out.print(
+      Str<|name,addr,data,rw,scale
+           a,40001,u2,r,
+           b,40002,u2,r,*0.1|>).flush.close
+    map := ModbusRegMap.fromFile(f)
+    verifyNull(map.reg("a").scale)
+    verifyEq(map.reg("b").scale.compute(Number.makeInt(20)), Number(2f))
+
+    // a malformed one fails the row rather than reading unscaled
+    f2 := tempDir + `scale-bad.csv`
+    f2.out.print(
+      Str<|name,addr,data,rw,scale
+           a,40001,u2,r,
+           b,40002,u2,r,0.1|>).flush.close
+    verifyErrMsg(IOErr#, "Invalid register row [line 3]") |->| { ModbusRegMap.fromFile(f2) }
+  }
+
+  Void testBadUnit()
+  {
+    // an empty unit cell is simply no unit
+    f := tempDir + `unit-ok.csv`
+    f.out.print(
+      Str<|name,addr,data,rw,unit
+           a,40001,u2,r,
+           b,40002,u2,r,kW|>).flush.close
+    map := ModbusRegMap.fromFile(f)
+    verifyNull(map.reg("a").unit)
+    verifyEq(map.reg("b").unit, Unit("kW"))
+
+    // an unknown one fails the row rather than reading unitless
+    f2 := tempDir + `unit-bad.csv`
+    f2.out.print(
+      Str<|name,addr,data,rw,unit
+           a,40001,u2,r,
+           b,40002,u2,r,degF|>).flush.close
+    verifyErrMsg(IOErr#, "Invalid register row [line 3]") |->| { ModbusRegMap.fromFile(f2) }
+  }
+
   Void testLearn()
   {
     csv :=
