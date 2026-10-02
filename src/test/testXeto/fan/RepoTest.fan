@@ -282,10 +282,11 @@ class RepoTest : AbstractXetoTest
     // sys and ph
     //
     LibVersion phVer := repo.lib("ph")
-    ns = env.createNamespace([phVer, sysVer])
+    LibVersion refsVer := repo.lib("sys.refs")
+    ns = env.createNamespace([phVer, refsVer, sysVer])
     verifySame(ns.digest, ns.digest)
     verifyNotEq(sysNs.digest, ns.digest)
-    verifyEq(ns.versions, [sysVer, phVer])
+    verifyEq(ns.versions, [sysVer, refsVer, phVer])
     verifySame(ns.version("sys"), sysVer)
     verifyEq(ns.libStatus("sys"), LibStatus.ok)
     verifySame(ns.version("ph"), phVer)
@@ -303,7 +304,7 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.lib("ph"), ph)
     verifyEq(ph.name, "ph")
     verifyEq(ph.version, phVer.version)
-    verifyEq(ns.libs, Lib[sys, ph])
+    verifyEq(ns.libs, Lib[sys, ns.lib("sys.refs"), ph])
     verifySame(ns.libs, ns.libs)
 
     verifySame(ns.spec("sys::Str").lib, ns.sysLib)

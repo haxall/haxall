@@ -203,7 +203,7 @@ class DocTest : AbstractXetoTest
     verifyEq(siteRef.parent.qname, "ph::Equip")
     verifyEq(siteRef.base.dis, "ph::PhEntity.siteRef")
     verifyEq(siteRef.base.uri, `/ph/PhEntity.siteRef`)
-    verifyEq(siteRef.type.qname, "sys::Ref")
+    verifyEq(siteRef.type.qname, "sys.refs::ContainedByRef")
 
     verifyEq(n.doc.html.trim, "<p>Equip with <em>points</em></p>")
   }

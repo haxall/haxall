@@ -190,9 +190,10 @@ class NamespaceTest : AbstractXetoTest
   {
     // lib basics
     ph := verifyLibBasics(ns, "ph", phVersion, ["ph"], false)
-    verifyEq(ph.depends.size, 1)
+    verifyEq(ph.depends.size, 2)
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, phVersion.toStr)
+    verifyEq(ph.depends[1].name, "sys.refs")
     verifyEq(ph.meta["maturity"], LibMaturity.alpha)
 
     entity    := ns.spec("ph::PhEntity")

@@ -38,6 +38,7 @@ class Validator
     this.strSpec      = ns.sys.str
     this.numberSpec   = ns.sys.number
     this.multiRefSpec = ns.sys.multiRef
+    this.refSpec      = ns.sys.ref
     this.resolveSpecFunc = |Str q->Spec?| { resolveSpec(q) }
   }
 
@@ -230,6 +231,9 @@ class Validator
     // the declared slot type, but only when that type is itself a dict
     if (s.dict != null && s.dict.missing("spec") && type.isDict) return true
 
+    // a Ref value fits any Ref subtype such as sys.refs::ContainedByRef
+    if (type.isRef && val is Ref) return true
+
     // MultiRef may be either Ref or Ref[]
     if (type.isMultiRef)
     {
@@ -253,11 +257,13 @@ class Validator
   private Bool isErased(Spec type) { fidelity.isHaystack && type.isScalar }
 
   ** Haystack encoding of scalar type: Int/Float/Duration erase
-  ** to Number, haystack kinds are themselves, all others Str
+  ** to Number, Ref subtypes to Ref, haystack kinds are themselves,
+  ** all others Str
   private Spec haystackType(Spec type)
   {
     if (type.isa(numberSpec)) return numberSpec
     if (type.isHaystack) return type
+    if (type.isRef) return refSpec
     return strSpec
   }
 
@@ -434,6 +440,7 @@ class Validator
   const Spec strSpec              // spec for sys::Str
   const Spec numberSpec           // spec for sys::Number
   const Spec multiRefSpec         // spec for sys::MultiRef
+  const Spec refSpec              // spec for sys::Ref
   XetoContext cx { private set }
   private |Str->Spec?| resolveSpecFunc
   private MValidateItem[] items := [,]

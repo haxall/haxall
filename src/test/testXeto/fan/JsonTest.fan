@@ -897,6 +897,7 @@ class JsonTest : AbstractXetoTest
   private static const Str:Str scalarSkips := [
     "sys::Enum":     "base of every enum; carries no value of its own",
     "sys::BuildVar": "build time macro, never a runtime value",
+    "sys.refs::ContainedByRef": "Ref subtype; values are plain Refs so specOf is sys::Ref",
   ]
 
   ** Ceiling for testOverBoxing

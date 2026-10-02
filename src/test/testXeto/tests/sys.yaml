@@ -144,6 +144,11 @@ verifyType:
   meta:
     doc: |
       sys::Str Reference to another dict.  The `of` meta defines target type.
+      Ref may be subtyped to classify relationship semantics such as
+      `sys.refs::ContainedByRef`.  Subtypes are nominal metadata on the
+      spec only, never value identity: values are always plain refs,
+      so reflection of a ref value always yields sys::Ref and a plain
+      ref value fits any Ref subtype.
       Refs must adhere to the following limited set of ASCII characters:
       - ASCII lower case letter a-z
       - ASCII upper case letter A-Z
@@ -155,7 +160,6 @@ verifyType:
       - Tilde "~"
       - Double colon "::" is reserved for specs/instances in a xeto lib
     pattern: "sys::Str [a-zA-Z\\d\\._~:-]*"
-    sealed: "sys::Marker"
     val: "sys::Ref x"
 ---
 name: "version"

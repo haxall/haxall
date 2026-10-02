@@ -543,7 +543,7 @@ class SpecTest : AbstractXetoTest
 
     equipSlots := [
       "id:Ref", "spec:Ref?", "equip:Marker",
-      "equipRef:Ref?", "siteRef:Ref", "spaceRef:Ref?", "systemRef:MultiRef?",
+      "equipRef:ContainedByRef?", "siteRef:ContainedByRef", "spaceRef:ContainedByRef?", "systemRef:MemberOfRef?",
       "parentEquips:Query", "childEquips:Query", "points:Query"]
     meterSlots       := equipSlots.dup.addAll(["meter:Marker", "meterScope:MeterScope?", "submeterOf:Ref?"])
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
@@ -557,9 +557,9 @@ class SpecTest : AbstractXetoTest
     ptSlots := [
       "id:Ref", "spec:Ref?",
       "point:Marker", "cur:Marker?",
-      "equipRef:Ref?", "his:Marker?", "kind:Kind",
+      "equipRef:ContainedByRef?", "his:Marker?", "kind:Kind",
       "pointFunction:PointFunction?", "pointQuantity:Quantity?", "pointSubject:Phenomenon?",
-      "siteRef:Ref?", "spaceRef:Ref?", "systemRef:MultiRef?",
+      "siteRef:ContainedByRef?", "spaceRef:ContainedByRef?", "systemRef:MemberOfRef?",
       "tz:TimeZone?", "writable:Marker?",
       "equips:Query"]
     numPtSlots := ptSlots.dup.addAll(["unit:Unit", "maxVal:Number?", "minVal:Number?"])

@@ -592,6 +592,8 @@ internal const class RefBinding : ScalarBinding
 {
   new make(Type type) : super("sys::Ref", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Ref.fromStr(str, checked) }
+  // subtypes such as sys.refs::ContainedByRef decode as Ref
+  override Bool isInheritable() { true }
 }
 
 @Js
