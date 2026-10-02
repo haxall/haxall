@@ -117,6 +117,99 @@ internal class ModbusSpecTest : Test
   }
 
 //////////////////////////////////////////////////////////////////////////
+// testLearn
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLearn()
+  {
+    // root is one folder per register type in use, in Modicon order. The
+    // learn key is a scalar: the nav tree round-trips it through a ref.
+    g := ModbusExt.learnSpec(ns, "hx.test.xeto::ModbusEquip", null)
+    verifyEq(names(g), ["Coils", "Discrete Inputs", "Input Registers", "Holding Registers"])
+    keys := Str[,]
+    g.each |r| { keys.add(r->learn) }
+    verifyEq(keys, ["coil", "discreteInput", "inputReg", "holdingReg"])
+
+    // expanding a folder returns that type's points, by register number
+    verifyEq(names(points("coil")),          ["coil", "coilCmd"])
+    verifyEq(names(points("discreteInput")), ["discrete"])
+    verifyEq(names(points("inputReg")),      ["inputF4"])
+    verifyEq(names(points("holdingReg")),
+      ["scaled", "bigEnd", "wordSwap", "byteSwap", "regBit", "regBitOff",
+       "regBitDef", "Vendor Tag", "Vendor Point", "split"])
+
+    // a point row carries no learn key, so the tree stops there
+    coils := points("coil")
+    verifyEq(coils.first["learn"], null)
+
+    // a read only point names its cur addr and nothing else
+    c := coils.first
+    verifyEq(c["modbusCur"],   "hx.test.xeto::ModbusEquip.points.coil")
+    verifyEq(c["modbusWrite"], null)
+    verifyEq(c["point"],       Marker.val)
+    verifyEq(c["kind"],        "Bool")
+
+    // a writable point names the same point spec for both
+    sp := points("holdingReg").last
+    verifyEq(sp["dis"],         "split")
+    verifyEq(sp["modbusCur"],   "hx.test.xeto::ModbusEquip.points.split")
+    verifyEq(sp["modbusWrite"], "hx.test.xeto::ModbusEquip.points.split")
+    verifyEq(sp["kind"],        "Number")
+    verifyEq(sp["unit"],        "°F")
+
+    // write only point has no cur
+    cmd := coils.last
+    verifyEq(cmd["modbusCur"],   null)
+    verifyEq(cmd["modbusWrite"], "hx.test.xeto::ModbusEquip.points.coilCmd")
+
+    // an unresolved qname distinguishes a disabled lib from a bad spec
+    verifyErrMsg(FaultErr#, "Unknown 'modbusDeviceSpec' spec: hx.test.xeto::Nope") |->|
+    {
+      ModbusExt.learnSpec(ns, "hx.test.xeto::Nope", null)
+    }
+    verifyErrMsg(FaultErr#, "Lib not enabled in this project for 'modbusDeviceSpec': no.such.lib") |->|
+    {
+      ModbusExt.learnSpec(ns, "no.such.lib::Thing", null)
+    }
+  }
+
+  private Dict[] points(Str type)
+  {
+    g := ModbusExt.learnSpec(ns, "hx.test.xeto::ModbusEquip", ModbusAddrType.fromStr(type))
+    rows := Dict[,]
+    g.each |r| { rows.add(r) }
+    return rows
+  }
+
+  private Str[] names(Obj rows)
+  {
+    acc := Str[,]
+    if (rows is Grid) ((Grid)rows).each |r| { acc.add(r->dis) }
+    else ((Dict[])rows).each |r| { acc.add(r->dis) }
+    return acc
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// testPointIn
+//////////////////////////////////////////////////////////////////////////
+
+  Void testPointIn()
+  {
+    spec := ns.spec("hx.test.xeto::ModbusEquip")
+
+    // modbusPingAddr names a point of the device spec by slot name
+    pt := ModbusDev.pointIn(spec, "regBit")
+    verifyEq(pt?.qname, "hx.test.xeto::ModbusEquip.points.regBit")
+    verifyEq(ModbusReg.fromSpec(pt.slot("modbusCurAddr"), false).addr.num, 21)
+
+    // unknown names resolve to null rather than throwing
+    verifyNull(ModbusDev.pointIn(spec, "nope"))
+
+    // only query slots are searched, so a spec's own slots never match
+    verifyNull(ModbusDev.pointIn(spec, "points"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // testPositional
 //////////////////////////////////////////////////////////////////////////
 

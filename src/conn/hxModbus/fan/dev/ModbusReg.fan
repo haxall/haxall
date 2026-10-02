@@ -80,7 +80,7 @@ using haystack
 
   ** Vendor point name: the addr's own dis when authored, else the dis of
   ** the point which owns it. An unauthored dis reads as empty, not null.
-  private static Str? disOf(Spec spec)
+  internal static Str? disOf(Spec spec)
   {
     d := slotVal(spec, "dis")
     if (d == null || d.isEmpty) d = spec.parent == null ? null : slotVal(spec.parent, "dis")
@@ -98,7 +98,7 @@ using haystack
   }
 
   ** Authored value of an addr slot such as "addr" or "encoding"
-  private static Str? slotVal(Spec spec, Str name)
+  internal static Str? slotVal(Spec spec, Str name)
   {
     spec.slot(name, false)?.meta?.get("val")?.toStr
   }
@@ -117,12 +117,20 @@ using haystack
 {
   ** Parse 5 or 6 digit address where leading digit must be 0, 1, 3, 4
   ** to indicate type and next 4 or 5 digits represent register number
-  static new fromStr(Str str)
+  static new fromStr(Str str, Bool checked := true)
   {
-    if (str.size != 5 && str.size != 6) throw ParseErr("ModbusAddr wrong size: $str")
-    type := ModbusAddrType.fromPrefixChar(str[0])
-    num  := str[1..-1].toInt(10, false) ?: throw ParseErr("ModbusAddr not integer: $str")
-    return make(type, num)
+    try
+    {
+      if (str.size != 5 && str.size != 6) throw ParseErr("ModbusAddr wrong size: $str")
+      type := ModbusAddrType.fromPrefixChar(str[0])
+      num  := str[1..-1].toInt(10, false) ?: throw ParseErr("ModbusAddr not integer: $str")
+      return make(type, num)
+    }
+    catch (Err err)
+    {
+      if (!checked) return null
+      throw err
+    }
   }
 
   ** Make with explicit type and register number

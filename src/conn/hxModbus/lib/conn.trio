@@ -59,6 +59,24 @@ doc:
   `modbusWriteTimeout`, so those must be large enough to cover the whole
   serialized cycle for every slave on the uri.
 --------------------------------------------------------------------------
+def: ^modbusDeviceSpec
+is: ^str
+tagOn: ^modbusConn
+doc:
+  Applied to 'modbusConn' to name the xeto spec which models this device,
+  such as "cc.isma.vav14::IsmaVav14".  Learn walks that spec's points
+  instead of a register map, and each learned point addresses its
+  registers by qname.  A connector needs this or `modbusRegMapUri`.
+--------------------------------------------------------------------------
+def: ^modbusPingAddr
+is: ^str
+tagOn: ^modbusConn
+doc:
+  Applied to 'modbusConn' to name the point to read for 'connPing', such
+  as "msi2".  Resolved within 'modbusDeviceSpec', whose 'modbusCurAddr' is
+  read.  Required when this connector is modelled by a device spec; a
+  connector with a register map defines a register named "ping" instead.
+--------------------------------------------------------------------------
 def: ^modbusRegMapUri
 is: ^uri
 tagOn: ^modbusConn
@@ -67,6 +85,7 @@ doc:
   Applied to 'modbusConn' to define the register map CSV file.
   This URI must be a path relative to the project's home directory
   or can be a "fan://" URI to a CSV file bundled in a pod.
+  Optional when every point addresses its registers by spec.
 --------------------------------------------------------------------------
 def: ^modbusSlave
 is: ^int

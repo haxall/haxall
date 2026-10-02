@@ -151,6 +151,57 @@ class ModbusRegMapTest : HxTest
     // verifyEq(ModbusScale("/ai6").name,   "ai6")
   }
 
+  Void testLearn()
+  {
+    csv :=
+      Str<|name,addr,data,rw,unit,tags
+           hold2,40050,u2,rw,kW,
+           hold1,40010,u2,r,,foo
+           input,30020,s4,r,,
+           coil,00080,bit,rw,,
+           discrete,10234,bit,r,,|>
+
+    f := tempDir + `learn.csv`
+    f.out.print(csv).flush.close
+    map := ModbusRegMap.fromFile(f)
+
+    // root is a folder per register type in use, in Modicon order
+    g := ModbusExt.learnRegMap(map, null)
+    folders := Str[,]
+    keys    := Str[,]
+    g.each |r| { folders.add(r->dis); keys.add(r->learn) }
+    verifyEq(folders, ["Coils", "Discrete Inputs", "Input Registers", "Holding Registers"])
+    verifyEq(keys,    ["coil", "discreteInput", "inputReg", "holdingReg"])
+
+    kids := Str:Dict[][:]
+    keys.each |k, i|
+    {
+      rows := Dict[,]
+      ModbusExt.learnRegMap(map, ModbusAddrType.fromStr(k)).each |r| { rows.add(r) }
+      kids[folders[i]] = rows
+    }
+
+    // registers sort by number within their folder
+    hold := kids["Holding Registers"]
+    verifyEq(hold.map |r->Str| { r->dis }, ["hold1", "hold2"])
+
+    // a readable register names itself for cur only, and keeps its csv tags
+    verifyEq(hold[0]["modbusCur"],   "hold1")
+    verifyEq(hold[0]["modbusWrite"], null)
+    verifyEq(hold[0]["kind"],        "Number")
+    verifyEq(hold[0]["point"],       Marker.val)
+    verifyEq(hold[0]["foo"],         Marker.val)
+
+    // rw names itself for both, and carries its unit
+    verifyEq(hold[1]["modbusCur"],   "hold2")
+    verifyEq(hold[1]["modbusWrite"], "hold2")
+    verifyEq(hold[1]["unit"],        "kW")
+
+    verifyEq(kids["Coils"].first["kind"],          "Bool")
+    verifyEq(kids["Discrete Inputs"].first["dis"], "discrete")
+    verifyEq(kids["Input Registers"].first["modbusCur"], "input")
+  }
+
   Void verifyScale(ModbusScale scale, Num in, Num out)
   {
     nin  := in  is Int ? Number.makeInt(in)  : Number((Float)in)

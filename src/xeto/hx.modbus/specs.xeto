@@ -20,6 +20,12 @@ ModbusConn: Conn <icon:"modbus"> {
   // Marker tag for ModbusConn type
   modbusConn
 
+  // Applied to `modbusConn` to name the xeto spec which models this device,
+  // such as "cc.isma.vav14::IsmaVav14". [connLearn] walks its points instead
+  // of a register map, and each learned point addresses its registers by
+  // qname. See [hx.modbus::doc#addr-specs] for more information.
+  modbusDeviceSpec: Str?
+
   // Minimum silence to enforce on the wire between two consecutive transactions.
   // Applied to `modbusConn` or its [hx.conn::ConnTuning] rec; a value on the conn
   // rec takes precedence. See [hx.modbus::doc#frame-delay] for more information.
@@ -28,9 +34,9 @@ ModbusConn: Conn <icon:"modbus"> {
   // How long to wait before timing out on a modbus read.
   modbusReadTimeout: Duration?
 
-  // Applied to `modbusConn` to read for [connPing]. The qname of a point
-  // spec, in the same form as [ModbusPoint.modbusCur]. Required when this
-  // connector's points address their registers by addr spec; a connector
+  // Applied to `modbusConn` to read for [connPing]. The name of a point in
+  // [modbusDeviceSpec], such as "msi2", whose 'modbusCurAddr' is read.
+  // Required when this connector is modelled by a device spec; a connector
   // with a register map defines a register named "ping" instead.
   modbusPingAddr: Str?
 

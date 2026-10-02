@@ -33,17 +33,28 @@ const class ModbusRegMap
   **
   static ModbusRegMap fromConn(Proj rt, Dict rec)
   {
-    uri := rec["modbusRegMapUri"] as Uri ?: throw FaultErr("Missing modbusRegMapUri tag")
+    uri := rec["modbusRegMapUri"] as Uri
+    if (uri == null || uri == ``) throw FaultErr("Missing 'modbusRegMapUri' tag")
+    return fromFile(uriToCsv(rt, uri))
+  }
+
+  ** Resolve modbusRegMapUri to its CSV file. An empty uri resolves to the
+  ** project directory, which exists, so without the isDir check the read
+  ** fails deep in the CSV parser with a FileNotFoundException naming a
+  ** directory rather than the tag at fault.
+  internal static File uriToCsv(Proj rt, Uri uri)
+  {
     file := uriToFile(rt, uri)
-    if (!file.exists) throw FaultErr("File not found for modbusRegMapUri: $uri")
-    return fromFile(file)
+    if (!file.exists) throw FaultErr("File not found for 'modbusRegMapUri': $uri")
+    if (file.isDir) throw FaultErr("Not a file for 'modbusRegMapUri': $uri")
+    return file
   }
 
   internal static File uriToFile(Proj rt, Uri uri)
   {
     if (uri.scheme == "fan") return uri.get
     if (!uri.isPathAbs) return rt.dir.plus(`$uri`)
-    throw FaultErr("Unsupported modbusRegMapUri: $uri")
+    throw FaultErr("Unsupported 'modbusRegMapUri': $uri")
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -35,38 +35,104 @@ const class ModbusExt : ConnExt
     ModbusLinkMgr.stop
   }
 
+  ** Modbus has no discovery, so learn walks whatever describes the device:
+  ** its device spec if one is named, otherwise its register map. The root
+  ** level is a folder per register type, and the learn arg naming one of
+  ** those types returns its points.
   override Future onLearn(Conn conn, Obj? arg)
   {
-    // learn walks a register map; points addressed by spec are
-    // discovered from their equip template, not from the device
-    if (conn.rec["modbusRegMapUri"] == null) throw FaultErr("Learn requires a register map")
-    regMap := ModbusRegMap.fromConn(proj, conn.rec)
-    tagMap := Str:Str[:]
-    regMap.regs.each |reg|
-    {
-      names := Etc.dictNames(reg.tags)
-      tagMap.setList(names) |n| { n }
-    }
-    tags := tagMap.keys.sort
+    type := arg == null ? null : ModbusAddrType.fromStr(arg.toStr, false)
+    if (arg != null && type == null) throw FaultErr("Invalid learn arg: ${arg}")
 
-    gb := GridBuilder()
-      .addCol("dis").addCol("kind").addCol("modbusCur")
-      .addCol("modbusWrite").addCol("point").addCol("unit")
-      .addColNames(tags)
-    regMap.regs.each |reg|
+    deviceSpec := conn.rec["modbusDeviceSpec"]
+    if (deviceSpec != null)
+      return Future.makeCompletable.complete(learnSpec(proj.ns, deviceSpec.toStr, type))
+
+    regUri := conn.rec["modbusRegMapUri"]
+    if (regUri == null || regUri == ``)
+      throw FaultErr("Learn requires 'modbusDeviceSpec' or 'modbusRegMapUri'")
+    return Future.makeCompletable.complete(learnRegMap(ModbusRegMap.fromConn(proj, conn.rec), type))
+  }
+
+  ** Learn the points of a device spec: the register types in use, or the
+  ** points of one of them.
+  internal static Grid learnSpec(Namespace ns, Str qname, ModbusAddrType? type)
+  {
+    spec := ModbusDev.resolveSpec(ns, qname, "modbusDeviceSpec")
+
+    byType := ModbusAddrType:Spec[][:]
+    spec.slot("points", false)?.slots?.each |pt|
     {
-      row := Obj?[
-        reg.dis,
-        reg.data.kind.toStr,
-        reg.readable ? reg.name : null,
-        reg.writable ? reg.name : null,
-        Marker.val,
-        reg.unit?.toStr,
-      ]
-      tags.each |n| { row.add(reg.tags[n]) }
-      gb.addRow(row)
+      // an addr which does not parse has no register to learn
+      addr := addrOf(pt)
+      if (addr != null) byType.getOrAdd(addr.type) { Spec[,] }.add(pt)
     }
-    return Future.makeCompletable.complete(gb.toGrid)
+    if (type == null) return learnFolders(byType.keys)
+
+    pts := (byType[type] ?: Spec[,]).sort |a, b| { addrOf(a).num <=> addrOf(b).num }
+    return Etc.makeDictsGrid(null, pts.map |pt->Dict| { learnPoint(pt) })
+  }
+
+  ** Learn the registers of a register map, grouped the same way
+  internal static Grid learnRegMap(ModbusRegMap regMap, ModbusAddrType? type)
+  {
+    byType := ModbusAddrType:ModbusReg[][:]
+    regMap.regs.each |reg| { byType.getOrAdd(reg.addr.type) { ModbusReg[,] }.add(reg) }
+    if (type == null) return learnFolders(byType.keys)
+
+    regs := (byType[type] ?: ModbusReg[,]).sort |a, b| { a.addr.num <=> b.addr.num }
+    return Etc.makeDictsGrid(null, regs.map |reg->Dict| { learnReg(reg) })
+  }
+
+  ** Root level: one folder per register type in use, in Modicon order. The
+  ** learn key is a scalar because the nav tree round-trips it through a ref.
+  private static Grid learnFolders(ModbusAddrType[] types)
+  {
+    rows := types.sort |a, b| { a.ordinal <=> b.ordinal }.map |t->Dict|
+    {
+      Etc.makeDict(["dis": "${t.toLocale}s", "learn": t.name])
+    }
+    return Etc.makeDictsGrid(null, rows)
+  }
+
+  ** Learn row for one point, addressing its registers by the point's qname
+  private static Dict learnPoint(Spec pt)
+  {
+    cur   := pt.slot("modbusCurAddr", false)
+    write := pt.slot("modbusWriteAddr", false)
+    acc   := Str:Obj[:] { ordered = true }
+    acc["dis"]   = ModbusReg.disOf(cur ?: write) ?: pt.name
+    acc["point"] = Marker.val
+    kind := ModbusReg.slotVal(pt, "kind")
+    unit := ModbusReg.slotVal(pt, "unit")
+    if (kind  != null) acc["kind"]        = kind
+    if (unit  != null) acc["unit"]        = unit
+    if (cur   != null) acc["modbusCur"]   = pt.qname
+    if (write != null) acc["modbusWrite"] = pt.qname
+    return Etc.dictFromMap(acc)
+  }
+
+  ** Learn row for one register of a register map
+  private static Dict learnReg(ModbusReg reg)
+  {
+    acc := Str:Obj[:] { ordered = true }
+    acc["dis"]   = reg.dis
+    acc["point"] = Marker.val
+    acc["kind"]  = reg.data.kind.toStr
+    if (reg.readable)     acc["modbusCur"]   = reg.name
+    if (reg.writable)     acc["modbusWrite"] = reg.name
+    if (reg.unit != null) acc["unit"]        = reg.unit.toStr
+    reg.tags.each |v, n| { acc[n] = v }
+    return Etc.dictFromMap(acc)
+  }
+
+  ** Parsed address of the point's cur addr, else its write addr
+  private static ModbusAddr? addrOf(Spec pt)
+  {
+    a := pt.slot("modbusCurAddr", false) ?: pt.slot("modbusWriteAddr", false)
+    if (a == null) return null
+    s := ModbusReg.slotVal(a, "addr")
+    return s == null ? null : ModbusAddr.fromStr(s, false)
   }
 
   internal Grid read(Obj conn, Str[] regs)

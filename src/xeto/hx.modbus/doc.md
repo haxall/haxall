@@ -178,8 +178,22 @@ Any value containing "::" is resolved as a qname; anything else is a register
 map name, so the two styles can be mixed on one connector.  A connector whose
 points all use addr specs needs no [ModbusConn.modbusRegMapUri], but it must
 define [ModbusConn.modbusPingAddr] because there is no `ping` register to read.
-That tag names an addr spec exactly the way a point does; a connector with a
-register map defines a register named `ping` instead.
+That tag names one of the device spec's points, such as `msi2`, and its
+`modbusCurAddr` is read:
+
+    modbusConn
+    modbusDeviceSpec: "cc.isma.vav14::IsmaVav14"
+    modbusPingAddr: "msi2"
+
+A connector with a register map defines a register named `ping` instead.
+
+A connector may name the device's spec with [ModbusConn.modbusDeviceSpec],
+in which case [connLearn] walks that spec's points rather than a register map.
+Each learned row carries the point's `dis`, `kind` and `unit`, and addresses
+its registers by qname:
+
+    modbusConn
+    modbusDeviceSpec: "cc.isma.vav14::IsmaVav14"
 
 The spec fields map onto the register map columns as follows:
 
