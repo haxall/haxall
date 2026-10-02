@@ -173,10 +173,10 @@ a top-level `@id`, or both:
 Every spec has a globally unique qname: `{lib}::{Name}`.
 
 ```xeto
-sys::Str                    // qname
-Str                         // simple name (resolved via namespace)
-ph.equips::NaturalGasMeter  // qname with dotted lib
-NaturalGasMeter             // simple name
+sys::Str                          // qname
+Str                               // simple name (resolved via namespace)
+ph.equips.sugar::NaturalGasMeter  // qname with dotted lib
+NaturalGasMeter                   // simple name
 ```
 
 Slot qnames use dot: `sys::LibDepend.lib`

@@ -2,7 +2,7 @@
 
 Project Haystack is an ontology for modeling the built environment.
 It defines types for sites, spaces, equipment, and data points
-organized into the `ph`, `ph.equips`, and `ph.points` xeto libs.
+organized into the `ph`, `ph.equips.sugar`, and `ph.points` xeto libs.
 
 # Entity Hierarchy
 

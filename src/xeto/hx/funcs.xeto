@@ -242,13 +242,13 @@
   // Enable one or more Xeto libs by name:
   //
   //     libAdd("ph.points")
-  //     libAdd(["ph.points", "ph.equips"])
+  //     libAdd(["ph.points", "ph.equips.sugar"])
   libAdd: Func <admin, sideEffects> { names: Obj, opts: Dict?, returns: Obj }
 
   // Disable or more Xeto libs by name:
   //
   //     libRemove("ph.points")
-  //     libRemove(["ph.points", "ph.equips"])
+  //     libRemove(["ph.points", "ph.equips.sugar"])
   libRemove: Func <admin, sideEffects> { names: Obj, opts: Dict?, returns: Obj }
 
   // Get the current project's lib namespace digest

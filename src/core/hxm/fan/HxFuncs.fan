@@ -417,7 +417,7 @@ const class HxFuncs
   ** Enable one or more Xeto libs by name:
   **
   **     libAdd("ph.points")
-  **     libAdd(["ph.points", "ph.equips"])
+  **     libAdd(["ph.points", "ph.equips.sugar"])
   @Api @Axon { admin = true }
   static Obj libAdd(Obj names, Dict? opts := null)
   {
@@ -439,7 +439,7 @@ const class HxFuncs
   ** Disable or more Xeto libs by name:
   **
   **     libRemove("ph.points")
-  **     libRemove(["ph.points", "ph.equips"])
+  **     libRemove(["ph.points", "ph.equips.sugar"])
   @Api @Axon { admin = true }
   static Obj libRemove(Obj names, Dict? opts := null)
   {
