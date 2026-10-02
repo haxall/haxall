@@ -60,7 +60,7 @@ ModbusConn: Conn <icon:"modbus"> {
 // Point which synchronizes data via a Modbus connector.
 ModbusPoint: ConnPoint {
   // Used on a proxy point to reference its parent [ModbusConn.modbusConn]
-  modbusConnRef: Ref? <of:ModbusConn>
+  modbusConnRef: ConnRef? <of:ModbusConn>
 
   // Modbus address to use for current value subscriptions. Either a register
   // name in the connector's register map, or the qname of a point spec such

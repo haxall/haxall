@@ -31,7 +31,7 @@ ObixPoint: ConnPoint {
   obixPoint
 
   // Used on a proxy point to reference its parent [ObixConn.obixConn]
-  obixConnRef: Ref? <of:ObixConn>
+  obixConnRef: ConnRef? <of:ObixConn>
 
   // Used on a oBIX proxy point to store the URI of the entity in the
   // remote system used to read and watch [ph::PhEntity.curVal].

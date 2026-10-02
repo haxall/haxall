@@ -137,3 +137,17 @@ GridRowB: Dict { cell: Time?, other: Str? }
   }
 }
 
+
+// Compile-time regression fixture: a plain ref value must fit a
+// slot typed by a Ref subtype such as sys.refs::ContainedByRef
+// (siteRef) and MemberOfRef (systemRef); see sys::Ref doc on the
+// value erasure contract
+@typed-ref-site: Site {dis:"Typed Ref Site"}
+@typed-ref-system: System {dis:"Typed Ref System", siteRef: @typed-ref-site}
+@typed-ref-equip: Equip {
+  dis: "Typed Ref Equip"
+  siteRef: @typed-ref-site
+  systemRef: @typed-ref-system
+  airRef: @typed-ref-ahu
+}
+@typed-ref-ahu: Ahu {dis:"Typed Ref AHU", siteRef: @typed-ref-site}

@@ -43,7 +43,7 @@ MqttConn: Conn {
 // Point which synchronizes data via a MQTT connector.
 MqttPoint: ConnPoint {
   // Used on a proxy point to reference its parent [MqttConn.mqttConn]
-  mqttConnRef: Ref? <of:MqttConn>
+  mqttConnRef: ConnRef? <of:MqttConn>
 
   // Marker tag for MqttPoint type
   mqttPoint

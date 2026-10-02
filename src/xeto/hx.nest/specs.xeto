@@ -34,7 +34,7 @@ NestPoint: ConnPoint {
   nestPoint
 
   // Used on a proxy point to reference its parent [NestConn.nestConn]
-  nestConnRef: Ref? <of:NestConn>
+  nestConnRef: ConnRef? <of:NestConn>
 
   // Nest address to use to get the current value.
   nestCur: Str?

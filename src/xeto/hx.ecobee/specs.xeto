@@ -24,7 +24,7 @@ EcobeePoint: ConnPoint {
   ecobeePoint
 
   // Used on a proxy point to reference its parent [EcobeeConn.ecobeeConn]
-  ecobeeConnRef: Ref? <of:EcobeeConn>
+  ecobeeConnRef: ConnRef? <of:EcobeeConn>
 
   // Ecobee address to use to get the current value.
   ecobeeCur: Str?

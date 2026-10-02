@@ -13,7 +13,7 @@ ConnTestConn: Conn {
 
 // Point which synchronizes data via a MQTT connector.
 ConnTestPoint: ConnPoint {
-  connTestConnRef: Ref? <of:ConnTestConn>
+  connTestConnRef: ConnRef? <of:ConnTestConn>
   connTestCur: Str?
   connTestWrite: Str?
   connTestHis: Str?

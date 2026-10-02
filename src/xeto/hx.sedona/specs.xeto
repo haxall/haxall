@@ -27,7 +27,7 @@ SedonaPoint: ConnPoint {
   sedonaPoint
 
   // Used on a proxy point to reference its parent [SedonaConn.sedonaConn]
-  sedonaConnRef: Ref? <of:SedonaConn>
+  sedonaConnRef: ConnRef? <of:SedonaConn>
 
   // Sedona address to use for current value subscritions.
   // Formatted as "compId.slot".

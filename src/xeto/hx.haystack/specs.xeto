@@ -31,7 +31,7 @@ HaystackConn: Conn {
 // Point which synchronizes data via a Haystack connector.
 HaystackPoint: ConnPoint {
   // Used on a proxy point to reference its parent [HaystackConn.haystackConn]
-  haystackConnRef: Ref? <of:HaystackConn> 
+  haystackConnRef: ConnRef? <of:HaystackConn> 
 
   // Used on a haystack proxy point to store the id of the entity in the
   // remote system used to read and watch [ph::PhEntity.curVal].

@@ -41,7 +41,7 @@ SqlPoint: ConnPoint {
   sqlPoint
 
   // Used on a proxy point to reference its parent [SqlConn.sqlConn]
-  sqlConnRef: Ref? <of:SqlConn>
+  sqlConnRef: ConnRef? <of:SqlConn>
 
   // Arbitrary key used by the SQL connector to synchronized history data.
   sqlHis: Str?

@@ -32,6 +32,11 @@ ConnExt: Ext <abstract> {
 // Conn
 //////////////////////////////////////////////////////////////////////////
 
+// Ref to the connector which services an entity.  This is the base
+// type for the protocol specific conn refs such as bacnetConnRef
+// and modbusConnRef.
+ConnRef: Ref <of:Conn>
+
 // Connector for communication to a remote system.
 // See [hx.doc.haxall::Conns]
 Conn: Entity <abstract, text: "$<conn>", plural: "$<conns>", icon: "conn", color: "purple"> {
