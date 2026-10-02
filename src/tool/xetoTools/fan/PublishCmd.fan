@@ -76,11 +76,14 @@ internal class PublishCmd : RepoRemoteCmd
       s := repo.open(Etc.dict1("interactive", Marker.val))
       try
       {
+        t1 := Duration.now
         vers.each |ver|
         {
           pub := s.publish(ver.file)
           ok("Published [$pub.name-$pub.version to $repo.name]")
         }
+        t2 := Duration.now
+        if (vers.size > 1) ok("Published $vers.size libs [${(t2-t1).toLocale}]")
       }
       finally
       {
