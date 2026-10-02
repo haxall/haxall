@@ -21,6 +21,13 @@ abstract class ModbusTransport
   ** Does this transport use CRC.
   virtual Bool useCrc() { true }
 
+  ** Does this transport delimit each response, so a response which could not
+  ** be parsed leaves nothing behind for the next read. RTU over TCP does not:
+  ** its responses are a bare byte stream with no transaction id or length, so
+  ** the tail of a bad frame would be read as the start of the next one.
+  ** Serial RTU re-frames on the inter-frame gap.
+  virtual Bool isFramed() { true }
+
   ** Open transport for communication, or do nothing if already open.
   abstract Void open()
 
@@ -154,6 +161,8 @@ class ModbusTcpTransport : ModbusTransport
 @NoDoc
 class ModbusRtuTcpTransport : ModbusTransport
 {
+  override Bool isFramed() { false }
+
   ** Construct new TCP transport.
   new make(IpAddr host, Int? port, Duration timeout)
   {

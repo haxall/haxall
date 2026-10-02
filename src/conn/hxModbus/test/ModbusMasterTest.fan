@@ -6,6 +6,7 @@
 //   20 Jul 2013  Andy Frank  Creation
 //
 
+using inet
 using haystack
 
 **************************************************************************
@@ -155,6 +156,23 @@ internal class ModbusMasterTest : Test
 
     // CRC is consumed so the frame is fully read off the wire
     verifyEq(t.test.remaining, 0)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Framing
+//////////////////////////////////////////////////////////////////////////
+
+  Void testIsFramed()
+  {
+    // tcp delimits each response with its own header and length
+    tcp := ModbusTcpTransport(IpAddr("127.0.0.1"), 502, 1sec)
+    verifyEq(tcp.isFramed, true)
+    verifyEq(ModbusMaster(tcp).isFramed, true)
+
+    // rtu over tcp is a bare byte stream, so a bad frame desyncs it
+    rtu := ModbusRtuTcpTransport(IpAddr("127.0.0.1"), 502, 1sec)
+    verifyEq(rtu.isFramed, false)
+    verifyEq(ModbusMaster(rtu).isFramed, false)
   }
 
 //////////////////////////////////////////////////////////////////////////
