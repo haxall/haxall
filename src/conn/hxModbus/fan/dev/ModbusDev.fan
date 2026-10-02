@@ -67,8 +67,8 @@ using hxConn
     if (uri isnot Uri) throw FaultErr("Invalid 'uri' tag - must be an Uri")
 
     slave := rec["modbusSlave"]
-    if (slave == null) throw FaultErr("Missing 'slave' tag")
-    if (slave isnot Number) throw FaultErr("Invalid 'slave' tag - must be a Number")
+    if (slave == null) throw FaultErr("Missing 'modbusSlave' tag")
+    if (slave isnot Number) throw FaultErr("Invalid 'modbusSlave' tag - must be a Number")
 
     // optional: points may address their registers by spec instead. The
     // conn template seeds an empty uri, so treat that as unset.

@@ -217,7 +217,7 @@ class ModbusMaster
     {
       // verify slave
       rslave := in.readU1
-      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
+      if (slave != rslave) throw Err("Slave mismatch $slave != $rslave")
 
       // verify func
       fc := in.readU1
@@ -255,7 +255,7 @@ class ModbusMaster
     {
       // verify slave
       rslave := in.readU1
-      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
+      if (slave != rslave) throw Err("Slave mismatch $slave != $rslave")
 
       // verify func
       fc := in.readU1
@@ -301,7 +301,7 @@ class ModbusMaster
     {
       // verify slave
       rslave := in.readU1
-      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
+      if (slave != rslave) throw Err("Slave mismatch $slave != $rslave")
 
       // verify func
       fc := in.readU1
