@@ -20,10 +20,10 @@ ModbusConn: Conn <icon:"modbus"> {
   // Marker tag for ModbusConn type
   modbusConn
 
-  // Applied to `modbusConn` to name the xeto spec which models this device,
-  // such as "cc.isma.vav14::IsmaVav14". [connLearn()] walks its points instead
-  // of a register map, and each learned point addresses its registers by
-  // qname. See [hx.modbus::doc#addr-specs] for more information.
+  // Applied to `modbusConn` to name the xeto spec which models this device.
+  // [connLearn()] walks its points instead of a register map, and each learned
+  // point addresses its registers by qname.
+  // See [hx.modbus::doc#addr-specs] for more information.
   modbusDeviceSpec: Str?
 
   // Minimum silence to enforce on the wire between two consecutive transactions.
