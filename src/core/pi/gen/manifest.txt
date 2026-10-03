@@ -15,6 +15,7 @@ blank                                        transparent empty
 chart-heat-map     <grid-3x3>                chart
 conn               <plug>
 context            <target>
+cooling-tower      <tower-control>           condenser condensed cdw
 cur                <square-play>             rule
 def                <tag>
 device             <circuit-board>
