@@ -40,6 +40,7 @@ num                <hash>                    dev lang
 ok                 <circle-check>            status
 point              <circle-dot>
 proj               <database>
+pump                                         water
 rule               <settings>
 scalar             <atom>
 site               <building>
