@@ -287,9 +287,57 @@ xetodoc-slot-nested {
   display: block;
 }
 
-xetodoc-slot-nested ul {
-  list-style-type: none;
-  padding: 0;
+xetodoc-slot-nested table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+}
+
+xetodoc-slot-nested th {
+  text-align: left;
+  white-space: nowrap;
+  padding: 4px 10px 4px 0;
+}
+
+xetodoc-slot-nested td {
+  border-top: var(--divider-border);
+  vertical-align: text-top;
+  padding: 4px 10px 4px 0;
+}
+
+xetodoc-slot-nested td p {
+  margin: 0;
+}
+
+xetodoc-info {
+  position: relative;
+  cursor: pointer;
+  color: var(--sidebar-color);
+}
+
+xetodoc-info-popup {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  top: 1.4em;
+  min-width: 18em;
+  padding: 6px 10px;
+  white-space: nowrap;
+  color: #000;
+  background: #fff;
+  border: var(--divider-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+xetodoc-info:hover xetodoc-info-popup,
+xetodoc-info:focus-within xetodoc-info-popup {
+  display: block;
+}
+
+xetodoc-info-popup p {
+  margin: 0.5em 0 0 0;
+  white-space: normal;
 }
 
 /*************************************************************************

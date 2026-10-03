@@ -305,37 +305,84 @@ class DocHtmlWriter : WebOutStream
   {
     if (spec.slots.isEmpty || spec.type.isFunc) return
 
-    tag(tagSlotNested).ul
-    spec.slots.each |x| { li.nestedSlot(x).liEnd }
-    ulEnd.tagEnd(tagSlotNested)
-  }
+    // omit name and dis columns when no slot has them
+    named := spec.slots.any |x| { !XetoUtil.isAutoName(x.name) }
+    dised := spec.slots.any |x| { nestedVal(x, "dis") != null }
 
-  private This nestedSlot(DocSlot x)
-  {
-    tag(tagSlot).code
-
-    n := x.name
-    if (!XetoUtil.isAutoName(n)) w(n).w(": ")
-
-    typeRef(x.type)
-
-    if (!x.slots.isEmpty)
+    // one column per protocol in order of first appearance
+    protocols := Str[,]
+    spec.slots.each |x|
     {
-      w(" { ")
-      first := true
-      x.slots.each |nest|
+      x.slots.each |a|
       {
-        if (first) first = false
-        else w(", ")
-        esc(nest.name)
-        val := nest.meta.get("val")
-        if (val != null) { w(":"); propVal(val.toVal) }
+        p := addrProtocol(a)
+        if (p != null && !protocols.contains(p)) protocols.add(p)
       }
-      w(" }")
     }
 
-    codeEnd.tagEnd(tagSlot).nl
-    return this
+    tag(tagSlotNested).table.nl
+    tr.th.thEnd
+    if (named) th.w("Name").thEnd
+    if (dised) th.w("Dis").thEnd
+    th.w("Type").thEnd
+    protocols.each |p| { th.esc(p.capitalize).thEnd }
+    trEnd.nl
+    spec.slots.each |x|
+    {
+      tr
+      td.nestedInfo(x).tdEnd
+      if (named) td.esc(XetoUtil.isAutoName(x.name) ? "" : x.name).tdEnd
+      if (dised) td.esc(nestedVal(x, "dis") ?: "").tdEnd
+      td.typeRef(x.type).tdEnd
+      protocols.each |p| { td.esc(nestedAddrs(x, p)).tdEnd }
+      trEnd.nl
+    }
+    tableEnd.tagEnd(tagSlotNested).nl
+  }
+
+  ** Distinct addr values for the protocol across its cur/write/his
+  ** addr slots such as "AV34" or "400235, 400236"
+  private static Str nestedAddrs(DocSlot x, Str protocol)
+  {
+    acc := Str[,]
+    x.slots.each |a| { if (addrProtocol(a) == protocol) acc.addNotNull(nestedVal(a, "addr")) }
+    return acc.unique.join(", ")
+  }
+
+  ** Protocol such as "bacnet" if the slot is typed by a ph.protocols
+  ** addr such as BacnetAddr, else null; same naming rule as
+  ** `pi::PiConns` uses to map addr specs to conn models
+  private static Str? addrProtocol(DocSlot x)
+  {
+    q := x.type.qname
+    if (!q.startsWith("ph.protocols::") || !q.endsWith("Addr") || q == "ph.protocols::ProtocolAddr") return null
+    return x.type.name[0..-5].decapitalize
+  }
+
+  ** Authored value of the given child slot as a string or null
+  private static Str? nestedVal(DocSlot x, Str name)
+  {
+    x.slots[name]?.meta?.get("val")?.toVal?.toStr
+  }
+
+  ** Info icon with popup of the nested slot's tags (excluding
+  ** dis and protocol addrs which have their own columns) and doc
+  private This nestedInfo(DocSlot x)
+  {
+    tags := x.slots.vals.findAll |nest| { addrProtocol(nest) == null && nest.name != "dis" }
+    if (tags.isEmpty && x.doc.isEmpty) return this
+    tag(tagInfo, "tabindex='0'").w("&#9432;")
+    tag(tagInfoPopup)
+    tags.each |nest|
+    {
+      code.esc(nest.name)
+      val := nest.meta.get("val")
+      if (val != null) { w(":"); propVal(val.toVal) }
+      codeEnd.br
+    }
+    w(x.doc.html)
+    tagEnd(tagInfoPopup)
+    return tagEnd(tagInfo)
   }
 
   private static Str slotToElemId(DocSlot x) { x.name }
@@ -850,6 +897,8 @@ class DocHtmlWriter : WebOutStream
   static const Str tagSlotNested  := "xetodoc-slot-nested"
   static const Str tagSlotBase    := "xetodoc-slot-base"
   static const Str tagSlotSrc     := "xetodoc-slot-src"
+  static const Str tagInfo        := "xetodoc-info"
+  static const Str tagInfoPopup   := "xetodoc-info-popup"
   static const Str tagChapter     := "xetodoc-chapter"
   static const Str tagFooter      := "xetodoc-footer"
   static const Str tagSearchInfo  := "xetodoc-search-info"
