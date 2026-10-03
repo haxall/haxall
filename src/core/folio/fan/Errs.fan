@@ -55,7 +55,10 @@ const class DiffErr : Err
 @NoDoc
 const class CommitErr : Err
 {
-  new make(Str? msg, Err? cause := null) : super(msg, cause) {}
+  new make(Str? msg, Err? cause := null, Ref? id := null) : super(msg, cause) { this.id = id }
+
+  ** Id of rec which failed to commit if known
+  const Ref? id
 }
 
 ** Commit failure due to concurrent changes.  It is thrown when
