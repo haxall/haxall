@@ -88,4 +88,6 @@ const class ServerSession : UserSession
     basis := this.isFixedLease ? created.ticks : this.touched
     return now.ticks - basis > this.lease.ticks
   }
+
+  override once ConcurrentMap stash() { ConcurrentMap() }
 }

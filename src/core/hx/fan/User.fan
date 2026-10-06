@@ -11,6 +11,7 @@
 //   25 May 2021  Brian Frank        Haxall copy
 //
 
+using concurrent
 using xeto
 using folio
 
@@ -130,6 +131,11 @@ const mixin UserSession
 
   ** Is this a fixed lease session
   @NoDoc virtual Bool isFixedLease() { meta.has("fixedLease") }
+
+  ** Stash allows you to stash information on the UserSession
+  ** for the duration of the session. The keys of the map must
+  ** be Str, and should be scoped by pod to avoid naming collisions.
+  @NoDoc abstract ConcurrentMap stash()
 }
 
 **************************************************************************
