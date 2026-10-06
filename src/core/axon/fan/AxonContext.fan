@@ -266,19 +266,27 @@ abstract class AxonContext : HaystackContext, CompContext
     return null
   }
 
-  ** Push new call frame to evaluate an expression
+  ** Push new call frame to evaluate an expression.  The expression is
+  ** parsed before its wrapper func exists so its closures are not
+  ** lexically inside it; the frame is top level like the root frame.
   @NoDoc Obj? evalInNewFrame(Expr expr, Str:Obj? vars := Str:Obj?[:])
   {
-    callInNewFrame(TopFn.makeEvalWrapper(expr), Obj#.emptyList, expr.loc, vars)
+    func := TopFn.makeEvalWrapper(expr)
+    return callInFrame(CallFrame(this, func, Obj#.emptyList, expr.loc, vars, true), Obj#.emptyList)
   }
 
   ** Push new call frame onto the stack with given loc/vars and route to Fn.doCall
   @NoDoc Obj? callInNewFrame(Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars := Str:Obj?[:])
   {
-    frame := CallFrame(this, func, args, callLoc, vars)
+    callInFrame(CallFrame(this, func, args, callLoc, vars), args)
+  }
+
+  ** Push frame onto the stack and route to its Fn.doCall
+  private Obj? callInFrame(CallFrame frame, Obj?[] args)
+  {
     stack.push(frame)
     try
-      return func.doCall(this, args)
+      return frame.func.doCall(this, args)
     finally
       stack.pop
   }
@@ -501,12 +509,13 @@ abstract class AxonContext : HaystackContext, CompContext
 @Js
 internal class CallFrame
 {
-  new make(AxonContext cx, Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars)
+  new make(AxonContext cx, Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars, Bool isTopLevel := false)
   {
-    this.cx      = cx
-    this.func    = func
-    this.callLoc = callLoc
-    this.vars    = vars
+    this.cx         = cx
+    this.func       = func
+    this.callLoc    = callLoc
+    this.vars       = vars
+    this.isTopLevel = isTopLevel
 
     // bind parameter variables to arguments
     if (!func.isNative)
@@ -515,10 +524,11 @@ internal class CallFrame
 
   new makeRoot(AxonContext cx)
   {
-    this.cx      = cx
-    this.func    = rootFunc
-    this.callLoc = func.loc
-    this.vars    = Str:Obj?[:]
+    this.cx         = cx
+    this.func       = rootFunc
+    this.callLoc    = func.loc
+    this.vars       = Str:Obj?[:]
+    this.isTopLevel = true
   }
 
   Bool has(Str name) { vars.containsKey(name) }
@@ -551,7 +561,7 @@ internal class CallFrame
 
   ** Does the given function have variable visibility into
   ** this frame's variables?  Only if the function is lexically
-  ** scoped inside this frame's function.
+  ** scoped inside this frame's function, or this is a top level frame.
   Bool isVisibleTo(Fn? f)
   {
     while (f != null)
@@ -559,7 +569,7 @@ internal class CallFrame
       if (this.func === f) return true
       f = f.outer
     }
-    return this.func === rootFunc
+    return isTopLevel
   }
 
   override Str toStr() { "CallFrame $func.name [$callLoc]" }
@@ -570,6 +580,7 @@ internal class CallFrame
   AxonContext cx { private set }
   const FileLoc callLoc
   const Fn func
+  const Bool isTopLevel  // top level frame of an eval such as root is visible to every func
   private Str:Obj? vars
 }
 
