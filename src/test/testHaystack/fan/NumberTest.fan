@@ -279,6 +279,9 @@ class NumberTest : HaystackTest
     verifyEq(n(-3456789).toLocale, "-3,456,789")
     verifyEq(n(3456789, "square_meter").toLocale, "3,456,789m\u00b2")
     verifyEq(n(3456789, "_count").toLocale, "3,456,789count")
+    verifyEq(n(3456789, "unitless").toLocale, "3,456,789")
+    verifyEq(n(-1.5f, "unitless").toLocale("0.00"), "-1.50")
+    verifyEq(n(3, "unitless").toStr, "3unitless")
 
     verifyEq(n(Float.nan).toLocale, "\uFFFD")
     verifyEq(n(Float.posInf).toLocale, "\u221E")

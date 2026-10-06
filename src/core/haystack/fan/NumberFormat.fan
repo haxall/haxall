@@ -118,8 +118,9 @@ const class NumberFormat
     neg := float < 0f
     if (neg) float = -float
 
-    // if pattern null, check for unit default
+    // if pattern null, check for unit default; unitless never displays
     unit := num.unit
+    if (unit === Number.unitless) unit = null
     pattern := floatPattern
     if (unit != null && pattern == null)
     {

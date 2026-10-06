@@ -133,8 +133,8 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ns.instance("bad qname", false), null)
 
     // reify scalar default values
-    verifySame(sys.type("Unit").meta["val"], Unit("%"))
-    verifySame(sys.type("Unit").metaOwn["val"], Unit("%"))
+    verifySame(sys.type("Unit").meta["val"], Unit("unitless"))
+    verifySame(sys.type("Unit").metaOwn["val"], Unit("unitless"))
     verifySame(sys.type("TimeZone").meta["val"], TimeZone.utc)
     verifySame(sys.type("TimeZone").metaOwn["val"], TimeZone.utc)
 
@@ -731,7 +731,7 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "sys::Time",     Time.defVal)
     verifyInstantiate(ns, "sys::DateTime", DateTime.defVal)
 
-    verifyInstantiate(ns, "sys::Unit",     "%")
+    verifyInstantiate(ns, "sys::Unit",     "unitless")
 
     verifyInstantiate(ns, "sys::Dict", dict0)
     verifyInstantiate(ns, "sys::List", Obj[,])

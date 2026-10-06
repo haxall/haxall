@@ -572,6 +572,7 @@ const final class Number
   @NoDoc const static Unit percent := constUnit("%")
   @NoDoc const static Unit dollar  := constUnit("\$")
   @NoDoc const static Unit byte    := constUnit("byte")
+  @NoDoc const static Unit unitless := constUnit("unitless")
 
   private static Unit constUnit(Str name)
   {
