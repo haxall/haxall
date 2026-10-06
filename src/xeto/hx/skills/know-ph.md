@@ -146,6 +146,9 @@ require `siteRef`. Use `equipRef` to nest child equipment and
 
 ## Common Equipment Types
 
+A rec's `spec` tag is its type: display it with
+`spec(rec->spec).specName`, never by inferring a type from markers.
+
 HVAC Air Side:
 - `Ahu` - air handling unit (subtypes: `Rtu`, `Doas`, `Mau`)
 - `Fcu` - fan coil unit (subtype: `Crac`)
@@ -373,6 +376,13 @@ Key reference tags that link entities:
 | `hotWaterRef` | `MultiRef` | load to hot water source |
 | `chilledWaterRef` | `MultiRef` | load to chilled water source |
 | `submeterOf` | `Ref<of:Meter>` | submeter to parent meter |
+
+Reading relationships:
+- `spaceRef` on an equip is where it is located - one space by
+  design - never the spaces it serves
+- `airRef` on a space is the terminal unit that serves it: query
+  served spaces as `readAll(space and airRef==@vav)`, not from the
+  VAV's `spaceRef`
 
 # Full Example
 

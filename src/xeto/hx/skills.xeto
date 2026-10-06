@@ -18,7 +18,7 @@
 
 // Project Haystack ontology for modeling built environment
 @skill-know-ph : AiSkill {
-  keywords: {"site", "space", "equip", "point", "haystack"}
+  keywords: {"site", "space", "room", "floor", "equip", "equipment", "point", "vav", "ahu", "terminal", "chiller", "boiler", "serve", "haystack"}
 }
 
 // Folio database: recs, filters, reads, diffs, commits
@@ -26,3 +26,4 @@
   keywords: {"folio", "database", "rec", "read", "query", "filter", "diff", "commit", "trash"}
   include: { @skill-know-axon }
 }
+
