@@ -12,11 +12,13 @@ using haystack
 
 **
 ** Instantiator implements Namespace.instantiate with support
-** for templating, graph instantiate, and pluggable options
+** for default values, graph instantiate, and pluggable options
 **
 ** Public options:
 **   - `genIds`: generate ids for entity and comp dicts
 **   - `graph`: marker tag to return Dict[] and generate child queries
+**   - `useSlotSpec`: marker to use a named query slot qname such as
+**     'Vav.points.zoneTemp' as the spec tag instead of its type
 **   - `abstract`: marker to supress error if spec is abstract
 **   - `haystack`: marker tag to use Haystack level data fidelity
 ** Extended private use options:
@@ -35,6 +37,7 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     this.parent   = opts["parent"] as Dict
     this.isGraph  = opts.has("graph")
     this.genIds   = opts.has("genIds") || this.isGraph
+    this.useSlotSpec = opts.has("useSlotSpec")
     this.graphInclude = opts["graphInclude"] as Str:Str
     this.addTestTag = opts["addTestTag"] as Str
     initConnOpts
@@ -145,6 +148,7 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     addSpec(acc, spec)
     addDis(acc, spec)
     addSlots(acc, spec)
+    addNavNameDis(acc, spec)
     addParentRefs(acc)
     if (addTestTag != null) acc[addTestTag] = Marker.val
     dict := Etc.dictFromMap(acc)
@@ -162,10 +166,31 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     if (genIds && (spec.isEntity || spec.isComp)) acc["id"] = genId
   }
 
-  ** Always add the spec tag
+  ** Always add the spec tag: the type, or with useSlotSpec a named
+  ** query slot itself so the rec validates against that slot
   private Void addSpec(Str:Obj acc, Spec spec)
   {
-    acc["spec"] = spec.type.id
+    acc["spec"] = useSlotSpec && isQuerySlot(spec) ? spec.id : spec.type.id
+  }
+
+  ** Is spec a named slot of a query such as 'Vav.points.zoneTemp'.
+  ** Auto named slots are positional constraints, not template slots.
+  private static Bool isQuerySlot(Spec spec)
+  {
+    spec.parent != null && spec.parent.isQuery && !XetoUtil.isAutoName(spec.name)
+  }
+
+  ** A rec displayed by navName and disMacro must not also carry a dis
+  ** tag which would take precedence; an authored dis default becomes
+  ** the navName unless navName itself is authored
+  private Void addNavNameDis(Str:Obj acc, Spec spec)
+  {
+    if (!acc.containsKey("disMacro")) return
+    dis := acc.remove("dis")
+    if (dis == null || spec.slot("navName", false)?.meta?.get("val") != null) return
+    acc["navName"] = dis
+    id := acc["id"] as Ref
+    if (id != null) id.disVal = dis.toStr
   }
 
   ** Try to add reasonable default display tag
@@ -439,6 +464,7 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
   const Dict opts
   const XetoFidelity fidelity
   const Bool genIds
+  const Bool useSlotSpec
   const Bool isGraph
   const Str? addTestTag
   private Dict? parent

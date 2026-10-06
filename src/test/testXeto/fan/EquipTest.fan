@@ -61,6 +61,56 @@ class EquipTest : AbstractXetoTest
     verifyEq(a0.slot("modbusCurAddr").base.isGlobal, true)
   }
 
+  Void testTemplate()
+  {
+    ns   := createNamespace(["sys", "ph", "ph.points", "ph.protocols", "hx.test.xeto"])
+    spec := ns.spec("hx.test.xeto::EquipNamed")
+    site := Etc.makeDict(["id":Ref("site"), "dis":"Site", "site":m])
+    co2  := spec.slot("points").slot("zoneCo2")
+
+    // default: spec is the type, authored dis becomes navName
+    Dict[] recs := ns.instantiate(spec, Etc.makeDict(["haystack":m, "graph":m, "parent":site]))
+    verifyEq(recs.size, 4)
+    verifyEq(recs[1]->spec, Ref("ph.points::ZoneAirTempSensor"))
+    verifyEq(recs[1]->navName, "zoneTemp")
+    verifyEq(recs[3]->spec, Ref("ph.points::ZoneCo2Sensor"))
+    verifyEq(recs[3]->navName, "Zone CO2")
+    verifyEq(recs[3].has("dis"), false)
+    verifyEq(recs[3].id.disVal, "Zone CO2")
+
+    // useSlotSpec: named slots use slot qname as spec
+    recs = ns.instantiate(spec, Etc.makeDict(["haystack":m, "graph":m, "useSlotSpec":m, "parent":site]))
+    verifyEq(recs.size, 4)
+    eqId := recs[0].id
+    verifyTemplate(recs[0], ["navName":"EquipNamed", "disMacro":"\$siteRef \$navName", "siteRef":site.id, "spec":spec.id], "ahu,equip")
+    verifyTemplate(recs[1], [
+      "navName":"zoneTemp",
+      "disMacro":"\$equipRef \$navName",
+      "siteRef":site.id,
+      "equipRef":eqId,
+      "unit":"°F", "kind":"Number", "spec":Ref("hx.test.xeto::EquipNamed.points.zoneTemp")],
+      "zone,air,temp,sensor,point")
+    verifyTemplate(recs[3], [
+      "navName":"Zone CO2",
+      "disMacro":"\$equipRef \$navName",
+      "siteRef":site.id,
+      "equipRef":eqId,
+      "unit":"ppm", "kind":"Number", "spec":co2.id],
+      "zone,air,co2,concentration,sensor,point")
+
+    // slot directly with and without useSlotSpec
+    pt := (Dict)ns.instantiate(co2, Etc.makeDict(["haystack":m, "useSlotSpec":m]))
+    verifyEq(pt["spec"], co2.id)
+    verifyEq(pt["navName"], "Zone CO2")
+    verifyEq(pt["dis"], null)
+    pt = (Dict)ns.instantiate(co2, Etc.makeDict(["haystack":m]))
+    verifyEq(pt["spec"], Ref("ph.points::ZoneCo2Sensor"))
+
+    // auto named constraints always use their type
+    a0 := (Dict)ns.instantiate(ns.spec("hx.test.xeto::EquipA").slot("points").slot("_0"), Etc.makeDict(["haystack":m, "useSlotSpec":m]))
+    verifyEq(a0["spec"], Ref("ph.points::ZoneAirTempSensor"))
+  }
+
   Void testBasics()
   {
     ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"])

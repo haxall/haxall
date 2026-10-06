@@ -110,6 +110,10 @@
   // can be instantiated via the `{graph}` option in which case a `Dict[]` is
   // returned.  In graph mode an `id` is generated for recs for cross-linking.
   //
+  // Recs displayed by `navName` and `disMacro` such as equips and points
+  // take an authored `dis` default as their `navName`, never as a `dis`
+  // tag which would override the macro.
+  //
   // Also see [fan.xeto::Namespace.instantiate].
   //
   // NOTE: this function forces the `haystack` option to force all
@@ -117,6 +121,12 @@
   //
   // Options:
   //   - `graph`: marker tag to instantiate a graph of recs
+  //   - `useSlotSpec`: marker to use a named query slot qname such as
+  //     `Vav.points.zoneTemp` as the `spec` tag instead of its type, so
+  //     recs deployed from an equip template validate against their
+  //     template slot.  Auto named constraints always use their type.
+  //   - `parent`: parent rec such as a site, space, or equip used to
+  //     add `siteRef`, `spaceRef`, `equipRef`, and `systemRef`
   //   - `abstract`: marker to supress error if spec is abstract
   //
   // Examples:
@@ -129,6 +139,9 @@
   //
   //     // evaluates to dict[] of vav + points from constrained query
   //     instantiate(G36ReheatVav, {graph})
+  //
+  //     // equip template under a site, ready to commit
+  //     instantiate(spec("proj::AcmeVav100"), {graph, useSlotSpec, parent: read(site)})
   instantiate: Func { spec: Spec, opts: Dict?, returns: Obj? }
 
   // Compute the extended type spec by merging all meta and slots from
