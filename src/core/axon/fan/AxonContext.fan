@@ -271,8 +271,22 @@ abstract class AxonContext : HaystackContext, CompContext
   ** lexically inside it; the frame is top level like the root frame.
   @NoDoc Obj? evalInNewFrame(Expr expr, Str:Obj? vars := Str:Obj?[:])
   {
+    evalInTopFrame(expr, vars, CallFrameMode.top)
+  }
+
+  ** Evaluate an expression in a REPL session frame whose variable
+  ** storage is the given session map.  Like evalInNewFrame except
+  ** defining an existing variable rebinds it instead of raising
+  ** "Symbol already bound".
+  @NoDoc Obj? evalRepl(Expr expr, Str:Obj? session)
+  {
+    evalInTopFrame(expr, session, CallFrameMode.repl)
+  }
+
+  private Obj? evalInTopFrame(Expr expr, Str:Obj? vars, CallFrameMode mode)
+  {
     func := TopFn.makeEvalWrapper(expr)
-    return callInFrame(CallFrame(this, func, Obj#.emptyList, expr.loc, vars, true), Obj#.emptyList)
+    return callInFrame(CallFrame(this, func, Obj#.emptyList, expr.loc, vars, mode), Obj#.emptyList)
   }
 
   ** Push new call frame onto the stack with given loc/vars and route to Fn.doCall
@@ -333,7 +347,7 @@ abstract class AxonContext : HaystackContext, CompContext
   internal Obj? def(Str name, Obj? val, FileLoc loc)
   {
     f := stack.last
-    if (f.has(name)) throw EvalErr("Symbol already bound '$name' (use = to reassign)", this, loc)
+    if (f.has(name) && !f.mode.redefineOk) throw EvalErr("Symbol already bound '$name' (use = to reassign)", this, loc)
     return f.set(name, val)
   }
 
@@ -509,13 +523,13 @@ abstract class AxonContext : HaystackContext, CompContext
 @Js
 internal class CallFrame
 {
-  new make(AxonContext cx, Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars, Bool isTopLevel := false)
+  new make(AxonContext cx, Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars, CallFrameMode mode := CallFrameMode.fn)
   {
-    this.cx         = cx
-    this.func       = func
-    this.callLoc    = callLoc
-    this.vars       = vars
-    this.isTopLevel = isTopLevel
+    this.cx      = cx
+    this.func    = func
+    this.callLoc = callLoc
+    this.vars    = vars
+    this.mode    = mode
 
     // bind parameter variables to arguments
     if (!func.isNative)
@@ -524,11 +538,11 @@ internal class CallFrame
 
   new makeRoot(AxonContext cx)
   {
-    this.cx         = cx
-    this.func       = rootFunc
-    this.callLoc    = func.loc
-    this.vars       = Str:Obj?[:]
-    this.isTopLevel = true
+    this.cx      = cx
+    this.func    = rootFunc
+    this.callLoc = func.loc
+    this.vars    = Str:Obj?[:]
+    this.mode    = CallFrameMode.top
   }
 
   Bool has(Str name) { vars.containsKey(name) }
@@ -569,7 +583,7 @@ internal class CallFrame
       if (this.func === f) return true
       f = f.outer
     }
-    return isTopLevel
+    return mode.isTopLevel
   }
 
   override Str toStr() { "CallFrame $func.name [$callLoc]" }
@@ -580,7 +594,28 @@ internal class CallFrame
   AxonContext cx { private set }
   const FileLoc callLoc
   const Fn func
-  const Bool isTopLevel  // top level frame of an eval such as root is visible to every func
+  const CallFrameMode mode
   private Str:Obj? vars
+}
+
+**************************************************************************
+** CallFrameMode
+**************************************************************************
+
+**
+** CallFrameMode is the kind of call frame
+**
+@Js
+internal enum class CallFrameMode
+{
+  fn,    // func call: visible only to lexically enclosed funcs
+  top,   // top level eval or root: visible to every func
+  repl;  // top level REPL session such as AI eval: defines rebind
+
+  ** Top level frame of an eval such as root is visible to every func
+  Bool isTopLevel() { this !== fn }
+
+  ** Define of an existing var rebinds it instead of raising an error
+  Bool redefineOk() { this === repl }
 }
 
