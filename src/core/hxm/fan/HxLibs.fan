@@ -150,6 +150,7 @@ const class HxLibs : RuntimeLibs
     gb.addCol("name").addCol("libBasis").addCol("libStatus").addCol("sysOnly")
       .addCol("version").addCol("doc").addCol("err")
       .addCol("depends", Etc.dict1("hidden", Marker.val))
+      .addCol("file", Etc.dict1("hidden", Marker.val))
 
     // add rest of the rows
     libs.each |HxLib x|
@@ -182,6 +183,7 @@ const class HxLibs : RuntimeLibs
         x.ver.doc,
         err,
         depends,
+        x.ver.file(false)?.osPath,
       ])
     }
     grid := gb.toGrid

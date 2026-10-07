@@ -158,6 +158,7 @@
   //   - `origin`: remote repo name if installed from a remote repo
   //   - `src`: marker if lib is a local source directory
   //   - `doc`: summary documentation
+  //   - `file`: hidden column with os path of xetolib file or src dir
   //
   // Options:
   //   - 'search': search string to filter results

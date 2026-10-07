@@ -259,11 +259,13 @@ class RepoFuncsTest : RemoteReposTest
     RepoFuncs.libInstall("test", "alpha", null)
 
     grid := RepoFuncs.nsInstall(null)
-    verifyEq(grid.colNames, ["name", "version", "origin", "src", "doc"])
+    verifyEq(grid.colNames, ["name", "version", "origin", "src", "doc", "file"])
+    verifyEq(grid.col("file").meta["hidden"], Marker.val)
     row := grid.find { it->name == "alpha" }
     verifyEq(row->version, "2.3.0")
     verifyEq(row->origin, "test")
     verifyEq(row["src"], null)
+    verifyEq(row->file, env.repo.lib("alpha").file.osPath)
 
     // sys has no origin in test env
     row = grid.find { it->name == "sys" }

@@ -329,6 +329,7 @@ const class RepoFuncs
   **   - `origin`: remote repo name if installed from a remote repo
   **   - `src`: marker if lib is a local source directory
   **   - `doc`: summary documentation
+  **   - `file`: hidden column with os path of xetolib file or src dir
   **
   ** Options:
   **   - 'search': search string to filter results
@@ -346,12 +347,13 @@ const class RepoFuncs
     show := (opts?.get("show") as Str)?.lower ?: ""
     gb := GridBuilder()
     gb.addCol("name").addCol("version").addCol("origin").addCol("src").addCol("doc")
+      .addCol("file", Etc.dict1("hidden", Marker.val))
     env.repo.libs.dup.sort |a, b| { a.name <=> b.name }.each |x|
     {
       origin := x.origin(false)?.repoName
       if (show.contains("dist") && origin != null) return
       if (show.contains("remote") && origin == null) return
-      gb.addRow([x.name, x.version.toStr, origin, Marker.fromBool(x.isSrc), x.doc])
+      gb.addRow([x.name, x.version.toStr, origin, Marker.fromBool(x.isSrc), x.doc, x.file(false)?.osPath])
     }
     grid := gb.toGrid
     search := opts?.get("search") as Str
