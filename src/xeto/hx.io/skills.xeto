@@ -9,5 +9,4 @@
 // File IO: handles, CSV/JSON/Zinc/Trio, HTTP, zip, encoding
 @skill-know-io : AiSkill {
   keywords: {"io", "file", "csv", "json", "zinc", "trio", "import", "export", "http", "zip", "upload"}
-  include: { @hx::skill-know-axon }
 }

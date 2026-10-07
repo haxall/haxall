@@ -11,11 +11,6 @@
   keywords: {"xeto", "data", "spec"}
 }
 
-// Fundamentals of axon scripting language
-@skill-know-axon : AiSkill {
-  keywords: {"axon", "func", "function"}
-}
-
 // Project Haystack ontology for modeling built environment
 @skill-know-ph : AiSkill {
   keywords: {"site", "space", "room", "floor", "equip", "equipment", "point", "vav", "ahu", "terminal", "chiller", "boiler", "serve", "haystack"}
@@ -24,6 +19,5 @@
 // Folio database: recs, filters, reads, diffs, commits
 @skill-know-folio : AiSkill {
   keywords: {"folio", "database", "rec", "read", "query", "filter", "diff", "commit", "trash"}
-  include: { @skill-know-axon }
 }
 

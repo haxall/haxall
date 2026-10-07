@@ -9,5 +9,4 @@
 // Task engine: async messaging, futures, observable subscriptions
 @skill-know-task : AiSkill {
   keywords: {"task", "async", "future", "schedule", "observable", "background", "message", "timer"}
-  include: { @hx::skill-know-axon }
 }

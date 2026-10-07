@@ -9,5 +9,4 @@
 // Point model: cur/his/writable facets, priority array, his collection
 @skill-know-point : AiSkill {
   keywords: {"point", "cur", "curval", "writable", "pointwrite", "priority", "override", "hiscollect", "enum", "kind"}
-  include: { @hx::skill-know-axon }
 }

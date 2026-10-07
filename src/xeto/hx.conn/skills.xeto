@@ -9,6 +9,6 @@
 // Connector framework: conn recs, point binding, cur/write/his sync
 @skill-know-conn : AiSkill {
   keywords: {"conn", "connector", "sync", "learn", "poll", "stale", "tuning", "bacnet", "modbus", "mqtt", "haystack", "sql"}
-  include: { @hx::skill-know-axon, @hx.point::skill-know-point }
+  include: { @hx.point::skill-know-point }
 }
 

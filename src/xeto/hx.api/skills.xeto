@@ -9,5 +9,4 @@
 // Haystack HTTP API: auth, ops, watches, integrating external clients
 @skill-know-api : AiSkill {
   keywords: {"api", "http", "rest", "haystack", "scram", "auth", "watch", "integration", "client", "zinc"}
-  include: { @hx::skill-know-axon }
 }

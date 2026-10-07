@@ -9,5 +9,4 @@
 // TLS certificates and keys: trust, client certs, https, keystore
 @skill-know-crypto : AiSkill {
   keywords: {"crypto", "certificate", "cert", "tls", "ssl", "https", "keystore", "trust", "pem", "key", "est", "enroll", "reenroll", "renewal", "rfc7030"}
-  include: { @hx::skill-know-axon }
 }
