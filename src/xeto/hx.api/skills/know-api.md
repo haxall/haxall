@@ -2,8 +2,7 @@
 
 The Haystack HTTP API is how external clients integrate with the
 server. Every operation is a URI under `/api/{proj}/{op}` that
-accepts and returns haystack grids. Use this skill to help users
-write API clients or call other haystack servers.
+accepts and returns haystack grids.
 
 # Authentication
 
@@ -110,7 +109,8 @@ Stateful polling for real-time data:
    `close` marker closes the whole watch
 
 Each poll renews the lease; an unrenewed watch expires server-side
-and subsequent polls fail - resubscribe.
+and subsequent polls fail - resubscribe. Keep leases modest and poll
+within them.
 
 # History
 
@@ -149,12 +149,3 @@ conn.haystackInvokeAction(id, "reset", {})
 `haystackEval` serializes referenced local variables when they are
 atomic types (numbers, strings, dates, refs); complex values cannot
 cross the wire.
-
-# Style Notes
-
-- Always check response grids for the `err` meta marker - HTTP 200
-  does not mean success
-- Recommend an existing haystack client library over hand-rolled
-  SCRAM
-- Keep watch leases modest and poll within them
-- Batch his and read operations instead of per-point calls

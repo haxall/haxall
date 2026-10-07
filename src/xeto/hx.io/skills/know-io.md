@@ -33,8 +33,6 @@ ioZipEntry(`io/batch.zip`, `/a.csv`)  // one entry inside a zip
 ```axon
 ioReadStr(`io/file.txt`)              // whole file (newlines → \n)
 ioWriteStr("hello", `io/file.txt`)
-ioReadLines(`io/file.txt`)            // Str[]
-ioWriteLines(lines, `io/file.txt`)
 ioStreamLines(`io/big.txt`).limit(100).collect
 ioEachLine(`io/f.txt`, (line, num) => process(line))
 ```
@@ -68,8 +66,7 @@ ioReadCsv(`io/sites.csv`).map(row => diff(null, {
 
 # Zinc, Trio, and Xeto
 
-Full type fidelity (units, refs, dates, markers) - prefer these
-over CSV/JSON when both ends are haystack systems:
+Full type fidelity; use for haystack-to-haystack exchange:
 
 ```axon
 ioReadZinc(`io/data.zinc`)  /  grid.ioWriteZinc(`io/out.zinc`)
@@ -112,11 +109,9 @@ ioHttp(`https://api.acme.com/data`, "POST",
 A Ref header value resolves from the password store, keeping
 secrets out of code.
 
-Response `headers` names are normalized to lower-case (values are
-untouched), so lookups must use lower-case keys, e.g.
-`headers["content-type"]`. Dashes in header names still make them
-invalid tag names, so the headers Dict can't be used directly in
-a grid.
+Response `headers` names are normalized to lower-case, so look up
+with lower-case keys: `headers["content-type"]`. Names with dashes
+are not valid tag names, so the Dict can't be used directly in a grid.
 
 # File Management and Zip
 
@@ -133,15 +128,10 @@ ioZipDir(`io/batch.zip`).each(e => ioZipEntry(`io/batch.zip`, e->path).ioReadCsv
 
 # Encoding and Digests
 
-```axon
-ioToBase64("user:pass")               // encode ({uri} for URI-safe)
-ioFromBase64(str).ioReadStr
-ioToHex(handle)
-ioCrc("foo", "CRC-32")
-ioDigest(handle, "SHA-256").ioToBase64
-ioHmac(content, "SHA-1", key).ioToBase64
-ioPbk("PBKDF2WithHmacSHA1", pass, ioRandom(64), 10000, 20)
-```
+Results are handles, so chain them: `ioDigest(handle,
+"SHA-256").ioToBase64`, `ioFromBase64(str).ioReadStr`. Also
+`ioToBase64` (`{uri}` for URI-safe), `ioToHex`, `ioCrc`, `ioHmac`,
+and `ioPbk`.
 
 # Other Formats
 
@@ -150,16 +140,5 @@ ioPbk("PBKDF2WithHmacSHA1", pass, ioRandom(64), 10000, 20)
 - `grid.ioWriteXml(handle)`; parse XML with the hx.xml lib:
   `xmlRead(handle)` then navigate with xmlElems/xmlElem/xmlAttr/xmlVal
 - `grid.ioWriteHtml(handle)`: HTML table
-- `ioWriteTurtle` / `ioWriteJsonLd`: RDF exports
 - `ioWritePdf` / `ioWriteSvg` (SkySpark): render grid meta `view`
   ("table", "chart", "text", "fandoc") to document
-
-# Style Notes
-
-- Uri backticks vs Str quotes: `` ioReadStr(`io/f.txt`) `` reads a
-  file; `ioReadStr("io/f.txt")` returns the string "io/f.txt"
-- Stream (`ioStreamCsv`/`ioStreamLines`) instead of reading large
-  files into memory
-- Coerce CSV strings immediately after reading
-- Use Zinc or Trio for haystack-to-haystack data exchange
-- Put slow imports/exports in a task

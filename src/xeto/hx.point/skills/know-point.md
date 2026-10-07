@@ -1,9 +1,8 @@
 # Know Point
 
-Points model sensors, commands, and setpoints. A point rec combines
-a value type with up to three facets: **cur** (real-time value),
-**his** (history), and **writable** (command output). Each facet
-adds its own runtime status tags.
+A point rec combines a value type with up to three facets: **cur**
+(real-time value), **his** (history), and **writable** (command
+output).
 
 # Point Recs
 
@@ -29,9 +28,7 @@ restart (except priority array levels 1, 8, and def - see below).
 # Cur Values
 
 `curVal`/`curStatus` are maintained by connectors (via watch
-subscription or explicit sync). The connector framework marks a
-point `stale` when it is unwatched and unread past the tuning
-`staleTime` (default 5min).
+subscription or explicit sync); see know-conn for the stale rule.
 
 The `curTracksWrite` marker makes `curVal` mirror the point's
 effective write value with `curStatus:"ok"` - useful for writable
@@ -74,9 +71,9 @@ Write rules:
   point's `unit`, mismatched units throw
 - The `who` argument is stored per level for auditing (defaults to
   the current user)
-- Use `pointWriteArray(pt)` to debug "why is this point commanded
-  to this value" - it shows every level, who set it, and timed
-  override expiration
+- Start any "why is this point commanded to this value"
+  investigation with `pointWriteArray(pt)` - it shows every level,
+  who set it, and timed override expiration
 
 The `obsPointWrites` observable fires when the effective value
 changes (not on every level write), so tasks can react to command
@@ -116,11 +113,9 @@ Bool and Str points with enumerated states use enum definitions:
 - Per-point: the `enum` tag with comma separated names, e.g.
   `enum:"off,slow,fast"` (ordinals 0, 1, 2) - referenced as "self"
 
-Conversion funcs: `enumStrToNumber`, `enumNumberToStr`,
-`enumStrToBool`, `enumBoolToStr`; list definitions with
-`enumDefs()` / `enumDef(id)`. Bool mapping: the first zero code is
-false, the first non-zero code is true. Duplicate codes are
-allowed; reverse lookup returns the first match.
+List definitions with `enumDefs()` / `enumDef(id)`. Bool mapping:
+the first zero code is false, the first non-zero code is true.
+Duplicate codes are allowed; reverse lookup returns the first match.
 
 # Point Conversions
 
@@ -135,11 +130,15 @@ is a left-to-right pipeline:
 "strToNumber() ?: 0"             // parse with null fallback
 "numberToBool()"                 // 0=false, non-zero=true
 "enumNumberToStr(speed)"         // enum code to name
+"enumBoolToStr(self)"            // bool to name via point's enum tag
 "thermistor(10k-2)"              // resistance table decode
 "& 0xFF >> 2"                    // bitwise ops
 ```
 
-Test a conversion with `pointConvert(pt, "°C => °F", 20°C)`.
+The enum converters `enumStrToNumber`, `enumNumberToStr`,
+`enumStrToBool`, and `enumBoolToStr` work only inside convert
+strings - they are not Axon funcs. Test a conversion with
+`pointConvert(pt, "°C => °F", 20°C)`.
 
 # Navigation Utilities
 
@@ -151,13 +150,3 @@ toOccupied(rec)         // find the occupied point for a rec
 matchPointVal(val, 0..40)  // match value: exact, bool, range, func
 pointDetails(pt)        // debug report: write array + his collect state
 ```
-
-# Style Notes
-
-- Writing null releases a priority level; it never writes zero
-- Never assume levels 2-7/9-16 survive a restart; applications
-  must rewrite them
-- Without `curTracksWrite`, curVal and writeVal are independent
-- Start any writable-point investigation with `pointWriteArray`
-  and any point investigation with `pointDetails`
-

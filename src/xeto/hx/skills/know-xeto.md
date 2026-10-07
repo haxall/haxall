@@ -1,8 +1,7 @@
 # Know Xeto
 
-Xeto is a data modeling language for defining typed data structures.
-It defines *specs* (type definitions) and *instances* (data conforming
-to specs), organized into versioned modules called *libs*.
+Xeto defines *specs* (types) and *instances* (data conforming to
+specs), organized into versioned modules called *libs*.
 
 # Specs
 
@@ -13,10 +12,10 @@ Specs define the shape of data. Two fundamental kinds: scalars
 // scalar type
 SocialSecurityNumber: Scalar <pattern:"\\d{3}-\\d{2}-\\d{4}">
 
-// dict type with slots
-Person: Dict <sealed, icon:"user"> {
+// dict type with spec meta and slot meta
+Person: Dict <abstract, sealed, icon:"user"> {
   name: Str
-  age: Number?
+  age: Number? <minVal:0, maxVal:150>
   height: Number <quantity:"length", minVal:0>
 }
 ```
@@ -25,16 +24,12 @@ Spec names must start with an uppercase ASCII letter and use camelCase.
 
 All scalar values are fundamentally strings. You can omit quotes when
 the scalar string starts with ASCII digit and contains only digits, `-`,
-or number unit chars.
+or number unit chars:
 
 ```xeto
-// these are equivalent
-x: Number "100kW"
-x: Number 100kW
-
-// these are equivalent
-d: Date "2024-03-14"
-d: Date 2024-03-14
+x: Number 100kW            // same as Number "100kW"
+d: Date 2024-03-14         // same as Date "2024-03-14"
+coord: Coord "C(37.55,-77.45)"
 ```
 
 # Slot Specs
@@ -51,64 +46,28 @@ Example: Dict {
 }
 ```
 
-# Maybe Types
-
-The `?` suffix is sugar for `<maybe>` meta. Omitting `?` means required:
-
-```xeto
-User: Dict {
-  name: Str           // required
-  email: Str?         // optional
-  phone: Str <maybe>  // equivalent long form
-}
-```
-
-Subtypes can narrow maybe to non-maybe (optional to required) but not
-the reverse.
+The `?` suffix is sugar for `<maybe>` meta; prefer `?`. Subtypes can
+narrow maybe to non-maybe (optional to required) but not the reverse.
 
 # Inheritance
 
-Specs inherit slots and meta from a supertype:
-
-```xeto
-Foo: Dict {
-  a: Str
-  b: Date
-}
-
-// Bar inherits 'a' and 'b', adds 'c'
-Bar: Foo {
-  c: Number
-}
-```
-
-Override a slot to narrow its type (must be covariant):
+Specs inherit slots and meta from a supertype. Override a slot to
+narrow its type (must be covariant):
 
 ```xeto
 Base: Dict {
+  a: Str
   num: Number
 }
 
-// Int is a subtype of Number, so this is valid
+// inherits 'a', narrows 'num' (Int is a subtype of Number), adds 'c'
 Specific: Base {
   num: Int <minVal:0>
+  c: Date
 }
 ```
 
 # Meta
-
-Metadata is declared between angle brackets `<>`. Meta annotates
-specs and slots with additional information:
-
-```xeto
-// spec-level meta
-Person: Dict <abstract, sealed, icon:"user"> {
-
-  // slot-level meta
-  age: Number <minVal:0, maxVal:150>
-  height: Number <quantity:"length">
-}
-```
 
 Common built-in meta:
 - `abstract` - cannot be instantiated directly
@@ -116,13 +75,16 @@ Common built-in meta:
 - `maybe` (or `?` sugar) - slot is optional
 - `val` - default value
 - `invariant` - value must match exactly
-- `minVal` / `maxVal` - numeric bounds
+- `minVal` / `maxVal` - inclusive numeric bounds (numbers only)
+- `minSize` / `maxSize` - inclusive length bounds for strings and lists
 - `quantity` / `unit` - unit constraints
 - `pattern` - regex constraint for scalars
-- `nonEmpty` - string/list must be non-empty
+- `nonEmpty` - string must be non-empty when trimmed (strings only;
+  use `minSize:1` for lists)
 - `of` - parameterize List, Ref, Query item type
-- `doc` - documentation (auto-set from `//` comments)
-- `global` (or `*` sugar) - global slot constraint
+- `doc` - documentation (auto-set from `//` comments on the line
+  before a spec or slot)
+- `global` (or `*` sugar) - global slot
 
 # Instances
 
@@ -170,16 +132,9 @@ a top-level `@id`, or both:
 
 # Qualified Names
 
-Every spec has a globally unique qname: `{lib}::{Name}`.
-
-```xeto
-sys::Str                          // qname
-Str                               // simple name (resolved via namespace)
-ph.equips.sugar::NaturalGasMeter  // qname with dotted lib
-NaturalGasMeter                   // simple name
-```
-
-Slot qnames use dot: `sys::LibDepend.lib`
+Every spec has a globally unique qname: `{lib}::{Name}`, such as
+`sys::Str` or `ph.equips.sugar::NaturalGasMeter`; the simple name
+resolves via the namespace. Slot qnames use dot: `sys::LibDepend.lib`
 
 # Core Types (sys lib)
 
@@ -225,18 +180,8 @@ Foo: Dict {
 
 # Enums
 
-Closed set of string values:
-
-```xeto
-Suit: Enum {
-  clubs
-  diamonds
-  hearts
-  spades
-}
-```
-
-Use `key` meta when string values differ from slot names:
+Closed set of string values. Use `key` meta when string values
+differ from slot names:
 
 ```xeto
 Suit: Enum {
@@ -258,33 +203,30 @@ Green: Color { green }
 Blue: Color { blue }
 
 Car: Dict {
-  color: Color  // required: exactly one of red/green/blue
-}
-
-Car: Dict {
-  color: Color? // optional: zero or one
-}
-
-Car: Dict {
-  color: Color <multiChoice> // multiple allowed
+  color: Color                // required: exactly one of red/green/blue
+  trim: Color?                // optional: zero or one
+  stripes: Color <multiChoice> // multiple allowed
 }
 ```
 
 # Globals
 
-Global slots enforce consistent usage of a tag across all subtypes.
-Declared with `*` prefix:
+Global slots, declared with a `*` prefix, enforce consistent typing of
+a tag across all subtypes and their instance data:
 
 ```xeto
 Person: Dict {
   *height: Number <quantity:"length", minVal:0>
 }
 
-// Any subtype using 'height' must conform to the global constraint
-Athlete: Person {
-  height: Number  // inherits quantity:"length", minVal:0
-}
+Athlete: Person { height: Number }   // required; inherits global meta
+Coach: Person { height: Number? }    // optional
+Fan: Person { height: 180cm }        // value only: type inferred, optional
+Bad: Person { height: Str }          // error: not covariant with global
 ```
+
+Globals are implicitly maybe - declaring `*height: Number?` is an
+error. Requiredness is decided where a subtype declares the slot.
 
 # Mixins
 
@@ -292,38 +234,15 @@ Extend existing specs from another lib via late binding.
 Mixin names use `+` prefix:
 
 ```xeto
-// add meta to a spec from another lib
-+Person <icon:"user">
-
-// add meta to an existing slot
-+Person {
-  age: <icon:"calendar">
-}
-
-// add a new slot
-+Person {
-  orgRef: Ref <of:Org>
++Person <icon:"user"> {
+  age: <icon:"calendar">   // add meta to an existing slot (no type)
+  orgRef: Ref <of:Org>     // add a new slot
+  *badge: Str              // add a global
 }
 ```
 
-# Constraints
-
-```xeto
-Foo: Dict {
-  // number constraints
-  percent: Number <minVal:0, maxVal:100, unit:"%">
-  power: Number <quantity:"power">
-
-  // string constraints
-  name: Str <nonEmpty>
-  phone: Str <minVal:7, maxVal:10>
-  ssn: Str <pattern:"\\d{3}-\\d{2}-\\d{4}">
-
-  // list constraints
-  tags: List <nonEmpty, of:Str>
-  items: List <minSize:2, maxSize:5>
-}
-```
+Mixin slots and globals resolve only for libs that declare the
+mixin's lib as a dependency.
 
 # Libs
 
@@ -345,46 +264,7 @@ pragma: Lib <
 >
 ```
 
-Directory structure:
-
-```
-src/xeto/
-  acme.assets/       // lib name from directory
-    lib.xeto         // pragma (required)
-    specs.xeto       // type definitions
-    instances.xeto   // instance data
-```
-
 Lib names: lowercase, dots as separators, globally unique.
-
-# Comments and Documentation
-
-```xeto
-// Single line comment becomes 'doc' meta on the next spec/slot
-
-// User account for the system
-User: Dict {
-  // Full legal name
-  name: Str
-}
-```
-
-# Scalars in Instance Data
-
-Scalars are encoded as strings. Number literals include units:
-
-```xeto
-@example: Sensor {
-  dis: "Zone Temp"
-  kind: "Number"
-  unit: "°F"
-  minVal: Number 0
-  maxVal: Number 100
-  area: Number "2300ft²"
-  installed: Date "2024-03-14"
-  coord: Coord "C(37.55,-77.45)"
-}
-```
 
 # Heredocs
 
@@ -429,11 +309,5 @@ Button { onAction: UiFunc <axon:"echo(event)"> }
 
 # Style Notes
 
-- Spec names: UpperCamelCase
-- Slot/tag names: lowerCamelCase
-- Use `?` suffix for optional slots (not `<maybe>`)
-- Use `*` prefix for globals (not `<global>`)
-- Use `//` comments for documentation
-- Keep specs focused - prefer composition via inheritance
 - Marker tags model boolean presence: `{site}` not `{site: true}`
-
+- Keep specs focused - prefer composition via inheritance

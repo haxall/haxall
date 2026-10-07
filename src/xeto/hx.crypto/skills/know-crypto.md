@@ -7,18 +7,18 @@ figure out why a connection fails TLS. All crypto funcs require su.
 
 # Fixing TLS Errors
 
-During a TLS handshake the client performs three checks. Understanding
-which one failed determines the fix.
+A TLS handshake makes three checks; which one failed determines the
+fix:
 
-1. **Name check** — The URI/IP must match one of the certificates
-   Subject Alternative Names. A mismatch cannot be fixed by trusting so
-   the TLS client must be configured to use an address in the certificate.
-2. **Chain-to-root check** — The server's certificate chain must reach a root
-   CA in the keystore trust store. Fix by trusting the chain.
-3. **Date validity check** — Every certificate in the chain must be within its
-   `notBefore`/`notAfter` window. Ensure there are no expired certificates in
-   the TLS client trust store. An expired cert cannot be fixed by trusting so
-   contact the server operator to renew it.
+1. **Name check** — the URI/IP must match one of the certificate's
+   Subject Alternative Names. Trusting cannot fix a mismatch; connect
+   with an address in the certificate.
+2. **Chain-to-root check** — the server's chain must reach a root CA
+   in the keystore trust store. Fix by trusting the chain.
+3. **Date validity check** — every cert in the chain must be within
+   its `notBefore`/`notAfter` window; expired certs produce the same
+   errors as untrusted ones. Trusting cannot fix an expired cert; the
+   server operator must renew it.
 
 ## Error messages and fixes
 
@@ -104,8 +104,9 @@ Remove the option and restart once debugging is complete.
 # The Keystore
 
 One PKCS12 file at `var/crypto/keystore.p12` holds both trusted
-certs and private key bundles (a backup is kept alongside). Entries
-are keyed by alias. Reserved aliases - never rename or delete:
+certs and private key bundles (a backup is kept alongside). The
+keystore password is fixed; file system permissions on var/crypto
+are the real protection. Entries are keyed by alias. Reserved aliases - never rename or delete:
 
 - `https`: the web server's certificate (see below)
 - `host`: auto-generated self-signed identity for the runtime
@@ -151,8 +152,9 @@ pem: ioReadStr(`io/client.key.pem`) + ioReadStr(`io/client.cert.pem`)
 cryptoAddCert("mqtt-client", pem)
 ```
 
-Rules: the PEM must contain exactly one private key plus its cert
-chain; a key without certs or multiple certs without a key throws.
+Rules: the PEM must contain exactly one private key followed by its
+cert chain, ordered server cert, intermediate CAs, then root CA; a
+key without certs or multiple certs without a key throws.
 Use `force:true` to overwrite an existing alias. Connectors
 reference the bundle by alias, e.g. the MQTT connector's
 `mqttCertAlias: "mqtt-client"` tag.
@@ -169,35 +171,19 @@ cryptoAddCert("https", ioReadStr(`io/server.pem`), true)
 
 If no valid `https` bundle exists, HTTPS is disabled at startup
 with a log error. When HTTPS is enabled, HTTP redirects to HTTPS.
+Include the entire chain in the bundle; some HTTP clients don't fetch
+missing intermediates.
 
-Not including the entire certificate chain in the bundle can cause
-problems for some HTTP clients that don't automatically fetch
-intermediate certificate authorities.
-
-**Hot reload**: a restart is only required to *first enable* HTTPS
-(`httpsEnabled`/`httpsPort`). Once the HTTPS listener is running, any
-replacement of the `https` bundle — via `cryptoAddCert`, EST enroll,
-EST reenroll, or automatic EST renewal — hot-reloads the running web
-server immediately. The http ext logs "HTTPS certificate rotated" and
-rebuilds its socket config; no restart or connection disruption is
-needed. See [EST (Enrollment over Secure Transport)](#est) below for
-fully-automated, zero-downtime cert lifecycle management.
-
-# Certificate Bundle Order
-
-The order of bundles is important. It must start with the private
-key, then the entire certificate chain.
-
-The order of the certificate chain must start with the server
-certificate (which matches the private key), then each Intermediate
-Certificate Authority (if any), and end with the Root Certificate
-Authority.
+**Hot reload**: a restart is only required to *first enable* HTTPS.
+Once the listener is running, any replacement of the `https` bundle
+(`cryptoAddCert`, EST enroll/reenroll, or automatic EST renewal)
+hot-reloads the web server immediately with no connection disruption;
+the http ext logs "HTTPS certificate rotated".
 
 # Self-Signed Certificates
 
 ```axon
-cryptoGenSelfSignedCert("test-server", "cn=host.example.com,o=Acme")
-cryptoGenSelfSignedCert("https", "cn=myhost", {notAfter: today()+730day})
+cryptoGenSelfSignedCert("https", "cn=myhost,o=Acme", {notAfter: today()+730day})
 ```
 
 Generates an RSA 2048 key and self-signed cert (default validity
@@ -211,10 +197,11 @@ cryptoEntryRename({id:@alias-id, alias:"new-name"})
 cryptoEntryRename({id:@alias-id, alias:"copy", keep})
 ```
 
-# EST (Enrollment over Secure Transport) {#est}
+# EST (Enrollment over Secure Transport)
 
 EST (RFC 7030) lets the runtime request and automatically renew
-certificates from a CA server over HTTPS. All EST funcs require su.
+certificates from a CA server over HTTPS. It is the preferred
+approach for zero-downtime HTTPS certificate lifecycle management.
 
 ## EST Functions
 
@@ -227,9 +214,8 @@ cryptoEstGetCaCerts(`https://est.example.com`, {caLabel:"myca"})
 ```
 
 Returns a grid with a `certRole` column classifying each cert per
-RFC 4210: `root`, `intermediate`, `endEntity`; during a CA key
-rollover also `oldWithOld`, `newWithNew`, `newWithOld`, `oldWithNew`,
-or `rollover`.
+RFC 4210: `root`, `intermediate`, `endEntity`, or a CA key rollover
+role.
 
 **`cryptoEstEnroll(dict)`** — enroll for a brand-new certificate:
 
@@ -241,31 +227,19 @@ cryptoEstEnroll({
   sanDns:      "myhost.example.com,myhost",
   renewalWindow: 30day
 })
-
-// Enroll with a custom alias and multiple SANs
-cryptoEstEnroll({
-  uri:         `https://est.example.com`,
-  subjectName: "CN=api.example.com",
-  alias:       "api-server",
-  sanDns:      "api.example.com",
-  sanIp:       "192.168.1.10",
-  username:    "enroll-user",
-  password:    cryptoAddCert("enroll-user", ...)
-})
 ```
 
 Key parameters: `uri` (required), `subjectName` (required), at least
-one of `sanDns`/`sanIp`/`sanUri` (required), `alias` (default
-`https`), `caLabel`, `renewalWindow` (default 30d, clamped 1–180d),
-`sigAlgorithm` (default `sha256WithRSAEncryption`), `username`,
-`password`.
+one of `sanDns`/`sanIp`/`sanUri` (comma separated; required), `alias`
+(default `https`), `caLabel`, `renewalWindow` (default 30d, clamped
+1–180d), `sigAlgorithm` (default `sha256WithRSAEncryption`), and
+`username`/`password` for HTTP basic auth.
 
 **`cryptoEstReenroll(alias)`** — renew an existing EST-managed cert
 using mutual TLS (the current cert authenticates the request):
 
 ```axon
 cryptoEstReenroll("https")
-cryptoEstReenroll("api-server")
 ```
 
 ## EST-Managed Entries
@@ -282,17 +256,7 @@ cryptoReadAllKeys().filter(estManaged)
 
 The crypto ext runs housekeeping every 3 hours. Any `estManaged`
 entry whose expiration is within its `renewalWindow` is automatically
-reenrolled — the cert is renewed and installed without any manual
-action.
-
-## Hot Reload of HTTPS
-
-When EST enrolls or reenrolls the `https` alias (including via
-automatic renewal), the running HTTPS web server picks up the new
-certificate **immediately** — no restart required. The http ext logs
-"HTTPS certificate rotated" and rebuilds its TLS socket config in
-place. This makes EST the preferred approach for fully-automated,
-zero-downtime HTTPS certificate lifecycle management.
+reenrolled; renewing the `https` alias hot-reloads the web server.
 
 # CLI Tool
 
@@ -308,15 +272,3 @@ hx crypto export / remove / rename
 ```
 
 Import accepts p12/pfx/jks/fks keystores and PEM files.
-
-# Style Notes
-
-- Always cryptoCheckUri before cryptoTrustUri to see what you are
-  about to trust
-- After trusting, re-open the affected conns; replacing the `https`
-  bundle hot-reloads the running web server — a restart is only needed
-  to *first enable* HTTPS (`httpsEnabled`/`httpsPort`)
-- Watch `notAfter` dates - expired certs produce the same errors as
-  untrusted ones
-- The keystore password is fixed; file system permissions on
-  var/crypto are the real protection

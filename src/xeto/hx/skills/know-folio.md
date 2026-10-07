@@ -1,9 +1,6 @@
 # Know Folio
 
-Folio is the tag-oriented database built into the runtime. Records
-("recs") are Dicts identified by a Ref id. Recs are queried with
-filters and modified by committing diffs. All the database functions
-operate on the current project's Folio.
+Folio is the runtime's tag database of recs (Dicts keyed by Ref id).
 
 # Recs and Special Tags
 
@@ -24,20 +21,11 @@ is no bare `func` marker tag on 4.x managed recs.
 
 # Filters
 
-Filters are the query language used by `read`, `readAll`, and
-`readCount`. They are not Axon expressions:
+Beyond the basics, filters support:
 
 ```axon
-site                           // has marker tag
-not point                      // missing tag
-equip and hvac                 // logical and
-ahu or chiller                 // logical or
-geoCity == "Chicago"           // string equality
-curVal > 75                    // number comparison
 equipRef == @abc123            // ref equality
-siteRef->geoCity == "Chicago"  // ref path traversal
 equipRef->siteRef->dis == "X"  // multi-hop traversal
-Meter                          // match by unqualified Xeto spec name
 ph::Meter                      // match by qualified Xeto spec name
 ```
 
@@ -48,24 +36,17 @@ Filter semantics:
   match `75°F`; there is no automatic unit conversion
 - A tag with a list of refs matches if any ref in the list matches
 - Parse a string to a filter with `parseFilter("equip and hvac")`
-- Convert a filter to a predicate func with `filterToFunc`:
-  `grid.findAll(filterToFunc(area > 1000ft²))`
+- Apply a filter to an in-memory grid, list, or stream with
+  `filter`: `grid.filter(area > 1000ft²)`
 
 # Reading
 
 ```axon
-read(site)                        // first match, throws if none
-read(chiller, false)              // null instead of throw
-readById(@2b00f9dc-82690ed6)      // lookup by id, throws if not found
 readById(id, false)               // null if not found
 readByIds([@a, @b])               // grid, rows correspond by index
 readByIds(ids, false)             // missing ids yield all-null rows
-readAll(equip and siteRef==@xyz)  // grid of all matches
-readAll(equip, {limit:10})        // cap results
 readAll(equip, {sort})            // sort by display name
 readAll(equip, {search:"RTU*"})   // apply search pattern
-readTrash(equip)                  // read recs in trash (only)
-readCount(point)                  // number of matches
 ```
 
 Notes:
@@ -76,46 +57,28 @@ Notes:
   columns name, kind, count
 - `readAllTagVals(point, "unit")` returns grid of unique values for
   one tag, capped at 200 results
+- `readByIdPersistentTags(id)` / `readByIdTransientTags(id)` return
+  only one kind of tag
 
 For large result sets use streams to avoid loading everything into
 memory:
 
 ```axon
-readAllStream(point).filter(x => x.has("unit")).limit(100).collect
+readAllStream(point).filter(unit).limit(100).collect
 readByIdsStream(ids).map(r => r->dis).collect
 ```
 
-Advanced reads:
-- `readByIdPersistentTags(id)`: only the persistent tags
-- `readByIdTransientTags(id)`: only the transient tags
-- `readLink(id)`: dict with grid-standard column order for hyperlinks
-
 # Writing
 
-Modifications are two steps: construct a diff, then commit it.
-Commit requires admin permission.
-
-```axon
-// add new rec (id is auto-generated)
-newRec: commit(diff(null, {dis:"New Rec", site}, {add}))
-
-// update tags on existing rec
-commit(diff(rec, {area:5000ft²}))
-
-// remove a tag
-commit(diff(rec, {-oldTag}))
-
-// batch commit list of diffs (atomic)
-readAll(equip).toRecList.map(r => diff(r, {someTag})).commit
-```
-
-The `diff(orig, changes, flags)` flags:
+Commit requires admin permission. The `diff(orig, changes, flags)`
+flags:
 - `add`: create new rec; orig must be null; pass `id` tag in changes
   to use an explicit id
-- `remove`: delete rec permanently; prefer the `trash` tag instead
+- `remove`: delete rec permanently (see Trash below)
 - `transient`: changes are not persisted (see Transient Tags below);
   cannot be combined with add or remove
-- `force`: skip the concurrent change check (use with caution)
+- `force`: skip the concurrent change check; all other validation
+  still runs
 
 Commit semantics:
 - Single diff returns the new rec; list of diffs returns list of recs;
@@ -124,23 +87,9 @@ Commit semantics:
 - All diffs in one commit must be all persistent or all transient,
   and may not target the same rec twice
 - Commit is synchronous; the returned rec has the updated `mod`
-
-# Concurrency
-
-Every persistent commit updates the `mod` timestamp. Commit verifies
-`orig->mod` still matches the database and throws ConcurrentChangeErr
-if another commit happened after your read:
-
-```axon
-// safe pattern: commit against a freshly read rec
-commit(diff(readById(id), {newTag}))
-
-// force overwrite regardless of concurrent changes
-commit(diff(rec, {newTag}, {force}))
-```
-
-The `force` flag only bypasses the mod check; all other validation
-still runs.
+- Every persistent commit updates `mod`; commit throws
+  ConcurrentChangeErr if `orig->mod` no longer matches, so diff
+  against a freshly read rec and never fabricate `mod`
 
 # Transient Tags
 
@@ -179,10 +128,9 @@ another rec: `id`, `mod`, transient tags, and his config tags such as
 
 ```axon
 rec.stripUncommittable          // strip, keep id
-rec.stripUncommittable({-id})   // strip id too
 rec.stripUncommittable({mod})   // keep mod
 
-// copy pattern
+// copy pattern: strip id too
 src: readById(@a)
 commit(diff(null, src.stripUncommittable({-id}), {add}))
 ```
@@ -195,22 +143,10 @@ Display name resolution precedence for a rec:
 2. `dis`: explicit display string
 3. otherwise the id is displayed
 
-```axon
-dis(rec)               // display name of rec
-relDis(parent, child)  // relative display, strips common prefix
-```
+`relDis(parent, child)` returns the relative display, stripping the
+common prefix.
 
 # Performance
 
-- In Haxall every filter is a full table scan except direct id
-  lookups; SkySpark additionally builds tag indexes automatically
-- Prefer one batch commit over many single commits
-- Use `readAllStream`/`readByIdsStream` for very large result sets
-- `readCount` is cheaper than `readAll(f).size`
-
-# Style Notes
-
-- Prefer trash over remove so users can recover recs
-- Commit from a freshly read rec; never fabricate `mod`
-- Use checked:false variants and null checks instead of try/catch
-
+In Haxall every filter is a full table scan except direct id lookups;
+SkySpark additionally builds tag indexes automatically.

@@ -28,10 +28,9 @@ Runtime status (transient tags):
 - `connState`: closed, opening, open, closing
 - `connErr`: error message when status is an error
 
-Lifecycle tags: `disabled` marker pauses the conn; `connPingFreq`
-enables periodic auto-ping; `connLinger` (default 30sec) controls
-how long a connection stays open after use; `actorTimeout` (default
-1min) bounds every operation.
+Lifecycle tags: `disabled` marker pauses the conn or point - use it
+rather than deleting; `connPingFreq` enables periodic auto-ping;
+`actorTimeout` (default 1min) bounds every operation.
 
 # Point Binding
 
@@ -56,6 +55,7 @@ is his-only, mqtt maps pub/sub topics.
 Normalize raw values with conversion tags (see the know-point
 conversion pipeline): `curConvert`, `writeConvert`, `hisConvert`,
 plus `curCalibration` (number added to converted cur value).
+Converted values must match the point's `kind` and `unit`.
 
 # Lifecycle
 
@@ -130,9 +130,8 @@ staleTime: 1min
 writeMinTime: 2sec
 ```
 
-Knobs: `pollTime` (default 10sec), `staleTime` (default 5min),
-`writeMinTime`, `writeMaxTime`, `writeOnStart`, `writeOnOpen`.
-Points sharing a tuning form one poll bucket; buckets are staggered
+Knobs: `pollTime` (default 10sec), `staleTime`, and the write
+knobs above. Points sharing a tuning form one poll bucket; buckets are staggered
 at startup to spread load.
 
 # Troubleshooting
@@ -141,10 +140,9 @@ Point status inherits the conn status: if the conn is down or
 disabled, every point reports that status regardless of its own
 config. A point-level config fault (bad `kind`, wrong address tag
 type, invalid convert string) overrides with "fault". So debug
-order: conn first, then point.
+order: conn first, then point - start with `connDetails`.
 
 ```axon
-read(conn and dis=="Main").connPing
 connDetails(conn)           // config, state, stats, poll buckets
 connDetails(pt)             // per-facet state, tuning, watches
 connPointsInWatch(conn)     // what is actually being polled
@@ -157,13 +155,3 @@ Common causes: "stale" = point not in a watch (open a view or
 watch it); "down" = network/IO problem, check uri and remote
 system; "fault" on conn = config error; "fault" on point = bad
 kind/address/convert; "unknown" = never communicated since startup.
-
-# Style Notes
-
-- Store credentials with passwordSet, never as rec tags
-- Run recurring his syncs in a task
-- Ensure converted values match the point's `kind` and `unit`
-- Disable a conn or point with the `disabled` marker rather than
-  deleting it
-- Start every investigation with connDetails
-

@@ -1,8 +1,8 @@
 # Know Project Haystack
 
-Project Haystack is an ontology for modeling the built environment.
-It defines types for sites, spaces, equipment, and data points
-organized into the `ph`, `ph.equips.sugar`, and `ph.points` xeto libs.
+Project Haystack is an ontology for modeling the built environment,
+organized into the `ph`, `ph.equips.sugar`, `ph.points`,
+`ph.points.sugar`, and `ph.elec` xeto libs.
 
 # Entity Hierarchy
 
@@ -10,13 +10,14 @@ All Haystack entities extend `PhEntity` and are linked by refs:
 
 ```
 Site                     // building or facility
-  System                 // electrial sytem, air conditioning system, etc
+  System                 // electrical system, air conditioning system, etc
   Space                  // floor, room, or zone
   Equip                  // physical or logical equipment
     Point                // sensor, command, or setpoint
 ```
 
-Every entity has `id` and a display name. Sites use `dis` directly.
+Every entity has `id` and a display name. Sites and weather
+stations use `dis` directly.
 Equips and points use `navName` with `disMacro` to compute display:
 
 ```xeto
@@ -32,8 +33,10 @@ navName: "DischargeTemp"
 disMacro: "$equipRef $navName"
 ```
 
-Child entities reference their parent site via `siteRef`. Equipment
-uses `equipRef` for nesting. Points reference their equipment via `equipRef`.
+Systems, spaces, equips, and points all require `siteRef`. Points
+reference their equipment via `equipRef`, and equips nest under a
+parent equip via `equipRef`. Set `spaceRef` on equips and points
+when the location is known.
 
 # Sites
 
@@ -57,8 +60,7 @@ Key slots: `area`, `tz`, `weatherStationRef`, `yearBuilt`,
 
 # Spaces
 
-Spaces model 3D volumes: floors, rooms, and zones. All spaces
-require `siteRef`.
+Spaces model 3D volumes: floors, rooms, and zones.
 
 ```xeto
 // floor (ground = floorNum 0, subterranean = negative)
@@ -76,14 +78,6 @@ require `siteRef`.
   siteRef: @campus-hq
   spaceRef: @hq-floor1
 }
-
-// HVAC zone
-@hq-zone3b: HvacZoneSpace {
-  navName: "Zone 3-B"
-  disMacro: "$siteRef $navName"
-  siteRef: @campus-hq
-  spaceRef: @hq-floor1
-}
 ```
 
 Space subtypes:
@@ -94,9 +88,7 @@ Space subtypes:
 
 # Equipment
 
-Equipment assets model physical or logical devices. All equips
-require `siteRef`. Use `equipRef` to nest child equipment and
-`spaceRef` for location.
+Equipment assets model physical or logical devices.
 
 ```xeto
 @hq-ahu1: Ahu {
@@ -104,6 +96,7 @@ require `siteRef`. Use `equipRef` to nest child equipment and
   disMacro: "$siteRef $navName"
   siteRef: @campus-hq
   spaceRef: @hq-floor1
+  elecRef: @hq-elec-hvac
   chilledWaterCooling
   hotWaterHeating
   vavZone
@@ -135,13 +128,6 @@ require `siteRef`. Use `equipRef` to nest child equipment and
   singleDuct
   variableAirVolume
 }
-
-@hq-chiller1: Chiller {
-  navName: "Chiller-1"
-  disMacro: "$siteRef $navName"
-  siteRef: @campus-hq
-  coolingCapacity: Number 500ton
-}
 ```
 
 ## Common Equipment Types
@@ -161,7 +147,7 @@ HVAC Plant:
 - `Plant` (`ChilledWaterPlant`, `HotWaterPlant`, `SteamPlant`)
 
 Mechanical:
-- `Motor` (`FanMotor`, `PumpMotor`)
+- `Motor` (`AcMotor`, `DcMotor`)
 - `Damper`, `DamperActuator`
 - `Valve`, `ValveActuator`
 
@@ -175,19 +161,14 @@ Other:
 
 ## Equipment Choices
 
-Choice types constrain equipment properties. Common ones:
+Choice types constrain equipment properties. Process markers go on
+the equipment, not its points.
 
-```xeto
-// heating/cooling process (multiChoice on AHU)
-heatingProcess: HeatingProcess
-coolingProcess: CoolingProcess
-```
+HeatingProcess (multiChoice on AHU): `hotWaterHeating`,
+`steamHeating`, `elecHeating`, `naturalGasHeating`, `dxHeating`
 
-HeatingProcess options: `hotWaterHeating`, `steamHeating`,
-`elecHeating`, `naturalGasHeating`, `dxHeating`
-
-CoolingProcess options: `chilledWaterCooling`, `dxCooling`,
-`airCooling`, `waterCooling`
+CoolingProcess (multiChoice on AHU): `chilledWaterCooling`,
+`dxCooling`, `airCooling`, `waterCooling`
 
 Other choices:
 - `ChillerMechanism`: `centrifugal`, `reciprocal`, `rotaryScrew`, `absorption`
@@ -199,8 +180,8 @@ Other choices:
 
 # Points
 
-Points are sensors, commands, or setpoints. All points require
-`kind` and typically `equipRef` and `siteRef`.
+Points are sensors, commands, or setpoints (see know-point for the
+cur/his/writable runtime model).
 
 ## Point Function
 
@@ -227,32 +208,6 @@ Points are classified by data type via `kind`:
   equipRef: @hq-ahu1
 }
 
-// zone air temp sensor
-@hq-zone3b-zat: ZoneAirTempSensor {
-  navName: "ZoneTemp"
-  disMacro: "$equipRef $navName"
-  siteRef: @campus-hq
-  equipRef: @hq-vav1
-  spaceRef: @hq-zone3b
-}
-
-// fan run command (boolean)
-@hq-ahu1-fan-run: DischargeFanRunCmd {
-  navName: "Fan"
-  disMacro: "$equipRef $navName"
-  siteRef: @campus-hq
-  equipRef: @hq-ahu1
-}
-
-// zone temp heating setpoint
-@hq-zone3b-htg-sp: ZoneAirTempOccHeatingSp {
-  navName: "HeatingSP"
-  disMacro: "$equipRef $navName"
-  siteRef: @campus-hq
-  equipRef: @hq-vav1
-  spaceRef: @hq-zone3b
-}
-
 // manual point definition (when no predefined spec exists)
 @hq-ahu1-filter-dp: NumberPoint {
   navName: "FilterDP"
@@ -269,17 +224,15 @@ Points are classified by data type via `kind`:
 
 ## Point Type Composition
 
-Point specs combine three dimensions via intersection types:
+Point specs in `ph.points` combine quantity, subject, and function
+via intersection types; `ph.points.sugar` adds named specializations:
 
 ```xeto
-// base quantity type
-AirTempPoint: NumberPoint { air, temp, unit:"°F" }
-
-// combine quantity + function
-AirTempSensor: AirTempPoint & SensorPoint
-
-// specialize by duct section
-DischargeAirTempSensor: AirTempSensor { discharge }
+FluidTempPoint : NumberPoint <abstract> { temp, ... }   // ph.points
+FluidTempSensor : FluidTempPoint & SensorPoint          // ph.points
+AirTempSensor : FluidTempSensor { air }                 // ph.points
+DuctAirTempSensor : AirTempSensor { ductSection: DuctSection }
+DischargeAirTempSensor : DuctAirTempSensor <sugar> { discharge }
 ```
 
 Common predefined point types include:
@@ -287,21 +240,17 @@ Common predefined point types include:
   `ZoneAirTempSensor`, `MixedAirTempSensor`, `OutsideAirTempSensor`
 - Air temp setpoints: `ZoneAirTempOccCoolingSp`, `ZoneAirTempOccHeatingSp`,
   `ZoneAirTempEffectiveSp`, `DischargeAirTempSp`
-- Fan: `FanRunSensor`, `FanRunCmd`, `FanSpeedModulatingSensor`
-- Damper: `DamperCmdPoint`, `DamperSensorPoint`
-- Valve: `ValveCmdPoint`, `ValveSensorPoint`
+- Fan: `FanRunSensor`, `FanRunCmd`, `DischargeFanRunCmd`,
+  `FanSpeedModulatingSensor`, `DischargeFanSpeedModulatingCmd`
+- Damper: `DamperModulatingCmd`, `DamperOpenCmd`,
+  `DischargeAirDamperModulatingCmd`
+- Valve: `ValveModulatingCmd`, `ValveOpenCmd`,
+  `HotWaterValveModulatingCmd`
 - Air flow: `DischargeAirFlowSensor`, `DischargeAirFlowSp`
-- Elec: `ElecDemandSensor`, `ElecEnergySensor`
+- Elec (`ph.elec`): `ElecDemandSensor`, `ElecEnergySensor`
 
 When no predefined point type exists, use `NumberPoint`, `BoolPoint`,
 or `EnumPoint` directly and add the appropriate marker tags.
-
-## Cur, His, Writable
-
-Points support three infrastructure capabilities via markers:
-- `cur` - real-time current value (`curVal`, `curStatus`)
-- `his` - historized time-series data (`hisMode`, `hisTotalized`)
-- `writable` - commandable via 16-level priority array (`writeVal`, `writeLevel`)
 
 # Meters
 
@@ -325,11 +274,10 @@ Meters are equipment that measure substance or energy flow.
 }
 
 // natural gas meter
-@hq-gas-meter: FlowMeter {
+@hq-gas-meter: NaturalGasMeter {
   navName: "GasMeter-Main"
   disMacro: "$siteRef $navName"
   siteRef: @campus-hq
-  naturalGas
   siteMeter
 }
 ```
@@ -341,20 +289,13 @@ referencing parent). Use `elecRef`, `naturalGasRef`, `chilledWaterRef`,
 # Systems
 
 Systems logically group equipment serving a common purpose.
-Equipment references systems via `systemRef` (MultiRef).
+Equipment references systems via `systemRef`:
 
 ```xeto
 @hq-chw-sys: ChilledWaterSystem {
   navName: "Chilled Water System"
   disMacro: "$siteRef $navName"
   siteRef: @campus-hq
-}
-
-@hq-chiller1: Chiller {
-  navName: "Chiller-1"
-  disMacro: "$siteRef $navName"
-  siteRef: @campus-hq
-  systemRef: @hq-chw-sys
 }
 ```
 
@@ -367,14 +308,14 @@ Key reference tags that link entities:
 
 | Tag | Type | Links |
 |-----|------|-------|
-| `siteRef` | `Ref<of:Site>` | entity to its site |
-| `spaceRef` | `Ref<of:Space>` | entity to its space |
-| `equipRef` | `Ref<of:Equip>` | entity to parent equip |
-| `systemRef` | `MultiRef<of:System>` | entity to systems |
-| `airRef` | `MultiRef` | VAV/terminal to AHU |
-| `elecRef` | `MultiRef` | load to electric meter |
-| `hotWaterRef` | `MultiRef` | load to hot water source |
-| `chilledWaterRef` | `MultiRef` | load to chilled water source |
+| `siteRef` | `ContainedByRef<of:Site>` | entity to its site |
+| `spaceRef` | `ContainedByRef<of:Space>` | entity to its space |
+| `equipRef` | `ContainedByRef<of:Equip>` | entity to parent equip |
+| `systemRef` | `MemberOfRef<of:System>` | entity to systems |
+| `airRef` | `FedByRef<medium:Air>` | VAV/terminal to AHU |
+| `elecRef` | `FedByRef<medium:Elec>` | load to electric meter |
+| `hotWaterRef` | `FedByRef<medium:HotWater>` | load to hot water source |
+| `chilledWaterRef` | `FedByRef<medium:ChilledWater>` | load to chilled water source |
 | `submeterOf` | `Ref<of:Meter>` | submeter to parent meter |
 
 Reading relationships:
@@ -384,160 +325,18 @@ Reading relationships:
   served spaces as `readAll(space and airRef==@vav)`, not from the
   VAV's `spaceRef`
 
-# Full Example
-
-A site with AHU, VAV, and points:
-
-```xeto
-@hq: Site {
-  dis: "Headquarters"
-  area: Number 50000ft²
-  tz: "New_York"
-  geoAddr: "100 Main St, Richmond VA"
-}
-
-@hq-floor1: Floor {
-  navName: "Ground"
-  disMacro: "$siteRef $navName"
-  siteRef: @hq
-  floorNum: 0
-}
-
-@hq-room101: Room {
-  navName: "Room 101"
-  disMacro: "$siteRef $navName"
-  siteRef: @hq
-  spaceRef: @hq-floor1
-}
-
-@hq-ahu1: Ahu {
-  navName: "AHU-1"
-  disMacro: "$siteRef $navName"
-  siteRef: @hq
-  elecRef: @hq-elec-hvac
-  chilledWaterCooling
-  hotWaterHeating
-  vavZone
-  singleDuct
-  variableAirVolume
-}
-
-@hq-ahu1-dat: DischargeAirTempSensor {
-  navName: "DischargeTemp"
-  disMacro: "$equipRef $navName"
-  siteRef: @hq
-  equipRef: @hq-ahu1
-}
-
-@hq-ahu1-fan: DischargeFanSpeedModulatingCmd {
-  navName: "Fan"
-  disMacro: "$equipRef $navName"
-  siteRef: @hq
-  equipRef: @hq-ahu1
-}
-
-@hq-vav1: Vav {
-  navName: "VAV-1A"
-  disMacro: "$siteRef $navName"
-  siteRef: @hq
-  equipRef: @hq-ahu1
-  airRef: @hq-ahu1
-  spaceRef: @hq-room101
-  hotWaterHeating
-  singleDuct
-  series
-  pressureIndependent
-}
-
-@hq-vav1-zat: ZoneAirTempSensor {
-  navName: "ZoneTemp"
-  disMacro: "$equipRef $navName"
-  siteRef: @hq
-  equipRef: @hq-vav1
-}
-
-@hq-vav1-htg-sp: ZoneAirTempOccHeatingSp {
-  navName: "HeatingSP"
-  disMacro: "$equipRef $navName"
-  siteRef: @hq
-  equipRef: @hq-vav1
-}
-
-@hq-vav1-daf: DischargeAirFlowSensor {
-  navName: "Flow"
-  disMacro: "$equipRef $navName"
-  siteRef: @hq
-  equipRef: @hq-vav1
-}
-
-@hq-vav1-damper: DischargeAirDamperModulatingCmd {
-  navName: "Damper"
-  disMacro: "$equipRef $navName"
-  siteRef: @hq
-  equipRef: @hq-vav1
-}
-
-@hq-vav1-reheat: HotWaterValveModulatingCmd {
-  navName: "Reheat"
-  disMacro: "$equipRef $navName"
-  siteRef: @hq
-  equipRef: @hq-vav1
-}
-
-@hq-elec-main: AcElecMeter {
-  navName: "ElecMeter-Main"
-  disMacro: "$siteRef $navName"
-  siteRef: @hq
-  siteMeter
-}
-
-@hq-elec-hvac: AcElecMeter {
-  navName: "ElecMeter-Hvac"
-  disMacro: "$siteRef $navName"
-  siteRef: @hq
-  submeterOf: @hq-elec-main
-}
-```
-
 # Xeto vs Haystack Fidelity
 
-The examples in this document use xeto instance syntax for modeling.
-When entities are stored in the folio database, they are flattened
-to Haystack dicts. The `spec` tag identifies the type, and all
-non-maybe marker slots from the spec are included automatically:
-
-```xeto
-// xeto instance - typed scalars and spec inheritance
-@campus-hq: Site {
-  dis: "Campus HQ"
-  area: Number 55000ft²
-  tz: TimeZone "New_York"
-}
-```
-
-The above becomes a Haystack dict in folio. Typed scalars like `TimeZone`
-become simple strings, and non-maybe markers from the spec hierarchy are
-flattened as tags:
+The examples above use xeto instance syntax. Stored in folio they
+flatten to Haystack dicts: the `spec` tag is a Ref to the type, typed
+scalars like `TimeZone` become plain strings, and non-maybe markers
+from the spec hierarchy become tags:
 
 ```
 id: @campus-hq
-spec: "ph::Site"
+spec: @ph::Site
 dis: "Campus HQ"
-area: 55000ft²    // xeto number is haystack number
-tz: "New_York"    // TimeZone scalar becomes string
+area: 55000ft²
+tz: "New_York"
 site              // from Site spec
 ```
-
-# Style Notes
-
-- Sites and weather stations use `dis` directly; nested entities use `navName` + `disMacro`
-- Equip `disMacro` is `"$siteRef $navName"`; point `disMacro` is `"$equipRef $navName"`
-- Always set `siteRef` on systems, spaces, equips, and points
-- Always set `equipRef` on points to their parent equipment
-- Use `equipRef` to create equipment containment hierarchies
-- Always set `spaceRef` on equip and points if known
-- Use `systemRef` for cross-cutting logical groupings
-- Use predefined point specs from `ph.points` when available
-- Fall back to `NumberPoint`/`BoolPoint`/`EnumPoint` with markers if no spec exists
-- Heating/cooling process markers go on the equipment, not points
-

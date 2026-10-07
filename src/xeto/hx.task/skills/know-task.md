@@ -156,6 +156,3 @@ spot backlogs.
   shared and blocking calls hold a thread
 - Put nontrivial logic in a named func and reference it from
   taskExpr rather than inlining large expressions
-- Remember rec edits wipe queue, locals, and stats
-- Long-running blocking work (connSyncHis, big IO) belongs in a
-  task, with timeouts on every blocking call
