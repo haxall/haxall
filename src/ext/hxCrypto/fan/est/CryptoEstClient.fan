@@ -122,8 +122,12 @@ const class CryptoEstClient
   {
     uri := buildOperationUri("simpleenroll")
 
-    username := (opts["username"] as Str)?.trimToNull != null ? opts["username"] : null
-    password := opts["password"] is Dict ? ((Dict)opts["password"])->secret : null
+    username := (opts["username"] as Str)?.trimToNull
+    password := toPassword(opts["password"])
+
+    // HTTP auth credentials must be supplied together or not at all
+    if ((username == null) != (password == null))
+      throw ArgErr("EST enroll requires both username and password for HTTP auth")
 
     log.info("Enrolling certificate ($subjectName) using EST Server: $uri")
 
@@ -289,6 +293,23 @@ const class CryptoEstClient
     }
 
     return chain
+  }
+
+  ** Coerce an HTTP auth password option into a Str.
+  ** Accepts a plain Str or a Dict with a 'secret' Str tag (as produced by the
+  ** UI PasswordInput).
+  private static Str? toPassword(Obj? val)
+  {
+    if (val == null) return null
+    if (val is Str)  return ((Str)val).trimToNull
+    if (val is Dict)
+    {
+      secret := ((Dict)val)["secret"]
+      if (secret == null) return null
+      if (secret isnot Str) throw ArgErr("password dict 'secret' must be Str, not ${secret.typeof}")
+      return ((Str)secret).trimToNull
+    }
+    throw ArgErr("password must be Str or Dict, not ${val.typeof}")
   }
 
   private Dict parseConfig(Dict d)

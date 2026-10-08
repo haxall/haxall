@@ -428,8 +428,8 @@ const class CryptoFuncs
   **      - sanIp: Comma separated Str of IP subject alternative name values
   **      - sanUri: Comma separated Str of Uri subject alternative name values
   **      - sigAlgorithm: Signing algorithm (default "sha256WithRSAEncryption")
-  **      - username: Str HTTP auth username
-  **      - password: Str HTTP auth password
+  **      - username: Str HTTP auth username (must be paired with password)
+  **      - password: Str (or Dict with 'secret' Str tag) HTTP auth password (must be paired with username)
   **
   ** Example:
   **   cryptoEstEnroll( {uri:`https://est.example.com`,
