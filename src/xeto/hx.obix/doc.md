@@ -134,7 +134,7 @@ settings to communicate with a remote Obix server using these tags:
 Obix connectors are built with the [connector framework](hx.doc.haxall::Conns)
 and follow all the standard conventions.
 
-Obix connectors will use [Haystack authentication](ph.doc::Auth) to connect
+Obix connectors will use [Haystack authentication](doc.xeto::Auth) to connect
 to the remote system.  You can force HTTP basic authentication by adding the
 marker tag `obixBasicAuth` to your connector record.
 
