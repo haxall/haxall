@@ -742,7 +742,7 @@ internal abstract const class XpSpec
     this.name       = name
     this.type       = type
     this.metaOwn    = metaOwn
-    this.isEnum     = reflect != null && reflect.type.isEnum
+    this.isEnum     = reflect != null && !reflect.flavor.isMember && reflect.type.isEnum
     this.isSlot     = parent != null
     this.isEnumItem = parent != null && parent.isEnum
     this.metaHeader = emptyMeta
@@ -850,7 +850,7 @@ internal abstract const class XpSpec
 
   private static const Str[] emptyMeta := Str[,]
 
-  const Bool isEnum          // enum: sealed/val/item types are all derived
+  const Bool isEnum          // enum decl: sealed/val/item types are all derived
   const Bool isSlot          // is this a slot of another spec
   const Bool isEnumItem      // slot of an enum: type is implied by parent
   const Str? name            // type name / slot name (null for autoName)

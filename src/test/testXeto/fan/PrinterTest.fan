@@ -328,6 +328,19 @@ class PrinterTest : AbstractXetoTest
             }
             |>)
 
+    // a slot typed by an enum is not the enum decl, so it keeps its val
+    newCase(opts).spec(lib.spec("TestPrintEnumSlots"))
+    verifyOutput(
+       Str<|TestPrintEnumSlots: Dict {
+              e1: TestPrintEnum
+              e2: TestPrintEnum "beta"
+              e3: TestPrintEnum?
+              e4: Dict {
+                e: TestPrintEnum "beta"
+              }
+            }
+            |>)
+
     // a Ref "val" default uses "@id" syntax, not a quoted string
     newCase(opts).spec(lib.spec("InstantiateB"))
     verifyOutput(

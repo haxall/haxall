@@ -81,3 +81,10 @@ TestPrintEnumKeys: Enum {
   utc <key:"UTC">
   newYork <key:"New_York">
 }
+
+TestPrintEnumSlots: Dict {
+  e1: TestPrintEnum
+  e2: TestPrintEnum "beta"
+  e3: TestPrintEnum?
+  e4: { e: TestPrintEnum "beta" }
+}
