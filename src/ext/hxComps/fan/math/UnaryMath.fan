@@ -60,7 +60,7 @@ class Factorial : UnaryMath
     super.onExecute()
 
     // put the output in fault if factorial goes to infinity
-    if (out.val == Number.posInf)
+    if (out?.val == Number.posInf)
     {
       set("out", StatusNumber(out.val, out.status.set(Status.fault)))
     }

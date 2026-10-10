@@ -132,9 +132,9 @@ class Maximum : QuadMath
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
   {
     Number? max := a?.num
-    if (b != null) max = max == null ? b : max.max(b.num)
-    if (c != null) max = max == null ? c : max.max(c.num)
-    if (d != null) max = max == null ? d : max.max(d.num)
+    if (b != null) max = max == null ? b.num : max.max(b.num)
+    if (c != null) max = max == null ? c.num : max.max(c.num)
+    if (d != null) max = max == null ? d.num : max.max(d.num)
     return max
   }
 }
@@ -151,9 +151,9 @@ class Minimum : QuadMath
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
   {
     Number? min := a?.num
-    if (b != null) min = min == null ? b : min.min(b.num)
-    if (c != null) min = min == null ? c : min.min(c.num)
-    if (d != null) min = min == null ? d : min.min(d.num)
+    if (b != null) min = min == null ? b.num : min.min(b.num)
+    if (c != null) min = min == null ? c.num : min.min(c.num)
+    if (d != null) min = min == null ? d.num : min.min(d.num)
     return min
   }
 }
