@@ -275,6 +275,10 @@ const class XetoFuncs
   ** can be instantiated via the `{graph}` option in which case a `Dict[]` is
   ** returned.  In graph mode an `id` is generated for recs for cross-linking.
   **
+  ** Recs displayed by `navName` and `disMacro` such as equips and points
+  ** take an authored `dis` default as their `navName`, never as a `dis`
+  ** tag which would override the macro.
+  **
   ** Also see [fan.xeto::Namespace.instantiate].
   **
   ** NOTE: this function forces the `haystack` option to force all
@@ -282,6 +286,12 @@ const class XetoFuncs
   **
   ** Options:
   **   - `graph`: marker tag to instantiate a graph of recs
+  **   - `useSlotSpec`: marker to use a named query slot qname such as
+  **     `Vav.points.zoneTemp` as the `spec` tag instead of its type, so
+  **     recs deployed from an equip template validate against their
+  **     template slot.  Auto named constraints always use their type.
+  **   - `parent`: parent rec such as a site, space, or equip used to
+  **     add `siteRef`, `spaceRef`, `equipRef`, and `systemRef`
   **   - `abstract`: marker to supress error if spec is abstract
   **
   ** Examples:
@@ -294,6 +304,9 @@ const class XetoFuncs
   **
   **     // evaluates to dict[] of vav + points from constrained query
   **     instantiate(G36ReheatVav, {graph})
+  **
+  **     // equip template under a site, ready to commit
+  **     instantiate(spec("proj::AcmeVav100"), {graph, useSlotSpec, parent: read(site)})
   @Api @Axon static Obj? instantiate(Spec spec, Dict? opts := null)
   {
     curContext.ns.instantiate(spec, Etc.dictSet(opts, "haystack", Marker.val))
@@ -626,12 +639,12 @@ const class XetoFuncs
   **   - `unless`: rules which suppress this one when they fire first
   **   - `level`: "err" or "warn"
   **   - `msg`: message template
-  **   - `impl`: qname of what implements the check - a func or a native
-  **     type - or null if the rule is unimplemented and so never runs
+  **   - `impl`: Fantom type implementing the check, or null if the rule
+  **     is declared without one and so never runs
   **
   ** Examples:
   **
-  **      validateRules()                              >> all rules in order
+  **      validateRules()                                >> all rules in order
   **      validateRules.findAll(r => r.missing("impl"))  >> declared but unbound
   @Api @Axon static Grid validateRules()
   {

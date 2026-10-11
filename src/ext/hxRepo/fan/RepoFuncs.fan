@@ -20,8 +20,7 @@ const class RepoFuncs
 {
 
   ** Search a remote repo for the nsInstall view.  Same data as
-  ** `libSearch` decorated with UI presentation: locale date for
-  ** published and column display meta.
+  ** `libSearch` decorated with UI presentation meta.
   @Api @Axon { su = true }
   static Grid nsInstallSearch(Str? repo, Str query)
   {
@@ -216,7 +215,8 @@ const class RepoFuncs
   ** example "ph-5.0.6" or "ph-5.x.x".  If no version constraint is
   ** specified, the latest available version is used.  If repo is null
   ** then the default repo is used.  Pass `{preview}` in opts to
-  ** return the plan without executing.
+  ** return the plan without executing.  Pass `{upgrade}` to allow
+  ** currently installed libs to be updated to meet dependencies.
   **
   ** Examples:
   **   ```axon
@@ -271,6 +271,7 @@ const class RepoFuncs
   **   ```axon
   **   libUninstall("acme.widgets")
   **   libUninstall(["acme.widgets", "acme.core"])
+  **   libUninstall("acme.widgets", {preview})
   **   ```
   @Api @Axon { su = true }
   static Grid libUninstall(Obj libs, Dict? opts := null)
@@ -333,11 +334,14 @@ const class RepoFuncs
   **
   ** Options:
   **   - 'search': search string to filter results
+  **   - 'show': "dist" for distribution libs with no remote origin,
+  **     "remote" for libs installed from a remote repo
   **
   ** Examples:
   **   ```axon
   **   nsInstall()
   **   nsInstall({search:"ph"})
+  **   nsInstall({show:"remote"})
   **   ```
   @Api @Axon { su = true }
   static Grid nsInstall(Dict? opts := null)

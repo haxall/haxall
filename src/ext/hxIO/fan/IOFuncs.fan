@@ -708,9 +708,23 @@ const class IOFuncs
 // RDF
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write xeto instance data to RDF Turtle format.  The baseUri option
-  ** defaults to the runtime's API rec base under `IHttpExt.siteUri`.
-  ** See [fan.xeto::XetoIO.writeRdf] for details and options.
+  ** Write xeto instance data to RDF [Turtle](doc.xeto::Rdf) format.  The
+  ** val must be a dict, list of dicts, or grid of instances and every
+  ** instance requires an 'id' tag.
+  **
+  ** The following options are supported:
+  **   - baseUri: mint IRIs for refs which are not library-qualified as
+  **     '<{baseUri}{ref}>'; defaults to the runtime's API rec base under
+  **     the http extension's site URI
+  **
+  ** Examples:
+  **
+  **     // write sites using the default rec base, so a rec id such as
+  **     // @p:demo:r:abc mints as <https://host/api/demo/rec/p:demo:r:abc>
+  **     readAll(site).ioWriteRdf(`io/sites.ttl`)
+  **
+  **     // mint the same rec id as <https://acme.com/rec/p:demo:r:abc>
+  **     readAll(site).ioWriteRdf(`io/sites.ttl`, {baseUri:`https://acme.com/rec/`})
   @Api @Axon { admin = true }
   static Obj? ioWriteRdf(Obj? val, Obj? handle, Obj? opts := null)
   {
@@ -727,7 +741,9 @@ const class IOFuncs
     }
   }
 
-  ** Deprecated: use `ioWriteRdf()`
+  ** Write an Axon data structure to RDF [Turtle](doc.xeto::Rdf) format.
+  ** The `val` must be an Axon type that can be converted to a Grid.
+  ** Deprecated: use `ioWriteRdf()`.
   @NoDoc @Deprecated { msg = "Use ioWriteRdf" }
   @Api @Axon { admin = true }
   static Obj? ioWriteTurtle(Obj? val, Obj? handle)
@@ -739,7 +755,9 @@ const class IOFuncs
     }
   }
 
-  ** Deprecated: use `ioWriteRdf()`
+  ** Write an Axon data structure to RDF [JSON-LD](doc.xeto::Rdf) format.
+  ** The `val` must be an Axon type that can be converted to a Grid.
+  ** Deprecated: use `ioWriteRdf()`.
   @NoDoc @Deprecated { msg = "Use ioWriteRdf" }
   @Api @Axon { admin = true }
   static Obj? ioWriteJsonLd(Obj? val, Obj? handle)
