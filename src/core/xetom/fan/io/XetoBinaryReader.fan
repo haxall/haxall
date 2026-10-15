@@ -419,12 +419,7 @@ class XetoBinaryReader : XetoBinaryConst
 
   Str readRawStr()
   {
-    size := readVarInt
-    s := StrBuf()
-    s.capacity = size
-    for (i := 0; i<size; ++i)
-      s.addChar(in.readChar)
-    return s.toStr
+    in.readChars(readVarInt)
   }
 
 //////////////////////////////////////////////////////////////////////////
