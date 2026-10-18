@@ -1050,6 +1050,8 @@ class CoreLibTest : HaystackTest
     verifyEval(Str<|isTagName("foo bar")|>, false)
     verifyEval(Str<|toTagName("foo123")|>, "foo123")
     verifyEval(Str<|toTagName("Foo Bar 123")|>, "fooBar123")
+    verifyEval(Str<|{a:1, b}.toTagNames|>, Etc.makeDict(["a":n(1), "b":Marker.val]))
+    verifyEval(Str<|{"content-type":"x", "Foo Bar":2}.toTagNames|>, Etc.makeDict(["content_type":"x", "fooBar":n(2)]))
 
     verifyEval("{}.isEmpty", true)
     verifyEval("{a}.isEmpty", false)

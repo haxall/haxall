@@ -643,6 +643,14 @@
   // see [fan.haystack::Etc.toTagName]
   toTagName: Func { n: Str, returns: Str }
 
+  // Return new dict with every name converted to a safe tag name
+  // using [toTagName()].  If two names map to the same tag name,
+  // then the last one wins.
+  //
+  // Example:
+  //   {"content-type": "text/plain"}.toTagNames  >>  {content_type: "text/plain"}
+  toTagNames: Func { dict: Dict, returns: Dict }
+
   // Get the list of names used by a given dict
   names: Func { dict: Dict, returns: Obj? }
 

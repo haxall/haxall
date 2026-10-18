@@ -1125,6 +1125,20 @@ const class AxonFuncs
   ** see [fan.haystack::Etc.toTagName]
   @Api @Axon static Str toTagName(Str n) { Etc.toTagName(n) }
 
+  ** Return new dict with every name converted to a safe tag name
+  ** using [toTagName()].  If two names map to the same tag name,
+  ** then the last one wins.
+  **
+  ** Example:
+  **   {"content-type": "text/plain"}.toTagNames  >>  {content_type: "text/plain"}
+  @Api @Axon static Dict toTagNames(Dict dict)
+  {
+    if (dict.eachWhile |v, n| { Etc.isTagName(n) ? null : n } == null) return dict
+    acc := Str:Obj[:]
+    dict.each |v, n| { acc[Etc.toTagName(n)] = v }
+    return Etc.makeDict(acc)
+  }
+
   ** Get the list of names used by a given dict
   @Api @Axon static Obj? names(Dict dict) { Etc.dictNames(dict) }
 

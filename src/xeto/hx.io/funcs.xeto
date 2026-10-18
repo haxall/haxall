@@ -529,6 +529,8 @@
   //     `Cookie` request header syntax ("name=value; name2=value2") so it
   //     can be passed directly back into a subsequent `ioHttp` call's
   //     `headers` under the "Cookie" key without any parsing.
+  //     Header names are not valid tag names, so use [toTagNames()] to
+  //     return or inspect the headers as a grid.
   //   - body: response body I/O handle for streaming reads
   //
   // External API responses often use JSON keys that aren't valid Haystack
