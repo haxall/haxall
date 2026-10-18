@@ -272,9 +272,12 @@ const class HxCompanion : ProjCompanion
     return Etc.dictMerge(rec, meta)
   }
 
-  override Str print(Dict rec)
+  override Str print(Obj recs)
   {
-    ns.io.writeAstToStr(rec, Etc.dict0)
+    if (recs is Dict) return ns.io.writeAstToStr(recs, Etc.dict0)
+    buf := StrBuf(1024)
+    XetoPrinter((MNamespace)ns, buf.out).astList(Etc.toRecs(recs))
+    return buf.toStr
   }
 
   override Dict parseAxon(Str name, Str src, Dict? meta := null)

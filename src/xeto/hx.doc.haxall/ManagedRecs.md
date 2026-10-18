@@ -140,6 +140,28 @@ its companion lib representation:
       "b",@sys::Obj,M
       "returns",@sys::Obj,M
 
+Use [companionPrint()] with a list or grid of func recs to export them as Xeto
+source.  All the funcs are grouped into one `+Funcs` mixin block, which can be
+pasted directly into a lib's source file such as "funcs.xeto":
+
+    // axon expression
+    readAll(rt=="func" and (name=="testAdd" or name=="testSub")).companionPrint
+
+    // returns this Xeto source
+    +Funcs {
+      testAdd: Func <axon:"a + b"> {
+        a: Obj?
+        b: Obj?
+        returns: Obj?
+      }
+
+      testSub: Func <axon:"a - b"> {
+        a: Obj?
+        b: Obj?
+        returns: Obj?
+      }
+    }
+
 ## Instance Companion Recs
 Instance managed recs are just normal data records that are added to the
 companion lib for applications which only work with Xeto lib data such

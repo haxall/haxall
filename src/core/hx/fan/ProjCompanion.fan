@@ -80,7 +80,10 @@ const mixin ProjCompanion
   abstract Dict parseAxon(Str name, Str xeto, Dict? meta := null)
 
   ** Print to Xeto source representation from its rt rec AST representation.
-  abstract Str print(Dict dict)
+  ** The recs may be a single Dict or a list of recs (any value accepted by
+  ** 'Etc.toRecs').  If a list, then specs and instances are printed first
+  ** followed by all the funcs grouped into one '+Funcs' mixin block.
+  abstract Str print(Obj recs)
 
   ** Print to Axon source representation from its rt rec AST representation.
   abstract Str printAxon(Dict dict)

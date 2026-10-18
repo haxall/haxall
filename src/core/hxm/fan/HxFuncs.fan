@@ -610,13 +610,16 @@ const class HxFuncs
   }
 
   ** Print companion AST rec representation back a Xeto string - see [fan.hx::ProjCompanion.print].
+  ** The recs may be a single rec or a list/grid of recs.  If a list, then
+  ** funcs are grouped into one '+Funcs' mixin block.
   ** Examples:
   **
-  **     companionRead("MySpec").companionPrint
+  **     companionReadByName("MySpec").companionPrint
+  **     readAll(rt=="func").companionPrint
   @Api @Axon
-  static Str companionPrint(Dict rec)
+  static Str companionPrint(Obj recs)
   {
-    curContext.proj.companion.print(rec)
+    curContext.proj.companion.print(recs)
   }
 
   ** Return grid of the companion lib records and their per-rec compile status:

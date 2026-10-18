@@ -362,16 +362,9 @@ internal class CompanionScanner : Scanner
   private Str printRec(CompanionRec rec)
   {
     s := StrBuf()
-    if (rec.isFunc)
-    {
-      s.add("+Funcs {\n")
-      XetoPrinter(step.ns, s.out, printOpts).ast(rec.rec)
-      s.add("}\n")
-    }
-    else
-    {
-      XetoPrinter(step.ns, s.out, printOpts).ast(rec.rec)
-    }
+    p := XetoPrinter(step.ns, s.out, printOpts)
+    if (rec.isFunc) p.astFuncs([rec.rec])
+    else p.ast(rec.rec)
     return s.toStr
   }
 

@@ -664,6 +664,26 @@ class HxFuncsTest : HxTest
     // print
     s := eval("""companionParse("Foo: Dict <abstract>").companionPrint""")
     verifyEq(s.toStr[0..3], "Foo:")
+
+    // print list groups funcs into one +Funcs block
+    eval("""companionParse("Baz: Dict").companionAdd""")
+    eval("""companionParseAxon("f1", "(a) => a").companionAdd""")
+    eval("""companionParseAxon("f2", "() => 2").companionAdd""")
+    s = eval("""readAll(rt==\"spec\" or rt==\"func\").sort(\"name\").companionPrint""")
+    verifyEq(s,
+      Str<|Baz: Dict
+
+           +Funcs {
+             f1: Func <axon:"a"> {
+               a: Obj?
+               returns: Obj?
+             }
+
+             f2: Func <axon:2> {
+               returns: Obj?
+             }
+           }
+           |>)
   }
 
 //////////////////////////////////////////////////////////////////////////

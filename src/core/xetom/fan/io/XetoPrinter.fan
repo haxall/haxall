@@ -190,6 +190,36 @@ class XetoPrinter
       return astInstance(ast)
   }
 
+  ** Print list of AST dicts as lib source; specs and instances are printed
+  ** in order followed by funcs grouped into one '+Funcs' mixin block
+  This astList(Dict[] asts)
+  {
+    funcs := asts.findAll |x| { x["rt"] == "func" }
+    others := asts.findAll |x| { x["rt"] != "func" }
+    others.each |x, i|
+    {
+      if (i > 0) nl
+      ast(x)
+    }
+    if (funcs.isEmpty) return this
+    if (!others.isEmpty) nl
+    return astFuncs(funcs)
+  }
+
+  ** Print list of AST func dicts wrapped in a '+Funcs' mixin block
+  This astFuncs(Dict[] funcs)
+  {
+    w("+Funcs {").nl
+    indent
+    funcs.each |x, i|
+    {
+      if (i > 0) nl
+      ast(x)
+    }
+    unindent
+    return w("}").nl
+  }
+
   ** Print AST spec representation
   This astSpec(Dict ast)
   {
