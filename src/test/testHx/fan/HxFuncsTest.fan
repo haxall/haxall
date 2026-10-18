@@ -684,6 +684,10 @@ class HxFuncsTest : HxTest
              }
            }
            |>)
+
+    // unquoted num axon round trips through companion compile as Str
+    verifyEq(proj.ns.spec("proj::Funcs").slot("f2").meta["axon"], "2")
+    verifyEq(eval("f2()"), n(2))
   }
 
 //////////////////////////////////////////////////////////////////////////
