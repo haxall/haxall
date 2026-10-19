@@ -18,8 +18,13 @@ using haystack
 ** it moves.  `out` carries the merged status of the two samples and the
 ** unit of the last.  An instant with no valid `in` takes the last sample
 ** again, and a change of `period` restarts the line where it is, so
-** `out` goes flat rather than jump.  Like `ZeroOrderHold` it does not
-** cut a loop.
+** `out` goes flat rather than jump.
+**
+** Like `ZeroOrderHold` it may cut a loop, and it then follows the cut
+** rule of `SampledComp`, with `out` going on along its line.  CDL gives
+** no start value in a loop, so the line starts from 0.  The sample at an
+** instant is then one cycle old, so `out` is off CDL by up to one cycle
+** of slope.
 **
 @Gen
 class FirstOrderHold : SampledComp

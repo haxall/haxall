@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 using haystack
 
 **
@@ -26,6 +27,13 @@ using haystack
 ** instant that passes while `in` is null, invalid or a fault takes no
 ** sample.
 **
+** The cut rule: a `ZeroOrderHold` or `FirstOrderHold` whose `in` link
+** carries a `loopCut` marker is the only memory of its loop, so a null,
+** invalid or NaN `in` takes no sample and does not reach `out`.  `out`
+** is 0 until the first valid `in`, and its status is `ok`, or `fault`
+** for a bad `period`, never that of `in`.  Each run of held instants
+** logs one warning to the `hxComps` log.
+**
 @Gen
 abstract class SampledComp : HxComp
 {
@@ -40,6 +48,15 @@ abstract class SampledComp : HxComp
 
   ** Instants passed over by a late execute
   @NoDoc Int skipped { private set }
+
+  ** Instants a cut hold passed with no valid in
+  @NoDoc Int held { private set }
+
+  private HoldLog holdLog := HoldLog()
+
+  ** Instants of a cut hold before its first valid sample, for the log
+  private SampleClock preClock := SampleClock()
+  private Bool preStarted
 
   ** Has the first valid in been seen
   private Bool initialized
@@ -58,7 +75,7 @@ abstract class SampledComp : HxComp
   override Duration? onExecuteFreq()
   {
     // timed comps are collected when mounted, so never return null
-    if (!clock.started) return SampleClock.idleFreq
+    if (!clock.started) return preClock.started ? preClock.left : SampleClock.idleFreq
     left := clock.left
     return valid && moving ? left.min(refreshFreq) : left
   }
@@ -85,6 +102,12 @@ abstract class SampledComp : HxComp
     this.valid = false
 
     u := in
+    if (isCut) return cutExecute(u, now, p, bad, fired)
+
+    // removing the cut ends a run of held instants, but in may be null
+    holdLog.end(this, "loopCut removed")
+    if (preStarted) { preClock.stop; preStarted = false }
+
     if (u == null)
     {
       if (fired) pass(now, clock.ago)
@@ -93,7 +116,7 @@ abstract class SampledComp : HxComp
 
     // a bad period is a fault, checked before the invalid rule
     status := u.status
-    if (bad) return write(held(u), status.set(Status.fault))
+    if (bad) return write(heldOf(u), status.set(Status.fault))
 
     // before the first value, out is a value a fault wrote
     if (!status.isValid)
@@ -107,7 +130,7 @@ abstract class SampledComp : HxComp
     if (u.num.isNaN)
     {
       if (fired) pass(now, clock.ago)
-      return write(held(u), status.set(Status.fault))
+      return write(heldOf(u), status.set(Status.fault))
     }
 
     if (!initialized)
@@ -125,7 +148,65 @@ abstract class SampledComp : HxComp
   }
 
   ** The value out holds while in is not valid
-  private Number held(StatusNumber u) { initialized ? heldVal : u.num }
+  private Number heldOf(StatusNumber u) { initialized ? heldVal : u.num }
+
+//////////////////////////////////////////////////////////////////////////
+// Cut hold
+//////////////////////////////////////////////////////////////////////////
+
+  ** Does the spec carry the 'loopBreak' marker
+  private Bool breaksLoop() { spec.meta["loopBreak"] == Marker.val }
+
+  ** Is in cut.  This is the test of the execute sort that defers the cut
+  ** push, read on every execute so an edit applies at the next one.
+  private Bool isCut()
+  {
+    if (!breaksLoop) return false
+    return links.listOn("in").any |link| { CompUtil.isLoopCut(link) }
+  }
+
+  ** CDL ySample(start = 0), also the seed of a cut first order hold
+  private static const Number startVal := Number.zero
+
+  ** Execute under the cut rule
+  private Void cutExecute(StatusNumber? u, DateTime now, Duration p, Bool bad, Bool fired)
+  {
+    raw := u
+    if (u != null && (!u.status.isValid || u.num.isNaN)) u = null
+
+    if (bad) return write(initialized ? heldVal : startVal, Status.fault)
+
+    if (!initialized)
+    {
+      // instants before the first sample are held, except on the first
+      // execute, where a cut in is null until its deferred delivery
+      if (u == null)
+      {
+        n := preClock.advance(now, p.ticks, 0)
+        if (preStarted && n > 0) { held++; holdLog.held(this, raw, startVal) }
+        preStarted = true
+        return write(startVal, Status.ok)
+      }
+      this.initialized = true
+      init(u, now)
+      fired = clock.advance(now, p.ticks, 0) > 0
+      holdLog.ok(this)
+    }
+
+    if (fired)
+    {
+      if (u != null) sample(u, now, p.ticks, clock.ago)
+      else pass(now, clock.ago)
+    }
+    this.valid = true
+    v := update(now)
+    write(v, Status.ok)
+    if (fired)
+    {
+      if (u != null) holdLog.ok(this)
+      else { held++; holdLog.held(this, raw, v) }
+    }
+  }
 
   ** Write out only on a change, which keeps a loop quiet between instants
   private Void write(Number v, Status status)
@@ -175,7 +256,8 @@ abstract class SampledComp : HxComp
 **
 ** Samples `in` at each instant and holds the sample until the next one,
 ** with the status `in` had then.  This is the CDL `Discrete.Sampler`
-** block.  It has direct feedthrough.
+** block.  It has direct feedthrough, so never cut a loop at it: use a
+** `ZeroOrderHold`.
 **
 @Gen
 class Sampler : SampledComp
@@ -187,10 +269,14 @@ class Sampler : SampledComp
 ** the instant.  This is the CDL `Discrete.ZeroOrderHold` block.  In an
 ** open chain `out` is the same as for `Sampler`.
 **
-** It has no direct feedthrough in CDL, `y = pre(ySample)`, but it does
-** not cut a loop: `out` is null before the first sample, so a loop
-** through it starts only if another component in it gives a value from
-** a null input, as `Add` does.
+** It has no direct feedthrough in CDL, `y = pre(ySample)`, so a loop may
+** be cut at it with a `loopCut` marker on the link into `in`, where no
+** `UnitDelay` already cuts it, and never in an open chain, where the cut
+** only makes `in` one cycle late.  The hold then follows the cut rule of
+** `SampledComp`, and at an instant samples what the loop computed on the
+** cycle before.  Uncut, `out` is null before the first sample, so a loop
+** through it starts only if another component in it gives a value from a
+** null input, as `Add` does.
 **
 @Gen
 class ZeroOrderHold : SampledComp

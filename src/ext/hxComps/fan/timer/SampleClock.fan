@@ -7,8 +7,8 @@
 //
 
 **
-** The sample instants of SampleTrigger and SampledComp: the points
-** m*period + mod(shift, period) of a grid fixed by the UTC epoch,
+** The sample instants of SampleTrigger, SampledComp and UnitDelay: the
+** points m*period + mod(shift, period) of a grid fixed by the UTC epoch,
 ** from the first at or after the start.  All arithmetic is on Int ticks,
 ** so no DateTime is built from a period and no Int overflows.
 **

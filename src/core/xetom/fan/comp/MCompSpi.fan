@@ -77,8 +77,11 @@ class MCompSpi : CompSpi
       }
     }
 
-    // add the link
-    links := toComp.links.add(toSlot.name, Etc.link(fromComp.id, fromSlot))
+    // add the link, cut if loopCut meta sits beside the link meta, so
+    // a slot that redeclares its link does not inherit a cut
+    meta := toSlot.metaOwn.has("link") ? toSlot.metaOwn : toSlot.meta
+    link := CompUtil.toLink(fromComp.id, fromSlot, meta["loopCut"] == Marker.val)
+    links := toComp.links.add(toSlot.name, link)
     toComp.set("links", links)
     //echo("$fromComp.id . $fromSlot => $toComp.id . $toSlot.name")
   }

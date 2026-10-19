@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   15 Oct 2026  Lincoln Harmer  Creation
+//
+
++Spec {
+  // Marks the `link` meta on the same slot as a loop cut.  A cut link
+  // adds no edge to the execute sort, and its push is delivered at the end
+  // of the execute cycle, so the slot reads the previous cycle's value in
+  // any order.  A slot that declares its own `link` is cut only if it also
+  // declares `loopCut`.  A link instance carries it as a `loopCut` tag.
+  // See [hx.doc.haxall::Comps#execution].
+  loopCut: Marker?
+}
+

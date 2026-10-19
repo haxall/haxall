@@ -283,7 +283,8 @@ const class CompSpaceActor : Actor
     {
       case "create":      return onFeedCreate(state, req->compSpec, req->x, req->y)
       case "layout":      return onFeedLayout(state, req->id, req->x, req->y, req->w)
-      case "link":        return onFeedLink(state, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
+      case "link":        return onFeedLink(state, req->fromRef, req->fromSlot, req->toRef, req->toSlot, feedLoopCut(req, false))
+      case "setLoopCut":  return onFeedSetLoopCut(state, req->fromRef, req->fromSlot, req->toRef, req->toSlot, feedLoopCut(req, true))
       case "unlink":      return onFeedUnlink(state, req->links)
       case "duplicate":   return onFeedDuplicate(state, req->ids)
       case "delete":      return onFeedDelete(state, req->ids)
@@ -305,9 +306,28 @@ const class CompSpaceActor : Actor
     return null
   }
 
-  private Obj? onFeedLink(CompSpaceActorState s, Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
+  ** Read the 'loopCut' tag of a "link" or "setLoopCut" request.  A
+  ** Marker cuts and 'false' does not.  "setLoopCut" requires the tag,
+  ** "link" treats an absent tag as uncut, and any other value raises.
+  private static Bool feedLoopCut(Dict req, Bool required)
+  {
+    val := req["loopCut"]
+    if (val == Marker.val) return true
+    if (val == false) return false
+    if (val == null && !required) return false
+    throw ArgErr("loopCut must be Marker or false: $req")
+  }
+
+  private Obj? onFeedSetLoopCut(CompSpaceActorState s, Ref fromRef, Str fromSlot, Ref toRef, Str toSlot, Bool cut)
+  {
+    s.edit.setLoopCut(fromRef, fromSlot, toRef, toSlot, cut)
+    return null
+  }
+
+  private Obj? onFeedLink(CompSpaceActorState s, Ref fromRef, Str fromSlot, Ref toRef, Str toSlot, Bool loopCut)
   {
     s.edit.link(fromRef, fromSlot, toRef, toSlot)
+    if (loopCut) s.edit.setLoopCut(fromRef, fromSlot, toRef, toSlot, true)
     return null
   }
 

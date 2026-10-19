@@ -78,4 +78,5 @@
 @pi-hx-comps-Timer: Pi { color: "purple" }
 @pi-hx-comps-Toggle: Pi { icon: "toggle-left" }
 @pi-hx-comps-TriggeredComp: Pi { color: "purple" }
+@pi-hx-comps-UnitDelay: Pi { color: "purple" }
 @pi-hx-comps-Xor: Pi { icon: "circle-plus" }

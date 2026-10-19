@@ -47,6 +47,13 @@ SampleTrigger: HxComp {
 // before the first sample, with the status of `in` plus fault.  An
 // instant that passes while `in` is null, invalid or a fault takes no
 // sample.
+//
+// The cut rule: a `ZeroOrderHold` or `FirstOrderHold` whose `in` link
+// carries a `loopCut` marker is the only memory of its loop, so a null,
+// invalid or NaN `in` takes no sample and does not reach `out`.  `out`
+// is 0 until the first valid `in`, and its status is `ok`, or `fault`
+// for a bad `period`, never that of `in`.  Each run of held instants
+// logs one warning to the `hxComps` log.
 SampledComp: HxComp <abstract> {
   // Input to sample
   in: StatusNumber? <summary, transient>
@@ -60,18 +67,23 @@ SampledComp: HxComp <abstract> {
 
 // Samples `in` at each instant and holds the sample until the next one,
 // with the status `in` had then.  This is the CDL `Discrete.Sampler`
-// block.  It has direct feedthrough.
+// block.  It has direct feedthrough, so never cut a loop at it: use a
+// `ZeroOrderHold`.
 Sampler: SampledComp
 
 // Holds `in` from one instant to the next, with the status `in` had at
 // the instant.  This is the CDL `Discrete.ZeroOrderHold` block.  In an
 // open chain `out` is the same as for `Sampler`.
 //
-// It has no direct feedthrough in CDL, `y = pre(ySample)`, but it does
-// not cut a loop: `out` is null before the first sample, so a loop
-// through it starts only if another component in it gives a value from
-// a null input, as `Add` does.
-ZeroOrderHold: SampledComp
+// It has no direct feedthrough in CDL, `y = pre(ySample)`, so a loop may
+// be cut at it with a `loopCut` marker on the link into `in`, where no
+// `UnitDelay` already cuts it, and never in an open chain, where the cut
+// only makes `in` one cycle late.  The hold then follows the cut rule of
+// `SampledComp`, and at an instant samples what the loop computed on the
+// cycle before.  Uncut, `out` is null before the first sample, so a loop
+// through it starts only if another component in it gives a value from a
+// null input, as `Add` does.
+ZeroOrderHold: SampledComp <loopBreak>
 
 // Follows a line through the last two samples of `in`, one period late:
 // from the instant of sample k to the next,
@@ -81,6 +93,47 @@ ZeroOrderHold: SampledComp
 // it moves.  `out` carries the merged status of the two samples and the
 // unit of the last.  An instant with no valid `in` takes the last sample
 // again, and a change of `period` restarts the line where it is, so
-// `out` goes flat rather than jump.  Like `ZeroOrderHold` it does not
-// cut a loop.
-FirstOrderHold: SampledComp
+// `out` goes flat rather than jump.
+//
+// Like `ZeroOrderHold` it may cut a loop, and it then follows the cut
+// rule of `SampledComp`, with `out` going on along its line.  CDL gives
+// no start value in a loop, so the line starts from 0.  The sample at an
+// instant is then one cycle old, so `out` is off CDL by up to one cycle
+// of slope.
+FirstOrderHold: SampledComp <loopBreak>
+
+// Outputs `in` as it was at the previous instant, so `out` is `yStart`
+// until the second instant.  This is the CDL `Discrete.UnitDelay` block.
+// The instants are those of `SampledComp`.  The component captures `in`
+// on the cycle after an instant and emits it at the next.
+//
+// The link into `in` should carry a `loopCut` marker, in a loop or not.
+// A cut link delivers at the end of a cycle, so the capture reads what
+// the linked component computed on the instant's cycle in any order.
+// Uncut, an open chain captures `in` one cycle late, and a loop through
+// the component depends on creation order.  The null and status rules
+// are the cut rule of `SampledComp`, cut or not: a null, invalid or NaN
+// `in` keeps the last capture, or `yStart` before the first, and `out`
+// is `ok`, or `fault` with the held value and no capture for a `period`
+// below 1ms.  The state is not persisted.
+UnitDelay: HxComp <loopBreak> {
+  // Input to delay
+  in: StatusNumber? <summary, transient>
+
+  // Time between instants.  It must be at least 1ms.
+  period: Duration <minVal:1ms> 1min
+
+  // Value of out until the first value captured from in is emitted
+  yStart: Number 0
+
+  // Output
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
++Spec {
+  // Marks a component spec whose `out` does not depend on `in` on the
+  // same execute, so a compiler may cut a loop at a `loopCut` link into
+  // its `in`.  `ZeroOrderHold` and `FirstOrderHold` apply the cut rule
+  // only when their spec carries it.
+  loopBreak: Marker?
+}

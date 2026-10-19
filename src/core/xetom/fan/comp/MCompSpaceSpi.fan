@@ -308,8 +308,41 @@ class MCompSpaceSpi : CompSpaceSpi
     // walk thru timed components to set needExecute flag
     timed.each |spi| { spi.checkTimer(cx.now) }
 
-    // now walk thru every component in topological order
-    map.topology.each |comp| { ((MCompSpi)comp.spi).doExecute(cx) }
+    // now walk thru every component in topological order, then deliver
+    // the deferred loopCut pushes, even if the walk throws
+    try
+      map.topology.each |comp| { ((MCompSpi)comp.spi).doExecute(cx) }
+    finally
+      deliverDeferred
+  }
+
+  ** Queue the push of a 'loopCut' link until the end of the cycle
+  internal Void deferPush(Comp fromComp, Str fromSlot, FatSlotPushTo to, Obj? val)
+  {
+    deferredFrom.add(fromComp)
+    deferredSlot.add(fromSlot)
+    deferredTo.add(to)
+    deferredVal.add(val)
+  }
+
+  ** Deliver every deferred push in queue order, skipping a target
+  ** unmounted during the cycle
+  private Void deliverDeferred()
+  {
+    if (deferredTo.isEmpty) return
+    froms := deferredFrom
+    slots := deferredSlot
+    tos  := deferredTo
+    vals := deferredVal
+    deferredFrom = Comp[,]
+    deferredSlot = Str[,]
+    deferredTo  = FatSlotPushTo[,]
+    deferredVal = Obj?[,]
+    tos.each |to, i|
+    {
+      if (!to.toComp.isMounted) return
+      FatSlot.pushTo(froms[i], slots[i], to, vals[i])
+    }
   }
 
   ** Walk component tree to build our timers list
@@ -371,6 +404,10 @@ class MCompSpaceSpi : CompSpaceSpi
   private CompMap map := CompMap()
   private Bool timersNeedUpdate
   private MCompSpi[] timed := MCompSpi#.emptyList
+  private Comp[] deferredFrom := Comp[,]
+  private Str[] deferredSlot := Str[,]
+  private FatSlotPushTo[] deferredTo := FatSlotPushTo[,]
+  private Obj?[] deferredVal := Obj?[,]
   private Int curVer
 }
 

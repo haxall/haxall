@@ -47,7 +47,8 @@ final class FatSlot
   ** Queue up value to push
   private Void queuePush(Obj? x) { pushVal = x ?: nullPush }
 
-  ** Push to target components if there an enqueued value
+  ** Push to target components if there an enqueued value.  A target on
+  ** a 'loopCut' link is queued on the space for the end of the cycle.
   internal Void push(Comp fromComp, Str fromSlot)
   {
     // short circuit if no enqueued push value
@@ -58,8 +59,14 @@ final class FatSlot
     // clear enqueued push value
     pushVal = null
 
-    // push to everyone in my pushTo linked list
-    for (p := pushToHead; p != null; p = p.next) pushTo(fromComp, fromSlot, p, val)
+    // push to everyone in my pushTo linked list, deferring cut links
+    for (p := pushToHead; p != null; p = p.next)
+    {
+      if (p.cut)
+        ((MCompSpi)p.toComp.spi).csSpi.deferPush(fromComp, fromSlot, p, val)
+      else
+        pushTo(fromComp, fromSlot, p, val)
+    }
   }
 
   ** Push to given component and slot.  A null into a slot that is not
@@ -67,7 +74,7 @@ final class FatSlot
   ** logged, not raised, so one bad target does not stop the cycle.  A
   ** self link that removes a dynamic slot of the pushing comp still
   ** throws, from the 'eachFat' iteration in 'MCompSpi.checkPush'.
-  private Void pushTo(Comp fromComp, Str fromSlot, FatSlotPushTo x, Obj? val)
+  internal static Void pushTo(Comp fromComp, Str fromSlot, FatSlotPushTo x, Obj? val)
   {
     toComp := x.toComp
     toSlot := x.toSlot
@@ -120,9 +127,9 @@ final class FatSlot
 
   ** Add push target, carrying over the failure state of the same
   ** target from before the rebuild so it is not logged again
-  internal Void addPushTo(Comp toComp, Str toSlot)
+  internal Void addPushTo(Comp toComp, Str toSlot, Bool cut := false)
   {
-    t := FatSlotPushTo(toComp, toSlot)
+    t := FatSlotPushTo(toComp, toSlot, cut)
     for (p := prevPushToHead; p != null; p = p.next)
     {
       if (p.toComp === toComp && p.toSlot == toSlot) { t.carryFailure(p); break }
@@ -155,7 +162,7 @@ final class FatSlot
 final class FatSlotPushTo
 {
   ** Constructor
-  internal new make(Comp c, Str s) { this.toComp = c; this.toSlot = s }
+  internal new make(Comp c, Str s, Bool cut := false) { this.toComp = c; this.toSlot = s; this.cut = cut }
 
   ** Target component
   Comp toComp { private set }
@@ -163,8 +170,11 @@ final class FatSlotPushTo
   ** Target slot name
   const Str toSlot
 
+  ** Is this target on a 'loopCut' link
+  const Bool cut
+
   ** Debug string
-  override Str toStr() { "@${toComp.id}.$toSlot" }
+  override Str toStr() { cut ? "@${toComp.id}.$toSlot (loopCut)" : "@${toComp.id}.$toSlot" }
 
   ** Next node in linked list
   internal FatSlotPushTo? next
