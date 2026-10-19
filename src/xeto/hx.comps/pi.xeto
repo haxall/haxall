@@ -7,6 +7,7 @@
 //
 
 @pi-hx-comps-AbsValue: Pi { icon: "tally-2" }
+@pi-hx-comps-AccumTimer: Pi { color: "purple" }
 @pi-hx-comps-Add: Pi { icon: "plus" }
 @pi-hx-comps-And: Pi { icon: "ampersand" }
 @pi-hx-comps-ArcCosine: Pi { icon: "triangle-right" }
@@ -15,6 +16,8 @@
 @pi-hx-comps-Average: Pi { icon: "divide" }
 @pi-hx-comps-AxonComp: Pi { icon: "variable" }
 @pi-hx-comps-BoolConst: Pi { icon: "circle-dot", color: "lime" }
+@pi-hx-comps-BoolEdge: Pi { icon: "activity" }
+@pi-hx-comps-BoolHold: Pi { color: "lime" }
 @pi-hx-comps-BoolLatch: Pi { color: "lime" }
 @pi-hx-comps-BoolPointInput: Pi { color: "lime" }
 @pi-hx-comps-BoolPointOutput: Pi { color: "lime" }
@@ -22,6 +25,7 @@
 @pi-hx-comps-BoolSwitch: Pi { color: "lime" }
 @pi-hx-comps-Const: Pi { icon: "folder" }
 @pi-hx-comps-Cosine: Pi { icon: "triangle-right" }
+@pi-hx-comps-Counter: Pi { color: "purple" }
 @pi-hx-comps-Divide: Pi { icon: "divide" }
 @pi-hx-comps-Equal: Pi { icon: "equal" }
 @pi-hx-comps-Exponential: Pi { icon: "superscript" }
@@ -42,6 +46,7 @@
 @pi-hx-comps-Multiply: Pi { icon: "x" }
 @pi-hx-comps-Not: Pi { icon: "circle-slash-2" }
 @pi-hx-comps-NotEqual: Pi { icon: "equal-not" }
+@pi-hx-comps-NumberChange: Pi { icon: "arrow-up-down" }
 @pi-hx-comps-NumberConst: Pi { icon: "circle-dot", color: "purple" }
 @pi-hx-comps-NumberLatch: Pi { color: "purple" }
 @pi-hx-comps-NumberPointInput: Pi { color: "purple" }
@@ -52,6 +57,7 @@
 @pi-hx-comps-Pid: Pi { icon: "gauge" }
 @pi-hx-comps-Power: Pi { icon: "superscript" }
 @pi-hx-comps-Ramp: Pi { icon: "audio-waveform" }
+@pi-hx-comps-SetResetLatch: Pi { icon: "lock" }
 @pi-hx-comps-Sine: Pi { icon: "triangle-right" }
 @pi-hx-comps-SineWave: Pi { icon: "audio-waveform" }
 @pi-hx-comps-SquareRoot: Pi { icon: "square-radical" }
@@ -67,4 +73,6 @@
 @pi-hx-comps-StrSwitch: Pi { color: "amber" }
 @pi-hx-comps-Subtract: Pi { icon: "minus" }
 @pi-hx-comps-Tangent: Pi { icon: "triangle-right" }
+@pi-hx-comps-Timer: Pi { color: "purple" }
+@pi-hx-comps-Toggle: Pi { icon: "toggle-left" }
 @pi-hx-comps-Xor: Pi { icon: "circle-plus" }
