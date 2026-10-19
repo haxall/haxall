@@ -8,28 +8,29 @@
 
 **
 ** The time between executes of a continuous component: `Integrator`,
-** `Derivative`, `SlewRateLimit` and `MovingAverage`.  Each component
-** executes on every cycle and takes its step from this clock.  A step
-** is the time since the last execute, or 0 when the clock did not move
-** forward.
+** `Derivative`, `SlewRateLimit`, `MovingAverage` and each of the two
+** terms of `CdlPid`.  Each component executes on every cycle and takes its
+** step from this clock.  A step is the time since the last execute, or
+** 0 when the clock did not move forward.
 **
 ** A step is a stall when it is longer than both `maxStep` and the
 ** larger of the component's own time scale and 10 times the reference,
 ** the longest of its last 8 steps that were not 0.  The own scale is
-** the window of `MovingAverage` and the time constant of `Derivative`;
-** the others have none.  A stall joins the reference as its threshold,
-** not its length.  So after an outage, or a change to a longer cycle,
-** only the first long step is a stall (one more per tenfold past the
-** threshold), and a second outage within 8 steps is judged against 10
-** times the first one's threshold.  A cycle that grows by up to 10
-** times at each step, such as a doubling backoff, is never a stall.
-** The first step has an empty reference, so it is a stall when longer
-** than both `maxStep` and the own scale.
+** the window of `MovingAverage`, the time constant of `Derivative`, and
+** `td/nd` for the derivative of `CdlPid`; the others have none.  A stall
+** joins the reference as its threshold, not its length.  So after an
+** outage, or a change to a longer cycle, only the first long step is a
+** stall (one more per tenfold past the threshold), and a second outage
+** within 8 steps is judged against 10 times the first one's threshold.
+** A cycle that grows by up to 10 times at each step, such as a doubling
+** backoff, is never a stall.  The first step has an empty reference, so
+** it is a stall when longer than both `maxStep` and the own scale.
 **
-** `Integrator` and `SlewRateLimit` bound a stall at its threshold
-** (`bounded`), so an outage cannot integrate input the host never saw
-** into one jump.  `Derivative` and `MovingAverage` treat it as a gap,
-** since a slope or an average over it would be invented.
+** `Integrator`, `SlewRateLimit` and the integral of `CdlPid` bound a stall
+** at its threshold (`bounded`), so an outage cannot integrate input the
+** host never saw into one jump.  `Derivative`, `MovingAverage` and the
+** derivative of `CdlPid` treat it as a gap, since a slope or an average
+** over it would be invented.
 **
 internal class CycleClock
 {

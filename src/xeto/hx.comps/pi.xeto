@@ -23,6 +23,7 @@
 @pi-hx-comps-BoolPointOutput: Pi { color: "lime" }
 @pi-hx-comps-BoolSelect: Pi { color: "lime" }
 @pi-hx-comps-BoolSwitch: Pi { color: "lime" }
+@pi-hx-comps-CdlPid: Pi { icon: "target", color: "purple" }
 @pi-hx-comps-Const: Pi { icon: "folder" }
 @pi-hx-comps-Cosine: Pi { icon: "triangle-right" }
 @pi-hx-comps-Counter: Pi { color: "purple" }
