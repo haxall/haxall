@@ -1,0 +1,86 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   15 Oct 2026  Lincoln Harmer  Creation
+//
+
+// Pulses at each sample instant: `out` is true for one execute at each
+// instant and false otherwise.  The instants are `shift` plus a whole
+// number of `period`s after 1 Jan 1970 UTC, so components with the same
+// `period` and `shift` pulse on the same cycle, and a `period` of 1day
+// pulses at 00:00 UTC.  This is the CDL `Logical.Sources.SampleTrigger`
+// block.
+//
+// An instant takes effect on the first execute at or after it, the first
+// execute included, and fires once, even when the clock moves backward.
+// A late cycle that passes several instants pulses once.  Instants on
+// consecutive cycles keep `out` true, writing a new value each time, so a
+// component that acts when its input turns true, as `Toggle` does, sees
+// one rise for them.  Such runs log a warning to the `hxComps` log at
+// most hourly.  A `period` of 0 or less is a fault: `out` is false with
+// status fault.
+SampleTrigger: HxComp {
+  // Time between instants.  It must be more than 0.
+  period: Duration 1min
+
+  // Offset of the instants.  Only `mod(shift, period)` counts.
+  shift: Duration 0sec
+
+  // True for one execute at each instant
+  out: StatusBool? <summary, transient, readonly, output>
+}
+
+// The base spec for components that sample `in` at instants a whole
+// number of `period`s after 1 Jan 1970 UTC, the instants of a
+// `SampleTrigger` with the same `period` and no `shift`.  An instant
+// takes effect on the first execute at or after it, with the value of
+// `in` on that execute.  A late cycle that passes several instants
+// samples once, an instant fires once, even when the clock moves
+// backward, and a change of `period` restarts the clock.  The state is
+// not persisted.
+//
+// A null `in` sets `out` to null.  An invalid `in` holds the value of
+// `out`, with the status of `in`.  A NaN `in` with a valid status, or a
+// `period` below 1ms, is a fault: `out` holds its value, or takes `in`
+// before the first sample, with the status of `in` plus fault.  An
+// instant that passes while `in` is null, invalid or a fault takes no
+// sample.
+SampledComp: HxComp <abstract> {
+  // Input to sample
+  in: StatusNumber? <summary, transient>
+
+  // Time between instants.  It must be at least 1ms.
+  period: Duration <minVal:1ms> 1min
+
+  // Output
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
+// Samples `in` at each instant and holds the sample until the next one,
+// with the status `in` had then.  This is the CDL `Discrete.Sampler`
+// block.  It has direct feedthrough.
+Sampler: SampledComp
+
+// Holds `in` from one instant to the next, with the status `in` had at
+// the instant.  This is the CDL `Discrete.ZeroOrderHold` block.  In an
+// open chain `out` is the same as for `Sampler`.
+//
+// It has no direct feedthrough in CDL, `y = pre(ySample)`, but it does
+// not cut a loop: `out` is null before the first sample, so a loop
+// through it starts only if another component in it gives a value from
+// a null input, as `Add` does.
+ZeroOrderHold: SampledComp
+
+// Follows a line through the last two samples of `in`, one period late:
+// from the instant of sample k to the next,
+// `out = u[k-1] + (u[k] - u[k-1]) * (time - t[k]) / period`.  This is the
+// CDL `Discrete.FirstOrderHold` block.  Until the first instant `out` is
+// the first `in`.  Between instants `out` is updated every second while
+// it moves.  `out` carries the merged status of the two samples and the
+// unit of the last.  An instant with no valid `in` takes the last sample
+// again, and a change of `period` restarts the line where it is, so
+// `out` goes flat rather than jump.  Like `ZeroOrderHold` it does not
+// cut a loop.
+FirstOrderHold: SampledComp

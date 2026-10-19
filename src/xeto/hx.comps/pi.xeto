@@ -57,6 +57,8 @@
 @pi-hx-comps-Pid: Pi { icon: "gauge" }
 @pi-hx-comps-Power: Pi { icon: "superscript" }
 @pi-hx-comps-Ramp: Pi { icon: "audio-waveform" }
+@pi-hx-comps-SampleTrigger: Pi { color: "lime" }
+@pi-hx-comps-SampledComp: Pi { color: "purple" }
 @pi-hx-comps-SetResetLatch: Pi { icon: "lock" }
 @pi-hx-comps-Sine: Pi { icon: "triangle-right" }
 @pi-hx-comps-SineWave: Pi { icon: "audio-waveform" }
@@ -75,4 +77,5 @@
 @pi-hx-comps-Tangent: Pi { icon: "triangle-right" }
 @pi-hx-comps-Timer: Pi { color: "purple" }
 @pi-hx-comps-Toggle: Pi { icon: "toggle-left" }
+@pi-hx-comps-TriggeredComp: Pi { color: "purple" }
 @pi-hx-comps-Xor: Pi { icon: "circle-plus" }
