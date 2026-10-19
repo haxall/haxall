@@ -169,6 +169,9 @@ class NumberSelect : ValSelect
 
   ** Input J
   @Gen override StatusNumber? inJ() { get("inJ") }
+
+  ** The out slot is set to the selected input
+  @Gen override StatusNumber? out() { get("out") }
 }
 
 **
@@ -206,5 +209,8 @@ class StrSelect : ValSelect
 
   ** Input J
   @Gen override StatusStr? inJ() { get("inJ") }
+
+  ** The out slot is set to the selected input
+  @Gen override StatusStr? out() { get("out") }
 }
 

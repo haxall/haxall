@@ -124,6 +124,9 @@ NumberSelect: ValSelect {
 
   // Input J
   inJ: StatusNumber?
+
+  // The out slot is set to the selected input
+  out: StatusNumber? <summary, transient, readonly, output>
 }
 
 // Str select
@@ -157,5 +160,8 @@ StrSelect: ValSelect {
 
   // Input J
   inJ: StatusStr?
+
+  // The out slot is set to the selected input
+  out: StatusStr? <summary, transient, readonly, output>
 }
 
