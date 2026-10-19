@@ -29,8 +29,11 @@
 @pi-hx-comps-Folder: Pi { icon: "folder" }
 @pi-hx-comps-GreaterThan: Pi { icon: "chevron-right" }
 @pi-hx-comps-GreaterThanEqual: Pi { icon: "chevron-right" }
+@pi-hx-comps-GreaterThanHys: Pi { icon: "chevrons-right" }
+@pi-hx-comps-Hysteresis: Pi { icon: "arrow-right-left" }
 @pi-hx-comps-LessThan: Pi { icon: "chevron-left" }
 @pi-hx-comps-LessThanEqual: Pi { icon: "chevron-left" }
+@pi-hx-comps-LessThanHys: Pi { icon: "chevrons-left" }
 @pi-hx-comps-Logic: Pi { color: "lime" }
 @pi-hx-comps-Math: Pi { color: "purple" }
 @pi-hx-comps-Maximum: Pi { icon: "arrow-up-to-line" }
