@@ -1,0 +1,61 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   19 Oct 2026  Brian Frank  Creation
+//
+
+//////////////////////////////////////////////////////////////////////////
+// Pi Merge
+//////////////////////////////////////////////////////////////////////////
+
+// Pi merge test type
+PiTestA: Dict {
+  a: Str
+}
+
+// Pi merge test subtype
+PiTestB: PiTestA {
+  b: Str
+  e: PiTestEnum
+}
+
+// Pi merge test subtype without its own instance
+PiTestC: PiTestB
+
+// Pi merge test enum
+PiTestEnum: Enum {
+  x
+  y
+  z <icon:"clock", text:"Legacy Z">
+}
+
+// Pi merge test type with legacy meta
+PiTestLegacy: Dict <icon:"tag", text:"Legacy", plural:"Legacies">
+
+@pi-hx-test-xeto-PiTestA: Pi {
+  icon: "zap"
+  color: "red"
+  text: "A"
+  plural: "As"
+  abbr: "TA"
+  pointDis: "{a}"
+  cell: PiTestC
+}
+
+@pi-hx-test-xeto-PiTestB: Pi {
+  text: "B"
+}
+
+@pi-hx-test-xeto-PiTestEnum: Pi {
+  icon: "list"
+  slots: {
+    x: { icon: "check", color: "green" }
+    y: { icon: "ban" }
+  }
+}
+
+@pi-hx-test-xeto-PiTestLegacy: Pi {
+  icon: "star"
+}

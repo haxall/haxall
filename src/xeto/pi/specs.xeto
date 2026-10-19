@@ -6,6 +6,35 @@
 //   29 Aug 2026  Brian Frank  Creation
 //
 
+// Presentation info for a spec bound by its instance name pattern:
+// `pi-<lib dotted name with dashes>-<Name>` such as `@pi-ph-points-RunCmd`.
+// Instances from multiple libs merge per tag: more specific types win
+// over their supertypes, then downstream libs win over upstream libs.
+// Only types are bound; a slot is presented by its type.
+Pi: Dict {
+  // Icon to use for visualization
+  icon: Icon?
+
+  // Default color for visualization
+  color: ColorName?
+
+  // Display text
+  text: Text? <noInherit>
+
+  // Plural display text
+  plural: Text? <noInherit>
+
+  // Abbreviation for a chip or narrow column
+  abbr: Text?
+
+  // Customer specific display name standard for point specs;
+  // seeds the navName of points created from templates
+  pointDis: Str?
+
+  // Presentation of enum items keyed by item name
+  slots: Dict? <of:Pi>
+}
+
 // Icon represents a logical SVG icon name against installed manifest.
 Icon: Scalar "blank"
 

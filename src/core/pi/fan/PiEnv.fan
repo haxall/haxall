@@ -37,6 +37,9 @@ abstract const class PiEnv
   ** Item wrapper for a spec cached per space namespace
   abstract Item specItem(Spec spec)
 
+  ** Merged presentation info for a spec
+  abstract Pi pi(Spec spec)
+
   ** Construct an ItemList implementation
   abstract ItemList itemList(Item[] items, Item? self)
 

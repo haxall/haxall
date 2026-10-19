@@ -24,3 +24,15 @@ DeepRuleSubject: TestRuleSubject
   testDeepAdd: Func <axon:"a+b"> { a: Number, b: Number, returns: Number }
 }
 
+
+// downstream overrides of hx.test.xeto pi instances
+@pi-hx-test-xeto-PiTestA: Pi {
+  color: "blue"
+}
+
+@pi-hx-test-xeto-PiTestEnum: Pi {
+  slots: {
+    y: { color: "teal" }
+    z: { icon: "tag" }
+  }
+}
