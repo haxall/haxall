@@ -7,6 +7,15 @@
 //
 
 // Bool delay
+//
+// A rising `in` sets `out` true after `onDelay`, and a falling `in` sets
+// it false after `offDelay`.  With `offDelay` of zero this is the CDL
+// `Logical.TrueDelay` block.  A change to a delay applies to a pending
+// timer.  A step of the clock backward counts as no time, but the time
+// between the executes either side of it is lost too, up to the size of the
+// step.  While the host clock is behind the latest time it has seen, the
+// component executes every cycle.  A null `in` sets `out` and `outNot` to
+// null and an invalid `in` holds them, both keeping the timer state.
 BoolDelay: HxComp {
   // Input to the delay.
   in: StatusBool? <summary, transient>
@@ -18,6 +27,10 @@ BoolDelay: HxComp {
   // How long to wait before setting the out slot to false when
   // the in slot transitions to false.
   offDelay: Duration <minVal:0sec> 1sec
+
+  // If true, a true in waits for onDelay on the first valid execute,
+  // including after a restart.  If false, out takes in at once then.
+  delayOnInit: Bool "false"
 
   // The value of the in slot after any delays are accounted for.
   out: StatusBool? <summary, transient, readonly, output>

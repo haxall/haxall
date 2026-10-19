@@ -191,6 +191,14 @@ class MCompSpi : CompSpi
     }
   }
 
+  internal Void endPushTo()
+  {
+    slots.each |x|
+    {
+      (x as FatSlot)?.endPushTo
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
@@ -295,7 +303,18 @@ class MCompSpi : CompSpi
       // remove
       if (slot != null && !slot.isMaybe && flags.and(CompSpi.flagUnchecked) == 0)
         throw InvalidChangeErr("'$name' may not be removed")
-      slots.remove(name)
+
+      // a slot with push targets keeps its fat slot so its links
+      // survive, and pushes the null
+      if (fat != null && fat.hasPushTo)
+      {
+        fat.set(null)
+        needsPush = true
+      }
+      else
+      {
+        slots.remove(name)
+      }
     }
 
     // fire callback unless silent
@@ -534,7 +553,7 @@ class MCompSpi : CompSpi
     if (!needsPush) return
     needsPush = false
 
-    eachFat |fat| { fat.push }
+    eachFat |fat, n| { fat.push(comp, n) }
   }
 
   ** Default implementation trys to invoke onExecute method
