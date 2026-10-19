@@ -26,6 +26,7 @@
 @pi-hx-comps-Const: Pi { icon: "folder" }
 @pi-hx-comps-Cosine: Pi { icon: "triangle-right" }
 @pi-hx-comps-Counter: Pi { color: "purple" }
+@pi-hx-comps-Derivative: Pi { icon: "spline", color: "purple" }
 @pi-hx-comps-Divide: Pi { icon: "divide" }
 @pi-hx-comps-Equal: Pi { icon: "equal" }
 @pi-hx-comps-Exponential: Pi { icon: "superscript" }
@@ -35,6 +36,7 @@
 @pi-hx-comps-GreaterThanEqual: Pi { icon: "chevron-right" }
 @pi-hx-comps-GreaterThanHys: Pi { icon: "chevrons-right" }
 @pi-hx-comps-Hysteresis: Pi { icon: "arrow-right-left" }
+@pi-hx-comps-Integrator: Pi { icon: "sigma", color: "purple" }
 @pi-hx-comps-LessThan: Pi { icon: "chevron-left" }
 @pi-hx-comps-LessThanEqual: Pi { icon: "chevron-left" }
 @pi-hx-comps-LessThanHys: Pi { icon: "chevrons-left" }
@@ -43,6 +45,7 @@
 @pi-hx-comps-Maximum: Pi { icon: "arrow-up-to-line" }
 @pi-hx-comps-Minimum: Pi { icon: "arrow-down-to-line" }
 @pi-hx-comps-Modulus: Pi { icon: "percent" }
+@pi-hx-comps-MovingAverage: Pi { icon: "chart-spline", color: "purple" }
 @pi-hx-comps-Multiply: Pi { icon: "x" }
 @pi-hx-comps-Not: Pi { icon: "circle-slash-2" }
 @pi-hx-comps-NotEqual: Pi { icon: "equal-not" }
@@ -62,6 +65,7 @@
 @pi-hx-comps-SetResetLatch: Pi { icon: "lock" }
 @pi-hx-comps-Sine: Pi { icon: "triangle-right" }
 @pi-hx-comps-SineWave: Pi { icon: "audio-waveform" }
+@pi-hx-comps-SlewRateLimit: Pi { icon: "trending-up", color: "purple" }
 @pi-hx-comps-SquareRoot: Pi { icon: "square-radical" }
 @pi-hx-comps-StatusBool: Pi { color: "lime" }
 @pi-hx-comps-StatusNumber: Pi { color: "purple" }
