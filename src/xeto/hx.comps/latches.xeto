@@ -7,14 +7,17 @@
 //
 
 // TODO:FIXIT - icons and groups for everything
-// Does clock need to be nullable - is that a different semantic?
 
 
-// "Rising-edge" latch
+// "Rising-edge" latch.  The clock is read on execute, so `out` takes the
+// value `in` has on the cycle the clock turns true.  A null or invalid
+// `clock` holds `out`, and a rise is judged against the last valid
+// `clock`.  A save with a Bool `clock` loads.  A plain Bool linked into
+// `clock` is read with status ok and logged once.
 Latch: HxComp <abstract> {
   // When the clock transitions from false to true it will cause
   // out to be set to current value of in.
-  clock: Bool <summary>
+  clock: StatusBool? <summary, transient>
 
   // The input status value. The output will be set when the clock
   // transitions from false to true.
