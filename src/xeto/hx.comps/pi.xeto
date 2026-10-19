@@ -67,6 +67,7 @@
 @pi-hx-comps-Or: Pi { icon: "chevron-down" }
 @pi-hx-comps-Pid: Pi { icon: "gauge" }
 @pi-hx-comps-Power: Pi { icon: "superscript" }
+@pi-hx-comps-Proof: Pi { color: "lime" }
 @pi-hx-comps-Ramp: Pi { icon: "audio-waveform" }
 @pi-hx-comps-Round: Pi { icon: "hash" }
 @pi-hx-comps-SampleTrigger: Pi { color: "lime" }
@@ -94,5 +95,6 @@
 @pi-hx-comps-Toggle: Pi { icon: "toggle-left" }
 @pi-hx-comps-TriggeredComp: Pi { color: "purple" }
 @pi-hx-comps-UnitDelay: Pi { color: "purple" }
+@pi-hx-comps-VariablePulse: Pi { color: "lime" }
 @pi-hx-comps-WetBulb: Pi { icon: "thermometer" }
 @pi-hx-comps-Xor: Pi { icon: "circle-plus" }
