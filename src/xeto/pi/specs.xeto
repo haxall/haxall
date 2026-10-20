@@ -45,6 +45,12 @@ Icon: Scalar "blank"
 // ```
 Text: Scalar ""
 
+// Format pattern used to format values to text
+Format: Scalar ""
+
+// Xeto interface for [fan.pi::PiFuture]
+PiFuture: Interface
+
 // Palette color name.
 ColorName: Enum {
   slate    // Slate
