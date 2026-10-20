@@ -47,13 +47,13 @@ PointVar: EntityVar {
 PointInput: PointVar <abstract> { curVal: StatusVal? <readonly, transient, summary, output> }
 
 // Number point input
-NumberPointInput: PointInput <color: "purple"> { curVal: StatusNumber? }
+NumberPointInput: PointInput { curVal: StatusNumber? }
 
 // Bool point input
-BoolPointInput: PointInput <color: "lime"> { curVal: StatusBool? }
+BoolPointInput: PointInput { curVal: StatusBool? }
 
 // Str point input
-StrPointInput: PointInput <color: "amber"> { curVal: StatusStr? }
+StrPointInput: PointInput { curVal: StatusStr? }
 
 // The base spec for point outputs. Writes its input value to the bound point.
 PointOutput: PointVar <abstract> {
@@ -62,13 +62,13 @@ PointOutput: PointVar <abstract> {
   bindToWriteLevel: Int? <minVal: 1, maxVal: 17>
 }
 // Number point output
-NumberPointOutput: PointOutput <color: "purple"> { in: StatusNumber? }
+NumberPointOutput: PointOutput { in: StatusNumber? }
 
 // Bool point output
-BoolPointOutput: PointOutput <color: "lime"> { in: StatusBool? }
+BoolPointOutput: PointOutput { in: StatusBool? }
 
 // Str point output
-StrPointOutput: PointOutput <color: "amber"> { in: StatusStr? }
+StrPointOutput: PointOutput { in: StatusStr? }
 
 /*
 NumberPoint: HxComp <color:"purple"> { out: StatusNumber? <readonly, transient, summary> }

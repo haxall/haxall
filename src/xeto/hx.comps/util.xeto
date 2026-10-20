@@ -8,10 +8,10 @@
 
 // A folder is used as the standard component for containing
 // other components.
-Folder: HxComp <icon: "folder">
+Folder: HxComp
 
 // The output of this component generates a sine wave.
-SineWave: HxComp <icon: "audio-waveform"> {
+SineWave: HxComp {
   // The computed sine wave
   out: StatusNumber <summary, transient, readonly, output>
 
@@ -29,7 +29,7 @@ SineWave: HxComp <icon: "audio-waveform"> {
 }
 
 // The output of this component generates a ramp waveform.
-Ramp: HxComp <icon: "audio-waveform"> {
+Ramp: HxComp {
   // The computed ramp value
   out: StatusNumber <summary, transient, readonly, output>
 
@@ -57,7 +57,7 @@ RampWaveform: Enum {
 }
 
 // Component that evaluates an Axon expression
-AxonComp: HxComp <icon: "variable"> {
+AxonComp: HxComp {
   axon: Str
 }
 

@@ -1,0 +1,66 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   20 Oct 2026  Brian Frank  Creation
+//
+
+@pi-hx-comps-AbsValue: Pi { icon: "tally-2" }
+@pi-hx-comps-Add: Pi { icon: "plus" }
+@pi-hx-comps-And: Pi { icon: "ampersand" }
+@pi-hx-comps-ArcCosine: Pi { icon: "triangle-right" }
+@pi-hx-comps-ArcSine: Pi { icon: "triangle-right" }
+@pi-hx-comps-ArcTangent: Pi { icon: "triangle-right" }
+@pi-hx-comps-Average: Pi { icon: "divide" }
+@pi-hx-comps-AxonComp: Pi { icon: "variable" }
+@pi-hx-comps-BoolConst: Pi { icon: "circle-dot", color: "lime" }
+@pi-hx-comps-BoolLatch: Pi { color: "lime" }
+@pi-hx-comps-BoolPointInput: Pi { color: "lime" }
+@pi-hx-comps-BoolPointOutput: Pi { color: "lime" }
+@pi-hx-comps-BoolSelect: Pi { color: "lime" }
+@pi-hx-comps-BoolSwitch: Pi { color: "lime" }
+@pi-hx-comps-Const: Pi { icon: "folder" }
+@pi-hx-comps-Cosine: Pi { icon: "triangle-right" }
+@pi-hx-comps-Divide: Pi { icon: "divide" }
+@pi-hx-comps-Equal: Pi { icon: "equal" }
+@pi-hx-comps-Exponential: Pi { icon: "superscript" }
+@pi-hx-comps-Factorial: Pi { icon: "asterisk" }
+@pi-hx-comps-Folder: Pi { icon: "folder" }
+@pi-hx-comps-GreaterThan: Pi { icon: "chevron-right" }
+@pi-hx-comps-GreaterThanEqual: Pi { icon: "chevron-right" }
+@pi-hx-comps-LessThan: Pi { icon: "chevron-left" }
+@pi-hx-comps-LessThanEqual: Pi { icon: "chevron-left" }
+@pi-hx-comps-Logic: Pi { color: "lime" }
+@pi-hx-comps-Math: Pi { color: "purple" }
+@pi-hx-comps-Maximum: Pi { icon: "arrow-up-to-line" }
+@pi-hx-comps-Minimum: Pi { icon: "arrow-down-to-line" }
+@pi-hx-comps-Modulus: Pi { icon: "percent" }
+@pi-hx-comps-Multiply: Pi { icon: "x" }
+@pi-hx-comps-Not: Pi { icon: "circle-slash-2" }
+@pi-hx-comps-NotEqual: Pi { icon: "equal-not" }
+@pi-hx-comps-NumberConst: Pi { icon: "circle-dot", color: "purple" }
+@pi-hx-comps-NumberLatch: Pi { color: "purple" }
+@pi-hx-comps-NumberPointInput: Pi { color: "purple" }
+@pi-hx-comps-NumberPointOutput: Pi { color: "purple" }
+@pi-hx-comps-NumberSelect: Pi { color: "purple" }
+@pi-hx-comps-NumberSwitch: Pi { color: "purple" }
+@pi-hx-comps-Or: Pi { icon: "chevron-down" }
+@pi-hx-comps-Power: Pi { icon: "superscript" }
+@pi-hx-comps-Ramp: Pi { icon: "audio-waveform" }
+@pi-hx-comps-Sine: Pi { icon: "triangle-right" }
+@pi-hx-comps-SineWave: Pi { icon: "audio-waveform" }
+@pi-hx-comps-SquareRoot: Pi { icon: "square-radical" }
+@pi-hx-comps-StatusBool: Pi { color: "lime" }
+@pi-hx-comps-StatusNumber: Pi { color: "purple" }
+@pi-hx-comps-StatusStr: Pi { color: "amber" }
+@pi-hx-comps-StatusTestComp: Pi { icon: "flask-conical" }
+@pi-hx-comps-StrConst: Pi { icon: "case-sensitive", color: "amber" }
+@pi-hx-comps-StrLatch: Pi { color: "amber" }
+@pi-hx-comps-StrPointInput: Pi { color: "amber" }
+@pi-hx-comps-StrPointOutput: Pi { color: "amber" }
+@pi-hx-comps-StrSelect: Pi { color: "amber" }
+@pi-hx-comps-StrSwitch: Pi { color: "amber" }
+@pi-hx-comps-Subtract: Pi { icon: "minus" }
+@pi-hx-comps-Tangent: Pi { icon: "triangle-right" }
+@pi-hx-comps-Xor: Pi { icon: "circle-plus" }

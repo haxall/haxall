@@ -25,19 +25,19 @@ Latch: HxComp <abstract> {
 }
 
 // Bool latch
-BoolLatch: Latch <color: "lime"> {
+BoolLatch: Latch {
   in: StatusBool?
   out: StatusBool?
 }
 
 // Number latch
-NumberLatch: Latch <color: "purple"> {
+NumberLatch: Latch {
   in: StatusNumber?
   out: StatusNumber?
 }
 
 // Str latch
-StrLatch: Latch <color: "amber"> {
+StrLatch: Latch {
   in: StatusStr?
   out: StatusStr?
 }
