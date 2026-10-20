@@ -17,13 +17,31 @@ using haystack
 @NoDoc @Js
 abstract const class PiEnv
 {
-  ** Current environment for VM
+  ** Current environment: the PiEnv of the current actor context such
+  ** as a server runtime, else the global one registered for the VM
   static PiEnv? cur(Bool checked := true)
   {
+    cx := ActorContext.curx(false) as PiContext
+    if (cx != null) return cx.pi
     v := curRef.val
     if (v != null) return v
     if (checked) throw Err("PiEnv not avail")
     return null
+  }
+
+  ** Construct the pim implementation for the given namespace
+  @NoDoc static PiEnv create(Namespace ns)
+  {
+    Type.find("pim::MPiEnv").make([ns])
+  }
+
+  ** Get the PiEnv cached in the given ref, or create one when the
+  ** namespace has changed since it was cached
+  @NoDoc static PiEnv cached(AtomicRef ref, Namespace ns)
+  {
+    env := ref.val as PiEnv
+    if (env == null || env.ns !== ns) ref.val = env = create(ns)
+    return env
   }
 
   static const AtomicRef curRef := AtomicRef()
@@ -74,5 +92,20 @@ abstract const class PiEnv
 
   ** Connector model registry
   once PiConns conns() { PiConns(ns) }
+}
+
+**************************************************************************
+** PiContext
+**************************************************************************
+
+**
+** PiContext is implemented by an actor context which provides the
+** PiEnv for its namespace such as a server side runtime context.
+**
+@NoDoc @Js
+mixin PiContext : ActorContext
+{
+  ** PiEnv for this context's namespace
+  abstract PiEnv pi()
 }
 

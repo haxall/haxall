@@ -36,6 +36,7 @@ class Build : BuildPod
                "xeto @{hx.depend}",
                "xetom @{hx.depend}",
                "haystack @{hx.depend}",
+               "pi @{hx.depend}",
                "def @{hx.depend}",
                "axon @{hx.depend}",
                "obs @{hx.depend}",

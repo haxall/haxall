@@ -12,11 +12,13 @@ using xeto
 using haystack
 using axon
 using folio
+using pi::PiContext
+using pi::PiEnv
 
 **
 ** Haxall execution and security context.
 **
-class Context : AxonContext, FolioContext
+class Context : AxonContext, FolioContext, PiContext
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,6 +95,9 @@ class Context : AxonContext, FolioContext
 
   ** Runtime namespace
   override Namespace ns() { rt.ns }
+
+  ** Presentation env for the runtime namespace
+  @NoDoc override PiEnv pi() { rt.pi }
 
   ** Runtime legacy defs (deprecated)
   @NoDoc override DefNamespace defs() { rt.defs }

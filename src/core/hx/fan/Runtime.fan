@@ -12,6 +12,7 @@ using xeto
 using haystack
 using obs
 using folio
+using pi
 
 **
 ** Runtime manages a database, library namespace, and extensions.
@@ -73,6 +74,9 @@ const mixin Runtime
 
   ** Xeto library management
   abstract RuntimeLibs libs()
+
+  ** Presentation info env for the namespace of this runtime
+  @NoDoc abstract PiEnv pi()
 
   ** Namespace of definitions (deprecated)
   @NoDoc abstract DefNamespace defs()

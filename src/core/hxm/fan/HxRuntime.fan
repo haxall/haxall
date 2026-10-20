@@ -14,6 +14,7 @@ using folio
 using obs
 using hx
 using hxUtil
+using pi::PiEnv
 
 **
 ** Haxall base implementation of Runtime
@@ -109,6 +110,10 @@ abstract const class HxRuntime : Runtime
 
   ** Xeto lib namespace
   override Namespace ns() { libsRef.ns }
+
+  ** Presentation env cached per namespace
+  @NoDoc override PiEnv pi() { PiEnv.cached(piEnvRef, ns) }
+  private const AtomicRef piEnvRef := AtomicRef()
 
   ** Convenience for `exts.get` to lookup extension by lib dotted name
   override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }
