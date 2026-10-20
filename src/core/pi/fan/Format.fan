@@ -79,6 +79,7 @@ internal const class DefaultFormat : Format
 {
   override Bool isDefault() { true }
   override Str? doFormat(Obj val, Dict? meta) { null }
+  override Str toStr() { "" }  // round trips thru fromStr
 }
 
 **************************************************************************
@@ -100,6 +101,7 @@ internal const class BlankFormat : Format
 @Js
 internal const class ActualFormat : Format
 {
+  override Str? pattern() { "_actual" }
   override Str? doFormat(Obj val, Dict? meta)
   {
     // when using formatActual flag (in shell) then don't try
