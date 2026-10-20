@@ -31,5 +31,5 @@ pragma: Lib <
 >
 
 // Modbus connector
-ModbusExt: ConnExt <icon:"modbus", connFeatures:{learn, pollMode:"buckets"}>
+ModbusExt: ConnExt <connFeatures:{learn, pollMode:"buckets"}>
 

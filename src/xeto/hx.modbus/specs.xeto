@@ -7,7 +7,7 @@
 //
 
 // Modbus connector
-ModbusConn: Conn <icon:"modbus"> {
+ModbusConn: Conn {
   // Applied to `modbusConn` or its [hx.conn::ConnTuning] rec to allow for gaps
   // in block reads. See [hx.modbus::doc#block-reads] for more information.
   modbusBlockGap: Int?
