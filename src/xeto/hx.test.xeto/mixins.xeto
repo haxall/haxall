@@ -22,9 +22,9 @@
   fault <foo:"red">
 }
 
-+Phase {
-  l1 <foo:"Line 1">
-  l1L2 <foo:"Line 1 to Line 2">  // ignore doc
++ElecAcQuadrant {
+  q1 <foo:"Quadrant 1">
+  q3 <foo:"Quadrant 3">  // ignore doc
 }
 
 // project naming standard used by graph compose navName seeding

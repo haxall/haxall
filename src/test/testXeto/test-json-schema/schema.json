@@ -4418,10 +4418,10 @@
         "spec": "hx.test.xeto::Order"
       }
     },
-    "hx.test.xeto.Phase": {
+    "hx.test.xeto.ElecAcQuadrant": {
       "type": "string",
       "x-xeto": {
-        "spec": "hx.test.xeto::Phase"
+        "spec": "hx.test.xeto::ElecAcQuadrant"
       }
     },
     "hx.test.xeto.PlusDict": {

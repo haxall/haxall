@@ -34,7 +34,7 @@ class MixinTest : AbstractXetoTest
     testSitex := ns.specx(testSite)
     sitem     := lib.spec("Site")
     csm       := lib.spec("CurStatus")
-    phasem    := lib.spec("Phase")
+    quadm     := lib.spec("ElecAcQuadrant")
     specm     := lib.spec("Spec")
     funcs     := lib.spec("Funcs")
     phem      := ns.spec("ph.protocols::PhEntity")
@@ -57,7 +57,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(ns.mixinsOwn(testSite), Spec[,])
     verifyEq(ns.mixinsOwn(testSite).isImmutable, true)
 
-    verifyEq(lib.mixins.list, Spec[csm, funcs, phasem, lib.mixinFor(ns.spec("ph.points.sugar::ReturnFanRunCmd")), sitem, specm, lib.mixinFor(ns.spec("ph.points::ZoneAirTempSensor"))])
+    verifyEq(lib.mixins.list, Spec[csm, quadm, funcs, lib.mixinFor(ns.spec("ph.points.sugar::ReturnFanRunCmd")), sitem, specm, lib.mixinFor(ns.spec("ph.points::ZoneAirTempSensor"))])
     verifySame(lib.mixinFor(site), sitem)
     verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
     verifyEq(lib.mixinFor(lib.spec("EquipA"), false), null)
@@ -373,11 +373,11 @@ class MixinTest : AbstractXetoTest
     verifyEnumItem(spec, specx, "down",    "yellow")
     verifyEnumItem(spec, specx, "disabled", null)
 
-    // test Phase where names are different than keys
-    spec = ns.spec("ph::Phase")
+    // test ElecAcQuadrant where names are different than keys
+    spec = ns.spec("ph::ElecAcQuadrant")
     specx = ns.specx(spec)
-    verifyEnumItem(spec, specx, "L1", "Line 1")
-    verifyEnumItem(spec, specx, "L1-L2", "Line 1 to Line 2")
+    verifyEnumItem(spec, specx, "1", "Quadrant 1")
+    verifyEnumItem(spec, specx, "3", "Quadrant 3")
 
     // Specx.enum raises exception for non-enum
     verifyErr(UnsupportedErr#) { ns.specx(ns.spec("ph::Site")).enum }
