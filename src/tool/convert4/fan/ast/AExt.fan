@@ -138,7 +138,7 @@ class AExt
     funcs.any |f|
     {
       m := f.meta
-      return m.has("text") || m.has("selectMode") || m.has("confirm") || m.has("noFlash") || m.has("noUpdate")
+      return m.has("text") || m.has("confirm") || m.has("noFlash") || m.has("noUpdate")
     }
   }
 
