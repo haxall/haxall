@@ -123,7 +123,7 @@ const class TaskExt : ExtObj, ITaskExt
   ** Kill and re-spawn given task
   internal Task restart(Task task)
   {
-    if (!task.type.isRec) throw Err("Cannot restart non-rec task: $task")
+    if (task.type.isEphemeral) throw Err("Cannot restart ephemeral task: $task")
     kill(task)
     return spawn(Task.makeRec(this, task.rec))
   }

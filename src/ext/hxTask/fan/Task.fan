@@ -449,7 +449,7 @@ internal enum class TaskType
   rec,
   ephemeral
 
-  Bool isRec() { this === this }
+  Bool isRec() { this === rec }
 
   Bool isEphemeral() { this === ephemeral }
 }
