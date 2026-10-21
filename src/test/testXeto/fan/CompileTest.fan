@@ -962,6 +962,17 @@ class CompileTest : AbstractXetoTest
     {
       ns.compileTempLib(Str<|Foo: { pts: { MSI2: Str } }|>)
     }
+
+    // top level specs must start with upper case, including with slots
+    verifyErrMsg(XetoCompilerErr#, "Top level specs must start with upper case: foo")
+    {
+      ns.compileTempLib(Str<|foo: Dict {}|>)
+    }
+    verifyErrMsg(XetoCompilerErr#, "Top level specs must start with upper case: foo")
+    {
+      ns.compileTempLib(Str<|Bar: { foo: Str }
+                             foo: Bar { foo: "x" }|>)
+    }
   }
 }
 

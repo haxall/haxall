@@ -89,7 +89,7 @@ internal class CheckErrors : Step
 
   Void checkTop(ASpec x)
   {
-    checkTopName(x)
+    if (!checkTopName(x)) return
     checkTypeInherit(x)
     checkSpec(x)
     if (x.isSugar) checkSugar(x)
@@ -100,13 +100,20 @@ internal class CheckErrors : Step
       err("Top level spec cannot be maybe: $x.name", x.loc)
   }
 
-  Void checkTopName(ASpec x)
+  ** Return false if lowercase top, which skips the inherit steps
+  ** and cannot be checked further
+  Bool checkTopName(ASpec x)
   {
     if (x.name[0].isLower)
+    {
       err("Top level specs must start with upper case: $x.name", x.loc)
+      return false
+    }
 
     if (XetoUtil.isReservedSpecName(x.name))
       err("Spec name '$x.name' is reserved", x.loc)
+
+    return true
   }
 
   Void checkTypeInherit(ASpec x)
