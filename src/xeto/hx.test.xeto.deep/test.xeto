@@ -28,6 +28,7 @@ DeepRuleSubject: TestRuleSubject
 // downstream overrides of hx.test.xeto pi instances
 @pi-hx-test-xeto-PiTestA: Pi {
   color: "blue"
+  tw: "italic"
 }
 
 @pi-hx-test-xeto-PiTestEnum: Pi {

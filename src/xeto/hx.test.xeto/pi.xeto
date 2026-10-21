@@ -48,6 +48,7 @@ PiTestLegacy: Dict <icon:"tag", text:"Legacy", plural:"Legacies">
 
 @pi-hx-test-xeto-PiTestB: Pi {
   text: "B"
+  tw: "text-sm font-bold"
 }
 
 @pi-hx-test-xeto-PiTestEnum: Pi {
