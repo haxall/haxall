@@ -23,7 +23,7 @@ class EquipTest : AbstractXetoTest
   ** base refs into mixin members are verified across the wire.
   Void testMixinInference()
   {
-    verifyLocalAndRemote(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"]) |ns| { doTestMixinInference(ns) }
+    verifyLocalAndRemote(["sys", "ph", "ph.attrs", "ph.points", "ph.points.x", "hx.test.xeto"]) |ns| { doTestMixinInference(ns) }
   }
 
   Void doTestMixinInference(Namespace ns)
@@ -113,7 +113,7 @@ class EquipTest : AbstractXetoTest
 
   Void testBasics()
   {
-    ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "ph.points.sugar", "hx.test.xeto"])
+    ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "ph.points.x", "hx.test.xeto"])
 
     specA   := ns.spec("hx.test.xeto::EquipA")
     zat     := ns.spec("ph.points::ZoneAirTempSensor")

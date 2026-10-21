@@ -107,9 +107,9 @@ class RuntimeTest : HxTest
 
     // add new lib 'ph.points' which fills 'g36' depend
     p.libs.add("ph.points")
-    p.libs.add("ph.points.sugar")
+    p.libs.add("ph.points.x")
     expectLibs["ph.points"] = "sys ok"
-    expectLibs["ph.points.sugar"] = "sys ok"
+    expectLibs["ph.points.x"] = "sys ok"
     expectLibs["ashrae.g36"] = "sys ok"
     verifyProjLibs(p, expectLibs)
 

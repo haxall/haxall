@@ -27,7 +27,7 @@ EqA: Equip {
 
 EqB: Equip {
   points: {
-    ph.points.sugar::DischargeAirTempSensor
+    ph.points.x::DischargeAirTempSensor
   }
 }
 

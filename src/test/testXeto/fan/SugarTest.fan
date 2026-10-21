@@ -26,21 +26,21 @@ class SugarTest : AbstractXetoTest
     verifyLocalAndRemote(["hx.test.xeto"]) |ns|
     {
       fan := "ph.points::DuctFanRunCmd"
-      verifySugar(ns, "ph.points.sugar::DischargeFanRunCmd",            fan,       ["discharge":m])
+      verifySugar(ns, "ph.points.x::DischargeFanRunCmd",            fan,       ["discharge":m])
       verifySugar(ns, "hx.test.xeto::ColdDeckDischargeFanRunCmd",       fan,       ["coldDeck":m, "discharge":m])
       verifySugar(ns, "hx.test.xeto::Stage2DischargeFanRunCmd",         fan,       ["discharge":m, "stage":2])
       verifySugar(ns, "hx.test.xeto::ColdDeckStage2DischargeFanRunCmd", fan,       ["coldDeck":m, "discharge":m, "stage":2])
       verifySugar(ns, "hx.test.xeto::StandardFanVav",                   "ph::Vav", ["singleDuct":m])
 
       // defaults such as unit are not constraints
-      verifySugar(ns, "ph.points.sugar::NaturalGasFlowSp", "ph.points::FluidVolumetricFlowSp", ["naturalGas":m])
+      verifySugar(ns, "ph.points.x::NaturalGasFlowSp", "ph.points::FluidVolumetricFlowSp", ["naturalGas":m])
 
       nominal := ns.spec(fan)
       verifyEq(nominal.isSugar, false)
       verifyErr(UnsupportedErr#) { nominal.sugar }
 
       // mixin constraints are only seen thru specx
-      ret := ns.spec("ph.points.sugar::ReturnFanRunCmd")
+      ret := ns.spec("ph.points.x::ReturnFanRunCmd")
       verifyEq(ret.sugar.constraints.names, ["return"])
       verifyEq(ns.specx(ret).sugar.constraints.names, ["hotDeck", "return"])
       verifySame(ns.specx(ret).sugar.anchor, nominal)
@@ -56,8 +56,8 @@ class SugarTest : AbstractXetoTest
     verifyLocalAndRemote(["hx.test.xeto"]) |ns|
     {
       fan    := ns.spec("ph.points::DuctFanRunCmd")
-      dis    := ns.spec("ph.points.sugar::DischargeFanRunCmd")
-      ret    := ns.spec("ph.points.sugar::ReturnFanRunCmd")
+      dis    := ns.spec("ph.points.x::DischargeFanRunCmd")
+      ret    := ns.spec("ph.points.x::ReturnFanRunCmd")
       myDis  := ns.spec("hx.test.xeto::MyDischargeFanRunCmd")
       cold   := ns.spec("hx.test.xeto::ColdDeckDischargeFanRunCmd")
       stage2 := ns.spec("hx.test.xeto::Stage2DischargeFanRunCmd")
@@ -94,9 +94,9 @@ class SugarTest : AbstractXetoTest
     verifyLocalAndRemote(["hx.test.xeto"]) |ns|
     {
       fan    := Ref("ph.points::DuctFanRunCmd")
-      dis    := "ph.points.sugar::DischargeFanRunCmd"
+      dis    := "ph.points.x::DischargeFanRunCmd"
       stage2 := "hx.test.xeto::Stage2DischargeFanRunCmd"
-      ret    := "ph.points.sugar::ReturnFanRunCmd"
+      ret    := "ph.points.x::ReturnFanRunCmd"
 
       // scalars and nominal dicts
       verifyFits(ns, "foo", "sys::Str", true)
@@ -122,7 +122,7 @@ class SugarTest : AbstractXetoTest
 
       // defaults are not constraints
       verifyFits(ns, ["spec":Ref("ph.points::FluidVolumetricFlowSp"), "naturalGas":m, "unit":"L/s"],
-        "ph.points.sugar::NaturalGasFlowSp", true)
+        "ph.points.x::NaturalGasFlowSp", true)
 
       // mixin constraints only apply thru specx
       retx := ns.specx(ns.spec(ret))
@@ -153,7 +153,7 @@ class SugarTest : AbstractXetoTest
 
   Void testCompileErrs()
   {
-    ns := createNamespace(["ph.protocols", "ph.points.sugar"])
+    ns := createNamespace(["ph.protocols", "ph.points.x"])
 
     // body rules: every slot must be a global in scope
     verifyCompileErrs(ns, src(
@@ -237,7 +237,7 @@ class SugarTest : AbstractXetoTest
   {
     Str<|pragma: Lib <
            version: "0.0.0"
-           depends: { {lib:"sys"}, {lib:"ph"}, {lib:"ph.protocols"}, {lib:"ph.points"}, {lib:"ph.points.sugar"} }
+           depends: { {lib:"sys"}, {lib:"ph"}, {lib:"ph.protocols"}, {lib:"ph.points"}, {lib:"ph.points.x"} }
          >
          |> + body
   }

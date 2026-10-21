@@ -1336,7 +1336,7 @@ class UtilTest : AbstractXetoTest
 
   Void testCommonSuper()
   {
-    ns := createNamespace(["ph", "ph.points", "ph.points.sugar"])
+    ns := createNamespace(["ph", "ph.points", "ph.points.x"])
 
     verifyCommonSuper(ns, ["sys::Date", "sys::Str"], "sys::Scalar")
     verifyCommonSuper(ns, ["sys::Dict", "sys::List"], "sys::Collection")
@@ -1350,12 +1350,12 @@ class UtilTest : AbstractXetoTest
     verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Ahu"], "ph::Equip")
     verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Room"], "ph::PhEntity")
 
-    verifyCommonSuper(ns, ["ph.points.sugar::DischargeAirTempSensor",
-                           "ph.points.sugar::ReturnAirTempSensor"],
+    verifyCommonSuper(ns, ["ph.points.x::DischargeAirTempSensor",
+                           "ph.points.x::ReturnAirTempSensor"],
                            "ph.points::DuctAirTempSensor")
 
-    verifyCommonSuper(ns, ["ph.points.sugar::DischargeAirTempSensor",
-                           "ph.points.sugar::ReturnAirPressureSensor"],
+    verifyCommonSuper(ns, ["ph.points.x::DischargeAirTempSensor",
+                           "ph.points.x::ReturnAirPressureSensor"],
                            "ph::NumberPoint")
   }
 

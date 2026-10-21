@@ -1,8 +1,8 @@
 # Know Project Haystack
 
 Project Haystack is an ontology for modeling the built environment,
-organized into the `ph`, `ph.equips.sugar`, `ph.points`,
-`ph.points.sugar`, and `ph.elec` xeto libs.
+organized into the `ph`, `ph.equips.x`, `ph.points`,
+`ph.points.x`, and `ph.elec` xeto libs.
 
 # Entity Hierarchy
 
@@ -225,7 +225,7 @@ Points are classified by data type via `kind`:
 ## Point Type Composition
 
 Point specs in `ph.points` combine quantity, subject, and function
-via intersection types; `ph.points.sugar` adds named specializations:
+via intersection types; `ph.points.x` adds named specializations:
 
 ```xeto
 FluidTempPoint : NumberPoint <abstract> { temp, ... }   // ph.points

@@ -133,7 +133,7 @@ a top-level `@id`, or both:
 # Qualified Names
 
 Every spec has a globally unique qname: `{lib}::{Name}`, such as
-`sys::Str` or `ph.equips.sugar::NaturalGasMeter`; the simple name
+`sys::Str` or `ph.equips.x::NaturalGasMeter`; the simple name
 resolves via the namespace. Slot qnames use dot: `sys::LibDepend.lib`
 
 # Core Types (sys lib)

@@ -15,7 +15,7 @@ Stage2DischargeFanRunCmd: DischargeFanRunCmd { stage: Int <invariant> 2 }
 // invariant which conflicts with Stage2DischargeFanRunCmd
 Stage3DischargeFanRunCmd: DischargeFanRunCmd { stage: Int <invariant> 3 }
 
-// same anchor and constraints as ph.points.sugar::DischargeFanRunCmd
+// same anchor and constraints as ph.points.x::DischargeFanRunCmd
 MyDischargeFanRunCmd: DuctFanRunCmd <sugar> { discharge }
 
 // And of sugar specs which share one anchor

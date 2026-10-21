@@ -136,7 +136,7 @@ class SpecTest : AbstractXetoTest
 
   Void testInheritance()
   {
-    ns := createNamespace(["ph.points.sugar"])
+    ns := createNamespace(["ph.points.x"])
 
     // FluidTempPoint : NumberPoint <abstract> {
     // FluidTempSensor : FluidTempPoint & SensorPoint
@@ -157,7 +157,7 @@ class SpecTest : AbstractXetoTest
     tempSensor := ns.spec("ph.points::FluidTempSensor")
     airTempSensor := ns.spec("ph.points::AirTempSensor")
     ductAirTempSensor := ns.spec("ph.points::DuctAirTempSensor")
-    dat        := ns.spec("ph.points.sugar::DischargeAirTempSensor")
+    dat        := ns.spec("ph.points.x::DischargeAirTempSensor")
 
     verifyEq(obj.base, null)
     verifySame(coll.base, obj)
@@ -214,9 +214,9 @@ class SpecTest : AbstractXetoTest
   {
     // every type in a sugar lib must carry the sugar marker, directly
     // or inherited; core libs must contain only nominal specs
-    verifyLocalAndRemote(["ph.points.sugar"]) |ns|
+    verifyLocalAndRemote(["ph.points.x"]) |ns|
     {
-      verifySugarLib(ns.lib("ph.points.sugar"), true)
+      verifySugarLib(ns.lib("ph.points.x"), true)
       verifySugarLib(ns.lib("ph.points"), false)
       verifySugarLib(ns.lib("ph"), false)
     }
@@ -238,7 +238,7 @@ class SpecTest : AbstractXetoTest
 
   Void testIsa()
   {
-    verifyLocalAndRemote(["ph.points", "ph.points.sugar"]) |ns| { doTestIsa(ns) }
+    verifyLocalAndRemote(["ph.points", "ph.points.x"]) |ns| { doTestIsa(ns) }
   }
 
   Void doTestIsa(Namespace ns)
@@ -539,7 +539,7 @@ class SpecTest : AbstractXetoTest
     ns := createNamespace(["ph.points", "hx.test.xeto"])
     ph := ns.lib("ph")
     phx := ns.lib("ph.points")
-    phs := ns.lib("ph.points.sugar")
+    phs := ns.lib("ph.points.x")
 
     equipSlots := [
       "id:Ref", "spec:Ref?", "equip:Marker",

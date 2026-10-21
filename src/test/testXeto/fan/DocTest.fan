@@ -413,7 +413,7 @@ class DocTest : AbstractXetoTest
     verifyEq(b.parent.qname, "hx.test.xeto::EqA.points")
 
     c := points.getChecked("c")
-    verifyEq(c.type.qname, "ph.points.sugar::DischargeAirTempSensor")
+    verifyEq(c.type.qname, "ph.points.x::DischargeAirTempSensor")
     verifyEq(c.slots.size, 0)
     verifyEq(c.parent, null)
   }
