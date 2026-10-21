@@ -70,9 +70,11 @@ const class MNamespace : Namespace, CNamespace
     if (dependErr != null && version.file(false) == null)
       return MLibEntry(version, dependErr)
 
-    // get from cache or compile
+    // get from cache or compile; depend errs must bypass the cache since
+    // it may hold the lib compiled by another namespace with depends met
     try
     {
+      if (dependErr != null) { envRef.compile(this, version); return MLibEntry(version, dependErr) }
       lib := envRef.getOrCompile(this, version)
       return MLibEntry(version, lib)
     }

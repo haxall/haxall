@@ -141,7 +141,7 @@ abstract const class MEnv : XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Compile specific lib
-  private XetoLib compile(MNamespace ns, LibVersion v)
+  internal XetoLib compile(MNamespace ns, LibVersion v)
   {
     // the companion lib supports partial compilation
     if (v.name == XetoUtil.companionLibName && ns.companionRecs != null)
