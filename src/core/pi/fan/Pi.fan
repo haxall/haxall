@@ -57,7 +57,4 @@ const mixin Pi
 
   ** Spec of input widget; temp shim until inputs switch to sketches
   @NoDoc abstract Spec? inputType()
-
-  ** Reference to ion::GroupItem
-  @NoDoc abstract Ref? group()
 }
