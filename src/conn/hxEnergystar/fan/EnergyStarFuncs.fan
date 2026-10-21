@@ -538,7 +538,7 @@ const class EnergyStarFuncs
   ** been mapped to Energy Star with an [Site.energyStarSite] tag.  Associations
   ** are created for every meter point within the site which has been
   ** mapped with the [EnergyStarPoint.energyStarMeter] tag.  All associations are currently
-  ** mapped as "Whole Property'.  See [doc#propertymeter-associations].
+  ** mapped as "Whole Property'.  See [doc#property-meter-associations].
   @Api @Axon
   static Obj energyStarPropertyAssociationsPush(Obj? conn, Obj site)
   {

@@ -108,7 +108,7 @@
   // been mapped to Energy Star with an [Site.energyStarSite] tag.  Associations
   // are created for every meter point within the site which has been
   // mapped with the [EnergyStarPoint.energyStarMeter] tag.  All associations are currently
-  // mapped as "Whole Property'.  See [doc#propertymeter-associations].
+  // mapped as "Whole Property'.  See [doc#property-meter-associations].
   energyStarPropertyAssociationsPush: Func <sideEffects> { conn: Obj?, site: Obj, returns: Obj }
 
   // Read consumption data for given meter.  Return grid with cols:

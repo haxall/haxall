@@ -312,7 +312,7 @@ variable `x` inside `f` hides the outer scope which remains unchanged.
 Variable resolution is searched in the following order:
   1. current function's variables
   2. lexically scoped outer function's variables
-  3. [top-level namespace](Axon#toplevel-namespace)
+  3. [top-level namespace](Axon#top-level-namespace)
 
 # Lambdas
 Lambdas are function definitions which take zero or more
