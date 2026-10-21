@@ -49,13 +49,6 @@ const class MFunc : SpecFunc
 
   override Bool hasThunk() { thunkRef != null }
 
-  override Bool isTemplate()
-  {
-    for (Spec? p := spec; p != null; p = p.base)
-      if (p.qname == "sys.template::Template") return true
-    return false
-  }
-
   Void setThunk(Thunk thunk)
   {
     #thunkRef->setConst(this, thunk)

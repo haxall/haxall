@@ -57,10 +57,6 @@ const class AxonThunkFactory : ThunkFactory
     code := spec.meta["js"] as Str
     if (code != null) return createJavaScript(spec, meta, code)
 
-
-    // check for template
-    if (spec.func.isTemplate) return TemplateFn(spec, meta, toParams(meta->qname, spec))
-
     throw UnsupportedErr("Cannot resolve thunk: $spec [pod:$pod]")
   }
 

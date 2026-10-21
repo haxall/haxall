@@ -3349,26 +3349,6 @@
         }
       }
     },
-    "sys.template.Template": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/sys.Func"
-        },
-        {
-          "additionalProperties": true,
-          "type": "object",
-          "properties": {
-            "returns": {
-              "description": "Return type of the function"
-            }
-          }
-        }
-      ],
-      "description": "Templates are a transformation function that uses their input\nparameters to generate instance data",
-      "x-xeto": {
-        "spec": "sys.template::Template"
-      }
-    },
     "sys.Interface": {
       "description": "Interface is an object oriented API defined as set of named\nfield and method slots.",
       "x-xeto": {
@@ -3386,54 +3366,9 @@
           "additionalProperties": true,
           "type": "object",
           "properties": {
-            "testTemplateBindD": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateBindC": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateBindB": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateBindA": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
             "ping1": {
               "description": "ping API",
               "$ref": "#/$defs/sys.Func"
-            },
-            "testTemplateSwitchC": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateSwitchB": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateSwitchA": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateForeachA": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateForeachD": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateForeachB": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateForeachC": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateIfD": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateIfC": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateIfB": {
-              "$ref": "#/$defs/sys.template.Template"
-            },
-            "testTemplateIfA": {
-              "$ref": "#/$defs/sys.template.Template"
             },
             "funcFrom2ndMixin": {
               "description": "ping API",
@@ -3467,21 +3402,6 @@
             "add2",
             "add3",
             "add4",
-            "testTemplateBindA",
-            "testTemplateBindB",
-            "testTemplateBindC",
-            "testTemplateBindD",
-            "testTemplateIfA",
-            "testTemplateIfB",
-            "testTemplateIfC",
-            "testTemplateIfD",
-            "testTemplateSwitchA",
-            "testTemplateSwitchB",
-            "testTemplateSwitchC",
-            "testTemplateForeachA",
-            "testTemplateForeachB",
-            "testTemplateForeachC",
-            "testTemplateForeachD",
             "funcFrom2ndMixin"
           ]
         }
@@ -5127,35 +5047,6 @@
       "x-xeto": {
         "spec": "hx.test.xeto::SystemWithEquips"
       }
-    },
-    "hx.test.xeto.TemplateDictC": {
-      "x-xeto": {
-        "spec": "hx.test.xeto::TemplateDictC"
-      },
-      "additionalProperties": true,
-      "type": "object",
-      "properties": {
-        "a": {
-          "type": "string"
-        },
-        "b": {
-          "type": "string"
-        },
-        "c": {
-          "type": "string"
-        },
-        "e": {
-          "type": "string"
-        },
-        "f": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "a",
-        "b",
-        "c"
-      ]
     },
     "sys.comp.CompLayout": {
       "type": "string",

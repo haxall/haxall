@@ -33,9 +33,6 @@ const mixin SpecFunc
   ** Has a thunk been initialized for this function
   @NoDoc abstract Bool hasThunk()
 
-  ** Is this a template function
-  @NoDoc abstract Bool isTemplate()
-
   ** Format a human, non-normative signature such as "(id: Ref?) -> Dict"
   @NoDoc abstract Str signature()
 

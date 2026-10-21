@@ -52,7 +52,7 @@ abstract const class DocTypeRef
   virtual DocTypeRef[]? ofs() { null }
 
   ** Return if this is a func type
-  virtual Bool isFunc() { qname == "sys::Func" || qname == "sys.template::Template" }
+  virtual Bool isFunc() { qname == "sys::Func" }
 
   ** Return if this is a query (requires sys::Query to be sealed)
   virtual Bool isQuery() { qname == "sys::Query" }
