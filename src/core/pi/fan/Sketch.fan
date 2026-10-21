@@ -29,7 +29,9 @@ const mixin Sketch
 @Js
 internal const class MSketch : Sketch
 {
-  new make(Str src) { this.src = src }
+  static new fromStr(Str src) { make(src) }
+
+  private new make(Str src) { this.src = src }
 
   override const Str src
 
@@ -41,3 +43,4 @@ internal const class MSketch : Sketch
     return x != null && src == x.src
   }
 }
+
