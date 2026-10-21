@@ -26,6 +26,3 @@
   q1 <foo:"Quadrant 1">
   q3 <foo:"Quadrant 3">  // ignore doc
 }
-
-// project naming standard used by graph compose navName seeding
-+ZoneAirTempSensor <pointDis: "Zone Temp">

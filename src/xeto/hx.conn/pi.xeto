@@ -1,0 +1,9 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 Oct 2026  Brian Frank  Creation
+//
+
+@pi-hx-conn-Conn: Pi { text: "$<conn>", plural: "$<conns>", icon: "conn", color: "purple" }

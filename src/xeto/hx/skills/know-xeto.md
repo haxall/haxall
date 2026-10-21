@@ -13,7 +13,7 @@ Specs define the shape of data. Two fundamental kinds: scalars
 SocialSecurityNumber: Scalar <pattern:"\\d{3}-\\d{2}-\\d{4}">
 
 // dict type with spec meta and slot meta
-Person: Dict <abstract, sealed, icon:"user"> {
+Person: Dict <abstract, sealed> {
   name: Str
   age: Number? <minVal:0, maxVal:150>
   height: Number <quantity:"length", minVal:0>
@@ -185,10 +185,10 @@ differ from slot names:
 
 ```xeto
 Suit: Enum {
-  clubs    <key:"Clubs",    color:"black">
-  diamonds <key:"Diamonds", color:"red">
-  hearts   <key:"Hearts",   color:"red">
-  spades   <key:"Spades",   color:"black">
+  clubs    <key:"Clubs">
+  diamonds <key:"Diamonds">
+  hearts   <key:"Hearts">
+  spades   <key:"Spades">
 }
 ```
 
@@ -234,8 +234,8 @@ Extend existing specs from another lib via late binding.
 Mixin names use `+` prefix:
 
 ```xeto
-+Person <icon:"user"> {
-  age: <icon:"calendar">   // add meta to an existing slot (no type)
++Person {
+  age: <maxVal:120>        // add meta to an existing slot (no type)
   orgRef: Ref <of:Org>     // add a new slot
   *badge: Str              // add a global
 }
@@ -243,6 +243,26 @@ Mixin names use `+` prefix:
 
 Mixin slots and globals resolve only for libs that declare the
 mixin's lib as a dependency.
+
+# Presentation
+
+Icon, color, display text, and other presentation are not meta: they
+are `pi::Pi` instances bound to a type by name,
+`pi-<lib with dots as dashes>-<Type>`, and any lib may add one:
+
+```xeto
+@pi-ph-Site: Pi { text: "$<site>", icon: "site", color: "violet" }
+@pi-ph-CurStatus: Pi {
+  slots: {
+    ok:    { icon: "check", color: "green" }
+    fault: { icon: "circle-x", color: "red" }
+  }
+}
+```
+
+More specific types win over their supertypes, then downstream libs over
+upstream libs.  Enum items go in `slots`.  The one exception is a view,
+which by convention declares its own `text` and `icon` as meta.
 
 # Libs
 

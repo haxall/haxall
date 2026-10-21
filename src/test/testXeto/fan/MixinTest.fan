@@ -57,7 +57,7 @@ class MixinTest : AbstractXetoTest
     verifyEq(ns.mixinsOwn(testSite), Spec[,])
     verifyEq(ns.mixinsOwn(testSite).isImmutable, true)
 
-    verifyEq(lib.mixins.list, Spec[csm, quadm, funcs, lib.mixinFor(ns.spec("ph.points.sugar::ReturnFanRunCmd")), sitem, specm, lib.mixinFor(ns.spec("ph.points::ZoneAirTempSensor"))])
+    verifyEq(lib.mixins.list, Spec[csm, quadm, funcs, lib.mixinFor(ns.spec("ph.points.sugar::ReturnFanRunCmd")), sitem, specm])
     verifySame(lib.mixinFor(site), sitem)
     verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
     verifyEq(lib.mixinFor(lib.spec("EquipA"), false), null)

@@ -6,22 +6,11 @@
 //   29 Aug 2026  Brian Frank  Creation
 //
 
+// Presentation of a spec is pi::Pi; only these two tags are meta, used
+// by convention for a view's own declaration and for slot labels.
 +Spec {
   // Icon to use for visualization
   icon: Icon?
-
-  // Default color for visualization
-  color: ColorName?
-
-  // Customer specific display name standard for point specs;
-  // seeds the navName of points created from templates
-  pointDis: Str?
-
-  // Plural display text
-  plural: Text?
-
-  // Applied to an action function when view selection is required
-  selectMode: SelectMode?
 
   // Display text
   text: Text?

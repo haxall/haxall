@@ -28,11 +28,11 @@ PiTestC: PiTestB
 PiTestEnum: Enum {
   x
   y
-  z <icon:"clock", text:"Legacy Z">
+  z
 }
 
-// Pi merge test type with legacy meta
-PiTestLegacy: Dict <icon:"tag", text:"Legacy", plural:"Legacies">
+// Pi merge test type with own icon/text meta
+PiTestLegacy: Dict <icon:"tag", text:"Legacy">
 
 @pi-hx-test-xeto-PiTestA: Pi {
   icon: "zap"
@@ -58,6 +58,9 @@ PiTestLegacy: Dict <icon:"tag", text:"Legacy", plural:"Legacies">
     y: { icon: "ban" }
   }
 }
+
+// project naming standard used by graph compose navName seeding
+@pi-ph-points-ZoneAirTempSensor: Pi { pointDis: "Zone Temp" }
 
 @pi-hx-test-xeto-PiTestLegacy: Pi {
   icon: "star"
