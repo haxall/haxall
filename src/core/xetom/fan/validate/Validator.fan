@@ -223,6 +223,10 @@ class Validator
     // if it fits by direct nominal typing
     if (valType.isa(type)) return true
 
+    // a scalar with its own binding fits values of the bound Fantom
+    // type, such as ion::Percent which binds to Float
+    if (type.isScalar && type.binding.spec == type.qname && val.typeof.fits(type.binding.type)) return true
+
     // haystack fidelity scalars may be their erased type; at full
     // fidelity scalars must be their mapped Fantom type or xeto::Scalar
     if (isErased(type)) return valType.isa(haystackType(type))
