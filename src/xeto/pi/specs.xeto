@@ -31,12 +31,36 @@ Pi: Dict {
   // seeds the navName of points created from templates
   pointDis: Str?
 
+  // HTML template to render widget type
+  widget: Sketch? <nodoc>
+
+  // HTML template to render spec values in a CardView
+  card: Sketch? <nodoc>
+
+  // HTML template to render spec values as item cells in lists, trees, tables
+  cell: Sketch? <nodoc>
+
+  // HTML template to render spec values in forms
+  input: Sketch? <nodoc>
+
+  // SVG template to render spec as a block in a wiresheet view
+  block: Sketch? <nodoc>
+
+  // Tailwind CSS class list
+  tw: Str? <nodoc>
+
+  // TODO - temp shim until we switch to sketches
+  inputType: Ref? <of:Spec>
+
   // Presentation of enum items keyed by item name
   slots: Dict? <of:Pi>
 }
 
 // Icon represents a logical SVG icon name against installed manifest.
 Icon: Scalar "blank"
+
+// Axon template for HTML and SVG markup
+Sketch: Scalar ""
 
 // Text wraps a string for display with localization macro support.
 // ```

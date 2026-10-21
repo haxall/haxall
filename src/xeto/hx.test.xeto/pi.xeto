@@ -41,7 +41,9 @@ PiTestLegacy: Dict <icon:"tag", text:"Legacy", plural:"Legacies">
   plural: "As"
   abbr: "TA"
   pointDis: "{a}"
-  cell: PiTestC
+  inputType: PiTestC
+  cell: "<span>{dis}</span>"
+  tw: "font-bold"
 }
 
 @pi-hx-test-xeto-PiTestB: Pi {

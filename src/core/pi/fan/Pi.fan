@@ -37,17 +37,26 @@ const mixin Pi
   ** Customer specific display name standard for point specs
   abstract Str? pointDis()
 
-  ** Spec to render cells
-  @NoDoc abstract Spec? cell()
+  ** HTML template to render widget type
+  @NoDoc abstract Sketch? widget()
 
-  ** Spec to render cards
-  @NoDoc abstract Spec? card()
+  ** HTML template to render spec values in a CardView
+  @NoDoc abstract Sketch? card()
 
-  ** Spec to render blocks
-  @NoDoc abstract Spec? block()
+  ** HTML template to render spec values as item cells in lists, trees, tables
+  @NoDoc abstract Sketch? cell()
 
-  ** Spec of input widget
-  @NoDoc abstract Spec? input()
+  ** HTML template to render spec values in forms
+  @NoDoc abstract Sketch? input()
+
+  ** SVG template to render spec as a block in a wiresheet view
+  @NoDoc abstract Sketch? block()
+
+  ** Tailwind CSS class list
+  @NoDoc abstract Str? tw()
+
+  ** Spec of input widget; temp shim until inputs switch to sketches
+  @NoDoc abstract Spec? inputType()
 
   ** Reference to ion::GroupItem
   @NoDoc abstract Ref? group()
