@@ -9,6 +9,7 @@
 package fan.ftp;
 
 import fan.sys.*;
+import fan.inet.IpAddr;
 import fan.inet.TcpSocket;
 import fan.inet.TcpSocketPeer;
 
@@ -31,11 +32,13 @@ public class FtpClientPeer
 // FtpClient
 //////////////////////////////////////////////////////////////////////////
 
-  public TcpSocket openSecureDataChannel(FtpClient self, TcpSocket cmd, TcpSocket data)
+  public TcpSocket openSecureDataChannel(FtpClient self, IpAddr cmdAddr, TcpSocket cmd, TcpSocket data)
   {
     try
     {
-      data = data.upgradeTls();
+      // upgrade as the command channel host so the server cert is verified
+      // against that name; the session cache key below uses it too
+      data = data.upgradeTls(cmdAddr, data.remotePort());
       final SSLSocket socket = (SSLSocket)data.peer.socket();
 
       // Force data socket to reuse TLS session from cmd socket, even though
