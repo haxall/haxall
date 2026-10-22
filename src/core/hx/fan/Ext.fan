@@ -69,6 +69,10 @@ const mixin Ext
   ** Return console commands
   @NoDoc virtual HxConsoleCmd[] consoleCmds() { HxConsoleCmd#.emptyList }
 
+  ** Actors owned by this extension keyed by name for debugging or null.
+  ** The ext's own background actor is reported separately via spi.
+  @NoDoc virtual [Str:Actor]? debugActors() { null }
+
 //////////////////////////////////////////////////////////////////////////
 // Observables
 //////////////////////////////////////////////////////////////////////////

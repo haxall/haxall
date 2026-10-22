@@ -87,6 +87,14 @@ abstract const class ConnExt : ExtObj, HxConnExt
   ** Roster of connectors and points
   internal const ConnRoster roster := ConnRoster(this)
 
+  ** Poller and each connector keyed by its id
+  @NoDoc override [Str:Actor]? debugActors()
+  {
+    acc := Str:Actor["poller":poller]
+    conns.each |c| { acc[c.id.toZinc] = c }
+    return acc
+  }
+
   ** ConnTuning roster
   @NoDoc ConnTuningRoster tunings() { fw.tunings }
 

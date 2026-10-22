@@ -32,6 +32,11 @@ const class PointExt : ExtObj, IPointExt
 
   override Future pointWrite(Dict point, Obj? val, Int level, Obj who, Dict? opts := null) { writeMgr.write(point, val, level, who, opts) }
 
+  @NoDoc override [Str:Actor]? debugActors()
+  {
+    ["writeMgr":writeMgr, "hisCollectMgr":hisCollectMgr, "demoMgr":demoMgr]
+  }
+
   ** Return list of observables this library publishes
   override const Observable[] observables
 
