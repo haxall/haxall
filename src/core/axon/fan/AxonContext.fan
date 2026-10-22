@@ -92,6 +92,7 @@ abstract class AxonContext : HaystackContext, CompContext
   {
     // qualified
     lib := x.lib == null ? null : ns.lib(x.lib, checked)
+    if (x.lib != null && lib == null) return null
 
     // type or func
     if (x.isTopNameType)
