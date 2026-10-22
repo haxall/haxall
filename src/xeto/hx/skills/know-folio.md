@@ -148,5 +148,7 @@ common prefix.
 
 # Performance
 
-In Haxall every filter is a full table scan except direct id lookups;
-SkySpark additionally builds tag indexes automatically.
+In Haxall every filter is a full table scan except direct id lookups.
+SkySpark builds a tag index automatically once a tag has been read
+100-200 times; tags ever committed transiently (`curVal`, `curStatus`)
+are never indexed. `not foo`, `or`, and spec filters always scan.

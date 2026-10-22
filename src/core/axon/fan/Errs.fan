@@ -65,7 +65,7 @@ const class EvalErr : AxonErr
 @Js @NoDoc
 const class EvalTimeoutErr : EvalErr
 {
-  new make(Duration timeout, AxonContext cx, FileLoc loc) : super(msg.toLocale, cx, loc)
+  new make(Duration timeout, AxonContext cx, FileLoc loc) : super("Eval timeout exceeded: $timeout.toLocale", cx, loc)
   {
     meta = Etc.makeDict(["more":Marker.val, "timeout": timeout.toLocale])
   }

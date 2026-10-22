@@ -6,6 +6,7 @@
 //   30 Sep 2009  Brian Frank  Creation
 //
 
+using concurrent
 using xeto
 using haystack
 using axon
@@ -59,6 +60,14 @@ class EvalTest : AxonTest
     verifySyntaxErr(Str<|`foo|>)
     verifySyntaxErr(Str<|@|>)
     verifySyntaxErr(Str<|^|>)
+  }
+
+  Void testTimeout()
+  {
+    cx := makeContext
+    cx.timeout = 100ms
+    Actor.sleep(150ms)
+    verifyErrMsg(EvalTimeoutErr#, "Eval timeout exceeded: 100ms") { cx.eval("do f: () => 1; f() end") }
   }
 
   Void testKinds()
