@@ -137,14 +137,29 @@ class FtpClient
   **  6. run command
   **
   ** NOTE: it is caller (or client) responsibility to close the sockets!!!
+  ** If the command fails then the sockets are closed before raising.
   **
   private FtpRes open(Uri uri, Str cmd, Int[] allowableErrs := Int#.emptyList)
+  {
+    try
+    {
+      return doOpen(uri, cmd)
+    }
+    catch (Err e)
+    {
+      close
+      throw e
+    }
+  }
+
+  private FtpRes doOpen(Uri uri, Str cmd)
   {
     if (uri.scheme != "ftp" && uri.scheme != "ftps") throw ArgErr("Uri not ftp: $uri")
     useTls := uri.scheme == "ftps"
 
     // connect
-    cmdSocket = connect(IpAddr(uri.host), uri.port ?: 21)
+    cmdAddr := IpAddr(uri.host)
+    cmdSocket = connect(cmdAddr, uri.port ?: 21)
     res := readRes
     if (res.code != 220 && res.code != 530) throw FtpErr(res.code, "Cannot connect: $res")
 
@@ -204,14 +219,15 @@ class FtpClient
         throw FtpErr(res.code, "Cannot run $cmd: $res")
     }
 
-    // upgrade data channel to TLS
-    if (useTls) pasvSocket = openSecureDataChannel(cmdSocket, pasvSocket)
+    // upgrade data channel to TLS; the server cert is verified against
+    // the command channel host, not the numeric PASV address
+    if (useTls) pasvSocket = openSecureDataChannel(cmdAddr, cmdSocket, pasvSocket)
 
     // return the response of the command
     return res
   }
 
-  private native TcpSocket openSecureDataChannel(TcpSocket cmd, TcpSocket data)
+  private native TcpSocket openSecureDataChannel(IpAddr cmdAddr, TcpSocket cmd, TcpSocket data)
 
   ** Close command and passive sockets
   private Void close()
