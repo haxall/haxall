@@ -6,8 +6,46 @@ copyright:  Copyright (c) 2021, SkyFoundry LLC
 license:    Licensed under the Academic Free License version 3.0
 -->
 
-*Build 4.0.7 (working)*
-
+*Build 4.0.7 (23 Oct 2026)*
+- Xeto new validation engine
+- Xeto sugar specs
+- Xeto CLI new publish command
+- Xeto new packaging rules via include and publish tags
+- Xeto LibFiles API modified to return LibFile
+- Xeto mixin support for globals
+- Xeto RDF support
+- Removal of old fit/fitsExplain engine
+- Jeto - new Xeto flavored JSON
+- Jetbeam - new v5 HTTP API with Swagger/OpenAPI support
+- Haystack client support for OAuth
+- Official deprecatation of the legacy v3 JSON format
+- Rename JsonWriter/JsonReader to HaysonReader/HaysonWriter
+- New ioReadJeto, ioWriteJeto, ioWriteRdf
+- Deprecation of ioReadJson/ioWriteJson in favor or ioReadHayson/ioWriteHayson
+- Deprecation of ioWriteTurtle and ioWriteJsonLd
+- Redesign Filetype to be standalone with hardcoded registry (no use of defs)
+- Add Xeto, Jeto, RDF as new options to Shell and Export command
+- Remove legacy RDF (turtle + json-ld) from Filetype (removes them from skyspark UI)
+- Remove global support for jsonVersion 3 in hx.api settings (specify version via mime)
+- Tighten up extension web routeName rules
+- New Xeto sugar libs: ph.equips.x, ph.point.x, ph.elec.x
+- Remove DefsNamespace filetype and filetypes methods (still a defs feature)
+- Remove WebOpUtil
+- New xeto gen-fan tool for stubbing Fantom from Xeto
+- Enhance sqlInsert to perform executeBatch
+- New readTrash() func - all other folio reads ignore the trash.
+- All folio read/commit security checks now enforced in Folio base class
+- All FolioMgrs enforce read/commit security at mixin layer instead of implementations
+- Unit db fixes for specific enthalpy units from haystack forum #1196
+- New pi lib and pod for common presentation info like icon, color, text
+- Modbus connector support for frame delays
+- Modbus connector xeto support for ModbusAddr
+- Non-standard ConnExt.modelName overrides must use connFeatures name now
+- New funcs: toTagNames
+- Remove sys.template prototype
+- The ioHttp func improvies cookie support
+- The companionPrint funbc now supports list of specs to generate whole funcs.xeto file
+- Fix for inet TLS host verification
 
 *Build 4.0.6 (21 Jul 2026)*
 - Companion lib now supports partial compilation to quarantine err recs
