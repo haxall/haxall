@@ -5676,15 +5676,12 @@ widget-dialog||46
 widget-divider||1362
 widget-dropdown||1451
 widget-grid||789
-widget-heading||819
-widget-hero||1519
 widget-hstack||476
 widget-input||1603
 widget-label||303
 widget-menu||1007
 widget-popup||1202
 widget-select||929
-widget-stepper||942
 widget-text-input||1603
 widget-toggle||1628
 widget-tooltip||1022

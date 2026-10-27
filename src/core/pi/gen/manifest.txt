@@ -63,15 +63,12 @@ widget-dialog      <app-window>
 widget-divider     <separator-horizontal>
 widget-dropdown    <square-arrow-down>
 widget-grid        <grid-3x2>
-widget-heading     <heading-1>
-widget-hero        <square-user>
 widget-hstack      <columns-3>
 widget-input       <text-cursor-input>
 widget-label       <case-sensitive>
 widget-menu        <menu>
 widget-popup       <picture-in-picture-2>
 widget-select      <list-check>
-widget-stepper     <list-ordered>
 widget-text-input  <text-cursor-input>
 widget-toggle      <toggle-right>
 widget-tooltip     <message-square>
