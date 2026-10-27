@@ -37,7 +37,9 @@ lib                <library-big>
 mixin              <blender>
 markdown           <text-initial>
 modbus                                       conn
+mqtt                                         conn
 num                <hash>                    dev lang
+obix                                         conn
 ok                 <circle-check>            status
 point              <circle-dot>
 proj               <database>
