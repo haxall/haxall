@@ -183,6 +183,47 @@ class WatchTest : HxTest
     verifySame(proj.watch.get(w4.id, false), null)
   }
 
+  @HxTestProj
+  Void testCanRead()
+  {
+    a := addRec(["dis":"a"])
+    d := addRec(["dis":"d", "deny":m])
+
+    // add under restricted context skips unreadable recs
+    w := proj.watch.open("w")
+    withDenyRead |->| { w.addAll([a.id, d.id]) }
+    verifyEq(proj.watch.isWatched(a.id), true)
+    verifyEq(proj.watch.isWatched(d.id), false)
+    verifyEq(w.poll(0ms), [a])
+  }
+
+  @HxTestProj
+  Void testOwner()
+  {
+    alice := makeContext(addUser("alice", "pass"))
+    bob   := makeContext(addUser("bob", "pass"))
+
+    // only the user who opened the watch can poll it
+    Watch w := alice.asCur |->Obj| { proj.watch.open("alice") }
+    alice.asCur |->| { verifyEq(w.poll, Dict[,]) }
+    bob.asCur |->| { verifyErr(PermissionErr#) { w.poll } }
+
+    // trusted code without a context can poll any watch
+    verifyEq(w.poll, Dict[,])
+
+    // watch opened without a context can be polled by anyone
+    sys := proj.watch.open("sys")
+    alice.asCur |->| { verifyEq(sys.poll, Dict[,]) }
+  }
+
+  Void withDenyRead(|->| f)
+  {
+    old := Actor.locals[ActorContext.actorLocalsKey]
+    Actor.locals[ActorContext.actorLocalsKey] = WatchTestDenyReadContext()
+    try f()
+    finally Actor.locals[ActorContext.actorLocalsKey] = old
+  }
+
   Void verifyWatches(Ref id, Watch[] expected)
   {
     verifyEq(proj.watch.isWatched(id), !expected.isEmpty)
@@ -193,5 +234,17 @@ class WatchTest : HxTest
     actual.each |a, i| { verifySame(a, expected[i]) }
   }
 
+}
+
+**************************************************************************
+** WatchTestDenyReadContext
+**************************************************************************
+
+** Context which denies reads of recs with the deny tag
+internal class WatchTestDenyReadContext : FolioContext
+{
+  override Bool canRead(Dict r) { r.missing("deny") }
+  override Bool canWrite(FolioWrite w) { true }
+  override Obj? commitInfo() { null }
 }
 

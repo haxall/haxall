@@ -63,7 +63,7 @@ const class HxWatches : RuntimeWatches
 
   override HxWatch open(Str dis)
   {
-    w := HxWatch(this, dis)
+    w := HxWatch(this, dis, Context.cur(false)?.user?.id)
     byId.add(w.id, w)
     return w
   }
@@ -112,10 +112,11 @@ const class HxWatches : RuntimeWatches
 
 const class HxWatch : Watch
 {
-  new make(HxWatches service, Str dis)
+  new make(HxWatches service, Str dis, Ref? owner)
   {
     this.service = service
     this.dis     = dis
+    this.owner   = owner
     this.id      = "w-"+ Ref.gen.id
     this.created = Duration.nowTicks
     this.refs    = ConcurrentMap()
@@ -124,6 +125,7 @@ const class HxWatch : Watch
   const HxWatches service
   const override Str dis
   const override Str id
+  const Ref? owner          // user who opened watch or null if no context
   const Int created
   const ConcurrentMap refs  // Ref:HxWatchRef
 
@@ -153,6 +155,11 @@ const class HxWatch : Watch
   override Dict[] poll(Duration t := lastPoll)
   {
     checkOpen
+
+    // recs were checked against owner's canRead in addAll
+    cx := Context.cur(false)
+    if (owner != null && cx != null && cx.user.id != owner) throw PermissionErr("Not watch owner: $id")
+
     now := Duration.now
     lastPollRef.val = now
     lastRenewRef.val = now
