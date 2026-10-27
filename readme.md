@@ -57,3 +57,8 @@ This command will perform the following:
   - Build an image for haxall
   - Use the newly created image to create and run a container
   - Create a local bind-mount in the `dbs` folder in the root folder of haxall
+
+# Version
+
+4.0.7 patch branch
+
