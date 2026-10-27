@@ -287,6 +287,46 @@ class BrioTest : HaystackTest
      verifyDictEq(dict1, dict2)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Limits
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLimits()
+  {
+    huge := 0x7fff_fff0
+
+    // declared sizes larger than input
+    verifyReadErr(Buf().write(BrioCtrl.ctrlList).write('['.toInt).write(0xe0).writeI8(huge))
+    verifyReadErr(Buf().write(BrioCtrl.ctrlBuf).write(0xe0).writeI8(huge))
+    verifyReadErr(Buf().write(BrioCtrl.ctrlStr).write(0xff).write(0xe0).writeI8(huge))
+    verifyReadErr(Buf().write(BrioCtrl.ctrlGrid).write('<'.toInt).write(1).write(0xe0).writeI8(huge))
+
+    // negative sizes
+    verifyReadErr(Buf().write(BrioCtrl.ctrlList).write('['.toInt).write(0xe0).writeI8(-5))
+    verifyReadErr(Buf().write(BrioCtrl.ctrlBuf).write(0xe0).writeI8(-5))
+
+    // grid rows without cols
+    verifyReadErr(Buf().write(BrioCtrl.ctrlGrid).write('<'.toInt).write(0).write(0xe0).writeI8(huge))
+
+    // nesting depth
+    verifyNotNull(BrioReader(nestBuf(99).flip.in).readVal)
+    verifyReadErr(nestBuf(100))
+  }
+
+  private Buf nestBuf(Int depth)
+  {
+    Obj x := Marker.val
+    depth.times { x = Obj[x] }
+    buf := Buf()
+    BrioWriter(buf.out).writeVal(x)
+    return buf
+  }
+
+  private Void verifyReadErr(Buf buf)
+  {
+    verifyErr(IOErr#) { BrioReader(buf.flip.in).readVal }
+  }
+
   internal Obj? verifyIO(Obj? x, Int? size := null, |BrioWriter|? f := null)
   {
     if (x is Map) x = Etc.makeDict(x)

@@ -31,6 +31,14 @@ class BrioReader : GridReader, BrioCtrl
 
   Obj? readVal()
   {
+    if (++depth > maxDepth) throw IOErr("Max depth exceeded")
+    val := doReadVal
+    --depth
+    return val
+  }
+
+  private Obj? doReadVal()
+  {
     ctrl := in.readU1
     switch (ctrl)
     {
@@ -155,16 +163,17 @@ class BrioReader : GridReader, BrioCtrl
 
   private Buf consumeBuf()
   {
-    size := decodeVarInt
+    size := decodeSize
+    if (size > maxBufSize) throw IOErr("Buf too big: $size")
     return in.readBufFully(null, size).toImmutable
   }
 
   private Obj?[] consumeList()
   {
     verifyByte('[')
-    size := decodeVarInt
+    size := decodeSize
     acc := Obj?[,]
-    acc.capacity = size
+    acc.capacity = size.min(maxPresize)
     for (i := 0; i<size; ++i)
     {
       val := readVal
@@ -177,7 +186,7 @@ class BrioReader : GridReader, BrioCtrl
   private Dict consumeDict()
   {
     verifyByte('{')
-    count := decodeVarInt
+    count := decodeSize
     switch (count)
     {
       case 1: return consumeDict1
@@ -279,11 +288,14 @@ class BrioReader : GridReader, BrioCtrl
   private Grid consumeGrid()
   {
     verifyByte('<')
-    numCols := decodeVarInt
-    numRows := decodeVarInt
+    numCols := decodeSize
+    numRows := decodeSize
+
+    // rows without cols would consume no input
+    if (numCols == 0 && numRows > 0) throw IOErr("Grid rows without cols")
 
     gb := GridBuilder()
-    gb.capacity = numRows
+    gb.capacity = numRows.min(maxPresize)
     gb.setMeta(readDict)
     for (c:=0; c<numCols; ++c)
     {
@@ -311,11 +323,11 @@ class BrioReader : GridReader, BrioCtrl
 
   Str decodeStrChars(Bool intern)
   {
-    size := decodeVarInt
+    size := decodeSize
     s := StrBuf()
-    s.capacity = size
+    s.capacity = size.min(maxPresize)
     for (i := 0; i<size; ++i)
-      s.addChar(in.readChar)
+      s.addChar(in.readChar ?: throw IOErr("Unexpected end of stream"))
     str := s.toStr
     if (intern) str = internStr(str)
     return str
@@ -329,6 +341,14 @@ class BrioReader : GridReader, BrioCtrl
     if (v.and(0xc0) == 0x80) return v.and(0x3f).shiftl(8).or(in.readU1)
     if (v.and(0xe0) == 0xc0) return v.and(0x1f).shiftl(8).or(in.readU1).shiftl(16).or(in.readU2)
     return in.readS8
+  }
+
+  ** Decode a size; callers must cap presizing with maxPresize
+  private Int decodeSize()
+  {
+    size := decodeVarInt
+    if (size < 0) throw IOErr("Invalid size: $size")
+    return size
   }
 
   virtual Str internStr(Str v)
@@ -371,8 +391,13 @@ class BrioReader : GridReader, BrioCtrl
     if (x != b) throw IOErr("Unexpected byte: 0x$x.toHex '$x.toChar' != 0x$b.toHex '$b.toChar'")
   }
 
+  private static const Int maxDepth   := 100
+  private static const Int maxPresize := 100_000
+  private static const Int maxBufSize := 10_000_000
+
   InStream in
   private const BrioConsts cp
+  private Int depth
   private [Str:Str]? internStrs
   private [Ref:Ref]? internRefs
   private [Str:Symbol]? internSymbols
