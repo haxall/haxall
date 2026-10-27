@@ -58,6 +58,10 @@ class HisItemTest : HaystackTest
     // strings
     verifyBinaryIO([HisItem(ts, "alpha"), HisItem(ts+1min, "beta")], 35)
     verifyBinaryIO([HisItem(ts, "alpha"), HisItem(ts+1min, "beta"), HisItem(ts+2min, "alpha")], 35+5+4)
+
+    // declared size larger than input
+    buf := Buf().writeI2(0x6268).writeI2(1).writeI4(0xffff_fff0)
+    verifyErr(IOErr#) { HisItem.decode(buf.flip.in, TimeZone.cur) }
   }
 
   Void verifyBinaryIO(HisItem[] items, Int? expectSize := null)

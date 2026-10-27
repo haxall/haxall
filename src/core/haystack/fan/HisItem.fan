@@ -194,7 +194,7 @@ const final class HisItem : Dict
     size := in.readU4
 
     acc := HisItem[,]
-    acc.capacity = size
+    acc.capacity = size.min(1_000_000)
     millis := 0
     prev := null
     Str[]? strMap
@@ -202,7 +202,7 @@ const final class HisItem : Dict
     for (i := 0; i<size; ++i)
     {
       // read ctrl byte
-      ctrl := in.read
+      ctrl := in.read ?: throw IOErr("Unexpected end of stream")
 
       // decode timestamp
       switch (ctrl.and(0xF0))
