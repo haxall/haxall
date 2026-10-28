@@ -281,7 +281,7 @@ class MathTest : HxCompTest
   {
     TestHxCompContext().asCur |cx|
     {
-      // like Niagara, NaN is a value and does not put out in fault
+      // NaN is a value and does not put out in fault
       LogNatural ln := createAndExec("LogNatural")
       setAndExec(ln, "inA", sn(-2.5f))
       verifyEq(ln.out, sn(Number.nan))

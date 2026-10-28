@@ -1,0 +1,90 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   19 Oct 2026  Jason Briggs  Creation
+//
+
+// A PID control loop modeled on the Niagara kitControl LoopPoint. It drives
+// out to hold controlledVariable at setpoint:
+//
+//   error = controlledVariable - setpoint    (direct)
+//   error = setpoint - controlledVariable    (reverse)
+//   out   = bias + Kp * (error + Ki * ∫error dt + Kd * d(error)/dt)
+//
+// Ki is in repeats per minute and Kd is in seconds. The loop runs only at
+// freq, not when an input changes. Out is held between minimumOutput and
+// maximumOutput, and the integral stops growing while out is held at a
+// limit. Changing Kp or Ki does not bump out.
+//
+// If controlledVariable or setpoint has an invalid status, or is NaN or
+// infinite, then out and the integral hold their last values and the input
+// status is propagated to out (fault for NaN or infinite). When loopEnable
+// is false, out is set by disableAction and the loop resumes from that
+// value when it is enabled again.
+Pid: HxComp {
+  // The loop output, between minimumOutput and maximumOutput
+  out: StatusNumber? <summary, transient, readonly, output>
+
+  // The value being controlled, such as a discharge air temp
+  controlledVariable: StatusNumber? <summary, transient>
+
+  // The value the loop holds controlledVariable at
+  setpoint: StatusNumber? <summary, transient>
+
+  // False or an invalid status disables the loop; unlinked it runs
+  loopEnable: StatusBool? <transient>
+
+  // Direct raises out as controlledVariable rises above setpoint;
+  // reverse raises out as it falls below
+  loopAction: PidAction "direct"
+
+  // What out is set to while the loop is disabled
+  disableAction: PidDisableAction "zero"
+
+  // Proportional gain (Kp)
+  proportionalConstant: Float 1
+
+  // Integral gain (Ki) in repeats per minute; 0 turns it off
+  integralConstant: Float 0
+
+  // Derivative gain (Kd) in seconds; 0 turns it off
+  derivativeConstant: Float 0
+
+  // Out when the error is zero and nothing has been integrated
+  bias: Float 50
+
+  // The highest out may go
+  maximumOutput: Float 100
+
+  // The lowest out may go
+  minimumOutput: Float 0
+
+  // How often the loop runs
+  freq: Duration <minVal:1sec> 1sec
+}
+
+// Which way a Pid drives out
+PidAction: Enum {
+  // Out rises as controlledVariable rises above setpoint (cooling)
+  direct
+
+  // Out rises as controlledVariable falls below setpoint (heating)
+  reverse
+}
+
+// What a Pid sets out to while the loop is disabled
+PidDisableAction: Enum {
+  // Out is set to zero
+  zero
+
+  // Out keeps its last value
+  hold
+
+  // Out is set to minimumOutput
+  minValue
+
+  // Out is set to maximumOutput
+  maxValue
+}
