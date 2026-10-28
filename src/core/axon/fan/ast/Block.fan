@@ -31,7 +31,7 @@ internal const class Block : Expr
   override Obj? eval(AxonContext cx)
   {
     Obj? result := null
-    exprs.each |expr| { result = expr.eval(cx) }
+    for (i:=0; i<exprs.size; ++i) result = exprs[i].eval(cx)
     return result
   }
 
