@@ -40,6 +40,24 @@ class ClosureScopeTest : AxonTest
          end"""), Obj?[Obj?[n(1), n(2)], n(100)])
   }
 
+  ** Each call sees only its own lexical scope, never the
+  ** variables of an older recursive call of the same func
+  Void testRecursion()
+  {
+    cx := ClosureTestContext(this)
+    verifyErr(null) { cx.eval("do f: (n) => if (n == 0) y else do y: n; f(n-1) end; f(3) end") }
+
+    // closures see the locals of their own enclosing call
+    verifyEq(cx.eval(
+      """do
+           g: (n) => do
+             y: n * 10
+             if (n == 0) [y] else g(n-1).add([1].map(x => y + x).first)
+           end
+           g(2)
+         end"""), Obj?[n(0), n(11), n(21)])
+  }
+
   ** Lazy calls while lexical frames still live: locals fresh per
   ** call, accumulator persists, write-thru to enclosing scope
   Void testLazyInScope()

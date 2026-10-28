@@ -299,6 +299,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Push frame onto the stack and route to its Fn.doCall
   private Obj? callInFrame(CallFrame frame, Obj?[] args)
   {
+    frame.parent = scopeParent(frame.func)
     stack.push(frame)
     try
       return frame.func.doCall(this, args)
@@ -385,46 +386,40 @@ abstract class AxonContext : HaystackContext, CompContext
     throw EvalErr("Unknown symbol '$name'", this, loc)
   }
 
-  ** Get the variables in scope of given function/current scope
-  @NoDoc Str:Obj? varsInScope(Fn? curFunc := null)
+  ** Get the variables in the current scope
+  @NoDoc Str:Obj? varsInScope()
   {
-    if (curFunc == null) curFunc = scopeCurFunc
-
-    // walk stack bottom to top
     acc := Str:Obj?[:]
-    for (i:=0; i<stack.size; ++i)
-    {
-      f := stack[i]
-      if (f.isVisibleTo(curFunc))
-      {
-        f.each |v, n| { acc[n] = v }
-      }
-    }
+    for (f := stack.last; f != null; f = f.parent)
+      f.each |v, n| { if (!acc.containsKey(n)) acc[n] = v }
     return acc
   }
 
-  ** Resolve the frame with the given variable which is visible
+  ** Resolve the frame in the current scope with the given variable
   private CallFrame? varFrame(Str name)
   {
-    // resolve variable on call stack
-    curFunc := scopeCurFunc
-    for (i:=stack.size-1; i>=0; --i)
-    {
-      f := stack[i]
-      if (f.has(name) && f.isVisibleTo(curFunc))
-        return f
-    }
+    for (f := stack.last; f != null; f = f.parent)
+      if (f.has(name)) return f
     return null
   }
 
-  ** Get function we are using for current variable scope
-  private Fn scopeCurFunc()
+  ** Frame whose variables are next in scope for a new frame of the given
+  ** func: natives such as lazy funcs use the caller's scope, top-level
+  ** funcs the nearest top-level frame which ends every scope chain, and
+  ** closures the top most frame visible to their lexically enclosing func
+  private CallFrame? scopeParent(Fn func)
   {
-    // get current function to determine lexical scope visibility
-    // if lazy function then use the calling function
-    curFunc := stack.last.func
-    if (curFunc is LazyFantomFn) curFunc = stack[-2].func
-    return curFunc
+    f := stack.last
+    if (func.isNative) return f
+    outer := func.outer
+    if (outer == null)
+    {
+      while (!f.mode.isTopLevel) f = f.parent
+      return f
+    }
+    for (i:=stack.size-1; i>=0; --i)
+      if (stack[i].isVisibleTo(outer)) return stack[i]
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -597,6 +592,7 @@ internal class CallFrame
   const FileLoc callLoc
   const Fn func
   const CallFrameMode mode
+  CallFrame? parent  // next frame in lexical scope or null if root
   private Str:Obj? vars
 }
 
