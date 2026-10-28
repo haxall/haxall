@@ -1,0 +1,17 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect x="13.97" y="7.37" width="5.25" height="5.25" rx="0.75" ry="0.75" />
+  <rect x="17.7" y="17.7" width="3.75" height="3.75" rx="0.54" ry="0.54" />
+  <rect x="2.48" y="10.63" width="3.75" height="3.75" rx="0.54" ry="0.54" />
+  <rect x="6.55" y="2.55" width="3.75" height="3.75" rx="0.54" ry="0.54" />
+  <rect x="8.63" y="17.05" width="3.75" height="3.75" rx="0.54" ry="0.54" />
+</svg>
