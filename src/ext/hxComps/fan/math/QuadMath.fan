@@ -51,12 +51,11 @@ abstract class QuadMath : Math
       .merge(c?.status)
       .merge(d?.status)
 
-    // compute value; incompatible units put out in fault
+    // compute value; NaN from the operation or from incompatible
+    // units puts out in fault
     val := Number.nan
-    try
-      val = calculate(a, b, c, d)
-    catch (UnitErr e)
-      status = status.set(Status.fault)
+    try val = calculate(a, b, c, d); catch (UnitErr e) {}
+    if (val.isNaN) status = status.set(Status.fault)
 
     // set output
     set("out", StatusNumber(val, status))

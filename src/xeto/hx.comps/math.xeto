@@ -8,7 +8,8 @@
 
 // The base spec for all math components
 Math: HxComp <abstract> {
-  // The computed value
+  // The computed value. If the result is NaN, such as an input outside the
+  // domain of the operation or incompatible units, then the status is fault.
   out: StatusNumber? <summary, transient, readonly, output>
 }
 
@@ -24,7 +25,8 @@ AbsValue: UnaryMath
 // Computes out = e ^ inA where `e` is Euler's number
 Exponential: UnaryMath
 
-// Computes out = inA!
+// Computes out = inA! where inA is truncated to an integer. A negative input
+// is NaN and a result too large for a Float is +INF, both with fault status.
 Factorial: UnaryMath
 
 // Computes the log base 10 of its input: out = log10(inA)

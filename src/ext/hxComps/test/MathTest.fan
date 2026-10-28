@@ -116,6 +116,46 @@ class MathTest : HxCompTest
     }
   }
 
+  Void testNaNFault()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      LogNatural ln := createAndExec("LogNatural")
+      setAndExec(ln, "inA", sn(-2.5f))
+      verifyEq(ln.out, sn(Number.nan, Status.fault))
+      setAndExec(ln, "inA", sn(1))
+      verifyEq(ln.out, sn(0))
+
+      SquareRoot sqrt := createAndExec("SquareRoot")
+      setAndExec(sqrt, "inA", sn(-1))
+      verifyEq(sqrt.out, sn(Number.nan, Status.fault))
+
+      // NaN input
+      setAndExec(sqrt, "inA", sn(Number.nan))
+      verifyEq(sqrt.out, sn(Number.nan, Status.fault))
+
+      // factorial of a negative or NaN is undefined; non-integers truncate
+      Factorial f := createAndExec("Factorial")
+      setAndExec(f, "inA", sn(-3))
+      verifyEq(f.out, sn(Number.nan, Status.fault))
+      setAndExec(f, "inA", sn(Number.nan))
+      verifyEq(f.out, sn(Number.nan, Status.fault))
+      setAndExec(f, "inA", sn(0))
+      verifyEq(f.out, sn(1))
+      setAndExec(f, "inA", sn(5.7f))
+      verifyEq(f.out, sn(120))
+
+      // 0/0 is NaN, but 1/0 is a valid +INF
+      Divide div := createAndExec("Divide")
+      verifyAB(div, n(0), n(0), sn(Number.nan, Status.fault))
+      verifyAB(div, n(1), n(0), sn(Number.posInf))
+
+      Power pow := createAndExec("Power")
+      verifyAB(pow, n(-8), n(0.5f), sn(Number.nan, Status.fault))
+      verifyAB(pow, n(2), n(3), sn(8))
+    }
+  }
+
   private Void verifyAB(Comp c, Number a, Number b, StatusNumber expected)
   {
     setAndExec(c, "inA", sn(a))

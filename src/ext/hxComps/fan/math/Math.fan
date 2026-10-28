@@ -15,7 +15,8 @@ using haystack
 @Gen
 abstract class Math : HxComp
 {
-  ** The computed value
+  ** The computed value. If the result is NaN, such as an input outside the
+  ** domain of the operation or incompatible units, then the status is fault.
   @Gen virtual StatusNumber? out() { get("out") }
 }
 
