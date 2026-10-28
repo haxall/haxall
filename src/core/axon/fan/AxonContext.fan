@@ -184,7 +184,7 @@ abstract class AxonContext : HaystackContext, CompContext
     try
       return expr.eval(this)
     catch (ReturnErr e)
-      return ReturnErr.getVal
+      return ReturnErr.take(this)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -507,6 +507,7 @@ abstract class AxonContext : HaystackContext, CompContext
 //////////////////////////////////////////////////////////////////////////
 
   @NoDoc Func? heartbeatFunc
+  internal Obj? returnVal
   private Int timeoutTicks := Int.maxVal
   private CallFrame[] stack := [,]
   private [Str:Obj] tops := [:]

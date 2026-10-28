@@ -103,8 +103,7 @@ internal const class Return : Expr
   override Obj? eval(AxonContext cx)
   {
     // need to use exception for flow control
-    ReturnErr.putVal(expr.eval(cx))
-    throw ReturnErr()
+    throw ReturnErr.put(cx, expr.eval(cx))
   }
 
   override Void walk(|Str key, Obj? val| f)
@@ -198,7 +197,7 @@ internal const class TryCatch : Expr
     }
     catch (ReturnErr e)
     {
-      return ReturnErr.getVal
+      return ReturnErr.take(cx)
     }
     catch (Err e)
     {

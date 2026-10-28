@@ -219,15 +219,16 @@ const class FnParam
 **************************************************************************
 
 **
-** Used by ReturnExpr to implement return flow control.
-** Result is stuck into local variable since Expr/Err are const.
-** Note: simple but not very efficient way to handle control flow
+** Used by ReturnExpr to implement return flow control.  Result is
+** stashed on the context since Expr/Err are const.  We throw a single
+** shared instance to avoid the cost of filling in a stack trace.
 **
 @Js
 internal const class ReturnErr : Err
 {
-  new make() : super("") {}
-  static Obj? getVal() { Actor.locals.remove("axon.returnVal") }
-  static Void putVal(Obj? v) { Actor.locals["axon.returnVal"] = v }
+  static ReturnErr put(AxonContext cx, Obj? v) { cx.returnVal = v; return shared }
+  static Obj? take(AxonContext cx) { v := cx.returnVal; cx.returnVal = null; return v }
+  private new make() : super("") {}
+  private static const ReturnErr shared := ReturnErr()
 }
 

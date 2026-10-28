@@ -34,7 +34,7 @@ const abstract class Expr
     try
       result = eval(cx)
     catch (ReturnErr e)
-      result = ReturnErr.getVal
+      result = ReturnErr.take(cx)
     if (result is Grid) ((Grid)result).first // force lazy load grids
     return result
   }
