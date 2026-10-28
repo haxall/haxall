@@ -188,6 +188,32 @@ class MathTest : HxCompTest
     }
   }
 
+  Void testQuadInvalid()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      Add add      := createAndExec("Add")
+      Multiply mul := createAndExec("Multiply")
+      Average avg  := createAndExec("Average")
+      Maximum max  := createAndExec("Maximum")
+      Minimum min  := createAndExec("Minimum")
+
+      // invalid inputs are not used, but their status is propagated
+      in := [sn(10), sn(1000, Status.fault), sn(4), null]
+      verifyQuad(add, in, sn(14, Status.fault))
+      verifyQuad(mul, in, sn(40, Status.fault))
+      verifyQuad(avg, in, sn(7, Status.fault))
+      verifyQuad(max, in, sn(10, Status.fault))
+      verifyQuad(min, [sn(10), sn(-5, Status.down), null, null], sn(10, Status.down))
+
+      // not enough valid inputs is null
+      [add, mul, avg, max, min].each |QuadMath c|
+      {
+        verifyQuad(c, [sn(1, Status.stale), null, sn(2, Status.disabled), null], null)
+      }
+    }
+  }
+
   private Void verifyQuad(QuadMath c, StatusNumber?[] in, StatusNumber? expected)
   {
     setQuad(c, in)
@@ -251,43 +277,35 @@ class MathTest : HxCompTest
     }
   }
 
-  Void testNaNFault()
+  Void testNaN()
   {
     TestHxCompContext().asCur |cx|
     {
+      // like Niagara, NaN is a value and does not put out in fault
       LogNatural ln := createAndExec("LogNatural")
       setAndExec(ln, "inA", sn(-2.5f))
-      verifyEq(ln.out, sn(Number.nan, Status.fault))
-      setAndExec(ln, "inA", sn(1))
-      verifyEq(ln.out, sn(0))
+      verifyEq(ln.out, sn(Number.nan))
+      setAndExec(ln, "inA", sn(Number.nan, Status.alarm))
+      verifyEq(ln.out, sn(Number.nan, Status.alarm))
 
-      SquareRoot sqrt := createAndExec("SquareRoot")
-      setAndExec(sqrt, "inA", sn(-1))
-      verifyEq(sqrt.out, sn(Number.nan, Status.fault))
+      Divide div := createAndExec("Divide")
+      verifyAB(div, n(0), n(0), sn(Number.nan))
+      verifyAB(div, n(1), n(0), sn(Number.posInf))
 
-      // NaN input
-      setAndExec(sqrt, "inA", sn(Number.nan))
-      verifyEq(sqrt.out, sn(Number.nan, Status.fault))
+      // NaN inputs are not ignored
+      Average avg := createAndExec("Average")
+      verifyQuad(avg, [sn(1), sn(Number.nan), null, null], sn(Number.nan))
 
-      // factorial of a negative or NaN is undefined; non-integers truncate
+      // factorial of a negative or NaN is 1; non-integers truncate
       Factorial f := createAndExec("Factorial")
       setAndExec(f, "inA", sn(-3))
-      verifyEq(f.out, sn(Number.nan, Status.fault))
+      verifyEq(f.out, sn(1))
       setAndExec(f, "inA", sn(Number.nan))
-      verifyEq(f.out, sn(Number.nan, Status.fault))
+      verifyEq(f.out, sn(1))
       setAndExec(f, "inA", sn(0))
       verifyEq(f.out, sn(1))
       setAndExec(f, "inA", sn(5.7f))
       verifyEq(f.out, sn(120))
-
-      // 0/0 is NaN, but 1/0 is a valid +INF
-      Divide div := createAndExec("Divide")
-      verifyAB(div, n(0), n(0), sn(Number.nan, Status.fault))
-      verifyAB(div, n(1), n(0), sn(Number.posInf))
-
-      Power pow := createAndExec("Power")
-      verifyAB(pow, n(-8), n(0.5f), sn(Number.nan, Status.fault))
-      verifyAB(pow, n(2), n(3), sn(8))
     }
   }
 

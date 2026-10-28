@@ -12,12 +12,14 @@ Logic: HxComp <abstract> {
   out: StatusBool? <summary, transient, readonly, output>
 }
 
-// Computes the logical negation of its input
+// Computes the logical negation of its input. An invalid input is false.
 Not: Logic {
   in: StatusBool? <summary, transient>
 }
 
-// The base spec for all logic components that operate on up to four inputs
+// The base spec for all logic components that operate on up to four inputs.
+// Inputs with an invalid status are not used in the calculation, but their
+// status is still propagated to out.
 QuadLogic: Logic <abstract> {
   // Input A
   inA: StatusBool? <summary, transient>

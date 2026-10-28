@@ -27,6 +27,10 @@ class LogicTest : HxCompTest
       setAndExec(c, "in", sb(false, Status.alarm))
       verifyEq(c.out, sb(true, Status.alarm))
 
+      // invalid input is false
+      setAndExec(c, "in", sb(false, Status.down))
+      verifyEq(c.out, sb(false, Status.down))
+
       setAndExec(c, "in", null)
       verifyNull(c.out)
     }
@@ -61,6 +65,14 @@ class LogicTest : HxCompTest
         sb(true, Status.alarm.set(Status.overridden)))
       verifyQuad(or, [sb(false), sb(true, Status.alarm), null, null], sb(true, Status.alarm))
 
+      // invalid inputs are not used, but their status is propagated
+      verifyQuad(and, [sb(true), sb(false, Status.fault), null, null], sb(true, Status.fault))
+      verifyQuad(or,  [sb(false), sb(true, Status.fault), null, null], sb(false, Status.fault))
+
+      // no valid inputs is false, but non-null inputs count toward minInputs
+      verifyQuad(and, [sb(true, Status.down), null, null, null], sb(false, Status.down))
+      verifyQuad(or,  [sb(true, Status.down), null, null, null], sb(false, Status.down))
+
       // no inputs
       verifyQuad(and, [null, null, null, null], null)
       verifyQuad(or,  [null, null, null, null], null)
@@ -86,6 +98,9 @@ class LogicTest : HxCompTest
       verifyQuad(c, [sb(true), sb(true), sb(true), sb(true)], sb(false))
 
       verifyQuad(c, [sb(true, Status.alarm), sb(false), null, null], sb(true, Status.alarm))
+
+      // invalid inputs are not used, but count toward minInputs
+      verifyQuad(c, [sb(true), sb(true, Status.stale), null, null], sb(true, Status.stale))
     }
   }
 

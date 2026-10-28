@@ -20,7 +20,7 @@ abstract class Logic : HxComp
 }
 
 **
-** Computes the logical negation of its input
+** Computes the logical negation of its input. An invalid input is false.
 **
 @Gen
 class Not : Logic
@@ -34,8 +34,9 @@ class Not : Logic
     // if input is null, then set out to null
     if (a == null) return set("out", null)
 
-    // compute the value and set the output
-    set("out", StatusBool(calculate(a.val), a.status))
+    // compute the value and set the output; invalid input is false
+    v := a.status.isValid ? calculate(a.val) : false
+    set("out", StatusBool(v, a.status))
   }
 
   private Bool calculate(Bool a) { !a }

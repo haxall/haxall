@@ -25,11 +25,7 @@ abstract class UnaryMath : Math
     // if the input is null, force the output to null
     if (a == null) return set("out", null)
 
-    // NaN means the input is outside the domain so put out in fault
-    v := calculate(a.val)
-    s := a.status
-    if (v.isNaN) s = s.set(Status.fault)
-    set("out", StatusNumber(v, s))
+    set("out", StatusNumber(calculate(a.val), a.status))
   }
 
   protected abstract Number calculate(Number a)
@@ -54,8 +50,8 @@ class Exponential : UnaryMath
 }
 
 **
-** Computes out = inA! where inA is truncated to an integer. A negative input
-** is NaN and a result too large for a Float is +INF, both with fault status.
+** Computes out = inA! where inA is truncated to an integer. A negative or
+** NaN input is 1. A result too large for a Float is +INF with fault status.
 **
 @Gen
 class Factorial : UnaryMath
@@ -73,7 +69,6 @@ class Factorial : UnaryMath
 
   protected override Number calculate(Number a)
   {
-    if (a.isNaN || a < Number.zero) return Number.nan
     acc := 1f
     f   := a.toInt
     for (i := 1; i <= f; ++i)

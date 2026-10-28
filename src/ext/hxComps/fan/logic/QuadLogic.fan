@@ -10,7 +10,9 @@ using xeto
 using haystack
 
 **
-** The base spec for all logic components that operate on up to four inputs
+** The base spec for all logic components that operate on up to four inputs.
+** Inputs with an invalid status are not used in the calculation, but their
+** status is still propagated to out.
 **
 @Gen
 abstract class QuadLogic : Logic
@@ -40,12 +42,12 @@ abstract class QuadLogic : Logic
     if (c != null) ++nonNull
     if (d != null) ++nonNull
 
-    // force null if we don't have enough valid inputs
+    // force null if we don't have enough non-null inputs
     forceNull := nonNull < minInputs
     if (forceNull) return set("out", null)
 
-    // calculate value
-    v := calculate(a?.val, b?.val, c?.val, d?.val)
+    // only valid inputs are used in the calculation
+    v := calculate(valid(a), valid(b), valid(c), valid(d))
 
     // compute propagated status flags
     s := Status.ok
@@ -58,7 +60,11 @@ abstract class QuadLogic : Logic
     set("out", StatusBool(v, s))
   }
 
+  private static Bool? valid(StatusBool? x) { x != null && x.status.isValid ? x.val : null }
+
   protected abstract Int minInputs()
+
+  ** Calculate the value from the valid inputs. Invalid inputs are null.
   protected abstract Bool calculate(Bool? a, Bool? b, Bool? c, Bool? d)
 }
 
@@ -73,6 +79,8 @@ class And : QuadLogic
 
   protected override Bool calculate(Bool? a, Bool? b, Bool? c, Bool? d)
   {
+    // false if there are no valid inputs
+    if (a == null && b == null && c == null && d == null) return false
     val := true
     if (a != null) val = val && a
     if (b != null) val = val && b

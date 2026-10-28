@@ -29,14 +29,15 @@ abstract class BinaryMath : Math
     // if either input is null, set out to null
     if (a == null || b == null) return set("out", null)
 
-    // compute value and status; NaN from the operation or from
-    // incompatible units puts out in fault
+    // compute value and status; incompatible units put out in fault
     s := a.status.merge(b.status)
     v := Number.nan
     if (a.status.isValid && b.status.isValid)
     {
-      try v = calculate(a.val, b.val); catch (UnitErr e) {}
-      if (v.isNaN) s = s.set(Status.fault)
+      try
+        v = calculate(a.val, b.val)
+      catch (UnitErr e)
+        s = s.set(Status.fault)
     }
 
     // set the output

@@ -10,7 +10,9 @@ using xeto
 using haystack
 
 **
-** The base spec for all math components that operate on up to four inputs
+** The base spec for all math components that operate on up to four inputs.
+** Inputs with an invalid status are not used in the calculation, but their
+** status is still propagated to out.
 **
 @Gen
 abstract class QuadMath : Math
@@ -34,34 +36,44 @@ abstract class QuadMath : Math
     c := inC
     d := inD
 
-    nonNull := 0
-    if (a != null) ++nonNull
-    if (b != null) ++nonNull
-    if (c != null) ++nonNull
-    if (d != null) ++nonNull
+    // only valid inputs are used in the calculation
+    va := valid(a)
+    vb := valid(b)
+    vc := valid(c)
+    vd := valid(d)
+
+    numValid := 0
+    if (va != null) ++numValid
+    if (vb != null) ++numValid
+    if (vc != null) ++numValid
+    if (vd != null) ++numValid
 
     // force null if we don't have enough valid inputs
-    forceNull := nonNull < minInputs
-    if (forceNull) return set("out", null)
+    if (numValid < minInputs) return set("out", null)
 
-    // compute propagated flags
+    // compute propagated flags from all inputs, including invalid ones
     status := Status.ok
       .merge(a?.status)
       .merge(b?.status)
       .merge(c?.status)
       .merge(d?.status)
 
-    // compute value; NaN from the operation or from incompatible
-    // units puts out in fault
+    // compute value; incompatible units put out in fault
     val := Number.nan
-    try val = calculate(a, b, c, d); catch (UnitErr e) {}
-    if (val.isNaN) status = status.set(Status.fault)
+    try
+      val = calculate(va, vb, vc, vd)
+    catch (UnitErr e)
+      status = status.set(Status.fault)
 
     // set output
     set("out", StatusNumber(val, status))
   }
 
+  private static StatusNumber? valid(StatusNumber? x) { x != null && x.status.isValid ? x : null }
+
   protected abstract Int minInputs()
+
+  ** Calculate the value from the valid inputs. Invalid inputs are null.
   protected abstract Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
 }
 
