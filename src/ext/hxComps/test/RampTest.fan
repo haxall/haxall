@@ -11,6 +11,29 @@ using haystack
 
 class RampTest : HxCompTest
 {
+  Void testPeriod()
+  {
+    // period is clamped to at least 1sec
+    Ramp r := createComp("Ramp")
+    r.period = 0sec
+    verifyEq(r.period, 1sec)
+    r.period = -5sec
+    verifyEq(r.period, 1sec)
+
+    SimulatedCompContext(cs).asCur |cx|
+    {
+      ts := cx.now
+      cs.root.add(r)
+      cx.step(ts)
+
+      // a 1sec period wraps back to the start every step
+      cx.step(ts+1sec)
+      verifyEq(r.out, sn(0))
+      cx.step(ts+2sec)
+      verifyEq(r.out, sn(0))
+    }
+  }
+
   Void testTriangle()
   {
     Ramp r := createComp("Ramp")

@@ -53,6 +53,9 @@ class SineWave : HxComp
       freq = 1sec
       this.startTicks = cx.now.ticks
     }
+
+    // ensure period is at least 1sec
+    if (e.name == "period" && period < 1sec) period = 1sec
   }
 
   override Void onExecute()

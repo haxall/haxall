@@ -16,7 +16,7 @@ SineWave: HxComp {
   out: StatusNumber <summary, transient, readonly, output>
 
   // The amount of time it takes to output one complete cycle
-  period: Duration 30sec
+  period: Duration <minVal:1sec> 30sec
 
   // The height of the sine wave from its lowest to highest point
   amplitude: Float 50
@@ -34,7 +34,7 @@ Ramp: HxComp {
   out: StatusNumber <summary, transient, readonly, output>
 
   // The amount of time it takes to output one complete cycle
-  period: Duration 30sec
+  period: Duration <minVal:1sec> 30sec
 
   // The height of the ramp from its lowest to highest point
   amplitude: Float 50

@@ -32,6 +32,25 @@ class SineWaveTest : HxCompTest
     SineWave sw := newSineWave
     sw.period = 60sec
     verifySineWave(sw)
+
+    // period is clamped to at least 1sec
+    sw = newSineWave
+    sw.period = 0sec
+    verifyEq(sw.period, 1sec)
+    sw.period = -5sec
+    verifyEq(sw.period, 1sec)
+    SimulatedCompContext(cs).asCur |cx|
+    {
+      ts := cx.now
+      cs.root.add(sw)
+      cx.step(ts)
+
+      // a 1sec period wraps back to the start every step
+      cx.step(ts+1sec)
+      verifyStatus(sw.out, sn(50))
+      cx.step(ts+2sec)
+      verifyStatus(sw.out, sn(50))
+    }
   }
 
   Void testOffset()
