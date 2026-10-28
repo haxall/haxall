@@ -66,7 +66,7 @@ using haystack
   override Void onCheck(ValidateState s)
   {
     // haystack fidelity encodes unit as Str, xeto fidelity as Unit
-    unit := ValidateWrongEnumKey.enumKey(s.dict?.get("unit"))
+    unit := XetoUtil.enumKey(s.dict?.get("unit"))
     if (unit == null) return
     ["minVal", "maxVal"].each |tag|
     {

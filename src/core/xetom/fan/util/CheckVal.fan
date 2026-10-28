@@ -182,11 +182,7 @@ const class CheckVal
   private Void checkEnum(Spec spec, Obj x, |Str| onErr)
   {
     // value must be string key, Scalar, or mapped by factory to Enum
-    key := x as Str
-    if (key == null) key = (x as Scalar)?.val
-    if (key == null) key = (x as Enum)?.name
-    if (key == null) key = (x as Unit)?.symbol
-    if (key == null) key = (x as TimeZone)?.name
+    key := XetoUtil.enumKey(x)
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
 
     // verify key maps to enum item

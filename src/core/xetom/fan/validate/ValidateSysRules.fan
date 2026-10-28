@@ -147,7 +147,7 @@ using haystack
     // unit enum quantity
     if (s.spec.type.qname == "sys::Unit")
     {
-      key := ValidateWrongEnumKey.enumKey(s.val)
+      key := XetoUtil.enumKey(s.val)
       if (key == null) return
       item := s.spec.type.enum.spec(key, false)
       if (item == null) return // wrongEnumKey's check
@@ -211,20 +211,9 @@ using haystack
   {
     enum := s.spec.type
     if (!enum.isEnum) return
-    key := enumKey(s.val)
+    key := XetoUtil.enumKey(s.val)
     if (key == null) return // invalidType's check
     if (enum.enum.spec(key, false) == null) s.emit
-  }
-
-  ** Map enum value to its string key or null
-  internal static Str? enumKey(Obj? val)
-  {
-    if (val is Str)      return val
-    if (val is Scalar)   return ((Scalar)val).val
-    if (val is Enum)     return ((Enum)val).name
-    if (val is Unit)     return ((Unit)val).symbol
-    if (val is TimeZone) return ((TimeZone)val).name
-    return null
   }
 }
 

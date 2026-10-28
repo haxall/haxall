@@ -870,6 +870,18 @@ const class XetoUtil
     return false
   }
 
+  ** Map enum value to its string key or null: Str key, Scalar,
+  ** or Fantom value bound to an enum spec such as Enum, Unit, TimeZone
+  static Str? enumKey(Obj? val)
+  {
+    if (val is Str)      return val
+    if (val is Scalar)   return ((Scalar)val).val
+    if (val is Enum)     return ((Enum)val).name
+    if (val is Unit)     return ((Unit)val).symbol
+    if (val is TimeZone) return ((TimeZone)val).name
+    return null
+  }
+
   ** Return if val whose spec is t fits spec: t is-a spec including
   ** computed sugar subtypes, or for sugar a dict whose spec is-a the
   ** nominal anchor and whose tags satisfy the constraints
