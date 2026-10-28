@@ -11,6 +11,126 @@ using haystack
 
 class LogicTest : HxCompTest
 {
+  Void testNot()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      Not c := createAndExec("Not")
+      verifyNull(c.out)
+
+      setAndExec(c, "in", sb(true))
+      verifyEq(c.out, sb(false))
+      setAndExec(c, "in", sb(false))
+      verifyEq(c.out, sb(true))
+
+      // status passes through
+      setAndExec(c, "in", sb(false, Status.alarm))
+      verifyEq(c.out, sb(true, Status.alarm))
+
+      setAndExec(c, "in", null)
+      verifyNull(c.out)
+    }
+  }
+
+  Void testAndOr()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      And and := createAndExec("And")
+      Or or   := createAndExec("Or")
+      verifyNull(and.out); verifyNull(or.out)
+
+      // a single input is enough
+      verifyQuad(and, [null, sb(true), null, null], sb(true))
+      verifyQuad(or,  [null, sb(false), null, null], sb(false))
+
+      // null inputs are ignored
+      verifyQuad(and, [sb(true), null, sb(true), null], sb(true))
+      verifyQuad(and, [sb(true), null, sb(false), null], sb(false))
+      verifyQuad(or,  [sb(false), null, sb(false), null], sb(false))
+      verifyQuad(or,  [sb(false), null, sb(true), null], sb(true))
+
+      // all four
+      verifyQuad(and, [sb(true), sb(true), sb(true), sb(true)], sb(true))
+      verifyQuad(and, [sb(true), sb(true), sb(true), sb(false)], sb(false))
+      verifyQuad(or,  [sb(false), sb(false), sb(false), sb(false)], sb(false))
+      verifyQuad(or,  [sb(false), sb(false), sb(false), sb(true)], sb(true))
+
+      // status is merged
+      verifyQuad(and, [sb(true, Status.alarm), sb(true), null, sb(true, Status.overridden)],
+        sb(true, Status.alarm.set(Status.overridden)))
+      verifyQuad(or, [sb(false), sb(true, Status.alarm), null, null], sb(true, Status.alarm))
+
+      // no inputs
+      verifyQuad(and, [null, null, null, null], null)
+      verifyQuad(or,  [null, null, null, null], null)
+    }
+  }
+
+  Void testXor()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      Xor c := createAndExec("Xor")
+      verifyNull(c.out)
+
+      // needs at least two inputs
+      verifyQuad(c, [sb(true), null, null, null], null)
+
+      verifyQuad(c, [sb(true), sb(false), null, null], sb(true))
+      verifyQuad(c, [sb(true), null, sb(true), null], sb(false))
+      verifyQuad(c, [sb(false), null, null, sb(false)], sb(false))
+
+      // true for an odd number of true inputs
+      verifyQuad(c, [sb(true), sb(true), sb(true), null], sb(true))
+      verifyQuad(c, [sb(true), sb(true), sb(true), sb(true)], sb(false))
+
+      verifyQuad(c, [sb(true, Status.alarm), sb(false), null, null], sb(true, Status.alarm))
+    }
+  }
+
+  Void testCompare()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      Comparison gt := createAndExec("GreaterThan")
+      Comparison ge := createAndExec("GreaterThanEqual")
+      Comparison lt := createAndExec("LessThan")
+      Comparison le := createAndExec("LessThanEqual")
+      Comparison eq := createAndExec("Equal")
+      Comparison ne := createAndExec("NotEqual")
+      all := [gt, ge, lt, le, eq, ne]
+      all.each |c| { verifyNull(c.out) }
+
+      // expected results are in the order: gt, ge, lt, le, eq, ne
+      // a < b
+      [false, false, true, true, false, true].each |v, i| { verifyCompare(all[i], n(1), n(2), sb(v)) }
+
+      // a == b
+      [false, true, false, true, true, false].each |v, i| { verifyCompare(all[i], n(2), n(2), sb(v)) }
+
+      // a > b
+      [true, true, false, false, false, true].each |v, i| { verifyCompare(all[i], n(3), n(2), sb(v)) }
+
+      all.each |c|
+      {
+        // status is merged
+        setAndExec(c, "inA", sn(2, Status.alarm))
+        setAndExec(c, "inB", sn(2, Status.overridden))
+        verifyEq(c.out.status, Status.alarm.set(Status.overridden))
+
+        // invalid input is false
+        setAndExec(c, "inA", sn(2, Status.down))
+        setAndExec(c, "inB", sn(2))
+        verifyEq(c.out, sb(false, Status.down))
+
+        // null input is null
+        setAndExec(c, "inA", null)
+        verifyNull(c.out)
+      }
+    }
+  }
+
   Void testCompareUnits()
   {
     TestHxCompContext().asCur |cx|
@@ -47,6 +167,15 @@ class LogicTest : HxCompTest
       // fault clears when units are compatible again
       verifyCompare(gt, n(3, ft), n(2, ft), sb(true))
     }
+  }
+
+  private Void verifyQuad(QuadLogic c, StatusBool?[] in, StatusBool? expected)
+  {
+    setAndExec(c, "inA", in[0])
+    setAndExec(c, "inB", in[1])
+    setAndExec(c, "inC", in[2])
+    setAndExec(c, "inD", in[3])
+    verifyEq(c.out, expected)
   }
 
   private Void verifyCompare(Comparison c, Number a, Number b, StatusBool expected)

@@ -68,6 +68,141 @@ class MathTest : HxCompTest
     }
   }
 
+  Void testUnary()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      pi := Float.pi
+      verifyUnary("AbsValue",    -3f,    3f)
+      verifyUnary("AbsValue",    3f,     3f)
+      verifyUnary("Exponential", 1f,     Float.e)
+      verifyUnary("LogBase10",   100f,   2f)
+      verifyUnary("LogNatural",  Float.e, 1f)
+      verifyUnary("Negative",    3f,     -3f)
+      verifyUnary("SquareRoot",  9f,     3f)
+      verifyUnary("Sine",        pi/2f,  1f)
+      verifyUnary("Cosine",      0f,     1f)
+      verifyUnary("Tangent",     pi/4f,  1f)
+      verifyUnary("ArcSine",     1f,     pi/2f)
+      verifyUnary("ArcCosine",   1f,     0f)
+      verifyUnary("ArcTangent",  1f,     pi/4f)
+
+      // units are kept where the result has the same dimension
+      AbsValue abs := createAndExec("AbsValue")
+      setAndExec(abs, "inA", sn(n(-3, "ft")))
+      verifyEq(abs.out, sn(n(3, "ft")))
+      Negative neg := createAndExec("Negative")
+      setAndExec(neg, "inA", sn(n(3, "ft")))
+      verifyEq(neg.out, sn(n(-3, "ft")))
+    }
+  }
+
+  private Void verifyUnary(Str spec, Float in, Float expected)
+  {
+    UnaryMath c := createAndExec(spec)
+    verifyNull(c.out)
+
+    setAndExec(c, "inA", sn(in))
+    verifyStatus(sn(expected), c.out)
+
+    // status passes through
+    setAndExec(c, "inA", sn(in, Status.alarm))
+    verifyStatus(sn(expected, Status.alarm), c.out)
+
+    setAndExec(c, "inA", null)
+    verifyNull(c.out)
+  }
+
+  Void testBinary()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      Subtract sub := createAndExec("Subtract")
+      Divide div   := createAndExec("Divide")
+      Modulus mod  := createAndExec("Modulus")
+      Power pow    := createAndExec("Power")
+      all := BinaryMath[sub, div, mod, pow]
+      all.each |c| { verifyNull(c.out) }
+
+      verifyAB(sub, n(5), n(2), sn(3))
+      verifyAB(sub, n(2), n(5), sn(-3))
+      verifyAB(div, n(6), n(4), sn(1.5f))
+      verifyAB(mod, n(7), n(3), sn(1))
+      verifyAB(mod, n(-7), n(3), sn(-1))
+      verifyAB(pow, n(2), n(10), sn(1024))
+      verifyAB(pow, n(4), n(0.5f), sn(2))
+
+      all.each |c|
+      {
+        // status is merged
+        setAndExec(c, "inA", sn(6, Status.alarm))
+        setAndExec(c, "inB", sn(2, Status.overridden))
+        verifyEq(c.out.status, Status.alarm.set(Status.overridden))
+
+        // invalid input is NaN without adding fault
+        setAndExec(c, "inA", sn(6, Status.down))
+        setAndExec(c, "inB", sn(2))
+        verifyEq(c.out, sn(Number.nan, Status.down))
+
+        // null input is null
+        setAndExec(c, "inB", null)
+        verifyNull(c.out)
+      }
+    }
+  }
+
+  Void testQuad()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      Add add      := createAndExec("Add")
+      Multiply mul := createAndExec("Multiply")
+      Average avg  := createAndExec("Average")
+      all := QuadMath[add, mul, avg]
+      all.each |c| { verifyNull(c.out) }
+
+      // a single input is enough
+      verifyQuad(add, [null, null, sn(3), null], sn(3))
+      verifyQuad(mul, [null, null, sn(3), null], sn(3))
+      verifyQuad(avg, [null, null, sn(3), null], sn(3))
+
+      // null inputs are ignored
+      verifyQuad(add, [sn(2), null, sn(3), null], sn(5))
+      verifyQuad(mul, [sn(2), null, sn(3), null], sn(6))
+      verifyQuad(avg, [sn(2), null, sn(3), null], sn(2.5f))
+
+      // all four
+      verifyQuad(add, [sn(1), sn(2), sn(3), sn(4)], sn(10))
+      verifyQuad(mul, [sn(1), sn(2), sn(3), sn(4)], sn(24))
+      verifyQuad(avg, [sn(1), sn(2), sn(3), sn(4)], sn(2.5f))
+
+      all.each |c|
+      {
+        // status is merged
+        setQuad(c, [sn(2, Status.alarm), null, null, sn(2, Status.overridden)])
+        verifyEq(c.out.status, Status.alarm.set(Status.overridden))
+
+        // no inputs
+        verifyQuad(c, [null, null, null, null], null)
+      }
+    }
+  }
+
+  private Void verifyQuad(QuadMath c, StatusNumber?[] in, StatusNumber? expected)
+  {
+    setQuad(c, in)
+    if (expected == null) verifyNull(c.out)
+    else verifyStatus(expected, c.out)
+  }
+
+  private Void setQuad(QuadMath c, StatusNumber?[] in)
+  {
+    setAndExec(c, "inA", in[0])
+    setAndExec(c, "inB", in[1])
+    setAndExec(c, "inC", in[2])
+    setAndExec(c, "inD", in[3])
+  }
+
   Void testQuadUnits()
   {
     TestHxCompContext().asCur |cx|
