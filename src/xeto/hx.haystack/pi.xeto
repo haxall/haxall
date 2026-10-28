@@ -1,0 +1,10 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Oct 2026  Brian Frank  Creation
+//
+
+@pi-hx-haystack-HaystackConn: Pi { icon: "haystack" }
+@pi-hx-haystack-HaystackExt: Pi { icon: "haystack" }

@@ -28,6 +28,7 @@ fandoc             <text-initial>
 fantom             <ghost>                   dev lang
 func               <square-function>
 github                                       git
+haystack           <tag>                     conn
 his                <hourglass>               history trend
 ide                <square-terminal>         dev
 java               <coffee>                  dev lang
@@ -41,7 +42,6 @@ mqtt                                         conn
 num                <hash>                    dev lang
 obix                                         conn
 ok                 <circle-check>            status
-opc                                          conn
 point              <circle-dot>
 proj               <database>
 pump                                         water
