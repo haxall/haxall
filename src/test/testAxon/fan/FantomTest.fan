@@ -57,6 +57,8 @@ class FantomTest : HaystackTest
     verifyEval(Str<|FantomEx("hi").ctor|>, "make2 hi")
     verifyEval(Str<|FantomEx("hi2").ctor|>, "make2 hi2") // cached
     verifyEval(Str<|FantomEx(123).ctor|>, "make3 123")
+    verifyEval(Str<|FantomEx(123)?.ctor|>, "make3 123")
+    verifyEval(Str<|null?.ctor|>, null)
     verifyEval(Str<|FantomEx(2026-04-01, 2026-04-02).ctor|>, "make5 2026-04-01 2026-04-02 null")
     verifyEval(Str<|FantomEx(2026-04-01, 2026-04-02, "x").ctor|>, "make5 2026-04-01 2026-04-02 x")
     verifyEval(Str<|FantomEx(6, 7min).ctor|>, "make4 6 7min 99")

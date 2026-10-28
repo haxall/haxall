@@ -462,6 +462,9 @@ class Tokenizer
         if (cur == '=') { consume; return Token.gtEq }
         return Token.gt
       case '?':
+        if (cur == '.') { consume; return Token.safeDot }
+        if (cur == ':') { consume; return Token.elvis }
+        if (cur == '-' && peek == '>') { consume; consume; return Token.safeArrow }
         return Token.question
       case '[':
         return Token.lbracket

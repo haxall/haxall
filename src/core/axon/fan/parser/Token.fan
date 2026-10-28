@@ -55,6 +55,9 @@ enum class Token
   underbar      ("_"),
   arrow         ("->"),
   dotDot        (".."),
+  safeDot       ("?."),
+  safeArrow     ("?->"),
+  elvis         ("?:"),
 
   // keywords
   andKeyword,

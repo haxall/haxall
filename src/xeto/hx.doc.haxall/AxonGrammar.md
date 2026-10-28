@@ -64,7 +64,8 @@ Legend for BNF Grammar:
     <defcomp>      :=  "compdef [<compcell>] [<do>] "end"
     <compcell>     :=  <id> ":" <dict>
 
-    <assignExpr>   :=  <condOrExpr> ("=" <assignExpr>)
+    <assignExpr>   :=  <elvisExpr> ("=" <assignExpr>)
+    <elvisExpr>    :=  <condOrExpr> ["?:" (<throw> | <condOrExpr>)]
     <condOrExpr>   :=  <condAndExpr> ("and" <condAndExpr>)*
     <condAndExpr>  :=  <compareExpr> ("or" <compareExpr>)*
     <compareExpr>  :=  <rangeExpr> (("==" | "!=" | "<" | "<=" |
@@ -80,9 +81,9 @@ Legend for BNF Grammar:
     <termChain>    :=  <call> | <dotCall> | <index> | <trapCall>
     <call>         :=  "(" [<callArg> ("," <callArg>)*] [<lambda>]
     <callArg>      :=  <expr> | "_"
-    <dotCall>      :=  "." [<nl>] <qname> [<call> | <lambda-1>]
+    <dotCall>      :=  ("." | "?.") [<nl>] <qname> [<call> | <lambda-1>]
     <index>        :=  "[" <expr> "]"
-    <trapCall>     :=  "->" <id>
+    <trapCall>     :=  ("->" | "?->") <id>
 
     <qname>        :=  [<qnameLib> "::"] <qnameName>
     <qnameLib>     :=  <id> ("." <id>)*

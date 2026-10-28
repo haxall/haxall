@@ -8,6 +8,7 @@
 
 using concurrent
 using util
+using xeto
 using haystack
 
 **
@@ -77,14 +78,17 @@ internal const class Call : Expr
 **
 **     foo().bar() => bar(foo())
 **
+** If nullSafe, then 'foo()?.bar()' returns null when target is null.
+**
 @Js
 internal const class DotCall : Call
 {
-  new make(Str funcName, Expr[] args, Bool bareName)
+  new make(Str funcName, Expr[] args, Bool bareName, Bool nullSafe := false)
     : super(Var(args.first.loc, funcName), args)
   {
-    this.funcName= funcName
+    this.funcName = funcName
     this.bareName = bareName
+    this.nullSafe = nullSafe
   }
 
   override ExprType type() { ExprType.dotCall }
@@ -93,10 +97,13 @@ internal const class DotCall : Call
 
   const Bool bareName  // no parens
 
+  const Bool nullSafe  // "?." operator
+
   override Obj? eval(AxonContext cx)
   {
     // evaluate first arg as target object
     target := args.first.eval(cx)
+    if (target == null && nullSafe) return null
 
     // if FFI is installed it is always dispatched as OO method
     if (target != null && cx.ffi != null)
@@ -119,7 +126,7 @@ internal const class DotCall : Call
       if (thisGet != null) return out.w(thisGet)
     }
 
-    out.atomicStart.atomic(args[0]).wc('.').expr(func).wc('(')
+    out.atomicStart.atomic(args[0]).w(nullSafe ? "?." : ".").expr(func).wc('(')
     args.each |arg, i|
     {
       if (i == 0) return
@@ -129,6 +136,12 @@ internal const class DotCall : Call
     }
     out.wc(')').atomicEnd
     return out
+  }
+
+  override Void walk(|Str key, Obj? val| f)
+  {
+    super.walk(f)
+    if (nullSafe) f("nullSafe", Marker.val)
   }
 }
 
@@ -195,8 +208,8 @@ internal const class StaticCall : Call
 @Js
 internal const class TrapCall : DotCall
 {
-  new make(Expr target, Str tagName)
-    : super("trap", [target, Literal(tagName)], false)
+  new make(Expr target, Str tagName, Bool nullSafe := false)
+    : super("trap", [target, Literal(tagName)], false, nullSafe)
   {
     this.tagName = tagName
   }
@@ -207,7 +220,7 @@ internal const class TrapCall : DotCall
 
   override Printer print(Printer out)
   {
-    out.expr(args[0]).w("->").w(tagName)
+    out.expr(args[0]).w(nullSafe ? "?->" : "->").w(tagName)
   }
 }
 

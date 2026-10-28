@@ -366,6 +366,14 @@ internal const class Or : BinaryOp
   }
 }
 
+@Js
+internal const class Elvis : BinaryOp
+{
+  new make(Expr lhs, Expr rhs) : super(lhs, rhs) {}
+  override ExprType type() { ExprType.elvis }
+  override Obj? doEval(AxonContext cx) { lhs.eval(cx) ?: rhs.eval(cx) }
+}
+
 **************************************************************************
 ** Equality Operators: == !=
 **************************************************************************

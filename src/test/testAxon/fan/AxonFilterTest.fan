@@ -32,6 +32,8 @@ class AxonFilterTest : FilterTest
     verifyInvalid(Str<|"site"|>)
     verifyInvalid(Str<|"alpha beta"|>)
     verifyInvalid(Str<|"alpha/beta"|>)
+    verifyInvalid(Str<|a?->b|>)
+    verifyInvalid(Str<|a->b?->c == 3|>)
   }
 
   Void verifyInvalid(Str axon)

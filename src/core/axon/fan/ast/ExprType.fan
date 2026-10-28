@@ -43,6 +43,7 @@ enum class ExprType
   not("not"),
   and("and"),
   or("or"),
+  elvis("?:"),
 
   // binary compares
   eq("=="),

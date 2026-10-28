@@ -112,6 +112,7 @@ internal class ExprToFilter
       names := [trap.tagName]
       while (true)
       {
+        if (trap.nullSafe) throw err("Cannot use '?->' in filter: $trap")
         expr = trap.args[0]
         if (expr is Var) { names.insert(0, ((Var)expr).name); break }
         if (expr is TrapCall) { trap = expr; names.insert(0, trap.tagName); continue }

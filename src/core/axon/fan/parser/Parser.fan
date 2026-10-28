@@ -370,15 +370,29 @@ class Parser
   **
   ** Assignment expression:
   **
-  **      <assignExpr> :=  <condOrExpr> ("=" <assignExpr>)
+  **      <assignExpr> :=  <elvisExpr> ("=" <assignExpr>)
   **
   private Expr assignExpr()
   {
     // this is tree if built to the right (others to the left)
-    expr := condOrExpr
+    expr := elvisExpr
     if (cur !== Token.assign) return expr
+    if (expr.type === ExprType.dotCall && ((DotCall)expr).nullSafe) throw err("Null-safe call is not assignable", expr.loc)
     consume
     return Assign(expr, this.expr())
+  }
+
+  **
+  ** Elvis expression:
+  **
+  **     <elvisExpr>  :=  <condOrExpr> ["?:" (<throw> | <condOrExpr>)]
+  **
+  private Expr elvisExpr()
+  {
+    expr := condOrExpr
+    if (cur !== Token.elvis) return expr
+    consume
+    return Elvis(expr, cur === Token.throwKeyword ? throwExpr : condOrExpr)
   }
 
   **
@@ -493,7 +507,7 @@ class Parser
   ** Term expression:
   **
   **     <termExpr>   :=  <termBase> <termChain>*
-  **     <termChain>  :=  <call> | <methodCall> | <index> | <tag-get>
+  **     <termChain>  :=  <call> | <dotCall> | <index> | <trapCall>
   **
   internal Expr termExpr(Expr? start := null)
   {
@@ -503,8 +517,10 @@ class Parser
     {
       if (cur === Token.lparen && !nl)   { expr = call(expr, false); continue }
       if (cur === Token.lbracket && !nl) { expr = index(expr); continue }
-      if (cur === Token.dot)      { expr = call(expr, true); continue }
-      if (cur === Token.arrow)    { expr = dictGet(expr); continue }
+      if (cur === Token.dot)       { expr = call(expr, true); continue }
+      if (cur === Token.safeDot)   { expr = call(expr, true, true); continue }
+      if (cur === Token.arrow)     { expr = dictGet(expr); continue }
+      if (cur === Token.safeArrow) { expr = dictGet(expr, true); continue }
       break
     }
     return expr
@@ -611,20 +627,24 @@ class Parser
   **
   **     <call>         :=  "(" [<callArg> ("," <callArg>)*] [<lambda>]
   **     <callArg>      :=  <expr> | "_"
-  **     <dotCall>      :=  "." [<nl>] <qname> [<call> | <lambda-1>]
+  **     <dotCall>      :=  ("." | "?.") [<nl>] <qname> [<call> | <lambda-1>]
   **
-  private Expr call(Expr target, Bool isMethod)
+  private Expr call(Expr target, Bool isMethod, Bool nullSafe := false)
   {
     args := isMethod ? Expr?[target] : Expr?[,]
 
     methodName := "?"
     if (isMethod)
     {
-      consume(Token.dot)
+      consume
 
       methodName = consumeIdOrKeyword("func name")
 
-      if (cur === Token.doubleColon) return qname(target, methodName)
+      if (cur === Token.doubleColon)
+      {
+        if (nullSafe) throw err("Null-safe call cannot be qname")
+        return qname(target, methodName)
+      }
 
       if (cur !== Token.lparen)
       {
@@ -634,7 +654,7 @@ class Parser
           bareName = false
           args.add(lambda1)
         }
-        return toDotCall(methodName, args, bareName)
+        return toDotCall(methodName, args, bareName, nullSafe)
       }
     }
 
@@ -665,9 +685,12 @@ class Parser
     if (!isEos && (cur === Token.id || cur === Token.lparen))
       args.add(lambda)
 
-    call := isMethod ? toDotCall(methodName, args, false) : toCall(target, args)
+    call := isMethod ? toDotCall(methodName, args, false, nullSafe) : toCall(target, args)
     if (numPartials > 0)
+    {
+      if (nullSafe) throw err("Null-safe call cannot be partial")
       return PartialCall(call.func, call.args, numPartials)
+    }
     else
       return call
   }
@@ -686,12 +709,12 @@ class Parser
   }
 
   ** Create DotCall vs StaticCall based on first arg
-  private Call toDotCall(Str methodName, Expr[] args, Bool bareName)
+  private Call toDotCall(Str methodName, Expr[] args, Bool bareName, Bool nullSafe)
   {
     if (args.first.isTopNameType)
       return StaticCall(args[0], methodName, args[1..-1])
     else
-      return DotCall(methodName, args, bareName)
+      return DotCall(methodName, args, bareName, nullSafe)
   }
 
   **
@@ -712,15 +735,15 @@ class Parser
   **
   ** Indexing operation:
   **
-  **     <trapCall> := "->" <id>
+  **     <trapCall> := ("->" | "?->") <id>
   **
   ** Convenience for "trap" methodCall
   **
-  private Expr dictGet(Expr target)
+  private Expr dictGet(Expr target, Bool nullSafe := false)
   {
-    consume(Token.arrow)
+    consume
     name := consumeId("dict tag name")
-    return TrapCall(target, name)
+    return TrapCall(target, name, nullSafe)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -931,10 +954,10 @@ class Parser
   {
     if (cur === Token.eof) return
     if (cur === Token.question) throw ternaryErr
-    throw err("Expecting end of file, not $cur ($curVal)")
+    throw err("Expecting end of file, not $curToStr")
   }
 
-  private SyntaxErr ternaryErr() { err("Ternary '?:' operator not supported (use if/else)") }
+  private SyntaxErr ternaryErr() { err("Ternary operator 'x ? y : z' not supported (use if/else or ?:)") }
 
   private Str curToStr()
   {

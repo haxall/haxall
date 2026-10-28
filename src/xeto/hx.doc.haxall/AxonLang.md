@@ -96,7 +96,7 @@ Also see [AxonUsage#dict-examples].
 
 # Operators
 Operators in order of precedence:
-  - Primary: `(x)  x.y  x.y()  x->y  x[y]`
+  - Primary: `(x)  x.y  x.y()  x?.y  x->y  x?->y  x[y]`
   - Unary: `not x  -x`
   - Multiplicative: `*  /`
   - Additive: `+  -`
@@ -104,6 +104,7 @@ Operators in order of precedence:
   - Comparison: `<  <=  >=  >  <=>`
   - Conditional And: `and`
   - Conditional Or: `or`
+  - Elvis: `?:`
   - Assignment: `=`
 
 ## Math Operators
@@ -255,6 +256,41 @@ if the tag does not exist.  For example this code will raise an
 exception:
 
      {foo:null}->foo
+
+## Null-Safe Operators
+The null-safe operators `?.` and `?->` work just like the `.` dot call
+and `->` trap operators, except they short circuit to null when the
+target is null.  If the target is null, then the call and its arguments
+are not evaluated:
+
+    "abc"?.size        >> 3
+    null?.size         >> null
+    {a:1}?->a          >> 1
+    null?->a           >> null
+
+The null check applies only to the target of that operator.  It
+does not carry through the rest of the chain, so use null-safe
+operators on every call that might see a null:
+
+    null?.foo?.bar     >> null
+    null?.foo.bar      >> error
+
+The `?->` operator only checks the target for null.  It still
+raises an UnknownNameErr if the target is a dict without the tag.
+Use the `[]` operator if the tag may be missing:
+
+    {a:1}?->b          >> error
+    {a:1}["b"]         >> null
+
+The elvis operator `x ?: y` evaluates to `x` if it is non-null,
+otherwise it evaluates to `y`.  The `y` expression is only evaluated
+when `x` is null.  The elvis right hand side may be a `throw` expression:
+
+    1 ?: 2                    >> 1
+    null ?: 2                 >> 2
+    {foo:1}["foo"] ?: 0       >> 1
+    {}["foo"] ?: 0            >> 0
+    {}["foo"] ?: throw "bad"  >> error
 
 # Def
 The colon operator is used to define a variable as name/value binding:

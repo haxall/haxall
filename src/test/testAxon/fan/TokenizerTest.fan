@@ -53,6 +53,14 @@ class TokenizerTest : Test
     verifyToks("12kWh/ft\u00B2", Obj?[Token.val, n(12, "kilowatt_hours_per_square_foot")])
     verifyToks("3_000.5J/kg_dry", Obj?[Token.val, n(3_000.5f, "joules_per_kilogram_dry_air")])
 
+    // null-safe operators
+    verifyToks("a?.b", Obj?[Token.id, "a", Token.safeDot, null, Token.id, "b"])
+    verifyToks("a?->b", Obj?[Token.id, "a", Token.safeArrow, null, Token.id, "b"])
+    verifyToks("a?:b", Obj?[Token.id, "a", Token.elvis, null, Token.id, "b"])
+    verifyToks("a ? b", Obj?[Token.id, "a", Token.question, null, Token.id, "b"])
+    verifyToks("a ?- b", Obj?[Token.id, "a", Token.question, null, Token.minus, null, Token.id, "b"])
+    verifyToks("a ? . b", Obj?[Token.id, "a", Token.question, null, Token.dot, null, Token.id, "b"])
+
     // strings
     verifyToks(Str<|""|>,  Obj?[Token.val, ""])
     verifyToks(Str<|"x y"|>,  Obj?[Token.val, "x y"])

@@ -149,6 +149,69 @@ class EvalTest : AxonTest
     verifyErr(EvalErr#) { eval("false or 1") }
   }
 
+  Void testNullSafe()
+  {
+    // ?. on non-null and null target
+    verifyEval(Str<|"abc"?.size|>, n(3))
+    verifyEval(Str<|"abc"?.size()|>, n(3))
+    verifyEval(Str<|[1, 2]?.get(1)|>, n(2))
+    verifyEval(Str<|null?.size|>, null)
+    verifyEval(Str<|null?.get(1)|>, null)
+    verifyEval(Str<|[1, 2]?.map x => x * 10|>, Obj?[n(10), n(20)])
+    verifyEval(Str<|null?.map x => x * 10|>, null)
+
+    // args not evaluated when target is null
+    verifyEval(Str<|null?.get(throw "bad")|>, null)
+
+    // target evaluated exactly once
+    verifyBlock(
+      Str<|count: 0
+           f: () => do count = count + 1; "abc" end
+           f()?.size
+           count|>, n(1))
+
+    // no propagation - each ?. stands alone like Fantom
+    verifyEval(Str<|null?.foo?.bar|>, null)
+    verifyErr(EvalErr#) { eval(Str<|null?.foo.size|>) }
+
+    // ?-> on non-null and null target
+    verifyEval(Str<|{a:1}?->a|>, n(1))
+    verifyEval(Str<|null?->a|>, null)
+    verifyEval(Str<|{a:{b:2}}?->a?->b|>, n(2))
+    verifyEval(Str<|null?->a?->b|>, null)
+
+    // ?-> still throws on missing tag
+    verifyErr(EvalErr#) { eval(Str<|{a:1}?->b|>) }
+
+    verifyAst("a?.foo", Str<|{type:"dotCall", func:{type:"var", name:"foo"}, args:[{type:"var", name:"a"}], nullSafe}|>)
+    verifyAst("a.foo", Str<|{type:"dotCall", func:{type:"var", name:"foo"}, args:[{type:"var", name:"a"}]}|>)
+    verifyAst("a?->b", Str<|{type:"trapCall", func:{type:"var", name:"trap"}, args:[{type:"var", name:"a"}, {type:"literal", val:"b"}], nullSafe}|>)
+  }
+
+  Void testElvis()
+  {
+    verifyEval(Str<|1 ?: 2|>, n(1))
+    verifyEval(Str<|null ?: 2|>, n(2))
+    verifyEval(Str<|null ?: null|>, null)
+    verifyEval(Str<|false ?: true|>, false)
+    verifyEval(Str<|{a:1}["b"] ?: "def"|>, "def")
+    verifyEval(Str<|null?->a ?: "def"|>, "def")
+    verifyEval(Str<|"abc"?.size ?: 0|>, n(3))
+    verifyEval(Str<|null?.size ?: 0|>, n(0))
+
+    // rhs not evaluated when lhs is non-null
+    verifyEval(Str<|1 ?: throw "bad"|>, n(1))
+    verifyThrow(Str<|null ?: throw "bad"|>, ["dis":"bad"])
+
+    // assignment
+    verifyBlock(
+      Str<|x: null
+           x = x ?: 7
+           x|>, n(7))
+
+    verifyAst("a ?: b", Str<|{type:"elvis", lhs:{type:"var", name:"a"}, rhs:{type:"var", name:"b"}}|>)
+  }
+
   Void testCompareOps()
   {
     verifyEval("3 == 2", false); verifyEval("3 == 3", true)

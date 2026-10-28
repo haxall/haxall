@@ -32,6 +32,41 @@ class ParseTest : Test
     verifyExprErr("x x")
   }
 
+  Void testNullSafe()
+  {
+    verifyExpr("a?.foo()")
+    verifyExpr("a?.foo(b, c)")
+    verifyExpr("(a?.foo()).bar()")
+    verifyExpr("(a.foo())?.bar()")
+    verifyExpr("a?->foo")
+    verifyExpr("a?->foo->bar")
+    verifyExpr("a?.map((x) => x)")
+    verifyEq(Parser("a?.foo".in).parse.toStr, "a?.foo()")
+    verifyEq(Parser("list?.map x => x".in).parse.toStr, "list?.map((x) => x)")
+    verifyEq(Parser("a\n  ?.foo".in).parse.toStr, "a?.foo()")
+
+    verifyExprErr("a?.b = 3")
+    verifyExprErr("a?.b::c")
+    verifyExprErr("a?.foo(_)")
+    verifyExprErr("a?.")
+    verifyExprErr("a?->")
+  }
+
+  Void testElvis()
+  {
+    verifyExpr("a ?: b")
+    verifyExpr("x = a ?: b")
+    verifyExpr("(a or b) ?: c")
+    verifyExpr("a ?: (b or c)")
+    verifyExpr("a ?: (throw \"x\")")
+    verifyEq(Parser("a or b ?: c or d".in).parse.toStr, "(a or b) ?: (c or d)")
+    verifyEq(Parser("a ?: throw \"x\"".in).parse.toStr, "a ?: (throw \"x\")")
+
+    verifyExprErr("a ?: b ?: c")
+    verifyExprErr("a ?: return b")
+    verifyExprErr("a ? b : c")
+  }
+
   Void testLiteralTermBase()
   {
     // list/dict literals can appear as operand of unary and as base of term chain
