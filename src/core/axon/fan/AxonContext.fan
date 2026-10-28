@@ -247,7 +247,7 @@ abstract class AxonContext : HaystackContext, CompContext
     heartbeatFunc?.call
 
     // timeout
-    if (Duration.nowTicks > timeoutTicks && timeout != null)
+    if (Duration.nowFast.ticks > timeoutTicks && timeout != null)
       throw EvalTimeoutErr(timeout, this, loc)
   }
 
