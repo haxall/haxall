@@ -13,10 +13,11 @@
 //   error = setpoint - controlledVariable    (reverse)
 //   out   = bias + Kp * (error + Ki * ∫error dt + Kd * d(error)/dt)
 //
-// Ki is in repeats per minute and Kd is in seconds. The loop runs only at
-// freq, not when an input changes. Out is held between minimumOutput and
-// maximumOutput, and the integral stops growing while out is held at a
-// limit. Changing Kp or Ki does not bump out.
+// Ki is in repeats per minute and Kd is in seconds. The loop runs at freq,
+// not when an input changes, except that it runs right away when loopEnable
+// turns it on or off. Out is held between minimumOutput and maximumOutput,
+// and the integral stops growing while out is held at a limit. Changing Kp
+// or Ki does not bump out.
 //
 // If controlledVariable or setpoint has an invalid status, or is NaN or
 // infinite, then out and the integral hold their last values and the input

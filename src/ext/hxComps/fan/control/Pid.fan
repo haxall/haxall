@@ -10,16 +10,18 @@ using xeto
 using haystack
 
 **
-** A PID control loop.It drives out to hold controlledVariable at setpoint:
+** A PID control loop modeled on the Niagara kitControl LoopPoint. It drives
+** out to hold controlledVariable at setpoint:
 **
 **   error = controlledVariable - setpoint    (direct)
 **   error = setpoint - controlledVariable    (reverse)
 **   out   = bias + Kp * (error + Ki * ∫error dt + Kd * d(error)/dt)
 **
-** Ki is in repeats per minute and Kd is in seconds. The loop runs only at
-** freq, not when an input changes. Out is held between minimumOutput and
-** maximumOutput, and the integral stops growing while out is held at a
-** limit. Changing Kp or Ki does not bump out.
+** Ki is in repeats per minute and Kd is in seconds. The loop runs at freq,
+** not when an input changes, except that it runs right away when loopEnable
+** turns it on or off. Out is held between minimumOutput and maximumOutput,
+** and the integral stops growing while out is held at a limit. Changing Kp
+** or Ki does not bump out.
 **
 ** If controlledVariable or setpoint has an invalid status, or is NaN or
 ** infinite, then out and the integral hold their last values and the input
@@ -78,6 +80,9 @@ class Pid : HxComp
   private Float? lastErr
   private Int? lastTicks
 
+  ** True when the next run is the immediate run after the loop is enabled
+  private Bool enabling
+
   override Duration? onExecuteFreq()
   {
     freq := this.freq
@@ -85,8 +90,17 @@ class Pid : HxComp
     return freq
   }
 
-  ** The loop runs only on the freq timer, never because a slot changed
-  override Void onChangeFw(CompChangeEvent e) {}
+  ** The loop runs on the freq timer, not because a slot changed, except
+  ** that it runs right away when loopEnable turns the loop on or off.
+  ** Repeated pushes of the same enable state do not run it.
+  override Void onChangeFw(CompChangeEvent e)
+  {
+    if ("loopEnable" != e.name) return
+    wasEnabled := isEnabled(e.oldVal)
+    if (wasEnabled == isEnabled(e.newVal)) return
+    enabling = !wasEnabled
+    execute
+  }
 
   override Void onChange(CompChangeEvent e)
   {
@@ -99,9 +113,11 @@ class Pid : HxComp
     cv := controlledVariable
     sp := setpoint
     enable := loopEnable
+    enabling := this.enabling
+    this.enabling = false
 
     // disabled: out is set by disableAction
-    if (enable != null && (!enable.bool || !enable.status.isValid)) return disabled(enable, cv, sp)
+    if (!isEnabled(enable)) return disabled(enable, cv, sp)
 
     // if either input is unlinked, out is null
     if (cv == null || sp == null) { reset; return set("out", null) }
@@ -155,8 +171,10 @@ class Pid : HxComp
     if (v > max) v = max
     if (v < min) v = min
 
-    // two runs at the same instant leave dt and the derivative alone
-    if (dt > 0f || lastTicks == null) { lastErr = err; lastTicks = now }
+    // two runs at the same instant leave dt and the derivative alone; the
+    // immediate run on enable is off the freq schedule, so it doesn't keep
+    // its error and the derivative waits for the next timed run
+    if (dt > 0f || lastTicks == null) { lastErr = enabling ? null : err; lastTicks = now }
 
     set("out", StatusNumber(Number(v), status))
   }
@@ -187,6 +205,9 @@ class Pid : HxComp
     lastErr   = null
     lastTicks = null
   }
+
+  ** Unlinked is enabled; otherwise it must be true with a valid status
+  private static Bool isEnabled(StatusBool? x) { x == null || (x.bool && x.status.isValid) }
 
   private static Bool isFinite(StatusNumber x)
   {

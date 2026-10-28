@@ -310,6 +310,57 @@ class PidTest : HxCompTest
     }
   }
 
+  Void testEnableImmediate()
+  {
+    Pid p := createComp("Pid")
+    p.proportionalConstant = 2f
+    p.integralConstant = 1f
+    p.derivativeConstant = 60f
+    p.freq = 1min
+
+    SimulatedCompContext(cs).asCur |cx|
+    {
+      ts := cx.now
+      cs.root.add(p)
+      p.set("controlledVariable", sn(75))
+      p.set("setpoint", sn(72))
+      cx.step(ts)
+      cx.step(ts+1min)
+      verifyEq(p.out, sn(62))
+
+      // disable takes effect right away, not at the next freq
+      p.set("loopEnable", sb(false))
+      cx.step(ts+70sec)
+      verifyEq(p.out, sn(0))
+
+      // an input change while disabled does not run the loop
+      p.set("controlledVariable", sn(76))
+      cx.step(ts+75sec)
+      verifyEq(p.out, sn(0))
+
+      // enable runs right away from the disabled value: 0 + 2*4
+      p.set("loopEnable", sb(true))
+      cx.step(ts+80sec)
+      verifyEq(p.out, sn(8))
+
+      // the next timed run integrates the short 40sec, but has no
+      // derivative since the enable run was off the freq schedule
+      p.set("controlledVariable", sn(77))
+      cx.step(ts+2min)
+      verifyStatus(sn(50f + 10f - 50f + 2f*5f*40f/60f), p.out)
+
+      // a repeated push of enabled does not run the loop
+      p.set("loopEnable", sb(true))
+      cx.step(ts+125sec)
+      verifyStatus(sn(50f + 10f - 50f + 2f*5f*40f/60f), p.out)
+
+      // from here the derivative is over full freq intervals
+      p.set("controlledVariable", sn(78))
+      cx.step(ts+3min)
+      verifyStatus(sn(50f + 12f - 50f + 2f*5f*40f/60f + 2f*6f + 2f*60f*1f/60f), p.out)
+    }
+  }
+
   Void testDisableAction()
   {
     verifyDisableAction(PidDisableAction.zero,     0f,   10f)
