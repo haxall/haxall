@@ -29,11 +29,16 @@ abstract class Comparison : Logic
     // if either input is null, set out to null
     if (a == null || b == null) return set("out", null)
 
-    // compute value and status flags
-    v := a.status.isValid && b.status.isValid
-      ? calculate(a.val, b.val)
-      : false
+    // compute value and status flags; incompatible units put out in fault
     s := a.status.merge(b.status)
+    v := false
+    if (a.status.isValid && b.status.isValid)
+    {
+      try
+        v = calculate(a.val, b.val)
+      catch (UnitErr e)
+        s = s.set(Status.fault)
+    }
 
     // set the output
     set("out", StatusBool(v, s))
@@ -89,7 +94,14 @@ class LessThanEqual : Comparison
 class Equal : Comparison
 {
 
-  protected override Bool calculate(Number a, Number b) { a == b }
+  protected override Bool calculate(Number a, Number b) { eq(a, b) }
+
+  ** Same semantics as the Axon '==' operator: a unitless number
+  ** is equal to a number with the same value and any unit
+  internal static Bool eq(Number a, Number b)
+  {
+    a.toFloat.compare(b.toFloat) == 0 && (a.unit === b.unit || a.unit == null || b.unit == null)
+  }
 }
 
 **
@@ -99,6 +111,6 @@ class Equal : Comparison
 class NotEqual : Comparison
 {
 
-  protected override Bool calculate(Number a, Number b) { a != b }
+  protected override Bool calculate(Number a, Number b) { !Equal.eq(a, b) }
 }
 

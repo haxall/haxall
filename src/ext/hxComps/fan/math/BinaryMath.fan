@@ -29,11 +29,16 @@ abstract class BinaryMath : Math
     // if either input is null, set out to null
     if (a == null || b == null) return set("out", null)
 
-    // compute value and status
-    v := a.status.isValid && b.status.isValid
-      ? calculate(a.val, b.val)
-      : Number.nan
+    // compute value and status; incompatible units put out in fault
     s := a.status.merge(b.status)
+    v := Number.nan
+    if (a.status.isValid && b.status.isValid)
+    {
+      try
+        v = calculate(a.val, b.val)
+      catch (UnitErr e)
+        s = s.set(Status.fault)
+    }
 
     // set the output
     set("out", StatusNumber(v, s))

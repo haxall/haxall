@@ -67,4 +67,59 @@ class MathTest : HxCompTest
       verifyNull(c.out)
     }
   }
+
+  Void testQuadUnits()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      ft := Unit("ft")
+      m  := Unit("m")
+
+      Add add      := createAndExec("Add")
+      Multiply mul := createAndExec("Multiply")
+      Average avg  := createAndExec("Average")
+      Maximum max  := createAndExec("Maximum")
+
+      // units are kept and unitless matches any unit like Axon
+      verifyAB(add, n(1, ft), n(2, ft), sn(n(3, ft)))
+      verifyAB(add, n(1, ft), n(2), sn(n(3, ft)))
+      verifyAB(mul, n(2, ft), n(3), sn(n(6, ft)))
+      verifyAB(mul, n(2, ft), n(3, ft), sn(n(6, ft * ft)))
+      verifyAB(avg, n(7, ft), n(3), sn(n(5, ft)))
+
+      // unlike units put out in fault
+      verifyAB(add, n(1, ft), n(2, m), sn(Number.nan, Status.fault))
+      verifyAB(avg, n(1, ft), n(2, m), sn(Number.nan, Status.fault))
+
+      // fault clears when units are compatible again
+      verifyAB(add, n(1, m), n(2, m), sn(n(3, m)))
+
+      // like Axon max() units are not checked
+      verifyAB(max, n(7.2f, ft), n(100, m), sn(n(100, m)))
+    }
+  }
+
+  Void testBinaryUnits()
+  {
+    TestHxCompContext().asCur |cx|
+    {
+      ft := Unit("ft")
+      m  := Unit("m")
+
+      Subtract sub := createAndExec("Subtract")
+      Modulus mod  := createAndExec("Modulus")
+
+      verifyAB(sub, n(5, ft), n(2), sn(n(3, ft)))
+      verifyAB(sub, n(5, ft), n(2, m), sn(Number.nan, Status.fault))
+      verifyAB(mod, n(5, ft), n(2, ft), sn(Number.nan, Status.fault))
+      verifyAB(mod, n(5, ft), n(2), sn(n(1, ft)))
+    }
+  }
+
+  private Void verifyAB(Comp c, Number a, Number b, StatusNumber expected)
+  {
+    setAndExec(c, "inA", sn(a))
+    setAndExec(c, "inB", sn(b))
+    verifyEq(c->out, expected)
+  }
 }

@@ -44,15 +44,19 @@ abstract class QuadMath : Math
     forceNull := nonNull < minInputs
     if (forceNull) return set("out", null)
 
-    // compute value
-    val := calculate(a, b, c, d)
-
     // compute propagated flags
     status := Status.ok
       .merge(a?.status)
       .merge(b?.status)
       .merge(c?.status)
       .merge(d?.status)
+
+    // compute value; incompatible units put out in fault
+    val := Number.nan
+    try
+      val = calculate(a, b, c, d)
+    catch (UnitErr e)
+      status = status.set(Status.fault)
 
     // set output
     set("out", StatusNumber(val, status))
@@ -72,12 +76,12 @@ class Add : QuadMath
 
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
   {
-    acc := 0f
-    if (a != null) acc += a.num.toFloat
-    if (b != null) acc += b.num.toFloat
-    if (c != null) acc += c.num.toFloat
-    if (d != null) acc += d.num.toFloat
-    return Number(acc)
+    acc := Number.zero
+    if (a != null) acc += a.num
+    if (b != null) acc += b.num
+    if (c != null) acc += c.num
+    if (d != null) acc += d.num
+    return acc
   }
 }
 
@@ -91,12 +95,12 @@ class Multiply : QuadMath
 
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
   {
-    acc := 1f
-    if (a != null) acc *= a.num.toFloat
-    if (b != null) acc *= b.num.toFloat
-    if (c != null) acc *= c.num.toFloat
-    if (d != null) acc *= d.num.toFloat
-    return Number(acc)
+    acc := Number.one
+    if (a != null) acc *= a.num
+    if (b != null) acc *= b.num
+    if (c != null) acc *= c.num
+    if (d != null) acc *= d.num
+    return acc
   }
 }
 
@@ -111,12 +115,12 @@ class Average : QuadMath
   override protected Number calculate(StatusNumber? a, StatusNumber? b, StatusNumber? c, StatusNumber? d)
   {
     count := 0
-    sum := 0f
-    if (a != null) { sum += a.num.toFloat; ++count }
-    if (b != null) { sum += b.num.toFloat; ++count }
-    if (c != null) { sum += c.num.toFloat; ++count }
-    if (d != null) { sum += d.num.toFloat; ++count }
-    return Number(sum/count)
+    sum := Number.zero
+    if (a != null) { sum += a.num; ++count }
+    if (b != null) { sum += b.num; ++count }
+    if (c != null) { sum += c.num; ++count }
+    if (d != null) { sum += d.num; ++count }
+    return sum / Number(count)
   }
 }
 
