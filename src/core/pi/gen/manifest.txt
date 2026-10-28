@@ -40,6 +40,8 @@ markdown           <text-initial>
 modbus                                       conn
 mqtt                                         conn
 num                <hash>                    dev lang
+ocpp                                         conn ev
+opc                                          conn
 obix                                         conn
 ok                 <circle-check>            status
 point              <circle-dot>
@@ -47,7 +49,9 @@ proj               <database>
 pump                                         water
 rule               <settings>
 scalar             <atom>
+sedona                                       conn
 site               <building>
+snmp                                         conn
 space              <door-closed>
 spark              <chart-bar-big>           rule
 spec               <aperture>
