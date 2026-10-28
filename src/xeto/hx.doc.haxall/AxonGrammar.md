@@ -66,8 +66,8 @@ Legend for BNF Grammar:
 
     <assignExpr>   :=  <elvisExpr> ("=" <assignExpr>)
     <elvisExpr>    :=  <condOrExpr> ["?:" (<throw> | <condOrExpr>)]
-    <condOrExpr>   :=  <condAndExpr> ("and" <condAndExpr>)*
-    <condAndExpr>  :=  <compareExpr> ("or" <compareExpr>)*
+    <condOrExpr>   :=  <condAndExpr> ("or" <condAndExpr>)*
+    <condAndExpr>  :=  <compareExpr> ("and" <compareExpr>)*
     <compareExpr>  :=  <rangeExpr> (("==" | "!=" | "<" | "<=" |
                        ">=" | ">" | "<=>") <rangeExpr>)*
     <rangeExpr>    :=  <addExpr> ".." <addExpr>
