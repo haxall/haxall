@@ -94,7 +94,7 @@ class GenFanTest : Test
     // trailing slot removed with its preceding blank line
     src := [
       "**",
-      "** Computes the logical negation of its input",
+      "** Computes the logical negation of its input. An invalid input is false.",
       "**",
       "@Gen",
       "class Not : Logic",
@@ -106,7 +106,7 @@ class GenFanTest : Test
       ]
     expect := [
       "**",
-      "** Computes the logical negation of its input",
+      "** Computes the logical negation of its input. An invalid input is false.",
       "**",
       "@Gen",
       "class Not : Logic",
@@ -119,7 +119,7 @@ class GenFanTest : Test
     // first slot removed with its following blank line
     src = [
       "**",
-      "** Computes the logical negation of its input",
+      "** Computes the logical negation of its input. An invalid input is false.",
       "**",
       "@Gen",
       "class Not : Logic",
@@ -131,7 +131,7 @@ class GenFanTest : Test
       ]
     expect = [
       "**",
-      "** Computes the logical negation of its input",
+      "** Computes the logical negation of its input. An invalid input is false.",
       "**",
       "@Gen",
       "class Not : Logic",

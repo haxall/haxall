@@ -8,37 +8,45 @@
 //
 
 using concurrent
+using sql
 using xeto
 using haystack
 using hx
 using hxConn
 
 **
-** SqlTest
+** SqlConnTest runs the connector against a live database.  It is
+** abstract, so fant skips it; the concrete subclasses at the bottom of
+** this file bind it to a `sql::SqlTestDialect` which supplies the same
+** local servers used by the sql pod tests.
 **
-class SqlConnTest : HxTest
+abstract class SqlConnTest : HxTest
 {
+  ** Database this test runs against
+  abstract SqlTestDialect dialect()
 
 //////////////////////////////////////////////////////////////////////////
 // Setup
 //////////////////////////////////////////////////////////////////////////
 
-  ** Setup and return connector based on etc/sql/config.props
+  ** Setup and return connector for dialect; return null if
+  ** its database is not available
   Dict? sqlTestInit()
   {
+    d := dialect
+    if (!d.isAvailable) return null
+
     addLib("hx.sql")
     if (sys.info.type.isSkySpark) addLib("hx.his")
 
     // configure one
-    sqlPod := Pod.find("sql")
-
     conn := addRec([
             "dis":      "Test SQL Conn",
             "sqlConn":  Marker.val,
-            "uri":      sqlPod.config("test.uri").toUri,
-            "username": sqlPod.config("test.username"),
+            "uri":      d.uri.toUri,
+            "username": d.username,
             "sqlSyncHisExpr": "testSyncHis"])
-    proj.db.passwords.set(conn.id.toStr, sqlPod.config("test.password"))
+    proj.db.passwords.set(conn.id.toStr, d.password)
 
     grid := (Grid)eval("read(sqlConn).sqlTables()")
     verifyEq(grid.cols[0].name, "name")
@@ -59,15 +67,17 @@ class SqlConnTest : HxTest
   {
     // setup (with basic pre/post setup checks)
     conn := sqlTestInit
+    if (conn == null) return
 
     // drop test table
     try eval("""read(sqlConn).sqlExecute("drop table sqlext_test_basics")"""); catch (Err e) {}
 
     // create fresh test table
+    idType := dialect.ddl("id")
     x := eval(
     """read(sqlConn).sqlExecute(
         "create table sqlext_test_basics(
-         tid int auto_increment not null,
+         tid $idType not null,
          dis varchar(255) not null,
          date date,
          dur varchar(255) not null,
@@ -78,16 +88,15 @@ class SqlConnTest : HxTest
     verifyEq(grid.findAll |row| { row->name == "sqlext_test_basics" }.size, 1)
 
     // insert single dict
-    // TODO: using Date with mysql has off-by-one days, but using string works
-    aId := eval("""sqlInsert({dis:"Alpha", date:"2010-04-20", dur:"forever", num:66m}, read(sqlConn), "sqlext_test_basics")""")
+    aId := eval("""sqlInsert({dis:"Alpha", date:2010-04-20, dur:"forever", num:66m}, read(sqlConn), "sqlext_test_basics")""")
     verify(aId is Number)
     grid = eval("""sqlQuery($conn.id.toCode, "select * from sqlext_test_basics")""")
     verifyEq(grid.size, 1)
     verifyDictEq(grid[0], ["tid": aId, "dis":"Alpha", "date":Date("2010-04-20"), "dur":"forever", "num":n(66)])
 
     // add some recs with same tags
-    addRec(["foo":Marker.val, "dis":"Beta",  "date":Date(2010, Month.jun, 7).toStr, "dur":n(1, "min")])
-    addRec(["foo":Marker.val, "dis":"Gamma", "date":Date(2011, Month.jun, 7).toStr, "dur":n(5, "min")])
+    addRec(["foo":Marker.val, "dis":"Beta",  "date":Date(2010, Month.jun, 7), "dur":n(1, "min")])
+    addRec(["foo":Marker.val, "dis":"Gamma", "date":Date(2011, Month.jun, 7), "dur":n(5, "min")])
     Obj[] ids := eval("""readAll(foo).sort("date").sqlInsert($conn.id.toCode, "sqlext_test_basics")""")
     grid = eval("""read(sqlConn).sqlQuery("select * from sqlext_test_basics").sort("date")""")
 
@@ -103,7 +112,7 @@ class SqlConnTest : HxTest
     verifyEq(grid.cols.first.meta["sqlName"], "Dis-Name") // actual SQL name
 
     // verify executes
-    r := eval("""sqlExecute($conn.id.toCode, "update sqlext_test_basics set num=987 where dis=\\"Alpha\\"")""")
+    r := eval("""sqlExecute($conn.id.toCode, "update sqlext_test_basics set num=987 where dis='Alpha'")""")
     verifyEq(r, n(1))
     grid = eval("""sqlExecute($conn.id.toCode, "select * from sqlext_test_basics").sort("dis")""")
     verifyEq(grid.size, 3)
@@ -120,9 +129,10 @@ class SqlConnTest : HxTest
   Void testSyncHis()
   {
     conn := sqlTestInit
+    if (conn == null) return
 
     // create out function
-    addFuncRec("testSyncHis",
+    addFunc("testSyncHis",
       """(conn, his, range) => do
             //echo("sync " + conn->dis  +"," + his.toDis + ", " + range)
             sql: "select timestamp, value from " + his->tableName +
@@ -136,10 +146,11 @@ class SqlConnTest : HxTest
     try eval("""sqlExecute($conn.id.toCode, "drop table sqlext_test_sync_his_a")"""); catch (Err e) {}
 
     // create SQL table of history (one table per history model)
+    dtType := dialect.ddl("dt")
     x := eval(
     """read(sqlConn).sqlExecute(
         "create table sqlext_test_sync_his_a(
-         timestamp datetime,
+         timestamp $dtType,
          value float)"
          )""".replace("\n", " "))
 
@@ -199,15 +210,6 @@ class SqlConnTest : HxTest
     verifySyncStatus(hisA, 0)
   }
 
-  Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
-  {
-    tags["def"] = Symbol("func:$name")
-    tags["src"]  = src
-    r := addRec(tags)
-    proj.sync
-    return r
-  }
-
   Void verifyHis(Dict pt, Obj?[][] expected)
   {
     items := HisItem[,]
@@ -239,3 +241,16 @@ class SqlConnTest : HxTest
   }
 }
 
+**************************************************************************
+** Dialects
+**************************************************************************
+
+class MySqlConnTest : SqlConnTest
+{
+  override SqlTestDialect dialect() { SqlTestDialect.mysql }
+}
+
+class PostgresConnTest : SqlConnTest
+{
+  override SqlTestDialect dialect() { SqlTestDialect.postgres }
+}
