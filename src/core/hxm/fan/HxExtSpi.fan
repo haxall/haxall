@@ -242,7 +242,7 @@ const class HxExtSpi : Actor, ExtSpi
     try
     {
       if (msg.id === ExtMsgId.obs.name)         return onObs(msg)
-      if (msg.id === ExtMsgId.sync.name)        return "synced"
+      if (msg.id === ExtMsgId.sync.name)        return onSync
       if (msg.id === ExtMsgId.settings.name)    return onSettings
       if (msg.id === ExtMsgId.start.name)       return onStart
       if (msg.id === ExtMsgId.ready.name)       return onReady
@@ -295,6 +295,12 @@ const class HxExtSpi : Actor, ExtSpi
     ext.onReady
 
     return null
+  }
+
+  private Obj? onSync()
+  {
+    if (isRunning) ext.onSync
+    return "synced"
   }
 
   private Obj? onSteadyState()

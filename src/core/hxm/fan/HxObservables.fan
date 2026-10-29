@@ -252,7 +252,8 @@ const class HxObservables : Actor, RuntimeObservables
   private Obj? onSync()
   {
     // any subscriber which uses the marker tag "syncable" in its config
-    // will be included in a runtime sync by sending it a null msg
+    // will be included in a runtime sync by sending it Observer.toSyncMsg;
+    // ext method observers route that to Ext.onSync
     Subscription[] syncables := list.flatMap |obs->Subscription[]|
     {
       obs.subscriptions.findAll |sub| { sub.config.has("syncable") }

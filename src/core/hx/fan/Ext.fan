@@ -127,6 +127,12 @@ const mixin Ext
   ** This is called on dedicated background actor.
   virtual Void onSettings() {}
 
+  ** Callback to block until background work owned by this extension
+  ** has completed.  Override if the extension routes work to its own
+  ** actors so that runtime sync waits on them.  This is called on
+  ** dedicated background actor.
+  virtual Void onSync() {}
+
   ** Callback made periodically to perform background tasks.
   ** Override [houseKeepingFreq] to enable the frequency of this callback.
   virtual Void onHouseKeeping() {}
@@ -193,7 +199,7 @@ enum class ExtMsgId
   // built-in routing
 
   houseKeeping,   // onHouseKeeping poll
-  sync,           // no-op to block until queue is drained
+  sync,           // routes to onSync once queue is drained
   settings,       // routes to onSettings
   start,          // routes to onStart
   ready,          // routes to onReady

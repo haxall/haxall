@@ -90,28 +90,24 @@ const class PointExt : ExtObj, IPointExt
     if (writeMgr.isRunning) writeMgr.forceCheck
   }
 
-  ** Event when `enumMeta` record is modified
-  internal Void onEnumMetaEvent(CommitObservation? e)
+  ** Sync callback to drain the manager actors
+  override Void onSync()
   {
-    // null is sync message
-    if (e == null) return
+    writeMgr.sync
+    hisCollectMgr.sync
+  }
 
+  ** Event when `enumMeta` record is modified
+  internal Void onEnumMetaEvent(CommitObservation e)
+  {
     newRec := e.newRec
     if (newRec.has("trash")) newRec = Etc.dict0
     enums.updateMeta(newRec, log)
   }
 
   ** Event when `point` record is modified
-  internal Void onPointEvent(CommitObservation? e)
+  internal Void onPointEvent(CommitObservation e)
   {
-    // null is sync message
-    if (e == null)
-    {
-      writeMgr.sync
-      hisCollectMgr.sync
-      return
-    }
-
     // check for writable changes
     if (e.recHas("writable"))
       writeMgr.send(HxMsg("obs", e))

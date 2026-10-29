@@ -149,28 +149,16 @@ abstract const class ConnExt : ExtObj, HxConnExt
   }
 
   ** Connector rec commit event - route to roster
-  internal Void onConnEvent(CommitObservation? e)
-  {
-    if (e != null) roster.onConnEvent(e)
-  }
+  internal Void onConnEvent(CommitObservation e) { roster.onConnEvent(e) }
 
   ** Point rec commit event - route to roster
-  internal Void onPointEvent(CommitObservation? e)
-  {
-    if (e != null) roster.onPointEvent(e)
-  }
+  internal Void onPointEvent(CommitObservation e) { roster.onPointEvent(e) }
 
   ** Point rec watch event - route to roster
-  internal Void onPointWatch(Observation? e)
-  {
-    if (e != null) roster.onPointWatch(e)
-  }
+  internal Void onPointWatch(Observation e) { roster.onPointWatch(e) }
 
   ** Point write event - route to roster
-  internal Void onPointWrite(WriteObservation? e)
-  {
-    if (e != null) roster.onPointWrite(e)
-  }
+  internal Void onPointWrite(WriteObservation e) { roster.onPointWrite(e) }
 
 //////////////////////////////////////////////////////////////////////////
 // Callbacks
