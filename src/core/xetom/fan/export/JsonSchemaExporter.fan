@@ -217,6 +217,8 @@ class JsonSchemaExporter : Exporter
     slots := spec.slots()
     slots.each |slot, name|
     {
+      // choices are marker tags and queries are computed, not stored props
+      if (slot.isChoice || slot.isQuery) return
       if (!slot.isMaybe)
         required.add(name)
       props[name] = prop(slot)
