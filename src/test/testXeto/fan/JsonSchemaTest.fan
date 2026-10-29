@@ -165,6 +165,50 @@ class JsonSchemaTest : AbstractXetoTest
     verifyAllRefsResolved(personDef, ex.defs)
   }
 
+  Void testChoiceAndQuerySlots()
+  {
+    ns := createNamespace(["sys"])
+
+    // Choice slots are selected by marker tags on the parent dict and Query
+    // slots are computed from the graph, so neither is a stored property.
+    src :=
+      Str<|Fuel: Choice
+           Gas: Fuel { gas }
+           Oil: Fuel { oil }
+           Point: Dict {
+             equipRef: Ref
+             equips: Query<of:Equip, via:"equipRef+">
+           }
+           Equip: Dict {
+             name: Str
+             fuel: Fuel
+             optFuel: Fuel?
+             points: Query<of:Point, inverse:"Point.equips">
+           }
+           Boiler: Equip { boiler }|>
+
+    lib := ns.compileTempLib(src)
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    ex.spec(lib.type("Equip"))
+    ex.spec(lib.type("Point"))
+    ex.spec(lib.type("Boiler"))
+
+    // data slots stay, Choice and Query slots are omitted
+    equip := (Obj:Obj)ex.defs["${lib.name}.Equip"]
+    verifyEq(((Obj:Obj)equip["properties"]).keys, Obj["name"])
+    verifyEq(equip["required"], Obj["name"])
+
+    point := (Obj:Obj)ex.defs["${lib.name}.Point"]
+    verifyEq(((Obj:Obj)point["properties"]).keys, Obj["equipRef"])
+    verifyEq(point["required"], Obj["equipRef"])
+
+    // inherited Choice and Query slots are omitted from the subtype too
+    boiler := (Obj:Obj)ex.defs["${lib.name}.Boiler"]
+    sub := (Obj:Obj)((Obj[])boiler["allOf"])[1]
+    verifyEq(((Obj:Obj)sub["properties"]).keys.sort, Obj["boiler", "name"])
+    verifyEq(((Obj[])sub["required"]).dup.sort, Obj["boiler", "name"])
+  }
+
   Void testScalarMappings()
   {
     ns := createNamespace(["sys"])
