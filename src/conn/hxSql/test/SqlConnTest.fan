@@ -34,7 +34,7 @@ abstract class SqlConnTest : HxTest
   Dict? sqlTestInit()
   {
     d := dialect
-    if (!d.isAvailable) return null
+    if (!d.isAvailable(this)) return null
 
     addLib("hx.sql")
     if (sys.info.type.isSkySpark) addLib("hx.his")

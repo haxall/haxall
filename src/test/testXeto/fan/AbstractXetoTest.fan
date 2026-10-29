@@ -108,13 +108,7 @@ class AbstractXetoTest : HaystackTest
     missing := vers.findAll |v| { v.isSrc && XetoUtil.srcToLibZip(v)?.exists != true }
     if (!missing.isEmpty)
     {
-      echo("")
-      echo("#####################################################################")
-      echo("## SKIP $typeof.name: xetolib zips not built")
-      echo("##   missing: " + missing.join(", ") { it.name })
-      echo("##   run 'fan src/build.fan' to build them")
-      echo("#####################################################################")
-      echo("")
+      warn("xetolib zips not built, run 'fan src/build.fan'; skipping test [missing: " + missing.join(", ") { it.name } + "]")
       return null
     }
 

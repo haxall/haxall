@@ -525,6 +525,7 @@ class HaystackConnTest : HxTest
                        "haystackHis":hisF.id.toStr, "his":Marker.val,
                        "tz":"Chicago", "point": Marker.val,
                        "unit":"fahrenheit", "kind":"Number"])
+    syncConn
 
     // sync
     eval("readById($hisSyncF.id.toCode).haystackSyncHis(2010)")

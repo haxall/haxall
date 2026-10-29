@@ -201,7 +201,7 @@ class NamespaceTest : HxTest
     missing := vers.findAll |v| { XetoUtil.srcToLibZip(v)?.exists != true }
     if (!missing.isEmpty)
     {
-      echo("SKIP testCacheKeyZipMatchesSource: no zip for " + missing.map |v->Str| { v.name })
+      warn("xetolib zips not built, run 'fan src/build.fan'; skipping test [missing: " + missing.join(", ") { it.name } + "]")
       return
     }
 
