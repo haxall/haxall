@@ -39,7 +39,6 @@ class HxdBoot : HxSysBoot
     this.createMeta = Etc.dictToMap(projMeta)
     this.bootLibs.remove("hx.http")
     this.bootLibs.add("hx.platform.serial")
-    if (Pod.find("hxIon", false) != null) this.bootLibs.add("hx.ion")
     this.sysConfig["test"] = Marker.val
     this.sysConfig["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
     this.log.level = LogLevel.warn
