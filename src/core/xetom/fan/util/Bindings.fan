@@ -117,7 +117,6 @@ const class SpecBindings
     add(FormatBinding     (pi.type("Format")))
     add(IconBinding       (pi.type("Icon")))
     add(SelectModeBinding (pi.type("SelectMode")))
-    add(SketchBinding     (pi.type("Sketch")))
     add(SniBinding        (pi.type("Sni")))
     add(TextBinding       (pi.type("Text")))
 
@@ -644,13 +643,6 @@ internal const class SymbolBinding : ScalarBinding
 {
   new make(Type type) : super("ph::Symbol", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Symbol.fromStr(str) }
-}
-
-@Js
-internal const class SketchBinding : ScalarBinding
-{
-  new make(Type type) : super(type.qname, type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Sketch.fromStr(str) }
 }
 
 @Js

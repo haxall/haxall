@@ -6,41 +6,34 @@
 //   21 Oct 2026  Brian Frank  Creation
 //
 
+using dom
+using xeto
+
 **
-** Sketch is an Axon template for HTML and SVG markup
+** Sketch is an Axon template for HTML and SVG markup compiled
+** against a namespace.  Use `PiEnv.sketch` to compile one.
 **
 @NoDoc @Js
 const mixin Sketch
 {
-  ** Create from template source
-  static new fromStr(Str src) { MSketch(src) }
-
   ** Template source
   abstract Str src()
+
+  ** Render this sketch to a DOM element with the given variables
+  abstract SketchElem render(Dict vars)
 
   ** Return template source
   override Str toStr() { src }
 }
 
 **************************************************************************
-** MSketch
+** SketchElem
 **************************************************************************
 
-@Js
-internal const class MSketch : Sketch
+@Js @NoDoc
+class SketchElem : Elem
 {
-  static new fromStr(Str src) { make(src) }
-
-  private new make(Str src) { this.src = src }
-
-  override const Str src
-
-  override Int hash() { src.hash }
-
-  override Bool equals(Obj? that)
-  {
-    x := that as MSketch
-    return x != null && src == x.src
-  }
+  ** Constructor
+  new make(Str elemName) : super(elemName) {}
 }
 
