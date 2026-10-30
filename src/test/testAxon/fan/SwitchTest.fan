@@ -57,6 +57,79 @@ class SwitchTest : AxonTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Or
+//////////////////////////////////////////////////////////////////////////
+
+  Void testOr()
+  {
+    src :=
+      Str<|switch (x)
+             case 200 or 204 => "ok"
+             case "a" or "b" or "c" => "abc"
+             case null or false => "falsy"
+             case 1 or 5..9 => "one or five to nine"
+             default => "other"
+           end|>
+    verifySwitch(src, "200", "ok")
+    verifySwitch(src, "204", "ok")
+    verifySwitch(src, "201", "other")
+    verifySwitch(src, "\"b\"", "abc")
+    verifySwitch(src, "\"c\"", "abc")
+    verifySwitch(src, "null", "falsy")
+    verifySwitch(src, "false", "falsy")
+    verifySwitch(src, "1", "one or five to nine")
+    verifySwitch(src, "7", "one or five to nine")
+    verifySwitch(src, "3", "other")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Ranges
+//////////////////////////////////////////////////////////////////////////
+
+  Void testRanges()
+  {
+    src :=
+      Str<|switch (x)
+             case 200..299 => "success"
+             case 400..499 => "client err"
+             case "a".."m" => "a-m"
+             default => "other"
+           end|>
+    verifySwitch(src, "200", "success")
+    verifySwitch(src, "250", "success")
+    verifySwitch(src, "299", "success")
+    verifySwitch(src, "300", "other")
+    verifySwitch(src, "404", "client err")
+    verifySwitch(src, "-5", "other")
+    verifySwitch(src, "\"foo\"", "a-m")
+    verifySwitch(src, "\"zed\"", "other")
+
+    // different type than bounds does not match or throw
+    verifySwitch(src, "2026-10-30", "other")
+    verifySwitch(src, "null", "other")
+
+    // date ranges and month literals match single dates
+    src =
+      Str<|switch (x)
+             case 2026-10-01..2026-10-15 => "early oct"
+             case 2026-10 => "late oct"
+             case 2026-11 or 2026-12 => "nov or dec"
+             default => "other"
+           end|>
+    verifySwitch(src, "2026-10-01", "early oct")
+    verifySwitch(src, "2026-10-15", "early oct")
+    verifySwitch(src, "2026-10-16", "late oct")
+    verifySwitch(src, "2026-10-31", "late oct")
+    verifySwitch(src, "2026-11-11", "nov or dec")
+    verifySwitch(src, "2026-12-31", "nov or dec")
+    verifySwitch(src, "2027-01-01", "other")
+    verifySwitch(src, "\"2026-10-20\"", "other")
+
+    // month literal still equals same month span
+    verifySwitch("switch (x) case 2026-10 => 1 end", "2026-10", n(1))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Default
 //////////////////////////////////////////////////////////////////////////
 
@@ -140,6 +213,9 @@ class SwitchTest : AxonTest
     verifyErr(SyntaxErr#) { eval("switch (1) default => 1 case 2 => 3 end") }
     verifyErr(SyntaxErr#) { eval("switch (1) default => 1 default => 2 end") }
     verifyErr(SyntaxErr#) { eval("switch 1 case 1 => 2 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1 or => 2 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1..\"x\" => 2 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case null..3 => 2 end") }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,8 +227,10 @@ class SwitchTest : AxonTest
     src :=
       Str<|switch (x)
              case 200 => 1
-             case "a" => 2
-             default => 3
+             case "a" or 4 => 2
+             case 400..499 => 3
+             case 2026-10 => 4
+             default => 5
            end|>
     expr := Parser(src.in).parse
 
@@ -164,9 +242,12 @@ class SwitchTest : AxonTest
     ast := expr.encode
     verifyEq(ast->type, "switch")
     Dict[] cases := ast->cases
-    verifyEq(cases.map |c->Obj?| { c->type }, Obj?["switchCase", "switchCase"])
-    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "literalPattern"])
-    verifyEq(cases.map |c->Obj?| { c->pattern->val }, Obj?[n(200), "a"])
+    verifyEq(cases.map |c->Obj?| { c->type }, Obj?["switchCase", "switchCase", "switchCase", "switchCase"])
+    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern"])
+    verifyEq(cases[0]->pattern->val, n(200))
+    verifyEq(((Dict[])cases[1]->pattern->alts).map |p->Obj?| { p->val }, Obj?["a", n(4)])
+    verifyEq(cases[2]->pattern->start, n(400))
+    verifyEq(cases[2]->pattern->end, n(499))
   }
 
 //////////////////////////////////////////////////////////////////////////

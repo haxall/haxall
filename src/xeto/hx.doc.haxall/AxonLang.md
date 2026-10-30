@@ -558,7 +558,28 @@ matches the same number with any unit:
     end
 
 Literals may be any constant including negative numbers, strings,
-booleans, null, dates, refs, and symbols.
+booleans, null, dates, refs, and symbols.  A month literal such as
+`2026-10` matches any date in that month.
+
+## Range Patterns
+A range pattern matches a subject of the same type as its bounds which
+is within the inclusive range.  A subject of a different type does not
+match:
+
+    switch (val)
+      case 200..299               => "success"
+      case "a".."m"               => "first half of alphabet"
+      case 2026-10-01..2026-10-15 => "first half of October"
+    end
+
+## Alternatives
+Use `or` to match any of multiple patterns:
+
+    switch (code)
+      case 200 or 204         => "ok"
+      case 400..499 or 503    => "error"
+      case 2026-11 or 2026-12 => "end of year"
+    end
 
 # Throw Expr
 The `throw` expression is used to raise an exception.  Exceptions in

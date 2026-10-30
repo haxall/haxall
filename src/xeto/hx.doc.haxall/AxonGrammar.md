@@ -61,7 +61,8 @@ Legend for BNF Grammar:
     <switch>       :=  "switch" "(" <expr> ")" <case>* [<default>] "end"
     <case>         :=  "case" <pattern> "=>" <expr>
     <default>      :=  "default" "=>" <expr>
-    <pattern>      :=  <literal>
+    <pattern>      :=  <rangeOrLit> ("or" <rangeOrLit>)*
+    <rangeOrLit>   :=  <literal> [".." <literal>]
 
     <throw>        :=  "throw" <expr>
     <tryCatch>     :=  "try" <expr> "catch" ["(" <id> ")"] <expr>

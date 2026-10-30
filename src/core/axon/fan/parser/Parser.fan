@@ -315,14 +315,33 @@ class Parser
   **
   ** Pattern:
   **
-  **     <pattern>  :=  <literal>
+  **     <pattern>    :=  <rangeOrLit> ("or" <rangeOrLit>)*
+  **     <rangeOrLit> :=  <literal> [".." <literal>]
   **
   private Pattern pattern()
+  {
+    alts := [rangeOrLit]
+    while (cur === Token.orKeyword) { consume; alts.add(rangeOrLit) }
+    return alts.size == 1 ? alts.first : OrPattern(alts)
+  }
+
+  private Pattern rangeOrLit()
+  {
+    loc := curLoc
+    start := literalVal
+    if (cur !== Token.dotDot) return LiteralPattern(loc, start)
+    consume
+    end := literalVal
+    if (start == null || start.typeof !== end?.typeof) throw err("Range bounds must be same type", loc)
+    return RangePattern(loc, start, end)
+  }
+
+  private Obj? literalVal()
   {
     loc := curLoc
     lit := unaryExpr.foldConst
     if (!lit.isConst) throw err("Expecting pattern, not expr", loc)
-    return LiteralPattern(loc, lit.constVal)
+    return lit.constVal
   }
 
 //////////////////////////////////////////////////////////////////////////

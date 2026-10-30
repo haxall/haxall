@@ -40,6 +40,8 @@ enum class ExprType
 
   // patterns
   literalPattern,
+  rangePattern,
+  orPattern,
 
   // assignment
   assign("="),
