@@ -109,10 +109,19 @@ class TokenizerTest : Test
     verifyToks("@demo:125b780e-0684e169", Obj?[Token.val, Ref("demo:125b780e-0684e169")])
 
     // keywords
-    verifyToks("true",  Obj?[Token.trueKeyword,  null])
-    verifyToks("false", Obj?[Token.falseKeyword, null])
-    verifyToks("and",   Obj?[Token.andKeyword,   null])
-    verifyToks("or",    Obj?[Token.orKeyword,    null])
+    verifyToks("true",     Obj?[Token.trueKeyword,  null])
+    verifyToks("false",    Obj?[Token.falseKeyword, null])
+    verifyToks("and",      Obj?[Token.andKeyword,   null])
+    verifyToks("or",       Obj?[Token.orKeyword,    null])
+    verifyToks("switch",   Obj?[Token.switchKeyword, null])
+    verifyToks("for",      Obj?[Token.forKeyword,   null])
+    verifyToks("let",      Obj?[Token.letKeyword,   null])
+    verifyToks("const",    Obj?[Token.constKeyword, null])
+    verifyToks("default",  Obj?[Token.defaultKeyword, null])
+    verifyToks("case",     Obj?[Token.caseKeyword, null])
+    verifyToks("using",    Obj?[Token.usingKeyword, null])
+    verifyToks("async",    Obj?[Token.asyncKeyword, null])
+    verifyToks("await",    Obj?[Token.awaitKeyword, null])
 
     // comments
     verifyToks(

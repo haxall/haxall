@@ -83,7 +83,7 @@ Legend for BNF Grammar:
     <callArg>      :=  <expr> | "_"
     <dotCall>      :=  ("." | "?.") [<nl>] <qname> [<call> | <lambda-1>]
     <index>        :=  "[" <expr> "]"
-    <trapCall>     :=  ("->" | "?->") <id>
+    <trapCall>     :=  ("->" | "?->") <idOrKeyword>
 
     <qname>        :=  [<qnameLib> "::"] <qnameName>
     <qnameLib>     :=  <id> ("." <id>)*
@@ -94,9 +94,10 @@ Legend for BNF Grammar:
 
     <idOrKeyword>  :=  <id> | <keyword>
 
-    <keyword>      :=  "and" | "catch" | "defcomp" | "deflinks" | "do" | "else" |
-                       "end" | "false" | "if" | "not" | "null" | "or" | "return" |
-                       "throw" | "true" | "try"
+    <keyword>      :=  "and" | "async" | "await" | "case" | "catch" | "const" |
+                       "default" | "defcomp" | "deflinks" | "do" | "else" | "end" |
+                       "false" | "for" | "if" | "let" | "not" | "null" | "or" |
+                       "return" | "switch" | "throw" | "true" | "try" | "using"
 
 # Tokens
 

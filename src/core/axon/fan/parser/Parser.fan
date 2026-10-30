@@ -735,14 +735,14 @@ class Parser
   **
   ** Indexing operation:
   **
-  **     <trapCall> := ("->" | "?->") <id>
+  **     <trapCall> := ("->" | "?->") <idOrKeyword>
   **
   ** Convenience for "trap" methodCall
   **
   private Expr dictGet(Expr target, Bool nullSafe := false)
   {
     consume
-    name := consumeId("dict tag name")
+    name := consumeIdOrKeyword("dict tag name")
     return TrapCall(target, name, nullSafe)
   }
 

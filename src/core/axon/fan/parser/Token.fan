@@ -61,21 +61,30 @@ enum class Token
 
   // keywords
   andKeyword,
+  asyncKeyword,
+  awaitKeyword,
+  caseKeyword,
   catchKeyword,
+  constKeyword,
+  defaultKeyword,
   defcompKeyword,
   deflinksKeyword,
   doKeyword,
   elseKeyword,
   endKeyword,
   falseKeyword,
+  forKeyword,
   ifKeyword,
+  letKeyword,
   notKeyword,
   nullKeyword,
   orKeyword,
   returnKeyword,
+  switchKeyword,
   throwKeyword,
   trueKeyword,
   tryKeyword,
+  usingKeyword,
 
   // misc
   eof("eof");

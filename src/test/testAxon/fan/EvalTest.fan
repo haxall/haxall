@@ -180,6 +180,16 @@ class EvalTest : AxonTest
     verifyEval(Str<|{a:{b:2}}?->a?->b|>, n(2))
     verifyEval(Str<|null?->a?->b|>, null)
 
+    // -> and ?-> with keyword tag names
+    verifyEval(Str<|{for:1, let:2}->for + {const:2}->const|>, n(3))
+    verifyEval(Str<|{default:5}->default + {case:1}->case|>, n(6))
+    verifyEval(Str<|{using:1}?->using|>, n(1))
+    verifyEval(Str<|{switch:1}.has("switch")|>, true)
+
+    // reserved keywords cannot be names
+    verifyErr(SyntaxErr#) { eval("for: 3") }
+    verifyErr(SyntaxErr#) { eval("(await) => 3") }
+
     // ?-> still throws on missing tag
     verifyErr(EvalErr#) { eval(Str<|{a:1}?->b|>) }
 
