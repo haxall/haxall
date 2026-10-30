@@ -19,11 +19,25 @@ const mixin Sketch
   ** Template source
   abstract Str src()
 
-  ** Render this sketch to a DOM element with the given variables
-  abstract SketchElem render(Str:Obj? vars)
+  ** Render this sketch to a DOM element with the given scope variables
+  abstract SketchElem renderElem(SketchScope scope)
+
+  ** Render this sketch to a markup string with the given scope variables
+  abstract Str renderStr(SketchScope scope)
 
   ** Return template source
   override Str toStr() { src }
+}
+
+**************************************************************************
+** SketchScope
+**************************************************************************
+
+@Js @NoDoc
+mixin SketchScope
+{
+  ** Get a variable by name or null if not defined
+  abstract Obj? get(Str name)
 }
 
 **************************************************************************
@@ -31,12 +45,12 @@ const mixin Sketch
 **************************************************************************
 
 @Js @NoDoc
-class SketchElem : Elem
+abstract class SketchElem : Elem
 {
   ** Constructor.  Pass 'Svg.ns' if its an SVG element
   new make(Str elemName, Uri? ns := null) : super(elemName, ns) {}
 
   ** Re-render this element with the given variables
-  virtual Void rerender(Str:Obj? vars) {}
+  abstract Void rerender(SketchScope scope)
 }
 
