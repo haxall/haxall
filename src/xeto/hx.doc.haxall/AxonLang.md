@@ -523,6 +523,43 @@ preceeds the `else` keyword:
       ...
     end
 
+# Switch Expr
+The `switch` expression tests a subject against a list of cases.  Each
+`case` is tried in order, and the body of the first one whose pattern
+matches is evaluated.  If no case matches, the optional `default` body
+is evaluated:
+
+    switch (code)
+      case 200 => "ok"
+      case 404 => "not found"
+      default  => "error"
+    end
+
+Like everything in Axon, `switch` is an expression which evaluates to
+the body of the matching case.  If no case matches and there is no
+`default`, then the switch evaluates to null just like an `if` without
+an `else`:
+
+    switch (3) case 4 => "four" end   >> null
+
+A case body is any expression; use a [do block](#blocks) for multiple
+expressions.  A `return` inside a case body returns from the enclosing
+function, the same as `return` inside an `if`.
+
+## Literal Patterns
+A literal pattern matches when the subject equals the literal using
+the same equality as the `==` operator, so a number without a unit
+matches the same number with any unit:
+
+    switch (val)
+      case 72     => "matches 72 and 72°F"
+      case "ahu"  => "string"
+      case null   => "null"
+    end
+
+Literals may be any constant including negative numbers, strings,
+booleans, null, dates, refs, and symbols.
+
 # Throw Expr
 The `throw` expression is used to raise an exception.  Exceptions in
 Axon are [dicts](#dicts) which have the `err` marker tag and the [ph::PhEntity.dis]

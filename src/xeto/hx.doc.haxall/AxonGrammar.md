@@ -26,8 +26,8 @@ Legend for BNF Grammar:
     <topFunc>      :=  <lambda-n>
 
     <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
-                       <return> | <throw> | <tryCatch> | <defcomp> |
-                       <assignExpr>
+                       <return> | <throw> | <tryCatch> | <switch> |
+                       <defcomp> | <assignExpr>
 
     <do>           :=  "do" <exprs> "end"
     <exprs>        :=  <expr> (<exprSep> <expr>)*
@@ -57,6 +57,11 @@ Legend for BNF Grammar:
     <if>           :=  "if" "(" <expr> ")" <expr> ["else" <expr>]
 
     <return>       :=  "return" <expr>
+
+    <switch>       :=  "switch" "(" <expr> ")" <case>* [<default>] "end"
+    <case>         :=  "case" <pattern> "=>" <expr>
+    <default>      :=  "default" "=>" <expr>
+    <pattern>      :=  <literal>
 
     <throw>        :=  "throw" <expr>
     <tryCatch>     :=  "try" <expr> "catch" ["(" <id> ")"] <expr>

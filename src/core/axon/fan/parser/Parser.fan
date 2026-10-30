@@ -123,6 +123,7 @@ class Parser
     if (cur === Token.returnKeyword) return returnExpr
     if (cur === Token.throwKeyword)  return throwExpr
     if (cur === Token.tryKeyword)    return tryCatchExpr
+    if (cur === Token.switchKeyword) return switchExpr
     return assignExpr
   }
 
@@ -267,6 +268,61 @@ class Parser
     }
     catcher := expr
     return TryCatch(body, errVarName, catcher)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Switch Expression
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Switch with pattern matching cases:
+  **
+  **     <switch>   :=  "switch" "(" <expr> ")" <case>* [<default>] "end"
+  **     <case>     :=  "case" <pattern> "=>" <expr>
+  **     <default>  :=  "default" "=>" <expr>
+  **
+  private Expr switchExpr()
+  {
+    loc := curLoc
+    consume(Token.switchKeyword)
+    consume(Token.lparen)
+    subject := expr
+    consume(Token.rparen)
+
+    cases := SwitchCase[,]
+    Expr? defExpr := null
+    while (true)
+    {
+      if (cur === Token.semicolon) { consume; continue }
+      if (cur === Token.endKeyword) { consume; break }
+      if (defExpr != null) throw err("Expecting 'end' after default case, not $curToStr")
+      if (cur === Token.caseKeyword) { cases.add(switchCase); continue }
+      if (cur === Token.defaultKeyword) { consume; consume(Token.fnEq); defExpr = expr; continue }
+      throw err("Expecting 'case', 'default', or 'end', not $curToStr")
+    }
+    return SwitchExpr(loc, subject, cases, defExpr)
+  }
+
+  private SwitchCase switchCase()
+  {
+    loc := curLoc
+    consume(Token.caseKeyword)
+    p := pattern
+    consume(Token.fnEq)
+    return SwitchCase(loc, p, expr)
+  }
+
+  **
+  ** Pattern:
+  **
+  **     <pattern>  :=  <literal>
+  **
+  private Pattern pattern()
+  {
+    loc := curLoc
+    lit := unaryExpr.foldConst
+    if (!lit.isConst) throw err("Expecting pattern, not expr", loc)
+    return LiteralPattern(loc, lit.constVal)
   }
 
 //////////////////////////////////////////////////////////////////////////

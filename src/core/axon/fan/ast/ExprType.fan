@@ -34,7 +34,12 @@ enum class ExprType
   returnExpr,
   throwExpr,
   tryExpr,
+  switchExpr,
+  switchCase,
   topName,
+
+  // patterns
+  literalPattern,
 
   // assignment
   assign("="),

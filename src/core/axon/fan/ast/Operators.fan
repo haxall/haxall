@@ -384,14 +384,14 @@ internal const class Eq : BinaryOp
   new make(Expr lhs, Expr rhs) : super(lhs, rhs) {}
   override ExprType type() { ExprType.eq }
   override Obj? doEval(AxonContext cx) { eq(cx) }
-  internal Bool eq(AxonContext cx)
+  internal Bool eq(AxonContext cx) { eqVals(lhs.eval(cx), rhs.eval(cx)) }
+  ** Axon equality where null unit numbers equal any unit
+  static Bool eqVals(Obj? a, Obj? b)
   {
-    a := lhs.eval(cx); at := a?.typeof
-    b := rhs.eval(cx); bt := b?.typeof
-    if (at === Number# && bt === Number#) return evalNumber(a, b)
+    if (a?.typeof === Number# && b?.typeof === Number#) return evalNumber(a, b)
     return a == b
   }
-  private Bool evalNumber(Number a, Number b)
+  private static Bool evalNumber(Number a, Number b)
   {
     if (a.toFloat.compare(b.toFloat) != 0) return false
     if (a.unit === b.unit) return true
