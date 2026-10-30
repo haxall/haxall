@@ -44,6 +44,14 @@ class Parser
     return r
   }
 
+  ** Parse a switch case pattern such as "200 or 204"
+  @NoDoc Pattern parsePattern()
+  {
+    r := pattern
+    verifyEof
+    return r
+  }
+
   ** New style top where params come from Xeto
   TopFn parseTopBody(Str name, FnParam[] params, Dict meta)
   {
