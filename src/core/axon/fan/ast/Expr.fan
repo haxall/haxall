@@ -78,6 +78,34 @@ const abstract class Expr
     }
   }
 
+  ** Variable names this expression resolves from outside itself, in
+  ** the order first referenced.  Names bound within the expression by
+  ** a local def, func param, or catch are not free, nor are bare names
+  ** in call position such as 'foo' in 'foo(x)' or 'x.foo'.
+  @NoDoc Str[] freeVars()
+  {
+    acc := Str:Str[:] { ordered = true }
+    doFreeVars(acc)
+    return acc.keys.findAll |n| { acc[n] == "free" }
+  }
+
+  ** Map each name this expression references to "free" or "bound"
+  ** in evaluation order; a name's first mark wins
+  @NoDoc virtual Void doFreeVars(Str:Str acc)
+  {
+    walk |k, v|
+    {
+      if (v is Expr) ((Expr)v).doFreeVars(acc)
+      else if (v is List) ((List)v).each |x| { (x as Expr)?.doFreeVars(acc) }
+    }
+  }
+
+  ** Mark name as bound unless already referenced
+  internal static Void bindVar(Str:Str acc, Str name)
+  {
+    if (!acc.containsKey(name)) acc[name] = "bound"
+  }
+
   ** Walk through the AST tree to encode into dict/maps
   @NoDoc abstract Void walk(|Str key, Obj? val| f)
 

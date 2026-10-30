@@ -55,6 +55,13 @@ internal const class Call : Expr
     f("args", args)
   }
 
+  ** A bare name in call position is a func, not a variable
+  override Void doFreeVars(Str:Str acc)
+  {
+    if (func.type !== ExprType.var) func.doFreeVars(acc)
+    args.each |arg| { arg?.doFreeVars(acc) }
+  }
+
   override Printer print(Printer out)
   {
     out.atomicStart.atomic(func).wc('(')

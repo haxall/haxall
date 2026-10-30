@@ -92,6 +92,54 @@ class ParseTest : Test
   }
 
 //////////////////////////////////////////////////////////////////////////
+// FreeVars
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFreeVars()
+  {
+    // basics
+    verifyFreeVars("3 + 4", Str[,])
+    verifyFreeVars("x", ["x"])
+    verifyFreeVars("x + y * x", ["x", "y"])
+    verifyFreeVars("[a, b, a]", ["a", "b"])
+    verifyFreeVars("{dis: d, n: 3}", ["d"])
+    verifyFreeVars("if (c) a else b", ["c", "a", "b"])
+    verifyFreeVars("x = 3", ["x"])
+    verifyFreeVars("switch (v) case 1 => a default => b end", ["v", "a", "b"])
+
+    // call position is a func, not a var
+    verifyFreeVars("foo(x)", ["x"])
+    verifyFreeVars("x.foo", ["x"])
+    verifyFreeVars("x.foo(y)", ["x", "y"])
+    verifyFreeVars("x->dis", ["x"])
+    verifyFreeVars("foo(_, x)", ["x"])
+    verifyFreeVars("(x => x)(y)", ["y"])
+
+    // local defs bind after their value
+    verifyFreeVars("do a: x; a + b end", ["x", "b"])
+    verifyFreeVars("do a: a + 1; a end", ["a"])
+    verifyFreeVars("do y; y: 1; y end", ["y"])
+    verifyFreeVars("do f: (x) => x; f(y) end", ["y"])
+
+    // func params, including defaults that read earlier params
+    verifyFreeVars("x => x", Str[,])
+    verifyFreeVars("rows.map(r => r->dis + s)", ["rows", "s"])
+    verifyFreeVars("(a, b: a + c) => a + b + d", ["c", "d"])
+    verifyFreeVars("(a: b, b: 1) => a", ["b"])
+    verifyFreeVars("x => y => x + y + z", ["z"])
+    verifyFreeVars("do r: [1].map(x => do v: x; v end); v end", ["v"])
+
+    // catch var
+    verifyFreeVars("try foo(x) catch (e) e->dis + y", ["x", "y"])
+    verifyFreeVars("try x catch e", ["x", "e"])
+  }
+
+  Void verifyFreeVars(Str src, Str[] expect)
+  {
+    verifyEq(Parser(src.in).parse.freeVars, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Pipeline
 //////////////////////////////////////////////////////////////////////////
 

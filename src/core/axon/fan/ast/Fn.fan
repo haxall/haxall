@@ -133,6 +133,16 @@ const class Fn : Expr, HaystackFunc
     f("body", body)
   }
 
+  ** Params and locals are scoped to a copy; each param default
+  ** may read the params before it
+  @NoDoc override Void doFreeVars(Str:Str acc)
+  {
+    inner := acc.dup
+    params.each |p| { p.def?.doFreeVars(inner); bindVar(inner, p.name) }
+    body.doFreeVars(inner)
+    inner.each |v, n| { if (v == "free") acc[n] = v }
+  }
+
   ** Print
   @NoDoc override Printer print(Printer out)
   {

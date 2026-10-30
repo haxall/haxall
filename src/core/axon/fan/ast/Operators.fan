@@ -221,6 +221,13 @@ internal const class TryCatch : Expr
     }
   }
 
+  override Void doFreeVars(Str:Str acc)
+  {
+    tryExpr.doFreeVars(acc)
+    if (errVarName != null) bindVar(acc, errVarName)
+    catchExpr.doFreeVars(acc)
+  }
+
   override Void walk(|Str key, Obj? val| f)
   {
     f("tryExpr", tryExpr)

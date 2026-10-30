@@ -40,6 +40,13 @@ internal const class DefineVar : Expr
     f("val", val)
   }
 
+  ** Value is evaluated before the name is bound
+  override Void doFreeVars(Str:Str acc)
+  {
+    val.doFreeVars(acc)
+    bindVar(acc, name)
+  }
+
   override Printer print(Printer out)
   {
     out.w(name).w(": ").expr(val)

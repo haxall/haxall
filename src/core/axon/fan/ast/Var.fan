@@ -28,6 +28,11 @@ internal const class Var : Expr
 
   override Void walk(|Str key, Obj? val| f) { f("name", name) }
 
+  override Void doFreeVars(Str:Str acc)
+  {
+    if (!acc.containsKey(name)) acc[name] = "free"
+  }
+
   override Printer print(Printer out) { out.w(name) }
 
 }
