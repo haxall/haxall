@@ -20,7 +20,7 @@ const mixin Sketch
   abstract Str src()
 
   ** Render this sketch to a DOM element with the given variables
-  abstract SketchElem render(Dict vars)
+  abstract SketchElem render(Str:Obj? vars)
 
   ** Return template source
   override Str toStr() { src }
@@ -33,7 +33,10 @@ const mixin Sketch
 @Js @NoDoc
 class SketchElem : Elem
 {
-  ** Constructor
-  new make(Str elemName) : super(elemName) {}
+  ** Constructor.  Pass 'Svg.ns' if its an SVG element
+  new make(Str elemName, Uri? ns := null) : super(elemName, ns) {}
+
+  ** Re-render this element with the given variables
+  virtual Void rerender(Str:Obj? vars) {}
 }
 
