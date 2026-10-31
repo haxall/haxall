@@ -42,3 +42,36 @@ StrLatch: Latch {
   out: StatusStr?
 }
 
+// Set-reset latch.  `out` turns true when `in` rises while `inClear` is
+// false, and false when `inClear` rises, which wins when both rise on
+// one execute.  This is the CDL `Logical.Latch` block.
+//
+// The first valid execute, also after a restart, sets `out` to `in` and
+// not `inClear`.  A null input sets `out` to null, an invalid one holds
+// `out` with the merged status, and edges are judged against the last
+// valid inputs.  A rise of a valid `inClear` clears even while `in` is
+// null or invalid.
+SetResetLatch: Logic {
+  // A rise sets `out` to true unless `inClear` is true
+  in: StatusBool? <summary, transient>
+
+  // A rise sets `out` to false
+  inClear: StatusBool? <summary, transient>
+}
+
+// Toggle.  Each rise of `in` while `inClear` is false flips `out`.  A
+// rise of `inClear` sets `out` to false and wins over a rise of `in` on
+// the same execute.  This is the CDL `Logical.Toggle` block.
+//
+// The first valid execute, also after a restart, sets `out` to `in` and
+// not `inClear`.  A null input sets `out` to null, an invalid one holds
+// `out` with the merged status, and edges are judged against the last
+// valid inputs.  A rise of a valid `inClear` clears even while `in` is
+// null or invalid.
+Toggle: Logic {
+  // A rise flips `out` unless `inClear` is true
+  in: StatusBool? <summary, transient>
+
+  // A rise sets `out` to false
+  inClear: StatusBool? <summary, transient>
+}

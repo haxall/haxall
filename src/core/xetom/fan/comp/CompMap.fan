@@ -69,7 +69,9 @@ class CompMap
     return byTopology
   }
 
-  ** Compute topological sort order using Kahn's algorithm
+  ** Compute topological sort order using Kahn's algorithm.  A
+  ** 'loopCut' link adds no edge, so a cycle with a cut sorts.  A cycle
+  ** with no cut is appended after the sorted comps in map order.
   private Comp[] sortByTopology()
   {
     // build index of nodes and clear old pushTo links
@@ -99,16 +101,24 @@ class CompMap
           return
         }
 
-        // update my own incoming link degree
-        node.inDegree++
+        // a loopCut link adds no ordering: its push is deferred
+        cut := CompUtil.isLoopCut(link)
+        if (!cut)
+        {
+          // update my own incoming link degree
+          node.inDegree++
 
-        // add my own id to the from node
-        from.addOutId(node.id)
+          // add my own id to the from node
+          from.addOutId(node.id)
+        }
 
         // add fat slot pushTo on from comp
-        from.spi.fatten(link.fromSlot).addPushTo(node.comp, toSlot)
+        from.spi.fatten(link.fromSlot).addPushTo(node.comp, toSlot, cut)
       }
     }
+
+    // release the old push target lists kept for addPushTo
+    nodes.each |node| { node.spi.endPushTo }
 
     // build a queue of all nodes with zero in degree
     queue := CompMapSortNode[,]

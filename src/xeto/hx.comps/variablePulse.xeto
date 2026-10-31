@@ -1,0 +1,51 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   17 Oct 2026  Lincoln Harmer  Creation
+//
+
+// Generates a pulse train whose width follows `in`.  The periods run
+// from the first execute at the run period, the larger of `period` and
+// 2.02 times `minHold`.  `out` is true from the start of each period for
+// `in` times the run period, and false for the rest.  The periods start
+// again when `in` moves more than `deltaU` from its value when they last
+// started.  At the first execute that value is `in`, or 0 when `in` is
+// within `deltaU` of 0.  A smaller move changes the width within the
+// running period.  A change of `out` waits until `out` has kept its value
+// for `minHold`, counted from the first execute and from each change, and
+// is dropped if the pulse has turned back by then.  This is the CDL
+// `Logical.VariablePulse` block.
+//
+// A `period` under 2 times `minHold` logs a warning once to the `hxComps`
+// log, as CDL does.  A change of `period`, or of `minHold` that changes
+// the run period, starts the periods again without restarting the hold.
+// A null `in` sets `out` to null.  An invalid `in` holds `out`, a null
+// included, with the status of `in`.  A `deltaU` outside 0.001 to 0.5, a
+// `minHold` of 0 or less, a `period` of 0 or less with a null `minHold`
+// and a run period under 1ms are faults, even with an invalid `in`, and
+// so is a NaN `in` with a valid status.  A fault holds `out`, false
+// before the first value, with the status of `in` plus fault.  A null or
+// invalid `in` and a fault each keep the state.  The periods and the hold
+// run on the component's own clock, and edges between executes apply in
+// order at the next one.  A step of the clock backward counts as no time,
+// but the time between the executes either side of it is lost too, up to
+// the size of the step.  While the host clock is behind the latest time it
+// has seen, the component executes every cycle.
+VariablePulse: HxComp {
+  // The fraction of each period that `out` is true, from 0 to 1
+  in: StatusNumber? <summary, transient>
+
+  // Time from one rise to the next
+  period: Duration 1min
+
+  // How far `in` must move to start the periods again, 0.001 to 0.5
+  deltaU: Float 0.01
+
+  // Minimum time `out` keeps each value, 0.01 times `period` when null
+  minHold: Duration?
+
+  // The pulse
+  out: StatusBool? <summary, transient, readonly, output>
+}

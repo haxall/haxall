@@ -1,0 +1,32 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   17 Oct 2026  Lincoln Harmer  Creation
+//
+
+// Checks that `in` stays true.  When `in` turns false, the component logs
+// a warning to the `hxComps` log naming itself and `message`, and when
+// `in` turns true after a logged warning it logs that at info level.  It
+// never throws, and a false `in` does not fault `out`: `out` is the value
+// and status of a valid `in`, so it can be linked to an alarm.  An invalid
+// `in` is not checked, and `out` holds its value with that status.  This
+// is the CDL `Utilities.Assert` block.
+//
+// A chattering `in` logs a warning at most once an hour, on the
+// component's own clock.  While the host clock is behind the latest time
+// it has seen, the component executes every cycle.  Falls held back by
+// that limit log when the hour passes, even if `in` has recovered.  The
+// first execute with a valid `in` of false logs too, as CDL checks the
+// assertion at its start time.
+Assert: HxComp {
+  // The condition that should stay true
+  in: StatusBool? <summary, transient>
+
+  // Text of the warning logged when `in` turns false
+  message: Str ""
+
+  // The value and status of `in`, held while `in` is invalid
+  out: StatusBool? <summary, transient, readonly, output>
+}

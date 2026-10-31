@@ -1,0 +1,55 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   17 Oct 2026  Lincoln Harmer  Creation
+//
+
+// Checks a measured status against its command.  `inMeas` is stable
+// once it has kept its value for `debounce`, and counts as stable at the
+// first execute.  The check is due while `inMeas` is stable, and
+// otherwise once `feedbackDelay` plus `debounce` has passed since the
+// last change of `inSet`, or at once if `inSet` has not changed.  While
+// the check is due, `lockedFalse` is set when `inSet` is true unless
+// `inMeas` is stable and true, and `lockedTrue` when `inSet` is false
+// unless `inMeas` is stable and false.  Both are set when `inMeas` stays
+// unstable for `feedbackDelay` plus `debounce` from the change that left
+// it stable.  An output stays set until `inMeas` is next stable and equal
+// to `inSet`, which clears both.  This is the CDL `Logical.Proof` block.
+//
+// A change of `inMeas` at the instant its `debounce` ends leaves it
+// unstable, timed from the change that left it stable.
+//
+// A change of `inSet` away from a stable `inMeas` sets an output at once,
+// so equipment that takes time to prove raises `lockedFalse` on each
+// start until its feedback settles.  A `feedbackDelay` below `debounce`
+// logs a warning once to the `hxComps` log, and the component computes
+// on, as CDL does.  A null input sets both outputs to null, and an
+// invalid input holds them, a null included, with the merged status.
+// Neither changes the state.  A change of `debounce` or `feedbackDelay`
+// starts the component again at the next execute, as at the first.  The
+// delays run on the component's own clock, and a delay that ends between
+// executes applies in order at the next one.  A step of the clock backward
+// counts as no time, but the time between the executes either side of it is
+// lost too, up to the size of the step.  While the host clock is behind the
+// latest time it has seen, the component executes every cycle.
+Proof: HxComp {
+  // Commanded status
+  inSet: StatusBool? <summary, transient>
+
+  // Measured status
+  inMeas: StatusBool? <summary, transient>
+
+  // Time `inMeas` must keep its value to be stable
+  debounce: Duration <minVal:0sec> 10sec
+
+  // Time `inMeas` may take to follow `inSet` before `debounce` starts
+  feedbackDelay: Duration <minVal:0sec> 1min
+
+  // True when `inSet` is true but `inMeas` is stuck false
+  lockedFalse: StatusBool? <summary, transient, readonly, output>
+
+  // True when `inSet` is false but `inMeas` is stuck true
+  lockedTrue: StatusBool? <summary, transient, readonly, output>
+}
