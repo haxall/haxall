@@ -1,0 +1,56 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   16 Oct 2026  Lincoln Harmer  Creation
+//
+
+// The base spec for components that sample `in` when `trigger` turns
+// from false to true.  The rise is read on execute, so the sample is
+// `in` on that cycle.  The first valid execute sets `out` by the
+// component's initial equation and is not a rise.  A `trigger` that is
+// true on consecutive executes is one rise, so a `SampleTrigger` with a
+// period of one cycle or less gives no sample after the first execute.
+//
+// A null input sets `out` to null and keeps the state.  An invalid input
+// holds the state and `out`, and `out` carries the input statuses merged.
+// A NaN `in` with a valid status holds `out` and adds fault to the status.
+// A rise while `in` is null, invalid or NaN takes no sample.  A rise is
+// judged against the last valid value of `trigger`.  The state is not
+// persisted.
+TriggeredComp: HxComp <abstract> {
+  // Input to sample
+  in: StatusNumber? <summary, transient>
+
+  // Samples `in` when it turns from false to true
+  trigger: StatusBool? <summary, transient>
+
+  // Output
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
+// Samples `in` on a rise of `trigger` and holds it with the status `in`
+// had then.  Until the first sample `out` is `yStart`.  This is the CDL
+// `Discrete.TriggeredSampler` block.
+TriggeredSampler: TriggeredComp {
+  // Value of out until the first sample
+  yStart: Number 0
+}
+
+// The largest absolute value of `in` over the rises of `trigger`, with
+// the status of the sample that set it.  The first execute sets `out`
+// to `in`, not its absolute value.  This is the CDL
+// `Discrete.TriggeredMax` block.
+TriggeredMax: TriggeredComp
+
+// The mean of the last `n` samples of `in`.  The first execute and each
+// rise of `trigger` take a sample, and until `n` are taken the mean is
+// over those there are.  `out` carries the merged status of the samples
+// in the mean and the unit of the last one.  An `n` below 1 faults, and
+// a change of `n` starts the mean again.  This is the CDL
+// `Discrete.TriggeredMovingMean` block.
+TriggeredMovingMean: TriggeredComp {
+  // Number of samples in the mean, at least 1
+  n: Int <minVal:1> 1
+}
