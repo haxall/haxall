@@ -110,6 +110,9 @@ class CompMap
       }
     }
 
+    // release the old push target lists kept for addPushTo
+    nodes.each |node| { node.spi.endPushTo }
+
     // build a queue of all nodes with zero in degree
     queue := CompMapSortNode[,]
     nodes.each |node|

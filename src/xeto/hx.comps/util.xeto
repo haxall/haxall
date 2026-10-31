@@ -132,3 +132,22 @@ Random: HxComp {
   freq: Duration <minVal: 0sec> 1sec
 }
 
+// Counts the times `trigger` turns true, starting from `initVal`.  When
+// `reset` turns true, or `trigger` turns true while `reset` is true,
+// `out` goes back to `initVal`.  This is the CDL `Integers.OnCounter`
+// block.  A null input sets `out` to null and an invalid one holds
+// `out`.  Both keep the count.
+Counter: HxComp {
+  // Adds one to `out` when it turns true
+  trigger: StatusBool? <summary, transient>
+
+  // Sets `out` back to `initVal` when it turns true.  Link a `BoolConst`
+  // false when no reset is needed: an unlinked `reset` keeps `out` null.
+  reset: StatusBool? <summary, transient>
+
+  // The value of `out` at the first execute and after a reset
+  initVal: Int 0
+
+  // The count
+  out: StatusNumber? <summary, transient, readonly, output>
+}
