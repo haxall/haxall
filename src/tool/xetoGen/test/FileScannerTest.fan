@@ -254,7 +254,7 @@ class FileScannerTest : Test
   ** for the fixture type names used across the test methods
   private AFile scan(Str src)
   {
-    c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
+    c := GenFanTest.compiler
     lib := c.ns.compileTempLib(
       """Foo: Dict {}
          Alpha: Dict {}
