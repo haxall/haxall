@@ -60,34 +60,37 @@ ValSelect: HxComp <abstract> {
 // Bool select
 BoolSelect: ValSelect {
   // Input A
-  inA: StatusStr? <summary>
+  inA: StatusBool? <summary>
 
   // Input B
-  inB: StatusStr? <summary>
+  inB: StatusBool? <summary>
 
   // Input C
-  inC: StatusStr? <summary>
+  inC: StatusBool? <summary>
 
   // Input D
-  inD: StatusStr? <summary>
+  inD: StatusBool? <summary>
 
   // Input E
-  inE: StatusStr?
+  inE: StatusBool?
 
   // Input F
-  inF: StatusStr?
+  inF: StatusBool?
 
   // Input G
-  inG: StatusStr?
+  inG: StatusBool?
 
   // Input H
-  inH: StatusStr?
+  inH: StatusBool?
 
   // Input I
-  inI: StatusStr?
+  inI: StatusBool?
 
   // Input J
-  inJ: StatusStr?
+  inJ: StatusBool?
+
+  // The out slot is set to the selected input
+  out: StatusBool? <summary, transient, readonly, output>
 }
 
 // Number select
@@ -121,6 +124,9 @@ NumberSelect: ValSelect {
 
   // Input J
   inJ: StatusNumber?
+
+  // The out slot is set to the selected input
+  out: StatusNumber? <summary, transient, readonly, output>
 }
 
 // Str select
@@ -154,5 +160,8 @@ StrSelect: ValSelect {
 
   // Input J
   inJ: StatusStr?
+
+  // The out slot is set to the selected input
+  out: StatusStr? <summary, transient, readonly, output>
 }
 

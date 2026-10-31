@@ -191,6 +191,14 @@ class MCompSpi : CompSpi
     }
   }
 
+  internal Void endPushTo()
+  {
+    slots.each |x|
+    {
+      (x as FatSlot)?.endPushTo
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
@@ -295,7 +303,18 @@ class MCompSpi : CompSpi
       // remove
       if (slot != null && !slot.isMaybe && flags.and(CompSpi.flagUnchecked) == 0)
         throw InvalidChangeErr("'$name' may not be removed")
-      slots.remove(name)
+
+      // a slot with push targets keeps its fat slot so its links
+      // survive, and pushes the null
+      if (fat != null && fat.hasPushTo)
+      {
+        fat.set(null)
+        needsPush = true
+      }
+      else
+      {
+        slots.remove(name)
+      }
     }
 
     // fire callback unless silent
@@ -474,15 +493,25 @@ class MCompSpi : CompSpi
     needsExecute = true
   }
 
-  ** Check if timer has elapsed
+  ** Check if timer has elapsed.  A step of the clock backward counts as
+  ** no time, but the time between the checks either side of it is lost
+  ** too, up to the size of the step.  The space checks a comp in its
+  ** timed list on every execute, so that is at most one cycle while the
+  ** comp stays in the list.
   internal Void checkTimer(DateTime now)
   {
+    // if the clock reads earlier than at the last check then move
+    // lastOnTimer back by the difference, even while frequency is null,
+    // for a comp in the timed list
+    ticks := now.ticks
+    if (ticks < lastTimerCheck) this.lastOnTimer -= lastTimerCheck - ticks
+    this.lastTimerCheck = ticks
+
     // short circuit if frequency null
     freq := comp.onExecuteFreq
     if (freq == null) return
 
     // if first call then init lastOnTimer ticks
-    ticks := now.ticks
     if (lastOnTimer <= 0) { this.lastOnTimer = ticks; return }
 
    // check if freq has elapsed
@@ -524,7 +553,7 @@ class MCompSpi : CompSpi
     if (!needsPush) return
     needsPush = false
 
-    eachFat |fat| { fat.push }
+    eachFat |fat, n| { fat.push(comp, n) }
   }
 
   ** Default implementation trys to invoke onExecute method
@@ -604,5 +633,6 @@ class MCompSpi : CompSpi
   internal Bool needsPush
   private Str:Obj slots
   private Int lastOnTimer
+  private Int lastTimerCheck  // clock ticks at the last checkTimer
 }
 

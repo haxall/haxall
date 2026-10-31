@@ -349,6 +349,18 @@ class MCompSpaceSpi : CompSpaceSpi
     if (err != null) Console.cur.err(err.traceToStr)
   }
 
+  ** Log warning
+  Void warn(Str msg)
+  {
+    Console.cur.warn(msg)
+  }
+
+  ** Log info
+  Void info(Str msg)
+  {
+    Console.cur.info(msg)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////

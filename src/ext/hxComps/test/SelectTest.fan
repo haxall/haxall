@@ -60,6 +60,28 @@ class SelectTest : HxCompTest
     }
   }
 
+  ** NumberSelect declares out as the type of its inputs
+  Void testNumberSelectOutType()
+  {
+    verifyOutType("NumberSelect", "hx.comps::StatusNumber", NumberSelect#, StatusNumber?#)
+  }
+
+  ** StrSelect declares out as the type of its inputs
+  Void testStrSelectOutType()
+  {
+    verifyOutType("StrSelect", "hx.comps::StatusStr", StrSelect#, StatusStr?#)
+  }
+
+  private Void verifyOutType(Str name, Str qname, Type type, Type returns)
+  {
+    slot := ns.spec("hx.comps::$name").slot("out")
+    verifyEq(slot.type.qname, qname)
+    verify(slot.isMaybe)
+    method := type.method("out")
+    verifyEq(method.parent, type)
+    verifyEq(method.returns, returns)
+  }
+
   private Void initInputs(NumberSelect c)
   {
     10.times |x|
