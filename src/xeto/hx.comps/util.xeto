@@ -132,3 +132,111 @@ Random: HxComp {
   freq: Duration <minVal: 0sec> 1sec
 }
 
+// Counts the times `trigger` turns true, starting from `initVal`.  When
+// `reset` turns true, or `trigger` turns true while `reset` is true,
+// `out` goes back to `initVal`.  This is the CDL `Integers.OnCounter`
+// block.  A null input sets `out` to null and an invalid one holds
+// `out`.  Both keep the count.
+Counter: HxComp {
+  // Adds one to `out` when it turns true
+  trigger: StatusBool? <summary, transient>
+
+  // Sets `out` back to `initVal` when it turns true.  Link a `BoolConst`
+  // false when no reset is needed: an unlinked `reset` keeps `out` null.
+  reset: StatusBool? <summary, transient>
+
+  // The value of `out` at the first execute and after a reset
+  initVal: Int 0
+
+  // The count
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
+// Proportional, integral and derivative controller with output limits,
+// integrator anti-windup and an optional reset.  This is the CDL
+// `Reals.PID` block, and `Reals.PIDWithReset` when `inReset` is linked.
+// Unlike `Pid`, it takes the CDL parameters and executes every cycle.
+// `out` is `k*e + I + D` limited to `yMin`..`yMax`, where `e` is
+// `(inSetpoint - inMeasurement) / r`, negated when `reverseActing` is
+// false.  The integrator stops winding up while `out` is limited.  When
+// `inReset` turns true, PI and PID set `I` so the output before the limits
+// is `yReset`.  A null or invalid `inReset` is no reset.  `I` bounds a
+// stall as `Integrator` does, and `D` takes one as a gap as `Derivative`
+// does, with `td/nd` as its time constant.  An execute that does not
+// compute is a gap for `D` too: `D` holds and its filter starts again from
+// there.
+//
+// Departures from MBL (the Modelica Buildings Library): `yReset` defaults
+// to 0, where CDL defaults it to `xi_start`, a `k` below 1E-13 faults,
+// equal `yMin` and `yMax` give that value where MBL rejects them, and
+// parameters are checked only for the terms the controller type uses.
+//
+// A null `inSetpoint` or `inMeasurement` sets `out` to null and an invalid
+// one holds the state and `out`.  A fault holds the state and shows the
+// last `out`, or NaN, with fault.  An infinite `yMin` or `yMax` is no
+// limit on that side, as `Pid` takes any limits.  These settings fault: a
+// NaN `yMin` or `yMax`, `yMin` above `yMax`, equal infinite `yMin` and
+// `yMax`, an `r` below 1E-13, for PI and PID a `ti` or `ni` below 1E-13 or
+// a non-finite `xiStart` or `yReset`, for PD and PID a `td` or `nd` below
+// 1E-13 or a non-finite `ydStart`, and inputs with two units.  A non-finite
+// valid input or result faults too.
+CdlPid: HxComp {
+  // The setpoint, CDL `u_s`
+  inSetpoint: StatusNumber? <summary, transient>
+
+  // The measurement, CDL `u_m`, in the unit of `inSetpoint`
+  inMeasurement: StatusNumber? <summary, transient>
+
+  // Resets the integrator when it turns true, CDL `trigger`.  Optional.
+  inReset: StatusBool? <summary, transient>
+
+  // P, PI, PD or PID
+  controllerType: PidControllerType "pi"
+
+  // The gain, CDL `k`.  Positive: use `reverseActing` for direction
+  k: Float 1
+
+  // The time constant of the integrator, CDL `Ti`
+  ti: Duration <minVal:0sec> 0.5sec
+
+  // The time constant of the derivative, CDL `Td`
+  td: Duration <minVal:0sec> 0.1sec
+
+  // The typical range of the control error, CDL `r`
+  r: Float 1
+
+  // The upper limit of `out`, CDL `yMax`
+  yMax: Float 1
+
+  // The lower limit of `out`, CDL `yMin`
+  yMin: Float 0
+
+  // `ni*ti` is the time constant of the anti-windup, CDL `Ni`
+  ni: Float 0.9
+
+  // The higher `nd`, the more ideal the derivative, CDL `Nd`
+  nd: Float 10
+
+  // The integrator value at the first execute, CDL `xi_start`
+  xiStart: Float 0
+
+  // The derivative value at the first execute, CDL `yd_start`
+  ydStart: Float 0
+
+  // True when a rise of `inMeasurement` lowers `out`
+  reverseActing: Bool "true"
+
+  // The output before the limits after a reset, CDL `y_reset`
+  yReset: Float 0
+
+  // The control output, CDL `y`
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
+// The terms a CdlPid uses: P, PI, PD or PID
+PidControllerType: Enum {
+  p    // proportional
+  pi   // proportional and integral
+  pd   // proportional and derivative
+  pid  // proportional, integral and derivative
+}

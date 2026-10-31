@@ -1,0 +1,48 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   17 Oct 2026  Lincoln Harmer  Creation
+//
+
+// Converts a fraction into the number of stages to run, out of `n`.  Stage
+// i starts at the threshold (i-1)/n.  `out` moves up when `in` goes above
+// the next stage's threshold by more than `h`, and down when `in` drops
+// below the current stage's threshold by more than `h`.  After each change
+// `out` is held for at least `holdDuration`, on the component's own clock.
+// A step of the clock backward counts as no time, but the time between the
+// executes either side of it is lost too, up to the size of the step.
+// While the host clock is behind the latest time it has seen, the component
+// executes every cycle.  This is the CDL `Integers.Stage` block.  A change
+// of `n` lowers `out` to the new `n` if it is above it and does not restart
+// the hold.  An `n` below 1, an `h` outside 0.001/n to 0.5/n or a negative
+// `holdDuration` is a fault, and so is a NaN `in` with a valid status:
+// `out` holds its value with status fault.  A null `in` sets `out` to null,
+// and an invalid `in` holds `out` with that status.  At stage `n` the two
+// thresholds meet, so `out` leaves `n` with no hysteresis, as in MBL (the
+// Modelica Buildings Library).
+//
+// Departure from MBL: this component fires on the level of its condition,
+// not its rise, which matches MBL for any `holdDuration` above 0.  At a
+// hold of 0, MBL's block can stick at stage `n` or 0, near a threshold, or
+// when `in` starts more than `h` from 0, and this component does not.
+Stage: HxComp {
+  // Input, a fraction from 0 to 1
+  in: StatusNumber? <summary, transient>
+
+  // Number of stages, at least 1
+  n: Int <minVal:1> 1
+
+  // Minimum time `out` is held after each change
+  holdDuration: Duration <minVal:0sec> 1min
+
+  // Hysteresis on each threshold, 0.001/n to 0.5/n, or 0.02/n when null
+  h: Float?
+
+  // The value of `out` from the first execute until its first change
+  initVal: Int 0
+
+  // The number of stages to run
+  out: StatusNumber? <summary, transient, readonly, output>
+}

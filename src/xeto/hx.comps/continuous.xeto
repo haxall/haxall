@@ -1,0 +1,141 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   16 Oct 2026  Lincoln Harmer  Creation
+//
+
+// Integrates `in` over time: `out` is `yStart` plus `k` times the
+// integral of `in` since the first execute.  When `inReset` turns true,
+// `out` is set to `inResetVal`, or to `yStart` when `inResetVal` is
+// null.  This is the CDL `Reals.IntegratorWithReset` block.
+//
+// Unlike CDL, each step is the trapezoid from the last `in` to the current
+// one, so `out` has direct feedthrough from `in`.  A stall, a step longer
+// than both 1min and 10 times the longest of the last 8 steps, counts as
+// the larger of the two.  Time while `in` is null, invalid or a fault is
+// not integrated, and a reset while `inResetVal` is invalid or not finite
+// waits until it is usable.  A null `in` sets `out` to null, an invalid
+// `in` holds `out` with its status, and a fault holds `out` with fault,
+// never null: a `k` or `yStart` that is not finite, an `in` that is not
+// finite, or a step that overflows.  `out` has no unit.  The state is not
+// persisted: after a restart `out` starts again from `yStart`.
+Integrator: HxComp {
+  // Input to integrate
+  in: StatusNumber? <summary, transient>
+
+  // Resets `out` when it turns true.  Optional.
+  inReset: StatusBool? <summary, transient>
+
+  // The value a reset sets `out` to.  When null a reset sets `yStart`.
+  inResetVal: StatusNumber? <summary, transient>
+
+  // Integrator gain
+  k: Number 1
+
+  // The value of `out` at the first execute
+  yStart: Number 0
+
+  // `yStart` plus `k` times the integral of `in`
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
+// Approximates `k` times the derivative of `in`, filtered with time
+// constant `T`: the transfer function `k * s / (T * s + 1)`, stepped by
+// backward Euler, which is stable for any `T` and cycle.  This is the
+// CDL `Reals.Derivative` block.
+//
+// Unlike CDL, `k` and `timeConst` (CDL's `T`) are slots, not inputs:
+// link a `StatusNumberToNumber` to schedule them.  A stall, a step
+// longer than both 1min and the larger of `timeConst` and 10 times the
+// longest of the last 8 steps, is a gap, and so is time while `in` is
+// null, invalid or a fault: `out` holds and the next step starts from
+// there.  A null `in` sets `out` to null, an invalid `in` holds `out`
+// with its status, and a fault holds `out` with fault, never null: a
+// `timeConst` below 0, not finite or with a unit that is not a time, a
+// `k` or `yStart` that is not finite, an `in` that is not finite, or a
+// step that overflows.  `out` has no unit.
+Derivative: HxComp {
+  // Input to differentiate
+  in: StatusNumber? <summary, transient>
+
+  // Gain
+  k: Number 1
+
+  // Time constant `T` of the filter, in seconds unless it has a time unit
+  timeConst: Number 1
+
+  // The value of `out` at the first execute
+  yStart: Number 0
+
+  // Filtered derivative of `in`
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
+// Limits the rate at which `out` follows `in`.  `out` approaches `in`
+// at the rate `(in - out) / timeConst`, held between `fallingSlewRate`
+// and `raisingSlewRate`.  While `enable` is false `out` is `in`.  This
+// is the CDL `Reals.LimitSlewRate` block, and the CDL `Reals.Ramp` block
+// with `active` linked to `enable` through a `StatusBoolToBool` and
+// `timeConst` set to `raisingSlewRate` times 0.001 seconds.
+//
+// Unlike CDL, each step is a backward Euler step to the current `in`,
+// so `out` has direct feedthrough from `in`.  A stall, a step longer
+// than both 1min and 10 times the longest of the last 8 steps, counts
+// as the larger of the two.  A null `in` sets `out` to null, an invalid
+// `in` holds `out` with its status, and a fault holds `out` with fault,
+// never null: a `raisingSlewRate` not above 0, a `fallingSlewRate` not
+// below 0, either rate not finite or with a unit that does not fit
+// `in`, a `timeConst` not above 0, an `in` that is not finite, or a
+// step that overflows.  `out` has the unit of `in`.
+SlewRateLimit: HxComp {
+  // Input to follow
+  in: StatusNumber? <summary, transient>
+
+  // Fastest increase of `out`, in units of `in` per second, or in the
+  // unit of `in` per the time unit it carries.  It must be above 0.
+  raisingSlewRate: Number
+
+  // Fastest decrease of `out`, in the units of `raisingSlewRate`.  It
+  // must be below 0.  When null it is minus `raisingSlewRate`.
+  fallingSlewRate: Number?
+
+  // Time constant of the approach to `in`, above 0.  When null it is
+  // `raisingSlewRate`, per second, times 10 seconds, the CDL default.
+  timeConst: Duration?
+
+  // When false `out` is `in`
+  enable: Bool "true"
+
+  // `in`, rate limited
+  out: StatusNumber? <summary, transient, readonly, output>
+}
+
+// The average of `in` over the last `window` of time, with `in` taken
+// as a straight line between executes.  Until a full window has passed,
+// the average is over the time since the first execute plus 1E-10
+// seconds, as ASHRAE 231 section 7.5.24 gives, so the first execute
+// writes 0.  MBL (the Modelica Buildings Library) adds 1E-3 seconds, so
+// the first seconds differ slightly.  This is the CDL
+// `Reals.MovingAverage` block, with `window` for its `delta`.
+//
+// Time while `in` is null, invalid or a fault is left out of the
+// average, and so is a stall, a step longer than both 1min and the
+// larger of `window` and 10 times the longest of the last 8 steps.
+// When a full window has no valid time `out` is `in`.  The component
+// keeps one entry per execute in the window.  A null `in` sets `out` to
+// null, an invalid `in` holds `out` with its status, and a fault holds
+// `out` with fault, never null: a `window` below 10 microseconds, an
+// `in` that is not finite, or a step that overflows.  `out` has the
+// unit of `in`.
+MovingAverage: HxComp {
+  // Input to average
+  in: StatusNumber? <summary, transient>
+
+  // Length of time to average over, at least 10 microseconds
+  window: Duration 1min
+
+  // Average of `in` over the window
+  out: StatusNumber? <summary, transient, readonly, output>
+}
