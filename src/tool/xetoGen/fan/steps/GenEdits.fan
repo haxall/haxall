@@ -66,7 +66,7 @@ internal class GenEdits : Step
   {
     acc := t.gen.meta.has("omitDocs") ? Str[,] : specDoc(x, 2)
     acc.add("  " + funcFacets(x))
-    acc.add("  " + funcSig(x))
+    acc.add("  " + funcSig(t, x))
     acc.add("  {")
     acc.add("    throw Err(\"TODO\")")
     acc.add("  }")
@@ -88,18 +88,18 @@ internal class GenEdits : Step
 
   ** Signature line for func stub; trailing maybe params default
   ** to null and checked defaults to true
-  private Str funcSig(Spec x)
+  private Str funcSig(AType t, Spec x)
   {
     f := x.func
     s := StrBuf()
-    s.add("static ").add(typeSig(f.returns)).add(" ").add(x.name).add("(")
+    s.add("static ").add(typeSig(t, f.returns)).add(" ").add(x.name).add("(")
     params := f.params
     defStart := params.size
     while (defStart > 0 && (params[defStart-1].isMaybe || params[defStart-1].name == "checked")) defStart--
     params.each |p, i|
     {
       if (i > 0) s.add(", ")
-      s.add(typeSig(p)).add(" ").add(p.name)
+      s.add(typeSig(t, p)).add(" ").add(p.name)
       if (p.name == "checked") s.add(" := true")
       else if (i >= defStart) s.add(" := null")
     }
@@ -324,13 +324,43 @@ internal class GenEdits : Step
   private Str fieldSig(AType t, Spec x, ASlot existing)
   {
     line := t.file.lines[existing.lines.end].trim
-    i := line.index(toFanName(x))
+    i := nameIndex(line, toFanName(x))
     if (i == null) return line
     prefix := line[0..<i]
     j := prefix.trimEnd.indexr(" ")
     if (j == null) return line
-    return prefix[0..j] + typeSig(x) + line[i-1..-1]
+    return prefix[0..j] + typeSig(t, x) + line[i-1..-1]
   }
+
+  ** Index of the slot name in a declaration line as a whole identifier
+  ** outside any literal, or null (a substring search finds 'ti' in
+  ** 'Duration')
+  private static Int? nameIndex(Str line, Str name)
+  {
+    Int? close := null  // closing char of the literal we are in
+    for (i := 0; i < line.size; ++i)
+    {
+      c := line[i]
+      if (close != null)
+      {
+        if (close == '|') { if (c == '|' && line.getSafe(i+1) == '>') { close = null; ++i } }
+        else if (c == '\\') ++i
+        else if (c == close) close = null
+        continue
+      }
+      if (c == '"' || c == '\'' || c == '`') { close = c; continue }
+      if (c == '<' && line.getSafe(i+1) == '|') { close = '|'; ++i; continue }
+      end := i + name.size
+      if (end > line.size || line[i..<end] != name) continue
+      before := i > 0 && isIdChar(line[i-1])
+      after  := end < line.size && isIdChar(line[end])
+      if (!before && !after) return i
+    }
+    return null
+  }
+
+  ** Can char be part of a Fantom identifier
+  private static Bool isIdChar(Int c) { c.isAlphaNum || c == '_' }
 
   ** Comp slots are fields backed by the comp get/set methods
   private Str compSig(AType t, Spec x, ASlot? existing)
@@ -339,7 +369,7 @@ internal class GenEdits : Step
     s := StrBuf()
     if (x.has("nodoc")) s.add("@NoDoc ")
     s.add("@Gen ").add(isOverride(t, x, existing) ? "override" : "virtual")
-    s.add(" ").add(typeSig(x)).add(" ").add(n)
+    s.add(" ").add(typeSig(t, x)).add(" ").add(n)
     if (isGetterOnly(x))
       s.add("() { get(").add(x.name.toCode).add(") }")
     else
@@ -362,12 +392,12 @@ internal class GenEdits : Step
     {
       s.add("abstract ")
       if (isOverride(t, x, existing)) s.add("override ")
-      s.add(typeSig(x)).add(" ").add(toFanName(x)).add("()")
+      s.add(typeSig(t, x)).add(" ").add(toFanName(x)).add("()")
     }
     else
     {
       s.add(isOverride(t, x, existing) ? "override " : "virtual ")
-      s.add(typeSig(x)).add(" ").add(toFanName(x))
+      s.add(typeSig(t, x)).add(" ").add(toFanName(x))
       s.add("() { get(").add(x.name.toCode).add(") }")
     }
     return s.toStr
@@ -393,21 +423,44 @@ internal class GenEdits : Step
   }
 
   ** Fantom type signature via the spec binding.  Or types and
-  ** specs without a dedicated Fantom class map to Obj.
-  private Str typeSig(Spec x)
+  ** specs without a dedicated Fantom class map to Obj, except an
+  ** enum, see fantomName.
+  private Str typeSig(AType t, Spec x)
   {
     Str? sig
     if (x.isOr) sig = "Obj"
     else if (x.type.isList)
     {
       of := XetoUtil.ofType(x, false)
-      sig = (of?.fantomType?.name ?: "Obj?") + "[]"
+      sig = (of == null ? "Obj?" : fantomName(t, of)) + "[]"
     }
-    else sig = x.type.fantomType.name
+    else sig = fantomName(t, x.type)
     if (sig == "Scalar") sig = "Obj"
     if (sig == "None") return "Void"
     if (x.isMaybe) sig += "?"
     return sig
+  }
+
+  ** Fantom type name of a spec from its binding.  An enum whose class
+  ** is not compiled yet binds to Scalar, so use the @Gen enum type
+  ** scanned from source.  Else map to Obj and warn, since the enum may
+  ** be xeto only (sys::ValidateLevel) or its pod not built.
+  private Str fantomName(AType t, Spec type)
+  {
+    ft := type.fantomType
+    if (!type.isEnum || ft !== Scalar#) return ft.name
+    src := genTypeFor(type)
+    if (src != null) return src.name
+    warn("No Fantom class for enum '$type.qname', mapped to Obj; build its pod if it has one", t.loc)
+    return ft.name
+  }
+
+  ** Scanned @Gen type for the given spec or null
+  private AType? genTypeFor(Spec spec)
+  {
+    AType? found := null
+    ast.eachType |a| { if (found == null && a.spec.qname == spec.qname) found = a }
+    return found
   }
 
 //////////////////////////////////////////////////////////////////////////
