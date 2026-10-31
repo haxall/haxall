@@ -131,6 +131,40 @@ automatically sorts component execution order by link topology.  However if ther
 are circular links then it may take several execution cycles to fully propagate
 link changes.
 
+A cycle of links has no topological order of its own.  The space appends the
+components of a cycle, and those downstream of it, after the components it can
+sort, in whatever order its internal map holds them.  To give a cycle a
+deterministic order, tag one of its links with the `loopCut` marker.  A cut link
+adds no ordering to the sort, and its push is delivered at the end of the
+execute cycle rather than at once.  So the slot it links into always reads the
+value pushed on the previous cycle, whatever order the components execute in
+and however many links of a cycle are cut.  The deferral applies to every cut
+link, on a cycle or not.  A cut into a method slot calls the method at the end
+of the cycle, and the method's result is pushed on the next cycle.  A link
+instance carries the marker as a tag, and a spec carries it as slot meta beside
+`link` (the meta tag is declared by the `hx.comps` lib).  For example:
+
+```xeto
+// a.out -> b.in is cut, so b reads a.out from the previous cycle
+@b: Comp {
+  links: {
+    in: Link { fromRef:@a, fromSlot:"out", loopCut }
+  }
+}
+
+MyLoop: Comp {
+  a: MyBlock { in: Number <link:"b.out"> }
+  b: MyBlock { in: Number <link:"a.out", loopCut> }
+}
+```
+
+Only the marker value counts.  A slot that declares its own `link` is cut only
+if it also declares `loopCut`.  Use `CompSpaceEdit.setLoopCut` to set or clear
+the cut on an existing link.  When several links feed one slot, the last push
+wins, and a cut push lands after the walk.  So with one cut and one uncut link
+into a slot, a cut push overwrites any uncut value pushed into the slot during
+the same cycle's walk.
+
 # Axon
 
 Haxall components can define custom execute logic using Axon by creating a
