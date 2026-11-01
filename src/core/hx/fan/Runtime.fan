@@ -63,8 +63,10 @@ const mixin Runtime
   ** This dict always includes a synthetic `name` tag
   abstract RuntimeMeta meta()
 
-  ** Update metadata with Str:Obj, Dict, or Diff.
-  @NoDoc abstract Void metaUpdate(Obj changes)
+  ** Update metadata with Str:Obj, Dict, or Diff.  The changes are merged
+  ** into the current meta; use [xeto::None.val] to remove a tag.  The 'rt'
+  ** and 'name' tags cannot be modified.
+  abstract Void metaUpdate(Obj changes)
 
   ** Folio database for this runtime
   abstract Folio db()

@@ -215,11 +215,17 @@
   // Return current project meta as dict
   projMeta: Func { returns: Dict }
 
-  // Update system meta
-  sysMetaUpdate: Func <su, nodoc, sideEffects> { newMeta: Dict, returns: Obj? }
+  // Update system meta.  The changes are merged into the current meta;
+  // use `none()` to remove a tag.  Return the new system meta.
+  //
+  //     sysMetaUpdate({dis:"Node A"})
+  sysMetaUpdate: Func <su, sideEffects> { changes: Dict, returns: Dict }
 
-  // Update current project meta
-  projMetaUpdate: Func <admin, nodoc, sideEffects> { newMeta: Dict, returns: Obj? }
+  // Update current project meta.  The changes are merged into the current
+  // meta; use `none()` to remove a tag.  Return the new project meta.
+  //
+  //     projMetaUpdate({dis:"My Project", steadyState:5sec})
+  projMetaUpdate: Func <admin, sideEffects> { changes: Dict, returns: Dict }
 
   // Block until all folio/project message queues are fully processed.
   // Use to await background work before verifying its effects.
@@ -273,7 +279,9 @@
   //     extSettings("hx.task")
   extSettings: Func <admin> { name: Str, checked: Bool, returns: Dict }
 
-  // Update ext settings for given dotted lib name:
+  // Update ext settings for given dotted lib name.  The changes are merged
+  // into the current settings; use `none()` to remove a tag.  Return the
+  // new settings:
   //
   //     extSettingsUpdate("hx.task", {maxThreads:20})
   extSettingsUpdate: Func <admin, sideEffects> { name: Str, changes: Dict, returns: Dict }

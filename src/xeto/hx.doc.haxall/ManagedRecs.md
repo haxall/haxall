@@ -43,6 +43,12 @@ by the system and should not be modified.  Also note that your rt record
 does **not** define a `name` tag, but one is always inserted into the results of
 `Runtime.meta` or `projMeta()`.
 
+Runtime meta is modified in Axon via [sysMetaUpdate()] and [projMetaUpdate()]
+and in Fantom via [fan.hx::Runtime.metaUpdate].  The changes are merged into
+the current meta; use `none()` (or `None.val` in Fantom) to remove a tag:
+
+    projMetaUpdate({dis:"New Name", steadyState:none()})
+
 # Lib
 Records with the `rt:lib` tag are used to manage the Xeto libs enabled in
 the runtime's [namespace](Namespace).  They always include the `name` tag
@@ -64,6 +70,7 @@ The following Axon functions are used to manage your lib recs:
 The following are the Fantom APIs:
   - [fan.hx::RuntimeLibs]: add/remove libs
   - [fan.hx::Ext.settings]: read settings
+  - [fan.hx::Ext.settingsUpdate]: modify settings
 
 # Companion Lib
 Every project has a builtin Xeto lib named "proj" we call the *companion library*.

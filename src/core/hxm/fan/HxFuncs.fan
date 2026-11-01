@@ -370,18 +370,24 @@ const class HxFuncs
     return "synced"
   }
 
-  ** Update system meta
-  @NoDoc @Api @Axon { su=true }
-  static Dict? sysMetaUpdate(Obj changes)
+  ** Update system meta.  The changes are merged into the current meta;
+  ** use `none()` to remove a tag.  Return the new system meta.
+  **
+  **     sysMetaUpdate({dis:"Node A"})
+  @Api @Axon { su=true }
+  static Dict sysMetaUpdate(Dict changes)
   {
     cx := Context.cur
     cx.sys.metaUpdate(changes)
     return cx.sys.meta
   }
 
-  ** Update current project meta
-  @NoDoc @Api @Axon { admin=true }
-  static Dict? projMetaUpdate(Obj changes)
+  ** Update current project meta.  The changes are merged into the current
+  ** meta; use `none()` to remove a tag.  Return the new project meta.
+  **
+  **     projMetaUpdate({dis:"My Project", steadyState:5sec})
+  @Api @Axon { admin=true }
+  static Dict projMetaUpdate(Dict changes)
   {
     cx := Context.cur
     cx.proj.metaUpdate(changes)
@@ -525,7 +531,9 @@ const class HxFuncs
     curContext.ext(name, checked)?.settings
   }
 
-  ** Update ext settings for given dotted lib name:
+  ** Update ext settings for given dotted lib name.  The changes are merged
+  ** into the current settings; use `none()` to remove a tag.  Return the
+  ** new settings:
   **
   **     extSettingsUpdate("hx.task", {maxThreads:20})
   @Api @Axon { admin=true }

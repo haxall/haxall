@@ -42,8 +42,11 @@ const mixin Ext
   ** Settings for the extension
   virtual Dict settings() { spi.settings }
 
-  ** Asynchronously update settings with Str:Obj, Dict, or Diff.
-  @NoDoc Void settingsUpdate(Obj changes) { spi.settingsUpdate(changes) }
+  ** Update settings with Str:Obj, Dict, or Diff.  The changes are merged
+  ** into the current settings; use [xeto::None.val] to remove a tag.  The
+  ** 'rt' and 'name' tags cannot be modified.  The [onSettings] callback
+  ** is invoked asynchronously.
+  Void settingsUpdate(Obj changes) { spi.settingsUpdate(changes) }
 
   ** Logger to use for this extension
   Log log() { spi.log }
