@@ -227,7 +227,8 @@ class BackupTest : Test
     //echo("### Verify Backup")
     while (!b.isComplete)
     {
-      verifyEq(src.gcFreezeCount, 1)
+      // backup unfreezes just before it marks itself complete
+      verify(src.gcFreezeCount <= 1)
       //echo("  Progress: $b.progress")
       Actor.sleep(20ms)
     }
