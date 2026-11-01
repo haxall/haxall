@@ -25,8 +25,9 @@ internal class Validate : Step
     // skip sys bootstrapping
     if (ns == null || isSys) return
 
-    // rules from the depends closure, never the lib under compile
-    rules := ValidateRules.makeLibs(ns, depends.all)
+    // rules from the depends closure, never the lib under compile;
+    // build-only rules run only when building a xetolib
+    rules := ValidateRules.makeLibs(ns, depends.all, compiler.isBuild)
 
     // init validator with rules
     validator := CompileValidator(compiler, rules)

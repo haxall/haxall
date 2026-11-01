@@ -30,7 +30,8 @@ const class ValidateRules
 
   ** Build registry from ValidateRule instances in given libs.  Compiler
   ** passes a lib's depends, so this ctor must use only lib lookups.
-  new makeLibs(Namespace ns, Lib[] libs)
+  ** Build-only rules are included only when build is true.
+  new makeLibs(Namespace ns, Lib[] libs, Bool build := false)
   {
     // funcs with validateRule meta tag
     funcs := findFuncs(libs)
@@ -50,6 +51,7 @@ const class ValidateRules
         try
         {
           r := ValidateRule.create(ns, x, funcs[x.id.id])
+          if (r.isBuildOnly && !build) return
           list.add(r)
           map.add(r.qname, r)
         }

@@ -82,6 +82,11 @@ abstract const class ValidateRule
   ** Does this rule have a check implementation
   virtual Bool isBound() { true }
 
+  ** Does this rule only run when a lib is built.  Build-only rules
+  ** are left out of the registry otherwise, so they cost nothing at
+  ** runtime or on a normal lib compile.
+  virtual Bool isBuildOnly() { false }
+
   ** Qualified name of what implements the check, or null if unbound
   virtual Str? impl() { typeof.qname }
 
