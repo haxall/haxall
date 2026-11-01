@@ -41,6 +41,7 @@ enum class ExprType
   // patterns
   literalPattern,
   rangePattern,
+  specPattern,
   orPattern,
 
   // assignment

@@ -572,6 +572,24 @@ match:
       case 2026-10-01..2026-10-15 => "first half of October"
     end
 
+## Spec Patterns
+A spec pattern matches a non-null subject which fits the spec using the
+same rules as the [fits()] function.  The spec name may be unqualified
+or qualified with its library name:
+
+    switch (val)
+      case Ahu      => "AHU"
+      case ph::Site => "site"
+      case Number   => "number"
+      case Dict     => "some other dict"
+    end
+
+For dicts this is nominal: the record must declare its type with the
+`spec` tag, such as `spec:@ph::Ahu`.  A record of a subtype matches its
+supertypes, so an AHU record matches `Ahu`, `ph::Equip`, and `Dict`.
+Spec names are capitalized, so they never collide with literals or
+variables in pattern position.
+
 ## Alternatives
 Use `or` to match any of multiple patterns:
 
@@ -579,6 +597,7 @@ Use `or` to match any of multiple patterns:
       case 200 or 204         => "ok"
       case 400..499 or 503    => "error"
       case 2026-11 or 2026-12 => "end of year"
+      case Str or Date        => "str or date"
     end
 
 # Throw Expr

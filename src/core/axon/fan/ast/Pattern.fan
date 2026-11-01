@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 using haystack
 
 **
@@ -87,6 +88,30 @@ const class RangePattern : Pattern
   }
 
   override Printer print(Printer out) { out.val(start).w("..").val(end) }
+}
+
+**************************************************************************
+** SpecPattern
+**************************************************************************
+
+** Matches when subject is non-null and fits a spec: "Ahu", "ph::Site"
+@NoDoc @Js
+const class SpecPattern : Pattern
+{
+  new make(TopName spec) : super(spec.loc) { this.spec = spec }
+
+  override ExprType type() { ExprType.specPattern }
+
+  const TopName spec
+
+  override Bool match(AxonContext cx, Obj? subject)
+  {
+    subject != null && cx.ns.fits(subject, spec.eval(cx))
+  }
+
+  override Void walk(|Str key, Obj? val| f) { f("spec", spec) }
+
+  override Printer print(Printer out) { out.expr(spec) }
 }
 
 **************************************************************************

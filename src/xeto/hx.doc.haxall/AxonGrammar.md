@@ -61,7 +61,9 @@ Legend for BNF Grammar:
     <switch>       :=  "switch" "(" <expr> ")" <case>* [<default>] "end"
     <case>         :=  "case" <pattern> "=>" <expr>
     <default>      :=  "default" "=>" <expr>
-    <pattern>      :=  <rangeOrLit> ("or" <rangeOrLit>)*
+    <pattern>      :=  <primary> ("or" <primary>)*
+    <primary>      :=  <specName> | <rangeOrLit>
+    <specName>     :=  [<qnameLib> "::"] <typename>
     <rangeOrLit>   :=  <literal> [".." <literal>]
 
     <throw>        :=  "throw" <expr>

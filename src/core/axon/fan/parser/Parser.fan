@@ -323,14 +323,35 @@ class Parser
   **
   ** Pattern:
   **
-  **     <pattern>    :=  <rangeOrLit> ("or" <rangeOrLit>)*
+  **     <pattern>    :=  <primary> ("or" <primary>)*
+  **     <primary>    :=  <specName> | <rangeOrLit>
+  **     <specName>   :=  [<qnameLib> "::"] <typename>
   **     <rangeOrLit> :=  <literal> [".." <literal>]
   **
   private Pattern pattern()
   {
-    alts := [rangeOrLit]
-    while (cur === Token.orKeyword) { consume; alts.add(rangeOrLit) }
+    alts := [primary]
+    while (cur === Token.orKeyword) { consume; alts.add(primary) }
     return alts.size == 1 ? alts.first : OrPattern(alts)
+  }
+
+  private Pattern primary()
+  {
+    if (cur === Token.typename || (cur === Token.id && (peek === Token.doubleColon || peek === Token.dot)))
+      return SpecPattern(specName)
+    return rangeOrLit
+  }
+
+  private TopName specName()
+  {
+    if (cur === Token.typename) return termTypename
+    loc := curLoc
+    lib := StrBuf().add(consumeId("lib name"))
+    while (cur === Token.dot) { consume; lib.addChar('.').add(consumeId("lib name")) }
+    consume(Token.doubleColon)
+    name := curVal
+    consume(Token.typename)
+    return TopName(loc, lib.toStr, name)
   }
 
   private Pattern rangeOrLit()
