@@ -184,6 +184,56 @@ class SwitchTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Enums
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testEnums()
+  {
+    addLib("ph")
+
+    // Str keys
+    f :=
+      Str<|(x) => switch (x)
+             case CurStatus.ok => "ok"
+             case ph::CurStatus.fault or CurStatus.down => "bad"
+             case CurStatus => "other status"
+             default => "not status"
+           end|>
+    verifyCall(f, "ok", "ok")
+    verifyCall(f, "fault", "bad")
+    verifyCall(f, "down", "bad")
+    verifyCall(f, "stale", "other status")
+    verifyCall(f, "bogus", "not status")
+    verifyCall(f, n(3), "not status")
+    verifyCall(f, null, "not status")
+
+    // Str key or bound Fantom enum
+    f =
+      Str<|(x) => switch (x)
+             case SpanMode.today => "today"
+             case SpanMode => "span mode"
+             default => "other"
+           end|>
+    verifyCall(f, "today", "today")
+    verifyCall(f, SpanMode.today, "today")
+    verifyCall(f, "lastWeek", "span mode")
+    verifyCall(f, SpanMode.lastWeek, "span mode")
+    verifyCall(f, "bogus", "other")
+
+    // item key differs from item name
+    f = Str<|(x) => switch (x) case TimeZone.utc => "utc" default => "other" end|>
+    verifyCall(f, "UTC", "utc")
+    verifyCall(f, TimeZone.utc, "utc")
+    verifyCall(f, "utc", "other")
+
+    // unknown item or not enum
+    verifyErr(EvalErr#) { eval("switch (\"ok\") case CurStatus.bogus => 1 end") }
+    verifyErr(EvalErr#) { eval("switch (\"ok\") case Str.bogus => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (\"ok\") case CurStatus. => 1 end") }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Default
 //////////////////////////////////////////////////////////////////////////
 
@@ -289,7 +339,8 @@ class SwitchTest : HxTest
              case 400..499 => 3
              case 2026-10 => 4
              case ph::Site or Number => 5
-             default => 6
+             case CurStatus.ok => 6
+             default => 7
            end|>
     expr := Parser(src.in).parse
 
@@ -301,8 +352,9 @@ class SwitchTest : HxTest
     ast := expr.encode
     verifyEq(ast->type, "switch")
     Dict[] cases := ast->cases
-    verifyEq(cases.map |c->Obj?| { c->type }, Obj?["switchCase", "switchCase", "switchCase", "switchCase", "switchCase"])
-    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern"])
+    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern"])
+    verifyEq(cases[5]->pattern->spec->topName, "CurStatus")
+    verifyEq(cases[5]->pattern->item, "ok")
     verifyEq(((Dict[])cases[4]->pattern->alts).map |p->Obj?| { p->type }, Obj?["specPattern", "specPattern"])
     verifyEq(((Dict[])cases[4]->pattern->alts).map |p->Obj?| { p->spec->topName }, Obj?["ph::Site", "Number"])
     verifyEq(cases[0]->pattern->val, n(200))

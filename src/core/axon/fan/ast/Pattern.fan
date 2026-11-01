@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom::XetoUtil
 using haystack
 
 **
@@ -25,6 +26,13 @@ const abstract class Pattern : Expr
   abstract Bool match(AxonContext cx, Obj? subject)
 
   override final Obj? eval(AxonContext cx) { throw UnsupportedErr("Pattern cannot be evaluated: $type") }
+
+  ** Map subject to its enum item spec or null if not a valid key
+  static Spec? enumItem(Spec enum, Obj? subject)
+  {
+    key := XetoUtil.enumKey(subject)
+    return key == null ? null : enum.enum.spec(key, false)
+  }
 }
 
 **************************************************************************
@@ -94,7 +102,10 @@ const class RangePattern : Pattern
 ** SpecPattern
 **************************************************************************
 
-** Matches when subject is non-null and fits a spec: "Ahu", "ph::Site"
+**
+** Matches when subject is non-null and fits a spec: "Ahu", "ph::Site".
+** For an enum spec a Str subject matches if it is a valid key.
+**
 @NoDoc @Js
 const class SpecPattern : Pattern
 {
@@ -106,12 +117,54 @@ const class SpecPattern : Pattern
 
   override Bool match(AxonContext cx, Obj? subject)
   {
-    subject != null && cx.ns.fits(subject, spec.eval(cx))
+    if (subject == null) return false
+    Spec s := spec.eval(cx)
+    return cx.ns.fits(subject, s) || (s.isEnum && enumItem(s, subject) != null)
   }
 
   override Void walk(|Str key, Obj? val| f) { f("spec", spec) }
 
   override Printer print(Printer out) { out.expr(spec) }
+}
+
+**************************************************************************
+** EnumPattern
+**************************************************************************
+
+**
+** Matches enum item by its key: "CurStatus.ok".  The subject may be
+** the Str key or a Fantom value bound to the enum spec.
+**
+@NoDoc @Js
+const class EnumPattern : Pattern
+{
+  new make(TopName spec, Str item) : super(spec.loc)
+  {
+    this.spec = spec
+    this.item = item
+  }
+
+  override ExprType type() { ExprType.enumPattern }
+
+  const TopName spec
+
+  const Str item
+
+  override Bool match(AxonContext cx, Obj? subject)
+  {
+    Spec s := spec.eval(cx)
+    if (!s.isEnum) throw EvalErr("Not enum spec: $s", cx, loc)
+    itemSpec := s.slot(item, false) ?: throw EvalErr("Unknown enum item: ${s}.$item", cx, loc)
+    return enumItem(s, subject) === itemSpec && (subject is Str || cx.ns.fits(subject, s))
+  }
+
+  override Void walk(|Str key, Obj? val| f)
+  {
+    f("spec", spec)
+    f("item", item)
+  }
+
+  override Printer print(Printer out) { out.expr(spec).wc('.').w(item) }
 }
 
 **************************************************************************

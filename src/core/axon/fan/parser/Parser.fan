@@ -324,7 +324,9 @@ class Parser
   ** Pattern:
   **
   **     <pattern>    :=  <primary> ("or" <primary>)*
-  **     <primary>    :=  <specName> | <rangeOrLit>
+  **     <primary>    :=  <enumItem> | <specName> | <rangeOrLit>
+  **     <enumItem>   :=  <enumName> "." <idOrKeyword>
+  **     <enumName>   :=  <specName>  // spec must be an Enum
   **     <specName>   :=  [<qnameLib> "::"] <typename>
   **     <rangeOrLit> :=  <literal> [".." <literal>]
   **
@@ -338,7 +340,12 @@ class Parser
   private Pattern primary()
   {
     if (cur === Token.typename || (cur === Token.id && (peek === Token.doubleColon || peek === Token.dot)))
-      return SpecPattern(specName)
+    {
+      spec := specName
+      if (cur !== Token.dot) return SpecPattern(spec)
+      consume
+      return EnumPattern(spec, consumeIdOrKeyword("enum item name"))
+    }
     return rangeOrLit
   }
 

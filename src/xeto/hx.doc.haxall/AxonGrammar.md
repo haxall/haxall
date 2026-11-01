@@ -62,7 +62,9 @@ Legend for BNF Grammar:
     <case>         :=  "case" <pattern> "=>" <expr>
     <default>      :=  "default" "=>" <expr>
     <pattern>      :=  <primary> ("or" <primary>)*
-    <primary>      :=  <specName> | <rangeOrLit>
+    <primary>      :=  <enumItem> | <specName> | <rangeOrLit>
+    <enumItem>     :=  <enumName> "." <idOrKeyword>
+    <enumName>     :=  <specName>  // spec must be an Enum
     <specName>     :=  [<qnameLib> "::"] <typename>
     <rangeOrLit>   :=  <literal> [".." <literal>]
 

@@ -590,6 +590,23 @@ supertypes, so an AHU record matches `Ahu`, `ph::Equip`, and `Dict`.
 Spec names are capitalized, so they never collide with literals or
 variables in pattern position.
 
+## Enum Patterns
+Enum items are matched by the enum spec name and the item name.  The
+subject may be either the item's string key as used in Haystack data,
+or a Fantom value bound to the enum spec:
+
+    switch (rec->curStatus)
+      case CurStatus.ok                      => "ok"
+      case CurStatus.fault or CurStatus.down => "bad"
+      case CurStatus                         => "other status"
+    end
+
+The item is resolved by its Xeto spec, so if the item declares a `key`
+meta then that is what is matched.  For example `TimeZone.utc` matches
+the string "UTC".  A bare enum spec such as `CurStatus` matches any
+valid key of the enum.  An unknown item such as `CurStatus.bogus`
+raises an exception.
+
 ## Alternatives
 Use `or` to match any of multiple patterns:
 
