@@ -397,6 +397,38 @@ class EtcTest : HaystackTest
  }
 
 //////////////////////////////////////////////////////////////////////////
+// EachWhile
+//////////////////////////////////////////////////////////////////////////
+
+  Void testEachWhile()
+  {
+    grid := Etc.makeMapsGrid(null, [["n":"a"], ["n":"b"]])
+    verifyEachWhile(Obj?["a", null, "c"], "a,0|null,1|c,2")
+    verifyEachWhile(Etc.makeDict(["x":n(1)]), "1,x")
+    verifyEachWhile(grid, "a,0|b,1") |r->Obj?| { return ((Dict)r)->n }
+    verifyEachWhile("ab", "97,0|98,1")
+    verifyEachWhile(ObjRange(n(2), n(4)), "2,null|3,null|4,null")
+
+    // stops at first non-null result
+    verifyEq(Etc.eachWhile([10, 20, 30]) |v, i| { return v == 20 ? i : null }, n(1))
+    verifyEq(Etc.eachWhile([10, 20, 30]) |v, i| { return null }, null)
+
+    verifyErr(ArgErr#) { Etc.eachWhile(n(3)) |v, i| { return null } }
+    verifyErr(ArgErr#) { Etc.each(n(3)) |v, i| {} }
+  }
+
+  Void verifyEachWhile(Obj val, Str expect, |Obj?->Obj?| toStr := |v->Obj?| { return v })
+  {
+    acc := Str[,]
+    Etc.eachWhile(val) |v, k| { acc.add("${toStr(v)},$k"); return null }
+    verifyEq(acc.join("|"), expect)
+
+    acc.clear
+    Etc.each(val) |v, k| { acc.add("${toStr(v)},$k") }
+    verifyEq(acc.join("|"), expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // DisCompare
 //////////////////////////////////////////////////////////////////////////
 

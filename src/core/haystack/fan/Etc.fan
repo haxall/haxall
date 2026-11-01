@@ -842,6 +842,31 @@ const class Etc
     return true
   }
 
+  ** Iterate the items of a collection as (item, key); see `eachWhile`
+  @NoDoc static Void each(Obj val, |Obj? item, Obj? key| f)
+  {
+    eachWhile(val) |v, k| { f(v, k); return null }
+  }
+
+  ** Iterate the items of a collection until f returns non-null and
+  ** return that result, or null if it never does.  Items are passed
+  ** as (item, key) with the same conventions as Axon 'eachWhile' which
+  ** keeps its own copy of this dispatch for speed:
+  **   - Grid: (row, index)
+  **   - List: (val, index)
+  **   - Dict: (val, name)
+  **   - Str: (char, index)
+  **   - ObjRange: (integer, null)
+  @NoDoc static Obj? eachWhile(Obj val, |Obj? item, Obj? key->Obj?| f)
+  {
+    if (val is Grid) return ((Grid)val).eachWhile |r, i| { f(r, Number.makeInt(i)) }
+    if (val is Dict) return ((Dict)val).eachWhile(f)
+    if (val is List) return ((List)val).eachWhile |v, i| { f(v, Number.makeInt(i)) }
+    if (val is Str)  return ((Str)val).eachWhile |ch, i| { f(Number.makeInt(ch), Number.makeInt(i)) }
+    if (val is ObjRange) return ((ObjRange)val).toIntRange.eachWhile |i| { f(Number.makeInt(i), null) }
+    throw ArgErr("Cannot iterate $val.typeof")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dis
 //////////////////////////////////////////////////////////////////////////

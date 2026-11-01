@@ -372,6 +372,7 @@ const class AxonFuncs
   **   - Stream: iterate items as (val); see [hx.doc.haxall::Streams#eachwhile]
   @Api @Axon static Obj? eachWhile(Obj val, Fn fn)
   {
+    // keep dispatch in sync with Etc.eachWhile for Fantom callers
     if (val is MStream) return EachWhileStream(val, fn).run
     if (val is Grid) return ((Grid)val).eachWhile(toGridIterator(fn))
     if (val is Dict) return Etc.dictEachWhile(val, toDictIterator(fn))
