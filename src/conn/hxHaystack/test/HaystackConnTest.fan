@@ -358,7 +358,16 @@ class HaystackConnTest : HxTest
 
   Void verifyCur(Dict r, Obj? val, Str status := "ok", Str? err := null)
   {
-    r = readById(r.id)
+    // proxies update on the conn's next poll; wait for it rather
+    // than depend on a sleep being long enough
+    deadline := Duration.now + 5sec
+    while (true)
+    {
+      r = readById(r.id)
+      if (r["curVal"] == val && r["curStatus"] == status && r["curErr"] == err) break
+      if (Duration.now > deadline) break
+      Actor.sleep(20ms)
+    }
     // echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"] + " err=" +  r["curErr"])
     // echo(proj.conn.point(r.id).details)
     verifyEq(r["curVal"], val)
