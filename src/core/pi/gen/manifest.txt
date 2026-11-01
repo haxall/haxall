@@ -7,6 +7,7 @@ ai-model           <qr-code>
 ai-provider        <brain>
 ai-skill           <flashlight>
 arc                <notepad-text>
+arcbeam                                      conn
 audio              <voicemail>
 axon               <square-function>
 bacnet                                       conn
@@ -17,6 +18,8 @@ conn               <plug>
 context            <target>
 cooling-tower      <tower-control>           condenser condensed cdw
 cur                <square-play>             rule
+docker
+dropbox
 def                <tag>
 device             <circuit-board>
 dict               <braces>
@@ -27,8 +30,10 @@ ext                <puzzle>
 fandoc             <text-initial>
 fantom             <ghost>                   dev lang
 func               <square-function>
+google-drive
 github                                       git
 haystack           <tag>                     conn
+haxall
 his                <hourglass>               history trend
 ide                <square-terminal>         dev
 java               <coffee>                  dev lang
@@ -59,6 +64,7 @@ split-view         <square-split-horizontal> layout
 sys                <pc-case>
 system             <shapes>
 task               <spool>
+tunnel
 unknown            <circle-question-mark>    status
 weather            <cloud-sun>
 widget             <box>

@@ -134,6 +134,22 @@ class ParseTest : Test
     verifyFreeVars("try x catch e", ["x", "e"])
   }
 
+  Void testParsePattern()
+  {
+    verifyPattern("200", "200")
+    verifyPattern("\"foo\"", "\"foo\"")
+    verifyPattern("400..499", "400..499")
+    verifyPattern("200 or 204", "200 or 204")
+
+    verifyErr(SyntaxErr#) { Parser("200 =>".in).parsePattern }
+    verifyErr(SyntaxErr#) { Parser("x".in).parsePattern }
+  }
+
+  Void verifyPattern(Str src, Str expect)
+  {
+    verifyEq(Parser(src.in).parsePattern.toStr, expect)
+  }
+
   Void verifyFreeVars(Str src, Str[] expect)
   {
     verifyEq(Parser(src.in).parse.freeVars, expect)
