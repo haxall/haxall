@@ -140,6 +140,14 @@ own constructor), so compile-time code may point-lookup loaded libs thru
 the namespace but must never enumerate it.  The step skips entirely
 when compiling sys itself, whose rule catalog does not exist yet.
 
+A rule class may return true from `ValidateRule.isBuildOnly` for checks
+too expensive for every load, such as parsing source code scalars
+(`axon::invalidAxonSrc`).  `ValidateRules.makeLibs` leaves them out of
+the registry unless its build flag is set, which the compiler sets only
+when building a xetolib (`xeto build` and devLang).  So they never run
+on a normal lib compile, a namespace load, or runtime validation.  They
+report at the scalar's loc; a line within the source goes in the msg.
+
 `xetoc::CompileValidator` overrides the engine's resolution hooks
 (`resolveSpec`, `resolveInstance`, `cns`) to overlay the lib under
 compile, which is not in the namespace yet.  All value-to-spec mapping

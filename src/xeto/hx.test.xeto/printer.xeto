@@ -46,8 +46,8 @@ TestPrintB: TestPrint {
   meta3: <metaQ, metaStr:"foo\nbar">
 
   <axon:---
-  line 1
-  line 2
+  line1 and
+  line2
   --->
 }
 
@@ -61,7 +61,7 @@ TestPrintD: TestPrint {
   marker2: Marker <admin>
   marker3: Marker?
   marker4: Marker? <admin>
-  marker5: Marker? <axon:"foo\nbar">
+  marker5: Marker? <axon:"foo and\nbar">
 }
 
 TestPrintE: TestPrint {

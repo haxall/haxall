@@ -247,8 +247,8 @@ class PrinterTest : AbstractXetoTest
                 --->
               }
               <axon: ---
-              line 1
-              line 2
+              line1 and
+              line2
               --->
             }
             |>)
@@ -278,7 +278,7 @@ class PrinterTest : AbstractXetoTest
               marker3: Marker?
               marker4: Marker? <admin>
               marker5: Marker? <axon:---
-                foo
+                foo and
                 bar
                 --->
             }

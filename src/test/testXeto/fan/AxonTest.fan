@@ -34,6 +34,60 @@ class AxonTest : AbstractAxonTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Build Checks
+//////////////////////////////////////////////////////////////////////////
+
+  Void testBuildChecks()
+  {
+    dir := tempDir + `axonsrc/test.axonsrc/`
+    dir.delete
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "1.0.0", depends: { { lib: "sys" }, { lib: "axon" } } >
+
+           +Funcs {
+             good: Func <axon:"today()"> { returns: Obj? }
+             badBody: Func <axon:"foo\nbar"> { returns: Obj? }
+             badParam: Func <axon:"a"> { a: Obj? <axon:"1 +">, returns: Obj? }
+           }
+
+           TestTask: Dict { expr: AxonSrc }
+
+           @task: TestTask { expr: "readAll(" }
+           |>).close
+
+    // normal compile never runs build-only rules
+    verifyEq(compileAxonSrcLib(dir, null).errs.size, 0)
+
+    // build reports every bad source at its scalar and writes no zip
+    zip := tempDir + `axonsrc/test.axonsrc.xetolib`
+    c := compileAxonSrcLib(dir, zip)
+    verifyEq(zip.exists, false)
+    verifyBuildErr(c.errs[0], 11, "Slot 'expr': Invalid Axon: line 1: Unexpected token eof")
+    verifyBuildErr(c.errs[1], 5, "Invalid Axon: line 2: Expecting end of file, not identifier 'bar'")
+    verifyBuildErr(c.errs[2], 6, "Invalid Axon: line 1: Unexpected token eof")
+    verifyEq(c.errs.size, 3)
+  }
+
+  private XetoCompiler compileAxonSrcLib(File dir, File? zip)
+  {
+    c := XetoCompiler.init
+    {
+      it.ns      = XetoEnv.cur.resolveNamespace(["sys", "axon"])
+      it.libName = "test.axonsrc"
+      it.input   = dir
+      it.build   = zip
+    }
+    try c.compileLib; catch (XetoCompilerErr e) {}
+    return c
+  }
+
+  private Void verifyBuildErr(XetoCompilerErr e, Int line, Str msg)
+  {
+    verifyEq(e.loc.line, line)
+    verifyEq(e.msg, msg)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Comp
 //////////////////////////////////////////////////////////////////////////
 
