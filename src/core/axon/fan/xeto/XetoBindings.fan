@@ -17,7 +17,7 @@ internal const class XetoBindingLoader : SpecBindingLoader
   override Void loadLib(SpecBindings acc, Str libName)
   {
     pod := typeof.pod
-    acc.add(AxonExprBinding(pod.type("AxonExpr")))
+    acc.add(AxonSrcBinding(pod.type("AxonSrc")))
   }
 
   override SpecBinding? loadSpec(SpecBindings acc, SpecBindingInfo spec)
@@ -32,9 +32,9 @@ internal const class XetoBindingLoader : SpecBindingLoader
 }
 
 @Js
-internal const class AxonExprBinding : ScalarBinding
+internal const class AxonSrcBinding : ScalarBinding
 {
-  new make(Type type) : super("axon::AxonExpr", type) {}
-  override Obj? decodeScalar(Str s, Bool checked := true) { AxonExpr(s, true) }
+  new make(Type type) : super("axon::AxonSrc", type) {}
+  override Obj? decodeScalar(Str s, Bool checked := true) { AxonSrc(s) }
 }
 

@@ -28,9 +28,9 @@ class AxonTest : AbstractAxonTest
   {
     ns := XetoEnv.cur.resolveNamespace(["axon"])
 
-    x := ns.spec("axon::AxonExpr")
+    x := ns.spec("axon::AxonSrc")
     verifyEq(x.isScalar, true)
-    verifyEq(x.fantomType, AxonExpr#)
+    verifyEq(x.fantomType, AxonSrc#)
   }
 
 //////////////////////////////////////////////////////////////////////////

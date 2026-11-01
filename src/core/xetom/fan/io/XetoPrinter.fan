@@ -253,7 +253,7 @@ class XetoPrinter
   {
     doc   := ast["doc"] as Str
     slots := ast["slots"] as Grid ?: Etc.emptyGrid
-    axon  := ast["axon"] as Str ?: "null"
+    axon  := ast["axon"]?.toStr ?: "null"
 
     if (doc != null) w("/*").nl.w(doc).nl.w("*/").nl
 
@@ -840,7 +840,13 @@ internal abstract const class XpSpec
   ** its type is taken from the base and cannot be restated
   abstract Bool isMixinOverride()
 
-  Obj metaGet(Str n) { metaOwn.get(n) ?: throw Err("Missing meta: $n") }
+  ** Meta tags are always declared, so source strings print as plain
+  ** strings typed by their declaration
+  Obj metaGet(Str n)
+  {
+    v := metaOwn.get(n) ?: throw Err("Missing meta: $n")
+    return v is SrcStr ? v.toStr : v
+  }
 
   ** An "of" pointing at a compiler hoisted synthetic spec has no source
   ** name to reference, so it must be printed inline as its signature.

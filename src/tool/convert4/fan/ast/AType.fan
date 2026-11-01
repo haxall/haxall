@@ -25,7 +25,7 @@ const class AType
     if (isTag is List) isTag = ((List)isTag).first
     x := isTag.toStr
     if (def.has("enum")) return AType(def->def.toStr.capitalize + "?")
-    if (x == "expr") return AType("AxonExpr?")
+    if (x == "expr") return AType("AxonSrc?")
     if (x == "filterStr") return AType("Filter?")
     return AType(x.capitalize + "?")
   }

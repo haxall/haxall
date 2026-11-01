@@ -50,8 +50,8 @@ const class AxonThunkFactory : ThunkFactory
     if (fn != null) return fn
 
     // check axon source
-    js := spec.meta["axon"] as Str
-    if (js  != null) return createAxon(spec, meta, js)
+    axon := spec.meta["axon"]?.toStr
+    if (axon != null) return createAxon(spec, meta, axon)
 
     // check js source
     code := spec.meta["js"] as Str
@@ -134,13 +134,13 @@ const class AxonThunkFactory : ThunkFactory
     spec.func.params.map |p->FnParam|
     {
       Expr? def := null
-      defStr := p.meta["axon"] as Str
-      if (defStr != null)
+      axon := p.meta["axon"]?.toStr
+      if (axon != null)
       {
         try
-          def = Parser(defStr.in, FileLoc(qname)).expr
+          def = Parser(axon.in, FileLoc(qname)).expr
         catch (Err e)
-          throw ParseErr("Cannot parse func '$qname' param '$p.name': $defStr.toCode", e)
+          throw ParseErr("Cannot parse func '$qname' param '$p.name': $axon.toCode", e)
       }
       return FnParam(p.name, def)
     }

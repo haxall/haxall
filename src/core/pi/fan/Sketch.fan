@@ -30,6 +30,37 @@ const mixin Sketch
 }
 
 **************************************************************************
+** SketchSrc
+**************************************************************************
+
+**
+** SketchSrc wraps the source code of a `Sketch` template.  Use
+** `PiEnv.sketch` to compile it against a namespace.
+**
+@NoDoc @Js
+const class SketchSrc : SrcStr
+{
+  ** Wrap string - the string is *not* parsed for syntax correctness
+  static new fromStr(Str src) { make(src) }
+
+  ** Constructor
+  private new make(Str src) { this.src = src }
+
+  ** Source code
+  override const Str src
+
+  ** Hash is based on source code
+  override Int hash() { src.hash }
+
+  ** Equality is based on source code
+  override Bool equals(Obj? that)
+  {
+    x := that as SketchSrc
+    return x != null && src == x.src
+  }
+}
+
+**************************************************************************
 ** SketchScope
 **************************************************************************
 

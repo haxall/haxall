@@ -8,7 +8,7 @@
 
 +Spec {
   // Axon source code string for functions and expressions
-  axon: Str?
+  axon: AxonSrc?
 
   // Requires admin permission
   admin: Marker?

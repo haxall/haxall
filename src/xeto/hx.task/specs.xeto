@@ -15,7 +15,7 @@ Task: Entity {
   disabled: Marker?
 
   // Task messaging handling Axon expression
-  taskExpr: AxonExpr?
+  taskExpr: AxonSrc?
 
   // Current status of a task
   taskStatus: TaskStatus? <transient>
