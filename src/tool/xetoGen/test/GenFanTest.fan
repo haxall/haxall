@@ -603,6 +603,91 @@ class GenFanTest : Test
     verifyGen(src, src)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Slot Name Matching
+//////////////////////////////////////////////////////////////////////////
+
+  ** Slot name matches a declaration only as a whole identifier
+  ** outside string, char, Str<||> and Uri literals
+  Void testSlotNameMatch()
+  {
+    xeto := compXeto("TestGains: Comp {\n  ti: Duration\n  r: Float\n}")
+    src := comp("TestGains", [slot("Duration", "ti"), slot("Float", "r")])
+    verifyEq(genTemp(xeto, src), src)
+
+    verifyRetype("ti: Str", "const Duration ti", "Duration", "Str")
+    verifyRetype("in: Str", "internal const Ref in", "Ref", "Str")
+    verifyRetype("readonly: Str", "protected const Bool ro", "Bool", "Str")
+    verifyRetype("t: Number, ti: Number", "const Duration t\n\n  @Gen const Duration ti", "Duration", "Number")
+    verifyRetype("r: Str", "@Deprecated { msg = \"r\" } const Number r", "Number", "Str")
+    verifyRetype("r: Str", "@Foo { u = `r` } const Number r", "Number", "Str")
+    verifyRetype("r: Str", "@Foo { c = 'r' } const Number r", "Number", "Str")
+    verifyRetype("r: Str", "@Foo { s = Str<|r|> } const Number r", "Number", "Str")
+  }
+
+  private Void verifyRetype(Str slots, Str line, Str from, Str to)
+  {
+    src := "@Gen\nconst class TestF : WrapDict\n{\n  @Gen $line\n}"
+    verifyEq(genTemp("TestF: Dict { $slots }", src), src.replace(from, to))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Enum Slot Types
+//////////////////////////////////////////////////////////////////////////
+
+  ** Enum with no compiled class uses the scanned @Gen enum type
+  Void testEnumScannedType()
+  {
+    xeto := compXeto("TestMode: Enum { auto, manual }\nTestCtl: Comp {\n  mode: TestMode\n  alt: TestMode?\n  modes: List <of: TestMode>\n}")
+    modes := "@Gen\nenum class TestMode\n{\n  auto,\n\n  manual\n}\n\n"
+    log := Buf()
+    verifyEq(genTemp(xeto, modes + comp("TestCtl", [slot("TestMode", "mode")]), log),
+      modes + comp("TestCtl", [slot("TestMode", "mode"), slot("TestMode?", "alt"), slot("TestMode[]", "modes")]))
+    verifyEq(log.flip.readAllStr.contains("No Fantom class"), false)
+  }
+
+  ** Enum with no class and no @Gen type maps to Obj and warns
+  Void testEnumSlotTypeObj()
+  {
+    xeto := compXeto("TestMode: Enum { auto, manual }\nTestCtl: Comp {\n  mode: TestMode\n}")
+    log := Buf()
+    verifyEq(genTemp(xeto, comp("TestCtl", [slot("TestMode", "mode")]), log), comp("TestCtl", [slot("Obj", "mode")]))
+    msg := log.flip.readAllStr
+    verify(msg.contains("No Fantom class for enum '") && msg.contains("::TestMode', mapped to Obj"), msg)
+
+    // xeto only enum in a slot and a func param
+    xeto = compXeto("TestV: Comp {\n  level: ValidateLevel\n}")
+    verifyEq(genTemp(xeto, comp("TestV", Str[,])), comp("TestV", [slot("Obj", "level")]))
+    xeto = "+Funcs {\n  foo: Func { level: ValidateLevel, returns: Str }\n}"
+    verifyEq(genTemp(xeto, "@Gen\nconst class TempFuncs\n{\n}"),
+      "@Gen\nconst class TempFuncs\n{\n  @Api @Axon\n  static Str foo(Obj level)\n  {\n    throw Err(\"TODO\")\n  }\n}")
+
+    // scalar that is not an enum maps to Obj with no warning
+    log = Buf()
+    src := "@Gen\nconst class TestThing : WrapDict\n{\n}"
+    verifyEq(genTemp("TestCode: Scalar\nTestThing: Dict { code: TestCode }", src, log),
+      "@Gen\nconst class TestThing : WrapDict\n{\n  @Gen virtual Obj code() { get(\"code\") }\n}")
+    verifyEq(log.flip.readAllStr.contains("No Fantom class"), false)
+  }
+
+  ** Comp class source with the given slot lines
+  private static Str comp(Str name, Str[] slots)
+  {
+    "@Gen\nclass $name : HxComp\n{\n" + slots.join("\n\n") + (slots.isEmpty ? "" : "\n") + "}"
+  }
+
+  ** Comp slot declaration line
+  private static Str slot(Str type, Str name)
+  {
+    "  @Gen virtual $type $name { get {get(\"$name\")} set {set(\"$name\", it)} }"
+  }
+
+  ** Xeto source for a comp spec in a temp lib that depends on sys.comp
+  private static Str compXeto(Str body)
+  {
+    "pragma: Lib <\n  version: \"0.0.0\"\n  depends: { { lib: \"sys\" }, { lib: \"sys.comp\" } }\n>\n" + body
+  }
+
   ** Generated output run thru the pipeline again is unchanged
   Void testIdempotent()
   {
@@ -626,20 +711,31 @@ class GenFanTest : Test
   ** Run scan/gen/merge pipeline on source; return generated source
   private Str gen(Str src)
   {
-    c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
+    c := compiler
     return genWith(c, c.ns.lib("hx.comps"), src)
   }
 
   ** Run pipeline against a temp lib compiled from xeto source
   ** Compile temp lib and gen; the "TempFuncs" placeholder class
   ** name is mapped to the actual temp lib funcs class name
-  private Str genTemp(Str xetoSrc, Str src)
+  private Str genTemp(Str xetoSrc, Str src, Buf? log := null)
   {
-    c := GenCompiler { it.logger = XetoLog.makeOutStream(Buf().out) }
+    c := compiler(log)
     lib := c.ns.compileTempLib(xetoSrc)
     name := XetoUtil.fantomFuncTypeNames(lib).first
     out := genWith(c, lib, src.replace("TempFuncs", name))
     return out.replace(name, "TempFuncs")
+  }
+
+  ** Compiler over hx.comps and its depends only, so a conflict between
+  ** unrelated installed libs cannot fail compileTempLib
+  internal static GenCompiler compiler(Buf? log := null)
+  {
+    GenCompiler
+    {
+      it.logger = XetoLog.makeOutStream((log ?: Buf()).out)
+      it.ns     = XetoEnv.cur.resolveNamespace(["hx.comps"])
+    }
   }
 
   private Str genWith(GenCompiler c, Lib lib, Str src)
