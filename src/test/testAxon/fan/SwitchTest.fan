@@ -170,6 +170,13 @@ class SwitchTest : HxTest
     verifyCall(f, untyped, "dict")
     verifyCall(f, Etc.dict1("site", Marker.val), "dict")
 
+    // spec or null at top level, either order
+    verifyCall(Str<|(x) => switch (x) case Ahu or null => "ahu or null" default => "other" end|>, ahu, "ahu or null")
+    verifyCall(Str<|(x) => switch (x) case Ahu or null => "ahu or null" default => "other" end|>, null, "ahu or null")
+    verifyCall(Str<|(x) => switch (x) case Ahu or null => "ahu or null" default => "other" end|>, site, "other")
+    verifyCall(Str<|(x) => switch (x) case null or Ahu => "null or ahu" default => "other" end|>, null, "null or ahu")
+    verifyCall(Str<|(x) => switch (x) case null or Ahu => "null or ahu" default => "other" end|>, ahu, "null or ahu")
+
     // specs mix with literals
     verifyCall(Str<|(x) => switch (x) case 0 or Str => "zero or str" default => "other" end|>, n(0), "zero or str")
     verifyCall(Str<|(x) => switch (x) case 0 or Str => "zero or str" default => "other" end|>, n(1), "other")
@@ -277,6 +284,31 @@ class SwitchTest : HxTest
     // missing tag and constraint failure
     verifyCall(Str<|(x) => switch (x) case {area: Number} => 1 default => 2 end|>, Etc.dict1("area", "big"), n(2))
     verifyCall(Str<|(x) => switch (x) case {area: Number} => 1 default => 2 end|>, Etc.dict1("site", m), n(2))
+
+    // optional slot pattern matches missing tag
+    f = Str<|(x) => switch (x) case {area: Number?} => "opt" default => "other" end|>
+    verifyCall(f, Etc.dict1("area", n(3)), "opt")
+    verifyCall(f, Etc.dict1("site", m), "opt")
+    verifyCall(f, Etc.dict1("area", "big"), "other")
+    f = Str<|(x) => switch (x) case {area: Str or Number?} => 1 default => 2 end|>
+    verifyCall(f, Etc.dict0, n(1))
+    verifyCall(f, Etc.dict1("area", "big"), n(1))
+    verifyCall(f, Etc.dict1("area", n(3)), n(1))
+    verifyCall(f, Etc.dict1("area", m), n(2))
+
+    // null literal in slot never matches missing tag, only ? does
+    verifyCall(Str<|(x) => switch (x) case {equip: null} => 1 default => 2 end|>, Etc.dict0, n(2))
+    f = Str<|(x) => switch (x) case {area: Number or null} => "num" default => "other" end|>
+    verifyCall(f, Etc.dict1("area", n(3)), "num")
+    verifyCall(f, Etc.dict0, "other")
+    verifyCall(f, Etc.dict1("area", "big"), "other")
+
+    // optional only allowed in slots
+    verifyErr(SyntaxErr#) { eval("switch (1) case Number? => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1 or Str? => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case {a}? => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case {a?} => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case {a: Str? or Number} => 1 end") }
 
     // keyword and quoted tag names
     verifyCall(Str<|(x) => switch (x) case {for, "not tag": 3} => 1 default => 2 end|>, Etc.dict2("for", m, "not tag", n(3)), n(1))
@@ -395,7 +427,7 @@ class SwitchTest : HxTest
              case 2026-10 => 4
              case ph::Site or Number => 5
              case CurStatus.ok => 6
-             case Vav {airRef, kind: "Number" or Str, "not tag"} => 7
+             case Vav {airRef, kind: "Number" or Str, "not tag", area: Number?} => 7
              default => 8
            end|>
     expr := Parser(src.in).parse
@@ -411,7 +443,10 @@ class SwitchTest : HxTest
     verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern", "dictPattern"])
     Dict dp := cases[6]->pattern
     verifyEq(dp->spec->spec->topName, "Vav")
-    verifyEq(((Dict[])dp->slots).map |x->Obj?| { x->name }, Obj?["airRef", "kind", "not tag"])
+    verifyEq(((Dict[])dp->slots).map |x->Obj?| { x->name }, Obj?["airRef", "kind", "not tag", "area"])
+    verifyEq(((Dict[])dp->slots)[3]->pattern->type, "specPattern")
+    verifyEq(((Dict[])dp->slots)[3]->optional, true)
+    verifyEq(((Dict[])dp->slots)[1]->optional, false)
     verifyEq(((Dict[])dp->slots)[1]->pattern->type, "orPattern")
     verifyEq(cases[5]->pattern->spec->topName, "CurStatus")
     verifyEq(cases[5]->pattern->item, "ok")

@@ -220,14 +220,18 @@ const class DictPattern : Pattern
 ** SlotPattern
 **************************************************************************
 
-** Matches dict subject which has a slot that matches optional pattern
+**
+** Matches dict subject by one of its slots.  The slot must be present
+** unless optional, and its value must match the pattern if specified.
+**
 @NoDoc @Js
 const class SlotPattern : Pattern
 {
-  new make(FileLoc loc, Str name, Pattern? pattern) : super(loc)
+  new make(FileLoc loc, Str name, Pattern? pattern, Bool optional) : super(loc)
   {
-    this.name    = name
-    this.pattern = pattern
+    this.name     = name
+    this.pattern  = pattern
+    this.optional = optional
   }
 
   override ExprType type() { ExprType.slotPattern }
@@ -238,22 +242,28 @@ const class SlotPattern : Pattern
   ** Constraint on slot value or null for presence check
   const Pattern? pattern
 
+  ** Does slot match when missing: "{area: Number?}"
+  const Bool optional
+
   override Bool match(AxonContext cx, Obj? subject)
   {
     val := ((Dict)subject).get(name)
-    return val != null && (pattern == null || pattern.match(cx, val))
+    if (val == null) return optional
+    return pattern == null || pattern.match(cx, val)
   }
 
   override Void walk(|Str key, Obj? val| f)
   {
     f("name", name)
     f("pattern", pattern)
+    f("optional", optional)
   }
 
   override Printer print(Printer out)
   {
     out.w(Etc.isTagName(name) ? name : name.toCode)
     if (pattern != null) out.w(": ").expr(pattern)
+    if (optional) out.wc('?')
     return out
   }
 }

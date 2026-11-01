@@ -65,7 +65,7 @@ Legend for BNF Grammar:
     <primary>      :=  <dictPattern> | <enumItem> | <specName> [<dictPattern>] |
                        <rangeOrLit>
     <dictPattern>  :=  "{" [<slotPattern> ("," <slotPattern>)* [","]] "}"
-    <slotPattern>  :=  (<idOrKeyword> | <str>) [":" <slotValue>]
+    <slotPattern>  :=  (<idOrKeyword> | <str>) [":" <slotValue> ["?"]]
     <slotValue>    :=  <pattern>  // without dict patterns
     <enumItem>     :=  <enumName> "." <idOrKeyword>
     <enumName>     :=  <specName>  // spec must be an Enum

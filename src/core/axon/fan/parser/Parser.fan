@@ -326,7 +326,7 @@ class Parser
   **     <pattern>     :=  <primary> ("or" <primary>)*
   **     <primary>     :=  <dictPattern> | <enumItem> | <specName> [<dictPattern>] | <rangeOrLit>
   **     <dictPattern> :=  "{" [<slotPattern> ("," <slotPattern>)* [","]] "}"
-  **     <slotPattern> :=  (<idOrKeyword> | <str>) [":" <slotValue>]
+  **     <slotPattern> :=  (<idOrKeyword> | <str>) [":" <slotValue> ["?"]]
   **     <slotValue>   :=  <pattern>  // without dict patterns
   **     <enumItem>    :=  <enumName> "." <idOrKeyword>
   **     <enumName>    :=  <specName>  // spec must be an Enum
@@ -364,8 +364,14 @@ class Parser
       slotLoc := curLoc
       name := cur === Token.val && curVal is Str ? consumeVal : consumeIdOrKeyword("slot name")
       Pattern? p := null
-      if (cur === Token.colon) { consume; p = pattern(true) }
-      slots.add(SlotPattern(slotLoc, name, p))
+      optional := false
+      if (cur === Token.colon)
+      {
+        consume
+        p = pattern(true)
+        if (cur === Token.question) { consume; optional = true }
+      }
+      slots.add(SlotPattern(slotLoc, name, p, optional))
       if (cur !== Token.comma) break
       consume
     }

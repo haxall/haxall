@@ -627,10 +627,15 @@ spec with slots:
     case Ahu {siteRef: Ref}    => "AHU with siteRef"
 
 The pattern for a tag may be any literal, range, spec, or enum pattern,
-or alternatives of them.  Dict patterns do not nest: to test the tags
-of a nested dict or the record a Ref points to, use Axon code in the
-case body.  Tag names follow the same rules as dict literals, so a
-keyword or quoted string may be used.
+or alternatives of them.  A tag must be present unless its pattern is
+optional using a trailing `?` like a Xeto slot:
+
+    case {area: Number?}  => "area is missing or a Number"
+
+Dict patterns do not nest: to test the tags of a nested dict or the
+record a Ref points to, use Axon code in the case body.  Tag names
+follow the same rules as dict literals, so a keyword or quoted string
+may be used.
 
 ## Alternatives
 Use `or` to match any of multiple patterns:
