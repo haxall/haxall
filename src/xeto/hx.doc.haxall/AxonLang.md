@@ -607,6 +607,31 @@ the string "UTC".  A bare enum spec such as `CurStatus` matches any
 valid key of the enum.  An unknown item such as `CurStatus.bogus`
 raises an exception.
 
+## Dict Patterns
+A dict pattern matches a dict where each listed tag is present and
+matches its optional pattern.  Other tags in the dict are ignored:
+
+    switch (rec)
+      case {site}                       => "has site tag"
+      case {site, area: Number}         => "site with numeric area"
+      case {kind: "Number", unit: "°F"} => "fahrenheit point"
+      case {curStatus: CurStatus.fault} => "fault status"
+      case {}                           => "any dict"
+    end
+
+A spec name followed by a dict pattern requires the subject to fit the
+spec and then match the dict pattern.  This mirrors how Xeto declares a
+spec with slots:
+
+    case Vav {airRef}          => "VAV with airRef"
+    case Ahu {siteRef: Ref}    => "AHU with siteRef"
+
+The pattern for a tag may be any literal, range, spec, or enum pattern,
+or alternatives of them.  Dict patterns do not nest: to test the tags
+of a nested dict or the record a Ref points to, use Axon code in the
+case body.  Tag names follow the same rules as dict literals, so a
+keyword or quoted string may be used.
+
 ## Alternatives
 Use `or` to match any of multiple patterns:
 

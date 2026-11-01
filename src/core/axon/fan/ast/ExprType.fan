@@ -43,6 +43,8 @@ enum class ExprType
   rangePattern,
   specPattern,
   enumPattern,
+  dictPattern,
+  slotPattern,
   orPattern,
 
   // assignment

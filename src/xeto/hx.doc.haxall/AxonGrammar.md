@@ -62,7 +62,11 @@ Legend for BNF Grammar:
     <case>         :=  "case" <pattern> "=>" <expr>
     <default>      :=  "default" "=>" <expr>
     <pattern>      :=  <primary> ("or" <primary>)*
-    <primary>      :=  <enumItem> | <specName> | <rangeOrLit>
+    <primary>      :=  <dictPattern> | <enumItem> | <specName> [<dictPattern>] |
+                       <rangeOrLit>
+    <dictPattern>  :=  "{" [<slotPattern> ("," <slotPattern>)* [","]] "}"
+    <slotPattern>  :=  (<idOrKeyword> | <str>) [":" <slotValue>]
+    <slotValue>    :=  <pattern>  // without dict patterns
     <enumItem>     :=  <enumName> "." <idOrKeyword>
     <enumName>     :=  <specName>  // spec must be an Enum
     <specName>     :=  [<qnameLib> "::"] <typename>

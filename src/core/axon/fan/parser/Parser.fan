@@ -323,30 +323,54 @@ class Parser
   **
   ** Pattern:
   **
-  **     <pattern>    :=  <primary> ("or" <primary>)*
-  **     <primary>    :=  <enumItem> | <specName> | <rangeOrLit>
-  **     <enumItem>   :=  <enumName> "." <idOrKeyword>
-  **     <enumName>   :=  <specName>  // spec must be an Enum
-  **     <specName>   :=  [<qnameLib> "::"] <typename>
-  **     <rangeOrLit> :=  <literal> [".." <literal>]
+  **     <pattern>     :=  <primary> ("or" <primary>)*
+  **     <primary>     :=  <dictPattern> | <enumItem> | <specName> [<dictPattern>] | <rangeOrLit>
+  **     <dictPattern> :=  "{" [<slotPattern> ("," <slotPattern>)* [","]] "}"
+  **     <slotPattern> :=  (<idOrKeyword> | <str>) [":" <slotValue>]
+  **     <slotValue>   :=  <pattern>  // without dict patterns
+  **     <enumItem>    :=  <enumName> "." <idOrKeyword>
+  **     <enumName>    :=  <specName>  // spec must be an Enum
+  **     <specName>    :=  [<qnameLib> "::"] <typename>
+  **     <rangeOrLit>  :=  <literal> [".." <literal>]
   **
-  private Pattern pattern()
+  private Pattern pattern(Bool inSlot := false)
   {
-    alts := [primary]
-    while (cur === Token.orKeyword) { consume; alts.add(primary) }
+    alts := [primary(inSlot)]
+    while (cur === Token.orKeyword) { consume; alts.add(primary(inSlot)) }
     return alts.size == 1 ? alts.first : OrPattern(alts)
   }
 
-  private Pattern primary()
+  private Pattern primary(Bool inSlot)
   {
+    if (cur === Token.lbrace) return dictPattern(null, inSlot)
     if (cur === Token.typename || (cur === Token.id && (peek === Token.doubleColon || peek === Token.dot)))
     {
       spec := specName
-      if (cur !== Token.dot) return SpecPattern(spec)
-      consume
-      return EnumPattern(spec, consumeIdOrKeyword("enum item name"))
+      if (cur === Token.dot) { consume; return EnumPattern(spec, consumeIdOrKeyword("enum item name")) }
+      if (cur === Token.lbrace && !nl) return dictPattern(SpecPattern(spec), inSlot)
+      return SpecPattern(spec)
     }
     return rangeOrLit
+  }
+
+  private DictPattern dictPattern(SpecPattern? spec, Bool inSlot)
+  {
+    loc := spec?.loc ?: curLoc
+    if (inSlot) throw err("Nested dict patterns not supported")
+    consume(Token.lbrace)
+    slots := SlotPattern[,]
+    while (cur !== Token.rbrace)
+    {
+      slotLoc := curLoc
+      name := cur === Token.val && curVal is Str ? consumeVal : consumeIdOrKeyword("slot name")
+      Pattern? p := null
+      if (cur === Token.colon) { consume; p = pattern(true) }
+      slots.add(SlotPattern(slotLoc, name, p))
+      if (cur !== Token.comma) break
+      consume
+    }
+    consume(Token.rbrace)
+    return DictPattern(loc, spec, slots)
   }
 
   private TopName specName()

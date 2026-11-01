@@ -168,6 +168,97 @@ const class EnumPattern : Pattern
 }
 
 **************************************************************************
+** DictPattern
+**************************************************************************
+
+** Matches dict which fits optional spec and every slot pattern
+@NoDoc @Js
+const class DictPattern : Pattern
+{
+  new make(FileLoc loc, SpecPattern? spec, SlotPattern[] slots) : super(loc)
+  {
+    this.spec  = spec
+    this.slots = slots
+  }
+
+  override ExprType type() { ExprType.dictPattern }
+
+  const SpecPattern? spec
+
+  const SlotPattern[] slots
+
+  override Bool match(AxonContext cx, Obj? subject)
+  {
+    dict := subject as Dict
+    if (dict == null) return false
+    if (spec != null && !spec.match(cx, dict)) return false
+    for (i := 0; i<slots.size; ++i)
+      if (!slots[i].match(cx, dict)) return false
+    return true
+  }
+
+  override Void walk(|Str key, Obj? val| f)
+  {
+    f("spec", spec)
+    f("slots", slots)
+  }
+
+  override Printer print(Printer out)
+  {
+    if (spec != null) spec.print(out).wc(' ')
+    out.wc('{')
+    slots.each |slot, i|
+    {
+      if (i > 0) out.comma
+      slot.print(out)
+    }
+    return out.wc('}')
+  }
+}
+
+**************************************************************************
+** SlotPattern
+**************************************************************************
+
+** Matches dict subject which has a slot that matches optional pattern
+@NoDoc @Js
+const class SlotPattern : Pattern
+{
+  new make(FileLoc loc, Str name, Pattern? pattern) : super(loc)
+  {
+    this.name    = name
+    this.pattern = pattern
+  }
+
+  override ExprType type() { ExprType.slotPattern }
+
+  ** Slot name
+  const Str name
+
+  ** Constraint on slot value or null for presence check
+  const Pattern? pattern
+
+  override Bool match(AxonContext cx, Obj? subject)
+  {
+    val := ((Dict)subject).get(name)
+    return val != null && (pattern == null || pattern.match(cx, val))
+  }
+
+  override Void walk(|Str key, Obj? val| f)
+  {
+    f("name", name)
+    f("pattern", pattern)
+  }
+
+  override Printer print(Printer out)
+  {
+    out.w(Etc.isTagName(name) ? name : name.toCode)
+    if (pattern != null) out.w(": ").expr(pattern)
+    return out
+  }
+}
+
+**************************************************************************
 ** OrPattern
 **************************************************************************
 

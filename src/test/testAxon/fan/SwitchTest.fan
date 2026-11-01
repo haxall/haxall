@@ -234,6 +234,61 @@ class SwitchTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Dicts
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testDicts()
+  {
+    addLib("ph")
+    site := addRec(["dis":"Site", "spec":Ref("ph::Site"), "site":m, "area":n(9000, "ft²")])
+    ahu  := addRec(["dis":"AHU", "spec":Ref("ph::Ahu"), "equip":m, "ahu":m, "siteRef":site.id])
+    vav  := addRec(["dis":"VAV", "spec":Ref("ph::Vav"), "equip":m, "vav":m, "siteRef":site.id, "airRef":ahu.id])
+    pt   := Etc.makeDict(["dis":"Temp", "point":m, "kind":"Number", "unit":"°F", "curStatus":"fault"])
+
+    f :=
+      Str<|(x) => switch (x)
+             case Vav {airRef} => "vav with airRef"
+             case Ahu {siteRef: Ref} => "ahu with siteRef"
+             case {site, area: 1..1000} => "small site"
+             case {site, area: Number} => "site with area"
+             case {point, curStatus: CurStatus.fault or CurStatus.down} => "bad point"
+             case {kind: "Number", unit: "°F"} => "fahrenheit"
+             case {foo} or {bar} => "foo or bar"
+             case {} => "dict"
+             default => "other"
+           end|>
+    verifyCall(f, vav, "vav with airRef")
+    verifyCall(f, ahu, "ahu with siteRef")
+    verifyCall(f, site, "site with area")
+    verifyCall(f, Etc.dict2("site", m, "area", n(500, "ft²")), "small site")
+    verifyCall(f, pt, "bad point")
+    verifyCall(f, Etc.dictx("point", m, "kind", "Number", "unit", "°F", "curStatus", "ok"), "fahrenheit")
+    verifyCall(f, Etc.dict1("foo", m), "foo or bar")
+    verifyCall(f, Etc.dict1("bar", n(3)), "foo or bar")
+    verifyCall(f, Etc.dict0, "dict")
+    verifyCall(f, n(3), "other")
+    verifyCall(f, null, "other")
+
+    // spec + dict requires both
+    verifyCall(Str<|(x) => switch (x) case Vav {airRef} => 1 default => 2 end|>, Etc.dict2("vav", m, "airRef", ahu.id), n(2))
+    verifyCall(Str<|(x) => switch (x) case Vav {foo} => 1 default => 2 end|>, vav, n(2))
+
+    // missing tag and constraint failure
+    verifyCall(Str<|(x) => switch (x) case {area: Number} => 1 default => 2 end|>, Etc.dict1("area", "big"), n(2))
+    verifyCall(Str<|(x) => switch (x) case {area: Number} => 1 default => 2 end|>, Etc.dict1("site", m), n(2))
+
+    // keyword and quoted tag names
+    verifyCall(Str<|(x) => switch (x) case {for, "not tag": 3} => 1 default => 2 end|>, Etc.dict2("for", m, "not tag", n(3)), n(1))
+
+    // nested dict patterns are not supported
+    verifyErr(SyntaxErr#) { eval("switch ({}) case {a: {b}} => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch ({}) case {a: 1 or {b}} => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch ({}) case {a: Site {b}} => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch ({}) case {a b} => 1 end") }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Default
 //////////////////////////////////////////////////////////////////////////
 
@@ -340,7 +395,8 @@ class SwitchTest : HxTest
              case 2026-10 => 4
              case ph::Site or Number => 5
              case CurStatus.ok => 6
-             default => 7
+             case Vav {airRef, kind: "Number" or Str, "not tag"} => 7
+             default => 8
            end|>
     expr := Parser(src.in).parse
 
@@ -352,7 +408,11 @@ class SwitchTest : HxTest
     ast := expr.encode
     verifyEq(ast->type, "switch")
     Dict[] cases := ast->cases
-    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern"])
+    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern", "dictPattern"])
+    Dict dp := cases[6]->pattern
+    verifyEq(dp->spec->spec->topName, "Vav")
+    verifyEq(((Dict[])dp->slots).map |x->Obj?| { x->name }, Obj?["airRef", "kind", "not tag"])
+    verifyEq(((Dict[])dp->slots)[1]->pattern->type, "orPattern")
     verifyEq(cases[5]->pattern->spec->topName, "CurStatus")
     verifyEq(cases[5]->pattern->item, "ok")
     verifyEq(((Dict[])cases[4]->pattern->alts).map |p->Obj?| { p->type }, Obj?["specPattern", "specPattern"])
