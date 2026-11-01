@@ -1,0 +1,13 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   1 Nov 2026  Brian Frank  Creation
+//
+
+// Sketch template source fails to compile; checked only when a lib is built
+@invalidSketchSrc: ValidateRule {
+  on: SketchSrc
+  msg: "Invalid Sketch: $err"
+}

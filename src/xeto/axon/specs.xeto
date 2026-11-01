@@ -12,9 +12,3 @@ Future: Interface
 // Axon source code for functions and expressions
 AxonSrc: Scalar
 
-// Axon source code fails to parse; checked only when a lib is built
-@invalidAxonSrc: ValidateRule {
-  on: AxonSrc
-  msg: "Invalid Axon: $err"
-}
-

@@ -1,0 +1,13 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   1 Nov 2026  Brian Frank  Creation
+//
+
+// Axon source code fails to parse; checked only when a lib is built
+@invalidAxonSrc: ValidateRule {
+  on: AxonSrc
+  msg: "Invalid Axon: $err"
+}
