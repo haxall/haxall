@@ -13,11 +13,11 @@
 //////////////////////////////////////////////////////////////////////////
 
   // Given record id, read only the persistent tags from Folio.
-  // Also see [readByIdTransientTags()] and [readById()].
+  // Also see [readByIdTransientTags()] and [sys.api::readById()].
   readByIdPersistentTags: Func { id: Ref, checked: Bool, returns: Dict? }
 
   // Given record id, read only the transient tags from Folio.
-  // Also see [readByIdPersistentTags()] and [readById()].
+  // Also see [readByIdPersistentTags()] and [sys.api::readById()].
   readByIdTransientTags: Func { id: Ref, checked: Bool, returns: Dict? }
 
   // Read a record Dict by its id for hyperlinking in a UI.  Unlike other

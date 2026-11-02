@@ -478,7 +478,7 @@
   //   - `name`: string name of the column
   //   - `kind`: all the different value kinds in the column separated by "|"
   //   - `count`: total number of rows with column with a non-null value
-  // Also see [readAllTagNames()].
+  // Also see [hx::readAllTagNames()].
   //
   // Example:
   //
@@ -1644,7 +1644,7 @@
   parseSymbol: Func { val: Str, checked: Bool, returns: Obj? }
 
   // Parse a filter string into a [Filter](fan.haystack::Filter) instance.
-  // The resulting filter can then be used with [read()], [readAll()],
+  // The resulting filter can then be used with [sys.api::read()], [sys.api::readAll()],
   // [filter()], or [filterToFunc()].
   //
   // Example:
@@ -1654,7 +1654,7 @@
   parseFilter: Func { val: Str, checked: Bool, returns: Obj? }
 
   // Parse a search string into a [Filter](fan.haystack::Filter) instance.
-  // The resulting filter can then be used with [read()], [readAll()],
+  // The resulting filter can then be used with [sys.api::read()], [sys.api::readAll()],
   // [filter()], or [filterToFunc()].
   //
   // The search string is one of the following free patterns:

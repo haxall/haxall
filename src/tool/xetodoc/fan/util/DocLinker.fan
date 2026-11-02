@@ -190,10 +190,13 @@ class DocLinker
     type := lib.type(name, false)
     if (type != null) return type
 
-    // find all types in lib's depends
+    // find all types in lib's depends; search the whole namespace
+    // since depends need not be documented libs such as when publishing
+    // one lib, and skip nodoc libs which have no pages
     specs := Spec[,]
-    ns.libs.each |x|
+    ns.ns.libs.each |x|
     {
+      if (x.meta.has("nodoc")) return
       spec := x.type(name, false)
       if (spec == null) return
       if (XetoUtil.isInDepends(ns.ns, lib.name, spec.lib.name)) specs.add(spec)

@@ -323,9 +323,7 @@ internal class GenPages: Step
   {
     base := slot.base
     if (base == null || !base.isGlobal) return null
-    dis := base.qname
-    uri := DocUtil.qnameToUri(base.qname)
-    return DocLink(uri, dis)
+    return DocLink(DocUtil.specToUri(base), base.qname)
   }
 
 //////////////////////////////////////////////////////////////////////////

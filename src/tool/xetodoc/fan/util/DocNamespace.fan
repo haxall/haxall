@@ -41,7 +41,8 @@ const class DocNamespace
 
   ** Lookup unqualified function visible from the cur lib: the lib
   ** itself, its depends, or the `stdFuncLibs`.  A func anywhere else
-  ** must be linked qualified.  If ambiguous then prefer match in cur
+  ** must be linked qualified, including one std func lib's links to
+  ** another so they resolve without the others loaded.  If ambiguous then prefer match in cur
   ** lib itself, and then prefer func without op tag
   Spec? func(Str name, Lib? cur := null)
   {
@@ -73,7 +74,8 @@ const class DocNamespace
   private Bool isFuncVisible(Lib lib, Lib? cur)
   {
     if (lib.meta.has("nodoc")) return false
-    if (cur == null || lib === cur || stdFuncLibs.contains(lib.name)) return true
+    if (cur == null || lib === cur) return true
+    if (stdFuncLibs.contains(lib.name) && !stdFuncLibs.contains(cur.name)) return true
     return XetoUtil.isInDepends(ns, cur.name, lib.name)
   }
 
