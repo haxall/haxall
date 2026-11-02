@@ -25,7 +25,7 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Given record id, read only the persistent tags from Folio.
-  ** Also see [readByIdTransientTags()] and [readById()].
+  ** Also see [readByIdTransientTags()] and [sys.api::readById()].
   @Api @Axon
   static Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
@@ -33,7 +33,7 @@ const class HxFuncs
   }
 
   ** Given record id, read only the transient tags from Folio.
-  ** Also see [readByIdPersistentTags()] and [readById()].
+  ** Also see [readByIdPersistentTags()] and [sys.api::readById()].
   @Api @Axon
   static Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {

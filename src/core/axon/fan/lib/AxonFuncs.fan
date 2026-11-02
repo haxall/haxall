@@ -772,7 +772,7 @@ const class AxonFuncs
   **   - `name`: string name of the column
   **   - `kind`: all the different value kinds in the column separated by "|"
   **   - `count`: total number of rows with column with a non-null value
-  ** Also see [readAllTagNames()].
+  ** Also see [hx::readAllTagNames()].
   **
   ** Example:
   **
@@ -854,11 +854,11 @@ const class AxonFuncs
   **   - [avg()]
   **   - [min()]
   **   - [max()]
-  **   - [mean()]
-  **   - [median()]
-  **   - [rootMeanSquareErr()]
-  **   - [meanBiasErr()]
-  **   - [standardDeviation()]
+  **   - [hx.math::mean()]
+  **   - [hx.math::median()]
+  **   - [hx.math::rootMeanSquareErr()]
+  **   - [hx.math::meanBiasErr()]
+  **   - [hx.math::standardDeviation()]
   **
   ** Examples:
   **
@@ -1070,7 +1070,7 @@ const class AxonFuncs
   }
 
   ** Fold multiple values into their standard average or arithmetic
-  ** mean.  This function is the same as [math::mean](mean()).  Null
+  ** mean.  This function is the same as [math::mean](hx.math::mean()).  Null
   ** values are ignored.  Return null if no values.
   **
   ** Example:
@@ -2056,8 +2056,8 @@ const class AxonFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Return if the given instance inherits from the spec via nominal
-  ** typing.  Use [specIs()] to check nominal typing between two types.
-  ** Also see [fits()] to check membership including sugar specs.
+  ** typing.  Use [hx.xeto::specIs()] to check nominal typing between two types.
+  ** Also see [hx.xeto::fits()] to check membership including sugar specs.
   **
   ** Note that dict values will only match the generic `sys.Dict`
   ** type.
@@ -2637,7 +2637,7 @@ const class AxonFuncs
   }
 
   ** Parse a filter string into a [Filter](fan.haystack::Filter) instance.
-  ** The resulting filter can then be used with [read()], [readAll()],
+  ** The resulting filter can then be used with [sys.api::read()], [sys.api::readAll()],
   ** [filter()], or [filterToFunc()].
   **
   ** Example:
@@ -2650,7 +2650,7 @@ const class AxonFuncs
   }
 
   ** Parse a search string into a [Filter](fan.haystack::Filter) instance.
-  ** The resulting filter can then be used with [read()], [readAll()],
+  ** The resulting filter can then be used with [sys.api::read()], [sys.api::readAll()],
   ** [filter()], or [filterToFunc()].
   **
   ** The search string is one of the following free patterns:
