@@ -46,6 +46,12 @@ internal class Ast
   ** Iterate every @Gen type in every pod
   Void eachType(|AType| f) { pods.each |pod| { pod.eachType(f) } }
 
+  ** Lookup the @Gen type scanned for the given spec qname or null
+  AType? typeForSpec(Str qname)
+  {
+    pods.eachWhile |p| { p.files.eachWhile |f| { f.types.find |t| { t.spec.qname == qname } } }
+  }
+
   ** Total number of @Gen types
   Int numTypes() { pods.reduce(0) |Int acc, p->Int| { acc + p.numTypes } }
 

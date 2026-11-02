@@ -393,6 +393,51 @@ class GenFanTest : Test
     verifyEq(genTemp(xeto, src), src.replace("Ref[]", "Str[]"))
   }
 
+  ** Slot types declared by @Gen types in the scanned source
+  ** resolve to those Fantom types even before their pod is built
+  Void testScannedSlotTypes()
+  {
+    xeto := [
+      "TestMode: Enum { auto, manual }",
+      "TestPart: Dict {}",
+      "TestHolder: Dict {",
+      "  mode: TestMode",
+      "  part: TestPart?",
+      "  modes: List<of:TestMode>",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "enum class TestMode",
+      "{",
+      "  auto,",
+      "",
+      "  manual",
+      "}",
+      "",
+      "@Gen",
+      "const mixin TestPart",
+      "{",
+      "}",
+      "",
+      "@Gen",
+      "const mixin TestHolder",
+      "{",
+      "}",
+      ].join("\n")
+    expect := src.replace("const mixin TestHolder\n{\n}", [
+      "const mixin TestHolder",
+      "{",
+      "  @Gen abstract TestMode mode()",
+      "",
+      "  @Gen abstract TestPart? part()",
+      "",
+      "  @Gen abstract TestMode[] modes()",
+      "}",
+      ].join("\n"))
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
   ** Funcs mode aligns @Api methods: docs synced, params verified
   Void testFuncs()
   {

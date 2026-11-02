@@ -395,8 +395,8 @@ internal class GenEdits : Step
     return isBaseSlot(x)
   }
 
-  ** Fantom type signature via the spec binding.  Or types and
-  ** specs without a dedicated Fantom class map to Obj.
+  ** Fantom type signature via fantomName.  Or types and specs
+  ** without a dedicated Fantom class map to Obj.
   private Str typeSig(Spec x)
   {
     Str? sig
@@ -404,13 +404,20 @@ internal class GenEdits : Step
     else if (x.type.isList)
     {
       of := XetoUtil.ofType(x, false)
-      sig = (of?.fantomType?.name ?: "Obj?") + "[]"
+      sig = (of == null ? "Obj?" : fantomName(of)) + "[]"
     }
-    else sig = x.type.fantomType.name
+    else sig = fantomName(x.type)
     if (sig == "Scalar") sig = "Obj"
     if (sig == "None") return "Void"
     if (x.isMaybe) sig += "?"
     return sig
+  }
+
+  ** Fantom type name of a spec: a scanned @Gen type wins since its
+  ** pod may not be built yet, else the class from the spec binding
+  private Str fantomName(Spec type)
+  {
+    ast.typeForSpec(type.qname)?.name ?: type.fantomType.name
   }
 
 //////////////////////////////////////////////////////////////////////////
