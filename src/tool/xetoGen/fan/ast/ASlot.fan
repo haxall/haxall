@@ -22,6 +22,8 @@ internal class ASlot : ANode
   const Int? bodyStart     // line where body block begins or null
   Int? paramCount          // scanner: method parameter count or null
   Bool isField             // scanner: declared as field, not method
+  Int nameLine             // scanner: zero based line of slot name
+  Int nameCol              // scanner: zero based column of slot name
   Bool hasBody() { bodyStart != null }
   AType? parent
 

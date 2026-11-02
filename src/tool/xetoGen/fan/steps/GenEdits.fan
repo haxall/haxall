@@ -285,7 +285,10 @@ internal class GenEdits : Step
   private Str[] genUnit(AType t, Spec x, ASlot? existing)
   {
     acc := specDoc(x, 2)
-    acc.add("  " + sig(t, x, existing))
+    if (!x.type.isMarker && existing != null && existing.isField)
+      acc.addAll(fieldLines(t, x, existing))
+    else
+      acc.add("  " + sig(t, x, existing))
     return acc
   }
 
@@ -293,7 +296,6 @@ internal class GenEdits : Step
   private Str sig(AType t, Spec x, ASlot? existing)
   {
     if (x.type.isMarker) return markerSig(t, x, existing)
-    if (existing != null && existing.isField) return fieldSig(t, x, existing)
     return t.kind.isComp ? compSig(t, x, existing) : dictSig(t, x, existing)
   }
 
@@ -320,16 +322,17 @@ internal class GenEdits : Step
   }
 
   ** The author owns a field's implementation, so only retype it
-  ** in place leaving modifiers, name, and any initializer alone
-  private Str fieldSig(AType t, Spec x, ASlot existing)
+  ** in place leaving facets, modifiers, name, and initializer alone
+  private Str[] fieldLines(AType t, Spec x, ASlot existing)
   {
-    line := t.file.lines[existing.lines.end].trim
-    i := line.index(toFanName(x))
-    if (i == null) return line
-    prefix := line[0..<i]
-    j := prefix.trimEnd.indexr(" ")
-    if (j == null) return line
-    return prefix[0..j] + typeSig(x) + line[i-1..-1]
+    start := existing.docLines == null ? existing.lines.start : existing.docLines.end + 1
+    lines := t.file.lines[start..existing.lines.end]
+    k := existing.nameLine - start
+    line := lines[k]
+    i := existing.nameCol
+    j := line[0..<i].trimEnd.indexr(" ")
+    if (j != null) lines[k] = line[0..j] + typeSig(x) + line[i-1..-1]
+    return lines
   }
 
   ** Comp slots are fields backed by the comp get/set methods

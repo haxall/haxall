@@ -346,6 +346,53 @@ class GenFanTest : Test
     verifyEq(genTemp(xeto, src), expect)
   }
 
+  ** Field retype must match the slot name as a whole identifier,
+  ** not inside an earlier token such as 'ti' in 'Duration'
+  Void testFieldName()
+  {
+    xeto := [
+      "TestFieldName: Dict {",
+      "  ti: Duration",
+      "  r: Number",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "const class TestFieldName : WrapDict",
+      "{",
+      "  @Gen const Duration ti",
+      "",
+      "  @Gen const Number r",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), src)
+  }
+
+  ** Field retype keeps facet and initializer lines of a
+  ** declaration spanning multiple lines
+  Void testFieldMultiLine()
+  {
+    xeto := [
+      "TestFieldMulti: Dict {",
+      "  dis: Str",
+      "  tags: List<of:Str>",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "const class TestFieldMulti : WrapDict",
+      "{",
+      "  @Gen",
+      "  const Str dis",
+      "",
+      "  @Gen const Ref[] tags := [",
+      "    \"a\",",
+      "  ]",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), src.replace("Ref[]", "Str[]"))
+  }
+
   ** Funcs mode aligns @Api methods: docs synced, params verified
   Void testFuncs()
   {

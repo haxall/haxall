@@ -202,9 +202,9 @@ internal class FileScanner
     start := pendingStart(line)
     end   := line
     isAbstract := false; isOverride := false; isStatic := false; sawAssign := false
-    depth := 0                  // paren/bracket depth
-    Str? methodName := null     // identifier before ( at depth zero
-    Str? lastId := null         // last identifier before assign
+    depth := 0                    // paren/bracket depth
+    TokenVal? methodName := null  // identifier before ( at depth zero
+    TokenVal? lastId := null      // last identifier before assign
     TokenVal? prev := null
 
     Int? bodyStart := null
@@ -237,11 +237,11 @@ internal class FileScanner
       {
         if (methodName == null && depth == 0 && peekt === Token.lparen)
         {
-          methodName = cur.val
+          methodName = cur
           inParams   = true
           paramCount = peekPastParen === Token.rparen ? 0 : 1
         }
-        lastId = cur.val
+        lastId = cur
       }
       if (inParams && depth == 1 && curt === Token.comma) paramCount = paramCount + 1
       if (inParams && depth == 0 && curt === Token.rparen) inParams = false
@@ -252,7 +252,8 @@ internal class FileScanner
     // keep slots tagged with @Gen, or tagged with @Api in funcs
     // mode; track untagged names so generation never inserts
     // over a hand-written slot
-    slotName := methodName ?: lastId
+    nameTok  := methodName ?: lastId
+    slotName := nameTok?.val as Str
     tagName  := apiMode ? "Api" : "Gen"
     tag      := facets.find |x| { x.name == tagName }
     if (slotName == null || tag == null)
@@ -270,7 +271,9 @@ internal class FileScanner
     }
     slot := ASlot(slotName, slotFlags, toGen(tag), docRange, start..end, bodyStart)
     slot.paramCount = paramCount
-    slot.isField = methodName == null
+    slot.isField    = methodName == null
+    slot.nameLine   = nameTok.line - 1
+    slot.nameCol    = nameTok.col - 1
     slots.add(slot)
     clearPending
   }
