@@ -13,7 +13,7 @@ using haystack
 
 **
 ** Pattern is the AST node for a switch case pattern.  Patterns are
-** not evaluated, they test if a subject matches.
+** not evaluated, they test if a subject matches and bind names to it.
 **
 @NoDoc @Js
 const abstract class Pattern : Expr
@@ -22,8 +22,11 @@ const abstract class Pattern : Expr
 
   override const FileLoc loc
 
-  ** Return if subject matches this pattern
-  abstract Bool match(AxonContext cx, Obj? subject)
+  ** Return if subject matches and add every name it binds to binds
+  abstract Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+
+  ** Iterate every name this pattern binds
+  virtual Void eachBind(|Str name| f) {}
 
   override final Obj? eval(AxonContext cx) { throw UnsupportedErr("Pattern cannot be evaluated: $type") }
 
@@ -53,7 +56,7 @@ const class LiteralPattern : Pattern
 
   const Obj? literal
 
-  override Bool match(AxonContext cx, Obj? subject)
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
   {
     if (subject is Date && literal is DateSpan) return ((DateSpan)literal).contains(subject)
     return Eq.eqVals(literal, subject)
@@ -84,7 +87,7 @@ const class RangePattern : Pattern
 
   const Obj end
 
-  override Bool match(AxonContext cx, Obj? subject)
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
   {
     subject?.typeof === start.typeof && start <= subject && subject <= end
   }
@@ -115,7 +118,7 @@ const class SpecPattern : Pattern
 
   const TopName spec
 
-  override Bool match(AxonContext cx, Obj? subject)
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
   {
     if (subject == null) return false
     Spec s := spec.eval(cx)
@@ -150,7 +153,7 @@ const class EnumPattern : Pattern
 
   const Str item
 
-  override Bool match(AxonContext cx, Obj? subject)
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
   {
     Spec s := spec.eval(cx)
     if (!s.isEnum) throw EvalErr("Not enum spec: $s", cx, loc)
@@ -187,15 +190,17 @@ const class DictPattern : Pattern
 
   const SlotPattern[] slots
 
-  override Bool match(AxonContext cx, Obj? subject)
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
   {
     dict := subject as Dict
     if (dict == null) return false
-    if (spec != null && !spec.match(cx, dict)) return false
+    if (spec != null && !spec.match(cx, dict, binds)) return false
     for (i := 0; i<slots.size; ++i)
-      if (!slots[i].match(cx, dict)) return false
+      if (!slots[i].match(cx, dict, binds)) return false
     return true
   }
+
+  override Void eachBind(|Str name| f) { slots.each |slot| { slot.eachBind(f) } }
 
   override Void walk(|Str key, Obj? val| f)
   {
@@ -227,11 +232,12 @@ const class DictPattern : Pattern
 @NoDoc @Js
 const class SlotPattern : Pattern
 {
-  new make(FileLoc loc, Str name, Pattern? pattern, Bool optional) : super(loc)
+  new make(FileLoc loc, Str name, Pattern? pattern, Bool optional, Str? bind) : super(loc)
   {
     this.name     = name
     this.pattern  = pattern
     this.optional = optional
+    this.bind     = bind
   }
 
   override ExprType type() { ExprType.slotPattern }
@@ -245,18 +251,25 @@ const class SlotPattern : Pattern
   ** Does slot match when missing: "{area: Number?}"
   const Bool optional
 
-  override Bool match(AxonContext cx, Obj? subject)
+  ** Name to bind slot value to: "{area as a}"
+  const Str? bind
+
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
   {
     val := ((Dict)subject).get(name)
-    if (val == null) return optional
-    return pattern == null || pattern.match(cx, val)
+    if (val == null ? !optional : pattern != null && !pattern.match(cx, val, binds)) return false
+    if (bind != null) binds[bind] = val
+    return true
   }
+
+  override Void eachBind(|Str name| f) { if (bind != null) f(bind) }
 
   override Void walk(|Str key, Obj? val| f)
   {
     f("name", name)
     f("pattern", pattern)
     f("optional", optional)
+    f("bind", bind)
   }
 
   override Printer print(Printer out)
@@ -264,8 +277,47 @@ const class SlotPattern : Pattern
     out.w(Etc.isTagName(name) ? name : name.toCode)
     if (pattern != null) out.w(": ").expr(pattern)
     if (optional) out.wc('?')
+    if (bind != null) out.w(" as ").w(bind)
     return out
   }
+}
+
+**************************************************************************
+** BindPattern
+**************************************************************************
+
+** Matches inner pattern and binds the subject to a name: "Ahu as ahu"
+@NoDoc @Js
+const class BindPattern : Pattern
+{
+  new make(Pattern inner, Str name) : super(inner.loc)
+  {
+    this.inner = inner
+    this.name  = name
+  }
+
+  override ExprType type() { ExprType.bindPattern }
+
+  const Pattern inner
+
+  const Str name
+
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  {
+    if (!inner.match(cx, subject, binds)) return false
+    binds[name] = subject
+    return true
+  }
+
+  override Void eachBind(|Str name| f) { inner.eachBind(f); f(name) }
+
+  override Void walk(|Str key, Obj? val| f)
+  {
+    f("inner", inner)
+    f("name", name)
+  }
+
+  override Printer print(Printer out) { inner.print(out).w(" as ").w(name) }
 }
 
 **************************************************************************
@@ -282,10 +334,10 @@ const class OrPattern : Pattern
 
   const Pattern[] alts
 
-  override Bool match(AxonContext cx, Obj? subject)
+  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
   {
     for (i := 0; i<alts.size; ++i)
-      if (alts[i].match(cx, subject)) return true
+      if (alts[i].match(cx, subject, binds)) return true
     return false
   }
 

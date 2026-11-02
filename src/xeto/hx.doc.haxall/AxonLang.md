@@ -544,7 +544,8 @@ an `else`:
 
 A case body is any expression; use a [do block](#blocks) for multiple
 expressions.  A `return` inside a case body returns from the enclosing
-function, the same as `return` inside an `if`.
+function, the same as `return` inside an `if`.  Unlike an `if`, each
+case is its own [scope](#scoping).
 
 ## Literal Patterns
 A literal pattern matches when the subject equals the literal using
@@ -645,6 +646,43 @@ Use `or` to match any of multiple patterns:
       case 400..499 or 503    => "error"
       case 2026-11 or 2026-12 => "end of year"
       case Str or Date        => "str or date"
+    end
+
+## Bindings
+Patterns only test the subject.  Variables are defined with the `as`
+keyword, which names the value matched at its position.  The variable
+is visible in the case body:
+
+    switch (rec)
+      case Ahu as ahu                 => ahu.dis
+      case Vav {airRef as a} as vav   => vav.dis + " fed by " + readById(a).dis
+      case {curVal: Number? as v}     => "curVal is " + v
+      case 200 or 204 as code         => "code " + code
+      case Str or Number as v         => "str or number " + v
+    end
+
+A binding is always the value being matched, never a part of it.  In a
+dict pattern `as` follows the tag and its optional pattern, and binds
+the tag's value, which is null for a missing optional tag.
+
+When used with alternatives, `as` applies to all of them, so
+`Str or Number as v` binds `v` to the subject if it is either a Str or
+a Number.  Names cannot be bound inside the alternatives themselves,
+so write separate cases when they need different names.  Binding the
+same name twice in one pattern is a syntax error.
+
+Everything else in a pattern is a test.  So a tag name such as `{area}`
+only requires the tag; use `{area as area}` to also define a variable.
+
+## Scoping
+Each case is its own scope.  The variables bound by its pattern and any
+variables defined inside its body are visible in the body, including
+lambdas inside the body, but not after the switch.  The body may still
+assign variables of the enclosing scope:
+
+    total: 0
+    switch (rec)
+      case {area: Number as a} => total = total + a
     end
 
 # Throw Expr

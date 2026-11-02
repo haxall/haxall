@@ -47,7 +47,7 @@ class Parser
   ** Parse a switch case pattern such as "200 or 204"
   @NoDoc Pattern parsePattern()
   {
-    r := pattern
+    r := casePattern
     verifyEof
     return r
   }
@@ -315,30 +315,65 @@ class Parser
   {
     loc := curLoc
     consume(Token.caseKeyword)
-    p := pattern
+    p := casePattern
+    scope := enterFn
     consume(Token.fnEq)
-    return SwitchCase(loc, p, expr)
+    return exitFn(scope, SwitchCase(loc, curFuncName, p, expr))
   }
 
   **
   ** Pattern:
   **
-  **     <pattern>     :=  <primary> ("or" <primary>)*
+  **     <pattern>     :=  <orPattern> ["as" <id>]
+  **     <orPattern>   :=  <primary> ("or" <primary>)*
   **     <primary>     :=  <dictPattern> | <enumItem> | <specName> [<dictPattern>] | <rangeOrLit>
   **     <dictPattern> :=  "{" [<slotPattern> ("," <slotPattern>)* [","]] "}"
-  **     <slotPattern> :=  (<idOrKeyword> | <str>) [":" <slotValue> ["?"]]
-  **     <slotValue>   :=  <pattern>  // without dict patterns
+  **     <slotPattern> :=  (<idOrKeyword> | <str>) [":" <slotValue> ["?"]] ["as" <id>]
+  **     <slotValue>   :=  <orPattern>  // without dict patterns
   **     <enumItem>    :=  <enumName> "." <idOrKeyword>
   **     <enumName>    :=  <specName>  // spec must be an Enum
   **     <specName>    :=  [<qnameLib> "::"] <typename>
   **     <rangeOrLit>  :=  <literal> [".." <literal>]
   **
-  private Pattern pattern(Bool inSlot := false)
+  ** Parse pattern with fresh set of binding names to check duplicates
+  private Pattern casePattern()
   {
+    binds = Str[,]
+    try
+      return pattern
+    finally
+      binds = null
+  }
+
+  private Pattern pattern()
+  {
+    p := orPattern(false)
+    if (!isContextual("as")) return p
+    consume
+    return BindPattern(p, bind)
+  }
+
+  ** Alternatives cannot bind names
+  private Pattern orPattern(Bool inSlot)
+  {
+    numBinds := binds.size
     alts := [primary(inSlot)]
     while (cur === Token.orKeyword) { consume; alts.add(primary(inSlot)) }
-    return alts.size == 1 ? alts.first : OrPattern(alts)
+    if (alts.size == 1) return alts.first
+    if (binds.size != numBinds) throw err("Pattern alternatives cannot bind names")
+    return OrPattern(alts)
   }
+
+  ** Consume binding name and check it is unique within the pattern
+  private Str bind()
+  {
+    name := consumeId("pattern binding name")
+    if (binds.contains(name)) throw err("Duplicate pattern binding: $name")
+    binds.add(name)
+    return name
+  }
+
+  private Bool isContextual(Str keyword) { cur === Token.id && curVal == keyword }
 
   private Pattern primary(Bool inSlot)
   {
@@ -365,13 +400,15 @@ class Parser
       name := cur === Token.val && curVal is Str ? consumeVal : consumeIdOrKeyword("slot name")
       Pattern? p := null
       optional := false
+      Str? bindName := null
       if (cur === Token.colon)
       {
         consume
-        p = pattern(true)
+        p = orPattern(true)
         if (cur === Token.question) { consume; optional = true }
       }
-      slots.add(SlotPattern(slotLoc, name, p, optional))
+      if (isContextual("as")) { consume; bindName = bind }
+      slots.add(SlotPattern(slotLoc, name, p, optional, bindName))
       if (cur !== Token.comma) break
       consume
     }
@@ -1003,31 +1040,36 @@ class Parser
   **
   private Fn lambdaBody(FileLoc loc, FnParam[] params, Dict? topMeta := null)
   {
-    // create new scope of inner functions
-    oldInners := inners
-    inners = Fn[,]
+    scope := enterFn
 
-    // figure out func name
-    oldFuncName := curFuncName
-    if (curName != null) { curFuncName = curName; curName = null }
-    else curFuncName = "anon-${++anonNum}"
-    if (oldFuncName != null) curFuncName = oldFuncName + "." + curFuncName
-
-    // parse body
-    body := expr
-
-    // optimize out return if only or last expr
-    body = optimizeLastReturn(body)
+    // parse body and optimize out return if only or last expr
+    body := optimizeLastReturn(expr)
 
     // create fn
     fn := topMeta != null ?
           TopFn(loc, curFuncName, topMeta, params, body) :
           Fn(loc, curFuncName, params, body)
 
-    // update any closures with a reference to outer scope
+    return exitFn(scope, fn)
+  }
+
+  ** Enter new lexical scope of inner functions and figure out func name
+  private ParserFnScope enterFn()
+  {
+    scope := ParserFnScope(inners, curFuncName)
+    inners = Fn[,]
+    if (curName != null) { curFuncName = curName; curName = null }
+    else curFuncName = "anon-${++anonNum}"
+    if (scope.funcName != null) curFuncName = scope.funcName + "." + curFuncName
+    return scope
+  }
+
+  ** Update any closures with a reference to outer scope and restore scope
+  private Fn exitFn(ParserFnScope scope, Fn fn)
+  {
     bindInnersToOuter(fn)
-    inners = oldInners.add(fn)
-    curFuncName = oldFuncName
+    inners = scope.inners.add(fn)
+    curFuncName = scope.funcName
     return fn
   }
 
@@ -1155,5 +1197,19 @@ class Parser
   private Int anonNum          // number of anonymous funcs
   private Fn[] inners := [,]   // current number of funcs inside current
   private Bool inAxonParam
+  private Str[]? binds         // pattern binding names while parsing case
+}
+
+**************************************************************************
+** ParserFnScope
+**************************************************************************
+
+** Saved lexical scope state while parsing a nested function
+@Js
+internal class ParserFnScope
+{
+  new make(Fn[] inners, Str? funcName) { this.inners = inners; this.funcName = funcName }
+  Fn[] inners
+  Str? funcName
 }
 

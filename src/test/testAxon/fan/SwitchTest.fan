@@ -321,6 +321,74 @@ class SwitchTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Bindings
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testBindings()
+  {
+    addLib("ph")
+    site := addRec(["dis":"Site A", "spec":Ref("ph::Site"), "site":m, "area":n(9000, "ft²")])
+    ahu  := addRec(["dis":"AHU-1", "spec":Ref("ph::Ahu"), "equip":m, "ahu":m, "siteRef":site.id])
+    vav  := addRec(["dis":"VAV-1", "spec":Ref("ph::Vav"), "equip":m, "vav":m, "siteRef":site.id, "airRef":ahu.id])
+
+    f :=
+      Str<|(rec) => switch (rec)
+             case Ahu as ahu => ahu.dis + " @ " + readById(ahu->siteRef).dis
+             case Vav {airRef as a} as vav => vav.dis + " fed by " + readById(a).dis
+             case Site {area: Number as sz} => "site " + sz
+             case {curVal: Number? as v, dis as d} => d + " = " + v
+             case 200 or 204 as code => "code " + code
+             case CurStatus.ok or CurStatus.stale as s => "status " + s
+           end|>
+    verifyCall(f, ahu, "AHU-1 @ Site A")
+    verifyCall(f, vav, "VAV-1 fed by AHU-1")
+    verifyCall(f, site, "site 9000ft²")
+    verifyCall(f, Etc.dict2("dis", "P", "curVal", n(3)), "P = 3")
+    verifyCall(f, Etc.dict1("dis", "P"), "P = null")
+    verifyCall(f, n(204), "code 204")
+    verifyCall(f, "stale", "status stale")
+
+    // bindings are scoped to the case
+    verifyErr(EvalErr#) { eval("do switch (1) case 1 as x => x end; x end") }
+
+    // case body locals are scoped to the case
+    verifyErr(EvalErr#) { eval("do switch (1) case 1 => do a: 3; a end end; a end") }
+
+    // closures capture bindings
+    verifyEval(Str<|switch ({a:2, b:10})
+                      case {a as x, b as y} => [1, 2, 3].map(v => v * x + y)
+                    end|>, Obj?[n(12), n(14), n(16)])
+
+    // same name in different cases and switch in a loop
+    verifyEval(Str<|[{a:1}, {b:2}, {c:3}].map(d => switch (d)
+                      case {a as v} => v
+                      case {b as v} => v * 10
+                      default => 0
+                    end)|>, Obj?[n(1), n(20), n(0)])
+
+    // binding does not leak to enclosing var of same name
+    verifyEval(Str<|do
+                      x: "outer"
+                      r: switch (1) case 1 as x => x + 1 end
+                      [x, r]
+                    end|>, Obj?["outer", n(2)])
+
+    // return still exits enclosing func from binding case
+    verifyCall(Str<|(x) => do
+                      switch (x) case Number as n => return n * 2 end
+                      "late"
+                    end|>, n(3), n(6))
+
+    // errors
+    verifyErr(SyntaxErr#) { eval("switch (1) case {a as x, b as x} => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case {a as x} or {b} => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case {a: Str as x or Number} => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1 as for => 1 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1 as x as y => 1 end") }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Default
 //////////////////////////////////////////////////////////////////////////
 
@@ -427,7 +495,7 @@ class SwitchTest : HxTest
              case 2026-10 => 4
              case ph::Site or Number => 5
              case CurStatus.ok => 6
-             case Vav {airRef, kind: "Number" or Str, "not tag", area: Number?} => 7
+             case Vav {airRef as a, kind: "Number" or Str, "not tag", area: Number? as sz} as v => 7
              default => 8
            end|>
     expr := Parser(src.in).parse
@@ -440,13 +508,17 @@ class SwitchTest : HxTest
     ast := expr.encode
     verifyEq(ast->type, "switch")
     Dict[] cases := ast->cases
-    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern", "dictPattern"])
-    Dict dp := cases[6]->pattern
+    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern", "bindPattern"])
+    verifyEq(cases[6]->pattern->type, "bindPattern")
+    verifyEq(cases[6]->pattern->name, "v")
+    Dict dp := cases[6]->pattern->inner
     verifyEq(dp->spec->spec->topName, "Vav")
     verifyEq(((Dict[])dp->slots).map |x->Obj?| { x->name }, Obj?["airRef", "kind", "not tag", "area"])
     verifyEq(((Dict[])dp->slots)[3]->pattern->type, "specPattern")
     verifyEq(((Dict[])dp->slots)[3]->optional, true)
     verifyEq(((Dict[])dp->slots)[1]->optional, false)
+    verifyEq(((Dict[])dp->slots)[0]->bind, "a")
+    verifyEq(((Dict[])dp->slots)[3]->bind, "sz")
     verifyEq(((Dict[])dp->slots)[1]->pattern->type, "orPattern")
     verifyEq(cases[5]->pattern->spec->topName, "CurStatus")
     verifyEq(cases[5]->pattern->item, "ok")

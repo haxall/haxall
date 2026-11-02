@@ -129,6 +129,11 @@ class ParseTest : Test
     verifyFreeVars("x => y => x + y + z", ["z"])
     verifyFreeVars("do r: [1].map(x => do v: x; v end); v end", ["v"])
 
+    // switch case bindings
+    verifyFreeVars("switch (x) case Ahu as a => a.dis + y end", ["x", "y"])
+    verifyFreeVars("switch (x) case {siteRef as s} => s + z end", ["x", "z"])
+    verifyFreeVars("switch (x) case 1 as a => a; case 2 => a end", ["x", "a"])
+
     // catch var
     verifyFreeVars("try foo(x) catch (e) e->dis + y", ["x", "y"])
     verifyFreeVars("try x catch e", ["x", "e"])
@@ -140,9 +145,13 @@ class ParseTest : Test
     verifyPattern("\"foo\"", "\"foo\"")
     verifyPattern("400..499", "400..499")
     verifyPattern("200 or 204", "200 or 204")
+    verifyPattern("200 or 204 as code", "200 or 204 as code")
+    verifyPattern("Vav {airRef as a, area: Number? as sz} as v", "Vav {airRef as a, area: Number? as sz} as v")
 
     verifyErr(SyntaxErr#) { Parser("200 =>".in).parsePattern }
     verifyErr(SyntaxErr#) { Parser("x".in).parsePattern }
+    verifyErr(SyntaxErr#) { Parser("1 as x as y".in).parsePattern }
+    verifyErr(SyntaxErr#) { Parser("{a as x, b as x}".in).parsePattern }
   }
 
   Void verifyPattern(Str src, Str expect)

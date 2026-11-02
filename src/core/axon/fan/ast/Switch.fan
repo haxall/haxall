@@ -38,7 +38,8 @@ const class SwitchExpr : Expr
     for (i := 0; i<cases.size; ++i)
     {
       c := cases[i]
-      if (c.pattern.match(cx, s)) return c.body.eval(cx)
+      binds := Str:Obj?[:]
+      if (c.pattern.match(cx, s, binds)) return cx.callInNewFrame(c, Obj#.emptyList, c.loc, binds)
     }
     return defExpr?.eval(cx)
   }
@@ -66,28 +67,35 @@ const class SwitchExpr : Expr
 **************************************************************************
 
 **
-** SwitchCase is one "case" arm: a pattern and the body to evaluate
-** when the pattern matches the switch subject
+** SwitchCase is one "case" arm: a pattern and the body to evaluate when
+** the pattern matches the switch subject.  The case is a function so its
+** body is lexically scoped and called in a frame whose vars are the
+** pattern bindings.
 **
 @NoDoc @Js
-const class SwitchCase : Expr
+const class SwitchCase : Fn
 {
-  new make(FileLoc loc, Pattern pattern, Expr body)
+  new make(FileLoc loc, Str name, Pattern pattern, Expr body)
+    : super(loc, name, FnParam.none, body)
   {
-    this.loc     = loc
     this.pattern = pattern
-    this.body    = body
   }
 
   override ExprType type() { ExprType.switchCase }
 
-  override const FileLoc loc
-
   const Pattern pattern
 
-  const Expr body
+  ** Evaluate body without evalAsFnBody so return exits enclosing function
+  override Obj? doCall(AxonContext cx, Obj?[] args) { body.eval(cx) }
 
-  override Obj? eval(AxonContext cx) { throw UnsupportedErr("SwitchCase cannot be evaluated") }
+  ** Pattern bindings are bound within the body
+  override Void doFreeVars(Str:Str acc)
+  {
+    inner := acc.dup
+    pattern.eachBind |n| { bindVar(inner, n) }
+    body.doFreeVars(inner)
+    inner.each |v, n| { if (v == "free") acc[n] = v }
+  }
 
   override Void walk(|Str key, Obj? val| f)
   {

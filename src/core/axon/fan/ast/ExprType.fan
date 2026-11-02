@@ -45,6 +45,7 @@ enum class ExprType
   enumPattern,
   dictPattern,
   slotPattern,
+  bindPattern,
   orPattern,
 
   // assignment

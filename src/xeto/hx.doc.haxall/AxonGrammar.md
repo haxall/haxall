@@ -61,12 +61,13 @@ Legend for BNF Grammar:
     <switch>       :=  "switch" "(" <expr> ")" <case>* [<default>] "end"
     <case>         :=  "case" <pattern> "=>" <expr>
     <default>      :=  "default" "=>" <expr>
-    <pattern>      :=  <primary> ("or" <primary>)*
+    <pattern>      :=  <orPattern> ["as" <id>]
+    <orPattern>    :=  <primary> ("or" <primary>)*
     <primary>      :=  <dictPattern> | <enumItem> | <specName> [<dictPattern>] |
                        <rangeOrLit>
     <dictPattern>  :=  "{" [<slotPattern> ("," <slotPattern>)* [","]] "}"
-    <slotPattern>  :=  (<idOrKeyword> | <str>) [":" <slotValue> ["?"]]
-    <slotValue>    :=  <pattern>  // without dict patterns
+    <slotPattern>  :=  (<idOrKeyword> | <str>) [":" <slotValue> ["?"]] ["as" <id>]
+    <slotValue>    :=  <orPattern>  // without dict patterns
     <enumItem>     :=  <enumName> "." <idOrKeyword>
     <enumName>     :=  <specName>  // spec must be an Enum
     <specName>     :=  [<qnameLib> "::"] <typename>
