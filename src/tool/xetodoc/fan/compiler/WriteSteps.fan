@@ -90,7 +90,7 @@ internal class WriteHtml : WriteStep
 
   Void writeCss()
   {
-    css := typeof.pod.file(`/res/css/style.css`).readAllStr
+    css := typeof.pod.file(`/res/css/xetodoc.css`).readAllStr
     file := compiler.outDir + `xetodoc.css`
     file.out.print(css).close
   }
