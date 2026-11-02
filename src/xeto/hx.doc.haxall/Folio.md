@@ -307,7 +307,7 @@ A backup is a zip file which includes an atomic copy of the records, tags,
 and history data.
 
   - Fantom API: [fan.folio::Folio.backup]
-  - Axon API: [folioBackup()]
+  - Axon API: [hx.proj::folioBackup()]
 
 # Proj Meta
 Every folio project should have exactly one rec with the [projMeta()]

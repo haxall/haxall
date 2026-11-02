@@ -83,7 +83,7 @@ The following transient status tags are managed by the framework itself:
 
 In addition to the tags above, each connector defines its own tags for
 meta data about the remote system/device.  This data is queried from the
-remote system during [ping](connPing()) and typically includes:
+remote system during [ping](hx.conn::connPing()) and typically includes:
   - make and model of remote device or software
   - hardware/software version of remote system
 
@@ -135,7 +135,7 @@ Points which support [current value](ph.doc::Points#cur-points) are modeled
 with the [ph::PhEntity.cur] tag.  Connectors can be used to automatically synchronize
 a point's current value using the [ph::PhEntity.curVal] tag.  Current value synchronize
 occurs one of two ways:
-  1. Manual synchronization via the [connSyncCur()] function
+  1. Manual synchronization via the [hx.conn::connSyncCur()] function
   2. Automatically when the point is put into a [watch](hx.doc.haxall::Watches)
 
 The mechanism for current value synchronization is specific to each connector
@@ -190,7 +190,7 @@ automically inherit the connector status.
 # Point History Sync
 Some connectors support history data synchronization when the underlying
 protocol provides the respective feature.  History syncs must be scheduled with
-the [task library](hx.task::doc) and the [connSyncHis()] function.  After
+the [task library](hx.task::doc) and the [hx.conn::connSyncHis()] function.  After
 the initial history sync, then this function is scheduled using a `null` span
 to sync history items after the last sync.
 
@@ -270,8 +270,8 @@ auto-subscription of watches and history syncs:
     sqlConnRef: @sql-conn
     connDupPref: "bacnet"
 
-You can explicitly determine which connector is used for the [connSyncCur()]
-and [connSyncHis()] functions by using the [connPointsVia()] function.
+You can explicitly determine which connector is used for the [hx.conn::connSyncCur()]
+and [hx.conn::connSyncHis()] functions by using the [hx.conn::connPointsVia()] function.
 
 Note: the system cannot update its lookup tables on the fly when adding/changing
 the `connDupPref` tag.  You will need a restart for it to take effect.

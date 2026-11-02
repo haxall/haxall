@@ -14,7 +14,7 @@ The ioExt is used to read/write data via a variety of formats:
   - Trio: [ioReadTrio()], [ioWriteTrio()]
   - CSV: [ioReadCsv()], [ioWriteCsv()], [ioEachCsv()], [ioStreamCsv()]
   - JSON: [ioReadJson()], [ioWriteJson()]
-  - XML: [ioWriteXml()], [xmlRead()]
+  - XML: [ioWriteXml()], [hx.xml::xmlRead()]
   - PDF: [ioWritePdf()]
   - SVG: [ioWriteSvg()]
   - HTML: [ioWriteHtml()]

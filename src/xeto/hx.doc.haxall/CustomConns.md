@@ -221,7 +221,7 @@ include standard point data like `point`, `fooPoint`, `fooCur`, `fooWrite`,
 `fooHis`, `kind`, `unit`, etc.
 
 # Point Cur
-Current value is synchronized manually via the [connSyncCur()] function which
+Current value is synchronized manually via the [hx.conn::connSyncCur()] function which
 results in the [onSyncCur](fan.hxConn::ConnDispatch.onSyncCur) callback.  This
 callback works with a batch of points.  If your protocol supports batch reads,
 then typically it most efficient to sync the entire batch.

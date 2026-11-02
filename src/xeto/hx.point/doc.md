@@ -135,7 +135,7 @@ The following tags are used to model the current value and status:
 
 If the point's connector is not in the "ok" state, then it inherits
 its error state for `hisStatus`.  History synchronization is performed
-using the [connSyncHis()] function which must be manually scheduled
+using the [hx.conn::connSyncHis()] function which must be manually scheduled
 using the [task lib](hx.task::doc).
 
 # His Collect

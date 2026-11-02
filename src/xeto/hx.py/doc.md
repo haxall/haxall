@@ -63,7 +63,7 @@ code executes, the `val` variable will have the value `200`.
 # Persistent Sessions
 By default, a Python session is closed after a call to [pyEval()]. However, if you
 create a Python session in a [task](hx.task::doc), then the session will remain
-opened until the task is killed/removed. There is no need to call [taskLocalSet()]
+opened until the task is killed/removed. There is no need to call [hx.task::taskLocalSet()]
 to save the Python session returned by [py()]. The first call to [py()] in your task
 will create a new Python session. Subsequent message processed by your task will
 re-use the same session. You will typically want to use [pyInit()] to do any one-time
@@ -129,7 +129,7 @@ You can also convert a DataFrame to a Grid or GridBuilder using
 `Grid.from_dataframe(frame)` or `GridBuilder.from_dataframe(frame)` respectively. Use
 the latter when you need to add grid or column meta before creating the Grid.
 
-Any Grid that is converted to a matrix using [toMatrix()] will be converted
+Any Grid that is converted to a matrix using [hx.math::toMatrix()] will be converted
 to a `numpy.ndarray` for use in your Python code.
 
     py().pyDefine("data", toMatrix(g)).pyEval("type(data)")

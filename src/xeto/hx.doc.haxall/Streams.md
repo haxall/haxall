@@ -199,7 +199,7 @@ is iterated and null is returned.
     end
 
 ## feed
-The [feed()] function terminates a stream and creates a live data feed
+The [hx.skyarc::feed()] function terminates a stream and creates a live data feed
 for view consumption (SkySpark only):
 
     readAllStream(point).limit(5).feed
@@ -245,13 +245,13 @@ empty list).
       .collect
 
 ## ioStreamCsv
-The [ioStreamCsv()] creates a stream of Dicts by reading the rows
+The [hx.io::ioStreamCsv()] creates a stream of Dicts by reading the rows
 of a comma separated value I/O handle.
 
     ioStreamCsv(`io/import-points.csv`).limit(3).collect
 
 ## ioStreamLines
-The [ioStreamLines()] creates a stream to read lines from an I/O handle.
+The [hx.io::ioStreamLines()] creates a stream to read lines from an I/O handle.
 
     ioStreamLines(`io/import-points.csv`).limit(3).collect
 

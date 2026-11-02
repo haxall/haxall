@@ -55,7 +55,7 @@ The [hx.conn::Conn.actorTimeout] tag configures a duration for message timeouts.
 This determines how long to block on a synchronous message to the actor when the
 connector is busy blocking on I/O or processing previous messages.  Its
 most typically used by the [Conn.sendSync](fan.hxConn::Conn.sendSync) method
-used by many libs for connector specific functionality such as [haystackReadAll()].
+used by many libs for connector specific functionality such as [hx.haystack::haystackReadAll()].
 
 This timeout is also used for all socket timeouts for connectors
 which use TCP (including all HTTP based connectors).  Specifically this timeout
@@ -205,7 +205,7 @@ priority array evaluation.
 
 # Details
 Both connector and connector points provide a plain text report for debugging
-we call *details*.  You can query the details using the [connDetails()] function.
+we call *details*.  You can query the details using the [hx.conn::connDetails()] function.
 In SkySpark you can view the details using the context menu or the Connectors view.
 
 ## Connector Details
@@ -242,12 +242,12 @@ Connectors provide debug tracing which includes:
 In SkySpark the Connector|Trace view provides a tool to debug a connector's
 trace log.  You can also manage tracing with these Axon functions:
 
-  - [connTrace()]: query the trace log
-  - [connTraceIsEnabled()]: return if connector tracing is enabled
-  - [connTraceEnable()]: enable tracing on a connector
-  - [connTraceDisable()]: disable tracing on a connector
-  - [connTraceClear()]: clear the trace log for a connector
-  - [connTraceDisableAll()]: disable tracing on all connectors
+  - [hx.conn::connTrace()]: query the trace log
+  - [hx.conn::connTraceIsEnabled()]: return if connector tracing is enabled
+  - [hx.conn::connTraceEnable()]: enable tracing on a connector
+  - [hx.conn::connTraceDisable()]: disable tracing on a connector
+  - [hx.conn::connTraceClear()]: clear the trace log for a connector
+  - [hx.conn::connTraceDisableAll()]: disable tracing on all connectors
 
 Be aware that the trace log is stored in memory using a circular buffer.  For
 connectors which trace their message payloads this can result in significant

@@ -137,7 +137,7 @@ based on the message format and requirements:
 
 1. Make transient commits to the [ph::PhEntity.curVal] and [ph::PhEntity.curStatus] tags of a point record and
 allow the `hisCollectCov` or `hisCollectInterval` configuration to trend the data
-1. Use [hisWrite()] to directly write historical data to a point record
+1. Use [hx.his::hisWrite()] to directly write historical data to a point record
 
 Since there is no standard format for an MQTT message payload the [hx.obs::Observable.obsMqtt] task
 must get the value(s) out of the message and determine what point record to

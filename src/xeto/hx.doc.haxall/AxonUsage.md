@@ -313,7 +313,7 @@ from the database.
 
 # His Examples
 To perform time-series analysis you'll typically pipe one or more records
-to the [hisRead()] function (SkySpark only):
+to the [hx.his::hisRead()] function (SkySpark only):
 
     // get history data for the points within a given piece of equipment
     readAll(point and equipRef==xxx).hisRead(2009-10-03) // for a single day
@@ -323,7 +323,7 @@ to the [hisRead()] function (SkySpark only):
     readAll(point and equipRef==xxx).hisRead(today)      // for today
     readAll(point and equipRef==xxx).hisRead(2009-10-01..2009-10-07)
 
-Any of the time range functions can be used with [hisRead()] including
+Any of the time range functions can be used with [hx.his::hisRead()] including
 [today()], [yesterday()], [thisWeek()], [pastWeek()], [thisMonth()], [pastMonth()].
 
 In general once you get above a days worth of data, you will need to
@@ -371,7 +371,7 @@ Common functions for working with defs: [conjuncts()], [def()],
     tags()            // list only tag definitions
 
 # Pivot Examples
-The [pivot()] and [xqPivot()] functions are used to transform a grid or list
+The [hx.skyarc::pivot()] and [hx.xquery::xqPivot()] functions are used to transform a grid or list
 of dicts into a pivot table.  Pivot tables are used to summarize data based
 on grouping and rolling up of cell values.  These functions are only available
 in SkySpark.

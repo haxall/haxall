@@ -19,14 +19,14 @@ Fantom APIs:
   - [fan.sys::OutStream] has many methods for XML escape sequences
 
 Axon APIs:
-  - [ioWriteXml()] to encode Grids
+  - [hx.io::ioWriteXml()] to encode Grids
 
 REST APIs:
   - [content negotiation](ph.doc::HttpApi#content-negotiation) for "text/xml" MIME type
 
 # Grid Format
 SkySpark defines a standard mapping of [fan.haystack::Grid] into XML which
-is used by the REST API and [ioWriteXml()] function.  The XML representation
+is used by the REST API and [hx.io::ioWriteXml()] function.  The XML representation
 maintains full fidelity with the Haystack data model - all meta-data and
 type information is maintained.  However the downside is that XML is much
 more verbose than Zinc.

@@ -33,7 +33,7 @@ report := ns.validate(rec, spec)
 if (report.hasErrs) report.items.each |item| { echo(item) }
 ```
 
-From Axon use [validate()] which returns a grid with a row per item:
+From Axon use [hx.xeto::validate()] which returns a grid with a row per item:
 
 ```
 readAll(equip).validate                 // against each rec's spec tag
