@@ -134,14 +134,16 @@ class PasswordTest : Test
 
   Void verifyPassword(Str pass)
   {
-    dups := Str:Str[:]
-    5.times
+    // encoding is salted from only 8000 combos, so a repeat across a
+    // few encodes is possible; just verify it is not deterministic
+    encodes := Str:Str[:]
+    100.times
     {
       x := PasswordStore.encode(pass)
-      if (dups[x] != null) fail(x)
-      dups[x] = x
+      encodes[x] = x
       verifyEq(PasswordStore.decode(x), pass)
     }
+    verify(encodes.size > 90, pass)
   }
 
 }
