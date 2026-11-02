@@ -101,34 +101,37 @@ abstract class ValSelect : HxComp
 class BoolSelect : ValSelect
 {
   ** Input A
-  @Gen override StatusStr? inA() { get("inA") }
+  @Gen override StatusBool? inA() { get("inA") }
 
   ** Input B
-  @Gen override StatusStr? inB() { get("inB") }
+  @Gen override StatusBool? inB() { get("inB") }
 
   ** Input C
-  @Gen override StatusStr? inC() { get("inC") }
+  @Gen override StatusBool? inC() { get("inC") }
 
   ** Input D
-  @Gen override StatusStr? inD() { get("inD") }
+  @Gen override StatusBool? inD() { get("inD") }
 
   ** Input E
-  @Gen override StatusStr? inE() { get("inE") }
+  @Gen override StatusBool? inE() { get("inE") }
 
   ** Input F
-  @Gen override StatusStr? inF() { get("inF") }
+  @Gen override StatusBool? inF() { get("inF") }
 
   ** Input G
-  @Gen override StatusStr? inG() { get("inG") }
+  @Gen override StatusBool? inG() { get("inG") }
 
   ** Input H
-  @Gen override StatusStr? inH() { get("inH") }
+  @Gen override StatusBool? inH() { get("inH") }
 
   ** Input I
-  @Gen override StatusStr? inI() { get("inI") }
+  @Gen override StatusBool? inI() { get("inI") }
 
   ** Input J
-  @Gen override StatusStr? inJ() { get("inJ") }
+  @Gen override StatusBool? inJ() { get("inJ") }
+
+  ** The out slot is set to the selected input
+  @Gen override StatusBool? out() { get("out") }
 }
 
 **

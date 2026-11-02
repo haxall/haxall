@@ -44,6 +44,30 @@ class CompSpaceEdit
     onCompUpdated(toComp)
   }
 
+  ** Set or clear the 'loopCut' marker on an existing link.  A cut link
+  ** adds no ordering to the execute sort and its push is delivered at
+  ** the end of the cycle, so toSlot reads the previous cycle's value.
+  ** Raise an error if the two slots are not linked.
+  virtual Void setLoopCut(Ref fromRef, Str fromSlot, Ref toRef, Str toSlot, Bool cut)
+  {
+    toComp := readById(toRef)
+    links  := toComp.links
+    old := links.listOn(toSlot).find |x| { x.fromRef == fromRef && x.fromSlot == fromSlot }
+    if (old == null) throw Err("Not linked: @${fromRef}.$fromSlot -> @${toRef}.$toSlot")
+    if (CompUtil.isLoopCut(old) == cut) return
+
+    // replace the link in place
+    link := CompUtil.toLink(fromRef, fromSlot, cut)
+    acc  := Etc.dictToMap(links)
+    cur  := acc[toSlot]
+    if (cur is List)
+      acc[toSlot] = ((List)cur).map |Link x->Link| { x === old ? link : x }
+    else
+      acc[toSlot] = link
+    toComp.set("links", Etc.links(Etc.dictFromMap(acc)))
+    onCompUpdated(toComp)
+  }
+
   ** Remove a link between two slots. This will reset the toSlot to its default value.
   virtual Void unlink(Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
   {
@@ -178,6 +202,7 @@ class CompSpaceEdit
         dupTo   := dups[origToDup[id]]
         dupFrom := dups[origToDup[link.fromRef]]
         this.link(dupFrom.id, link.fromSlot, dupTo.id, toSlot)
+        if (CompUtil.isLoopCut(link)) setLoopCut(dupFrom.id, link.fromSlot, dupTo.id, toSlot, true)
       }
     }
 

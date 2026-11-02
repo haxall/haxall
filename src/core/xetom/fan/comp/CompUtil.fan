@@ -76,8 +76,9 @@ class CompUtil
         {
           case "doc":
           case "link":
+          case "loopCut":
           case "val":
-            // skip these
+            // skip these; link and loopCut are written from the link below
             return
           default:
             // try to avoid duplicating meta that is defined on original type
@@ -108,6 +109,7 @@ class CompUtil
           if (fromComp != null && fromComp.parent != null && fromComp.parent.parent == null)
           {
             slot["link"] = "${fromComp.name}.${link.fromSlot}"
+            if (isLoopCut(link)) slot["loopCut"] = Marker.val
           }
         }
 
@@ -203,6 +205,20 @@ class CompUtil
       acc[n] = v
     }
     return Etc.dictFromMap(acc)
+  }
+
+  ** Return if the link carries the 'loopCut' marker.  Only the Marker
+  ** value counts, so 'false' or 'None' is not a cut.
+  static Bool isLoopCut(Link link)
+  {
+    link["loopCut"] == Marker.val
+  }
+
+  ** Construct a link, tagged with the 'loopCut' marker if cut is true
+  static Link toLink(Ref fromRef, Str fromSlot, Bool cut)
+  {
+    if (!cut) return Etc.link(fromRef, fromSlot)
+    return Etc.linkWrap(Etc.dict3("fromRef", fromRef, "fromSlot", fromSlot, "loopCut", Marker.val))
   }
 
   ** Return true if the spec is a link root

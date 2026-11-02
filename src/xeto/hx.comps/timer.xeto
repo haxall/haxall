@@ -7,6 +7,15 @@
 //
 
 // Bool delay
+//
+// A rising `in` sets `out` true after `onDelay`, and a falling `in` sets
+// it false after `offDelay`.  With `offDelay` of zero this is the CDL
+// `Logical.TrueDelay` block.  A change to a delay applies to a pending
+// timer.  A step of the clock backward counts as no time, but the time
+// between the executes either side of it is lost too, up to the size of the
+// step.  While the host clock is behind the latest time it has seen, the
+// component executes every cycle.  A null `in` sets `out` and `outNot` to
+// null and an invalid `in` holds them, both keeping the timer state.
 BoolDelay: HxComp {
   // Input to the delay.
   in: StatusBool? <summary, transient>
@@ -18,6 +27,10 @@ BoolDelay: HxComp {
   // How long to wait before setting the out slot to false when
   // the in slot transitions to false.
   offDelay: Duration <minVal:0sec> 1sec
+
+  // If true, a true in waits for onDelay on the first valid execute,
+  // including after a restart.  If false, out takes in at once then.
+  delayOnInit: Bool "false"
 
   // The value of the in slot after any delays are accounted for.
   out: StatusBool? <summary, transient, readonly, output>
@@ -48,3 +61,90 @@ TimeDiff: HxComp {
   out: Duration <summary, transient, readonly, output>
 }
 
+// Holds `out` for a minimum time after each change, `trueHold` after it
+// turns true and `falseHold` after it turns false.  A change of `in`
+// passes to `out` at once unless a hold is running, and when the hold
+// lapses `out` takes `in`.  This is the CDL `Logical.TrueFalseHold` block.
+// A step of the clock backward counts as no time, but the time between the
+// executes either side of it is lost too, up to the size of the step.
+// While the host clock is behind the latest time it has seen, the component
+// executes every cycle.  A null `in` sets `out` to null and an invalid `in`
+// holds it, both keeping the state.
+BoolHold: HxComp {
+  // Input
+  in: StatusBool? <summary, transient>
+
+  // Minimum time `out` stays true after it turns true.
+  trueHold: Duration <minVal:0sec> 0sec
+
+  // Minimum time `out` stays false after it turns false.  CDL defaults
+  // this to `trueHold`, so set both.
+  falseHold: Duration <minVal:0sec> 0sec
+
+  // The value of `in`, held for its minimum time after each change.
+  out: StatusBool? <summary, transient, readonly, output>
+}
+
+// Measures how long `in` has been true.  `out` is the time in seconds
+// since `in` turned true, or 0 while it is false.  `passed` turns true
+// when that time reaches `threshold`, and false when `in` turns false.
+// With a threshold of 0, `passed` stays false until `in` turns true.  A
+// negative threshold acts as 0.  This is the CDL `Logical.Timer` block.
+// While `in` is true, `out` refreshes once a second and `passed` turns true
+// on the first cycle at or after the threshold.  A step of the clock
+// backward counts as no time, but the time between the executes either side
+// of it is lost too, up to the size of the step.  While the host clock is
+// behind the latest time it has seen, the component executes every cycle.
+// A null `in` sets both outputs to null and an invalid `in` holds them,
+// both keeping the state.
+Timer: HxComp {
+  // Input that runs the timer while true
+  in: StatusBool? <summary, transient>
+
+  // Time at which `passed` turns true
+  threshold: Duration 0sec
+
+  // Time in seconds since `in` turned true, or 0 while `in` is false
+  out: StatusNumber? <summary, transient, readonly, output>
+
+  // True once `out` has reached `threshold`
+  passed: StatusBool? <summary, transient, readonly, output>
+}
+
+// Accumulates the time `in` is true.  `out` is the total in seconds since
+// the last reset, and holds while `in` is false.  `passed` turns true when
+// `out` reaches `threshold` and stays true until a reset.  With a threshold
+// of 0 or less, `passed` is true from the start and right after each
+// reset.  A rise of `reset` sets `out` to 0 and wins over a rise of `in` at
+// the same time.  This is the CDL `Logical.TimerAccumulating` block.  While
+// `in` is true, `out` refreshes once a second and `passed` turns true on
+// the first cycle at or after the threshold.  A fall of `in` seen in the
+// execute that takes the total to the threshold or past it leaves `passed`
+// false, as MBL (the Modelica Buildings Library) does for a fall at the
+// threshold.  After such a fall, `passed` turns true on the next rise of
+// `in`, unless a reset comes first.  A step of the clock backward counts as
+// no time, but the time between the executes either side of it is lost too,
+// up to the size of the step.  While the host clock is behind the latest
+// time it has seen, the component executes every cycle.
+//
+// The total starts from 0 on the first valid execute, so it does not
+// survive a restart.  A null `in` or `reset` sets both outputs to null and
+// an invalid one holds them, both keeping the state.  Time while `in` is
+// null or invalid counts if `in` was true before it.
+AccumTimer: HxComp {
+  // Input that runs the timer while true
+  in: StatusBool? <summary, transient>
+
+  // Sets `out` to 0 when it turns true.  Link a `BoolConst` false when
+  // unused: an unlinked `reset` keeps both outputs null.
+  reset: StatusBool? <summary, transient>
+
+  // Time at which `passed` turns true
+  threshold: Duration 0sec
+
+  // Time in seconds that `in` has been true since the last reset
+  out: StatusNumber? <summary, transient, readonly, output>
+
+  // True once `out` has reached `threshold`
+  passed: StatusBool? <summary, transient, readonly, output>
+}

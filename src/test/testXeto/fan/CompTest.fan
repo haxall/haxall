@@ -1001,7 +1001,9 @@ class TestFoo : CompObj
 @Js
 class TestCounter : CompObj
 {
-  override Duration? onExecuteFreq() { 1min }
+  ** Timer frequency, a field so setting it does not execute the comp
+  Duration? freq := 1min
+  override Duration? onExecuteFreq() { freq }
   override Void onExecute()
   {
     TestVal old := get("out")

@@ -131,6 +131,59 @@ TestDeep1Composite : Comp {
   }
 }
 
+// Two comp loop with the loop cut on b.in1, so b reads a.out from the previous cycle
+TestLoopCut : Comp {
+  a: TestNumberAdd {
+    in1: Number <link:"b.out">
+    in2: Number 1
+  }
+  b: TestNumberAdd {
+    in1: Number <link:"a.out", loopCut>
+    in2: Number 10
+  }
+}
+
+// Subtypes of TestLoopCut that pin how the cut inherits: it travels
+// with the link it is written beside, and only a Marker counts
+
+// re-declares b.in1's link with no loopCut: not cut
+TestLoopCutSubSame : TestLoopCut {
+  b: TestNumberAdd {
+    in1: Number <link:"a.out">
+  }
+}
+
+// adds c and moves b.in1 onto a new loop b <-> c with no loopCut: not cut
+TestLoopCutSubMoved : TestLoopCut {
+  c: TestNumberAdd {
+    in1: Number <link:"b.out">
+  }
+  b: TestNumberAdd {
+    in1: Number <link:"c.out">
+  }
+}
+
+// changes only b.in2: still cut
+TestLoopCutSubIn2 : TestLoopCut {
+  b: TestNumberAdd {
+    in2: Number 20
+  }
+}
+
+// clears the cut with None: not cut
+TestLoopCutSubNone : TestLoopCut {
+  b: TestNumberAdd {
+    in1: Number <link:"a.out", loopCut:None>
+  }
+}
+
+// re-declares b.in1 with only a doc: link and cut both inherited
+TestLoopCutSubDoc : TestLoopCut {
+  b: TestNumberAdd {
+    in1: Number <doc:"re-documented">
+  }
+}
+
 TestNestedComp : Func {
   do: TestFolder {
     r1: TestRamp

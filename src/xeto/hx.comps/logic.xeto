@@ -70,3 +70,114 @@ Equal: Comparison
 // Computes A != B
 NotEqual: Comparison
 
+// The base spec for comparison operators with hysteresis.  A non-zero
+// `deadband` keeps `out` from toggling while `inA` hovers near `inB`.
+// For a fixed threshold, link a `NumberConst` to `inB`, since a value
+// set on a transient slot is not saved.
+//
+// A null input sets `out` to null and keeps the state.  An invalid
+// status holds the state and the value of `out`, and passes the merged
+// status through.  A fault holds the state and gives the held value
+// (`initOut` before the first value) with the merged status plus fault.
+// These are faults: a negative or NaN `deadband` or a `deadband` unit
+// that does not fit `inB`, whatever the input status, and a NaN input
+// with a valid status.  `inA` and `inB` must have compatible units, as
+// for `Comparison`.
+ComparisonHys: Logic <abstract> {
+  // Input A
+  inA: StatusNumber? <summary, transient>
+
+  // Input B
+  inB: StatusNumber? <summary, transient>
+
+  // Width of the hysteresis band, not negative, in the unit of `inB`, its
+  // delta unit (`°F` or `Δ°F` for an `inB` in `°F`), or unitless
+  deadband: Number <minVal:0> 0
+
+  // The previous value of `out` assumed by the first execute.
+  initOut: Bool "false"
+}
+
+// Computes A > B with hysteresis: `out` turns true when A > B and false
+// when A <= B - deadband.  This is the CDL `Reals.Greater` block, or
+// `Reals.GreaterThreshold` with the threshold linked to `inB`.
+GreaterThanHys: ComparisonHys
+
+// Computes A < B with hysteresis: `out` turns true when A < B and false
+// when A >= B + deadband.  This is the CDL `Reals.Less` block, or
+// `Reals.LessThreshold` with the threshold linked to `inB`.
+LessThanHys: ComparisonHys
+
+// Converts a number to a bool with hysteresis: `out` turns true when
+// `in` > `high` and false when `in` < `low`.  This is the CDL
+// `Reals.Hysteresis` block.  Nulls, invalid statuses and faults are
+// handled as for `ComparisonHys`.  These are faults whatever the status
+// of `in`: a `high` not greater than `low`, a NaN limit, and limits
+// whose units differ from each other or from `in`, where a unitless
+// value fits any unit.
+Hysteresis: Logic {
+  // Input
+  in: StatusNumber? <summary, transient>
+
+  // `out` turns false when `in` drops below this value.
+  low: Number
+
+  // `out` turns true when `in` rises above this value.
+  high: Number
+
+  // The previous value of `out` assumed by the first execute.
+  initOut: Bool "false"
+}
+
+// Detects a change of a bool input: `out` is true for one execute after
+// each change of `in` that `edge` selects, and false otherwise.  `out`
+// clears on the next cycle even when nothing else changes.  This covers
+// the CDL `Logical.Edge`, `Logical.FallingEdge` and `Logical.Change`
+// blocks.  A null `in` sets `out` to null and keeps the previous `in`.  An
+// invalid `in` is not compared, and `out` is false with its status, or
+// stays null after a null.  After a restart the first valid execute
+// compares `in` with `initPrev` again.
+BoolEdge: Logic {
+  // Input to watch
+  in: StatusBool? <summary, transient>
+
+  // Which change of `in` sets `out`
+  edge: BoolEdgeType "rising"
+
+  // The previous value of `in` assumed by the first execute
+  initPrev: Bool "false"
+}
+
+// Changes of `in` that BoolEdge detects
+BoolEdgeType: Enum {
+  rising   // `in` turns from false to true
+  falling  // `in` turns from true to false
+  change   // `in` turns either way
+}
+
+// Detects a change of a number input: `out` is true for one execute after
+// `in` differs from its previous value, `up` when it rose and `down` when
+// it fell, and all three are false otherwise.  They clear on the next
+// cycle even when nothing else changes.  The values are compared as floats
+// and the unit is ignored.  This is the CDL `Integers.Change` block.
+//
+// A null `in` sets the outputs to null and keeps the previous `in`.  An
+// invalid `in` is not compared, and the outputs are false with its status,
+// or stay null after a null.  A NaN `in` with a valid status is a fault,
+// and so is a NaN `initPrev` before the first comparison, whatever the
+// status of `in`.  A fault gives false outputs with the status of `in`
+// plus fault.  After a restart the first valid execute compares `in` with
+// `initPrev` again.
+NumberChange: Logic {
+  // Input to watch
+  in: StatusNumber? <summary, transient>
+
+  // The previous value of `in` assumed by the first execute
+  initPrev: Number 0
+
+  // True for one execute after `in` rose
+  up: StatusBool? <summary, transient, readonly, output>
+
+  // True for one execute after `in` fell
+  down: StatusBool? <summary, transient, readonly, output>
+}

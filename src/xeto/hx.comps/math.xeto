@@ -114,3 +114,131 @@ Maximum: QuadMath
 // out = min(inA, inB, inC, inD)
 Minimum: QuadMath
 
+// Computes the angle of the point (`inB`, `inA`) from the positive x axis:
+// out = atan2(inA, inB), in radians from -pi to pi.  This is the CDL
+// `Reals.Atan2` block, with `u1` on `inA` and `u2` on `inB`.  `inB` is
+// converted to the unit of `inA` where the two differ only by a scale,
+// such as `m` and `ft`, and a unitless input fits any unit.  `BinaryMath`
+// converts no units, while the CDL math components convert as each one
+// states.  As in `BinaryMath`, a null input sets `out` to null and an
+// invalid input sets it to NaN with the merged status.  Other units, a
+// temperature difference against a temperature included, give NaN with
+// fault, a NaN or infinite input included.  Otherwise `out` is what atan2
+// gives, with no fault added: an `inA` of +INF with a finite `inB` gives
+// pi/2, and a NaN input gives NaN.
+//
+// Departing from MBL (the Modelica Buildings Library), `out` is unitless,
+// as for the other trigonometry components, and 0 at the origin.  A zero
+// input is read as positive zero, so `out` is pi on the negative x axis.
+ArcTangent2: BinaryMath
+
+// Computes the remainder of `inA` divided by `inB`, with the quotient
+// rounded toward negative infinity: out = inA - floor(inA / inB) * inB.
+// This is the CDL `Reals.Modulo` block.  `out` has the sign of `inB`: -1
+// modulo 3 is 2, where `Modulus` gives -1.  `inB` is converted to the unit
+// of `inA` where the two differ only by a scale, such as `ft` for `m`, a
+// unitless input fits any unit, and `out` has the unit of `inA`, a NaN
+// included, but NaN for an invalid input or with fault has no unit.  As in
+// `BinaryMath`, a null input sets `out` to null and an invalid input sets
+// it to NaN with the merged status.  Other units, a temperature difference
+// against a temperature included, give NaN with fault.  Otherwise `out` is
+// what the formula gives, with no fault added.  A zero `inB` gives NaN, as
+// in `Modulus`, and so does an infinite input, for which the formula takes
+// infinity less infinity or zero times infinity.  Where `inA / inB`
+// overflows, `out` is infinite, with the sign opposite to that of `inA`.
+FlooredModulus: BinaryMath
+
+// Limits `in` to the range from `uMin` to `uMax`:
+// out = min(uMax, max(uMin, in)).  This is the CDL `Reals.Limiter` block.
+// The first of `in`, `uMax` and `uMin` with a unit sets the unit, a
+// unitless value is in that unit, and the others convert to it, so a limit
+// in °C fits an `in` in °F.  `out` has the unit of `in`, a NaN included,
+// but NaN for an invalid `in` or with fault has no unit.  A null `in` sets
+// `out` to null and an invalid `in` sets it to NaN with its status.  `uMax`
+// and `uMin` have no default, and `out` is NaN with fault until both are
+// set.  A NaN limit, a `uMin` above `uMax` and a unit that does not
+// convert, such as `Δ°F` against a temperature, give NaN with fault.
+// Limits in one unit compare exactly, so a crossing of any size faults.
+// Limits in two units compare in the base unit, kelvin for a temperature,
+// where limits within 1E-9 of each other, relative to their size, are
+// equal, as 5 °C and 41 °F, or 0 °C and 32 °F, are after unit conversion.
+// Equal limits give that value, which ASHRAE 231 section 7.5.67 allows and
+// MBL (the Modelica Buildings Library) rejects.  An infinite limit is no
+// limit on its side, and equal infinite limits give that infinity.  An
+// infinite `in` is limited as any other, and a NaN `in` gives NaN with no
+// fault.
+Limiter: Math {
+  // The value to limit, CDL `u`
+  in: StatusNumber? <summary, transient>
+
+  // The upper limit, CDL `uMax`.  It must not be below `uMin`.
+  uMax: Number?
+
+  // The lower limit, CDL `uMin`
+  uMin: Number?
+}
+
+// Rounds `in` to `n` decimal places, with a half rounded away from zero:
+// out = floor(in*f + 0.5)/f when `in` is above 0, and ceil(in*f - 0.5)/f
+// otherwise, with f = 10^n.  An `n` of -1 rounds to a multiple of ten.
+// This is the CDL `Reals.Round` block, and with `n` 0 the CDL
+// `Conversions.RealToInteger` block, whose integer `out` is here a whole
+// number.  `out` has the unit of `in`, a NaN included, but NaN for an
+// invalid `in` has no unit.  A null `in` sets `out` to null and an invalid
+// `in` sets it to NaN with its status.  Otherwise `out` is what the formula
+// gives, with no fault added.  An `n` whose 10^n is 0 or infinite in a
+// float gives NaN.  With any other `n`, an infinite `in` gives that
+// infinity, as does an `in` whose in*f overflows, and a NaN `in` gives NaN.
+//
+// Departing from MBL (the Modelica Buildings Library), a zero result is
+// positive zero.
+Round: Math {
+  // The value to round, CDL `u`
+  in: StatusNumber? <summary, transient>
+
+  // The number of decimal places, CDL `n`
+  n: Int 0
+}
+
+// Computes `out` on the line through the points (`inX1`, `inF1`) and
+// (`inX2`, `inF2`), at `in`.  With `limitBelow`, `in` is first raised to
+// `inX1` when below it, and with `limitAbove` lowered to `inX2` when above
+// it.  This is the CDL `Reals.Line` block.  `in`, `inX1` and `inX2` are on
+// one axis, and `inF1` and `inF2` on the other.  On each axis the first
+// input with a unit, in that order, sets the unit, a unitless input is in
+// that unit, and the others convert to it.  `out` has the unit of the
+// second axis, a NaN included, but NaN for an invalid input or with fault
+// has no unit.  A null input sets `out` to null, and an invalid input sets
+// it to NaN with the merged status.  A unit that does not convert, such as
+// `Δ°F` against a temperature, gives NaN with fault.  So does an `inX2` not
+// above `inX1` while a limit is on, a NaN `inX1` or `inX2` included.
+// Otherwise `out` is what the arithmetic gives, with no fault added, which
+// can be infinite or NaN, as for an `inX1` equal to `inX2` with both limits
+// off.  With a limit on, an `in` beyond it gives the value at that end, an
+// infinite `in` included.
+//
+// Departing from MBL (the Modelica Buildings Library), an `inX2` not
+// above `inX1` while a limit is on gives NaN with fault, where MBL warns.
+Line: Math {
+  // The independent value, CDL `u`
+  in: StatusNumber? <summary, transient>
+
+  // The x of the first point, CDL `x1`
+  inX1: StatusNumber? <transient>
+
+  // The value at `inX1`, CDL `f1`
+  inF1: StatusNumber? <transient>
+
+  // The x of the second point, CDL `x2`
+  inX2: StatusNumber? <transient>
+
+  // The value at `inX2`, CDL `f2`
+  inF2: StatusNumber? <transient>
+
+  // Raise `in` to `inX1` when it is below it, CDL `limitBelow`
+  limitBelow: Bool "true"
+
+  // Lower `in` to `inX2` when it is above it, CDL `limitAbove`
+  limitAbove: Bool "true"
+}
+
