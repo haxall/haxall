@@ -25,7 +25,10 @@ class DocLinker
     this.uri = DocUtil.linkerToUri(lib, doc)
   }
 
-  ** Resolve destination against current location or null if unresolved
+  ** Resolve destination against current location or null if unresolved.
+  ** A qualified link always resolves: when its target cannot be found,
+  ** such as a lib not in the namespace, the uri is built from the name
+  ** and flagged unverified.
   DocLinkUri? resolve(Str x)
   {
     // handle absolute URIs
@@ -59,7 +62,25 @@ class DocLinker
       docName  = x = x[0..<dot]
     }
 
-    return doResolve(orig, libName, docName, slotName, frag)
+    return doResolve(orig, libName, docName, slotName, frag) ?: unverified(libName, docName, slotName, frag)
+  }
+
+  ** Link built from the qualified name without checking the target
+  ** exists, with the display text resolve gives each kind; null if not
+  ** a well formed qualified name
+  private static DocLinkUri? unverified(Str? libName, Str docName, Str? slotName, Str? frag)
+  {
+    if (libName == null || libName.isEmpty || docName.isEmpty) return null
+    if (docName.endsWith("()") && (slotName != null || frag != null)) return null
+    if (slotName != null && (slotName.isEmpty || slotName.endsWith("()"))) return null
+    if (docName.endsWith("()"))
+    {
+      name := docName[0..-3]
+      return DocLinkUri(DocUtil.qnameToUri("${libName}::Funcs", name), docName, false)
+    }
+    if (docName == "index") return DocLinkUri(DocUtil.libToUri(libName), libName, false)
+    if (slotName != null) return DocLinkUri(DocUtil.qnameToUri("${libName}::${docName}", slotName), slotName, false)
+    return DocLinkUri(DocUtil.qnameToUri("${libName}::${docName}", frag), docName, false)
   }
 
   ** Subclass hook after parsing libName::docName.slotName#frag'
@@ -101,7 +122,9 @@ class DocLinker
     }
     else
     {
-      lib = ns.lib(libName, false)
+      // documented libs first, then the rest of the namespace whose
+      // pages are generated elsewhere such as when publishing one lib
+      lib = ns.lib(libName, false) ?: ns.ns.lib(libName, false)
     }
     if (lib == null) return null
 
@@ -262,10 +285,11 @@ class CompilerDocLinker : DocLinker
 const class DocLinkUri
 {
   ** Constructor
-  new make(Uri uri, Str dis := uri.toStr)
+  new make(Uri uri, Str dis := uri.toStr, Bool verified := true)
   {
     this.uri = uri
     this.dis = dis
+    this.verified = verified
   }
 
   ** Normalized uri for the link
@@ -273,6 +297,10 @@ const class DocLinkUri
 
   ** Base display text to use if shortcut was used
   const Str dis
+
+  ** False if the uri was built from a qualified name whose target was
+  ** not found, which still renders but warns as unresolved
+  const Bool verified
 
   ** Debug string
   override Str toStr() { "[$dis]($uri)" }

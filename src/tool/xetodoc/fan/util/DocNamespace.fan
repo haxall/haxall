@@ -39,13 +39,16 @@ const class DocNamespace
   ** Convenience
   Lib? lib(Str name, Bool checked) { libsByName.getChecked(name, checked) }
 
-  ** Lookup unqualified function in documented libs.  If ambiguous then
-  ** prefer match in cur lib itself, and then prefer func without op tag
+  ** Lookup unqualified function visible from the cur lib: the lib
+  ** itself, its depends, or the `stdFuncLibs`.  A func anywhere else
+  ** must be linked qualified.  If ambiguous then prefer match in cur
+  ** lib itself, and then prefer func without op tag
   Spec? func(Str name, Lib? cur := null)
   {
     matches := Spec[,]
-    libs.each |lib|
+    ns.libs.each |lib|
     {
+      if (!isFuncVisible(lib, cur)) return
       matches.addNotNull(lib.funcs.get(name, false))
     }
     if (matches.size <= 1) return matches.first
@@ -61,6 +64,17 @@ const class DocNamespace
     nonOps := matches.findAll |x| { x.meta.missing("op") }
     if (nonOps.size == 1) return nonOps.first
     return null
+  }
+
+  ** Libs whose funcs may be linked unqualified from any lib
+  static const Str[] stdFuncLibs := ["sys.api", "axon", "hx"]
+
+  ** Can docs in cur link the funcs of lib unqualified
+  private Bool isFuncVisible(Lib lib, Lib? cur)
+  {
+    if (lib.meta.has("nodoc")) return false
+    if (cur == null || lib === cur || stdFuncLibs.contains(lib.name)) return true
+    return XetoUtil.isInDepends(ns, cur.name, lib.name)
   }
 
   ** Get chapters keyed by name for given lib

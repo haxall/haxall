@@ -160,8 +160,10 @@ internal class DocMarkdownParser : LinkResolver
       // try with standard linker
       res := linker.resolve(orig)
 
-      // if not found then output warning
+      // if not found then output warning; an unverified link still
+      // renders its uri but warns the same
       if (res == null) return warnLink(orig, loc(link.loc))
+      if (!res.verified) warnLink(orig, loc(link.loc))
 
       // update link node
       uri := res.uri

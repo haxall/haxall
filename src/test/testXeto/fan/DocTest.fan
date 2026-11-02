@@ -618,6 +618,18 @@ class DocTest : AbstractXetoTest
     verifyLinker("#bad", null)
     verifyLinker("#Shortcut-Links", null)
 
+    // qualified names whose target is not found build their uri
+    verifyUnverified("bad.lib::readAll()", "/bad.lib/Funcs#readAll", "readAll()")
+    verifyUnverified("bad.lib::Foo", "/bad.lib/Foo", "Foo")
+    verifyUnverified("bad.lib::Foo.bar", "/bad.lib/Foo#bar", "bar")
+    verifyUnverified("bad.lib::Guide#intro", "/bad.lib/Guide#intro", "Guide")
+    verifyUnverified("bad.lib::index", "/bad.lib/index", "bad.lib")
+    verifyUnverified("ph::Bad", "/ph/Bad", "Bad")
+    verifyUnverified("doc.xeto::Xetodoc#bad", "/doc.xeto/Xetodoc#bad", "Xetodoc")
+    verifyEq(DocLinker(docns, lib, doc).resolve("hx::readAll()#bad"), null)
+    verifyEq(DocLinker(docns, lib, doc).resolve("x::"), null)
+    verifyEq(DocLinker(docns, lib, doc).resolve("::x"), null)
+
     // error boundary conditions
     verifyLinker("", null)
     verifyLinker(":", null)
@@ -632,12 +644,26 @@ class DocTest : AbstractXetoTest
     verifyLinker("()", null)
   }
 
+  ** Verify a resolved link, or if expect is null an unresolved one:
+  ** no link, or for a qualified name one built unverified
   Void verifyLinker(Str link, Str? expect, Str? dis := expect)
   {
     actual := DocLinker(docns, lib, doc).resolve(link)
     //echo; echo("--> $link"); echo("  > $actual ?= $expect $dis")
-    verifyEq(actual?.uri?.toStr, expect)
-    verifyEq(actual?.dis, dis)
+    if (expect == null) { verify(actual == null || !actual.verified, link); return }
+    verifyEq(actual.uri.toStr, expect)
+    verifyEq(actual.dis, dis)
+    verify(actual.verified, link)
+  }
+
+  ** Verify a qualified link whose target is not found still builds
+  ** its uri from the name, flagged unverified
+  Void verifyUnverified(Str link, Str expect, Str dis)
+  {
+    actual := DocLinker(docns, lib, doc).resolve(link)
+    verifyEq(actual.uri.toStr, expect)
+    verifyEq(actual.dis, dis)
+    verifyEq(actual.verified, false)
   }
 
   DocNamespace? docns
