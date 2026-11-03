@@ -563,21 +563,88 @@ abstract class ApiTest : HxTest
   Void doPointWrite()
   {
     traceSection("doPointWrite")
-    callOp(c, "pointWrite", ["id":ptW.id, "level":n(16), "val":n(160)])
-    callOp(c, "pointWrite", ["id":ptW.id, "level":n(8), "val":n(80), "duration":n(1, "hr")])
-    res := (Grid)callOp(c, "pointWrite", ["id":ptW.id])
 
+    // identical level 18 requests each publish an effective write through HTTP
+    forceSteadyState
+    proj.exts.get("hx.point").spi.sync
+    writes := TestObserver()
+    sub := proj.obs.get("obsPointWrites").subscribe(writes,
+      Etc.dict1("obsFilter", "id==${ptW.id.toCode}"))
+    try
+    {
+      2.times
+      {
+        callOp(b, "pointWrite", ["id":ptW.id, "level":n(18), "val":n(180), "who":"api-18"])
+        res := (Grid)callOp(a, "pointWrite", ["id":ptW.id])
+        verifyEq(res.size, 17)
+        res.each |row| { verifyEq(row["val"], null) }
+        verifyEq(res.meta["writeVal"], n(180))
+        verifyEq(res.meta["writeLevel"], n(18))
+      }
+      writes.sync
+      verifyEq(writes.msgs.size, 2)
+      writes.msgs.each |Dict event|
+      {
+        verifyEq(event["val"], n(180))
+        verifyEq(event["level"], n(18))
+        verifyEq(event["who"], "Haystack.pointWrite | api-18")
+      }
+    }
+    finally sub.unsubscribe
+
+    // ordinary writes replace the temporary level 18 output
+    callOp(c, "pointWrite", ["id":ptW.id, "level":n(16), "val":n(160)])
+    res := (Grid)callOp(c, "pointWrite", ["id":ptW.id])
+    verifyEq(res.meta["writeVal"], n(160))
+    verifyEq(res.meta["writeLevel"], n(16))
+    verifyEq(res.size, 17)
+    verifyEq(res[15]["val"], n(160))
+
+    callOp(c, "pointWrite", ["id":ptW.id, "level":n(8), "val":n(80), "duration":n(1, "hr")])
+    res = (Grid)callOp(c, "pointWrite", ["id":ptW.id])
     verifyEq(res.size, 17)
     verifyEq(res[7]->level, n(8))
     verifyEq(res[7]->val, n(80))
     verifyEq(res[7].has("expires"), true)
-
     verifyEq(res[15]->level, n(16))
     verifyEq(res[15]->val, n(160))
+    verifyEq(res.meta["writeVal"], n(80))
+    verifyEq(res.meta["writeLevel"], n(8))
+
+    // a masked level 18 request is discarded without changing the ordinary levels
+    callOp(b, "pointWrite", ["id":ptW.id, "level":n(18), "val":n(181), "who":"api-masked"])
+    res = (Grid)callOp(a, "pointWrite", ["id":ptW.id])
+    verifyEq(res.meta["writeVal"], n(80))
+    verifyEq(res.meta["writeLevel"], n(8))
+    verifyEq(res.size, 17)
+    verifyEq(res[7]["val"], n(80))
+    verifyEq(res[15]["val"], n(160))
+
+    // releasing a masked level leaves the effective output unchanged
+    callOp(b, "pointWrite", ["id":ptW.id, "level":n(16)])
+    res = (Grid)callOp(a, "pointWrite", ["id":ptW.id])
+    verifyEq(res.meta["writeVal"], n(80))
+    verifyEq(res.meta["writeLevel"], n(8))
+    verifyEq(res[15]["val"], null)
+
+    // releasing the winning level does not fall back to the discarded request
+    callOp(b, "pointWrite", ["id":ptW.id, "level":n(8)])
+    res = (Grid)callOp(a, "pointWrite", ["id":ptW.id])
+    verifyEq(res.meta["writeVal"], null)
+    verifyEq(res.meta["writeLevel"], n(17))
+    verifyEq(res.size, 17)
+    res.each |row| { verifyEq(row["val"], null) }
+
+    // restore the fixture for the remaining API checks
+    callOp(c, "pointWrite", ["id":ptW.id, "level":n(16), "val":n(160)])
+    callOp(c, "pointWrite", ["id":ptW.id, "level":n(8), "val":n(80), "duration":n(1, "hr")])
 
     // write requires admin, read does not
     verifyPermissionErr { this.callOp(this.a, "pointWrite", ["id":this.ptW.id, "level":n(16), "val":n(70)]) }
-    verifyEq(((Grid)callOp(a, "pointWrite", ["id":ptW.id])).size, 17)
+    res = (Grid)callOp(a, "pointWrite", ["id":ptW.id])
+    verifyEq(res.size, 17)
+    verifyEq(res.meta["writeVal"], n(80))
+    verifyEq(res.meta["writeLevel"], n(8))
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -197,6 +197,7 @@ class ConnTuningTest : HxTest
     x := addRec(["dis":"X", "point":m, "writable":m, "connTestWrite":"x", "connTestConnRef":c.id, "connTuningRef":tx.id, "kind":"Number"])
     d := addRec(["dis":"D", "point":m, "writable":m, "connTestWrite":"d", "connTestConnRef":c.id, "kind":"Number"])
     q := addRec(["dis":"Q", "point":m, "writable":m, "connTestWrite":"x", "connTestConnRef":c.id, "kind":"Number"])
+    r := addRec(["dis":"R", "point":m, "writable":m, "connTestWrite":"r", "connTestConnRef":c.id, "connTuningRef":ty.id, "kind":"Number"])
 
     // verify tuning is setup correctly
     sync(c)
@@ -211,20 +212,24 @@ class ConnTuningTest : HxTest
     verifyWrite(x, "unknown", null, 17, null, null)
     verifyWrite(d, "unknown", null, 17, null, null)
     verifyWrite(q, "unknown", null, 17, null, null)
+    verifyWrite(r, "unknown", null, 17, null, null)
 
     // write observations suppressed until steady state
     write(c, y, n(10), 16)
     write(c, x, n(20), 16)
     write(c, d, n(30), 16)
+    write(c, r, n(18), 18)
     verifyEq(proj.isSteadyState, false)
     verifyWrite(y, "unknown", n(10), 16, null, null)
     verifyWrite(x, "unknown", n(20), 16, null, null)
     verifyWrite(d, "unknown", n(30), 16, null, null)
     verifyWrite(q, "unknown",  null, 17, null, null)
+    verifyWrite(r, "unknown",  n(18), 18, null, null)
 
     // now wait for steady state, then give time for hxPoint
     // msgs to propogate thru to the connector framework
     forceSteadyState
+    proj.exts.get("hx.point").spi.sync
     verifyEq(proj.isSteadyState, true)
     proj.sync
     c.sync
@@ -234,6 +239,7 @@ class ConnTuningTest : HxTest
     verifyWrite(x, "unknown", n(20), 16, null, null)
     verifyWrite(d, "unknown", n(30), 16, null, null)
     verifyWrite(q, "unknown", null, 17, null, null)
+    verifyWrite(r, "ok",      n(18), 18, n(18), 18)
 
     // now after the first one all writes are published
     write(c, y, n(100), 16)
@@ -245,27 +251,67 @@ class ConnTuningTest : HxTest
     verifyWrite(d, "ok", n(300), 16, n(300), 16)
     verifyWrite(q, "ok", n(400), 16, n(400), 16)
 
+    // default tuning does not replay a temporary write on reconnect
+    write(c, q, null, 16)
+    write(c, q, n(400), 18)
+    verifyWrite(q, "ok", n(400), 18, n(400), 18)
+
     // clear stats
     c.send(HxMsg("clearTests")).get
     verifyWrite(y, "ok", n(100), 16, null, null)
     verifyWrite(x, "ok", n(200), 16, null, null)
     verifyWrite(d, "ok", n(300), 16, null, null)
+    verifyWrite(q, "ok", n(400), 18, null, null)
+    verifyWrite(r, "ok", n(18), 18, null, null)
     verifyEq(numWrites(c), 0)
 
-    // force close and reopen - only yes should has onOpen write
+    // force close and reopen - only points configured for onOpen write
     c.close.get
     c.ping.get
     verifyWrite(y, "ok", n(100), 16, n(100), 16)
     verifyWrite(x, "ok", n(200), 16, null, null)
     verifyWrite(d, "ok", n(300), 16, null, null)
+    verifyWrite(q, "ok", n(400), 18, null, null)
+    verifyWrite(r, "ok", n(18), 18, n(18), 18)
     verifyWriteDebug(y, false, "100 @ 16 [test] onOpen")
-    verifyEq(numWrites(c), 1)
+    verifyWriteDebug(r, false, "18 @ 18 [first] onOpen")
+    verifyEq(numWrites(c), 2)
   }
 
   Void verifyWriteMinTime(Conn c, Dict t, Dict pt)
   {
     // initial state (first write short circuited without writeOnStart)
     verifyWrite(pt, "unknown", null, 17, null, null)
+
+    // repeated temporary writes keep conversion and level intact
+    write(c, pt, n(1), 18)
+    verifyWrite(pt, "ok", n(1), 18, n(10), 18)
+    num := numWrites(c)
+    write(c, pt, n(1), 18)
+    verifyWrite(pt, "ok", n(1), 18, n(10), 18)
+    verifyEq(numWrites(c), num+1)
+
+    // temporary writes use the normal pending write path
+    t = commit(t, ["writeMinTime":n(1, "hr")])
+    sync(c)
+    write(c, pt, n(2), 18)
+    verifyWrite(pt, "ok", n(2), 18, n(10), 18)
+    verifyWriteDebug(pt, true, "2 @ 18 [test]")
+    t = commit(t, ["writeMinTime":n(1, "ms")])
+    sync(c)
+    wait(10ms)
+    forceHouseKeeping(c)
+    sync(c)
+    verifyWrite(pt, "ok", n(2), 18, n(20), 18)
+    verifyWriteDebug(pt, false, "2 @ 18 [test] minTime")
+    verifyEq(numWrites(c), num+2)
+    t = commit(t, ["writeMinTime":None.val])
+    sync(c)
+
+    // temporary writes use ordinary failure feedback too
+    write(c, pt, n(-1), 18)
+    verifyWrite(pt, "down", n(-1), 18, n(-10), 18)
+    verify(readById(pt.id)->writeErr.toStr.contains("neg value"))
 
     // verify two immediate writes with no min time
     write(c, pt, n(1), 16)
@@ -361,6 +407,19 @@ class ConnTuningTest : HxTest
     verifyEq(numWrites(c), num+4)
     pt = verifyWrite(pt, "ok", n(88), 15, n(88*10), 15)
     verifyWriteDebug(pt, false, "88 @ 15 [test] maxTime")
+
+    // release ordinary priorities before testing temporary max-time writes
+    write(c, pt, null, 15)
+    write(c, pt, null, 16)
+    write(c, pt, n(33), 18)
+    pt = verifyWrite(pt, "ok", n(33), 18, n(330), 18)
+    num = numWrites(c)
+    wait(150ms)
+    forceHouseKeeping(c)
+    sync(c)
+    verifyWrite(pt, "ok", n(33), 18, n(330), 18)
+    verifyWriteDebug(pt, false, "33 @ 18 [test] maxTime")
+    verify(numWrites(c) >= num+1)
 
     // cleanup
     write(c, pt, null, 12)

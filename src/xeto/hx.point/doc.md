@@ -63,6 +63,7 @@ The following levels have special behavior:
   - Level 1: highest priority reserved for emergency overrides
   - Level 8: manual override with ability to set timer to expire back to auto
   - Default: implicitly acts as level 17 for relinquish default
+  - Level 18: explicit write request when levels 1-17 are empty
 
 The priority array provides for contention resolution when many
 different control applications are vying for control of a given
@@ -71,18 +72,23 @@ point.  Low level applications like scheduling typically control levels 14,
 to 7 can be used to trump a user override (for example a demand response
 energy routine that requires higher priority).
 
-The effective value to write is resolved by starting at level 1 and working
-down to relinquish default to find the first non-null value.  It is possible
-for all levels to be null, in which case the overall write output is null (which
-in turn may be auto/null to another system).  Anytime a null value is written
+For writes to levels 1-17, the effective value is the first non-null value
+from level 1 down to relinquish default.  When levels 1-17 are all null,
+the write output is null (which in turn may be auto/null to another system).
+Anytime a null value is written
 to a priority level, we say that level has been set to *auto* or *released* (this
 allows the next highest level to take command of the output).
 
-Whenever the priority array's effective value is modified, then the
+Level 18 requests a write when levels 1-17 are empty, including repeated
+non-null values. Its temporary array entry is cleared after resolving the
+effective output, whether or not selected, so it never provides a fallback.
+The output tags and array metadata report the last effective output, which
+may be at level 18 even when all 17 array rows are null.
+
+Whenever the effective write output is updated, then the
 following tags are transiently updated:
-  - [ph::PhEntity.writeVal]: this is the current "winning" value of the priority array,
-    or if this tag is missing then the winning value is null
-  - [ph::PhEntity.writeLevel]: number from 1 to 17 indicate the winning priority array level
+  - [ph::PhEntity.writeVal]: last effective write value, or null if this tag is missing
+  - [ph::PhEntity.writeLevel]: number from 1 to 18 indicating the last effective write level
   - [ph::PhEntity.writeStatus]: status of the connector's ability to write the last
     value: ok, disabled, down, fault.  The special status "unbound" indicates
     a writable point that is not bound to an actual connector
@@ -92,13 +98,14 @@ Because the write value might be changing several times a second, the tags
 above are managed transiently.  This means they are not written to disk,
 nor persisted between server restarts.  Changes to these tags are written
 to Folio using [transient diffs](hx.doc.haxall::Folio#transient-diffs).  They
-are recalculated on reboot.
+are recalculated on reboot from levels 1-17.
 
 Level 1, level 8, and default are special in that they are persistent.
 Changes to these levels will persist their value in Folio using the tags
 `write1`, `write8`, and `writeDef`.  Timed overrides are not persistent.
 All other priority levels are transient - it is expected that control
-applications rewrite these levels on reboot.
+applications rewrite these levels on reboot. Level 18 is never persisted
+or restored on reboot.
 
 The following Axon functions are used to write points:
   - [pointEmergencyOverride()]
@@ -111,7 +118,7 @@ There is also a [pointWrite()] function which allows forced writing to any
 level.  But in general user interfaces should restrict access to the functions
 above to ensure users stick with levels 1, 8, and relinquish default.  The
 [pointWriteArray()] function is used to read the current state of a point's
-write array.
+write array as 17 rows; level 18 is not retained in the array.
 
 The functions above all require the `admin` user permission.  User interfaces
 should use the [pointOverrideCommand()] function.  This function allows

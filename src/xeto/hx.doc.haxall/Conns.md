@@ -169,12 +169,17 @@ marker tag.  Writable points maintain an internal 16 level priority array
 by the [point library](hx.point::doc#point-writes).  The effective value of the priority
 array is available via the [ph::PhEntity.writeVal] and [ph::PhEntity.writeLevel] transient tags.  The
 effective level may be written to a remote system by connector.  By default
-writes are issued whenever the local array's effective value is modified.
+writes are issued whenever the local array's effective value is modified
+or an explicit level 18 request is selected when levels 1-17 are empty,
+including repeated non-null values, without retaining an array value or
+providing a fallback on release.
 However there are many tuning options to control write timing:
   - [writeMinTime](ConnTuning#writemintime): throttles writes
   - [writeMaxTime](ConnTuning#writemaxtime): periodically re-issues writes
   - [writeOnStart](ConnTuning#writeonstart): force write on startup
   - [writeOnOpen](ConnTuning#writeonopen): force write when connector transitions to open
+
+These tuning options also apply to a cached effective level-18 output.
 
 Connector points configured to write will maintain their status via
 the [ph::PhEntity.writeStatus] tag:

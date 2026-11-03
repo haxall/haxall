@@ -414,8 +414,10 @@ const mixin IPointExt : Ext
 {
   **
   ** Set a writable point's priority array value at the given level.
-  ** Level must be 1 to 17 (where 17 represents default value).  The
-  ** who parameter must be a non-empty string which represent debugging
+  ** Level must be 1 to 18 (where 17 represents default value). Level 18
+  ** requests a write only when levels 1-17 are empty, including repeated
+  ** non-null values, without retaining an array value or providing a fallback.
+  ** The who parameter must be a non-empty string which represent debugging
   ** information about which user or application is writing to this
   ** priorirty array level.
   **
@@ -423,7 +425,9 @@ const mixin IPointExt : Ext
 
   **
   ** Get current state of a writable points priority array.  The result
-  ** is a grid with 17 rows including a `level` and `val` column.
+  ** is a grid with 17 rows including a `level` and `val` column. Metadata
+  ** reports the last effective output, which may be at level 18 even when
+  ** all 17 rows are null.
   **
   abstract Grid pointArray(Dict point)
 }

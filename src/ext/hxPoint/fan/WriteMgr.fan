@@ -31,7 +31,7 @@ internal const class WriteMgrActor : PointMgrActor
   Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
   {
     // level check
-    if (level < 1 || level > 17) throw Err("Invalid level: $level")
+    if (level < 1 || level > 18) throw Err("Invalid level: $level")
 
     // who check
     if (who.toStr.isEmpty) throw Err("Must provide non-empty who Str")

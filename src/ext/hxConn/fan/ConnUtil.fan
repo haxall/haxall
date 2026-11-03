@@ -22,7 +22,7 @@ const final class ConnUtil
   static
   {
     acc := Number[,]
-    18.times |i| { acc.add(Number(i)) }
+    19.times |i| { acc.add(Number(i)) }
     levels = acc
   }
 

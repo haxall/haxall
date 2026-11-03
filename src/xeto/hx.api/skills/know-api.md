@@ -129,9 +129,12 @@ column meta.
 # PointWrite
 
 - Read the priority array: post just the `id` → returns 17 rows
-  (level, val, who, expires)
-- Write: post `id`, `level` (1-17), `val`, optional `who`; level 8
-  supports a `duration` for timed overrides
+  (level, val, who, expires); metadata reports the last effective output,
+  which may be at level 18 even when all 17 rows are null
+- Write: post `id`, `level` (1-18), `val`, optional `who`; level 8
+  supports a `duration` for timed overrides. Level 18 writes only when
+  levels 1-17 are empty, including repeated non-null values, without retaining
+  an array value or providing a fallback. Level 18 is never persisted or restored.
 
 # Calling Other Haystack Servers from Axon
 
