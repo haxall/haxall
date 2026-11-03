@@ -37,7 +37,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Constructor
   @NoDoc new make()
   {
-    stack.add(CallFrame.makeRoot(this))
+    stack.add(AxonFrame.makeRoot(this))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -287,17 +287,17 @@ abstract class AxonContext : HaystackContext, CompContext
   private Obj? evalInTopFrame(Expr expr, Str:Obj? vars, CallFrameMode mode)
   {
     func := TopFn.makeEvalWrapper(expr)
-    return callInFrame(CallFrame(this, func, Obj#.emptyList, expr.loc, vars, mode), Obj#.emptyList)
+    return callInFrame(AxonFrame(this, func, Obj#.emptyList, expr.loc, vars, mode), Obj#.emptyList)
   }
 
   ** Push new call frame onto the stack with given loc/vars and route to Fn.doCall
   @NoDoc Obj? callInNewFrame(Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars := Str:Obj?[:])
   {
-    callInFrame(CallFrame(this, func, args, callLoc, vars), args)
+    callInFrame(AxonFrame(this, func, args, callLoc, vars), args)
   }
 
   ** Push frame onto the stack and route to its Fn.doCall
-  private Obj? callInFrame(CallFrame frame, Obj?[] args)
+  private Obj? callInFrame(AxonFrame frame, Obj?[] args)
   {
     frame.parent = scopeParent(frame.func)
     stack.push(frame)
@@ -324,7 +324,7 @@ abstract class AxonContext : HaystackContext, CompContext
   @NoDoc Obj? callInScope(Fn func, Obj?[] args, FileLoc callLoc, Obj scope)
   {
     base := this.stack
-    this.stack = (CallFrame[])scope
+    this.stack = (AxonFrame[])scope
     try
       return func.callx(this, args, callLoc)
     finally
@@ -354,7 +354,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Current frame on call stack
-  internal CallFrame curFrame() { stack.last }
+  internal AxonFrame curFrame() { stack.last }
 
   ** Resolve a variable or raise exception if not bound
   internal Obj? resolve(Str name, FileLoc loc)
@@ -396,7 +396,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Resolve the frame in the current scope with the given variable
-  private CallFrame? varFrame(Str name)
+  private AxonFrame? varFrame(Str name)
   {
     for (f := stack.last; f != null; f = f.parent)
       if (f.has(name)) return f
@@ -407,7 +407,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** func: natives such as lazy funcs use the caller's scope, top-level
   ** funcs the nearest top-level frame which ends every scope chain, and
   ** closures the top most frame visible to their lexically enclosing func
-  private CallFrame? scopeParent(Fn func)
+  private AxonFrame? scopeParent(Fn func)
   {
     f := stack.last
     if (func.isNative) return f
@@ -504,116 +504,8 @@ abstract class AxonContext : HaystackContext, CompContext
   @NoDoc Func? heartbeatFunc
   internal Obj? returnVal
   private Int timeoutTicks := Int.maxVal
-  private CallFrame[] stack := [,]
+  private AxonFrame[] stack := [,]
   private [Str:Obj] tops := [:]
   private [Str:Regex]? regex
   private [Str:Obj]? toDictExtra
 }
-
-**************************************************************************
-** CallFrame
-**************************************************************************
-
-**
-** CallFrame manages the state/scope of function call
-**
-@Js
-internal class CallFrame
-{
-  new make(AxonContext cx, Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars, CallFrameMode mode := CallFrameMode.fn)
-  {
-    this.cx      = cx
-    this.func    = func
-    this.callLoc = callLoc
-    this.vars    = vars
-    this.mode    = mode
-
-    // bind parameter variables to arguments
-    if (!func.isNative)
-      func.params.each |param, i| { set(param.name, args[i]) }
-  }
-
-  new makeRoot(AxonContext cx)
-  {
-    this.cx      = cx
-    this.func    = rootFunc
-    this.callLoc = func.loc
-    this.vars    = Str:Obj?[:]
-    this.mode    = CallFrameMode.top
-  }
-
-  Bool has(Str name) { vars.containsKey(name) }
-
-  Void each(|Obj? v, Str n| f) { vars.each(f) }
-
-  Dict toDict()
-  {
-    acc := Str:Obj?[:]
-    vars.each |v, n|
-    {
-      if (v != null && !v.isImmutable) v = v.toStr
-      acc[n] = v
-    }
-    return Etc.makeDict(acc)
-  }
-
-  Obj? get(Str name)
-  {
-    vars[name]
-  }
-
-  Obj? set(Str name, Obj? val)
-  {
-    vars[name] = val
-    return val
-  }
-
-  Void remove(Str name) { vars.remove(name) }
-
-  ** Does the given function have variable visibility into
-  ** this frame's variables?  Only if the function is lexically
-  ** scoped inside this frame's function, or this is a top level frame.
-  Bool isVisibleTo(Fn? f)
-  {
-    while (f != null)
-    {
-      if (this.func === f) return true
-      f = f.outer
-    }
-    return mode.isTopLevel
-  }
-
-  override Str toStr() { "CallFrame $func.name [$callLoc]" }
-
-  private static const Fn rootFunc := Fn(FileLoc("root"), "root", FnParam[,])
-  private static const Str nullVal := "_CallFrame.null_"
-
-  AxonContext cx { private set }
-  const FileLoc callLoc
-  const Fn func
-  const CallFrameMode mode
-  CallFrame? parent  // next frame in lexical scope or null if root
-  private Str:Obj? vars
-}
-
-**************************************************************************
-** CallFrameMode
-**************************************************************************
-
-**
-** CallFrameMode is the kind of call frame
-**
-@Js
-internal enum class CallFrameMode
-{
-  fn,    // func call: visible only to lexically enclosed funcs
-  top,   // top level eval or root: visible to every func
-  repl;  // top level REPL session such as AI eval: defines rebind
-
-  ** Top level frame of an eval such as root is visible to every func
-  Bool isTopLevel() { this !== fn }
-
-  ** Define of an existing var rebinds it instead of raising an error
-  Bool redefineOk() { this === repl }
-}
-
