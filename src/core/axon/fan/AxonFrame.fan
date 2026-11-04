@@ -17,9 +17,8 @@ using haystack
 @NoDoc @Js
 class AxonFrame
 {
-  new make(AxonContext cx, Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars, CallFrameMode mode := CallFrameMode.fn)
+  new make(Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars, CallFrameMode mode := CallFrameMode.fn)
   {
-    this.cx      = cx
     this.func    = func
     this.callLoc = callLoc
     this.vars    = vars
@@ -30,19 +29,34 @@ class AxonFrame
       func.params.each |param, i| { set(param.name, args[i]) }
   }
 
-  new makeRoot(AxonContext cx)
+  new makeRoot()
   {
-    this.cx      = cx
     this.func    = rootFunc
     this.callLoc = func.loc
     this.vars    = Str:Obj?[:]
     this.mode    = CallFrameMode.top
   }
 
+  ** Does this frame contain the given var name (taking null into account)
   Bool has(Str name) { vars.containsKey(name) }
 
+  ** Get variable
+  Obj? get(Str name)
+  {
+    vars[name]
+  }
+
+  ** Set variable
+  Obj? set(Str name, Obj? val)
+  {
+    vars[name] = val
+    return val
+  }
+
+  ** Iterate variables in this frame
   Void each(|Obj? v, Str n| f) { vars.each(f) }
 
+  ** Convert frame variables to debug dict
   Dict toDict()
   {
     acc := Str:Obj?[:]
@@ -53,19 +67,6 @@ class AxonFrame
     }
     return Etc.makeDict(acc)
   }
-
-  Obj? get(Str name)
-  {
-    vars[name]
-  }
-
-  Obj? set(Str name, Obj? val)
-  {
-    vars[name] = val
-    return val
-  }
-
-  Void remove(Str name) { vars.remove(name) }
 
   ** Does the given function have variable visibility into
   ** this frame's variables?  Only if the function is lexically
@@ -80,12 +81,11 @@ class AxonFrame
     return mode.isTopLevel
   }
 
+  ** Debug string
   override Str toStr() { "AxonFrame $func.name [$callLoc]" }
 
   private static const Fn rootFunc := Fn(FileLoc("root"), "root", FnParam[,])
-  private static const Str nullVal := "_AxonFrame.null_"
 
-  AxonContext cx { private set }
   const FileLoc callLoc
   const Fn func
   const CallFrameMode mode

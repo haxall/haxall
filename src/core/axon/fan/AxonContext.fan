@@ -37,7 +37,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Constructor
   @NoDoc new make()
   {
-    stack.add(AxonFrame.makeRoot(this))
+    stack.add(AxonFrame.makeRoot)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -287,13 +287,13 @@ abstract class AxonContext : HaystackContext, CompContext
   private Obj? evalInTopFrame(Expr expr, Str:Obj? vars, CallFrameMode mode)
   {
     func := TopFn.makeEvalWrapper(expr)
-    return callInFrame(AxonFrame(this, func, Obj#.emptyList, expr.loc, vars, mode), Obj#.emptyList)
+    return callInFrame(AxonFrame(func, Obj#.emptyList, expr.loc, vars, mode), Obj#.emptyList)
   }
 
   ** Push new call frame onto the stack with given loc/vars and route to Fn.doCall
   @NoDoc Obj? callInNewFrame(Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars := Str:Obj?[:])
   {
-    callInFrame(AxonFrame(this, func, args, callLoc, vars), args)
+    callInFrame(AxonFrame(func, args, callLoc, vars), args)
   }
 
   ** Push frame onto the stack and route to its Fn.doCall
@@ -509,3 +509,4 @@ abstract class AxonContext : HaystackContext, CompContext
   private [Str:Regex]? regex
   private [Str:Obj]? toDictExtra
 }
+
