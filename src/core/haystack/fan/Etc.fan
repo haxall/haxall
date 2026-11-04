@@ -1884,7 +1884,7 @@ const class Etc
   **
   static DateSpan toDateSpan(Obj? val, HaystackContext? cx := null)
   {
-    if (val is HaystackFunc) val = ((HaystackFunc)val).haystackCall(curContext(cx), Obj#.emptyList)
+    val = curContext(cx).callIfFunc(val)
     if (val is DateSpan) return val
     if (val is Date) return DateSpan(val, DateSpan.day)
     if (val is Span) return ((Span)val).toDateSpan

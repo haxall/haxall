@@ -220,6 +220,13 @@ abstract class AxonContext : HaystackContext, CompContext
       toDictExtra.remove(name)
   }
 
+  ** Call a func value with no args such as `today` passed as a span
+  @NoDoc override Obj? callIfFunc(Obj? val)
+  {
+    fn := val as Fn
+    return fn == null ? val : fn.call(this, Obj#.emptyList)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Heartbeat
 //////////////////////////////////////////////////////////////////////////

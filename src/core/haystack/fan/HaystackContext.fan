@@ -38,6 +38,10 @@ mixin HaystackContext : XetoContext
 
   ** Return contextual data as dict - see context()
   @NoDoc abstract Dict toDict()
+
+  ** Call a func value with no args such as `today` passed as a
+  ** span; return any other value as is
+  @NoDoc virtual Obj? callIfFunc(Obj? val) { val }
 }
 
 **************************************************************************
@@ -65,17 +69,5 @@ class PatherContext : HaystackContext
   private |Ref->Dict?| pather
   override FilterInference inference() { FilterInference.nil }
   override Dict toDict() { Etc.dict0 }
-}
-
-**************************************************************************
-** HaystackFunc
-**************************************************************************
-
-** Mixin for Axon functions
-@NoDoc @Js
-mixin HaystackFunc
-{
-  ** Call the function
-  abstract Obj? haystackCall(HaystackContext cx, Obj?[] args)
 }
 
