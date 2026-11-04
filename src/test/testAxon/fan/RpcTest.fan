@@ -49,62 +49,63 @@ class RpcTest : AxonTest
     verifyRpc("(3 + 4) * 2", n(14))
 
     // variables, simple binary op
-    verifyRpc("a + b", n(7)) |cx|
+    verifyRpc("a + b", n(7)) |scope|
     {
-      cx.eval("a: 3")
-      cx.eval("b: 4")
+      scope.set("a", n(3))
+      scope.set("b", n(4))
     }
 
     // variables, more complicated ops
-    verifyRpc("-c * (a + b)", n(21)) |cx|
+    verifyRpc("-c * (a + b)", n(21)) |scope|
     {
-      cx.eval("a: 3")
-      cx.eval("b: 4")
-      cx.eval("c: 3 - 6")
+      scope.set("a", n(3))
+      scope.set("b", n(4))
+      scope.set("c", n(-3))
     }
 
     // list with nulls
-    verifyRpc("[a, b, c]", Obj?[n(1), null, n(3)]) |cx|
+    verifyRpc("[a, b, c]", Obj?[n(1), null, n(3)]) |scope|
     {
-      cx.eval("a: 1")
-      cx.eval("b: null")
-      cx.eval("c: 3")
+      scope.set("a", n(1))
+      scope.set("b", null)
+      scope.set("c", n(3))
     }
 
     // list + map
-    verifyRpc("[a, b, c].map(v => 100 + v)", Obj?[n(101), n(102), n(103)]) |cx|
+    verifyRpc("[a, b, c].map(v => 100 + v)", Obj?[n(101), n(102), n(103)]) |scope|
     {
-      cx.eval("a: 1")
-      cx.eval("b: 2")
-      cx.eval("c: 3")
+      scope.set("a", n(1))
+      scope.set("b", n(2))
+      scope.set("c", n(3))
     }
 
     // call
-    verifyRpc(Str<|a.upper + "," + b.upper|>, "ALPHA,BETA") |cx|
+    verifyRpc(Str<|a.upper + "," + b.upper|>, "ALPHA,BETA") |scope|
     {
-      cx.eval("a: \"alpha\"")
-      cx.eval("b: \"beta\"")
+      scope.set("a", "alpha")
+      scope.set("b", "beta")
     }
 
     // handle this for components
-    verifyRpc(Str<|[this.a, this.b, this.c, this.d]|>, ["alpha", null, n(123), "tue"]) |cx|
+    verifyRpc(Str<|[this.a, this.b, this.c, this.d]|>, ["alpha", null, n(123), "tue"]) |scope|
     {
       comp := CompObj()
       comp.set("a", "alpha")
       comp.set("c", n(123))
       comp.set("d", Weekday.tue) // map to haystack fidelity
-      cx.defOrAssign("this", comp, FileLoc.unknown)
+      scope.set("this", comp)
     }
 
   }
 
-  Void verifyRpc(Str expr, Obj? expect, |AxonContext|? f := null)
+  Void verifyRpc(Str expr, Obj? expect, |AxonScope|? f := null)
   {
     c := makeContext
     s := makeContext
 
-    if (f != null) f(c)
-    d := AxonRpc.marshal(c, c.parse(expr))
+    scope := AxonScope()
+    if (f != null) f(scope)
+    d := AxonRpc.marshal(c, c.parse(expr), scope)
 
     actual := AxonRpc.eval(s, d)
 

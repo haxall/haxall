@@ -48,7 +48,7 @@ class ShellContext : Context
 
       try
       {
-        if (!expr.isEmpty) run(expr)
+        if (!expr.isEmpty) runExpr(expr)
       }
       catch (SyntaxErr e)
       {
@@ -67,7 +67,7 @@ class ShellContext : Context
   }
 
   ** Run the given expression and handle errors/output
-  Int run(Str expr)
+  Int runExpr(Str expr)
   {
     // wrap list of expressions in do/end block
     if (expr.contains(";") || expr.contains("\n"))
@@ -77,7 +77,7 @@ class ShellContext : Context
     Obj? val
     try
     {
-      val = eval(expr)
+      val = evalExpr(parse(expr), vars)
     }
     catch (EvalErr e)
     {
@@ -89,7 +89,7 @@ class ShellContext : Context
     if (val !== noEcho) print(val)
 
     // save last value as "it"
-    if (val != null && val != noEcho) defOrAssign("it", val, FileLoc.eval)
+    if (val != null && val != noEcho) vars.set("it", val)
     return 0
   }
 
@@ -159,6 +159,9 @@ class ShellContext : Context
     else if (!str.contains("\n")) str += "\n" + err.toStr
     return str
   }
+
+  ** Variables that persist across evaluations of the shell session
+  AxonScope vars := AxonScope() { redefines = true }
 
   ** Flag for full stack trace dumps
   Bool showTrace := true

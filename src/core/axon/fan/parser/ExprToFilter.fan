@@ -49,7 +49,7 @@ internal class ExprToFilter
     // check if expr is a variable which references a Filter
     if (expr.type === ExprType.var)
     {
-      var := cx.getVar(((Var)expr).name)
+      var := cx.curScope(false)?.get(((Var)expr).name)
       if (var is Filter) return var
     }
 

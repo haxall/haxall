@@ -22,8 +22,6 @@ class AxonComp : HxComp
 {
   @Gen virtual Str axon { get {get("axon")} set {set("axon", it)} }
 
-  private static const FileLoc loc := FileLoc.make("AxonComp", 0)
-
   override Void onExecute()
   {
     cx := AxonContext.curAxon
@@ -31,16 +29,15 @@ class AxonComp : HxComp
 // echo(axon)
 // dump
     varSpec := cx.ns.spec("sys.comp::Var")
+    scope := AxonScope()
     this.each |v, name|
     {
       if (v isnot Comp) return
       comp := v as Comp
       if (!comp.spec.isa(varSpec)) return
-      val := comp.get("val")
-// echo("defOrAssign: ${name} = ${val}")
-      cx.defOrAssign(name, val, loc)
+      scope.set(name, comp.get("val"))
     }
-    ret := cx.eval(axon)
+    ret := cx.evalExpr(cx.parse(axon), scope)
     (get("returns") as Comp)?.set("val", ret)
   }
 }

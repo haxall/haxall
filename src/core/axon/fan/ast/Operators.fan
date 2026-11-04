@@ -215,8 +215,8 @@ internal const class TryCatch : Expr
         tags = Etc.makeDict(["err":Marker.val, "dis": e.toStr, "type": e.typeof.qname, "errTrace":e.traceToStr])
       }
 
-      // evaluate catcher in new scope with errVarName variable
-      cx.defOrAssign(errVarName, tags, catchExpr.loc)
+      // update scope with errVarName variable and evaluate catch block
+      cx.curScope.set(errVarName, tags)
       return catchExpr.eval(cx)
     }
   }

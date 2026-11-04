@@ -111,7 +111,8 @@ const class Fn : Expr, HaystackFunc
     }
 
     // evaluate function body with nested scope
-    return cx.callInNewFrame(this, args, callLoc)
+    scope := AxonScope(cx.scopeParent(this), Str:Obj?[:])  // TODO: unnecessary mapping operation
+    return cx.run(CallFrame(scope, this, args, callLoc))
   }
 
   @NoDoc virtual Obj? doCall(AxonContext cx, Obj?[] args)

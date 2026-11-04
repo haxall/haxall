@@ -121,7 +121,7 @@ const class FantomFn : TopFn
     if (setCx) Actor.locals.set(AxonContext.actorLocalsKey, cx)
 
     try
-      return cx.callInNewFrame(this, args, callLoc)
+      return cx.run(CallFrame(cx.curScope(false) ?: AxonScope(), this, args, callLoc))
     catch (EvalErr e)
       throw e
     catch (Err e)

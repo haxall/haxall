@@ -1892,9 +1892,9 @@ class CoreLibTest : HaystackTest
   Void verifyEvalErr(Str axon, Type? errType)
   {
     expr := Parser(axon.in).parse
-    scope := makeContext
+    cx := makeContext
     EvalErr? err := null
-    try { expr.eval(scope) } catch (EvalErr e) { err = e }
+    try { cx.evalExpr(expr) } catch (EvalErr e) { err = e }
     if (err == null) fail("EvalErr not thrown: $axon")
     if (errType == null)
     {

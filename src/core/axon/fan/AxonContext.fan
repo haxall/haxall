@@ -35,10 +35,7 @@ abstract class AxonContext : HaystackContext, CompContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  @NoDoc new make()
-  {
-    stack.add(AxonFrame.makeRoot)
-  }
+  @NoDoc new make() {}
 
 //////////////////////////////////////////////////////////////////////////
 // Overrides
@@ -171,18 +168,18 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Evaluate expression to a function expression
   Fn evalToFunc(Str src) { parse(src).evalToFunc(this) }
 
-  ** Evaluate an Axon expression within this context.
+  ** Evaluate an Axon expression inside a new scope.
   ** Convenience for `evalExpr(parse(src, loc))`
   Obj? eval(Str src, FileLoc loc := FileLoc.eval)
   {
     evalExpr(parse(src, loc))
   }
 
-  ** Evaluate an expression
-  Obj? evalExpr(Expr expr)
+  ** Evaluate an expression inside a given scope
+  @NoDoc Obj? evalExpr(Expr expr, AxonScope? scope := null)
   {
     try
-      return expr.eval(this)
+      return run(EvalFrame(scope ?: AxonScope(), expr))
     catch (ReturnErr e)
       return ReturnErr.take(this)
   }
@@ -252,57 +249,36 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Call Stack
+// Frame Stack
 //////////////////////////////////////////////////////////////////////////
+
+  ** Current top-level frame
+  @NoDoc AxonFrame? curFrame(Bool checked := true)
+  {
+    f := stack.last
+    if (f != null) return f
+    if (checked) throw AxonEmptyStackErr("Axon empty frame stack")
+    return null
+  }
 
   ** Current function on top of call stack
   @NoDoc Fn? curFunc()
   {
-    for (i:=stack.size-1; i>=0; --i)
+    for (i := stack.size-1; i >= 0; --i)
     {
-      f := stack[i]
-      if (f.func.name != "curFunc")
+      f := stack[i] as CallFrame
+      if (f != null && f.func.name != "curFunc")
         return f.func
     }
     return null
   }
 
-  ** Push new call frame to evaluate an expression.  The expression is
-  ** parsed before its wrapper func exists so its closures are not
-  ** lexically inside it; the frame is top level like the root frame.
-  @NoDoc Obj? evalInNewFrame(Expr expr, Str:Obj? vars := Str:Obj?[:])
+  ** Push a new frame onto the stack, run it, and then pop it
+  @NoDoc Obj? run(AxonFrame frame)
   {
-    evalInTopFrame(expr, vars, CallFrameMode.top)
-  }
-
-  ** Evaluate an expression in a REPL session frame whose variable
-  ** storage is the given session map.  Like evalInNewFrame except
-  ** defining an existing variable rebinds it instead of raising
-  ** "Symbol already bound".
-  @NoDoc Obj? evalRepl(Expr expr, Str:Obj? session)
-  {
-    evalInTopFrame(expr, session, CallFrameMode.repl)
-  }
-
-  private Obj? evalInTopFrame(Expr expr, Str:Obj? vars, CallFrameMode mode)
-  {
-    func := TopFn.makeEvalWrapper(expr)
-    return callInFrame(AxonFrame(func, Obj#.emptyList, expr.loc, vars, mode), Obj#.emptyList)
-  }
-
-  ** Push new call frame onto the stack with given loc/vars and route to Fn.doCall
-  @NoDoc Obj? callInNewFrame(Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars := Str:Obj?[:])
-  {
-    callInFrame(AxonFrame(func, args, callLoc, vars), args)
-  }
-
-  ** Push frame onto the stack and route to its Fn.doCall
-  private Obj? callInFrame(AxonFrame frame, Obj?[] args)
-  {
-    frame.parent = scopeParent(frame.func)
     stack.push(frame)
     try
-      return frame.func.doCall(this, args)
+      return frame.run(this)
     finally
       stack.pop
   }
@@ -310,116 +286,76 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Check security permissions to call given function
   @NoDoc virtual Void checkCall(Fn func) {}
 
-  ** Capture the stack frames visible to the given closure so it can be
-  ** stored away and lazily evaluated via callInScope after its lexical
-  ** scope frames have popped.  Frames are captured by reference so that
-  ** variable reassignments in the closure write-thru to the defining scope.
-  @NoDoc Obj scopeCapture(Fn fn)
-  {
-    stack.findAll |f| { f.isVisibleTo(fn) }
-  }
-
-  ** Call function using the frames captured by scopeCapture as the call
-  ** stack.  Route thru Fn.callx to check heartbeat and default args.
-  @NoDoc Obj? callInScope(Fn func, Obj?[] args, FileLoc callLoc, Obj scope)
-  {
-    base := this.stack
-    this.stack = (AxonFrame[])scope
-    try
-      return func.callx(this, args, callLoc)
-    finally
-      this.stack = base
-  }
-
 //////////////////////////////////////////////////////////////////////////
-// Variables
+// Scope Chain
 //////////////////////////////////////////////////////////////////////////
 
-  ** Define or assign given variable
-  @NoDoc Obj? defOrAssign(Str name, Obj? val, FileLoc loc)
+  ** Current variable scope (must have at least one frame on the stack)
+  @NoDoc AxonScope? curScope(Bool checked := true)
   {
-    f := stack.last
-    if (f.has(name))
-      return assign(name, val, loc)
-    else
-      return def(name, val, loc)
+    curFrame(checked)?.scope
   }
 
-  ** Define a new variable
-  internal Obj? def(Str name, Obj? val, FileLoc loc)
-  {
-    f := stack.last
-    if (f.has(name) && !f.mode.redefineOk) throw EvalErr("Symbol already bound '$name' (use = to reassign)", this, loc)
-    return f.set(name, val)
-  }
-
-  ** Current frame on call stack
-  internal AxonFrame curFrame() { stack.last }
-
-  ** Resolve a variable or raise exception if not bound
+  ** Resolve a variable in current scope or raise exception if not bound
   internal Obj? resolve(Str name, FileLoc loc)
   {
-    // find it in call stack frames
-    frame := varFrame(name)
-    if (frame != null) return frame.get(name)
-
-    // resolve as unqualified top-level name
-    return TopName(loc, null, name).eval(this)
+// TODO: don't need this extra alloc)
+    (curScope(false) ?: AxonScope()).resolve(this, name, loc)
   }
 
-  ** Safely get just a variable or return null (don't check
-  ** for top-level functions, nor raise exception)
-  @NoDoc Obj? getVar(Str name)
+  ** Define a new variable in current scope
+  internal Obj? define(Str name, Obj? val, FileLoc loc)
   {
-    frame := varFrame(name)
-    if (frame != null) return frame.get(name)
-    return null
+    if (!curScope(true).define(name, val))
+      throw EvalErr("Symbol already bound '$name' (use = to reassign)", this, loc)
+    return val
   }
 
   ** Assign to an existing variable
   internal Obj? assign(Str name, Obj? val, FileLoc loc)
   {
-    // find it in call stack frames
-    frame := varFrame(name)
-    if (frame != null) return frame.set(name, val)
-
-    throw EvalErr("Unknown symbol '$name'", this, loc)
+    if (!curScope(true).assign(name, val))
+      throw EvalErr("Unknown symbol '$name'", this, loc)
+    return val
   }
 
   ** Get the variables in the current scope
   @NoDoc Str:Obj? varsInScope()
   {
-    acc := Str:Obj?[:]
-    for (f := stack.last; f != null; f = f.parent)
-      f.each |v, n| { if (!acc.containsKey(n)) acc[n] = v }
-    return acc
-  }
-
-  ** Resolve the frame in the current scope with the given variable
-  private AxonFrame? varFrame(Str name)
-  {
-    for (f := stack.last; f != null; f = f.parent)
-      if (f.has(name)) return f
-    return null
+    curScope(false)?.effective ?: Etc.emptyTags
   }
 
   ** Frame whose variables are next in scope for a new frame of the given
   ** func: natives such as lazy funcs use the caller's scope, top-level
   ** funcs the nearest top-level frame which ends every scope chain, and
   ** closures the top most frame visible to their lexically enclosing func
-  private AxonFrame? scopeParent(Fn func)
+  internal AxonScope? scopeParent(Fn func)
   {
-    f := stack.last
-    if (func.isNative) return f
+    // top-level funcs have null outer which matches frames without a func
     outer := func.outer
-    if (outer == null)
-    {
-      while (!f.mode.isTopLevel) f = f.parent
-      return f
-    }
-    for (i:=stack.size-1; i>=0; --i)
-      if (stack[i].isVisibleTo(outer)) return stack[i]
+    for (i := stack.size-1; i >=0; --i)
+      if (stack[i].func === outer) return stack[i].scope
     return null
+  }
+
+  ** Capture the lexical scope of the given func so it may be called
+  ** later via callInScope after its lexical scope frames have popped
+  @NoDoc AxonScope? scopeCapture(Fn fn) { scopeParent(fn) }
+
+  ** Call func in the lexical scope captured by scopeCapture
+  ** TODO
+  @NoDoc Obj? callInScope(Fn fn, Obj?[] args, FileLoc callLoc, AxonScope? scope)
+  {
+    if (scope == null) return fn.callx(this, args, callLoc)
+    return run(CaptureFrame(scope, fn, args, callLoc))
+  }
+
+  ** Call func in a new frame using the given scope for its variables
+  ** so the caller may read back the call's locals and params
+  ** TODO
+  @NoDoc Obj? callIn(Fn fn, Obj?[] args, FileLoc callLoc, AxonScope scope)
+  {
+    run(CallFrame(scope, fn, args, callLoc))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -461,16 +397,18 @@ abstract class AxonContext : HaystackContext, CompContext
     }
   }
 
-  ** Walk the trace call stack
+  ** Walk the trace call stack from top to bottom
   @NoDoc Void traceWalk(FileLoc errLoc, Dict? opts, |Str name, FileLoc loc, Dict vars| f)
   {
-    for (i:= stack.size-1; i>=1; --i)
+    // each frame is located where it is executing: the call site of
+    // the frame above it or the error location for the top frame
+    loc := errLoc
+    for (i:= stack.size-1; i>=0; --i)
     {
-      frame := stack[i]
-      func  := frame.func
-      name  := func.name
-      loc   := stack.getSafe(i+1)?.callLoc ?: errLoc
-      f(name, loc, frame.toDict)
+      frame := stack.get(i) as CallFrame
+      if (frame == null) continue
+      f(frame.func.name, loc, Etc.dict0) // TODO: vars
+      loc = frame.callLoc
     }
   }
 
@@ -504,7 +442,7 @@ abstract class AxonContext : HaystackContext, CompContext
   @NoDoc Func? heartbeatFunc
   internal Obj? returnVal
   private Int timeoutTicks := Int.maxVal
-  private AxonFrame[] stack := [,]
+  private AxonFrame[] stack := AxonFrame[,]
   private [Str:Obj] tops := [:]
   private [Str:Regex]? regex
   private [Str:Obj]? toDictExtra

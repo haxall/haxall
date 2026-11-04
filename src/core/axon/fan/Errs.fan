@@ -59,6 +59,15 @@ const class EvalErr : AxonErr
 }
 
 **
+** Indicates axon context has so frames in its stack
+**
+@Js
+const class AxonEmptyStackErr : AxonErr
+{
+  new make(Str? msg) : super(msg, FileLoc.unknown, null) {}
+}
+
+**
 ** EvalTimeoutErr is thrown when an expr exceeds a timeout
 ** limit (configured by `evalTimeout` on `projMeta` of project).
 **

@@ -31,7 +31,7 @@ internal const class DefineVar : Expr
 
   override Obj? eval(AxonContext cx)
   {
-    cx.def(name, val.eval(cx), loc)
+    cx.define(name, val.eval(cx), loc)
   }
 
   override Void walk(|Str key, Obj? val| f)

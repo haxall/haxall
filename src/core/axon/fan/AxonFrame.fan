@@ -4,7 +4,7 @@
 //
 // History:
 //   3 Oct 2009  Brian Frank  Creation
-//   3 Nov 2026  Brian Frank  Move into own file as AxonFrame
+//   3 Nov 2026  Brian Frank  Split out from CallFrame
 //
 
 using util
@@ -12,105 +12,105 @@ using xeto
 using haystack
 
 **
-** AxonFrame manages the state/scope of function call
+** AxonFrame manages call stack and pushing new scopes
 **
 @NoDoc @Js
-class AxonFrame
+abstract class AxonFrame
 {
-  new make(Fn func, Obj?[] args, FileLoc callLoc, Str:Obj? vars, CallFrameMode mode := CallFrameMode.fn)
-  {
-    this.func    = func
-    this.callLoc = callLoc
-    this.vars    = vars
-    this.mode    = mode
+  ** Create new frame with given variable scope
+  internal new make(AxonScope scope) { this.scope = scope }
 
-    // bind parameter variables to arguments
-    if (!func.isNative)
-      func.params.each |param, i| { set(param.name, args[i]) }
-  }
+  ** Variable scope
+  AxonScope scope { private set }
 
-  new makeRoot()
-  {
-    this.func    = rootFunc
-    this.callLoc = func.loc
-    this.vars    = Str:Obj?[:]
-    this.mode    = CallFrameMode.top
-  }
+  ** Run the frame
+  internal abstract Obj? run(AxonContext cx)
 
-  ** Does this frame contain the given var name (taking null into account)
-  Bool has(Str name) { vars.containsKey(name) }
-
-  ** Get variable
-  Obj? get(Str name)
-  {
-    vars[name]
-  }
-
-  ** Set variable
-  Obj? set(Str name, Obj? val)
-  {
-    vars[name] = val
-    return val
-  }
-
-  ** Iterate variables in this frame
-  Void each(|Obj? v, Str n| f) { vars.each(f) }
-
-  ** Convert frame variables to debug dict
-  Dict toDict()
-  {
-    acc := Str:Obj?[:]
-    vars.each |v, n|
-    {
-      if (v != null && !v.isImmutable) v = v.toStr
-      acc[n] = v
-    }
-    return Etc.makeDict(acc)
-  }
-
-  ** Does the given function have variable visibility into
-  ** this frame's variables?  Only if the function is lexically
-  ** scoped inside this frame's function, or this is a top level frame.
-  Bool isVisibleTo(Fn? f)
-  {
-    while (f != null)
-    {
-      if (this.func === f) return true
-      f = f.outer
-    }
-    return mode.isTopLevel
-  }
+  ** Function is call frame
+  internal abstract Fn? func()
 
   ** Debug string
-  override Str toStr() { "AxonFrame $func.name [$callLoc]" }
+  override Str toStr() { "$typeof.name $func" }
 
-  private static const Fn rootFunc := Fn(FileLoc("root"), "root", FnParam[,])
-
-  const FileLoc callLoc
-  const Fn func
-  const CallFrameMode mode
-  AxonFrame? parent  // next frame in lexical scope or null if root
-  private Str:Obj? vars
 }
 
 **************************************************************************
-** CallFrameMode
+** EvalFrame
 **************************************************************************
 
 **
-** CallFrameMode is the kind of call frame
+** EvalFrame is used to evaluate an expression when run
 **
-@NoDoc @Js
-enum class CallFrameMode
+@Js
+internal final class EvalFrame : AxonFrame
 {
-  fn,    // func call: visible only to lexically enclosed funcs
-  top,   // top level eval or root: visible to every func
-  repl;  // top level REPL session such as AI eval: defines rebind
+  new make(AxonScope scope, Expr expr) : super(scope)
+  {
+    this.expr = expr
+  }
 
-  ** Top level frame of an eval such as root is visible to every func
-  Bool isTopLevel() { this !== fn }
+  override Obj? run(AxonContext cx) { expr.eval(cx) }
 
-  ** Define of an existing var rebinds it instead of raising an error
-  Bool redefineOk() { this === repl }
+  override Fn? func() { null }
+
+  const Expr expr
+}
+
+**************************************************************************
+** CallFrame
+**************************************************************************
+
+**
+** CallFrame is used to call a function when run
+**
+@Js
+internal final class CallFrame : AxonFrame
+{
+  new make(AxonScope scope, Fn func, Obj?[] args, FileLoc callLoc) : super(scope)
+  {
+    this.func    = func
+    this.callLoc = callLoc
+    this.args    = args
+
+   // TODO - revisit this
+   // bind parameter variables to arguments
+    if (!func.isNative)
+      func.params.each |param, i| { scope.set(param.name, args[i]) }
+  }
+
+  override Obj? run(AxonContext cx) { func.doCall(cx, args)  }
+
+  override const Fn? func
+
+  const FileLoc callLoc
+  private Obj?[] args
+}
+
+**************************************************************************
+** CaptureFrame (TODO)
+**************************************************************************
+
+**
+** CaptureFrame calls a function in a lexical scope captured by
+** AxonContext.scopeCapture.  It stands in for the function's lexically
+** enclosing frame so scopeParent resolves to the captured scope.
+**
+@Js
+internal final class CaptureFrame : AxonFrame
+{
+  new make(AxonScope scope, Fn fn, Obj?[] args, FileLoc callLoc) : super(scope)
+  {
+    this.fn      = fn
+    this.callLoc = callLoc
+    this.args    = args
+  }
+
+  override Obj? run(AxonContext cx) { fn.callx(cx, args, callLoc) }
+
+  override Fn? func() { fn.outer }
+
+  const Fn fn
+  const FileLoc callLoc
+  private Obj?[] args
 }
 

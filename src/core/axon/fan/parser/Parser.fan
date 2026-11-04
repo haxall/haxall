@@ -316,9 +316,8 @@ class Parser
     loc := curLoc
     consume(Token.caseKeyword)
     p := casePattern
-    scope := enterFn
     consume(Token.fnEq)
-    return exitFn(scope, SwitchCase(loc, curFuncName, p, expr))
+    return SwitchCase(loc, p, expr)
   }
 
   **

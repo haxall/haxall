@@ -113,8 +113,7 @@ class AxonTest : AbstractAxonTest
   Void verifyCompAxon(Comp x, Str axon, Obj? expect)
   {
     cx := makeContext
-    cx.defOrAssign("x", x, FileLoc.eval)
-    actual := cx.eval(axon, FileLoc.eval)
+    actual := cx.evalExpr(cx.parse(axon), AxonScope("x", x))
     // echo("---> $axon | $actual")
     verifyEq(actual, expect)
   }

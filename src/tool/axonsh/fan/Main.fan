@@ -37,7 +37,7 @@ class Main
     arg := args[0]
 
     // setup shell args with everything after file name
-    cx.defOrAssign("args", mainArgs[mainArgs.index(arg)+1..-1], FileLoc("main"))
+    cx.vars.set("args", mainArgs[mainArgs.index(arg)+1..-1])
 
     // if first arg is axon file, then run it as script
     if (arg.endsWith(".axon"))
@@ -49,7 +49,7 @@ class Main
       if (arg.startsWith("#!")) arg = arg.splitLines[1..-1].join("\n")
     }
 
-    errnum := cx.run(arg)
+    errnum := cx.runExpr(arg)
     if (hasOpt(opts, "-i"))
       return cx.runInteractive
     else

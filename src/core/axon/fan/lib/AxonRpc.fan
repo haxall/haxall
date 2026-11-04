@@ -23,14 +23,15 @@ class AxonRpc
 // Client Side
 //////////////////////////////////////////////////////////////////////////
 
-  ** Marshall an expression into a dict that can be serialized
-  static Dict marshal(AxonContext cx, Expr expr)
+  ** Marshall an expression into a dict that can be serialized.  Free
+  ** vars are read from given scope or the current scope if null.
+  static Dict marshal(AxonContext cx, Expr expr, AxonScope? scope := null)
   {
-    scope := cx.varsInScope
+    vars := scope?.effective ?: cx.varsInScope
     acc := Str:Obj[:]
     acc.ordered = true
     acc["_expr"] = marshalExpr(expr)
-    expr.visit |x| { marshalVisit(scope, acc, x) }
+    expr.visit |x| { marshalVisit(vars, acc, x) }
     return Etc.dictFromMap(acc)
   }
 
@@ -112,15 +113,14 @@ class AxonRpc
   static Obj? eval(AxonContext cx, Dict rpc)
   {
     Str? expr := null
+    scope := AxonScope()
     rpc.each |Obj? v, Str n|
     {
       if (n == "_expr") { expr = v; return }
-      if (v === None.val) v = null
-      cx.def(n, v, FileLoc.remote)
+      scope.set(n, v === None.val ? null : v)
     }
     if (expr == null) throw Err("Missing _expr in rpc dict")
-    // echo("~~~ $expr"); echo("    $cx.varsInScope")
-    return cx.eval(expr)
+    return cx.evalExpr(cx.parse(expr), scope)
   }
 
 }

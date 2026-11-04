@@ -39,7 +39,7 @@ const class SwitchExpr : Expr
     {
       c := cases[i]
       binds := Str:Obj?[:]
-      if (c.pattern.match(cx, s, binds)) return cx.callInNewFrame(c, Obj#.emptyList, c.loc, binds)
+      if (c.pattern.match(cx, s, binds)) return cx.run(EvalFrame(AxonScope(cx.curScope, binds), c.body))
     }
     return defExpr?.eval(cx)
   }
@@ -68,25 +68,27 @@ const class SwitchExpr : Expr
 
 **
 ** SwitchCase is one "case" arm: a pattern and the body to evaluate when
-** the pattern matches the switch subject.  The case is a function so its
-** body is lexically scoped and called in a frame whose vars are the
-** pattern bindings.
+** the pattern matches the switch subject.
 **
 @NoDoc @Js
-const class SwitchCase : Fn
+const class SwitchCase : Expr
 {
-  new make(FileLoc loc, Str name, Pattern pattern, Expr body)
-    : super(loc, name, FnParam.none, body)
+  new make(FileLoc loc, Pattern pattern, Expr body)
   {
+    this.loc     = loc
     this.pattern = pattern
+    this.body    = body
   }
 
   override ExprType type() { ExprType.switchCase }
 
+  override const FileLoc loc
+
   const Pattern pattern
 
-  ** Evaluate body without evalAsFnBody so return exits enclosing function
-  override Obj? doCall(AxonContext cx, Obj?[] args) { body.eval(cx) }
+  const Expr body
+
+  override Obj? eval(AxonContext cx) { throw UnsupportedErr("SwitchCase cannot be evaluated") }
 
   ** Pattern bindings are bound within the body
   override Void doFreeVars(Str:Str acc)
@@ -108,3 +110,4 @@ const class SwitchCase : Fn
     out.w("case ").expr(pattern).w(" => ").expr(body)
   }
 }
+

@@ -266,7 +266,7 @@ abstract class HxTest : HaystackTest
     expr := Parser(axon.in).parse
     cx := makeContext
     EvalErr? err := null
-    try { expr.eval(cx) } catch (EvalErr e) { err = e }
+    try { cx.evalExpr(expr) } catch (EvalErr e) { err = e }
     if (err == null) fail("EvalErr not thrown: $axon")
     if (errType == null)
     {
