@@ -17,20 +17,20 @@ using haystack
 @NoDoc @Js
 class AxonScope
 {
-  ** Create new scope with no varaibles
+  ** Create new scope with no variables
   new make0()
   {
     this.vars = Str:Obj?[:]
   }
 
-  ** Create new scope with
-  new make(Str n0, Obj? v0)
+  ** Create new scope with one variable
+  new make1(Str n0, Obj? v0)
   {
     this.vars = Str:Obj?[n0: v0 ?: nullSentinel]
   }
 
-  ** Create new scope with one variable
-  new make1(Str n0, Obj? v0, Str n1, Obj? v1)
+  ** Create new scope with two variables
+  new make2(Str n0, Obj? v0, Str n1, Obj? v1)
   {
     this.vars = Str:Obj?[n0: v0 ?: nullSentinel, n1: v1 ?: nullSentinel]
   }
@@ -38,14 +38,14 @@ class AxonScope
   ** Create new scope with given map
   internal new makeMap(Str:Obj? vars)
   {
-    this.vars = vars.map |v| { v == null ? nullSentinel : v }
+    this.vars = vars.isEmpty ? vars : vars.map |v| { v == null ? nullSentinel : v }
   }
 
   ** Create new scope with given lexical scope parent and initial variables
   internal new makeNested(AxonScope? parent, Str:Obj? vars)
   {
     this.parent = parent
-    this.vars   = vars.map |v| { v == null ? nullSentinel : v }
+    this.vars   = vars.isEmpty ? vars : vars.map |v| { v == null ? nullSentinel : v }
   }
 
   ** Flag to allow re-defines such in a REPL
@@ -57,31 +57,23 @@ class AxonScope
   ** Return if given variable name is defined in the scope chain
   Bool has(Str name)
   {
-    if (vars.containsKey(name)) return true
-    if (parent != null) return parent.has(name)
-    return false
+    getRaw(name) != null
   }
 
   ** Get variable in the scope chain or null if not found
   Obj? get(Str name)
   {
-    v := vars.get(name)
-    if (v != null) return v === nullSentinel ? null : v
-    return parent?.get(name)
+    v := getRaw(name)
+    return v === nullSentinel ? null : v
   }
 
-  ** Get variable in scope or resolve to top name
-  Obj? resolve(AxonContext cx, Str name, FileLoc loc)
+  ** Get variable in the scope chain and return nullSentinel if the
+  ** value is null.  Return null only if name is not defined by scope.
+  internal Obj? getRaw(Str name)
   {
-    // resolve in my scope
     v := vars.get(name)
-    if (v != null) return v === nullSentinel ? null : v
-
-    // recurse to parent scope if applicable
-    if (parent != null) return parent.resolve(cx, name, loc)
-
-    // resolve as unqualified top-level name
-    return TopName(loc, null, name).eval(cx)
+    if (v != null) return v
+    return parent?.getRaw(name)
   }
 
   ** Return effective map of all variables in scope
@@ -120,8 +112,19 @@ class AxonScope
   ** Debug string
   override Str toStr() { "AxonScope [vars: $vars.keys]" }
 
-  private static const Str nullSentinel := "__null__"
+  ** Special value used for null variable values
+  internal static const Obj nullSentinel := NullSentinel()
 
+  ** Variables in the scope.  Nulls are stored as nullSentinel.
   private Str:Obj? vars
+}
+
+**************************************************************************
+** NullSentinel
+**************************************************************************
+
+@Js internal const class NullSentinel
+{
+  override Str toStr() { "null" }
 }
 

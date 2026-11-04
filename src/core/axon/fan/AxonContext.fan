@@ -252,7 +252,7 @@ abstract class AxonContext : HaystackContext, CompContext
 // Frame Stack
 //////////////////////////////////////////////////////////////////////////
 
-  ** Current top-level frame
+  ** Current top of the frame stack
   @NoDoc AxonFrame? curFrame(Bool checked := true)
   {
     f := stack.last
@@ -299,8 +299,12 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Resolve a variable in current scope or raise exception if not bound
   internal Obj? resolve(Str name, FileLoc loc)
   {
-// TODO: don't need this extra alloc)
-    (curScope(false) ?: AxonScope()).resolve(this, name, loc)
+    // lookup name from scope
+    val := curScope(false)?.getRaw(name)
+    if (val != null) return val === AxonScope.nullSentinel ? null : val
+
+    // resolve as unqualified top-level name
+    return TopName(loc, null, name).eval(this)
   }
 
   ** Define a new variable in current scope
@@ -325,10 +329,7 @@ abstract class AxonContext : HaystackContext, CompContext
     curScope(false)?.effective ?: Etc.emptyTags
   }
 
-  ** Frame whose variables are next in scope for a new frame of the given
-  ** func: natives such as lazy funcs use the caller's scope, top-level
-  ** funcs the nearest top-level frame which ends every scope chain, and
-  ** closures the top most frame visible to their lexically enclosing func
+  ** TODO
   internal AxonScope? scopeParent(Fn func)
   {
     // top-level funcs have null outer which matches frames without a func

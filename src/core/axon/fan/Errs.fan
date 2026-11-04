@@ -59,7 +59,7 @@ const class EvalErr : AxonErr
 }
 
 **
-** Indicates axon context has so frames in its stack
+** Indicates axon context has no frames in its stack
 **
 @Js
 const class AxonEmptyStackErr : AxonErr
