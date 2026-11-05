@@ -107,7 +107,7 @@ const class Fn : Expr
     }
 
     // evaluate function body with nested scope
-    scope := AxonScope(parent, Str:Obj?[:])  // TODO: unnecessary mapping operation
+    scope := parent == null ? AxonScope() : AxonScope.makeNested(parent)
     return cx.run(CallFrame(scope, this, args, callLoc))
   }
 

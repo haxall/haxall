@@ -307,8 +307,12 @@ abstract class AxonContext : HaystackContext, CompContext
   internal Obj? resolve(Str name, FileLoc loc)
   {
     // lookup name from scope
-    val := curScope(false)?.getRaw(name)
-    if (val != null) return val === AxonScope.nullSentinel ? null : val
+    scope := curScope(false)
+    if (scope != null)
+    {
+      val := scope.lookup(name)
+      if (val !== AxonScope.notFound) return val
+    }
 
     // resolve as unqualified top-level name
     return TopName(loc, null, name).eval(this)

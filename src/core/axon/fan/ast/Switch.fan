@@ -39,7 +39,10 @@ const class SwitchExpr : Expr
     {
       c := cases[i]
       binds := Str:Obj?[:]
-      if (c.pattern.match(cx, s, binds)) return cx.run(EvalFrame(AxonScope(cx.curScope, binds), c.body))
+      if (!c.pattern.match(cx, s, binds)) continue
+      scope := AxonScope.makeNested(cx.curScope)
+      binds.each |v, n| { scope.set(n, v) }
+      return cx.run(EvalFrame(scope, c.body))
     }
     return defExpr?.eval(cx)
   }

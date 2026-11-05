@@ -17,139 +17,135 @@ using haystack
 @NoDoc @Js
 class AxonScope
 {
-  ** Create new scope with no variables
-  new make0()
-  {
-    this.vars = Str:Obj?[:]
-  }
+  ** Create new root scope with no variables
+  new make() { this.vars = Str:Obj[:] }
 
-  ** Create new scope with one variable
-  new make1(Str n0, Obj? v0)
-  {
-    this.vars = Str:Obj?[n0: v0 ?: nullSentinel]
-  }
-
-  ** Create new scope with two variables
-  new make2(Str n0, Obj? v0, Str n1, Obj? v1)
-  {
-    this.vars = Str:Obj?[n0: v0 ?: nullSentinel, n1: v1 ?: nullSentinel]
-  }
-
-  ** Create new scope with given map
-  internal new makeMap(Str:Obj? vars)
-  {
-    this.vars = vars.isEmpty ? vars : vars.map |v| { v == null ? nullSentinel : v }
-  }
-
-  ** Create new scope with copy of variables from toConstVars
-  internal new makeConst(Str:Obj vars)
-  {
-    this.vars = vars.dup
-  }
-
-  ** Create new scope with given lexical scope parent and initial variables
-  internal new makeNested(AxonScope? parent, Str:Obj? vars)
+  ** Create new scope nested in the given parent scope
+  internal new makeNested(AxonScope parent)
   {
     this.parent = parent
-    this.vars   = vars.isEmpty ? vars : vars.map |v| { v == null ? nullSentinel : v }
+    this.vars   = Str:Obj[:]
   }
+
+  ** Create readonly scope for a const func from toConstVars
+  internal new makeConst(Str:Obj vars) { this.vars = vars }
 
   ** Flag to allow re-defines such in a REPL
   Bool redefines
 
-  ** Parent scope in the chain or null if this is root scope
-  AxonScope? parent { private set }
-
   ** Return if given variable name is defined in the scope chain
-  Bool has(Str name)
-  {
-    getRaw(name) != null
-  }
+  Bool has(Str name) { lookup(name) !== notFound }
 
   ** Get variable in the scope chain or null if not found
   Obj? get(Str name)
   {
-    v := getRaw(name)
-    return v === nullSentinel ? null : v
+    v := lookup(name)
+    return v === notFound ? null : v
   }
 
-  ** Get variable in the scope chain and return nullSentinel if the
-  ** value is null.  Return null only if name is not defined by scope.
-  internal Obj? getRaw(Str name)
-  {
-    v := vars.get(name)
-    if (v != null) return v
-    return parent?.getRaw(name)
-  }
-
-  ** Return effective map of all variables in scope
+  ** Return effective map of all variables in scope chain
   Str:Obj? effective()
   {
-    effectiveRaw.map |v->Obj?| { v === nullSentinel ? null : v }
-  }
-
-  ** Return immutable copy of all variables in scope which can be made
-  ** immutable to create new scopes via makeConst
-  internal Str:Obj toConstVars()
-  {
-    effectiveRaw.mapNotNull |v->Obj?|
-    {
-      try
-        return v.toImmutable
-      catch (NotImmutableErr e)
-        return null
-    }.toImmutable
-  }
-
-  ** Effective map of all variables with nulls as nullSentinel
-  private Str:Obj effectiveRaw()
-  {
-    acc := vars.dup
-    for (p := parent; p != null; p = p.parent)
-      p.vars.each |v, n| { if (acc[n] == null) acc[n] = v }
+    acc := Str:Obj?[:]
+    effectiveRaw.each |v, n| { if (v !== notConstVal) acc[n] = v === nullVal ? null : v }
     return acc
   }
 
-  ** Raw set variable in my scope (no checking)
-  Void set(Str name, Obj? val)
+  ** Set variable in this scope (no checking)
+  This set(Str name, Obj? val)
   {
-    vars[name] = val ?: nullSentinel
+    vars[name] = val ?: nullVal
+    return this
   }
 
-  ** Define a new variable.
+  ** Define a new variable in this scope.
   ** Return true on success or false if already defined in scope.
   Bool define(Str name, Obj? val)
   {
     if (vars.containsKey(name) && !redefines) return false
-    set(name, val)
+    vars[name] = val ?: nullVal
     return true
   }
 
-  ** Assign to an existing defined variable.
+  ** Assign to an existing defined variable in the scope chain.
   ** Return true on success or false if not defined in scope.
   Bool assign(Str name, Obj? val)
   {
-    if (vars.containsKey(name)) { set(name, val); return true }
-    if (parent != null) return parent.assign(name, val)
-    return false
+    if (vars.containsKey(name))
+    {
+      if (vars.isRO) throw ReadonlyErr("Cannot assign captured var '$name' in const func")
+      vars[name] = val ?: nullVal
+      return true
+    }
+    if (parent == null) return false
+    return parent.assign(name, val)
+  }
+
+  ** Get variable in the scope chain or notFound if not defined
+  internal Obj? lookup(Str name)
+  {
+    v := vars.get(name)
+    if (v != null)
+    {
+      if (v === nullVal) return null
+      if (v === notConstVal) throw NotImmutableErr("Var '$name' is not immutable and cannot be used in const func")
+      return v
+    }
+    if (parent == null) return notFound
+    return parent.lookup(name)
+  }
+
+  ** Return immutable snapshot of all variables in the scope chain
+  ** for makeConst; variables which cannot be immutable are marked
+  ** so they raise an error if used
+  internal Str:Obj toConstVars()
+  {
+    effectiveRaw.map |v->Obj|
+    {
+      if (v.isImmutable) return v
+      if (v is List || v is Map)
+      {
+        try return v.toImmutable
+        catch (NotImmutableErr e) {}
+      }
+      return notConstVal
+    }.toImmutable
+  }
+
+  ** Effective map of all variables in scope chain with markers
+  private Str:Obj effectiveRaw()
+  {
+    acc := parent?.effectiveRaw ?: Str:Obj[:]
+    vars.each |v, n| { acc[n] = v }
+    return acc
   }
 
   ** Debug string
   override Str toStr() { "AxonScope [vars: $vars.keys]" }
 
-  ** Special value used for null variable values
-  internal static const Obj nullSentinel := NullSentinel()
+  ** Value returned by lookup if name is not defined
+  internal static const Obj notFound := ScopeMarker("notFound")
 
-  ** Variables in the scope.  Nulls are stored as nullSentinel.
-  private Str:Obj? vars
+  ** Stored in vars for null values so lookup is one hash lookup
+  private static const Obj nullVal := ScopeMarker("null")
+
+  ** Stored in const vars for values which could not be made immutable
+  private static const Obj notConstVal := ScopeMarker("notConst")
+
+  ** Parent scope in the chain or null if this is root scope
+  private AxonScope? parent
+
+  ** Variables in this scope with nulls stored as nullVal
+  private Str:Obj vars
 }
 
 **************************************************************************
-** NullSentinel
+** ScopeMarker
 **************************************************************************
 
-@Js internal const class NullSentinel
+@Js internal const class ScopeMarker
 {
-  override Str toStr() { "null" }
+  new make(Str name) { this.name = name }
+  const Str name
+  override Str toStr() { name }
 }
-

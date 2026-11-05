@@ -104,14 +104,16 @@ class ClosureScopeTest : AxonTest
     verifyEq(cx.eval("do names: [\"a\", \"b\"]; f: toConst(x => names.contains(x)); [f(\"a\"), f(\"c\")] end"), Obj?[true, false])
     verifyEq(cx.eval("do y: null; f: toConst(() => y); f() end"), null)
 
-    // assignments to captured vars stay inside the call
-    verifyEq(cx.eval("do acc: 0; f: toConst(x => do acc = acc + x; acc end); [f(1), f(2), acc] end"), Obj?[n(1), n(2), n(0)])
+    // captured vars cannot be assigned, but locals can
+    verifyErr(null) { cx.eval("do acc: 0; f: toConst(x => do acc = acc + x; acc end); f(1) end") }
+    verifyEq(cx.eval("do f: toConst(x => do acc: 0; acc = acc + x; acc end); [f(1), f(2)] end"), Obj?[n(1), n(2)])
 
     // const funcs escape their scope
     verifyEq(cx.eval("do adder: (a) => toConst((b) => a + b); {add3: adder(3)}->add3(4) end"), n(7))
 
-    // vars that cannot be immutable are skipped
+    // vars that cannot be immutable are skipped and raise error if used
     verifyErr(null) { cx.eval("do g: x => x; f: toConst(y => g(y)); f(4) end") }
+    verifyErr(null) { cx.eval("do size: x => 99; f: toConst(y => size(y)); f([1, 2]) end") }
     verifyEq(cx.eval("do g: x => x; f: toConst(y => y * 3); f(4) end"), n(12))
     verifyEq(cx.eval("do g: toConst(x => x * 2); f: toConst(y => g(y)); f(4) end"), n(8))
   }

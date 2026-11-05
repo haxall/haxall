@@ -145,7 +145,7 @@ class FantomTest : HaystackTest
   Obj? eval(Str expr)
   {
     cx := FantomTestContext(this)
-    return cx.evalExpr(cx.parse(expr), AxonScope("comp", comp))
+    return cx.evalExpr(cx.parse(expr), AxonScope().set("comp", comp))
   }
 
 }

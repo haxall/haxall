@@ -71,7 +71,7 @@ const class TopFn : Fn, Thunk, Callable
   ** Thunk.callComp implementation
   override Obj? callComp(Comp self, Obj? arg)
   {
-    AxonContext.curAxon.callIn(this, [arg], FileLoc.unknown, AxonScope.makeMap(["this":self]))
+    AxonContext.curAxon.callIn(this, [arg], FileLoc.unknown, AxonScope().set("this", self))
   }
 
   ** Add check call
