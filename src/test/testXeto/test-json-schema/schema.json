@@ -4483,7 +4483,7 @@
         "g": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/sys.Str"
+            "type": "string"
           }
         },
         "h": {
