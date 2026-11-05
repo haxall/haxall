@@ -34,6 +34,11 @@ mixin Callable
   ** argument exprs.  Note: the `args` parameter must be mutable and
   ** may be modified
   abstract Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
+
+  ** Return a const version of this func that may be stored in dicts,
+  ** lists, and grids.  Closures return a copy with a snapshot of the
+  ** variables in their scope.  Raise NotImmutableErr if not supported.
+  abstract Callable toConst()
 }
 
 **************************************************************************
@@ -66,6 +71,9 @@ class FantomCallable : Callable
   {
     f.callList(args)
   }
+
+  ** Fantom funcs cannot be const
+  override Callable toConst() { throw NotImmutableErr("Fantom func cannot be const") }
 
   private Func f
 }
@@ -105,6 +113,9 @@ internal const class FilterCallable : Callable
     if (dict == null) throw EvalErr("Invalid arg, expected (Dict) not (${args.first?.typeof})", cx, callLoc)
     return filter.matches(dict, cx)
   }
+
+  ** Return this
+  override Callable toConst() { this }
 
   private static const FnParam[] paramsRef := [FnParam("dict")]
 }

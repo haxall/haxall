@@ -79,6 +79,43 @@ class ClosureScopeTest : AxonTest
     verifyErr(null) { cx.eval("do f: () => secret; g: () => do secret: 5; switch (1) case 1 => f() end end; g() end") }
   }
 
+  ** Closures are not immutable; toConst snapshots captured variables
+  ** into an immutable func that may be stored in dicts and grids
+  Void testToConst()
+  {
+    cx := ClosureTestContext(this)
+
+    // closures cannot be stored in dicts
+    verifyEq(cx.eval("x => x + 1").typeof, Closure#)
+    verifyErr(EvalErr#) { cx.eval("{f: x => x + 1}") }
+    verifyErr(EvalErr#) { cx.eval("{f: [1, [x => x + 1]]}") }
+
+    // no captures
+    verifyEq(cx.eval("toConst(x => x + 1)").isImmutable, true)
+    verifyEq(cx.eval(Str<|do d: {stage: toConst((groups) => groups[1].parseNumber)}; fn: d->stage; fn(["x", "3"]) end|>), n(3))
+    verifyEq(cx.eval("do g: [{f: toConst(x => x.abs)}].toGrid; fn: g.first->f; fn(-4) end"), n(4))
+    verifyEq(cx.eval("do d: {fs: [toConst(x => x + 1)]}; fn: d->fs.first; fn(2) end"), n(3))
+
+    // top-level funcs are already const
+    verifyEq(cx.eval("do f: toConst(abs); f(-2) end"), n(2))
+
+    // captured values are snapshotted
+    verifyEq(cx.eval("do limit: 10; f: toConst(x => x > limit); limit = 0; f(5) end"), false)
+    verifyEq(cx.eval("do names: [\"a\", \"b\"]; f: toConst(x => names.contains(x)); [f(\"a\"), f(\"c\")] end"), Obj?[true, false])
+    verifyEq(cx.eval("do y: null; f: toConst(() => y); f() end"), null)
+
+    // assignments to captured vars stay inside the call
+    verifyEq(cx.eval("do acc: 0; f: toConst(x => do acc = acc + x; acc end); [f(1), f(2), acc] end"), Obj?[n(1), n(2), n(0)])
+
+    // const funcs escape their scope
+    verifyEq(cx.eval("do adder: (a) => toConst((b) => a + b); {add3: adder(3)}->add3(4) end"), n(7))
+
+    // vars that cannot be immutable are skipped
+    verifyErr(null) { cx.eval("do g: x => x; f: toConst(y => g(y)); f(4) end") }
+    verifyEq(cx.eval("do g: x => x; f: toConst(y => y * 3); f(4) end"), n(12))
+    verifyEq(cx.eval("do g: toConst(x => x * 2); f: toConst(y => g(y)); f(4) end"), n(8))
+  }
+
   ** Lazy calls while lexical frames still live: locals fresh per
   ** call, accumulator persists, write-thru to enclosing scope
   Void testLazyInScope()

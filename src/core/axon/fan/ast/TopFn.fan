@@ -53,6 +53,9 @@ const class TopFn : Fn, Thunk, Callable
   ** Is this function tagged as having side effects
   const override Bool hasSideEffects
 
+  ** Return this
+  override Callable toConst() { this }
+
   ** Return only name
   override Str toStr() { name }
 
@@ -68,7 +71,7 @@ const class TopFn : Fn, Thunk, Callable
   ** Thunk.callComp implementation
   override Obj? callComp(Comp self, Obj? arg)
   {
-    AxonContext.curAxon.callIn(this, [arg], FileLoc.unknown, AxonScope(["this":self]))
+    AxonContext.curAxon.callIn(this, [arg], FileLoc.unknown, AxonScope.makeMap(["this":self]))
   }
 
   ** Add check call

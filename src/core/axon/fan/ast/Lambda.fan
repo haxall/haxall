@@ -67,6 +67,64 @@ class Closure : Callable
     lambda.callNested(cx, args, callLoc, scope)
   }
 
+  ** Return a const copy with a snapshot of the variables in the
+  ** captured scope; variables which cannot be immutable are skipped
+  override ConstClosure toConst()
+  {
+    ConstClosure(lambda, scope?.toConstVars ?: Str:Obj[:])
+  }
+
+  ** Debug string
+  override Str toStr() { lambda.toStr }
+}
+
+**************************************************************************
+** ConstClosure
+**************************************************************************
+
+**
+** ConstClosure is a lambda paired with an immutable snapshot of the
+** variables it captured.  Each call runs the lambda in a new scope
+** seeded from the snapshot, so assignments to captured variables
+** are never seen outside the call.
+**
+@NoDoc @Js
+const class ConstClosure : Callable
+{
+  ** Constructor
+  new make(Lambda lambda, Str:Obj vars)
+  {
+    this.lambda = lambda
+    this.vars   = vars
+  }
+
+  ** Lambda definition
+  const Lambda lambda
+
+  ** Snapshot of captured variables from AxonScope.toConstVars
+  const Str:Obj vars
+
+  ** Lambda name
+  override Str name() { lambda.name }
+
+  ** Lambda parameters
+  override FnParam[] params() { lambda.params }
+
+  ** Lambda number of parameters
+  override Int arity() { lambda.arity }
+
+  ** Lambdas are never lazy
+  override Bool isLazy() { false }
+
+  ** Call the lambda in a new scope nested in a copy of the snapshot
+  override Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
+  {
+    lambda.callNested(cx, args, callLoc, vars.isEmpty ? null : AxonScope.makeConst(vars))
+  }
+
+  ** Return this
+  override Callable toConst() { this }
+
   ** Debug string
   override Str toStr() { lambda.toStr }
 }

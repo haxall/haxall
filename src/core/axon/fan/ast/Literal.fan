@@ -186,7 +186,16 @@ internal const class DictExpr : Expr
       val := vals[i].eval(cx)
       tags[name] = val
     }
-    return Etc.makeDict(tags)
+    try
+      return Etc.makeDict(tags)
+    catch (NotImmutableErr e)
+      throw tags.any { hasClosure(it) } ? err("Lambda captures its scope and cannot be stored in a dict or list; wrap it with toConst()", cx) : e
+  }
+
+  ** Return if value is a closure or a list containing one
+  private static Bool hasClosure(Obj? v)
+  {
+    v is Closure || (v as List)?.any { hasClosure(it) } == true
   }
 
   override Void walk(|Str key, Obj? val| f)

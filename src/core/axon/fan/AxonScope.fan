@@ -41,6 +41,12 @@ class AxonScope
     this.vars = vars.isEmpty ? vars : vars.map |v| { v == null ? nullSentinel : v }
   }
 
+  ** Create new scope with copy of variables from toConstVars
+  internal new makeConst(Str:Obj vars)
+  {
+    this.vars = vars.dup
+  }
+
   ** Create new scope with given lexical scope parent and initial variables
   internal new makeNested(AxonScope? parent, Str:Obj? vars)
   {
@@ -79,10 +85,29 @@ class AxonScope
   ** Return effective map of all variables in scope
   Str:Obj? effective()
   {
+    effectiveRaw.map |v->Obj?| { v === nullSentinel ? null : v }
+  }
+
+  ** Return immutable copy of all variables in scope which can be made
+  ** immutable to create new scopes via makeConst
+  internal Str:Obj toConstVars()
+  {
+    effectiveRaw.mapNotNull |v->Obj?|
+    {
+      try
+        return v.toImmutable
+      catch (NotImmutableErr e)
+        return null
+    }.toImmutable
+  }
+
+  ** Effective map of all variables with nulls as nullSentinel
+  private Str:Obj effectiveRaw()
+  {
     acc := vars.dup
     for (p := parent; p != null; p = p.parent)
       p.vars.each |v, n| { if (acc[n] == null) acc[n] = v }
-    return acc.map |v->Obj?| { v === nullSentinel ? null : v }
+    return acc
   }
 
   ** Raw set variable in my scope (no checking)

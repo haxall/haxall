@@ -2688,6 +2688,26 @@ const class AxonFuncs
     return FilterCallable(filter)
   }
 
+  ** Return a const copy of a func so it may be stored in dicts, lists, and grids.
+  ** Lambdas are closures over the scope they are evaluated in and are not
+  ** immutable.  The const copy snapshots the current values of the
+  ** variables in its scope; variables which cannot be made immutable,
+  ** such as other lambdas, are skipped and must not be used by the func.
+  ** Assignments to captured variables inside the func are never seen by
+  ** the enclosing scope.  Top-level funcs are returned as is.
+  **
+  ** Examples:
+  **
+  **     // store a func in a dict
+  **     {stage: toConst(groups => groups[1].parseNumber)}
+  **
+  **     // snapshot captured variable
+  **     do
+  **       limit: 100
+  **       {check: toConst(x => x > limit)}
+  **     end
+  @Api @Axon static Callable toConst(Callable fn) { fn.toConst }
+
   ** Parse a Str into a standardized unit name.  If the val is not
   ** a valid unit name from the standard database then return null
   ** or raise exception based on checked flag.
