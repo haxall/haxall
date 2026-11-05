@@ -41,7 +41,7 @@ abstract class PassThruStream : TransformStream
 @Js
 internal class MapStream : TransformStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "map" }
 
@@ -49,7 +49,7 @@ internal class MapStream : TransformStream
 
   override Void onData(Obj? data) { submit(func.call(cx, [data])) }
 
-  private Fn func
+  private Callable func
 }
 
 **************************************************************************
@@ -110,7 +110,7 @@ internal class SkipStream : TransformStream
 @Js
 internal class FlatMapStream : TransformStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "flatMap" }
 
@@ -125,7 +125,7 @@ internal class FlatMapStream : TransformStream
     submitAll(list)
   }
 
-  private const Fn func
+  private Callable func
 }
 
 **************************************************************************
@@ -135,7 +135,7 @@ internal class FlatMapStream : TransformStream
 @Js
 internal class FindAllStream : TransformStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "findAll" }
 
@@ -143,7 +143,7 @@ internal class FindAllStream : TransformStream
 
   override Void onData(Obj? data) { if (func.call(cx, [data])) submit(data) }
 
-  private const Fn func
+  private Callable func
 }
 
 **************************************************************************

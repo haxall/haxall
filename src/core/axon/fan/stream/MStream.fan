@@ -187,9 +187,9 @@ abstract class MStream
 
   private static Obj? encodeArg(Obj? val)
   {
-    if (val is Fn)     return XStr("Fn", val.toStr)
-    if (val is Filter) return XStr("Filter", val.toStr)
-    if (val is Range)  return XStr("Range", val.toStr)
+    if (val is Callable) return XStr("Fn", val.toStr)
+    if (val is Filter)   return XStr("Filter", val.toStr)
+    if (val is Range)    return XStr("Range", val.toStr)
     return val
   }
 

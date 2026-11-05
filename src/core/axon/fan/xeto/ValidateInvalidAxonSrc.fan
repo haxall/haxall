@@ -31,7 +31,7 @@ internal const class ValidateInvalidAxonSrc : ValidateRule
     src := s.val?.toStr
     if (src == null) return
     try
-      Parser(src.in, loc).parsePipeline(Fn(loc, "check", FnParam#.emptyList))
+      Parser(src.in, loc).parsePipeline
     catch (SyntaxErr e)
       s.emit(Etc.dict1("err", "line $e.loc.line: $e.msg"))
   }

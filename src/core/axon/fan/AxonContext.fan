@@ -165,8 +165,8 @@ abstract class AxonContext : HaystackContext, CompContext
     evalToFunc(funcName).call(this, args)
   }
 
-  ** Evaluate expression to a function expression
-  Fn evalToFunc(Str src) { parse(src).evalToFunc(this) }
+  ** Evaluate expression to a func: a top-level func or a closure
+  Callable evalToFunc(Str src) { parse(src).evalToFunc(this) }
 
   ** Evaluate an Axon expression inside a new scope.
   ** Convenience for `evalExpr(parse(src, loc))`
@@ -223,7 +223,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Call a func value with no args such as `today` passed as a span
   @NoDoc override Obj? callIfFunc(Obj? val)
   {
-    fn := val as Fn
+    fn := val as Callable
     return fn == null ? val : fn.call(this, Obj#.emptyList)
   }
 
@@ -334,28 +334,6 @@ abstract class AxonContext : HaystackContext, CompContext
   @NoDoc Str:Obj? varsInScope()
   {
     curScope(false)?.effective ?: Etc.emptyTags
-  }
-
-  ** TODO
-  internal AxonScope? scopeParent(Fn func)
-  {
-    // top-level funcs have null outer which matches frames without a func
-    outer := func.outer
-    for (i := stack.size-1; i >=0; --i)
-      if (stack[i].func === outer) return stack[i].scope
-    return null
-  }
-
-  ** Capture the lexical scope of the given func so it may be called
-  ** later via callInScope after its lexical scope frames have popped
-  @NoDoc AxonScope? scopeCapture(Fn fn) { scopeParent(fn) }
-
-  ** Call func in the lexical scope captured by scopeCapture
-  ** TODO
-  @NoDoc Obj? callInScope(Fn fn, Obj?[] args, FileLoc callLoc, AxonScope? scope)
-  {
-    if (scope == null) return fn.callx(this, args, callLoc)
-    return run(CaptureFrame(scope, fn, args, callLoc))
   }
 
   ** Call func in a new frame using the given scope for its variables

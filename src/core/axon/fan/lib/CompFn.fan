@@ -31,7 +31,7 @@ const class CompFn : TopFn
 
   override Bool isNative() { true }
 
-  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
+  override Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
   {
 throw Err("TODO")
 /*

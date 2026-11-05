@@ -86,31 +86,3 @@ internal final class CallFrame : AxonFrame
   private Obj?[] args
 }
 
-**************************************************************************
-** CaptureFrame (TODO)
-**************************************************************************
-
-**
-** CaptureFrame calls a function in a lexical scope captured by
-** AxonContext.scopeCapture.  It stands in for the function's lexically
-** enclosing frame so scopeParent resolves to the captured scope.
-**
-@Js
-internal final class CaptureFrame : AxonFrame
-{
-  new make(AxonScope scope, Fn fn, Obj?[] args, FileLoc callLoc) : super(scope)
-  {
-    this.fn      = fn
-    this.callLoc = callLoc
-    this.args    = args
-  }
-
-  override Obj? run(AxonContext cx) { fn.callx(cx, args, callLoc) }
-
-  override Fn? func() { fn.outer }
-
-  const Fn fn
-  const FileLoc callLoc
-  private Obj?[] args
-}
-

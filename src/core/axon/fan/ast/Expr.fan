@@ -120,22 +120,13 @@ const abstract class Expr
     return out.toStr
   }
 
-  ** Evaluate this expression to a function.
-  @NoDoc Fn evalToFunc(AxonContext cx)
-  {
-    t := eval(cx)
-    fn := t as Fn
+  ** Evaluate this expression to a func: a top-level func or a closure
+  @NoDoc Callable evalToFunc(AxonContext cx) { toFunc(cx, eval(cx)) }
 
-    /* old 3.1 behavior
-    // if t is a func record in database, get as func
-    if (t is Dict)
-      {
-        dict := (Dict)t
-        name := dict["name"] as Str
-        if (dict.has("func") && name != null)
-          fn = cx.findTop(name, false)
-    }
-    */
+  ** Return the value this expression evaluated to as a function
+  internal Callable toFunc(AxonContext cx, Obj? t)
+  {
+    fn := t as Callable
 
     if (fn == null)
     {
@@ -146,8 +137,7 @@ const abstract class Expr
       var := this as Var
       if (var != null)
       {
-        fn = cx.resolveTopFn(var.name, false)
-        if (fn != null) throw err("Local variable $var.name.toCode is hiding function", cx)
+        if (cx.resolveTopFn(var.name, false) != null) throw err("Local variable $var.name.toCode is hiding function", cx)
         else throw err("Local variable $var.name.toCode is not assigned to a function: " + summary(t), cx)
       }
       throw err("Target does not eval to func: " + summary(t), cx)
@@ -168,7 +158,7 @@ const abstract class Expr
     // specials
     if (obj == null) return "null"
     if (obj is Block) return "Block"
-    if (obj is Fn) return "Func " + ((Fn)obj).sig
+    if (obj is Callable) return "Func " + ((Callable)obj).name
 
     // grid
     if (obj is Grid)

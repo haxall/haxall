@@ -15,7 +15,7 @@ using haystack
 ** Top level function in the namespace
 **
 @Js
-const class TopFn : Fn, Thunk
+const class TopFn : Fn, Thunk, Callable
 {
   internal static TopFn makeEvalWrapper(Expr expr)
   {
@@ -53,9 +53,6 @@ const class TopFn : Fn, Thunk
   ** Is this function tagged as having side effects
   const override Bool hasSideEffects
 
-  ** Is this a lazy function that accepts un-evaluated arguments
-  virtual Bool isLazy() { false }
-
   ** Return only name
   override Str toStr() { name }
 
@@ -75,10 +72,10 @@ const class TopFn : Fn, Thunk
   }
 
   ** Add check call
-  @NoDoc override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
+  override Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
   {
     cx.checkCall(this)
-    return super.callx(cx, args, callLoc)
+    return super.call(cx, args, callLoc)
   }
 
   ** Display string taking into account old tags in defMeta

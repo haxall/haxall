@@ -1076,12 +1076,12 @@ class EvalTest : AxonTest
     Fn x := d.body->exprs->get(0)->args->get(1)
     Fn y := a.body->exprs->get(1)->args->get(1)
 
-    verifyEq(a.name, "a");            verifySame(a.outer, null)
-    verifyEq(b.name, "a.b");          verifySame(b.outer, a)
-    verifyEq(c.name, "a.b.c");        verifySame(c.outer, b)
-    verifyEq(d.name, "a.b.d");        verifySame(d.outer, b)
-    verifyEq(x.name, "a.b.d.anon-1"); verifySame(x.outer, d)
-    verifyEq(y.name, "a.anon-2");     verifySame(y.outer, a)
+    verifyEq(a.name, "a")
+    verifyEq(b.name, "a.b")
+    verifyEq(c.name, "a.b.c")
+    verifyEq(d.name, "a.b.d")
+    verifyEq(x.name, "a.b.d.anon-1")
+    verifyEq(y.name, "a.anon-2")
   }
 
 }

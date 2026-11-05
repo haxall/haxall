@@ -12,17 +12,18 @@ using xeto
 using haystack
 
 **
-** Fn is a function definition
+** Fn is a function definition: a top-level func or a lambda.
+** Function values passed around at runtime are `Callable`.
 **
 @Js
 const class Fn : Expr
 {
   @NoDoc new make(FileLoc loc, Str name, FnParam[] params, Expr body := Literal.nullVal)
   {
-    this.loc    = loc
-    this.name   = name
-    this.params = params
-    this.body   = body
+    this.loc       = loc
+    this.nameRef   = name
+    this.paramsRef = params
+    this.body      = body
   }
 
   @NoDoc override ExprType type() { ExprType.func }
@@ -30,17 +31,15 @@ const class Fn : Expr
   @NoDoc override const FileLoc loc
 
   ** Top-level name or debug name if closure
-  const Str name
+  Str name() { nameRef }
+  private const Str nameRef
 
   virtual Dict meta() { Etc.dict0 }
 
   virtual Bool isTop() { false }
 
-  ** Parent lexically scoped function
-  @NoDoc Fn? outer() { outerRef.val }
-  internal const AtomicRef outerRef := AtomicRef(null)
-
-  @NoDoc const FnParam[] params
+  @NoDoc FnParam[] params() { paramsRef }
+  private const FnParam[] paramsRef
 
   @NoDoc Int arity() { params.size }
 
@@ -56,6 +55,9 @@ const class Fn : Expr
 
   ** Return this
   override Obj? eval(AxonContext cx) { this }
+
+  ** Is this a lazy function that accepts un-evaluated arguments
+  @NoDoc virtual Bool isLazy() { false }
 
   ** Return if this function is a component
   @NoDoc virtual Bool isComp() { false }
@@ -77,14 +79,13 @@ const class Fn : Expr
 
   ** Invoke this function with the given arguments.
   ** Note: the `args` parameter must be mutable and may be modified
-  Obj? call(AxonContext cx, Obj?[] args) { callx(cx, args, FileLoc.unknown) }
-
-  @NoDoc virtual Obj? callLazy(AxonContext cx, Expr[] args, FileLoc callLoc)
+  virtual Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
   {
-    callx(cx, args.map |arg| { arg.eval(cx) }, callLoc)
+    callNested(cx, args, callLoc, null)
   }
 
-  @NoDoc virtual Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
+  ** Call in a new scope nested in the given parent scope
+  internal Obj? callNested(AxonContext cx, Obj?[] args, FileLoc callLoc, AxonScope? parent)
   {
     // call heartbeat to check for interruption
     cx.heartbeat(callLoc)
@@ -106,7 +107,7 @@ const class Fn : Expr
     }
 
     // evaluate function body with nested scope
-    scope := AxonScope(cx.scopeParent(this), Str:Obj?[:])  // TODO: unnecessary mapping operation
+    scope := AxonScope(parent, Str:Obj?[:])  // TODO: unnecessary mapping operation
     return cx.run(CallFrame(scope, this, args, callLoc))
   }
 

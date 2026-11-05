@@ -87,8 +87,7 @@ class Parser
   }
 
   ** Parse a list of expressions separated by "|" pipe.
-  ** Must pass in a top-level function to bind the closures.
-  Expr[] parsePipeline(Fn top)
+  Expr[] parsePipeline()
   {
     acc := Expr[,]
     acc.add(expr)
@@ -98,7 +97,6 @@ class Parser
       acc.add(expr)
     }
     verifyEof
-    bindInnersToOuter(top)
     return acc
   }
 
@@ -1034,12 +1032,11 @@ class Parser
 
   **
   ** Handle a lambda body with current token right after `=>`.
-  ** This is a single point where we handle naming
-  ** and lexically scoping all our functions.
+  ** This is a single point where we handle naming all our functions.
   **
   private Fn lambdaBody(FileLoc loc, FnParam[] params, Dict? topMeta := null)
   {
-    scope := enterFn
+    outerName := enterFn
 
     // parse body and optimize out return if only or last expr
     body := optimizeLastReturn(expr)
@@ -1047,29 +1044,20 @@ class Parser
     // create fn
     fn := topMeta != null ?
           TopFn(loc, curFuncName, topMeta, params, body) :
-          Fn(loc, curFuncName, params, body)
+          Lambda(loc, curFuncName, params, body)
 
-    return exitFn(scope, fn)
+    curFuncName = outerName
+    return fn
   }
 
-  ** Enter new lexical scope of inner functions and figure out func name
-  private ParserFnScope enterFn()
+  ** Figure out name of func being entered and return outer func name
+  private Str? enterFn()
   {
-    scope := ParserFnScope(inners, curFuncName)
-    inners = Fn[,]
+    outerName := curFuncName
     if (curName != null) { curFuncName = curName; curName = null }
     else curFuncName = "anon-${++anonNum}"
-    if (scope.funcName != null) curFuncName = scope.funcName + "." + curFuncName
-    return scope
-  }
-
-  ** Update any closures with a reference to outer scope and restore scope
-  private Fn exitFn(ParserFnScope scope, Fn fn)
-  {
-    bindInnersToOuter(fn)
-    inners = scope.inners.add(fn)
-    curFuncName = scope.funcName
-    return fn
+    if (outerName != null) curFuncName = outerName + "." + curFuncName
+    return outerName
   }
 
   private Expr optimizeLastReturn(Expr expr)
@@ -1082,12 +1070,6 @@ class Parser
         return Block(block.exprs.dup.set(-1, optimizeLastReturn(block.exprs.last)))
     }
     return expr
-  }
-
-
-  private Void bindInnersToOuter(Fn fn)
-  {
-    inners.each |inner| { inner.outerRef.val = fn }
   }
 
   protected SyntaxErr err(Str msg, FileLoc loc := curLoc) { SyntaxErr(msg, loc) }
@@ -1194,21 +1176,7 @@ class Parser
   private Str? curName         // if parsing define value
   private Str? curFuncName     // current name of base func
   private Int anonNum          // number of anonymous funcs
-  private Fn[] inners := [,]   // current number of funcs inside current
   private Bool inAxonParam
   private Str[]? binds         // pattern binding names while parsing case
-}
-
-**************************************************************************
-** ParserFnScope
-**************************************************************************
-
-** Saved lexical scope state while parsing a nested function
-@Js
-internal class ParserFnScope
-{
-  new make(Fn[] inners, Str? funcName) { this.inners = inners; this.funcName = funcName }
-  Fn[] inners
-  Str? funcName
 }
 

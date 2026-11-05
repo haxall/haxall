@@ -362,9 +362,9 @@ const class PointFuncs
     }
 
     // function
-    if (match is Fn)
+    if (match is Callable)
     {
-      return (((Fn)match).call(curContext, [val]))
+      return (((Callable)match).call(curContext, [val]))
     }
 
     return false

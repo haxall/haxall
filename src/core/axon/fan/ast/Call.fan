@@ -37,16 +37,21 @@ internal const class Call : Expr
     return null
   }
 
-  override Obj? eval(AxonContext cx)
+  override Obj? eval(AxonContext cx) { callFunc(cx, args) }
+
+  ** Evaluate the func and call it with the given args which
+  ** are evaluated first unless the func is lazy
+  Obj? callFunc(AxonContext cx, Expr?[] callArgs)
   {
-    evalFunc(cx).callLazy(cx, args, loc)
+    fn := func.evalToFunc(cx)
+    return fn.call(cx, fn.isLazy ? callArgs : evalArgs(cx, callArgs), loc)
   }
 
-  Fn evalFunc(AxonContext cx) { func.evalToFunc(cx) }
-
-  Obj?[] evalArgs(AxonContext cx)
+  private static Obj?[] evalArgs(AxonContext cx, Expr?[] exprs)
   {
-    args.map |arg| { arg.eval(cx) }
+    acc := Obj?[,] { capacity = exprs.size }
+    for (i := 0; i<exprs.size; ++i) acc.add(exprs[i].eval(cx))
+    return acc
   }
 
   override Void walk(|Str key, Obj? val| f)
@@ -120,8 +125,7 @@ internal const class DotCall : Call
 
     // evaluate as global function, but wrap target as
     // literal to ensure it is evaluated exactly once
-    callArgs := args.dup.set(0, Literal.wrap(target))
-    return evalFunc(cx).callLazy(cx, callArgs, loc)
+    return callFunc(cx, args.dup.set(0, Literal.wrap(target)))
   }
 
   override Printer print(Printer out)
@@ -263,7 +267,7 @@ internal const class PartialCall : Call
       arg == null ? Var(loc, params[partial++].name) : bind(arg, cx)
     }
     call := Call(boundTarget, boundArgs)
-    return Fn(loc, toStr, params, call)
+    return Closure(Lambda(loc, toStr, params, call), cx.curScope(false))
   }
 
   private Literal bind(Expr expr, AxonContext cx)

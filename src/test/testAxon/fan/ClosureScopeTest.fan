@@ -12,8 +12,8 @@ using axon
 
 **
 ** ClosureScopeTest verifies closure variable scoping semantics for both
-** eager calls on the live stack and lazy calls via AxonContext.scopeCapture
-** and callInScope after the lexical scope frames have popped.
+** eager calls on the live stack and lazy calls of stored closures after
+** the lexical scope frames have popped.
 **
 @Js
 class ClosureScopeTest : AxonTest
@@ -58,6 +58,27 @@ class ClosureScopeTest : AxonTest
          end"""), Obj?[n(0), n(11), n(21)])
   }
 
+  ** Closures resolve names in the scope they were evaluated in,
+  ** never in whatever frames are on the stack when called
+  Void testFunarg()
+  {
+    cx := ClosureTestContext(this)
+    verifyEq(cx.eval("do f: (n, g) => do x: n; if (n == 0) return g(); f(n-1, () => x) end; f(2, null) end"), n(1))
+    verifyEq(cx.eval("do f: (n, g) => do if (n == 0) return g(); x: n; f(n-1, () => x) end; f(2, null) end"), n(1))
+
+    // closure returned from its func and called after it pops
+    verifyEq(cx.eval("do adder: (a) => (b) => a + b; add3: adder(3); add3(4) end"), n(7))
+
+    // local funcs may call each other before they are defined
+    verifyEq(cx.eval("(() => do a: (n) => b(n); b: (n) => n * 2; a(5) end)()"), n(10))
+
+    // switch case binds are seen by closures in the arm
+    verifyEq(cx.eval("do f: switch ({a: 5}) case {a as v} => () => v end; f() end"), n(5))
+
+    // closure called inside a switch arm does not see the caller's locals
+    verifyErr(null) { cx.eval("do f: () => secret; g: () => do secret: 5; switch (1) case 1 => f() end end; g() end") }
+  }
+
   ** Lazy calls while lexical frames still live: locals fresh per
   ** call, accumulator persists, write-thru to enclosing scope
   Void testLazyInScope()
@@ -78,8 +99,8 @@ class ClosureScopeTest : AxonTest
          end"""), Obj?[n(5), n(10), n(25)])
   }
 
-  ** Assignment writes thru nested closure frames to the outermost
-  ** scope; captured chain mixes popped loop frames with live root
+  ** Assignment writes thru nested closure scopes to the outermost
+  ** scope, including scopes whose loop frames have popped
   Void testLazyWriteThruDeep()
   {
     cx := ClosureTestContext(this)
@@ -126,7 +147,7 @@ class ClosureScopeTest : AxonTest
          end"""), Obj?[n(1), n(2), n(100)])
   }
 
-  ** Two captures of the same scope share the same live frames
+  ** Two closures over the same scope share its variables
   Void testLazyShared()
   {
     cx := ClosureTestContext(this)
@@ -187,14 +208,13 @@ internal class ClosureTestContext : TestContext
 @Js
 internal class ClosureScopeFuncs
 {
-  ** Capture closure scope and register a lazy invoke func the
+  ** Store away the closure and register a lazy invoke func the
   ** same way hisKit lazy grids store away their filter closures
-  @Axon static Obj? testCapture(Fn fn)
+  @Axon static Obj? testCapture(Callable fn)
   {
     cx := (ClosureTestContext)AxonContext.curAxon
-    scope := cx.scopeCapture(fn)
     args := [null]
-    cx.lazyCalls.add |Obj? a->Obj?| { cx.callInScope(fn, args.set(0, a), fn.loc, scope) }
+    cx.lazyCalls.add |Obj? a->Obj?| { fn.call(cx, args.set(0, a)) }
     return null
   }
 

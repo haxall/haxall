@@ -74,7 +74,7 @@ internal class IOCsvReader
     }
   }
 
-  Obj? each(Fn fn)
+  Obj? each(Callable fn)
   {
     return toHandle(handle).withIn |in|
     {

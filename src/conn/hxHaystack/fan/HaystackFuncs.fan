@@ -207,7 +207,8 @@ const class HaystackFuncs
     try
     {
       if (val == null) return "null"
-      if (val is Fn && ((Fn)val).requiredArity == 0) return serializeVar(cx, ((Fn)val).call(cx, Obj?[,]))
+      fn := val as Callable
+      if (fn != null && (fn.params.isEmpty || fn.params.first.hasDef)) return serializeVar(cx, fn.call(cx, Obj?[,]))
       if (val is DateSpan) return ((DateSpan)val).toCode
       if (val is Bool) return val.toStr
       if (val is Number) return val.toStr

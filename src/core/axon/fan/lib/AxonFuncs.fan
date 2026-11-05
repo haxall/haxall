@@ -280,7 +280,7 @@ const class AxonFuncs
 
   ** Collect stream into a in-memory list or grid.
   ** See [hx.doc.haxall::Streams#collect].
-  @Api @Axon static Obj collect(Obj? stream, Fn? to := null)
+  @Api @Axon static Obj collect(Obj? stream, Callable? to := null)
   {
     CollectStream(stream, to).run
   }
@@ -349,7 +349,7 @@ const class AxonFuncs
   **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
   **   - Stream: iterate items as (val); see [hx.doc.haxall::Streams#each]
-  @Api @Axon static Obj? each(Obj val, Fn fn)
+  @Api @Axon static Obj? each(Obj val, Callable fn)
   {
     if (val is MStream) return EachStream(val, fn).run
     if (val is Grid) { ((Grid)val).each(toGridIterator(fn)); return null }
@@ -370,7 +370,7 @@ const class AxonFuncs
   **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
   **   - Stream: iterate items as (val); see [hx.doc.haxall::Streams#eachwhile]
-  @Api @Axon static Obj? eachWhile(Obj val, Fn fn)
+  @Api @Axon static Obj? eachWhile(Obj val, Callable fn)
   {
     // keep dispatch in sync with Etc.eachWhile for Fantom callers
     if (val is MStream) return EachWhileStream(val, fn).run
@@ -418,7 +418,7 @@ const class AxonFuncs
   **
   **      // create grid with just dis, area column
   **      readAll(site).map(s => {dis:s->dis, area:s->area})
-  @Api @Axon static Obj? map(Obj val, Fn fn)
+  @Api @Axon static Obj? map(Obj val, Callable fn)
   {
     if (val is MStream) return MapStream(val, fn)
     if (val is Grid) return ((Grid)val).map(toGridIterator(fn))
@@ -446,7 +446,7 @@ const class AxonFuncs
   ** Examples:
   **
   **     [1, 2, 3].flatMap(v => [v, v+10])   >>  [1, 11, 2, 12, 3, 13]
-  @Api @Axon static Obj? flatMap(Obj val, Fn fn)
+  @Api @Axon static Obj? flatMap(Obj val, Callable fn)
   {
     if (val is MStream) return FlatMapStream(val, fn)
     if (val is Grid) return ((Grid)val).flatMap(toGridIterator(fn))
@@ -479,7 +479,7 @@ const class AxonFuncs
   **
   **     // find first odd number
   **     [10, 4, 3, 7].find(isOdd)
-  @Api @Axon static Obj? find(Obj val, Fn fn)
+  @Api @Axon static Obj? find(Obj val, Callable fn)
   {
     if (val is MStream) return FindStream(val, fn).run
     if (val is Grid) return ((Grid)val).find(toGridIterator(fn))
@@ -516,7 +516,7 @@ const class AxonFuncs
   **
   **     // find all the sites greater than 10,000ft from grid
   **     readAll(site).findAll(s => s->area > 10_000ft²)
-  @Api @Axon static Obj? findAll(Obj val, Fn fn)
+  @Api @Axon static Obj? findAll(Obj val, Callable fn)
   {
     if (val is MStream) return FindAllStream(val, fn)
     if (val is Grid) return ((Grid)val).findAll(toGridIterator(fn))
@@ -596,7 +596,7 @@ const class AxonFuncs
   **
   **     [1, 3, 5].all v => v.isOdd  >>  true
   **     [1, 3, 6].all(isOdd)        >>  false
-  @Api @Axon static Obj? all(Obj val, Fn fn)
+  @Api @Axon static Obj? all(Obj val, Callable fn)
   {
     if (val is MStream) return AllStream(val, fn).run
     if (val is Grid) return ((Grid)val).all(toGridIterator(fn))
@@ -629,7 +629,7 @@ const class AxonFuncs
   **
   **     [1, 3, 5].any v => v.isOdd  >>  true
   **     [2, 4, 6].any(isOdd)        >>  false
-  @Api @Axon static Obj? any(Obj val, Fn fn)
+  @Api @Axon static Obj? any(Obj val, Callable fn)
   {
     if (val is MStream) return AnyStream(val, fn).run
     if (val is Grid) return ((Grid)val).any(toGridIterator(fn))
@@ -661,7 +661,7 @@ const class AxonFuncs
   **     [2, 5, 3].reduce(0, (acc, val)=>acc+val)  >> 10
   **     [2, 5, 3].reduce(1, (acc, val)=>acc*val)  >> 30
   @Api @Axon
-  static Obj? reduce(Obj val, Obj? init, Fn fn)
+  static Obj? reduce(Obj val, Obj? init, Callable fn)
   {
     cx := AxonContext.curAxon
     if (val is MStream) return ReduceStream(val, init, fn).run
@@ -729,7 +729,7 @@ const class AxonFuncs
   **
   **     // create dict of sites with dis:area pairs
   **     readAll(site).gridRowsToDict(s=>s.dis.toTagName, s=>s->area)
-  @Api @Axon static Dict gridRowsToDict(Grid grid, Fn rowToKey, Fn rowToVal)
+  @Api @Axon static Dict gridRowsToDict(Grid grid, Callable rowToKey, Callable rowToVal)
   {
     cx := AxonContext.curAxon
     map := Str:Obj?[:]
@@ -752,7 +752,7 @@ const class AxonFuncs
   **
   **     // create dict of column name to column dis
   **     read(temp).hisRead(today).gridColsToDict(c=>c.name, c=>c.meta.dis)
-  @Api @Axon static Dict gridColsToDict(Grid grid, Fn colToKey, Fn colToVal)
+  @Api @Axon static Dict gridColsToDict(Grid grid, Callable colToKey, Callable colToVal)
   {
     cx := AxonContext.curAxon
     map := Str:Obj?[:]
@@ -779,7 +779,7 @@ const class AxonFuncs
   **     readAll(site).gridColKinds
   @Api @Axon static Grid gridColKinds(Grid grid) { AxonFuncsUtil.gridColKinds(grid) }
 
-  private static Func toGridIterator(Fn fn)
+  private static Func toGridIterator(Callable fn)
   {
     cx := AxonContext.curAxon
     args := [null, null]
@@ -789,7 +789,7 @@ const class AxonFuncs
     }
   }
 
-  private static Func toDictIterator(Fn fn)
+  private static Func toDictIterator(Callable fn)
   {
     cx := AxonContext.curAxon
     args := [null, null]
@@ -799,7 +799,7 @@ const class AxonFuncs
     }
   }
 
-  private static Func toListIterator(Fn fn)
+  private static Func toListIterator(Callable fn)
   {
     cx := AxonContext.curAxon
     args := [null, null]
@@ -809,7 +809,7 @@ const class AxonFuncs
     }
   }
 
-  private static Func toStrIterator(Fn fn)
+  private static Func toStrIterator(Callable fn)
   {
     cx := AxonContext.curAxon
     args := [null, null]
@@ -819,7 +819,7 @@ const class AxonFuncs
     }
   }
 
-  private static Func toRangeIterator(Fn fn)
+  private static Func toRangeIterator(Callable fn)
   {
     cx := AxonContext.curAxon
     args := [null]
@@ -878,7 +878,7 @@ const class AxonFuncs
   **
   ** Also see [reduce()] which is easier to use if doing your
   ** own simple rollup computation.
-  @Api @Axon static Obj? fold(Obj? val, Fn fn)
+  @Api @Axon static Obj? fold(Obj? val, Callable fn)
   {
     if (val is MStream) return FoldStream(val, fn).run
 
@@ -902,7 +902,7 @@ const class AxonFuncs
   ** Example:
   **
   **     readAll(site).foldCol("area", sum)
-  @Api @Axon static Obj? foldCol(Grid grid, Str colName, Fn fn)
+  @Api @Axon static Obj? foldCol(Grid grid, Str colName, Callable fn)
   {
     col := grid.col(colName)
     cx := AxonContext.curAxon
@@ -946,7 +946,7 @@ const class AxonFuncs
   **     // we could also replace list of col names with a function
   **     colSel: col => col.name == "b" or col.name == "c"
   **     g.foldCols(colSel, "bc", sum)
-  @Api @Axon static Grid foldCols(Grid grid, Obj colSelector, Str newColName, Fn fn)
+  @Api @Axon static Grid foldCols(Grid grid, Obj colSelector, Str newColName, Callable fn)
   {
     cx := AxonContext.curAxon
 
@@ -959,7 +959,7 @@ const class AxonFuncs
     }
     else
     {
-      cs := (Fn)colSelector
+      cs := (Callable)colSelector
       csArgs := [null]
       cols = grid.cols.findAll |c| { cs.call(cx, csArgs.set(0, c)) }
     }
@@ -1276,7 +1276,7 @@ const class AxonFuncs
   **
   **     // add new column named areaMeter with dis meta
   **     readAll(site).addCol({name:"areaMeters", dis:"Area Meters"}) s => s->area.to(1m²)
-  @Api @Axon static Grid addCol(Grid grid, Obj? col, Fn fn)
+  @Api @Axon static Grid addCol(Grid grid, Obj? col, Callable fn)
   {
     Str? name := col as Str
     Dict meta := Etc.dict0
@@ -1512,7 +1512,7 @@ const class AxonFuncs
 
   ** Call the specified function the given number
   ** of times passing the counter.
-  @Api @Axon static Obj? times(Number times, Fn fn)
+  @Api @Axon static Obj? times(Number times, Callable fn)
   {
     cx := AxonContext.curAxon
     args := Obj?[null]
@@ -1734,7 +1734,7 @@ const class AxonFuncs
   **     eachDay(2010-07-01..2010-07-03, f) >> iterate Jul 1st, 2nd, 3rd
   **     eachDay(2010-07, f)                >> iterate each day of July 2010
   **     eachDay(pastWeek, f)               >> iterate last 7 days
-  @Api @Axon static Obj? eachDay(Obj dates, Fn fn)
+  @Api @Axon static Obj? eachDay(Obj dates, Callable fn)
   {
     cx := AxonContext.curAxon
     args := Obj?[null]
@@ -1753,7 +1753,7 @@ const class AxonFuncs
   **
   **     // call f once for current method
   **     eachMonth(today(), f)
-  @Api @Axon static Obj? eachMonth(Obj dates, Fn fn)
+  @Api @Axon static Obj? eachMonth(Obj dates, Callable fn)
   {
     cx := AxonContext.curAxon
     args := Obj?[null]
@@ -2196,9 +2196,9 @@ const class AxonFuncs
   **     params(hisRead)
   **     toRadix.params
   @NoDoc @Api @Axon
-  static Grid params(Fn fn)
+  static Grid params(Callable fn)
   {
-    AxonFuncsUtil.params(AxonContext.curAxon, fn)
+    AxonFuncsUtil.params(AxonContext.curAxon, fn.params)
   }
 
   ** Find a top-level function by name or by reference and return its tags.
@@ -2295,7 +2295,7 @@ const class AxonFuncs
   @Api @Axon static Bool isDateTime(Obj? val) { val is DateTime }
 
   ** Return if an object is a function type
-  @Api @Axon static Bool isFunc(Obj? val) { val is Fn }
+  @Api @Axon static Bool isFunc(Obj? val) { val is Callable }
 
   ** Return if an object is a span
   @Api @Axon static Bool isSpan(Obj? val) { val is Span }
@@ -2681,11 +2681,11 @@ const class AxonFuncs
   **
   **     // filter rows with an 'area' tag over 10,000
   **     grid.findAll(filterToFunc(area > 10_000))
-  @Api @Axon static Fn filterToFunc(Expr filterExpr)
+  @Api @Axon static Callable filterToFunc(Expr filterExpr)
   {
     cx := AxonContext.curAxon
     filter := filterExpr.evalToFilter(cx)
-    return FilterFn(filter)
+    return FilterCallable(filter)
   }
 
   ** Parse a Str into a standardized unit name.  If the val is not
@@ -3150,7 +3150,7 @@ const class AxonFuncs
   **     (evalToFunc("(x, y)=>x+y"))(3, 4)
   **     evalToFunc("""replace(_, "x", "_")""").call(["xyz"])
   @Api @Axon
-  static Fn evalToFunc(Str expr)
+  static Callable evalToFunc(Str expr)
   {
     AxonContext.curAxon.evalToFunc(expr)
   }
@@ -3177,9 +3177,9 @@ const class AxonFuncs
   static Obj? call(Obj func, Obj?[]? args := null)
   {
     cx := AxonContext.curAxon
-    fn := func is Str ? cx.resolveTopFn(func) : (Fn)func
+    Callable fn := func is Str ? cx.resolveTopFn(func) : func
     if (args == null) args = Obj#.emptyList
-    return fn.callx(cx, args, FileLoc("call"))
+    return fn.call(cx, args, FileLoc("call"))
   }
 
 
@@ -3197,21 +3197,22 @@ const class AxonFuncs
   static Obj? callByName(Obj func, Dict args)
   {
     cx := AxonContext.curAxon
-    fn := func is Str ? cx.resolveTopFn(func) : (Fn)func
+    Callable fn := func is Str ? cx.resolveTopFn(func) : func
 
     // map to args list
-    argsList := fn.params.map |p| { args[p.name] }
+    params := fn.params
+    argsList := params.map |p| { args[p.name] }
 
     // assume any trailing nulls are defaults
     for (i := argsList.size-1; i>=0; --i)
     {
-      if (argsList[i] == null && fn.params[i].hasDef)
+      if (argsList[i] == null && params[i].hasDef)
         argsList.removeAt(-1)
       else
         break
     }
 
-    return fn.callx(cx, argsList, FileLoc("callByName"))
+    return fn.call(cx, argsList, FileLoc("callByName"))
   }
 
   ** Convert a scalar, list, or dict value to its Axon code representation.

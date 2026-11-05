@@ -210,9 +210,7 @@ class ParseTest : Test
 
   Void verifyPipeline(Str s, Str[] expect)
   {
-    dummyTop := TopFn(FileLoc.unknown, "dummy", Etc.dict0, FnParam[,])
-
-    actual := Parser(s.in).parsePipeline(dummyTop)
+    actual := Parser(s.in).parsePipeline
     verifyEq(actual.size, expect.size)
     actual.each |a, i|
     {

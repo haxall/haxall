@@ -39,7 +39,7 @@ abstract class TerminalStream : MStream
 @Js
 internal class CollectStream : TerminalStream
 {
-  new make(MStream prev, Fn? to) : super(prev) { this.to = to }
+  new make(MStream prev, Callable? to) : super(prev) { this.to = to }
 
   override Str funcName() { "collect" }
 
@@ -81,7 +81,7 @@ internal class CollectStream : TerminalStream
   override Obj? onRun() { collector.onFinish }
 
   private Collector? collector
-  private Fn? to
+  private Callable? to
 }
 
 **************************************************************************
@@ -91,7 +91,7 @@ internal class CollectStream : TerminalStream
 @Js
 internal class EachStream : TerminalStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "each" }
 
@@ -101,7 +101,7 @@ internal class EachStream : TerminalStream
 
   override Obj? onRun() { null }
 
-  private const Fn func
+  private Callable func
 }
 
 **************************************************************************
@@ -111,7 +111,7 @@ internal class EachStream : TerminalStream
 @Js
 internal class EachWhileStream : TerminalStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "eachWhile" }
 
@@ -125,7 +125,7 @@ internal class EachWhileStream : TerminalStream
 
   override Obj? onRun() { result }
 
-  private const Fn func
+  private Callable func
   private Obj? result
 }
 
@@ -136,7 +136,7 @@ internal class EachWhileStream : TerminalStream
 @Js
 internal class FindStream : TerminalStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "find" }
 
@@ -153,7 +153,7 @@ internal class FindStream : TerminalStream
 
   override Obj? onRun() { result }
 
-  private const Fn func
+  private Callable func
   private Obj? result
 }
 
@@ -164,7 +164,7 @@ internal class FindStream : TerminalStream
 @Js
 internal class ReduceStream : TerminalStream
 {
-  new make(MStream prev, Obj? init, Fn func) : super(prev) { this.acc = init; this.func = func }
+  new make(MStream prev, Obj? init, Callable func) : super(prev) { this.acc = init; this.func = func }
 
   override Str funcName() { "reduce" }
 
@@ -178,7 +178,7 @@ internal class ReduceStream : TerminalStream
     acc
   }
 
-  private const Fn func
+  private Callable func
   private Obj?[] args := [null, null]
   private Obj? acc
 }
@@ -190,7 +190,7 @@ internal class ReduceStream : TerminalStream
 @Js
 internal class FoldStream : TerminalStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "fold" }
 
@@ -210,7 +210,7 @@ internal class FoldStream : TerminalStream
     func.call(cx, args.set(0, AxonFuncs.foldEnd).set(1, acc))
   }
 
-  private const Fn func
+  private Callable func
   private Obj?[] args := [null, null]
   private Obj? acc
 }
@@ -262,7 +262,7 @@ internal class LastStream : TerminalStream
 @Js
 internal class AnyStream : TerminalStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "any" }
 
@@ -279,7 +279,7 @@ internal class AnyStream : TerminalStream
 
   override Obj? onRun() { result }
 
-  private const Fn func
+  private Callable func
   private Bool result := false
 }
 
@@ -290,7 +290,7 @@ internal class AnyStream : TerminalStream
 @Js
 internal class AllStream : TerminalStream
 {
-  new make(MStream prev, Fn func) : super(prev) { this.func = func }
+  new make(MStream prev, Callable func) : super(prev) { this.func = func }
 
   override Str funcName() { "all" }
 
@@ -307,7 +307,7 @@ internal class AllStream : TerminalStream
 
   override Obj? onRun() { result }
 
-  private const Fn func
+  private Callable func
   private Bool result := true
 }
 

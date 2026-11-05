@@ -255,7 +255,7 @@ const class FantomAxonFFI : AxonFFI
     }
 
     // if Axon func, make fantom func
-    if (x is Fn) return AxonFuncsUtil.toFantomFunc(x, cx)
+    if (x is Callable) return AxonFuncsUtil.toFantomFunc(x, cx)
 
     // return raw value
     return x

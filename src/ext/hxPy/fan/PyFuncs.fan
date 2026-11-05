@@ -57,7 +57,7 @@ const class PyFuncs
   ** session in a task is persistent. This allows to do any one-time [pyExec()]
   ** or [pyDefine()] when the task is first creatd.
   @Api @Axon { admin=true }
-  static PySession pyInit(PySession py, Fn fn)
+  static PySession pyInit(PySession py, Callable fn)
   {
     cx := AxonContext.curAxon
     return py.init(|PySession session| { fn.call(cx, [session]) })

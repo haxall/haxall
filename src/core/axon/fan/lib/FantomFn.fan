@@ -111,7 +111,7 @@ const class FantomFn : TopFn
     method.call(self, arg)
   }
 
-  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
+  override Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
   {
     // security check
     cx.checkCall(this)
@@ -172,57 +172,5 @@ internal const class LazyFantomFn : FantomFn
   new make(Str n, Dict d, FnParam[] p, Method m) : super(n, d, p, m) {}
 
   override Bool isLazy() { true }
-
-  override Obj? callLazy(AxonContext cx, Expr[] args, FileLoc callLoc)
-  {
-    super.callx(cx, args, callLoc)
-  }
-}
-
-**************************************************************************
-** FantomClosureFn
-**************************************************************************
-
-**
-** Wrap an mutable Fantom function as an Axon function expression.
-**
-@NoDoc
-const class FantomClosureFn : Fn
-{
-  new make(Func f) : super(FileLoc("Fantom Func"), "fan", FnParam.makeFantomList(f))
-  {
-    this.f = Unsafe(f)
-  }
-
-  override Bool isNative() { true}
-
-  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
-  {
-    ((Func)f.val).callList(args)
-  }
-
-  const Unsafe f
-}
-
-**************************************************************************
-** FilterFn
-**************************************************************************
-
-@Js
-internal const class FilterFn : Fn
-{
-  new make(Filter filter) : super(FileLoc.unknown, "filterToFunc", [FnParam("dict")])
-  {
-    this.filter = filter
-  }
-
-  const Filter filter
-
-  override Obj? callx(AxonContext cx, Obj?[] args, FileLoc callLoc)
-  {
-    dict := args.first as Dict
-    if (dict == null) throw err("Invalid arg, expected (Dict) not (${args.first?.typeof})", cx)
-    return filter.matches(dict, cx)
-  }
 }
 

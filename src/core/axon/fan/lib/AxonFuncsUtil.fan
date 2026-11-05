@@ -19,11 +19,11 @@ const class AxonFuncsUtil
   static Obj? sort(Obj val, Obj? sorter, Bool ascending)
   {
     Func? func := null
-    if (sorter is Fn)
+    fn := sorter as Callable
+    if (fn != null)
     {
       cx := AxonContext.curAxon
       args := [null, null]
-      fn := (Fn)sorter
       func = |Obj? a,Obj? b->Int| { ((Number)fn.call(cx, args.set(0, a).set(1, b))).toInt }
     }
 
@@ -108,10 +108,10 @@ const class AxonFuncsUtil
   }
 
   ** Reflect parameters for given function
-  static Grid params(AxonContext cx, Fn fn)
+  static Grid params(AxonContext cx, FnParam[] params)
   {
     rows := Obj[,]
-    fn.params.each |p|
+    params.each |p|
     {
       def :=  p.def?.eval(cx)
       rows.add([p.name, def])
@@ -123,10 +123,10 @@ const class AxonFuncsUtil
   private static TopFn? coerceToFn(AxonContext cx, Obj x, Bool checked)
   {
     if (x is Str) return cx.resolveTopFn(x, checked)
-    if (x is Fn)
+    name := x is Callable ? ((Callable)x).name : (x as Fn)?.name
+    if (name != null)
     {
       // if closure then its named {top}.{closure}
-      name := ((Fn)x).name
       dot := name.index(".")
       if (dot != null) name = name[0..<dot]
       return cx.resolveTopFn(name, checked)
@@ -159,7 +159,7 @@ const class AxonFuncsUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Coerce axon to
-  static Func toFantomFunc(Fn fn, AxonContext cx)
+  static Func toFantomFunc(Callable fn, AxonContext cx)
   {
     switch (fn.arity)
     {

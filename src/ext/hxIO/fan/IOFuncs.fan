@@ -255,7 +255,7 @@ const class IOFuncs
   ** with two parameters: Str line and zero based Number line number.
   ** Lines are processed according to [fan.sys::InStream.eachLine].
   @Api @Axon { admin = true }
-  static Obj? ioEachLine(Obj? handle, Fn fn)
+  static Obj? ioEachLine(Obj? handle, Callable fn)
   {
     return toHandle(handle).withIn |in|
     {
@@ -413,7 +413,7 @@ const class IOFuncs
   **
   ** Also [ioReadCsv()], [ioWriteCsv()], and [ph.doc::Csv].
   @Api @Axon { admin = true }
-  static Obj? ioEachCsv(Obj? handle, Dict? opts, Fn fn)
+  static Obj? ioEachCsv(Obj? handle, Dict? opts, Callable fn)
   {
     IOCsvReader(curContext, handle, opts).each(fn)
   }
@@ -1115,7 +1115,7 @@ const class IOFuncs
   **     ioHttp(`https://acme.com/data`, "GET", {"Cookie": r1->cookie}, null,
   **       (code, headers, body) => ioReadJson(body, {safeNames}))
   @Api @Axon { admin = true }
-  static Obj? ioHttp(Uri uri, Str method, Dict? headers, Obj? body, Fn fn)
+  static Obj? ioHttp(Uri uri, Str method, Dict? headers, Obj? body, Callable fn)
   {
     cx := curContext
     c := WebClient(uri)
