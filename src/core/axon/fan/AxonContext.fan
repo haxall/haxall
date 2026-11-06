@@ -237,7 +237,7 @@ abstract class AxonContext : HaystackContext, CompContext
     set
     {
       &timeout = it
-      timeoutTicks = (it == null) ? Int.maxVal : Duration.nowTicks + it.ticks
+      timeoutTicks = (it == null) ? Int.maxVal : Duration.nowFast.ticks + it.ticks
     }
   }
 
