@@ -165,6 +165,37 @@ class JsonSchemaTest : AbstractXetoTest
     verifyAllRefsResolved(personDef, ex.defs)
   }
 
+  ** Inline scalars (Str, Bool, Int) never get a def, so list items of those
+  ** types must be stamped inline too or the $ref would dangle
+  Void testListOfInlineScalars()
+  {
+    ns := createNamespace(["sys"])
+
+    src :=
+      Str<|Tags: Func {
+             names: List <of:sys::Str>,
+             flags: List <of:sys::Bool>,
+             counts: List <of:sys::Int>,
+             optNames: List? <of:sys::Str>,
+             returns: sys::Str
+           }|>
+
+    lib := ns.compileTempLib(src)
+    ex := JsonSchemaExporter(ns, Buf().out, Etc.dict0)
+    actual := ex.funcToParams(lib.type("Tags"))
+    verifyEq(actual, Str:Obj[
+      "type": "object",
+      "properties": Str:Obj[
+        "names":    Obj:Obj["type": "array", "items": Obj:Obj["type": "string"]],
+        "flags":    Obj:Obj["type": "array", "items": Obj:Obj["type": "boolean"]],
+        "counts":   Obj:Obj["type": "array", "items": Obj:Obj["type": "integer"]],
+        "optNames": Obj:Obj["type": "array", "items": Obj:Obj["type": "string"]],
+      ],
+      "required": Obj["names", "flags", "counts"],
+    ])
+    verifyAllRefsResolved(actual, ex.defs)
+  }
+
   Void testChoiceAndQuerySlots()
   {
     ns := createNamespace(["sys"])
