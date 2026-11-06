@@ -71,11 +71,6 @@ internal final class CallFrame : AxonFrame
     this.func    = func
     this.callLoc = callLoc
     this.args    = args
-
-   // TODO - revisit this
-   // bind parameter variables to arguments
-    if (!func.isNative)
-      func.params.each |param, i| { scope.set(param.name, args[i]) }
   }
 
   override Obj? run(AxonContext cx) { func.doCall(cx, args)  }

@@ -344,12 +344,15 @@ abstract class AxonContext : HaystackContext, CompContext
     curScope(false)?.effective ?: Etc.emptyTags
   }
 
-  ** Call func in a new frame using the given scope for its variables
-  ** so the caller may read back the call's locals and params
-  ** TODO
+  ** Call func using the given scope as its call scope rather than a
+  ** new nested one, so the caller may seed variables such as 'this'
+  ** and read back the call's params and locals afterward.  Unlike
+  ** 'Callable.call' there is no security check, heartbeat, or default
+  ** args; it is used for component calls.
   @NoDoc Obj? callIn(Fn fn, Obj?[] args, FileLoc callLoc, AxonScope scope)
   {
-    run(CallFrame(scope, fn, args, callLoc))
+    fn.bindParams(scope, args)
+    return run(CallFrame(scope, fn, args, callLoc))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -401,7 +404,7 @@ abstract class AxonContext : HaystackContext, CompContext
     {
       frame := stack.get(i) as CallFrame
       if (frame == null) continue
-      f(frame.func.name, loc, Etc.dict0) // TODO: vars
+      f(frame.func.name, loc, frame.func.isNative ? Etc.dict0 : frame.scope.toDict)
       loc = frame.callLoc
     }
   }

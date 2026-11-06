@@ -126,6 +126,15 @@ class ClosureScopeTest : AxonTest
     verifyEq(cx.eval("do g: toConst(x => x * 2); f: toConst(y => g(y)); f(4) end"), n(8))
   }
 
+  ** Trace reports each call frame's own params and locals
+  Void testTraceVars()
+  {
+    cx := ClosureTestContext(this)
+    Grid g := cx.eval("do f: (a) => do b: a * 2; traceToGrid() end; f(3) end")
+    row := g.find { it->name == "f" }
+    verifyDictEq(row->vars, ["a":n(3), "b":n(6)])
+  }
+
   ** Lazy calls while lexical frames still live: locals fresh per
   ** call, accumulator persists, write-thru to enclosing scope
   Void testLazyInScope()

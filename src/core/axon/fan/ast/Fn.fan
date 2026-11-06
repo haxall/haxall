@@ -98,7 +98,17 @@ const class Fn : Expr
 
     // evaluate function body with nested scope
     scope := parent == null ? AxonScope() : AxonScope.makeNested(parent)
+    bindParams(scope, args)
     return cx.run(CallFrame(scope, this, args, callLoc))
+  }
+
+  ** Bind the args to the params as variables in the call scope;
+  ** natives have no variables of their own
+  internal Void bindParams(AxonScope scope, Obj?[] args)
+  {
+    if (isNative) return
+    ps := params
+    for (i := 0; i<ps.size; ++i) scope.set(ps[i].name, args[i])
   }
 
   @NoDoc virtual Obj? doCall(AxonContext cx, Obj?[] args)

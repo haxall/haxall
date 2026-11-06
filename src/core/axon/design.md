@@ -48,7 +48,8 @@ lambda cannot run outside its closure.
 `curFunc`.  Each frame has an `AxonScope` for its variables:
 
 - `EvalFrame`: root expression eval or a switch case body
-- `CallFrame`: a func call; its params are set in its scope
+- `CallFrame`: a func call; `Fn.bindParams` sets its params in its
+  scope before it is pushed, so frames never mutate their scope
 
 Variable scope is lexical, not dynamic: a scope's parent is the scope
 the func was defined in, never the caller's.  A `TopFn` call has no
@@ -67,8 +68,10 @@ keeps every lookup a plain monomorphic call on the hot path:
 
 The markers never escape `AxonScope` except `notFound` and `notConst`
 returned from `lookup` to `AxonContext.resolve`.  `get`, `has`, and
-`effective` treat a `notConst` var as undefined.  Hosts create scopes
-with `AxonScope()` and fill them with `set`.
+`effective` treat a `notConst` var as undefined.  Fantom callers
+create scopes with `AxonScope()` and fill them with `set`.
+`AxonContext.callIn` runs a func with a caller supplied scope for
+component calls that seed `this` and read back the call's variables.
 
 ## Const Closures
 

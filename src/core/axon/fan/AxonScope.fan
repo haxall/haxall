@@ -120,6 +120,20 @@ class AxonScope
     return acc
   }
 
+  ** Debug dict of the variables defined directly in this scope; values
+  ** which are not immutable are converted to their string
+  internal Dict toDict()
+  {
+    acc := Str:Obj?[:]
+    vars.each |v, n|
+    {
+      if (v === notConst) return
+      if (v === nullVal) acc[n] = null
+      else acc[n] = v.isImmutable ? v : v.toStr
+    }
+    return Etc.makeDict(acc)
+  }
+
   ** Debug string
   override Str toStr() { "AxonScope [vars: $vars.keys]" }
 
