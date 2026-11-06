@@ -105,15 +105,23 @@ class ClosureScopeTest : AxonTest
     verifyEq(cx.eval("do y: null; f: toConst(() => y); f() end"), null)
 
     // captured vars cannot be assigned, but locals can
-    verifyErr(null) { cx.eval("do acc: 0; f: toConst(x => do acc = acc + x; acc end); f(1) end") }
+    verifyErrMsg(EvalErr#, "Cannot assign captured var 'acc' in const func") { cx.eval("do acc: 0; f: toConst(x => do acc = acc + x; acc end); f(1) end") }
     verifyEq(cx.eval("do f: toConst(x => do acc: 0; acc = acc + x; acc end); [f(1), f(2)] end"), Obj?[n(1), n(2)])
 
     // const funcs escape their scope
     verifyEq(cx.eval("do adder: (a) => toConst((b) => a + b); {add3: adder(3)}->add3(4) end"), n(7))
 
-    // vars that cannot be immutable are skipped and raise error if used
-    verifyErr(null) { cx.eval("do g: x => x; f: toConst(y => g(y)); f(4) end") }
-    verifyErr(null) { cx.eval("do size: x => 99; f: toConst(y => size(y)); f([1, 2]) end") }
+    // vars that cannot be immutable raise error if used, even if they
+    // shadow a top-level func, but are not visible to filter vars
+    verifyErrMsg(EvalErr#, "Var 'g' is not immutable and cannot be used in const func") { cx.eval("do g: x => x; f: toConst(y => g(y)); f(4) end") }
+    verifyErrMsg(EvalErr#, "Var 'size' is not immutable and cannot be used in const func") { cx.eval("do size: x => 99; f: toConst(y => size(y)); f([1, 2]) end") }
+    verifyEq(cx.eval("do g: x => x; f: toConst(() => [{g}, {}].findAll(filterToFunc(g)).size); f() end"), n(1))
+
+    // errors report the Axon location of the use
+    EvalErr? err
+    try cx.eval("do\n  g: x => x\n  f: toConst(y =>\n    g(y))\n  f(4)\nend")
+    catch (EvalErr e) err = e
+    verifyEq(err.loc.line, 4)
     verifyEq(cx.eval("do g: x => x; f: toConst(y => y * 3); f(4) end"), n(12))
     verifyEq(cx.eval("do g: toConst(x => x * 2); f: toConst(y => g(y)); f(4) end"), n(8))
   }

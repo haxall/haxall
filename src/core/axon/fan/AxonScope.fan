@@ -34,20 +34,24 @@ class AxonScope
   Bool redefines
 
   ** Return if given variable name is defined in the scope chain
-  Bool has(Str name) { lookup(name) !== notFound }
+  Bool has(Str name)
+  {
+    v := lookup(name)
+    return v !== notFound && v !== notConst
+  }
 
   ** Get variable in the scope chain or null if not found
   Obj? get(Str name)
   {
     v := lookup(name)
-    return v === notFound ? null : v
+    return v === notFound || v === notConst ? null : v
   }
 
   ** Return effective map of all variables in scope chain
   Str:Obj? effective()
   {
     acc := Str:Obj?[:]
-    effectiveRaw.each |v, n| { if (v !== notConstVal) acc[n] = v === nullVal ? null : v }
+    effectiveRaw.each |v, n| { if (v !== notConst) acc[n] = v === nullVal ? null : v }
     return acc
   }
 
@@ -59,38 +63,34 @@ class AxonScope
   }
 
   ** Define a new variable in this scope.
-  ** Return true on success or false if already defined in scope.
-  Bool define(Str name, Obj? val)
+  ** Return null on success or error message if already defined.
+  Str? define(Str name, Obj? val)
   {
-    if (vars.containsKey(name) && !redefines) return false
+    if (vars.containsKey(name) && !redefines) return "Symbol already bound '$name' (use = to reassign)"
     vars[name] = val ?: nullVal
-    return true
+    return null
   }
 
   ** Assign to an existing defined variable in the scope chain.
-  ** Return true on success or false if not defined in scope.
-  Bool assign(Str name, Obj? val)
+  ** Return null on success or error message if not defined or readonly.
+  Str? assign(Str name, Obj? val)
   {
     if (vars.containsKey(name))
     {
-      if (vars.isRO) throw ReadonlyErr("Cannot assign captured var '$name' in const func")
+      if (vars.isRO) return "Cannot assign captured var '$name' in const func"
       vars[name] = val ?: nullVal
-      return true
+      return null
     }
-    if (parent == null) return false
+    if (parent == null) return "Unknown symbol '$name'"
     return parent.assign(name, val)
   }
 
-  ** Get variable in the scope chain or notFound if not defined
+  ** Get variable in the scope chain or notFound if not defined, or
+  ** notConst if captured by a const func but could not be immutable
   internal Obj? lookup(Str name)
   {
     v := vars.get(name)
-    if (v != null)
-    {
-      if (v === nullVal) return null
-      if (v === notConstVal) throw NotImmutableErr("Var '$name' is not immutable and cannot be used in const func")
-      return v
-    }
+    if (v != null) return v === nullVal ? null : v
     if (parent == null) return notFound
     return parent.lookup(name)
   }
@@ -108,7 +108,7 @@ class AxonScope
         try return v.toImmutable
         catch (NotImmutableErr e) {}
       }
-      return notConstVal
+      return notConst
     }.toImmutable
   }
 
@@ -130,7 +130,7 @@ class AxonScope
   private static const Obj nullVal := ScopeMarker("null")
 
   ** Stored in const vars for values which could not be made immutable
-  private static const Obj notConstVal := ScopeMarker("notConst")
+  internal static const Obj notConst := ScopeMarker("notConst")
 
   ** Parent scope in the chain or null if this is root scope
   private AxonScope? parent

@@ -311,7 +311,11 @@ abstract class AxonContext : HaystackContext, CompContext
     if (scope != null)
     {
       val := scope.lookup(name)
-      if (val !== AxonScope.notFound) return val
+      if (val !== AxonScope.notFound)
+      {
+        if (val === AxonScope.notConst) throw EvalErr("Var '$name' is not immutable and cannot be used in const func", this, loc)
+        return val
+      }
     }
 
     // resolve as unqualified top-level name
@@ -321,16 +325,16 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Define a new variable in current scope
   internal Obj? define(Str name, Obj? val, FileLoc loc)
   {
-    if (!curScope(true).define(name, val))
-      throw EvalErr("Symbol already bound '$name' (use = to reassign)", this, loc)
+    err := curScope(true).define(name, val)
+    if (err != null) throw EvalErr(err, this, loc)
     return val
   }
 
   ** Assign to an existing variable
   internal Obj? assign(Str name, Obj? val, FileLoc loc)
   {
-    if (!curScope(true).assign(name, val))
-      throw EvalErr("Unknown symbol '$name'", this, loc)
+    err := curScope(true).assign(name, val)
+    if (err != null) throw EvalErr(err, this, loc)
     return val
   }
 
