@@ -53,6 +53,9 @@ const class TopFn : Fn, Thunk, Callable
   ** Is this function tagged as having side effects
   const override Bool hasSideEffects
 
+  ** Is this a lazy function that accepts un-evaluated arguments
+  override Bool isLazy() { false }
+
   ** Return this
   override Callable toConst() { this }
 
@@ -74,11 +77,11 @@ const class TopFn : Fn, Thunk, Callable
     AxonContext.curAxon.callIn(this, [arg], FileLoc.unknown, AxonScope().set("this", self))
   }
 
-  ** Add check call
+  ** Check call permission then call in a new root scope
   override Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
   {
     cx.checkCall(this)
-    return super.call(cx, args, callLoc)
+    return callNested(cx, args, callLoc, null)
   }
 
   ** Display string taking into account old tags in defMeta

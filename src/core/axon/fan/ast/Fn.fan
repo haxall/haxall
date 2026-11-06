@@ -56,9 +56,6 @@ const class Fn : Expr
   ** Return this
   override Obj? eval(AxonContext cx) { this }
 
-  ** Is this a lazy function that accepts un-evaluated arguments
-  @NoDoc virtual Bool isLazy() { false }
-
   ** Return if this function is a component
   @NoDoc virtual Bool isComp() { false }
 
@@ -76,13 +73,6 @@ const class Fn : Expr
 
   ** Return if this function is tagged as having side effects
   @NoDoc virtual Bool hasSideEffects() { false }
-
-  ** Invoke this function with the given arguments.
-  ** Note: the `args` parameter must be mutable and may be modified
-  virtual Obj? call(AxonContext cx, Obj?[] args, FileLoc callLoc := FileLoc.unknown)
-  {
-    callNested(cx, args, callLoc, null)
-  }
 
   ** Call in a new scope nested in the given parent scope
   internal Obj? callNested(AxonContext cx, Obj?[] args, FileLoc callLoc, AxonScope? parent)

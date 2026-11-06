@@ -1884,7 +1884,9 @@ const class Etc
   **
   static DateSpan toDateSpan(Obj? val, HaystackContext? cx := null)
   {
-    val = curContext(cx).callIfFunc(val)
+    // call func values such as 'today' only if there is a context
+    cx = cx ?: Actor.locals[ActorContext.actorLocalsKey] as HaystackContext
+    if (cx != null) val = cx.callIfFunc(val)
     if (val is DateSpan) return val
     if (val is Date) return DateSpan(val, DateSpan.day)
     if (val is Span) return ((Span)val).toDateSpan

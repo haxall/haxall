@@ -2691,10 +2691,10 @@ const class AxonFuncs
   ** Return a const copy of a func so it may be stored in dicts, lists, and grids.
   ** Lambdas are closures over the scope they are evaluated in and are not
   ** immutable.  The const copy snapshots the current values of the
-  ** variables in its scope; variables which cannot be made immutable,
-  ** such as other lambdas, are skipped and must not be used by the func.
-  ** Assignments to captured variables inside the func are never seen by
-  ** the enclosing scope.  Top-level funcs are returned as is.
+  ** variables in its scope.  Variables which cannot be made immutable,
+  ** such as other lambdas, raise an error if used by the func.  Captured
+  ** variables cannot be assigned, but the func may define its own local
+  ** variables.  Top-level funcs are returned as is.
   **
   ** Examples:
   **
