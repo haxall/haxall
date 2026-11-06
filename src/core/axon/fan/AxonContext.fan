@@ -351,8 +351,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** args; it is used for component calls.
   @NoDoc Obj? callIn(Fn fn, Obj?[] args, FileLoc callLoc, AxonScope scope)
   {
-    fn.bindParams(scope, args)
-    return run(CallFrame(scope, fn, args, callLoc))
+    run(CallFrame(scope, fn, args, callLoc))
   }
 
 //////////////////////////////////////////////////////////////////////////

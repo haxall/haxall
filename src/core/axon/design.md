@@ -48,8 +48,9 @@ lambda cannot run outside its closure.
 `curFunc`.  Each frame has an `AxonScope` for its variables:
 
 - `EvalFrame`: root expression eval or a switch case body
-- `CallFrame`: a func call; `Fn.bindParams` sets its params in its
-  scope before it is pushed, so frames never mutate their scope
+- `CallFrame`: a func call; its constructor sets its params in its
+  scope.  `Fn.callNested` is kept small since it is the hot path of
+  every closure call and must stay inlined by the JIT
 
 Variable scope is lexical, not dynamic: a scope's parent is the scope
 the func was defined in, never the caller's.  A `TopFn` call has no
