@@ -74,6 +74,27 @@ create scopes with `AxonScope()` and fill them with `set`.
 `AxonContext.callIn` runs a func with a caller supplied scope for
 component calls that seed `this` and read back the call's variables.
 
+## Actor Local Context
+
+Fantom funcs find their context with `AxonContext.curAxon`, which
+reads the actor local.  `AxonContext.run` installs the context as the
+actor local when it pushes the outermost frame of an evaluation, and
+restores the previous context when that frame pops.  So:
+
+- a context's Axon code always runs with that context installed, so
+  natives see the right context, user, and project
+- switching to a different context is only allowed by a fresh entry
+  (`eval`, `evalExpr`, `callIn`, or a closure called on an empty
+  stack); nested evaluation of other contexts forms a strict stack
+- `FantomFn.call` verifies the actor local is its calling context and
+  raises `ContextMismatchErr` rather than patching it, since a native
+  running under the wrong context could run as the wrong user.  This
+  catches Fantom code that changes the actor local inside an
+  evaluation without restoring it, or re-enters a context that is
+  mid-eval while another is installed.  `FantomFn.checkCx` turns the
+  check off once it has proven itself in the field (about 23ns per
+  native call)
+
 ## Const Closures
 
 Closures capture a live mutable scope, so they cannot be stored in

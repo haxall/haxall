@@ -122,9 +122,11 @@ const class FantomFn : TopFn
     cx.checkCall(this)
 
     // AxonContext.run installs the context as the actor local on its
-    // outermost frame, so a mismatch here means a native would see the
-    // wrong context (and user); fail loudly rather than silently fix it
-    if (checkCx)
+    // outermost frame, so if the context is already running a mismatch
+    // means a native would see the wrong context (and user); fail loudly
+    // rather than silently fix it.  An outermost native call such as
+    // from Fantom code is installed by run itself
+    if (checkCx && cx.curFrame(false) != null)
     {
       actorCx := AxonContext.curAxon(false)
       if (actorCx !== cx) throw ContextMismatchErr("Calling '$name' with $cx.typeof but actor local is ${actorCx?.typeof}", cx, callLoc)
