@@ -21,7 +21,8 @@ class Build : BuildPod
     meta    = ["org.name":     "Sedona",
                "org.uri":      "http://sedonadev.org/",
                "proj.name":    "Sedona",
-               "license.name": "Academic Free License 3.0"]
+               "license.name": "Academic Free License 3.0",
+               "sbom.purl":    "pkg:generic/sedona/sedona-framework@1.2.29 AFL-3.0"]
     version = Version("1.2.28.2")
     resDirs = [`sedona.jar`]
     docApi  = false

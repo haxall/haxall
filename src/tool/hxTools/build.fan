@@ -38,7 +38,7 @@ class Build : BuildPod
                "hxm @{hx.depend}",
                "hxd @{hx.depend}",
                "hxFolio @{hx.depend}"]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/stub/`]
     index =
     [
@@ -46,6 +46,7 @@ class Build : BuildPod
         "hxTools::ConvertCli",
         "hxTools::CryptoCli",
         "hxTools::InitCli",
+        "hxTools::SbomCli",
         "hxTools::StubCli",
       ]
     ]
