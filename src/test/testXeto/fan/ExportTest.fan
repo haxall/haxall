@@ -224,6 +224,38 @@ class ExportTest : AbstractXetoTest
     verifyEq(newSlot["foo"], "hi")
   }
 
+  Void testMaybe()
+  {
+    ns := createNamespace(["sys"])
+    lib := ns.compileTempLib(
+      Str<|pragma: Lib <version:"0.0.0", depends:{{lib:"sys"}}>
+           Target: Dict { *hot: Marker }
+           Optional: Dict {
+             results: Query<of:Target, via:"next"> {
+               wanted: Target?
+             }
+           }
+           Kept: Optional { results: { wanted: { hot } } }
+           Cleared: Optional { results: { wanted: Target } }
+           Deeper: Kept { results: { wanted: { hot } } }
+           |>)
+    doc := (Str:Obj?)jsonExport(ns, Etc.dict1("effective", m), lib).getChecked(lib.name)
+
+    // effective export reflects inherited maybe; explicit clear is None
+    verifyMaybe(lib, doc, "Optional", "\u2713")
+    verifyMaybe(lib, doc, "Kept",     "\u2713")
+    verifyMaybe(lib, doc, "Deeper",   "\u2713")
+    verifyMaybe(lib, doc, "Cleared",  "\u2205")
+  }
+
+  private Void verifyMaybe(Lib lib, Str:Obj? doc, Str name, Str expect)
+  {
+    spec := lib.spec(name).slot("results").slot("wanted")
+    wanted := jsonSlot(jsonSlot(doc.getChecked(name), "results"), "wanted")
+    verifyEq(spec.isMaybe, expect == "\u2713")
+    verifyEq(wanted["maybe"], expect)
+  }
+
   private Str:Obj? jsonSpec(Namespace ns, Dict opts, Str name)
   {
     lib := (Str:Obj?)jsonExport(ns, opts).getChecked("hx.test.xeto")
@@ -361,11 +393,11 @@ class ExportTest : AbstractXetoTest
     return row
   }
 
-  private Str:Obj? jsonExport(Namespace ns, Dict opts)
+  private Str:Obj? jsonExport(Namespace ns, Dict opts, Lib lib := ns.lib("hx.test.xeto"))
   {
     buf := Buf()
     e := JsonExporter(ns, buf.out, opts)
-    e.start.lib(ns.lib("hx.test.xeto")).end
+    e.start.lib(lib).end
     str := buf.flip.readAllStr
     doc := JsonInStream(str.in).readJson
     return doc

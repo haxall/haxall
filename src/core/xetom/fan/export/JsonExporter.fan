@@ -97,6 +97,7 @@ class JsonExporter : Exporter
     effective := this.isEffective && depth <= 1
     tags := effective ? spec.meta : spec.metaOwn
     if (spec.isGlobal && tags.missing("global")) prop("global").val(Marker.val).propEnd
+    if (isEffective && spec.isMaybe && !spec.isGlobal && tags.missing("maybe")) prop("maybe").val(Marker.val).propEnd
     meta(tags)
     slots(useEffectiveSlots(spec, depth) ? spec.slots : spec.slotsOwn, depth)
     globals(spec.globalsOwn, depth)
