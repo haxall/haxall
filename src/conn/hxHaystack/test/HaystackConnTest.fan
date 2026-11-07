@@ -55,7 +55,7 @@ class HaystackConnTest : HxTest
     if (sys.info.type.isSkySpark)
       addExt("hx.his")
     else
-      addExt("hx.http")
+      addHttpExt
     addExt("hx.task")
     addExt("hx.haystack")
 

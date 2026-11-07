@@ -60,7 +60,7 @@ class ObixTest : HxTest
     if (sys.info.type.isSkySpark)
       addExt("hx.his")
     else
-      addExt("hx.http")
+      addHttpExt
     addExt("hx.task")
     lib = addExt("hx.obix")
 

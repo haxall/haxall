@@ -48,12 +48,13 @@ abstract class SqlConnTest : HxTest
             "sqlSyncHisExpr": "testSyncHis"])
     proj.db.passwords.set(conn.id.toStr, d.password)
 
+    // wait for the connector ext to see the new conn rec
+    proj.sync
+
     grid := (Grid)eval("read(sqlConn).sqlTables()")
     verifyEq(grid.cols[0].name, "name")
     grid = eval("sqlTables($conn.id.toCode)")
     verifyEq(grid.cols[0].name, "name")
-
-    proj.sync
 
     return conn
   }
