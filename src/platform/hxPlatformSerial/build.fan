@@ -23,7 +23,7 @@ class Build : BuildPod
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
                "proj.uri":     "https://haxall.io/",
-               "license.name": "Acadmemic Free License 3.0",
+               "license.name": "Academic Free License 3.0",
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall",
                ]
