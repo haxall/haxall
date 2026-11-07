@@ -459,10 +459,6 @@ class JsonSchemaExporter : Exporter
 
   private Obj:Obj propSchema(Spec slot)
   {
-    // inline scalars are stamped directly rather than referenced
-    if (inlineScalars.contains(slot.type.qname))
-      return (Obj:Obj)scalarMappings.getChecked(slot.type.qname)
-
     // base obj -- "any" type
     if (slot.type.qname == "sys::Obj")
     {
@@ -513,6 +509,11 @@ class JsonSchemaExporter : Exporter
 
   Obj:Obj ensureRef(Spec type)
   {
+    // inline scalars are stamped at the use site rather than referenced,
+    // since doSpecScalar never gives them a def to point at
+    if (inlineScalars.contains(type.qname))
+      return (Obj:Obj)scalarMappings.getChecked(type.qname)
+
     // recursively ensure that the type is defined
     doSpec(type)
 
