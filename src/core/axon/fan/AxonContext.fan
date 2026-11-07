@@ -280,14 +280,36 @@ abstract class AxonContext : HaystackContext, CompContext
     return null
   }
 
-  ** Push a new frame onto the stack, run it, and then pop it
+  ** Push a new frame onto the stack, run it, and then pop it.
+  ** The outermost frame installs this context as the actor local.
   @NoDoc Obj? run(AxonFrame frame)
   {
+    if (stack.isEmpty) return runOuter(frame)
     stack.push(frame)
     try
       return frame.run(this)
     finally
       stack.pop
+  }
+
+  ** Run the outermost frame with this context installed as the actor
+  ** local so Fantom funcs see it via curAxon; restore the previous
+  ** context when done.  Kept out of run so the hot path stays small.
+  private Obj? runOuter(AxonFrame frame)
+  {
+    old := Actor.locals.get(actorLocalsKey)
+    Actor.locals.set(actorLocalsKey, this)
+    stack.push(frame)
+    try
+    {
+      return frame.run(this)
+    }
+    finally
+    {
+      stack.pop
+      if (old == null) Actor.locals.remove(actorLocalsKey)
+      else Actor.locals.set(actorLocalsKey, old)
+    }
   }
 
   ** Check security permissions to call given function

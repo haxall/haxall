@@ -97,6 +97,11 @@ const class FantomFn : TopFn
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
+  ** Verify the calling context is the actor local context before each
+  ** native call.  On while AxonContext.run installing the context is
+  ** new (Nov 2026); turn off once it has never failed in the field.
+  @NoDoc static const Bool checkCx := true
+
   ** Fantom method which backs the function
   const Method method
 
@@ -116,9 +121,14 @@ const class FantomFn : TopFn
     // security check
     cx.checkCall(this)
 
-    oldCx := AxonContext.curAxon(false)
-    setCx := cx !== oldCx
-    if (setCx) Actor.locals.set(AxonContext.actorLocalsKey, cx)
+    // AxonContext.run installs the context as the actor local on its
+    // outermost frame, so a mismatch here means a native would see the
+    // wrong context (and user); fail loudly rather than silently fix it
+    if (checkCx)
+    {
+      actorCx := AxonContext.curAxon(false)
+      if (actorCx !== cx) throw ContextMismatchErr("Calling '$name' with $cx.typeof but actor local is ${actorCx?.typeof}", cx, callLoc)
+    }
 
     try
       return cx.run(CallFrame(cx.curScope(false) ?: AxonScope(), this, args, callLoc))
@@ -126,14 +136,6 @@ const class FantomFn : TopFn
       throw e
     catch (Err e)
       throw EvalErr("Func failed: $sig; args: ${argsToStr(args)}\n  $e", cx, callLoc, e)
-    finally
-      if (setCx)
-      {
-        if (oldCx == null)
-          Actor.locals.remove(AxonContext.actorLocalsKey)
-        else
-          Actor.locals.set(AxonContext.actorLocalsKey, oldCx)
-      }
   }
 
   override Obj? doCall(AxonContext cx, Obj?[] args)

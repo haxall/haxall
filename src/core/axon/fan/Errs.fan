@@ -68,6 +68,17 @@ const class AxonEmptyStackErr : AxonErr
 }
 
 **
+** ContextMismatchErr is thrown when a Fantom func is called with a
+** context which is not the actor local context, so the func would see
+** the wrong context and user.  See AxonContext.run.
+**
+@Js @NoDoc
+const class ContextMismatchErr : EvalErr
+{
+  new make(Str? msg, AxonContext cx, FileLoc loc) : super(msg, cx, loc) {}
+}
+
+**
 ** EvalTimeoutErr is thrown when an expr exceeds a timeout
 ** limit (configured by `evalTimeout` on `projMeta` of project).
 **
