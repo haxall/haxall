@@ -19,6 +19,10 @@ const mixin Sketch
   ** Template source
   abstract Str src()
 
+  ** Formal params: the only names taken from the scope it is
+  ** rendered with
+  abstract Str[] params()
+
   ** Render this sketch to a DOM element with the given scope variables
   abstract SketchElem renderElem(SketchScope scope)
 
