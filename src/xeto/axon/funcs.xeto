@@ -1333,12 +1333,11 @@
   curFunc: Func { returns: Dict }
 
   // Return if the value is a member of the spec.  A value fits if its
-  // spec is the given spec or a subtype.  A dict's spec is its 'spec'
-  // tag or 'sys::Dict' if untyped.  A dict also fits a sugar spec if
-  // it fits the sugar's nominal anchor and has every constraint tag.
-  // Fits never checks required slots or queries; use [hx.xeto::validate()]
-  // for that.  Use [hx.xeto::specFits()] to check membership between
-  // two specs.
+  // spec fits the given spec via [hx.xeto::specFits()].  A dict's spec
+  // is its 'spec' tag or 'sys::Dict' if untyped.  A dict also fits a
+  // sugar spec if its spec is-a the sugar's nominal anchor and it has
+  // every constraint tag.  Fits never checks required slots or queries;
+  // use [hx.xeto::validate()] for that.
   //
   // The spec is used as given: pass the extended spec from [hx.xeto::specx()]
   // to also apply constraints added to a sugar spec by mixins.

@@ -195,7 +195,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** [xeto::Namespace.fits] which includes sugar specs.  This is used by
   ** haystack Filters with a spec name.  The spec name may be qualified
   ** or unqualified.
-  @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
+  @NoDoc override Bool xetoFits(Str specName, xeto::Dict rec)
   {
     ns.fits(rec, ns.findType(specName))
   }

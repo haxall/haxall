@@ -152,13 +152,13 @@ class FilterTest : HaystackTest
     // isSymbol
     verifyParse("^air-output", Filter.isSymbol(Symbol("air-output")), "^air-output", Str[,])
 
-    // isSpec
-    verifyParse("Rtu", Filter.isSpec("Rtu"), "Rtu", Str[,])
-    verifyParse("ph::Equip", Filter.isSpec("ph::Equip"), "ph::Equip", Str[,])
-    verifyParse("ph.points::AirTempSensor", Filter.isSpec("ph.points::AirTempSensor"), "ph.points::AirTempSensor", Str[,])
-    verifyParse("x.y.z::Foo", Filter.isSpec("x.y.z::Foo"), "x.y.z::Foo", Str[,])
-    verifyParse("a.b.c.d::Foo", Filter.isSpec("a.b.c.d::Foo"), "a.b.c.d::Foo", Str[,])
-    verifyParse("a.b.c.d.e::Foo", Filter.isSpec("a.b.c.d.e::Foo"), "a.b.c.d.e::Foo", Str[,])
+    // fits
+    verifyParse("Rtu", Filter.fits("Rtu"), "Rtu", Str[,])
+    verifyParse("ph::Equip", Filter.fits("ph::Equip"), "ph::Equip", Str[,])
+    verifyParse("ph.points::AirTempSensor", Filter.fits("ph.points::AirTempSensor"), "ph.points::AirTempSensor", Str[,])
+    verifyParse("x.y.z::Foo", Filter.fits("x.y.z::Foo"), "x.y.z::Foo", Str[,])
+    verifyParse("a.b.c.d::Foo", Filter.fits("a.b.c.d::Foo"), "a.b.c.d::Foo", Str[,])
+    verifyParse("a.b.c.d.e::Foo", Filter.fits("a.b.c.d.e::Foo"), "a.b.c.d.e::Foo", Str[,])
 
     // combo
     isA := Filter.has("a")

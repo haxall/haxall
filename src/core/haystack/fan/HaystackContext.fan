@@ -22,7 +22,7 @@ mixin HaystackContext : XetoContext
   ** [xeto::Namespace.fits] which includes sugar specs.  This is used by
   ** haystack Filters with a spec name.  The spec name may be qualified
   ** or unqualified.
-  @NoDoc override Bool xetoIsSpec(Str spec, Dict rec) { false }
+  @NoDoc override Bool xetoFits(Str spec, Dict rec) { false }
 
   ** Read a data record by id or return null
   @NoDoc override Dict? xetoReadById(Obj id) { deref(id) }

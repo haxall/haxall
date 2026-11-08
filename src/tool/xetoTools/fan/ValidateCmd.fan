@@ -192,7 +192,7 @@ internal class DataCmdContext : HaystackContext
     }
   }
 
-  override Bool xetoIsSpec(Str spec, xeto::Dict rec) { throw Err() }
+  override Bool xetoFits(Str spec, xeto::Dict rec) { throw Err() }
 
   override xeto::Dict? deref(Ref id) { recsById.get(id) }
 

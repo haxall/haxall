@@ -44,7 +44,7 @@ internal class Query : HaystackContext
     return doMakePlan(index, filter, false)
   }
 
-  @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
+  @NoDoc override Bool xetoFits(Str specName, xeto::Dict rec)
   {
     ns := folio.hooks.ns(false)
     return ns != null && ns.fits(rec, ns.findType(specName))

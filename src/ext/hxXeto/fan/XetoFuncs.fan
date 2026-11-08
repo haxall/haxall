@@ -488,7 +488,7 @@ const class XetoFuncs
 */
 
 //////////////////////////////////////////////////////////////////////////
-// Is
+// Fits
 //////////////////////////////////////////////////////////////////////////
 
   ** Return the Xeto spec of the given value.  Raise exception
@@ -508,7 +508,7 @@ const class XetoFuncs
 
   ** Return if spec `a` inherits from spec `b` based on nominal typing.
   ** This method checks the explicit inheritance hierarchy via [specBase()].
-  ** Use [specFits()] to include computed sugar subtyping and
+  ** Use [specFits()] to include computed sugar fits and
   ** [axon::fits()] to check if an instance is of a given type.
   **
   ** Examples:
@@ -524,7 +524,7 @@ const class XetoFuncs
   }
 
   ** Return if every member of spec `a` is a member of spec `b`.  This
-  ** is [specIs()] plus computed sugar subtyping: a sugar spec fits
+  ** is [specIs()] plus computed sugar fits: a sugar spec fits
   ** another sugar spec if its nominal anchor is-a the other's anchor
   ** and its constraints are a superset of the other's.  Use [axon::fits()]
   ** to check if an instance is of a given type.

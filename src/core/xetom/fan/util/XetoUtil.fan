@@ -158,7 +158,7 @@ const class XetoUtil
     return null
   }
 
-  ** Iterate the types of loaded libs that fit given type.  The
+  ** Iterate the types of loaded libs that nominally are given type.  The
   ** namespace may still be under construction during lib compiles,
   ** so only touch libs that resolve as loaded.
   static Void eachLoadedTypeThatIs(MNamespace ns, Spec type, |Spec| f)
@@ -834,10 +834,10 @@ const class XetoUtil
   ** Return if a is-a b by nominal typing
   static Bool isa(Spec a, Spec b) { walk(a, b, true, false) }
 
-  ** Return if a fits b: nominal is-a or computed sugar subtyping
+  ** Return if a fits b: nominal is-a or computed sugar fits
   static Bool fits(Spec a, Spec b) { walk(a, b, true, true) }
 
-  ** Shared is-a walk; fits adds computed sugar subtyping at the top
+  ** Shared is-a walk; fits adds computed sugar fits at the top
   private static Bool walk(Spec a, Spec b, Bool isTop, Bool fits)
   {
     // check if a and b are the same; an AST spec is the same as
@@ -872,8 +872,8 @@ const class XetoUtil
     // check a's base type
     if (a.base != null && walk(a.base, b, false, fits)) return true
 
-    // sugar subtyping is computed from anchor and constraints
-    if (fits && isTop && a.isSugar && b.isSugar && !a.isAst && !b.isAst) return MSugar.isa(a.sugar, b.sugar)
+    // sugar fits is computed from anchor and constraints
+    if (fits && isTop && a.isSugar && b.isSugar && !a.isAst && !b.isAst) return MSugar.fits(a.sugar, b.sugar)
 
     return false
   }
@@ -891,7 +891,7 @@ const class XetoUtil
   }
 
   ** Return if val whose spec is t fits spec: t fits spec including
-  ** computed sugar subtypes, or for sugar a dict whose spec is-a the
+  ** computed sugar fits, or for sugar a dict whose spec is-a the
   ** nominal anchor and whose tags satisfy the constraints
   static Bool fitsVal(Spec t, Obj? val, Spec spec)
   {

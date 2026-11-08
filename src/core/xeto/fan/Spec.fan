@@ -96,11 +96,11 @@ const mixin Spec : Dict
   **   - if `this` is `And` and `that` matches any `this.ofs`
   **   - if `this` is `Or` and `that` matches all `this.ofs` (common base)
   **   - if `that` is `Or` and `this` matches any of `that.ofs`
-  ** Use [fits] to include computed sugar subtyping.
+  ** Use [fits] to include computed sugar fits.
   abstract Bool isa(Spec that)
 
   ** Return if every member of `this` spec is a member of `that` spec.
-  ** This is [isa] plus computed sugar subtyping: a sugar spec fits
+  ** This is [isa] plus computed sugar fits: a sugar spec fits
   ** another sugar spec if its nominal anchor is-a the other's anchor
   ** and its constraints are a superset of the other's.  This is the
   ** spec level equivalent of [Namespace.fits].
@@ -201,7 +201,7 @@ const mixin Spec : Dict
   ** Inherits from `sys::Grid` without considering And/Or
   @NoDoc abstract Bool isGrid()
 
-  ** Fits `sys::File` without considering And/Or
+  ** Inherits from `sys::File` without considering And/Or
   @NoDoc abstract Bool isFile()
 
   ** Inherits from `sys::Query` without considering And/Or
@@ -210,10 +210,10 @@ const mixin Spec : Dict
   ** Inherits from `sys::Interface` without considering And/Or
   @NoDoc abstract Bool isInterface()
 
-  ** Fits `sys.comp::Comp` with consideration of And (but not Or)
+  ** Inherits from `sys.comp::Comp` with consideration of And (but not Or)
   @NoDoc abstract Bool isComp()
 
-  ** Fits `sys::Entity` with consideration of And (but not Or)
+  ** Inherits from `sys::Entity` with consideration of And (but not Or)
   @NoDoc abstract Bool isEntity()
 
   ** Is the `sugar` meta flag set with consideration of And (but not Or)

@@ -285,7 +285,7 @@ class TestContext : XetoContext
     fq := Filter(filter)
     return recs.vals.eachWhile |r| { fq.matches(r) ? f(r) : null }
   }
-  override Bool xetoIsSpec(Str spec, Dict rec) { false }
+  override Bool xetoFits(Str spec, Dict rec) { false }
   Ref:Dict recs := [:]
 }
 

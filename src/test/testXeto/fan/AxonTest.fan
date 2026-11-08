@@ -320,7 +320,7 @@ class AxonTest : AbstractAxonTest
     verifySpecFits("DuctFanRunCmd", "DischargeFanRunCmd", false, false)
     verifySpecFits("ColdDeckDischargeFanRunCmd", "DischargeFanRunCmd", true, true)
 
-    // computed sugar subtype only fits
+    // computed sugar fits only
     verifySpecFits("MyDischargeFanRunCmd", "DischargeFanRunCmd", false, true)
     verifySpecFits("Stage2DischargeFanRunCmd", "MyDischargeFanRunCmd", false, true)
     verifySpecFits("Stage2DischargeFanRunCmd", "Stage3DischargeFanRunCmd", false, false)
@@ -414,7 +414,7 @@ class AxonTest : AbstractAxonTest
   Void verifyFilterIs(Dict[] recs, Str expr, Dict[] expect)
   {
     filter := Filter(expr)
-    verifyEq(filter.type, FilterType.isSpec)
+    verifyEq(filter.type, FilterType.fits)
     cx := makeContext
     actual := Dict[,]
     recs.each |r| { if (filter.matches(r, cx)) actual.add(r) }

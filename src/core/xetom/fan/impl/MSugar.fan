@@ -68,9 +68,9 @@ const final class MSugar : SpecSugar
     slot.isMarker ? !slot.isMaybe : slot.meta.has("invariant")
   }
 
-  ** Computed subtyping: a's anchor is-a b's anchor and a's
+  ** Computed sugar fits: a's anchor is-a b's anchor and a's
   ** constraints are a superset of b's with equal values
-  static Bool isa(SpecSugar a, SpecSugar b)
+  static Bool fits(SpecSugar a, SpecSugar b)
   {
     if (!a.anchor.isa(b.anchor)) return false
     r := b.constraints.eachWhile |bc, n|

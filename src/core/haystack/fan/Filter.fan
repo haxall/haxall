@@ -60,8 +60,8 @@ const abstract class Filter
   ** Return a query which is the logical-or of this and that query.
   @NoDoc Filter or(Filter that) { logic(this, FilterType.or, that) |a,b| { FilterOr(a,b) } }
 
-  ** Match records which nominally is an instance of the given spec name
-  @NoDoc static Filter isSpec(Str spec) { FilterIsSpec(spec) }
+  ** Match records which fit the given spec name as defined by [xeto::Namespace.fits]
+  @NoDoc static Filter fits(Str spec) { FilterFits(spec) }
 
   ** Match records which define the symbol terms or subtypes the given definition
   @NoDoc static Filter isSymbol(Symbol symbol) { FilterIsSymbol(symbol) }
@@ -237,7 +237,7 @@ const abstract class Filter
 **      le       a <= b     argA=FilterPath, argB=Obj
 **      and      a and b    argA=Filter, argB=Filter
 **      or       a or b     argA=Filter, argB=Filter
-**      isSpec   a          argA=Str
+**      fits     a          argA=Str
 **      isSymbol ^a         argA=Symbol
 **      search   special
 **
@@ -255,7 +255,7 @@ enum class FilterType
   and,
   or,
   isSymbol,
-  isSpec,
+  fits,
   search
 }
 
@@ -540,18 +540,18 @@ internal const final class FilterIsSymbol : Filter
 }
 
 **************************************************************************
-** FilterIsSpec
+** FilterFits
 **************************************************************************
 
 @Js
-internal const final class FilterIsSpec : Filter
+internal const final class FilterFits : Filter
 {
   new make(Str spec) { this.spec = spec }
-  override Bool doMatches(Dict r, HaystackContext cx) { cx.xetoIsSpec(spec, r) }
+  override Bool doMatches(Dict r, HaystackContext cx) { cx.xetoFits(spec, r) }
   override Str pattern() { spec }
   override Void eachVal(|Obj?,FilterPath| f) {}
   override Void eachTag(|Str| f) {}
-  override FilterType type() { FilterType.isSpec }
+  override FilterType type() { FilterType.fits }
   override Obj? argA() { spec }
   override Str toStr() { spec }
   private const Str spec
@@ -744,13 +744,13 @@ internal class FilterParser : HaystackParser
     if (cur === HaystackToken.id)
     {
       // FooBar
-      if (curVal.toStr[0].isUpper) return FilterIsSpec(consumeId)
+      if (curVal.toStr[0].isUpper) return FilterFits(consumeId)
 
       // baz::FooBar
-      if (peek === HaystackToken.colon2) return FilterIsSpec(specQName)
+      if (peek === HaystackToken.colon2) return FilterFits(specQName)
 
       // baz.qux::FooBar
-      if (peek === HaystackToken.dot) return FilterIsSpec(specQName)
+      if (peek === HaystackToken.dot) return FilterFits(specQName)
     }
 
     p := path

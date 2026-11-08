@@ -89,7 +89,7 @@ internal class MemFolioContext : PatherContext
 {
   new make(MemFolio folio, |Ref->Dict?| pather) : super(pather) { this.folio = folio }
 
-  override Bool xetoIsSpec(Str specName, Dict rec)
+  override Bool xetoFits(Str specName, Dict rec)
   {
     ns := folio.hooks.ns(false)
     return ns != null && ns.fits(rec, ns.findType(specName))

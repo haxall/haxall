@@ -157,8 +157,9 @@ const mixin Namespace
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
   ** Return if the value is a member of the spec.  A value fits if its
-  ** spec is the given spec or a subtype.  A dict also fits a sugar spec
-  ** if it fits the sugar's nominal anchor and has every constraint tag.
+  ** spec fits the given spec via [Spec.fits].  A dict also fits a sugar
+  ** spec if its spec is-a the sugar's nominal anchor and it has every
+  ** constraint tag.
   ** Fits never checks required slots or queries; use [validate] for that.
   abstract Bool fits(Obj? val, Spec spec)
 

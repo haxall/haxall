@@ -28,7 +28,7 @@ mixin XetoContext : ActorContext
   ** [xeto::Namespace.fits] which includes sugar specs.  This is used by
   ** haystack Filters with a spec name.  The spec name may be qualified
   ** or unqualified.
-  @NoDoc abstract Bool xetoIsSpec(Str spec, Dict rec)
+  @NoDoc abstract Bool xetoFits(Str spec, Dict rec)
 
   ** Can this context call function thunks, which require an Axon
   ** runtime.  Func validation rules skip when this is false.
@@ -45,6 +45,6 @@ const class NilXetoContext : XetoContext
   static const NilXetoContext val := make
   override Dict? xetoReadById(Obj id) { null }
   override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
-  override Bool xetoIsSpec(Str spec, Dict rec) { false }
+  override Bool xetoFits(Str spec, Dict rec) { false }
 }
 

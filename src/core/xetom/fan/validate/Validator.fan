@@ -220,7 +220,7 @@ class Validator
     val     := s.val
     valType := s.valType
 
-    // if it fits by nominal or computed sugar subtyping
+    // if it fits by nominal or computed sugar fits
     if (valType.fits(type)) return true
 
     // a scalar with its own binding fits values of the bound Fantom
@@ -319,8 +319,7 @@ class Validator
   ** Key of the query constraint which rec's spec tag names directly
   ** or thru an override in a subtype query, given constraint keys by
   ** qname.  This is nominal only: sibling constraints with equal tags
-  ** are computed sugar subtypes of each other, so isa would bind the
-  ** rec to all of them
+  ** fit each other, so fits would bind the rec to all of them
   private Str? anchorOf(Dict x, Str:Str keys)
   {
     for (t := specOf(x); t != null; t = t.base)
