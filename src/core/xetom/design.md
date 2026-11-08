@@ -213,10 +213,16 @@ either.  The core after resolving the value's spec is
 `XetoUtil.fitsVal`, which the validator shares for query extents so
 its `specOf` hook (the compile-time overlay) applies.
 
-Callers pick by intent: membership checks (slot value types, ref
-`of` targets, rule `on` applicability, covariance) use `fits`;
-lineage walks (choices, mixin targets, sugar anchors, registries,
-`excludeSupertypes`) use `isa`.
+The walk compares specs with `same`: an extended spec from `specx` is
+the same spec as the one it wraps, and an AST spec is the same as its
+compiled peer by qname.  An extended spec walks with its own sugar, so
+mixin constraints apply on either side of `Spec.fits`.
+
+Callers pick by intent: membership checks on a value (slot values, ref
+targets) use `fitsVal` or `Namespace.fits` so a dict's tags count;
+membership checks between specs (rule `on` applicability, covariance)
+use `Spec.fits`; lineage walks (choices, mixin targets, sugar anchors,
+registries, `excludeSupertypes`) use `isa`.
 
 There is no sugar specific validation rule.  An instance asserting a
 sugar spec has its constraints checked by the standard walk: constraint

@@ -78,6 +78,20 @@ class SugarTest : AbstractXetoTest
       verifyIsa(stage2, myDis,  false, true)
       verifyIsa(stage2, stage3, false, false)
       verifyIsa(ret,    dis,    false, false)
+
+      // extended spec is the same spec as the one it wraps
+      retx := ns.specx(ret)
+      verifyIsa(retx, retx, true, true)
+      verifyIsa(retx, ret,  true, true)
+      verifyIsa(ret,  retx, true, true)
+      verifyIsa(retx, fan,  true, true)
+
+      // extended spec applies mixin constraints on either side
+      hdr := ns.spec("hx.test.xeto::HotDeckReturnFanRunCmd")
+      verifyIsa(ret,  hdr,  false, false)
+      verifyIsa(retx, hdr,  false, true)
+      verifyIsa(hdr,  ret,  false, true)
+      verifyIsa(hdr,  retx, false, true)
     }
   }
 
@@ -132,6 +146,9 @@ class SugarTest : AbstractXetoTest
       verifyFits(ns, noHotDeck, ret, true)
       verifyEq(ns.fits(noHotDeck, retx), false)
       verifyEq(ns.fits(Etc.makeDict(["spec":fan, "return":m, "hotDeck":m]), retx), true)
+
+      // asserting the spec by name fits its extended spec
+      verifyEq(ns.fits(Etc.makeDict(["spec":Ref(ret)]), retx), true)
 
       // query items are anonymous sugar
       item := ns.spec("hx.test.xeto::SugarItemsEquip").slot("points").slot("fan")

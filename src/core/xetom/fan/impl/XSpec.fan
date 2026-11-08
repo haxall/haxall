@@ -216,7 +216,7 @@ const class WrapSpec : Spec
 
   override final Bool isa(Spec x) { m.isa(x) }
 
-  override final Bool fits(Spec x) { m.fits(x) }
+  override final Bool fits(Spec x) { XetoUtil.fits(this, x) }
 
   override final FileLoc loc() { m.loc }
 

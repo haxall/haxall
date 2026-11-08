@@ -220,8 +220,8 @@ class Validator
     val     := s.val
     valType := s.valType
 
-    // if it fits by nominal or computed sugar fits
-    if (valType.fits(type)) return true
+    // if it fits by spec or for sugar by anchor plus tags
+    if (XetoUtil.fitsVal(valType, val, type)) return true
 
     // a scalar with its own binding fits values of the bound Fantom
     // type, such as ion::Percent which binds to Float

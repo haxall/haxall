@@ -502,6 +502,45 @@ class ValidateTest : AbstractXetoTest
     verifyEngine(ns, lib, "A", ["num":n(5)], ["sys::maxValUnit", "sys::minValUnit"])
   }
 
+  Void testEngineSugarFits()
+  {
+    ns := nsTest
+    lib := ns.compileTempLib(
+      Str<|Holder: Dict {
+             fan: ph.points.x::DischargeFanRunCmd?
+             fanRef: Ref?<of:ph.points.x::DischargeFanRunCmd>
+           }
+           |>)
+
+    // valid fan rec asserting the nominal anchor with and without the tag
+    anchor := Ref("ph.points::DuctFanRunCmd")
+    tagged := Etc.dictSet(ns.instantiate(ns.spec("ph.points.x::DischargeFanRunCmd")), "spec", anchor)
+    plain  := Etc.dictRemove(tagged, "discharge")
+
+    refTagged := Ref("to-fan-tagged")
+    refPlain  := Ref("to-fan-plain")
+    recs[refTagged] = Etc.dictSet(tagged, "id", refTagged)
+    recs[refPlain]  = Etc.dictSet(plain,  "id", refPlain)
+
+    initContext(lib).asCur |cx|
+    {
+      // dict slot value fits sugar by anchor plus tags; nested point
+      // rules such as siteRef are noise here so only check invalidType
+      verifyInvalidType(ns, lib.spec("Holder"), ["fan":tagged], false)
+      verifyInvalidType(ns, lib.spec("Holder"), ["fan":plain],  true)
+
+      // ref target fits sugar by anchor plus tags
+      verifyEngine(ns, lib, "Holder", ["fanRef":refTagged], [,])
+      verifyEngine(ns, lib, "Holder", ["fanRef":refPlain], ["sys::refTargetType"])
+    }
+  }
+
+  Void verifyInvalidType(Namespace ns, Spec spec, Str:Obj tags, Bool expect)
+  {
+    r := ns.validate(Etc.makeDict(tags), spec)
+    verifyEq(r.items.any |x| { x.rule.id == "sys::invalidType" }, expect)
+  }
+
   Void testEngineTypes()
   {
     ns := createNamespace(["sys"])

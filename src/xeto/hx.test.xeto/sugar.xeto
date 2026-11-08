@@ -38,3 +38,6 @@ SugarItemsEquip: Equip {
 
 // mixin adds constraint to sugar spec
 +ReturnFanRunCmd { hotDeck }
+
+// same anchor and constraints as ReturnFanRunCmd with its mixin
+HotDeckReturnFanRunCmd: DuctFanRunCmd <sugar> { return, hotDeck }

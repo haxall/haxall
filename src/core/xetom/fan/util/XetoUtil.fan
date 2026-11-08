@@ -840,10 +840,8 @@ const class XetoUtil
   ** Shared is-a walk; fits adds computed sugar fits at the top
   private static Bool walk(Spec a, Spec b, Bool isTop, Bool fits)
   {
-    // check if a and b are the same; an AST spec is the same as
-    // its compiled peer in a dependency or the namespace overlay
-    if (a === b) return true
-    if ((a.isAst || b.isAst) && a.qname == b.qname) return true
+    // check if a and b are the same
+    if (same(a, b)) return true
 
     // if A is "maybe" type, then it also matches None
     if (b.isNone && a.isMaybe && isTop) return true
@@ -877,6 +875,18 @@ const class XetoUtil
 
     return false
   }
+
+  ** Same spec by identity; an extended spec is the same as the spec it
+  ** wraps, and an AST spec is the same as its compiled peer in a
+  ** dependency or the namespace overlay
+  private static Bool same(Spec a, Spec b)
+  {
+    if (a === b) return true
+    if (a is WrapSpec || b is WrapSpec) return unwrap(a) === unwrap(b)
+    return (a.isAst || b.isAst) && a.qname == b.qname
+  }
+
+  private static Spec unwrap(Spec x) { (x as WrapSpec)?.m ?: x }
 
   ** Map enum value to its string key or null: Str key, Scalar,
   ** or Fantom value bound to an enum spec such as Enum, Unit, TimeZone
