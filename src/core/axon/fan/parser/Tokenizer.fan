@@ -46,12 +46,11 @@ class Tokenizer
     val = null
 
     // skip whitespace or comments
-    startLine := line
     while (true)
     {
       if (cur == '\n')
       {
-        ++line; consume
+        consume
         while (cur == ' ') consume
         continue
       }
@@ -520,7 +519,6 @@ class Tokenizer
     {
       if (cur == '*' && peek == '/') { consume; consume; depth--; if (depth <= 0) break }
       if (cur == '/' && peek == '*') { consume; consume; depth++; continue }
-      if (cur == '\n') ++line
       if (cur == 0) break
       consume
     }
@@ -538,9 +536,10 @@ class Tokenizer
 // Char Reads
 //////////////////////////////////////////////////////////////////////////
 
+  ** Advance to the next char, counting lines and columns
   protected Void consume()
   {
-    if (cur == '\n') col = 0; else col++
+    if (cur == '\n') { ++line; col = 0 } else col++
     cur  = peek
     peek = in.readChar ?: 0
   }

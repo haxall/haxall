@@ -193,6 +193,8 @@ class ParseTest : Test
     // one line count across both
     exprs := HostParser("a\nb {\n x}").parseHost
     verifyEq(((Expr)exprs[1]).loc.line, 3)
+    exprs = HostParser("{\"\"\"\n    ab\n    \"\"\"}\n{x}").parseHost
+    verifyEq(((Expr)exprs[2]).loc.line, 4)
 
     verifyErr(SyntaxErr#) { HostParser("{x").parseHost }
     verifyErr(SyntaxErr#) { HostParser("{x y}").parseHost }
@@ -226,12 +228,7 @@ internal class HostTokenizer : Tokenizer
     if (cur == 0) return tok = Token.eof
     if (cur == '{') { consume; inAxon = true; return tok = Token.lbrace }
     buf := StrBuf()
-    while (cur != 0 && cur != '{')
-    {
-      if (cur == '\n') ++line
-      buf.addChar(cur)
-      consume
-    }
+    while (cur != 0 && cur != '{') { buf.addChar(cur); consume }
     val = buf.toStr
     return tok = Token.foreign
   }

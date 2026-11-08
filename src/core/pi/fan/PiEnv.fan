@@ -59,7 +59,7 @@ abstract const class PiEnv
   abstract Pi pi(Spec spec)
 
   ** Compile a sketch template with its formal params against this
-  ** namespace; cached by src and params
+  ** namespace.  Not cached: each Pi compiles its own sketches once
   @NoDoc abstract Sketch sketch(Str src, Str[] params)
 
   ** Construct an ItemList implementation

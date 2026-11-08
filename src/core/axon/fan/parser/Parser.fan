@@ -31,7 +31,6 @@ class Parser
   ** which embeds Axon and produces `Token.foreign` for its own tokens
   protected new makeTokenizer(Tokenizer tokenizer)
   {
-    this.startLoc  = tokenizer.startLoc
     this.tokenizer = tokenizer
     cur = peek = peekPeek = Token.eof
     consume
@@ -1081,7 +1080,7 @@ class Parser
 
   protected SyntaxErr err(Str msg, FileLoc loc := curLoc) { SyntaxErr(msg, loc) }
 
-  protected FileLoc curLoc() { FileLoc(startLoc.file, startLoc.line + curLine) }
+  protected FileLoc curLoc() { FileLoc(tokenizer.startLoc.file, tokenizer.startLoc.line + curLine) }
 
 //////////////////////////////////////////////////////////////////////////
 // Char Reads
@@ -1163,7 +1162,6 @@ class Parser
   private const static Expr[] noArgs  := Expr#.emptyList
   private const static FnParam[] noParams := FnParam#.emptyList
 
-  private FileLoc startLoc     // location immediately before first line
   private Tokenizer tokenizer  // stream tokenizer
 
   Token cur  { private set }   // current token
