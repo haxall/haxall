@@ -104,15 +104,22 @@ class ParseTest : Test
     verifyPattern("200 or 204 as code", "200 or 204 as code")
     verifyPattern("Vav {airRef as a, area: Number? as sz} as v", "Vav {airRef as a, area: Number? as sz} as v")
 
-    verifyErr(SyntaxErr#) { Parser("200 =>".in).parsePattern }
-    verifyErr(SyntaxErr#) { Parser("x".in).parsePattern }
-    verifyErr(SyntaxErr#) { Parser("1 as x as y".in).parsePattern }
-    verifyErr(SyntaxErr#) { Parser("{a as x, b as x}".in).parsePattern }
+    verifyErr(SyntaxErr#) { parsePattern("200 =>") }
+    verifyErr(SyntaxErr#) { parsePattern("x") }
+    verifyErr(SyntaxErr#) { parsePattern("1 as x as y") }
+    verifyErr(SyntaxErr#) { parsePattern("{a as x, b as x}") }
   }
 
   Void verifyPattern(Str src, Str expect)
   {
-    verifyEq(Parser(src.in).parsePattern.toStr, expect)
+    verifyEq(parsePattern(src).toStr, expect)
+  }
+
+  ** Parse pattern src as the pattern of a switch case
+  Pattern parsePattern(Str src)
+  {
+    SwitchExpr e := Parser("switch (x) case $src => 0 end".in).parse
+    return e.cases.first.pattern
   }
 
 //////////////////////////////////////////////////////////////////////////

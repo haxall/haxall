@@ -22,17 +22,10 @@ const abstract class Pattern : Expr
 
   override const FileLoc loc
 
-  ** Return if subject matches and add every name it binds to binds
-  abstract Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  ** Return if subject matches and set every name it binds in scope
+  abstract Bool match(AxonContext cx, Obj? subject, AxonScope scope)
 
   override final Obj? eval(AxonContext cx) { throw UnsupportedErr("Pattern cannot be evaluated: $type") }
-
-  ** Map subject to its enum item spec or null if not a valid key
-  static Spec? enumItem(Spec enum, Obj? subject)
-  {
-    key := XetoUtil.enumKey(subject)
-    return key == null ? null : enum.enum.spec(key, false)
-  }
 }
 
 **************************************************************************
@@ -53,7 +46,7 @@ const class LiteralPattern : Pattern
 
   const Obj? literal
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
     if (subject is Date && literal is DateSpan) return ((DateSpan)literal).contains(subject)
     return Eq.eqVals(literal, subject)
@@ -84,7 +77,7 @@ const class RangePattern : Pattern
 
   const Obj end
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
     subject?.typeof === start.typeof && start <= subject && subject <= end
   }
@@ -115,11 +108,11 @@ const class SpecPattern : Pattern
 
   const TopName spec
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
     if (subject == null) return false
     Spec s := spec.eval(cx)
-    return cx.ns.fits(subject, s) || (s.isEnum && enumItem(s, subject) != null)
+    return cx.ns.fits(subject, s) || (s.isEnum && EnumPattern.enumItem(s, subject) != null)
   }
 
   override Void walk(|Str key, Obj? val| f) { f("spec", spec) }
@@ -150,7 +143,14 @@ const class EnumPattern : Pattern
 
   const Str item
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  ** Map subject to its enum item spec or null if not a valid key
+  static Spec? enumItem(Spec enum, Obj? subject)
+  {
+    key := XetoUtil.enumKey(subject)
+    return key == null ? null : enum.enum.spec(key, false)
+  }
+
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
     Spec s := spec.eval(cx)
     if (!s.isEnum) throw EvalErr("Not enum spec: $s", cx, loc)
@@ -187,13 +187,13 @@ const class DictPattern : Pattern
 
   const SlotPattern[] slots
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
     dict := subject as Dict
     if (dict == null) return false
-    if (spec != null && !spec.match(cx, dict, binds)) return false
+    if (spec != null && !spec.match(cx, dict, scope)) return false
     for (i := 0; i<slots.size; ++i)
-      if (!slots[i].match(cx, dict, binds)) return false
+      if (!slots[i].match(cx, dict, scope)) return false
     return true
   }
 
@@ -249,11 +249,11 @@ const class SlotPattern : Pattern
   ** Name to bind slot value to: "{area as a}"
   const Str? bind
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
     val := ((Dict)subject).get(name)
-    if (val == null ? !optional : pattern != null && !pattern.match(cx, val, binds)) return false
-    if (bind != null) binds[bind] = val
+    if (val == null ? !optional : pattern != null && !pattern.match(cx, val, scope)) return false
+    if (bind != null) scope.set(bind, val)
     return true
   }
 
@@ -295,10 +295,10 @@ const class BindPattern : Pattern
 
   const Str name
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
-    if (!inner.match(cx, subject, binds)) return false
-    binds[name] = subject
+    if (!inner.match(cx, subject, scope)) return false
+    scope.set(name, subject)
     return true
   }
 
@@ -325,10 +325,10 @@ const class OrPattern : Pattern
 
   const Pattern[] alts
 
-  override Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
+  override Bool match(AxonContext cx, Obj? subject, AxonScope scope)
   {
     for (i := 0; i<alts.size; ++i)
-      if (alts[i].match(cx, subject, binds)) return true
+      if (alts[i].match(cx, subject, scope)) return true
     return false
   }
 

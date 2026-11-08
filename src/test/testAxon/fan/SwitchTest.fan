@@ -454,6 +454,17 @@ class SwitchTest : HxTest
     // only default
     verifySwitch("switch (x) default => 7 end", "3", n(7))
 
+    // default is its own scope like a case
+    verifyErr(EvalErr#) { eval("do switch (1) default => do a: 3; a end end; a end") }
+    verifyEval(Str<|[1, 2].map(i => do
+                      switch (i) default => do a: i * 10; a end end
+                    end)|>, Obj?[n(10), n(20)])
+    verifyEval(Str<|do
+                      t: 0
+                      switch (1) default => t = 5 end
+                      t
+                    end|>, n(5))
+
     // subject evaluated once
     verifyEval(Str<|do
                       n: 0

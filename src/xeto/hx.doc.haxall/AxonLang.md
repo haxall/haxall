@@ -694,7 +694,7 @@ comparisons or reading a record a Ref points to:
 Like the condition of an `if`, a guard must evaluate to a Bool.
 
 ## Scoping
-Each case is its own scope.  The variables bound by its pattern and any
+Each case, and the default, is its own scope.  The variables bound by its pattern and any
 variables defined inside its guard or body are visible in the guard and
 body, including lambdas inside them, but not after the switch.  The body may still
 assign variables of the enclosing scope:

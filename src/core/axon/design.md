@@ -79,15 +79,17 @@ component calls that seed `this` and read back the call's variables.
 ## Switch
 
 Each case is a `SwitchCase` of a `Pattern`, an optional guard, and a
-body.  `SwitchCase.matchScope` is the one place a case is matched: it
-matches the pattern into a map of bindings, nests a scope in the given
-parent with them, and evaluates the guard in that scope.  It returns
+body.  `SwitchCase.matchScope` is the one place a case is matched: it nests a
+scope in the given parent, matches the pattern which sets its bindings
+in that scope, and evaluates the guard in it.  It returns
 the scope for the body, or null to try the next case.  The parent is
 passed in so a host such as sketch matches against its own scope; the
 switch passes `curScope` and runs the body in an `EvalFrame`.
 
 Patterns are AST nodes which never evaluate; `match` tests a subject
-and adds the names bound with `as` to the bindings map.  Dict patterns
+and sets the names bound with `as` in the scope.  A scope that fails to
+match is discarded with any names a pattern set before it failed.
+`default` runs in its own nested scope like a case body.  Dict patterns
 do not nest and nothing in a pattern reads from the database: a guard
 is the place for tests a pattern cannot express.
 

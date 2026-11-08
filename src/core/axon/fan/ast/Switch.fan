@@ -41,7 +41,8 @@ const class SwitchExpr : Expr
       scope := c.matchScope(cx, cx.curScope, s)
       if (scope != null) return cx.run(EvalFrame(scope, c.body))
     }
-    return defExpr?.eval(cx)
+    if (defExpr == null) return null
+    return cx.run(EvalFrame(AxonScope.makeNested(cx.curScope), defExpr))
   }
 
   override Void walk(|Str key, Obj? val| f)
@@ -99,10 +100,8 @@ const class SwitchCase : Expr
   **
   AxonScope? matchScope(AxonContext cx, AxonScope parent, Obj? subject)
   {
-    binds := Str:Obj?[:]
-    if (!pattern.match(cx, subject, binds)) return null
     scope := AxonScope.makeNested(parent)
-    binds.each |v, n| { scope.set(n, v) }
+    if (!pattern.match(cx, subject, scope)) return null
     if (guard != null && !(Bool)cx.run(EvalFrame(scope, guard))) return null
     return scope
   }

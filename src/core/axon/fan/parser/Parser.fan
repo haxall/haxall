@@ -50,14 +50,6 @@ class Parser
     return r
   }
 
-  ** Parse a switch case pattern such as "200 or 204"
-  @NoDoc Pattern parsePattern()
-  {
-    r := casePattern
-    verifyEof
-    return r
-  }
-
   ** New style top where params come from Xeto
   TopFn parseTopBody(Str name, FnParam[] params, Dict meta)
   {
@@ -319,12 +311,14 @@ class Parser
   private SwitchCase switchCase()
   {
     consume(Token.caseKeyword)
-    return caseArm(true)
+    arm := caseArm
+    consume(Token.fnEq)
+    return SwitchCase(arm.loc, arm.pattern, arm.guard, expr)
   }
 
-  ** Parse case pattern, optional guard, and if hasBody the "=>" body.
-  ** Hosts such as sketch parse arms without a body to draw their own.
-  protected SwitchCase caseArm(Bool hasBody)
+  ** Parse case pattern and optional guard with a null body.  Hosts
+  ** such as sketch use it to parse arms which draw their own body.
+  protected SwitchCase caseArm()
   {
     loc := curLoc
     p := casePattern
@@ -336,9 +330,7 @@ class Parser
       guard = expr
       consume(Token.rparen)
     }
-    Expr body := Literal.nullVal
-    if (hasBody) { consume(Token.fnEq); body = expr }
-    return SwitchCase(loc, p, guard, body)
+    return SwitchCase(loc, p, guard, Literal.nullVal)
   }
 
   **
@@ -355,14 +347,13 @@ class Parser
   **     <specName>    :=  [<qnameLib> "::"] <typename>
   **     <rangeOrLit>  :=  <literal> [".." <literal>]
   **
-  ** Parse pattern with fresh set of binding names to check duplicates
   private Pattern casePattern()
   {
-    binds = Str[,]
+    bindNames = Str[,]
     try
       return pattern
     finally
-      binds = null
+      bindNames = null
   }
 
   private Pattern pattern()
@@ -376,11 +367,11 @@ class Parser
   ** Alternatives cannot bind names
   private Pattern orPattern(Bool inSlot)
   {
-    numBinds := binds.size
+    numBinds := bindNames.size
     alts := [primary(inSlot)]
     while (cur === Token.orKeyword) { consume; alts.add(primary(inSlot)) }
     if (alts.size == 1) return alts.first
-    if (binds.size != numBinds) throw err("Pattern alternatives cannot bind names")
+    if (bindNames.size != numBinds) throw err("Pattern alternatives cannot bind names")
     return OrPattern(alts)
   }
 
@@ -388,8 +379,8 @@ class Parser
   private Str bind()
   {
     name := consumeId("pattern binding name")
-    if (binds.contains(name)) throw err("Duplicate pattern binding: $name")
-    binds.add(name)
+    if (bindNames.contains(name)) throw err("Duplicate pattern binding: $name")
+    bindNames.add(name)
     return name
   }
 
@@ -1199,6 +1190,6 @@ class Parser
   private Str? curFuncName     // current name of base func
   private Int anonNum          // number of anonymous funcs
   private Bool inAxonParam
-  private Str[]? binds         // pattern binding names while parsing case
+  private Str[]? bindNames     // pattern binding names while parsing case
 }
 
