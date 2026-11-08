@@ -882,7 +882,7 @@ const class XetoUtil
   private static Bool same(Spec a, Spec b)
   {
     if (a === b) return true
-    if (a is WrapSpec || b is WrapSpec) return unwrap(a) === unwrap(b)
+    if ((a is WrapSpec || b is WrapSpec) && unwrap(a) === unwrap(b)) return true
     return (a.isAst || b.isAst) && a.qname == b.qname
   }
 
