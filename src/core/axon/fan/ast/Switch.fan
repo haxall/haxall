@@ -93,15 +93,6 @@ const class SwitchCase : Expr
 
   override Obj? eval(AxonContext cx) { throw UnsupportedErr("SwitchCase cannot be evaluated") }
 
-  ** Pattern bindings are bound within the body
-  override Void doFreeVars(Str:Str acc)
-  {
-    inner := acc.dup
-    pattern.eachBind |n| { bindVar(inner, n) }
-    body.doFreeVars(inner)
-    inner.each |v, n| { if (v == "free") acc[n] = v }
-  }
-
   override Void walk(|Str key, Obj? val| f)
   {
     f("pattern", pattern)

@@ -25,9 +25,6 @@ const abstract class Pattern : Expr
   ** Return if subject matches and add every name it binds to binds
   abstract Bool match(AxonContext cx, Obj? subject, Str:Obj? binds)
 
-  ** Iterate every name this pattern binds
-  virtual Void eachBind(|Str name| f) {}
-
   override final Obj? eval(AxonContext cx) { throw UnsupportedErr("Pattern cannot be evaluated: $type") }
 
   ** Map subject to its enum item spec or null if not a valid key
@@ -200,8 +197,6 @@ const class DictPattern : Pattern
     return true
   }
 
-  override Void eachBind(|Str name| f) { slots.each |slot| { slot.eachBind(f) } }
-
   override Void walk(|Str key, Obj? val| f)
   {
     f("spec", spec)
@@ -262,8 +257,6 @@ const class SlotPattern : Pattern
     return true
   }
 
-  override Void eachBind(|Str name| f) { if (bind != null) f(bind) }
-
   override Void walk(|Str key, Obj? val| f)
   {
     f("name", name)
@@ -308,8 +301,6 @@ const class BindPattern : Pattern
     binds[name] = subject
     return true
   }
-
-  override Void eachBind(|Str name| f) { inner.eachBind(f); f(name) }
 
   override Void walk(|Str key, Obj? val| f)
   {
