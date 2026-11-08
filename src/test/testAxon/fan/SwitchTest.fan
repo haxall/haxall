@@ -392,6 +392,58 @@ class SwitchTest : HxTest
 // Default
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+// Guards
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testGuards()
+  {
+    // guard sees bindings and falls thru when false
+    f :=
+      Str<|(x) => switch (x)
+             case Number as n if (n > 10) => "big " + n
+             case Number as n if (n < 0) => "neg " + n
+             case Number => "small"
+             case {area: Number as a} if (a > 1000) => "large area"
+             case {area} => "area"
+             default => "other"
+           end|>
+    verifyCall(f, n(20), "big 20")
+    verifyCall(f, n(-3), "neg -3")
+    verifyCall(f, n(5), "small")
+    verifyCall(f, Etc.dict1("area", n(2000)), "large area")
+    verifyCall(f, Etc.dict1("area", n(500)), "area")
+    verifyCall(f, "x", "other")
+
+    // guard without bindings sees outer vars
+    verifyEval(Str<|do
+                      limit: 5
+                      switch (7) case 1..10 if (limit < 6) => "under limit" default => "other" end
+                    end|>, "under limit")
+
+    // guard only evaluated after pattern matches
+    verifyEval(Str<|do
+                      count: 0
+                      switch (1) case "x" if (do count = count + 1; true end) => 1 default => 2 end
+                      count
+                    end|>, n(0))
+
+    // closure in guard captures binding
+    verifyCall(Str<|(x) => switch (x) case Number as n if ([1, 2].any(i => i == n)) => "in" default => "out" end|>, n(2), "in")
+    verifyCall(Str<|(x) => switch (x) case Number as n if ([1, 2].any(i => i == n)) => "in" default => "out" end|>, n(3), "out")
+
+    // bindings of a case whose guard fails are not visible to later cases
+    verifyErr(EvalErr#) { eval("switch (1) case Number as n if (false) => 1 default => n end") }
+
+    // errors
+    // guard must be Bool like if
+    verifyErr(CastErr#) { eval("switch (1) case 1 if (3) => 2 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1 if true => 2 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1 if () => 2 end") }
+    verifyErr(SyntaxErr#) { eval("switch (1) case 1 if (true) end") }
+  }
+
   @HxTestProj
   Void testDefault()
   {
@@ -496,7 +548,8 @@ class SwitchTest : HxTest
              case ph::Site or Number => 5
              case CurStatus.ok => 6
              case Vav {airRef as a, kind: "Number" or Str, "not tag", area: Number? as sz} as v => 7
-             default => 8
+             case Number as n if (n > 3) => 8
+             default => 9
            end|>
     expr := Parser(src.in).parse
 
@@ -508,7 +561,7 @@ class SwitchTest : HxTest
     ast := expr.encode
     verifyEq(ast->type, "switch")
     Dict[] cases := ast->cases
-    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern", "bindPattern"])
+    verifyEq(cases.map |c->Obj?| { c->pattern->type }, Obj?["literalPattern", "orPattern", "rangePattern", "literalPattern", "orPattern", "enumPattern", "bindPattern", "bindPattern"])
     verifyEq(cases[6]->pattern->type, "bindPattern")
     verifyEq(cases[6]->pattern->name, "v")
     Dict dp := cases[6]->pattern->inner
@@ -528,6 +581,8 @@ class SwitchTest : HxTest
     verifyEq(((Dict[])cases[1]->pattern->alts).map |p->Obj?| { p->val }, Obj?["a", n(4)])
     verifyEq(cases[2]->pattern->start, n(400))
     verifyEq(cases[2]->pattern->end, n(499))
+    verifyEq(cases[0].has("guard"), false)
+    verifyEq(cases[7]->guard->type, "gt")
   }
 
 //////////////////////////////////////////////////////////////////////////

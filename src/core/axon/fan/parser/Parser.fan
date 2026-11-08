@@ -290,7 +290,8 @@ class Parser
   ** Switch with pattern matching cases:
   **
   **     <switch>   :=  "switch" "(" <expr> ")" <case>* [<default>] "end"
-  **     <case>     :=  "case" <pattern> "=>" <expr>
+  **     <case>     :=  "case" <pattern> [<guard>] "=>" <expr>
+  **     <guard>    :=  "if" "(" <expr> ")"
   **     <default>  :=  "default" "=>" <expr>
   **
   private Expr switchExpr()
@@ -317,11 +318,27 @@ class Parser
 
   private SwitchCase switchCase()
   {
-    loc := curLoc
     consume(Token.caseKeyword)
+    return caseArm(true)
+  }
+
+  ** Parse case pattern, optional guard, and if hasBody the "=>" body.
+  ** Hosts such as sketch parse arms without a body to draw their own.
+  protected SwitchCase caseArm(Bool hasBody)
+  {
+    loc := curLoc
     p := casePattern
-    consume(Token.fnEq)
-    return SwitchCase(loc, p, expr)
+    Expr? guard := null
+    if (cur === Token.ifKeyword)
+    {
+      consume
+      consume(Token.lparen)
+      guard = expr
+      consume(Token.rparen)
+    }
+    Expr body := Literal.nullVal
+    if (hasBody) { consume(Token.fnEq); body = expr }
+    return SwitchCase(loc, p, guard, body)
   }
 
   **
@@ -339,7 +356,7 @@ class Parser
   **     <rangeOrLit>  :=  <literal> [".." <literal>]
   **
   ** Parse pattern with fresh set of binding names to check duplicates
-  protected Pattern casePattern()
+  private Pattern casePattern()
   {
     binds = Str[,]
     try

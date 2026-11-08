@@ -76,6 +76,21 @@ template loop body.
 `AxonContext.callIn` runs a func with a caller supplied scope for
 component calls that seed `this` and read back the call's variables.
 
+## Switch
+
+Each case is a `SwitchCase` of a `Pattern`, an optional guard, and a
+body.  `SwitchCase.matchScope` is the one place a case is matched: it
+matches the pattern into a map of bindings, nests a scope in the given
+parent with them, and evaluates the guard in that scope.  It returns
+the scope for the body, or null to try the next case.  The parent is
+passed in so a host such as sketch matches against its own scope; the
+switch passes `curScope` and runs the body in an `EvalFrame`.
+
+Patterns are AST nodes which never evaluate; `match` tests a subject
+and adds the names bound with `as` to the bindings map.  Dict patterns
+do not nest and nothing in a pattern reads from the database: a guard
+is the place for tests a pattern cannot express.
+
 ## Actor Local Context
 
 Fantom funcs find their context with `AxonContext.curAxon`, which
@@ -137,7 +152,7 @@ the Axon ends itself:
   mode it is in before the parser's lookahead reads past the end
 - the host subclasses `Parser` with `makeTokenizer`, passes its own
   tokens thru, and calls the protected productions such as `expr` and
-  `casePattern` for the Axon in between
+  `caseArm` for the Axon in between
 - one char stream and one line count serve both, so locations need no
   translation
 

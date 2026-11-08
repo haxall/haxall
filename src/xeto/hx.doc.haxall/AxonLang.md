@@ -674,10 +674,29 @@ same name twice in one pattern is a syntax error.
 Everything else in a pattern is a test.  So a tag name such as `{area}`
 only requires the tag; use `{area as area}` to also define a variable.
 
+## Guards
+A case may add an `if` guard after its pattern.  The guard is evaluated
+only after the pattern matches, with the pattern's variables in scope.
+If the guard is false, matching continues with the next case:
+
+    switch (val)
+      case Number as n if (n > 100) => "big"
+      case Number as n if (n < 0)   => "negative"
+      case Number                   => "number"
+    end
+
+Guards are the place for any test a pattern cannot express, such as
+comparisons or reading a record a Ref points to:
+
+    case Site as s if (s->area > 100000ft²) => "large site"
+    case {siteRef as ref} if (readById(ref)->tz == "New_York") => "east"
+
+Like the condition of an `if`, a guard must evaluate to a Bool.
+
 ## Scoping
 Each case is its own scope.  The variables bound by its pattern and any
-variables defined inside its body are visible in the body, including
-lambdas inside the body, but not after the switch.  The body may still
+variables defined inside its guard or body are visible in the guard and
+body, including lambdas inside them, but not after the switch.  The body may still
 assign variables of the enclosing scope:
 
     total: 0

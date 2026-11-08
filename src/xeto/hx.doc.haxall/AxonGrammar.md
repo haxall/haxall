@@ -59,7 +59,8 @@ Legend for BNF Grammar:
     <return>       :=  "return" <expr>
 
     <switch>       :=  "switch" "(" <expr> ")" <case>* [<default>] "end"
-    <case>         :=  "case" <pattern> "=>" <expr>
+    <case>         :=  "case" <pattern> [<guard>] "=>" <expr>
+    <guard>        :=  "if" "(" <expr> ")"
     <default>      :=  "default" "=>" <expr>
     <pattern>      :=  <orPattern> ["as" <id>]
     <orPattern>    :=  <primary> ("or" <primary>)*

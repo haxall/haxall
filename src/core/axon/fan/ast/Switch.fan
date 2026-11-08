@@ -38,11 +38,8 @@ const class SwitchExpr : Expr
     for (i := 0; i<cases.size; ++i)
     {
       c := cases[i]
-      binds := Str:Obj?[:]
-      if (!c.pattern.match(cx, s, binds)) continue
-      scope := AxonScope.makeNested(cx.curScope)
-      binds.each |v, n| { scope.set(n, v) }
-      return cx.run(EvalFrame(scope, c.body))
+      scope := c.matchScope(cx, cx.curScope, s)
+      if (scope != null) return cx.run(EvalFrame(scope, c.body))
     }
     return defExpr?.eval(cx)
   }
@@ -70,16 +67,17 @@ const class SwitchExpr : Expr
 **************************************************************************
 
 **
-** SwitchCase is one "case" arm: a pattern and the body to evaluate when
-** the pattern matches the switch subject.
+** SwitchCase is one "case" arm: a pattern, optional guard, and the body
+** to evaluate when both match the switch subject.
 **
 @NoDoc @Js
 const class SwitchCase : Expr
 {
-  new make(FileLoc loc, Pattern pattern, Expr body)
+  new make(FileLoc loc, Pattern pattern, Expr? guard, Expr body)
   {
     this.loc     = loc
     this.pattern = pattern
+    this.guard   = guard
     this.body    = body
   }
 
@@ -89,19 +87,40 @@ const class SwitchCase : Expr
 
   const Pattern pattern
 
+  ** Condition evaluated with the pattern's bindings: "if (x > 0)"
+  const Expr? guard
+
   const Expr body
+
+  **
+  ** Match subject against the pattern and guard.  Return the scope nested
+  ** in parent with the pattern's bindings which the guard was evaluated
+  ** in and the body should be, or null if the pattern or guard fails.
+  **
+  AxonScope? matchScope(AxonContext cx, AxonScope parent, Obj? subject)
+  {
+    binds := Str:Obj?[:]
+    if (!pattern.match(cx, subject, binds)) return null
+    scope := AxonScope.makeNested(parent)
+    binds.each |v, n| { scope.set(n, v) }
+    if (guard != null && !(Bool)cx.run(EvalFrame(scope, guard))) return null
+    return scope
+  }
 
   override Obj? eval(AxonContext cx) { throw UnsupportedErr("SwitchCase cannot be evaluated") }
 
   override Void walk(|Str key, Obj? val| f)
   {
     f("pattern", pattern)
+    f("guard", guard)
     f("body", body)
   }
 
   override Printer print(Printer out)
   {
-    out.w("case ").expr(pattern).w(" => ").expr(body)
+    out.w("case ").expr(pattern)
+    if (guard != null) out.w(" if (").expr(guard).w(")")
+    return out.w(" => ").expr(body)
   }
 }
 
