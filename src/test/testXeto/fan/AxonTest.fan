@@ -304,32 +304,6 @@ class AxonTest : AbstractAxonTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Is function
-//////////////////////////////////////////////////////////////////////////
-
-  @HxTestProj
-  Void testIs()
-  {
-    verifyIs(Str<|is("hi", Str)|>,    true)
-    verifyIs(Str<|is("hi", Marker)|>, false)
-    verifyIs(Str<|is("hi", Dict)|>,   false)
-
-    verifyIs(Str<|is(marker(), Str)|>,    false)
-    verifyIs(Str<|is(marker(), Marker)|>, true)
-    verifyIs(Str<|is(marker(), Dict)|>,   false)
-
-    verifyIs(Str<|is({}, Str)|>,    false)
-    verifyIs(Str<|is({}, Marker)|>, false)
-    verifyIs(Str<|is({}, Dict)|>,   true)
-
-  }
-
-  Void verifyIs(Str expr, Bool expect)
-  {
-    verifyEval(expr, expect)
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Fits function
 //////////////////////////////////////////////////////////////////////////
 
@@ -338,12 +312,27 @@ class AxonTest : AbstractAxonTest
   {
     initNamespace(["ph", "ph.points", "ph.points.x", "hx.test.xeto"])
 
-    verifyEval(Str<|fits("hi", Str)|>, true)
+    verifyEval(Str<|fits("hi", Str)|>,    true)
     verifyEval(Str<|fits("hi", Marker)|>, false)
+    verifyEval(Str<|fits("hi", Dict)|>,   false)
+
+    verifyEval(Str<|fits(marker(), Str)|>,    false)
+    verifyEval(Str<|fits(marker(), Marker)|>, true)
+    verifyEval(Str<|fits(marker(), Dict)|>,   false)
+
+    verifyEval(Str<|fits({}, Str)|>,        false)
+    verifyEval(Str<|fits({}, Marker)|>,     false)
+    verifyEval(Str<|fits({}, Dict)|>,       true)
+    verifyEval(Str<|fits({equip}, Equip)|>, false)
+    verifyEval(Str<|fits(Str, Spec)|>,      true)
+
     verifyEval(Str<|fits({spec:@ph::Ahu}, Equip)|>, true)
     verifyEval(Str<|fits({spec:@ph::Ahu}, Site)|>, false)
     verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd, discharge}, DischargeFanRunCmd)|>, true)
     verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd}, DischargeFanRunCmd)|>, false)
+
+    // deprecated alias
+    verifyEval(Str<|is({spec:@ph.points::DuctFanRunCmd, discharge}, DischargeFanRunCmd)|>, true)
 
     // mixins only apply thru specx
     verifyEval(Str<|fits({spec:@ph.points::DuctFanRunCmd, return}, ReturnFanRunCmd)|>, true)

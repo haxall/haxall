@@ -2055,24 +2055,36 @@ const class AxonFuncs
 // Defs
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return if the given instance inherits from the spec via nominal
-  ** typing.  Use [hx.xeto::specIs()] to check nominal typing between two types.
-  ** Also see [hx.xeto::fits()] to check membership including sugar specs.
+  ** Return if the value is a member of the spec.  A value fits if its
+  ** spec is the given spec or a subtype.  A dict's spec is its 'spec'
+  ** tag or 'sys::Dict' if untyped.  A dict also fits a sugar spec if
+  ** it fits the sugar's nominal anchor and has every constraint tag.
+  ** Fits never checks required slots or queries; use [hx.xeto::validate()]
+  ** for that.  Use [hx.xeto::specIs()] to check nominal typing between
+  ** two specs.
   **
-  ** Note that dict values will only match the generic `sys.Dict`
-  ** type.
+  ** The spec is used as given: pass the extended spec from [hx.xeto::specx()]
+  ** to also apply constraints added to a sugar spec by mixins.
   **
   ** Examples:
   **
-  **     is("hi", Str)       >>  true
-  **     is("hi", Dict)      >>  false
-  **     is({}, Dict)        >>  true
-  **     is({equip}, Equip)  >>  false
-  **     is(Str, Spec)       >>  true
-  @Api @Axon static Bool _is(Obj? val, Spec spec)
+  **     fits("hi", Str)                                   >>  true
+  **     fits("hi", Dict)                                  >>  false
+  **     fits({}, Dict)                                    >>  true
+  **     fits({equip}, Equip)                              >>  false
+  **     fits(Str, Spec)                                   >>  true
+  **     fits({spec:@ph::Ahu}, Equip)                      >>  true
+  **     fits({spec:@ph.points::DuctFanRunCmd, discharge},
+  **          DischargeFanRunCmd)                          >>  true
+  **     fits(rec, specx(MySugar))                         >> include mixins
+  @Api @Axon static Bool fits(Obj? val, Spec spec)
   {
-    AxonContext.curAxon.ns.specOf(val).isa(spec)
+    AxonContext.curAxon.ns.fits(val, spec)
   }
+
+  ** Use [fits()]
+  @NoDoc @Deprecated { msg = "Use fits" }
+  @Api @Axon static Bool _is(Obj? val, Spec spec) { fits(val, spec) }
 
   ** Lookup a def by its symbol name (Str or Symbol).  If not found
   ** return null or raise UnknownDefErr based on checked flag.  The

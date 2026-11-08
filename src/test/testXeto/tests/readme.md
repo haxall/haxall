@@ -103,7 +103,7 @@ Verify nonimal typing via two specs.  This field must be a list of
 dicts with the following three fields:
   - **a**: qname of spec
   - **b**: qname of spec
-  - **expect**: expected value  of `is(a, b)`
+  - **expect**: expected value of `specIs(a, b)`
 
 Example:
 

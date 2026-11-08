@@ -575,7 +575,7 @@ match:
 
 ## Spec Patterns
 A spec pattern matches a non-null subject which fits the spec using the
-same rules as the [hx.xeto::fits()] function.  The spec name may be unqualified
+same rules as the [axon::fits()] function.  The spec name may be unqualified
 or qualified with its library name:
 
     switch (val)
