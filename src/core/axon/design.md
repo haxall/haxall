@@ -120,6 +120,25 @@ Each `ConstClosure` call wraps the readonly snapshot map with
 A dict literal that fails because a value is a closure, directly or
 nested in a list, reports a hint to use `toConst`.
 
+## Hosting Axon
+
+A language that embeds Axon, such as sketch markup with `{expr}`
+holes, shares Axon's tokenizer and parser rather than finding where
+the Axon ends itself:
+
+- the host subclasses `Tokenizer` and overrides `next`: in its own
+  modes it reads chars with `cur`, `peek`, and `consume`, counts
+  newlines in `line`, and returns `Token.foreign` with its token as
+  `val`; inside Axon it calls super
+- the host owns the switch between modes, such as counting braces to
+  find the `}` that ends a hole, since the tokenizer must know which
+  mode it is in before the parser's lookahead reads past the end
+- the host subclasses `Parser` with `makeTokenizer`, passes its own
+  tokens thru, and calls the protected productions such as `expr` and
+  `casePattern` for the Axon in between
+- one char stream and one line count serve both, so locations need no
+  translation
+
 ## Errors
 
 Scope methods never throw.  `define` and `assign` return null on

@@ -87,6 +87,7 @@ enum class Token
   usingKeyword,
 
   // misc
+  foreign("foreign"),   // val is a token of a language hosting Axon
   eof("eof");
 
 //////////////////////////////////////////////////////////////////////////

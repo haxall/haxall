@@ -23,9 +23,16 @@ class Parser
 //////////////////////////////////////////////////////////////////////////
 
   new make(InStream in, FileLoc startLoc := FileLoc.unknown)
+    : this.makeTokenizer(Tokenizer(in, startLoc))
   {
-    this.startLoc = startLoc
-    tokenizer = Tokenizer(in, startLoc)
+  }
+
+  ** Construct with a subclass tokenizer, such as one for a language
+  ** which embeds Axon and produces `Token.foreign` for its own tokens
+  protected new makeTokenizer(Tokenizer tokenizer)
+  {
+    this.startLoc  = tokenizer.startLoc
+    this.tokenizer = tokenizer
     cur = peek = peekPeek = Token.eof
     consume
     consume
@@ -333,7 +340,7 @@ class Parser
   **     <rangeOrLit>  :=  <literal> [".." <literal>]
   **
   ** Parse pattern with fresh set of binding names to check duplicates
-  private Pattern casePattern()
+  protected Pattern casePattern()
   {
     binds = Str[,]
     try
@@ -370,7 +377,7 @@ class Parser
     return name
   }
 
-  private Bool isContextual(Str keyword) { cur === Token.id && curVal == keyword }
+  protected Bool isContextual(Str keyword) { cur === Token.id && curVal == keyword }
 
   private Pattern primary(Bool inSlot)
   {

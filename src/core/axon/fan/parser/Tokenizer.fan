@@ -36,9 +36,11 @@ class Tokenizer
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Read the next token, store result in [tok] and [val]
+  ** Read the next token, store result in [tok] and [val].  A language
+  ** hosting Axon overrides this to produce `Token.foreign` for its own
+  ** tokens and calls super for Axon's.
   **
-  Token next()
+  virtual Token next()
   {
     // reset
     val = null
@@ -536,7 +538,7 @@ class Tokenizer
 // Char Reads
 //////////////////////////////////////////////////////////////////////////
 
-  private Void consume()
+  protected Void consume()
   {
     if (cur == '\n') col = 0; else col++
     cur  = peek
@@ -552,8 +554,8 @@ class Tokenizer
   Obj? val             // token literal or identifier
   Int line := 1        // current line number (one based)
   Int col := -2        // current column index (zero based)
+  protected Int cur    // current char
+  protected Int peek   // next char
   private InStream in  // underlying stream
-  private Int cur      // current char
-  private Int peek     // next char
 }
 

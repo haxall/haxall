@@ -222,5 +222,93 @@ class ParseTest : Test
   {
     verifyErr(SyntaxErr#) { verifyPipeline(s, Str[,]) }
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Host
+//////////////////////////////////////////////////////////////////////////
+
+  Void testHost()
+  {
+    verifyHost("a {x + 1} b", ["a ", "x + 1", " b"])
+    verifyHost("{x}{y}", ["x", "y"])
+
+    // the host tokenizes past the close, so text need not be Axon
+    verifyHost(Str<|{x} don't "|>, ["x", Str<| don't "|>])
+
+    // braces inside Axon are Axon's own
+    verifyHost(Str<|{{a:1}->a}!|>, ["{a:1}->a", "!"])
+    verifyHost(Str<|{"}" + `}`}|>, [Str<|"}" + `}`|>])
+
+    // one line count across both
+    exprs := HostParser("a\nb {\n x}").parseHost
+    verifyEq(((Expr)exprs[1]).loc.line, 3)
+
+    verifyErr(SyntaxErr#) { HostParser("{x").parseHost }
+    verifyErr(SyntaxErr#) { HostParser("{x y}").parseHost }
+  }
+
+  Void verifyHost(Str src, Str[] expect)
+  {
+    verifyEq(HostParser(src).parseHost.map |x->Str| { x.toStr }, expect)
+  }
 }
 
+**************************************************************************
+** HostTokenizer
+**************************************************************************
+
+** Host language of text with {expr} holes
+@Js
+internal class HostTokenizer : Tokenizer
+{
+  new make(Str src) : super(src.in) {}
+
+  override Token next()
+  {
+    if (inAxon)
+    {
+      t := super.next
+      if (t === Token.lbrace) ++depth
+      if (t === Token.rbrace) { if (depth == 0) inAxon = false; else --depth }
+      return t
+    }
+    if (cur == 0) return tok = Token.eof
+    if (cur == '{') { consume; inAxon = true; return tok = Token.lbrace }
+    buf := StrBuf()
+    while (cur != 0 && cur != '{')
+    {
+      if (cur == '\n') ++line
+      buf.addChar(cur)
+      consume
+    }
+    val = buf.toStr
+    return tok = Token.foreign
+  }
+
+  private Bool inAxon
+  private Int depth
+}
+
+**************************************************************************
+** HostParser
+**************************************************************************
+
+@Js
+internal class HostParser : Parser
+{
+  new make(Str src) : super.makeTokenizer(HostTokenizer(src)) {}
+
+  ** Text as Str and holes as Expr
+  Obj[] parseHost()
+  {
+    acc := Obj[,]
+    while (cur !== Token.eof)
+    {
+      if (cur === Token.foreign) { acc.add(curVal); consume; continue }
+      consume(Token.lbrace)
+      acc.add(expr)
+      consume(Token.rbrace)
+    }
+    return acc
+  }
+}
