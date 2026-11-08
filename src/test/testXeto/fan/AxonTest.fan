@@ -304,6 +304,35 @@ class AxonTest : AbstractAxonTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// SpecFits function
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testSpecFits()
+  {
+    initNamespace(["ph", "ph.points", "ph.points.x", "hx.test.xeto"])
+
+    verifySpecFits("Meter", "Equip", true, true)
+    verifySpecFits("Meter", "Point", false, false)
+
+    // sugar subtype by declared base
+    verifySpecFits("DischargeFanRunCmd", "DuctFanRunCmd", true, true)
+    verifySpecFits("DuctFanRunCmd", "DischargeFanRunCmd", false, false)
+    verifySpecFits("ColdDeckDischargeFanRunCmd", "DischargeFanRunCmd", true, true)
+
+    // computed sugar subtype only fits
+    verifySpecFits("MyDischargeFanRunCmd", "DischargeFanRunCmd", false, true)
+    verifySpecFits("Stage2DischargeFanRunCmd", "MyDischargeFanRunCmd", false, true)
+    verifySpecFits("Stage2DischargeFanRunCmd", "Stage3DischargeFanRunCmd", false, false)
+  }
+
+  Void verifySpecFits(Str a, Str b, Bool isa, Bool fits)
+  {
+    verifyEval("specIs($a, $b)", isa)
+    verifyEval("specFits($a, $b)", fits)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fits function
 //////////////////////////////////////////////////////////////////////////
 

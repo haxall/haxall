@@ -206,6 +206,8 @@ const class XetoSpec : Spec, CNode
 
   override final Bool isa(Spec x) { XetoUtil.isa(this, x) }
 
+  override final Bool fits(Spec x) { XetoUtil.fits(this, x) }
+
   override final FileLoc loc() { m.loc }
 
   override final SpecBinding binding() { m.binding }

@@ -220,13 +220,13 @@ internal class CheckErrors : Step
     }
 
     // verify type is covariant
-    if (!xType.isa(bType) && !isFieldOverrideOfMethod(b, x))
+    if (!xType.fits(bType) && !isFieldOverrideOfMethod(b, x))
       errCovariant(x, "type '$xType' conflicts", "of type '$bType'")
 
     // check "of"
     xOf := x.of(false)
     bOf := b.of(false)
-    if (xOf != null && bOf != null && !xOf.isa(bOf))
+    if (xOf != null && bOf != null && !xOf.fits(bOf))
       errCovariant(x, "of's type '$xOf' conflicts", "of's type '$bOf'")
 
     // check "minVal"
@@ -262,7 +262,7 @@ internal class CheckErrors : Step
 
     // check that x type is covariant to b func returns type
     bReturns := b.member("returns")?.type
-    if (!x.type.isa(bReturns))
+    if (!x.type.fits(bReturns))
       err("Type mismatch in field '$x.name' override of method: $x.type != $bReturns", x.loc)
     return true
   }

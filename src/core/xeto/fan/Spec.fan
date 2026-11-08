@@ -90,13 +90,21 @@ const mixin Spec : Dict
   abstract SpecMap globals()
 
   ** Return if `this` spec inherits from `that` from a nominal type perspective.
-  ** Nonimal typing matches any of the following conditions:
+  ** Nominal typing matches any of the following conditions:
   **   - if `that` matches one of `this` inherited specs via [base]
   **   - if `this` is maybe and that is `None`
   **   - if `this` is `And` and `that` matches any `this.ofs`
   **   - if `this` is `Or` and `that` matches all `this.ofs` (common base)
   **   - if `that` is `Or` and `this` matches any of `that.ofs`
+  ** Use [fits] to include computed sugar subtyping.
   abstract Bool isa(Spec that)
+
+  ** Return if every member of `this` spec is a member of `that` spec.
+  ** This is [isa] plus computed sugar subtyping: a sugar spec fits
+  ** another sugar spec if its nominal anchor is-a the other's anchor
+  ** and its constraints are a superset of the other's.  This is the
+  ** spec level equivalent of [Namespace.fits].
+  abstract Bool fits(Spec that)
 
   ** Does meta have maybe tag.  Maybe slots are optional
   abstract Bool isMaybe()

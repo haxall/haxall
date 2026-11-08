@@ -98,7 +98,7 @@ abstract const class ValidateRule
   ** of spec since ValidateRules caches the result per spec.
   virtual Bool isApplicable(Spec spec)
   {
-    on.any |x| { spec.isa(x) }
+    on.any |x| { spec.fits(x) }
   }
 
   ** Run rule against given state

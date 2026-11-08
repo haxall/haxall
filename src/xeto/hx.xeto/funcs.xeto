@@ -293,7 +293,8 @@
 
   // Return if spec `a` inherits from spec `b` based on nominal typing.
   // This method checks the explicit inheritance hierarchy via [specBase()].
-  // Use [axon::fits()] to check if an instance is of a given type.
+  // Use [specFits()] to include computed sugar subtyping and
+  // [axon::fits()] to check if an instance is of a given type.
   //
   // Examples:
   //
@@ -303,6 +304,21 @@
   //     specIs(Meter, Equip)    >>  true
   //     specIs(Meter, Point)    >>  false
   specIs: Func { a: Spec, b: Spec, returns: Bool }
+
+  // Return if every member of spec `a` is a member of spec `b`.  This
+  // is [specIs()] plus computed sugar subtyping: a sugar spec fits
+  // another sugar spec if its nominal anchor is-a the other's anchor
+  // and its constraints are a superset of the other's.  Use [axon::fits()]
+  // to check if an instance is of a given type.
+  //
+  // Examples:
+  //
+  //     specFits(Meter, Equip)                            >>  true
+  //     specFits(DischargeFanRunCmd, DuctFanRunCmd)       >>  true
+  //     specFits(ColdDeckDischargeFanRunCmd,
+  //              DischargeFanRunCmd)                      >>  true
+  //     specFits(DuctFanRunCmd, DischargeFanRunCmd)       >>  false
+  specFits: Func { a: Spec, b: Spec, returns: Bool }
 
   // Given a choice spec, return the most specific choice subtype
   // implemented by the instance.  If the instance implements zero or more

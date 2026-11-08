@@ -99,9 +99,9 @@ spec tag resolves to a constraint of the query, or to an override of
 one up its base chain, is anchored - by the constraint's key, found
 thru its qname - and matches that constraint alone;
 the rest are free and match the constraints with no anchored rec
-structurally.  The anchor test compares qnames, never `isa`: query
+structurally.  The anchor test compares qnames, never `fits`: query
 items are anonymous sugar, so siblings with equal tags are computed
-subtypes of each other and `isa` would bind a rec to all of them.
+subtypes of each other and `fits` would bind a rec to all of them.
 This is what makes validation agree with graph compose, which stamps
 the template slot qname as the spec tag.
 
@@ -197,19 +197,26 @@ and query slots participate in validation, never matching.
 Mixin contributed constraints are namespace dependent, so `XSpec`
 recomputes with the mixins which target the sugar chain.
 
-Sugar enters the type system in two relations.  `Spec.isa` is the type
-relation: `XetoUtil.isa` walks the nominal chain first and only when
-both specs are sugar falls back to the computed rule (anchor is-a and
-constraint superset), so the nominal hot path pays one flag test.  It
-uses the namespace independent flattening; AST specs stay nominal.
-`Namespace.fits` is the membership relation built on it: the value's
-spec is-a the target, or for a sugar target a dict whose spec is-a the
-anchor and whose tags satisfy the constraints.  Fits uses the spec as
-given: pass the `specx` extended spec to include mixin constraints.
-Invariants compare at full or haystack fidelity because dicts may come
-from either.  The core after resolving the value's spec is
-`XetoUtil.fits`, which the validator shares for query extents so its
-`specOf` hook (the compile-time overlay) applies.
+Sugar enters the type system thru `fits`, never `isa`.  `Spec.isa` is
+purely nominal: declared lineage via bases, And/Or, and maybe.
+`Spec.fits` is the membership relation between specs: `XetoUtil.fits`
+runs the same walk as `isa` and only when both specs are sugar falls
+back to the computed rule (anchor is-a and constraint superset), so
+the nominal hot path pays one flag test.  It uses the namespace
+independent flattening; AST specs stay nominal.  `Namespace.fits` is
+the same relation for values: the value's spec fits the target, or
+for a sugar target a dict whose spec is-a the anchor and whose tags
+satisfy the constraints.  Fits uses the spec as given: pass the
+`specx` extended spec to include mixin constraints.  Invariants
+compare at full or haystack fidelity because dicts may come from
+either.  The core after resolving the value's spec is
+`XetoUtil.fitsVal`, which the validator shares for query extents so
+its `specOf` hook (the compile-time overlay) applies.
+
+Callers pick by intent: membership checks (slot value types, ref
+`of` targets, rule `on` applicability, covariance) use `fits`;
+lineage walks (choices, mixin targets, sugar anchors, registries,
+`excludeSupertypes`) use `isa`.
 
 There is no sugar specific validation rule.  An instance asserting a
 sugar spec has its constraints checked by the standard walk: constraint

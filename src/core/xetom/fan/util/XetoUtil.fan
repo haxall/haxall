@@ -831,11 +831,19 @@ const class XetoUtil
     return false
   }
 
-  ** Return if a is-a b
-  static Bool isa(Spec a, Spec b, Bool isTop := true)
+  ** Return if a is-a b by nominal typing
+  static Bool isa(Spec a, Spec b) { walk(a, b, true, false) }
+
+  ** Return if a fits b: nominal is-a or computed sugar subtyping
+  static Bool fits(Spec a, Spec b) { walk(a, b, true, true) }
+
+  ** Shared is-a walk; fits adds computed sugar subtyping at the top
+  private static Bool walk(Spec a, Spec b, Bool isTop, Bool fits)
   {
-    // check if a and b are the same
+    // check if a and b are the same; an AST spec is the same as
+    // its compiled peer in a dependency or the namespace overlay
     if (a === b) return true
+    if ((a.isAst || b.isAst) && a.qname == b.qname) return true
 
     // if A is "maybe" type, then it also matches None
     if (b.isNone && a.isMaybe && isTop) return true
@@ -844,28 +852,28 @@ const class XetoUtil
     if (a.isAnd)
     {
       ofs := a.ofs(false)
-      if (ofs != null && ofs.any |x| { x.isa(b) }) return true
+      if (ofs != null && ofs.any |x| { fits ? x.fits(b) : x.isa(b) }) return true
     }
 
     // if A is sys::Or type, then check all of A.ofs is B
     if (a.isOr)
     {
       ofs := a.ofs(false)
-      if (ofs != null && ofs.all |x| { x.isa(b) }) return true
+      if (ofs != null && ofs.all |x| { fits ? x.fits(b) : x.isa(b) }) return true
     }
 
     // if B is sys::Or type, then check if A is any of B.ofs
     if (b.isOr)
     {
       ofs := b.ofs(false)
-      if (ofs != null && ofs.any |x| { a.isa(x) }) return true
+      if (ofs != null && ofs.any |x| { fits ? a.fits(x) : a.isa(x) }) return true
     }
 
     // check a's base type
-    if (a.base != null && isa(a.base, b, false)) return true
+    if (a.base != null && walk(a.base, b, false, fits)) return true
 
     // sugar subtyping is computed from anchor and constraints
-    if (isTop && a.isSugar && b.isSugar && !a.isAst && !b.isAst) return MSugar.isa(a.sugar, b.sugar)
+    if (fits && isTop && a.isSugar && b.isSugar && !a.isAst && !b.isAst) return MSugar.isa(a.sugar, b.sugar)
 
     return false
   }
@@ -882,12 +890,12 @@ const class XetoUtil
     return null
   }
 
-  ** Return if val whose spec is t fits spec: t is-a spec including
+  ** Return if val whose spec is t fits spec: t fits spec including
   ** computed sugar subtypes, or for sugar a dict whose spec is-a the
   ** nominal anchor and whose tags satisfy the constraints
-  static Bool fits(Spec t, Obj? val, Spec spec)
+  static Bool fitsVal(Spec t, Obj? val, Spec spec)
   {
-    if (t.isa(spec)) return true
+    if (t.fits(spec)) return true
     dict := val as Dict
     if (dict == null || !spec.isSugar) return false
     MSugar sugar := spec.sugar

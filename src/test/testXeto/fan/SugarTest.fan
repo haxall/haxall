@@ -64,25 +64,27 @@ class SugarTest : AbstractXetoTest
       stage3 := ns.spec("hx.test.xeto::Stage3DischargeFanRunCmd")
 
       // nominal
-      verifyIsa(dis, fan, true)
-      verifyIsa(fan, dis, false)
+      verifyIsa(dis, fan, true,  true)
+      verifyIsa(fan, dis, false, false)
+      verifyIsa(cold, dis, true,  true)
 
       // same anchor and constraints are the same type
-      verifyIsa(myDis, dis, true)
-      verifyIsa(dis, myDis, true)
+      verifyIsa(myDis, dis, false, true)
+      verifyIsa(dis, myDis, false, true)
 
       // constraint superset with equal invariants
-      verifyIsa(cold,   myDis,  true)
-      verifyIsa(myDis,  cold,   false)
-      verifyIsa(stage2, myDis,  true)
-      verifyIsa(stage2, stage3, false)
-      verifyIsa(ret,    dis,    false)
+      verifyIsa(cold,   myDis,  false, true)
+      verifyIsa(myDis,  cold,   false, false)
+      verifyIsa(stage2, myDis,  false, true)
+      verifyIsa(stage2, stage3, false, false)
+      verifyIsa(ret,    dis,    false, false)
     }
   }
 
-  Void verifyIsa(Spec a, Spec b, Bool expect)
+  Void verifyIsa(Spec a, Spec b, Bool isa, Bool fits)
   {
-    verifyEq(a.isa(b), expect, "$a isa $b")
+    verifyEq(a.isa(b), isa, "$a isa $b")
+    verifyEq(a.fits(b), fits, "$a fits $b")
   }
 
 //////////////////////////////////////////////////////////////////////////

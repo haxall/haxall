@@ -220,8 +220,8 @@ class Validator
     val     := s.val
     valType := s.valType
 
-    // if it fits by direct nominal typing
-    if (valType.isa(type)) return true
+    // if it fits by nominal or computed sugar subtyping
+    if (valType.fits(type)) return true
 
     // a scalar with its own binding fits values of the bound Fantom
     // type, such as ion::Percent which binds to Float
@@ -336,7 +336,7 @@ class Validator
   private Bool fits(Dict x, Spec c)
   {
     t := specOf(x)
-    return t != null && XetoUtil.fits(t, x, c)
+    return t != null && XetoUtil.fitsVal(t, x, c)
   }
 
 //////////////////////////////////////////////////////////////////////////

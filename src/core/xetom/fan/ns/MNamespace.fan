@@ -430,7 +430,7 @@ const class MNamespace : Namespace, CNamespace
   override Bool fits(Obj? val, Spec spec)
   {
     t := specOf(val, false)
-    return t != null && XetoUtil.fits(t, val, spec)
+    return t != null && XetoUtil.fitsVal(t, val, spec)
   }
 
   override Obj? queryWhile(Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)

@@ -382,7 +382,7 @@ using haystack
       // check target type; unresolvable temp lib spec is a mismatch
       targetSpec := s.ns.spec(specRef.id, false)
       if (targetSpec == null && !specRef.id.startsWith("temp")) return // refTargetSpec's
-      if (targetSpec == null || !targetSpec.isa(of))
+      if (targetSpec == null || !targetSpec.fits(of))
         s.emit(Etc.dictx("ref", x.ref, "targetSpec", specRef))
     }
   }

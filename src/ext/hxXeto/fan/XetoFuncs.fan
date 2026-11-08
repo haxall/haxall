@@ -508,7 +508,8 @@ const class XetoFuncs
 
   ** Return if spec `a` inherits from spec `b` based on nominal typing.
   ** This method checks the explicit inheritance hierarchy via [specBase()].
-  ** Use [axon::fits()] to check if an instance is of a given type.
+  ** Use [specFits()] to include computed sugar subtyping and
+  ** [axon::fits()] to check if an instance is of a given type.
   **
   ** Examples:
   **
@@ -520,6 +521,24 @@ const class XetoFuncs
   @Api @Axon static Bool specIs(Spec a, Spec b)
   {
     a.isa(b)
+  }
+
+  ** Return if every member of spec `a` is a member of spec `b`.  This
+  ** is [specIs()] plus computed sugar subtyping: a sugar spec fits
+  ** another sugar spec if its nominal anchor is-a the other's anchor
+  ** and its constraints are a superset of the other's.  Use [axon::fits()]
+  ** to check if an instance is of a given type.
+  **
+  ** Examples:
+  **
+  **     specFits(Meter, Equip)                            >>  true
+  **     specFits(DischargeFanRunCmd, DuctFanRunCmd)       >>  true
+  **     specFits(ColdDeckDischargeFanRunCmd,
+  **              DischargeFanRunCmd)                      >>  true
+  **     specFits(DuctFanRunCmd, DischargeFanRunCmd)       >>  false
+  @Api @Axon static Bool specFits(Spec a, Spec b)
+  {
+    a.fits(b)
   }
 
   ** Given a choice spec, return the most specific choice subtype

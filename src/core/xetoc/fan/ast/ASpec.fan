@@ -275,12 +275,9 @@ internal final const class ASpec : ANode, CNode, Spec, SpecBindingInfo
     return acc.ro
   }
 
-  override final Bool isa(Spec that)
-  {
-    if (XetoUtil.isa(this, that)) return true
-    if (this.qname == that.qname) return true
-    return false
-  }
+  override final Bool isa(Spec that) { XetoUtil.isa(this, that) }
+
+  override final Bool fits(Spec that) { XetoUtil.fits(this, that) }
 
   override SpecEnum enum()
   {

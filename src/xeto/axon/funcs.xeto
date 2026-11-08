@@ -1337,7 +1337,7 @@
   // tag or 'sys::Dict' if untyped.  A dict also fits a sugar spec if
   // it fits the sugar's nominal anchor and has every constraint tag.
   // Fits never checks required slots or queries; use [hx.xeto::validate()]
-  // for that.  Use [hx.xeto::specIs()] to check nominal typing between
+  // for that.  Use [hx.xeto::specFits()] to check membership between
   // two specs.
   //
   // The spec is used as given: pass the extended spec from [hx.xeto::specx()]
