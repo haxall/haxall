@@ -70,7 +70,9 @@ keeps every lookup a plain monomorphic call on the hot path:
 The markers never escape `AxonScope` except `notFound` and `notConst`
 returned from `lookup` to `AxonContext.resolve`.  `get`, `has`, and
 `effective` treat a `notConst` var as undefined.  Fantom callers
-create scopes with `AxonScope()` and fill them with `set`.
+create scopes with `AxonScope()` and fill them with `set`, and nest
+them with `AxonScope.makeNested` to bind names for a block such as a
+template loop body.
 `AxonContext.callIn` runs a func with a caller supplied scope for
 component calls that seed `this` and read back the call's variables.
 

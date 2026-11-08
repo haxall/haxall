@@ -20,8 +20,9 @@ class AxonScope
   ** Create new root scope with no variables
   new make() { this.vars = Str:Obj[:] }
 
-  ** Create new scope nested in the given parent scope
-  internal new makeNested(AxonScope parent)
+  ** Create new scope nested in the given parent scope: its variables
+  ** shadow the parent's, and assigns to the parent's write thru
+  new makeNested(AxonScope parent)
   {
     this.parent = parent
     this.vars   = Str:Obj[:]
