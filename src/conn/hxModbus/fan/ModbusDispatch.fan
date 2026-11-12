@@ -51,6 +51,17 @@ class ModbusDispatch : ConnDispatch
   {
     this.dev  = ModbusDev.fromConn(conn)
     this.link = ModbusLink.get(dev.uri)
+
+    // connect now so an unreachable device fails the open, rather than
+    // reporting ok until the first ping or poll fails. hxConn does not call
+    // onClose for a failed open, so release the link here
+    try link.open(dev)
+    catch (Err err)
+    {
+      if (err is IOErr) link.close
+      onClose
+      throw err
+    }
   }
 
   override Void onClose()

@@ -53,6 +53,13 @@ using hxPlatformSerial
   Int touched() { _touched.val }
   private const AtomicInt _touched := AtomicInt(0)
 
+  ** Open the transport to the given device without reading anything,
+  ** or do nothing if it is already open. Throws error if open failed.
+  Void open(ModbusDev dev)
+  {
+    actor.send(HxMsg("open", dev)).get(dev.timeout)
+  }
+
   ** Convenience for `read` with the 'ping' register. Throws error
   ** if 'ping' register not found, or if read failed.
   Void ping(ModbusDev dev)
@@ -114,6 +121,7 @@ using hxPlatformSerial
     _touched.val = Duration.nowTicks
     switch (m.id)
     {
+      case "open":  _open(m.a); return null
       case "read":  return _read(_open(m.a), m.a, m.b).toImmutable
       case "write": return _write(_open(m.a), m.a, m.b, m.c)
       case "close": return _close(Actor.locals["m"])
