@@ -107,7 +107,7 @@ const class ConvertUtil
           input = true
         case "bindTuning":   acc["ruleBindTuning"] = v
         case "bindOut":      acc["ruleBind"] = v
-        case "defVal":       acc["axon"] = v
+        case "defVal":       acc["axon"] = Etc.toAxon(v)
         case "toCurVal":     acc["ruleToCurVal"] = Marker.val
         case "toWriteLevel": acc["ruleToWriteLevel"] = v
         case "ro":           acc["readonly"] = v

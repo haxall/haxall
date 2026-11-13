@@ -66,8 +66,8 @@ class AxonConvertParserTest : HaystackTest
              end
            end|>,
        [
-         "inA":["::type":"sys::Number", "axon":n(0)],
-         "inB":["::type":"sys::Number", "axon":n(0), "foo":"bar"],
+         "inA":["::type":"sys::Number", "axon":"0"],
+         "inB":["::type":"sys::Number", "axon":"0", "foo":"bar"],
          "out":["::type":"sys::Number", "readonly":m],
        ],
        """do
@@ -83,6 +83,18 @@ class AxonConvertParserTest : HaystackTest
            end|>,
        [
          "cell1":["marker":m, "foo":"!"],
+       ],
+       "null")
+
+    // defcomp defVal is always axon source code
+    verifyParse(
+      Str<|defcomp
+             limit: {bindTuning:"limit", defVal:18°C}
+             mode: {defVal:"auto"}
+           end|>,
+       [
+         "limit":["ruleBindTuning":"limit", "axon":"18°C"],
+         "mode":["axon":"\"auto\""],
        ],
        "null")
 
