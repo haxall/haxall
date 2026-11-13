@@ -77,10 +77,19 @@ class ModbusMaster
     readBinary(slave, 0x01, start, count)
   }
 
-  ** Write a coil value.
+  ** Write a single coil value using function code 0x05.
   Void writeCoil(Int slave, Int addr, Bool val)
   {
-    writeBinary(slave, 0x05, addr, val)
+    writeSingle(slave, 0x05, addr, val ? 0xff00 : 0)
+  }
+
+  ** Write coil values consecutively starting at 'start' using function
+  ** code 0x0f. This always uses 0x0f, even to write a single coil.
+  Void writeCoils(Int slave, Int start, Bool[] vals)
+  {
+    bits := Buf().fill(0, (vals.size + 7) / 8)
+    vals.each |v, i| { if (v) bits[i / 8] = bits[i / 8].or(1.shiftl(i % 8)) }
+    writeMulti(slave, 0x0f, start, vals.size, bits)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,26 +140,20 @@ class ModbusMaster
     read16(slave, 0x03, start, count)
   }
 
-  ** Write a single holding register value.
+  ** Write a single holding register value using function code 0x06.
   Void writeHoldingReg(Int slave, Int addr, Int val)
   {
-    write16(slave, 0x06, addr, [val])
+    writeSingle(slave, 0x06, addr, val)
   }
 
-  ** Write multiple holding register values, where each 'val' is a
-  ** 16-bit value written consecutively starting at 'startAddr'.
+  ** Write 16-bit holding register values consecutively starting at 'start'
+  ** using function code 0x10. This always uses 0x10, even to write a single
+  ** register.
   Void writeHoldingRegs(Int slave, Int start, Int[] vals)
   {
-    if (vals.size == 1) writeHoldingReg(slave, start, vals.first)
-    else write16(slave, 0x10, start, vals)
-  }
-
-  // TODO: our normal writeHoldingRegs opts out of the func code,
-  // which was probably the wrong decision; so add this internal
-  // method to force using 0x10 even for single reg writes
-  internal Void _writeHoldingRegs(Int slave, Int start, Int[] vals)
-  {
-    write16(slave, 0x10, start, vals, true)
+    data := Buf()
+    vals.each |v| { data.writeI2(v) }
+    writeMulti(slave, 0x10, start, vals.size, data)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -160,170 +163,101 @@ class ModbusMaster
   ** Read binary data. Returns map of address to bool state.
   private Bool[] readBinary(Int slave, Int func, Int start, Int count)
   {
-    // format message
-    msg := Buf()
-    out := msg.out
-    out.write(slave)
-    out.write(func)
-    out.writeI2(start)
-    out.writeI2(count)
-    addCrc(msg)
-
-    // req response
-    in := transport.req(msg)
+    in := req(slave, func) |out| { out.writeI2(start).writeI2(count) }
     try
     {
-      // verify slave
-      rslave := in.readU1
-      if (slave != rslave) throw Err("Slave mismatch $slave != $rslave")
-
-      // verify func
-      fc := in.readU1
-      if (isErr(fc)) throw err(in)
-      if (fc != func) throw Err("Function code mismatch $func != $fc")
-
-      // parse response
       list := Bool[,]
       cur  := 0
       len  := in.readU1  // not used
       count.times |i|
       {
-        if (i == 0 || i % 8 == 0) cur = in.readU1
+        if (i % 8 == 0) cur = in.readU1
         list.add(cur.and(0x01) == 1)
         cur = cur.shiftr(1)
       }
       verifyCrc(in)
       return list
     }
-    finally
-    {
-      // flush trace
-      in.close
-    }
-  }
-
-  ** Write binary data.
-  private Void writeBinary(Int slave, Int func, Int addr, Bool val)
-  {
-    // format message
-    msg := Buf()
-    out := msg.out
-    out.write(slave)
-    out.write(func)
-    out.writeI2(addr)
-    out.writeI2(val ? 0xff00 : 0)
-    addCrc(msg)
-
-    // req response
-    in := transport.req(msg)
-    try
-    {
-      // verify slave
-      rslave := in.readU1
-      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
-
-      // verify func
-      fc := in.readU1
-      if (isErr(fc)) throw err(in)
-      if (fc != func) throw Err("Function code mismatch $func != $fc")
-
-      // parse response
-      raddr := in.readU2  // echo write addr
-      rval  := in.readU2  // echo write val or count
-      verifyCrc(in)
-    }
-    finally
-    {
-      // flush trace
-      in.close
-    }
+    finally in.close
   }
 
   ** Read 16-bit data from given slave device. Returns map
   ** of address to register value.
   private Int[] read16(Int slave, Int func, Int start, Int count)
   {
-    // format message
-    msg := Buf()
-    out := msg.out
-    out.write(slave)
-    out.write(func)
-    out.writeI2(start)
-    out.writeI2(count)
-    addCrc(msg)
-
-    // req response
-    in := transport.req(msg)
+    in := req(slave, func) |out| { out.writeI2(start).writeI2(count) }
     try
     {
-      // verify slave
-      rslave := in.readU1
-      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
-
-      // verify func
-      fc := in.readU1
-      if (isErr(fc)) throw err(in)
-      if (fc != func) throw Err("Function code mismatch $func != $fc")
-
-      // parse response
       list := Int[,]
       len  := in.readU1 / 2
-      len.times |i| { list.add(in.readU2) }
+      len.times { list.add(in.readU2) }
       verifyCrc(in)
-
       return list
     }
-    finally
-    {
-      // flush trace
-      in.close
-    }
+    finally in.close
   }
 
-  ** Write 16-bit data.
-  private Void write16(Int slave, Int func, Int addr, Int[] vals, Bool forceMulti := false)
+  ** Write a single 16-bit value (0x05, 0x06).
+  private Void writeSingle(Int slave, Int func, Int addr, Int val)
+  {
+    in := req(slave, func) |out| { out.writeI2(addr).writeI2(val) }
+    try
+    {
+      verifyEcho(in, "Address", addr)
+      in.readU2  // echo val
+      verifyCrc(in)
+    }
+    finally in.close
+  }
+
+  ** Write 'count' consecutive values packed into 'data' (0x0f, 0x10).
+  private Void writeMulti(Int slave, Int func, Int start, Int count, Buf data)
+  {
+    in := req(slave, func) |out|
+    {
+      out.writeI2(start).writeI2(count).write(data.size).writeBuf(data.seek(0))
+    }
+    try
+    {
+      verifyEcho(in, "Address", start)
+      verifyEcho(in, "Quantity", count)
+      verifyCrc(in)
+    }
+    finally in.close
+  }
+
+  ** Send request with given slave and function code, where 'body' writes
+  ** the payload. Verify the response header and return the stream to read
+  ** the rest of the response. The caller must close it to flush the trace.
+  private ModbusInStream req(Int slave, Int func, |OutStream| body)
   {
     // format message
-    len := vals.size
     msg := Buf()
-    out := msg.out
-    out.write(slave)
-    out.write(func)
-    out.writeI2(addr)
-    if (len > 1 || forceMulti)
-    {
-      out.writeI2(len)  // quant of regs
-      out.write(len*2)  // byte count
-    }
-    vals.each |v| { out.writeI2(v) }
+    msg.out.write(slave).write(func)
+    body(msg.out)
     addCrc(msg)
 
     // req response
     in := transport.req(msg)
     try
     {
-      // verify slave
       rslave := in.readU1
-      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
+      if (slave != rslave) throw Err("Slave mismatch ${slave} != ${rslave}")
 
-      // verify func
       fc := in.readU1
       if (isErr(fc)) throw err(in)
-      if (fc != func) throw Err("Function code mismatch $func != $fc")
+      if (fc != func) throw Err("Function code mismatch ${func} != ${fc}")
 
-      // verify addr
-      raddr := in.readU2
-      if (addr != raddr) throw Err("Address mismatch $addr != $raddr")
+      return in
+    }
+    catch (Err e) { in.close; throw e }
+  }
 
-      // parse remaining response
-      rval := in.readU2  // echo write val or count
-      verifyCrc(in)
-    }
-    finally
-    {
-      // flush trace
-      in.close
-    }
+  ** Verify a 16-bit value echoed back in a write response.
+  private Void verifyEcho(ModbusInStream in, Str name, Int expected)
+  {
+    actual := in.readU2
+    if (expected != actual) throw Err("${name} mismatch ${expected} != ${actual}")
   }
 
   ** Check for error condition.

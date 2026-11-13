@@ -94,7 +94,7 @@ internal class ModbusMasterTest : Test
 
     // write
     t.test = toBuf("01060001000a"); m.writeHoldingReg(1, 1, 10)
-    t.test = toBuf("01060001000a"); m.writeHoldingRegs(1, 1, [10])
+    t.test = toBuf("011000010001"); m.writeHoldingRegs(1, 1, [10])
     t.test = toBuf("01060002000b"); m.writeHoldingReg(1, 2, 11)
     t.test = toBuf("05060003000c"); m.writeHoldingReg(5, 3, 12)
 
@@ -110,6 +110,49 @@ internal class ModbusMasterTest : Test
     t.test = toBuf("018305");     verifyErr(ModbusExceptionErr#) { m.readHoldingRegs(1, 0, 10) }
     t.test = toBuf("018601");     verifyErr(ModbusExceptionErr#) { m.writeHoldingReg(1, 0, 3) }
     t.test = toBuf("019001");     verifyErr(ModbusExceptionErr#) { m.writeHoldingRegs(1, 0, [1,2,3]) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Requests
+//////////////////////////////////////////////////////////////////////////
+
+  Void testWriteReqs()
+  {
+    t := ModbusTestTransport()
+    m := ModbusMaster(t).open
+    t.crc = false
+
+    // single writes
+    verifyWrite(t, "01050004ff00", "01050004ff00") |->| { m.writeCoil(1, 4, true) }
+    verifyWrite(t, "010500040000", "010500040000") |->| { m.writeCoil(1, 4, false) }
+    verifyWrite(t, "01060001000a", "01060001000a") |->| { m.writeHoldingReg(1, 1, 10) }
+
+    // coils pack LSB first, padded to a byte boundary
+    verifyWrite(t, "010f000400010101", "010f00040001") |->| { m.writeCoils(1, 4, [true]) }
+    verifyWrite(t, "010f000400010100", "010f00040001") |->| { m.writeCoils(1, 4, [false]) }
+    verifyWrite(t, "010f00040008010d", "010f00040008") |->| { m.writeCoils(1, 4, [true,false,true,true,false,false,false,false]) }
+    verifyWrite(t, "010f00040009020d01", "010f00040009") |->| { m.writeCoils(1, 4, [true,false,true,true,false,false,false,false,true]) }
+    verifyWrite(t, "020f0000000a020d01", "020f0000000a") |->| { m.writeCoils(2, 0, [true,false,true,true,false,false,false,false,true,false]) }
+    verifyWrite(t, "010f0000001002ffff", "010f00000010") |->| { m.writeCoils(1, 0, Bool[,].fill(true, 16)) }
+
+    // holding regs always use 0x10, even for one register
+    verifyWrite(t, "01100001000102000a", "011000010001") |->| { m.writeHoldingRegs(1, 1, [10]) }
+    verifyWrite(t, "01100001000204000a000b", "011000010002") |->| { m.writeHoldingRegs(1, 1, [10,11]) }
+
+    // response must echo the request
+    t.test = toBuf("01050005ff00"); verifyErrMsg(Err#, "Address mismatch 4 != 5") { m.writeCoil(1, 4, true) }
+    t.test = toBuf("010f00050001"); verifyErrMsg(Err#, "Address mismatch 4 != 5") { m.writeCoils(1, 4, [true]) }
+    t.test = toBuf("010f00040002"); verifyErrMsg(Err#, "Quantity mismatch 1 != 2") { m.writeCoils(1, 4, [true]) }
+    t.test = toBuf("011000010003"); verifyErrMsg(Err#, "Quantity mismatch 2 != 3") { m.writeHoldingRegs(1, 1, [10,11]) }
+    t.test = toBuf("020f00040001"); verifyErrMsg(Err#, "Slave mismatch 1 != 2") { m.writeCoils(1, 4, [true]) }
+    t.test = toBuf("011000040001"); verifyErrMsg(Err#, "Function code mismatch 15 != 16") { m.writeCoils(1, 4, [true]) }
+  }
+
+  private Void verifyWrite(ModbusTestTransport t, Str req, Str res, |->| f)
+  {
+    t.test = toBuf(res)
+    f()
+    verifyEq(t.lastReq.toHex, req)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,6 +174,7 @@ internal class ModbusMasterTest : Test
       verifyExceptionErr(t, "018401", 1)  |->| { m.readInputReg(1, 0) }
       verifyExceptionErr(t, "018604", 4)  |->| { m.writeHoldingReg(1, 0, 3) }
       verifyExceptionErr(t, "01900b", 11) |->| { m.writeHoldingRegs(1, 0, [1,2]) }
+      verifyExceptionErr(t, "018f02", 2)  |->| { m.writeCoils(1, 0, [true]) }
     }
 
     // msg
@@ -235,6 +279,7 @@ internal class ModbusTestTransport : ModbusTransport
   Bool crc    := true
   Bool badCrc := false
   Buf test    := Buf()
+  Buf? lastReq              // last request sent, including CRC
   Int[] reqTicks := Int[,]  // when each req hit the wire
 
   override Void open() { _open=true }
@@ -247,6 +292,7 @@ internal class ModbusTestTransport : ModbusTransport
     //         req: $msg.toHex [$msg.size]
     //         res: $test.toHex [$test.size]")
     pace
+    lastReq = msg
     reqTicks.add(Duration.nowTicks)
     return ModbusInStream(toRes(test).in, Log.get("modbustest"), "", this)
   }

@@ -38,6 +38,24 @@ doc:
   Applied to 'modbusConn' to limit the maximum number of registers to read in a
   block read. See `ext-modbus::doc#blockReads` for more information.
 --------------------------------------------------------------------------
+def: ^modbusForceMultiCoils
+is: ^marker
+tagOn: ^modbusConn
+doc:
+  Applied to 'modbusConn' to always write coils with function code 15
+  (Write Multiple Coils), even when writing a single coil. Use for devices
+  which reject function code 5 (Write Single Coil). See
+  `ext-modbus::doc#writeFuncs` for more information.
+--------------------------------------------------------------------------
+def: ^modbusForceMultiRegs
+is: ^marker
+tagOn: ^modbusConn
+doc:
+  Applied to 'modbusConn' to always write holding registers with function
+  code 16 (Write Multiple Registers), even when writing a single register.
+  Use for devices which reject function code 6 (Write Single Register). See
+  `ext-modbus::doc#writeFuncs` for more information.
+--------------------------------------------------------------------------
 def: ^modbusFrameDelay
 is: ^duration
 tagOn: [^modbusConn, ^connTuning]

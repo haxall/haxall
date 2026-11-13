@@ -28,8 +28,12 @@ using hxConn
   ** Register map for this device.
   const ModbusRegMap regMap
 
-  ** If 'true' always use 0x10 write-multiple for writeHoldingRegs
-  const Bool forceWriteMultiple := false
+  ** If 'true' always write coils with 0x0f, even for a single coil
+  const Bool forceMultiCoils := false
+
+  ** If 'true' always write holding registers with 0x10, even for a
+  ** single register
+  const Bool forceMultiRegs := false
 
   ** Minimum silence to enforce on the wire between transactions
   const Duration frameDelay
@@ -62,14 +66,14 @@ using hxConn
     if (regUri == null) throw FaultErr("Missing 'modbusRegMapUri' tag")
     if (regUri isnot Uri) throw FaultErr("Invalid 'modbusRegMapUri' tag - must be an Uri")
 
-    fwm := rec["modbusForceWriteMultiple"] != null
-
     return ModbusDev
     {
       it.uri    = uri
       it.slave  = slave->toInt
       it.regMap = loadRegMap(conn.rt, regUri)
-      it.forceWriteMultiple = fwm
+      it.forceMultiCoils = rec.has("modbusForceMultiCoils")
+      // modbusForceWriteMultiple is the undocumented legacy name
+      it.forceMultiRegs  = rec.has("modbusForceMultiRegs") || rec.has("modbusForceWriteMultiple")
       it.frameDelay   = toDuration(rec, "modbusFrameDelay", 0sec, conn.tuning.rec)
       it.readTimeout  = toDuration(rec, "modbusReadTimeout", conn.timeout)
       it.writeTimeout = toDuration(rec, "modbusWriteTimeout", conn.timeout)

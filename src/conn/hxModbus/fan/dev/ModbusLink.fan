@@ -237,7 +237,8 @@ using hxPlatformSerial
     {
       if (type == ModbusAddrType.coil)
       {
-        master.writeCoil(dev.slave, addr, val)
+        if (dev.forceMultiCoils) master.writeCoils(dev.slave, addr, [(Bool)val])
+        else master.writeCoil(dev.slave, addr, val)
       }
       else
       {
@@ -251,10 +252,8 @@ using hxPlatformSerial
           regs[0] = val==true ? cur.or(bit.mask) : cur.and(bit.mask.not)
         }
 
-        if (dev.forceWriteMultiple)
-          master._writeHoldingRegs(dev.slave, addr, regs)
-        else
-          master.writeHoldingRegs(dev.slave, addr, regs)
+        if (regs.size == 1 && !dev.forceMultiRegs) master.writeHoldingReg(dev.slave, addr, regs.first)
+        else master.writeHoldingRegs(dev.slave, addr, regs)
       }
     }
 
