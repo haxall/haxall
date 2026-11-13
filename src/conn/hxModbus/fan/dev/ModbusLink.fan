@@ -197,7 +197,7 @@ using hxPlatformSerial
       // forces a close and reopen.  Make sure not to throw an
       // IOErr for application errors, so we can localize errs
       // to just the requesting block
-      sb := StrBuf().add("Low-level IO error\n")
+      sb := StrBuf().add("Low-level IO error: ${err.msg}\n")
         .add("Device: ${dev.uri} [slave=${dev.slave}]\n")
         .add("Block: [type=${block.type}]\n")
         .add("Registers:\n")

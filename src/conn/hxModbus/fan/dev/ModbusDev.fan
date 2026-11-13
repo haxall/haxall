@@ -19,6 +19,9 @@ using hxConn
   ** It-block constructor.
   new make(|This| f) { f(this) }
 
+  ** Conn rec this device was created from
+  const Dict rec
+
   ** Uri for connectvity to this device.
   const Uri uri
 
@@ -68,6 +71,7 @@ using hxConn
 
     return ModbusDev
     {
+      it.rec    = rec
       it.uri    = uri
       it.slave  = slave->toInt
       it.regMap = loadRegMap(conn.rt, regUri)
@@ -81,6 +85,11 @@ using hxConn
       it.log = conn.trace.asLog
     }
   }
+
+  ** Does 'newRec' differ from the rec this device was created from.
+  ** Settings are captured when the conn opens, so a change requires
+  ** a reopen.
+  Bool isChanged(Dict newRec) { !Etc.dictEq(rec, newRec) }
 
   ** Load register map from URI.
   private static ModbusRegMap loadRegMap(HxRuntime rt, Uri uri)

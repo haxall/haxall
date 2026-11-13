@@ -112,7 +112,8 @@ const class ModbusRegMap
       }
       catch (Err e)
       {
-        throw IOErr("Invalid register row [line ${i+1}]", e)
+        cause := e is IndexErr ? "too few cells" : e.msg
+        throw IOErr("Invalid register row [line ${i+1}]: ${cause}", e)
       }
     }
 

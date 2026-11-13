@@ -6,6 +6,7 @@
 //   12 Nov 2026  Matthew Giannini  Creation
 //
 
+using concurrent
 using inet
 using haystack
 using hx
@@ -24,10 +25,7 @@ class ModbusConnTest : HxTest
   @HxRuntimeTest
   Void testOpen()
   {
-    lib := (ConnLib)addLib("modbus")
-    (rt.dir + `modbus.csv`).out.print(
-      Str<|name,addr,data,rw
-           ping,40001,u2,r|>).flush.close
+    lib := addModbus
 
     // unreachable device fails the open, never reporting ok
     port := TcpListener().bind(IpAddr("127.0.0.1"), null)
@@ -49,8 +47,113 @@ class ModbusConnTest : HxTest
       f.get
       verifyOpen(c, true)
       verifyEq(c.state, ConnState.closed)
+
+      // the read failure names its cause
+      err := rt.db.readById(c.id)["connErr"].toStr
+      verify(err.startsWith("sys::IOErr: Low-level IO error: "), err)
     }
     finally listener.close
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Conn Updated
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testConnUpdated()
+  {
+    lib := addModbus
+    listener := TcpListener().bind(IpAddr("127.0.0.1"), null)
+    unit := AtomicInt(-1)
+    serve(listener, unit)
+    try
+    {
+      // watch a point so hxConn keeps the conn open
+      c  := addConn(lib, listener.localPort)
+      pt := addRec(["dis":"Ping", "point":m, "kind":"Number",
+                    "modbusConnRef":c.id, "modbusCur":"ping"])
+      rt.sync
+      rt.watch.open("test").add(pt.id)
+      syncConn(c)
+      verifyEq(c.state, ConnState.open)
+      c.ping.get
+      verifyEq(unit.val, 1)
+
+      // an edit closes the conn, and the reopen uses the new settings
+      commit(rt.db.readById(c.id), ["modbusSlave":n(2)])
+      syncConn(c)
+      verifyEq(c.state, ConnState.closed)
+      c.forceHouseKeeping.get
+      syncConn(c)
+      verifyEq(c.state, ConnState.open)
+      c.ping.get
+      verifyEq(unit.val, 2)
+
+      // enabling reopens from the new rec before onConnUpdated,
+      // which must leave that open conn alone
+      commit(rt.db.readById(c.id), ["disabled":m])
+      syncConn(c)
+      verifyEq(c.state, ConnState.closed)
+      commit(rt.db.readById(c.id), ["disabled":Remove.val])
+      syncConn(c)
+      verifyEq(c.state, ConnState.open)
+    }
+    finally listener.close
+  }
+
+  ** Answer every read on listener with zeros, recording the unit id
+  private Void serve(TcpListener listener, AtomicInt unit)
+  {
+    Actor(ActorPool()) |Unsafe msg->Obj?|
+    {
+      TcpListener l := msg.val
+      while (true)
+      {
+        TcpSocket? s
+        try s = l.accept
+        catch (Err e) return null
+        try
+        {
+          while (true)
+          {
+            req := s.in.readBufFully(null, 12)
+            tx  := req.readU2
+            req.readU2; req.readU2
+            unit.val = req.read
+            fc  := req.read
+            req.readU2
+            count := req.readU2
+            out := s.out
+            out.writeI2(tx).writeI2(0).writeI2(3 + count * 2)
+            out.write(unit.val).write(fc).write(count * 2)
+            count.times { out.writeI2(0) }
+            out.flush
+          }
+        }
+        catch (IOErr e) {}
+        finally s.close
+      }
+      return null
+    }.send(Unsafe(listener))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Support
+//////////////////////////////////////////////////////////////////////////
+
+  private ConnLib addModbus()
+  {
+    lib := (ConnLib)addLib("modbus")
+    (rt.dir + `modbus.csv`).out.print(
+      Str<|name,addr,data,rw
+           ping,40001,u2,r|>).flush.close
+    return lib
+  }
+
+  private Void syncConn(Conn c)
+  {
+    rt.sync
+    c.sendSync(HxMsg("sync"))
   }
 
   private Conn addConn(ConnLib lib, Int port)

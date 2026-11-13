@@ -64,6 +64,15 @@ class ModbusDispatch : ConnDispatch
     }
   }
 
+  ** Settings are captured at open, so close on any edit to the conn rec
+  ** and let the next open pick them up. Reads and writes reopen on demand,
+  ** and hxConn reopens a conn with points in watch. Not unconditional: an
+  ** edit that enables the conn has already reopened it from the new rec.
+  override Void onConnUpdated()
+  {
+    if (dev != null && dev.isChanged(rec)) close(null)
+  }
+
   override Void onClose()
   {
     this.link?.release
