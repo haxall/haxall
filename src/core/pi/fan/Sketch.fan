@@ -19,15 +19,18 @@ const mixin Sketch
   ** Template source
   abstract Str src()
 
-  ** Formal params: the only names taken from the scope it is
-  ** rendered with
+  ** Formal params: the only names taken from the vars it is given
   abstract Str[] params()
 
-  ** Render this sketch to a DOM element with the given scope variables
-  abstract SketchElem renderElem(SketchScope scope)
+  ** Tag of its one root element, which is fixed
+  abstract Str rootTag()
 
-  ** Render this sketch to a markup string with the given scope variables
-  abstract Str renderStr(SketchScope scope)
+  ** Create an instance: draw this sketch into the given element as
+  ** its root, which must have the `rootTag`
+  abstract SketchInstance renderInstance(Elem elem, Str:Obj? vars)
+
+  ** Render this sketch to a markup string with the given vars
+  abstract Str renderStr(Str:Obj? vars)
 
   ** Return template source
   override Str toStr() { src }
@@ -65,27 +68,27 @@ const class SketchSrc : SrcStr
 }
 
 **************************************************************************
-** SketchScope
+** SketchInstance
 **************************************************************************
 
+**
+** SketchInstance is one instance of a `Sketch`: the element it was
+** drawn into, the current vars, and what its drawing recorded.
+** Use `Sketch.renderInstance` to create one.
+**
 @Js @NoDoc
-mixin SketchScope
+abstract class SketchInstance
 {
-  ** Get a variable by name or null if not defined
-  abstract Obj? get(Str name)
-}
+  ** Sketch this is an instance of
+  abstract Sketch sketch()
 
-**************************************************************************
-** SketchElem
-**************************************************************************
+  ** Root element this was drawn into
+  abstract Elem elem()
 
-@Js @NoDoc
-abstract class SketchElem : Elem
-{
-  ** Constructor.  Pass 'Svg.ns' if its an SVG element
-  new make(Str elemName, Uri? ns := null) : super(elemName, ns) {}
+  ** Current value of each param
+  abstract Str:Obj? vars()
 
-  ** Re-render this element with the given variables
-  abstract Void rerender(SketchScope scope)
+  ** Update to the given vars, writing only what changed
+  abstract Void update(Str:Obj? vars)
 }
 
