@@ -19,15 +19,16 @@ const mixin Sketch
   ** Template source
   abstract Str src()
 
-  ** Formal params: the only names taken from the vars it is given
+  ** Formal params: the only names it takes from outside
   abstract Str[] params()
 
   ** Tag of its one root element, which is fixed
   abstract Str rootTag()
 
   ** Create an instance: draw this sketch into the given element as
-  ** its root, which must have the `rootTag`
-  abstract SketchInstance renderInstance(Elem elem, Str:Obj? vars)
+  ** its root, which must have the `rootTag`.  The params are the
+  ** props of the element: each is read with `Elem.prop`
+  abstract SketchInstance renderInstance(Elem elem)
 
   ** Render this sketch to a markup string with the given vars
   abstract Str renderStr(Str:Obj? vars)
@@ -73,7 +74,9 @@ const class SketchSrc : SrcStr
 
 **
 ** SketchInstance is one instance of a `Sketch`: the element it was
-** drawn into, the current vars, and what its drawing recorded.
+** drawn into and what its drawing recorded.  The params are the props
+** of the element: it reads each with `Elem.prop`, and when an event
+** handler of the sketch assigns one it sets it with `Elem.setProp`.
 ** Use `Sketch.renderInstance` to create one.
 **
 @Js @NoDoc
@@ -82,13 +85,10 @@ abstract class SketchInstance
   ** Sketch this is an instance of
   abstract Sketch sketch()
 
-  ** Root element this was drawn into
+  ** Root element this was drawn into, whose props are the params
   abstract Elem elem()
 
-  ** Current value of each param
-  abstract Str:Obj? vars()
-
-  ** Update to the given vars, writing only what changed
-  abstract Void update(Str:Obj? vars)
+  ** Read the params from the element again and write what changed
+  abstract Void update()
 }
 
