@@ -21,16 +21,6 @@ abstract class AxonContext : HaystackContext, CompContext
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Current
-//////////////////////////////////////////////////////////////////////////
-
-  ** Current context for actor thread
-  @NoDoc static AxonContext? curAxon(Bool checked := true)
-  {
-    curx(checked)
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
@@ -293,7 +283,7 @@ abstract class AxonContext : HaystackContext, CompContext
   }
 
   ** Run the outermost frame with this context installed as the actor
-  ** local so Fantom funcs see it via curAxon; restore the previous
+  ** local so Fantom funcs see it via cur; restore the previous
   ** context when done.  Kept out of run so the hot path stays small.
   private Obj? runOuter(AxonFrame frame)
   {

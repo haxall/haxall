@@ -268,7 +268,7 @@ internal class ClosureScopeFuncs
   ** same way hisKit lazy grids store away their filter closures
   @Axon static Obj? testCapture(Callable fn)
   {
-    cx := (ClosureTestContext)AxonContext.curAxon
+    cx := ClosureTestContext.cur
     args := [null]
     cx.lazyCalls.add |Obj? a->Obj?| { fn.call(cx, args.set(0, a)) }
     return null
@@ -277,7 +277,7 @@ internal class ClosureScopeFuncs
   ** Invoke a lazy func registered by testCapture
   @Axon static Obj? testInvoke(Number index, Obj? arg)
   {
-    cx := (ClosureTestContext)AxonContext.curAxon
+    cx := ClosureTestContext.cur
     return cx.lazyCalls[index.toInt].call(arg)
   }
 }

@@ -296,7 +296,7 @@ class MCompSpaceSpi : CompSpaceSpi
   {
     if (!isRunningRef) throw Err("CompSpace not running")
 
-    cx := CompContext.curComp
+    cx := CompContext.cur
 
     // if the component tree has been modified, we need to rebuild
     if (timersNeedUpdate)

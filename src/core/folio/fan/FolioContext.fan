@@ -16,15 +16,6 @@ using xeto
 mixin FolioContext : ActorContext
 {
 
-  ** Current context for actor thread
-  @NoDoc static FolioContext? curFolio(Bool checked := true)
-  {
-    cx := Actor.locals[actorLocalsKey]
-    if (cx != null) return cx
-    if (checked) throw ContextUnavailableErr("No FolioContext available")
-    return null
-  }
-
   ** Return if context has read access to given record
   abstract Bool canRead(Dict rec)
 

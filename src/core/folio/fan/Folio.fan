@@ -416,7 +416,7 @@ abstract const class Folio
   @NoDoc abstract protected FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)
 
   ** Context commit info to pass back to FolioHooks
-  private Obj? cxCommitInfo() { FolioContext.curFolio(false)?.commitInfo }
+  private Obj? cxCommitInfo() { FolioContext.cur(false)?.commitInfo }
 
   ** Verify the database is writable, validate the diffs, and check write
   ** permission for each one. Throws DiffErr if the diffs are invalid, or
@@ -428,7 +428,7 @@ abstract const class Folio
     checkWrite
     FolioUtil.checkDiffs(diffs)
 
-    cx := FolioContext.curFolio(false)
+    cx := FolioContext.cur(false)
     if (cx == null) return diffs
 
     // old rec is null for adds and for recs which do not exist; the raw

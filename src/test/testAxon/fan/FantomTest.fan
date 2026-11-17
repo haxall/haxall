@@ -191,7 +191,7 @@ internal class LazyThunkFuncs
 {
   @Axon static Str lazyEcho(Expr a, Expr? b := null)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     return "${a.eval(cx)} | " + (b == null ? "omitted" : "${b.eval(cx)}")
   }
 }

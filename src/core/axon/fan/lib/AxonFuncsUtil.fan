@@ -22,7 +22,7 @@ const class AxonFuncsUtil
     fn := sorter as Callable
     if (fn != null)
     {
-      cx := AxonContext.curAxon
+      cx := AxonContext.cur
       args := [null, null]
       func = |Obj? a,Obj? b->Int| { ((Number)fn.call(cx, args.set(0, a).set(1, b))).toInt }
     }

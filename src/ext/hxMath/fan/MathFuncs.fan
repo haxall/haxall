@@ -288,7 +288,7 @@ const class MathFuncs
     if (perc < 0f || perc > 1f) throw ArgErr("Percent must be between 0-1")
 
     //this needs to return an axon::Fn equivalent to quantileFold(_,_,perc)
-    return AxonContext.curAxon.evalToFunc("quantileFold(_,_,${percent}, \"${method}\")")
+    return AxonContext.cur.evalToFunc("quantileFold(_,_,${percent}, \"${method}\")")
   }
 
   //the above func is a wrapper which takes a number percent and calls

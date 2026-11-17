@@ -95,7 +95,7 @@ is the place for tests a pattern cannot express.
 
 ## Actor Local Context
 
-Fantom funcs find their context with `AxonContext.curAxon`, which
+Fantom funcs find their context with `AxonContext.cur`, which
 reads the actor local.  `AxonContext.run` installs the context as the
 actor local when it pushes the outermost frame of an evaluation, and
 restores the previous context when that frame pops.  So:

@@ -21,7 +21,7 @@ abstract const class PiEnv
   ** as a server runtime, else the global one registered for the VM
   static PiEnv? cur(Bool checked := true)
   {
-    cx := ActorContext.curx(false) as PiContext
+    cx := ActorContext.cur(false) as PiContext
     if (cx != null) return cx.pi
     v := curRef.val
     if (v != null) return v

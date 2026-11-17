@@ -240,7 +240,7 @@ throw Err("TODO")
 
   private static Str noEcho() { ShellContext.noEcho }
 
-  private static ShellContext cx() { AxonContext.curAxon }
+  private static ShellContext cx() { AxonContext.cur }
 
   private static Int maxStr(Str[] strs)
   {

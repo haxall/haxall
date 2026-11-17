@@ -128,7 +128,7 @@ const class FantomFn : TopFn
     // from Fantom code is installed by run itself
     if (checkCx && cx.curFrame(false) != null)
     {
-      actorCx := AxonContext.curAxon(false)
+      actorCx := ActorContext.cur(false)
       if (actorCx !== cx) throw ContextMismatchErr("Calling '$name' with $cx.typeof but actor local is ${actorCx?.typeof}", cx, callLoc)
     }
 

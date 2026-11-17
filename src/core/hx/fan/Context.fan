@@ -25,15 +25,6 @@ class Context : AxonContext, FolioContext, PiContext
 // Current
 //////////////////////////////////////////////////////////////////////////
 
-  ** Current context for actor thread
-  static Context? cur(Bool checked := true)
-  {
-    cx := ActorContext.curx(false) as Context
-    if (cx != null) return cx
-    if (checked) throw ContextUnavailableErr("No Context available")
-    return null
-  }
-
   ** Run function using this Context as the current one.
   ** This method automatically saves/restore the existing context.
   @NoDoc Obj? asCur(|Context->Obj?| f)

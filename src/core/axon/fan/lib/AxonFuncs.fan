@@ -555,7 +555,7 @@ const class AxonFuncs
   **     readAll(equip).filter(parseSearch("RTU-1"))
   @Api @Axon static Obj filter(Expr val, Expr filterExpr)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     v := val.eval(cx)
     filter := filterExpr.evalToFilter(cx)
 
@@ -663,7 +663,7 @@ const class AxonFuncs
   @Api @Axon
   static Obj? reduce(Obj val, Obj? init, Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     if (val is MStream) return ReduceStream(val, init, fn).run
     if (val is Grid) val = ((Grid)val).toRows
     if (val is List) return ((List)val).reduce(init) |acc, item, index| { fn.call(cx, [acc, item, Number(index)]) }
@@ -731,7 +731,7 @@ const class AxonFuncs
   **     readAll(site).gridRowsToDict(s=>s.dis.toTagName, s=>s->area)
   @Api @Axon static Dict gridRowsToDict(Grid grid, Callable rowToKey, Callable rowToVal)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     map := Str:Obj?[:]
     args := [null, null]
     grid.each |row, i|
@@ -754,7 +754,7 @@ const class AxonFuncs
   **     read(temp).hisRead(today).gridColsToDict(c=>c.name, c=>c.meta.dis)
   @Api @Axon static Dict gridColsToDict(Grid grid, Callable colToKey, Callable colToVal)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     map := Str:Obj?[:]
     args := [null, null]
     grid.cols.each |col, i|
@@ -781,7 +781,7 @@ const class AxonFuncs
 
   private static Func toGridIterator(Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := [null, null]
     return |Obj? row, Int i->Obj?|
     {
@@ -791,7 +791,7 @@ const class AxonFuncs
 
   private static Func toDictIterator(Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := [null, null]
     return |Obj? v, Obj? k->Obj?|
     {
@@ -801,7 +801,7 @@ const class AxonFuncs
 
   private static Func toListIterator(Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := [null, null]
     return |Obj? v, Int i->Obj?|
     {
@@ -811,7 +811,7 @@ const class AxonFuncs
 
   private static Func toStrIterator(Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := [null, null]
     return |Int ch, Int i->Obj?|
     {
@@ -821,7 +821,7 @@ const class AxonFuncs
 
   private static Func toRangeIterator(Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := [null]
     return |Int i->Obj?|
     {
@@ -883,7 +883,7 @@ const class AxonFuncs
     if (val is MStream) return FoldStream(val, fn).run
 
     list := val as List ?: throw argErr("fold", val)
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := Obj?[foldStartVal, null]
     r := fn.call(cx, args)
     na := list.eachWhile |item|
@@ -905,7 +905,7 @@ const class AxonFuncs
   @Api @Axon static Obj? foldCol(Grid grid, Str colName, Callable fn)
   {
     col := grid.col(colName)
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := Obj?[foldStartVal, null]
     r := fn.call(cx, args)
     na := grid.eachWhile |row|
@@ -948,7 +948,7 @@ const class AxonFuncs
   **     g.foldCols(colSel, "bc", sum)
   @Api @Axon static Grid foldCols(Grid grid, Obj colSelector, Str newColName, Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
 
     // figure out which columns we are using for selection
     Col[]? cols := null
@@ -1160,7 +1160,7 @@ const class AxonFuncs
   {
     if (val is Dict)  return ((Dict)val).trap(name, null)
     if (val is Comp)  return ((Comp)val).trap(name, null)
-    if (val is Ref) return AxonContext.curAxon.deref(val).trap(name, null)
+    if (val is Ref) return AxonContext.cur.deref(val).trap(name, null)
     throw argErr("trap", val)
   }
 //////////////////////////////////////////////////////////////////////////
@@ -1514,7 +1514,7 @@ const class AxonFuncs
   ** of times passing the counter.
   @Api @Axon static Obj? times(Number times, Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := Obj?[null]
     times.toInt.times |i| { fn.call(cx, args.set(0, Number(i))) }
     return null
@@ -1692,7 +1692,7 @@ const class AxonFuncs
   **     toDateSpan(pastWeek) // on 9 Aug    >>  02-Aug-2010..09-Aug-2010
   @Api @Axon static DateSpan toDateSpan(Obj? x)
   {
-    if (x == null) return AxonContext.curAxon.toDateSpanDef
+    if (x == null) return AxonContext.cur.toDateSpanDef
     return Etc.toDateSpan(x)
   }
 
@@ -1709,7 +1709,7 @@ const class AxonFuncs
   **   - `DateSpan+tz`: anything accepted by [toDateSpan()] using given timezone
   @Api @Axon static Span toSpan(Obj? x, Str? tz := null)
   {
-    if (x == null) x = AxonContext.curAxon.toDateSpanDef
+    if (x == null) x = AxonContext.cur.toDateSpanDef
     return Etc.toSpan(x, tz != null ? TimeZone.fromStr(tz) : null)
   }
 
@@ -1736,7 +1736,7 @@ const class AxonFuncs
   **     eachDay(pastWeek, f)               >> iterate last 7 days
   @Api @Axon static Obj? eachDay(Obj dates, Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := Obj?[null]
     toDateSpan(dates).eachDay |date| { fn.call(cx, args.set(0, date)) }
     return null
@@ -1755,7 +1755,7 @@ const class AxonFuncs
   **     eachMonth(today(), f)
   @Api @Axon static Obj? eachMonth(Obj dates, Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     args := Obj?[null]
     toDateSpan(dates).eachMonth |span| { fn.call(cx, args.set(0, span)) }
     return null
@@ -2078,7 +2078,7 @@ const class AxonFuncs
   **     fits(rec, specx(MySugar))                         >> include mixins
   @Api @Axon static Bool fits(Obj? val, Spec spec)
   {
-    AxonContext.curAxon.ns.fits(val, spec)
+    AxonContext.cur.ns.fits(val, spec)
   }
 
   ** Use [fits()]
@@ -2091,21 +2091,21 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def? def(Obj symbol, Bool checked := true)
   {
-    symbol as Def ?: AxonContext.curAxon.defs.def(symbol.toStr, checked)
+    symbol as Def ?: AxonContext.cur.defs.def(symbol.toStr, checked)
   }
 
   ** List all definitions in the context namespace as `Def[]`.
   ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] defs()
   {
-    AxonContext.curAxon.defs.defs.sort
+    AxonContext.cur.defs.defs.sort
   }
 
   ** List tag definitions in the context namespace as `Def[]`.
   ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] tags()
   {
-    defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTag }
+    defs := AxonContext.cur.defs.findDefs |d| { d.symbol.type.isTag }
     return defs.sort
   }
 
@@ -2113,7 +2113,7 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] terms()
   {
-    defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTerm }
+    defs := AxonContext.cur.defs.findDefs |d| { d.symbol.type.isTerm }
     return defs.sort
   }
 
@@ -2121,7 +2121,7 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @Api @Axon static Def[] conjuncts()
   {
-    defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isConjunct }
+    defs := AxonContext.cur.defs.findDefs |d| { d.symbol.type.isConjunct }
     return defs.sort
   }
 
@@ -2130,7 +2130,7 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] supertypes(Obj d)
   {
-    AxonContext.curAxon.defs.supertypes(def(d))
+    AxonContext.cur.defs.supertypes(def(d))
   }
 
   ** Return all declared subtypes of the given def.  This is
@@ -2139,14 +2139,14 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] subtypes(Obj d)
   {
-    AxonContext.curAxon.defs.subtypes(def(d))
+    AxonContext.cur.defs.subtypes(def(d))
   }
 
   ** Return if the given def has subtypes.
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Bool hasSubtypes(Obj d)
   {
-    AxonContext.curAxon.defs.hasSubtypes(def(d))
+    AxonContext.cur.defs.hasSubtypes(def(d))
   }
 
   ** Return a flatten list of all supertypes of the given def.  This
@@ -2155,7 +2155,7 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] inheritance(Obj d)
   {
-    AxonContext.curAxon.defs.inheritance(def(d))
+    AxonContext.cur.defs.inheritance(def(d))
   }
 
   ** Return list of defs for given association on the parent.
@@ -2163,21 +2163,21 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] associations(Obj parent, Obj association)
   {
-    AxonContext.curAxon.defs.associations(def(parent), def(association))
+    AxonContext.cur.defs.associations(def(parent), def(association))
   }
 
   ** Return list of tags to apply to implement the given def
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] implement(Obj d)
   {
-    AxonContext.curAxon.defs.implement(def(d))
+    AxonContext.cur.defs.implement(def(d))
   }
 
   ** Reflect the given subject dict into the list of its implemented `Def[]`
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Def[] reflect(Dict dict)
   {
-    AxonContext.curAxon.defs.reflect(dict).defs
+    AxonContext.cur.defs.reflect(dict).defs
   }
 
   ** Generate a child prototype for the given parent dict.  This call
@@ -2185,7 +2185,7 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Dict proto(Dict parent, Dict proto)
   {
-    AxonContext.curAxon.defs.proto(parent, proto)
+    AxonContext.cur.defs.proto(parent, proto)
   }
 
   ** Generate a list of children prototypes for the given parent
@@ -2193,7 +2193,7 @@ const class AxonFuncs
   ** Deprecated: defs will be removed in a future version.
   @NoDoc @Api @Axon static Dict[] protos(Dict parent)
   {
-    AxonContext.curAxon.defs.protos(parent)
+    AxonContext.cur.defs.protos(parent)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2209,7 +2209,7 @@ const class AxonFuncs
   @NoDoc @Api @Axon
   static Grid params(Callable fn)
   {
-    AxonFuncsUtil.params(AxonContext.curAxon, fn.params)
+    AxonFuncsUtil.params(AxonContext.cur, fn.params)
   }
 
   ** Find a top-level function by name or by reference and return its tags.
@@ -2222,7 +2222,7 @@ const class AxonFuncs
   @Api @Axon
   static Dict? func(Obj name, Bool checked := true)
   {
-    AxonFuncsUtil.func(AxonContext.curAxon, name, checked)
+    AxonFuncsUtil.func(AxonContext.cur, name, checked)
   }
 
   ** Find all the top-levels functions in the current project
@@ -2237,14 +2237,14 @@ const class AxonFuncs
   @Api @Axon
   static Grid funcs(Expr filterExpr := Literal.nullVal)
   {
-    AxonFuncsUtil.funcs(AxonContext.curAxon, filterExpr)
+    AxonFuncsUtil.funcs(AxonContext.cur, filterExpr)
   }
 
   ** Get the current top-level function's tags.
   @Api @Axon
   static Dict curFunc()
   {
-    AxonFuncsUtil.curFunc(AxonContext.curAxon)
+    AxonFuncsUtil.curFunc(AxonContext.cur)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2388,7 +2388,7 @@ const class AxonFuncs
   **     localeUse("de", parseDate("01 Mär 2021", "DD MMM YYYY"))
   @Api @Axon static Obj? localeUse(Expr locale, Expr expr)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     result := null
     Locale(locale.eval(cx)).use { result = expr.eval(cx) }
     return result
@@ -2694,7 +2694,7 @@ const class AxonFuncs
   **     grid.findAll(filterToFunc(area > 10_000))
   @Api @Axon static Callable filterToFunc(Expr filterExpr)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     filter := filterExpr.evalToFilter(cx)
     return FilterCallable(filter)
   }
@@ -2963,7 +2963,7 @@ const class AxonFuncs
   **     reMatches(r"\d+", "123")    >>  true
   @Api @Axon static Bool reMatches(Obj regex, Str s)
   {
-    AxonContext.curAxon.toRegex(regex).matches(s)
+    AxonContext.cur.toRegex(regex).matches(s)
   }
 
   ** Find the first match of regular expression in `s`
@@ -2976,7 +2976,7 @@ const class AxonFuncs
   **     reFind(r"\d+", "xyz")    >>  null
   @Api @Axon static Str? reFind(Obj regex, Str s)
   {
-    m := AxonContext.curAxon.toRegex(regex).matcher(s)
+    m := AxonContext.cur.toRegex(regex).matcher(s)
     if (!m.find) return null
     return m.group
   }
@@ -2992,7 +2992,7 @@ const class AxonFuncs
   **       >> [,]
   @Api @Axon static Str[] reFindAll(Obj regex, Str s)
   {
-    m   := AxonContext.curAxon.toRegex(regex).matcher(s)
+    m   := AxonContext.cur.toRegex(regex).matcher(s)
     acc := Str[,]
     while (m.find) acc.add(m.group)
     return acc
@@ -3011,7 +3011,7 @@ const class AxonFuncs
   **     reGroups(re, "AHU-7")  >> ["AHU-7", "AHU", "7"]
   @Api @Axon static Obj? reGroups(Obj regex, Str s)
   {
-    m := AxonContext.curAxon.toRegex(regex).matcher(s)
+    m := AxonContext.cur.toRegex(regex).matcher(s)
     if (!m.find) return null
     groups := [,]
     for (i:=0; i<=m.groupCount; ++i) groups.add(m.group(i))
@@ -3132,7 +3132,7 @@ const class AxonFuncs
   ** Return timestamp of the current namespace
   @NoDoc @Api @Axon static DateTime nsTimestamp()
   {
-    AxonContext.curAxon.ns.ts
+    AxonContext.cur.ns.ts
   }
 
   ** Do nothing no-op
@@ -3164,7 +3164,7 @@ const class AxonFuncs
   @Api @Axon
   static Obj? eval(Str expr)
   {
-    AxonContext.curAxon.eval(expr)
+    AxonContext.cur.eval(expr)
   }
 
   ** Evaluate an Axon string expression to a function.  Typically the
@@ -3183,7 +3183,7 @@ const class AxonFuncs
   @Api @Axon
   static Callable evalToFunc(Str expr)
   {
-    AxonContext.curAxon.evalToFunc(expr)
+    AxonContext.cur.evalToFunc(expr)
   }
 
   ** Evaluate an expression as Axon or a readAll filter
@@ -3191,7 +3191,7 @@ const class AxonFuncs
   static Obj? evalOrReadAll(Str expr)
   {
     if (expr.isEmpty) return null
-    return AxonContext.curAxon.evalOrReadAll(expr)
+    return AxonContext.cur.evalOrReadAll(expr)
   }
 
   ** Reflectively call a function with the given arguments.  The func
@@ -3207,7 +3207,7 @@ const class AxonFuncs
   @Api @Axon
   static Obj? call(Obj func, Obj?[]? args := null)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     Callable fn := func is Str ? cx.resolveTopFn(func) : func
     if (args == null) args = Obj#.emptyList
     return fn.call(cx, args, FileLoc("call"))
@@ -3227,7 +3227,7 @@ const class AxonFuncs
   @Api @Axon
   static Obj? callByName(Obj func, Dict args)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     Callable fn := func is Str ? cx.resolveTopFn(func) : func
 
     // map to args list
@@ -3266,7 +3266,7 @@ const class AxonFuncs
   ** NOTE: the keys and structure of the AST is subject to change over time.
   @Api @Axon static Dict parseAst(Str src)
   {
-    AxonContext.curAxon.parse(src).encode
+    AxonContext.cur.parse(src).encode
   }
 
   ** Dump current context stack to standard out.
@@ -3274,7 +3274,7 @@ const class AxonFuncs
   @NoDoc @Api @Axon { admin = true }
   static Obj? trace(Dict? opts := null)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     str := cx.traceToStr(cx.curFunc?.loc ?: FileLoc.unknown, opts)
     echo(str)
     return str
@@ -3284,7 +3284,7 @@ const class AxonFuncs
   @NoDoc @Api @Axon { admin = true }
   static Grid traceToGrid(Dict? opts := null)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     return cx.traceToGrid(cx.curFunc?.loc ?: FileLoc.unknown, opts)
   }
 

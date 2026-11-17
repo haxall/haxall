@@ -25,7 +25,7 @@ using haystack
 @NoDoc abstract class FolioReader
 {
   ** Current context for permission checking resolved at construction
-  protected FolioContext? cx := FolioContext.curFolio(false)
+  protected FolioContext? cx := FolioContext.cur(false)
 
   ** Offer one raw rec to the reader; only filter readers accept streams.
   ** Return non-null if the store should stop streaming, in which case
@@ -74,7 +74,7 @@ using haystack
   ** id.  This is the fast path for readRecById which allocates no reader.
   static FolioRec? checkRec(Ref id, FolioRec? rec, Bool checked)
   {
-    cx := FolioContext.curFolio(false)
+    cx := FolioContext.cur(false)
     // do not return trash recs
     if (rec != null && rec.isTrash) rec = null
     if (rec == null)

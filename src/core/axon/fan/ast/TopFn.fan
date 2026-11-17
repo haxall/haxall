@@ -68,13 +68,13 @@ const class TopFn : Fn, Thunk, Callable
   {
     x := args ?: noArgs
     if (isLazy) x = x.map |a->Obj?| { a == null ? null : (a as Expr ?: Literal(a)) }
-    return call(AxonContext.curAxon, x)
+    return call(AxonContext.cur, x)
   }
 
   ** Thunk.callComp implementation
   override Obj? callComp(Comp self, Obj? arg)
   {
-    AxonContext.curAxon.callIn(this, [arg], FileLoc.unknown, AxonScope().set("this", self))
+    AxonContext.cur.callIn(this, [arg], FileLoc.unknown, AxonScope().set("this", self))
   }
 
   ** Check call permission then call in a new root scope

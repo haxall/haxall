@@ -20,7 +20,7 @@ abstract class MStream
     if (prev == null)
     {
       if (!isSource) throw Err("Missing stream source: $typeof")
-      this.cx = AxonContext.curAxon
+      this.cx = AxonContext.cur
     }
     else
     {

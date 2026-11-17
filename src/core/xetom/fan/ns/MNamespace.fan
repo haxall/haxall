@@ -435,7 +435,7 @@ const class MNamespace : Namespace, CNamespace
 
   override Obj? queryWhile(Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
   {
-    cx := XetoContext.curx(false) ?: NilXetoContext.val
+    cx := XetoContext.cur(false) ?: NilXetoContext.val
     return Query(this, cx, opts).query(subject, query).eachWhile(f)
   }
 
@@ -473,7 +473,7 @@ const class MNamespace : Namespace, CNamespace
   ** Current thread's XetoContext or nil context
   private XetoContext curCx()
   {
-    XetoContext.curx(false) ?: NilXetoContext.val
+    XetoContext.cur(false) ?: NilXetoContext.val
   }
 
 //////////////////////////////////////////////////////////////////////////

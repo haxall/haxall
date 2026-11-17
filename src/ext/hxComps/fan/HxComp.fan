@@ -28,7 +28,7 @@ mixin BindableComp : Comp
 ** Base class for all components in this library
 abstract class HxComp : CompObj, BindableComp
 {
-  CompContext cx() { CompContext.curComp }
+  CompContext cx() { CompContext.cur }
 
   override StatusVal? bindOut() { get("out") as StatusVal }
 }

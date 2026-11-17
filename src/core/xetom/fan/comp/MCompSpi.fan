@@ -532,7 +532,7 @@ class MCompSpi : CompSpi
   {
     slot := spec.slot("onExecute", false)
     if (slot == null) return
-    slot.func.thunk.callComp(comp, CompContext.curComp)
+    slot.func.thunk.callComp(comp, CompContext.cur)
   }
 
 //////////////////////////////////////////////////////////////////////////

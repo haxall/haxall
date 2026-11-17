@@ -18,7 +18,7 @@ mixin FolioMgr
   abstract Folio db()
 
   ** Get the current [FolioContext] if one is installed
-  FolioContext? folioCx() { FolioContext.curFolio(false) }
+  FolioContext? folioCx() { FolioContext.cur(false) }
 
   ** Check current context has write permission for the given rec
   ** or raise PermissionErr; return rec

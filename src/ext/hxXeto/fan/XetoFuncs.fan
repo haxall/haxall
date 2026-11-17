@@ -763,7 +763,7 @@ const class XetoFuncs
   ** Current context
   internal static AxonContext curContext()
   {
-    AxonContext.curAxon
+    AxonContext.cur
   }
 
 }

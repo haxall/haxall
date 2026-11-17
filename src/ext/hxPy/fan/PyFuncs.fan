@@ -59,7 +59,7 @@ const class PyFuncs
   @Api @Axon { admin=true }
   static PySession pyInit(PySession py, Callable fn)
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
     return py.init(|PySession session| { fn.call(cx, [session]) })
   }
 

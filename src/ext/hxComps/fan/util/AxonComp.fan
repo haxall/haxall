@@ -24,7 +24,7 @@ class AxonComp : HxComp
 
   override Void onExecute()
   {
-    cx := AxonContext.curAxon
+    cx := AxonContext.cur
 // echo("=== onExecute")
 // echo(axon)
 // dump
