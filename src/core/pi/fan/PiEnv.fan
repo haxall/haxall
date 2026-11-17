@@ -15,11 +15,11 @@ using haystack
 ** PiEnv
 **
 @NoDoc @Js
-abstract const class PiEnv
+const class PiEnv
 {
   ** Current environment: the PiEnv of the current actor context such
   ** as a server runtime, else the global one registered for the VM
-  static PiEnv? cur(Bool checked := true)
+  static This? cur(Bool checked := true)
   {
     cx := ActorContext.cur(false) as PiContext
     if (cx != null) return cx.pi
@@ -29,73 +29,94 @@ abstract const class PiEnv
     return null
   }
 
-  ** Construct the pim implementation for the given namespace
-  @NoDoc static PiEnv create(Namespace ns)
-  {
-    Type.find("pim::MPiEnv").make([ns])
-  }
-
   ** Get the PiEnv cached in the given ref, or create one when the
   ** namespace has changed since it was cached
   @NoDoc static PiEnv cached(AtomicRef ref, Namespace ns)
   {
     env := ref.val as PiEnv
-    if (env == null || env.ns !== ns) ref.val = env = create(ns)
+    if (env == null || env.ns !== ns) ref.val = env = make(ns)
     return env
   }
 
   static const AtomicRef curRef := AtomicRef()
 
+  ** Construct for the given namespace
+  @NoDoc new make(Namespace ns)
+  {
+    this.ns  = ns
+    this.spi = Type.find("pim::MPiEnvSpi").make([this])
+  }
+
   ** Current namespace
-  abstract Namespace ns()
+  const Namespace ns
+
+  ** Service provider interface
+  @NoDoc const PiEnvSpi spi
 
   ** Relativize id in the current runtime
-  abstract Ref normRef(Ref id)
+  virtual Ref normRef(Ref id) { id }
+
+  ** Display flash notification for an error to the user
+  virtual Void flash(ItemStatus status, Str msg, Err? err := null) { Console.cur.err(msg, err) }
+
+  ** Read the given record ids from the runtime.  The future
+  ** completes with a grid of one row per id in the order requested
+  ** where an unresolvable id is an empty row.  Environments without
+  ** a runtime connection complete with an empty grid.
+  virtual PiFuture readByIds(Ref[] ids) { PiFuture().complete(Etc.makeEmptyGrid) }
 
   ** Item wrapper for a spec cached per space namespace
-  abstract Item specItem(Spec spec)
+  Item specItem(Spec spec) { spi.specItem(spec) }
 
   ** Merged presentation info for a spec
-  abstract Pi pi(Spec spec)
+  Pi pi(Spec spec) { spi.pi(spec) }
 
   ** Compile a sketch template with its formal params against this
   ** namespace.  Not cached: each Pi compiles its own sketches once
-  @NoDoc abstract Sketch sketch(Str src, Str[] params)
+  @NoDoc Sketch sketch(Str src, Str[] params) { spi.sketch(src, params) }
 
   ** Construct an ItemList implementation
-  abstract ItemList itemList(Item[] items, Item? self)
+  ItemList itemList(Item[] items, Item? self) { spi.itemList(items, self) }
 
   ** Wrap a grid as an ItemGrid collection
-  abstract ItemCollection itemGrid(Grid grid)
+  ItemCollection itemGrid(Grid grid) { spi.itemGrid(grid) }
 
   ** Map a value to an enumeration.  Handles every shape the `enum`
   ** tag is allowed to take: comma or newline separated keys, a
   ** markdown "- key: doc" list, a dict of dicts, a list of keys, and
   ** a Ref to a Xeto `sys::Enum` spec.  Returns `EnumItems.none` if
   ** the value does not map to an enumeration.
-  abstract EnumItems enum(Obj? val)
+  EnumItems enum(Obj? val) { spi.enum(val) }
 
   ** Map a Xeto `sys::Enum` spec to its enumeration.  Returns
   ** `EnumItems.none` if the spec is not an enum.
-  abstract EnumItems enumForSpec(Spec spec)
+  EnumItems enumForSpec(Spec spec) { spi.enumForSpec(spec) }
 
-  ** Display flash notification for an error to the user
-  abstract Void flash(ItemStatus status, Str msg, Err? err := null)
-
-  ** Read the given record ids from the runtime.  The future
-  ** completes with a grid of one row per id in the order requested
-  ** where an unresolvable id is an empty row.  Environments without
-  ** a runtime connection complete with an empty grid.
-  abstract PiFuture readByIds(Ref[] ids)
-
-  ** Read the given record ids from the runtime.  The future
-  ** completes with a grid of one row per id in the order requested
-  ** where an unresolvable id is an empty row.  Environments without
-  ** a runtime connection complete with an empty grid.
-  abstract PiRecCache recCache()
+  ** Cache of the records read by id from the runtime
+  PiRecCache recCache() { spi.recCache }
 
   ** Connector model registry
   once PiConns conns() { PiConns(ns) }
+}
+
+**************************************************************************
+** PiEnvSpi
+**************************************************************************
+
+**
+** PiEnvSpi is the service provider interface
+**
+@NoDoc @Js
+abstract const class PiEnvSpi
+{
+  abstract Item specItem(Spec spec)
+  abstract Pi pi(Spec spec)
+  abstract Sketch sketch(Str src, Str[] params)
+  abstract ItemList itemList(Item[] items, Item? self)
+  abstract ItemCollection itemGrid(Grid grid)
+  abstract EnumItems enum(Obj? val)
+  abstract EnumItems enumForSpec(Spec spec)
+  abstract PiRecCache recCache()
 }
 
 **************************************************************************
