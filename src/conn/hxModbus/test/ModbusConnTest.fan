@@ -55,6 +55,31 @@ class ModbusConnTest : HxTest
     finally listener.close
   }
 
+  @HxRuntimeTest
+  Void testOpenRtuTcp()
+  {
+    lib := addModbus
+    listener := TcpListener().bind(IpAddr("127.0.0.1"), null)
+    TcpSocket? s
+    try
+    {
+      // the gateway accepts, but the slave behind it never answers, so the
+      // open fails rather than report ok until the first poll
+      rec := addRec(["dis":"Modbus", "modbusConn":m,
+                     "uri":`modbus-rtutcp://127.0.0.1:${listener.localPort}/`,
+                     "modbusSlave":n(1), "modbusRegMapUri":`modbus.csv`,
+                     "modbusReadTimeout":n(200, "ms")])
+      rt.sync
+      c := traced(lib.conn(rec.id))
+      f := c.ping
+      s = listener.accept
+      f.get
+      verifyOpen(c, false)
+      verifyEq(c.status, ConnStatus.down)
+    }
+    finally { s?.close; listener.close }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Conn Updated
 //////////////////////////////////////////////////////////////////////////
@@ -99,6 +124,75 @@ class ModbusConnTest : HxTest
       verifyEq(c.state, ConnState.open)
     }
     finally listener.close
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Lib Restart
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testLibRestart()
+  {
+    addLib("platformSerial")
+    lib := addModbus
+    rec := addRec(["dis":"RTU", "modbusConn":m, "uri":`modbus-rtu://test-9600-8n1-none`,
+                   "modbusSlave":n(1), "modbusRegMapUri":`modbus.csv`,
+                   "modbusReadTimeout":n(100, "ms")])
+    rt.sync
+    verifySilentRtu(lib.conn(rec.id))
+
+    // a restarted lib opens the serial port as itself, not as the lib it
+    // replaced, whose rec is gone
+    rt.libs.remove("modbus")
+    rt.sync
+    lib = addModbus
+    verifySilentRtu(lib.conn(rec.id))
+  }
+
+  ** The test port never answers, so the open gets as far as the slave:
+  ** the port opened, but the open fails rather than report ok
+  private Void verifySilentRtu(Conn c)
+  {
+    traced(c).ping.get
+    verifyOpen(c, false)
+    verifyEq(rt.db.readById(c.id)["connErr"], "hxModbus::ModbusTimeoutErr: Response timeout after 100ms")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Busy Link
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testCloseBusyLink()
+  {
+    lib := (ModbusLib)addModbus
+    listener := TcpListener().bind(IpAddr("127.0.0.1"), null)
+    TcpSocket? s
+    try
+    {
+      // a device which never answers keeps the link busy
+      uri := `modbus-tcp://127.0.0.1:${listener.localPort}/`
+      dev := ModbusDev
+      {
+        it.rec          = Etc.emptyDict
+        it.uri          = uri
+        it.slave        = 1
+        it.regMap       = ModbusRegMap.fromFile(rt.dir + `modbus.csv`)
+        it.frameDelay   = 0sec
+        it.readTimeout  = 10sec
+        it.timeout      = 10sec
+        it.log          = lib.log
+      }
+      link := lib.links.get(uri)
+      Actor(ActorPool()) |->| { link.ping(dev) }.send(null)
+      s = listener.accept
+
+      // close gives up waiting rather than hold the conn in closing
+      t1 := Duration.now
+      link.close(200ms)
+      verify(Duration.now - t1 < 2sec)
+    }
+    finally { s?.close; listener.close }
   }
 
   ** Answer every read on listener with zeros, recording the unit id
@@ -162,7 +256,11 @@ class ModbusConnTest : HxTest
                    "uri":`modbus-tcp://127.0.0.1:${port}/`,
                    "modbusSlave":n(1), "modbusRegMapUri":`modbus.csv`])
     rt.sync
-    c := lib.conn(rec.id)
+    return traced(lib.conn(rec.id))
+  }
+
+  private Conn traced(Conn c)
+  {
     c.trace.enable
     return c
   }

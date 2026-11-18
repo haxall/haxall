@@ -71,10 +71,9 @@ doc:
   exception response, which surfaces as a read timeout. Set this to 50ms or more
   when several slaves share a gateway.
 
-  Note this delay is inside the window bounded by `modbusReadTimeout` and
-  `modbusWriteTimeout`, so those must be large enough to cover the whole
-  serialized cycle for every slave on the uri. See `ext-modbus::doc#frameDelay`
-  for more information.
+  Note this delay is inside the window bounded by `actorTimeout`, so it must
+  be large enough to cover the whole serialized cycle for every slave on the
+  uri. See `ext-modbus::doc#frameDelay` for more information.
 --------------------------------------------------------------------------
 def: ^modbusRegMapUri
 is: ^uri
@@ -96,11 +95,15 @@ def: ^modbusReadTimeout
 is: ^duration
 tagOn: ^modbusConn
 doc:
-  How long to wait before timing out on a modbus read.
+  Applied to 'modbusConn' to set how long to wait for the device to respond
+  to a read request. Defaults to 1sec for 'modbus-rtu' and to `actorTimeout`
+  for TCP, and is capped at `actorTimeout`. See `ext-modbus::doc#timeouts` for more information.
 --------------------------------------------------------------------------
 def: ^modbusWriteTimeout
 is: ^duration
 tagOn: ^modbusConn
 doc:
-  How long to wait before timing out on a modbus write.
+  Applied to 'modbusConn' to set how long to wait for the device to respond
+  to a write request. Defaults to 1sec for 'modbus-rtu' and to `actorTimeout`
+  for TCP, and is capped at `actorTimeout`. See `ext-modbus::doc#timeouts` for more information.
 --------------------------------------------------------------------------

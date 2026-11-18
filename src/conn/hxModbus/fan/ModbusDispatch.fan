@@ -50,15 +50,21 @@ class ModbusDispatch : ConnDispatch
   override Void onOpen()
   {
     this.dev  = ModbusDev.fromConn(conn)
-    this.link = ModbusLink.get(dev.uri)
+    this.link = ((ModbusLib)lib).links.get(dev.uri)
 
     // connect now so an unreachable device fails the open, rather than
-    // reporting ok until the first ping or poll fails. hxConn does not call
-    // onClose for a failed open, so release the link here
-    try link.open(dev)
+    // reporting ok until the first ping or poll fails. Opening a serial port
+    // or a gateway socket proves nothing about the slave behind it, so those
+    // must also hear from the slave. hxConn does not call onClose for a
+    // failed open, so release the link here
+    try
+    {
+      link.open(dev)
+      if (dev.uri.scheme == "modbus-rtu" || dev.uri.scheme == "modbus-rtutcp") link.ping(dev)
+    }
     catch (Err err)
     {
-      if (err is IOErr) link.close
+      if (err is IOErr) link.close(dev.timeout)
       onClose
       throw err
     }
@@ -75,7 +81,7 @@ class ModbusDispatch : ConnDispatch
 
   override Void onClose()
   {
-    this.link?.release
+    this.link?.release(dev.timeout)
     this.link = null
     this.dev  = null
   }
@@ -94,7 +100,7 @@ class ModbusDispatch : ConnDispatch
   ** alone - a timeout on one slave must not knock over its neighbors.
   private Void closeErr(Err err)
   {
-    if (err is IOErr || dev?.uri?.scheme == "modbus-rtutcp") link?.close
+    if (err is IOErr || dev?.uri?.scheme == "modbus-rtutcp") link?.close(dev.timeout)
     close(err)
   }
 

@@ -41,13 +41,16 @@ using hxConn
   ** Minimum silence to enforce on the wire between transactions
   const Duration frameDelay
 
-  ** Timeout for block reads
-  const Duration readTimeout
+  ** How long to wait for the device to respond to a read, at most
+  ** the conn timeout, or null for the transport default
+  const Duration? readTimeout
 
-  ** Timeout for register writes
-  const Duration writeTimeout
+  ** How long to wait for the device to respond to a write, at most
+  ** the conn timeout, or null for the transport default
+  const Duration? writeTimeout
 
-  ** Default I/O timeout (for socket configuration)
+  ** Conn timeout, which bounds a request's wait in the link queue
+  ** and is the socket default
   const Duration timeout
 
   ** Log for this device
@@ -79,8 +82,9 @@ using hxConn
       // modbusForceWriteMultiple is the undocumented legacy name
       it.forceMultiRegs  = rec.has("modbusForceMultiRegs") || rec.has("modbusForceWriteMultiple")
       it.frameDelay   = toDuration(rec, "modbusFrameDelay", 0sec, conn.tuning.rec)
-      it.readTimeout  = toDuration(rec, "modbusReadTimeout", conn.timeout)
-      it.writeTimeout = toDuration(rec, "modbusWriteTimeout", conn.timeout)
+      // capped so a request never outlasts the caller waiting on it
+      it.readTimeout  = toDuration(rec, "modbusReadTimeout", null)?.min(conn.timeout)
+      it.writeTimeout = toDuration(rec, "modbusWriteTimeout", null)?.min(conn.timeout)
       it.timeout = conn.timeout
       it.log = conn.trace.asLog
     }
@@ -100,7 +104,7 @@ using hxConn
   }
 
   ** Resolve duration tag from conn rec, falling back to the conn tuning rec
-  private Duration toDuration(Dict rec, Str tag, Duration def, Dict? tuning := null)
+  private Duration? toDuration(Dict rec, Str tag, Duration? def, Dict? tuning := null)
   {
     v := rec[tag] ?: tuning?.get(tag)
     if (v == null) return def

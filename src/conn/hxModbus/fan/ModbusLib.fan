@@ -22,16 +22,20 @@ const class ModbusLib : ConnLib
     HxContext.curHx.rt.lib("modbus", checked)
   }
 
+  ** Links for the conns of this lib
+  internal const ModbusLinkMgr links := ModbusLinkMgr(this)
+
   override Void onStart()
   {
     super.onStart
-    ModbusLinkMgr.init(this)
+    links.start
   }
 
+  ** Stop links after super has closed the conns using them
   override Void onStop()
   {
     super.onStop
-    ModbusLinkMgr.stop
+    links.stop
   }
 
   override Future onLearn(Conn conn, Obj? arg)
