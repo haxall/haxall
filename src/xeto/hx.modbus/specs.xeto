@@ -26,6 +26,18 @@ ModbusConn: Conn {
   // See [hx.modbus::doc#addr-specs] for more information.
   modbusDeviceSpec: Str?
 
+  // Applied to `modbusConn` to always write coils with function code 15
+  // (Write Multiple Coils), even when writing a single coil. Use for devices
+  // which reject function code 5 (Write Single Coil). See
+  // [hx.modbus::doc#write-function-codes] for more information.
+  modbusForceMultiCoils: Marker?
+
+  // Applied to `modbusConn` to always write holding registers with function
+  // code 16 (Write Multiple Registers), even when writing a single register.
+  // Use for devices which reject function code 6 (Write Single Register). See
+  // [hx.modbus::doc#write-function-codes] for more information.
+  modbusForceMultiRegs: Marker?
+
   // Minimum silence to enforce on the wire between two consecutive transactions.
   // Applied to `modbusConn` or its [hx.conn::ConnTuning] rec; a value on the conn
   // rec takes precedence. See [hx.modbus::doc#frame-delay] for more information.

@@ -170,6 +170,27 @@ the [ModbusPoint.modbusWrite] tag:
 A point may instead address its register directly from a spec - see
 [Addr Specs](#addr-specs).
 
+## Write Function Codes
+Modbus defines two function codes to write each kind of register: one for a
+single value and one for multiple consecutive values. By default a single coil
+is written with function code 5 (Write Single Coil) and a single holding
+register with function code 6 (Write Single Register). Values which span
+multiple holding registers, such as a 32-bit float, are written with function
+code 16 (Write Multiple Registers).
+
+Some devices only implement the multiple-write function codes and reject the
+single-write codes with exception code 1 (Illegal Function). Apply these marker
+tags to the `modbusConn` to always use the multiple-write function code, even
+when writing a single value:
+
+  - [ModbusConn.modbusForceMultiCoils]: write coils with function code 15
+    (Write Multiple Coils)
+  - [ModbusConn.modbusForceMultiRegs]: write holding registers with function
+    code 16 (Write Multiple Registers)
+
+Each tag is independent, so a device which only rejects one of the
+single-write codes needs only that tag.
+
 
 # Addr Specs
 A point may address its registers from an equip template instead of a register
