@@ -1068,8 +1068,9 @@ const class IOFuncs
   **
   ** The `body` parameter is any value accepted as an
   ** [I/O handle](doc#io-handles) (Str, Buf, Uri, etc).  If non-null, it is
-  ** streamed as the request body; Content-Type defaults to
-  ** "application/octet-stream" when not specified in `headers`.
+  ** streamed as the request body and `headers` must specify Content-Type.
+  ** If null, `headers` must not specify Content-Type; pass "" to send
+  ** Content-Type with an empty body.
   **
   ** The callback receives three arguments:
   **   - code: Number - HTTP status code
@@ -1109,7 +1110,7 @@ const class IOFuncs
   **       (code, headers, body) => {code: code, body: ioReadJson(body, {safeNames})})
   **
   **     // Carry a session cookie from one request to the next
-  **     r1: ioHttp(`https://acme.com/login`, "POST", null, credsBody,
+  **     r1: ioHttp(`https://acme.com/login`, "POST", {"Content-Type": "application/json"}, credsBody,
   **       (code, headers, body) => {code: code, cookie: headers["set-cookie"]})
   **
   **     ioHttp(`https://acme.com/data`, "GET", {"Cookie": r1->cookie}, null,
@@ -1134,16 +1135,20 @@ const class IOFuncs
         }
         else c.reqHeaders[n] = (Str)v
       }
+      ct := c.reqHeaders["Content-Type"]
       if (body != null)
       {
+        if (ct == null) throw Err("Content-Type header required with body")
         bodyBuf := toHandle(body).inToBuf
-        if (c.reqHeaders["Content-Type"] == null)
-          c.reqHeaders["Content-Type"] = "application/octet-stream"
         c.reqHeaders["Content-Length"] = bodyBuf.size.toStr
         c.writeReq
         c.reqOut.writeBuf(bodyBuf.seek(0)).close
       }
-      else c.writeReq
+      else
+      {
+        if (ct != null) throw Err("Content-Type header requires body; pass \"\" for empty body")
+        c.writeReq
+      }
       c.readRes
       resIn := c.resIn(false)
       Obj resBody := resIn != null ? resIn : Buf()
