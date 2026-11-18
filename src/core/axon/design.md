@@ -158,6 +158,27 @@ the Axon ends itself:
 - one char stream and one line count serve both, so locations need no
   translation
 
+## Fantom FFI
+
+`AxonFFI` binds Axon to Fantom: a static call, a dot call and a field
+set, installed on the context as `AxonContext.ffi`.  `FantomAxonFFI`
+is the one implementation.
+
+- **`toAxon` and `toFantom` are the only coercion rules**, and every
+  value which crosses goes thru them: the result of a call or field,
+  an argument, a field set, and a host such as sketch handing a
+  Fantom value to Axon.  So all Axon which scripts Fantom behaves the
+  same
+- **a number is a `Number`**: `Int`, `Float` and `Duration` out, and
+  back to the type of the param or field
+- **an enum is its `Str` key**: the `KeyedEnum.key` or else the name
+  out, and the key back to the enum when the param or field is typed
+  as one.  So `Weekday.tue == "tue"`, and a `switch` case
+  `CurStatus.fault` matches it as it does any key
+- **a func becomes a Fantom `Func`** going in
+- coercion is by the declared type and not deep: an `Obj` param takes
+  the value as is, and the items of a list are not converted
+
 ## Errors
 
 Scope methods never throw.  `define` and `assign` return null on

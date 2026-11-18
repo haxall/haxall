@@ -87,6 +87,19 @@ class FantomTest : HaystackTest
     verifyEval(Str<|FantomEx.filter1(foo==3)|>, Filter("foo==3"))
     verifyEval(Str<|FantomEx.filter1(FooBar and mark and foo==3)|>, Filter("FooBar and mark and foo==3"))
 
+    // enums are their key: out of a field or call, into a param or field
+    verifyEval(Str<|Weekday.tue|>, "tue")
+    verifyEval(Str<|Weekday.tue == "tue"|>, true)
+    verifyEval(Str<|FantomEx.day("wed")|>, "wed")
+    verifyEval(Str<|FantomEx.day(Weekday.thu)|>, "thu")
+    verifyEval(Str<|FantomExEnum.iconXs|>, "icon-xs")
+    verifyEval(Str<|FantomEx.keyed("icon-xs")|>, "icon-xs")
+    verifyEval(Str<|FantomEx.keyed(FantomExEnum.def)|>, "default")
+    verifyEval(Str<|do x: FantomEx(); x.weekday = "fri"; x.weekday; end|>, "fri")
+    verifyEval(Str<|do x: FantomEx(); x.key = "icon-xs"; x.key; end|>, "icon-xs")
+    verifyErr(ParseErr#) { eval(Str<|FantomEx.day("bad")|>) }
+    verifyErr(ParseErr#) { eval(Str<|FantomEx.keyed("iconXs")|>) }
+
     // functions
     verifyEval(Str<|FantomEx.fn0(()=>123)|>, n(123))
     verifyEval(Str<|FantomEx.fn1([1, 2, 3]) x => x + 100|>, Obj?[n(101), n(102), n(103)])
@@ -170,6 +183,10 @@ class FantomEx
   static Float add2(Int a, Float b) { b + a }
   static Duration add3(Duration a, Duration b) { b + a }
   static const Str sx := "static field"
+  Weekday weekday := Weekday.mon
+  FantomExEnum key := FantomExEnum.def
+  static Weekday day(Weekday x) { x }
+  static FantomExEnum keyed(FantomExEnum x) { x }
 
   static Filter filter1(Filter x) { x }
 
@@ -226,3 +243,16 @@ internal class TestComp : CompObj
   }
 }
 
+**************************************************************************
+** FantomExEnum
+**************************************************************************
+
+@Js
+enum class FantomExEnum : KeyedEnum
+{
+  def("default"), sm, iconXs("icon-xs")
+
+  private new make(Str? key := null) { this.key = key ?: name }
+
+  override const Str key
+}

@@ -11,7 +11,10 @@ using xeto
 using haystack
 
 **
-** AxonFFI foreign function interface to bind Axon calls to Fantom
+** AxonFFI foreign function interface to bind Axon calls to Fantom.
+** It is the one place a value is coerced between the two: every
+** value which crosses in either direction goes thru `toAxon` or
+** `toFantom`, whether for a call, a field or a caller such as sketch.
 **
 @Js @NoDoc
 abstract const class AxonFFI
@@ -24,6 +27,17 @@ abstract const class AxonFFI
 
   ** Field set
   abstract Obj? fieldSet(AxonContext cx, Obj? target, Str name, Expr rhs)
+
+  ** Coerce a Fantom value to the value Axon computes with:
+  **   - Int, Float, Duration: Number
+  **   - Enum: its Str key
+  virtual Obj? toAxon(Obj? val) { val }
+
+  ** Coerce an Axon value to the given Fantom type:
+  **   - Number: Int, Float, Duration
+  **   - Str key: Enum
+  **   - func: Fantom Func
+  virtual Obj? toFantom(AxonContext cx, Obj? val, Type type) { val }
 }
 
 **************************************************************************
@@ -223,6 +237,10 @@ const class FantomAxonFFI : AxonFFI
 // Coercion
 //////////////////////////////////////////////////////////////////////////
 
+  override Obj? toAxon(Obj? val) { coerceFromFantom(val) }
+
+  override Obj? toFantom(AxonContext cx, Obj? val, Type type) { coerceToFantomVal(cx, val, type) }
+
   private static Obj? coerceToFantom(AxonContext cx, Expr expr, Type? type)
   {
     // if no Fantom parameter, then no coercion
@@ -254,6 +272,9 @@ const class FantomAxonFFI : AxonFFI
       return x
     }
 
+    // coerce Str key -> Enum
+    if (x is Str && type.fits(Enum#)) return keyToEnum(type.toNonNullable, x)
+
     // if Axon func, make fantom func
     if (x is Callable) return AxonFuncsUtil.toFantomFunc(x, cx)
 
@@ -265,7 +286,14 @@ const class FantomAxonFFI : AxonFFI
   {
     if (x is Num) return Number.makeNum(x)
     if (x is Duration) return Number.makeDuration(x, null)
+    if (x is KeyedEnum) return ((KeyedEnum)x).key
+    if (x is Enum) return ((Enum)x).name
     return x
+  }
+
+  private static Enum keyToEnum(Type type, Str key)
+  {
+    type.fits(KeyedEnum#) ? KeyedEnum.fromKey(type, key) : type.method("fromStr").call(key)
   }
 
   private Type resolve(TopName ref)
