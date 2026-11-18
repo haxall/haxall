@@ -285,7 +285,7 @@ const class SpecBindingLoader
     if (type.fits(Dict#)) return acc.add(ImplDictBinding(spec.qname,type))
 
     // enums are scalars
-    if (type.fits(Enum#)) return acc.add(ScalarBinding(spec.qname, type))
+    if (type.fits(Enum#)) return acc.add(EnumBinding(spec.qname, type))
 
     // interfaces like hx::Ext use generic obj
     if (spec.isInterface) return acc.add(makeInterfaceBinding(spec.qname, type))
@@ -401,6 +401,25 @@ const class ScalarBinding : SpecBinding
   }
   override Str encodeScalar(Obj val) { val.toStr }
   override Bool isInheritable() { false }
+}
+
+**
+** EnumBinding binds an enum spec to a Fantom enum by key: the key of
+** an item is its `KeyedEnum.key` or else its name.
+**
+@Js
+const class EnumBinding : ScalarBinding
+{
+  new make(Str spec, Type type) : super(spec, type) { this.isKeyed = type.fits(KeyedEnum#) }
+
+  override Obj? decodeScalar(Str xeto, Bool checked := true)
+  {
+    isKeyed ? KeyedEnum.fromKey(type, xeto, checked) : super.decodeScalar(xeto, checked)
+  }
+
+  override Str encodeScalar(Obj val) { XetoUtil.enumKey(val) }
+
+  private const Bool isKeyed
 }
 
 @Js

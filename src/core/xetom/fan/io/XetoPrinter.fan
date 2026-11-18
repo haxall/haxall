@@ -392,11 +392,11 @@ class XetoPrinter
   }
 
   ** A spec's "val" default: a Ref uses "@id" syntax, everything else
-  ** is encoded as a quoted scalar
+  ** is encoded as a quoted scalar; an enum is its key
   This specVal(Obj v)
   {
     if (v is Ref) return ref(v)
-    return quoted(v.toStr)
+    return quoted(v is Enum ? XetoUtil.enumKey(v) : v.toStr)
   }
 
   ** Ref scalar

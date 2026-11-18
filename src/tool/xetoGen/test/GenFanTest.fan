@@ -639,6 +639,50 @@ class GenFanTest : Test
     verifyGen(src, expect)
   }
 
+  ** An item is its spec name; one whose key differs is passed its key
+  Void testKeyedEnumItems()
+  {
+    xeto := [
+      "TestSize: Enum {",
+      "  def <key:\"default\">",
+      "  sm",
+      "  iconXs <key:\"icon-xs\">",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "enum class TestSize : KeyedEnum",
+      "{",
+      "  def,",
+      "",
+      "  iconXs(\"old\")",
+      "",
+      "  private new make(Str? key := null) { this.key = key ?: name }",
+      "",
+      "  override const Str key",
+      "}",
+      ].join("\n")
+    expect := [
+      "@Gen",
+      "enum class TestSize : KeyedEnum",
+      "{",
+      "  def(\"default\"),",
+      "",
+      "  sm,",
+      "",
+      "  iconXs(\"icon-xs\")",
+      "",
+      "  private new make(Str? key := null) { this.key = key ?: name }",
+      "",
+      "  override const Str key",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+
+    // keys need the mixin
+    verifyErr(XetoCompilerErr#) { genTemp(xeto, src.replace(" : KeyedEnum", "")) }
+  }
+
   ** Scalars sync their type doc only; members are hand-written
   Void testScalarDoc()
   {

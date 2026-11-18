@@ -143,23 +143,35 @@ internal class GenEdits : Step
 // Enum Items
 //////////////////////////////////////////////////////////////////////////
 
-  ** Regenerate the enum item list preserving hand-written
-  ** ctor args by item name
+  ** Regenerate the enum item list preserving hand-written ctor
+  ** args by item name.  An item whose key differs from its name is
+  ** passed its key, which requires the type to be a KeyedEnum
   private Void genEnumItems(AType t)
   {
     args := enumItemArgs(t)
     acc := Str[,]
-    keys := t.spec.enum.keys
-    keys.each |key, i|
+    last := t.spec.enum.keys.last
+    isKeyed := false
+    t.spec.enum.each |item, key|
     {
-      if (i > 0) acc.add("")
-      acc.addAll(specDoc(t.spec.enum.spec(key), 2))
-      acc.add("  " + key + (args[key] ?: "") + (i < keys.size-1 ? "," : ""))
+      if (!acc.isEmpty) acc.add("")
+      acc.addAll(specDoc(item, 2))
+      arg := args[item.name] ?: ""
+      if (key != item.name) { isKeyed = true; arg = "(" + key.toCode + ")" }
+      acc.add("  " + item.name + arg + (key == last ? "" : ","))
     }
+    if (isKeyed && !isKeyedEnum(t))
+      err("Enum with keys must implement KeyedEnum: $t.spec", t.loc)
     if (t.items != null)
       edit(t, t.items.start, t.items.end+1, acc)
     else
       edit(t, t.bodyOpen+1, t.bodyOpen+1, acc)
+  }
+
+  ** Does the type header declare the KeyedEnum mixin
+  private Bool isKeyedEnum(AType t)
+  {
+    t.file.lines[t.lines.start..t.bodyOpen].any |line| { line.contains("KeyedEnum") }
   }
 
   ** Map existing enum item names to their "(args)" text

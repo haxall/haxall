@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 
 **
@@ -211,5 +212,101 @@ class EnumTest : AbstractXetoTest
     // echo("-- $occSlot | $occVal [$occVal.typeof]")
     verifyEq(occVal, occ.id)
   }
-}
 
+//////////////////////////////////////////////////////////////////////////
+// Fantom
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFantom()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+    plain := ns.spec("hx.test.xeto::TestFanEnum")
+    keyed := ns.spec("hx.test.xeto::TestFanKeyedEnum")
+
+    // bindings
+    verifyEq(plain.binding.typeof, EnumBinding#)
+    verifyEq(plain.fantomType, TestFanEnum#)
+    verifyEq(keyed.fantomType, TestFanKeyedEnum#)
+
+    // every item of the spec is the Fantom item of the same name
+    verifyFantomItems(plain, TestFanEnum.vals)
+    verifyFantomItems(keyed, TestFanKeyedEnum.vals)
+
+    // decode is by key; a name which is not a key is not a value
+    verifyFantom(plain, "alpha",   TestFanEnum.alpha)
+    verifyFantom(plain, "beta",    TestFanEnum.beta)
+    verifyFantom(keyed, "default", TestFanKeyedEnum.def)
+    verifyFantom(keyed, "icon-xs", TestFanKeyedEnum.iconXs)
+    verifyFantom(keyed, "plain",   TestFanKeyedEnum.plain)
+    verifyEq(keyed.binding.decodeScalar("def", false), null)
+    verifyEq(keyed.binding.decodeScalar("iconXs", false), null)
+    verifyEq(plain.binding.decodeScalar("gamma", false), null)
+    verifyErr(ParseErr#) { keyed.binding.decodeScalar("iconXs") }
+
+    // enum key
+    verifyEq(XetoUtil.enumKey(TestFanEnum.beta), "beta")
+    verifyEq(XetoUtil.enumKey(TestFanKeyedEnum.def), "default")
+    verifyEq(XetoUtil.enumKey(TestFanKeyedEnum.iconXs), "icon-xs")
+    verifyEq(XetoUtil.enumKey(TestFanKeyedEnum.plain), "plain")
+
+    // instantiate
+    verifySame(ns.instantiate(plain), TestFanEnum.alpha)
+    verifySame(ns.instantiate(keyed), TestFanKeyedEnum.def)
+    Dict d := ns.instantiate(ns.spec("hx.test.xeto::TestFanEnumSlots"))
+    verifySame(d["a"], TestFanEnum.alpha)
+    verifySame(d["b"], TestFanEnum.beta)
+    verifySame(d["c"], TestFanKeyedEnum.def)
+    verifySame(d["d"], TestFanKeyedEnum.iconXs)
+    verifyEq(d["e"], null)
+
+    // xeto and jeto io
+    verifySame(ns.io.readXeto(Str<|hx.test.xeto::TestFanKeyedEnum "icon-xs"|>), TestFanKeyedEnum.iconXs)
+    verifyEq(ns.io.writeXetoToStr(TestFanKeyedEnum.iconXs).contains(Str<|"icon-xs"|>), true)
+    json := ns.io.writeJetoToStr(d)
+    verifyEq(json.contains(Str<|"icon-xs"|>), true)
+    verifyEq(json.contains("iconXs"), false)
+    Dict r := ns.io.readJeto(json.in)
+    verifySame(r["c"], TestFanKeyedEnum.def)
+    verifySame(r["d"], TestFanKeyedEnum.iconXs)
+
+    // validation
+    slots := ns.spec("hx.test.xeto::TestFanEnumSlots")
+    verifyEq(ns.validate(d, slots).items.size, 0)
+    bad := ns.validate(Etc.dictSet(d, "d", Scalar(keyed.qname, "iconXs")), slots)
+    verifyEq(bad.items.join(",") { it.rule.id.toStr }, "sys::wrongEnumKey")
+  }
+
+  private Void verifyFantom(Spec spec, Str key, Enum val)
+  {
+    verifySame(spec.binding.decodeScalar(key), val)
+    verifyEq(spec.binding.encodeScalar(val), key)
+    verifyEq(spec.enum.spec(key).name, val.name)
+  }
+
+  private Void verifyFantomItems(Spec spec, Enum[] vals)
+  {
+    names := Str[,]
+    spec.enum.each |item, key| { names.add(item.name) }
+    verifyEq(names, vals.map |v->Str| { v.name })
+  }
+}
+**************************************************************************
+** TestFanEnum
+**************************************************************************
+
+@Js
+enum class TestFanEnum { alpha, beta }
+
+**************************************************************************
+** TestFanKeyedEnum
+**************************************************************************
+
+@Js
+enum class TestFanKeyedEnum : KeyedEnum
+{
+  def("default"), iconXs("icon-xs"), plain
+
+  private new make(Str? key := null) { this.key = key ?: name }
+
+  override const Str key
+}

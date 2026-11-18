@@ -380,7 +380,7 @@ class NamespaceTest : AbstractXetoTest
     {
       // list is everything packaged: sources, chapters, include, and publish
       verifyEq(fileUris(files), [`/ChapterA.md`, `/Readme.md`, `/choices.xeto`, `/comps.xeto`,
-        `/data/c.txt`, `/dist/test.css`, `/dist/test.js`, `/doc.xeto`, `/equips.xeto`,
+        `/data/c.txt`, `/dist/test.css`, `/dist/test.js`, `/doc.xeto`, `/enums.xeto`, `/equips.xeto`,
         `/fidelity.xeto`, `/funcs.xeto`, `/funcs2.xeto`, `/globals.xeto`, `/instances.xeto`,
         `/instantiate.xeto`, `/json.xeto`, `/lib.xeto`, `/meta.xeto`, `/mixins.xeto`,
         `/modbus.xeto`, `/pi.xeto`, `/printer.xeto`, `/pub-root.txt`, `/res/a.txt`, `/res/subdir/b.txt`, `/scalars.xeto`,
