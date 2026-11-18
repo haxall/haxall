@@ -27,16 +27,7 @@ using hxPlatformSerial
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get the ModbusLink for the given URI. Every caller must eventually
-  ** balance this with a `release`.
-  static ModbusLink get(Uri uri)
-  {
-    link := ModbusLinkMgr.cur.open(uri)
-    link.addUser
-    return link
-  }
-
-  ** Never call this!
+  ** Never call this! Use `ModbusLinkMgr.get`.
   @NoDoc internal new make(ActorPool pool, ModbusExt ext, Uri uri)
   {
     this.ext   = ext
@@ -52,6 +43,13 @@ using hxPlatformSerial
   ** Ticks last touched.
   Int touched() { _touched.val }
   private const AtomicInt _touched := AtomicInt(0)
+
+  ** Open the transport to the given device without reading anything,
+  ** or do nothing if it is already open. Throws error if open failed.
+  Void open(ModbusDev dev)
+  {
+    actor.send(HxMsg("open", dev)).get(dev.timeout)
+  }
 
   ** Convenience for [read] with the device's ping register. Throws error
   ** if the device has no ping register configured, or if the read failed.
@@ -70,32 +68,39 @@ using hxPlatformSerial
     return block.vals.first
   }
 
-  ** Read a block of registers from given device.
+  ** Read a block of registers from given device. The device's read timeout
+  ** bounds the wait for its response; this wait also covers the queue of
+  ** every other conn on this link, so it is bounded by the conn timeout.
   Void readBlock(ModbusDev dev, ModbusBlock block)
   {
-    actor.send(HxMsg("read", dev, block)).get(dev.readTimeout)
+    actor.send(HxMsg("read", dev, block)).get(dev.timeout)
   }
 
-  ** Write to a register to given device.
+  ** Write to a register to given device. See `readBlock` for timeouts.
   Void write(ModbusDev dev, ModbusReg reg, Obj val)
   {
-    actor.send(HxMsg("write", dev, reg, val)).get(dev.writeTimeout)
+    actor.send(HxMsg("write", dev, reg, val)).get(dev.timeout)
   }
 
   ** Release this link. The transport is shared by every conn using this uri,
   ** so only tear it down once the last user is done with it. The stale link
   ** reaper in `ModbusLinkMgr` is the backstop if a release is ever missed.
-  internal Void release()
+  ** See `close` for timeout.
+  internal Void release(Duration timeout)
   {
     if (_users.decrementAndGet > 0) return
-    close
+    close(timeout)
   }
 
   ** Force this link closed regardless of how many conns are using it. Used
   ** when the transport itself is broken and everyone needs it recycled.
-  internal Void close()
+  ** Wait at most timeout for the link to finish its current request: a
+  ** link stuck in a call that never returns must not hold its conns in
+  ** the closing state. The close stays queued and runs once it is free.
+  internal Void close(Duration timeout)
   {
-    actor.send(HxMsg("close")).get
+    try actor.send(HxMsg("close")).get(timeout)
+    catch (TimeoutErr err) ext.log.err("Link busy, close not confirmed: ${uri}")
   }
 
   ** Register a conn as using this link.
@@ -114,6 +119,7 @@ using hxPlatformSerial
     _touched.val = Duration.nowTicks
     switch (m.id)
     {
+      case "open":  _open(m.a); return null
       case "read":  return _read(_open(m.a), m.a, m.b).toImmutable
       case "write": return _write(_open(m.a), m.a, m.b, m.c)
       case "close": return _close(Actor.locals["m"])
@@ -161,6 +167,7 @@ using hxPlatformSerial
     try
     {
       master.quietTime = dev.frameDelay
+      master.responseTimeout = dev.readTimeout
       master.withTrace(dev.log)
       {
         start := block.start - 1
@@ -189,7 +196,7 @@ using hxPlatformSerial
       // forces a close and reopen.  Make sure not to throw an
       // IOErr for application errors, so we can localize errs
       // to just the requesting block
-      sb := StrBuf().add("Low-level IO error\n")
+      sb := StrBuf().add("Low-level IO error: ${err.msg}\n")
         .add("Device: ${dev.uri} [slave=${dev.slave}]\n")
         .add("Block: [type=${block.type}]\n")
         .add("Registers:\n")
@@ -201,6 +208,12 @@ using hxPlatformSerial
       }
       dev.log.err(sb.toStr, err)
       throw IOErr(sb.toStr, err)
+    }
+    catch (ModbusTimeoutErr err)
+    {
+      // a silent device faults its conn, so hxConn backs off before polling
+      // it again rather than charge every poll the full timeout
+      throw err
     }
     catch (Err err)
     {
@@ -225,6 +238,7 @@ using hxPlatformSerial
     addr := reg.addr.num - 1
 
     master.quietTime = dev.frameDelay
+    master.responseTimeout = dev.writeTimeout
     master.withTrace(dev.log)
     {
       if (type == ModbusAddrType.coil)
@@ -267,43 +281,43 @@ using hxPlatformSerial
 ** ModbusLinkMgr
 **************************************************************************
 
+**
+** ModbusLinkMgr manages the links for the conns of one ModbusExt. Conns of
+** that ext with the same uri share a link, but exts never share: each ext
+** opens its serial ports as itself, and stopping it closes its links.
+**
 @NoDoc internal const class ModbusLinkMgr
 {
-  ** Init ModbusLinkMgr if needed.
-  static Void init(ModbusExt ext)
-  {
-    if (curRef.val == null) curRef.val = ModbusLinkMgr(ext)
-  }
-
-  ** Stop the link manager. It can no longer be used after this
-  ** and must be re-inited
-  static Void stop()
-  {
-    // if never initialized, then nothing to do
-    mgr := curRef.val as ModbusLinkMgr
-    if (mgr == null) return
-
-    // we can't actually stop the pool because it is being shared
-    // across projects.
-    // mgr.pool.kill
-    // curRef.val = null
-  }
-
-  ** ModbusLinkMgr instance for this VM.
-  static ModbusLinkMgr cur() { curRef.val }
-  private static const AtomicRef curRef := AtomicRef(null)
-
-  ** Private ctor.
-  private new make(ModbusExt ext)
+  ** Constructor
+  new make(ModbusExt ext)
   {
     this.ext   = ext
-    this.pool  = ActorPool { name="ModbusLink" }
+    this.pool  = ActorPool { it.name = "${ext.proj.name}-ModbusLink" }
     this.actor = Actor(pool) |m| { actorReceive(m) }
-    this.actor.sendLater(pollFreq, poll)
   }
 
-  ** Open a ModbusLink for given uri.
-  ModbusLink open(Uri uri) { actor.send(HxMsg("open", uri)).get(5sec)  }
+  private const HxMsg poll := HxMsg("poll")
+  private const Duration pollFreq  := 1min
+  private const Int staleTime := 1min.ticks
+  private const Duration closeTimeout := 5sec
+
+  private const ModbusExt ext
+  private const ActorPool pool
+  private const Actor actor
+
+  ** Start polling for stale links
+  Void start() { actor.sendLater(pollFreq, poll) }
+
+  ** Close every link and kill the pool
+  Void stop()
+  {
+    actor.send(HxMsg("stop")).get(1min)
+    pool.kill
+  }
+
+  ** Get the link for uri and add a user to it. Every caller must
+  ** eventually balance this with a `ModbusLink.release`.
+  ModbusLink get(Uri uri) { actor.send(HxMsg("get", uri)).get(5sec) }
 
   ** Actor callback.
   private Obj? actorReceive(HxMsg m)
@@ -315,10 +329,11 @@ using hxPlatformSerial
     // respond to message
     switch (m.id)
     {
-      case "open":
+      case "get":
         Uri uri := m.a
         link := map[uri]
         if (link == null) map[uri] = link = ModbusLink(pool, ext, uri)
+        link.addUser
         return link
 
       case "poll":
@@ -326,14 +341,19 @@ using hxPlatformSerial
         finally { actor.sendLater(pollFreq, poll) }
         return null
 
+      case "stop":
+        map.each |link| { link.close(closeTimeout) }
+        map.clear
+        return null
+
       default: return null
     }
   }
 
   ** Actor check stale links. Never drop a link a conn is still holding, or
-  ** the next `ModbusLink.get` for that uri would build a second link - and a
-  ** second socket onto the same wire, which defeats both the serialization
-  ** and the frame delay. Releasing the last user already closes the transport.
+  ** the next `get` for that uri would build a second link - and a second
+  ** socket onto the same wire, which defeats both the serialization and the
+  ** frame delay. Releasing the last user already closes the transport.
   private Void _check(Uri:ModbusLink map)
   {
     now  := Duration.nowTicks
@@ -341,16 +361,7 @@ using hxPlatformSerial
     {
       link := map[k]
       diff := now - link.touched
-      if (diff >= staleTime && link.isUnused) { link.close; map.remove(k) }
+      if (diff >= staleTime && link.isUnused) { link.close(closeTimeout); map.remove(k) }
     }
   }
-
-  private const HxMsg poll := HxMsg("poll")
-  private const Duration pollFreq  := 1min
-  private const Int staleTime := 1min.ticks
-
-  private const ModbusExt ext
-  private const ActorPool pool
-  private const Actor actor
 }
-

@@ -47,6 +47,14 @@ class ModbusMaster
     set { transport.quietTime = it }
   }
 
+  ** How long to wait for the device to respond to a request, or null for
+  ** the transport default. See `ModbusTransport.responseTimeout`.
+  Duration? responseTimeout
+  {
+    get { transport.responseTimeout }
+    set { transport.responseTimeout = it }
+  }
+
   Void withTrace(Log log, |This| f)
   {
     curLog := transport.log

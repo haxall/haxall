@@ -23,16 +23,20 @@ const class ModbusExt : ConnExt
     Context.cur.ext("hx.modbus", checked)
   }
 
+  ** Links for the conns of this ext
+  internal const ModbusLinkMgr links := ModbusLinkMgr(this)
+
   override Void onStart()
   {
     super.onStart
-    ModbusLinkMgr.init(this)
+    links.start
   }
 
+  ** Stop links after super has closed the conns using them
   override Void onStop()
   {
     super.onStop
-    ModbusLinkMgr.stop
+    links.stop
   }
 
   ** Modbus has no discovery, so learn walks whatever describes the device:

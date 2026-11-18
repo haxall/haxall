@@ -46,6 +46,10 @@ abstract class ModbusTransport
   ** on the serial side with no exception response.
   Duration quietTime := 0sec
 
+  ** How long to wait for the device to respond to a request, or null
+  ** for the transport default.
+  Duration? responseTimeout := null
+
   ** Block until the wire has been quiet for `quietTime`. Subclasses call
   ** this at the start of `req`.
   protected Void pace()
@@ -62,6 +66,14 @@ abstract class ModbusTransport
 
   ** Log for this instance.
   internal Log? log := null
+
+  ** Set the receive timeout of a connected socket. SocketConfig fixes it at
+  ** creation, but a link's socket is shared by every conn on its uri, each
+  ** with its own timeouts, so it must change per request.
+  protected static Void setReceiveTimeout(TcpSocket socket, Duration? timeout)
+  {
+    socket.options.receiveTimeout = timeout
+  }
 
   private Duration? lastTx := null
 }
@@ -139,6 +151,7 @@ class ModbusTcpTransport : ModbusTransport
     txEnd
 
     // verify transactionIds
+    setReceiveTimeout(socket, responseTimeout ?: socketConfig.receiveTimeout)
     in := ModbusInStream(socket.in, log, "$reqTxId", this)
     resTxId := in.readU2
     if (reqTxId != resTxId) throw IOErr("Transaction ID mistmatch $reqTxId != $resTxId")
@@ -209,6 +222,7 @@ class ModbusRtuTcpTransport : ModbusTransport
 
     socket.out.writeBuf(msg.flip).flush
     txEnd
+    setReceiveTimeout(socket, responseTimeout ?: socketConfig.receiveTimeout)
     return ModbusInStream(socket.in, log, "RTU-TCP", this)
   }
 
@@ -251,11 +265,14 @@ class ModbusRtuTransport : ModbusTransport
     // honor configured quiet time on top of our own frameDelay
     pace
 
-    // write msg
+    // discard a late response to an earlier request so it can't be
+    // read as the response to this one, then write msg
+    port.purge
     port.out.writeBuf(msg.flip).flush
     Actor.sleep(frameDelay)
 
     // read frame
+    timeout := responseTimeout ?: defTimeout
     try
     {
       start := Duration.now
@@ -266,7 +283,7 @@ class ModbusRtuTransport : ModbusTransport
         if (port.in.avail == 0)
         {
           if (buf.size > 0 && now - start > frameDelay) break
-          if (now - start > timeout) throw IOErr("Response timeout")
+          if (now - start > timeout) throw ModbusTimeoutErr("Response timeout after ${timeout}")
           Actor.sleep(1ms)
           continue
         }
@@ -274,6 +291,7 @@ class ModbusRtuTransport : ModbusTransport
         byte := port.in.read
         if (byte != null) buf.write(byte)
         start = now
+        if (buf.size >= maxFrame) break
       }
 
       // return resp
@@ -284,7 +302,25 @@ class ModbusRtuTransport : ModbusTransport
 
   private SerialSocket port
   private const Duration frameDelay
-  private const Duration timeout := 1sec
+  private const Duration defTimeout := 1sec
+
+  ** RTU frames are at most 256 bytes, so stop there rather than read
+  ** forever from a line that never goes quiet
+  private const Int maxFrame := 256
+}
+
+**************************************************************************
+** ModbusTimeoutErr
+**************************************************************************
+
+**
+** ModbusTimeoutErr is raised when a serial RTU device does not respond in
+** time. It is not an IOErr since the port is still good: the port is shared
+** by every slave on the line, and one silent slave must not recycle it.
+**
+@NoDoc const class ModbusTimeoutErr : Err
+{
+  new make(Str msg) : super(msg) {}
 }
 
 **************************************************************************

@@ -351,8 +351,26 @@ and it applies to every frame on the wire - including the read-modify-write pair
 issued for a bit-mask register.
 
 Note the delay happens inside the window bounded by
-[ModbusConn.modbusReadTimeout] and [ModbusConn.modbusWriteTimeout] (both of
-which default to `Conn.actorTimeout`). Those timeouts cover queue wait plus
-pacing plus the transaction itself, so on a gateway with N slaves they must be
-large enough to cover the full serialized cycle or the polls will still time
-out.
+[hx.conn::Conn.actorTimeout], which covers queue wait plus pacing plus the
+transaction itself, so on a gateway with N slaves it must be large enough to
+cover the full serialized cycle or the polls will still time out.
+
+# Timeouts
+Use [ModbusConn.modbusReadTimeout] and [ModbusConn.modbusWriteTimeout] to set
+how long to wait for a device to respond to a read or write request. They
+default to 1sec for `modbus-rtu` and to [hx.conn::Conn.actorTimeout] for TCP,
+and are capped at `actorTimeout`:
+
+    modbusConn
+    uri: `modbus-rtu://serial1-9600-8n1-none`
+    modbusReadTimeout: 5sec
+
+Every conn on a `uri` shares one connection and their requests are issued one
+at a time, so the conn's `actorTimeout` must cover the wait for every other
+conn's requests ahead of it as well as its own.
+
+A serial RTU device which does not respond faults only its own conn; the port
+stays open for the other slaves on the line. While the conn is faulted it is
+retried every [hx.conn::Conn.connOpenRetryFreq], so a silent device costs the
+line one timeout per retry rather than one per poll. A long timeout on a shared
+line still holds the line for that long on each retry.

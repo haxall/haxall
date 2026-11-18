@@ -43,7 +43,10 @@ ModbusConn: Conn {
   // rec takes precedence. See [hx.modbus::doc#frame-delay] for more information.
   modbusFrameDelay: Duration?
 
-  // How long to wait before timing out on a modbus read.
+  // Applied to `modbusConn` to set how long to wait for the device to respond
+  // to a read request. Defaults to 1sec for `modbus-rtu` and to
+  // [hx.conn::Conn.actorTimeout] for TCP, and is capped at `actorTimeout`.
+  // See [hx.modbus::doc#timeouts] for more information.
   modbusReadTimeout: Duration?
 
   // Applied to `modbusConn` to read for [connPing()]. The name of a point in
@@ -62,7 +65,10 @@ ModbusConn: Conn {
   // modbus network.
   modbusSlave: Int?
 
-  // How long to wait before timing out on a modbus write.
+  // Applied to `modbusConn` to set how long to wait for the device to respond
+  // to a write request. Defaults to 1sec for `modbus-rtu` and to
+  // [hx.conn::Conn.actorTimeout] for TCP, and is capped at `actorTimeout`.
+  // See [hx.modbus::doc#timeouts] for more information.
   modbusWriteTimeout: Duration?
 
   // Universal resource identifier

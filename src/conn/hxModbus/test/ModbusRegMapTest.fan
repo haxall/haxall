@@ -102,6 +102,22 @@ class ModbusRegMapTest : HxTest
     verifyReg(map.regs[3], "d", null, "00080", coil,       80,   bit, null, dTags)
   }
 
+  Void testErrs()
+  {
+    // the err names the line and the cause
+    verifyRowErr("temp,40002,u9,r",  "Invalid register row [line 3]: Invalid data 'u9'")
+    verifyRowErr("temp,4002,u2,r",   "Invalid register row [line 3]: ModbusAddr wrong size: 4002")
+    verifyRowErr("temp-1,40002,u2,r", "Invalid register row [line 3]: Invalid register name: temp-1")
+    verifyRowErr("temp,40002",       "Invalid register row [line 3]: too few cells")
+  }
+
+  private Void verifyRowErr(Str row, Str msg)
+  {
+    f := tempDir + `bad-${row.toBuf.toBase64Uri}.csv`
+    f.out.print("name,addr,data,rw\nping,40001,u2,r\n${row}\n").flush.close
+    verifyErrMsg(IOErr#, msg) { ModbusRegMap.fromFile(f) }
+  }
+
   Void verifyReg(ModbusReg r, Str name, Str? dis, Str addrStr, ModbusAddrType addrType, Int addrNum, ModbusData data, Unit? unit, Obj? tags := null)
   {
     // echo("--> $name $r.addr $r.data")
@@ -169,7 +185,7 @@ class ModbusRegMapTest : HxTest
       Str<|name,addr,data,rw,scale
            a,40001,u2,r,
            b,40002,u2,r,0.1|>).flush.close
-    verifyErrMsg(IOErr#, "Invalid register row [line 3]") |->| { ModbusRegMap.fromFile(f2) }
+    verifyErrMsg(IOErr#, "Invalid register row [line 3]: Invalid scale '0.1'") |->| { ModbusRegMap.fromFile(f2) }
   }
 
   Void testBadUnit()
@@ -190,7 +206,7 @@ class ModbusRegMapTest : HxTest
       Str<|name,addr,data,rw,unit
            a,40001,u2,r,
            b,40002,u2,r,degF|>).flush.close
-    verifyErrMsg(IOErr#, "Invalid register row [line 3]") |->| { ModbusRegMap.fromFile(f2) }
+    verifyErrMsg(IOErr#, "Invalid register row [line 3]: Unit not found: degF") |->| { ModbusRegMap.fromFile(f2) }
   }
 
   Void testLearn()
