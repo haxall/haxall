@@ -1,0 +1,10 @@
+//
+// Copyright (c) 2026, SkyFoundry LLC
+// All Rights Reserved
+//
+// History:
+//   18 Nov 2026  Brian Frank  Creation
+//
+
+@pi-hx-energystar-EnergyStarConn: Pi { icon: "energy-star" }
+@pi-hx-energystar-EnergyStarExt: Pi { icon: "energy-star" }

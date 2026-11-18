@@ -1,6 +1,6 @@
 name               alias                     tags
 -----------------  ------------------------  --------
-ai                 <brain>
+ai                 <woolly>
 ai-agent           <hat-glasses>
 ai-conv            <messages-square>
 ai-model           <qr-code>
@@ -11,6 +11,7 @@ arcbeam                                      conn
 audio              <voicemail>
 axon               <square-function>
 bacnet                                       conn
+bee                                          animal
 binding            <unplug>                  dev lang
 blank                                        transparent empty
 chart-heat-map     <grid-3x3>                chart
@@ -23,6 +24,7 @@ dropbox
 def                <tag>
 device             <circuit-board>
 dict               <braces>
+energy-star                                  conn
 entity             <id-card>
 equip              <hard-drive>
 ev                 <ev-charger>
@@ -51,6 +53,7 @@ obix                                         conn
 ok                 <circle-check>            status
 point              <circle-dot>
 proj               <database>
+python
 pump                                         water
 rule               <settings>
 scalar             <atom>
@@ -86,6 +89,7 @@ widget-text-input  <text-cursor-input>
 widget-toggle      <toggle-right>
 widget-tooltip     <message-square>
 widget-vstack      <rows-3>
+woolly                                       ai mammoth
 workbook           <book-marked>             doc
 worksheet          <sheet>                   doc grid
 xeto               <aperture>                dev lang
