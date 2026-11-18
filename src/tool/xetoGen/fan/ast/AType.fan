@@ -32,6 +32,7 @@ internal class AType : ANode
   const Range? items       // enum item list lines or null
   ASlot[] slots := [,]     // @Gen tagged slot declarations
   Str[] handSlots := [,]   // untagged hand-written slot names in body
+  Int? ctorEnd             // last line of the constructors which lead the body
 
   FileLoc loc() { FileLoc(file.file.osPath, lines.start+1) }
 
@@ -59,20 +60,21 @@ internal class AType : ANode
 **
 internal enum class ATypeKind
 {
-  comp,     // sys.comp::Comp subtype: get/set fields
+  comp,     // sys.comp::Comp or sys::Interface subtype: get/set fields
   dict,     // Dict subtype: abstract getters
   enum,     // enum: item list
   scalar,   // Scalar subtype: doc only
   funcs     // lib Funcs spec: align @Api static methods
 
   ** Map spec to its generation shape or null if unsupported.
-  ** Comps must be checked before dicts since comps are dicts too;
-  ** enums before scalars for the same reason.
+  ** Comps and interfaces must be checked before dicts since both
+  ** are dicts too; enums before scalars for the same reason.
   ** The funcs kind is assigned explicitly via the funcs meta tag.
   static ATypeKind? fromSpec(Namespace ns, Spec spec)
   {
     if (spec.isEnum) return ATypeKind.enum
     if (spec.isa(ns.spec("sys.comp::Comp"))) return comp
+    if (spec.isInterface) return comp
     if (spec.isa(ns.spec("sys::Dict"))) return dict
     if (spec.isa(ns.spec("sys::Scalar"))) return scalar
     return null

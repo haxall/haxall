@@ -683,6 +683,109 @@ class GenFanTest : Test
     verifyErr(XetoCompilerErr#) { genTemp(xeto, src.replace(" : KeyedEnum", "")) }
   }
 
+  ** New slots insert after the constructors which lead the body; a
+  ** banner set apart by a blank line is not the type's doc; inserted
+  ** lines are followed by a blank one when a member comes next
+  Void testSkeleton()
+  {
+    xeto := [
+      "// Test widget",
+      "TestWidget: sys.comp::Comp {",
+      "  a: Str  // Slot a",
+      "}",
+      "// Test mode",
+      "TestMode: Enum { auto, manual }",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "class TestWidget",
+      "{",
+      "  new make() {}",
+      "",
+      "  Void foo() {}",
+      "}",
+      "",
+      "**************************************************************************",
+      "** TestMode",
+      "**************************************************************************",
+      "",
+      "@Gen",
+      "enum class TestMode",
+      "{",
+      "  static TestMode defVal() { auto }",
+      "}",
+      ].join("\n")
+    expect := [
+      "**",
+      "** Test widget",
+      "**",
+      "@Gen",
+      "class TestWidget",
+      "{",
+      "  new make() {}",
+      "",
+      "  ** Slot a",
+      "  @Gen virtual Str a { get {get(\"a\")} set {set(\"a\", it)} }",
+      "",
+      "  Void foo() {}",
+      "}",
+      "",
+      "**************************************************************************",
+      "** TestMode",
+      "**************************************************************************",
+      "",
+      "**",
+      "** Test mode",
+      "**",
+      "@Gen",
+      "enum class TestMode",
+      "{",
+      "  auto,",
+      "",
+      "  manual",
+      "",
+      "  static TestMode defVal() { auto }",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
+  ** An interface has the comp shape: fields backed by get/set,
+  ** with its func slots left to hand-written methods
+  Void testInterface()
+  {
+    xeto := [
+      "TestBase: Interface <abstract>",
+      "// Test widget",
+      "TestWidget: TestBase {",
+      "  a: Str      // Slot a",
+      "  b: Int?     // Slot b",
+      "  c: Func { returns: Str }",
+      "}",
+      ].join("\n")
+    src := [
+      "@Gen",
+      "class TestWidget",
+      "{",
+      "}",
+      ].join("\n")
+    expect := [
+      "**",
+      "** Test widget",
+      "**",
+      "@Gen",
+      "class TestWidget",
+      "{",
+      "  ** Slot a",
+      "  @Gen virtual Str a { get {get(\"a\")} set {set(\"a\", it)} }",
+      "",
+      "  ** Slot b",
+      "  @Gen virtual Int? b { get {get(\"b\")} set {set(\"b\", it)} }",
+      "}",
+      ].join("\n")
+    verifyEq(genTemp(xeto, src), expect)
+  }
+
   ** Scalars sync their type doc only; members are hand-written
   Void testScalarDoc()
   {

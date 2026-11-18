@@ -165,7 +165,15 @@ internal class GenEdits : Step
     if (t.items != null)
       edit(t, t.items.start, t.items.end+1, acc)
     else
-      edit(t, t.bodyOpen+1, t.bodyOpen+1, acc)
+      edit(t, t.bodyOpen+1, t.bodyOpen+1, padInsert(t, t.bodyOpen+1, acc))
+  }
+
+  ** Follow inserted lines with a blank one when a member comes next
+  private Str[] padInsert(AType t, Int at, Str[] acc)
+  {
+    next := t.file.lines.getSafe(at)?.trim
+    if (next != null && !next.isEmpty && next != "}") acc.add("")
+    return acc
   }
 
   ** Does the type header declare the KeyedEnum mixin
@@ -256,19 +264,21 @@ internal class GenEdits : Step
     x.base != null && x.base.isSlot
   }
 
-  ** Insert missing slots after the last slot or the body open brace
+  ** Insert missing slots after the last slot, else after the
+  ** constructors which lead the body, else at the body open brace
   private Void genInserts(AType t, Str[][] inserts)
   {
     if (inserts.isEmpty) return
     acc := Str[,]
     at := t.bodyOpen + 1
     if (!t.slots.isEmpty) at = t.slots.last.lines.end + 1
+    else if (t.ctorEnd != null) at = t.ctorEnd + 1
     inserts.each |unit, i|
     {
       if (i > 0 || at != t.bodyOpen + 1) acc.add("")
       acc.addAll(unit)
     }
-    edit(t, at, at, acc)
+    edit(t, at, at, padInsert(t, at, acc))
   }
 
   ** Remove slots which are no longer declared by the spec or

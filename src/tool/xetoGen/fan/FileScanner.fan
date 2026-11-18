@@ -92,7 +92,11 @@ internal class FileScanner
     open := line
     advance
 
-    // capture pending doc/facets
+    // capture pending doc/facets; a comment set apart from the
+    // declaration by a blank line is a banner, not the type's doc
+    declStart := headerLine
+    facets.each |x| { declStart = declStart.min(x.line) }
+    if (doc != null && docRange.end != declStart-1) doc = null
     start    := pendingStart(headerLine)
     typeDoc  := docRange
     genFacet := facets.find |x| { x.name == "Gen" }
@@ -106,6 +110,8 @@ internal class FileScanner
     acc := ASlot[,]
     this.items = null
     this.handSlots = Str[,]
+    this.ctorEnd = null
+    this.leadCtors = true
     bodyClose := body(acc, isEnum)
 
     // only keep types opted in with @Gen
@@ -140,6 +146,7 @@ internal class FileScanner
     type := AType(afile, typeName, spec, kind, typeFlags, gen, typeDoc, start..bodyClose, open, this.items)
     type.slots = acc
     type.handSlots = this.handSlots
+    type.ctorEnd = this.ctorEnd
     acc.each |slot| { slot.parent = type }
     afile.types.add(type)
   }
@@ -202,6 +209,7 @@ internal class FileScanner
     start := pendingStart(line)
     end   := line
     isAbstract := false; isOverride := false; isStatic := false; sawAssign := false
+    isCtor := false
     depth := 0                    // paren/bracket depth
     TokenVal? methodName := null  // identifier before ( at depth zero
     TokenVal? lastId := null      // last identifier before assign
@@ -232,6 +240,7 @@ internal class FileScanner
       if (curt === Token.abstractKeyword) isAbstract = true
       if (curt === Token.overrideKeyword) isOverride = true
       if (curt === Token.staticKeyword)   isStatic = true
+      if (curt === Token.newKeyword && depth == 0 && methodName == null) isCtor = true
       if (curt === Token.defAssign || curt === Token.assign) sawAssign = true
       if (curt === Token.identifier && !sawAssign)
       {
@@ -248,6 +257,10 @@ internal class FileScanner
       prev = cur
       advance
     }
+
+    // constructors which lead the body are where slots insert after
+    if (isCtor && leadCtors) ctorEnd = end
+    else leadCtors = false
 
     // keep slots tagged with @Gen, or tagged with @Api in funcs
     // mode; track untagged names so generation never inserts
@@ -435,6 +448,8 @@ internal class FileScanner
   private AFacet[] facets := [,]  // pending facets
   private Range? items            // enum item list lines of current type
   private Str[] handSlots := [,]  // untagged slot names of current type
+  private Int? ctorEnd            // last line of leading ctors of current type
+  private Bool leadCtors          // still in the leading ctors of current type
   private Bool apiMode            // current type is funcs mode tracking @Api
 }
 
