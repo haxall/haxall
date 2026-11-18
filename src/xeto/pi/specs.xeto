@@ -31,21 +31,6 @@ Pi: Dict {
   // seeds the navName of points created from templates
   pointDis: Str?
 
-  // HTML template to render widget type
-  widget: SketchSrc? <nodoc>
-
-  // HTML template to render spec values in a CardView
-  card: SketchSrc? <nodoc>
-
-  // HTML template to render spec values as item cells in lists, trees, tables
-  cell: SketchSrc? <nodoc>
-
-  // HTML template to render spec values in forms
-  input: SketchSrc? <nodoc>
-
-  // SVG template to render spec as a block in a wiresheet view
-  block: SketchSrc? <nodoc>
-
   // Tailwind CSS class list
   tw: Str? <nodoc>
 
@@ -58,9 +43,6 @@ Pi: Dict {
 
 // Icon represents a logical SVG icon name against installed manifest.
 Icon: Scalar "blank"
-
-// Axon template source for HTML and SVG markup
-SketchSrc: Scalar ""
 
 // Text wraps a string for display with localization macro support.
 // ```

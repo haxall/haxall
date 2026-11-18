@@ -37,21 +37,6 @@ const mixin Pi
   ** Customer specific display name standard for point specs
   abstract Str? pointDis()
 
-  ** HTML template to render widget type
-  @NoDoc abstract Sketch? widget()
-
-  ** HTML template to render spec values in a CardView
-  @NoDoc abstract Sketch? card()
-
-  ** HTML template to render spec values as item cells in lists, trees, tables
-  @NoDoc abstract Sketch? cell()
-
-  ** HTML template to render spec values in forms
-  @NoDoc abstract Sketch? input()
-
-  ** SVG template to render spec as a block in a wiresheet view
-  @NoDoc abstract Sketch? block()
-
   ** Tailwind CSS class list
   @NoDoc abstract Str? tw()
 

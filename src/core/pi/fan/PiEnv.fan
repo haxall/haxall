@@ -12,7 +12,7 @@ using xeto
 using haystack
 
 **
-** PiEnv
+** PiEnv models the enviroment and top-level APIs for presentation information.
 **
 @NoDoc @Js
 const class PiEnv
@@ -71,10 +71,6 @@ const class PiEnv
   ** Merged presentation info for a spec
   Pi pi(Spec spec) { spi.pi(spec) }
 
-  ** Compile a sketch template with its formal params against this
-  ** namespace.  Not cached: each Pi compiles its own sketches once
-  @NoDoc Sketch sketch(Str src, Str[] params) { spi.sketch(src, params) }
-
   ** Construct an ItemList implementation
   ItemList itemList(Item[] items, Item? self) { spi.itemList(items, self) }
 
@@ -111,7 +107,6 @@ abstract const class PiEnvSpi
 {
   abstract Item specItem(Spec spec)
   abstract Pi pi(Spec spec)
-  abstract Sketch sketch(Str src, Str[] params)
   abstract ItemList itemList(Item[] items, Item? self)
   abstract ItemCollection itemGrid(Grid grid)
   abstract EnumItems enum(Obj? val)

@@ -891,7 +891,6 @@ class JsonTest : AbstractXetoTest
     "sys.comp::CompLayout":   "1,2,8",
     "axon::AxonSrc":          "today()",
     "pi::Sni":                "/db/site-a",
-    "pi::SketchSrc":          "<b>{dis}</b>",
   ]
 
   ** Scalar specs deliberately outside the sweep, each with its reason
