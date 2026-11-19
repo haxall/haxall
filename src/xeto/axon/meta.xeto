@@ -13,9 +13,6 @@
   // Requires admin permission
   admin: Marker?
 
-  // Deprecated feature slated for removal in future version
-  deprecated: Marker?
-
   // Applied to an ext function to enable [override](hx.doc.haxall::Axon#function-overrides)
   // by project level functions.
   overridable: Marker?
