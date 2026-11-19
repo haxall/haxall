@@ -145,10 +145,46 @@ class PiTest : Test
 // ColorName
 //////////////////////////////////////////////////////////////////////////
 
-  Void testColorNameHex()
+  Void testColorName()
   {
-    verifyEq(ColorName.amber.hex, "#f59e0b")
+    //               name       shade  rgb
+    verifyColorShade("neutral", 50,    0xfafafa)
+    verifyColorShade("neutral", 200,   0xe5e5e5)
+    verifyColorShade("neutral", 950,   0x0a0a0a)
+    verifyColorShade("red",     400,   0xff6467)
+    verifyColorShade("red",     600,   0xe7000b)
+    verifyColorShade("blue",    700,   0x1447e6)
+    verifyColorShade("emerald", 500,   0x00bc7d)
+    verifyColorShade("rose",    900,   0x8b0836)
+
+    // every color has every shade from lightest to darkest
+    verifyEq(ColorName.shades, [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950])
+    ColorName.vals.each |c|
+    {
+      ColorName.shades.each |shade, i|
+      {
+        verifyEq(ColorName.shadeIndex(shade), i)
+        verifyEq(c.shade(shade).a, 1f)
+      }
+      verify(c.shade(50).rgb > c.shade(950).rgb, c.name)
+    }
+
+    // invalid shades
+    verifyErr(ArgErr#) { ColorName.red.shade(0) }
+    verifyErr(ArgErr#) { ColorName.red.shade(550) }
+    verifyErr(ArgErr#) { ColorName.red.shade(1000) }
+
+    // hex is the 500 shade
+    verifyEq(ColorName.amber.hex, "#fe9a00")
+    verifyEq(ColorName.emerald.hex, "#00bc7d")
     ColorName.vals.each |c| { verify(c.hex.startsWith("#") && c.hex.size == 7, c.name) }
+  }
+
+  private Void verifyColorShade(Str name, Int shade, Int rgb)
+  {
+    c := ColorName.fromStr(name).shade(shade)
+    verifyEq(c.rgb, rgb)
+    verifySame(c, ColorName.fromStr(name).shade(shade))
   }
 
 //////////////////////////////////////////////////////////////////////////

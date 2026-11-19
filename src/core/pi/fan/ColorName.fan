@@ -6,6 +6,7 @@
 //   29 Aug 2026  Brian Frank  Creation
 //
 
+using graphics
 using xeto
 
 **
@@ -89,34 +90,50 @@ enum class ColorName
     return def
   }
 
-  ** CSS hex color: the Tailwind 500 shade the palette names come from,
-  ** for renderers without a theme such as Fresco and server generated
-  ** icons; Ion resolves names through its own style theme
-  @NoDoc Str hex() { hexes[name] }
+  ** Shade numbers from lightest to darkest
+  static const Int[] shades := [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
-  private static const Str:Str hexes := [
-    "slate":   "#64748b",
-    "gray":    "#6b7280",
-    "zinc":    "#71717a",
-    "neutral": "#737373",
-    "stone":   "#78716c",
-    "red":     "#ef4444",
-    "orange":  "#f97316",
-    "amber":   "#f59e0b",
-    "yellow":  "#eab308",
-    "lime":    "#84cc16",
-    "green":   "#22c55e",
-    "emerald": "#10b981",
-    "teal":    "#14b8a6",
-    "cyan":    "#06b6d4",
-    "sky":     "#0ea5e9",
-    "blue":    "#3b82f6",
-    "indigo":  "#6366f1",
-    "violet":  "#8b5cf6",
-    "purple":  "#a855f7",
-    "fuchsia": "#d946ef",
-    "pink":    "#ec4899",
-    "rose":    "#f43f5e",
-  ]
+  ** RGB color for the given shade of this color: 50 (lightest),
+  ** 100 thru 900, or 950 (darkest).  The palette is the same in
+  ** every theme.  Raise exception if the shade is invalid.
+  Color shade(Int shade) { colors[ordinal][shadeIndex(shade)] }
+
+  ** Index of shade number within `shades` or raise exception if invalid
+  @NoDoc static Int shadeIndex(Int shade)
+  {
+    if (100 <= shade && shade <= 900 && shade % 100 == 0) return shade / 100
+    if (shade == 50) return 0
+    if (shade == 950) return 10
+    throw ArgErr("Invalid shade: $shade")
+  }
+
+  ** CSS hex color of the 500 shade for renderers without a theme
+  ** such as Fresco and server generated icons
+  @NoDoc Str hex() { "#" + shade(500).rgb.toHex(6) }
+
+  ** Tailwind palette by ordinal, then by index of shade
+  private static const Color[][] colors := [
+    [0xf8fafc, 0xf1f5f9, 0xe2e8f0, 0xcad5e2, 0x90a1b9, 0x62748e, 0x45556c, 0x314158, 0x1d293d, 0x0f172b, 0x020618],  // slate
+    [0xf9fafb, 0xf3f4f6, 0xe5e7eb, 0xd1d5dc, 0x99a1af, 0x6a7282, 0x4a5565, 0x364153, 0x1e2939, 0x101828, 0x030712],  // gray
+    [0xfafafa, 0xf4f4f5, 0xe4e4e7, 0xd4d4d8, 0x9f9fa9, 0x71717b, 0x52525c, 0x3f3f47, 0x27272a, 0x18181b, 0x09090b],  // zinc
+    [0xfafafa, 0xf5f5f5, 0xe5e5e5, 0xd4d4d4, 0xa1a1a1, 0x737373, 0x525252, 0x404040, 0x262626, 0x171717, 0x0a0a0a],  // neutral
+    [0xfafaf9, 0xf5f5f4, 0xe7e5e4, 0xd6d3d1, 0xa6a09b, 0x79716b, 0x57534d, 0x44403b, 0x292524, 0x1c1917, 0x0c0a09],  // stone
+    [0xfef2f2, 0xffe2e2, 0xffc9c9, 0xffa2a2, 0xff6467, 0xfb2c36, 0xe7000b, 0xc10007, 0x9f0712, 0x82181a, 0x460809],  // red
+    [0xfff7ed, 0xffedd4, 0xffd6a8, 0xffb86a, 0xff8904, 0xff6900, 0xf54900, 0xca3500, 0x9f2d00, 0x7e2a0c, 0x441306],  // orange
+    [0xfffbeb, 0xfef3c6, 0xfee685, 0xffd230, 0xffb900, 0xfe9a00, 0xe17100, 0xbb4d00, 0x973c00, 0x7b3306, 0x461901],  // amber
+    [0xfefce8, 0xfef9c2, 0xfff085, 0xffdf20, 0xfdc700, 0xf0b100, 0xd08700, 0xa65f00, 0x894b00, 0x733e0a, 0x432004],  // yellow
+    [0xf7fee7, 0xecfcca, 0xd8f999, 0xbbf451, 0x9ae600, 0x7ccf00, 0x5ea500, 0x497d00, 0x3c6300, 0x35530e, 0x192e03],  // lime
+    [0xf0fdf4, 0xdcfce7, 0xb9f8cf, 0x7bf1a8, 0x05df72, 0x00c950, 0x00a63e, 0x008236, 0x016630, 0x0d542b, 0x032e15],  // green
+    [0xecfdf5, 0xd0fae5, 0xa4f4cf, 0x5ee9b5, 0x00d492, 0x00bc7d, 0x009966, 0x007a55, 0x006045, 0x004f3b, 0x002c22],  // emerald
+    [0xf0fdfa, 0xcbfbf1, 0x96f7e4, 0x46ecd5, 0x00d5be, 0x00bba7, 0x009689, 0x00786f, 0x005f5a, 0x0b4f4a, 0x022f2e],  // teal
+    [0xecfeff, 0xcefafe, 0xa2f4fd, 0x53eafd, 0x00d3f3, 0x00b8db, 0x0092b8, 0x007595, 0x005f78, 0x104e64, 0x053345],  // cyan
+    [0xf0f9ff, 0xdff2fe, 0xb8e6fe, 0x74d4ff, 0x00bcff, 0x00a6f4, 0x0084d1, 0x0069a8, 0x00598a, 0x024a70, 0x052f4a],  // sky
+    [0xeff6ff, 0xdbeafe, 0xbedbff, 0x8ec5ff, 0x51a2ff, 0x2b7fff, 0x155dfc, 0x1447e6, 0x193cb8, 0x1c398e, 0x162456],  // blue
+    [0xeef2ff, 0xe0e7ff, 0xc6d2ff, 0xa3b3ff, 0x7c86ff, 0x615fff, 0x4f39f6, 0x432dd7, 0x372aac, 0x312c85, 0x1e1a4d],  // indigo
+    [0xf5f3ff, 0xede9fe, 0xddd6ff, 0xc4b4ff, 0xa684ff, 0x8e51ff, 0x7f22fe, 0x7008e7, 0x5d0ec0, 0x4d179a, 0x2f0d68],  // violet
+    [0xfaf5ff, 0xf3e8ff, 0xe9d4ff, 0xdab2ff, 0xc27aff, 0xad46ff, 0x9810fa, 0x8200db, 0x6e11b0, 0x59168b, 0x3c0366],  // purple
+    [0xfdf4ff, 0xfae8ff, 0xf6cfff, 0xf4a8ff, 0xed6aff, 0xe12afb, 0xc800de, 0xa800b7, 0x8a0194, 0x721378, 0x4b004f],  // fuchsia
+    [0xfdf2f8, 0xfce7f3, 0xfccee8, 0xfda5d5, 0xfb64b6, 0xf6339a, 0xe60076, 0xc6005c, 0xa3004c, 0x861043, 0x510424],  // pink
+    [0xfff1f2, 0xffe4e6, 0xffccd3, 0xffa1ad, 0xff637e, 0xff2056, 0xec003f, 0xc70036, 0xa50036, 0x8b0836, 0x4d0218],  // rose
+  ].map |Int[] row->Color[]| { row.map |Int rgb->Color| { Color(rgb) } }
 }
-
