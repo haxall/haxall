@@ -211,9 +211,10 @@ class ModbusMaster
     in := req(slave, func) |out| { out.writeI2(addr).writeI2(val) }
     try
     {
-      verifyEcho(in, "Address", addr)
+      raddr := in.readU2
       in.readU2  // echo val
       verifyCrc(in)
+      verifyEcho("Address", addr, raddr)
     }
     finally in.close
   }
@@ -227,9 +228,11 @@ class ModbusMaster
     }
     try
     {
-      verifyEcho(in, "Address", start)
-      verifyEcho(in, "Quantity", count)
+      rstart := in.readU2
+      rcount := in.readU2
       verifyCrc(in)
+      verifyEcho("Address", start, rstart)
+      verifyEcho("Quantity", count, rcount)
     }
     finally in.close
   }
@@ -261,11 +264,11 @@ class ModbusMaster
     catch (Err e) { in.close; throw e }
   }
 
-  ** Verify a 16-bit value echoed back in a write response.
-  private Void verifyEcho(ModbusInStream in, Str name, Int expected)
+  ** Verify a 16-bit value echoed back in a write response. Only call once
+  ** the whole response is read, so a mismatch leaves the wire in sync.
+  private Void verifyEcho(Str name, Int expected, Int actual)
   {
-    actual := in.readU2
-    if (expected != actual) throw Err("${name} mismatch ${expected} != ${actual}")
+    if (expected != actual) throw ModbusEchoErr("${name} mismatch ${expected} != ${actual}")
   }
 
   ** Check for error condition.
@@ -341,4 +344,18 @@ class ModbusMaster
       default:  return "Unknown code"
     }
   }
+}
+
+**************************************************************************
+** ModbusEchoErr
+**************************************************************************
+
+**
+** ModbusEchoErr is raised when a write response does not echo the address
+** or quantity of the request. The response was fully read, so the wire is
+** still in sync and only the write fails.
+**
+@NoDoc const class ModbusEchoErr : Err
+{
+  new make(Str msg) : super(msg) {}
 }
