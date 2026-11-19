@@ -140,12 +140,35 @@ internal class ModbusMasterTest : Test
     verifyWrite(t, "01100001000204000a000b", "011000010002") |->| { m.writeHoldingRegs(1, 1, [10,11]) }
 
     // response must echo the request
-    t.test = toBuf("01050005ff00"); verifyErrMsg(Err#, "Address mismatch 4 != 5") { m.writeCoil(1, 4, true) }
-    t.test = toBuf("010f00050001"); verifyErrMsg(Err#, "Address mismatch 4 != 5") { m.writeCoils(1, 4, [true]) }
-    t.test = toBuf("010f00040002"); verifyErrMsg(Err#, "Quantity mismatch 1 != 2") { m.writeCoils(1, 4, [true]) }
-    t.test = toBuf("011000010003"); verifyErrMsg(Err#, "Quantity mismatch 2 != 3") { m.writeHoldingRegs(1, 1, [10,11]) }
     t.test = toBuf("020f00040001"); verifyErrMsg(Err#, "Slave mismatch 1 != 2") { m.writeCoils(1, 4, [true]) }
     t.test = toBuf("011000040001"); verifyErrMsg(Err#, "Function code mismatch 15 != 16") { m.writeCoils(1, 4, [true]) }
+
+    // an echo mismatch is only raised once the whole response is read
+    [true, false].each |crc|
+    {
+      t.crc = crc
+      verifyEchoErr(t, "01050005ff00", "Address mismatch 4 != 5")  |->| { m.writeCoil(1, 4, true) }
+      verifyEchoErr(t, "01060002000a", "Address mismatch 1 != 2")  |->| { m.writeHoldingReg(1, 1, 10) }
+      verifyEchoErr(t, "010f00050001", "Address mismatch 4 != 5")  |->| { m.writeCoils(1, 4, [true]) }
+      verifyEchoErr(t, "010f00040002", "Quantity mismatch 1 != 2") |->| { m.writeCoils(1, 4, [true]) }
+      verifyEchoErr(t, "011000010003", "Quantity mismatch 2 != 3") |->| { m.writeHoldingRegs(1, 1, [10,11]) }
+    }
+
+    // a bad CRC is not an echo mismatch
+    t.crc = true
+    t.badCrc = true
+    t.test = toBuf("01050005ff00")
+    try { m.writeCoil(1, 4, true); fail }
+    catch (TestErr e) { throw e }
+    catch (Err e) { verifyEq(e.typeof, Err#); verify(e.msg.startsWith("Invalid CRC")) }
+  }
+
+  private Void verifyEchoErr(ModbusTestTransport t, Str res, Str msg, |->| f)
+  {
+    t.test = toBuf(res)
+    verifyErrMsg(ModbusEchoErr#, msg, f)
+    verifyEq(t.test.remaining, 0)
+    verify(ModbusDispatch.isRequestErr(ModbusEchoErr(msg)))
   }
 
   private Void verifyWrite(ModbusTestTransport t, Str req, Str res, |->| f)

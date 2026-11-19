@@ -107,10 +107,11 @@ class ModbusDispatch : ConnDispatch
 
   ** Is err a rejected write request that leaves the wire in sync, so only
   ** the request fails and the conn stays open: a value or register that
-  ** can't be written, or a valid exception response from the device.
+  ** can't be written, a valid exception response from the device, or a
+  ** write response that echoes the wrong address or quantity.
   internal static Bool isRequestErr(Err err)
   {
-    err is ModbusExceptionErr || err is ArgErr || err is CastErr
+    err is ModbusExceptionErr || err is ModbusEchoErr || err is ArgErr || err is CastErr
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -198,8 +198,33 @@ class ModbusConnTest : HxTest
     finally { s?.close; listener.close }
   }
 
-  ** Answer every read on listener with zeros, recording the unit id
-  private Void serve(TcpListener listener, AtomicInt unit)
+//////////////////////////////////////////////////////////////////////////
+// Echo Mismatch
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testEchoMismatch()
+  {
+    ext := (ModbusExt)addModbus
+    listener := TcpListener().bind(IpAddr("127.0.0.1"), null)
+    serve(listener, AtomicInt(-1), true)
+    try
+    {
+      // a write the device echoes back wrong fails only the write
+      c := addConn(ext, listener.localPort)
+      verifyErrMsg(ModbusEchoErr#, "Address mismatch 1 != 2") { ext.write(c.id, "sp", n(5)) }
+      verifyEq(c.state, ConnState.open)
+
+      // the whole response was read, so the next request is still in sync
+      verifyEq(ext.read(c.id, ["ping"]).first->val, n(0))
+      verifyEq(c.state, ConnState.open)
+    }
+    finally listener.close
+  }
+
+  ** Answer every read on listener with zeros, recording the unit id. Echo
+  ** single writes, off by one address if badEcho.
+  private Void serve(TcpListener listener, AtomicInt unit, Bool badEcho := false)
   {
     Actor(ActorPool()) |Unsafe msg->Obj?|
     {
@@ -218,12 +243,20 @@ class ModbusConnTest : HxTest
             req.readU2; req.readU2
             unit.val = req.read
             fc  := req.read
-            req.readU2
+            addr  := req.readU2
             count := req.readU2
             out := s.out
-            out.writeI2(tx).writeI2(0).writeI2(3 + count * 2)
-            out.write(unit.val).write(fc).write(count * 2)
-            count.times { out.writeI2(0) }
+            if (fc == 0x05 || fc == 0x06)
+            {
+              out.writeI2(tx).writeI2(0).writeI2(6)
+              out.write(unit.val).write(fc).writeI2(badEcho ? addr + 1 : addr).writeI2(count)
+            }
+            else
+            {
+              out.writeI2(tx).writeI2(0).writeI2(3 + count * 2)
+              out.write(unit.val).write(fc).write(count * 2)
+              count.times { out.writeI2(0) }
+            }
             out.flush
           }
         }
@@ -243,7 +276,8 @@ class ModbusConnTest : HxTest
     ext := (ConnExt)addExt("hx.modbus")
     (proj.dir + `modbus.csv`).out.print(
       Str<|name,addr,data,rw
-           ping,40001,u2,r|>).flush.close
+           ping,40001,u2,r
+           sp,40002,u2,rw|>).flush.close
     return ext
   }
 
