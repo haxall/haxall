@@ -38,14 +38,9 @@ class HttpTest : HxTest
         Str:Str["Content-Type":"text/plain"],
         "hello world", null, 200)
 
-      // str body without Content-Type (defaults to application/octet-stream)
-      verifyHttp(`/echo`, "POST", null,
-        "no content type", null, 200)
-
-      // headers present but no Content-Type
-      verifyHttp(`/echo`, "POST",
-        Str:Str["X-Custom":"foo"],
-        "custom header", null, 200)
+      // body without Content-Type throws
+      verifyEvalErr("""ioHttp(`http://localhost:$port/echo`, "POST", null, "no content type", (code, headers, body) => "ok")""", Err#)
+      verifyEvalErr("""ioHttp(`http://localhost:$port/echo`, "POST", {"X-Custom": "foo"}, "custom header", (code, headers, body) => "ok")""", Err#)
 
       // buf body with binary content
       verifyHttp(`/echo`, "POST",
@@ -57,6 +52,15 @@ class HttpTest : HxTest
       verifyHttp(`/echo`, "POST",
         Str:Str["Content-Type":"text/plain"],
         `io/http-test.txt`, null, 200)
+
+      // Content-Type with null body throws
+      verifyEvalErr("""ioHttp(`http://localhost:$port/echo`, "GET", {"Content-Type": "application/json"}, null, (code, headers, body) => "ok")""", Err#)
+
+      // Content-Type with empty body sends fixed-length body, not chunked
+      Dict ctRes := eval("""ioHttp(`http://localhost:$port/echo`, "GET", {"Content-Type": "application/json"}, "", (code, headers, body) => {code: code, body: ioReadStr(body)})""")
+      verifyEq(ctRes["code"], n(200))
+      verify(ctRes["body"].toStr.contains("content-length=0"))
+      verifyEq(ctRes["body"].toStr.contains("transfer-encoding"), false)
 
       // response body via ioReadJson
       verifyHttp(`/json`, "GET", null, null, "json", 200)
@@ -217,6 +221,7 @@ internal const class EchoMod : WebMod
       }
     }
 
+    te := req.headers["Transfer-Encoding"]
     xs := req.headers["X-Secret"]
     ck := req.headers["Cookie"]
 
@@ -228,6 +233,7 @@ internal const class EchoMod : WebMod
     out.print("method=$req.method\n")
     if (ct != null) out.print("content-type=$ct\n")
     if (cl != null) out.print("content-length=$cl\n")
+    if (te != null) out.print("transfer-encoding=$te\n")
     if (xs != null) out.print("x-secret=$xs\n")
     if (ck != null) out.print("cookie=$ck\n")
     if (body.size > 0) out.print("body=$body\n")
