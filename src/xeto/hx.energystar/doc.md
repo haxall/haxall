@@ -153,6 +153,24 @@ the appropriate percentages:
 - `energyStarWasteToEnergyPercentage`
 - `energyStarUnknownDestPercentage`
 
+# Usage History
+When a meter point's history is synced from ENERGY STAR, each usage entry
+is stored with the timestamp of its `startDate` at midnight.  For example, a
+bill for 1 Nov to 30 Nov is stored at 1 Nov 00:00.  So the timestamp already
+indicates the *start* of the interval, which is what SkySpark expects.
+
+Do not set [ph::PhEntity.hisMode] to "consumption" on these points.  That
+mode assumes the timestamp indicates the *end* of the interval, so
+[hx.his::hisRead()] shifts every value back by one interval (the November bill
+would be reported in October).
+
+Monthly usage is sparse, so rolling up or combining meters usually needs
+interpolation.  To apportion each value across its interval without a
+timestamp shift, set the `hisInterpolateMode` tag to "consumption" instead.
+Use a `sum` rollup to aggregate the usage:
+
+    read(energyStarMeter).hisRead(lastYear).hisRollup(sum, 1mo)
+
 # Property-Meter Associations
 The EnergyStar model requires an extra step to create an association
 between properties and meters before the meter usage can be used for scoring.
