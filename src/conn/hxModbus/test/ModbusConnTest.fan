@@ -128,6 +128,42 @@ class ModbusConnTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Sync Cur Err
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testSyncCurErr()
+  {
+    ext := addModbus
+    listener := TcpListener().bind(IpAddr("127.0.0.1"), null)
+    mute := AtomicBool(false)
+    serve(listener, AtomicInt(-1), false, mute)
+    try
+    {
+      rec := addRec(["dis":"Modbus", "modbusConn":m,
+                     "uri":`modbus-tcp://127.0.0.1:${listener.localPort}/`,
+                     "modbusSlave":n(1), "modbusRegMapUri":`modbus.csv`,
+                     "modbusReadTimeout":n(200, "ms")])
+      pt := addRec(["dis":"Ping", "point":m, "kind":"Number",
+                    "modbusConnRef":rec.id, "modbusCur":"ping"])
+      proj.sync
+      c  := ext.conn(rec.id)
+      cp := ext.point(pt.id)
+      c.syncCur([cp]).get
+      verifyEq(cp->curState->status, ConnStatus.ok)
+
+      // a failed read fails its points, so a reopen through a gateway that
+      // accepts while the device is silent can't report the last value as ok
+      mute.val = true
+      c.syncCur([cp]).get
+      verifyEq(c.state, ConnState.closed)
+      verifyNotEq(cp->curState->status, ConnStatus.ok)
+      verifyNull(cp->curState->val)
+    }
+    finally listener.close
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Ext Restart
 //////////////////////////////////////////////////////////////////////////
 
@@ -223,8 +259,8 @@ class ModbusConnTest : HxTest
   }
 
   ** Answer every read on listener with zeros, recording the unit id. Echo
-  ** single writes, off by one address if badEcho.
-  private Void serve(TcpListener listener, AtomicInt unit, Bool badEcho := false)
+  ** single writes, off by one address if badEcho. Answer nothing while mute.
+  private Void serve(TcpListener listener, AtomicInt unit, Bool badEcho := false, AtomicBool mute := AtomicBool(false))
   {
     Actor(ActorPool()) |Unsafe msg->Obj?|
     {
@@ -246,6 +282,7 @@ class ModbusConnTest : HxTest
             addr  := req.readU2
             count := req.readU2
             out := s.out
+            if (mute.val) continue
             if (fc == 0x05 || fc == 0x06)
             {
               out.writeI2(tx).writeI2(0).writeI2(6)

@@ -120,16 +120,21 @@ class ModbusDispatch : ConnDispatch
 
   override Void onSyncCur(ConnPoint[] points)
   {
+    byReg := mapToRegs(points)
     try
     {
-      byReg := mapToRegs(points)
       toBlocks(byReg.keys).each |block|
       {
         link.readBlock(dev, block)
         updateVals(byReg, block)
       }
     }
-    catch (Err err) { closeErr(err) }
+    catch (Err err)
+    {
+      // fail the points too, else a reopen reports their last value as ok
+      byReg.each |pts| { pts.each |p| { p.updateCurErr(err) } }
+      closeErr(err)
+    }
   }
 
   private Grid mread(Str[] regNames)
