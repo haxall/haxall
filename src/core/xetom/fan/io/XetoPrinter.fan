@@ -658,6 +658,9 @@ class XetoPrinter
   ** Write heredoc string literal (uses current indentation level)
   This heredoc(Str x)
   {
+    // heredoc cannot represent a string of only newlines/whitespace
+    if (x.trim.isEmpty) return quoted(x)
+
     lines := x.splitLines
     while (lines.last.isEmpty) lines.removeAt(-1)
 

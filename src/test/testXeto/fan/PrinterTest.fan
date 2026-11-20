@@ -114,6 +114,19 @@ class PrinterTest : AbstractXetoTest
            }
            |>)
 
+    // strings of only newlines/whitespace are quoted, not heredoc
+    out = newCase(opts)
+    out.instance(Etc.dictx("id",Ref("foo"), "a","\n", "b"," \n\n ", "c",Etc.dict1("d", "\n")))
+    verifyInstance(
+      Str<|@foo: {
+             a: "\n"
+             b: " \n\n "
+             c: {
+               d: "\n"
+             }
+           }
+           |>)
+
     // instance with untyped nested dicts
     out = newCase(opts)
     out.instance(Etc.dictx("id",Ref("foo"),
