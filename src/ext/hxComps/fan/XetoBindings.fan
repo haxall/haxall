@@ -33,10 +33,30 @@ internal const class StatusBinding : DictBinding
   override Dict decodeDict(Dict xeto) { MStatus(xeto) }
 }
 
-internal const class StatusBoolBinding : DictBinding
+**
+** Decodes a StatusBool dict, and also a bare "true" or "false" scalar
+** as that value with status ok.  The scalar decode applies to every
+** StatusBool slot, and lets a space that saved Latch.clock as a plain
+** Bool load.  Extends SpecBinding because DictBinding.decodeScalar is
+** final.
+**
+internal const class StatusBoolBinding : SpecBinding
 {
-  new make(Type type) : super("hx.comps::StatusBool", type) {}
+  new make(Type type) { this.type = type }
+  override Str spec() { "hx.comps::StatusBool" }
+  const override Type type
+  override Bool isScalar() { false }
+  override Bool isDict() { true }
+  override Bool isInheritable() { true }
   override Dict decodeDict(Dict xeto) { MStatusBool(xeto) }
+  override Obj? decodeScalar(Str xeto, Bool checked := true)
+  {
+    b := Bool.fromStr(xeto, false)
+    if (b != null) return StatusBool(b, Status.ok)
+    if (checked) throw ParseErr("Invalid StatusBool scalar: $xeto.toCode")
+    return null
+  }
+  override Str encodeScalar(Obj val) { throw UnsupportedErr(spec) }
 }
 
 internal const class StatusNumberBinding : DictBinding
