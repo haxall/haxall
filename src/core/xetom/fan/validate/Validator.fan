@@ -122,12 +122,15 @@ class Validator
     // dict must be be checked against spec members
     if (s.dict != null)
     {
+      // the tags of a spec are the meta it declares itself; what it
+      // inherits is checked on the spec which declares it
+      tags := (s.dict as Spec)?.metaOwn ?: s.dict
+
       // check spec slots
       s.spec.slots.each |slot|
       {
-        validateSlot(s, slot.name, slot, s.dict[slot.name])
+        validateSlot(s, slot.name, slot, tags[slot.name])
       }
-      members := s.spec.members
 
       // check rest of the dict tags: members chain resolves globals
       // after slots; unknown tags with ref values get their targets
@@ -136,10 +139,10 @@ class Validator
       // are open content and pass - running entity rules on such
       // fragments would be far stricter than a self consistency check.
       // The id and spec tag names are reserved and exempt.
-      s.dict.each |v, n|
+      tags.each |v, n|
       {
         if (s.spec.slots.has(n)) return // walked as declared slot above
-        member := members.get(n, false)
+        member := resolveMember(s.spec, n)
         if (member != null) return validateSlot(s, member.name, member, v)
         if (n == "id" || n == "spec") return
         if (isUnknownRefs(v)) return validateSlot(s, n, v is List ? multiRefSpec : ns.sys.ref, v)
@@ -201,7 +204,9 @@ class Validator
     // perform intrinsic checks before running all the rules
     if (isMissingSlot(s)) return rules.missingSlot.emit(s)
     if (s.val == null) return // absent maybe slot
+    if (s.val === None.val) return // clears an inherited meta tag
     if (s.valType == null) return rules.unknownType.emit(s)
+    if (s.spec.type.isThis) return // self typed meta such as val and minVal
     if (!isValidType(s)) return rules.invalidType.emit(s, Etc.dict1("expecting", expecting(s)))
 
     // run thru the standard rules
@@ -418,6 +423,10 @@ class Validator
 
   ** Resolve instance qname to its dict or null
   virtual Dict? resolveInstance(Str qname) { ns.instance(qname, false) }
+
+  ** Resolve the member spec of a tag which is not a slot of the dict's
+  ** spec, or null: members chain resolves globals after slots
+  virtual Spec? resolveMember(Spec spec, Str name) { spec.members.get(name, false) }
 
   ** Map value to its actual spec or null if unmapped; all qname
   ** resolution funnels thru resolveSpec

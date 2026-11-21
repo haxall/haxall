@@ -1800,6 +1800,28 @@ class ValidateTest : AbstractXetoTest
     verifyEq(lib.instance("bad")->code, "X100")
   }
 
+  ** The subject of a rule on a meta value is the spec which owns the
+  ** meta, with its slots and its lib; on data the subject is no spec
+  Void testCompileMetaSpec()
+  {
+    verifyMetaSpec(Str<|Foo: Dict <metaOwner:"Foo"> { a: Str <metaOwner:"Foo.a"> }|>, Str[,])
+    verifyMetaSpec(Str<|Foo: Dict <metaOwner:"Bar"> { a: Str }|>, ["Meta 'metaOwner': Owner 'Bar' is not Foo"])
+    verifyMetaSpec(Str<|Foo: Dict { a: Str <metaOwner:"a"> }|>, ["Meta 'metaOwner': Owner 'a' is not Foo.a"])
+    verifyMetaSpec(Str<|Foo: Dict <metaOwner:"Foo"> {}
+                        Bar: Foo {}|>, Str[,])
+    verifyMetaSpec(Str<|Foo: Dict <metaSized:"ab"> {}
+                        Bar: Foo {}|>, ["Meta 'metaSized': Size 2 < minSize 3"])
+    verifyMetaSpec(Str<|Foo: Dict { a: hx.test.xeto::TestOwnerName? }
+                        @x: Foo { a: "Foo.a" }|>, ["Slot 'a': Owner 'Foo.a' is not null"])
+  }
+
+  private Void verifyMetaSpec(Str src, Str[] expect)
+  {
+    errs := XetoLogRec[,]
+    try { nsTest.compileTempLib(srcAddPragma(src), logOpts("log", errs)) } catch (Err e) {}
+    verifyEq(errs.map |e->Str| { e.msg }, expect)
+  }
+
   ** Warn level items report to the warn stream and do not fail the
   ** compile; err level items fail it
   Void testCompileWarns()
@@ -1847,8 +1869,8 @@ class ValidateTest : AbstractXetoTest
   Void testCompileMeta()
   {
     verifyCompileMeta("Foo: Dict <metaSized:\"abc\">", null)
-    verifyCompileMeta("Foo: Dict <metaSized:\"ab\">", "Size 2 < minSize 3")
-    verifyCompileMeta("Foo: Dict { a: Str <metaSized:\"ab\"> }", "Size 2 < minSize 3")
+    verifyCompileMeta("Foo: Dict <metaSized:\"ab\">", "Meta 'metaSized': Size 2 < minSize 3")
+    verifyCompileMeta("Foo: Dict { a: Str <metaSized:\"ab\"> }", "Meta 'metaSized': Size 2 < minSize 3")
     verifyCompileMeta("Foo: Scalar <minVal:0, maxVal:1> \"0\"", null)
   }
 
@@ -2093,6 +2115,24 @@ const class ValidateTestCodePrefix : ValidateRule
   {
     code := s.dict?.get("code") as Str
     if (code != null && !code.startsWith("T")) s.emit(Etc.dict1("code", code))
+  }
+}
+
+**************************************************************************
+** ValidateTestMetaOwner
+**************************************************************************
+
+** Value must be the name of the spec which owns the meta: "Type" or
+** "Type.slot" which checks the spec is assembled with its parent
+@Js
+const class ValidateTestMetaOwner : ValidateRule
+{
+  new make(ValidateRuleInit init) : super(init) {}
+  override Void onCheck(ValidateState s)
+  {
+    x := s.subject as Spec
+    owner := x == null ? null : (x.isType ? x.name : "${x.parent.name}.${x.name}")
+    if (s.val?.toStr != owner) s.emit(Etc.dict1("owner", owner?.toStr ?: "null"))
   }
 }
 

@@ -76,8 +76,13 @@ const mixin ValidateItem
   ** Message for validation error rendered from the rule msg template
   abstract Str msg()
 
-  ** Display string as "Slot 'slot': msg" or just msg when not on a slot
-  Str dis() { slot != null ? "Slot '$slot': $msg" : msg }
+  ** Display string as "Slot 'slot': msg" or just msg when not on a
+  ** slot.  The tags of a spec are its meta: "Meta 'tag': msg"
+  Str dis()
+  {
+    if (slot == null) return msg
+    return subject is Spec ? "Meta '$slot': $msg" : "Slot '$slot': $msg"
+  }
 }
 
 **************************************************************************

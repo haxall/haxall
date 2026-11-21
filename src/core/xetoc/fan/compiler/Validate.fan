@@ -32,38 +32,19 @@ internal class Validate : Step
     // init validator with rules
     validator := CompileValidator(compiler, rules)
 
-    // validate lib or data
+    // a lib is its instances and its specs; data is one value
     if (isLib)
-      validateLib(validator)
+    {
+      lib.ast.instances.each |x| { validator.validateData(x) }
+      lib.tops.each |x| { validator.validateSpec(x) }
+    }
     else
-      validator.validateNode(data.root)
+    {
+      validator.validateData(data.root)
+    }
 
     // boom!
     bombIfErr
-  }
-
-  ** Validate all the instances and spec meta in the lib
-  private Void validateLib(CompileValidator validator)
-  {
-    lib.ast.instances.each |x| { validator.validateNode(x) }
-    lib.tops.each |x| { validateSpecMeta(validator, x) }
-  }
-
-  ** Validate spec meta values against their meta member specs; a
-  ** value with no member checks against its own inferred type
-  private Void validateSpecMeta(CompileValidator validator, ASpec x)
-  {
-    x.ast.meta?.each |v, n|
-    {
-      if (v.isNone) return // None clears an inherited tag, nothing to check
-      member := metas.get(n, false)
-      // This typed meta such as minVal and val is not checked: the
-      // idiom of plain numerics for custom scalar ranges means the
-      // value type never matches the resolved self type
-      if (member != null && member.type.isThis) return
-      validator.validateNode(v, member)
-    }
-    x.declared?.each |slot| { validateSpecMeta(validator, slot) }
   }
 }
 
@@ -100,21 +81,44 @@ internal class CompileValidator : Validator
               "haystack", Marker.fromBool(c.isCompanion))
   }
 
-  ** Validate one AST node so items can map their locs back thru it.
-  ** The engine walks values reified to a dict, list, or scalar; a
-  ** specRef, dataRef, or factory value such as Grid has no checks.
-  ** The spec to check against defaults to the node's own type.
-  Void validateNode(AData node, Spec? spec := null)
-  {
-    // skip specRefs (a Spec asm is a Dict) and anything not reified
-    // to a dict, list, or scalar such as Grid or Fantom bound values
-    if (node.nodeType === ANodeType.specRef) return
-    if (node.nodeType !== ANodeType.scalar && node.asm isnot Dict && node.asm isnot List) return
+//////////////////////////////////////////////////////////////////////////
+// Entry Points
+//////////////////////////////////////////////////////////////////////////
 
-    this.curNode = node
-    validate(node.asm, spec?.asm ?: node.type.asm, node.loc)
+  ** Validate an instance or a data root against its own spec.  A
+  ** dict is the subject and the engine walks its tags
+  Void validateData(AData x)
+  {
+    if (!isReified(x)) return
+    this.curNode = x
+    validate(x.asm, x.type.asm, x.loc)
     this.curNode = null
   }
+
+  ** Validate a spec and the slots it declares.  A spec is a dict
+  ** whose tags are its meta, so it is validated like an instance:
+  ** it is the subject, checked against sys::Spec
+  Void validateSpec(ASpec x)
+  {
+    this.curNode = x.ast.meta
+    validate(x.asm, ns.sys.spec, x.loc)
+    this.curNode = null
+
+    x.declared?.each |slot| { validateSpec(slot) }
+  }
+
+  ** The engine walks values reified to a dict, list, or scalar.  A
+  ** specRef (a Spec asm is a Dict), dataRef, or factory value such
+  ** as Grid or a Fantom bound value has no checks
+  private static Bool isReified(AData x)
+  {
+    if (x.nodeType === ANodeType.specRef) return false
+    return x.nodeType === ANodeType.scalar || x.asm is Dict || x.asm is List
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Engine Hooks
+//////////////////////////////////////////////////////////////////////////
 
   ** Route each item into the compiler err/warn streams as it emits
   override Void onEmit(MValidateItem item)
@@ -141,7 +145,6 @@ internal class CompileValidator : Validator
     return loc
   }
 
-
   override Spec? resolveSpec(Str qname)
   {
     n := ownName(qname)
@@ -154,6 +157,13 @@ internal class CompileValidator : Validator
     n := ownName(qname)
     if (n == null) return super.resolveInstance(qname)
     return lib.instance(n, false)
+  }
+
+  ** The meta tags of a spec are members of sys::Spec by mixin, which
+  ** the compiler has already composed from the depends closure
+  override Spec? resolveMember(Spec spec, Str name)
+  {
+    spec === ns.sys.spec ? compiler.metas.get(name, false)?.asm : super.resolveMember(spec, name)
   }
 
   ** Type enumeration such as choice subtype discovery is scoped to
@@ -169,6 +179,6 @@ internal class CompileValidator : Validator
   private MXetoCompiler compiler // compiler for err/warn reporting
   private XetoLib? lib      // lib under compile or null in data mode
   private const Str? prefix // "libName::" or null in data mode
-  private AData? curNode    // AST node under validation for itemLoc
+  private AData? curNode    // AST of the subject, so itemLoc can walk an item's slot path
 }
 

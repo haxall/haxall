@@ -19,6 +19,7 @@
   metaNum: Number?
   metaStr: Str?
   metaSized: Str? <minSize:3>
+  metaOwner: TestOwnerName?
 }
 
 MetaInheritA: Dict <metaQ, metaR> {

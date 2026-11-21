@@ -48,6 +48,15 @@ TestRuleSubject: Dict {
   msg: "Func: $val must be even"
 }
 
+// Scalar type whose rule checks it against the spec which owns the meta
+TestOwnerName: Scalar
+
+// Rule bound to testXeto::ValidateTestOwnerName
+@testMetaOwner: ValidateRule {
+  on: TestOwnerName
+  msg: "Owner '$val' is not $owner"
+}
+
 // Scalar type with an axon rule registered on it
 TestRuleEven: Scalar
 

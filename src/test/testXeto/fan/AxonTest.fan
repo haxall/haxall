@@ -63,8 +63,8 @@ class AxonTest : AbstractAxonTest
     c := compileAxonSrcLib(dir, zip)
     verifyEq(zip.exists, false)
     verifyBuildErr(c.errs[0], 11, "Slot 'expr': Invalid Axon: line 1: Unexpected token eof")
-    verifyBuildErr(c.errs[1], 5, "Invalid Axon: line 2: Expecting end of file, not identifier 'bar'")
-    verifyBuildErr(c.errs[2], 6, "Invalid Axon: line 1: Unexpected token eof")
+    verifyBuildErr(c.errs[1], 5, "Meta 'axon': Invalid Axon: line 2: Expecting end of file, not identifier 'bar'")
+    verifyBuildErr(c.errs[2], 6, "Meta 'axon': Invalid Axon: line 1: Unexpected token eof")
     verifyEq(c.errs.size, 3)
   }
 

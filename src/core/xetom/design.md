@@ -116,13 +116,27 @@ the item's slot path back thru the AST.
 shape (names, inheritance, covariance, member structure) and named
 list items (names do not survive reification).
 
-Spec meta values validate against their meta member specs with two
-exemptions: a `None` value clears an inherited tag and is a compile
-convention with nothing to check, and `This` typed meta such as
-`minVal` and `val` is skipped because the idiom of plain numerics for
-custom scalar ranges means the value type never matches the resolved
-self type.  Companion compiles validate at haystack fidelity since
-their values originate from haystack data such as comp saves.
+A spec is a dict whose tags are its meta, so the compiler validates
+it like an instance: the spec is the subject, checked against
+`sys::Spec`, and the engine walks its meta against the meta specs.  A
+rule on a meta value therefore finds the spec which owns it as
+`ValidateState.subject`, and items display as "Meta 'axon': msg".  The
+step runs after Assemble, so the subject is the assembled spec with its
+slots, meta, and lib, although that lib is not in the namespace yet.
+Three points of the walk exist for specs:
+
+- The tags of a spec subject are its `metaOwn`: inherited meta is
+  checked on the spec which declares it, so a mistake reports once.
+- A `None` value clears an inherited tag and has nothing to check.
+- A `This` typed slot such as `minVal` and `val` is skipped: the idiom
+  of plain numerics for custom scalar ranges means the value type
+  never matches the resolved self type.
+
+Meta specs are members of `sys::Spec` by mixin, and mixins are off at
+compile time, so `CompileValidator` overrides `resolveMember` to answer
+from the meta the compiler has already composed.  Companion compiles
+validate at haystack fidelity since their values originate from
+haystack data such as comp saves.
 
 Data compiles validate the root asm value directly - the engine walks
 dicts, lists, and scalars just like at runtime.  A Grid has no instance
@@ -149,7 +163,7 @@ on a normal lib compile, a namespace load, or runtime validation.  They
 report at the scalar's loc; a line within the source goes in the msg.
 
 `xetoc::CompileValidator` overrides the engine's resolution hooks
-(`resolveSpec`, `resolveInstance`, `cns`) to overlay the lib under
+(`resolveSpec`, `resolveInstance`, `resolveMember`, `cns`) to overlay the lib under
 compile, which is not in the namespace yet.  All value-to-spec mapping
 funnels thru `resolveSpec` (see `XetoUtil.specOf`), so overriding it
 covers dict spec tags, scalar wrappers, and Fantom bindings alike.  It
