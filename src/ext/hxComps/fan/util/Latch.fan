@@ -9,14 +9,18 @@
 using xeto
 
 **
-** "Rising-edge" latch
+** "Rising-edge" latch.  The clock is read on execute, so `out` takes the
+** value `in` has on the cycle the clock turns true.  A null or invalid
+** `clock` holds `out`, and a rise is judged against the last valid
+** `clock`.  A save with a Bool `clock` loads.  A plain Bool linked into
+** `clock` is read with status ok and logged once.
 **
 @Gen
 abstract class Latch : HxComp
 {
   ** When the clock transitions from false to true it will cause
   ** out to be set to current value of in.
-  @Gen virtual Bool clock { get {get("clock")} set {set("clock", it)} }
+  @Gen virtual StatusBool? clock { get {get("clock")} set {set("clock", it)} }
 
   ** The input status value. The output will be set when the clock
   ** transitions from false to true.
@@ -27,21 +31,38 @@ abstract class Latch : HxComp
 
   new make() { }
 
-  override Void onChange(CompChangeEvent e)
+  override Void onExecute()
   {
-    if ("clock" == e.name)
+    // a rise is judged against the last valid clock
+    c := readClock
+    if (c == null || !c.status.isValid) return
+
+    // check transition to true from false
+    if (c.val && !this.lastClock)
     {
-      curClock := this.clock
-      // check transition to true from false
-      if (curClock && !this.lastClock)
-      {
-        set("out", get("in"))
-      }
-      this.lastClock = curClock
+      set("out", get("in"))
     }
+    this.lastClock = c.val
+  }
+
+  ** The clock, with a plain Bool read as status ok and logged once
+  private StatusBool? readClock()
+  {
+    raw := get("clock")
+    if (raw isnot Bool) return raw
+    if (!warnedBool)
+    {
+      this.warnedBool = true
+      log.warn("${spec.name} @${id}.clock: plain Bool read as StatusBool ok; link a StatusBool output or put a BoolToStatusBool in the link (logged once)")
+    }
+    return StatusBool(raw, Status.ok)
   }
 
   private Bool lastClock
+
+  private Bool warnedBool
+
+  private static const Log log := Log.get("hxComps")
 }
 
 **
