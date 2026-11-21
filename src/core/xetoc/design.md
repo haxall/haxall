@@ -75,8 +75,8 @@ Step lists:
   nominal anchor via `MSugar.anchors`
 - `Assemble`: assemble AST into xetom implementation instances
 - `Validate`: run the xetom validation engine over reified instances
-  and spec meta using rules from the depends closure; rules of the
-  lib under compile never run at compile time
+  and spec meta using rules from the depends closure and from the
+  lib under compile
 - `ReuseThunks`: reuse func thunks when recompiling the companion lib
 - `AstToDict`: encode AST into dicts (readAst only)
 - `OutputZip`: write the xetolib zip

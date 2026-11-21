@@ -123,11 +123,12 @@ rule on a meta value therefore finds the spec which owns it as
 `ValidateState.subject`, and items display as "Meta 'axon': msg".  The
 step runs after Assemble, so the subject is the assembled spec with its
 slots, meta, and lib, although that lib is not in the namespace yet.
-Three points of the walk exist for specs:
+Four points of the walk exist for specs:
 
 - The tags of a spec subject are its `metaOwn`: inherited meta is
   checked on the spec which declares it, so a mistake reports once.
 - A `None` value clears an inherited tag and has nothing to check.
+- A `Spec` typed tag is reified as a Ref to the spec, so a Ref fits it.
 - A `This` typed slot such as `minVal` and `val` is skipped: the idiom
   of plain numerics for custom scalar ranges means the value type
   never matches the resolved self type.
@@ -144,15 +145,18 @@ level checks: rows are columnar and carry no spec tags, so the col 'of'
 versus declared row member conflict is reported by InferData, where the
 AST typing lives.
 
-Rules come only from the dependency chain: `ValidateRules.makeLibs`
-builds the registry from the compile's depends, so a lib's own rules
-never run on its own instances at compile time - they first apply at
-runtime once the lib loads into a full namespace.  This scoping is also
-what makes compile time work at all: the namespace is still under
+Rules come from the dependency chain and from the lib under compile:
+the compiler passes both to `ValidateRules.makeLibs`, so a lib's own
+rules check its own instances and specs.  The namespace is still under
 construction during lib compiles (`MNamespace` compiles libs from its
 own constructor), so compile-time code may point-lookup loaded libs thru
-the namespace but must never enumerate it.  The step skips entirely
-when compiling sys itself, whose rule catalog does not exist yet.
+the namespace but must never enumerate it, and the lib under compile is
+not in it at all.  A rule therefore resolves the specs of its own lib
+thru the `Lib` which declares it, and every other spec thru the
+namespace; at runtime both give the same answer.  A rule implemented
+by a func does not run at compile time since there is no context to
+call it.  The step skips entirely when compiling sys itself, whose rule
+catalog does not exist yet.
 
 A rule class may return true from `ValidateRule.isBuildOnly` for checks
 too expensive for every load, such as parsing source code scalars

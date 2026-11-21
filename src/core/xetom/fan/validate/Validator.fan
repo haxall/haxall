@@ -240,6 +240,9 @@ class Validator
     // the declared slot type, but only when that type is itself a dict
     if (s.dict != null && s.dict.missing("spec") && type.isDict) return true
 
+    // a Spec typed tag such as a meta tag is reified as a Ref to the spec
+    if (val is Ref && type.isa(ns.sys.spec)) return true
+
     // a Ref value fits any Ref subtype such as sys.refs::ContainedByRef
     if (type.isRef && val is Ref) return true
 

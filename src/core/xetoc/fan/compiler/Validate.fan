@@ -13,9 +13,9 @@ using xetom
 
 **
 ** Validate runs the xetom validation engine over the reified instance
-** data using only rules from the dependency chain.  Rules defined by
-** the lib under compile never run at compile time.  Runs after Assemble
-** so instances and specs are their real implementations.
+** data and the specs, using the rules of the dependency chain and of
+** the lib under compile.  Runs after Assemble so instances and specs
+** are their real implementations.
 **
 @Js
 internal class Validate : Step
@@ -25,9 +25,10 @@ internal class Validate : Step
     // skip sys bootstrapping
     if (ns == null || isSys) return
 
-    // rules from the depends closure, never the lib under compile;
+    // rules from the depends closure and the lib under compile;
     // build-only rules run only when building a xetolib
-    rules := ValidateRules.makeLibs(ns, depends.all, compiler.isBuild)
+    libs := isLib ? depends.all.dup.add(lib.asm) : depends.all
+    rules := ValidateRules.makeLibs(ns, libs, compiler.isBuild)
 
     // init validator with rules
     validator := CompileValidator(compiler, rules)

@@ -20,6 +20,7 @@
   metaStr: Str?
   metaSized: Str? <minSize:3>
   metaOwner: TestOwnerName?
+  metaOn: Spec?
 }
 
 MetaInheritA: Dict <metaQ, metaR> {

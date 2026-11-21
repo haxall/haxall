@@ -1782,22 +1782,37 @@ class ValidateTest : AbstractXetoTest
     ])
   }
 
-  ** A lib's own rules never run at compile time: the registry is built
-  ** from the depends only, so they first apply at runtime
+  ** A lib's own rules run on its own instances at compile time.  The
+  ** lib is not in the namespace yet, so the rule resolves the type it
+  ** is on thru its lib.  The lib is named hx.test.xeto so that its
+  ** testCodePrefix rule binds to testXeto::ValidateTestCodePrefix
   Void testCompileOwnLibRules()
   {
-    src := srcAddPragma(
-      Str<|Foo: Dict { code: Str? }
+    dir := tempDir + `ownrules/hx.test.xeto/`
+    (dir + `lib.xeto`).out.print(
+      Str<|pragma: Lib < version: "1.0.0", depends: { { lib: "sys" } } >
 
-           @ruleCode: ValidateRule {
-             on: Foo
+           TestRuleSubject: Dict { code: Str? }
+
+           @testCodePrefix: ValidateRule {
+             on: TestRuleSubject
              msg: "Code '$code' must start with 'T'"
            }
 
-           @bad: Foo { code: "X100" }
-           |>)
-    lib := nsTest.compileTempLib(src)
-    verifyEq(lib.instance("bad")->code, "X100")
+           @good: TestRuleSubject { code: "T100" }
+           @bad: TestRuleSubject { code: "X100" }
+           |>).close
+
+    c := XetoCompiler.init
+    {
+      it.ns      = XetoEnv.cur.resolveNamespace(["sys"])
+      it.libName = "hx.test.xeto"
+      it.input   = dir
+    }
+    try { c.compileLib; fail } catch (XetoCompilerErr e) {}
+    verifyEq(c.errs.size, 1)
+    verifyEq(c.errs.first.loc.line, 11)
+    verifyEq(c.errs.first.msg, "Code 'X100' must start with 'T'")
   }
 
   ** The subject of a rule on a meta value is the spec which owns the
@@ -1872,6 +1887,8 @@ class ValidateTest : AbstractXetoTest
     verifyCompileMeta("Foo: Dict <metaSized:\"ab\">", "Meta 'metaSized': Size 2 < minSize 3")
     verifyCompileMeta("Foo: Dict { a: Str <metaSized:\"ab\"> }", "Meta 'metaSized': Size 2 < minSize 3")
     verifyCompileMeta("Foo: Scalar <minVal:0, maxVal:1> \"0\"", null)
+    verifyCompileMeta("Foo: Dict <metaOn:Str>", null)
+    verifyCompileMeta("Foo: Dict <metaOn:Foo>", null)
   }
 
   private Void verifyCompileMeta(Str src, Str? expect)

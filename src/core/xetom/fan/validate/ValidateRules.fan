@@ -50,7 +50,7 @@ const class ValidateRules
         if (spec == null || !spec.isa(ruleSpec)) return
         try
         {
-          r := ValidateRule.create(ns, x, funcs[x.id.id])
+          r := ValidateRule.create(ns, lib, x, funcs[x.id.id])
           if (r.isBuildOnly && !build) return
           list.add(r)
           map.add(r.qname, r)

@@ -23,9 +23,9 @@ abstract const class ValidateRule
   ** 'acme.rules::customCheck' binds to 'ValidateCustomCheck' in the pod
   ** bound to 'acme.rules'.  A rule nothing implements loads unbound so
   ** it stays visible in the registry instead of disappearing.
-  static ValidateRule create(Namespace ns, Dict instance, Spec? func := null)
+  static ValidateRule create(Namespace ns, Lib lib, Dict instance, Spec? func := null)
   {
-    init := ValidateRuleInit(instance, ns)
+    init := ValidateRuleInit(ns, lib, instance)
     if (func != null) return ValidateFuncRule(init, func)
     type := findType(init.id)
     return type == null ? ValidateUnboundRule(init) : type.make([init])
@@ -139,11 +139,12 @@ internal const class ValidateUnboundRule : ValidateRule
 @Js
 const class ValidateRuleInit
 {
-  new make(Dict instance, Namespace ns)
+  new make(Namespace ns, Lib lib, Dict instance)
   {
     this.instance = instance
     this.id       = instance.id
     this.ns       = ns
+    this.lib      = lib
   }
 
   const Dict instance
@@ -152,11 +153,23 @@ const class ValidateRuleInit
 
   private const Namespace ns
 
+  ** Lib which declares the rule.  The compiler runs the rules of the
+  ** lib under compile, which is not in the namespace yet, so the rule
+  ** resolves the specs of its own lib thru the lib itself
+  private const Lib lib
+
   ** Types this rule applies to; an unresolved ref is skipped so one bad
   ** target cannot silently widen the rule to every position
   Spec[] on()
   {
-    refs("on").mapNotNull |r->Spec?| { ns.spec(r.id, false) }
+    refs("on").mapNotNull |r->Spec?| { spec(r.id) }
+  }
+
+  private Spec? spec(Str qname)
+  {
+    qname.startsWith(lib.name) && qname.getSafe(lib.name.size) == ':' ?
+      XetoUtil.libSpec(lib, qname[lib.name.size+2..-1]) :
+      ns.spec(qname, false)
   }
 
   Str msg() { instance["msg"] as Str ?: id.toStr }
