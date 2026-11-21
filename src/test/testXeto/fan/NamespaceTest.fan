@@ -670,6 +670,14 @@ class NamespaceTest : AbstractXetoTest
     ns.eachSubtype(ns.spec("ph::Equip")) |x| { subtypes.add(x) }
     verifyEq(subtypes.containsSame(ns.spec("ph::AirTerminalUnit")), true)
     verifyEq(subtypes.containsSame(ns.spec("ph::Vav")), false)
+
+    // eachTypeThatIs
+    subtypes.clear
+    ns.eachTypeThatIs(ns.spec("ph::Equip")) |x| { subtypes.add(x) }
+    verifyEq(subtypes.containsSame(ns.spec("ph::Equip")), true)
+    verifyEq(subtypes.containsSame(ns.spec("ph::AirTerminalUnit")), true)
+    verifyEq(subtypes.containsSame(ns.spec("ph::Vav")), true)
+    verifyEq(subtypes.containsSame(ns.spec("ph::Site")), false)
   }
 
 //////////////////////////////////////////////////////////////////////////

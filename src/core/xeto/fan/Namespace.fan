@@ -117,6 +117,10 @@ const mixin Namespace
   ** Iterate all the direct subtypes of given type
   abstract Void eachSubtype(Spec base, |Spec| f)
 
+  ** Iterate each type that returns true for `isa(type)`: the type
+  ** itself and all its direct and indirect subtypes
+  abstract Void eachTypeThatIs(Spec type, |Spec| f)
+
   ** Return if given type has at least one direct subtype.
   abstract Bool hasSubtypes(Spec base)
 
