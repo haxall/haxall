@@ -57,6 +57,12 @@ Format: Scalar ""
 // Xeto interface for [fan.pi::PiFuture]
 PiFuture: Interface
 
+// Xeto interface for [fan.pi::Item]
+Item: Interface
+
+// Xeto interface for [fan.pi::ItemCollection]
+ItemCollection: Item
+
 // Palette color name.
 ColorName: Enum {
   slate    // Slate
