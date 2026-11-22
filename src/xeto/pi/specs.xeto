@@ -85,7 +85,7 @@ ColorName: Enum {
 
 // SelectionMode
 SelectMode: Enum {
-  disabled   // Selection is disabled
+  none       // Nothing can be selected
   single     // Can select only one item
   multi      // Can select one or more items
 }
