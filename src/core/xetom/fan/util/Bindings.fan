@@ -131,6 +131,7 @@ const class SpecBindings
 
     // fallbacks
     add(CompBinding("sys.comp::Comp", xeto.type("Comp")))
+    add(ListBinding("sys::List"))
     add(dict)
   }
 
@@ -370,6 +371,25 @@ internal const class ObjBinding : SpecBinding
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
   override Str encodeScalar(Obj val) { throw UnsupportedErr("Obj") }
   override Bool isInheritable() { false }
+}
+
+**
+** ListBinding binds a list spec to a Fantom list.  A spec which
+** inherits from one is a list too.  The items are not decoded here:
+** a list is built item by item by whatever reads it.
+**
+@Js
+const class ListBinding : SpecBinding
+{
+  new make(Str spec) { this.spec = spec }
+  const override Str spec
+  override Type type() { List# }
+  override Bool isScalar() { false }
+  override Bool isDict() { false }
+  override Dict decodeDict(Dict xeto) { throw UnsupportedErr(spec) }
+  override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr(spec) }
+  override Str encodeScalar(Obj val) { throw UnsupportedErr(spec) }
+  override Bool isInheritable() { true }
 }
 
 @Js

@@ -59,6 +59,15 @@ TestFoo: Comp {
   methodThis: Func <axon:"this"> { ignore: Str, returns: Obj }
 }
 
+TestSlotTypes: Comp {
+  list: List? <of:Str>
+  either: Str | Number
+  obj: Obj?
+  scalar: Scalar?
+  dict: Dict?
+  comp: TestFoo?
+}
+
 TestVal : Dict {
   val: Number
   status: Str

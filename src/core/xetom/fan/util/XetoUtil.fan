@@ -100,6 +100,18 @@ const class XetoUtil
     return true
   }
 
+  ** Fantom type the value of a slot must fit, which is the one
+  ** place it is decided for a comp, a widget or any other object with
+  ** typed slots.  It is the type the slot's spec is bound to, but for
+  ** the two which have no one type: an or of types, and a scalar which
+  ** is bound to no class.  Nullable is not considered
+  static Type slotFantomType(Spec slot)
+  {
+    if (slot.isOr) return Obj#
+    t := slot.type.fantomType
+    return t === Scalar# ? Obj# : t
+  }
+
   ** Item type of a collection/ref spec resolved to a named type.  An
   ** inline parameterized item such as "Ref<of:Foo>" compiles to an auto
   ** named spec which carries no binding and no useful name of its own,

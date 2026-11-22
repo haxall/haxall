@@ -244,6 +244,19 @@ class CompTest: AbstractXetoTest
     verifyTypeErr("'in1' takes TestVal, not") { add.set("in1", Etc.dict1("val", n(3))) }
     verifyTypeErr("'in1' takes TestVal, not Number") { add.set("in1", n(3)) }
     verifyEq(add.get("in1")->val, n(3))
+
+    // specs which are not bound to what their value is
+    t := TestSlotTypes()
+    t.set("list", ["a", "b"]).set("list", Obj?[n(1)])
+    verifyTypeErr("'list' takes List, not Str") { t.set("list", "a") }
+    t.set("either", "x").set("either", n(1)).set("either", true)
+    t.set("obj", "x").set("obj", n(1))
+    t.set("scalar", "x").set("scalar", n(1)).set("scalar", Date.today)
+    t.set("dict", Etc.dict1("a", "b")).set("dict", TestVal(3))
+    verifyTypeErr("'dict' takes Dict, not Str") { t.set("dict", "a") }
+    t.set("comp", TestFoo())
+    verifyTypeErr("'comp' takes TestFoo, not Str") { t.set("comp", "a") }
+    verifyTypeErr("'comp' takes TestFoo, not TestAdd") { t.set("comp", TestAdd()) }
   }
 
   Void verifyTypeErr(Str msg, |This| f)
@@ -1013,6 +1026,13 @@ const class TestVal: WrapDict
 
   override Str toStr() { "$val {$status}" }
 }
+
+**************************************************************************
+** TestSlotTypes
+**************************************************************************
+
+@Js
+class TestSlotTypes : CompObj {}
 
 **************************************************************************
 ** TestFoo

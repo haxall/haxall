@@ -365,6 +365,7 @@ internal const class TestBindingLoader : SpecBindingLoader
     acc.add(CompBinding    ("$libName::TestCounter", TestCounter#))
     acc.add(CompBinding    ("$libName::TestFoo",     TestFoo#))
     acc.add(CompBinding    ("$libName::TestNumberAdd", TestNumberAdd#))
+    acc.add(CompBinding    ("$libName::TestSlotTypes", TestSlotTypes#))
     acc.add(EnumBinding    ("$libName::TestFanEnum",      TestFanEnum#))
     acc.add(EnumBinding    ("$libName::TestFanKeyedEnum", TestFanKeyedEnum#))
   }

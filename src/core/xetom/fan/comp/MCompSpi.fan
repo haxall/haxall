@@ -310,7 +310,7 @@ class MCompSpi : CompSpi
   private static Void checkType(Spec slot, Obj val)
   {
     if (slot.isFunc) return
-    type := slot.type.fantomType
+    type := XetoUtil.slotFantomType(slot)
     if (val.typeof.fits(type)) return
     throw InvalidChangeErr("'$slot.name' takes $type.name, not $val.typeof.name")
   }
