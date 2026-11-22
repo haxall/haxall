@@ -18,6 +18,8 @@ using haystack
 @Js
 const mixin ItemCollection : Item
 {
+  ** Default value is the empty list
+  static const ItemCollection defVal := ItemList.empty
 
 //////////////////////////////////////////////////////////////////////////
 // Item

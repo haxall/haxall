@@ -60,6 +60,13 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     if (spec.isMultiRef)      return multiRef(spec)
     if (spec === ns.sys.dict) return Etc.dict0
 
+    // interface bound to a type with a default value
+    if (spec.isInterface)
+    {
+      defVal := spec.fantomType.field("defVal", false)
+      if (defVal != null && defVal.isStatic) return defVal.get
+    }
+
     // special handling for Obj
     if (spec.type === ns.sys.obj)
     {
