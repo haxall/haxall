@@ -266,6 +266,9 @@ class MCompSpi : CompSpi
     // short circuit if reference to same object
     if (oldVal === newVal) return
 
+    // check value against the type of a declared slot
+    if (slot != null && newVal != null && flags.and(CompSpi.flagUnchecked) == 0) checkType(slot, newVal)
+
     // if adding new slot then check name
     if (oldVal == null && !Etc.isTagName(name)) throw InvalidNameErr(name)
 
@@ -301,6 +304,15 @@ class MCompSpi : CompSpi
     // fire callback unless silent
     if (flags.and(CompSpi.flagSilent) == 0)
       changed(CompChangeEvent(comp, name, slot, oldVal, newVal))
+  }
+
+  ** A func slot holds whatever implements it
+  private static Void checkType(Spec slot, Obj val)
+  {
+    if (slot.isFunc) return
+    type := slot.type.fantomType
+    if (val.typeof.fits(type)) return
+    throw InvalidChangeErr("'$slot.name' takes $type.name, not $val.typeof.name")
   }
 
   private Void initChildren()

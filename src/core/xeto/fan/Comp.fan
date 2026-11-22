@@ -75,7 +75,8 @@ mixin Comp
 //////////////////////////////////////////////////////////////////////////
 
   ** Set a slot by name.  If val is null, then this is a
-  ** convenience for remove.
+  ** convenience for remove.  The value of a slot the spec declares
+  ** must be of the slot's type.
   @Operator This set(Str name, Obj? val)
   {
     spi.set(name, val, 0)
@@ -86,7 +87,7 @@ mixin Comp
   ** as generated code is
   @NoDoc This setUnchecked(Str name, Obj? val)
   {
-    spi.set(name, val, 0)
+    spi.set(name, val, CompSpi.flagUnchecked)
     return this
   }
 
@@ -359,7 +360,7 @@ mixin CompSpi
   abstract Void onExecute()
   abstract Void dump(Console? con, Obj? opts)
 
-  static const Int flagUnchecked := 0x01 // suppress check removal of non-maybe slots
+  static const Int flagUnchecked := 0x01 // suppress check of value type and removal of non-maybe slots
   static const Int flagSilent    := 0x02 // suppress change callback
 
   Void setUnchecked(Str name, Obj? val) { set(name, val, flagUnchecked) }

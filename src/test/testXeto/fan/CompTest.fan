@@ -196,6 +196,66 @@ class CompTest: AbstractXetoTest
     verifyChanged(c, "a", null)
   }
 
+  Void testSetTypes()
+  {
+    c := TestFoo()
+
+    // a declared slot takes a value of its type
+    c.reset.set("a", "x")
+    verifyChanged(c, "a", "x")
+    verifyTypeErr("'a' takes Str, not Number") { c.reset.set("a", n(3)) }
+    verifyEq(c.get("a"), "x")
+    verifyNotChanged(c)
+    verifyTypeErr("'a' takes Str, not Bool") { c.set("a", true) }
+    verifyTypeErr("'a' takes Str, not Bool") { c["a"] = true }
+
+    // a maybe slot too, which null removes
+    c.set("c", "x")
+    verifyTypeErr("'c' takes Str, not Number") { c.set("c", n(3)) }
+    verifyEq(c.get("c"), "x")
+    c.set("c", null)
+    verifyEq(c.get("c"), null)
+    verifyTypeErr("'c' takes Str, not Number") { c.add(n(3), "c") }
+    verifyEq(c.get("c"), null)
+
+    // a slot the spec does not declare takes anything
+    c.set("foo", "x").set("foo", n(3)).set("foo", true)
+    verifyEq(c.get("foo"), true)
+
+    // silent is checked; unchecked is not, as a typed accessor is not
+    verifyTypeErr("'a' takes Str, not Number") { c.spi.setSilent("a", n(3)) }
+    three := n(3)
+    c.reset.setUnchecked("a", three)
+    verifyChanged(c, "a", three)
+    c.spi.setUnchecked("a", n(4))
+    verifyEq(c.get("a"), n(4))
+
+    // a number is a Number, never an Int or a Float
+    num := TestNumberAdd()
+    num.set("in1", n(3))
+    verifyTypeErr("'in1' takes Number, not Int") { num.set("in1", 3) }
+    verifyTypeErr("'in1' takes Number, not Float") { num.set("in1", 3f) }
+    verifyTypeErr("'in1' takes Number, not Str") { num.set("in1", "3") }
+    verifyEq(num.get("in1"), n(3))
+
+    // a dict of a spec is the Fantom type the spec binds
+    add := TestAdd()
+    add.set("in1", TestVal(3))
+    verifyTypeErr("'in1' takes TestVal, not") { add.set("in1", Etc.dict1("val", n(3))) }
+    verifyTypeErr("'in1' takes TestVal, not Number") { add.set("in1", n(3)) }
+    verifyEq(add.get("in1")->val, n(3))
+  }
+
+  Void verifyTypeErr(Str msg, |This| f)
+  {
+    try
+    {
+      f(this)
+      fail("expected: $msg")
+    }
+    catch (InvalidChangeErr e) verify(e.msg.startsWith(msg), e.msg)
+  }
+
   Void verifyChangeErr(|This| f) { verifyErr(InvalidChangeErr#, f) }
 
   Void verifyDupNameErr(|This| f) { verifyErr(DuplicateNameErr#, f) }
