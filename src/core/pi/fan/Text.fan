@@ -173,14 +173,33 @@ final const class MText : Text
     return buf.toStr
   }
 
-  private static Str locale(Str key)
+  private static Str locale(Str key) { keyToLocale(key) ?: key }
+
+  ** Localized string for the key of a macro or null if not found:
+  ** "key" is a key of this pod, "pod::key" is a key of another
+  static Str? keyToLocale(Str key)
   {
     colons := key.index("::")
-    if (colons == null) return Text#.pod.locale(key, key)
+    if (colons == null) return Text#.pod.locale(key, null)
 
     pod  := key[0..<colons]
     name := key[colons+2..-1]
-    return Pod.find(pod, false)?.locale(name, null) ?: key
+    return Pod.find(pod, false)?.locale(name, null)
+  }
+
+  ** Key of each macro in the pattern
+  Str[] keys()
+  {
+    acc := Str[,]
+    Int? s := macroIndex >= 0 ? macroIndex : null
+    while (s != null)
+    {
+      e := findMacroEnd(pattern, s)
+      if (e == null) break
+      acc.add(pattern[s+2..<e])
+      s = findMacroStart(pattern, e+1)
+    }
+    return acc
   }
 
   static Int? findMacroStart(Str pattern, Int start)
