@@ -20,7 +20,7 @@ using xeto::Comp
 @Gen
 class AxonComp : HxComp
 {
-  @Gen virtual Str axon { get {get("axon")} set {set("axon", it)} }
+  @Gen virtual Str axon { get {get("axon")} set {setUnchecked("axon", it)} }
 
   override Void onExecute()
   {

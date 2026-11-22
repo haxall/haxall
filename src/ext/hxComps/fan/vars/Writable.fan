@@ -49,7 +49,7 @@ class NumberWritable : NumberPoint
 
   virtual StatusNumber? in16() { get("in16") }
 
-  virtual StatusNumber? fallback { get {get("fallback")} set {set("fallback", it)} }
+  virtual StatusNumber? fallback { get {get("fallback")} set {setUnchecked("fallback", it)} }
 
   override Void onExecute()
   {

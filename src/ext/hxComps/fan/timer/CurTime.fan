@@ -16,7 +16,7 @@ using haystack
 class CurTime : HxComp
 {
   ** How frequently to update the current time
-  @Gen virtual Duration updateFreq { get {get("updateFreq")} set {set("updateFreq", it)} }
+  @Gen virtual Duration updateFreq { get {get("updateFreq")} set {setUnchecked("updateFreq", it)} }
 
   ** The current time
   @Gen virtual DateTime out() { get("out") }

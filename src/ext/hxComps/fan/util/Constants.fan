@@ -15,7 +15,7 @@ using haystack
 @Gen
 class BoolConst : HxComp
 {
-  @Gen virtual StatusBool? out { get {get("out")} set {set("out", it)} }
+  @Gen virtual StatusBool? out { get {get("out")} set {setUnchecked("out", it)} }
 }
 
 **
@@ -24,7 +24,7 @@ class BoolConst : HxComp
 @Gen
 class NumberConst : HxComp
 {
-  @Gen virtual StatusNumber? out { get {get("out")} set {set("out", it)} }
+  @Gen virtual StatusNumber? out { get {get("out")} set {setUnchecked("out", it)} }
 }
 
 **
@@ -33,6 +33,6 @@ class NumberConst : HxComp
 @Gen
 class StrConst : HxComp
 {
-  @Gen virtual StatusStr? out { get {get("out")} set {set("out", it)} }
+  @Gen virtual StatusStr? out { get {get("out")} set {setUnchecked("out", it)} }
 }
 

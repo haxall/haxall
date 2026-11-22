@@ -16,7 +16,7 @@ using haystack
 // hx.rule::RuleVar or something so we have ownership of the root type in rule lib
 class Var : HxComp
 {
-  virtual Obj? val { get {get("val")} set {set("val", it)} }
+  virtual Obj? val { get {get("val")} set {setUnchecked("val", it)} }
 
   override Void bindIn(Obj? val)
   {

@@ -29,7 +29,7 @@ class FileScannerTest : Test
       "  ** Name slot",                                                      //  7
       "  @Gen virtual Str? name() { get(\"name\") }",                        //  8
       "",                                                                    //  9
-      "  @Gen virtual Int count { get {get(\"count\")} set {set(\"count\", it)} }",  // 10
+      "  @Gen virtual Int count { get {get(\"count\")} set {setUnchecked(\"count\", it)} }",  // 10
       "",                                                                    // 11
       "  override Void onExecute()",                                         // 12
       "  {",                                                                 // 13
@@ -202,7 +202,7 @@ class FileScannerTest : Test
       "",                                                                    // 18
       "  @Gen abstract Void onFoo(|Str->Void| cb)",                          // 19
       "",                                                                    // 20
-      "  @Gen virtual Int count { get {get(\"count\")} set {set(\"count\", it)} }",  // 21
+      "  @Gen virtual Int count { get {get(\"count\")} set {setUnchecked(\"count\", it)} }",  // 21
       "}",                                                                   // 22
       ].join("\n")
 

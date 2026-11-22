@@ -19,7 +19,7 @@ abstract class BitMask : HxComp
   @Gen virtual StatusNumber? in() { get("in") }
 
   ** The mask to apply to when doing the bit operation
-  @Gen virtual StatusNumber? mask { get {get("mask")} set {set("mask", it)} }
+  @Gen virtual StatusNumber? mask { get {get("mask")} set {setUnchecked("mask", it)} }
 
   ** The computed value
   @Gen virtual StatusNumber? out() { get("out") }

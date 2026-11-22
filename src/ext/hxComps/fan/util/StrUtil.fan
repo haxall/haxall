@@ -62,7 +62,7 @@ class StrContains : HxComp
   @Gen virtual StatusBool out() { get("out") }
 
   ** The zero-based index to start checking for `inB` in `inA`.
-  @Gen virtual Int fromIndex { get {get("fromIndex")} set {set("fromIndex", it)} }
+  @Gen virtual Int fromIndex { get {get("fromIndex")} set {setUnchecked("fromIndex", it)} }
 
   ** The index where `inB` was found, or -1 if it wasn't found
   @Gen virtual Int startIndex() { get("startIndex") }
@@ -116,11 +116,11 @@ class StrSubstr : HxComp
   @Gen virtual StatusStr out() { get("out") }
 
   ** The index to start extracting the sub-string
-  @Gen virtual Int startIndex { get {get("startIndex")} set {set("startIndex", it)} }
+  @Gen virtual Int startIndex { get {get("startIndex")} set {setUnchecked("startIndex", it)} }
 
   ** The index to end extracting the sub-string. Use -1 to indicate
   ** the end of the string.
-  @Gen virtual Int endIndex { get {get("endIndex")} set {set("endIndex", it)} }
+  @Gen virtual Int endIndex { get {get("endIndex")} set {setUnchecked("endIndex", it)} }
 
   override Void onExecute()
   {
@@ -181,7 +181,7 @@ class StrTest : HxComp
   @Gen virtual StatusBool out() { get("out") }
 
   ** The test to perform on the inputs
-  @Gen virtual StrTestType test { get {get("test")} set {set("test", it)} }
+  @Gen virtual StrTestType test { get {get("test")} set {setUnchecked("test", it)} }
 
   override Void onExecute()
   {

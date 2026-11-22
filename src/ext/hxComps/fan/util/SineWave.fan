@@ -20,16 +20,16 @@ class SineWave : HxComp
   @Gen virtual StatusNumber out() { get("out") }
 
   ** The amount of time it takes to output one complete cycle
-  @Gen virtual Duration period { get {get("period")} set {set("period", it)} }
+  @Gen virtual Duration period { get {get("period")} set {setUnchecked("period", it)} }
 
   ** The height of the sine wave from its lowest to highest point
-  @Gen virtual Float amplitude { get {get("amplitude")} set {set("amplitude", it)} }
+  @Gen virtual Float amplitude { get {get("amplitude")} set {setUnchecked("amplitude", it)} }
 
   ** The distance from zero that the sine wave's amplitude is shifted
-  @Gen virtual Float offset { get {get("offset")} set {set("offset", it)} }
+  @Gen virtual Float offset { get {get("offset")} set {setUnchecked("offset", it)} }
 
   ** How frequently to compute the sine wave
-  @Gen virtual Duration freq { get {get("freq")} set {set("freq", it)} }
+  @Gen virtual Duration freq { get {get("freq")} set {setUnchecked("freq", it)} }
 
   new make()
   {

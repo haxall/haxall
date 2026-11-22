@@ -19,11 +19,11 @@ class MultiVibrator : HxComp
   @Gen virtual StatusBool out() { get("out") }
 
   ** How long it takes to complete a single on-off cycle
-  @Gen virtual Duration period { get {get("period")} set {set("period", it)} }
+  @Gen virtual Duration period { get {get("period")} set {setUnchecked("period", it)} }
 
   ** Configures the percentage of time during the period that the
   ** signal is active (true).
-  @Gen virtual Int dutyCycle { get {get("dutyCycle")} set {set("dutyCycle", it)} }
+  @Gen virtual Int dutyCycle { get {get("dutyCycle")} set {setUnchecked("dutyCycle", it)} }
 
   new make()
   {

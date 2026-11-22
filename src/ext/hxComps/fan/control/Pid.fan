@@ -36,41 +36,41 @@ class Pid : HxComp
   @Gen virtual StatusNumber? out() { get("out") }
 
   ** The value being controlled, such as a discharge air temp
-  @Gen virtual StatusNumber? controlledVariable { get {get("controlledVariable")} set {set("controlledVariable", it)} }
+  @Gen virtual StatusNumber? controlledVariable { get {get("controlledVariable")} set {setUnchecked("controlledVariable", it)} }
 
   ** The value the loop holds controlledVariable at
-  @Gen virtual StatusNumber? setpoint { get {get("setpoint")} set {set("setpoint", it)} }
+  @Gen virtual StatusNumber? setpoint { get {get("setpoint")} set {setUnchecked("setpoint", it)} }
 
   ** False or an invalid status disables the loop; unlinked it runs
-  @Gen virtual StatusBool? loopEnable { get {get("loopEnable")} set {set("loopEnable", it)} }
+  @Gen virtual StatusBool? loopEnable { get {get("loopEnable")} set {setUnchecked("loopEnable", it)} }
 
   ** Direct raises out as controlledVariable rises above setpoint;
   ** reverse raises out as it falls below
-  @Gen virtual PidAction loopAction { get {get("loopAction")} set {set("loopAction", it)} }
+  @Gen virtual PidAction loopAction { get {get("loopAction")} set {setUnchecked("loopAction", it)} }
 
   ** What out is set to while the loop is disabled
-  @Gen virtual PidDisableAction disableAction { get {get("disableAction")} set {set("disableAction", it)} }
+  @Gen virtual PidDisableAction disableAction { get {get("disableAction")} set {setUnchecked("disableAction", it)} }
 
   ** Proportional gain (Kp)
-  @Gen virtual Float proportionalConstant { get {get("proportionalConstant")} set {set("proportionalConstant", it)} }
+  @Gen virtual Float proportionalConstant { get {get("proportionalConstant")} set {setUnchecked("proportionalConstant", it)} }
 
   ** Integral gain (Ki) in repeats per minute; 0 turns it off
-  @Gen virtual Float integralConstant { get {get("integralConstant")} set {set("integralConstant", it)} }
+  @Gen virtual Float integralConstant { get {get("integralConstant")} set {setUnchecked("integralConstant", it)} }
 
   ** Derivative gain (Kd) in seconds; 0 turns it off
-  @Gen virtual Float derivativeConstant { get {get("derivativeConstant")} set {set("derivativeConstant", it)} }
+  @Gen virtual Float derivativeConstant { get {get("derivativeConstant")} set {setUnchecked("derivativeConstant", it)} }
 
   ** Out when the error is zero and nothing has been integrated
-  @Gen virtual Float bias { get {get("bias")} set {set("bias", it)} }
+  @Gen virtual Float bias { get {get("bias")} set {setUnchecked("bias", it)} }
 
   ** The highest out may go
-  @Gen virtual Float maximumOutput { get {get("maximumOutput")} set {set("maximumOutput", it)} }
+  @Gen virtual Float maximumOutput { get {get("maximumOutput")} set {setUnchecked("maximumOutput", it)} }
 
   ** The lowest out may go
-  @Gen virtual Float minimumOutput { get {get("minimumOutput")} set {set("minimumOutput", it)} }
+  @Gen virtual Float minimumOutput { get {get("minimumOutput")} set {setUnchecked("minimumOutput", it)} }
 
   ** How often the loop runs
-  @Gen virtual Duration freq { get {get("freq")} set {set("freq", it)} }
+  @Gen virtual Duration freq { get {get("freq")} set {setUnchecked("freq", it)} }
 
   ** Integral term in output units: the running sum of Kp * Ki * error * dt.
   ** Keeping it in output units means a change to Kp or Ki does not bump out.

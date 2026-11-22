@@ -18,7 +18,7 @@ class DigitalInputDemux : HxComp
   ** The input
   @Gen virtual StatusNumber? in() { get("in") }
 
-  @Gen virtual Float offset { get {get("offset")} set {set("offset", it)} }
+  @Gen virtual Float offset { get {get("offset")} set {setUnchecked("offset", it)} }
 
   @Gen virtual StatusBool? out1() { get("out1") }
 
@@ -28,15 +28,15 @@ class DigitalInputDemux : HxComp
 
   @Gen virtual StatusBool? out4() { get("out4") }
 
-  @Gen virtual Float out1Value { get {get("out1Value")} set {set("out1Value", it)} }
+  @Gen virtual Float out1Value { get {get("out1Value")} set {setUnchecked("out1Value", it)} }
 
-  @Gen virtual Float out2Value { get {get("out2Value")} set {set("out2Value", it)} }
+  @Gen virtual Float out2Value { get {get("out2Value")} set {setUnchecked("out2Value", it)} }
 
-  @Gen virtual Float out3Value { get {get("out3Value")} set {set("out3Value", it)} }
+  @Gen virtual Float out3Value { get {get("out3Value")} set {setUnchecked("out3Value", it)} }
 
-  @Gen virtual Float out4Value { get {get("out4Value")} set {set("out4Value", it)} }
+  @Gen virtual Float out4Value { get {get("out4Value")} set {setUnchecked("out4Value", it)} }
 
-  @Gen virtual Float deadband { get {get("deadband")} set {set("deadband", it)} }
+  @Gen virtual Float deadband { get {get("deadband")} set {setUnchecked("deadband", it)} }
 
   override Void onExecute()
   {

@@ -30,7 +30,7 @@ class StatusBoolToBool : StatusValToVal
   @Gen virtual Bool out() { get("out") }
 
   ** When `in` is null, set out to this value.
-  @Gen virtual Bool whenNull { get {get("whenNull")} set {set("whenNull", it)} }
+  @Gen virtual Bool whenNull { get {get("whenNull")} set {setUnchecked("whenNull", it)} }
 }
 
 **
@@ -44,6 +44,6 @@ class StatusNumberToNumber : StatusValToVal
   @Gen virtual Number out() { get("out") }
 
   ** When `in` is null, set out to this value.
-  @Gen virtual Number whenNull { get {get("whenNull")} set {set("whenNull", it)} }
+  @Gen virtual Number whenNull { get {get("whenNull")} set {setUnchecked("whenNull", it)} }
 }
 

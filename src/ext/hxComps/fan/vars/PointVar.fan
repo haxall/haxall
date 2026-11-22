@@ -15,7 +15,7 @@ using xeto
 @Gen
 abstract class PointVar : EntityVar
 {
-  @Gen virtual Ref? bindSpec { get {get("bindSpec")} set {set("bindSpec", it)} }
+  @Gen virtual Ref? bindSpec { get {get("bindSpec")} set {setUnchecked("bindSpec", it)} }
 }
 
 **
@@ -89,7 +89,7 @@ abstract class PointOutput : PointVar
   @Gen virtual StatusVal? in() { get("in") }
 
   ** bindToCurVal: Marker?
-  @Gen virtual Int? bindToWriteLevel { get {get("bindToWriteLevel")} set {set("bindToWriteLevel", it)} }
+  @Gen virtual Int? bindToWriteLevel { get {get("bindToWriteLevel")} set {setUnchecked("bindToWriteLevel", it)} }
 
   override StatusVal? bindOut() { this.in }
 }

@@ -239,7 +239,7 @@ internal class TestComp : CompObj
   Str? a
   {
     get { get("a") }
-    set { set("a", it); echo("set a $it") }
+    set { setUnchecked("a", it); echo("set a $it") }
   }
 }
 

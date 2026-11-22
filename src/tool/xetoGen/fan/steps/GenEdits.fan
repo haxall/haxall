@@ -368,7 +368,7 @@ internal class GenEdits : Step
     if (isGetterOnly(x))
       s.add("() { get(").add(x.name.toCode).add(") }")
     else
-      s.add(" { get {get(").add(x.name.toCode).add(")} set {set(").add(x.name.toCode).add(", it)} }")
+      s.add(" { get {get(").add(x.name.toCode).add(")} set {setUnchecked(").add(x.name.toCode).add(", it)} }")
     return s.toStr
   }
 

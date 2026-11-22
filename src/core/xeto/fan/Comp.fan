@@ -82,6 +82,14 @@ mixin Comp
     return this
   }
 
+  ** Set a slot from an accessor which is typed when it is compiled,
+  ** as generated code is
+  @NoDoc This setUnchecked(Str name, Obj? val)
+  {
+    spi.set(name, val, 0)
+    return this
+  }
+
   ** Add a slot.  If name is null one is auto-generated
   ** otherwise the name must be unique.
   @Operator This add(Obj val, Str? name := null)

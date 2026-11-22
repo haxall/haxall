@@ -20,13 +20,13 @@ class Random : HxComp
   @Gen virtual StatusNumber out() { get("out") }
 
   ** The multiplier
-  @Gen virtual Float multiplier { get {get("multiplier")} set {set("multiplier", it)} }
+  @Gen virtual Float multiplier { get {get("multiplier")} set {setUnchecked("multiplier", it)} }
 
   ** The offset
-  @Gen virtual Float offset { get {get("offset")} set {set("offset", it)} }
+  @Gen virtual Float offset { get {get("offset")} set {setUnchecked("offset", it)} }
 
   ** How frequently to update the output
-  @Gen virtual Duration freq { get {get("freq")} set {set("freq", it)} }
+  @Gen virtual Duration freq { get {get("freq")} set {setUnchecked("freq", it)} }
 
   new make()
   {

@@ -20,11 +20,11 @@ class BoolDelay : HxComp
 
   ** How long to wait before setting the out slot to true when
   ** the in slot transitions to true.
-  @Gen virtual Duration onDelay { get {get("onDelay")} set {set("onDelay", it)} }
+  @Gen virtual Duration onDelay { get {get("onDelay")} set {setUnchecked("onDelay", it)} }
 
   ** How long to wait before setting the out slot to false when
   ** the in slot transitions to false.
-  @Gen virtual Duration offDelay { get {get("offDelay")} set {set("offDelay", it)} }
+  @Gen virtual Duration offDelay { get {get("offDelay")} set {setUnchecked("offDelay", it)} }
 
   ** The value of the in slot after any delays are accounted for.
   @Gen virtual StatusBool? out() { get("out") }

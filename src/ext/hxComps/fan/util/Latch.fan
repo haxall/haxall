@@ -16,7 +16,7 @@ abstract class Latch : HxComp
 {
   ** When the clock transitions from false to true it will cause
   ** out to be set to current value of in.
-  @Gen virtual Bool clock { get {get("clock")} set {set("clock", it)} }
+  @Gen virtual Bool clock { get {get("clock")} set {setUnchecked("clock", it)} }
 
   ** The input status value. The output will be set when the clock
   ** transitions from false to true.

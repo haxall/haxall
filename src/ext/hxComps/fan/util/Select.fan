@@ -17,7 +17,7 @@ abstract class ValSelect : HxComp
 {
   ** The index of the input to select. If the value is greater than `numInputs`
   ** then the maximum active input will be selected.
-  @Gen virtual StatusNumber? select { get {get("select")} set {set("select", it)} }
+  @Gen virtual StatusNumber? select { get {get("select")} set {setUnchecked("select", it)} }
 
   ** Input A
   @Gen virtual StatusVal? inA() { get("inA") }
@@ -55,10 +55,10 @@ abstract class ValSelect : HxComp
   ** If true, then inputs are indexed by zero (0). If false,
   ** inputs are indexed by 1, and any select <= 1 will select the
   ** first input.
-  @Gen virtual Bool zeroBasedSelect { get {get("zeroBasedSelect")} set {set("zeroBasedSelect", it)} }
+  @Gen virtual Bool zeroBasedSelect { get {get("zeroBasedSelect")} set {setUnchecked("zeroBasedSelect", it)} }
 
   ** The number of inputs that are active for selection.
-  @Gen virtual Int numInputs { get {get("numInputs")} set {set("numInputs", it)} }
+  @Gen virtual Int numInputs { get {get("numInputs")} set {setUnchecked("numInputs", it)} }
 
   override Void onExecute()
   {
