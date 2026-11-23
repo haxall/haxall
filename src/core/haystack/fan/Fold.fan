@@ -85,6 +85,27 @@ abstract class Fold
     return "sum"
   }
 
+  ** Lookup the name of the default rollup folding function for the given
+  ** unit quantity name such as "power". Return "avg" if the quantity is
+  ** null or has no specific default.
+  static Str findQuantityDef(Str? quantity)
+  {
+    switch (quantity)
+    {
+      case "energy":
+      case "apparent energy":
+      case "reactive energy":
+      case "volume":
+        return "sum"
+      case "power":
+      case "apparent power":
+      case "reactive power":
+        return "max"
+      default:
+        return "avg"
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fold
 //////////////////////////////////////////////////////////////////////////

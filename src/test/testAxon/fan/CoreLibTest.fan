@@ -1027,6 +1027,23 @@ class CoreLibTest : HaystackTest
            n(3))
   }
 
+  Void testFoldQuantityDef()
+  {
+    ["energy", "apparent energy", "reactive energy", "volume"].each |q|
+    {
+      verify(Unit.quantities.contains(q), q)
+      verifyEq(Fold.findQuantityDef(q), "sum")
+    }
+    ["power", "apparent power", "reactive power"].each |q|
+    {
+      verify(Unit.quantities.contains(q), q)
+      verifyEq(Fold.findQuantityDef(q), "max")
+    }
+    verifyEq(Fold.findQuantityDef("temperature"), "avg")
+    verifyEq(Fold.findQuantityDef("foo"), "avg")
+    verifyEq(Fold.findQuantityDef(null), "avg")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dict
 //////////////////////////////////////////////////////////////////////////
