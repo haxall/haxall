@@ -101,6 +101,13 @@ internal const class ClientMemSession
 
   const Str clientId
 
+  const ConcurrentMap packets := ConcurrentMap()
+
+  ** Maps each key to the sequence its packet was stored in
+  private const ConcurrentMap seqs := ConcurrentMap()
+
+  private const AtomicInt seq := AtomicInt()
+
   PersistablePacket? get(Str key)
   {
     packets.get(key)
@@ -109,19 +116,25 @@ internal const class ClientMemSession
   Void put(Str key, PersistablePacket packet)
   {
     packets[key] = packet
+    seqs[key] = seq.getAndIncrement
   }
 
   Void remove(Str key)
   {
     packets.remove(key)
+    seqs.remove(key)
   }
 
   Void clear()
   {
     packets.clear
+    seqs.clear
   }
 
-  Str[] keys() { packets.keys(Str#) }
-  const ConcurrentMap packets := ConcurrentMap()
+  ** Keys in the order their packets were stored
+  Str[] keys()
+  {
+    packets.keys(Str#).sort |a, b| { (seqs[a] ?: 0) <=> (seqs[b] ?: 0) }
+  }
 }
 

@@ -71,6 +71,9 @@ internal class ClientConnAckHandler : ClientHandler
     // set the established client identifier for this connection
     client.clientIdRef.val = ack.props.get(Property.assignedClientId, clientConfig.clientId)
 
+    // initialize the quota; resumed packets count against it
+    client.quota.val = ack.props.receiveMax
+
     // open the db
     db.open(clientId)
 
@@ -92,9 +95,6 @@ internal class ClientConnAckHandler : ClientHandler
       // this is a clean session, clear any persisted state
       db.clear(clientId)
     }
-
-    // initialize the quota
-    client.quota.val = ack.props.receiveMax
 
     // complete the connect
     pendingConnect.resp.complete(ack)

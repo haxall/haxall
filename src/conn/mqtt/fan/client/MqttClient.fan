@@ -45,8 +45,9 @@ const class MqttClient : Actor, MqttConst
 // Internal Fields
 //////////////////////////////////////////////////////////////////////////
 
-  ** Housekeeping message
-  internal static const ActorMsg housekeeping := ActorMsg("housekeeping")
+  ** Incremented for each connect. Housekeeping stops when the
+  ** generation it was started for is no longer current.
+  internal const AtomicInt connGen := AtomicInt(0)
 
   internal const PacketReaderActor packetReader
   internal const PacketWriterActor packetWriter
@@ -266,7 +267,7 @@ const class MqttClient : Actor, MqttConst
   {
     msg := obj as ActorMsg
 
-    if (msg === housekeeping) return onHousekeeping(msg.a)
+    if (msg?.id == "housekeeping") return onHousekeeping(msg.a)
 
     try
     {
@@ -419,10 +420,11 @@ const class MqttClient : Actor, MqttConst
 // Houskeeping
 //////////////////////////////////////////////////////////////////////////
 
-  private Obj? onHousekeeping(ActorMsg? msg)
+  private Obj? onHousekeeping(Int gen)
   {
-    // stop houskeeping if we are in a state where we can't send messages
-    if (!canMessage) return null
+    // stop houskeeping if this is not the current connection or
+    // we are in a state where we can't send messages
+    if (gen != connGen.val || !canMessage) return null
 
     try
     {
@@ -437,7 +439,7 @@ const class MqttClient : Actor, MqttConst
       log.err("Houskeeping failed", err)
     }
 
-    sendLater(1sec, housekeeping)
+    sendLater(1sec, ActorMsg("housekeeping", gen))
     return null
   }
 
@@ -491,18 +493,28 @@ const class MqttClient : Actor, MqttConst
         finishPending(pending)
         pending.resp.completeErr(TimeoutErr("No acknowledgement received for packet ${pending.packetId} after ${config.timeout.toLocale}"))
       }
-      else if (config.maxRetry > 0 && pending.isRetryNeeded(config.retryInterval))
+      else if (canRetry && pending.isRetryNeeded(config.retryInterval))
       {
         // handle packet retry
         log.debug("Retry packet ${pending.packetId}")
-
-        p      := config.persistence.get(pending.persistKey)
-        packet := PersistableControlPacket.fromPersistablePacket(p)
-
-        packet.markDup
-        sendPacket(packet, pending)
+        sendPacket(toRetry(pending), pending)
       }
     }
+  }
+
+  ** Packets may only be resent on a live connection in 3.1.1 [MQTT5-4.4.0-1]
+  private Bool canRetry() { config.maxRetry > 0 && config.version.is311 }
+
+  ** Get the packet to resend for a pending ack
+  private ControlPacket toRetry(PendingAck pending)
+  {
+    // a request that is not persisted is stashed on the pending ack
+    if (pending.persistKey == null) return pending.req
+
+    p := config.persistence.get(pending.persistKey) ?: throw MqttErr("Packet ${pending.packetId} is not persisted")
+    packet := PersistableControlPacket.fromPersistablePacket(p)
+    packet.markDup
+    return packet
   }
 
 //////////////////////////////////////////////////////////////////////////

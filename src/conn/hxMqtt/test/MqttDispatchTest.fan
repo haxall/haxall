@@ -71,10 +71,7 @@ class MqttDispatchTest : HxTest
 
       // broker drops the connection, then publishes right after the next CONNACK
       broker.replay.val = "a/b"
-      broker.drop
-      100.times { if (broker.connects < 2) { Actor.sleep(50ms); conn.ping.get } }
-      conn.ping.get
-      verifyEq(broker.connects, 2)
+      reconnect(conn, broker, 2)
       verifyEq(conn.status, ConnStatus.ok)
 
       // each filter is resubscribed once at its highest QoS
@@ -85,6 +82,32 @@ class MqttDispatchTest : HxTest
       verifyEq(a.waitFor(1), ["a/b"])
       verifyEq(b.waitFor(1), ["a/b"])
       verifyEq(c.topics, Str[,])
+    }
+    finally broker.close
+  }
+
+  @HxTestProj
+  Void testQos2Redelivery()
+  {
+    broker := TestBroker()
+    try
+    {
+      conn := addConn(broker)
+      obs  := conn.ext.observables.first
+      a    := TestObserver()
+      obs.subscribe(a, toConfig(conn, "a/b", 2)); conn.ping.get
+
+      // broker sends a QoS 2 message on the resumed session and never releases it
+      broker.sessionPresent.val = true
+      broker.replay.val = "a/b"
+      broker.replayQos.val = 2
+      reconnect(conn, broker, 2)
+      verifyEq(a.waitFor(1), ["a/b"])
+
+      // the same message sent again after another reconnect is not delivered twice
+      reconnect(conn, broker, 3)
+      Actor.sleep(300ms)
+      verifyEq(a.topics, ["a/b"])
     }
     finally broker.close
   }
@@ -140,6 +163,16 @@ class MqttDispatchTest : HxTest
     verifyErr(MqttErr#) { obs.subscribe(TestObserver(), Etc.makeDict(["obsMqtt":m, "obsMqttConnRef":rec.id, "obsMqttTopic":"a/#/b"])) }
     verifyErr(Err#) { obs.subscribe(TestObserver(), Etc.makeDict(["obsMqtt":m, "obsMqttConnRef":rec.id])) }
     verifyEq(obs.subscriptions.size, 0)
+  }
+
+  ** Drop the connection and wait for the connector to open the given
+  ** number of connections to the broker
+  private Void reconnect(Conn conn, TestBroker broker, Int connects)
+  {
+    broker.drop
+    100.times { if (broker.connects < connects) { Actor.sleep(50ms); conn.ping.get } }
+    conn.ping.get
+    verifyEq(broker.connects, connects)
   }
 
   private Conn addConn(TestBroker broker)
@@ -218,8 +251,15 @@ internal const class TestBroker
   ** Topic filter to reject with a SUBACK failure
   const AtomicRef reject := AtomicRef(null)
 
-  ** Topic to publish a QoS 0 message to right after each CONNACK
+  ** Topic to publish a message to right after each CONNACK
   const AtomicRef replay := AtomicRef(null)
+
+  ** QoS of the replay message: 0 or 2. A QoS 2 message always has the
+  ** same packet id and is never released with PUBREL.
+  const AtomicInt replayQos := AtomicInt(0)
+
+  ** Set the session present flag in CONNACK
+  const AtomicBool sessionPresent := AtomicBool(false)
 
   private const Unsafe listenerRef
 
@@ -280,9 +320,10 @@ internal const class TestBroker
         if (type == 1)
         {
           connectsRef.increment
-          out.write(0x20).write(0x02).write(0x00).write(0x00)
+          out.write(0x20).write(0x02).write(sessionPresent.val ? 0x01 : 0x00).write(0x00)
           topic := replay.val as Str
-          if (topic != null) out.write(0x30).write(topic.size + 4).writeI2(topic.size).writeChars(topic).writeChars("hi")
+          if (topic != null && replayQos.val == 2) out.write(0x34).write(topic.size + 6).writeI2(topic.size).writeChars(topic).writeI2(7).writeChars("hi")
+          else if (topic != null) out.write(0x30).write(topic.size + 4).writeI2(topic.size).writeChars(topic).writeChars("hi")
           out.flush
         }
         else if (type == 8)

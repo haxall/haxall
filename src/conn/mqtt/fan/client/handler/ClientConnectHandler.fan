@@ -46,11 +46,11 @@ internal class ClientConnectHandler : ClientHandler
       // send our CONNECT packet
       client.packetWriter.send(packet)
 
-      // start housekeeping
-      client.sendLater(1sec, MqttClient.housekeeping)
+      // start housekeeping for this connection
+      client.sendLater(1sec, ActorMsg("housekeeping", client.connGen.incrementAndGet))
 
-      // start receiving packets
-      client.packetReader.send("loop")
+      // start receiving packets from this transport
+      client.packetReader.send(client.transportRef.val)
     }
     catch (Err err)
     {

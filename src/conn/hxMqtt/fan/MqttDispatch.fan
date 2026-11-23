@@ -35,6 +35,10 @@ class MqttDispatch : ConnDispatch
   ** Topic filters subscribed on the current client mapped to their QoS
   private Str:Int subscribed := [:]
 
+  ** Session state shared by every client this connector opens, so that
+  ** unacknowledged messages survive a reconnect when the session resumes
+  private ClientPersistence sessionDb := ClientMemDb()
+
   protected MqttExt mqttLib() { ext }
 
 //////////////////////////////////////////////////////////////////////////
@@ -63,6 +67,7 @@ class MqttDispatch : ConnDispatch
       it.maxRetry      = (rec.get("mqttMaxRetry") ?: Number.zero)->toInt
       it.retryInterval = (rec.get("mqttRetryInterval") ?: Number(10sec))->toDuration
       it.onMessage     = onMessage
+      it.persistence   = this.sessionDb
       it.socketConfig  = SocketConfig.cur.copy {
         it.keystore       = this.mqttKey
         it.connectTimeout = 10sec
@@ -152,7 +157,7 @@ class MqttDispatch : ConnDispatch
       .expiryInterval((cfg["mqttExpiryInterval"] as Number)?.toDuration)
       .userProps(userPropsFromDict(cfg["mqttUserProps"] as Dict))
       .send
-      .get
+      .get(conn.timeout)
     return null
   }
 

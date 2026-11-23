@@ -185,6 +185,142 @@ class ClientTest : Test
     }
   }
 
+  Void testSubscribeRetry()
+  {
+    // 3.1.1 resends an unanswered SUBSCRIBE, 5.0 must not [MQTT5-4.4.0-1]
+    verifySubscribeRetry(MqttVersion.v3_1_1, 2)
+    verifySubscribeRetry(MqttVersion.v5, 1)
+  }
+
+  private Void verifySubscribeRetry(MqttVersion version, Int expected)
+  {
+    server := ScriptServer(version)
+    client := MqttClient(ClientConfig {
+      it.serverUri     = server.uri
+      it.version       = version
+      it.clientId      = "clientTest"
+      it.maxRetry      = 1
+      it.retryInterval = 1sec
+    })
+    try
+    {
+      server.ackSub.val = false
+      client.connect.get(5sec)
+
+      // offset from housekeeping so the retry and timeout land on different ticks
+      Actor.sleep(300ms)
+      f := client.subscribeWith.topicFilter("a/b").qos0.send
+      verifyErr(TimeoutErr#) { f.get(6sec) }
+      verifyEq(server.count("subscribe"), expected)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
+  Void testResume()
+  {
+    server := ScriptServer()
+    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    resume := ConnectConfig { it.cleanSession = false }
+    try
+    {
+      client.connect(resume).get(5sec)
+
+      // leave a QoS 2 publish waiting on PUBCOMP and QoS 1 publishes on PUBACK
+      server.ackRel.val = false
+      client.publishWith.topic("t").payload("q2".toBuf).qos2.send
+      20.times { if (server.count("pubrel") < 1) Actor.sleep(50ms) }
+      server.ackPub.val = false
+      20.times |i| { client.publishWith.topic("t").payload("m${i}".toBuf).qos1.send }
+      20.times { if (server.count("publish") < 21) Actor.sleep(50ms) }
+      verifyEq(server.count("pubrel"), 1)
+      verifyEq(server.count("publish"), 21)
+
+      // drop the connection and resume the session
+      mark := server.received.size
+      server.drop
+      40.times { if (client.state !== ClientState.disconnected) Actor.sleep(50ms) }
+      verifyEq(client.state, ClientState.disconnected)
+      server.sessionPresent.val = true
+      server.ackPub.val = true
+      server.ackRel.val = true
+      client.connect(resume).get(5sec)
+      40.times { if (server.received.size < mark + 22) Actor.sleep(50ms) }
+
+      // PUBREL and every PUBLISH is resent in the order it was first sent
+      expected := ["connect", "pubrel"]
+      20.times |i| { expected.add("publish m${i} dup") }
+      verifyEq(server.received[mark..-1], expected)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
+  Void testPubRecErr()
+  {
+    // server grants a receive maximum of one and rejects every publish
+    server := ScriptServer(MqttVersion.v5)
+    client := MqttClient(ClientConfig {
+      it.serverUri = server.uri
+      it.version   = MqttVersion.v5
+      it.clientId  = "clientTest"
+    })
+    try
+    {
+      server.pubRecReason.val = 0x80
+      client.connect.get(5sec)
+
+      // the rejected publish gives its quota back for the next one
+      2.times
+      {
+        MqttErr? err
+        try
+          client.publishWith.topic("t").qos2.send.get(5sec)
+        catch (MqttErr e)
+          err = e
+        verifyEq(err?.msg?.startsWith("Publish failed"), true)
+      }
+      verifyEq(server.count("publish"), 2)
+      verifyEq(server.count("pubrel"), 0)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
+  Void testWriteStall()
+  {
+    server := ScriptServer()
+    events := ConcurrentMap()
+    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    try
+    {
+      client.addListener(TestClientListener(events))
+      client.connect(ConnectConfig { it.keepAlive = 1sec }).get(5sec)
+
+      // server stops reading so QoS 0 publishes back up behind the socket
+      server.stall.val = true
+      16.times { client.publishWith.topic("t").payload(Buf().fill(0, 1024*1024)).qos0.send }
+
+      // the client actor is not blocked, so keep alive closes the connection
+      verifyEq(waitFor(events, "disconnected")?.startsWith("sys::TimeoutErr"), true)
+      verifyEq(client.state, ClientState.disconnected)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
   private MqttClient makeClient(SilentServer server, ConcurrentMap events)
   {
     MqttClient(ClientConfig {
@@ -197,7 +333,7 @@ class ClientTest : Test
   ** Wait for the listener event and return it, or null if it never fires
   private Str? waitFor(ConcurrentMap events, Str name)
   {
-    30.times { if (events[name] == null) Actor.sleep(100ms) }
+    80.times { if (events[name] == null) Actor.sleep(100ms) }
     return events[name]
   }
 }
@@ -288,5 +424,142 @@ internal const class SilentServer
     }
     catch (Err e) {}
     finally socket.close
+  }
+}
+
+**************************************************************************
+** ScriptServer
+**************************************************************************
+
+** Accepts one client at a time and records the packets it receives.
+** Its fields control how it answers and may be changed at any time.
+internal const class ScriptServer
+{
+  new make(MqttVersion version := MqttVersion.v3_1_1)
+  {
+    listener := TcpListener().bind(IpAddr("127.0.0.1"), null)
+    this.version = version
+    this.port = listener.localPort
+    this.listenerRef = Unsafe(listener)
+    ref := this.listenerRef
+    Actor(pool) |->Obj?|
+    {
+      try { while (true) serve(((TcpListener)ref.val).accept) } catch (Err e) {}
+      return null
+    }.send(null)
+  }
+
+  const MqttVersion version
+
+  const Int port
+
+  ** Set the session present flag in CONNACK
+  const AtomicBool sessionPresent := AtomicBool(false)
+
+  ** Answer SUBSCRIBE with SUBACK
+  const AtomicBool ackSub := AtomicBool(true)
+
+  ** Answer PUBLISH with PUBACK or PUBREC
+  const AtomicBool ackPub := AtomicBool(true)
+
+  ** Answer PUBREL with PUBCOMP
+  const AtomicBool ackRel := AtomicBool(true)
+
+  ** Reason code to send in PUBREC (5.0 only)
+  const AtomicInt pubRecReason := AtomicInt(0)
+
+  ** Stop reading from the client
+  const AtomicBool stall := AtomicBool(false)
+
+  private const Unsafe listenerRef
+
+  private const ActorPool pool := ActorPool()
+
+  private const AtomicRef socketRef := AtomicRef(null)
+
+  private const AtomicRef receivedRef := AtomicRef(Str#.emptyList)
+
+  Uri uri() { `mqtt://127.0.0.1:${port}` }
+
+  ** Packets received in order, except PINGREQ. A PUBLISH is recorded
+  ** with its payload and whether the DUP flag was set.
+  Str[] received() { receivedRef.val }
+
+  ** Number of packets received which start with the given prefix
+  Int count(Str prefix) { received.findAll { it.startsWith(prefix) }.size }
+
+  ** Drop the current client connection
+  Void drop() { ((TcpSocket)((Unsafe)socketRef.val).val).close }
+
+  Void close()
+  {
+    ((TcpListener)listenerRef.val).close
+    pool.kill
+  }
+
+  private Void serve(TcpSocket socket)
+  {
+    socketRef.val = Unsafe(socket)
+    in  := socket.in
+    out := socket.out
+    v5  := version.is5
+    try
+    {
+      while (true)
+      {
+        if (stall.val) { Actor.sleep(100ms); continue }
+        byte1 := in.readU1
+        type  := byte1.shiftr(4)
+        flags := byte1.and(0x0f)
+        len   := 0; mult := 1
+        while (true)
+        {
+          b := in.readU1
+          len += b.and(0x7f) * mult; mult *= 128
+          if (b.and(0x80) == 0) break
+        }
+        body := in.readBufFully(null, len)
+        if (type == 1)
+        {
+          // 5.0 CONNACK grants a receive maximum of one
+          record("connect")
+          sp := sessionPresent.val ? 1 : 0
+          if (v5) out.write(0x20).write(0x06).write(sp).write(0x00).write(0x03).write(0x21).writeI2(1).flush
+          else out.write(0x20).write(0x02).write(sp).write(0x00).flush
+        }
+        else if (type == 3)
+        {
+          qos := flags.shiftr(1).and(0x03)
+          body.readChars(body.readU2)
+          pid := qos > 0 ? body.readU2 : 0
+          if (v5) body.seek(body.pos + 1 + body.read)
+          record("publish ${body.readAllStr}" + (flags.and(0x08) != 0 ? " dup" : ""))
+          if (!ackPub.val) continue
+          if (qos == 1) out.write(0x40).write(0x02).writeI2(pid).flush
+          else if (qos == 2 && v5) out.write(0x50).write(0x03).writeI2(pid).write(pubRecReason.val).flush
+          else if (qos == 2) out.write(0x50).write(0x02).writeI2(pid).flush
+        }
+        else if (type == 6)
+        {
+          record("pubrel")
+          if (ackRel.val) out.write(0x70).write(0x02).writeI2(body.readU2).flush
+        }
+        else if (type == 8)
+        {
+          record("subscribe")
+          if (!ackSub.val) continue
+          if (v5) out.write(0x90).write(0x04).writeI2(body.readU2).write(0x00).write(0x00).flush
+          else out.write(0x90).write(0x03).writeI2(body.readU2).write(0x00).flush
+        }
+        else if (type == 12) out.write(0xd0).write(0x00).flush
+      }
+    }
+    catch (Err e) {}
+    finally socket.close
+  }
+
+  private Void record(Str packet)
+  {
+    receivedRef.val = received.dup.add(packet).toImmutable
   }
 }

@@ -50,10 +50,11 @@ internal class ClientPublishHandler : ClientHandler
       return reject("A publish packet sent to a server must not contain a subscription identifier: $packet.msg.props")
     }
 
-    // QoS 0 - fire and forget
+    // QoS 0 - fire and forget; the future completes when the packet is
+    // written, but the client actor does not block on the network
     if (packet.qos.isZero)
     {
-      return client.packetWriter.sendSync(packet)
+      return client.packetWriter.send(packet)
     }
 
     // check quota
@@ -121,10 +122,16 @@ internal class ClientPublishHandler : ClientHandler
     //
     // I think this is a correct interpretation of the spec:
     // short-circuit if the pubrec is an error
-    if (packet.isErr) return pending.resp.completeErr(toErr(packet))
+    if (packet.isErr)
+    {
+      client.finishPending(pending)
+      pending.resp.completeErr(toErr(packet))
+      return
+    }
 
     // store the PUBREL message ack
     ack := PubRel(packet.pid)
+    ack.packetVersionRef.val = this.version
     key = pubrelKey(ack)
     db.put(key, ack)
 
@@ -169,6 +176,7 @@ internal class ClientPublishHandler : ClientHandler
     else if (packet.qos === QoS.two)
     {
       ack := PubRec(packet.pid)
+      ack.packetVersionRef.val = this.version
       key := pubrecKey(packet)
 
       // only store and deliver the packet if this is the first time
@@ -224,6 +232,7 @@ internal class ClientPublishHandler : ClientHandler
           // mark that we are sending a duplicate packet
           packet.markDup
           client.sendPacket(packet, PendingAck(packet, key))
+          client.quota.decrement
         }
         catch (Err err)
         {

@@ -29,15 +29,6 @@ internal const class PacketWriterActor : DataCodec
   private const MqttClient client
   private const MqttVersion version
   private const Actor actor
-  private MqttTransport transport() { client.transport }
-
-  ** Blocking send. Do not return until this packet has been sent over the network.
-  Future sendSync(ControlPacket packet)
-  {
-    f := send(packet)
-    try { f.get } catch (Err ignore) { }
-    return f
-  }
 
   ** Send the packet async.
   Future send(ControlPacket packet)
@@ -58,6 +49,9 @@ internal const class PacketWriterActor : DataCodec
     packet := msg.a as ControlPacket
     buf    := msg.b as Buf
 
+    // packets still queued after a disconnect just fail
+    transport := client.transport ?: throw IOErr("Not connected")
+
     try
     {
       // trace
@@ -75,6 +69,7 @@ internal const class PacketWriterActor : DataCodec
     catch (Err err)
     {
       client.log.err("Failed to write packet $packet.type", err)
+      throw err
     }
 
     return packet

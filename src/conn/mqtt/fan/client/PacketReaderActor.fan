@@ -26,18 +26,18 @@ internal const class PacketReaderActor : Actor, DataCodec
   private const MqttClient client
 
   private Log log() { client.log }
-  private MqttTransport? transport() { client.transport }
 
 //////////////////////////////////////////////////////////////////////////
 // Actor
 //////////////////////////////////////////////////////////////////////////
 
+  ** The message is the transport to read from wrapped as Unsafe
   protected override Obj? receive(Obj? obj)
   {
     try
     {
       // if receive failed exit receive loop
-      if (!doReceive) return null
+      if (!doReceive(((Unsafe)obj).val)) return null
     }
     catch (Err err)
     {
@@ -46,11 +46,11 @@ internal const class PacketReaderActor : Actor, DataCodec
       log.err("Packet.read", err)
     }
 
-    send("loop")
+    send(obj)
     return null
   }
 
-  private Bool doReceive()
+  private Bool doReceive(MqttTransport transport)
   {
     // allocate reusable buffer
     buf := Actor.locals["buf"] as Buf
@@ -73,9 +73,9 @@ internal const class PacketReaderActor : Actor, DataCodec
     }
     catch (Err err)
     {
-      // the transport is no longer usable so exit the receive loop;
-      // shutdown the client unless it already closed the transport
-      if (!(transport?.isClosed ?: true)) client.shutdown(err)
+      // the transport is no longer usable so exit the receive loop; shutdown
+      // the client unless it closed or replaced the transport already
+      if (transport === client.transport && !transport.isClosed) client.shutdown(err)
       return false
     }
 
