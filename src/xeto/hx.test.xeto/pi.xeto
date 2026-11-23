@@ -42,6 +42,7 @@ PiTestLegacy: Dict <icon:"tag", text:"Legacy">
   abbr: "TA"
   pointDis: "{a}"
   inputType: PiTestC
+  cell: PiTestB
   tw: "font-bold"
 }
 

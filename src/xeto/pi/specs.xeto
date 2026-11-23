@@ -34,6 +34,11 @@ Pi: Dict {
   // Tailwind CSS class list
   tw: Str? <nodoc>
 
+  // Widget which draws a value of this type as a cell: one compact
+  // line such as a list row, tree node, tab or table cell.  It must
+  // be a subtype of `ion::ItemRenderer`.
+  cell: Ref? <of:Spec>
+
   // TODO - temp shim until we switch to sketches
   inputType: Ref? <of:Spec>
 

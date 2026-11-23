@@ -40,6 +40,12 @@ const mixin Pi
   ** Tailwind CSS class list
   @NoDoc abstract Str? tw()
 
+  ** Widget which draws a value of this type as a cell: one compact
+  ** line such as a list row, tree node, tab or table cell.  It must
+  ** be a subtype of `ion::ItemRenderer`.
+  @NoDoc abstract Spec? cell()
+
   ** Spec of input widget; temp shim until inputs switch to sketches
   @NoDoc abstract Spec? inputType()
 }
+

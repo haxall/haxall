@@ -63,7 +63,7 @@ if (opts.has("id")) throw UnsupportedErr("id opt no longer supported")
     // interface bound to a type with a default value
     if (spec.isInterface)
     {
-      defVal := spec.fantomType.field("defVal", false)
+      defVal := spec.fantomType.field("defVal", false) ?: spec.fantomType.field("nullVal", false)
       if (defVal != null && defVal.isStatic) return defVal.get
     }
 
