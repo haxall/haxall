@@ -100,6 +100,7 @@ internal const class MqttSubscription : Subscription
   {
     this.connRef = config["obsMqttConnRef"]
     this.filter  = config["obsMqttTopic"]
+    this.qos     = (config["mqttQos"] as Number)?.toInt ?: 0
   }
 
   ** MQTT connector ref
@@ -107,6 +108,9 @@ internal const class MqttSubscription : Subscription
 
   ** Configured topic filter
   const Str filter
+
+  ** Configured maximum QoS
+  const Int qos
 
   ** Does this subscription match the given topic
   Bool accept(Str topic) { Topic.matches(topic, filter) }

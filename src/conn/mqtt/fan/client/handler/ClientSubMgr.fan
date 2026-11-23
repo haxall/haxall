@@ -78,13 +78,19 @@ internal class ClientSubMgr : ClientHandler
   {
     // notify listeners about the subscription status
     subscribe := (Subscribe)pending.req
+    ReasonCode? failed
     subscribe.topics.each |topic, i|
     {
+      reason := ack.returnCodes.getSafe(i) ?: ReasonCode.unspecified_error
+      if (reason.isErr) failed = reason
       try
-        topics[topic]?.onSubscribed(topic, ack.returnCodes[i], ack.props)
+        topics[topic]?.onSubscribed(topic, reason, ack.props)
       catch (Err err)
         log.err("onSubscribed callback failed", err)
     }
+
+    // the server did not make the subscription
+    if (failed != null) pending.resp.completeErr(MqttErr.makeReason(failed))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,6 +111,11 @@ internal class ClientSubMgr : ClientHandler
       else aliases[alias] = topicName
     }
     if (topicName.isEmpty) { log.err("Publish has no topic name or known topic alias: ${alias}"); return }
+
+    try
+      clientConfig.onMessage?.call(topicName, packet.msg)
+    catch (Err err)
+      log.err("Delivery of ${topicName} failed", err)
 
     topics.each |listener, filter|
     {

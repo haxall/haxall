@@ -19,7 +19,7 @@ using folio
 **
 ** Dispatch callbacks for the MQTT connector
 **
-class MqttDispatch : ConnDispatch, ClientListener
+class MqttDispatch : ConnDispatch
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@ class MqttDispatch : ConnDispatch, ClientListener
   private static const HxMsg resubMsg := HxMsg("mqtt.resub")
 
   protected MqttClient? client
+
+  ** Topic filters subscribed on the current client mapped to their QoS
+  private Str:Int subscribed := [:]
 
   protected MqttExt mqttLib() { ext }
 
@@ -44,6 +47,14 @@ class MqttDispatch : ConnDispatch, ClientListener
     uriVal   := rec["uri"] ?: throw FaultErr("Missing 'uri' tag")
     verVal   := MqttVersion.fromStr(rec["mqttVersion"] ?: "v3_1_1")
     clientId := toClientId
+
+    // route every message to the observable, which delivers it to the
+    // matching subscriptions; this includes messages the broker queued
+    // for our session that arrive before we resubscribe
+    obs       := mqttLib.mqtt
+    connId    := id
+    onMessage := |Str topic, Message msg| { obs.deliver(connId, topic, msg) }
+
     config := ClientConfig
     {
       it.serverUri     = uriVal
@@ -51,6 +62,7 @@ class MqttDispatch : ConnDispatch, ClientListener
       it.clientId      = clientId
       it.maxRetry      = (rec.get("mqttMaxRetry") ?: Number.zero)->toInt
       it.retryInterval = (rec.get("mqttRetryInterval") ?: Number(10sec))->toDuration
+      it.onMessage     = onMessage
       it.socketConfig  = SocketConfig.cur.copy {
         it.keystore       = this.mqttKey
         it.connectTimeout = 10sec
@@ -58,8 +70,9 @@ class MqttDispatch : ConnDispatch, ClientListener
         it.tlsParams      = ["appProtocols": this.appProtocols]
       }
     }
+    this.subscribed.clear
     this.client = MqttClient(config, trace.asLog)
-    client.addListener(this)
+    client.addListener(MqttConnListener(conn, client))
 
     try
     {
@@ -73,7 +86,8 @@ class MqttDispatch : ConnDispatch, ClientListener
         it.password = db.passwords.get(id.toStr)?.toBuf
       }
 
-      client.connect(resume).get(10sec)
+      // wait longer than the client so that its error is the one reported
+      client.connect(resume).get(config.mqttConnectTimeout + 5sec)
     }
     catch (Err err)
     {
@@ -85,17 +99,11 @@ class MqttDispatch : ConnDispatch, ClientListener
     conn.send(resubMsg)
   }
 
-  // MqttClient callback
-  override Void onDisconnected(Err? err)
-  {
-    this.close(err)
-  }
-
   override Void onClose()
   {
     try
     {
-      client?.disconnect?.get
+      client?.disconnect?.get(15sec)
     }
     catch (Err ignore) { }
     finally
@@ -108,6 +116,7 @@ class MqttDispatch : ConnDispatch, ClientListener
   {
     client?.terminate
     client = null
+    subscribed.clear
   }
 
   override Dict onPing()
@@ -127,6 +136,7 @@ class MqttDispatch : ConnDispatch, ClientListener
       case "mqtt.sub":   return onSub(toConfig(msg.a))
       case "mqtt.resub": return onResub
       case "mqtt.unsub": return onUnsub(msg.a)
+      case "mqtt.disconnected": return onDisconnected(msg.a, msg.b)
     }
     return super.onReceive(msg)
   }
@@ -134,15 +144,24 @@ class MqttDispatch : ConnDispatch, ClientListener
   private Obj? onPub(Str topic, Buf payload, Dict cfg)
   {
     open
-    return client.publishWith
+    client.publishWith
       .topic(topic)
       .payload(payload)
-      .qos((cfg["mqttQos"] as Number)?.toInt ?: Number.zero)
+      .qos(((Number)cfg["mqttQos"]).toInt)
       .retain((cfg["mqttRetain"] as Bool) == true)
       .expiryInterval((cfg["mqttExpiryInterval"] as Number)?.toDuration)
       .userProps(userPropsFromDict(cfg["mqttUserProps"] as Dict))
       .send
       .get
+    return null
+  }
+
+  ** The client lost its connection to the broker
+  private Obj? onDisconnected(MqttClient client, Err? err)
+  {
+    // ignore a client we already closed
+    if (client === this.client) close(err)
+    return null
   }
 
   private Obj? onSub(Dict cfg)
@@ -151,45 +170,51 @@ class MqttDispatch : ConnDispatch, ClientListener
     filter := cfg["obsMqttTopic"] as Str ?: throw Err("obsMqttTopic not configured")
     qos := cfg["mqttQos"] as Number ?: throw Err("mqttQos not configured")
 
-    // subscribe
+    // a new subscription always sends SUBSCRIBE so that it receives
+    // retained messages; if the open failed we resubscribe on reopen
     openPin("mqtt.sub")
-    try
-    {
-      ack := client.subscribeWith
-        .topicFilter(filter)
-        .qos(qos.toInt)
-        .onMessage(this.onMessage)
-        .send
-        .get
-
-      return ack
-    }
-    catch (Err err)
-    {
-      trace.asLog.err("Failed to subscribe to ${cfg}", err)
-      throw err
-    }
+    if (client == null) return null
+    subscribe(filter, qos.toInt.max(filters[filter] ?: 0))
+    return null
   }
 
   private Obj? onResub()
   {
-    mqttLib.mqtt.subscriptions.each |MqttSubscription sub|
+    filters.each |qos, filter|
     {
-      // only re-subscribe subscriptions for this connector
-      if (sub.connRef == conn.id)
-      {
-        try
-          onSub(toConfig(sub.config))
-        catch (Err err)
-          trace.asLog.err("Failed to subscribe to ${sub.config}", err)
-      }
+      // skip filters subscribed since this client was opened
+      if ((subscribed[filter] ?: -1) >= qos) return
+      try { subscribe(filter, qos) } catch (Err err) { /* already traced */ }
     }
     return null
   }
 
-  ** All subscriptions share this onMessage handler which routes all published
-  ** messages to the observable to deliver them to the appropriate task subscriptions
-  private |Str, Message| onMessage := |topic, msg| { mqttLib.mqtt.deliver(id, topic, msg) }
+  ** Topic filters of this connector's subscriptions mapped to the
+  ** highest QoS any of them requests. The broker and client track one
+  ** subscription per filter.
+  private Str:Int filters()
+  {
+    acc := Str:Int[:] { ordered = true }
+    mqttLib.mqtt.subscriptions.each |MqttSubscription sub|
+    {
+      if (sub.connRef == id) acc[sub.filter] = sub.qos.max(acc[sub.filter] ?: 0)
+    }
+    return acc
+  }
+
+  private Void subscribe(Str filter, Int qos)
+  {
+    try
+    {
+      client.subscribeWith.topicFilter(filter).qos(qos).send.get
+      subscribed[filter] = qos
+    }
+    catch (Err err)
+    {
+      trace.asLog.err("Failed to subscribe to ${filter}", err)
+      throw err
+    }
+  }
 
   private Obj? onUnsub(MqttSubscription sub)
   {
@@ -199,7 +224,9 @@ class MqttDispatch : ConnDispatch, ClientListener
 
     try
     {
-      return open.client.unsubscribe(sub.filter).get
+      open.client.unsubscribe(sub.filter).get
+      subscribed.remove(sub.filter)
+      return null
     }
     catch (Err err)
     {
@@ -259,7 +286,7 @@ class MqttDispatch : ConnDispatch, ClientListener
   {
     alias := rec["mqttCertAlias"] as Str
     if (alias == null) return null
-    entry := ext.sys.crypto.keystore.get(alias) as PrivKeyEntry
+    entry := ext.sys.crypto.keystore.get(alias) as PrivKeyEntry ?: throw FaultErr("mqttCertAlias is not a private key: ${alias}")
     return Crypto.cur.loadKeyStore.set("mqtt", entry)
   }
 
@@ -288,3 +315,27 @@ class MqttDispatch : ConnDispatch, ClientListener
   }
 }
 
+**************************************************************************
+** MqttConnListener
+**************************************************************************
+
+**
+** Routes client disconnects to the connector actor
+**
+internal const class MqttConnListener : ClientListener
+{
+  new make(Conn conn, MqttClient client)
+  {
+    this.conn   = conn
+    this.client = client
+  }
+
+  const Conn conn
+
+  const MqttClient client
+
+  override Void onDisconnected(Err? err)
+  {
+    conn.send(HxMsg("mqtt.disconnected", client, err))
+  }
+}

@@ -8,6 +8,10 @@
 
 // MQTT connector to an MQTT Broker.
 MqttConn: Conn {
+  // Application protocols to use for TLS ALPN negotiation with the
+  // broker. May be a Str or a list of Str.
+  mqttAppProtocols: Obj?
+
   // Used on an [MqttConn.mqttConn] to indicate which certificate and key pair to use
   // for client authentication to the broker.
   mqttCertAlias: Str?
@@ -26,6 +30,11 @@ MqttConn: Conn {
 
   // How long to wait between retries for messages that require acknowlegment
   mqttRetryInterval: Duration?
+
+  // How long the broker keeps the session after the network connection is
+  // closed. If not set the session ends when the connection is closed. Use
+  // '-1sec' for a session that never expires. Applies to MQTT 5.0 only.
+  mqttSessionExpiryInterval: Duration?
 
   // MQTT protocol version
   mqttVersion: MqttVersion?

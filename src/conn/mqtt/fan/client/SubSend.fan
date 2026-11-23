@@ -145,7 +145,8 @@ final class SubSend
 //////////////////////////////////////////////////////////////////////////
 
   ** Build and send the subscribe packet. A future is returned that will be
-  ** completed when the `SUBACK` is received.
+  ** completed when the `SUBACK` is received. It is completed with an
+  ** error if the server rejects the subscription.
   Future send()
   {
     if (_topicFilter == null) throw ArgErr("Topic filter not set")

@@ -64,6 +64,21 @@ doc:
   Used on an `mqttConn` to indicate which certificate and key pair to use
   for client authentication to the broker.
 --------------------------------------------------------------------------
+def: ^mqttAppProtocols
+is: ^str
+tagOn: ^mqttConn
+doc:
+  Application protocols to use for TLS ALPN negotiation with the broker.
+  May be a Str or a list of Str.
+--------------------------------------------------------------------------
+def: ^mqttSessionExpiryInterval
+is: ^duration
+tagOn: ^mqttConn
+doc:
+  How long the broker keeps the session after the network connection is
+  closed. If not set the session ends when the connection is closed. Use
+  '-1sec' for a session that never expires. Applies to MQTT 5.0 only.
+--------------------------------------------------------------------------
 defx: ^uri
 tagOn: ^mqttConn
 --------------------------------------------------------------------------

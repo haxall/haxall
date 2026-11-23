@@ -30,7 +30,7 @@ dis: "MQTT Connector"
 conn
 mqttConn
 uri: `mqtt://192.168.10.1/`
-mqttVersion: "v3.1.1"
+mqttVersion: "v3_1_1"
 mqttClientId: "MqttTestClient"
 ```
 
@@ -82,7 +82,7 @@ using ALPN you might set up a connector like this
 ```
 mqttConn
 uri: `mqtts://foo-ats.iot.eu-west-1.amazonaws.com:443`
-mqttVersion: "v3.1.1"
+mqttVersion: "v3_1_1"
 mqttCertAlias: "myMqttClient"
 mqttClientId: "MyAwsThing"
 mqttAppProtocols: "x-amzn-mqtt-ca"

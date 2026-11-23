@@ -207,6 +207,7 @@ const class MqttClient : Actor, MqttConst
   ** subscribing.
   **
   ** Return a future that will be completed when the `SUBACK` is received.
+  ** It is completed with an error if the server rejects the subscription.
   Future subscribe(Str filter, Int opts, SubscriptionListener listener)
   {
     sub := Subscribe([filter], [opts])
@@ -244,7 +245,11 @@ const class MqttClient : Actor, MqttConst
     this.terminated.val = true
     try
     {
-      this.onShutdown
+      // shutdown on the client actor; force it if the actor does not respond
+      try
+        this.shutdown.get(5sec)
+      catch (Err err)
+        this.onShutdown
     }
     finally
     {
