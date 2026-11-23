@@ -187,7 +187,7 @@ const class Properties
       case Property.receiveMax:
       case Property.topicAlias:
         // fall-through
-        ok = val != 0
+        ok = ok && val != 0
 
       case Property.maxQoS:
       case Property.payloadFormatIndicator:
@@ -196,10 +196,10 @@ const class Properties
       case Property.subscriptionIdsAvailable:
       case Property.wildcardSubscriptionAvailable:
         // fall-through
-        ok = val == 0 || val == 1
+        ok = ok && (val == 0 || val == 1)
 
       case Property.subscriptionId:
-        ok = MqttConst.minSubId <= val && val <= MqttConst.maxSubId
+        ok = ok && MqttConst.minSubId <= val && val <= MqttConst.maxSubId
     }
 
     if (!ok) throw ArgErr("Value out-of-range for $prop: $val")

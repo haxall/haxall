@@ -25,14 +25,17 @@ class TopicTest : Test
   Void testFilters()
   {
     ["#", "sport/tennis/player1/#", "sport/#",
-     "+", "+/tennis/#", "sport/+/player1", "+/+", "/+"].each |filter|
+     "+", "+/tennis/#", "sport/+/player1", "+/+", "/+",
+     "\$share/g/a/b", "\$share/g/#", "\$share/g/+/b", "\$share/g//a"].each |filter|
     {
       Topic.validateFilter(filter)
       verify(true)
     }
 
     ["sport/tennis#", "sport/tennis/#/ranking",
-     "sport+", "+sport", "sp+ort", "s+/", "/+sport"].each |filter|
+     "sport+", "+sport", "sp+ort", "s+/", "/+sport",
+     "\$share/g", "\$share/g/", "\$share//a", "\$share/+/a", "\$share/g#/a",
+     "\$share/g/a#"].each |filter|
     {
       verifyErr(MqttErr#) { Topic.validateFilter(filter) }
     }
@@ -60,5 +63,28 @@ class TopicTest : Test
     verifyFalse(Topic.matches("sport", "sport/+"))
     verifyFalse(Topic.matches("/test1/foo", "/test2/#"))
     verifyFalse(Topic.matches("/test1", "/test2"))
+
+    // whitespace is significant
+    verify(Topic.matches("a/ b", "a/ b"))
+    verify(Topic.matches("a/ b", "a/+"))
+    verifyFalse(Topic.matches("a/ b", "a/b"))
+    verifyFalse(Topic.matches("a/b ", "a/b"))
+    verifyFalse(Topic.matches(" a/b/c", "a/+/c"))
+
+    // wildcards in the first level do not match '$' topics
+    verifyFalse(Topic.matches("\$SYS/broker/uptime", "#"))
+    verifyFalse(Topic.matches("\$SYS/broker/uptime", "+/broker/uptime"))
+    verifyFalse(Topic.matches("\$SYS", "+"))
+    verify(Topic.matches("\$SYS/broker/uptime", "\$SYS/#"))
+    verify(Topic.matches("\$SYS/broker/uptime", "\$SYS/+/uptime"))
+    verify(Topic.matches("a/\$b", "a/+"))
+
+    // shared subscriptions match on their topic filter
+    verify(Topic.matches("a/b", "\$share/g/a/b"))
+    verify(Topic.matches("a/b", "\$share/g/a/+"))
+    verify(Topic.matches("a/b/c", "\$share/g/#"))
+    verifyFalse(Topic.matches("a/c", "\$share/g/a/b"))
+    verifyFalse(Topic.matches("g/a/b", "\$share/g/a/b"))
+    verifyFalse(Topic.matches("\$SYS/x", "\$share/g/#"))
   }
 }

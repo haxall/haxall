@@ -15,6 +15,7 @@ const class Topic
   private static const Int multi   := '#'
   private static const Int single  := '+'
   private static const Int max_len := 65_535
+  private static const Str share   := "\$share/"
 
   ** Validate that this is a valid topic name - it must not contain
   ** any wildcard characters. Returns the name.
@@ -30,6 +31,17 @@ const class Topic
   static Str validateFilter(Str topic)
   {
     validateNameOrFilter(topic)
+
+    // shared subscription: $share/{name}/{filter} [MQTT5-4.8.2-1], [MQTT5-4.8.2-2]
+    if (topic.startsWith(share))
+    {
+      i := topic.index("/", share.size) ?: throw MqttErr("A shared subscription must have a share name and topic filter: ${topic}")
+      name := topic[share.size..<i]
+      if (name.isEmpty || name.any |ch| { ch == multi || ch == single })
+        throw MqttErr("Invalid share name: ${topic}")
+      validateFilter(topic[i+1..-1])
+      return topic
+    }
 
     pos       := -1
     Int? prev := null
@@ -72,24 +84,26 @@ const class Topic
     if (val.toBuf.size > max_len) throw MqttErr("Topic names and filters must be no more than ${max_len} bytes")
   }
 
-  ** Return true if the topic matches the filter.
+  ** Return true if the topic name matches the topic filter. The name and
+  ** filter are not validated; see `validateName` and `validateFilter`.
   static Bool matches(Str topic, Str filter)
   {
-    try
+    // a shared subscription matches on its topic filter
+    if (filter.startsWith(share))
     {
-      validateName(topic)
-      validateFilter(filter)
-    }
-    catch (Err err)
-    {
-      return false
+      slash := filter.index("/", share.size)
+      if (slash != null) filter = filter[slash+1..-1]
     }
 
     // quick check for exact match
     if (topic == filter) return true
 
-    tparts := topic.split(sep)
-    fparts := filter.split(sep)
+    // a filter starting with a wildcard does not match
+    // topic names beginning with '$' [MQTT-4.7.2-1]
+    if (topic.startsWith("\$") && (filter.startsWith("#") || filter.startsWith("+"))) return false
+
+    tparts := topic.split(sep, false)
+    fparts := filter.split(sep, false)
     i := 0
     while (i < tparts.size)
     {

@@ -49,6 +49,7 @@ internal const class MqttObservable : Observable
   protected override Subscription onSubscribe(Observer observer, Dict config)
   {
     connRef := config["obsMqttConnRef"] as Ref ?: throw Err("obsMqttConnRef not configured")
+    Topic.validateFilter(config["obsMqttTopic"] as Str ?: throw Err("obsMqttTopic not configured"))
     conn    := ext.conn(connRef)
     // subscribe async
     conn.send(HxMsg("mqtt.sub", config))

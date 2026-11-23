@@ -13,6 +13,7 @@ using haystack
 using obs
 using hx
 using hxConn
+using mqtt
 
 **
 ** MqttDispatchTest
@@ -49,6 +50,20 @@ class MqttDispatchTest : HxTest
       verifyEq(broker.unsubs, ["a/b"])
     }
     finally broker.close
+  }
+
+  @HxTestProj
+  Void testInvalidFilter()
+  {
+    ext := (MqttExt)addExt("hx.mqtt")
+    rec := addRec(["dis":"MQTT", "mqttConn":m, "uri":`mqtt://127.0.0.1:1`])
+    proj.sync
+    obs := ext.observables.first
+
+    // invalid or missing topic filter fails the subscribe
+    verifyErr(MqttErr#) { obs.subscribe(TestObserver(), Etc.makeDict(["obsMqtt":m, "obsMqttConnRef":rec.id, "obsMqttTopic":"a/#/b"])) }
+    verifyErr(Err#) { obs.subscribe(TestObserver(), Etc.makeDict(["obsMqtt":m, "obsMqttConnRef":rec.id])) }
+    verifyEq(obs.subscriptions.size, 0)
   }
 }
 

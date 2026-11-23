@@ -104,17 +104,18 @@ internal class ClientSubMgr : ClientHandler
       if (topicName.isEmpty) topicName = aliases[alias] ?: ""
       else aliases[alias] = topicName
     }
+    if (topicName.isEmpty) { log.err("Publish has no topic name or known topic alias: ${alias}"); return }
 
     topics.each |listener, filter|
     {
       try
       {
         if (!Topic.matches(topicName, filter)) return
-        listener.onMessage(packet.topicName, packet.msg)
+        listener.onMessage(topicName, packet.msg)
       }
       catch (Err err)
       {
-        log.err("Delivery of $packet.topicName to $filter failed", err)
+        log.err("Delivery of ${topicName} to ${filter} failed", err)
       }
     }
   }
