@@ -40,7 +40,7 @@ mixin DataCodec
   ** Read an unsigned byte
   static Int readByte(Obj in)
   {
-    toIn(in).read
+    toIn(in).read ?: throw IOErr("Unexpected end of stream")
   }
 
   ** Write a 2-byte unsigned integer
@@ -91,7 +91,7 @@ mixin DataCodec
     value      := 0
     while (true)
     {
-      byte := in.read
+      byte := in.read ?: throw IOErr("Unexpected end of stream")
       value += byte.and(127) * multiplier
       if (multiplier > 128*128*128)
         throw IOErr("Malformed Variable Byte Integer")

@@ -57,13 +57,13 @@ internal const class PacketReaderActor : Actor, DataCodec
     if (buf == null) Actor.locals["buf"] = buf = Buf(4096)
     buf.clear
 
-    // read raw buf from transport, on error shutdown the client
+    // read raw buf from transport
     try
     {
       in := transport.in
 
       // fixed header
-      writeByte(readByte(in), buf)
+      writeByte(in.read ?: throw IOErr("Connection closed by broker"), buf)
       len := readVbi(in)
       writeVbi(len, buf)
 
@@ -73,9 +73,10 @@ internal const class PacketReaderActor : Actor, DataCodec
     }
     catch (Err err)
     {
-      if (transport?.isClosed ?: true) return false
-      client.shutdown(err)
-      throw err
+      // the transport is no longer usable so exit the receive loop;
+      // shutdown the client unless it already closed the transport
+      if (!(transport?.isClosed ?: true)) client.shutdown(err)
+      return false
     }
 
     // decode the control packet

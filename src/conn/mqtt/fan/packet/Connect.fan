@@ -145,11 +145,13 @@ internal const class ConnAck : ControlPacket
     ackFlags := readByte(in)
     this.isSessionPresent = ackFlags.and(0x01) != 0
     if (ackFlags.and(0b1111_1110) != 0) throw MqttErr("Invalid ack flags: ${ackFlags.toRadix(2,8)}")
-    this.reason = ReasonCode.fromCode(readByte(in), this.type)
+    code := readByte(in)
     if (version.is5)
     {
-      this.props = readProps(in)
+      this.reason = ReasonCode.fromCode(code, this.type)
+      this.props  = readProps(in)
     }
+    else this.reason = ReasonCode.fromConnAckV3(code)
   }
 
   override const PacketType type := PacketType.connack

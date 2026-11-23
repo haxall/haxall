@@ -22,32 +22,45 @@ internal class ClientConnectHandler : ClientHandler
 
   Future run()
   {
-    // establish network connection
-    openTransport
-
-    // disconnected => connecting (logical MQTT connection)
+    // disconnected => connecting (logical MQTT connection); this must be
+    // first so we never open a transport on top of a live connection
     client.transition(ClientState.disconnected, ClientState.connecting)
 
-    // force config version to match client
-    config.versionRef.val = clientConfig.version
+    try
+    {
+      // establish network connection
+      openTransport
 
-    // Update connect packet based on client configuration
-    // - set the version
-    // - set the client identifier
-    // - validate the connect state
-    packet := config.packet(clientConfig.clientId).validate
+      // force config version to match client
+      config.versionRef.val = clientConfig.version
 
-    // create pending request for the connect and send the packet
-    client.pendingConnectRef.val = PendingConn(packet)
+      // Update connect packet based on client configuration
+      // - set the version
+      // - set the client identifier
+      // - validate the connect state
+      packet := config.packet(clientConfig.clientId).validate
 
-    // send our CONNECT packet
-    client.packetWriter.send(packet)
+      // create pending request for the connect and send the packet
+      client.pendingConnectRef.val = PendingConn(packet)
 
-    // start housekeeping
-    client.sendLater(1sec, MqttClient.housekeeping)
+      // send our CONNECT packet
+      client.packetWriter.send(packet)
 
-    // start receiving packets
-    client.packetReader.send("loop")
+      // start housekeeping
+      client.sendLater(1sec, MqttClient.housekeeping)
+
+      // start receiving packets
+      client.packetReader.send("loop")
+    }
+    catch (Err err)
+    {
+      // the connect never completed so return to the disconnected state
+      client.transport?.close
+      client.transportRef.val = null
+      client.stateRef.val = ClientState.disconnected
+      if (!client.pendingConnect.isComplete) client.pendingConnect.resp.completeErr(err)
+      throw err
+    }
 
     // we don't transition to the connected state until we receive a CONNACK
 

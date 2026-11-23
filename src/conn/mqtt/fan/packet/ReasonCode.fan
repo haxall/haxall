@@ -20,7 +20,6 @@ enum class ReasonCode
   granted_qos1(1, [PT.suback]),
   granted_qos2(2, [PT.suback]),
   disconnect_with_will_message(4, [PT.disconnect]),
-  not_authorized_v3(5, [PT.connack]),
   no_matching_subscribers(16, [PT.puback, PT.pubrec]),
   no_subscription_existed(17, [PT.unsuback]),
   continue_auth(24, [PT.auth]),
@@ -87,13 +86,27 @@ enum class ReasonCode
       case client_identifier_not_valid:  return 2
       case server_unavailable:           return 3
       case bad_username_or_password:     return 4
-      case not_authorized_v3:            return 5
       case not_authorized:               return 5
 
       // SUBACK
       case unspecified_error:            return 8
     }
     throw MqttErr("${this} ($code) does not map to a 3.1.1 reason code")
+  }
+
+  ** Map an MQTT 3.1.1 CONNACK return code to its reason code
+  static ReasonCode fromConnAckV3(Int code)
+  {
+    switch (code)
+    {
+      case 0: return success
+      case 1: return unsupported_protocol_version
+      case 2: return client_identifier_not_valid
+      case 3: return server_unavailable
+      case 4: return bad_username_or_password
+      case 5: return not_authorized
+    }
+    throw ArgErr("No 3.1.1 connack return code matches ${code}")
   }
 
   static ReasonCode? fromCode(Int code, PT type, Bool checked := true)

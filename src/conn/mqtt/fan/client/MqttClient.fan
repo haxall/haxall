@@ -442,10 +442,8 @@ const class MqttClient : Actor, MqttConst
     if (req.isComplete) return true
     else if ((Duration.nowTicks - req.created ) > config.mqttConnectTimeout.ticks)
     {
-      // timeout
-      req.resp.completeErr(
-        this.onShutdown(TimeoutErr("CONNACK not received within ${config.mqttConnectTimeout.toLocale}"))
-      )
+      // timeout - shutdown completes the pending connect with this error
+      this.onShutdown(TimeoutErr("CONNACK not received within ${config.mqttConnectTimeout.toLocale}"))
     }
     return false
   }
@@ -554,7 +552,9 @@ const class MqttClient : Actor, MqttConst
     subMgr.close
     if (pendingConnect.connect.cleanSession)
     {
-      config.persistence.clear(this.clientId)
+      // the client id is not established until the first CONNACK
+      id := clientIdRef.val as Str
+      if (id != null) config.persistence.clear(id)
       subMgr.clear
     }
 
@@ -597,12 +597,15 @@ const class MqttClient : Actor, MqttConst
   @NoDoc
   Str debugClient()
   {
+    // the CONNACK is only available if the connect succeeded
+    req := pendingConnect
+    props := req.resp.status === FutureStatus.ok ? req.connack.props.toStr : "none"
     s := StrBuf()
     s.add("Mqtt Client\n")
      .add("-----------\n")
      .add("At: ${DateTime.now.toLocale}\n")
      .add("State: $stateRef.val [canMessage=${canMessage}]\n")
-     .add("ConnAck Properties: ${pendingConnect.connack.props}\n")
+     .add("ConnAck Properties: ${props}\n")
      .add("Quota: ${quota}\n")
      .add("Pending Acks: ${pendingAcks.size}")
     return s.toStr
