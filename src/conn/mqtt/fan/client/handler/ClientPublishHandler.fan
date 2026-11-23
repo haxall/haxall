@@ -226,8 +226,6 @@ internal class ClientPublishHandler : ClientHandler
         try
         {
           packet := PersistableControlPacket.fromPersistablePacket(p)
-          // log.info("Resend unacknowledged packet: $packet [$key]")
-
           // mark that we are sending a duplicate packet
           packet.markDup
           client.sendPacket(packet, PendingAck(packet, key))

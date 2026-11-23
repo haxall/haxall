@@ -170,52 +170,6 @@ internal class ClientSubMgr : ClientHandler
 }
 
 **************************************************************************
-** ClientSubscription
-**************************************************************************
-
-// internal class ClientSubscription
-// {
-//   new make(Subscribe packet, SubscriptionListener listener)
-//   {
-//     this.packet   = packet
-//     this.listener = listener
-//   }
-
-//   const Subscribe packet
-//   SubscriptionListener listener { private set }
-// }
-
-// internal const class ClientSubscription_1
-// {
-//   new make(Str topicFilter, Int? id := null)
-//   {
-//     this.topicFilter = topicFilter
-//     this. id = id ?: 0
-//   }
-
-//   const Str topicFilter
-//   const Int id
-
-//   override Int hash()
-//   {
-//     res := 31
-//     res = (31 * res) + topicFilter.hash
-//     res = (31 * res) + id
-//     return res
-//   }
-
-//   overrid Bool equals(Obj? obj)
-//   {
-//     if (this === obj) return true
-//     that := obj as ClientSubscription
-//     if (that == null )return false
-//     if (this.topicFilter != that.topicFilter) return false
-//     if (this.id != that.id) return false
-//     return true
-//   }
-// }
-
-**************************************************************************
 ** SubscriptionListener
 **************************************************************************
 

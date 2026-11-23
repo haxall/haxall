@@ -9,8 +9,8 @@
 using mqtt::PacketType as PT
 
 **
-** MQTT reason codes. These codes are based off the version 5 spec but the code for reasons
-** that have a mapping to 3.1.1 codes can be obtained using `v3()`.
+** MQTT reason codes. These codes are based off the version 5 spec. The 3.1.1
+** CONNACK return codes are mapped to them by `fromConnAckV3`.
 **
 enum class ReasonCode
 {
@@ -74,25 +74,6 @@ enum class ReasonCode
 
   ** Is this an error reason code?
   Bool isErr() { code >= 128 }
-
-  ** Get the MQTT 3.1.1 code
-  Int v3()
-  {
-    if (code == 0) return 0
-    switch (this)
-    {
-      // CONNACK
-      case unsupported_protocol_version: return 1
-      case client_identifier_not_valid:  return 2
-      case server_unavailable:           return 3
-      case bad_username_or_password:     return 4
-      case not_authorized:               return 5
-
-      // SUBACK
-      case unspecified_error:            return 8
-    }
-    throw MqttErr("${this} ($code) does not map to a 3.1.1 reason code")
-  }
 
   ** Map an MQTT 3.1.1 CONNACK return code to its reason code
   static ReasonCode fromConnAckV3(Int code)

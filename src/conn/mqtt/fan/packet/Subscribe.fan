@@ -30,34 +30,6 @@ internal const class Subscribe : ControlPacket
     checkFields
   }
 
-  new decode(Int flags, InStream in, MqttVersion version)
-  {
-    // TODO:FIXIT - throw a better error
-    if (flags != packetFlags) throw MqttErr("Invalid packet flags: ${flags.toRadix(2, 8)}")
-
-    if (version.is5) throw UnsupportedErr("TODO: $version")
-
-    // variable header
-    this.packetId.val = readByte2(in)
-    if (version.is5)
-    {
-      this.props = readProps(in)
-    }
-
-    // payload
-    t := Str[,]
-    o := Int[,]
-    while (in.avail != 0)
-    {
-      t.add(readUtf8(in))
-      o.add(readByte(in))
-    }
-    this.topics = t
-    this.opts   = o
-
-    checkFields
-  }
-
   private Void checkFields()
   {
     if (topics.size != opts.size)
@@ -77,6 +49,12 @@ internal const class Subscribe : ControlPacket
   const Properties props := Properties()
 
   protected override Int packetFlags() { 0x02 }
+
+  protected override Str traceInfo()
+  {
+    bits := opts.map |Int i->Str| { i.toRadix(2, 8) }
+    return " topics=${topics} ${bits}"
+  }
 
   protected override Buf variableHeaderAndPayload(MqttVersion version)
   {

@@ -28,25 +28,6 @@ internal const class Unsubscribe : ControlPacket
     checkFields
   }
 
-  new decode(Int flags, InStream in, MqttVersion version)
-  {
-    if (flags != packetFlags) throw MqttErr("Invalid packet flags: ${flags.toRadix(2,0)}")
-
-    // variable header
-    this.packetId.val = readByte2(in)
-    if (version.is5)
-    {
-      this.props = readProps(in)
-    }
-
-    // payload
-    acc := Str[,]
-    while (in.avail > 0) { acc.add(readUtf8(in)) }
-    this.topics = acc
-
-    checkFields
-  }
-
   private Void checkFields()
   {
     if (topics.isEmpty)

@@ -65,10 +65,6 @@ const class ClientConfig
   ** The persistence layer to use for this client
   const ClientPersistence persistence
 
-  // ** Maximum number of QoS 1 and 2 messages that will be queued for sending
-  // ** above those that are currently in-flight.
-  // const Int maxQueued := 1000
-
   ** Callback for every message the server publishes to this client,
   ** regardless of which subscriptions it matches. This includes messages
   ** for a resumed session that arrive before the client has subscribed.

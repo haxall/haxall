@@ -83,6 +83,10 @@ internal const class Publish : PersistableControlPacket
   ** Convenience to get the message retention flag
   Bool retain() { msg.retain }
 
+  protected override Str traceInfo() { " topic=${topicName} qos=${qos}" }
+
+  protected override Buf? tracePayload() { payload }
+
   protected override Int packetFlags()
   {
     flags := 0
@@ -131,6 +135,14 @@ internal const class Publish : PersistableControlPacket
 enum class QoS
 {
   zero, one, two
+
+  ** Get the QoS for a `QoS` or its Int level
+  static QoS fromObj(Obj qos)
+  {
+    if (qos is QoS) return qos
+    if (qos is Int) return QoS.vals[(Int)qos]
+    throw ArgErr("Cannot set QoS from ${qos} (${qos.typeof})")
+  }
 
   Bool isZero() { this === QoS.zero }
 }

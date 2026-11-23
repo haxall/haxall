@@ -64,9 +64,7 @@ final class PubSend
   ** `qos` may be either [QoS] or an Int.
   This qos(Obj qos)
   {
-    if (qos is Int) qos = QoS.vals[(Int)qos]
-    else if (qos isnot QoS) throw ArgErr("Cannot set QoS from ${qos} ($qos.typeof)")
-    fields[Message#qos] = qos
+    fields[Message#qos] = QoS.fromObj(qos)
     return this
   }
 

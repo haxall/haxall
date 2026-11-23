@@ -31,9 +31,6 @@ const class ConnectConfig
   ** The password
   const Buf? password := null
 
-  ** How long to wait for CONNACK after the CONNECT message is sent
-  const Duration connectTimeout := 10sec
-
   ** The session expiry interval (in seconds).
   ** If set to `0`, the session ends when the network connection is closed.
   ** If set to `0xFFFF_FFFF` the session does not expire.

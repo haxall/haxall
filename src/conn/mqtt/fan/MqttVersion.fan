@@ -16,14 +16,6 @@ enum class MqttVersion
 
   private new make(Int code) { this.code = code }
 
-  static MqttVersion? fromCode(Int code, Bool checked := true)
-  {
-    ver := MqttVersion.vals.find { it.code == code }
-    if (ver != null) return ver
-    if (checked) throw ArgErr("No version matching code: $code")
-    return null
-  }
-
   ** The one byte value that represents the protocol revision.
   const Int code
 

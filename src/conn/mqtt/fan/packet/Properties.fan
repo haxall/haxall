@@ -74,14 +74,6 @@ const class Properties
   @Operator
   Obj? get(Property prop, Obj? def := null) { props.get(prop) ?: def }
 
-  // TODO:FIXIT - if we need this capability then maybe want special
-  // handling for props that can be repeated (user, subscription id)
-  // ** Remove the value for this given property and return it.
-  // Obj? remove(Property prop) { props.remove(prop) }
-
-  ** Remove all properties and return this.
-  This clear() { props.clear; return this }
-
   ** Iterate the properties.
   Void each(|Obj val, Property prop| f)
   {
@@ -113,8 +105,6 @@ const class Properties
 // Convenience
 //////////////////////////////////////////////////////////////////////////
 
-  internal Int maxPacketSize() { get(Property.maxPacketSize, Int.maxVal) }
-
   internal Duration? messageExpiryInterval()
   {
     secs := get(Property.messageExpiryInterval)
@@ -135,8 +125,6 @@ const class Properties
   internal StrPair[] userProps() { get(Property.userProperty, StrPair#.emptyList) }
 
   internal Bool utf8Payload() { get(Property.payloadFormatIndicator, 0) == 1 }
-
-  internal Bool wildcardSubscriptionAvailable() { get(Property.wildcardSubscriptionAvailable, 1) == 1 }
 
 
 //////////////////////////////////////////////////////////////////////////

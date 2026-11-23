@@ -45,6 +45,26 @@ internal const abstract class ControlPacket : DataCodec
 
   protected abstract Buf variableHeaderAndPayload(MqttVersion version)
 
+  ** Debug trace of this packet and its encoding. The prefix
+  ** is '<' for a received packet and '>' for a sent packet.
+  Str trace(Str prefix, Buf buf)
+  {
+    s := StrBuf().add("${prefix} ${pid}\nPacket Type: ${type}${traceInfo}\n").add(buf.toHex)
+    try
+    {
+      payload := tracePayload
+      if (payload != null) s.add("\n\nPayload:\n${payload.in.readAllStr}")
+    }
+    catch (Err ignore) { /* not utf-8 encoded string */ }
+    return s.toStr
+  }
+
+  ** Details to add to the trace summary line
+  protected virtual Str traceInfo() { "" }
+
+  ** Application payload to add to the trace
+  protected virtual Buf? tracePayload() { null }
+
   static ControlPacket readPacket(InStream in, MqttVersion version)
   {
     byte1  := readByte(in)
@@ -61,19 +81,12 @@ internal const abstract class ControlPacket : DataCodec
       case PacketType.pubrec:      return PubRec(varPay.in, version)
       case PacketType.pubrel:      return PubRel(flags, varPay.in, version)
       case PacketType.pubcomp:     return PubComp(varPay.in, version)
-      case PacketType.subscribe:   return Subscribe(flags, varPay.in, version)
       case PacketType.suback:      return SubAck(varPay.in, version)
-      case PacketType.unsubscribe: return Unsubscribe(flags, varPay.in, version)
       case PacketType.unsuback:    return UnsubAck(varPay.in, version)
       case PacketType.pingresp:    return PingResp.defVal
       case PacketType.disconnect:  return Disconnect(varPay.in, version)
       default: throw MqttErr("Unsupported packet type: ${code}")
     }
-  }
-
-  protected Void checkReservedFlags(Int flags)
-  {
-    if (flags != 0) throw MalformedPacketErr("Invalid packet flags: ${flags.toRadix(16,2)}")
   }
 }
 

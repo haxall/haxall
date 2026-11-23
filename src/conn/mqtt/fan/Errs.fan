@@ -27,18 +27,3 @@ const class MqttErr : Err
 
   const ReasonCode? reason := null
 }
-
-**************************************************************************
-** MalformedPacketErr
-**************************************************************************
-
-**
-** A malformed packet error occurs when the decoder fails to decode
-** a packet or detects invalid state between the fields in a packet.
-**
-const class MalformedPacketErr : MqttErr
-{
-  new make(Str msg := "", Err? cause := null) : super(msg, cause)
-  {
-  }
-}

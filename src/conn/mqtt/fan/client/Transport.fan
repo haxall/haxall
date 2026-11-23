@@ -8,7 +8,6 @@
 
 using inet
 using web
-using [java] javax.net.ssl::SSLSocketFactory
 
 **************************************************************************
 ** MqttTransport

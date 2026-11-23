@@ -143,9 +143,10 @@ class MqttDispatchTest : HxTest
     try
     {
       conn := addConn(broker)
+      obs  := (MqttObservable)conn.ext.observables.first
       broker.reject.val = "deny/#"
-      verifyErr(MqttErr#) { conn.send(HxMsg("mqtt.sub", toConfig(conn, "deny/#"))).get }
-      conn.send(HxMsg("mqtt.sub", toConfig(conn, "ok/#"))).get
+      verifyErr(MqttErr#) { conn.send(HxMsg("mqtt.sub", MqttSubscription(obs, TestObserver(), toConfig(conn, "deny/#")))).get }
+      conn.send(HxMsg("mqtt.sub", MqttSubscription(obs, TestObserver(), toConfig(conn, "ok/#")))).get
       verifyEq(broker.subs, ["deny/#", "ok/#"])
     }
     finally broker.close
@@ -201,8 +202,8 @@ internal const class TestObserver : Observer
     ref := this.topicsRef
     this.actor = Actor(ActorPool()) |Obj? msg->Obj?|
     {
-      obs := msg as MqttObservation
-      if (obs != null) ref.val = ((Str[])ref.val).dup.add(obs.topic).toImmutable
+      obs := msg as Observation
+      if (obs != null) ref.val = ((Str[])ref.val).dup.add(obs["topic"]).toImmutable
       return null
     }
   }

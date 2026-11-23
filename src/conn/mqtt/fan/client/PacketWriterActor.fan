@@ -9,8 +9,7 @@
 using concurrent
 
 **
-** Reads incoming packets from the transport layer and dispatches
-** them back to the client.
+** Writes outgoing packets to the transport layer.
 **
 internal const class PacketWriterActor : DataCodec
 {
@@ -55,7 +54,7 @@ internal const class PacketWriterActor : DataCodec
     try
     {
       // trace
-      trace(packet, buf)
+      if (client.log.isDebug) client.log.debug(packet.trace(">", buf))
 
       transport.send(buf)
 
@@ -73,36 +72,5 @@ internal const class PacketWriterActor : DataCodec
     }
 
     return packet
-  }
-
-  private Void trace(ControlPacket packet, Buf buf)
-  {
-    if (!client.log.isDebug) return
-
-    s := StrBuf().add("> $packet.pid\n")
-    s.add("Packet Type: $packet.type")
-    payload := false
-    switch (packet.type)
-    {
-      case PacketType.publish:
-        s.add(" topic=${packet->topicName} qos=${packet->qos}")
-        payload = true
-      case PacketType.subscribe:
-        opts := ((Int[])packet->opts).map |i->Str| { i.toRadix(2, 8) }
-        s.add(" topics=${packet->topics} ${opts}")
-        payload = true
-    }
-    s.addChar('\n')
-    s.add(buf.toHex)
-    if (payload)
-    {
-      try
-      {
-        payloadStr := packet->payload->in->readAllStr
-        s.add("\n\nPayload:\n$payloadStr")
-      }
-      catch (Err ignore) { /* not utf-8 encoded string */ }
-    }
-    client.log.debug(s.toStr)
   }
 }

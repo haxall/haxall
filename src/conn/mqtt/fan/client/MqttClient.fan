@@ -57,7 +57,7 @@ const class MqttClient : Actor, MqttConst
 
   ** Underlying network transport
   internal MqttTransport? transport() { (transportRef.val as Unsafe)?.val }
-  internal const AtomicRef transportRef := AtomicRef(Unsafe(null))
+  internal const AtomicRef transportRef := AtomicRef(null)
 
   ** Ticks when the last packet was sent
   internal const AtomicInt lastPacketSent := AtomicInt(0)
@@ -123,7 +123,7 @@ const class MqttClient : Actor, MqttConst
   }
 
   ** Choke-point to send a packet that we expect to receive an ack for.
-  internal PendingAck? sendPacket(ControlPacket packet, PendingAck pending)
+  internal PendingAck sendPacket(ControlPacket packet, PendingAck pending)
   {
     // consume the packet identifier by adding to pending acks map
     pendingAcks[packet.pid] = pending.touch
@@ -134,15 +134,9 @@ const class MqttClient : Actor, MqttConst
     return pending
   }
 
-  ** Free the packet identifier associated with this packet by removing
-  ** it from the pending acks map and returning the pending ack associated with
-  ** that pid.
-  private PendingAck? freePending(Obj arg)
-  {
-    Int? pid := arg as Int
-    if (pid == null) pid = ((ControlPacket)arg).pid
-    return pendingAcks.remove(pid)
-  }
+  ** Free the packet identifier by removing it from the pending acks
+  ** map and returning the pending ack associated with it.
+  private PendingAck? freePending(Int pid) { pendingAcks.remove(pid) }
 
   ** Do all required actions to update state when a pending ack is finished
   internal Void finishPending(PendingAck pending)
@@ -156,7 +150,7 @@ const class MqttClient : Actor, MqttConst
       // discard state
       config.persistence.remove(pending.persistKey)
 
-      // update quoata
+      // update quota
       quota.increment
     }
   }
@@ -199,7 +193,7 @@ const class MqttClient : Actor, MqttConst
   ** API for publishing.
   **
   ** Returns a future that will be completed when the message is confirmed
-  ** to be received by the server accoring to the specified QoS.
+  ** to be received by the server according to the specified QoS.
   Future publish(Str topic, Message msg)
   {
     // publish returns a future that will be completed according to its QoS
@@ -292,7 +286,7 @@ const class MqttClient : Actor, MqttConst
     {
       // free any allocated packet identifier
       packet := msg.a as ControlPacket
-      if (packet != null) this.freePending(packet)
+      if (packet != null) this.freePending(packet.pid)
       throw err
     }
 
@@ -324,11 +318,10 @@ const class MqttClient : Actor, MqttConst
     subMgr.unsubscribe(packet)
   }
 
-  private Obj? onPingReq(PingReq ping)
+  private Void sendPing()
   {
     lastPingSent.val = Duration.nowTicks
-    packetWriter.send(ping)
-    return null
+    packetWriter.send(PingReq.defVal)
   }
 
   private Obj? onDisconnect(Disconnect disconnect)
@@ -381,11 +374,8 @@ const class MqttClient : Actor, MqttConst
       return null
     }
 
-// log.err("TODO:FIXIT - don't handle acks")
-// return null
-
     // we expect a pending ack for the remaining received messages
-    pending := this.freePending(packet)
+    pending := this.freePending(packet.pid)
     if (pending == null) { debug("Unexpected: $packet.type"); return null }
     try
     {
@@ -423,12 +413,12 @@ const class MqttClient : Actor, MqttConst
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Houskeeping
+// Housekeeping
 //////////////////////////////////////////////////////////////////////////
 
   private Obj? onHousekeeping(Int gen)
   {
-    // stop houskeeping if this is not the current connection or
+    // stop housekeeping if this is not the current connection or
     // we are in a state where we can't send messages
     if (gen != connGen.val || !canMessage) return null
 
@@ -442,7 +432,7 @@ const class MqttClient : Actor, MqttConst
     }
     catch (Err err)
     {
-      log.err("Houskeeping failed", err)
+      log.err("Housekeeping failed", err)
     }
 
     sendLater(1sec, ActorMsg("housekeeping", gen))
@@ -464,10 +454,8 @@ const class MqttClient : Actor, MqttConst
   private Void checkKeepAlive()
   {
     // [MQTT5-3.2.2-21]
-    server := pendingConnect.connack.props.get(Property.serverKeepAlive)
-    ticks  := server == null
-      ? pendingConnect.connect.keepAlive.ticks
-      : Duration.fromStr("${server}sec").ticks
+    server := pendingConnect.connack.props.get(Property.serverKeepAlive) as Int
+    ticks  := server == null ? pendingConnect.connect.keepAlive.ticks : server * 1sec.ticks
 
     if (ticks == 0) return
 
@@ -486,7 +474,7 @@ const class MqttClient : Actor, MqttConst
       // so the gap between packets we send never exceeds it. Also ping when
       // nothing has been received, which detects a connection that still
       // accepts what we send but is no longer answering.
-      onPingReq(PingReq.defVal)
+      sendPing
     }
   }
 
@@ -498,7 +486,7 @@ const class MqttClient : Actor, MqttConst
       if (pending.age > config.timeout)
       {
         // handle packet timeout
-        log.debug("Packet ${pending.packetId} timed out after ${config.timeout.toLocale}")
+        debug("Packet ${pending.packetId} timed out after ${config.timeout.toLocale}")
 
         finishPending(pending)
         pending.resp.completeErr(TimeoutErr("No acknowledgement received for packet ${pending.packetId} after ${config.timeout.toLocale}"))
@@ -506,7 +494,7 @@ const class MqttClient : Actor, MqttConst
       else if (canRetry && pending.isRetryNeeded(config.retryInterval))
       {
         // handle packet retry
-        log.debug("Retry packet ${pending.packetId}")
+        debug("Retry packet ${pending.packetId}")
         sendPacket(toRetry(pending), pending)
       }
     }
@@ -561,7 +549,7 @@ const class MqttClient : Actor, MqttConst
   {
     if (state === ClientState.disconnected) return err
 
-    // remember if this was client inititiated disconnect
+    // remember if this was client initiated disconnect
     isClientDisconnect := state === ClientState.disconnecting
 
     // immediately force state to disconnected
@@ -574,7 +562,7 @@ const class MqttClient : Actor, MqttConst
     transport?.close
     transportRef.val = null
 
-    // if clean session, clean up state
+    // close the session; if clean session, clean up state
     try { config.persistence.close } catch (Err ignore) { }
     subMgr.close
     if (pendingConnect.connect.cleanSession)

@@ -23,8 +23,8 @@ internal const class PendingAck
     this.packetId   = packet.pid
     this.persistKey = persistKey
 
-    // only stash the request if the packet was not persisted
-    if (persistKey == null) stash["req"] = packet
+    // only keep the request if the packet was not persisted
+    this.request    = persistKey == null ? packet : null
   }
 
   new clone(PendingAck source, Str persistKey)
@@ -33,7 +33,7 @@ internal const class PendingAck
     this.packetId   = source.packetId
     this.created    = source.created
     this.resp       = source.resp
-    this.stash      = source.stash
+    this.request    = source.request
   }
 
   ** The packet identifier we are waiting to be acknowledged.
@@ -80,15 +80,14 @@ internal const class PendingAck
     return null
   }
 
-  ** Additional data that can be stashed on the pending ack.
-  const ConcurrentMap stash := ConcurrentMap(2)
+  ** The request packet, or null if it was persisted
+  private const ControlPacket? request
 
-  ** Get the stashed request
+  ** Get the request packet
   ControlPacket? req(Bool checked := true)
   {
-    req := stash["req"] as ControlPacket
-    if (req != null) return req
-    if (checked) throw MqttErr("Request not stashed")
+    if (request != null) return request
+    if (checked) throw MqttErr("Request was persisted")
     return null
   }
 }

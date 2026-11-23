@@ -38,7 +38,7 @@ const class MqttFuncs
   @Api @Axon { admin = true }
   static Obj? mqttPublish(Obj conn, Str topic, Obj payload, Dict cfg := Etc.dict0)
   {
-    payload = (payload as Str)?.toBuf ?: throw Err("TODO payload: $payload.typeof")
+    payload = (payload as Str)?.toBuf ?: throw ArgErr("Payload must be a Str: ${payload.typeof}")
     msg := HxMsg("mqtt.pub", topic, payload, cfg)
     return MqttExt.cur.conn(Etc.toId(conn)).send(msg).get
   }

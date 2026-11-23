@@ -20,7 +20,6 @@ const class ClientMemDb : ClientPersistence
   new make() { }
 
   private const ConcurrentMap sessions := ConcurrentMap()
-  private const AtomicBool isOpened := AtomicBool(false)
 
   private ClientMemSession? session(Bool checked := true)
   {
@@ -31,10 +30,9 @@ const class ClientMemDb : ClientPersistence
 
   override Void open(Str clientId)
   {
-    if (isOpened.val) throw MqttErr("Already opened")
+    if (sessionRef.val != null) throw MqttErr("Already opened")
     session := (ClientMemSession)sessions.getOrAdd(clientId, ClientMemSession(clientId))
     sessionRef.val = Unsafe(session)
-    isOpened.val = true
   }
 
   override PersistablePacket? get(Str key)
@@ -69,7 +67,6 @@ const class ClientMemDb : ClientPersistence
   override Void close()
   {
     checkOpened
-    isOpened.val   = false
     sessionRef.val = null
   }
 
@@ -80,14 +77,14 @@ const class ClientMemDb : ClientPersistence
 
   override Str toStr()
   {
-    if (!isOpened.val) return "[closed]"
+    if (sessionRef.val == null) return "[closed]"
 
     return "[open] [$session.clientId] [# keys: ${session.keys.size}]"
   }
 
   private Void checkOpened()
   {
-    if (!isOpened.val) throw MqttErr("Not opened")
+    if (sessionRef.val == null) throw MqttErr("Not opened")
   }
 }
 

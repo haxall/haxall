@@ -83,38 +83,11 @@ internal const class PacketReaderActor : Actor, DataCodec
     packet := ControlPacket.readPacket(buf.in, client.config.version)
 
     // trace
-    trace(packet, buf)
+    if (log.isDebug) log.debug(packet.trace("<", buf))
 
     // dispatch
     client.packetReceived(packet)
 
     return true
-  }
-
-  private Void trace(ControlPacket packet, Buf buf)
-  {
-    if (!client.log.isDebug) return
-
-    s := StrBuf().add("< $packet.pid\n")
-    s.add("Packet Type: $packet.type")
-    payload := false
-    switch (packet.type)
-    {
-      case PacketType.publish:
-        s.add(" ${packet->topicName} qos=${packet->qos}")
-        payload = true
-    }
-    s.addChar('\n')
-    s.add(buf.toHex)
-    if (payload)
-    {
-      try
-      {
-        payloadStr := packet->payload->in->readAllStr
-        s.add("\n\nPayload:\n$payloadStr")
-      }
-      catch (Err ignore) { /* not utf-8 encoded string */ }
-    }
-    client.log.debug(s.toStr)
   }
 }

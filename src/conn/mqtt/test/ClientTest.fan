@@ -22,7 +22,8 @@ class ClientTest : Test
 
   private Void verifyKeepAlive(Bool pingResp)
   {
-    server := SilentServer { it.pingResp = pingResp }
+    server := ScriptServer()
+    server.ackPing.val = pingResp
     events := ConcurrentMap()
     client := makeClient(server, events)
     try
@@ -42,11 +43,7 @@ class ClientTest : Test
         verify(events["disconnected"].toStr.startsWith("sys::TimeoutErr"))
       }
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testConnectRefused()
@@ -64,7 +61,8 @@ class ClientTest : Test
 
   private Void verifyConnectRefused(Int code, Bool clean, ReasonCode expected)
   {
-    server := SilentServer { it.connAck = code; it.closeOnConnAck = true }
+    server := ScriptServer()
+    server.connAck.val = code
     events := ConcurrentMap()
     client := makeClient(server, events)
     try
@@ -79,18 +77,15 @@ class ClientTest : Test
       verifyEq(waitFor(events, "disconnected"), err.toStr)
       verify(client.debugClient.contains("State: disconnected"))
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testConnAckTimeout()
   {
     [true, false].each |clean|
     {
-      server := SilentServer { it.connAck = null }
+      server := ScriptServer()
+      server.ackConnect.val = false
       events := ConcurrentMap()
       client := makeClient(server, events)
       try
@@ -102,18 +97,15 @@ class ClientTest : Test
         verifyEq(client.state, ClientState.disconnected)
         verify(waitFor(events, "disconnected").startsWith("sys::TimeoutErr"))
       }
-      finally
-      {
-        client.terminate
-        server.close
-      }
+      finally close(client, server)
     }
   }
 
   Void testServerClose()
   {
     // server closes the socket after a successful CONNACK
-    server := SilentServer { it.closeOnConnAck = true }
+    server := ScriptServer()
+    server.closeOnConnAck.val = true
     events := ConcurrentMap()
     client := makeClient(server, events)
     try
@@ -123,16 +115,12 @@ class ClientTest : Test
       verifyEq(waitFor(events, "disconnected"), "sys::IOErr: Connection closed by broker")
       verifyEq(client.state, ClientState.disconnected)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testConnectWhenConnected()
   {
-    server := SilentServer()
+    server := ScriptServer()
     events := ConcurrentMap()
     client := makeClient(server, events)
     try
@@ -145,16 +133,12 @@ class ClientTest : Test
       verifyEq(client.state, ClientState.connected)
       verifyNull(events["disconnected"])
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testConnectFailed()
   {
-    server := SilentServer()
+    server := ScriptServer()
     events := ConcurrentMap()
     client := makeClient(server, events)
     try
@@ -178,11 +162,7 @@ class ClientTest : Test
       client.connect.get(5sec)
       verifyEq(client.state, ClientState.connected)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testSubscribeRetry()
@@ -213,17 +193,13 @@ class ClientTest : Test
       verifyErr(TimeoutErr#) { f.get(6sec) }
       verifyEq(server.count("subscribe"), expected)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testResume()
   {
     server := ScriptServer()
-    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    client := makeClient(server)
     resume := ConnectConfig { it.cleanSession = false }
     try
     {
@@ -255,22 +231,14 @@ class ClientTest : Test
       20.times |i| { expected.add("publish m${i} dup") }
       verifyEq(server.received[mark..-1], expected)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testPubRecErr()
   {
     // server grants a receive maximum of one and rejects every publish
     server := ScriptServer(MqttVersion.v5)
-    client := MqttClient(ClientConfig {
-      it.serverUri = server.uri
-      it.version   = MqttVersion.v5
-      it.clientId  = "clientTest"
-    })
+    client := makeClient(server)
     try
     {
       server.pubRecReason.val = 0x80
@@ -289,21 +257,16 @@ class ClientTest : Test
       verifyEq(server.count("publish"), 2)
       verifyEq(server.count("pubrel"), 0)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testWriteStall()
   {
     server := ScriptServer()
     events := ConcurrentMap()
-    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    client := makeClient(server, events)
     try
     {
-      client.addListener(TestClientListener(events))
       client.connect(ConnectConfig { it.keepAlive = 1sec }).get(5sec)
 
       // server stops reading so QoS 0 publishes back up behind the socket
@@ -314,11 +277,7 @@ class ClientTest : Test
       verifyEq(waitFor(events, "disconnected")?.startsWith("sys::TimeoutErr"), true)
       verifyEq(client.state, ClientState.disconnected)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testServerDisconnect()
@@ -326,30 +285,21 @@ class ClientTest : Test
     // 5.0 server tells the client why it is closing the connection
     server := ScriptServer(MqttVersion.v5)
     events := ConcurrentMap()
-    client := MqttClient(ClientConfig {
-      it.serverUri = server.uri
-      it.version   = MqttVersion.v5
-      it.clientId  = "clientTest"
-    })
+    client := makeClient(server, events)
     try
     {
-      client.addListener(TestClientListener(events))
       client.connect.get(5sec)
       server.disconnect(ReasonCode.session_taken_over.code)
       verifyEq(waitFor(events, "disconnected"), "mqtt::MqttErr: Reason: session_taken_over")
       verifyEq(client.state, ClientState.disconnected)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testKeepAliveInterval()
   {
     server := ScriptServer()
-    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    client := makeClient(server)
     try
     {
       start := Duration.now
@@ -362,21 +312,16 @@ class ClientTest : Test
       times.eachRange(1..-1) |time, i| { verify(time - times[i-1] <= 3sec, "${time - times[i-1]}") }
       verifyEq(client.state, ClientState.connected)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testKeepAliveReceive()
   {
     server := ScriptServer()
     events := ConcurrentMap()
-    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    client := makeClient(server, events)
     try
     {
-      client.addListener(TestClientListener(events))
       client.connect(ConnectConfig { it.keepAlive = 2sec }).get(5sec)
 
       // server keeps reading but stops answering while the client keeps publishing
@@ -391,17 +336,13 @@ class ClientTest : Test
       verifyEq(client.state, ClientState.disconnected)
       verifyEq(waitFor(events, "disconnected")?.startsWith("sys::TimeoutErr"), true)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testAutoReconnect()
   {
     server := ScriptServer()
-    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    client := makeClient(server)
     try
     {
       client.enableAutoReconnect(500ms, 4sec)
@@ -424,11 +365,7 @@ class ClientTest : Test
       Actor.sleep(5sec)
       verifyEq(server.connects.size, 5)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
   Void testSettings()
@@ -453,20 +390,26 @@ class ClientTest : Test
       20.times { if (server.count("publish") < 2) Actor.sleep(50ms) }
       verifyEq(server.count("publish"), 2)
     }
-    finally
-    {
-      client.terminate
-      server.close
-    }
+    finally close(client, server)
   }
 
-  private MqttClient makeClient(SilentServer server, ConcurrentMap events)
+  ** Make a client for the server which records listener events
+  private MqttClient makeClient(ScriptServer server, ConcurrentMap? events := null)
   {
-    MqttClient(ClientConfig {
-      it.serverUri          = `mqtt://127.0.0.1:${server.port}`
+    client := MqttClient(ClientConfig {
+      it.serverUri          = server.uri
+      it.version            = server.version
       it.clientId           = "clientTest"
       it.mqttConnectTimeout = 1sec
-    }).addListener(TestClientListener(events))
+    })
+    if (events != null) client.addListener(TestClientListener(events))
+    return client
+  }
+
+  private Void close(MqttClient client, ScriptServer server)
+  {
+    client.terminate
+    server.close
   }
 
   ** Wait for the listener event and return it, or null if it never fires
@@ -488,82 +431,6 @@ internal const class TestClientListener : ClientListener
   const ConcurrentMap events
 
   override Void onDisconnected(Err? err) { events["disconnected"] = err?.toStr ?: "null" }
-}
-
-**************************************************************************
-** SilentServer
-**************************************************************************
-
-** Accepts one client at a time, answers CONNECT as configured, and
-** then only answers PINGREQ if pingResp is true
-internal const class SilentServer
-{
-  new make(|This|? f := null)
-  {
-    f?.call(this)
-    listener := TcpListener().bind(IpAddr("127.0.0.1"), null)
-    this.port = listener.localPort
-    this.listenerRef = Unsafe(listener)
-    ref  := this.listenerRef
-    code := this.connAck
-    drop := this.closeOnConnAck
-    ping := this.pingResp
-    Actor(pool) |->Obj?|
-    {
-      try { while (true) serve(((TcpListener)ref.val).accept, code, drop, ping) } catch (Err e) {}
-      return null
-    }.send(null)
-  }
-
-  ** CONNACK return code to answer CONNECT with, or null to never answer
-  const Int? connAck := 0
-
-  ** Close the socket after sending the CONNACK
-  const Bool closeOnConnAck := false
-
-  ** Answer PINGREQ with PINGRESP
-  const Bool pingResp := true
-
-  const Int port
-
-  private const Unsafe listenerRef
-
-  private const ActorPool pool := ActorPool()
-
-  Void close()
-  {
-    ((TcpListener)listenerRef.val).close
-    pool.kill
-  }
-
-  private static Void serve(TcpSocket socket, Int? connAck, Bool closeOnConnAck, Bool pingResp)
-  {
-    in  := socket.in
-    out := socket.out
-    try
-    {
-      while (true)
-      {
-        type := in.readU1.shiftr(4)
-        len  := 0; mult := 1
-        while (true)
-        {
-          b := in.readU1
-          len += b.and(0x7f) * mult; mult *= 128
-          if (b.and(0x80) == 0) break
-        }
-        in.skip(len)
-        if (type == 1 && connAck != null)
-        {
-          out.write(0x20).write(0x02).write(0x00).write(connAck).flush
-          if (closeOnConnAck) break
-        }
-        else if (type == 12 && pingResp) out.write(0xd0).write(0x00).flush
-      }
-    }
-    catch (Err e) {}
-    finally socket.close
-  }
 }
 
 **************************************************************************
@@ -610,9 +477,15 @@ internal const class ScriptServer
   ** Stop reading from the client
   const AtomicBool stall := AtomicBool(false)
 
+  ** Answer CONNECT with CONNACK
+  const AtomicBool ackConnect := AtomicBool(true)
+
   ** CONNACK return code (3.1.1 only). The connection is closed
   ** after a code other than zero.
   const AtomicInt connAck := AtomicInt(0)
+
+  ** Close the connection after sending CONNACK
+  const AtomicBool closeOnConnAck := AtomicBool(false)
 
   ** Answer PINGREQ with PINGRESP
   const AtomicBool ackPing := AtomicBool(true)
@@ -688,10 +561,11 @@ internal const class ScriptServer
           // 5.0 CONNACK grants a receive maximum of one
           record("connect")
           connectsRef.val = connects.dup.add("flags=0x${body[7].toHex(2)} keepAlive=${body[8].shiftl(8).or(body[9])}").toImmutable
+          if (!ackConnect.val) continue
           sp := sessionPresent.val ? 1 : 0
           if (v5) out.write(0x20).write(0x06).write(sp).write(0x00).write(0x03).write(0x21).writeI2(1).flush
           else out.write(0x20).write(0x02).write(sp).write(connAck.val).flush
-          if (connAck.val != 0) break
+          if (connAck.val != 0 || closeOnConnAck.val) break
         }
         else if (type == 3)
         {

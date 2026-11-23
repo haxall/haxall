@@ -51,9 +51,10 @@ internal const class MqttObservable : Observable
     connRef := config["obsMqttConnRef"] as Ref ?: throw Err("obsMqttConnRef not configured")
     Topic.validateFilter(config["obsMqttTopic"] as Str ?: throw Err("obsMqttTopic not configured"))
     conn    := ext.conn(connRef)
+    sub     := MqttSubscription(this, observer, config)
     // subscribe async
-    conn.send(HxMsg("mqtt.sub", config))
-    return MqttSubscription(this, observer, config)
+    conn.send(HxMsg("mqtt.sub", sub))
+    return sub
   }
 
   protected override Void onUnsubscribe(Subscription s)
@@ -73,7 +74,7 @@ internal const class MqttObservable : Observable
   ** Deliver the message on the given topic to all matching subscribers
   Void deliver(Ref connRef, Str topic, Message msg)
   {
-    obs := MqttObservation(this, topic, msg)
+    obs := makeObservation(DateTime.now, Etc.makeDict(["topic":topic, "payload":msg.payload, "userProps":toUserProps(msg.userProps)]))
     subscriptions.each |MqttSubscription sub|
     {
       if (sub.connRef != connRef) return
@@ -82,10 +83,12 @@ internal const class MqttObservable : Observable
     }
   }
 
-  ** Return true if there are any subscriptions active for the given conn ref
-  Bool connHasSubscriptions(Ref connRef)
+  ** Convert MQTT user properties to a Dict
+  private static Dict toUserProps(StrPair[] props)
   {
-    subscriptions.any |MqttSubscription sub->Bool| { sub.connRef == connRef }
+    m := Str:Str[:]
+    props.each |prop| { m[prop.name] = prop.val }
+    return m.isEmpty ? Etc.dict0 : Etc.makeDict(m)
   }
 }
 

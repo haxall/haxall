@@ -39,7 +39,7 @@ class MqttDispatch : ConnDispatch
   ** unacknowledged messages survive a reconnect when the session resumes
   private ClientPersistence sessionDb := ClientMemDb()
 
-  protected MqttExt mqttLib() { ext }
+  protected MqttExt mqttExt() { ext }
 
 //////////////////////////////////////////////////////////////////////////
 // Open/Ping/Close
@@ -55,7 +55,7 @@ class MqttDispatch : ConnDispatch
     // route every message to the observable, which delivers it to the
     // matching subscriptions; this includes messages the broker queued
     // for our session that arrive before we resubscribe
-    obs       := mqttLib.mqtt
+    obs       := mqttExt.mqtt
     connId    := id
     onMessage := |Str topic, Message msg| { obs.deliver(connId, topic, msg) }
 
@@ -137,8 +137,8 @@ class MqttDispatch : ConnDispatch
   {
     switch (msg.id)
     {
-      case "mqtt.pub":   return onPub(msg.a, msg.b, toConfig(msg.c))
-      case "mqtt.sub":   return onSub(toConfig(msg.a))
+      case "mqtt.pub":   return onPub(msg.a, msg.b, msg.c)
+      case "mqtt.sub":   return onSub(msg.a)
       case "mqtt.resub": return onResub
       case "mqtt.unsub": return onUnsub(msg.a)
       case "mqtt.disconnected": return onDisconnected(msg.a, msg.b)
@@ -152,7 +152,7 @@ class MqttDispatch : ConnDispatch
     client.publishWith
       .topic(topic)
       .payload(payload)
-      .qos(((Number)cfg["mqttQos"]).toInt)
+      .qos((cfg["mqttQos"] as Number)?.toInt ?: 0)
       .retain((cfg["mqttRetain"] as Bool) == true)
       .expiryInterval((cfg["mqttExpiryInterval"] as Number)?.toDuration)
       .userProps(userPropsFromDict(cfg["mqttUserProps"] as Dict))
@@ -169,17 +169,13 @@ class MqttDispatch : ConnDispatch
     return null
   }
 
-  private Obj? onSub(Dict cfg)
+  private Obj? onSub(MqttSubscription sub)
   {
-    // get the topic filter
-    filter := cfg["obsMqttTopic"] as Str ?: throw Err("obsMqttTopic not configured")
-    qos := cfg["mqttQos"] as Number ?: throw Err("mqttQos not configured")
-
     // a new subscription always sends SUBSCRIBE so that it receives
     // retained messages; if the open failed we resubscribe on reopen
     openPin("mqtt.sub")
     if (client == null) return null
-    subscribe(filter, qos.toInt.max(filters[filter] ?: 0))
+    subscribe(sub.filter, sub.qos.max(filters[sub.filter] ?: 0))
     return null
   }
 
@@ -200,7 +196,7 @@ class MqttDispatch : ConnDispatch
   private Str:Int filters()
   {
     acc := Str:Int[:] { ordered = true }
-    mqttLib.mqtt.subscriptions.each |MqttSubscription sub|
+    mqttExt.mqtt.subscriptions.each |MqttSubscription sub|
     {
       if (sub.connRef == id) acc[sub.filter] = sub.qos.max(acc[sub.filter] ?: 0)
     }
@@ -225,7 +221,8 @@ class MqttDispatch : ConnDispatch
   {
     // the broker and client track one subscription per filter, so keep
     // it while another subscription on this connector still uses it
-    if (mqttLib.mqtt.subscriptions.any |MqttSubscription s->Bool| { s.connRef == id && s.filter == sub.filter }) return null
+    remaining := filters
+    if (remaining.containsKey(sub.filter)) return null
 
     try
     {
@@ -240,12 +237,8 @@ class MqttDispatch : ConnDispatch
     }
     finally
     {
-      // if there are no more subscriptiosn for this connector
-      // then close the subscription pin
-      if (!mqttLib.mqtt.connHasSubscriptions(id))
-      {
-        closePin("mqtt.sub")
-      }
+      // close the subscription pin with the last subscription
+      if (remaining.isEmpty) closePin("mqtt.sub")
     }
   }
 
@@ -273,16 +266,6 @@ class MqttDispatch : ConnDispatch
       db.commit(Diff(rec, ["mqttClientId": id]))
     }
     return id
-  }
-
-  ** Create a set of default values for certain config parameters, and then
-  ** merge in the given options to override the defaults.
-  private Dict toConfig(Dict opts)
-  {
-    defs := [
-      "mqttQos": Number.zero,
-    ]
-    return Etc.dictMerge(Etc.makeDict(defs), opts)
   }
 
   ** Get a keystore containing the client certificate for this connection

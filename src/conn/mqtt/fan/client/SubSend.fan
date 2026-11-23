@@ -75,9 +75,7 @@ final class SubSend
   ** `qos` may be either [QoS] or an Int.
   This qos(Obj qos)
   {
-    if (qos is Int) qos = QoS.vals[(Int)qos]
-    else if (qos isnot QoS) throw ArgErr("Cannot set QoS from ${qos} ($qos.typeof)")
-    this._qos = qos
+    this._qos = QoS.fromObj(qos)
     return this
   }
 
