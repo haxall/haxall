@@ -321,6 +321,145 @@ class ClientTest : Test
     }
   }
 
+  Void testServerDisconnect()
+  {
+    // 5.0 server tells the client why it is closing the connection
+    server := ScriptServer(MqttVersion.v5)
+    events := ConcurrentMap()
+    client := MqttClient(ClientConfig {
+      it.serverUri = server.uri
+      it.version   = MqttVersion.v5
+      it.clientId  = "clientTest"
+    })
+    try
+    {
+      client.addListener(TestClientListener(events))
+      client.connect.get(5sec)
+      server.disconnect(ReasonCode.session_taken_over.code)
+      verifyEq(waitFor(events, "disconnected"), "mqtt::MqttErr: Reason: session_taken_over")
+      verifyEq(client.state, ClientState.disconnected)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
+  Void testKeepAliveInterval()
+  {
+    server := ScriptServer()
+    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    try
+    {
+      start := Duration.now
+      client.connect(ConnectConfig { it.keepAlive = 3sec }).get(5sec)
+      Actor.sleep(10sec)
+
+      // an idle client never leaves more than the keep alive between packets
+      times := [start].addAll(server.pings)
+      verify(server.pings.size >= 3)
+      times.eachRange(1..-1) |time, i| { verify(time - times[i-1] <= 3sec, "${time - times[i-1]}") }
+      verifyEq(client.state, ClientState.connected)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
+  Void testKeepAliveReceive()
+  {
+    server := ScriptServer()
+    events := ConcurrentMap()
+    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    try
+    {
+      client.addListener(TestClientListener(events))
+      client.connect(ConnectConfig { it.keepAlive = 2sec }).get(5sec)
+
+      // server keeps reading but stops answering while the client keeps publishing
+      server.ackPing.val = false
+      for (i := 0; i < 24 && client.state === ClientState.connected; ++i)
+      {
+        try { client.publishWith.topic("t").qos0.send } catch (MqttErr e) {}
+        Actor.sleep(500ms)
+      }
+
+      // the client notices that nothing is coming back while it is still publishing
+      verifyEq(client.state, ClientState.disconnected)
+      verifyEq(waitFor(events, "disconnected")?.startsWith("sys::TimeoutErr"), true)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
+  Void testAutoReconnect()
+  {
+    server := ScriptServer()
+    client := MqttClient(ClientConfig { it.serverUri = server.uri; it.clientId = "clientTest" })
+    try
+    {
+      client.enableAutoReconnect(500ms, 4sec)
+      client.connect(ConnectConfig {
+        it.keepAlive    = 30sec
+        it.cleanSession = false
+        it.username     = "user"
+        it.password     = "pw".toBuf
+      }).get(5sec)
+
+      // reconnect uses the same connect configuration
+      server.drop
+      60.times { if (server.connects.size < 2 || client.state !== ClientState.connected) Actor.sleep(100ms) }
+      verifyEq(server.connects, ["flags=0xc0 keepAlive=30", "flags=0xc0 keepAlive=30"])
+      verifyEq(client.state, ClientState.connected)
+
+      // refused reconnects back off: attempts at 0.5sec, 1.5sec, 3.5sec, 7.5sec
+      server.connAck.val = 5
+      server.drop
+      Actor.sleep(5sec)
+      verifyEq(server.connects.size, 5)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
+  Void testSettings()
+  {
+    // request problem information is only sent to turn it off
+    verifyNull(ConnectConfig().packet("x").props[Property.requestProblemInfo])
+    verifyEq(ConnectConfig { it.requestProblemInfo = false }.packet("x").props[Property.requestProblemInfo], 0)
+
+    // max in-flight caps the number of unacknowledged publishes
+    server := ScriptServer()
+    client := MqttClient(ClientConfig {
+      it.serverUri   = server.uri
+      it.clientId    = "clientTest"
+      it.maxInFlight = 2
+    })
+    try
+    {
+      server.ackPub.val = false
+      client.connect.get(5sec)
+      2.times { client.publishWith.topic("t").qos1.send }
+      verifyErrMsg(MqttErr#, "Quota exceeded: 2") { client.publishWith.topic("t").qos1.send.get(5sec) }
+      20.times { if (server.count("publish") < 2) Actor.sleep(50ms) }
+      verifyEq(server.count("publish"), 2)
+    }
+    finally
+    {
+      client.terminate
+      server.close
+    }
+  }
+
   private MqttClient makeClient(SilentServer server, ConcurrentMap events)
   {
     MqttClient(ClientConfig {
@@ -471,6 +610,31 @@ internal const class ScriptServer
   ** Stop reading from the client
   const AtomicBool stall := AtomicBool(false)
 
+  ** CONNACK return code (3.1.1 only). The connection is closed
+  ** after a code other than zero.
+  const AtomicInt connAck := AtomicInt(0)
+
+  ** Answer PINGREQ with PINGRESP
+  const AtomicBool ackPing := AtomicBool(true)
+
+  private const AtomicRef connectsRef := AtomicRef(Str#.emptyList)
+
+  private const AtomicRef pingsRef := AtomicRef(Duration#.emptyList)
+
+  ** Connect flags and keep alive of each CONNECT received
+  Str[] connects() { connectsRef.val }
+
+  ** Time each PINGREQ was received
+  Duration[] pings() { pingsRef.val }
+
+  ** Send a 5.0 DISCONNECT with the reason code and close the connection
+  Void disconnect(Int reason)
+  {
+    socket := (TcpSocket)((Unsafe)socketRef.val).val
+    socket.out.write(0xe0).write(0x01).write(reason).flush
+    socket.close
+  }
+
   private const Unsafe listenerRef
 
   private const ActorPool pool := ActorPool()
@@ -523,9 +687,11 @@ internal const class ScriptServer
         {
           // 5.0 CONNACK grants a receive maximum of one
           record("connect")
+          connectsRef.val = connects.dup.add("flags=0x${body[7].toHex(2)} keepAlive=${body[8].shiftl(8).or(body[9])}").toImmutable
           sp := sessionPresent.val ? 1 : 0
           if (v5) out.write(0x20).write(0x06).write(sp).write(0x00).write(0x03).write(0x21).writeI2(1).flush
-          else out.write(0x20).write(0x02).write(sp).write(0x00).flush
+          else out.write(0x20).write(0x02).write(sp).write(connAck.val).flush
+          if (connAck.val != 0) break
         }
         else if (type == 3)
         {
@@ -551,7 +717,11 @@ internal const class ScriptServer
           if (v5) out.write(0x90).write(0x04).writeI2(body.readU2).write(0x00).write(0x00).flush
           else out.write(0x90).write(0x03).writeI2(body.readU2).write(0x00).flush
         }
-        else if (type == 12) out.write(0xd0).write(0x00).flush
+        else if (type == 12)
+        {
+          pingsRef.val = pings.dup.add(Duration.now).toImmutable
+          if (ackPing.val) out.write(0xd0).write(0x00).flush
+        }
       }
     }
     catch (Err e) {}

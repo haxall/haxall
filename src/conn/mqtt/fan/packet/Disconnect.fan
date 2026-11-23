@@ -31,8 +31,11 @@ internal const class Disconnect : ControlPacket
 
   new decode(InStream in, MqttVersion version)
   {
+    // 3.1.1 has no variable header; in 5.0 the reason code
+    // and properties may be omitted
     if (version.is311) return
-    throw UnsupportedErr("TODO: $version")
+    if (in.avail > 0) this.reason = ReasonCode.fromCode(readByte(in), this.type, false) ?: ReasonCode.unspecified_error
+    if (in.avail > 0) this.props  = readProps(in)
   }
 
   override const PacketType type := PacketType.disconnect

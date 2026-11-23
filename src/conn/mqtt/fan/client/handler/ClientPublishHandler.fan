@@ -59,10 +59,9 @@ internal class ClientPublishHandler : ClientHandler
 
     // check quota
     // TODO:ENHANCE - maybe add packet buffering if in-flight window is full
-    serverQuota := connackProps.receiveMax
     if (client.quota.val == 0)
     {
-      return reject("Quota exceeded: ${serverQuota}")
+      return reject("Quota exceeded: ${connackProps.receiveMax.min(clientConfig.maxInFlight)}")
     }
 
     // the packet will be persisted using this version

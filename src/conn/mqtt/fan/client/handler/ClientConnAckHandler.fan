@@ -72,7 +72,7 @@ internal class ClientConnAckHandler : ClientHandler
     client.clientIdRef.val = ack.props.get(Property.assignedClientId, clientConfig.clientId)
 
     // initialize the quota; resumed packets count against it
-    client.quota.val = ack.props.receiveMax
+    client.quota.val = ack.props.receiveMax.min(clientConfig.maxInFlight)
 
     // open the db
     db.open(clientId)

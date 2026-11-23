@@ -66,6 +66,7 @@ internal const abstract class ControlPacket : DataCodec
       case PacketType.unsubscribe: return Unsubscribe(flags, varPay.in, version)
       case PacketType.unsuback:    return UnsubAck(varPay.in, version)
       case PacketType.pingresp:    return PingResp.defVal
+      case PacketType.disconnect:  return Disconnect(varPay.in, version)
       default: throw MqttErr("Unsupported packet type: ${code}")
     }
   }

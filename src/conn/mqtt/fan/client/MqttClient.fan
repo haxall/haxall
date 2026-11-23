@@ -74,6 +74,9 @@ const class MqttClient : Actor, MqttConst
   ** The quota is then increased when we receive the ack.
   internal const AtomicInt quota := AtomicInt(Int.maxVal)
 
+  ** Configuration of the most recent connect
+  internal const AtomicRef lastConnectConfig := AtomicRef(null)
+
   ** Subscription manager
   internal ClientSubMgr subMgr() { subMgrRef.val }
   private const Unsafe subMgrRef := Unsafe(ClientSubMgr(this))
@@ -162,7 +165,10 @@ const class MqttClient : Actor, MqttConst
 // Client
 //////////////////////////////////////////////////////////////////////////
 
-  ** Configure the client to auto-reconnect and return this
+  ** Configure the client to auto-reconnect and return this. It reconnects
+  ** with the configuration of the most recent `connect`. It does not
+  ** subscribe again; if the session is not resumed then do that in
+  ** `ClientListener.onConnected`.
   This enableAutoReconnect(Duration initialDelay := 1sec, Duration maxDelay := 2min)
   {
     addListener(DefaultAutoReconnect(this) {
@@ -299,7 +305,8 @@ const class MqttClient : Actor, MqttConst
 
   private Future onConnect(ConnectConfig config)
   {
-    ClientConnectHandler(this, config).run
+    lastConnectConfig.val = config
+    return ClientConnectHandler(this, config).run
   }
 
   private Obj? onPublish(Publish packet)
@@ -407,12 +414,11 @@ const class MqttClient : Actor, MqttConst
     return null
   }
 
-  ** The server sent the client a DISCONNECT message.
-  ** For now, we just log it and shutdown the client.
+  ** The server sent the client a DISCONNECT message. Shutdown
+  ** the client with the reason the server gave.
   private Obj? onReceiveDisconnect(Disconnect disconnect)
   {
-    log.info("Server requested DISCONNECT: ${disconnect.reason}")
-    this.onShutdown
+    this.onShutdown(MqttErr.makeReason(disconnect.reason))
     return null
   }
 
@@ -467,15 +473,19 @@ const class MqttClient : Actor, MqttConst
 
     now  := Duration.nowTicks
     ping := lastPingSent.val
-    if (ping > lastPacketReceived.val && now - ping > ticks)
+    recv := lastPacketReceived.val
+    if (ping > recv)
     {
-      // nothing received within keepalive interval of our last ping,
-      // so close the connection (MQTT 3.1.2.10)
-      onShutdown(TimeoutErr("No PINGRESP received within ${Duration(ticks).toLocale}"))
+      // nothing received since our last ping; if that lasts a keepalive
+      // interval then close the connection (MQTT 3.1.2.10)
+      if (now - ping > ticks) onShutdown(TimeoutErr("No PINGRESP received within ${Duration(ticks).toLocale}"))
     }
-    else if ((now - lastPacketSent.val) > ticks)
+    else if (now - lastPacketSent.val >= (ticks - 2sec.ticks).max(ticks / 2) || now - recv > ticks)
     {
-      // send a ping if we haven't sent a message within keepalive interval
+      // ping two housekeeping periods before the keepalive interval expires
+      // so the gap between packets we send never exceeds it. Also ping when
+      // nothing has been received, which detects a connection that still
+      // accepts what we send but is no longer answering.
       onPingReq(PingReq.defVal)
     }
   }

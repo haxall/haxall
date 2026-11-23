@@ -45,6 +45,9 @@ internal const class DefaultAutoReconnect : Actor, ClientAutoReconnect
   private const AtomicInt numRetries := AtomicInt(0)
   private const AtomicInt disconnectTs := AtomicInt(0)
 
+  ** True from the first disconnect until we have reconnected
+  private const AtomicBool active := AtomicBool(false)
+
   private static const ActorMsg reconnectMsg := ActorMsg("reconnect")
 
   override Void onDisconnected(Err? err)
@@ -65,6 +68,11 @@ internal const class DefaultAutoReconnect : Actor, ClientAutoReconnect
 
   private Obj? onInitialDisconnect()
   {
+    // a failed reconnect attempt also fires a disconnect; it is
+    // already handled by the attempt that is in progress
+    if (active.val) return null
+    active.val = true
+
     // reset curDelay back to initial ticks and schedule first reconnect attempt
     disconnectTs.val = DateTime.nowTicks
     curDelay.val = initialDelay.ticks
@@ -74,12 +82,20 @@ internal const class DefaultAutoReconnect : Actor, ClientAutoReconnect
 
   private Obj? onReconnect()
   {
+    // nothing to do if the client was connected or terminated meanwhile
+    if (client.state !== ClientState.disconnected || client.isTerminated)
+    {
+      active.val = false
+      return null
+    }
+
     try
     {
-      client.connect.get
+      client.connect(client.lastConnectConfig.val ?: ConnectConfig()).get
       elapsed := Duration.make(DateTime.nowTicks - disconnectTs.val)
       log.info("Reconnected after ${elapsed.toLocale}!")
       numRetries.val = 0
+      active.val = false
     }
     catch (Err err)
     {

@@ -118,6 +118,7 @@ const class ConnectConfig
       .add(Property.maxPacketSize, maxPacketSize)
       .add(Property.topicAliasMax, topicAliasMax)
       .add(Property.requestResponseInfo, requestResponseInfo ? 1 : 0)
+      .add(Property.requestProblemInfo, requestProblemInfo ? null : 0)
       .add(Property.authMethod, authMethod)
       .add(Property.authData, authData)
     userProps.each |userProp| { props.add(Property.userProperty, userProp) }
