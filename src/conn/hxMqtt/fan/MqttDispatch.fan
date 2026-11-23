@@ -193,6 +193,10 @@ class MqttDispatch : ConnDispatch, ClientListener
 
   private Obj? onUnsub(MqttSubscription sub)
   {
+    // the broker and client track one subscription per filter, so keep
+    // it while another subscription on this connector still uses it
+    if (mqttLib.mqtt.subscriptions.any |MqttSubscription s->Bool| { s.connRef == id && s.filter == sub.filter }) return null
+
     try
     {
       return open.client.unsubscribe(sub.filter).get

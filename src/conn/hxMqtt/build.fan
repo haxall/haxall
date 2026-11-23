@@ -40,7 +40,7 @@ class Build : BuildPod
                 "hxd @{hx.depend}",
                 "hxConn @{hx.depend}",
                ]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
     index   = ["xeto.bindings":"hx.mqtt", "ph.lib": "mqtt"]
   }

@@ -64,6 +64,9 @@ const class MqttClient : Actor, MqttConst
   ** Ticks when the last packet was received
   internal const AtomicInt lastPacketReceived := AtomicInt(0)
 
+  ** Ticks when the last PINGREQ was sent
+  internal const AtomicInt lastPingSent := AtomicInt(0)
+
   ** Number of qos 1 or qos 2 message the server is willing
   ** to allow to be outstanding. This value starts out at the max
   ** and is decremented each time we send a packet requiring acks.
@@ -310,6 +313,7 @@ const class MqttClient : Actor, MqttConst
 
   private Obj? onPingReq(PingReq ping)
   {
+    lastPingSent.val = Duration.nowTicks
     packetWriter.send(ping)
     return null
   }
@@ -456,9 +460,19 @@ const class MqttClient : Actor, MqttConst
 
     if (ticks == 0) return
 
-    // send a ping if we haven't sent a message within keepalive interval
-    if ((Duration.nowTicks - lastPacketSent.val) > ticks)
+    now  := Duration.nowTicks
+    ping := lastPingSent.val
+    if (ping > lastPacketReceived.val && now - ping > ticks)
+    {
+      // nothing received within keepalive interval of our last ping,
+      // so close the connection (MQTT 3.1.2.10)
+      onShutdown(TimeoutErr("No PINGRESP received within ${Duration(ticks).toLocale}"))
+    }
+    else if ((now - lastPacketSent.val) > ticks)
+    {
+      // send a ping if we haven't sent a message within keepalive interval
       onPingReq(PingReq.defVal)
+    }
   }
 
   private Void checkPending()
