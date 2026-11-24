@@ -153,6 +153,54 @@ class MqttDispatchTest : HxTest
   }
 
   @HxTestProj
+  Void testSubscribeFailure()
+  {
+    broker  := TestBroker()
+    logged  := AtomicInt()
+    handler := |LogRec rec| { if (rec.msg.startsWith("Subscribe failed for 1 of 2 filters") && rec.msg.endsWith("first: deny/# Reason: unspecified_error")) logged.increment }
+    Log.addHandler(handler)
+    try
+    {
+      conn := addConn(broker)
+      obs  := conn.ext.observables.first
+
+      // a rejected subscribe is logged and shown in the connector details
+      broker.reject.val = "deny/#"
+      obs.subscribe(TestObserver(), toConfig(conn, "deny/#"))
+      obs.subscribe(TestObserver(), toConfig(conn, "ok/#"))
+      conn.ping.get
+      verifyEq(logged.val, 1)
+      verifyDetails(conn, "Filters: 2 [1 subscribed, 1 failed, 0 pending]")
+      verifyDetails(conn, "Failed: deny/#: Reason: unspecified_error")
+
+      // it is not logged again while it keeps failing
+      reconnect(conn, broker, 2)
+      verifyDetails(conn, "Failed: deny/#: Reason: unspecified_error")
+      verifyEq(logged.val, 1)
+
+      // housekeeping retries it once the broker accepts it
+      broker.reject.val = null
+      Actor.sleep(1200ms)
+      verifyDetails(conn, "Filters: 2 [2 subscribed, 0 failed, 0 pending]")
+      verifyEq(logged.val, 1)
+      verifyEq(broker.connects, 2)
+    }
+    finally
+    {
+      Log.removeHandler(handler)
+      broker.close
+    }
+  }
+
+  ** Run housekeeping and verify the connector details contain the text
+  private Void verifyDetails(Conn conn, Str expected)
+  {
+    conn.send(HxMsg("forcehk")).get
+    details := conn.data?.toStr ?: ""
+    verify(details.contains(expected), details)
+  }
+
+  @HxTestProj
   Void testInvalidFilter()
   {
     ext := (MqttExt)addExt("hx.mqtt")
@@ -179,7 +227,7 @@ class MqttDispatchTest : HxTest
   private Conn addConn(TestBroker broker)
   {
     ext := (MqttExt)addExt("hx.mqtt")
-    rec := addRec(["dis":"MQTT", "mqttConn":m, "uri":`mqtt://127.0.0.1:${broker.port}`])
+    rec := addRec(["dis":"MQTT", "mqttConn":m, "connOpenRetryFreq":Number(1sec), "uri":`mqtt://127.0.0.1:${broker.port}`])
     proj.sync
     return ext.conn(rec.id)
   }

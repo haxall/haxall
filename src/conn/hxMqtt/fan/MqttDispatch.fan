@@ -32,9 +32,6 @@ class MqttDispatch : ConnDispatch
 
   protected MqttClient? client
 
-  ** Topic filters subscribed on the current client mapped to their QoS
-  private Str:Int subscribed := [:]
-
   ** Session state shared by every client this connector opens, so that
   ** unacknowledged messages survive a reconnect when the session resumes
   private ClientPersistence sessionDb := ClientMemDb()
@@ -75,7 +72,6 @@ class MqttDispatch : ConnDispatch
         it.tlsParams      = ["appProtocols": this.appProtocols]
       }
     }
-    this.subscribed.clear
     this.client = MqttClient(config, trace.asLog)
     client.addListener(MqttConnListener(conn, client))
 
@@ -121,7 +117,7 @@ class MqttDispatch : ConnDispatch
   {
     client?.terminate
     client = null
-    subscribed.clear
+    filters.each |f| { f.onClose }
   }
 
   override Dict onPing()
@@ -175,46 +171,67 @@ class MqttDispatch : ConnDispatch
     // retained messages; if the open failed we resubscribe on reopen
     openPin("mqtt.sub")
     if (client == null) return null
-    subscribe(sub.filter, sub.qos.max(filters[sub.filter] ?: 0))
+
+    // the subscription may not be registered with the observable yet
+    all := filters
+    f   := all.find |x| { x.filter == sub.filter } ?: all.add(MqttFilter(sub.filter)).last
+    if (!f.subs.containsSame(sub)) f.subs.add(sub)
+
+    err := subscribe(f)
+    logFailures(all)
+    if (err != null) throw err
     return null
   }
 
-  private Obj? onResub()
+  private Obj? onResub(MqttFilter[] all := filters)
   {
-    filters.each |qos, filter|
+    all.eachWhile |f|
     {
-      // skip filters subscribed since this client was opened
-      if ((subscribed[filter] ?: -1) >= qos) return
-      try { subscribe(filter, qos) } catch (Err err) { /* already traced */ }
+      if (f.isSubscribed) return null
+
+      // stop if the broker is not answering or the connection was lost,
+      // because the rest of the topic filters would only wait as well
+      err := subscribe(f)
+      return err is TimeoutErr || client.state !== ClientState.connected ? "stop" : null
     }
+    logFailures(all)
     return null
   }
 
-  ** Topic filters of this connector's subscriptions mapped to the
-  ** highest QoS any of them requests. The broker and client track one
-  ** subscription per filter.
-  private Str:Int filters()
-  {
-    acc := Str:Int[:] { ordered = true }
-    mqttExt.mqtt.subscriptions.each |MqttSubscription sub|
-    {
-      if (sub.connRef == id) acc[sub.filter] = sub.qos.max(acc[sub.filter] ?: 0)
-    }
-    return acc
-  }
+  ** This connector's subscriptions grouped by topic filter
+  private MqttFilter[] filters() { mqttExt.mqtt.filters(id) }
 
-  private Void subscribe(Str filter, Int qos)
+  ** Subscribe a topic filter and record the outcome on its
+  ** subscriptions. Return the error if it failed.
+  private Err? subscribe(MqttFilter f)
   {
+    qos := f.qos
     try
     {
-      client.subscribeWith.topicFilter(filter).qos(qos).send.get
-      subscribed[filter] = qos
+      client.subscribeWith.topicFilter(f.filter).qos(qos).send.get
+      f.update(qos, null)
+      return null
     }
     catch (Err err)
     {
-      trace.asLog.err("Failed to subscribe to ${filter}", err)
-      throw err
+      trace.asLog.err("Failed to subscribe to ${f.filter}", err)
+
+      // a lost connection is not a failure of the subscription; keep the
+      // reason and not the error, which holds a stack trace and, for a
+      // timeout, a message which is different on every attempt
+      if (client.state === ClientState.connected)
+        f.update(null, (err as MqttErr)?.reason != null ? err.msg : err.typeof.qname)
+      return err
     }
+  }
+
+  ** Nobody is waiting on a subscribe, so new failures go to the ext log
+  ** as one summary, not a line per topic filter or per retry
+  private Void logFailures(MqttFilter[] all)
+  {
+    failed := all.findAll |f| { f.isNewFailure }
+    if (failed.isEmpty) return
+    log.err("Subscribe failed for ${failed.size} of ${all.size} filters [${dis}], first: ${failed.first.filter} ${failed.first.state.err}")
   }
 
   private Obj? onUnsub(MqttSubscription sub)
@@ -222,12 +239,11 @@ class MqttDispatch : ConnDispatch
     // the broker and client track one subscription per filter, so keep
     // it while another subscription on this connector still uses it
     remaining := filters
-    if (remaining.containsKey(sub.filter)) return null
+    if (remaining.any |f| { f.filter == sub.filter }) return null
 
     try
     {
       open.client.unsubscribe(sub.filter).get
-      subscribed.remove(sub.filter)
       return null
     }
     catch (Err err)
@@ -248,7 +264,40 @@ class MqttDispatch : ConnDispatch
 
   override Void onHouseKeeping()
   {
-    setConnData(client?.debugClient)
+    if (client == null) { setConnData(null); return }
+
+    // retry topic filters which are not subscribed at the open retry frequency
+    all  := filters
+    due  := Duration.nowTicks - conn.openRetryFreq.ticks
+    if (all.any |f| { !f.isSubscribed && (f.state?.ticks ?: 0) < due }) onResub(all)
+
+    setConnData(toDetails(all))
+  }
+
+  ** Client and subscription state to show for the connector details
+  private Str toDetails(MqttFilter[] all)
+  {
+    subscribed := 0
+    failed     := 0
+    lines      := StrBuf()
+    all.each |f|
+    {
+      state := f.state
+      if (state?.qos != null) { subscribed++; return }
+      if (state?.err == null) return
+
+      // only name the first few topic filters which failed
+      failed++
+      if (failed <= 10) lines.add("Failed: ${f.filter}: ${state.err}\n")
+    }
+    if (failed > 10) lines.add("Failed: ${failed - 10} more\n")
+
+    pending := all.size - subscribed - failed
+    return StrBuf().add(client.debugClient)
+      .add("\n\nSubscriptions\n-------------\n")
+      .add("Filters: ${all.size} [${subscribed} subscribed, ${failed} failed, ${pending} pending]\n")
+      .add(lines.toStr)
+      .toStr
   }
 
 //////////////////////////////////////////////////////////////////////////

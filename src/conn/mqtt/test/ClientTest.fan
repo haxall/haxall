@@ -393,6 +393,56 @@ class ClientTest : Test
     finally close(client, server)
   }
 
+  Void testRejectReason()
+  {
+    // 5.0 server explains why it rejects the connect
+    server := ScriptServer(MqttVersion.v5)
+    client := makeClient(server)
+    try
+    {
+      server.connAck.val = ReasonCode.not_authorized.code
+      server.reasonStr.val = "acl says no"
+      MqttErr? err
+      try
+        client.connect.get(5sec)
+      catch (MqttErr e)
+        err = e
+      verifyEq(err?.reason, ReasonCode.not_authorized)
+      verifyEq(err?.msg, "Reason: not_authorized (acl says no)")
+    }
+    finally close(client, server)
+  }
+
+  Void testDeliveryErr()
+  {
+    server  := ScriptServer()
+    errs    := AtomicInt()
+    handler := |LogRec rec| { if (rec.level >= LogLevel.err && rec.msg.contains("Delivery")) errs.increment }
+    client  := MqttClient(ClientConfig {
+      it.serverUri = server.uri
+      it.clientId  = "clientTest"
+      it.onMessage = |Str topic, Message msg| { throw Err("boom") }
+    })
+    Log.addHandler(handler)
+    try
+    {
+      client.connect.get(5sec)
+      verify(client.debugClient.contains("Delivery Errors: 0"))
+
+      // failures on the message path are counted, not logged
+      3.times { server.publish("a/b") }
+      40.times { if (!client.debugClient.contains("Delivery Errors: 3")) Actor.sleep(50ms) }
+      verify(client.debugClient.contains("Delivery Errors: 3 [last: Delivery of a/b failed: sys::Err: boom]"))
+      verifyEq(errs.val, 0)
+      verifyEq(client.state, ClientState.connected)
+    }
+    finally
+    {
+      Log.removeHandler(handler)
+      close(client, server)
+    }
+  }
+
   ** Make a client for the server which records listener events
   private MqttClient makeClient(ScriptServer server, ConcurrentMap? events := null)
   {
@@ -480,9 +530,12 @@ internal const class ScriptServer
   ** Answer CONNECT with CONNACK
   const AtomicBool ackConnect := AtomicBool(true)
 
-  ** CONNACK return code (3.1.1 only). The connection is closed
-  ** after a code other than zero.
+  ** CONNACK return code (3.1.1) or reason code (5.0). The connection
+  ** is closed after a code other than zero.
   const AtomicInt connAck := AtomicInt(0)
+
+  ** Reason string to send in CONNACK (5.0 only)
+  const AtomicRef reasonStr := AtomicRef(null)
 
   ** Close the connection after sending CONNACK
   const AtomicBool closeOnConnAck := AtomicBool(false)
@@ -528,6 +581,13 @@ internal const class ScriptServer
   ** Drop the current client connection
   Void drop() { ((TcpSocket)((Unsafe)socketRef.val).val).close }
 
+  ** Publish a QoS 0 message to the client (3.1.1 only)
+  Void publish(Str topic)
+  {
+    out := ((TcpSocket)((Unsafe)socketRef.val).val).out
+    out.write(0x30).write(topic.size + 4).writeI2(topic.size).writeChars(topic).writeChars("hi").flush
+  }
+
   Void close()
   {
     ((TcpListener)listenerRef.val).close
@@ -563,7 +623,14 @@ internal const class ScriptServer
           connectsRef.val = connects.dup.add("flags=0x${body[7].toHex(2)} keepAlive=${body[8].shiftl(8).or(body[9])}").toImmutable
           if (!ackConnect.val) continue
           sp := sessionPresent.val ? 1 : 0
-          if (v5) out.write(0x20).write(0x06).write(sp).write(0x00).write(0x03).write(0x21).writeI2(1).flush
+          if (v5)
+          {
+            // properties are a receive maximum of one, then the reason string
+            reason := reasonStr.val as Str
+            props  := Buf().write(0x21).writeI2(1)
+            if (reason != null) props.write(0x1f).writeI2(reason.size).writeChars(reason)
+            out.write(0x20).write(3 + props.size).write(sp).write(connAck.val).write(props.size).writeBuf(props.flip).flush
+          }
           else out.write(0x20).write(0x02).write(sp).write(connAck.val).flush
           if (connAck.val != 0 || closeOnConnAck.val) break
         }

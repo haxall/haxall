@@ -6,6 +6,7 @@
 //   03 Jan 2022  Matthew Giannini  Creation
 //
 
+using concurrent
 using xeto
 using haystack
 using hx
@@ -83,6 +84,17 @@ internal const class MqttObservable : Observable
     }
   }
 
+  ** Subscriptions of the connector grouped by their topic filter
+  MqttFilter[] filters(Ref connRef)
+  {
+    acc := Str:MqttFilter[:] { ordered = true }
+    subscriptions.each |MqttSubscription sub|
+    {
+      if (sub.connRef == connRef) acc.getOrAdd(sub.filter) |Str filter->MqttFilter| { MqttFilter(filter) }.subs.add(sub)
+    }
+    return acc.vals
+  }
+
   ** Convert MQTT user properties to a Dict
   private static Dict toUserProps(StrPair[] props)
   {
@@ -115,7 +127,98 @@ internal const class MqttSubscription : Subscription
   ** Configured maximum QoS
   const Int qos
 
+  ** Outcome of the connector's last SUBSCRIBE for the topic
+  ** filter, or null if it has not tried to subscribe it
+  MqttSubState? state() { stateRef.val }
+  const AtomicRef stateRef := AtomicRef(null)
+
   ** Does this subscription match the given topic
   Bool accept(Str topic) { Topic.matches(topic, filter) }
 }
 
+**************************************************************************
+** MqttSubState
+**************************************************************************
+
+**
+** Outcome of a SUBSCRIBE for a subscription's topic filter
+**
+internal const class MqttSubState
+{
+  new make(Int? qos, Str? err, Int ticks := Duration.nowTicks)
+  {
+    this.qos   = qos
+    this.err   = err
+    this.ticks = ticks
+  }
+
+  ** QoS the topic filter is subscribed with on the connector's
+  ** open connection, or null if it is not subscribed
+  const Int? qos
+
+  ** Why the broker did not make the subscription, or null if it did
+  const Str? err
+
+  ** Ticks when the SUBSCRIBE was tried
+  const Int ticks
+}
+
+**************************************************************************
+** MqttFilter
+**************************************************************************
+
+**
+** The subscriptions of one connector which share a topic filter. The
+** broker and client track one subscription per topic filter. This is a
+** view built from the observable's subscriptions when it is needed.
+**
+internal class MqttFilter
+{
+  new make(Str filter) { this.filter = filter }
+
+  const Str filter
+
+  MqttSubscription[] subs := [,]
+
+  ** Did the last `update` record a failure which is not the
+  ** same as the failure the topic filter already had
+  Bool isNewFailure { private set }
+
+  ** Highest QoS requested by the subscriptions
+  Int qos() { subs.max |a, b| { a.qos <=> b.qos }?.qos ?: 0 }
+
+  ** Outcome of the most recent SUBSCRIBE, or null if none was tried
+  MqttSubState? state()
+  {
+    MqttSubState? last
+    subs.each |sub|
+    {
+      state := sub.state
+      if (state != null && (last == null || state.ticks > last.ticks)) last = state
+    }
+    return last
+  }
+
+  ** Is the topic filter subscribed at the QoS the subscriptions need
+  Bool isSubscribed() { (state?.qos ?: -1) >= qos }
+
+  ** Record the outcome of a SUBSCRIBE on the subscriptions
+  Void update(Int? qos, Str? err)
+  {
+    isNewFailure = err != null && err != state?.err
+    set(MqttSubState(qos, err))
+  }
+
+  ** The connection closed so the topic filter is no longer subscribed.
+  ** The failure is kept so that it is not reported again as a new one.
+  Void onClose()
+  {
+    old := state
+    if (old?.qos != null) set(MqttSubState(null, old.err, old.ticks))
+  }
+
+  private Void set(MqttSubState state)
+  {
+    subs.each |sub| { sub.stateRef.val = state }
+  }
+}

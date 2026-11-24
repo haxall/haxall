@@ -39,9 +39,7 @@ internal class ClientConnAckHandler : ClientHandler
     {
       // note - this will complete the pendingConnect future; shutdown
       // inline so a later transport error cannot replace the reason
-      client.onShutdown(MqttErr(ack.reason))
-      if (ack.props.reasonStr != null)
-        log.err("CONNECT rejected by server: ${ack.props.reasonStr}")
+      client.onShutdown(MqttErr.makeReason(ack.reason, null, ack.props.reasonStr))
       return state
     }
 
@@ -60,7 +58,6 @@ internal class ClientConnAckHandler : ClientHandler
     }
     catch (Err err)
     {
-      log.err("CONNACK processing failed", err)
       // note - this will complete the pendingConnect future
       client.onShutdown(err)
       return state

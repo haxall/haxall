@@ -67,29 +67,20 @@ internal class ClientPublishHandler : ClientHandler
     // the packet will be persisted using this version
     packet.packetVersionRef.val = this.version
 
-    // we can send immediately
-    try
-    {
-      // assign packet identifer
-      packet.packetId.val = client.nextPacketId
+    // we can send immediately; assign packet identifer
+    packet.packetId.val = client.nextPacketId
 
-      // store the packet
-      key := pubKey(packet)
-      db.put(key, packet)
+    // store the packet
+    key := pubKey(packet)
+    db.put(key, packet)
 
-      // send it
-      pending := client.sendPacket(packet, PendingAck(packet, key))
+    // send it
+    pending := client.sendPacket(packet, PendingAck(packet, key))
 
-      // update quota
-      client.quota.decrement
+    // update quota
+    client.quota.decrement
 
-      return pending.resp
-    }
-    catch (Err err)
-    {
-      log.err("Failed to send QoS packet", err)
-      throw err
-    }
+    return pending.resp
   }
 
   private static Future reject(Str reason)

@@ -77,6 +77,12 @@ const class MqttClient : Actor, MqttConst
   ** Configuration of the most recent connect
   internal const AtomicRef lastConnectConfig := AtomicRef(null)
 
+  ** Number of received messages which could not be delivered
+  private const AtomicInt deliveryErrs := AtomicInt(0)
+
+  ** Description of the most recent delivery failure
+  private const AtomicRef lastDeliveryErr := AtomicRef(null)
+
   ** Subscription manager
   internal ClientSubMgr subMgr() { subMgrRef.val }
   private const Unsafe subMgrRef := Unsafe(ClientSubMgr(this))
@@ -408,7 +414,7 @@ const class MqttClient : Actor, MqttConst
   ** the client with the reason the server gave.
   private Obj? onReceiveDisconnect(Disconnect disconnect)
   {
-    this.onShutdown(MqttErr.makeReason(disconnect.reason))
+    this.onShutdown(MqttErr.makeReason(disconnect.reason, null, disconnect.props.reasonStr))
     return null
   }
 
@@ -555,8 +561,8 @@ const class MqttClient : Actor, MqttConst
     // immediately force state to disconnected
     stateRef.val = ClientState.disconnected
 
-    // log err
-    if (err != null) log.err("Client disconnected", err)
+    // the error is reported to the listeners and pending requests
+    if (err != null) debug("Client disconnected", err)
 
     // close the underlying transport
     transport?.close
@@ -598,6 +604,15 @@ const class MqttClient : Actor, MqttConst
     if (log.isDebug) log.debug(msg, err)
   }
 
+  ** A received message could not be delivered. This is on the message
+  ** path, so it is counted for `debugClient` instead of being logged.
+  internal Void deliveryErr(Str msg, Err? err := null)
+  {
+    deliveryErrs.increment
+    lastDeliveryErr.val = err == null ? msg : "${msg}: ${err}"
+    debug(msg, err)
+  }
+
   private static PendingConn notConnected()
   {
     p := PendingConn(ConnectConfig().packet("not-connected"))
@@ -619,11 +634,22 @@ const class MqttClient : Actor, MqttConst
     s.add("Mqtt Client\n")
      .add("-----------\n")
      .add("At: ${DateTime.now.toLocale}\n")
+     .add("Server: ${config.serverUri} [${config.version}]\n")
+     .add("Client Id: ${clientIdRef.val ?: config.clientId}\n")
      .add("State: $stateRef.val [canMessage=${canMessage}]\n")
      .add("ConnAck Properties: ${props}\n")
+     .add("Last Sent: ${toAge(lastPacketSent.val)}\n")
+     .add("Last Received: ${toAge(lastPacketReceived.val)}\n")
      .add("Quota: ${quota}\n")
-     .add("Pending Acks: ${pendingAcks.size}")
+     .add("Pending Acks: ${pendingAcks.size}\n")
+     .add("Delivery Errors: ${deliveryErrs.val}")
+    if (lastDeliveryErr.val != null) s.add(" [last: ${lastDeliveryErr.val}]")
     return s.toStr
+  }
+
+  private static Str toAge(Int ticks)
+  {
+    ticks == 0 ? "never" : "${Duration(Duration.nowTicks - ticks).toLocale} ago"
   }
 }
 

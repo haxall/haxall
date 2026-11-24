@@ -52,26 +52,18 @@ internal class ClientSubMgr : ClientHandler
   {
     client.checkCanMessage
 
-    try
-    {
-      // assign a packet identifier
-      packet.packetId.val = client.nextPacketId
+    // assign a packet identifier
+    packet.packetId.val = client.nextPacketId
 
-      // go ahead and map the filters because the server is allowed to send
-      // PUBLISH packets to the client *before* it sends the SUBACK
-      //
-      // only one listener can be registered for a topic (so we overwrite any
-      // previously registered listeners)
-      packet.topics.each |topic| { topics[topic] = listener }
+    // go ahead and map the filters because the server is allowed to send
+    // PUBLISH packets to the client *before* it sends the SUBACK
+    //
+    // only one listener can be registered for a topic (so we overwrite any
+    // previously registered listeners)
+    packet.topics.each |topic| { topics[topic] = listener }
 
-      // send packet
-      return client.sendPacket(packet, PendingAck(packet)).resp
-    }
-    catch (Err err)
-    {
-      log.err("Failed to send subscribe packet", err)
-      throw err
-    }
+    // send packet
+    return client.sendPacket(packet, PendingAck(packet)).resp
   }
 
   Void subAck(SubAck ack, PendingAck pending)
@@ -90,7 +82,7 @@ internal class ClientSubMgr : ClientHandler
     }
 
     // the server did not make the subscription
-    if (failed != null) pending.resp.completeErr(MqttErr.makeReason(failed))
+    if (failed != null) pending.resp.completeErr(MqttErr.makeReason(failed, null, ack.props.reasonStr))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,12 +102,12 @@ internal class ClientSubMgr : ClientHandler
       if (topicName.isEmpty) topicName = aliases[alias] ?: ""
       else aliases[alias] = topicName
     }
-    if (topicName.isEmpty) { log.err("Publish has no topic name or known topic alias: ${alias}"); return }
+    if (topicName.isEmpty) { client.deliveryErr("Publish has no topic name or known topic alias: ${alias}"); return }
 
     try
       clientConfig.onMessage?.call(topicName, packet.msg)
     catch (Err err)
-      log.err("Delivery of ${topicName} failed", err)
+      client.deliveryErr("Delivery of ${topicName} failed", err)
 
     topics.each |listener, filter|
     {
@@ -126,7 +118,7 @@ internal class ClientSubMgr : ClientHandler
       }
       catch (Err err)
       {
-        log.err("Delivery of ${topicName} to ${filter} failed", err)
+        client.deliveryErr("Delivery of ${topicName} to ${filter} failed", err)
       }
     }
   }
@@ -139,21 +131,13 @@ internal class ClientSubMgr : ClientHandler
   {
     client.checkCanMessage
 
-    try
-    {
-      // assign a packet identifier
-      packet.packetId.val = client.nextPacketId
+    // assign a packet identifier
+    packet.packetId.val = client.nextPacketId
 
-      // do not remove listener until ack is received
+    // do not remove listener until ack is received
 
-      // send packet
-      return client.sendPacket(packet, PendingAck(packet)).resp
-    }
-    catch (Err err)
-    {
-      log.err("Failed to unsubscribe", err)
-      throw err
-    }
+    // send packet
+    return client.sendPacket(packet, PendingAck(packet)).resp
   }
 
   Void unsubAck(UnsubAck ack, PendingAck pending)
