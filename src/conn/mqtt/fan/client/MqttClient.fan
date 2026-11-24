@@ -18,7 +18,7 @@ const class MqttClient : Actor, MqttConst
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ClientConfig config, Log log := Log.get(config.pool.name))
+  new make(ClientConfig config, Log log := Log.get("mqtt"))
     : super.makeCoalescing(config.pool, |Obj? msg->Obj?| {
         if (msg isnot ActorMsg) return null
         return ((ActorMsg)msg).id == "shutdown" ? "shutdown" : null

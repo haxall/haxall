@@ -443,6 +443,49 @@ class ClientTest : Test
     }
   }
 
+  Void testMemory()
+  {
+    // the default log is shared and not registered per client id
+    client := MqttClient(ClientConfig { it.clientId = "memoryTest" })
+    try
+    {
+      verifySame(client.log, Log.get("mqtt"))
+      verifyNull(Log.find("memoryTest-MqttPool", false))
+    }
+    finally client.terminate
+
+    // the store keeps the session of one client id at a time
+    packet := PubRel(1)
+    packet.packetVersionRef.val = MqttVersion.v3_1_1
+    db := ClientMemDb()
+    db.open("a"); db.put("k", packet); db.close
+    db.open("a"); verify(db.containsKey("k")); db.close
+    db.open("b"); verifyFalse(db.containsKey("k")); db.close
+    db.open("a"); verifyFalse(db.containsKey("k")); db.close
+  }
+
+  Void testLargePacket()
+  {
+    // a packet larger than the reusable read buffer is still delivered
+    server := ScriptServer()
+    sizes  := ConcurrentMap()
+    client := MqttClient(ClientConfig {
+      it.serverUri = server.uri
+      it.clientId  = "clientTest"
+      it.onMessage = |Str topic, Message msg| { sizes[sizes.size] = msg.payload.size }
+    })
+    try
+    {
+      client.connect.get(5sec)
+      server.publish("a/b", 300_000)
+      server.publish("a/b")
+      server.publish("a/b", 300_000)
+      40.times { if (sizes.size < 3) Actor.sleep(50ms) }
+      verifyEq([sizes[0], sizes[1], sizes[2]], Obj?[300_000, 2, 300_000])
+    }
+    finally close(client, server)
+  }
+
   ** Make a client for the server which records listener events
   private MqttClient makeClient(ScriptServer server, ConcurrentMap? events := null)
   {
@@ -581,11 +624,20 @@ internal const class ScriptServer
   ** Drop the current client connection
   Void drop() { ((TcpSocket)((Unsafe)socketRef.val).val).close }
 
-  ** Publish a QoS 0 message to the client (3.1.1 only)
-  Void publish(Str topic)
+  ** Publish a QoS 0 message with a payload of the given size to the client (3.1.1 only)
+  Void publish(Str topic, Int size := 2)
   {
     out := ((TcpSocket)((Unsafe)socketRef.val).val).out
-    out.write(0x30).write(topic.size + 4).writeI2(topic.size).writeChars(topic).writeChars("hi").flush
+    out.write(0x30)
+    len := topic.size + 2 + size
+    while (true)
+    {
+      b := len % 128
+      len = len / 128
+      out.write(len > 0 ? b.or(0x80) : b)
+      if (len <= 0) break
+    }
+    out.writeI2(topic.size).writeChars(topic).writeBuf(Buf().fill('x', size).flip).flush
   }
 
   Void close()

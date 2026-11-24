@@ -31,6 +31,9 @@ const class ClientMemDb : ClientPersistence
   override Void open(Str clientId)
   {
     if (sessionRef.val != null) throw MqttErr("Already opened")
+
+    // one client uses the store at a time, so only keep its session
+    sessions.each |ClientMemSession s| { if (s.clientId != clientId) sessions.remove(s.clientId) }
     session := (ClientMemSession)sessions.getOrAdd(clientId, ClientMemSession(clientId))
     sessionRef.val = Unsafe(session)
   }

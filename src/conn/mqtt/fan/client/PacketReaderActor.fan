@@ -25,6 +25,10 @@ internal const class PacketReaderActor : Actor, DataCodec
 
   private const MqttClient client
 
+  ** The read buffer is only reused up to this capacity, so that
+  ** one large packet does not hold its memory for the life of the client
+  private static const Int maxBufReuse := 256 * 1024
+
   private Log log() { client.log }
 
 //////////////////////////////////////////////////////////////////////////
@@ -87,6 +91,9 @@ internal const class PacketReaderActor : Actor, DataCodec
 
     // dispatch
     client.packetReceived(packet)
+
+    // do not keep a buffer which grew for a large packet
+    if (buf.capacity > maxBufReuse) Actor.locals.remove("buf")
 
     return true
   }
