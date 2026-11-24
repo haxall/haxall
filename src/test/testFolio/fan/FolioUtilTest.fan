@@ -249,6 +249,13 @@ class FolioUtilTest : HaystackTest
     verifyHisCheckErr(Str<|Mismatched unit, rec unit 'null' != item unit 'kPa'|>,
       ["dis":"X", "point":m, "his":m, "kind":"Number", "tz":"Denver"],
       [item(ts("2016-03-01 00:01:00", tz), n(33, "kPa"))])
+    verifyHisCheckErr(Str<|Str val > 255 chars: 2016-03-01T00:01:00-07:00 Denver|>,
+      ["dis":"X", "point":m, "his":m, "kind":"Str", "tz":"Denver"],
+      [item(ts("2016-03-01 00:01:00", tz), Str.spaces(256))])
+
+    // str max size
+    strItems := [item(ts("2016-03-01 00:01:00", tz), Str.spaces(255))]
+    verifyHisCheck(["dis":"X", "point":m, "his":m, "kind":"Str", "tz":"Denver"], strItems, strItems)
 
     // timestamps sorted and normalized to 1sec
     rec := ["dis":"X", "point":m, "his":m, "kind":"Number", "tz":"Denver"]

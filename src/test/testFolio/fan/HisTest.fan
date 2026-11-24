@@ -51,6 +51,14 @@ class HisTest  : AbstractFolioTest
     verifyErr(HisWriteErr#) { folio.his.write(a.id, [item(ts("2016-03-01 00:00", tz), true)]) }
     verifyErr(HisWriteErr#) { folio.his.write(a.id, [item(ts("2016-03-01 00:00", tz), n(9, "%"))]) }
 
+    // str max size
+    s := addRec(["dis":"S", "point":m, "his":m, "tz":tz.name, "kind":"Str"])
+    strItems := [item(ts("2016-03-01 00:00", tz), "".padl(FolioUtil.hisMaxStrSize, 'x'))]
+    verifyEq(folio.his.write(s.id, strItems).count, 1)
+    verifyRead(s, null, strItems)
+    verifyErr(HisWriteErr#) { folio.his.write(s.id, [item(ts("2016-03-01 01:00", tz), "".padl(FolioUtil.hisMaxStrSize+1, 'x'))]) }
+    verifyRead(s, null, strItems)
+
     // empty writes
     verifyEq(folio.his.write(a.id, HisItem[,]).count, 0)
 

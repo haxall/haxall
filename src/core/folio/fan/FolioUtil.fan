@@ -30,6 +30,8 @@ const class FolioUtil
   static const Date hisMinDate   := Date(hisMinYear, Month.jan, 1)
   static const DateTime hisMinTs := hisMinDate.midnight(TimeZone.utc)
 
+  static const Int hisMaxStrSize := 255     // max chars in history string value
+
 //////////////////////////////////////////////////////////////////////////
 // Diffs
 //////////////////////////////////////////////////////////////////////////
@@ -351,6 +353,8 @@ const class FolioUtil
         throw HisWriteErr(rec, "Cannot write null val")
       if (val.typeof !== kind.type && val !== NA.val && val !== None.val)
         throw HisWriteErr(rec, "Mismatched value type, rec kind $kind.name.toCode != item type $val.typeof.qname.toCode")
+      if (val is Str && ((Str)val).size > hisMaxStrSize)
+        throw HisWriteErr(rec, "Str val > $hisMaxStrSize chars: $item.ts")
 
       // extra handling for Number values
       if (isNumber && val is Number)
