@@ -25,6 +25,11 @@ MqttConn: Conn {
   // Marker tag for MqttConn type
   mqttConn
 
+  // Largest packet in bytes to accept from the broker. A larger message
+  // is discarded and counted as a delivery error in the connector details.
+  // Defaults to 16MB.
+  mqttMaxPacketSize: Int?
+
   // How many times to retry sending messages that require acknowlegment
   mqttMaxRetry: Int?
 

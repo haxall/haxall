@@ -33,6 +33,14 @@ tagOn: ^mqttConn
 doc:
   Whether to set the clean session flag on the connect request to the broker.
 --------------------------------------------------------------------------
+def: ^mqttMaxPacketSize
+is: ^int
+tagOn: ^mqttConn
+doc:
+  Largest packet in bytes to accept from the broker. A larger message
+  is discarded and counted as a delivery error in the connector details.
+  Defaults to 16MB.
+--------------------------------------------------------------------------
 def: ^mqttMaxRetry
 is: ^int
 tagOn: ^mqttConn

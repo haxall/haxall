@@ -486,6 +486,82 @@ class ClientTest : Test
     finally close(client, server)
   }
 
+  Void testMaxPacketSize()
+  {
+    // 3.1.1 server sends whatever it likes; the client does not buffer it
+    server := ScriptServer()
+    sizes  := ConcurrentMap()
+    client := MqttClient(ClientConfig {
+      it.serverUri = server.uri
+      it.clientId  = "clientTest"
+      it.onMessage = |Str topic, Message msg| { sizes[sizes.size] = msg.payload.size }
+    })
+    try
+    {
+      client.connect(ConnectConfig { it.maxPacketSize = 1000 }).get(5sec)
+
+      // too large at each QoS, with a message which fits in between
+      server.publish("a/b", 5000)
+      server.publish("a/b", 100)
+      server.publish("a/b", 5000, 1)
+      server.publish("a/b", 5000, 2)
+      server.publish("a/b", 200)
+      40.times { if (sizes.size < 2 || server.count("pub") < 3) Actor.sleep(50ms) }
+
+      // only the messages which fit are delivered
+      verifyEq([sizes[0], sizes[1]], Obj?[100, 200])
+      verifyEq(sizes.size, 2)
+
+      // QoS 1 and 2 are acknowledged so the server does not send them again;
+      // the PUBREL for the QoS 2 message is answered as usual
+      verifyEq(server.received[1..-1], ["puback", "pubrec", "pubcomp"])
+      verify(client.debugClient.contains("Delivery Errors: 3 [last: Publish to a/b exceeds max packet size: 5010 bytes]"))
+      verifyEq(client.state, ClientState.connected)
+    }
+    finally close(client, server)
+  }
+
+  Void testServerMaxPacketSize()
+  {
+    // 5.0 server only accepts packets up to 1000 bytes
+    server := ScriptServer(MqttVersion.v5)
+    client := makeClient(server)
+    try
+    {
+      server.maxPacketSize.val = 1000
+      client.connect.get(5sec)
+
+      // a larger publish is refused before it is sent or stored
+      [0, 1].each |qos|
+      {
+        verifyErr(MqttErr#) { client.publishWith.topic("t").payload(Buf().fill('x', 5000)).qos(qos).send }
+      }
+      verifyFalse(client.config.persistence.containsKey("p1-1"))
+      client.publishWith.topic("t").payload("ok".toBuf).qos0.send.get(5sec)
+      20.times { if (server.count("publish") < 1) Actor.sleep(50ms) }
+      verifyEq(server.received[1..-1], ["publish ok"])
+      verifyEq(client.state, ClientState.connected)
+    }
+    finally close(client, server)
+  }
+
+  Void testAuthNotSupported()
+  {
+    // 5.0 server continues the authentication with an AUTH packet
+    server := ScriptServer(MqttVersion.v5)
+    client := makeClient(server)
+    try
+    {
+      server.auth.val = true
+      verifyErrMsg(MqttErr#, "Enhanced authentication is not supported")
+      {
+        client.connect(ConnectConfig { it.authMethod = "SCRAM-SHA-256" }).get(5sec)
+      }
+      verifyEq(client.state, ClientState.disconnected)
+    }
+    finally close(client, server)
+  }
+
   ** Make a client for the server which records listener events
   private MqttClient makeClient(ScriptServer server, ConcurrentMap? events := null)
   {
@@ -580,6 +656,12 @@ internal const class ScriptServer
   ** Reason string to send in CONNACK (5.0 only)
   const AtomicRef reasonStr := AtomicRef(null)
 
+  ** Maximum packet size to send in CONNACK, or zero for none (5.0 only)
+  const AtomicInt maxPacketSize := AtomicInt(0)
+
+  ** Answer CONNECT with AUTH instead of CONNACK (5.0 only)
+  const AtomicBool auth := AtomicBool(false)
+
   ** Close the connection after sending CONNACK
   const AtomicBool closeOnConnAck := AtomicBool(false)
 
@@ -624,12 +706,12 @@ internal const class ScriptServer
   ** Drop the current client connection
   Void drop() { ((TcpSocket)((Unsafe)socketRef.val).val).close }
 
-  ** Publish a QoS 0 message with a payload of the given size to the client (3.1.1 only)
-  Void publish(Str topic, Int size := 2)
+  ** Publish a message with a payload of the given size to the client (3.1.1 only)
+  Void publish(Str topic, Int size := 2, Int qos := 0)
   {
     out := ((TcpSocket)((Unsafe)socketRef.val).val).out
-    out.write(0x30)
-    len := topic.size + 2 + size
+    out.write(0x30.or(qos.shiftl(1)))
+    len := topic.size + 2 + size + (qos > 0 ? 2 : 0)
     while (true)
     {
       b := len % 128
@@ -637,7 +719,9 @@ internal const class ScriptServer
       out.write(len > 0 ? b.or(0x80) : b)
       if (len <= 0) break
     }
-    out.writeI2(topic.size).writeChars(topic).writeBuf(Buf().fill('x', size).flip).flush
+    out.writeI2(topic.size).writeChars(topic)
+    if (qos > 0) out.writeI2(9)
+    out.writeBuf(Buf().fill('x', size).flip).flush
   }
 
   Void close()
@@ -674,6 +758,7 @@ internal const class ScriptServer
           record("connect")
           connectsRef.val = connects.dup.add("flags=0x${body[7].toHex(2)} keepAlive=${body[8].shiftl(8).or(body[9])}").toImmutable
           if (!ackConnect.val) continue
+          if (auth.val) { out.write(0xf0).write(0x00).flush; continue }
           sp := sessionPresent.val ? 1 : 0
           if (v5)
           {
@@ -681,6 +766,7 @@ internal const class ScriptServer
             reason := reasonStr.val as Str
             props  := Buf().write(0x21).writeI2(1)
             if (reason != null) props.write(0x1f).writeI2(reason.size).writeChars(reason)
+            if (maxPacketSize.val > 0) props.write(0x27).writeI4(maxPacketSize.val)
             out.write(0x20).write(3 + props.size).write(sp).write(connAck.val).write(props.size).writeBuf(props.flip).flush
           }
           else out.write(0x20).write(0x02).write(sp).write(connAck.val).flush
@@ -698,6 +784,14 @@ internal const class ScriptServer
           else if (qos == 2 && v5) out.write(0x50).write(0x03).writeI2(pid).write(pubRecReason.val).flush
           else if (qos == 2) out.write(0x50).write(0x02).writeI2(pid).flush
         }
+        else if (type == 4) record("puback")
+        else if (type == 5)
+        {
+          // release the message we published to the client
+          record("pubrec")
+          out.write(0x62).write(0x02).writeI2(body.readU2).flush
+        }
+        else if (type == 7) record("pubcomp")
         else if (type == 6)
         {
           record("pubrel")

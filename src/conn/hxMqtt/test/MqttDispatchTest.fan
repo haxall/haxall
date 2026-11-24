@@ -201,6 +201,32 @@ class MqttDispatchTest : HxTest
   }
 
   @HxTestProj
+  Void testMaxPacketSize()
+  {
+    broker := TestBroker()
+    try
+    {
+      conn := addConn(broker, ["mqttMaxPacketSize":Number(1000)])
+      obs  := conn.ext.observables.first
+      a    := TestObserver()
+      obs.subscribe(a, toConfig(conn, "a/b")); conn.ping.get
+
+      // a message larger than the connector accepts is counted and not delivered
+      broker.replay.val = "a/b"
+      broker.replaySize.val = 5000
+      reconnect(conn, broker, 2)
+      verifyDetails(conn, "Delivery Errors: 1 [last: Publish to a/b exceeds max packet size")
+      verifyEq(a.topics, Str[,])
+
+      // a message which fits still is
+      broker.replaySize.val = 100
+      reconnect(conn, broker, 3)
+      verifyEq(a.waitFor(1), ["a/b"])
+    }
+    finally broker.close
+  }
+
+  @HxTestProj
   Void testInvalidFilter()
   {
     ext := (MqttExt)addExt("hx.mqtt")
@@ -224,10 +250,10 @@ class MqttDispatchTest : HxTest
     verifyEq(broker.connects, connects)
   }
 
-  private Conn addConn(TestBroker broker)
+  private Conn addConn(TestBroker broker, Str:Obj tags := [:])
   {
     ext := (MqttExt)addExt("hx.mqtt")
-    rec := addRec(["dis":"MQTT", "mqttConn":m, "connOpenRetryFreq":Number(1sec), "uri":`mqtt://127.0.0.1:${broker.port}`])
+    rec := addRec(["dis":"MQTT", "mqttConn":m, "connOpenRetryFreq":Number(1sec), "uri":`mqtt://127.0.0.1:${broker.port}`].addAll(tags))
     proj.sync
     return ext.conn(rec.id)
   }
@@ -303,6 +329,9 @@ internal const class TestBroker
   ** Topic to publish a message to right after each CONNACK
   const AtomicRef replay := AtomicRef(null)
 
+  ** Payload size of the QoS 0 replay message
+  const AtomicInt replaySize := AtomicInt(2)
+
   ** QoS of the replay message: 0 or 2. A QoS 2 message always has the
   ** same packet id and is never released with PUBREL.
   const AtomicInt replayQos := AtomicInt(0)
@@ -372,7 +401,19 @@ internal const class TestBroker
           out.write(0x20).write(0x02).write(sessionPresent.val ? 0x01 : 0x00).write(0x00)
           topic := replay.val as Str
           if (topic != null && replayQos.val == 2) out.write(0x34).write(topic.size + 6).writeI2(topic.size).writeChars(topic).writeI2(7).writeChars("hi")
-          else if (topic != null) out.write(0x30).write(topic.size + 4).writeI2(topic.size).writeChars(topic).writeChars("hi")
+          else if (topic != null)
+          {
+            rem := topic.size + 2 + replaySize.val
+            out.write(0x30)
+            while (true)
+            {
+              digit := rem % 128
+              rem = rem / 128
+              out.write(rem > 0 ? digit.or(0x80) : digit)
+              if (rem <= 0) break
+            }
+            out.writeI2(topic.size).writeChars(topic).writeBuf(Buf().fill('x', replaySize.val).flip)
+          }
           out.flush
         }
         else if (type == 8)

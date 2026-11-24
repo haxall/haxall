@@ -74,8 +74,15 @@ internal class ClientPublishHandler : ClientHandler
     key := pubKey(packet)
     db.put(key, packet)
 
-    // send it
-    pending := client.sendPacket(packet, PendingAck(packet, key))
+    // send it; do not keep the packet if it could not be sent
+    PendingAck? pending
+    try
+      pending = client.sendPacket(packet, PendingAck(packet, key))
+    catch (Err err)
+    {
+      db.remove(key)
+      throw err
+    }
 
     // update quota
     client.quota.decrement

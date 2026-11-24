@@ -30,6 +30,9 @@ class MqttDispatch : ConnDispatch
 
   private static const HxMsg resubMsg := HxMsg("mqtt.resub")
 
+  ** Max packet size accepted from the broker unless configured
+  private static const Int defMaxPacketSize := 16 * 1024 * 1024
+
   protected MqttClient? client
 
   ** Session state shared by every client this connector opens, so that
@@ -81,6 +84,7 @@ class MqttDispatch : ConnDispatch
       resume := ConnectConfig {
         it.cleanSession = rec["mqttCleanSession"] == true
         it.sessionExpiryInterval = toSessionExpiryInterval
+        it.maxPacketSize = (rec["mqttMaxPacketSize"] as Number)?.toInt ?: defMaxPacketSize
 
         // optional username and password
         it.username = rec["username"] as Str

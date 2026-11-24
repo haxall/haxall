@@ -36,6 +36,12 @@ internal const class PacketWriterActor : DataCodec
     // gets notified of an encoding error
     buf := Buf(4096)
     packet.encode(buf.out, version)
+
+    // the client must not send a packet larger than the server accepts [MQTT5-3.2.2-15]
+    max := client.serverMaxPacketSize
+    if (max != null && buf.size > max)
+      throw MqttErr("Packet exceeds server max packet size of ${max}: ${packet.type} ${buf.size} bytes")
+
     return actor.send(ActorMsg("send", packet, buf.flip.toImmutable))
   }
 

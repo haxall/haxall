@@ -45,6 +45,12 @@ Use the `mqttSessionExpiryInterval` tag on the connector rec to specify the dura
 for the session to linger after the connection is closed. A value of `-1sec` indicates
 that the session should never expire.
 
+The connector does not accept a packet from the broker which is larger than
+16MB. A larger message is discarded and counted as a delivery error, which is
+shown in the connector details. Use the `mqttMaxPacketSize` tag on the connector
+rec to set a different limit in bytes. When using protocol version `5.0` the
+broker is told the limit and does not send larger messages.
+
 ## Web Sockets
 To connect to an MQTT broker using web sockets, use the `ws` scheme for plaintext
 connections, and `wss` for secure web sockets.

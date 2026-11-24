@@ -604,6 +604,14 @@ const class MqttClient : Actor, MqttConst
     if (log.isDebug) log.debug(msg, err)
   }
 
+  ** The maximum packet size the server said it accepts in its
+  ** CONNACK, or null if we are not connected or it has no limit
+  internal Int? serverMaxPacketSize()
+  {
+    req := pendingConnect
+    return req.resp.status === FutureStatus.ok ? req.connack.props[Property.maxPacketSize] : null
+  }
+
   ** A received message could not be delivered. This is on the message
   ** path, so it is counted for `debugClient` instead of being logged.
   internal Void deliveryErr(Str msg, Err? err := null)

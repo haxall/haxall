@@ -67,8 +67,17 @@ internal const class PacketReaderActor : Actor, DataCodec
       in := transport.in
 
       // fixed header
-      writeByte(in.read ?: throw IOErr("Connection closed by broker"), buf)
-      len := readVbi(in)
+      byte1 := in.read ?: throw IOErr("Connection closed by broker")
+      len   := readVbi(in)
+
+      // the AUTH exchange of enhanced authentication is not implemented
+      if (byte1.shiftr(4) == PacketType.auth.ordinal) throw MqttErr("Enhanced authentication is not supported")
+
+      // do not buffer a packet which is larger than the client accepts
+      max := (client.lastConnectConfig.val as ConnectConfig)?.maxPacketSize
+      if (max != null && toPacketSize(len) > max) { skip(in, byte1, len); return true }
+
+      writeByte(byte1, buf)
       writeVbi(len, buf)
 
       // variable header + payload (do not close input stream!!!)
@@ -96,5 +105,50 @@ internal const class PacketReaderActor : Actor, DataCodec
     if (buf.capacity > maxBufReuse) Actor.locals.remove("buf")
 
     return true
+  }
+
+  ** Discard a packet which is larger than the client accepts without
+  ** buffering it. A PUBLISH is acknowledged so that the server does not
+  ** send it again, and is counted as a delivery error. Any other packet
+  ** of that size is an error which closes the connection.
+  private Void skip(InStream in, Int byte1, Int len)
+  {
+    size := toPacketSize(len)
+    type := PacketType.vals[byte1.shiftr(4)]
+    if (type !== PacketType.publish) throw MqttErr("Packet exceeds max packet size: ${type} ${size} bytes")
+
+    // read the topic name and packet identifier, then discard the rest
+    qos      := byte1.shiftr(1).and(0x03)
+    topicLen := in.readU2
+    topic    := in.readBufFully(null, topicLen).readAllStr
+    pid      := qos > 0 ? in.readU2 : 0
+    rest     := len - 2 - topicLen - (qos > 0 ? 2 : 0)
+    if (rest < 0) throw MqttErr("Malformed publish packet")
+    chunk := Buf(8192)
+    while (rest > 0)
+    {
+      n := in.readBuf(chunk.clear, rest.min(8192)) ?: throw IOErr("Connection closed by broker")
+      rest -= n
+    }
+
+    client.lastPacketReceived.val = Duration.nowTicks
+    client.deliveryErr("Publish to ${topic} exceeds max packet size: ${size} bytes")
+    if (qos == 0) return
+
+    // 5.0 can tell the server that the message was not accepted
+    reason := client.config.version.is5 ? ReasonCode.implementation_specific_error : ReasonCode.success
+    ControlPacket? ack
+    if (qos == 1) ack = PubAck(pid) { it.reason = reason }
+    else ack = PubRec(pid) { it.reason = reason }
+    client.packetWriter.send(ack)
+  }
+
+  ** Size of a packet given the remaining length in its fixed header
+  private static Int toPacketSize(Int len)
+  {
+    if (len < 128) return len + 2
+    if (len < 16_384) return len + 3
+    if (len < 2_097_152) return len + 4
+    return len + 5
   }
 }

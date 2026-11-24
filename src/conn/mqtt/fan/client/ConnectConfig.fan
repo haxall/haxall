@@ -44,10 +44,13 @@ const class ConnectConfig
   ** This setting only applies to clients with version >= 5
   const Int? receiveMax := null
 
-  ** The maximum packets size the client is willing to accept.
-  ** May not be set to zero. If set to null, there is no limit on the packet size.
+  ** The maximum packet size the client is willing to accept. May not be
+  ** set to zero. If set to null, there is no limit on the packet size.
   **
-  ** This setting only applies to clients with version >= 5
+  ** A client with version >= 5 tells the server this limit so that the
+  ** server does not send larger packets. For any version the client does
+  ** not buffer a larger packet: it acknowledges and discards a PUBLISH,
+  ** and closes the connection for any other packet.
   const Int? maxPacketSize := null
 
   ** The maximum value the client will accept a a topic alias sent by the server.
@@ -78,7 +81,9 @@ const class ConnectConfig
   const StrPair[] userProps := [,]
 
   ** The authentication method to use. If null, extended authentication
-  ** is not performed.
+  ** is not performed. Only a method which completes with the CONNECT is
+  ** supported. The connect fails if the server continues the
+  ** authentication with an AUTH packet.
   **
   ** This setting only applies to clients with version >= 5
   const Str? authMethod := null
