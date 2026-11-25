@@ -62,7 +62,9 @@ internal const final class ConnPointCurState
 
   static new updateStale(ConnPoint pt)
   {
-    makeStale(pt.curState)
+    old := pt.curState
+    if (old.status !== ConnStatus.ok) return old
+    return makeStale(old)
   }
 
   static new updateQuickPoll(ConnPoint pt, Bool quickPoll)

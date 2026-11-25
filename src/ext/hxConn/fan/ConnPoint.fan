@@ -199,12 +199,10 @@ const final class ConnPoint : HxConnPoint
       status = conn.status
       err = "conn $status"
     }
-    else if (status.isOk)
-    {
-      val = s.val
-    }
     else
     {
+      // val is last ok value if ok or stale, null if error
+      val = s.val
       err = ConnStatus.toErrStr(s.err)
     }
     committer.commit3(ext, rec, "curStatus", status.name, "curVal", val, "curErr", err)
@@ -358,9 +356,12 @@ const final class ConnPoint : HxConnPoint
 // Status
 //////////////////////////////////////////////////////////////////////////
 
-  ** Transition when conn status updates
-  internal Void onConnStatus()
+  ** Transition when conn status updates.  If conn was lost, then the last
+  ** cur value is stale until the next update confirms it; while the conn
+  ** is not ok its status masks the cur status in tags.
+  internal Void onConnStatus(Bool lost)
   {
+    if (lost) curStateRef.val = ConnPointCurState.updateStale(this)
     updateStatus
   }
 

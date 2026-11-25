@@ -35,6 +35,7 @@ class ConnTestDispatch : ConnDispatch
 
   override Void onOpen()
   {
+    if (rec.has("testOpenErr")) throw DownErr("test open err")
   }
 
   override Void onClose()

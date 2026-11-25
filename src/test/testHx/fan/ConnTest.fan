@@ -1061,6 +1061,38 @@ class ConnTest : HxTest
     verifyPointStatus(p3, "down", "down")
     verifyPointStatus(p4, "ok",   "unknown")
     verifyPointStatus(p5, "fault")
+
+    // conn down: cur points report conn status without curVal
+    p4Val := readById(p4.id)->curVal
+    c1rec = commit(readById(c1rec.id), ["testOpenErr":m])
+    sync(c1)
+    c1.close.get
+    c1.ping.get
+    sync(c1)
+    verifyConnStatus(c1, "down", "closed")
+    verifyPointStatus(p2, "down")
+    verifyPointStatus(p3, "down")
+    verifyPointStatus(p4, "down", "unknown")
+    verifyEq(readById(p4.id)["curVal"], null)
+
+    // conn recovers: ok points are stale with last curVal, err points keep err
+    c1rec = commit(readById(c1rec.id), ["testOpenErr":None.val])
+    sync(c1)
+    c1.ping.get
+    sync(c1)
+    verifyConnStatus(c1, "ok", "open")
+    verifyPointStatus(p2, "stale", "ok")
+    verifyPointStatus(p3, "down",  "down")
+    verifyPointStatus(p4, "stale", "unknown")
+    verifyEq(readById(p4.id)["curVal"], p4Val)
+    verifyEq(readById(p4.id)["curErr"], null)
+
+    // next update confirms cur
+    c1.syncCur(c1.points).get
+    sync(c1)
+    verifyPointStatus(p2, "ok",   "ok")
+    verifyPointStatus(p3, "down", "down")
+    verifyPointStatus(p4, "ok",   "unknown")
   }
 
   Void verifyConnStatus(Conn c, Str status, Str state)

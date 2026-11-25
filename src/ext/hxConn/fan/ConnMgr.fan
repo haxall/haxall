@@ -810,7 +810,10 @@ internal final class ConnMgr
 
     // if we changed the status, then update points
     if (statusModified || forcePoints)
-      conn.points.each |pt| { pt.onConnStatus }
+    {
+      lost := statusModified && !status.isOk
+      conn.points.each |pt| { pt.onConnStatus(lost) }
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
