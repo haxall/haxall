@@ -94,6 +94,26 @@ ColorName: Enum {
   rose     // Rose
 }
 
+// Status level, each with its own color and icon
+ItemStatus: Enum {
+  abnormal    // Outside of normal operation
+  alarm       // In alarm
+  disabled    // Disabled
+  down        // Communication is down
+  err         // Error
+  fault       // Fault
+  info        // Informational
+  nil         // No value
+  ok          // Success or normal operation
+  overridden  // Overridden
+  pending     // Waiting on work in progress
+  stale       // Out of date
+  syncing     // Synchronizing
+  warn        // Warning
+  unacked     // Not acknowledged
+  unknown     // Unknown
+}
+
 // SelectionMode
 SelectMode: Enum {
   none       // Nothing can be selected

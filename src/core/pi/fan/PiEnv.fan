@@ -56,8 +56,9 @@ const class PiEnv
   ** Relativize id in the current runtime
   virtual Ref normRef(Ref id) { id }
 
-  ** Display flash notification for an error to the user
-  virtual Void flash(ItemStatus status, Str msg, Err? err := null) { Console.cur.err(msg, err) }
+  ** Report the error of a future which failed with no callback to
+  ** handle it.  A user interface shows it to the user.
+  virtual Void onFutureErr(Str msg, Err err) { Console.cur.err(msg, err) }
 
   ** Read the given record ids from the runtime.  The future
   ** completes with a grid of one row per id in the order requested
