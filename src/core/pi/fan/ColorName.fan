@@ -82,14 +82,6 @@ enum class ColorName
   rose
 
 
-  ** Coerce to color name instance
-  @NoDoc static ColorName? coerce(Obj? x, ColorName? def := null)
-  {
-    if (x is ColorName) return x
-    if (x is Str) return fromStr(x.toStr, false) ?: def
-    return def
-  }
-
   ** Shade numbers from lightest to darkest
   static const Int[] shades := [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 

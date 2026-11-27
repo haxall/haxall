@@ -85,7 +85,7 @@ const mixin Item
   }
 
   ** Presentation color if available
-  @NoDoc virtual ColorName? color() { ColorName.coerce(meta["color"]) }
+  @NoDoc virtual ColorName? color() { PiCoerce.colorName(meta["color"]) }
 
 //////////////////////////////////////////////////////////////////////////
 // Dict

@@ -122,7 +122,12 @@ abstract class ItemSelection
 //////////////////////////////////////////////////////////////////////////
 
   ** Is the given item currently selected (keyed by id)
-  Bool contains(Item item) { selectedIds.contains(item.id) }
+  Bool contains(Item item)
+  {
+    ids := selectedIds
+    if (idSetOf !== ids) { idSet = Ref:Ref[:].addList(ids); idSetOf = ids }
+    return idSet.containsKey(item.id)
+  }
 
   ** Is this item eligible to be selected.  Advisory for UI enablement; does
   ** not gate add.  Anything selected can always be removed, so there is no
@@ -160,6 +165,11 @@ abstract class ItemSelection
 //////////////////////////////////////////////////////////////////////////
 // Implementation
 //////////////////////////////////////////////////////////////////////////
+
+  ** Map of the selected ids for `contains`, built on first use from
+  ** the ids instance in idSetOf and built again when that changes
+  private Ref[]? idSetOf
+  private [Ref:Ref]? idSet
 
   private Item itemByData(Obj data)
   {
