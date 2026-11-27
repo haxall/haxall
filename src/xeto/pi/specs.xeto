@@ -39,8 +39,9 @@ Pi: Dict {
   // be a subtype of `ion::ItemRenderer`.
   cell: Ref? <of:Spec>
 
-  // TODO - temp shim until we switch to sketches
-  inputType: Ref? <of:Spec>
+  // Widget which edits a value of this type, such as in a form.  It
+  // must be a subtype of `ion::Input`.
+  input: Ref? <of:Spec>
 
   // Presentation of enum items keyed by item name
   slots: Dict? <of:Pi>
