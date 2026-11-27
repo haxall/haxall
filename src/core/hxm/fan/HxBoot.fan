@@ -93,20 +93,14 @@ abstract class HxBoot
     if (Pod.find("ion", false) == null) return Str#.emptyList
     return [
       "hx.ion",
-      "aura",
-      "aura.pim",
-      "aura.grams",
-      "aura.hx",
       "ion",
       "ion.actions",
-      "ion.card",
       "ion.doc",
       "ion.editor",
       "ion.form",
       "ion.inputs",
       "ion.misc",
       "ion.styles",
-      "ion.table",
       "ion.tool",
       "ion.ux",
     ]
